@@ -6,6 +6,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gov.va.api.health.argonaut.api.ArgonautService.SearchFailed;
 import gov.va.api.health.argonaut.api.ArgonautService.UnknownResource;
+import gov.va.api.health.argonaut.api.samples.SampleDataTypes;
+import gov.va.api.health.argonaut.api.samples.SampleMedications;
+import gov.va.api.health.argonaut.api.samples.SamplePatients;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import java.util.Arrays;
 import lombok.SneakyThrows;
@@ -17,6 +20,7 @@ public class ModelTest {
 
   private final SamplePatients patientData = SamplePatients.get();
   private final SampleMedications medicationData = SampleMedications.get();
+  private final SampleDataTypes dataTypes = SampleDataTypes.get();
 
   @SuppressWarnings("ThrowableNotThrown")
   @Test
@@ -30,23 +34,23 @@ public class ModelTest {
     roundTrip(
         OperationOutcome.builder()
             .id("4321")
-            .meta(patientData.meta())
+            .meta(dataTypes.meta())
             .implicitRules("http://HelloRules.com")
             .language("Hello Language")
-            .text(patientData.narrative())
-            .contained(singletonList(patientData.resource()))
+            .text(dataTypes.narrative())
+            .contained(singletonList(dataTypes.resource()))
             .modifierExtension(
                 Arrays.asList(
-                    patientData.extension(),
-                    patientData.extensionWithQuantity(),
-                    patientData.extensionWithRatio()))
-            .issue(singletonList(patientData.issue()))
+                    dataTypes.extension(),
+                    dataTypes.extensionWithQuantity(),
+                    dataTypes.extensionWithRatio()))
+            .issue(singletonList(dataTypes.issue()))
             .build());
   }
 
   @Test
   public void patient() {
-    roundTrip(patientData.patient());
+    roundTrip(patientData.alivePatient());
   }
 
   /*
@@ -62,7 +66,7 @@ public class ModelTest {
 
   @Test
   public void range() {
-    roundTrip(patientData.range());
+    roundTrip(dataTypes.range());
   }
 
   @SneakyThrows

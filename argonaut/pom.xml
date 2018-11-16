@@ -27,6 +27,13 @@
       <groupId>io.rest-assured</groupId>
       <artifactId>rest-assured</artifactId>
     </dependency>
+    <dependency>
+      <groupId>gov.va.api.health</groupId>
+      <artifactId>argonaut-api</artifactId>
+      <version>${project.version}</version>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
   <build>
     <plugins>

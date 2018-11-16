@@ -12,6 +12,11 @@
       <artifactId>spring-beans</artifactId>
       <scope>compile</scope>
     </dependency>
+    <dependency>
+      <groupId>gov.va.dvp</groupId>
+      <artifactId>cdw-schemas</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
   <parent>
     <groupId>gov.va.api.health</groupId>

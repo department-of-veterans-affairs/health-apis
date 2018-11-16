@@ -1,7 +1,8 @@
-package gov.va.api.health.argonaut.api;
+package gov.va.api.health.argonaut.api.samples;
 
 import static java.util.Collections.singletonList;
 
+import gov.va.api.health.argonaut.api.*;
 import gov.va.api.health.argonaut.api.Narrative.NarrativeStatus;
 import gov.va.api.health.argonaut.api.bundle.AbstractEntry;
 import java.math.BigDecimal;
@@ -19,6 +20,10 @@ public final class SampleDataTypes {
         .display("Hello Display")
         .userSelected(true)
         .build();
+  }
+
+  public CodeableConcept details() {
+    return CodeableConcept.builder().coding(singletonList(coding())).text("HelloText").build();
   }
 
   public Extension extension() {
@@ -51,6 +56,17 @@ public final class SampleDataTypes {
         .build();
   }
 
+  public Issue issue() {
+    return Issue.builder()
+        .severity(Issue.IssueSeverity.error)
+        .code("HelloCode")
+        .details(details())
+        .diagnostics("HelloDiagnostics")
+        .location(singletonList("HelloLocation"))
+        .expression(singletonList("HelloExpression"))
+        .build();
+  }
+
   public Meta meta() {
     return Meta.builder()
         .versionId("1111")
@@ -67,6 +83,10 @@ public final class SampleDataTypes {
 
   public Quantity quantity() {
     return Quantity.builder().value(11.11).unit("HelloUnit").build();
+  }
+
+  public Range range() {
+    return Range.builder().low(simpleQuantity()).high(simpleQuantity()).build();
   }
 
   public Ratio ratio() {

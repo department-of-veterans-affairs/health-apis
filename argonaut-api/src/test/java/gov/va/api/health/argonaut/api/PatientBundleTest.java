@@ -9,6 +9,8 @@ import gov.va.api.health.argonaut.api.bundle.AbstractBundle.BundleType;
 import gov.va.api.health.argonaut.api.bundle.AbstractEntry;
 import gov.va.api.health.argonaut.api.bundle.BundleLink;
 import gov.va.api.health.argonaut.api.bundle.BundleLink.LinkRelation;
+import gov.va.api.health.argonaut.api.samples.SampleDataTypes;
+import gov.va.api.health.argonaut.api.samples.SamplePatients;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import java.util.Collections;
 import lombok.SneakyThrows;
@@ -25,7 +27,7 @@ public class PatientBundleTest {
   public void bundlerCanBuildPatientBundles() {
     Entry entry =
         Entry.builder()
-            .extension(Collections.singletonList(patientData.extension()))
+            .extension(Collections.singletonList(dataTypes.extension()))
             .fullUrl("http://patient.com")
             .id("123")
             .link(
@@ -34,7 +36,7 @@ public class PatientBundleTest {
                         .relation(LinkRelation.self)
                         .url(("http://patient.com/1"))
                         .build()))
-            .resource(patientData.patient())
+            .resource(patientData.alivePatient())
             .search(dataTypes.search())
             .request(dataTypes.request())
             .response(dataTypes.response())

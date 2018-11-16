@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import gov.va.api.health.argonaut.api.bundle.AbstractBundle;
 import gov.va.api.health.argonaut.api.bundle.AbstractEntry;
 import gov.va.api.health.argonaut.api.bundle.BundleLink;
+import gov.va.api.health.argonaut.api.samples.SampleDataTypes;
+import gov.va.api.health.argonaut.api.samples.SampleMedications;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import java.util.Collections;
 import lombok.SneakyThrows;
