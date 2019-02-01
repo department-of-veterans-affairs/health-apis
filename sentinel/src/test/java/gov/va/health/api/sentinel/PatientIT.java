@@ -5,7 +5,7 @@ import static gov.va.health.api.sentinel.ResourceVerifier.test;
 import gov.va.api.health.argonaut.api.resources.OperationOutcome;
 import gov.va.api.health.argonaut.api.resources.Patient;
 import gov.va.health.api.sentinel.Sentinel.Environment;
-import gov.va.health.api.sentinel.categories.Prod;
+import gov.va.health.api.sentinel.categories.NotInLab;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -43,7 +43,7 @@ public class PatientIT {
   }
 
   @Test
-  @Category({Prod.class})
+  @Category({NotInLab.class})
   public void basic() {
     verifier.verifyAll(
         test(200, Patient.class, "/api/Patient/{id}", verifier.ids().patient()),
@@ -56,7 +56,7 @@ public class PatientIT {
    * lifted, the result of an unknown ID should be 404 Not Found.
    */
   @Test
-  @Category({Prod.class})
+  @Category({NotInLab.class})
   public void patientMatching() {
     if (Sentinel.environment() == Environment.LOCAL) {
       verifier.verifyAll(

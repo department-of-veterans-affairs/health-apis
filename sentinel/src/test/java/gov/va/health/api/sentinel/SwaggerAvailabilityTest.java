@@ -2,7 +2,7 @@ package gov.va.health.api.sentinel;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import gov.va.health.api.sentinel.categories.Lab;
+import gov.va.health.api.sentinel.categories.NotInProd;
 import io.restassured.RestAssured;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
@@ -10,7 +10,7 @@ import org.junit.experimental.categories.Category;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
-@Category(Lab.class)
+@Category(NotInProd.class)
 @Slf4j
 public class SwaggerAvailabilityTest {
 

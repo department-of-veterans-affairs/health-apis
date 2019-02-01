@@ -16,11 +16,11 @@ Commands
 
 Example
   test \
-    --category gov.va.health.api.sentinel.categories.Lab \
+    --category gov.va.health.api.sentinel.categories.NotInProd \
     -Dlab.client-id=12345 \
     -Dlab.client-secret=ABCDEF \
     -Dlab.user-password=secret \
-    gov.va.health.api.sentinel.LabTest
+    gov.va.health.api.sentinel.LabCrawlerTest
 
 $1
 EOF

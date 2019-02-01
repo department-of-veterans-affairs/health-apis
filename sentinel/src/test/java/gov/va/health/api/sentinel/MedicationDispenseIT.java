@@ -4,7 +4,7 @@ import static gov.va.health.api.sentinel.ResourceVerifier.test;
 
 import gov.va.api.health.argonaut.api.resources.MedicationDispense;
 import gov.va.api.health.argonaut.api.resources.OperationOutcome;
-import gov.va.health.api.sentinel.categories.Prod;
+import gov.va.health.api.sentinel.categories.NotInLab;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -43,7 +43,7 @@ public class MedicationDispenseIT {
   }
 
   @Test
-  @Category({Prod.class})
+  @Category({NotInLab.class})
   public void basic() {
     verifier.verifyAll(
         test(
