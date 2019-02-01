@@ -2,7 +2,9 @@ package gov.va.health.api.sentinel;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import gov.va.health.api.sentinel.categories.NotInLab;
 import gov.va.health.api.sentinel.categories.NotInLocal;
+import gov.va.health.api.sentinel.categories.NotInProd;
 import gov.va.health.api.sentinel.crawler.ConcurrentRequestQueue;
 import gov.va.health.api.sentinel.crawler.Crawler;
 import gov.va.health.api.sentinel.crawler.FileResultsCollector;
@@ -15,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-@Category({NotInLocal.class})
+@Category({NotInLocal.class, NotInLab.class, NotInProd.class})
 @Slf4j
 public class LabCrawlerTest {
 

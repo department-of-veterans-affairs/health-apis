@@ -3,7 +3,9 @@ package gov.va.health.api.sentinel;
 import static gov.va.health.api.sentinel.SystemDefinitions.magicAccessToken;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import gov.va.health.api.sentinel.categories.NotInLab;
 import gov.va.health.api.sentinel.categories.NotInLocal;
+import gov.va.health.api.sentinel.categories.NotInProd;
 import gov.va.health.api.sentinel.crawler.ConcurrentRequestQueue;
 import gov.va.health.api.sentinel.crawler.Crawler;
 import gov.va.health.api.sentinel.crawler.FileResultsCollector;
@@ -18,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
+@Category({NotInLocal.class, NotInLab.class, NotInProd.class})
 @Slf4j
 public class StagingCrawlerTest {
   private static final String SAPIDER =
@@ -41,7 +44,6 @@ public class StagingCrawlerTest {
           + "                                              \\_"
           + "\n";
 
-  @Category(NotInLocal.class)
   @Test
   public void crawlStaging() {
 
