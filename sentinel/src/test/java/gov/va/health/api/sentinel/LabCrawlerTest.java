@@ -17,8 +17,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-@Category({NotInLocal.class, NotInLab.class, NotInProd.class})
 @Slf4j
+@Category({NotInLocal.class, NotInLab.class, NotInProd.class})
 public class LabCrawlerTest {
 
   private static final String SAPIDER =

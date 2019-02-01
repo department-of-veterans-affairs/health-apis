@@ -12,8 +12,8 @@ import org.junit.experimental.categories.Category;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
-@Category({NotInLocal.class, NotInLab.class, NotInProd.class})
 @Slf4j
+@Category({NotInLocal.class, NotInLab.class, NotInProd.class})
 public class SwaggerAvailabilityTest {
 
   DevApiPortal apiPortalPage = new DevApiPortal();

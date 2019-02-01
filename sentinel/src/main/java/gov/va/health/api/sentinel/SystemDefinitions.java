@@ -40,6 +40,49 @@ public class SystemDefinitions {
         .build();
   }
 
+  /** Return definitions for the lab environment. */
+  public SystemDefinition lab() {
+    return SystemDefinition.builder()
+        .ids(
+            ServiceDefinition.builder()
+                .url("https://dev-api.va.gov/services/argonaut/v0")
+                .port(443)
+                .accessToken(noAccessToken())
+                .build())
+        .mrAnderson(
+            ServiceDefinition.builder()
+                .url("https://dev-api.va.gov/services/argonaut/v0")
+                .port(443)
+                .accessToken(noAccessToken())
+                .build())
+        .argonaut(
+            ServiceDefinition.builder()
+                .url("https://dev-api.va.gov/services/argonaut/v0")
+                .port(443)
+                .accessToken(magicAccessToken())
+                .build())
+        .cdwIds(labAndStagingIds())
+        .build();
+  }
+
+  private TestIds labAndStagingIds() {
+    return TestIds.builder()
+        .allergyIntolerance("17a7e128-8cf2-521f-ba99-b5eadb6ca598")
+        .condition("31945344-4132-5c41-b8e0-b9df553ee401")
+        .diagnosticReport("a7f0ea54-34c9-5d3e-ada9-9b741bb97b88")
+        .diagnosticReports(diagnosticReports())
+        .immunization("79735eb7-418d-5b31-aa76-6388ecb26422")
+        .medication("928e1b50-7bf5-5e66-922d-da5ad2c3f7b4")
+        .medicationOrder("07daea10-b1e7-5b00-a6cd-af57acdc97a5")
+        .medicationStatement("bee7e47d-a06b-5442-941d-9995852786b4")
+        .observation("7db0770e-6a2b-583e-8b70-98bed5ffab93")
+        .observations(observations())
+        .patient("1017283132V631076")
+        .procedure("fd79a9d9-e85b-58b5-b993-b550d5b7802e")
+        .procedures(procedures())
+        .build();
+  }
+
   /**
    * Return system definitions for local running applications as started by the Maven build process.
    */
@@ -152,30 +195,6 @@ public class SystemDefinitions {
         .build();
   }
 
-  /** Return definitions for the staging environment. */
-  public SystemDefinition staging() {
-    return SystemDefinition.builder()
-        .ids(
-            ServiceDefinition.builder()
-                .url("https://staging-argonaut.lighthouse.va.gov")
-                .port(443)
-                .accessToken(noAccessToken())
-                .build())
-        .mrAnderson(
-            ServiceDefinition.builder()
-                .url("https://staging-argonaut.lighthouse.va.gov")
-                .port(443)
-                .accessToken(noAccessToken())
-                .build())
-        .argonaut(
-            ServiceDefinition.builder()
-                .url("https://staging-argonaut.lighthouse.va.gov")
-                .port(443)
-                .accessToken(magicAccessToken())
-                .build())
-        .build();
-  }
-
   private TestIds prodAndQaIds() {
     return TestIds.builder()
         .publicIds(true)
@@ -224,6 +243,31 @@ public class SystemDefinitions {
                 .accessToken(magicAccessToken())
                 .build())
         .cdwIds(prodAndQaIds())
+        .build();
+  }
+
+  /** Return definitions for the staging environment. */
+  public SystemDefinition staging() {
+    return SystemDefinition.builder()
+        .ids(
+            ServiceDefinition.builder()
+                .url("https://staging-argonaut.lighthouse.va.gov")
+                .port(443)
+                .accessToken(noAccessToken())
+                .build())
+        .mrAnderson(
+            ServiceDefinition.builder()
+                .url("https://staging-argonaut.lighthouse.va.gov")
+                .port(443)
+                .accessToken(noAccessToken())
+                .build())
+        .argonaut(
+            ServiceDefinition.builder()
+                .url("https://staging-argonaut.lighthouse.va.gov")
+                .port(443)
+                .accessToken(magicAccessToken())
+                .build())
+        .cdwIds(labAndStagingIds())
         .build();
   }
 }

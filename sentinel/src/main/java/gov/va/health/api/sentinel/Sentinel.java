@@ -17,13 +17,16 @@ public class Sentinel {
 
   static {
     String env = System.getProperty("sentinel", "LOCAL").toUpperCase(Locale.ENGLISH);
-    log.info("Using {} Sentinel environment (Override with -Dsentinel=LOCAL|QA|PROD)", env);
+    log.info(
+        "Using {} Sentinel environment (Override with -Dsentinel=LAB|LOCAL|QA|PROD|STAGING)", env);
   }
 
   public enum Environment {
+    LAB,
     LOCAL,
     PROD,
-    QA
+    QA,
+    STAGING
   }
 
   private SystemDefinition system;
@@ -32,12 +35,16 @@ public class Sentinel {
   public static Environment environment() {
     String env = System.getProperty("sentinel", "LOCAL").toUpperCase(Locale.ENGLISH);
     switch (env) {
+      case "LAB":
+        return Environment.LAB;
       case "LOCAL":
         return Environment.LOCAL;
       case "PROD":
         return Environment.PROD;
       case "QA":
         return Environment.QA;
+      case "STAGING":
+        return Environment.STAGING;
       default:
         throw new IllegalArgumentException("Unknown sentinel environment: " + env);
     }
@@ -49,12 +56,16 @@ public class Sentinel {
    */
   public static Sentinel get() {
     switch (environment()) {
+      case LAB:
+        return new Sentinel(SystemDefinitions.get().lab());
       case LOCAL:
         return new Sentinel(SystemDefinitions.get().local());
       case PROD:
         return new Sentinel(SystemDefinitions.get().prod());
       case QA:
         return new Sentinel(SystemDefinitions.get().qa());
+      case STAGING:
+        return new Sentinel(SystemDefinitions.get().staging());
       default:
         throw new IllegalArgumentException("Unknown sentinel environment: " + environment());
     }

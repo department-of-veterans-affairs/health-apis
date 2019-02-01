@@ -78,4 +78,4 @@ See the [configuration guide](configuration.md) for configuring applications in 
 - `trust-dev-certs.sh`
   Configures the `cacerts` in your Java home to trust the development certs.
   
- ğŸ»
+ ğŸ?»
