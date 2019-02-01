@@ -5,18 +5,18 @@ cd $SENTINEL_BASE_DIR
 SENTINEL_JAR=$(find -maxdepth 1 -name "sentinel-*.jar" -a -not -name "sentinel-*-tests.jar")
 SENTINEL_TEST_JAR=$(find -maxdepth 1 -name "sentinel-*-tests.jar")
 SYSTEM_PROPERTIES="-Dwebdriver.chrome.driver=/usr/local/bin/chromedriver -Dwebdriver.chrome.headless=true"
-CATEGORY=
+EXCLUDE_CATEGORY=
 
 usage() {
 cat <<EOF
 Commands
   list-tests
   list-categories
-  test [--category <category>] [-Dkey=value] <name> [name] [...]
+  test [--exclude-category <category>] [-Dkey=value] <name> [name] [...]
 
 Example
   test \
-    --category gov.va.health.api.sentinel.categories.NotInProd \
+    --exclude-category gov.va.health.api.sentinel.categories.NotInProd \
     -Dlab.client-id=12345 \
     -Dlab.client-secret=ABCDEF \
     -Dlab.user-password=secret \
@@ -52,7 +52,7 @@ doTest() {
   local tests="$@"
   [ -z "$tests" ] && tests=$(defaultTests)
   local filter
-  [ -n "$CATEGORY" ] && filter="--filter=org.junit.experimental.categories.IncludeCategories=$CATEGORY"
+  [ -n "$EXCLUDE_CATEGORY" ] && filter="--filter=org.junit.experimental.categories.ExcludeCategories=$EXCLUDE_CATEGORY"
   java -cp "$(pwd)/*" $SYSTEM_PROPERTIES org.junit.runner.JUnitCore $filter $tests
   exit $?
 }
@@ -82,7 +82,7 @@ eval set -- "$ARGS"
 while true
 do
   case "$1" in
-    -c|--category) CATEGORY=$2;;
+    -c|--exclude-category) CATEGORY=$2;;
     -D) SYSTEM_PROPERTIES+=" -D$2";;
     --debug) set -x;;
     -h|--help) usage "halp! what this do?";;
