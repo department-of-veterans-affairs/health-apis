@@ -67,6 +67,7 @@ public class SystemDefinitions {
 
   private TestIds labAndStagingIds() {
     return TestIds.builder()
+        .publicIds(true)
         .allergyIntolerance("17a7e128-8cf2-521f-ba99-b5eadb6ca598")
         .condition("31945344-4132-5c41-b8e0-b9df553ee401")
         .diagnosticReport("a7f0ea54-34c9-5d3e-ada9-9b741bb97b88")
@@ -86,6 +87,7 @@ public class SystemDefinitions {
         .encounter("unused")
         .organization("unused")
         .practitioner("unused")
+        .unknown("5555555555555")
         .build();
   }
 
