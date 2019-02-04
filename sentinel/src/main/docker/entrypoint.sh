@@ -6,17 +6,20 @@ SENTINEL_JAR=$(find -maxdepth 1 -name "sentinel-*.jar" -a -not -name "sentinel-*
 SENTINEL_TEST_JAR=$(find -maxdepth 1 -name "sentinel-*-tests.jar")
 SYSTEM_PROPERTIES="-Dwebdriver.chrome.driver=/usr/local/bin/chromedriver -Dwebdriver.chrome.headless=true"
 EXCLUDE_CATEGORY=
+INCLUDE_CATEGORY=
 
 usage() {
 cat <<EOF
 Commands
   list-tests
   list-categories
-  test [--exclude-category <category>] [-Dkey=value] <name> [name] [...]
+  test [--include-category <category>] [--exclude-category <category>] [-Dkey=value] <name> [name] [...]
+
 
 Example
   test \
     --exclude-category gov.va.health.api.sentinel.categories.NotInProd \
+    --include-category gov.va.health.api.sentinel.categories.NotInLocal \
     -Dlab.client-id=12345 \
     -Dlab.client-secret=ABCDEF \
     -Dlab.user-password=secret \
@@ -53,6 +56,7 @@ doTest() {
   [ -z "$tests" ] && tests=$(defaultTests)
   local filter
   [ -n "$EXCLUDE_CATEGORY" ] && filter="--filter=org.junit.experimental.categories.ExcludeCategories=$EXCLUDE_CATEGORY"
+  [ -n "$INCLUDE_CATEGORY" ] && filter+=" org.junit.experimental.categories.IncludeCategories=$INCLUDE_CATEGORY"
   java -cp "$(pwd)/*" $SYSTEM_PROPERTIES org.junit.runner.JUnitCore $filter $tests
   exit $?
 }
@@ -75,14 +79,15 @@ doListCategories() {
 
 
 ARGS=$(getopt -n $(basename ${0}) \
-    -l "category:,debug,help" \
-    -o "c:D:h" -- "$@")
+    -l "exclude-category:,include-category:,debug,help" \
+    -o "e:i:D:h" -- "$@")
 [ $? != 0 ] && usage
 eval set -- "$ARGS"
 while true
 do
   case "$1" in
-    -c|--exclude-category) CATEGORY=$2;;
+    -e|--exclude-category) EXCLUDE_CATEGORY=$2;;
+    -i|--include-category) INCLUDE_CATEGORY=$2;;
     -D) SYSTEM_PROPERTIES+=" -D$2";;
     --debug) set -x;;
     -h|--help) usage "halp! what this do?";;
