@@ -1,217 +1,126 @@
 package gov.va.api.health.argonaut.api.swaggerexamples;
 
+import static java.util.Arrays.asList;
+
+import gov.va.api.health.argonaut.api.bundle.AbstractBundle.BundleType;
+import gov.va.api.health.argonaut.api.bundle.AbstractEntry.Search;
+import gov.va.api.health.argonaut.api.bundle.AbstractEntry.SearchMode;
+import gov.va.api.health.argonaut.api.bundle.BundleLink;
+import gov.va.api.health.argonaut.api.bundle.BundleLink.LinkRelation;
+import gov.va.api.health.argonaut.api.datatypes.CodeableConcept;
+import gov.va.api.health.argonaut.api.datatypes.Coding;
+import gov.va.api.health.argonaut.api.elements.Extension;
+import gov.va.api.health.argonaut.api.elements.Reference;
+import gov.va.api.health.argonaut.api.resources.Immunization;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
 class SwaggerImmunization {
-  static final SomeClass SWAGGER_EXAMPLE_IMMUNIZATION =
-      XXX.builder()
+  static final Immunization SWAGGER_EXAMPLE_IMMUNIZATION =
+      Immunization.builder()
           .resourceType("Immunization")
           .id("1fd82e3a-a95b-5c04-9a68-c8ddf740ea0c")
-          .status("completed")
+          .status(Immunization.Status.completed)
           .date("2017-04-24T01:15:52Z")
           .vaccineCode(
-              XXX.builder()
+              CodeableConcept.builder()
                   .text("meningococcal MCV4P")
                   .coding(
                       asList(
-                          XXX.builder().system("http://hl7.org/fhir/sid/cvx").code("114").build()))
+                          Coding.builder()
+                              .system("http://hl7.org/fhir/sid/cvx")
+                              .code("114")
+                              .build()))
                   .build())
           .patient(
-              XXX.builder()
+              Reference.builder()
                   .reference("https://dev-api.va.gov/services/argonaut/v0/Patient/2000163")
                   .display("Mr. Aurelio227 Cruickshank494")
                   .build())
-          .wasNotGiven("false")
+          .wasNotGiven(false)
           ._reported(
-              XXX.builder()
+              Extension.builder()
                   .extension(
                       asList(
-                          XXX.builder()
+                          Extension.builder()
                               .url("http://hl7.org/fhir/StructureDefinition/data-absent-reason")
                               .valueCode("unsupported")
                               .build()))
                   .build())
-          .reaction(asList(XXX.builder().detail(XXX.builder().display("Lethargy").build()).build()))
+          .reaction(
+              asList(
+                  Immunization.Reaction.builder()
+                      .detail(Reference.builder().display("Lethargy").build())
+                      .build()))
           .build();
 
-
-//  static final String IMMUNIZATION =
-//      "{ "
-//          + "   \"resourceType\": \"Immunization\", "
-//          + "   \"id\": \"1fd82e3a-a95b-5c04-9a68-c8ddf740ea0c\", "
-//          + "   \"status\": \"completed\", "
-//          + "   \"date\": \"2017-04-24T01:15:52Z\", "
-//          + "   \"vaccineCode\": { "
-//          + "      \"text\": \"meningococcal MCV4P\", "
-//          + "      \"coding\": [ "
-//          + "         { "
-//          + "            \"system\": \"http://hl7.org/fhir/sid/cvx\", "
-//          + "            \"code\": \"114\" "
-//          + "         } "
-//          + "      ] "
-//          + "   }, "
-//          + "   \"patient\": { "
-//          + "      \"reference\": \"https://dev-api.va.gov/services/argonaut/v0/Patient/2000163\", "
-//          + "      \"display\": \"Mr. Aurelio227 Cruickshank494\" "
-//          + "   }, "
-//          + "   \"wasNotGiven\": \"false\", "
-//          + "   \"_reported\": { "
-//          + "      \"extension\": [ "
-//          + "         { "
-//          + "            \"url\": \"http://hl7.org/fhir/StructureDefinition/data-absent-reason\", "
-//          + "            \"valueCode\": \"unsupported\" "
-//          + "         } "
-//          + "      ] "
-//          + "   }, "
-//          + "   \"reaction\": [ "
-//          + "      { "
-//          + "            \"detail\": { "
-//          + "            \"display\": \"Lethargy\" "
-//          + "         } "
-//          + "      } "
-//          + "   ] "
-//          + "} ";
-  
-  static final SomeClass SWAGGER_EXAMPLE_IMMUNIZATION_BUNDLE =
-      XXX.builder()
+  static final Immunization.Bundle SWAGGER_EXAMPLE_IMMUNIZATION_BUNDLE =
+      Immunization.Bundle.builder()
           .resourceType("Bundle")
-          .type("searchset")
+          .type(BundleType.searchset)
           .total(1)
           .link(
               asList(
-                  XXX.builder()
-                      .relation("self")
+                  BundleLink.builder()
+                      .relation(LinkRelation.self)
                       .url(
                           "https://dev-api.va.gov/services/argonaut/v0/Immunization?patient=1017283148V813263&page=1&_count=15")
                       .build(),
-                  XXX.builder()
-                      .relation("first")
+                  BundleLink.builder()
+                      .relation(LinkRelation.first)
                       .url(
                           "https://dev-api.va.gov/services/argonaut/v0/Immunization?patient=1017283148V813263&page=1&_count=15")
                       .build(),
-                  XXX.builder()
-                      .relation("last")
+                  BundleLink.builder()
+                      .relation(LinkRelation.last)
                       .url(
                           "https://dev-api.va.gov/services/argonaut/v0/Immunization?patient=1017283148V813263&page=1&_count=15")
                       .build()))
           .entry(
               asList(
-                  XXX.builder()
+                  Immunization.Entry.builder()
                       .fullUrl(
                           "https://dev-api.va.gov/services/argonaut/v0/Immunization/1fd82e3a-a95b-5c04-9a68-c8ddf740ea0c")
                       .resource(
-                          XXX.builder()
-                              .fullUrl(
-                                  "https://dev-api.va.gov/services/argonaut/v0/Immunization/1fd82e3a-a95b-5c04-9a68-c8ddf740ea0c")
-                              .resource(
-                                  XXX.builder()
-                                      .resourceType("Immunization")
-                                      .id("1fd82e3a-a95b-5c04-9a68-c8ddf740ea0c")
-                                      .status("completed")
-                                      .date("2017-04-24T01:15:52Z")
-                                      .vaccineCode(
-                                          XXX.builder()
-                                              .text("meningococcal MCV4P")
-                                              .coding(
-                                                  asList(
-                                                      XXX.builder()
-                                                          .system("http://hl7.org/fhir/sid/cvx")
-                                                          .code("114")
-                                                          .build()))
-                                              .build())
-                                      .patient(
-                                          XXX.builder()
-                                              .reference(
-                                                  "https://dev-api.va.gov/services/argonaut/v0/Patient/2000163")
-                                              .display("Mr. Aurelio227 Cruickshank494")
-                                              .build())
-                                      .wasNotGiven("false")
-                                      ._reported(
-                                          XXX.builder()
-                                              .extension(
-                                                  asList(
-                                                      XXX.builder()
-                                                          .url(
-                                                              "http://hl7.org/fhir/StructureDefinition/data-absent-reason")
-                                                          .valueCode("unsupported")
-                                                          .build()))
-                                              .build())
-                                      .reaction(
+                          Immunization.builder()
+                              .resourceType("Immunization")
+                              .id("1fd82e3a-a95b-5c04-9a68-c8ddf740ea0c")
+                              .status(Immunization.Status.completed)
+                              .date("2017-04-24T01:15:52Z")
+                              .vaccineCode(
+                                  CodeableConcept.builder()
+                                      .text("meningococcal MCV4P")
+                                      .coding(
                                           asList(
-                                              XXX.builder()
-                                                  .detail(XXX.builder().display("Lethargy").build())
+                                              Coding.builder()
+                                                  .system("http://hl7.org/fhir/sid/cvx")
+                                                  .code("114")
                                                   .build()))
                                       .build())
-                              .search(XXX.builder().mode("match").build())
+                              .patient(
+                                  Reference.builder()
+                                      .reference(
+                                          "https://dev-api.va.gov/services/argonaut/v0/Patient/2000163")
+                                      .display("Mr. Aurelio227 Cruickshank494")
+                                      .build())
+                              .wasNotGiven(false)
+                              ._reported(
+                                  Extension.builder()
+                                      .extension(
+                                          asList(
+                                              Extension.builder()
+                                                  .url(
+                                                      "http://hl7.org/fhir/StructureDefinition/data-absent-reason")
+                                                  .valueCode("unsupported")
+                                                  .build()))
+                                      .build())
+                              .reaction(
+                                  asList(
+                                      Immunization.Reaction.builder()
+                                          .detail(Reference.builder().display("Lethargy").build())
+                                          .build()))
                               .build())
+                      .search(Search.builder().mode(SearchMode.match).build())
                       .build()))
           .build();
-
-//  static final String IMMUNIZATION_BUNDLE =
-//      "{ "
-//          + "    \"resourceType\": \"Bundle\", "
-//          + "    \"type\": \"searchset\", "
-//          + "    \"total\": 1, "
-//          + "    \"link\": [ "
-//          + "        { "
-//          + "            \"relation\": \"self\", "
-//          + "            \"url\": \"https://dev-api.va.gov/services/argonaut/v0/Immunization?patient=1017283148V813263&page=1&_count=15\" "
-//          + "        }, "
-//          + "        { "
-//          + "            \"relation\": \"first\", "
-//          + "            \"url\": \"https://dev-api.va.gov/services/argonaut/v0/Immunization?patient=1017283148V813263&page=1&_count=15\" "
-//          + "        }, "
-//          + "        { "
-//          + "            \"relation\":\"last\", "
-//          + "            \"url\": \"https://dev-api.va.gov/services/argonaut/v0/Immunization?patient=1017283148V813263&page=1&_count=15\" "
-//          + "        } "
-//          + "    ], "
-//          + "    \"entry\": [ "
-//          + "        { "
-//          + "            \"fullUrl\": \"https://dev-api.va.gov/services/argonaut/v0/Immunization/1fd82e3a-a95b-5c04-9a68-c8ddf740ea0c\", "
-//          + "            \"resource\": { "
-//          + "                \"fullUrl\": \"https://dev-api.va.gov/services/argonaut/v0/Immunization/1fd82e3a-a95b-5c04-9a68-c8ddf740ea0c\", "
-//          + "                \"resource\": { "
-//          + "                    \"resourceType\": \"Immunization\", "
-//          + "                    \"id\": \"1fd82e3a-a95b-5c04-9a68-c8ddf740ea0c\", "
-//          + "                    \"status\": \"completed\", "
-//          + "                    \"date\": \"2017-04-24T01:15:52Z\", "
-//          + "                    \"vaccineCode\": { "
-//          + "                       \"text\": \"meningococcal MCV4P\", "
-//          + "                       \"coding\": [ "
-//          + "                          { "
-//          + "                             \"system\": \"http://hl7.org/fhir/sid/cvx\", "
-//          + "                             \"code\": \"114\" "
-//          + "                          } "
-//          + "                       ] "
-//          + "                    }, "
-//          + "                    \"patient\": { "
-//          + "                       \"reference\": \"https://dev-api.va.gov/services/argonaut/v0/Patient/2000163\", "
-//          + "                       \"display\": \"Mr. Aurelio227 Cruickshank494\" "
-//          + "                    }, "
-//          + "                    \"wasNotGiven\": \"false\", "
-//          + "                    \"_reported\": { "
-//          + "                       \"extension\": [ "
-//          + "                          { "
-//          + "                             \"url\": \"http://hl7.org/fhir/StructureDefinition/data-absent-reason\", "
-//          + "                             \"valueCode\": \"unsupported\" "
-//          + "                          } "
-//          + "                       ] "
-//          + "                    }, "
-//          + "                    \"reaction\": [ "
-//          + "                       { "
-//          + "                           \"detail\": { "
-//          + "                               \"display\": \"Lethargy\" "
-//          + "                           } "
-//          + "                       } "
-//          + "                    ] "
-//          + "                }, "
-//          + "                \"search\": { "
-//          + "                    \"mode\": \"match\" "
-//          + "                } "
-//          + "            } "
-//          + "        } "
-//          + "    ] "
-//          + "} ";
 }

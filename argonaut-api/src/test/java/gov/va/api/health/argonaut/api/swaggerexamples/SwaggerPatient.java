@@ -1,61 +1,76 @@
 package gov.va.api.health.argonaut.api.swaggerexamples;
 
+import static java.util.Arrays.asList;
+
+import gov.va.api.health.argonaut.api.bundle.AbstractBundle.BundleType;
+import gov.va.api.health.argonaut.api.bundle.AbstractEntry.Search;
+import gov.va.api.health.argonaut.api.bundle.AbstractEntry.SearchMode;
+import gov.va.api.health.argonaut.api.bundle.BundleLink;
+import gov.va.api.health.argonaut.api.bundle.BundleLink.LinkRelation;
+import gov.va.api.health.argonaut.api.datatypes.Address;
+import gov.va.api.health.argonaut.api.datatypes.CodeableConcept;
+import gov.va.api.health.argonaut.api.datatypes.Coding;
+import gov.va.api.health.argonaut.api.datatypes.ContactPoint;
+import gov.va.api.health.argonaut.api.datatypes.HumanName;
+import gov.va.api.health.argonaut.api.datatypes.Identifier;
+import gov.va.api.health.argonaut.api.elements.Extension;
+import gov.va.api.health.argonaut.api.resources.Patient;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
 class SwaggerPatient {
-  static final SomeClass SWAGGER_EXAMPLE_PATIENT =
-      XXX.builder()
+  static final Patient SWAGGER_EXAMPLE_PATIENT =
+      Patient.builder()
           .id("2000163")
           .resourceType("Patient")
           .extension(
               asList(
-                  XXX.builder()
+                  Extension.builder()
                       .url("http://fhir.org/guides/argonaut/StructureDefinition/argo-race")
                       .extension(
                           asList(
-                              XXX.builder()
+                              Extension.builder()
                                   .url("ombCategory")
                                   .valueCoding(
-                                      XXX.builder()
+                                      Coding.builder()
                                           .system("http://hl7.org/fhir/v3/Race")
                                           .code("2016-3")
                                           .display("White")
                                           .build())
                                   .build(),
-                              XXX.builder().url("text").valueString("White").build()))
+                              Extension.builder().url("text").valueString("White").build()))
                       .build(),
-                  XXX.builder()
+                  Extension.builder()
                       .url("http://fhir.org/guides/argonaut/StructureDefinition/argo-ethnicity")
                       .extension(
                           asList(
-                              XXX.builder()
+                              Extension.builder()
                                   .url("ombCategory")
                                   .valueCoding(
-                                      XXX.builder()
+                                      Coding.builder()
                                           .system("http://hl7.org/fhir/ValueSet/v3-Ethnicity")
                                           .code("2186-5")
                                           .display("Not Hispanic or Latino")
                                           .build())
                                   .build(),
-                              XXX.builder()
+                              Extension.builder()
                                   .url("text")
                                   .valueString("Not Hispanic or Latino")
                                   .build()))
                       .build(),
-                  XXX.builder()
+                  Extension.builder()
                       .url("http://fhir.org/guides/argonaut/StructureDefinition/argo-birthsex")
                       .valueCode("M")
                       .build()))
           .identifier(
               asList(
-                  XXX.builder()
-                      .use("usual")
+                  Identifier.builder()
+                      .use(Identifier.IdentifierUse.usual)
                       .type(
-                          XXX.builder()
+                          CodeableConcept.builder()
                               .coding(
                                   asList(
-                                      XXX.builder()
+                                      Coding.builder()
                                           .system("http://hl7.org/fhir/v2/0203")
                                           .code("MR")
                                           .build()))
@@ -63,13 +78,13 @@ class SwaggerPatient {
                       .system("http://va.gov/mvi")
                       .value("2000163")
                       .build(),
-                  XXX.builder()
-                      .use("official")
+                  Identifier.builder()
+                      .use(Identifier.IdentifierUse.official)
                       .type(
-                          XXX.builder()
+                          CodeableConcept.builder()
                               .coding(
                                   asList(
-                                      XXX.builder()
+                                      Coding.builder()
                                           .system("http://hl7.org/fhir/v2/0203")
                                           .code("SB")
                                           .build()))
@@ -79,469 +94,195 @@ class SwaggerPatient {
                       .build()))
           .name(
               asList(
-                  XXX.builder()
-                      .use("usual")
+                  HumanName.builder()
+                      .use(HumanName.NameUse.usual)
                       .text("Mr. Aurelio227 Cruickshank494")
                       .family(asList("Cruickshank494"))
                       .given(asList("Aurelio227"))
                       .build()))
           .telecom(
               asList(
-                  XXX.builder().system("phone").value("5555191065").use("mobile").build(),
-                  XXX.builder()
-                      .system("email")
+                  ContactPoint.builder()
+                      .system(ContactPoint.ContactPointSystem.phone)
+                      .value("5555191065")
+                      .use(ContactPoint.ContactPointUse.mobile)
+                      .build(),
+                  ContactPoint.builder()
+                      .system(ContactPoint.ContactPointSystem.email)
                       .value("Aurelio227.Cruickshank494@email.example")
                       .build()))
-          .gender("male")
+          .gender(Patient.Gender.male)
           .birthDate("1995-02-06")
-          .deceasedBoolean("false")
+          .deceasedBoolean(false)
           .address(
               asList(
-                  XXX.builder()
+                  Address.builder()
                       .line(asList("909 Rohan Highlands"))
                       .city("Mesa")
                       .state("Arizona")
                       .postalCode("85120")
                       .build()))
           .maritalStatus(
-              XXX.builder()
+              CodeableConcept.builder()
                   .coding(
                       asList(
-                          XXX.builder()
+                          Coding.builder()
                               .system("http://hl7.org/fhir/v3/NullFlavor")
                               .code("UNK")
                               .display("unknown")
                               .build()))
                   .build())
           .build();
-//
-//  static final String PATIENT =
-//	      "{ "
-//	          + "    \"id\": \"2000163\", "
-//	          + "    \"resourceType\": \"Patient\", "
-//	          + "    \"extension\": [ "
-//	          + "        { "
-//	          + "            \"url\": \"http://fhir.org/guides/argonaut/StructureDefinition/argo-race\", "
-//	          + "            \"extension\": [ "
-//	          + "                { "
-//	          + "                    \"url\": \"ombCategory\", "
-//	          + "                    \"valueCoding\": { "
-//	          + "                        \"system\": \"http://hl7.org/fhir/v3/Race\", "
-//	          + "                        \"code\": \"2016-3\", "
-//	          + "                        \"display\": \"White\" "
-//	          + "                    } "
-//	          + "                }, "
-//	          + "                { "
-//	          + "                    \"url\": \"text\", "
-//	          + "                    \"valueString\": \"White\" "
-//	          + "                } "
-//	          + "            ] "
-//	          + "        }, "
-//	          + "        { "
-//	          + "            \"url\": \"http://fhir.org/guides/argonaut/StructureDefinition/argo-ethnicity\", "
-//	          + "            \"extension\": [ "
-//	          + "                { "
-//	          + "                    \"url\": \"ombCategory\", "
-//	          + "                    \"valueCoding\": { "
-//	          + "                        \"system\": \"http://hl7.org/fhir/ValueSet/v3-Ethnicity\", "
-//	          + "                        \"code\": \"2186-5\", "
-//	          + "                        \"display\": \"Not Hispanic or Latino\" "
-//	          + "                    } "
-//	          + "                }, "
-//	          + "                { "
-//	          + "                    \"url\": \"text\", "
-//	          + "                    \"valueString\": \"Not Hispanic or Latino\" "
-//	          + "                } "
-//	          + "            ] "
-//	          + "        }, "
-//	          + "        { "
-//	          + "            \"url\": \"http://fhir.org/guides/argonaut/StructureDefinition/argo-birthsex\", "
-//	          + "            \"valueCode\": \"M\" "
-//	          + "        } "
-//	          + "    ], "
-//	          + "    \"identifier\": [ "
-//	          + "        { "
-//	          + "            \"use\": \"usual\", "
-//	          + "            \"type\": { "
-//	          + "                \"coding\": [ "
-//	          + "                    { "
-//	          + "                        \"system\": \"http://hl7.org/fhir/v2/0203\", "
-//	          + "                        \"code\": \"MR\" "
-//	          + "                    } "
-//	          + "                ] "
-//	          + "            }, "
-//	          + "            \"system\": \"http://va.gov/mvi\", "
-//	          + "            \"value\": \"2000163\" "
-//	          + "        }, "
-//	          + "        { "
-//	          + "            \"use\": \"official\", "
-//	          + "            \"type\": { "
-//	          + "                \"coding\": [ "
-//	          + "                    { "
-//	          + "                        \"system\": \"http://hl7.org/fhir/v2/0203\", "
-//	          + "                        \"code\": \"SB\" "
-//	          + "                    } "
-//	          + "                ] "
-//	          + "            }, "
-//	          + "            \"system\": \"http://hl7.org/fhir/sid/us-ssn\", "
-//	          + "            \"value\": \"999-61-4803\" "
-//	          + "        } "
-//	          + "    ], "
-//	          + "    \"name\": [ "
-//	          + "        { "
-//	          + "            \"use\": \"usual\", "
-//	          + "            \"text\": \"Mr. Aurelio227 Cruickshank494\", "
-//	          + "            \"family\": [ "
-//	          + "                \"Cruickshank494\" "
-//	          + "            ], "
-//	          + "            \"given\": [ "
-//	          + "                \"Aurelio227\" "
-//	          + "            ] "
-//	          + "        } "
-//	          + "    ], "
-//	          + "    \"telecom\": [ "
-//	          + "        { "
-//	          + "            \"system\": \"phone\", "
-//	          + "            \"value\": \"5555191065\", "
-//	          + "            \"use\": \"mobile\" "
-//	          + "        }, "
-//	          + "        { "
-//	          + "            \"system\": \"email\", "
-//	          + "            \"value\": \"Aurelio227.Cruickshank494@email.example\" "
-//	          + "        } "
-//	          + "    ], "
-//	          + "    \"gender\": \"male\", "
-//	          + "    \"birthDate\": \"1995-02-06\", "
-//	          + "    \"deceasedBoolean\": \"false\", "
-//	          + "    \"address\": [ "
-//	          + "        { "
-//	          + "            \"line\": [ "
-//	          + "                \"909 Rohan Highlands\" "
-//	          + "            ], "
-//	          + "            \"city\": \"Mesa\", "
-//	          + "            \"state\": \"Arizona\", "
-//	          + "            \"postalCode\": \"85120\" "
-//	          + "        } "
-//	          + "    ], "
-//	          + "    \"maritalStatus\": { "
-//	          + "        \"coding\": [ "
-//	          + "            { "
-//	          + "                \"system\": \"http://hl7.org/fhir/v3/NullFlavor\", "
-//	          + "                \"code\": \"UNK\", "
-//	          + "                \"display\": \"unknown\" "
-//	          + "            } "
-//	          + "        ] "
-//	          + "    } "
-//	          + "} ";
-  
-  static final SomeClass SWAGGER_EXAMPLE_PATIENT_BUNDLE =
-      XXX.builder()
+
+  static final Patient.Bundle SWAGGER_EXAMPLE_PATIENT_BUNDLE =
+      Patient.Bundle.builder()
           .resourceType("Bundle")
-          .type("searchset")
+          .type(BundleType.searchset)
           .total(1)
           .link(
               asList(
-                  XXX.builder()
-                      .relation("self")
+                  BundleLink.builder()
+                      .relation(LinkRelation.self)
                       .url(
                           "https://dev-api.va.gov/services/argonaut/v0/Patient?_id=1017283148V813263&page=1&_count=15")
                       .build(),
-                  XXX.builder()
-                      .relation("first")
+                  BundleLink.builder()
+                      .relation(LinkRelation.first)
                       .url(
                           "https://dev-api.va.gov/services/argonaut/v0/Patient?_id=1017283148V813263&page=1&_count=15")
                       .build(),
-                  XXX.builder()
-                      .relation("last")
+                  BundleLink.builder()
+                      .relation(LinkRelation.last)
                       .url(
                           "https://dev-api.va.gov/services/argonaut/v0/Patient?_id=1017283148V813263&page=1&_count=15")
                       .build()))
           .entry(
               asList(
-                  XXX.builder()
+                  Patient.Entry.builder()
                       .fullUrl(
                           "https://dev-api.va.gov/services/argonaut/v0/Patient/1017283148V813263")
                       .resource(
-                          XXX.builder()
-                              .fullUrl(
-                                  "https://dev-api.va.gov/services/argonaut/v0/Patient/1017283148V813263")
-                              .resource(
-                                  XXX.builder()
-                                      .id("2000163")
-                                      .resourceType("Patient")
-                                      .extension(
-                                          asList(
-                                              XXX.builder()
-                                                  .url(
-                                                      "http://fhir.org/guides/argonaut/StructureDefinition/argo-race")
-                                                  .extension(
+                          Patient.builder()
+                              .id("2000163")
+                              .resourceType("Patient")
+                              .extension(
+                                  asList(
+                                      Extension.builder()
+                                          .url(
+                                              "http://fhir.org/guides/argonaut/StructureDefinition/argo-race")
+                                          .extension(
+                                              asList(
+                                                  Extension.builder()
+                                                      .url("ombCategory")
+                                                      .valueCoding(
+                                                          Coding.builder()
+                                                              .system("http://hl7.org/fhir/v3/Race")
+                                                              .code("2016-3")
+                                                              .display("White")
+                                                              .build())
+                                                      .build(),
+                                                  Extension.builder()
+                                                      .url("text")
+                                                      .valueString("White")
+                                                      .build()))
+                                          .build(),
+                                      Extension.builder()
+                                          .url(
+                                              "http://fhir.org/guides/argonaut/StructureDefinition/argo-ethnicity")
+                                          .extension(
+                                              asList(
+                                                  Extension.builder()
+                                                      .url("ombCategory")
+                                                      .valueCoding(
+                                                          Coding.builder()
+                                                              .system(
+                                                                  "http://hl7.org/fhir/ValueSet/v3-Ethnicity")
+                                                              .code("2186-5")
+                                                              .display("Not Hispanic or Latino")
+                                                              .build())
+                                                      .build(),
+                                                  Extension.builder()
+                                                      .url("text")
+                                                      .valueString("Not Hispanic or Latino")
+                                                      .build()))
+                                          .build(),
+                                      Extension.builder()
+                                          .url(
+                                              "http://fhir.org/guides/argonaut/StructureDefinition/argo-birthsex")
+                                          .valueCode("M")
+                                          .build()))
+                              .identifier(
+                                  asList(
+                                      Identifier.builder()
+                                          .use(Identifier.IdentifierUse.usual)
+                                          .type(
+                                              CodeableConcept.builder()
+                                                  .coding(
                                                       asList(
-                                                          XXX.builder()
-                                                              .url("ombCategory")
-                                                              .valueCoding(
-                                                                  XXX.builder()
-                                                                      .system(
-                                                                          "http://hl7.org/fhir/v3/Race")
-                                                                      .code("2016-3")
-                                                                      .display("White")
-                                                                      .build())
-                                                              .build(),
-                                                          XXX.builder()
-                                                              .url("text")
-                                                              .valueString("White")
+                                                          Coding.builder()
+                                                              .system("http://hl7.org/fhir/v2/0203")
+                                                              .code("MR")
                                                               .build()))
-                                                  .build(),
-                                              XXX.builder()
-                                                  .url(
-                                                      "http://fhir.org/guides/argonaut/StructureDefinition/argo-ethnicity")
-                                                  .extension(
+                                                  .build())
+                                          .system("http://va.gov/mvi")
+                                          .value("2000163")
+                                          .build(),
+                                      Identifier.builder()
+                                          .use(Identifier.IdentifierUse.official)
+                                          .type(
+                                              CodeableConcept.builder()
+                                                  .coding(
                                                       asList(
-                                                          XXX.builder()
-                                                              .url("ombCategory")
-                                                              .valueCoding(
-                                                                  XXX.builder()
-                                                                      .system(
-                                                                          "http://hl7.org/fhir/ValueSet/v3-Ethnicity")
-                                                                      .code("2186-5")
-                                                                      .display(
-                                                                          "Not Hispanic or Latino")
-                                                                      .build())
-                                                              .build(),
-                                                          XXX.builder()
-                                                              .url("text")
-                                                              .valueString("Not Hispanic or Latino")
+                                                          Coding.builder()
+                                                              .system("http://hl7.org/fhir/v2/0203")
+                                                              .code("SB")
                                                               .build()))
-                                                  .build(),
-                                              XXX.builder()
-                                                  .url(
-                                                      "http://fhir.org/guides/argonaut/StructureDefinition/argo-birthsex")
-                                                  .valueCode("M")
-                                                  .build()))
-                                      .identifier(
+                                                  .build())
+                                          .system("http://hl7.org/fhir/sid/us-ssn")
+                                          .value("999-61-4803")
+                                          .build()))
+                              .name(
+                                  asList(
+                                      HumanName.builder()
+                                          .use(HumanName.NameUse.usual)
+                                          .text("Mr. Aurelio227 Cruickshank494")
+                                          .family(asList("Cruickshank494"))
+                                          .given(asList("Aurelio227"))
+                                          .build()))
+                              .telecom(
+                                  asList(
+                                      ContactPoint.builder()
+                                          .system(ContactPoint.ContactPointSystem.phone)
+                                          .value("5555191065")
+                                          .use(ContactPoint.ContactPointUse.mobile)
+                                          .build(),
+                                      ContactPoint.builder()
+                                          .system(ContactPoint.ContactPointSystem.email)
+                                          .value("Aurelio227.Cruickshank494@email.example")
+                                          .build()))
+                              .gender(Patient.Gender.male)
+                              .birthDate("1995-02-06")
+                              .deceasedBoolean(false)
+                              .address(
+                                  asList(
+                                      Address.builder()
+                                          .line(asList("909 Rohan Highlands"))
+                                          .city("Mesa")
+                                          .state("Arizona")
+                                          .postalCode("85120")
+                                          .build()))
+                              .maritalStatus(
+                                  CodeableConcept.builder()
+                                      .coding(
                                           asList(
-                                              XXX.builder()
-                                                  .use("usual")
-                                                  .type(
-                                                      XXX.builder()
-                                                          .coding(
-                                                              asList(
-                                                                  XXX.builder()
-                                                                      .system(
-                                                                          "http://hl7.org/fhir/v2/0203")
-                                                                      .code("MR")
-                                                                      .build()))
-                                                          .build())
-                                                  .system("http://va.gov/mvi")
-                                                  .value("2000163")
-                                                  .build(),
-                                              XXX.builder()
-                                                  .use("official")
-                                                  .type(
-                                                      XXX.builder()
-                                                          .coding(
-                                                              asList(
-                                                                  XXX.builder()
-                                                                      .system(
-                                                                          "http://hl7.org/fhir/v2/0203")
-                                                                      .code("SB")
-                                                                      .build()))
-                                                          .build())
-                                                  .system("http://hl7.org/fhir/sid/us-ssn")
-                                                  .value("999-61-4803")
+                                              Coding.builder()
+                                                  .system("http://hl7.org/fhir/v3/NullFlavor")
+                                                  .code("UNK")
+                                                  .display("unknown")
                                                   .build()))
-                                      .name(
-                                          asList(
-                                              XXX.builder()
-                                                  .use("usual")
-                                                  .text("Mr. Aurelio227 Cruickshank494")
-                                                  .family(asList("Cruickshank494"))
-                                                  .given(asList("Aurelio227"))
-                                                  .build()))
-                                      .telecom(
-                                          asList(
-                                              XXX.builder()
-                                                  .system("phone")
-                                                  .value("5555191065")
-                                                  .use("mobile")
-                                                  .build(),
-                                              XXX.builder()
-                                                  .system("email")
-                                                  .value("Aurelio227.Cruickshank494@email.example")
-                                                  .build()))
-                                      .gender("male")
-                                      .birthDate("1995-02-06")
-                                      .deceasedBoolean("false")
-                                      .address(
-                                          asList(
-                                              XXX.builder()
-                                                  .line(asList("909 Rohan Highlands"))
-                                                  .city("Mesa")
-                                                  .state("Arizona")
-                                                  .postalCode("85120")
-                                                  .build()))
-                                      .maritalStatus(
-                                          XXX.builder()
-                                              .coding(
-                                                  asList(
-                                                      XXX.builder()
-                                                          .system(
-                                                              "http://hl7.org/fhir/v3/NullFlavor")
-                                                          .code("UNK")
-                                                          .display("unknown")
-                                                          .build()))
-                                              .build())
-                                      .search(XXX.builder().mode("match").build())
                                       .build())
                               .build())
+                      .search(Search.builder().mode(SearchMode.match).build())
                       .build()))
           .build();
-//  
-//  static final String PATIENT_BUNDLE =
-//	      "{ "
-//	          + "    \"resourceType\": \"Bundle\", "
-//	          + "    \"type\": \"searchset\", "
-//	          + "    \"total\": 1, "
-//	          + "    \"link\": [ "
-//	          + "        { "
-//	          + "            \"relation\": \"self\", "
-//	          + "            \"url\": \"https://dev-api.va.gov/services/argonaut/v0/Patient?_id=1017283148V813263&page=1&_count=15\" "
-//	          + "        }, "
-//	          + "        { "
-//	          + "            \"relation\": \"first\", "
-//	          + "            \"url\": \"https://dev-api.va.gov/services/argonaut/v0/Patient?_id=1017283148V813263&page=1&_count=15\" "
-//	          + "        }, "
-//	          + "        { "
-//	          + "            \"relation\":\"last\", "
-//	          + "            \"url\": \"https://dev-api.va.gov/services/argonaut/v0/Patient?_id=1017283148V813263&page=1&_count=15\" "
-//	          + "        } "
-//	          + "    ], "
-//	          + "    \"entry\": [ "
-//	          + "        { "
-//	          + "            \"fullUrl\": \"https://dev-api.va.gov/services/argonaut/v0/Patient/1017283148V813263\", "
-//	          + "            \"resource\": { "
-//	          + "                \"fullUrl\": \"https://dev-api.va.gov/services/argonaut/v0/Patient/1017283148V813263\", "
-//	          + "                \"resource\": { "
-//	          + "                    \"id\": \"2000163\", "
-//	          + "                    \"resourceType\": \"Patient\", "
-//	          + "                    \"extension\": [ "
-//	          + "                        { "
-//	          + "                            \"url\": \"http://fhir.org/guides/argonaut/StructureDefinition/argo-race\", "
-//	          + "                            \"extension\": [ "
-//	          + "                                { "
-//	          + "                                    \"url\": \"ombCategory\", "
-//	          + "                                    \"valueCoding\": { "
-//	          + "                                        \"system\": \"http://hl7.org/fhir/v3/Race\", "
-//	          + "                                        \"code\": \"2016-3\", "
-//	          + "                                        \"display\": \"White\" "
-//	          + "                                    } "
-//	          + "                                }, "
-//	          + "                                { "
-//	          + "                                    \"url\": \"text\", "
-//	          + "                                    \"valueString\": \"White\" "
-//	          + "                                } "
-//	          + "                            ] "
-//	          + "                        }, "
-//	          + "                        { "
-//	          + "                            \"url\": \"http://fhir.org/guides/argonaut/StructureDefinition/argo-ethnicity\", "
-//	          + "                            \"extension\": [ "
-//	          + "                                { "
-//	          + "                                    \"url\": \"ombCategory\", "
-//	          + "                                    \"valueCoding\": { "
-//	          + "                                        \"system\": \"http://hl7.org/fhir/ValueSet/v3-Ethnicity\", "
-//	          + "                                        \"code\": \"2186-5\", "
-//	          + "                                        \"display\": \"Not Hispanic or Latino\" "
-//	          + "                                    } "
-//	          + "                                }, "
-//	          + "                                { "
-//	          + "                                    \"url\": \"text\", "
-//	          + "                                    \"valueString\": \"Not Hispanic or Latino\" "
-//	          + "                                } "
-//	          + "                            ] "
-//	          + "                        }, "
-//	          + "                        { "
-//	          + "                            \"url\": \"http://fhir.org/guides/argonaut/StructureDefinition/argo-birthsex\", "
-//	          + "                            \"valueCode\": \"M\" "
-//	          + "                        } "
-//	          + "                    ], "
-//	          + "                    \"identifier\": [ "
-//	          + "                        { "
-//	          + "                            \"use\": \"usual\", "
-//	          + "                            \"type\": { "
-//	          + "                                \"coding\": [ "
-//	          + "                                    { "
-//	          + "                                        \"system\": \"http://hl7.org/fhir/v2/0203\", "
-//	          + "                                        \"code\": \"MR\" "
-//	          + "                                    } "
-//	          + "                                ] "
-//	          + "                            }, "
-//	          + "                            \"system\": \"http://va.gov/mvi\", "
-//	          + "                            \"value\": \"2000163\" "
-//	          + "                        }, "
-//	          + "                        { "
-//	          + "                            \"use\": \"official\", "
-//	          + "                            \"type\": { "
-//	          + "                                \"coding\": [ "
-//	          + "                                    { "
-//	          + "                                        \"system\": \"http://hl7.org/fhir/v2/0203\", "
-//	          + "                                        \"code\": \"SB\" "
-//	          + "                                    } "
-//	          + "                                ] "
-//	          + "                            }, "
-//	          + "                            \"system\": \"http://hl7.org/fhir/sid/us-ssn\", "
-//	          + "                            \"value\": \"999-61-4803\" "
-//	          + "                        } "
-//	          + "                    ], "
-//	          + "                    \"name\": [ "
-//	          + "                        { "
-//	          + "                            \"use\": \"usual\", "
-//	          + "                            \"text\": \"Mr. Aurelio227 Cruickshank494\", "
-//	          + "                            \"family\": [ "
-//	          + "                                \"Cruickshank494\" "
-//	          + "                            ], "
-//	          + "                            \"given\": [ "
-//	          + "                                \"Aurelio227\" "
-//	          + "                            ] "
-//	          + "                        } "
-//	          + "                    ], "
-//	          + "                    \"telecom\": [ "
-//	          + "                        { "
-//	          + "                            \"system\": \"phone\", "
-//	          + "                            \"value\": \"5555191065\", "
-//	          + "                            \"use\": \"mobile\" "
-//	          + "                        }, "
-//	          + "                        { "
-//	          + "                            \"system\": \"email\", "
-//	          + "                            \"value\": \"Aurelio227.Cruickshank494@email.example\" "
-//	          + "                        } "
-//	          + "                    ], "
-//	          + "                    \"gender\": \"male\", "
-//	          + "                    \"birthDate\": \"1995-02-06\", "
-//	          + "                    \"deceasedBoolean\": \"false\", "
-//	          + "                    \"address\": [ "
-//	          + "                        { "
-//	          + "                            \"line\": [ "
-//	          + "                                \"909 Rohan Highlands\" "
-//	          + "                            ], "
-//	          + "                            \"city\": \"Mesa\", "
-//	          + "                            \"state\": \"Arizona\", "
-//	          + "                            \"postalCode\": \"85120\" "
-//	          + "                        } "
-//	          + "                    ], "
-//	          + "                    \"maritalStatus\": { "
-//	          + "                        \"coding\": [ "
-//	          + "                            { "
-//	          + "                                \"system\": \"http://hl7.org/fhir/v3/NullFlavor\", "
-//	          + "                                \"code\": \"UNK\", "
-//	          + "                                \"display\": \"unknown\" "
-//	          + "                            } "
-//	          + "                        ] "
-//	          + "                }, "
-//	          + "                \"search\": { "
-//	          + "                    \"mode\": \"match\" "
-//	          + "                } "
-//	          + "            } "
-//	          + "          } "
-//	          + "        } "
-//	          + "    ] "
-//	          + "} ";
 }

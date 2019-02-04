@@ -1,18 +1,29 @@
 package gov.va.api.health.argonaut.api.swaggerexamples;
 
+import static java.util.Arrays.asList;
+
+import gov.va.api.health.argonaut.api.bundle.AbstractBundle.BundleType;
+import gov.va.api.health.argonaut.api.bundle.AbstractEntry.Search;
+import gov.va.api.health.argonaut.api.bundle.AbstractEntry.SearchMode;
+import gov.va.api.health.argonaut.api.bundle.BundleLink;
+import gov.va.api.health.argonaut.api.bundle.BundleLink.LinkRelation;
+import gov.va.api.health.argonaut.api.datatypes.CodeableConcept;
+import gov.va.api.health.argonaut.api.datatypes.Coding;
+import gov.va.api.health.argonaut.api.resources.Medication;
+import gov.va.api.health.argonaut.api.resources.Medication.Product;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
 class SwaggerMedication {
-  static final SomeClass SWAGGER_EXAMPLE_MEDICATION =
-      XXX.builder()
+  static final Medication SWAGGER_EXAMPLE_MEDICATION =
+      Medication.builder()
           .resourceType("Medication")
           .id("f4163f35-1565-552b-a1b9-a2f8870e6f4a")
           .code(
-              XXX.builder()
+              CodeableConcept.builder()
                   .coding(
                       asList(
-                          XXX.builder()
+                          Coding.builder()
                               .system("https://www.nlm.nih.gov/research/umls/rxnorm/")
                               .code("895994")
                               .display("120 Fluticasone propionate .044 MG/ACTUAT Inhaler")
@@ -20,146 +31,67 @@ class SwaggerMedication {
                   .text("120 ACTUAT Fluticasone propionate .044 MG/ACTUAT Inhaler")
                   .build())
           .product(
-              XXX.builder()
+              Product.builder()
                   .id("4024655")
-                  .form(XXX.builder().text("1 dose(s) 1 time(s) per 1 days").build())
+                  .form(CodeableConcept.builder().text("1 dose(s) 1 time(s) per 1 days").build())
                   .build())
           .build();
 
-//  static final String MEDICATION =
-//	      "{ "
-//	          + "    \"resourceType\": \"Medication\", "
-//	          + "    \"id\": \"f4163f35-1565-552b-a1b9-a2f8870e6f4a\", "
-//	          + "    \"code\": { "
-//	          + "        \"coding\": [ "
-//	          + "            { "
-//	          + "                \"system\": \"https://www.nlm.nih.gov/research/umls/rxnorm/\", "
-//	          + "                \"code\": \"895994\", "
-//	          + "                \"display\": \"120 Fluticasone propionate .044 MG/ACTUAT Inhaler\" "
-//	          + "            } "
-//	          + "        ], "
-//	          + "        \"text\": \"120 ACTUAT Fluticasone propionate .044 MG/ACTUAT Inhaler\" "
-//	          + "    }, "
-//	          + "    \"product\": { "
-//	          + "        \"id\": \"4024655\", "
-//	          + "        \"form\": { "
-//	          + "            \"text\": \"1 dose(s) 1 time(s) per 1 days\" "
-//	          + "        } "
-//	          + "    } "
-//	          + "} ";
-  
-  static final SomeClass SWAGGER_EXAMPLE_MEDICATION_BUNDLE =
-      XXX.builder()
+  static final Medication.Bundle SWAGGER_EXAMPLE_MEDICATION_BUNDLE =
+      Medication.Bundle.builder()
           .resourceType("Bundle")
-          .type("searchset")
+          .type(BundleType.searchset)
           .total(1)
           .link(
               asList(
-                  XXX.builder()
-                      .relation("self")
+                  BundleLink.builder()
+                      .relation(LinkRelation.self)
                       .url(
                           "https://dev-api.va.gov/services/argonaut/v0/Medication?patient=1017283148V813263&page=1&_count=15")
                       .build(),
-                  XXX.builder()
-                      .relation("first")
+                  BundleLink.builder()
+                      .relation(LinkRelation.first)
                       .url(
                           "https://dev-api.va.gov/services/argonaut/v0/Medication?patient=1017283148V813263&page=1&_count=15")
                       .build(),
-                  XXX.builder()
-                      .relation("last")
+                  BundleLink.builder()
+                      .relation(LinkRelation.last)
                       .url(
                           "https://dev-api.va.gov/services/argonaut/v0/Medication?patient=1017283148V813263&page=1&_count=15")
                       .build()))
           .entry(
               asList(
-                  XXX.builder()
+                  Medication.Entry.builder()
                       .fullUrl(
                           "https://dev-api.va.gov/services/argonaut/v0/Medication/f4163f35-1565-552b-a1b9-a2f8870e6f4a")
                       .resource(
-                          XXX.builder()
-                              .fullUrl(
-                                  "https://dev-api.va.gov/services/argonaut/v0/Medication/f4163f35-1565-552b-a1b9-a2f8870e6f4a")
-                              .resource(
-                                  XXX.builder()
-                                      .resourceType("Medication")
-                                      .id("f4163f35-1565-552b-a1b9-a2f8870e6f4a")
-                                      .code(
-                                          XXX.builder()
-                                              .coding(
-                                                  asList(
-                                                      XXX.builder()
-                                                          .system(
-                                                              "https://www.nlm.nih.gov/research/umls/rxnorm/")
-                                                          .code("895994")
-                                                          .display(
-                                                              "120 Fluticasone propionate .044 MG/ACTUAT Inhaler")
-                                                          .build()))
-                                              .text(
-                                                  "120 ACTUAT Fluticasone propionate .044 MG/ACTUAT Inhaler")
-                                              .build())
-                                      .product(
-                                          XXX.builder()
-                                              .id("4024655")
-                                              .form(
-                                                  XXX.builder()
-                                                      .text("1 dose(s) 1 time(s) per 1 days")
-                                                      .build())
+                          Medication.builder()
+                              .resourceType("Medication")
+                              .id("f4163f35-1565-552b-a1b9-a2f8870e6f4a")
+                              .code(
+                                  CodeableConcept.builder()
+                                      .coding(
+                                          asList(
+                                              Coding.builder()
+                                                  .system(
+                                                      "https://www.nlm.nih.gov/research/umls/rxnorm/")
+                                                  .code("895994")
+                                                  .display(
+                                                      "120 Fluticasone propionate .044 MG/ACTUAT Inhaler")
+                                                  .build()))
+                                      .text(
+                                          "120 ACTUAT Fluticasone propionate .044 MG/ACTUAT Inhaler")
+                                      .build())
+                              .product(
+                                  Product.builder()
+                                      .id("4024655")
+                                      .form(
+                                          CodeableConcept.builder()
+                                              .text("1 dose(s) 1 time(s) per 1 days")
                                               .build())
                                       .build())
-                              .search(XXX.builder().mode("match").build())
                               .build())
+                      .search(Search.builder().mode(SearchMode.match).build())
                       .build()))
           .build();
-
-//  static final String MEDICATION_BUNDLE =
-//      "{ "
-//          + "    \"resourceType\": \"Bundle\", "
-//          + "    \"type\": \"searchset\", "
-//          + "    \"total\": 1, "
-//          + "    \"link\": [ "
-//          + "        { "
-//          + "            \"relation\": \"self\", "
-//          + "            \"url\": \"https://dev-api.va.gov/services/argonaut/v0/Medication?patient=1017283148V813263&page=1&_count=15\" "
-//          + "        }, "
-//          + "        { "
-//          + "            \"relation\": \"first\", "
-//          + "            \"url\": \"https://dev-api.va.gov/services/argonaut/v0/Medication?patient=1017283148V813263&page=1&_count=15\" "
-//          + "        }, "
-//          + "        { "
-//          + "            \"relation\":\"last\", "
-//          + "            \"url\": \"https://dev-api.va.gov/services/argonaut/v0/Medication?patient=1017283148V813263&page=1&_count=15\" "
-//          + "        } "
-//          + "    ], "
-//          + "    \"entry\": [ "
-//          + "        { "
-//          + "            \"fullUrl\": \"https://dev-api.va.gov/services/argonaut/v0/Medication/f4163f35-1565-552b-a1b9-a2f8870e6f4a\", "
-//          + "            \"resource\": { "
-//          + "                \"fullUrl\": \"https://dev-api.va.gov/services/argonaut/v0/Medication/f4163f35-1565-552b-a1b9-a2f8870e6f4a\", "
-//          + "                \"resource\": { "
-//          + "                    \"resourceType\": \"Medication\", "
-//          + "                    \"id\": \"f4163f35-1565-552b-a1b9-a2f8870e6f4a\", "
-//          + "                    \"code\": { "
-//          + "                        \"coding\": [ "
-//          + "                            { "
-//          + "                                \"system\": \"https://www.nlm.nih.gov/research/umls/rxnorm/\", "
-//          + "                                \"code\": \"895994\", "
-//          + "                                \"display\": \"120 Fluticasone propionate .044 MG/ACTUAT Inhaler\" "
-//          + "                            } "
-//          + "                        ], "
-//          + "                        \"text\": \"120 ACTUAT Fluticasone propionate .044 MG/ACTUAT Inhaler\" "
-//          + "                    }, "
-//          + "                    \"product\": { "
-//          + "                        \"id\": \"4024655\", "
-//          + "                        \"form\": { "
-//          + "                            \"text\": \"1 dose(s) 1 time(s) per 1 days\" "
-//          + "                        } "
-//          + "                    } "
-//          + "                }, "
-//          + "                \"search\": { "
-//          + "                    \"mode\": \"match\" "
-//          + "                } "
-//          + "        } "
-//          + "    } "
-//          + "  ] "
-//          + "}";
 }

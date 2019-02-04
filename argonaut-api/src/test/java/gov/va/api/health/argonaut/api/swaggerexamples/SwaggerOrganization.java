@@ -1,19 +1,31 @@
 package gov.va.api.health.argonaut.api.swaggerexamples;
 
+import static java.util.Arrays.asList;
+
+import gov.va.api.health.argonaut.api.bundle.AbstractBundle.BundleType;
+import gov.va.api.health.argonaut.api.bundle.AbstractEntry.Search;
+import gov.va.api.health.argonaut.api.bundle.AbstractEntry.SearchMode;
+import gov.va.api.health.argonaut.api.bundle.BundleLink;
+import gov.va.api.health.argonaut.api.bundle.BundleLink.LinkRelation;
+import gov.va.api.health.argonaut.api.datatypes.Address;
+import gov.va.api.health.argonaut.api.datatypes.CodeableConcept;
+import gov.va.api.health.argonaut.api.datatypes.Coding;
+import gov.va.api.health.argonaut.api.elements.Reference;
+import gov.va.api.health.argonaut.api.resources.Organization;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
 class SwaggerOrganization {
-  static final SomeClass SWAGGER_EXAMPLE_ORGANIZATON =
-      XXX.builder()
+  static final Organization SWAGGER_EXAMPLE_ORGANIZATON =
+      Organization.builder()
           .resourceType("Organization")
           .id("6a96677d-f487-52bb-befd-6c90c7f49fa6")
-          .active("true")
+          .active(true)
           .type(
-              XXX.builder()
+              CodeableConcept.builder()
                   .coding(
                       asList(
-                          XXX.builder()
+                          Coding.builder()
                               .system("http://hl7.org/fhir/organization-type")
                               .code("prov")
                               .display("Healthcare Provider")
@@ -22,177 +34,79 @@ class SwaggerOrganization {
           .name("MANILA-RO")
           .address(
               asList(
-                  XXX.builder()
+                  Address.builder()
                       .line(asList("1501 ROXAS BLVD"))
                       .city("PASAY CITY, METRO MANILA")
                       .state("PH")
                       .postalCode("96515-1100")
                       .build()))
           .partOf(
-              XXX.builder()
+              Reference.builder()
                   .reference(
                       "https://api.va.gov/services/argonaut/v0/Organization/966f5985-6db7-5c0a-b809-54fcf73d3e1d")
                   .display("VA")
                   .build())
           .build();
 
-//  static final String ORGANZIATON =
-//	      "{ "
-//	          + "    \"resourceType\": \"Organization\", "
-//	          + "    \"id\": \"6a96677d-f487-52bb-befd-6c90c7f49fa6\", "
-//	          + "    \"active\": \"true\", "
-//	          + "    \"type\": { "
-//	          + "        \"coding\": [ "
-//	          + "            { "
-//	          + "                \"system\": \"http://hl7.org/fhir/organization-type\", "
-//	          + "                \"code\": \"prov\", "
-//	          + "                \"display\": \"Healthcare Provider\" "
-//	          + "            } "
-//	          + "        ] "
-//	          + "    }, "
-//	          + "    \"name\": \"MANILA-RO\", "
-//	          + "    \"address\": [ "
-//	          + "        { "
-//	          + "            \"line\": [ "
-//	          + "                \"1501 ROXAS BLVD\" "
-//	          + "            ], "
-//	          + "            \"city\": \"PASAY CITY, METRO MANILA\", "
-//	          + "            \"state\": \"PH\", "
-//	          + "            \"postalCode\": \"96515-1100\" "
-//	          + "        } "
-//	          + "    ], "
-//	          + "    \"partOf\": { "
-//	          + "        \"reference\": \"https://api.va.gov/services/argonaut/v0/Organization/966f5985-6db7-5c0a-b809-54fcf73d3e1d\", "
-//	          + "        \"display\": \"VA\" "
-//	          + "    } "
-//	          + "} ";
-  
-  static final SomeClass SWAGGER_EXAMPLE_ORGANIZATION_BUNDLE =
-      XXX.builder()
+  static final Organization.Bundle SWAGGER_EXAMPLE_ORGANIZATION_BUNDLE =
+      Organization.Bundle.builder()
           .resourceType("Bundle")
-          .type("searchset")
+          .type(BundleType.searchset)
           .total(1)
           .link(
               asList(
-                  XXX.builder()
-                      .relation("self")
+                  BundleLink.builder()
+                      .relation(LinkRelation.self)
                       .url(
                           "https://dev-api.va.gov/services/argonaut/v0/Organization?patient=1017283148V813263&page=1&_count=15")
                       .build(),
-                  XXX.builder()
-                      .relation("first")
+                  BundleLink.builder()
+                      .relation(LinkRelation.first)
                       .url(
                           "https://dev-api.va.gov/services/argonaut/v0/Organization?patient=1017283148V813263&page=1&_count=15")
                       .build(),
-                  XXX.builder()
-                      .relation("last")
+                  BundleLink.builder()
+                      .relation(LinkRelation.last)
                       .url(
                           "https://dev-api.va.gov/services/argonaut/v0/Organization?patient=1017283148V813263&page=1&_count=15")
                       .build()))
           .entry(
               asList(
-                  XXX.builder()
+                  Organization.Entry.builder()
                       .fullUrl(
                           "https://dev-api.va.gov/services/argonaut/v0/Organization/6a96677d-f487-52bb-befd-6c90c7f49fa6")
                       .resource(
-                          XXX.builder()
-                              .fullUrl(
-                                  "https://dev-api.va.gov/services/argonaut/v0/Organization/6a96677d-f487-52bb-befd-6c90c7f49fa6")
-                              .resource(
-                                  XXX.builder()
-                                      .resourceType("Organization")
-                                      .id("6a96677d-f487-52bb-befd-6c90c7f49fa6")
-                                      .active("true")
-                                      .type(
-                                          XXX.builder()
-                                              .coding(
-                                                  asList(
-                                                      XXX.builder()
-                                                          .system(
-                                                              "http://hl7.org/fhir/organization-type")
-                                                          .code("prov")
-                                                          .display("Healthcare Provider")
-                                                          .build()))
-                                              .build())
-                                      .name("MANILA-RO")
-                                      .address(
+                          Organization.builder()
+                              .resourceType("Organization")
+                              .id("6a96677d-f487-52bb-befd-6c90c7f49fa6")
+                              .active(true)
+                              .type(
+                                  CodeableConcept.builder()
+                                      .coding(
                                           asList(
-                                              XXX.builder()
-                                                  .line(asList("1501 ROXAS BLVD"))
-                                                  .city("PASAY CITY, METRO MANILA")
-                                                  .state("PH")
-                                                  .postalCode("96515-1100")
+                                              Coding.builder()
+                                                  .system("http://hl7.org/fhir/organization-type")
+                                                  .code("prov")
+                                                  .display("Healthcare Provider")
                                                   .build()))
-                                      .partOf(
-                                          XXX.builder()
-                                              .reference(
-                                                  "https://api.va.gov/services/argonaut/v0/Organization/966f5985-6db7-5c0a-b809-54fcf73d3e1d")
-                                              .display("VA")
-                                              .build())
                                       .build())
-                              .search(XXX.builder().mode("match").build())
+                              .name("MANILA-RO")
+                              .address(
+                                  asList(
+                                      Address.builder()
+                                          .line(asList("1501 ROXAS BLVD"))
+                                          .city("PASAY CITY, METRO MANILA")
+                                          .state("PH")
+                                          .postalCode("96515-1100")
+                                          .build()))
+                              .partOf(
+                                  Reference.builder()
+                                      .reference(
+                                          "https://api.va.gov/services/argonaut/v0/Organization/966f5985-6db7-5c0a-b809-54fcf73d3e1d")
+                                      .display("VA")
+                                      .build())
                               .build())
+                      .search(Search.builder().mode(SearchMode.match).build())
                       .build()))
           .build();
-  
-//  static final String ORGANZIATION_BUNDLE =
-//	      "{ "
-//	          + "    \"resourceType\": \"Bundle\", "
-//	          + "    \"type\": \"searchset\", "
-//	          + "    \"total\": 1, "
-//	          + "    \"link\": [ "
-//	          + "        { "
-//	          + "            \"relation\": \"self\", "
-//	          + "            \"url\": \"https://dev-api.va.gov/services/argonaut/v0/Organization?patient=1017283148V813263&page=1&_count=15\" "
-//	          + "        }, "
-//	          + "        { "
-//	          + "            \"relation\": \"first\", "
-//	          + "            \"url\": \"https://dev-api.va.gov/services/argonaut/v0/Organization?patient=1017283148V813263&page=1&_count=15\" "
-//	          + "        }, "
-//	          + "        { "
-//	          + "            \"relation\":\"last\", "
-//	          + "            \"url\": \"https://dev-api.va.gov/services/argonaut/v0/Organization?patient=1017283148V813263&page=1&_count=15\" "
-//	          + "        } "
-//	          + "    ], "
-//	          + "    \"entry\": [ "
-//	          + "        { "
-//	          + "            \"fullUrl\": \"https://dev-api.va.gov/services/argonaut/v0/Organization/6a96677d-f487-52bb-befd-6c90c7f49fa6\", "
-//	          + "            \"resource\": { "
-//	          + "                \"fullUrl\": \"https://dev-api.va.gov/services/argonaut/v0/Organization/6a96677d-f487-52bb-befd-6c90c7f49fa6\", "
-//	          + "                \"resource\": { "
-//	          + "                    \"resourceType\": \"Organization\", "
-//	          + "                    \"id\": \"6a96677d-f487-52bb-befd-6c90c7f49fa6\", "
-//	          + "                    \"active\": \"true\", "
-//	          + "                    \"type\": { "
-//	          + "                        \"coding\": [ "
-//	          + "                            { "
-//	          + "                                \"system\": \"http://hl7.org/fhir/organization-type\", "
-//	          + "                                \"code\": \"prov\", "
-//	          + "                                \"display\": \"Healthcare Provider\" "
-//	          + "                            } "
-//	          + "                        ] "
-//	          + "                    }, "
-//	          + "                    \"name\": \"MANILA-RO\", "
-//	          + "                    \"address\": [ "
-//	          + "                        { "
-//	          + "                            \"line\": [ "
-//	          + "                                \"1501 ROXAS BLVD\" "
-//	          + "                            ], "
-//	          + "                            \"city\": \"PASAY CITY, METRO MANILA\", "
-//	          + "                            \"state\": \"PH\", "
-//	          + "                            \"postalCode\": \"96515-1100\" "
-//	          + "                        } "
-//	          + "                    ], "
-//	          + "                    \"partOf\": { "
-//	          + "                        \"reference\": \"https://api.va.gov/services/argonaut/v0/Organization/966f5985-6db7-5c0a-b809-54fcf73d3e1d\", "
-//	          + "                        \"display\": \"VA\" "
-//	          + "                    } "
-//	          + "                }, "
-//	          + "            \"search\": { "
-//	          + "                \"mode\": \"match\" "
-//	          + "            } "
-//	          + "        } "
-//	          + "    } "
-//	          + "  ] "
-//	          + "}";
 }
