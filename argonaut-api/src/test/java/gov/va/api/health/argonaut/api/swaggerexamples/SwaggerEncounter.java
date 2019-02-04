@@ -8,7 +8,6 @@ import gov.va.api.health.argonaut.api.bundle.AbstractEntry.SearchMode;
 import gov.va.api.health.argonaut.api.bundle.BundleLink;
 import gov.va.api.health.argonaut.api.elements.Reference;
 import gov.va.api.health.argonaut.api.resources.Encounter;
-import gov.va.api.health.argonaut.api.resources.Encounter.EncounterLocation;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
@@ -176,7 +175,7 @@ class SwaggerEncounter {
                                           .build()))
                               .location(
                                   asList(
-                                      EncounterLocation.builder()
+                                      Encounter.EncounterLocation.builder()
                                           .location(
                                               Reference.builder()
                                                   .reference(

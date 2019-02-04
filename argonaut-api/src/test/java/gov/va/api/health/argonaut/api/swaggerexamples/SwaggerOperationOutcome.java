@@ -4,7 +4,6 @@ import static java.util.Arrays.asList;
 
 import gov.va.api.health.argonaut.api.datatypes.CodeableConcept;
 import gov.va.api.health.argonaut.api.resources.OperationOutcome;
-import gov.va.api.health.argonaut.api.resources.OperationOutcome.Issue;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
@@ -14,7 +13,7 @@ class SwaggerOperationOutcome {
           .resourceType("OperationOutcome")
           .issue(
               asList(
-                  Issue.builder()
+                  OperationOutcome.Issue.builder()
                       .severity(OperationOutcome.Issue.IssueSeverity.error)
                       .code("forbidden")
                       .details(

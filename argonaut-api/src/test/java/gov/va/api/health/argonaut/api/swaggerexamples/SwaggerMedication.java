@@ -10,7 +10,6 @@ import gov.va.api.health.argonaut.api.bundle.BundleLink.LinkRelation;
 import gov.va.api.health.argonaut.api.datatypes.CodeableConcept;
 import gov.va.api.health.argonaut.api.datatypes.Coding;
 import gov.va.api.health.argonaut.api.resources.Medication;
-import gov.va.api.health.argonaut.api.resources.Medication.Product;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
@@ -31,7 +30,7 @@ class SwaggerMedication {
                   .text("120 ACTUAT Fluticasone propionate .044 MG/ACTUAT Inhaler")
                   .build())
           .product(
-              Product.builder()
+              Medication.Product.builder()
                   .id("4024655")
                   .form(CodeableConcept.builder().text("1 dose(s) 1 time(s) per 1 days").build())
                   .build())
@@ -83,7 +82,7 @@ class SwaggerMedication {
                                           "120 ACTUAT Fluticasone propionate .044 MG/ACTUAT Inhaler")
                                       .build())
                               .product(
-                                  Product.builder()
+                                  Medication.Product.builder()
                                       .id("4024655")
                                       .form(
                                           CodeableConcept.builder()
