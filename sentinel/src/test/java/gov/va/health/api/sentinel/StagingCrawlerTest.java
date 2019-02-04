@@ -73,8 +73,8 @@ public class StagingCrawlerTest {
     RequestQueue q = new ConcurrentRequestQueue();
     UrlReplacementRequestQueue rq =
         UrlReplacementRequestQueue.builder()
-            .forceUrl("https://staging-argonaut.lighthouse.va.gov/api/")
-            .baseUrl("https://dev-api.va.gov/services/argonaut/v0/")
+            .replaceUrl("https://dev-api.va.gov/services/argonaut/v0/")
+            .withUrl("https://staging-argonaut.lighthouse.va.gov/api/")
             .requestQueue(q)
             .build();
 

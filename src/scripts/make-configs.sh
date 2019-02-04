@@ -57,7 +57,6 @@ MISSING_SECRETS=false
 [ -z "$MRANDERSON_DB_PASSWORD" ] && echo "Missing configuration: MRANDERSON_DB_PASSWORD" && MISSING_SECRETS=true
 [ $MISSING_SECRETS == true ] && usage "Missing configuration secrets, please update $SECRETS"
 
-
 makeConfig() {
   local project="$1"
   local profile="$2"
@@ -129,20 +128,21 @@ sendMoarSpams() {
 makeConfig ids $PROFILE
 configValue ids $PROFILE spring.datasource.url "$IDS_DB_URL"
 configValue ids $PROFILE spring.datasource.username "$IDS_DB_USER"
-configValue ids $PROFILE spring.datasource.password "$IDS_DB_PASSWORD" 
+configValue ids $PROFILE spring.datasource.password "$IDS_DB_PASSWORD"
 checkForUnsetValues ids $PROFILE
 
 makeConfig mr-anderson $PROFILE
 configValue mr-anderson $PROFILE spring.datasource.url "$MRANDERSON_DB_URL"
 configValue mr-anderson $PROFILE spring.datasource.username "$MRANDERSON_DB_USER"
-configValue mr-anderson $PROFILE spring.datasource.password "$MRANDERSON_DB_PASSWORD" 
+configValue mr-anderson $PROFILE spring.datasource.password "$MRANDERSON_DB_PASSWORD"
 configValue mr-anderson $PROFILE identityservice.url https://localhost:8089
 checkForUnsetValues mr-anderson $PROFILE
 
 makeConfig argonaut $PROFILE
 configValue argonaut $PROFILE mranderson.url https://localhost:8088
-configValue argonaut $PROFILE argonaut.url https://localhost:8090 
+configValue argonaut $PROFILE argonaut.url https://localhost:8090
 configValue argonaut $PROFILE health-check.medication-id 2f773f73-ad7f-56ca-891e-8e364c913fe0
+configValue argonaut $PROFILE conformance.statement-type patient
 configValue argonaut $PROFILE conformance.contact.name "$(whoDis)"
 configValue argonaut $PROFILE conformance.contact.email "$(sendMoarSpams)"
 configValue argonaut $PROFILE conformance.security.token-endpoint https://fake.com/token

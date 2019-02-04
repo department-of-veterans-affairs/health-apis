@@ -1,0 +1,434 @@
+{
+  "id" : "lighthouse-va-fhir-conformance",
+  "resourceType" : "Conformance",
+  "version" : "1.4.0",
+  "name" : "VA Lighthouse FHIR",
+  "publisher" : "Lighthouse Team",
+  "contact" : [
+    {
+      "name" : "Drew Myklegard",
+      "telecom" : [
+        {
+          "system" : "email",
+          "value" : "david.myklegard@va.gov"
+        }
+      ]
+    }
+  ],
+  "date" : "2018-09-27T19:30:00-05:00",
+  "description" : "This is the base conformance statement for FHIR. It represents a server that provides the full set of functionality defined by FHIR. It is provided to use as a template for system designers to build their own conformance statements from.",
+  "kind" : "capability",
+  "software" : {
+    "name" : "VA Lighthouse"
+  },
+  "fhirVersion" : "1.0.2",
+  "acceptUnknown" : "no",
+  "format" : [
+    "application/json+fhir",
+    "application/json",
+    "application/fhir+json"
+  ],
+  "rest" : [
+    {
+      "mode" : "server",
+      "security" : {
+        "extension" : [
+          {
+            "url" : "http://fhir-registry.smarthealthit.org/StructureDefinition/oauth-uris",
+            "extension" : [
+              {
+                "url" : "token",
+                "valueUri" : "https://argonaut.lighthouse.va.gov/token"
+              },
+              {
+                "url" : "authorize",
+                "valueUri" : "https://argonaut.lighthouse.va.gov/authorize"
+              }
+            ]
+          }
+        ],
+        "cors" : true,
+        "service" : [
+          {
+            "coding" : [
+              {
+                "system" : "http://hl7.org/fhir/restful-security-service",
+                "code" : "SMART-on-FHIR",
+                "display" : "SMART-on-FHIR"
+              }
+            ]
+          }
+        ],
+        "description" : "This is the conformance statement to declare that the server supports SMART-on-FHIR. See the SMART-on-FHIR docs for the extension that would go with such a server."
+      },
+      "resource" : [
+        {
+          "type" : "AllergyIntolerance",
+          "profile" : {
+            "reference" : "http://www.fhir.org/guides/argonaut/r2/StructureDefinition-argo-allergyintolerance.html"
+          },
+          "interaction" : [
+            {
+              "code" : "search-type",
+              "documentation" : "Implemented per the specification"
+            },
+            {
+              "code" : "read",
+              "documentation" : "Implemented per the specification"
+            }
+          ],
+          "searchParam" : [
+            {
+              "name" : "patient",
+              "type" : "reference"
+            }
+          ]
+        },
+        {
+          "type" : "Appointment",
+          "profile" : {
+            "reference" : "https://www.hl7.org/fhir/DSTU2/appointment.html"
+          },
+          "interaction" : [
+            {
+              "code" : "search-type",
+              "documentation" : "Implemented per the specification"
+            },
+            {
+              "code" : "read",
+              "documentation" : "Implemented per the specification"
+            }
+          ],
+          "searchParam" : [
+            {
+              "name" : "patient",
+              "type" : "reference"
+            }
+          ]
+        },
+        {
+          "type" : "Condition",
+          "profile" : {
+            "reference" : "http://www.fhir.org/guides/argonaut/r2/StructureDefinition-argo-condition.html"
+          },
+          "interaction" : [
+            {
+              "code" : "search-type",
+              "documentation" : "Implemented per the specification"
+            },
+            {
+              "code" : "read",
+              "documentation" : "Implemented per the specification"
+            }
+          ],
+          "searchParam" : [
+            {
+              "name" : "category",
+              "type" : "string"
+            },
+            {
+              "name" : "clinicalstatus",
+              "type" : "token"
+            },
+            {
+              "name" : "patient",
+              "type" : "reference"
+            }
+          ]
+        },
+        {
+          "type" : "DiagnosticReport",
+          "profile" : {
+            "reference" : "http://www.fhir.org/guides/argonaut/r2/StructureDefinition-argo-diagnosticreport.html"
+          },
+          "interaction" : [
+            {
+              "code" : "search-type",
+              "documentation" : "Implemented per the specification"
+            },
+            {
+              "code" : "read",
+              "documentation" : "Implemented per the specification"
+            }
+          ],
+          "searchParam" : [
+            {
+              "name" : "category",
+              "type" : "string"
+            },
+            {
+              "name" : "code",
+              "type" : "token"
+            },
+            {
+              "name" : "date",
+              "type" : "date"
+            },
+            {
+              "name" : "patient",
+              "type" : "reference"
+            }
+          ]
+        },
+        {
+          "type" : "Encounter",
+          "profile" : {
+            "reference" : "https://www.hl7.org/fhir/DSTU2/encounter.html"
+          },
+          "interaction" : [
+            {
+              "code" : "read",
+              "documentation" : "Implemented per the specification"
+            }
+          ]
+        },
+        {
+          "type" : "Immunization",
+          "profile" : {
+            "reference" : "http://www.fhir.org/guides/argonaut/r2/StructureDefinition-argo-immunization.html"
+          },
+          "interaction" : [
+            {
+              "code" : "search-type",
+              "documentation" : "Implemented per the specification"
+            },
+            {
+              "code" : "read",
+              "documentation" : "Implemented per the specification"
+            }
+          ],
+          "searchParam" : [
+            {
+              "name" : "patient",
+              "type" : "reference"
+            }
+          ]
+        },
+        {
+          "type" : "Location",
+          "profile" : {
+            "reference" : "https://www.hl7.org/fhir/DSTU2/location.html"
+          },
+          "interaction" : [
+            {
+              "code" : "read",
+              "documentation" : "Implemented per the specification"
+            }
+          ]
+        },
+        {
+          "type" : "Medication",
+          "profile" : {
+            "reference" : "http://www.fhir.org/guides/argonaut/r2/StructureDefinition-argo-medication.html"
+          },
+          "interaction" : [
+            {
+              "code" : "read",
+              "documentation" : "Implemented per the specification"
+            }
+          ]
+        },
+        {
+          "type" : "MedicationDispense",
+          "profile" : {
+            "reference" : "https://www.hl7.org/fhir/DSTU2/medicationdispense.html"
+          },
+          "interaction" : [
+            {
+              "code" : "search-type",
+              "documentation" : "Implemented per the specification"
+            },
+            {
+              "code" : "read",
+              "documentation" : "Implemented per the specification"
+            }
+          ],
+          "searchParam" : [
+            {
+              "name" : "patient",
+              "type" : "reference"
+            },
+            {
+              "name" : "status",
+              "type" : "token"
+            },
+            {
+              "name" : "type",
+              "type" : "token"
+            }
+          ]
+        },
+        {
+          "type" : "MedicationOrder",
+          "profile" : {
+            "reference" : "http://www.fhir.org/guides/argonaut/r2/StructureDefinition-argo-medicationorder.html"
+          },
+          "interaction" : [
+            {
+              "code" : "search-type",
+              "documentation" : "Implemented per the specification"
+            },
+            {
+              "code" : "read",
+              "documentation" : "Implemented per the specification"
+            }
+          ],
+          "searchParam" : [
+            {
+              "name" : "patient",
+              "type" : "reference"
+            }
+          ]
+        },
+        {
+          "type" : "MedicationStatement",
+          "profile" : {
+            "reference" : "http://www.fhir.org/guides/argonaut/r2/StructureDefinition-argo-medicationstatement.html"
+          },
+          "interaction" : [
+            {
+              "code" : "search-type",
+              "documentation" : "Implemented per the specification"
+            },
+            {
+              "code" : "read",
+              "documentation" : "Implemented per the specification"
+            }
+          ],
+          "searchParam" : [
+            {
+              "name" : "patient",
+              "type" : "reference"
+            }
+          ]
+        },
+        {
+          "type" : "Observation",
+          "profile" : {
+            "reference" : "http://www.fhir.org/guides/argonaut/r2/StructureDefinition-argo-observationresults.html"
+          },
+          "interaction" : [
+            {
+              "code" : "search-type",
+              "documentation" : "Implemented per the specification"
+            },
+            {
+              "code" : "read",
+              "documentation" : "Implemented per the specification"
+            }
+          ],
+          "searchParam" : [
+            {
+              "name" : "category",
+              "type" : "string"
+            },
+            {
+              "name" : "code",
+              "type" : "token"
+            },
+            {
+              "name" : "date",
+              "type" : "date"
+            },
+            {
+              "name" : "patient",
+              "type" : "reference"
+            }
+          ]
+        },
+        {
+          "type" : "Organization",
+          "profile" : {
+            "reference" : "https://www.hl7.org/fhir/DSTU2/organization.html"
+          },
+          "interaction" : [
+            {
+              "code" : "read",
+              "documentation" : "Implemented per the specification"
+            }
+          ]
+        },
+        {
+          "type" : "Patient",
+          "profile" : {
+            "reference" : "http://www.fhir.org/guides/argonaut/r2/StructureDefinition-argo-patient.html"
+          },
+          "interaction" : [
+            {
+              "code" : "search-type",
+              "documentation" : "Implemented per the specification"
+            },
+            {
+              "code" : "read",
+              "documentation" : "Implemented per the specification"
+            }
+          ],
+          "searchParam" : [
+            {
+              "name" : "birthdate",
+              "type" : "date"
+            },
+            {
+              "name" : "family",
+              "type" : "string"
+            },
+            {
+              "name" : "gender",
+              "type" : "token"
+            },
+            {
+              "name" : "given",
+              "type" : "string"
+            },
+            {
+              "name" : "_id",
+              "type" : "string"
+            },
+            {
+              "name" : "name",
+              "type" : "string"
+            }
+          ]
+        },
+        {
+          "type" : "Practitioner",
+          "profile" : {
+            "reference" : "https://www.hl7.org/fhir/DSTU2/practitioner.html"
+          },
+          "interaction" : [
+            {
+              "code" : "read",
+              "documentation" : "Implemented per the specification"
+            }
+          ]
+        },
+        {
+          "type" : "Procedure",
+          "profile" : {
+            "reference" : "http://www.fhir.org/guides/argonaut/r2/StructureDefinition-argo-procedure.html"
+          },
+          "interaction" : [
+            {
+              "code" : "search-type",
+              "documentation" : "Implemented per the specification"
+            },
+            {
+              "code" : "read",
+              "documentation" : "Implemented per the specification"
+            }
+          ],
+          "searchParam" : [
+            {
+              "name" : "date",
+              "type" : "date"
+            },
+            {
+              "name" : "patient",
+              "type" : "reference"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

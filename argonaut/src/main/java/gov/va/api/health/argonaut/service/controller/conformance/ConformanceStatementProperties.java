@@ -19,11 +19,11 @@ import org.springframework.context.annotation.Configuration;
 @AllArgsConstructor
 @Builder
 public class ConformanceStatementProperties {
-
   private String id;
   private String version;
   private String name;
   private String publisher;
+  private StatementType statementType;
   private ContactProperties contact;
   private String publicationDate;
   private String description;
@@ -31,6 +31,11 @@ public class ConformanceStatementProperties {
   private String fhirVersion;
   private SecurityProperties security;
   private String resourceDocumentation;
+
+  enum StatementType {
+    CLINICIAN,
+    PATIENT
+  }
 
   @Data
   @Accessors(fluent = false)

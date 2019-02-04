@@ -4,16 +4,20 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import lombok.Builder;
 
+/**
+ * The url replacement queue replaces the default url with a provided url to ensure the references
+ * are correct when crawling.
+ */
 public class UrlReplacementRequestQueue implements RequestQueue {
 
-  String baseUrl;
-  String forceUrl;
+  private final String replaceUrl;
+  private final String withUrl;
 
-  RequestQueue requestQueue;
+  private final RequestQueue requestQueue;
 
   @Override
   public void add(String url) {
-    requestQueue.add(url.replace(baseUrl, forceUrl));
+    requestQueue.add(url.replace(replaceUrl, withUrl));
   }
 
   @Override
@@ -27,15 +31,15 @@ public class UrlReplacementRequestQueue implements RequestQueue {
   }
 
   @Builder
-  UrlReplacementRequestQueue(String baseUrl, String forceUrl, RequestQueue requestQueue) {
-    this.baseUrl = baseUrl;
-    this.forceUrl = forceUrl;
+  UrlReplacementRequestQueue(String replaceUrl, String withUrl, RequestQueue requestQueue) {
+    if (isBlank(withUrl)) {
+      throw new IllegalStateException("withUrl not specified.");
+    }
+    if (isBlank(replaceUrl)) {
+      throw new IllegalStateException("replaceUrl not specified.");
+    }
+    this.replaceUrl = replaceUrl;
+    this.withUrl = withUrl;
     this.requestQueue = requestQueue;
-    if (isBlank(forceUrl)) {
-      throw new IllegalStateException("forceUrl not specified.");
-    }
-    if (isBlank(baseUrl)) {
-      throw new IllegalStateException("baseUrl not specified.");
-    }
   }
 }

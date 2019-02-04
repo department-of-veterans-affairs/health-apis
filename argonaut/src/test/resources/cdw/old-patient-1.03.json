@@ -1,239 +1,239 @@
 {
-  "id": "185601V825290",
-  "resourceType": "Patient",
-  "extension": [
+  "id" : "185601V825290",
+  "resourceType" : "Patient",
+  "extension" : [
     {
-      "url": "http://fhir.org/guides/argonaut/StructureDefinition/argo-race",
-      "extension": [
+      "url" : "http://fhir.org/guides/argonaut/StructureDefinition/argo-race",
+      "extension" : [
         {
-          "url": "ombCategory",
-          "valueCoding": {
-            "system": "http://hl7.org/fhir/v3/Race",
-            "code": "1002-5",
-            "display": "American Indian or Alaska Native"
+          "url" : "ombCategory",
+          "valueCoding" : {
+            "system" : "http://hl7.org/fhir/v3/Race",
+            "code" : "1002-5",
+            "display" : "American Indian or Alaska Native"
           }
         },
         {
-          "url": "ombCategory",
-          "valueCoding": {
-            "system": "http://hl7.org/fhir/v3/Race",
-            "code": "2016-3",
-            "display": "White"
+          "url" : "ombCategory",
+          "valueCoding" : {
+            "system" : "http://hl7.org/fhir/v3/Race",
+            "code" : "2016-3",
+            "display" : "White"
           }
         },
         {
-          "url": "ombCategory",
-          "valueCoding": {
-            "system": "http://hl7.org/fhir/v3/Race",
-            "code": "2028-9",
-            "display": "Asian"
+          "url" : "ombCategory",
+          "valueCoding" : {
+            "system" : "http://hl7.org/fhir/v3/Race",
+            "code" : "2028-9",
+            "display" : "Asian"
           }
         },
         {
-          "url": "ombCategory",
-          "valueCoding": {
-            "system": "http://hl7.org/fhir/v3/Race",
-            "code": "2054-5",
-            "display": "Black or African American"
+          "url" : "ombCategory",
+          "valueCoding" : {
+            "system" : "http://hl7.org/fhir/v3/Race",
+            "code" : "2054-5",
+            "display" : "Black or African American"
           }
         },
         {
-          "url": "ombCategory",
-          "valueCoding": {
-            "system": "http://hl7.org/fhir/v3/Race",
-            "code": "2076-8",
-            "display": "Native Hawaiian or Other Pacific Islander"
+          "url" : "ombCategory",
+          "valueCoding" : {
+            "system" : "http://hl7.org/fhir/v3/Race",
+            "code" : "2076-8",
+            "display" : "Native Hawaiian or Other Pacific Islander"
           }
         },
         {
-          "url": "text",
-          "valueString": "American Indian or Alaska Native"
+          "url" : "text",
+          "valueString" : "American Indian or Alaska Native"
         }
       ]
     },
     {
-      "url": "http://fhir.org/guides/argonaut/StructureDefinition/argo-ethnicity",
-      "extension": [
+      "url" : "http://fhir.org/guides/argonaut/StructureDefinition/argo-ethnicity",
+      "extension" : [
         {
-          "url": "ombCategory",
-          "valueCoding": {
-            "system": "http://hl7.org/fhir/ValueSet/v3-Ethnicity",
-            "code": "2186-5",
-            "display": "Not Hispanic or Latino"
+          "url" : "ombCategory",
+          "valueCoding" : {
+            "system" : "http://hl7.org/fhir/ValueSet/v3-Ethnicity",
+            "code" : "2186-5",
+            "display" : "Not Hispanic or Latino"
           }
         },
         {
-          "url": "text",
-          "valueString": "Not Hispanic or Latino"
+          "url" : "text",
+          "valueString" : "Not Hispanic or Latino"
         }
       ]
     },
     {
-      "url": "http://fhir.org/guides/argonaut/StructureDefinition/argo-birthsex",
-      "valueCode": "M"
+      "url" : "http://fhir.org/guides/argonaut/StructureDefinition/argo-birthsex",
+      "valueCode" : "M"
     }
   ],
-  "identifier": [
+  "identifier" : [
     {
-      "use": "usual",
-      "type": {
-        "coding": [
+      "use" : "usual",
+      "type" : {
+        "coding" : [
           {
-            "system": "http://hl7.org/fhir/v2/0203",
-            "code": "MR"
+            "system" : "http://hl7.org/fhir/v2/0203",
+            "code" : "MR"
           }
         ]
       },
-      "system": "http://va.gov/mvi",
-      "value": "185601V825290",
-      "assigner": {
-        "display": "Master Veteran Index"
+      "system" : "http://va.gov/mvi",
+      "value" : "185601V825290",
+      "assigner" : {
+        "display" : "Master Veteran Index"
       }
     },
     {
-      "use": "official",
-      "type": {
-        "coding": [
+      "use" : "official",
+      "type" : {
+        "coding" : [
           {
-            "system": "http://hl7.org/fhir/v2/0203",
-            "code": "SB"
+            "system" : "http://hl7.org/fhir/v2/0203",
+            "code" : "SB"
           }
         ]
       },
-      "system": "http://hl7.org/fhir/sid/us-ssn",
-      "value": "000000131",
-      "assigner": {
-        "display": "United States Social Security Number"
+      "system" : "http://hl7.org/fhir/sid/us-ssn",
+      "value" : "000000131",
+      "assigner" : {
+        "display" : "United States Social Security Number"
       }
     }
   ],
-  "name": [
+  "name" : [
     {
-      "use": "usual",
-      "text": "VETERAN,JOHN Q",
-      "family": [
+      "use" : "usual",
+      "text" : "VETERAN,JOHN Q",
+      "family" : [
         "VETERAN"
       ],
-      "given": [
+      "given" : [
         "JOHN Q"
       ]
     }
   ],
-  "telecom": [
+  "telecom" : [
     {
-      "system": "phone",
-      "value": "5201234567",
-      "use": "home"
+      "system" : "phone",
+      "value" : "5201234567",
+      "use" : "home"
     },
     {
-      "system": "phone",
-      "value": "555555555",
-      "use": "temp"
+      "system" : "phone",
+      "value" : "555555555",
+      "use" : "temp"
     },
     {
-      "system": "phone",
-      "value": "5207175432",
-      "use": "work"
+      "system" : "phone",
+      "value" : "5207175432",
+      "use" : "work"
     }
   ],
-  "gender": "male",
-  "birthDate": "1941-08-30",
-  "deceasedBoolean": false,
-  "address": [
+  "gender" : "male",
+  "birthDate" : "1941-08-30",
+  "deceasedBoolean" : false,
+  "address" : [
     {
-      "state": "*Missing*"
+      "state" : "*Missing*"
     },
     {
-      "line": [
+      "line" : [
         "3601 S 6TH AVE",
         "CHANGE 1",
         "POST POSTGRES UPGRADE 5-22"
       ],
-      "city": "TUCSON",
-      "state": "ARIZONA",
-      "postalCode": "85713"
+      "city" : "TUCSON",
+      "state" : "ARIZONA",
+      "postalCode" : "85713"
     },
     {
-      "line": [
+      "line" : [
         "555 N 6TH"
       ],
-      "city": "FREMONT",
-      "state": "NEBRASKA",
-      "postalCode": "68025"
+      "city" : "FREMONT",
+      "state" : "NEBRASKA",
+      "postalCode" : "68025"
     }
   ],
-  "maritalStatus": {
-    "coding": [
+  "maritalStatus" : {
+    "coding" : [
       {
-        "system": "http://hl7.org/fhir/marital-status",
-        "code": "M",
-        "display": "Married"
+        "system" : "http://hl7.org/fhir/marital-status",
+        "code" : "M",
+        "display" : "Married"
       }
     ]
   },
-  "contact": [
+  "contact" : [
     {
-      "relationship": [
+      "relationship" : [
         {
-          "coding": [
+          "coding" : [
             {
-              "system": "http://hl7.org/fhir/patient-contact-relationship",
-              "code": "emergency",
-              "display": "Emergency"
+              "system" : "http://hl7.org/fhir/patient-contact-relationship",
+              "code" : "emergency",
+              "display" : "Emergency"
             }
           ],
-          "text": "Emergency Contact"
+          "text" : "Emergency Contact"
         }
       ],
-      "name": {
-        "text": "DUCK,DAFFY JOHN"
+      "name" : {
+        "text" : "DUCK,DAFFY JOHN"
       },
-      "telecom": [
+      "telecom" : [
         {
-          "system": "phone",
-          "value": "5206164321"
+          "system" : "phone",
+          "value" : "5206164321"
         }
       ],
-      "address": {
-        "line": [
+      "address" : {
+        "line" : [
           "3601 S. 6TH AVE",
           "CHANGE 1"
         ],
-        "city": "TUCSON",
-        "state": "ARIZONA",
-        "postalCode": "85713"
+        "city" : "TUCSON",
+        "state" : "ARIZONA",
+        "postalCode" : "85713"
       }
     },
     {
-      "relationship": [
+      "relationship" : [
         {
-          "coding": [
+          "coding" : [
             {
-              "system": "http://hl7.org/fhir/patient-contact-relationship",
-              "code": "family",
-              "display": "Family"
+              "system" : "http://hl7.org/fhir/patient-contact-relationship",
+              "code" : "family",
+              "display" : "Family"
             }
           ],
-          "text": "Next Of Kin"
+          "text" : "Next Of Kin"
         }
       ],
-      "name": {
-        "text": "ZZTEST,ALICE JANE"
+      "name" : {
+        "text" : "ZZTEST,ALICE JANE"
       },
-      "telecom": [
+      "telecom" : [
         {
-          "system": "phone",
-          "value": "5204567654"
+          "system" : "phone",
+          "value" : "5204567654"
         }
       ],
-      "address": {
-        "line": [
+      "address" : {
+        "line" : [
           "444 W ORANGE GROVE RD",
           "UNIT 323"
         ],
-        "city": "TUCSON",
-        "state": "ARIZONA",
-        "postalCode": "85713"
+        "city" : "TUCSON",
+        "state" : "ARIZONA",
+        "postalCode" : "85713"
       }
     }
   ]

@@ -1,26 +1,26 @@
 {
-  "resourceType": "MedicationStatement",
-  "id": "62de537d-30e6-591c-8793-95187da5237b",
-  "patient": {
-    "reference": "Patient/185601V825290",
-    "display": "VETERAN,JOHN Q"
+  "resourceType" : "MedicationStatement",
+  "id" : "62de537d-30e6-591c-8793-95187da5237b",
+  "patient" : {
+    "reference" : "Patient/185601V825290",
+    "display" : "VETERAN,JOHN Q"
   },
-  "dateAsserted": "2008-06-26T18:10:30Z",
-  "status": "completed",
-  "medicationReference": {
-    "reference": "Medication/3513d34c-f50a-50d7-9c32-67291b702b64",
-    "display": "ASPIRIN 81MG EC TAB"
+  "dateAsserted" : "2008-06-26T18:10:30Z",
+  "status" : "completed",
+  "medicationReference" : {
+    "reference" : "Medication/3513d34c-f50a-50d7-9c32-67291b702b64",
+    "display" : "ASPIRIN 81MG EC TAB"
   },
-  "dosage": [
+  "dosage" : [
     {
-      "text": "81MG",
-      "timing": {
-        "code": {
-          "text": "EVERY DAY"
+      "text" : "81MG",
+      "timing" : {
+        "code" : {
+          "text" : "EVERY DAY"
         }
       },
-      "route": {
-        "text": "BY MOUTH"
+      "route" : {
+        "text" : "BY MOUTH"
       }
     }
   ]

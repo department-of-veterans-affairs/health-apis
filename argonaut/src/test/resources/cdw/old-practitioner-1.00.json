@@ -1,37 +1,37 @@
 {
-  "resourceType": "Practitioner",
-  "id": "cb75cf5c-0405-5dae-a37a-42f750c40135",
-  "active": false,
-  "name": {
-    "use": "usual",
-    "text": "JONES,PRACTITIONER A",
-    "family": [
+  "resourceType" : "Practitioner",
+  "id" : "cb75cf5c-0405-5dae-a37a-42f750c40135",
+  "active" : false,
+  "name" : {
+    "use" : "usual",
+    "text" : "JONES,PRACTITIONER A",
+    "family" : [
       "JONES"
     ],
-    "given": [
+    "given" : [
       "PRACTITIONER A"
     ]
   },
-  "gender": "female",
-  "birthDate": "1988-05-16",
-  "practitionerRole": [
+  "gender" : "female",
+  "birthDate" : "1988-05-16",
+  "practitionerRole" : [
     {
-      "managingOrganization": {
-        "reference": "https://www.freedomstream.io/CDCArgonaut/api/Organization/7188c8bc-c284-5f3f-9c51-93f5a78d5e41",
-        "display": "VA HEARTLAND - WEST, VISN 15"
+      "managingOrganization" : {
+        "reference" : "https://www.freedomstream.io/CDCArgonaut/api/Organization/7188c8bc-c284-5f3f-9c51-93f5a78d5e41",
+        "display" : "VA HEARTLAND - WEST, VISN 15"
       },
-      "role": {
-        "coding": [
+      "role" : {
+        "coding" : [
           {
-            "system": "http://hl7.org/fhir/practitioner-role",
-            "code": "nurse",
-            "display": "Nurse"
+            "system" : "http://hl7.org/fhir/practitioner-role",
+            "code" : "nurse",
+            "display" : "Nurse"
           }
         ]
       },
-      "healthcareService": [
+      "healthcareService" : [
         {
-          "display": "EKH NURSING SERVICE"
+          "display" : "EKH NURSING SERVICE"
         }
       ]
     }

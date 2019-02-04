@@ -1,73 +1,73 @@
 {
-  "resourceType": "Encounter",
-  "id": "db001de0-6ca8-50b3-9063-acea4bf5df5d",
-  "status": "finished",
-  "class": "emergency",
-  "patient": {
-    "reference": "Patient/185601V825290",
-    "display": "VETERAN,JOHN Q"
+  "resourceType" : "Encounter",
+  "id" : "db001de0-6ca8-50b3-9063-acea4bf5df5d",
+  "status" : "finished",
+  "class" : "emergency",
+  "patient" : {
+    "reference" : "Patient/185601V825290",
+    "display" : "VETERAN,JOHN Q"
   },
-  "participant": [
+  "participant" : [
     {
-      "type": [
+      "type" : [
         {
-          "coding": [
+          "coding" : [
             {
-              "system": "http://hl7.org/fhir/participant-type",
-              "code": "translator",
-              "display": "Translator"
+              "system" : "http://hl7.org/fhir/participant-type",
+              "code" : "translator",
+              "display" : "Translator"
             }
           ],
-          "text": "Translates language"
+          "text" : "Translates language"
         }
       ],
-      "individual": {
-        "reference": "Practitioner/d3f56fac-c7c7-547b-a1e9-de3173d4b628",
-        "display": "CARTER,DOC F"
+      "individual" : {
+        "reference" : "Practitioner/d3f56fac-c7c7-547b-a1e9-de3173d4b628",
+        "display" : "CARTER,DOC F"
       }
     },
     {
-      "individual": {
-        "reference": "Practitioner/93e4e3c3-8d8c-5b53-996f-6047d0232231",
-        "display": "JONES,DOC B"
+      "individual" : {
+        "reference" : "Practitioner/93e4e3c3-8d8c-5b53-996f-6047d0232231",
+        "display" : "JONES,DOC B"
       }
     },
     {
-      "individual": {
-        "reference": "Practitioner/5e27c469-82e4-5725-babb-49cf7eee948f",
-        "display": "CARTER,DOC F"
+      "individual" : {
+        "reference" : "Practitioner/5e27c469-82e4-5725-babb-49cf7eee948f",
+        "display" : "CARTER,DOC F"
       }
     },
     {
-      "individual": {
-        "reference": "Practitioner/1b489f04-19e7-5c7d-9140-ce773c158edd",
-        "display": "SMITH,DOC A"
+      "individual" : {
+        "reference" : "Practitioner/1b489f04-19e7-5c7d-9140-ce773c158edd",
+        "display" : "SMITH,DOC A"
       }
     }
   ],
-  "appointment": {
-    "reference": "Appointment/615f31df-f0c7-5100-ac42-7fb952c630d0"
+  "appointment" : {
+    "reference" : "Appointment/615f31df-f0c7-5100-ac42-7fb952c630d0"
   },
-  "period": {
-    "start": "2011-05-30T11:00:00Z",
-    "end": "2012-05-30T11:00:00Z"
+  "period" : {
+    "start" : "2011-05-30T11:00:00Z",
+    "end" : "2012-05-30T11:00:00Z"
   },
-  "indication": [
+  "indication" : [
     {
-      "reference": "Condition/37d89dc5-45f5-5a2e-9db9-2b17c0d7f318",
-      "display": "Chronic asthmatic bronchitis (SNOMED CT 195949008)"
+      "reference" : "Condition/37d89dc5-45f5-5a2e-9db9-2b17c0d7f318",
+      "display" : "Chronic asthmatic bronchitis (SNOMED CT 195949008)"
     }
   ],
-  "location": [
+  "location" : [
     {
-      "location": {
-        "reference": "Location/eb094a51-ad31-5b6b-b627-96aac4b02b1c",
-        "display": "GNV ED"
+      "location" : {
+        "reference" : "Location/eb094a51-ad31-5b6b-b627-96aac4b02b1c",
+        "display" : "GNV ED"
       }
     }
   ],
-  "serviceProvider": {
-    "reference": "Organization/7dd489a5-977c-5118-82c2-88776f81fdb3",
-    "display": "Insurance Company"
+  "serviceProvider" : {
+    "reference" : "Organization/7dd489a5-977c-5118-82c2-88776f81fdb3",
+    "display" : "Insurance Company"
   }
 }

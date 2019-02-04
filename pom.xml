@@ -10,7 +10,7 @@
   </parent>
   <groupId>gov.va.api.health</groupId>
   <artifactId>health-apis-parent</artifactId>
-  <version>1.0.162-SNAPSHOT</version>
+  <version>1.0.165-SNAPSHOT</version>
   <packaging>pom</packaging>
   <properties>
     <cdw-schemas.version>1.0.41</cdw-schemas.version>
@@ -240,6 +240,7 @@
             <artifactId>formatter-maven-plugin</artifactId>
             <version>${formatter-maven-plugin.version}</version>
             <configuration>
+              <configJsonFile>${project.basedir}/formatter.json.properties</configJsonFile>
               <encoding>UTF-8</encoding>
               <lineEnding>LF</lineEnding>
               <skipJavaFormatting>true</skipJavaFormatting>
@@ -248,6 +249,8 @@
                 <exclude>**/*.java</exclude>
                 <exclude>**/*.xml</exclude>
               </excludes>
+              <sourceDirectory>${project.build.sourceDirectory}/..</sourceDirectory>
+              <testSourceDirectory>${project.build.testSourceDirectory}/..</testSourceDirectory>
             </configuration>
             <executions>
               <execution>

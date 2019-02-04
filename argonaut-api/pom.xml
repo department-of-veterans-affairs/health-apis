@@ -16,7 +16,7 @@
   <parent>
     <groupId>gov.va.api.health</groupId>
     <artifactId>api-starter</artifactId>
-    <version>1.0.162-SNAPSHOT</version>
+    <version>1.0.165-SNAPSHOT</version>
     <relativePath>../api-starter</relativePath>
   </parent>
   <artifactId>argonaut-api</artifactId>

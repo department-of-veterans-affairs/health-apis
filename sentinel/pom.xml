@@ -4,7 +4,7 @@
   <parent>
     <groupId>gov.va.api.health</groupId>
     <artifactId>health-apis-parent</artifactId>
-    <version>1.0.162-SNAPSHOT</version>
+    <version>1.0.165-SNAPSHOT</version>
   </parent>
   <artifactId>sentinel</artifactId>
   <packaging>jar</packaging>
@@ -262,6 +262,7 @@
                 <argument>-Dmranderson.url=https://localhost:8088</argument>
                 <argument>-Dargonaut.url=https://localhost:8090</argument>
                 <argument>-Dhealth-check.medication-id=skip</argument>
+                <argument>-Dconformance.statement-type=patient</argument>
                 <argument>-Dconformance.contact.name=Sentinel</argument>
                 <argument>-Dconformance.contact.email=sentinel@matrix.com</argument>
                 <argument>-Dconformance.security.token-endpoint=http://example.com/token</argument>

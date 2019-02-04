@@ -8,8 +8,8 @@ public class UrlReplacementRequestQueueTest {
 
   UrlReplacementRequestQueue rq =
       UrlReplacementRequestQueue.builder()
-          .forceUrl("https://staging-argonaut.lighthouse.va.gov/api/")
-          .baseUrl("https://dev-api.va.gov/services/argonaut/v0/")
+          .replaceUrl("https://dev-api.va.gov/services/argonaut/v0/")
+          .withUrl("https://staging-argonaut.lighthouse.va.gov/api/")
           .requestQueue(new ConcurrentRequestQueue())
           .build();
 
@@ -17,8 +17,8 @@ public class UrlReplacementRequestQueueTest {
   public void emptyBaseUrlThrowsIllegalStateException() {
     UrlReplacementRequestQueue emptyBaseUrl =
         UrlReplacementRequestQueue.builder()
-            .baseUrl("")
-            .forceUrl("https://staging-argonaut.lighthouse.va.gov/api/")
+            .replaceUrl("")
+            .withUrl("https://staging-argonaut.lighthouse.va.gov/api/")
             .requestQueue(new ConcurrentRequestQueue())
             .build();
     emptyBaseUrl.add("Empty forceUrl");
@@ -28,8 +28,8 @@ public class UrlReplacementRequestQueueTest {
   public void emptyForceUrlThrowsIllegalStateException() {
     UrlReplacementRequestQueue emptyBaseUrl =
         UrlReplacementRequestQueue.builder()
-            .baseUrl("https://dev-api.va.gov/services/argonaut/v0/")
-            .forceUrl("")
+            .replaceUrl("https://dev-api.va.gov/services/argonaut/v0/")
+            .withUrl("")
             .requestQueue(new ConcurrentRequestQueue())
             .build();
     emptyBaseUrl.add("Empty forceUrl");
@@ -82,8 +82,8 @@ public class UrlReplacementRequestQueueTest {
   public void nullBaseUrlThrowsIllegalStateException() {
     UrlReplacementRequestQueue emptyBaseUrl =
         UrlReplacementRequestQueue.builder()
-            .baseUrl(null)
-            .forceUrl("https://staging-argonaut.lighthouse.va.gov/api/")
+            .replaceUrl(null)
+            .withUrl("https://staging-argonaut.lighthouse.va.gov/api/")
             .requestQueue(new ConcurrentRequestQueue())
             .build();
     emptyBaseUrl.add("Empty baseUrl");
@@ -93,8 +93,8 @@ public class UrlReplacementRequestQueueTest {
   public void nullForceUrlThrowsIllegalStateException() {
     UrlReplacementRequestQueue emptyBaseUrl =
         UrlReplacementRequestQueue.builder()
-            .baseUrl("https://dev-api.va.gov/services/argonaut/v0/")
-            .forceUrl(null)
+            .replaceUrl("https://dev-api.va.gov/services/argonaut/v0/")
+            .withUrl(null)
             .requestQueue(new ConcurrentRequestQueue())
             .build();
     emptyBaseUrl.add("Empty forceUrl");

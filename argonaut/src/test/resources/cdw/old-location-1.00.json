@@ -1,30 +1,32 @@
 {
-  "resourceType": "Location",
-  "id": "ba0e9deb-02aa-5527-b162-193ca335bcf5",
-  "status": "active",
-  "name": "O/PALLIATIVE CARE MH SW",
-  "description": "O/PALLIATIVE CARE MH SW",
-  "mode": "instance",
-  "type": {
-    "coding": [
+  "resourceType" : "Location",
+  "id" : "ba0e9deb-02aa-5527-b162-193ca335bcf5",
+  "status" : "active",
+  "name" : "O/PALLIATIVE CARE MH SW",
+  "description" : "O/PALLIATIVE CARE MH SW",
+  "mode" : "instance",
+  "type" : {
+    "coding" : [
       {
-        "system": "http://hl7.org/fhir/v3/RoleCode",
-        "code": "GIM",
-        "display": "General internal medicine clinic"
+        "system" : "http://hl7.org/fhir/v3/RoleCode",
+        "code" : "GIM",
+        "display" : "General internal medicine clinic"
       }
     ]
   },
-  "telecom": [
+  "telecom" : [
     {
-      "system": "phone",
-      "value": "402-995-5393"
+      "system" : "phone",
+      "value" : "402-995-5393"
     }
   ],
-  "address": {
-    "line": [ "4101 WOOLWORTH AVE." ]
+  "address" : {
+    "line" : [
+      "4101 WOOLWORTH AVE."
+    ]
   },
-  "managingOrganization": {
-    "reference": "Organization/37174752-d5da-5806-b54a-578cbe061311",
-    "display": "SWS RAMSEY"
+  "managingOrganization" : {
+    "reference" : "Organization/37174752-d5da-5806-b54a-578cbe061311",
+    "display" : "SWS RAMSEY"
   }
 }

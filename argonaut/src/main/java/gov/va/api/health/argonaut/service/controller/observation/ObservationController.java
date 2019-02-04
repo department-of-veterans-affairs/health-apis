@@ -45,13 +45,11 @@ import org.springframework.web.bind.annotation.RestController;
 )
 @AllArgsConstructor(onConstructor = @__({@Autowired}))
 public class ObservationController {
-
   private Transformer transformer;
   private MrAndersonClient mrAndersonClient;
   private Bundler bundler;
 
   private Observation.Bundle bundle(MultiValueMap<String, String> parameters, int page, int count) {
-
     CdwObservation104Root root = search(parameters);
     LinkConfig linkConfig =
         LinkConfig.builder()
@@ -75,7 +73,6 @@ public class ObservationController {
   /** Read by id. */
   @GetMapping(value = {"/{publicId}"})
   public Observation read(@PathVariable("publicId") String publicId) {
-
     return transformer.apply(
         firstPayloadItem(
             hasPayload(search(Parameters.forIdentity(publicId)).getObservations())
@@ -129,7 +126,7 @@ public class ObservationController {
         count);
   }
 
-  /** Search by patient and category and data if available. */
+  /** Search by patient and category and date if available. */
   @GetMapping(params = {"patient", "category", "date"})
   public Observation.Bundle searchByPatientAndCategory(
       @RequestParam("patient") String patient,
@@ -150,7 +147,7 @@ public class ObservationController {
         count);
   }
 
-  /** Search by patient and category and data if available. */
+  /** Search by patient and category and date if available. */
   @GetMapping(params = {"patient", "code"})
   public Observation.Bundle searchByPatientAndCode(
       @RequestParam("patient") String patient,

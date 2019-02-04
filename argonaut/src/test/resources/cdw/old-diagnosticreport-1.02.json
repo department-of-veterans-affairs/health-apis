@@ -1,32 +1,32 @@
 {
-  "resourceType": "DiagnosticReport",
-  "id": "5d582505-650e-58b3-8673-49138f7b2b04",
-  "status": "final",
-  "category": {
-    "coding": [
+  "resourceType" : "DiagnosticReport",
+  "id" : "5d582505-650e-58b3-8673-49138f7b2b04",
+  "status" : "final",
+  "category" : {
+    "coding" : [
       {
-        "system": "http://hl7.org/fhir/ValueSet/diagnostic-service-sections",
-        "code": "CH",
-        "display": "Chemistry"
+        "system" : "http://hl7.org/fhir/ValueSet/diagnostic-service-sections",
+        "code" : "CH",
+        "display" : "Chemistry"
       },
       {
-        "system": "http://hl7.org/fhir/ValueSet/diagnostic-service-sections",
-        "code": "LAB",
-        "display": "Laboratory"
+        "system" : "http://hl7.org/fhir/ValueSet/diagnostic-service-sections",
+        "code" : "LAB",
+        "display" : "Laboratory"
       }
     ]
   },
-  "code": {
-    "text": "panel"
+  "code" : {
+    "text" : "panel"
   },
-  "effectiveDateTime": "2013-06-21T19:03:16Z",
-  "issued": "2013-06-21T20:05:12Z",
-  "subject": {
-    "reference": "https://www.freedomstream.io/Argonaut/api/Patient/185601V825290",
-    "display": "VETERAN,JOHN Q"
+  "effectiveDateTime" : "2013-06-21T19:03:16Z",
+  "issued" : "2013-06-21T20:05:12Z",
+  "subject" : {
+    "reference" : "https://www.freedomstream.io/Argonaut/api/Patient/185601V825290",
+    "display" : "VETERAN,JOHN Q"
   },
-  "performer": {
-    "reference": "https://www.freedomstream.io/Argonaut/api/Organization/a8b445d3-8840-5139-9666-36a6f15a6ded",
-    "display": "SIOUX FALLS VA HCS"
+  "performer" : {
+    "reference" : "https://www.freedomstream.io/Argonaut/api/Organization/a8b445d3-8840-5139-9666-36a6f15a6ded",
+    "display" : "SIOUX FALLS VA HCS"
   }
 }
