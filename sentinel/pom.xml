@@ -378,6 +378,67 @@
         </plugins>
       </build>
     </profile>
+    <profile>
+      <id>local</id>
+      <activation>
+        <property>
+          <name>sentinel</name>
+          <value>LOCAL</value>
+        </property>
+      </activation>
+      <properties>
+        <sentinel.skipLaunch>false</sentinel.skipLaunch>
+      </properties>
+    </profile>
+    <profile>
+      <id>qa</id>
+      <activation>
+        <property>
+          <name>sentinel</name>
+          <value>QA</value>
+        </property>
+      </activation>
+      <properties>
+        <sentinel.skipLaunch>true</sentinel.skipLaunch>
+      </properties>
+    </profile>
+    <profile>
+      <id>lab</id>
+      <activation>
+        <property>
+          <name>sentinel</name>
+          <value>LAB</value>
+        </property>
+      </activation>
+      <properties>
+        <sentinel.skipLaunch>true</sentinel.skipLaunch>
+        <skipITs>true</skipITs>
+      </properties>
+    </profile>
+    <profile>
+      <id>prod</id>
+      <activation>
+        <property>
+          <name>sentinel</name>
+          <value>PROD</value>
+        </property>
+      </activation>
+      <properties>
+        <sentinel.skipLaunch>true</sentinel.skipLaunch>
+      </properties>
+    </profile>
+    <profile>
+      <id>standby</id>
+      <activation>
+        <property>
+          <name>sentinel</name>
+          <value>STANDBY</value>
+        </property>
+      </activation>
+      <properties>
+        <sentinel.skipLaunch>true</sentinel.skipLaunch>
+      </properties>
+    </profile>
     <!--
       On Jenkins, the certificate password is provided by Jenkins credentials system and
       made available as the environment variable 'HEALTH_API_CERTIFICATE_PASSWORD'. This
