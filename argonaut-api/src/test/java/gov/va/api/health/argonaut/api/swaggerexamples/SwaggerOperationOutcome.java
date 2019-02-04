@@ -1,33 +1,26 @@
 package gov.va.api.health.argonaut.api.swaggerexamples;
 
+import static java.util.Arrays.asList;
+
+import gov.va.api.health.argonaut.api.datatypes.CodeableConcept;
+import gov.va.api.health.argonaut.api.resources.OperationOutcome;
+import gov.va.api.health.argonaut.api.resources.OperationOutcome.Issue;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
 class SwaggerOperationOutcome {
-  static final SomeClass SWAGGER_EXAMPLE_OPERATION_OUTCOME =
-      XXX.builder()
+  static final OperationOutcome SWAGGER_EXAMPLE_OPERATION_OUTCOME =
+      OperationOutcome.builder()
           .resourceType("OperationOutcome")
           .issue(
               asList(
-                  XXX.builder()
-                      .severity("error")
+                  Issue.builder()
+                      .severity(OperationOutcome.Issue.IssueSeverity.error)
                       .code("forbidden")
                       .details(
-                          XXX.builder().text("Token not allowed access to this patient.").build())
+                          CodeableConcept.builder()
+                              .text("Token not allowed access to this patient.")
+                              .build())
                       .build()))
           .build();
-  
-//  static final String OPERATION_OUTCOME =
-//	      "{ "
-//	          + "    \"resourceType\": \"OperationOutcome\", "
-//	          + "    \"issue\": [ "
-//	          + "        { "
-//	          + "            \"severity\": \"error\", "
-//	          + "            \"code\": \"forbidden\", "
-//	          + "            \"details\": { "
-//	          + "                \"text\": \"Token not allowed access to this patient.\" "
-//	          + "            } "
-//	          + "        } "
-//	          + "    ] "
-//	          + "} ";
 }
