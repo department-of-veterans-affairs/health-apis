@@ -78,7 +78,6 @@ class SwaggerAllergyIntolerance {
                   AllergyIntolerance.Entry.builder()
                       .fullUrl(
                           "https://dev-api.va.gov/services/argonaut/v0/AllergyIntolerance/6f9a021b-07d5-53c8-8cce-b49a694d4ad9")
-                      // "https://dev-api.va.gov/services/argonaut/v0/AllergyIntolerance/e2019e0c-fa38-596d-b966-9b86926959a7"
                       .resource(
                           AllergyIntolerance.builder()
                               .resourceType("AllergyIntolerance")

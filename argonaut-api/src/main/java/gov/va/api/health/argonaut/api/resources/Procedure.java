@@ -43,7 +43,7 @@ import lombok.NoArgsConstructor;
 @JsonAutoDetect(fieldVisibility = Visibility.ANY)
 @Schema(
   description = "http://www.fhir.org/guides/argonaut/r2/StructureDefinition-argo-procedure.html",
-  example = SwaggerExamples.PROCEDURE
+  example = "SWAGGER_EXAMPLE_PROCEDURE"
 )
 @ExactlyOneOfs({
   @ExactlyOneOf(
@@ -128,7 +128,7 @@ public class Procedure implements Resource {
   @EqualsAndHashCode(callSuper = true)
   @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
   @JsonDeserialize(builder = Procedure.Bundle.BundleBuilder.class)
-  @Schema(name = "ProcedureBundle", example = SwaggerExamples.PROCEDURE_BUNDLE)
+  @Schema(name = "ProcedureBundle", example = "SWAGGER_EXAMPLE_PROCEDURE_BUNDLE")
   public static class Bundle extends AbstractBundle<Procedure.Entry> {
 
     @Builder

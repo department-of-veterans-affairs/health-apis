@@ -95,7 +95,6 @@ class SwaggerAppointment {
                   Appointment.Entry.builder()
                       .fullUrl(
                           "https://dev-api.va.gov/services/argonaut/v0/Appointment/0be173b4-721c-554e-ba7d-966d04633b68")
-                      // "https://dev-api.va.gov/services/argonaut/v0/Appointment/0be173b4-721c-554e-ba7d-966d04633b68"
                       .resource(
                           Appointment.builder()
                               .resourceType("Appointment")

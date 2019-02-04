@@ -47,7 +47,7 @@ import lombok.NoArgsConstructor;
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 @Schema(
   description = "http://www.fhir.org/guides/argonaut/r2/StructureDefinition-argo-patient.html",
-  example = SwaggerExamples.PATIENT
+  example = "SWAGGER_EXAMPLE_PATIENT"
 )
 @ZeroOrOneOfs({
   @ZeroOrOneOf(
@@ -155,7 +155,7 @@ public class Patient implements Resource {
   @EqualsAndHashCode(callSuper = true)
   @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
   @JsonDeserialize(builder = Patient.Bundle.BundleBuilder.class)
-  @Schema(name = "PatientBundle", example = SwaggerExamples.PATIENT_BUNDLE)
+  @Schema(name = "PatientBundle", example = "SWAGGER_EXAMPLE_PATIENT_BUNDLE")
   public static class Bundle extends AbstractBundle<Patient.Entry> {
 
     @Builder
