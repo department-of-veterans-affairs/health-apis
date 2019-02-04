@@ -19,22 +19,19 @@ public class PractitionerIT {
   public void advanced() {
     verifier.verifyAll(
         test(
-            200,
-            Practitioner.Bundle.class,
-            "/api/Practitioner?_id={id}",
-            verifier.ids().practitioner()),
-        test(404, OperationOutcome.class, "/api/Practitioner?_id={id}", verifier.ids().unknown()),
+            200, Practitioner.Bundle.class, "Practitioner?_id={id}", verifier.ids().practitioner()),
+        test(404, OperationOutcome.class, "Practitioner?_id={id}", verifier.ids().unknown()),
         test(
             200,
             Practitioner.Bundle.class,
-            "/api/Practitioner?identifier={id}",
+            "Practitioner?identifier={id}",
             verifier.ids().practitioner()));
   }
 
   @Test
   public void basic() {
     verifier.verifyAll(
-        test(200, Practitioner.class, "/api/Practitioner/{id}", verifier.ids().practitioner()),
-        test(404, OperationOutcome.class, "/api/Practitioner/{id}", verifier.ids().unknown()));
+        test(200, Practitioner.class, "Practitioner/{id}", verifier.ids().practitioner()),
+        test(404, OperationOutcome.class, "Practitioner/{id}", verifier.ids().unknown()));
   }
 }

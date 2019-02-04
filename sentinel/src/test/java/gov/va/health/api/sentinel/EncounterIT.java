@@ -18,19 +18,15 @@ public class EncounterIT {
   @Category(NotInProd.class)
   public void advanced() {
     verifier.verifyAll(
-        test(200, Encounter.Bundle.class, "/api/Encounter?_id={id}", verifier.ids().encounter()),
-        test(404, OperationOutcome.class, "/api/Encounter?_id={id}", verifier.ids().unknown()),
-        test(
-            200,
-            Encounter.Bundle.class,
-            "/api/Encounter?identifier={id}",
-            verifier.ids().encounter()));
+        test(200, Encounter.Bundle.class, "Encounter?_id={id}", verifier.ids().encounter()),
+        test(404, OperationOutcome.class, "Encounter?_id={id}", verifier.ids().unknown()),
+        test(200, Encounter.Bundle.class, "Encounter?identifier={id}", verifier.ids().encounter()));
   }
 
   @Test
   public void basic() {
     verifier.verifyAll(
-        test(200, Encounter.class, "/api/Encounter/{id}", verifier.ids().encounter()),
-        test(404, OperationOutcome.class, "/api/Encounter/{id}", verifier.ids().unknown()));
+        test(200, Encounter.class, "Encounter/{id}", verifier.ids().encounter()),
+        test(404, OperationOutcome.class, "Encounter/{id}", verifier.ids().unknown()));
   }
 }

@@ -15,6 +15,10 @@ public class IdsIT {
     return Sentinel.get().clients().ids();
   }
 
+  private final String apiPath() {
+    return Sentinel.get().system().clients().argonaut().service().apiPath();
+  }
+
   @Test
   public void legacyApiSupportedForOldMuleApplications() {
     ResourceIdentity identity =
@@ -26,7 +30,7 @@ public class IdsIT {
 
     List<Registration> registrations =
         client()
-            .post("/api/resourceIdentity", Collections.singletonList(identity))
+            .post(apiPath() + "resourceIdentity", Collections.singletonList(identity))
             .expect(201)
             .expectListOf(Registration.class);
     assertThat(registrations.size()).isEqualTo(1);

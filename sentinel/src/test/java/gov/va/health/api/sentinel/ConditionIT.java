@@ -18,36 +18,28 @@ public class ConditionIT {
         test(
             200,
             Condition.Bundle.class,
-            "/api/Condition?patient={patient}&category=problem",
+            "Condition?patient={patient}&category=problem",
             verifier.ids().patient()),
         test(
             200,
             Condition.Bundle.class,
-            "/api/Condition?patient={patient}&category=health-concern",
+            "Condition?patient={patient}&category=health-concern",
             verifier.ids().patient()),
         test(
             200,
             Condition.Bundle.class,
-            "/api/Condition?patient={patient}&clinicalstatus=active",
+            "Condition?patient={patient}&clinicalstatus=active",
             verifier.ids().patient()),
-        test(200, Condition.Bundle.class, "/api/Condition?_id={id}", verifier.ids().condition()),
-        test(404, OperationOutcome.class, "/api/Condition?_id={id}", verifier.ids().unknown()),
-        test(
-            200,
-            Condition.Bundle.class,
-            "/api/Condition?identifier={id}",
-            verifier.ids().condition()));
+        test(200, Condition.Bundle.class, "Condition?_id={id}", verifier.ids().condition()),
+        test(404, OperationOutcome.class, "Condition?_id={id}", verifier.ids().unknown()),
+        test(200, Condition.Bundle.class, "Condition?identifier={id}", verifier.ids().condition()));
   }
 
   @Test
   public void basic() {
     verifier.verifyAll(
-        test(200, Condition.class, "/api/Condition/{id}", verifier.ids().condition()),
-        test(404, OperationOutcome.class, "/api/Condition/{id}", verifier.ids().unknown()),
-        test(
-            200,
-            Condition.Bundle.class,
-            "/api/Condition?patient={patient}",
-            verifier.ids().patient()));
+        test(200, Condition.class, "Condition/{id}", verifier.ids().condition()),
+        test(404, OperationOutcome.class, "Condition/{id}", verifier.ids().unknown()),
+        test(200, Condition.Bundle.class, "Condition?patient={patient}", verifier.ids().patient()));
   }
 }

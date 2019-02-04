@@ -20,25 +20,25 @@ public class PatientIT {
         test(
             200,
             Patient.Bundle.class,
-            "/api/Patient?family={family}&gender={gender}",
+            "Patient?family={family}&gender={gender}",
             verifier.ids().pii().family(),
             verifier.ids().pii().gender()),
         test(
             200,
             Patient.Bundle.class,
-            "/api/Patient?given={given}&gender={gender}",
+            "Patient?given={given}&gender={gender}",
             verifier.ids().pii().given(),
             verifier.ids().pii().gender()),
         test(
             200,
             Patient.Bundle.class,
-            "/api/Patient?name={name}&birthdate={birthdate}",
+            "Patient?name={name}&birthdate={birthdate}",
             verifier.ids().pii().name(),
             verifier.ids().pii().birthdate()),
         test(
             200,
             Patient.Bundle.class,
-            "/api/Patient?name={name}&gender={gender}",
+            "Patient?name={name}&gender={gender}",
             verifier.ids().pii().name(),
             verifier.ids().pii().gender()));
   }
@@ -46,8 +46,8 @@ public class PatientIT {
   @Test
   public void basic() {
     verifier.verifyAll(
-        test(200, Patient.class, "/api/Patient/{id}", verifier.ids().patient()),
-        test(200, Patient.Bundle.class, "/api/Patient?_id={id}", verifier.ids().patient()));
+        test(200, Patient.class, "Patient/{id}", verifier.ids().patient()),
+        test(200, Patient.Bundle.class, "Patient?_id={id}", verifier.ids().patient()));
   }
 
   /**
@@ -59,13 +59,13 @@ public class PatientIT {
   public void patientMatching() {
     if (Sentinel.environment() == Environment.LOCAL) {
       verifier.verifyAll(
-          test(404, OperationOutcome.class, "/api/Patient/{id}", verifier.ids().unknown()),
-          test(404, OperationOutcome.class, "/api/Patient?_id={id}", verifier.ids().unknown()));
+          test(404, OperationOutcome.class, "Patient/{id}", verifier.ids().unknown()),
+          test(404, OperationOutcome.class, "Patient?_id={id}", verifier.ids().unknown()));
 
     } else {
       verifier.verifyAll(
-          test(403, OperationOutcome.class, "/api/Patient/{id}", verifier.ids().unknown()),
-          test(403, OperationOutcome.class, "/api/Patient?_id={id}", verifier.ids().unknown()));
+          test(403, OperationOutcome.class, "Patient/{id}", verifier.ids().unknown()),
+          test(403, OperationOutcome.class, "Patient?_id={id}", verifier.ids().unknown()));
     }
   }
 
@@ -77,6 +77,6 @@ public class PatientIT {
   @Category(NotInProd.class)
   public void patientIdentifierSearching() {
     verifier.verify(
-        test(200, Patient.Bundle.class, "/api/Patient?identifier={id}", verifier.ids().patient()));
+        test(200, Patient.Bundle.class, "Patient?identifier={id}", verifier.ids().patient()));
   }
 }

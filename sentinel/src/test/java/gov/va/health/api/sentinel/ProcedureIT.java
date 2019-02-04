@@ -19,34 +19,26 @@ public class ProcedureIT {
         test(
             200,
             Procedure.Bundle.class,
-            "api/Procedure?patient={patient}&date={onDate}",
+            "Procedure?patient={patient}&date={onDate}",
             verifier.ids().patient(),
             verifier.ids().procedures().onDate()),
         test(
             200,
             Procedure.Bundle.class,
-            "api/Procedure?patient={patient}&date={fromDate}&date={toDate}",
+            "Procedure?patient={patient}&date={fromDate}&date={toDate}",
             verifier.ids().patient(),
             verifier.ids().procedures().fromDate(),
             verifier.ids().procedures().toDate()),
-        test(200, Procedure.Bundle.class, "/api/Procedure?_id={id}", verifier.ids().procedure()),
-        test(404, OperationOutcome.class, "/api/Procedure?_id={id}", verifier.ids().unknown()),
-        test(
-            200,
-            Procedure.Bundle.class,
-            "/api/Procedure?identifier={id}",
-            verifier.ids().procedure()));
+        test(200, Procedure.Bundle.class, "Procedure?_id={id}", verifier.ids().procedure()),
+        test(404, OperationOutcome.class, "Procedure?_id={id}", verifier.ids().unknown()),
+        test(200, Procedure.Bundle.class, "Procedure?identifier={id}", verifier.ids().procedure()));
   }
 
   @Test
   public void basic() {
     verifier.verifyAll(
-        test(200, Procedure.class, "/api/Procedure/{id}", verifier.ids().procedure()),
-        test(404, OperationOutcome.class, "/api/Procedure/{id}", verifier.ids().unknown()),
-        test(
-            200,
-            Procedure.Bundle.class,
-            "/api/Procedure?patient={patient}",
-            verifier.ids().patient()));
+        test(200, Procedure.class, "Procedure/{id}", verifier.ids().procedure()),
+        test(404, OperationOutcome.class, "Procedure/{id}", verifier.ids().unknown()),
+        test(200, Procedure.Bundle.class, "Procedure?patient={patient}", verifier.ids().patient()));
   }
 }

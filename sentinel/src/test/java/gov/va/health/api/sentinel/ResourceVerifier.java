@@ -14,6 +14,7 @@ public class ResourceVerifier {
   private static final ResourceVerifier INSTANCE = new ResourceVerifier();
   @Getter private final TestClient argonaut = Sentinel.get().clients().argonaut();
   @Getter private final TestIds ids = IdRegistrar.of(Sentinel.get().system()).registeredIds();
+  private static final String apiPath = Sentinel.get().system().argonaut().apiPath();
 
   public static ResourceVerifier get() {
     return INSTANCE;
@@ -22,7 +23,7 @@ public class ResourceVerifier {
   public static <T> TestCase<T> test(
       int status, Class<T> response, String path, String... parameters) {
     return TestCase.<T>builder()
-        .path(path)
+        .path(apiPath + path)
         .parameters(parameters)
         .response(response)
         .status(status)

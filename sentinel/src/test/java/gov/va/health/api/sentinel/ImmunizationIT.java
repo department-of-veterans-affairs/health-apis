@@ -17,27 +17,24 @@ public class ImmunizationIT {
   public void advanced() {
     verifier.verifyAll(
         test(
-            200,
-            Immunization.Bundle.class,
-            "/api/Immunization?_id={id}",
-            verifier.ids().immunization()),
-        test(404, OperationOutcome.class, "/api/Immunization?_id={id}", verifier.ids().unknown()),
+            200, Immunization.Bundle.class, "Immunization?_id={id}", verifier.ids().immunization()),
+        test(404, OperationOutcome.class, "Immunization?_id={id}", verifier.ids().unknown()),
         test(
             200,
             Immunization.Bundle.class,
-            "/api/Immunization?identifier={id}",
+            "Immunization?identifier={id}",
             verifier.ids().immunization()));
   }
 
   @Test
   public void basic() {
     verifier.verifyAll(
-        test(200, Immunization.class, "/api/Immunization/{id}", verifier.ids().immunization()),
-        test(404, OperationOutcome.class, "/api/Immunization/{id}", verifier.ids().unknown()),
+        test(200, Immunization.class, "Immunization/{id}", verifier.ids().immunization()),
+        test(404, OperationOutcome.class, "Immunization/{id}", verifier.ids().unknown()),
         test(
             200,
             Immunization.Bundle.class,
-            "/api/Immunization?patient={patient}",
+            "Immunization?patient={patient}",
             verifier.ids().patient()));
   }
 }

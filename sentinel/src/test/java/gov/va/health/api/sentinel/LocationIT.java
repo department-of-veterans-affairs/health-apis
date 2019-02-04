@@ -18,19 +18,15 @@ public class LocationIT {
   @Category(NotInProd.class)
   public void advanced() {
     verifier.verifyAll(
-        test(200, Location.Bundle.class, "/api/Location?_id={id}", verifier.ids().location()),
-        test(404, OperationOutcome.class, "/api/Location?_id={id}", verifier.ids().unknown()),
-        test(
-            200,
-            Location.Bundle.class,
-            "/api/Location?identifier={id}",
-            verifier.ids().location()));
+        test(200, Location.Bundle.class, "Location?_id={id}", verifier.ids().location()),
+        test(404, OperationOutcome.class, "Location?_id={id}", verifier.ids().unknown()),
+        test(200, Location.Bundle.class, "Location?identifier={id}", verifier.ids().location()));
   }
 
   @Test
   public void basic() {
     verifier.verifyAll(
-        test(200, Location.class, "/api/Location/{id}", verifier.ids().location()),
-        test(404, OperationOutcome.class, "/api/Location/{id}", verifier.ids().unknown()));
+        test(200, Location.class, "Location/{id}", verifier.ids().location()),
+        test(404, OperationOutcome.class, "Location/{id}", verifier.ids().unknown()));
   }
 }

@@ -21,27 +21,23 @@ public class MedicationDispenseIT {
         test(
             200,
             MedicationDispense.Bundle.class,
-            "/api/MedicationDispense?_id={id}",
+            "MedicationDispense?_id={id}",
             verifier.ids().medicationDispense()),
         test(
             200,
             MedicationDispense.Bundle.class,
-            "/api/MedicationDispense?identifier={id}",
+            "MedicationDispense?identifier={id}",
             verifier.ids().medicationDispense()),
-        test(
-            404,
-            OperationOutcome.class,
-            "/api/MedicationDispense?_id={id}",
-            verifier.ids().unknown()),
+        test(404, OperationOutcome.class, "MedicationDispense?_id={id}", verifier.ids().unknown()),
         test(
             200,
             MedicationDispense.Bundle.class,
-            "/api/MedicationDispense?patient={patient}&status=stopped,completed",
+            "MedicationDispense?patient={patient}&status=stopped,completed",
             verifier.ids().patient()),
         test(
             200,
             MedicationDispense.Bundle.class,
-            "/api/MedicationDispense?patient={patient}&type=FF,UD",
+            "MedicationDispense?patient={patient}&type=FF,UD",
             verifier.ids().patient()));
   }
 
@@ -51,13 +47,13 @@ public class MedicationDispenseIT {
         test(
             200,
             MedicationDispense.class,
-            "/api/MedicationDispense/{id}",
+            "MedicationDispense/{id}",
             verifier.ids().medicationDispense()),
-        test(404, OperationOutcome.class, "/api/MedicationDispense/{id}", verifier.ids().unknown()),
+        test(404, OperationOutcome.class, "MedicationDispense/{id}", verifier.ids().unknown()),
         test(
             200,
             MedicationDispense.Bundle.class,
-            "/api/MedicationDispense?patient={patient}",
+            "MedicationDispense?patient={patient}",
             verifier.ids().patient()));
   }
 }

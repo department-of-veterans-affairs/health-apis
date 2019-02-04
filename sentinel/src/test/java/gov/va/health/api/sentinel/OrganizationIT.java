@@ -18,22 +18,19 @@ public class OrganizationIT {
   public void advanced() {
     verifier.verifyAll(
         test(
-            200,
-            Organization.Bundle.class,
-            "/api/Organization?_id={id}",
-            verifier.ids().organization()),
-        test(404, OperationOutcome.class, "/api/Organization?_id={id}", verifier.ids().unknown()),
+            200, Organization.Bundle.class, "Organization?_id={id}", verifier.ids().organization()),
+        test(404, OperationOutcome.class, "Organization?_id={id}", verifier.ids().unknown()),
         test(
             200,
             Organization.Bundle.class,
-            "/api/Organization?identifier={id}",
+            "Organization?identifier={id}",
             verifier.ids().organization()));
   }
 
   @Test
   public void basic() {
     verifier.verifyAll(
-        test(200, Organization.class, "/api/Organization/{id}", verifier.ids().organization()),
-        test(404, OperationOutcome.class, "/api/Organization/{id}", verifier.ids().unknown()));
+        test(200, Organization.class, "Organization/{id}", verifier.ids().organization()),
+        test(404, OperationOutcome.class, "Organization/{id}", verifier.ids().unknown()));
   }
 }

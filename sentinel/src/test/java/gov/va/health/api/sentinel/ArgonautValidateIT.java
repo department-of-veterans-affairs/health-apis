@@ -80,9 +80,13 @@ public class ArgonautValidateIT {
     return Sentinel.get().clients().argonaut();
   }
 
+  private final String apiPath() {
+    return Sentinel.get().system().clients().argonaut().service().apiPath();
+  }
+
   @Test
   public void validate() {
-    String path = "/api/" + resource;
+    String path = apiPath() + resource;
 
     AbstractBundle<?> bundle = argonaut().get(path + "?_id={id}", id).expectValid(bundleType);
     argonaut().post(path + "/$validate", bundle).expect(200).expectValid(OperationOutcome.class);

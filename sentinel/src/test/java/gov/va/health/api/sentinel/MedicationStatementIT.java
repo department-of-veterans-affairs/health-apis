@@ -19,17 +19,13 @@ public class MedicationStatementIT {
         test(
             200,
             MedicationStatement.Bundle.class,
-            "/api/MedicationStatement?_id={id}",
+            "MedicationStatement?_id={id}",
             verifier.ids().medicationStatement()),
-        test(
-            404,
-            OperationOutcome.class,
-            "/api/MedicationStatement?_id={id}",
-            verifier.ids().unknown()),
+        test(404, OperationOutcome.class, "MedicationStatement?_id={id}", verifier.ids().unknown()),
         test(
             200,
             MedicationStatement.Bundle.class,
-            "/api/MedicationStatement?identifier={id}",
+            "MedicationStatement?identifier={id}",
             verifier.ids().medicationStatement()));
   }
 
@@ -39,14 +35,13 @@ public class MedicationStatementIT {
         test(
             200,
             MedicationStatement.class,
-            "/api/MedicationStatement/{id}",
+            "MedicationStatement/{id}",
             verifier.ids().medicationStatement()),
-        test(
-            404, OperationOutcome.class, "/api/MedicationStatement/{id}", verifier.ids().unknown()),
+        test(404, OperationOutcome.class, "MedicationStatement/{id}", verifier.ids().unknown()),
         test(
             200,
             MedicationStatement.Bundle.class,
-            "/api/MedicationStatement?patient={patient}",
+            "MedicationStatement?patient={patient}",
             verifier.ids().patient()));
   }
 }
