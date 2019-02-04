@@ -80,6 +80,12 @@ public class SystemDefinitions {
         .patient("1017283132V631076")
         .procedure("fd79a9d9-e85b-58b5-b993-b550d5b7802e")
         .procedures(procedures())
+        .location("unused")
+        .appointment("unused")
+        .medicationDispense("unused")
+        .encounter("unused")
+        .organization("unused")
+        .practitioner("unused")
         .build();
   }
 
