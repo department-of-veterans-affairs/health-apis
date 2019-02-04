@@ -16,7 +16,7 @@ import lombok.experimental.UtilityClass;
 
 @UtilityClass
 class SwaggerOrganization {
-  static final Organization SWAGGER_EXAMPLE_ORGANIZATON =
+  static final Organization SWAGGER_EXAMPLE_ORGANIZATION =
       Organization.builder()
           .resourceType("Organization")
           .id("6a96677d-f487-52bb-befd-6c90c7f49fa6")
