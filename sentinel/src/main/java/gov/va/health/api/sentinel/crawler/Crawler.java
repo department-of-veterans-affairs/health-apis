@@ -133,6 +133,7 @@ public class Crawler {
             .header("Authorization", "Bearer " + authenticationToken.get())
             .contentType("application/fhir+json")
             .header("jargonaut", forceJargonaut)
+            .relaxedHTTPSValidation()
             .get(url)
             .andReturn();
     resultBuilder.httpStatus(response.getStatusCode()).body(response.getBody().asString());

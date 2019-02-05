@@ -4,7 +4,7 @@
   <parent>
     <groupId>gov.va.api.health</groupId>
     <artifactId>service-starter</artifactId>
-    <version>1.0.166-SNAPSHOT</version>
+    <version>1.0.167-SNAPSHOT</version>
     <relativePath>../service-starter</relativePath>
   </parent>
   <artifactId>mr-anderson</artifactId>

@@ -20,21 +20,16 @@ import gov.va.api.health.argonaut.api.resources.Practitioner;
 import gov.va.api.health.argonaut.api.resources.Procedure;
 import gov.va.health.api.sentinel.categories.NotInLab;
 import gov.va.health.api.sentinel.categories.NotInProd;
-import lombok.Getter;
 import lombok.SneakyThrows;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 import org.springframework.beans.BeanUtils;
 
-@RunWith(Parameterized.class)
 public class ArgonautValidateIT {
 
-  TestIds ids;
-
-  @Getter TestClient argonaut;
+  private TestClient argonaut;
+  private TestIds ids;
 
   @SneakyThrows
   private static void murderResourceType(AbstractBundle<?> bundle) {
@@ -50,15 +45,15 @@ public class ArgonautValidateIT {
   }
 
   private void validate(String resource, String id, Class<? extends AbstractBundle<?>> bundleType) {
-    String path = argonaut().service().apiPath() + resource;
+    String path = argonaut.service().apiPath() + resource;
 
-    AbstractBundle<?> bundle = argonaut().get(path + "?_id={id}", id).expectValid(bundleType);
-    argonaut().post(path + "/$validate", bundle).expect(200).expectValid(OperationOutcome.class);
+    AbstractBundle<?> bundle = argonaut.get(path + "?_id={id}", id).expectValid(bundleType);
+    argonaut.post(path + "/$validate", bundle).expect(200).expectValid(OperationOutcome.class);
     /*
      * Murder the resource so it's not valid.
      */
     murderResourceType(bundle);
-    argonaut().post(path + "/$validate", bundle).expect(400).expectValid(OperationOutcome.class);
+    argonaut.post(path + "/$validate", bundle).expect(400).expectValid(OperationOutcome.class);
   }
 
   @Test
