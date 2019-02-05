@@ -59,9 +59,9 @@ public class InjectSwaggerExamplesTest {
       if (exampleObject == null) {
         continue;
       }
+      JsonNode exampleJsonNode = mapper.readTree(mapper.writeValueAsString(exampleObject));
       assertThat(parent instanceof ObjectNode).isTrue();
-      ((ObjectNode) parent)
-          .set("example", mapper.readTree(mapper.writeValueAsString(exampleObject)));
+      ((ObjectNode) parent).set("example", exampleJsonNode);
       usedKeys.add(key);
     }
 
@@ -74,6 +74,10 @@ public class InjectSwaggerExamplesTest {
     mapper.writerWithDefaultPrettyPrinter().writeValue(swaggerFile, root);
   }
 
+  /**
+   * Collect Swagger examples from static fields in the other classes in this package. The resulting
+   * map contains the examples keyed by their field names.
+   */
   @SneakyThrows
   private Map<String, Object> loadSwaggerExamples() {
     final Set<Class<?>> swaggerExampleClasses =
@@ -101,9 +105,9 @@ public class InjectSwaggerExamplesTest {
     return swaggerExamples;
   }
 
+  /** Find the target directory by climbing up the file tree from this class. */
   private File targetDirectory() {
     final URL classUrl = getClass().getResource(getClass().getSimpleName() + ".class");
-    // Starting with this test class, climb up the file tree to find the target folder
     File file = toFile(classUrl);
     while (true) {
       file = file.getParentFile();
