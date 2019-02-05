@@ -57,7 +57,6 @@ doTest() {
   local filter
   [ -n "$EXCLUDE_CATEGORY" ] && filter="--filter=org.junit.experimental.categories.ExcludeCategories=$EXCLUDE_CATEGORY"
   [ -n "$INCLUDE_CATEGORY" ] && filter+=" org.junit.experimental.categories.IncludeCategories=$INCLUDE_CATEGORY"
-  java -cp "$(pwd)/*" $SYSTEM_PROPERTIES org.junit.runner.JUnitCore $filter $tests
   local noise="org.junit"
   noise+="|groovy.lang.Meta"
   noise+="|io.restassured.filter"
