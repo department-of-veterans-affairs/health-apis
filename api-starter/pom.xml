@@ -4,7 +4,7 @@
   <parent>
     <groupId>gov.va.api.health</groupId>
     <artifactId>health-apis-parent</artifactId>
-    <version>1.0.165-SNAPSHOT</version>
+    <version>1.0.166-SNAPSHOT</version>
   </parent>
   <artifactId>api-starter</artifactId>
   <packaging>pom</packaging>

@@ -12,9 +12,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ResourceVerifier {
   private static final ResourceVerifier INSTANCE = new ResourceVerifier();
-  @Getter private final TestClient argonaut = Sentinel.get().clients().argonaut();
-  @Getter private final TestIds ids = IdRegistrar.of(Sentinel.get().system()).registeredIds();
+
+  @Getter(lazy = true)
+  private final Sentinel sentinel = Sentinel.get();
+
+  @Getter private final TestClient argonaut = sentinel().clients().argonaut();
   private static final String apiPath = Sentinel.get().system().argonaut().apiPath();
+  @Getter private final TestIds ids = IdRegistrar.of(sentinel().system()).registeredIds();
 
   public static ResourceVerifier get() {
     return INSTANCE;
