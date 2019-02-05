@@ -62,14 +62,14 @@ public class SystemDefinitions {
                 .url("https://dev-api.va.gov")
                 .port(443)
                 .accessToken(noAccessToken())
-                .apiPath("")
+                .apiPath("/not-available/")
                 .build())
         .mrAnderson(
             ServiceDefinition.builder()
                 .url("https://dev-api.va.gov")
                 .port(443)
                 .accessToken(noAccessToken())
-                .apiPath("")
+                .apiPath("/not-available/")
                 .build())
         .argonaut(
             ServiceDefinition.builder()
@@ -118,14 +118,14 @@ public class SystemDefinitions {
                 .url(optionUrlIds("https://localhost"))
                 .port(8089)
                 .accessToken(noAccessToken())
-                .apiPath("")
+                .apiPath("/api/")
                 .build())
         .mrAnderson(
             ServiceDefinition.builder()
                 .url(optionUrlMrAnderson("https://localhost"))
                 .port(8088)
                 .accessToken(noAccessToken())
-                .apiPath("")
+                .apiPath("/api/")
                 .build())
         .argonaut(
             ServiceDefinition.builder()
@@ -214,7 +214,7 @@ public class SystemDefinitions {
                 .url(optionUrlIds("https://argonaut.lighthouse.va.gov"))
                 .port(443)
                 .accessToken(noAccessToken())
-                .apiPath("")
+                .apiPath("/not-available/")
                 .build())
         .mrAnderson(
             ServiceDefinition.builder()
@@ -222,7 +222,7 @@ public class SystemDefinitions {
                 .url(optionUrlMrAnderson("https://argonaut.lighthouse.va.gov"))
                 .port(443)
                 .accessToken(noAccessToken())
-                .apiPath("")
+                .apiPath("/not-available/")
                 .build())
         .argonaut(
             ServiceDefinition.builder()
@@ -270,7 +270,7 @@ public class SystemDefinitions {
                 .url(optionUrlIds("https://qa-argonaut.lighthouse.va.gov"))
                 .port(443)
                 .accessToken(noAccessToken())
-                .apiPath("")
+                .apiPath("/not-available/")
                 .build())
         .mrAnderson(
             ServiceDefinition.builder()
@@ -278,7 +278,7 @@ public class SystemDefinitions {
                 .url(optionUrlMrAnderson("https://qa-argonaut.lighthouse.va.gov"))
                 .port(443)
                 .accessToken(noAccessToken())
-                .apiPath("")
+                .apiPath("/not-available/")
                 .build())
         .argonaut(
             ServiceDefinition.builder()
@@ -300,7 +300,7 @@ public class SystemDefinitions {
                 .url(optionUrlIds("https://staging-argonaut.lighthouse.va.gov"))
                 .port(443)
                 .accessToken(noAccessToken())
-                .apiPath("")
+                .apiPath("/not-available/")
                 .build())
         .mrAnderson(
             ServiceDefinition.builder()
@@ -308,7 +308,7 @@ public class SystemDefinitions {
                 .url(optionUrlMrAnderson("https://staging-argonaut.lighthouse.va.gov"))
                 .port(443)
                 .accessToken(noAccessToken())
-                .apiPath("")
+                .apiPath("/not-available/")
                 .build())
         .argonaut(
             ServiceDefinition.builder()
