@@ -117,7 +117,11 @@ public class ResourceDiscovery {
    */
   public List<String> queries() {
     Conformance conformanceStatement =
-        RestAssured.given().baseUri(url).get("metadata").as(Conformance.class);
+        RestAssured.given()
+            .relaxedHTTPSValidation()
+            .baseUri(url)
+            .get("metadata")
+            .as(Conformance.class);
     List<RestResource> restResources = extractRestResources(conformanceStatement);
 
     List<String> queries = new LinkedList<>();
