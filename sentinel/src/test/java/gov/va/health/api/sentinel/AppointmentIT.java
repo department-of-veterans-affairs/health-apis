@@ -9,13 +9,12 @@ import gov.va.health.api.sentinel.categories.NotInProd;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-@Category(NotInLab.class)
 public class AppointmentIT {
 
   ResourceVerifier verifier = ResourceVerifier.get();
 
+  @Category({NotInLab.class, NotInProd.class})
   @Test
-  @Category(NotInProd.class)
   public void advanced() {
     verifier.verifyAll(
         test(200, Appointment.Bundle.class, "Appointment?_id={id}", verifier.ids().appointment()),
@@ -32,6 +31,7 @@ public class AppointmentIT {
             verifier.ids().patient()));
   }
 
+  @Category(NotInLab.class)
   @Test
   public void basic() {
     verifier.verifyAll(

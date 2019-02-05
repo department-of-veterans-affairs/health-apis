@@ -18,7 +18,6 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 @Slf4j
-@Category({NotInLocal.class, NotInLab.class, NotInProd.class})
 public class LabCrawlerTest {
 
   private static final String SAPIDER =
@@ -80,26 +79,31 @@ public class LabCrawlerTest {
     assertThat(results.failures()).withFailMessage("%d Failures", results.failures()).isEqualTo(0);
   }
 
+  @Category({NotInLocal.class, NotInLab.class, NotInProd.class})
   @Test
   public void crawlUser1() {
     crawl(robots.user1());
   }
 
+  @Category({NotInLocal.class, NotInLab.class, NotInProd.class})
   @Test
   public void crawlUser2() {
     crawl(robots.user2());
   }
 
+  @Category({NotInLocal.class, NotInLab.class, NotInProd.class})
   @Test
   public void crawlUser3() {
     crawl(robots.user3());
   }
 
+  @Category({NotInLocal.class, NotInLab.class, NotInProd.class})
   @Test
   public void crawlUser4() {
     crawl(robots.user4());
   }
 
+  @Category({NotInLocal.class, NotInLab.class, NotInProd.class})
   @Test
   public void crawlUser5() {
     crawl(robots.user5());

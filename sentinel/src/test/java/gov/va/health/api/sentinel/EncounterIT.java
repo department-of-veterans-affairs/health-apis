@@ -9,13 +9,12 @@ import gov.va.health.api.sentinel.categories.NotInProd;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-@Category(NotInLab.class)
 public class EncounterIT {
 
   ResourceVerifier verifier = ResourceVerifier.get();
 
+  @Category({NotInLab.class, NotInProd.class})
   @Test
-  @Category(NotInProd.class)
   public void advanced() {
     verifier.verifyAll(
         test(200, Encounter.Bundle.class, "Encounter?_id={id}", verifier.ids().encounter()),
@@ -23,6 +22,7 @@ public class EncounterIT {
         test(200, Encounter.Bundle.class, "Encounter?identifier={id}", verifier.ids().encounter()));
   }
 
+  @Category(NotInLab.class)
   @Test
   public void basic() {
     verifier.verifyAll(

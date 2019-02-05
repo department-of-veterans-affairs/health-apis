@@ -4,10 +4,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
+import gov.va.health.api.sentinel.categories.NotInLab;
+import gov.va.health.api.sentinel.categories.NotInProd;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 public class IdsIT {
 
@@ -19,6 +22,7 @@ public class IdsIT {
     return Sentinel.get().system().clients().argonaut().service().apiPath();
   }
 
+  @Category({NotInProd.class, NotInLab.class})
   @Test
   public void legacyApiSupportedForOldMuleApplications() {
     ResourceIdentity identity =
@@ -44,11 +48,13 @@ public class IdsIT {
     assertThat(identities).containsExactly(identity);
   }
 
+  @Category({NotInProd.class, NotInLab.class})
   @Test
   public void lookupReturns404ForUnknownId() {
     client().get("/api/v1/ids/{id}", UUID.randomUUID().toString()).expect(404);
   }
 
+  @Category({NotInProd.class, NotInLab.class})
   @Test
   public void registerFlow() {
     ResourceIdentity identity =
@@ -81,6 +87,7 @@ public class IdsIT {
     assertThat(identities).containsExactly(identity);
   }
 
+  @Category({NotInProd.class, NotInLab.class})
   @Test
   public void registerPatientFlowUsesPatientProvidedIdentifier() {
     String icn = "185601V825290";
@@ -100,6 +107,7 @@ public class IdsIT {
     assertThat(identities).containsExactly(identity);
   }
 
+  @Category({NotInProd.class, NotInLab.class})
   @Test
   public void registerReturns400ForInvalidRequest() {
     ResourceIdentity identity =

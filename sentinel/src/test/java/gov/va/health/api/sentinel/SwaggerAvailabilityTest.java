@@ -13,7 +13,6 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
 @Slf4j
-@Category({NotInLocal.class, NotInLab.class, NotInProd.class})
 public class SwaggerAvailabilityTest {
 
   DevApiPortal apiPortalPage = new DevApiPortal();
@@ -33,11 +32,13 @@ public class SwaggerAvailabilityTest {
     apiPortalPage.quit();
   }
 
+  @Category({NotInLocal.class, NotInLab.class, NotInProd.class})
   @Test
   public void checkDevDevAvailability() {
     checkAvailability("https://dev-developer.va.gov/explore/health/docs/argonaut");
   }
 
+  @Category({NotInLocal.class, NotInLab.class, NotInProd.class})
   @Test
   public void checkDevAvailability() {
     checkAvailability("https://developer.va.gov/explore/health/docs/argonaut");

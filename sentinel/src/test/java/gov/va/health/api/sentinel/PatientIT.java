@@ -75,7 +75,7 @@ public class PatientIT {
    * this only in LOCAL mode against the sandbox db.
    */
   @Test
-  @Category(NotInProd.class)
+  @Category({NotInProd.class, NotInLab.class})
   public void patientIdentifierSearching() {
     verifier.verify(
         test(200, Patient.Bundle.class, "Patient?identifier={id}", verifier.ids().patient()));

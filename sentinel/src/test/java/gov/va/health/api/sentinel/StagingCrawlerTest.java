@@ -21,7 +21,6 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 @Slf4j
-@Category({NotInLocal.class, NotInLab.class, NotInProd.class})
 public class StagingCrawlerTest {
   private static final String SAPIDER =
       "\n"
@@ -44,6 +43,7 @@ public class StagingCrawlerTest {
           + "                                              \\_"
           + "\n";
 
+  @Category({NotInLocal.class, NotInLab.class, NotInProd.class})
   @Test
   public void crawlStaging() {
 
