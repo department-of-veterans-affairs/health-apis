@@ -19,7 +19,6 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 @Slf4j
-@Category({NotInLocal.class, NotInLab.class, NotInProd.class})
 public class CdwCrawlerTest {
   private static final String SAPIDER =
       "\n"
@@ -42,7 +41,10 @@ public class CdwCrawlerTest {
           + "                                              \\_"
           + "\n";
 
-  private void crawl(SystemDefinition env) {
+  @Category({NotInLocal.class, NotInLab.class, NotInProd.class})
+  @Test
+  public void crawl() {
+    SystemDefinition env = Sentinel.get().system();
     String patient = System.getProperty("patient-id", "1011537977V693883");
     log.info("Using patient {} (Override with -Dpatient-id=<id>)", patient);
 
@@ -75,15 +77,5 @@ public class CdwCrawlerTest {
     crawler.crawl();
     log.info("Results for patient : {} \n{}", patient, results.message());
     assertThat(results.failures()).withFailMessage("%d Failures", results.failures()).isEqualTo(0);
-  }
-
-  @Test
-  public void crawlQa() {
-    crawl(SystemDefinitions.get().qa());
-  }
-
-  @Test
-  public void crawlProd() {
-    crawl(SystemDefinitions.get().prod());
   }
 }

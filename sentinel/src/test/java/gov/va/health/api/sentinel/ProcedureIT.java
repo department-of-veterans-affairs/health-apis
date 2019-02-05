@@ -4,6 +4,7 @@ import static gov.va.health.api.sentinel.ResourceVerifier.test;
 
 import gov.va.api.health.argonaut.api.resources.OperationOutcome;
 import gov.va.api.health.argonaut.api.resources.Procedure;
+import gov.va.health.api.sentinel.categories.NotInLab;
 import gov.va.health.api.sentinel.categories.NotInProd;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -13,7 +14,7 @@ public class ProcedureIT {
   ResourceVerifier verifier = ResourceVerifier.get();
 
   @Test
-  @Category(NotInProd.class)
+  @Category({NotInProd.class, NotInLab.class})
   public void advanced() {
     verifier.verifyAll(
         test(

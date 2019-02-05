@@ -14,7 +14,7 @@ public class OrganizationIT {
   ResourceVerifier verifier = ResourceVerifier.get();
 
   @Test
-  @Category(NotInProd.class)
+  @Category({NotInProd.class, NotInLab.class})
   public void advanced() {
     verifier.verifyAll(
         test(
