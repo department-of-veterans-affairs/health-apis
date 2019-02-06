@@ -41,7 +41,7 @@ public class AppointmentIT {
   }
 
   @Test
-  @Category(NotInLocal.class)
+  @Category({NotInLocal.class, NotInLab.class})
   public void searchNotMe() {
     test(403, OperationOutcome.class, "Appointment?patient={patient}", verifier.ids().unknown());
   }

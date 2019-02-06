@@ -59,7 +59,7 @@ public class MedicationDispenseIT {
   }
 
   @Test
-  @Category(NotInLocal.class)
+  @Category({NotInLocal.class, NotInLab.class})
   public void searchNotMe() {
     test(
         403,
