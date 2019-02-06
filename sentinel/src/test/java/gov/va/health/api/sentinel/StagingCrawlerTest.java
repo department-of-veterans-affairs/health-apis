@@ -22,26 +22,6 @@ import org.junit.experimental.categories.Category;
 
 @Slf4j
 public class StagingCrawlerTest {
-  private static final String SAPIDER =
-      "\n"
-          + "                   /\\\n"
-          + "                  /  \\\n"
-          + "                 |  _ \\                  _\n"
-          + "                 | / \\ \\                / \\\n"
-          + "                 |/   \\ \\              /   \\\n"
-          + "                 /     \\ |        /\\  /     \\\n"
-          + "                /|      \\| ~  ~  /  \\/       \\\n"
-          + "        _______/_|_______\\(o)(o)/___/\\_____   \\\n"
-          + "       /      /  |       (______)     \\    \\   \\_\n"
-          + "      /      /   |                     \\    \\\n"
-          + "     /      /    |                      \\    \\\n"
-          + "    /      /     |                       \\    \\\n"
-          + "   /     _/      |                        \\    \\\n"
-          + "  /             _|                         \\    \\_\n"
-          + "_/                                          \\\n"
-          + "                                             \\\n"
-          + "                                              \\_"
-          + "\n";
 
   @Category({NotInLocal.class, NotInLab.class, NotInProd.class})
   @Test
@@ -53,13 +33,7 @@ public class StagingCrawlerTest {
 
     String patient = System.getProperty("patient-id", "1011537977V693883");
     log.info("Using patient {} (Override with -Dpatient-id=<id>)", patient);
-
-    log.info(
-        "\n\n                     SWIGGITY SWOOTY!\n"
-            + SAPIDER
-            + "\n          doot! doot! "
-            + "Using patient {} (Override with -Dpatient-id=<value>)\n",
-        patient);
+    Swiggity.swooty(patient);
 
     ResourceDiscovery discovery =
         ResourceDiscovery.builder()
