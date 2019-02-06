@@ -18,51 +18,18 @@ import gov.va.api.health.argonaut.api.resources.Organization;
 import gov.va.api.health.argonaut.api.resources.Patient;
 import gov.va.api.health.argonaut.api.resources.Practitioner;
 import gov.va.api.health.argonaut.api.resources.Procedure;
-import java.util.Arrays;
-import java.util.List;
+import gov.va.health.api.sentinel.categories.NotInLab;
+import gov.va.health.api.sentinel.categories.NotInProd;
 import lombok.SneakyThrows;
+import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameter;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.experimental.categories.Category;
 import org.springframework.beans.BeanUtils;
 
-@RunWith(Parameterized.class)
 public class ArgonautValidateIT {
 
-  @Parameter(0)
-  public String resource;
-
-  @Parameter(1)
-  public String id;
-
-  @Parameter(2)
-  public Class<? extends AbstractBundle<?>> bundleType;
-
-  @Parameters(name = "{index}: {0}")
-  public static List<Object[]> parameters() {
-    TestIds ids = IdRegistrar.of(Sentinel.get().system()).registeredIds();
-
-    return Arrays.asList(
-        validate("AllergyIntolerance", ids.allergyIntolerance(), AllergyIntolerance.Bundle.class),
-        validate("Appointment", ids.appointment(), Appointment.Bundle.class),
-        validate("Condition", ids.condition(), Condition.Bundle.class),
-        validate("DiagnosticReport", ids.diagnosticReport(), DiagnosticReport.Bundle.class),
-        validate("Encounter", ids.encounter(), Encounter.Bundle.class),
-        validate("Immunization", ids.immunization(), Immunization.Bundle.class),
-        validate("Location", ids.location(), Location.Bundle.class),
-        validate("Medication", ids.medication(), Medication.Bundle.class),
-        validate("MedicationDispense", ids.medicationDispense(), MedicationDispense.Bundle.class),
-        validate("MedicationOrder", ids.medicationOrder(), MedicationOrder.Bundle.class),
-        validate(
-            "MedicationStatement", ids.medicationStatement(), MedicationStatement.Bundle.class),
-        validate("Observation", ids.observation(), Observation.Bundle.class),
-        validate("Organization", ids.organization(), Organization.Bundle.class),
-        validate("Patient", ids.patient(), Patient.Bundle.class),
-        validate("Practitioner", ids.practitioner(), Practitioner.Bundle.class),
-        validate("Procedure", ids.procedure(), Procedure.Bundle.class));
-  }
+  private TestClient argonaut;
+  private TestIds ids;
 
   @SneakyThrows
   private static void murderResourceType(AbstractBundle<?> bundle) {
@@ -71,25 +38,117 @@ public class ArgonautValidateIT {
         .invoke(something, new Object[] {null});
   }
 
-  private static Object[] validate(
-      String resource, String id, Class<? extends AbstractBundle<?>> bundleType) {
-    return new Object[] {resource, id, bundleType};
+  @Before
+  public void _init() {
+    ids = IdRegistrar.of(Sentinel.get().system()).registeredIds();
+    argonaut = Sentinel.get().clients().argonaut();
   }
 
-  private TestClient argonaut() {
-    return Sentinel.get().clients().argonaut();
-  }
+  private void validate(String resource, String id, Class<? extends AbstractBundle<?>> bundleType) {
+    String path = argonaut.service().apiPath() + resource;
 
-  @Test
-  public void validate() {
-    String path = "/api/" + resource;
-
-    AbstractBundle<?> bundle = argonaut().get(path + "?_id={id}", id).expectValid(bundleType);
-    argonaut().post(path + "/$validate", bundle).expect(200).expectValid(OperationOutcome.class);
+    AbstractBundle<?> bundle = argonaut.get(path + "?_id={id}", id).expectValid(bundleType);
+    argonaut.post(path + "/$validate", bundle).expect(200).expectValid(OperationOutcome.class);
     /*
      * Murder the resource so it's not valid.
      */
     murderResourceType(bundle);
-    argonaut().post(path + "/$validate", bundle).expect(400).expectValid(OperationOutcome.class);
+    argonaut.post(path + "/$validate", bundle).expect(400).expectValid(OperationOutcome.class);
+  }
+
+  @Test
+  @Category({NotInProd.class, NotInLab.class})
+  public void validateAllergyIntolerance() {
+    validate("AllergyIntolerance", ids.allergyIntolerance(), AllergyIntolerance.Bundle.class);
+  }
+
+  @Test
+  @Category({NotInProd.class, NotInLab.class})
+  public void validateAppointment() {
+    validate("Appointment", ids.appointment(), Appointment.Bundle.class);
+  }
+
+  @Test
+  @Category({NotInProd.class, NotInLab.class})
+  public void validateCondition() {
+    validate("Condition", ids.condition(), Condition.Bundle.class);
+  }
+
+  @Test
+  @Category({NotInProd.class, NotInLab.class})
+  public void validateDiagnosticReport() {
+    validate("DiagnosticReport", ids.diagnosticReport(), DiagnosticReport.Bundle.class);
+  }
+
+  @Test
+  @Category({NotInProd.class, NotInLab.class})
+  public void validateEncounter() {
+    validate("Encounter", ids.encounter(), Encounter.Bundle.class);
+  }
+
+  @Test
+  @Category({NotInProd.class, NotInLab.class})
+  public void validateImmunization() {
+    validate("Immunization", ids.immunization(), Immunization.Bundle.class);
+  }
+
+  @Test
+  @Category({NotInProd.class, NotInLab.class})
+  public void validateLocation() {
+    validate("Location", ids.location(), Location.Bundle.class);
+  }
+
+  @Test
+  @Category({NotInProd.class, NotInLab.class})
+  public void validateMedication() {
+    validate("Medication", ids.medication(), Medication.Bundle.class);
+  }
+
+  @Test
+  @Category({NotInProd.class, NotInLab.class})
+  public void validateMedicationDispense() {
+    validate("MedicationDispense", ids.medicationDispense(), MedicationDispense.Bundle.class);
+  }
+
+  @Test
+  @Category({NotInProd.class, NotInLab.class})
+  public void validateMedicationOrder() {
+    validate("MedicationOrder", ids.medicationOrder(), MedicationOrder.Bundle.class);
+  }
+
+  @Test
+  @Category({NotInProd.class, NotInLab.class})
+  public void validateMedicationStatement() {
+    validate("MedicationStatement", ids.medicationStatement(), MedicationStatement.Bundle.class);
+  }
+
+  @Test
+  @Category({NotInProd.class, NotInLab.class})
+  public void validateObservation() {
+    validate("Observation", ids.observation(), Observation.Bundle.class);
+  }
+
+  @Test
+  @Category({NotInProd.class, NotInLab.class})
+  public void validateOrganization() {
+    validate("Organization", ids.organization(), Organization.Bundle.class);
+  }
+
+  @Test
+  @Category({NotInProd.class, NotInLab.class})
+  public void validatePatient() {
+    validate("Patient", ids.patient(), Patient.Bundle.class);
+  }
+
+  @Test
+  @Category({NotInProd.class, NotInLab.class})
+  public void validatePractitioner() {
+    validate("Practitioner", ids.practitioner(), Practitioner.Bundle.class);
+  }
+
+  @Test
+  @Category({NotInProd.class, NotInLab.class})
+  public void validateProcedure() {
+    validate("Procedure", ids.procedure(), Procedure.Bundle.class);
   }
 }

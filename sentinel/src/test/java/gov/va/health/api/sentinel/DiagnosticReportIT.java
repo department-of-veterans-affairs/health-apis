@@ -4,7 +4,8 @@ import static gov.va.health.api.sentinel.ResourceVerifier.test;
 
 import gov.va.api.health.argonaut.api.resources.DiagnosticReport;
 import gov.va.api.health.argonaut.api.resources.OperationOutcome;
-import gov.va.health.api.sentinel.categories.Prod;
+import gov.va.health.api.sentinel.categories.NotInLab;
+import gov.va.health.api.sentinel.categories.NotInProd;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -13,162 +14,161 @@ public class DiagnosticReportIT {
   ResourceVerifier verifier = ResourceVerifier.get();
 
   @Test
+  @Category({NotInProd.class, NotInLab.class})
   public void advanced() {
     verifier.verifyAll(
         test(
             200,
             DiagnosticReport.Bundle.class,
-            "/api/DiagnosticReport?patient={patient}&category=LAB",
+            "DiagnosticReport?patient={patient}&category=LAB",
             verifier.ids().patient()),
         test(
             200,
             DiagnosticReport.Bundle.class,
-            "/api/DiagnosticReport?patient={patient}&code={loinc1}",
+            "DiagnosticReport?patient={patient}&code={loinc1}",
             verifier.ids().patient(),
             verifier.ids().diagnosticReports().loinc1()),
         test(
             200,
             DiagnosticReport.Bundle.class,
-            "/api/DiagnosticReport?patient={patient}&code={loinc1},{loinc2}",
+            "DiagnosticReport?patient={patient}&code={loinc1},{loinc2}",
             verifier.ids().patient(),
             verifier.ids().diagnosticReports().loinc1(),
             verifier.ids().diagnosticReports().loinc2()),
         test(
             200,
             DiagnosticReport.Bundle.class,
-            "/api/DiagnosticReport?patient={patient}&category=LAB&date={onDate}",
+            "DiagnosticReport?patient={patient}&category=LAB&date={onDate}",
             verifier.ids().patient(),
             verifier.ids().diagnosticReports().onDate()),
         test(
             200,
             DiagnosticReport.Bundle.class,
-            "/api/DiagnosticReport?patient={patient}&category=LAB&date={fromDate}&date={toDate}",
+            "DiagnosticReport?patient={patient}&category=LAB&date={fromDate}&date={toDate}",
             verifier.ids().patient(),
             verifier.ids().diagnosticReports().fromDate(),
             verifier.ids().diagnosticReports().toDate()),
         test(
             200,
             DiagnosticReport.Bundle.class,
-            "/api/DiagnosticReport?patient={patient}&category=LAB&date={dateYear}",
+            "DiagnosticReport?patient={patient}&category=LAB&date={dateYear}",
             verifier.ids().patient(),
             verifier.ids().diagnosticReports().dateYear()),
         test(
             200,
             DiagnosticReport.Bundle.class,
-            "/api/DiagnosticReport?patient={patient}&category=LAB&date={dateYearMonth}",
+            "DiagnosticReport?patient={patient}&category=LAB&date={dateYearMonth}",
             verifier.ids().patient(),
             verifier.ids().diagnosticReports().dateYearMonth()),
         test(
             200,
             DiagnosticReport.Bundle.class,
-            "/api/DiagnosticReport?patient={patient}&category=LAB&date={dateYearMonthDay}",
+            "DiagnosticReport?patient={patient}&category=LAB&date={dateYearMonthDay}",
             verifier.ids().patient(),
             verifier.ids().diagnosticReports().dateYearMonthDay()),
         test(
             400,
             OperationOutcome.class,
-            "/api/DiagnosticReport?patient={patient}&category=LAB&date={dateYearMonthDayHour}",
+            "DiagnosticReport?patient={patient}&category=LAB&date={dateYearMonthDayHour}",
             verifier.ids().patient(),
             verifier.ids().diagnosticReports().dateYearMonthDayHour()),
         test(
             400,
             OperationOutcome.class,
-            "/api/DiagnosticReport?patient={patient}&category=LAB&date={dateYearMonthDayHourMinute}",
+            "DiagnosticReport?patient={patient}&category=LAB&date={dateYearMonthDayHourMinute}",
             verifier.ids().patient(),
             verifier.ids().diagnosticReports().dateYearMonthDayHourMinute()),
         test(
             400,
             OperationOutcome.class,
-            "/api/DiagnosticReport?patient={patient}&category=LAB&date={dateYearMonthDayHourMinuteSecond}",
+            "DiagnosticReport?patient={patient}&category=LAB&date={dateYearMonthDayHourMinuteSecond}",
             verifier.ids().patient(),
             verifier.ids().diagnosticReports().dateYearMonthDayHourMinuteSecond()),
         test(
             200,
             DiagnosticReport.Bundle.class,
-            "/api/DiagnosticReport?patient={patient}&category=LAB&date={dateYearMonthDayHourMinuteSecondTimezone}",
+            "DiagnosticReport?patient={patient}&category=LAB&date={dateYearMonthDayHourMinuteSecondTimezone}",
             verifier.ids().patient(),
             verifier.ids().diagnosticReports().dateYearMonthDayHourMinuteSecondTimezone()),
         test(
             200,
             DiagnosticReport.Bundle.class,
-            "/api/DiagnosticReport?patient={patient}&category=LAB&date={dateYearMonthDayHourMinuteSecondZulu}",
+            "DiagnosticReport?patient={patient}&category=LAB&date={dateYearMonthDayHourMinuteSecondZulu}",
             verifier.ids().patient(),
             verifier.ids().diagnosticReports().dateYearMonthDayHourMinuteSecondZulu()),
         test(
             200,
             DiagnosticReport.Bundle.class,
-            "/api/DiagnosticReport?patient={patient}&category=LAB&date={dateGreaterThan}",
+            "DiagnosticReport?patient={patient}&category=LAB&date={dateGreaterThan}",
             verifier.ids().patient(),
             verifier.ids().diagnosticReports().dateGreaterThan()),
         test(
             200,
             DiagnosticReport.Bundle.class,
-            "/api/DiagnosticReport?patient={patient}&category=LAB&date={dateNotEqual}",
+            "DiagnosticReport?patient={patient}&category=LAB&date={dateNotEqual}",
             verifier.ids().patient(),
             verifier.ids().diagnosticReports().dateNotEqual()),
         test(
             200,
             DiagnosticReport.Bundle.class,
-            "/api/DiagnosticReport?patient={patient}&category=LAB&date={dateStartsWith}",
+            "DiagnosticReport?patient={patient}&category=LAB&date={dateStartsWith}",
             verifier.ids().patient(),
             verifier.ids().diagnosticReports().dateStartsWith()),
         test(
             200,
             DiagnosticReport.Bundle.class,
-            "/api/DiagnosticReport?patient={patient}&category=LAB&date={dateNoPrefix}",
+            "DiagnosticReport?patient={patient}&category=LAB&date={dateNoPrefix}",
             verifier.ids().patient(),
             verifier.ids().diagnosticReports().dateNoPrefix()),
         test(
             200,
             DiagnosticReport.Bundle.class,
-            "/api/DiagnosticReport?patient={patient}&category=LAB&date={dateEqual}",
+            "DiagnosticReport?patient={patient}&category=LAB&date={dateEqual}",
             verifier.ids().patient(),
             verifier.ids().diagnosticReports().dateEqual()),
         test(
             200,
             DiagnosticReport.Bundle.class,
-            "/api/DiagnosticReport?patient={patient}&category=LAB&date={dateLessOrEqual}",
+            "DiagnosticReport?patient={patient}&category=LAB&date={dateLessOrEqual}",
             verifier.ids().patient(),
             verifier.ids().diagnosticReports().dateLessOrEqual()),
         test(
             200,
             DiagnosticReport.Bundle.class,
-            "/api/DiagnosticReport?patient={patient}&category=LAB&date={dateLessThan}",
+            "DiagnosticReport?patient={patient}&category=LAB&date={dateLessThan}",
             verifier.ids().patient(),
             verifier.ids().diagnosticReports().dateLessThan()),
         test(
             200,
             DiagnosticReport.Bundle.class,
-            "api/DiagnosticReport?_id={id}",
+            "DiagnosticReport?_id={id}",
             verifier.ids().diagnosticReport()),
-        test(
-            404, OperationOutcome.class, "api/DiagnosticReport?_id={id}", verifier.ids().unknown()),
+        test(404, OperationOutcome.class, "DiagnosticReport?_id={id}", verifier.ids().unknown()),
         test(
             200,
             DiagnosticReport.Bundle.class,
-            "api/DiagnosticReport?identifier={id}",
+            "DiagnosticReport?identifier={id}",
             verifier.ids().diagnosticReport()),
         test(
             404,
             OperationOutcome.class,
-            "/api/DiagnosticReport?identifier={id}",
+            "DiagnosticReport?identifier={id}",
             verifier.ids().unknown()));
   }
 
   @Test
-  @Category({Prod.class})
   public void basic() {
     verifier.verifyAll(
         test(
             200,
             DiagnosticReport.class,
-            "/api/DiagnosticReport/{id}",
+            "DiagnosticReport/{id}",
             verifier.ids().diagnosticReport()),
-        test(404, OperationOutcome.class, "/api/DiagnosticReport/{id}", verifier.ids().unknown()),
+        test(404, OperationOutcome.class, "DiagnosticReport/{id}", verifier.ids().unknown()),
         test(
             200,
             DiagnosticReport.Bundle.class,
-            "/api/DiagnosticReport?patient={patient}",
+            "DiagnosticReport?patient={patient}",
             verifier.ids().patient()));
   }
 }

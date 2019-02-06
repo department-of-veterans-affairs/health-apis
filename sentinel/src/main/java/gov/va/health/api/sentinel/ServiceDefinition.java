@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.NonNull;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 
@@ -25,6 +26,7 @@ public class ServiceDefinition {
 
   String url;
   int port;
+  @NonNull String apiPath;
   Supplier<Optional<String>> accessToken;
 
   RequestSpecification requestSpecification() {

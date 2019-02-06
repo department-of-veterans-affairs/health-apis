@@ -4,7 +4,7 @@
   <parent>
     <groupId>gov.va.api.health</groupId>
     <artifactId>health-apis-parent</artifactId>
-    <version>1.0.168-SNAPSHOT</version>
+    <version>1.0.169-SNAPSHOT</version>
   </parent>
   <artifactId>sentinel</artifactId>
   <packaging>jar</packaging>
@@ -17,7 +17,7 @@
     <selenium.version>3.141.59</selenium.version>
     <!-- JUnit -->
     <groups/>
-    <excludedGroups>gov.va.health.api.sentinel.categories.Lab,gov.va.health.api.sentinel.categories.Sapider</excludedGroups>
+    <excludedGroups>gov.va.health.api.sentinel.categories.NotInLocal</excludedGroups>
     <!-- Docker -->
     <docker-maven-plugin.version>0.24.0</docker-maven-plugin.version>
     <docker.organization>vasdvp</docker.organization>
@@ -377,69 +377,6 @@
           </plugin>
         </plugins>
       </build>
-    </profile>
-    <profile>
-      <id>local</id>
-      <activation>
-        <property>
-          <name>sentinel</name>
-          <value>LOCAL</value>
-        </property>
-      </activation>
-      <properties>
-        <sentinel.skipLaunch>false</sentinel.skipLaunch>
-      </properties>
-    </profile>
-    <profile>
-      <id>qa</id>
-      <activation>
-        <property>
-          <name>sentinel</name>
-          <value>QA</value>
-        </property>
-      </activation>
-      <properties>
-        <sentinel.skipLaunch>true</sentinel.skipLaunch>
-      </properties>
-    </profile>
-    <profile>
-      <id>lab</id>
-      <activation>
-        <property>
-          <name>sentinel</name>
-          <value>LAB</value>
-        </property>
-      </activation>
-      <properties>
-        <sentinel.skipLaunch>true</sentinel.skipLaunch>
-        <groups>gov.va.health.api.sentinel.categories.Lab</groups>
-        <excludedGroups>gov.va.health.api.sentinel.categories.Sapider</excludedGroups>
-        <skipITs>true</skipITs>
-      </properties>
-    </profile>
-    <profile>
-      <id>prod</id>
-      <activation>
-        <property>
-          <name>sentinel</name>
-          <value>PROD</value>
-        </property>
-      </activation>
-      <properties>
-        <sentinel.skipLaunch>true</sentinel.skipLaunch>
-      </properties>
-    </profile>
-    <profile>
-      <id>standby</id>
-      <activation>
-        <property>
-          <name>sentinel</name>
-          <value>STANDBY</value>
-        </property>
-      </activation>
-      <properties>
-        <sentinel.skipLaunch>true</sentinel.skipLaunch>
-      </properties>
     </profile>
     <!--
       On Jenkins, the certificate password is provided by Jenkins credentials system and

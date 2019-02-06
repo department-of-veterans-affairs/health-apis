@@ -54,6 +54,60 @@ public class SystemDefinitions {
         .build();
   }
 
+  /** Return definitions for the lab environment. */
+  public SystemDefinition lab() {
+    return SystemDefinition.builder()
+        .ids(
+            ServiceDefinition.builder()
+                .url("https://dev-api.va.gov")
+                .port(443)
+                .accessToken(noAccessToken())
+                .apiPath("/not-available/")
+                .build())
+        .mrAnderson(
+            ServiceDefinition.builder()
+                .url("https://dev-api.va.gov")
+                .port(443)
+                .accessToken(noAccessToken())
+                .apiPath("/not-available/")
+                .build())
+        .argonaut(
+            ServiceDefinition.builder()
+                .url("https://dev-api.va.gov")
+                .port(443)
+                .accessToken(magicAccessToken())
+                .apiPath("/services/argonaut/v0/")
+                .build())
+        .cdwIds(labAndStagingIds())
+        .build();
+  }
+
+  private TestIds labAndStagingIds() {
+    return TestIds.builder()
+        .publicIds(true)
+        .allergyIntolerance("17a7e128-8cf2-521f-ba99-b5eadb6ca598")
+        .condition("000f2b73-ebf9-5d10-b45e-90813cd0e42e")
+        .diagnosticReport("1303138b-1548-5663-963e-f346834681ab")
+        .diagnosticReports(diagnosticReports())
+        .immunization("1ec5f832-6faa-5146-925a-e2941a7a332c")
+        .medication("2cb64dd0-ea52-503d-b61e-6060e84ff0ee")
+        .medicationOrder("5a1428a7-fc73-5714-bc9c-670be3834164")
+        .medicationStatement("6e484ab1-e7df-5c0b-8947-65a0bd03504c")
+        .observation("1a21eae3-e08c-5f04-b7a7-fb6681fa2623")
+        .observations(observations())
+        .patient("1011537977V693883")
+        .procedure("0cbfb880-048f-5cf4-b44f-fed3f7664c7b")
+        .procedures(procedures())
+        .location("unused")
+        .appointment("unused")
+        .medicationDispense("unused")
+        .encounter("unused")
+        .organization("unused")
+        .practitioner("unused")
+        .unknown("5555555555555")
+        .build();
+  }
+
   /**
    * Return system definitions for local running applications as started by the Maven build process.
    */
@@ -64,18 +118,21 @@ public class SystemDefinitions {
                 .url(optionUrlIds("https://localhost"))
                 .port(8089)
                 .accessToken(noAccessToken())
+                .apiPath("/api/")
                 .build())
         .mrAnderson(
             ServiceDefinition.builder()
                 .url(optionUrlMrAnderson("https://localhost"))
                 .port(8088)
                 .accessToken(noAccessToken())
+                .apiPath("/api/")
                 .build())
         .argonaut(
             ServiceDefinition.builder()
                 .url(optionUrlArgonaut("https://localhost"))
                 .port(8090)
                 .accessToken(noAccessToken())
+                .apiPath("/api/")
                 .build())
         .cdwIds(
             TestIds.builder()
@@ -157,6 +214,7 @@ public class SystemDefinitions {
                 .url(optionUrlIds("https://argonaut.lighthouse.va.gov"))
                 .port(443)
                 .accessToken(noAccessToken())
+                .apiPath("/not-available/")
                 .build())
         .mrAnderson(
             ServiceDefinition.builder()
@@ -164,12 +222,14 @@ public class SystemDefinitions {
                 .url(optionUrlMrAnderson("https://argonaut.lighthouse.va.gov"))
                 .port(443)
                 .accessToken(noAccessToken())
+                .apiPath("/not-available/")
                 .build())
         .argonaut(
             ServiceDefinition.builder()
                 .url(optionUrlArgonaut("https://argonaut.lighthouse.va.gov"))
                 .port(443)
                 .accessToken(magicAccessToken())
+                .apiPath("/api/")
                 .build())
         .cdwIds(prodAndQaIds())
         .build();
@@ -210,6 +270,7 @@ public class SystemDefinitions {
                 .url(optionUrlIds("https://qa-argonaut.lighthouse.va.gov"))
                 .port(443)
                 .accessToken(noAccessToken())
+                .apiPath("/not-available/")
                 .build())
         .mrAnderson(
             ServiceDefinition.builder()
@@ -217,12 +278,14 @@ public class SystemDefinitions {
                 .url(optionUrlMrAnderson("https://qa-argonaut.lighthouse.va.gov"))
                 .port(443)
                 .accessToken(noAccessToken())
+                .apiPath("/not-available/")
                 .build())
         .argonaut(
             ServiceDefinition.builder()
                 .url(optionUrlArgonaut("https://qa-argonaut.lighthouse.va.gov"))
                 .port(443)
                 .accessToken(magicAccessToken())
+                .apiPath("/api/")
                 .build())
         .cdwIds(prodAndQaIds())
         .build();
@@ -237,6 +300,7 @@ public class SystemDefinitions {
                 .url(optionUrlIds("https://staging-argonaut.lighthouse.va.gov"))
                 .port(443)
                 .accessToken(noAccessToken())
+                .apiPath("/not-available/")
                 .build())
         .mrAnderson(
             ServiceDefinition.builder()
@@ -244,12 +308,14 @@ public class SystemDefinitions {
                 .url(optionUrlMrAnderson("https://staging-argonaut.lighthouse.va.gov"))
                 .port(443)
                 .accessToken(noAccessToken())
+                .apiPath("/not-available/")
                 .build())
         .argonaut(
             ServiceDefinition.builder()
                 .url(optionUrlArgonaut("https://staging-argonaut.lighthouse.va.gov"))
                 .port(443)
                 .accessToken(magicAccessToken())
+                .apiPath("/api/")
                 .build())
         .build();
   }

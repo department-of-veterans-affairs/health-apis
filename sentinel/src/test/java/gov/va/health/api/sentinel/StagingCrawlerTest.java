@@ -3,7 +3,9 @@ package gov.va.health.api.sentinel;
 import static gov.va.health.api.sentinel.SystemDefinitions.magicAccessToken;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import gov.va.health.api.sentinel.categories.Sapider;
+import gov.va.health.api.sentinel.categories.NotInLab;
+import gov.va.health.api.sentinel.categories.NotInLocal;
+import gov.va.health.api.sentinel.categories.NotInProd;
 import gov.va.health.api.sentinel.crawler.ConcurrentRequestQueue;
 import gov.va.health.api.sentinel.crawler.Crawler;
 import gov.va.health.api.sentinel.crawler.FileResultsCollector;
@@ -41,7 +43,7 @@ public class StagingCrawlerTest {
           + "                                              \\_"
           + "\n";
 
-  @Category(Sapider.class)
+  @Category({NotInLocal.class, NotInLab.class, NotInProd.class})
   @Test
   public void crawlStaging() {
 
