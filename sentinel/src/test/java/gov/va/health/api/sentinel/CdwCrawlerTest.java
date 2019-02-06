@@ -1,6 +1,7 @@
 package gov.va.health.api.sentinel;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.health.api.sentinel.categories.NotInLab;
@@ -45,7 +46,7 @@ public class CdwCrawlerTest {
     discovery.queries().forEach(q::add);
     Crawler crawler =
         Crawler.builder()
-            .executor(Executors.newFixedThreadPool(4))
+            .executor(Executors.newFixedThreadPool(threadCount()))
             .requestQueue(q)
             .results(results)
             .authenticationToken(accessTokenValue)
@@ -69,5 +70,20 @@ public class CdwCrawlerTest {
         .withUrl(env.argonaut().url())
         .requestQueue(new ConcurrentRequestQueue())
         .build();
+  }
+
+  private int threadCount() {
+    int threads = 8;
+    String maybeNumber = System.getProperty("sentinel.crawler.threads");
+    if (isNotBlank(maybeNumber)) {
+      try {
+        threads = Integer.parseInt(maybeNumber);
+      } catch (NumberFormatException e) {
+        log.warn("Bad thread count {}, assuming {}", maybeNumber, threads);
+      }
+    }
+    log.info(
+        "Crawling with {} threads (Override with -Dsentinel.crawler.threads=<number>)", threads);
+    return threads;
   }
 }
