@@ -23,18 +23,18 @@ public class AppointmentIT {
             200,
             Appointment.Bundle.class,
             "Appointment?identifier={id}",
-            verifier.ids().appointment()));
+            verifier.ids().appointment()),
+        test(
+            200,
+            Appointment.Bundle.class,
+            "Appointment?patient={patient}",
+            verifier.ids().patient()));
   }
 
   @Category(NotInLab.class)
   @Test
   public void basic() {
     verifier.verifyAll(
-        test(
-            200,
-            Appointment.Bundle.class,
-            "Appointment?patient={patient}",
-            verifier.ids().patient()),
         test(200, Appointment.class, "Appointment/{id}", verifier.ids().appointment()),
         test(404, OperationOutcome.class, "Appointment/{id}", verifier.ids().unknown()));
   }
