@@ -27,13 +27,7 @@ public class MedicationDispenseIT {
             MedicationDispense.Bundle.class,
             "MedicationDispense?identifier={id}",
             verifier.ids().medicationDispense()),
-        test(404, OperationOutcome.class, "MedicationDispense?_id={id}", verifier.ids().unknown()));
-  }
-
-  @Category(NotInLab.class)
-  @Test
-  public void basic() {
-    verifier.verifyAll(
+        test(404, OperationOutcome.class, "MedicationDispense?_id={id}", verifier.ids().unknown()),
         test(
             200,
             MedicationDispense.Bundle.class,
@@ -46,14 +40,20 @@ public class MedicationDispenseIT {
             verifier.ids().patient()),
         test(
             200,
-            MedicationDispense.class,
-            "MedicationDispense/{id}",
-            verifier.ids().medicationDispense()),
-        test(404, OperationOutcome.class, "MedicationDispense/{id}", verifier.ids().unknown()),
-        test(
-            200,
             MedicationDispense.Bundle.class,
             "MedicationDispense?patient={patient}",
             verifier.ids().patient()));
+  }
+
+  @Category(NotInLab.class)
+  @Test
+  public void basic() {
+    verifier.verifyAll(
+        test(
+            200,
+            MedicationDispense.class,
+            "MedicationDispense/{id}",
+            verifier.ids().medicationDispense()),
+        test(404, OperationOutcome.class, "MedicationDispense/{id}", verifier.ids().unknown()));
   }
 }
