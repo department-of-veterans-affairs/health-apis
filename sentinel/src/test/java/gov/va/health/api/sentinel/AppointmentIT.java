@@ -39,10 +39,4 @@ public class AppointmentIT {
         test(200, Appointment.class, "Appointment/{id}", verifier.ids().appointment()),
         test(404, OperationOutcome.class, "Appointment/{id}", verifier.ids().unknown()));
   }
-
-  @Test
-  @Category({NotInLocal.class, NotInLab.class})
-  public void searchNotMe() {
-    test(403, OperationOutcome.class, "Appointment?patient={patient}", verifier.ids().unknown());
-  }
 }
