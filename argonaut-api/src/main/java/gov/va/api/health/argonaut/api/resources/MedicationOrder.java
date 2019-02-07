@@ -49,7 +49,7 @@ import lombok.NoArgsConstructor;
 @Schema(
   description =
       "http://www.fhir.org/guides/argonaut/r2/StructureDefinition-argo-medicationorder.html",
-  example = SwaggerExamples.MEDICATION_ORDER
+  example = "SWAGGER_EXAMPLE_MEDICATION_ORDER"
 )
 @ZeroOrOneOf(
   fields = {"reasonCodeableConcept", "reasonReference"},
@@ -127,7 +127,7 @@ public class MedicationOrder implements Resource {
   @EqualsAndHashCode(callSuper = true)
   @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
   @JsonDeserialize(builder = MedicationOrder.Bundle.BundleBuilder.class)
-  @Schema(name = "MedicationOrderBundle", example = SwaggerExamples.MEDICATION_ORDER_BUNDLE)
+  @Schema(name = "MedicationOrderBundle", example = "SWAGGER_EXAMPLE_MEDICATION_ORDER_BUNDLE")
   public static class Bundle extends AbstractBundle<Entry> {
 
     @Builder

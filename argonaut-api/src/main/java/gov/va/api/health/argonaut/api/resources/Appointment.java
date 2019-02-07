@@ -39,7 +39,7 @@ import lombok.NoArgsConstructor;
 @JsonAutoDetect(fieldVisibility = Visibility.ANY)
 @Schema(
   description = "https://www.hl7.org/fhir/DSTU2/appointment.html",
-  example = SwaggerExamples.APPOINTMENT
+  example = "SWAGGER_EXAMPLE_APPOINTMENT"
 )
 public class Appointment implements DomainResource {
   @NotBlank String resourceType;
@@ -104,7 +104,7 @@ public class Appointment implements DomainResource {
   @EqualsAndHashCode(callSuper = true)
   @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
   @JsonDeserialize(builder = Appointment.Bundle.BundleBuilder.class)
-  @Schema(name = "AppointmentBundle", example = SwaggerExamples.APPOINTMENT_BUNDLE)
+  @Schema(name = "AppointmentBundle", example = "SWAGGER_EXAMPLE_APPOINTMENT_BUNDLE")
   public static class Bundle extends AbstractBundle<Entry> {
     @Builder
     public Bundle(

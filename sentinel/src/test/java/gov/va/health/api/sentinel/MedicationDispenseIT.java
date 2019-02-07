@@ -37,6 +37,11 @@ public class MedicationDispenseIT {
             200,
             MedicationDispense.Bundle.class,
             "MedicationDispense?patient={patient}&type=FF,UD",
+            verifier.ids().patient()),
+        test(
+            200,
+            MedicationDispense.Bundle.class,
+            "MedicationDispense?patient={patient}",
             verifier.ids().patient()));
   }
 
@@ -49,11 +54,6 @@ public class MedicationDispenseIT {
             MedicationDispense.class,
             "MedicationDispense/{id}",
             verifier.ids().medicationDispense()),
-        test(404, OperationOutcome.class, "MedicationDispense/{id}", verifier.ids().unknown()),
-        test(
-            200,
-            MedicationDispense.Bundle.class,
-            "MedicationDispense?patient={patient}",
-            verifier.ids().patient()));
+        test(404, OperationOutcome.class, "MedicationDispense/{id}", verifier.ids().unknown()));
   }
 }

@@ -14,7 +14,7 @@ Commands
 
 
 Options
- -a, --argonaut      Include Argonaut   
+ -a, --argonaut      Include Argonaut
  -i, --ids           Include Identity Service
  -m, --mr-anderson   Include Mr. Anderson
 
@@ -38,16 +38,20 @@ startApp() {
   echo "Starting $app"
   cd $REPO/$app
   local jar=$(find target -maxdepth 1 -name "$app-*.jar" | head -1)
-  [ -z "$jar" ] && echo "Cannot find $app application jar" && exit 1   
-  java -jar $jar & 
+  [ -z "$jar" ] && echo "Cannot find $app application jar" && exit 1
+  java -jar $jar &
 }
 
 stopApp() {
   local app=$1
   local pid=$(pidOf $app)
   [ -z "$pid" ] && echo "$app does not appear to be running" && return
-  echo "Stopping $app ($pid)"  
-  kill $pid  
+  echo "Stopping $app ($pid)"
+  if [[ "$OSTYPE" == "msys" ]]; then
+  taskkill //F //PID $pid
+  else
+  kill $pid
+  fi 
 }
 
 pidOf() {

@@ -18,6 +18,18 @@ public class ObservationIT {
   @Category({NotInProd.class, NotInLab.class})
   public void advanced() {
     verifier.verifyAll(
+        test(200, Observation.Bundle.class, "Observation?_id={id}", verifier.ids().observation()),
+        test(404, OperationOutcome.class, "Observation?_id={id}", verifier.ids().unknown()),
+        test(
+            200,
+            Observation.Bundle.class,
+            "Observation?identifier={id}",
+            verifier.ids().observation()));
+  }
+
+  @Test
+  public void basic() {
+    verifier.verifyAll(
         test(
             200,
             Observation.Bundle.class,
@@ -66,18 +78,6 @@ public class ObservationIT {
             verifier.ids().patient(),
             verifier.ids().observations().loinc1(),
             verifier.ids().observations().badLoinc()),
-        test(200, Observation.Bundle.class, "Observation?_id={id}", verifier.ids().observation()),
-        test(404, OperationOutcome.class, "Observation?_id={id}", verifier.ids().unknown()),
-        test(
-            200,
-            Observation.Bundle.class,
-            "Observation?identifier={id}",
-            verifier.ids().observation()));
-  }
-
-  @Test
-  public void basic() {
-    verifier.verifyAll(
         test(200, Observation.class, "Observation/{id}", verifier.ids().observation()),
         test(404, OperationOutcome.class, "Observation/{id}", verifier.ids().unknown()),
         test(

@@ -21,6 +21,27 @@ public class DiagnosticReportIT {
         test(
             200,
             DiagnosticReport.Bundle.class,
+            "DiagnosticReport?_id={id}",
+            verifier.ids().diagnosticReport()),
+        test(404, OperationOutcome.class, "DiagnosticReport?_id={id}", verifier.ids().unknown()),
+        test(
+            200,
+            DiagnosticReport.Bundle.class,
+            "DiagnosticReport?identifier={id}",
+            verifier.ids().diagnosticReport()),
+        test(
+            404,
+            OperationOutcome.class,
+            "DiagnosticReport?identifier={id}",
+            verifier.ids().unknown()));
+  }
+
+  @Test
+  public void basic() {
+    verifier.verifyAll(
+        test(
+            200,
+            DiagnosticReport.Bundle.class,
             "DiagnosticReport?patient={patient}&category=LAB",
             verifier.ids().patient()),
         test(
@@ -146,27 +167,6 @@ public class DiagnosticReportIT {
             "DiagnosticReport?patient={patient}&category=LAB&date={dateLessThan}",
             verifier.ids().patient(),
             verifier.ids().diagnosticReports().dateLessThan()),
-        test(
-            200,
-            DiagnosticReport.Bundle.class,
-            "DiagnosticReport?_id={id}",
-            verifier.ids().diagnosticReport()),
-        test(404, OperationOutcome.class, "DiagnosticReport?_id={id}", verifier.ids().unknown()),
-        test(
-            200,
-            DiagnosticReport.Bundle.class,
-            "DiagnosticReport?identifier={id}",
-            verifier.ids().diagnosticReport()),
-        test(
-            404,
-            OperationOutcome.class,
-            "DiagnosticReport?identifier={id}",
-            verifier.ids().unknown()));
-  }
-
-  @Test
-  public void basic() {
-    verifier.verifyAll(
         test(
             200,
             DiagnosticReport.class,

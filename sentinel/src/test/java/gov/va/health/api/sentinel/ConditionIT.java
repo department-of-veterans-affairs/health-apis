@@ -17,6 +17,14 @@ public class ConditionIT {
   @Category({NotInProd.class, NotInLab.class})
   public void advanced() {
     verifier.verifyAll(
+        test(200, Condition.Bundle.class, "Condition?_id={id}", verifier.ids().condition()),
+        test(404, OperationOutcome.class, "Condition?_id={id}", verifier.ids().unknown()),
+        test(200, Condition.Bundle.class, "Condition?identifier={id}", verifier.ids().condition()));
+  }
+
+  @Test
+  public void basic() {
+    verifier.verifyAll(
         test(
             200,
             Condition.Bundle.class,
@@ -37,14 +45,6 @@ public class ConditionIT {
             Condition.Bundle.class,
             "Condition?patient={patient}&clinicalstatus=active,resolved",
             verifier.ids().patient()),
-        test(200, Condition.Bundle.class, "Condition?_id={id}", verifier.ids().condition()),
-        test(404, OperationOutcome.class, "Condition?_id={id}", verifier.ids().unknown()),
-        test(200, Condition.Bundle.class, "Condition?identifier={id}", verifier.ids().condition()));
-  }
-
-  @Test
-  public void basic() {
-    verifier.verifyAll(
         test(200, Condition.class, "Condition/{id}", verifier.ids().condition()),
         test(404, OperationOutcome.class, "Condition/{id}", verifier.ids().unknown()),
         test(200, Condition.Bundle.class, "Condition?patient={patient}", verifier.ids().patient()));
