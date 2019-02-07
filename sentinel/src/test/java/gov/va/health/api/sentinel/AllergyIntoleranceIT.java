@@ -50,10 +50,11 @@ public class AllergyIntoleranceIT {
   @Test
   @Category(NotInLocal.class)
   public void searchNotMe() {
-    test(
-        403,
-        OperationOutcome.class,
-        "AllergyIntolerance?patient={patient}",
-        verifier.ids().unknown());
+    verifier.verifyAll(
+        test(
+            403,
+            OperationOutcome.class,
+            "AllergyIntolerance?patient={patient}",
+            verifier.ids().unknown()));
   }
 }

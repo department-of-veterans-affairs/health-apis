@@ -90,6 +90,11 @@ public class ObservationIT {
   @Test
   @Category(NotInLocal.class)
   public void searchNotMe() {
-    test(403, OperationOutcome.class, "Observation?patient={patient}", verifier.ids().unknown());
+    verifier.verifyAll(
+        test(
+            403,
+            OperationOutcome.class,
+            "Observation?patient={patient}",
+            verifier.ids().unknown()));
   }
 }

@@ -46,7 +46,11 @@ public class MedicationOrderIT {
   @Test
   @Category(NotInLocal.class)
   public void searchNotMe() {
-    test(
-        403, OperationOutcome.class, "MedicationOrder?patient={patient}", verifier.ids().unknown());
+    verifier.verifyAll(
+        test(
+            403,
+            OperationOutcome.class,
+            "MedicationOrder?patient={patient}",
+            verifier.ids().unknown()));
   }
 }

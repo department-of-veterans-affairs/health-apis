@@ -53,6 +53,7 @@ public class ConditionIT {
   @Test
   @Category(NotInLocal.class)
   public void searchNotMe() {
-    test(403, OperationOutcome.class, "Condition?patient={patient}", verifier.ids().unknown());
+    verifier.verifyAll(
+        test(403, OperationOutcome.class, "Condition?patient={patient}", verifier.ids().unknown()));
   }
 }
