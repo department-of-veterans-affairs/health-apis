@@ -32,6 +32,13 @@ public class DiagnosticReportIT {
         test(
             200,
             DiagnosticReport.Bundle.class,
+            "DiagnosticReport?patient={patient}&code={loinc1},{badLoinc}",
+            verifier.ids().patient(),
+            verifier.ids().diagnosticReports().loinc1(),
+            verifier.ids().diagnosticReports().badLoinc()),
+        test(
+            200,
+            DiagnosticReport.Bundle.class,
             "DiagnosticReport?patient={patient}&code={loinc1},{loinc2}",
             verifier.ids().patient(),
             verifier.ids().diagnosticReports().loinc1(),

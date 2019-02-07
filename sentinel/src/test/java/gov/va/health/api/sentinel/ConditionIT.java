@@ -32,6 +32,11 @@ public class ConditionIT {
             Condition.Bundle.class,
             "Condition?patient={patient}&clinicalstatus=active",
             verifier.ids().patient()),
+        test(
+            200,
+            Condition.Bundle.class,
+            "Condition?patient={patient}&clinicalstatus=active,resolved",
+            verifier.ids().patient()),
         test(200, Condition.Bundle.class, "Condition?_id={id}", verifier.ids().condition()),
         test(404, OperationOutcome.class, "Condition?_id={id}", verifier.ids().unknown()),
         test(200, Condition.Bundle.class, "Condition?identifier={id}", verifier.ids().condition()));

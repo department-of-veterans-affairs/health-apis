@@ -5,7 +5,6 @@ import static gov.va.health.api.sentinel.ResourceVerifier.test;
 import gov.va.api.health.argonaut.api.resources.MedicationDispense;
 import gov.va.api.health.argonaut.api.resources.OperationOutcome;
 import gov.va.health.api.sentinel.categories.NotInLab;
-import gov.va.health.api.sentinel.categories.NotInLocal;
 import gov.va.health.api.sentinel.categories.NotInProd;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -56,15 +55,5 @@ public class MedicationDispenseIT {
             MedicationDispense.Bundle.class,
             "MedicationDispense?patient={patient}",
             verifier.ids().patient()));
-  }
-
-  @Test
-  @Category({NotInLocal.class, NotInLab.class})
-  public void searchNotMe() {
-    test(
-        403,
-        OperationOutcome.class,
-        "MedicationDispense?patient={patient}",
-        verifier.ids().unknown());
   }
 }

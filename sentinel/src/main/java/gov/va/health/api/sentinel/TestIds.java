@@ -39,6 +39,7 @@ public class TestIds {
   public static class DiagnosticReports {
     @NotNull String loinc1;
     @NotNull String loinc2;
+    @NotNull String badLoinc;
     @NotNull String onDate;
     @NotNull String fromDate;
     @NotNull String toDate;
@@ -68,6 +69,7 @@ public class TestIds {
     @NonNull String onDate;
     @NonNull String loinc1;
     @NonNull String loinc2;
+    @NonNull String badLoinc;
   }
 
   @Value

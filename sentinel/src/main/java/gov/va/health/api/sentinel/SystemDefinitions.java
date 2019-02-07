@@ -32,7 +32,8 @@ public class SystemDefinitions {
   private DiagnosticReports diagnosticReports() {
     return DiagnosticReports.builder()
         .loinc1("10000-8")
-        .loinc2("99999-9")
+        .loinc2("10001-6")
+        .badLoinc("99999-9")
         .onDate("eq1970-01-01")
         .fromDate("gt1970-01-01")
         .toDate("lt2038-01-01")
@@ -177,6 +178,7 @@ public class SystemDefinitions {
     return Observations.builder()
         .loinc1("72166-2")
         .loinc2("777-3")
+        .badLoinc("99999-9")
         .onDate("2015-04-15")
         .dateRange(Range.allTime())
         .build();

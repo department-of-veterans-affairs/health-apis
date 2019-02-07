@@ -59,6 +59,13 @@ public class ObservationIT {
             verifier.ids().patient(),
             verifier.ids().observations().loinc1(),
             verifier.ids().observations().loinc2()),
+        test(
+            200,
+            Observation.Bundle.class,
+            "Observation?patient={patient}&code={loinc1},{badLoinc}",
+            verifier.ids().patient(),
+            verifier.ids().observations().loinc1(),
+            verifier.ids().observations().badLoinc()),
         test(200, Observation.Bundle.class, "Observation?_id={id}", verifier.ids().observation()),
         test(404, OperationOutcome.class, "Observation?_id={id}", verifier.ids().unknown()),
         test(
