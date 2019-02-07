@@ -42,7 +42,7 @@ import lombok.NoArgsConstructor;
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 @Schema(
   description = "http://www.fhir.org/guides/argonaut/r2/StructureDefinition-argo-immunization.html",
-  example = SwaggerExamples.IMMUNIZATION
+  example = "SWAGGER_EXAMPLE_IMMUNIZATION"
 )
 @ExactlyOneOfs({
   @ExactlyOneOf(fields = {"status", "_status"}),
@@ -115,7 +115,7 @@ public class Immunization implements Resource {
   @EqualsAndHashCode(callSuper = true)
   @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
   @JsonDeserialize(builder = Immunization.Bundle.BundleBuilder.class)
-  @Schema(name = "ImmunizationBundle", example = SwaggerExamples.IMMUNIZATION_BUNDLE)
+  @Schema(name = "ImmunizationBundle", example = "SWAGGER_EXAMPLE_IMMUNIZATION_BUNDLE")
   public static class Bundle extends AbstractBundle<Immunization.Entry> {
 
     @Builder

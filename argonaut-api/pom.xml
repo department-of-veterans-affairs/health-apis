@@ -8,6 +8,12 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>org.reflections</groupId>
+      <artifactId>reflections</artifactId>
+      <version>${reflections.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-beans</artifactId>
       <scope>compile</scope>
@@ -16,7 +22,7 @@
   <parent>
     <groupId>gov.va.api.health</groupId>
     <artifactId>api-starter</artifactId>
-    <version>1.0.171-SNAPSHOT</version>
+    <version>1.0.174-SNAPSHOT</version>
     <relativePath>../api-starter</relativePath>
   </parent>
   <artifactId>argonaut-api</artifactId>

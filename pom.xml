@@ -10,7 +10,7 @@
   </parent>
   <groupId>gov.va.api.health</groupId>
   <artifactId>health-apis-parent</artifactId>
-  <version>1.0.171-SNAPSHOT</version>
+  <version>1.0.174-SNAPSHOT</version>
   <packaging>pom</packaging>
   <properties>
     <cdw-schemas.version>1.0.41</cdw-schemas.version>
@@ -34,6 +34,7 @@
     <maven.version>3.5</maven.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <reflections.version>0.9.11</reflections.version>
     <spotbugs-maven-plugin.version>3.1.6</spotbugs-maven-plugin.version>
     <spotbugs.excludeFilterFile>${project.basedir}/spotbugs-excludes.xml</spotbugs.excludeFilterFile>
     <spotbugs.version>3.1.7</spotbugs.version>
