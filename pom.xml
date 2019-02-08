@@ -193,9 +193,9 @@
           </plugin>
           <!-- Java arrangement -->
           <plugin>
-            <groupId>gov.va.extension</groupId>
-            <artifactId>arranger-java-maven-plugin</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <groupId>gov.va.jarranger</groupId>
+            <artifactId>jarranger-maven-plugin</artifactId>
+            <version>0.1.0-SNAPSHOT</version>
             <executions>
               <execution>
                 <goals>
