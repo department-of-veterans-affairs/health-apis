@@ -9,7 +9,7 @@ import org.junit.experimental.categories.Category;
 
 public class HealthCheckIT {
 
-  @Category(NotInLab.class)
+  @Category({NotInLab.class, NotInProd.class})
   @Test
   public void argonautIsHealthy() {
     Sentinel.get()
