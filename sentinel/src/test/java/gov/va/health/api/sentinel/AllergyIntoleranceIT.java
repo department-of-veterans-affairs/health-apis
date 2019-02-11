@@ -5,6 +5,7 @@ import static gov.va.health.api.sentinel.ResourceVerifier.test;
 import gov.va.api.health.argonaut.api.resources.AllergyIntolerance;
 import gov.va.api.health.argonaut.api.resources.OperationOutcome;
 import gov.va.health.api.sentinel.categories.NotInLab;
+import gov.va.health.api.sentinel.categories.NotInLocal;
 import gov.va.health.api.sentinel.categories.NotInProd;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -44,5 +45,16 @@ public class AllergyIntoleranceIT {
             AllergyIntolerance.Bundle.class,
             "AllergyIntolerance?patient={patient}",
             verifier.ids().patient()));
+  }
+
+  @Test
+  @Category(NotInLocal.class)
+  public void searchNotMe() {
+    verifier.verifyAll(
+        test(
+            403,
+            OperationOutcome.class,
+            "AllergyIntolerance?patient={patient}",
+            verifier.ids().unknown()));
   }
 }

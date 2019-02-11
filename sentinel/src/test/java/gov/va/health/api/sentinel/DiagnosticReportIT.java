@@ -5,6 +5,7 @@ import static gov.va.health.api.sentinel.ResourceVerifier.test;
 import gov.va.api.health.argonaut.api.resources.DiagnosticReport;
 import gov.va.api.health.argonaut.api.resources.OperationOutcome;
 import gov.va.health.api.sentinel.categories.NotInLab;
+import gov.va.health.api.sentinel.categories.NotInLocal;
 import gov.va.health.api.sentinel.categories.NotInProd;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -49,6 +50,13 @@ public class DiagnosticReportIT {
             "DiagnosticReport?patient={patient}&code={loinc1}",
             verifier.ids().patient(),
             verifier.ids().diagnosticReports().loinc1()),
+        test(
+            200,
+            DiagnosticReport.Bundle.class,
+            "DiagnosticReport?patient={patient}&code={loinc1},{badLoinc}",
+            verifier.ids().patient(),
+            verifier.ids().diagnosticReports().loinc1(),
+            verifier.ids().diagnosticReports().badLoinc()),
         test(
             200,
             DiagnosticReport.Bundle.class,
@@ -170,5 +178,16 @@ public class DiagnosticReportIT {
             DiagnosticReport.Bundle.class,
             "DiagnosticReport?patient={patient}",
             verifier.ids().patient()));
+  }
+
+  @Test
+  @Category(NotInLocal.class)
+  public void searchNotMe() {
+    verifier.verifyAll(
+        test(
+            403,
+            OperationOutcome.class,
+            "DiagnosticReport?patient={patient}",
+            verifier.ids().unknown()));
   }
 }

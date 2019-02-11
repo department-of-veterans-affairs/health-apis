@@ -5,6 +5,7 @@ import static gov.va.health.api.sentinel.ResourceVerifier.test;
 import gov.va.api.health.argonaut.api.resources.OperationOutcome;
 import gov.va.api.health.argonaut.api.resources.Procedure;
 import gov.va.health.api.sentinel.categories.NotInLab;
+import gov.va.health.api.sentinel.categories.NotInLocal;
 import gov.va.health.api.sentinel.categories.NotInProd;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -41,5 +42,12 @@ public class ProcedureIT {
         test(200, Procedure.class, "Procedure/{id}", verifier.ids().procedure()),
         test(404, OperationOutcome.class, "Procedure/{id}", verifier.ids().unknown()),
         test(200, Procedure.Bundle.class, "Procedure?patient={patient}", verifier.ids().patient()));
+  }
+
+  @Test
+  @Category(NotInLocal.class)
+  public void searchNotMe() {
+    verifier.verifyAll(
+        test(403, OperationOutcome.class, "Procedure?patient={patient}", verifier.ids().unknown()));
   }
 }
