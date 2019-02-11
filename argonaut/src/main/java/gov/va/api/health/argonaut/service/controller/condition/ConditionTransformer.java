@@ -29,7 +29,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ConditionTransformer implements ConditionController.Transformer {
-
   @Override
   public Condition apply(CdwCondition condition) {
     return condition(condition);

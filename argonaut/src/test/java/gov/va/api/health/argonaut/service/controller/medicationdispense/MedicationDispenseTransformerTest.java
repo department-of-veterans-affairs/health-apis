@@ -41,7 +41,6 @@ import lombok.SneakyThrows;
 import org.junit.Test;
 
 public class MedicationDispenseTransformerTest {
-
   private final MedicationDispenseTransformer tx = new MedicationDispenseTransformer();
 
   private final CdwSampleData cdw = CdwSampleData.get();
@@ -189,7 +188,6 @@ public class MedicationDispenseTransformerTest {
 
   @NoArgsConstructor(staticName = "get", access = AccessLevel.PUBLIC)
   static class CdwSampleData {
-
     private CdwAuthorizingPrescriptions authorizingPrescriptions() {
       CdwAuthorizingPrescriptions cdw = new CdwAuthorizingPrescriptions();
       cdw.getAuthorizingPrescription()
@@ -329,7 +327,6 @@ public class MedicationDispenseTransformerTest {
 
   @NoArgsConstructor(staticName = "get")
   private static class Expected {
-
     private List<Reference> authorizingPrescriptions() {
       return Collections.singletonList(
           reference("MedicationOrder/1200738474346:O", "OUTPATIENT PHARMACY"));

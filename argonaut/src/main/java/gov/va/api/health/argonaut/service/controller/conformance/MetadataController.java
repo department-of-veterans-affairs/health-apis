@@ -44,7 +44,6 @@ import org.springframework.web.bind.annotation.RestController;
 )
 @AllArgsConstructor(onConstructor = @__({@Autowired}))
 class MetadataController {
-
   private static final String ALLERGYINTOLERANCE_HTML =
       "http://www.fhir.org/guides/argonaut/r2/StructureDefinition-argo-allergyintolerance.html";
 
@@ -345,7 +344,6 @@ class MetadataController {
   @Value
   @Builder
   private static class SupportedResource {
-
     String type;
 
     String documentation;

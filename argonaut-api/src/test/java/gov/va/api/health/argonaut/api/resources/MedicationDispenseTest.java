@@ -19,7 +19,6 @@ import javax.validation.ValidatorFactory;
 import org.junit.Test;
 
 public class MedicationDispenseTest {
-
   private final SampleMedicationDispenses data = SampleMedicationDispenses.get();
 
   @Test

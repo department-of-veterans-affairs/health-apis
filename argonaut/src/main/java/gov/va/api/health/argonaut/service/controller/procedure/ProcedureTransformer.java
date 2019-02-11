@@ -25,7 +25,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ProcedureTransformer implements ProcedureController.Transformer {
-
   @Override
   public Procedure apply(CdwProcedure cdw) {
     return Procedure.builder()

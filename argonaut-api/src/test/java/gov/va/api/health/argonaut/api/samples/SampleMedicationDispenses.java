@@ -11,7 +11,6 @@ import lombok.experimental.Delegate;
 
 @NoArgsConstructor(staticName = "get")
 public class SampleMedicationDispenses {
-
   @Delegate SampleDataTypes dataTypes = SampleDataTypes.get();
 
   public DosageInstruction dosageInstruction() {

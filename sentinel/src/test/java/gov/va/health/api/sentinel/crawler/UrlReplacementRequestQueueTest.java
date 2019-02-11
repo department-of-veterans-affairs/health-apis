@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Test;
 
 public class UrlReplacementRequestQueueTest {
-
   UrlReplacementRequestQueue rq =
       UrlReplacementRequestQueue.builder()
           .replaceUrl("https://dev-api.va.gov/services/argonaut/v0/")

@@ -20,7 +20,6 @@ import lombok.experimental.Delegate;
 @SuppressWarnings("WeakerAccess")
 @NoArgsConstructor(staticName = "get")
 public class SampleEncounters {
-
   @Delegate SampleDataTypes dataTypes = SampleDataTypes.get();
 
   public Encounter encounter() {

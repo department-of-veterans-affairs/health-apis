@@ -11,7 +11,6 @@ import lombok.Value;
 /** Utility methods for working with CDW-related Resource Identity objects. */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 final class ResourceIdentities {
-
   /** The CDW system value. */
   @SuppressWarnings("SameReturnValue")
   public static String cdw() {
@@ -66,7 +65,6 @@ final class ResourceIdentities {
   @Value
   @Builder
   static class ReferencePair {
-
     String cdw;
 
     String universal;

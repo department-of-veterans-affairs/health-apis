@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RequestMapping(produces = {"application/json"})
 @Slf4j
 public class WebExceptionHandler {
-
   @ExceptionHandler({javax.validation.ConstraintViolationException.class})
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   public ErrorResponse handleBadRequest(Exception e) {

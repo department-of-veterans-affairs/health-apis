@@ -37,7 +37,6 @@ import org.springframework.web.bind.annotation.RestController;
 @AllArgsConstructor(onConstructor = @__({@Autowired}))
 @Slf4j
 public class MedicationDispenseController {
-
   private Transformer transformer;
 
   private MrAndersonClient mrAndersonClient;

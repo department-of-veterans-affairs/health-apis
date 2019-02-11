@@ -17,7 +17,6 @@ import org.openqa.selenium.chrome.ChromeOptions;
 
 @Slf4j
 public class DevApiPortal {
-
   private ChromeDriver driver;
 
   public WebElement getChild(WebElement element, By by) {
@@ -47,7 +46,6 @@ public class DevApiPortal {
   }
 
   public static class Config {
-
     private Properties properties;
 
     @SneakyThrows

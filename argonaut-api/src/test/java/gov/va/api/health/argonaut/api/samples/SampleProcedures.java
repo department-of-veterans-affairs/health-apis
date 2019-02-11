@@ -12,7 +12,6 @@ import lombok.experimental.Delegate;
 
 @NoArgsConstructor(staticName = "get")
 public class SampleProcedures {
-
   @Delegate SampleDataTypes dataTypes = SampleDataTypes.get();
 
   private FocalDevice focalDevice() {

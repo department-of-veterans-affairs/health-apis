@@ -34,7 +34,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ImmunizationTransformer implements ImmunizationController.Transformer {
-
   @Override
   public Immunization apply(CdwImmunization source) {
     return Immunization.builder()

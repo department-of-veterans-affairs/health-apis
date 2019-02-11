@@ -7,7 +7,6 @@ import org.junit.Test;
 import org.springframework.util.LinkedMultiValueMap;
 
 public class QueryTest {
-
   private Query query() {
     LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
     parameters.add("b", "banana");

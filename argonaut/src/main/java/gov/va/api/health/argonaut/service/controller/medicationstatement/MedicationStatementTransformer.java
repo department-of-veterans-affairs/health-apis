@@ -28,7 +28,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class MedicationStatementTransformer implements MedicationStatementController.Transformer {
-
   @Override
   public MedicationStatement apply(CdwMedicationStatement cdw) {
     return MedicationStatement.builder()

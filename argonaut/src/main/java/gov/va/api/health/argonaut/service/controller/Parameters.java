@@ -10,7 +10,6 @@ import org.springframework.util.MultiValueMap;
 /** Provides utilities for working with MultiValueMap typically used for request parameters. */
 @NoArgsConstructor(staticName = "builder")
 public class Parameters {
-
   private final MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 
   /** Create an empty, immutable map. */

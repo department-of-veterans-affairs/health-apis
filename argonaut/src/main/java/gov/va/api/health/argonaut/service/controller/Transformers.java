@@ -16,7 +16,6 @@ import org.apache.commons.lang3.StringUtils;
 /** Utility methods for transforming CDW results to Argonaut. */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Transformers {
-
   /**
    * Return false if at least one value in the given list is a non-blank string, or a non-null
    * object.
@@ -133,7 +132,6 @@ public final class Transformers {
    * there is a bug in CDW, Mr. Anderson, or the Mr. Anderson client.
    */
   static class MissingPayload extends TransformationException {
-
     MissingPayload() {
       super(
           "Payload is missing, but no errors reported by Mr. Anderson."
@@ -144,7 +142,6 @@ public final class Transformers {
 
   /** Base exception for controller errors. */
   static class TransformationException extends RuntimeException {
-
     @SuppressWarnings("SameParameterValue")
     TransformationException(String message) {
       super(message);

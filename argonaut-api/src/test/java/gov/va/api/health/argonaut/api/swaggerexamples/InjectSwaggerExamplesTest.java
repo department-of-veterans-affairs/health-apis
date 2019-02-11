@@ -33,7 +33,6 @@ import org.springframework.util.ReflectionUtils;
  */
 @Slf4j
 public class InjectSwaggerExamplesTest {
-
   private static File toFile(URL url) {
     try {
       return new File(url.toURI());

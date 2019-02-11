@@ -37,7 +37,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class MedicationOrderTransformer implements MedicationOrderController.Transformer {
-
   CodeableConcept additionalInstructions(CdwCodeableConcept source) {
     if (source == null) {
       return null;

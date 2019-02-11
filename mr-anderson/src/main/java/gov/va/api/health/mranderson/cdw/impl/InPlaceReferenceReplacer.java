@@ -36,7 +36,6 @@ import org.w3c.dom.traversal.NodeIterator;
  */
 @Slf4j
 class InPlaceReferenceReplacer {
-
   private final Query query;
 
   private final Document document;
@@ -148,7 +147,6 @@ class InPlaceReferenceReplacer {
 
   /** This interface defines a generic mechanism to process nodes. */
   private interface ReferenceNodeHandler {
-
     /** Return true if this handler can process the given node, otherwise false. */
     boolean isReference(Node node);
 
@@ -166,7 +164,6 @@ class InPlaceReferenceReplacer {
    * <reference>resource/identity</reference>}. convention.
    */
   private static class NormalReferenceNodeHandler implements ReferenceNodeHandler {
-
     @Override
     public boolean isReference(Node node) {
       return "reference".equals(node.getNodeName());
@@ -188,7 +185,6 @@ class InPlaceReferenceReplacer {
    * the resource type.
    */
   private class CdwIdReferenceNodeHandler implements ReferenceNodeHandler {
-
     @Override
     public boolean isReference(Node node) {
       return "cdwId".equals(node.getNodeName());

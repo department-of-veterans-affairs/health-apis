@@ -26,7 +26,6 @@ import lombok.SneakyThrows;
 import org.junit.Test;
 
 public class DiagnosticReportTransformerTest {
-
   private final DiagnosticReportTransformer tx = new DiagnosticReportTransformer();
 
   private final CdwSampleData cdw = new CdwSampleData();
@@ -100,7 +99,6 @@ public class DiagnosticReportTransformerTest {
   }
 
   private static class CdwSampleData {
-
     private CdwDiagnosticReportCategory category() {
       CdwDiagnosticReportCategory category = new CdwDiagnosticReportCategory();
       category.setCoding(categoryCoding());
@@ -184,7 +182,6 @@ public class DiagnosticReportTransformerTest {
   }
 
   private static class Expected {
-
     private CodeableConcept category() {
       return CodeableConcept.builder().coding(categoryCoding()).build();
     }

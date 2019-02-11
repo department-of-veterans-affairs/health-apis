@@ -11,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 /** This support class can be used to test standard resource queries, such as reads and searches. */
 @Slf4j
 public class ResourceVerifier {
-
   private static final ResourceVerifier INSTANCE = new ResourceVerifier();
 
   private static final String apiPath = Sentinel.get().system().argonaut().apiPath();
@@ -92,7 +91,6 @@ public class ResourceVerifier {
   @Value
   @Builder
   public static class TestCase<T> {
-
     int status;
 
     Class<T> response;

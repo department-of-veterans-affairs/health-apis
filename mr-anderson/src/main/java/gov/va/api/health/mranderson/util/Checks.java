@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 /** Utility method for preconditions. */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Checks {
-
   /**
    * If the given value is null or does not match the regular expression an IllegalArgumentException
    * is thrown. Otherwise, the value is returned. Use this method for clean inline argument checks.

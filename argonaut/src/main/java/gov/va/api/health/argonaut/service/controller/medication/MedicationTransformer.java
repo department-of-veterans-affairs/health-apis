@@ -20,7 +20,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class MedicationTransformer implements MedicationController.Transformer {
-
   @Override
   public Medication apply(CdwMedication medication) {
     return medication(medication);

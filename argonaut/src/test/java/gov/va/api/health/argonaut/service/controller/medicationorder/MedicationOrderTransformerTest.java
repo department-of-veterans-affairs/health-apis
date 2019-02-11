@@ -36,7 +36,6 @@ import lombok.SneakyThrows;
 import org.junit.Test;
 
 public class MedicationOrderTransformerTest {
-
   MedicationOrderTransformer tx = new MedicationOrderTransformer();
 
   private CdwSampleData cdw = new CdwSampleData();
@@ -206,7 +205,6 @@ public class MedicationOrderTransformerTest {
   }
 
   private static class CdwSampleData {
-
     private DatatypeFactory datatypeFactory;
 
     @SneakyThrows
@@ -379,7 +377,6 @@ public class MedicationOrderTransformerTest {
 
   @NoArgsConstructor(staticName = "get")
   private static class Expected {
-
     CodeableConcept additionalInstructions() {
       return CodeableConcept.builder().text("additional instructions text").build();
     }

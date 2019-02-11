@@ -16,7 +16,6 @@ import org.springframework.util.MultiValueMap;
 @Value
 @Builder(toBuilder = true)
 public class Query {
-
   Profile profile;
 
   String resource;

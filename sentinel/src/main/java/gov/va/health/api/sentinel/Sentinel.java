@@ -14,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 @Value
 @Slf4j
 public class Sentinel {
-
   static {
     String env = System.getProperty("sentinel", "LOCAL").toUpperCase(Locale.ENGLISH);
     log.info(

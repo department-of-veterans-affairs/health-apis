@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RequestMapping(produces = {"application/json", "application/xml"})
 @Slf4j
 public class WebExceptionHandler {
-
   @ExceptionHandler({
     MissingSearchParameters.class,
     javax.validation.ConstraintViolationException.class

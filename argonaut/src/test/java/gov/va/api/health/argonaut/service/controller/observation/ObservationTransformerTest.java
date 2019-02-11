@@ -43,7 +43,6 @@ import lombok.SneakyThrows;
 import org.junit.Test;
 
 public class ObservationTransformerTest {
-
   private final ObservationTransformer tx = new ObservationTransformer();
 
   private final CdwSampleData cdw = CdwSampleData.get();
@@ -238,7 +237,6 @@ public class ObservationTransformerTest {
 
   @NoArgsConstructor(staticName = "get", access = AccessLevel.PUBLIC)
   public static class CdwSampleData {
-
     private CdwCategory category() {
       CdwCategory cdw = new CdwCategory();
       cdw.getCoding().add(categoryCoding());
@@ -460,7 +458,6 @@ public class ObservationTransformerTest {
 
   @NoArgsConstructor(staticName = "get")
   public static class Expected {
-
     CodeableConcept category() {
       return codeableConcept(
           coding("http://hl7.org/fhir/observation-category", "vital-signs", "Vital Signs"));

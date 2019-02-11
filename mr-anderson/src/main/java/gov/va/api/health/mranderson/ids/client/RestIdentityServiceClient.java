@@ -31,7 +31,6 @@ import org.springframework.web.client.RestTemplate;
 @AllArgsConstructor(onConstructor = @__({@Autowired}))
 @Slf4j
 public class RestIdentityServiceClient implements IdentityService {
-
   private final RestTemplate restTemplate;
 
   @Value("${identityservice.url}")
@@ -88,7 +87,6 @@ public class RestIdentityServiceClient implements IdentityService {
 
   @AllArgsConstructor
   static class LookupErrorHandler implements ResponseErrorHandler {
-
     private final String id;
 
     @Override
@@ -108,7 +106,6 @@ public class RestIdentityServiceClient implements IdentityService {
   }
 
   static class RegisterErrorHandler implements ResponseErrorHandler {
-
     @Override
     public void handleError(ClientHttpResponse response) throws IOException {
       if (response.getStatusCode() != HttpStatus.OK) {

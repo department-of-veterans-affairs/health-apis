@@ -10,7 +10,6 @@ import org.springframework.util.StreamUtils;
 
 @NoArgsConstructor(staticName = "create")
 public class Samples {
-
   public String emptySearchResults() {
     return read("EmptySearchResults.xml");
   }

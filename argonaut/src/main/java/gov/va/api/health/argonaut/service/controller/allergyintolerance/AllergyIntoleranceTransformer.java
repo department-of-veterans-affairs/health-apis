@@ -39,7 +39,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class AllergyIntoleranceTransformer implements AllergyIntoleranceController.Transformer {
-
   private AllergyIntolerance allergyIntolerance(CdwAllergyIntolerance source) {
     return AllergyIntolerance.builder()
         .id(source.getCdwId())

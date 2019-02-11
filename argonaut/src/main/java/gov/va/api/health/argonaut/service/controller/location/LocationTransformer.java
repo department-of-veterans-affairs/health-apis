@@ -31,7 +31,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class LocationTransformer implements LocationController.Transformer {
-
   Address address(CdwLocationAddress maybeCdw) {
     if (isUnusableAddress(maybeCdw)) {
       return null;

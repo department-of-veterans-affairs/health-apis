@@ -9,7 +9,6 @@ import lombok.Builder;
  * are correct when crawling.
  */
 public class UrlReplacementRequestQueue implements RequestQueue {
-
   private final String replaceUrl;
 
   private final String withUrl;

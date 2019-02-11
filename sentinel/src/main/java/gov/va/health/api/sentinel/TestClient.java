@@ -5,7 +5,6 @@ package gov.va.health.api.sentinel;
  * responses decorated with easy to assert expectations.
  */
 public interface TestClient {
-
   /**
    * Perform a get request with optional path params.
    *

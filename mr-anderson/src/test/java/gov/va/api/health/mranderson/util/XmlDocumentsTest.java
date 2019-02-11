@@ -12,7 +12,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
 
 public class XmlDocumentsTest {
-
   @Test(expected = ParseFailed.class)
   public void badXmlCausesParseFailure() {
     String xml = "<a><b>bee</b><c><no-closing-tag></c></a>";

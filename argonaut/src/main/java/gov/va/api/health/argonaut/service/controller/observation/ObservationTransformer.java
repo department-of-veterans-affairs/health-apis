@@ -43,7 +43,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ObservationTransformer implements ObservationController.Transformer {
-
   @Override
   public Observation apply(CdwObservation cdw) {
     /*

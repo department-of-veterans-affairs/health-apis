@@ -11,7 +11,6 @@ import lombok.SneakyThrows;
 import org.junit.Test;
 
 public class ModelTest {
-
   @SuppressWarnings("ThrowableNotThrown")
   @Test
   public void exceptionConstructors() {

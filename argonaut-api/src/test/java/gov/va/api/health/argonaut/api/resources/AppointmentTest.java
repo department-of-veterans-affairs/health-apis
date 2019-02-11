@@ -11,7 +11,6 @@ import org.junit.Test;
 
 @Slf4j
 public class AppointmentTest {
-
   private final SampleAppointments data = SampleAppointments.get();
 
   @Test

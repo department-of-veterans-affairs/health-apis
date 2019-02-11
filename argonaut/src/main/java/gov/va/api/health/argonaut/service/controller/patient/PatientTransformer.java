@@ -52,7 +52,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class PatientTransformer implements PatientController.Transformer {
-
   List<String> addressLine(CdwAddress source) {
     return addressLines(
         source.getStreetAddress1(), source.getStreetAddress2(), source.getStreetAddress3());

@@ -28,7 +28,6 @@ import lombok.SneakyThrows;
 import org.junit.Test;
 
 public class MedicationStatementTransformerTest {
-
   private final MedicationStatementTransformer tx = new MedicationStatementTransformer();
 
   private final CdwSampleData cdw = CdwSampleData.get();
@@ -82,7 +81,6 @@ public class MedicationStatementTransformerTest {
 
   @NoArgsConstructor(staticName = "get")
   private static class CdwSampleData {
-
     CdwCoding coding() {
       CdwCoding coding = new CdwCoding();
       coding.setSystem("http://example.com");
@@ -153,7 +151,6 @@ public class MedicationStatementTransformerTest {
 
   @NoArgsConstructor(staticName = "get")
   private static class Expected {
-
     private Coding coding() {
       return Coding.builder().display("BID").code("BID").system("http://example.com").build();
     }

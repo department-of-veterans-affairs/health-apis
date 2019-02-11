@@ -44,7 +44,6 @@ import lombok.NoArgsConstructor;
   example = "SWAGGER_EXAMPLE_PRACTITIONER"
 )
 public class Practitioner implements DomainResource {
-
   @NotBlank String resourceType;
 
   @Pattern(regexp = Fhir.ID)
@@ -103,7 +102,6 @@ public class Practitioner implements DomainResource {
   @JsonDeserialize(builder = Practitioner.Entry.EntryBuilder.class)
   @Schema(name = "PractitionerEntry", example = "SWAGGER_EXAMPLE_PRACTITIONER_BUNDLE")
   public static class Entry extends AbstractEntry<Practitioner> {
-
     @Builder
     public Entry(
         @Pattern(regexp = Fhir.ID) String id,
@@ -126,7 +124,6 @@ public class Practitioner implements DomainResource {
   @JsonDeserialize(builder = Practitioner.Bundle.BundleBuilder.class)
   @Schema(name = "Practitioner")
   public static class Bundle extends AbstractBundle<Entry> {
-
     @Builder
     public Bundle(
         @NotBlank String resourceType,
@@ -149,7 +146,6 @@ public class Practitioner implements DomainResource {
   @AllArgsConstructor
   @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
   public static class Qualification implements BackboneElement {
-
     @Pattern(regexp = Fhir.ID)
     String id;
 
@@ -172,7 +168,6 @@ public class Practitioner implements DomainResource {
   @AllArgsConstructor
   @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
   public static class PractitionerRole implements BackboneElement {
-
     @Pattern(regexp = Fhir.ID)
     String id;
 

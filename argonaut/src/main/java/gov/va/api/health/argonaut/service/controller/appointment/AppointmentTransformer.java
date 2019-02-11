@@ -34,7 +34,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class AppointmentTransformer implements AppointmentController.Transformer {
-
   @Override
   public Appointment apply(CdwAppointment cdw) {
     return Appointment.builder()

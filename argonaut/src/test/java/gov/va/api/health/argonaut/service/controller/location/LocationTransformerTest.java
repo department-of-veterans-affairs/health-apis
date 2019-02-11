@@ -34,7 +34,6 @@ import lombok.NoArgsConstructor;
 import org.junit.Test;
 
 public class LocationTransformerTest {
-
   private final LocationTransformer tx = new LocationTransformer();
 
   private final CdwSampleData cdw = CdwSampleData.get();
@@ -120,7 +119,6 @@ public class LocationTransformerTest {
 
   @NoArgsConstructor(staticName = "get", access = AccessLevel.PUBLIC)
   public static class CdwSampleData {
-
     CdwLocationAddress address() {
       CdwLocationAddress cdw = new CdwLocationAddress();
       cdw.setCity("ALBANY");
@@ -198,7 +196,6 @@ public class LocationTransformerTest {
 
   @NoArgsConstructor(staticName = "get", access = AccessLevel.PUBLIC)
   public static class Expected {
-
     Address address() {
       return Address.builder()
           .city("ALBANY")

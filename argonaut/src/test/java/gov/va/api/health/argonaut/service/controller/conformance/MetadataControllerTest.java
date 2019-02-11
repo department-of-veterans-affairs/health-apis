@@ -11,7 +11,6 @@ import lombok.SneakyThrows;
 import org.junit.Test;
 
 public class MetadataControllerTest {
-
   @SneakyThrows
   private String pretty(Conformance conformance) {
     return JacksonConfig.createMapper()

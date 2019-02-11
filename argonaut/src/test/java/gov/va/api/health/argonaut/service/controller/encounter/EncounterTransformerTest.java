@@ -36,7 +36,6 @@ import lombok.SneakyThrows;
 import org.junit.Test;
 
 public class EncounterTransformerTest {
-
   private EncounterTransformer tx = new EncounterTransformer();
 
   private CdwSampleData cdw = new CdwSampleData();
@@ -131,7 +130,6 @@ public class EncounterTransformerTest {
 
   @NoArgsConstructor(staticName = "get")
   private static class CdwSampleData {
-
     private CdwReference appointment() {
       return reference("Appointment/1200438317388", "Appointment");
     }
@@ -238,7 +236,6 @@ public class EncounterTransformerTest {
 
   @NoArgsConstructor(staticName = "get")
   private static class Expected {
-
     private Reference appointment() {
       return reference("Appointment/1200438317388", "Appointment");
     }

@@ -30,7 +30,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class DiagnosticReportTransformer implements DiagnosticReportController.Transformer {
-
   @Override
   public DiagnosticReport apply(CdwDiagnosticReport source) {
     return diagnosticReport(source);

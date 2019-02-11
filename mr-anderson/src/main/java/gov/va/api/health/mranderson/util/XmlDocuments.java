@@ -21,7 +21,6 @@ import org.xml.sax.SAXException;
 /** Utilities for working with XML documents. */
 @NoArgsConstructor(staticName = "create")
 public final class XmlDocuments {
-
   /**
    * Finds a DOM implementation is capable of 'Load/Save' operations, which gives us the ability to
    * write Documents.
@@ -84,14 +83,12 @@ public final class XmlDocuments {
   }
 
   public static class ParseFailed extends RuntimeException {
-
     ParseFailed(Exception cause) {
       super(cause);
     }
   }
 
   public static class WriteFailed extends RuntimeException {
-
     WriteFailed(String message) {
       super(message);
     }

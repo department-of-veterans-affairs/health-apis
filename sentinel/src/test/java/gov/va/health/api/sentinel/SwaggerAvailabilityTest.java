@@ -14,7 +14,6 @@ import org.openqa.selenium.WebElement;
 
 @Slf4j
 public class SwaggerAvailabilityTest {
-
   DevApiPortal apiPortalPage = new DevApiPortal();
 
   public void checkAvailability(String url) {

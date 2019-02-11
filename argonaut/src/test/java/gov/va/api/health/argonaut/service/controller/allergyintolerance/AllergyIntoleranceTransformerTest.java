@@ -38,7 +38,6 @@ import lombok.SneakyThrows;
 import org.junit.Test;
 
 public class AllergyIntoleranceTransformerTest {
-
   private final CdwSampleData cdw = new CdwSampleData();
 
   private final Expected expected = new Expected();
@@ -140,7 +139,6 @@ public class AllergyIntoleranceTransformerTest {
   }
 
   private static class CdwSampleData {
-
     private DatatypeFactory datatypeFactory;
 
     @SneakyThrows
@@ -259,7 +257,6 @@ public class AllergyIntoleranceTransformerTest {
   }
 
   static class Expected {
-
     AllergyIntolerance allergyIntolerance() {
       return AllergyIntolerance.builder()
           .resourceType("AllergyIntolerance")
