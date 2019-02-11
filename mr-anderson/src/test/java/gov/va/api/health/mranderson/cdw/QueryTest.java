@@ -8,18 +8,6 @@ import org.springframework.util.LinkedMultiValueMap;
 
 public class QueryTest {
 
-  @Test
-  public void toResourceString() {
-    Query query = query();
-    assertThat(query.toResourceString(), is("/Foo:1.00"));
-  }
-
-  @Test
-  public void toQueryString() {
-    Query query = query();
-    assertThat(query.toQueryString(), is("/Foo:1.00?a=ack&a=ick&b=banana"));
-  }
-
   private Query query() {
     LinkedMultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
     parameters.add("b", "banana");
@@ -34,5 +22,17 @@ public class QueryTest {
         .raw(false)
         .parameters(parameters)
         .build();
+  }
+
+  @Test
+  public void toQueryString() {
+    Query query = query();
+    assertThat(query.toQueryString(), is("/Foo:1.00?a=ack&a=ick&b=banana"));
+  }
+
+  @Test
+  public void toResourceString() {
+    Query query = query();
+    assertThat(query.toResourceString(), is("/Foo:1.00"));
   }
 }

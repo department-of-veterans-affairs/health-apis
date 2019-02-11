@@ -40,6 +40,16 @@ public final class XmlDocuments {
             + domImplementation.getClass());
   }
 
+  private DOMImplementationRegistry createRegistryOrDie() {
+    DOMImplementationRegistry registry;
+    try {
+      registry = DOMImplementationRegistry.newInstance();
+    } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
+      throw new WriteFailed(e);
+    }
+    return registry;
+  }
+
   /**
    * Parse the given XML into a Document model. A ParseFailed exception can be thrown if the
    * document cannot be read for any reason.
@@ -73,23 +83,15 @@ public final class XmlDocuments {
     return stringWriter.toString();
   }
 
-  private DOMImplementationRegistry createRegistryOrDie() {
-    DOMImplementationRegistry registry;
-    try {
-      registry = DOMImplementationRegistry.newInstance();
-    } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
-      throw new WriteFailed(e);
-    }
-    return registry;
-  }
-
   public static class ParseFailed extends RuntimeException {
+
     ParseFailed(Exception cause) {
       super(cause);
     }
   }
 
   public static class WriteFailed extends RuntimeException {
+
     WriteFailed(String message) {
       super(message);
     }

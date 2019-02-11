@@ -11,6 +11,14 @@ import lombok.SneakyThrows;
 import org.junit.Test;
 
 public class MetadataControllerTest {
+
+  @SneakyThrows
+  private String pretty(Conformance conformance) {
+    return JacksonConfig.createMapper()
+        .writerWithDefaultPrettyPrinter()
+        .writeValueAsString(conformance);
+  }
+
   private ConformanceStatementProperties properties() {
     return ConformanceStatementProperties.builder()
         .id("lighthouse-va-fhir-conformance")
@@ -44,11 +52,22 @@ public class MetadataControllerTest {
         .build();
   }
 
+  @Test
   @SneakyThrows
-  private String pretty(Conformance conformance) {
-    return JacksonConfig.createMapper()
-        .writerWithDefaultPrettyPrinter()
-        .writeValueAsString(conformance);
+  public void readClinician() {
+    ConformanceStatementProperties properties = properties();
+    properties.setStatementType(StatementType.CLINICIAN);
+    MetadataController controller = new MetadataController(properties);
+    Conformance old =
+        JacksonConfig.createMapper()
+            .readValue(
+                getClass().getResourceAsStream("/clinician-conformance.json"), Conformance.class);
+    try {
+      assertThat(pretty(controller.read())).isEqualTo(pretty(old));
+    } catch (AssertionError e) {
+      System.out.println(e.getMessage());
+      throw e;
+    }
   }
 
   @Test
@@ -61,26 +80,6 @@ public class MetadataControllerTest {
         JacksonConfig.createMapper()
             .readValue(
                 getClass().getResourceAsStream("/patient-conformance.json"), Conformance.class);
-
-    try {
-      assertThat(pretty(controller.read())).isEqualTo(pretty(old));
-    } catch (AssertionError e) {
-      System.out.println(e.getMessage());
-      throw e;
-    }
-  }
-
-  @Test
-  @SneakyThrows
-  public void readClinician() {
-    ConformanceStatementProperties properties = properties();
-    properties.setStatementType(StatementType.CLINICIAN);
-    MetadataController controller = new MetadataController(properties);
-    Conformance old =
-        JacksonConfig.createMapper()
-            .readValue(
-                getClass().getResourceAsStream("/clinician-conformance.json"), Conformance.class);
-
     try {
       assertThat(pretty(controller.read())).isEqualTo(pretty(old));
     } catch (AssertionError e) {

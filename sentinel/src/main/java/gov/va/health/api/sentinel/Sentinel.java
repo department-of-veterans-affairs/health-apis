@@ -21,14 +21,6 @@ public class Sentinel {
         "Using {} Sentinel environment (Override with -Dsentinel=LAB|LOCAL|QA|PROD|STAGING)", env);
   }
 
-  public enum Environment {
-    LAB,
-    LOCAL,
-    PROD,
-    QA,
-    STAGING
-  }
-
   private SystemDefinition system;
 
   /** Parse the system property 'sentinel' into the appropriate enum. */
@@ -73,5 +65,13 @@ public class Sentinel {
 
   public TestClients clients() {
     return TestClients.of(system());
+  }
+
+  public enum Environment {
+    LAB,
+    LOCAL,
+    PROD,
+    QA,
+    STAGING
   }
 }

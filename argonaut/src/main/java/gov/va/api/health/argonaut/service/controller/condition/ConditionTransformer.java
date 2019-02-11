@@ -48,11 +48,6 @@ public class ConditionTransformer implements ConditionController.Transformer {
         .build();
   }
 
-  List<Coding> categoryCodings(List<CdwConditionCategoryCoding> source) {
-    List<Coding> codings = convertAll(source, this::categoryCoding);
-    return codings == null || codings.isEmpty() ? null : codings;
-  }
-
   private Coding categoryCoding(CdwConditionCategoryCoding cdw) {
     if (cdw == null || allBlank(cdw.getCode(), cdw.getDisplay(), cdw.getSystem())) {
       return null;
@@ -62,6 +57,11 @@ public class ConditionTransformer implements ConditionController.Transformer {
         .code(cdw.getCode())
         .display(cdw.getDisplay())
         .build();
+  }
+
+  List<Coding> categoryCodings(List<CdwConditionCategoryCoding> source) {
+    List<Coding> codings = convertAll(source, this::categoryCoding);
+    return codings == null || codings.isEmpty() ? null : codings;
   }
 
   ClinicalStatusCode clinicalStatusCode(@NotNull CdwConditionClinicalStatus source) {
@@ -83,11 +83,6 @@ public class ConditionTransformer implements ConditionController.Transformer {
         .build();
   }
 
-  List<Coding> codeCodings(List<CdwCoding> source) {
-    List<Coding> codings = convertAll(source, this::codeCoding);
-    return codings == null || codings.isEmpty() ? null : codings;
-  }
-
   private Coding codeCoding(CdwCoding cdw) {
     if (cdw == null || allBlank(cdw.getCode(), cdw.getDisplay(), cdw.getSystem())) {
       return null;
@@ -97,6 +92,11 @@ public class ConditionTransformer implements ConditionController.Transformer {
         .code(cdw.getCode())
         .display(cdw.getDisplay())
         .build();
+  }
+
+  List<Coding> codeCodings(List<CdwCoding> source) {
+    List<Coding> codings = convertAll(source, this::codeCoding);
+    return codings == null || codings.isEmpty() ? null : codings;
   }
 
   private Condition condition(CdwCondition source) {

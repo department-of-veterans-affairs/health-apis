@@ -45,7 +45,9 @@ import org.junit.Test;
 public class ObservationTransformerTest {
 
   private final ObservationTransformer tx = new ObservationTransformer();
+
   private final CdwSampleData cdw = CdwSampleData.get();
+
   private final Expected expected = Expected.get();
 
   @Test
@@ -333,6 +335,23 @@ public class ObservationTransformerTest {
       return DatatypeFactory.newInstance().newXMLGregorianCalendar(timestamp);
     }
 
+    private CdwValueQuantity emptyCodeValueQuantity() {
+      CdwValueQuantity cdw = new CdwValueQuantity();
+      cdw.setComparator("<");
+      cdw.setSystem("http://unitsofmeasure.org");
+      cdw.setUnit("/min");
+      cdw.setValue(BigDecimal.valueOf(74));
+      return cdw;
+    }
+
+    private CdwObservationRefRangeQuantity emptyReferenceRangeQuantity(long value) {
+      CdwObservationRefRangeQuantity cdw = new CdwObservationRefRangeQuantity();
+      cdw.setUnit("k/cmm");
+      cdw.setSystem("http://unitsofmeasure.org");
+      cdw.setValue(BigDecimal.valueOf(value));
+      return cdw;
+    }
+
     private CdwInterpretation interpretation() {
       CdwInterpretation cdw = new CdwInterpretation();
       cdw.setText("L");
@@ -406,14 +425,6 @@ public class ObservationTransformerTest {
       return cdw;
     }
 
-    private CdwObservationRefRangeQuantity emptyReferenceRangeQuantity(long value) {
-      CdwObservationRefRangeQuantity cdw = new CdwObservationRefRangeQuantity();
-      cdw.setUnit("k/cmm");
-      cdw.setSystem("http://unitsofmeasure.org");
-      cdw.setValue(BigDecimal.valueOf(value));
-      return cdw;
-    }
-
     private CdwReferenceRanges referenceRanges() {
       CdwReferenceRanges cdw = new CdwReferenceRanges();
       cdw.getReferenceRange().add(referenceRange());
@@ -439,15 +450,6 @@ public class ObservationTransformerTest {
     private CdwValueQuantity valueQuantity() {
       CdwValueQuantity cdw = new CdwValueQuantity();
       cdw.setCode("/min");
-      cdw.setComparator("<");
-      cdw.setSystem("http://unitsofmeasure.org");
-      cdw.setUnit("/min");
-      cdw.setValue(BigDecimal.valueOf(74));
-      return cdw;
-    }
-
-    private CdwValueQuantity emptyCodeValueQuantity() {
-      CdwValueQuantity cdw = new CdwValueQuantity();
       cdw.setComparator("<");
       cdw.setSystem("http://unitsofmeasure.org");
       cdw.setUnit("/min");
@@ -532,6 +534,14 @@ public class ObservationTransformerTest {
       return singletonList(componentWithQuantity());
     }
 
+    private SimpleQuantity emptyCodeReferenceRangeQuantity(int value) {
+      return SimpleQuantity.builder().unit("k/cmm").value((double) value).build();
+    }
+
+    Quantity emptyCodeValueQuantity() {
+      return Quantity.builder().comparator("<").unit("/min").value(74D).build();
+    }
+
     public CodeableConcept interpretation() {
       return codeableConcept(coding("http://hl7.org/fhir/v2/0078", "L", "Low")).text("L");
     }
@@ -551,7 +561,6 @@ public class ObservationTransformerTest {
           .valueQuantity(valueQuantity())
           .interpretation(interpretation())
           .comments("observe, ladies and gentlemen")
-          // .specimen() // Intentionally omitted since specimen resources are not supported
           .referenceRange(referenceRanges())
           .component(components())
           .build();
@@ -576,10 +585,6 @@ public class ObservationTransformerTest {
           .build();
     }
 
-    private List<ObservationReferenceRange> referenceRanges() {
-      return singletonList(referenceRange());
-    }
-
     private SimpleQuantity referenceRangeQuantity(int value) {
       return SimpleQuantity.builder()
           .system("http://unitsofmeasure.org")
@@ -589,8 +594,8 @@ public class ObservationTransformerTest {
           .build();
     }
 
-    private SimpleQuantity emptyCodeReferenceRangeQuantity(int value) {
-      return SimpleQuantity.builder().unit("k/cmm").value((double) value).build();
+    private List<ObservationReferenceRange> referenceRanges() {
+      return singletonList(referenceRange());
     }
 
     CodeableConcept valueCodeableConcept() {
@@ -606,10 +611,6 @@ public class ObservationTransformerTest {
           .unit("/min")
           .value(74D)
           .build();
-    }
-
-    Quantity emptyCodeValueQuantity() {
-      return Quantity.builder().comparator("<").unit("/min").value(74D).build();
     }
   }
 }

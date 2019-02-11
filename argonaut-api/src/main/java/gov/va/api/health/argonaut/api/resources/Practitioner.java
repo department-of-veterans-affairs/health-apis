@@ -44,6 +44,7 @@ import lombok.NoArgsConstructor;
   example = "SWAGGER_EXAMPLE_PRACTITIONER"
 )
 public class Practitioner implements DomainResource {
+
   @NotBlank String resourceType;
 
   @Pattern(regexp = Fhir.ID)
@@ -58,24 +59,42 @@ public class Practitioner implements DomainResource {
   String language;
 
   @Valid Narrative text;
+
   @Valid List<SimpleResource> contained;
+
   @Valid List<Extension> extension;
+
   @Valid List<Extension> modifierExtension;
+
   @Valid List<Identifier> identifier;
 
   boolean active;
+
   @Valid HumanName name;
+
   @Valid List<ContactPoint> telecom;
+
   @Valid List<Address> address;
+
   Gender gender;
 
   @Pattern(regexp = Fhir.DATE)
   String birthDate;
 
   @Valid List<Attachment> photo;
+
   @Valid List<PractitionerRole> practitionerRole;
+
   @Valid List<Qualification> qualification;
+
   @Valid List<CodeableConcept> communication;
+
+  public enum Gender {
+    male,
+    female,
+    other,
+    unknown
+  }
 
   @Data
   @NoArgsConstructor
@@ -84,6 +103,7 @@ public class Practitioner implements DomainResource {
   @JsonDeserialize(builder = Practitioner.Entry.EntryBuilder.class)
   @Schema(name = "PractitionerEntry", example = "SWAGGER_EXAMPLE_PRACTITIONER_BUNDLE")
   public static class Entry extends AbstractEntry<Practitioner> {
+
     @Builder
     public Entry(
         @Pattern(regexp = Fhir.ID) String id,
@@ -106,6 +126,7 @@ public class Practitioner implements DomainResource {
   @JsonDeserialize(builder = Practitioner.Bundle.BundleBuilder.class)
   @Schema(name = "Practitioner")
   public static class Bundle extends AbstractBundle<Entry> {
+
     @Builder
     public Bundle(
         @NotBlank String resourceType,
@@ -128,15 +149,20 @@ public class Practitioner implements DomainResource {
   @AllArgsConstructor
   @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
   public static class Qualification implements BackboneElement {
+
     @Pattern(regexp = Fhir.ID)
     String id;
 
     @Valid List<Extension> extension;
+
     @Valid List<Extension> modifierExtension;
 
     @Valid List<Identifier> identifier;
+
     @Valid @NotNull CodeableConcept code;
+
     @Valid Period period;
+
     @Valid Reference issuer;
   }
 
@@ -146,24 +172,24 @@ public class Practitioner implements DomainResource {
   @AllArgsConstructor
   @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
   public static class PractitionerRole implements BackboneElement {
+
     @Pattern(regexp = Fhir.ID)
     String id;
 
     @Valid List<Extension> extension;
+
     @Valid List<Extension> modifierExtension;
 
     @Valid Reference managingOrganization;
-    @Valid CodeableConcept role;
-    @Valid List<CodeableConcept> specialty;
-    @Valid Period period;
-    @Valid List<Reference> location;
-    @Valid List<Reference> healthcareService;
-  }
 
-  public enum Gender {
-    male,
-    female,
-    other,
-    unknown
+    @Valid CodeableConcept role;
+
+    @Valid List<CodeableConcept> specialty;
+
+    @Valid Period period;
+
+    @Valid List<Reference> location;
+
+    @Valid List<Reference> healthcareService;
   }
 }

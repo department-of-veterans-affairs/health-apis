@@ -34,13 +34,13 @@ public class SwaggerAvailabilityTest {
 
   @Category({NotInLocal.class, NotInLab.class, NotInProd.class})
   @Test
-  public void checkDevDevAvailability() {
-    checkAvailability("https://dev-developer.va.gov/explore/health/docs/argonaut");
+  public void checkDevAvailability() {
+    checkAvailability("https://developer.va.gov/explore/health/docs/argonaut");
   }
 
   @Category({NotInLocal.class, NotInLab.class, NotInProd.class})
   @Test
-  public void checkDevAvailability() {
-    checkAvailability("https://developer.va.gov/explore/health/docs/argonaut");
+  public void checkDevDevAvailability() {
+    checkAvailability("https://dev-developer.va.gov/explore/health/docs/argonaut");
   }
 }

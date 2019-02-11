@@ -37,6 +37,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class MedicationOrderTransformer implements MedicationOrderController.Transformer {
+
   CodeableConcept additionalInstructions(CdwCodeableConcept source) {
     if (source == null) {
       return null;
@@ -50,11 +51,6 @@ public class MedicationOrderTransformer implements MedicationOrderController.Tra
         .build();
   }
 
-  List<Coding> additionalInstructionsCodings(List<CdwCoding> source) {
-    List<Coding> codings = convertAll(source, this::additionalInstructionsCoding);
-    return codings == null || codings.isEmpty() ? null : codings;
-  }
-
   private Coding additionalInstructionsCoding(CdwCoding cdw) {
     if (cdw == null || allBlank(cdw.getCode(), cdw.getDisplay(), cdw.getSystem())) {
       return null;
@@ -64,6 +60,11 @@ public class MedicationOrderTransformer implements MedicationOrderController.Tra
         .code(cdw.getCode())
         .display(cdw.getDisplay())
         .build();
+  }
+
+  List<Coding> additionalInstructionsCodings(List<CdwCoding> source) {
+    List<Coding> codings = convertAll(source, this::additionalInstructionsCoding);
+    return codings == null || codings.isEmpty() ? null : codings;
   }
 
   @Override
@@ -187,19 +188,6 @@ public class MedicationOrderTransformer implements MedicationOrderController.Tra
     return source;
   }
 
-  SimpleQuantity quantity(String source) {
-    if (source == null || isBlank(source)) {
-      return null;
-    }
-    Double value;
-    try {
-      value = Double.valueOf(source);
-    } catch (NumberFormatException e) {
-      throw new IllegalArgumentException("Cannot create double value from " + source, e);
-    }
-    return SimpleQuantity.builder().value(value).build();
-  }
-
   Reference prescriber(CdwReference maybeReference) {
     if (!isUsable(maybeReference)) {
       return null;
@@ -218,6 +206,19 @@ public class MedicationOrderTransformer implements MedicationOrderController.Tra
       return null;
     }
     return DataAbsentReason.of(Reason.unknown);
+  }
+
+  SimpleQuantity quantity(String source) {
+    if (source == null || isBlank(source)) {
+      return null;
+    }
+    Double value;
+    try {
+      value = Double.valueOf(source);
+    } catch (NumberFormatException e) {
+      throw new IllegalArgumentException("Cannot create double value from " + source, e);
+    }
+    return SimpleQuantity.builder().value(value).build();
   }
 
   Reference reference(CdwReference maybeSource) {
@@ -247,6 +248,14 @@ public class MedicationOrderTransformer implements MedicationOrderController.Tra
     return convert(source, status -> EnumSearcher.of(MedicationOrder.Status.class)).find(source);
   }
 
+  List<Coding> timeCodeCodings(List<CdwCoding> source) {
+    List<Coding> codings = convertAll(source, this::timingCodeCoding);
+    if (source == null) {
+      return null;
+    }
+    return source.isEmpty() ? null : codings;
+  }
+
   Timing timing(CdwTiming source) {
     if (source == null || source.getCode() == null) {
       return null;
@@ -265,14 +274,6 @@ public class MedicationOrderTransformer implements MedicationOrderController.Tra
         .text(source.getText())
         .coding(timeCodeCodings(source.getCoding()))
         .build();
-  }
-
-  List<Coding> timeCodeCodings(List<CdwCoding> source) {
-    List<Coding> codings = convertAll(source, this::timingCodeCoding);
-    if (source == null) {
-      return null;
-    }
-    return source.isEmpty() ? null : codings;
   }
 
   private Coding timingCodeCoding(CdwCoding cdw) {

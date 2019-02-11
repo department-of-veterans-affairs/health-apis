@@ -271,7 +271,17 @@ class MockEntityReturnCallableStatement implements CallableStatement {
   }
 
   @Override
+  public void setFetchDirection(int direction) throws SQLException {
+    throw notSupported();
+  }
+
+  @Override
   public int getFetchSize() throws SQLException {
+    throw notSupported();
+  }
+
+  @Override
+  public void setFetchSize(int rows) throws SQLException {
     throw notSupported();
   }
 
@@ -316,8 +326,18 @@ class MockEntityReturnCallableStatement implements CallableStatement {
   }
 
   @Override
+  public void setMaxFieldSize(int max) {
+    /* noop */
+  }
+
+  @Override
   public int getMaxRows() {
     return 0;
+  }
+
+  @Override
+  public void setMaxRows(int max) {
+    /* noop */
   }
 
   @Override
@@ -406,6 +426,11 @@ class MockEntityReturnCallableStatement implements CallableStatement {
   @Override
   public int getQueryTimeout() {
     return 0;
+  }
+
+  @Override
+  public void setQueryTimeout(int seconds) {
+    /* noop */
   }
 
   @Override
@@ -551,6 +576,11 @@ class MockEntityReturnCallableStatement implements CallableStatement {
   @Override
   public boolean isPoolable() {
     return false;
+  }
+
+  @Override
+  public void setPoolable(boolean poolable) throws SQLException {
+    throw notSupported();
   }
 
   @Override
@@ -838,16 +868,6 @@ class MockEntityReturnCallableStatement implements CallableStatement {
   }
 
   @Override
-  public void setFetchDirection(int direction) throws SQLException {
-    throw notSupported();
-  }
-
-  @Override
-  public void setFetchSize(int rows) throws SQLException {
-    throw notSupported();
-  }
-
-  @Override
   public void setFloat(int parameterIndex, float x) throws SQLException {
     throw notSupported();
   }
@@ -875,16 +895,6 @@ class MockEntityReturnCallableStatement implements CallableStatement {
   @Override
   public void setLong(String parameterName, long x) throws SQLException {
     throw notSupported();
-  }
-
-  @Override
-  public void setMaxFieldSize(int max) {
-    /* noop */
-  }
-
-  @Override
-  public void setMaxRows(int max) {
-    /* noop */
   }
 
   @Override
@@ -983,6 +993,7 @@ class MockEntityReturnCallableStatement implements CallableStatement {
         break;
       default:
         /* ignore */
+        break;
     }
   }
 
@@ -1011,16 +1022,6 @@ class MockEntityReturnCallableStatement implements CallableStatement {
   @Override
   public void setObject(String parameterName, Object x) throws SQLException {
     throw notSupported();
-  }
-
-  @Override
-  public void setPoolable(boolean poolable) throws SQLException {
-    throw notSupported();
-  }
-
-  @Override
-  public void setQueryTimeout(int seconds) {
-    /* noop */
   }
 
   @Override

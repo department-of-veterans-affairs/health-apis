@@ -69,15 +69,15 @@ public class AllergyIntoleranceTransformer implements AllergyIntoleranceControll
         category -> EnumSearcher.of(AllergyIntolerance.Category.class).find(category.value()));
   }
 
+  Certainty certainty(CdwAllergyIntoleranceCertainty source) {
+    return ifPresent(source, certainty -> AllergyIntolerance.Certainty.valueOf(certainty.value()));
+  }
+
   Criticality criticality(CdwAllergyIntoleranceCriticality source) {
     return ifPresent(
         source,
         criticality ->
             EnumSearcher.of(AllergyIntolerance.Criticality.class).find(criticality.value()));
-  }
-
-  Certainty certainty(CdwAllergyIntoleranceCertainty source) {
-    return ifPresent(source, certainty -> AllergyIntolerance.Certainty.valueOf(certainty.value()));
   }
 
   Annotation note(CdwNotes source) {

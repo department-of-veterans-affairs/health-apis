@@ -17,10 +17,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Slf4j
 public class WebExceptionHandler {
 
-  private ErrorResponse responseFor(Exception e) {
-    ErrorResponse response = ErrorResponse.of(e);
-    log.error("{}: {}", response.type(), response.message(), e);
-    return response;
+  @ExceptionHandler({javax.validation.ConstraintViolationException.class})
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public ErrorResponse handleBadRequest(Exception e) {
+    return responseFor(e);
   }
 
   @ExceptionHandler({UnknownIdentity.class})
@@ -29,15 +29,15 @@ public class WebExceptionHandler {
     return responseFor(e);
   }
 
-  @ExceptionHandler({javax.validation.ConstraintViolationException.class})
-  @ResponseStatus(HttpStatus.BAD_REQUEST)
-  public ErrorResponse handleBadRequest(Exception e) {
-    return responseFor(e);
-  }
-
   @ExceptionHandler({Exception.class})
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
   public ErrorResponse handleSnafu(Exception e) {
     return responseFor(e);
+  }
+
+  private ErrorResponse responseFor(Exception e) {
+    ErrorResponse response = ErrorResponse.of(e);
+    log.error("{}: {}", response.type(), response.message(), e);
+    return response;
   }
 }

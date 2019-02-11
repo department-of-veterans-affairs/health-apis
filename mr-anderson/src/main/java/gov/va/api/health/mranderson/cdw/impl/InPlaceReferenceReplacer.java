@@ -36,8 +36,11 @@ import org.w3c.dom.traversal.NodeIterator;
  */
 @Slf4j
 class InPlaceReferenceReplacer {
+
   private final Query query;
+
   private final Document document;
+
   private final IdentityService identityService;
 
   private final List<ReferenceNodeHandler> handlers =
@@ -49,49 +52,6 @@ class InPlaceReferenceReplacer {
     this.query = query;
     this.document = document;
     this.identityService = identityService;
-  }
-
-  /**
-   * Update and then return the document by registering all references and replacing their values.
-   */
-  Document replaceReferences() {
-    MultiValueMap<String, Node> referenceNodes = collectReferenceNodes();
-    if (referenceNodes.isEmpty()) {
-      return document;
-    }
-    List<Registration> registrations = registerIds(referenceNodes);
-    registrations.forEach(replaceReference(referenceNodes));
-    return document;
-  }
-
-  private Consumer<? super Registration> replaceReference(
-      MultiValueMap<String, Node> referenceNodes) {
-    return (registration) -> {
-      ReferencePair reference = ResourceIdentities.referencesOf(registration);
-      List<Node> nodes = referenceNodes.get(reference.cdw());
-      if (nodes == null) {
-        log.warn(
-            "Ignoring registration reference {}. There are no associated nodes for {}",
-            reference,
-            registration);
-        return;
-      }
-      nodes.forEach(node -> handlerFor(node).updateReference(node, reference.universal()));
-    };
-  }
-
-  /**
-   * Make the service call to register resource identities for each reference and return the
-   * corresponding registrations.
-   */
-  private List<Registration> registerIds(MultiValueMap<String, Node> referenceNodes) {
-    List<ResourceIdentity> identities =
-        referenceNodes
-            .keySet()
-            .stream()
-            .map(ResourceIdentities::referenceToResourceIdentity)
-            .collect(Collectors.toList());
-    return identityService.register(identities);
   }
 
   /**
@@ -121,13 +81,6 @@ class InPlaceReferenceReplacer {
     return referenceNodes;
   }
 
-  private NodeFilter referenceNodeFilter() {
-    return node ->
-        handlers.stream().anyMatch(t -> t.isReference(node))
-            ? NodeFilter.FILTER_ACCEPT
-            : NodeFilter.FILTER_SKIP;
-  }
-
   /**
    * Get the handler for the given node or throw an exception. This method expects that determining
    * whether or not a node qualifies for handling has already been done.
@@ -143,8 +96,59 @@ class InPlaceReferenceReplacer {
                     "Node appears to no longer have a handler:" + node.getNodeName()));
   }
 
+  private NodeFilter referenceNodeFilter() {
+    return node ->
+        handlers.stream().anyMatch(t -> t.isReference(node))
+            ? NodeFilter.FILTER_ACCEPT
+            : NodeFilter.FILTER_SKIP;
+  }
+
+  /**
+   * Make the service call to register resource identities for each reference and return the
+   * corresponding registrations.
+   */
+  private List<Registration> registerIds(MultiValueMap<String, Node> referenceNodes) {
+    List<ResourceIdentity> identities =
+        referenceNodes
+            .keySet()
+            .stream()
+            .map(ResourceIdentities::referenceToResourceIdentity)
+            .collect(Collectors.toList());
+    return identityService.register(identities);
+  }
+
+  private Consumer<? super Registration> replaceReference(
+      MultiValueMap<String, Node> referenceNodes) {
+    return (registration) -> {
+      ReferencePair reference = ResourceIdentities.referencesOf(registration);
+      List<Node> nodes = referenceNodes.get(reference.cdw());
+      if (nodes == null) {
+        log.warn(
+            "Ignoring registration reference {}. There are no associated nodes for {}",
+            reference,
+            registration);
+        return;
+      }
+      nodes.forEach(node -> handlerFor(node).updateReference(node, reference.universal()));
+    };
+  }
+
+  /**
+   * Update and then return the document by registering all references and replacing their values.
+   */
+  Document replaceReferences() {
+    MultiValueMap<String, Node> referenceNodes = collectReferenceNodes();
+    if (referenceNodes.isEmpty()) {
+      return document;
+    }
+    List<Registration> registrations = registerIds(referenceNodes);
+    registrations.forEach(replaceReference(referenceNodes));
+    return document;
+  }
+
   /** This interface defines a generic mechanism to process nodes. */
   private interface ReferenceNodeHandler {
+
     /** Return true if this handler can process the given node, otherwise false. */
     boolean isReference(Node node);
 

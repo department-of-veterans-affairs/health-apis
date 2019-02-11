@@ -57,27 +57,6 @@ public class SampleEncounters {
         .build();
   }
 
-  public StatusHistory statusHistory() {
-    return StatusHistory.builder()
-        .id("0000")
-        .extension(singletonList(extension()))
-        .modifierExtension(singletonList(extension()))
-        .status(Status.planned)
-        .period(period())
-        .build();
-  }
-
-  public Participant participant() {
-    return Participant.builder()
-        .id("1111")
-        .extension(singletonList(extension()))
-        .modifierExtension(singletonList(extension()))
-        .type(codeableConceptList())
-        .period(period())
-        .individual(reference())
-        .build();
-  }
-
   public Hospitalization hospitalization() {
     return Hospitalization.builder()
         .id("2222")
@@ -104,6 +83,27 @@ public class SampleEncounters {
         .modifierExtension(singletonList(extension()))
         .location(reference())
         .status(EncounterLocation.Status.active)
+        .period(period())
+        .build();
+  }
+
+  public Participant participant() {
+    return Participant.builder()
+        .id("1111")
+        .extension(singletonList(extension()))
+        .modifierExtension(singletonList(extension()))
+        .type(codeableConceptList())
+        .period(period())
+        .individual(reference())
+        .build();
+  }
+
+  public StatusHistory statusHistory() {
+    return StatusHistory.builder()
+        .id("0000")
+        .extension(singletonList(extension()))
+        .modifierExtension(singletonList(extension()))
+        .status(Status.planned)
         .period(period())
         .build();
   }

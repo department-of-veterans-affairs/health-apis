@@ -39,7 +39,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class MedicationDispenseController {
 
   private Transformer transformer;
+
   private MrAndersonClient mrAndersonClient;
+
   private Bundler bundler;
 
   private MedicationDispense.Bundle bundle(
@@ -122,24 +124,6 @@ public class MedicationDispenseController {
         count);
   }
 
-  /** Searching by patient and type. */
-  @GetMapping(params = {"patient", "type"})
-  public MedicationDispense.Bundle searchByPatientAndType(
-      @RequestParam("patient") String patient,
-      @RequestParam("type") String type,
-      @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
-      @RequestParam(value = "_count", defaultValue = "15") @Min(0) int count) {
-    return bundle(
-        Parameters.builder()
-            .add("patient", patient)
-            .add("type", type)
-            .add("page", page)
-            .add("_count", count)
-            .build(),
-        page,
-        count);
-  }
-
   /** Searching by patient and status. */
   @GetMapping(params = {"patient", "status"})
   public MedicationDispense.Bundle searchByPatientAndStatus(
@@ -151,6 +135,24 @@ public class MedicationDispenseController {
         Parameters.builder()
             .add("patient", patient)
             .add("status", status)
+            .add("page", page)
+            .add("_count", count)
+            .build(),
+        page,
+        count);
+  }
+
+  /** Searching by patient and type. */
+  @GetMapping(params = {"patient", "type"})
+  public MedicationDispense.Bundle searchByPatientAndType(
+      @RequestParam("patient") String patient,
+      @RequestParam("type") String type,
+      @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
+      @RequestParam(value = "_count", defaultValue = "15") @Min(0) int count) {
+    return bundle(
+        Parameters.builder()
+            .add("patient", patient)
+            .add("type", type)
             .add("page", page)
             .add("_count", count)
             .build(),

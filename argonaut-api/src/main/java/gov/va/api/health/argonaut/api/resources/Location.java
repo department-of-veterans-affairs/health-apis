@@ -41,6 +41,7 @@ import lombok.NoArgsConstructor;
   example = "SWAGGER_EXAMPLE_LOCATION"
 )
 public class Location implements DomainResource {
+
   @NotBlank String resourceType;
 
   @Pattern(regexp = Fhir.ID)
@@ -55,22 +56,47 @@ public class Location implements DomainResource {
   String language;
 
   @Valid Narrative text;
+
   @Valid List<SimpleResource> contained;
+
   @Valid List<Extension> extension;
+
   @Valid List<Extension> modifierExtension;
+
   @Valid List<Identifier> identifier;
 
   Status status;
+
   String name;
+
   String description;
+
   Mode mode;
+
   @Valid CodeableConcept type;
+
   @Valid List<ContactPoint> telecom;
+
   @Valid Address address;
+
   @Valid CodeableConcept physicalType;
+
   @Valid Position position;
+
   @Valid Reference managingOrganization;
+
   @Valid Reference partOf;
+
+  public enum Mode {
+    instance,
+    kind
+  }
+
+  public enum Status {
+    active,
+    suspended,
+    inactive
+  }
 
   @Data
   @NoArgsConstructor
@@ -79,6 +105,7 @@ public class Location implements DomainResource {
   @JsonDeserialize(builder = Location.Bundle.BundleBuilder.class)
   @Schema(name = "LocationBundle", example = "SWAGGER_EXAMPLE_LOCATION_BUNDLE")
   public static class Bundle extends AbstractBundle<Location.Entry> {
+
     @Builder
     public Bundle(
         @NotBlank String resourceType,
@@ -102,6 +129,7 @@ public class Location implements DomainResource {
   @JsonDeserialize(builder = Location.Entry.EntryBuilder.class)
   @Schema(name = "LocationEntry")
   public static class Entry extends AbstractEntry<Location> {
+
     @Builder
     public Entry(
         @Pattern(regexp = Fhir.ID) String id,
@@ -123,25 +151,18 @@ public class Location implements DomainResource {
   @AllArgsConstructor
   @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
   public static class Position implements BackboneElement {
+
     @Pattern(regexp = Fhir.ID)
     String id;
 
     @Valid List<Extension> extension;
+
     @Valid List<Extension> modifierExtension;
 
     @NotNull double longitude;
+
     @NotNull double latitude;
+
     double altitude;
-  }
-
-  public enum Mode {
-    instance,
-    kind
-  }
-
-  public enum Status {
-    active,
-    suspended,
-    inactive
   }
 }

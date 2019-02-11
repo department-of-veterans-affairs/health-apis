@@ -12,12 +12,12 @@ import org.junit.Test;
 
 public class ModelTest {
 
-  @SneakyThrows
-  private <T> void roundTrip(T object) {
-    ObjectMapper mapper = new JacksonConfig().objectMapper();
-    String json = mapper.writeValueAsString(object);
-    Object evilTwin = mapper.readValue(json, object.getClass());
-    assertThat(evilTwin).isEqualTo(object);
+  @SuppressWarnings("ThrowableNotThrown")
+  @Test
+  public void exceptionConstructors() {
+    new UnknownIdentity("some id");
+    new LookupFailed("some id", "some reason");
+    new RegistrationFailed("some reason");
   }
 
   private ResourceIdentity id() {
@@ -25,20 +25,20 @@ public class ModelTest {
   }
 
   @Test
-  public void resouceIdentity() {
-    roundTrip(id());
-  }
-
-  @Test
   public void registration() {
     roundTrip(Registration.builder().uuid("u1").resourceIdentity(id()).build());
   }
 
-  @SuppressWarnings("ThrowableNotThrown")
   @Test
-  public void exceptionConstructors() {
-    new UnknownIdentity("some id");
-    new LookupFailed("some id", "some reason");
-    new RegistrationFailed("some reason");
+  public void resouceIdentity() {
+    roundTrip(id());
+  }
+
+  @SneakyThrows
+  private <T> void roundTrip(T object) {
+    ObjectMapper mapper = new JacksonConfig().objectMapper();
+    String json = mapper.writeValueAsString(object);
+    Object evilTwin = mapper.readValue(json, object.getClass());
+    assertThat(evilTwin).isEqualTo(object);
   }
 }

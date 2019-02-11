@@ -29,11 +29,21 @@ import org.springframework.util.MultiValueMap;
 @Value
 @Builder(toBuilder = true)
 public class Query<T> {
+
   Profile profile;
+
   String resource;
+
   String version;
+
   MultiValueMap<String, String> parameters;
+
   Class<T> type;
+
+  @SneakyThrows
+  private static String encode(String value) {
+    return URLEncoder.encode(value, "UTF-8");
+  }
 
   /** Start a builder chain to query for a given type. */
   public static <R> QueryBuilder<R> forType(Class<R> forType) {
@@ -42,11 +52,6 @@ public class Query<T> {
 
   private static Stream<String> toKeyValueString(Map.Entry<String, List<String>> entry) {
     return entry.getValue().stream().map((value) -> entry.getKey() + '=' + encode(value));
-  }
-
-  @SneakyThrows
-  private static String encode(String value) {
-    return URLEncoder.encode(value, "UTF-8");
   }
 
   /**

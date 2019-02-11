@@ -34,14 +34,12 @@ import lombok.NoArgsConstructor;
 import org.junit.Test;
 
 public class LocationTransformerTest {
-  private final LocationTransformer tx = new LocationTransformer();
-  private final CdwSampleData cdw = CdwSampleData.get();
-  private final Expected expected = Expected.get();
 
-  @Test
-  public void location() {
-    assertThat(tx.apply(cdw.location())).isEqualTo(expected.location());
-  }
+  private final LocationTransformer tx = new LocationTransformer();
+
+  private final CdwSampleData cdw = CdwSampleData.get();
+
+  private final Expected expected = Expected.get();
 
   @Test
   public void address() {
@@ -54,6 +52,11 @@ public class LocationTransformerTest {
   public void contactPoint() {
     assertThat(tx.contactPointCode(null)).isNull();
     assertThat(tx.contactPointCode("")).isNull();
+  }
+
+  @Test
+  public void location() {
+    assertThat(tx.apply(cdw.location())).isEqualTo(expected.location());
   }
 
   @Test
@@ -118,6 +121,15 @@ public class LocationTransformerTest {
   @NoArgsConstructor(staticName = "get", access = AccessLevel.PUBLIC)
   public static class CdwSampleData {
 
+    CdwLocationAddress address() {
+      CdwLocationAddress cdw = new CdwLocationAddress();
+      cdw.setCity("ALBANY");
+      cdw.setPostalCode("12208");
+      cdw.setState("NEW YORK");
+      cdw.getLine().add("113 Holland Avenue");
+      return cdw;
+    }
+
     public CdwLocation location() {
       CdwLocation cdw = new CdwLocation();
       cdw.setCdwId("166365:L");
@@ -131,42 +143,6 @@ public class LocationTransformerTest {
       cdw.setManagingOrganization(reference("Organization/185576:I", "ZZ ALBANY"));
       cdw.setMode(CdwLocationMode.INSTANCE);
       cdw.setPhysicalType(physicalType());
-      return cdw;
-    }
-
-    CdwTelecoms telecoms() {
-      CdwTelecoms cdw = new CdwTelecoms();
-      cdw.getTelecom().add(telecom());
-      return cdw;
-    }
-
-    CdwTelecom telecom() {
-      CdwTelecom cdw = new CdwTelecom();
-      cdw.setSystem("phone");
-      cdw.setValue("402-995-5393");
-      return cdw;
-    }
-
-    CdwType type() {
-      CdwType cdw = new CdwType();
-      cdw.getCoding().add(typeCoding());
-      return cdw;
-    }
-
-    CdwType.CdwCoding typeCoding() {
-      CdwType.CdwCoding cdw = new CdwType.CdwCoding();
-      cdw.setSystem("http://hl7.org/fhir/v3/RoleCode");
-      cdw.setDisplay(CdwLocationTypeDisplay.GENERAL_INTERNAL_MEDICINE_CLINIC);
-      cdw.setCode(CdwLocationTypeCode.GIM);
-      return cdw;
-    }
-
-    CdwLocationAddress address() {
-      CdwLocationAddress cdw = new CdwLocationAddress();
-      cdw.setCity("ALBANY");
-      cdw.setPostalCode("12208");
-      cdw.setState("NEW YORK");
-      cdw.getLine().add("113 Holland Avenue");
       return cdw;
     }
 
@@ -191,10 +167,47 @@ public class LocationTransformerTest {
       cdw.setDisplay(display);
       return cdw;
     }
+
+    CdwTelecom telecom() {
+      CdwTelecom cdw = new CdwTelecom();
+      cdw.setSystem("phone");
+      cdw.setValue("402-995-5393");
+      return cdw;
+    }
+
+    CdwTelecoms telecoms() {
+      CdwTelecoms cdw = new CdwTelecoms();
+      cdw.getTelecom().add(telecom());
+      return cdw;
+    }
+
+    CdwType type() {
+      CdwType cdw = new CdwType();
+      cdw.getCoding().add(typeCoding());
+      return cdw;
+    }
+
+    CdwType.CdwCoding typeCoding() {
+      CdwType.CdwCoding cdw = new CdwType.CdwCoding();
+      cdw.setSystem("http://hl7.org/fhir/v3/RoleCode");
+      cdw.setDisplay(CdwLocationTypeDisplay.GENERAL_INTERNAL_MEDICINE_CLINIC);
+      cdw.setCode(CdwLocationTypeCode.GIM);
+      return cdw;
+    }
   }
 
   @NoArgsConstructor(staticName = "get", access = AccessLevel.PUBLIC)
   public static class Expected {
+
+    Address address() {
+      return Address.builder()
+          .city("ALBANY")
+          .state("NEW YORK")
+          .postalCode("12208")
+          .line(asList("113 Holland Avenue"))
+          .build();
+    }
+
     public Location location() {
       return Location.builder()
           .resourceType("Location")
@@ -211,19 +224,6 @@ public class LocationTransformerTest {
           .build();
     }
 
-    Address address() {
-      return Address.builder()
-          .city("ALBANY")
-          .state("NEW YORK")
-          .postalCode("12208")
-          .line(asList("113 Holland Avenue"))
-          .build();
-    }
-
-    Reference reference(String ref, String display) {
-      return Reference.builder().reference(ref).display(display).build();
-    }
-
     CodeableConcept physicalType() {
       return CodeableConcept.builder().text("").coding(physicalTypeCoding()).build();
     }
@@ -235,6 +235,10 @@ public class LocationTransformerTest {
               .system("https://www.hl7.org/fhir/DSTU2/valueset-location-physical-type.html")
               .code("ro")
               .build());
+    }
+
+    Reference reference(String ref, String display) {
+      return Reference.builder().reference(ref).display(display).build();
     }
 
     List<ContactPoint> telecom() {

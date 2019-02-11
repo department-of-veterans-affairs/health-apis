@@ -74,11 +74,6 @@ public class DiagnosticReportTransformer implements DiagnosticReportController.T
         .build();
   }
 
-  List<Coding> codeCodings(List<CdwDiagnosticReportCodeCoding> source) {
-    List<Coding> codings = convertAll(source, this::codeCoding);
-    return codings == null || codings.isEmpty() ? null : codings;
-  }
-
   private Coding codeCoding(CdwDiagnosticReportCodeCoding cdw) {
     if (cdw == null || allBlank(cdw.getCode(), cdw.getDisplay(), cdw.getSystem())) {
       return null;
@@ -88,6 +83,11 @@ public class DiagnosticReportTransformer implements DiagnosticReportController.T
         .code(cdw.getCode())
         .display(cdw.getDisplay())
         .build();
+  }
+
+  List<Coding> codeCodings(List<CdwDiagnosticReportCodeCoding> source) {
+    List<Coding> codings = convertAll(source, this::codeCoding);
+    return codings == null || codings.isEmpty() ? null : codings;
   }
 
   private DiagnosticReport diagnosticReport(CdwDiagnosticReport source) {

@@ -28,21 +28,23 @@ import org.junit.Test;
 public class DiagnosticReportTransformerTest {
 
   private final DiagnosticReportTransformer tx = new DiagnosticReportTransformer();
-  private final CdwSampleData cdw = new CdwSampleData();
-  private final Expected expected = new Expected();
 
-  @Test
-  public void categoryCoding() {
-    assertThat(tx.categoryCodings(null)).isNull();
-    assertThat(tx.categoryCodings(new CdwDiagnosticReportCategoryCoding())).isNull();
-    assertThat(tx.categoryCodings(cdw.categoryCoding())).isEqualTo(expected.categoryCoding());
-  }
+  private final CdwSampleData cdw = new CdwSampleData();
+
+  private final Expected expected = new Expected();
 
   @Test
   public void category() {
     assertThat(tx.category(cdw.category())).isEqualTo(expected.category());
     assertThat(tx.category(null)).isNull();
     assertThat(tx.category(new CdwDiagnosticReportCategory())).isNull();
+  }
+
+  @Test
+  public void categoryCoding() {
+    assertThat(tx.categoryCodings(null)).isNull();
+    assertThat(tx.categoryCodings(new CdwDiagnosticReportCategoryCoding())).isNull();
+    assertThat(tx.categoryCodings(cdw.categoryCoding())).isEqualTo(expected.categoryCoding());
   }
 
   @Test
@@ -53,17 +55,17 @@ public class DiagnosticReportTransformerTest {
   }
 
   @Test
-  public void codeCodings() {
-    assertThat(tx.codeCodings(null)).isNull();
-    assertThat(tx.codeCodings(singletonList(new CdwDiagnosticReportCodeCoding()))).isNull();
-    assertThat(tx.codeCodings(cdw.code().getCoding())).isEqualTo(expected.code().coding());
-  }
-
-  @Test
   public void code() {
     assertThat(tx.code(null)).isNull();
     assertThat(tx.code(new CdwDiagnosticReportCode())).isNull();
     assertThat(tx.code(cdw.code())).isEqualTo(expected.code());
+  }
+
+  @Test
+  public void codeCodings() {
+    assertThat(tx.codeCodings(null)).isNull();
+    assertThat(tx.codeCodings(singletonList(new CdwDiagnosticReportCodeCoding()))).isNull();
+    assertThat(tx.codeCodings(cdw.code().getCoding())).isEqualTo(expected.code().coding());
   }
 
   @Test
@@ -166,10 +168,6 @@ public class DiagnosticReportTransformerTest {
       return sampleDR;
     }
 
-    private CdwDiagnosticReportStatus status() {
-      return CdwDiagnosticReportStatus.FINAL;
-    }
-
     @SneakyThrows
     private XMLGregorianCalendar effective() {
       return DatatypeFactory.newInstance().newXMLGregorianCalendar("2013-06-21T19:03:16Z");
@@ -179,9 +177,39 @@ public class DiagnosticReportTransformerTest {
     private XMLGregorianCalendar issued() {
       return DatatypeFactory.newInstance().newXMLGregorianCalendar("2013-06-21T20:05:12Z");
     }
+
+    private CdwDiagnosticReportStatus status() {
+      return CdwDiagnosticReportStatus.FINAL;
+    }
   }
 
   private static class Expected {
+
+    private CodeableConcept category() {
+      return CodeableConcept.builder().coding(categoryCoding()).build();
+    }
+
+    private List<Coding> categoryCoding() {
+      return singletonList(
+          Coding.builder()
+              .system("http://hl7.org/fhir/ValueSet/diagnostic-service-sections")
+              .code("LAB")
+              .display("Laboratory")
+              .build());
+    }
+
+    private CodeableConcept code() {
+      return CodeableConcept.builder().text("panel").coding(codeCodings()).build();
+    }
+
+    private List<Coding> codeCodings() {
+      return singletonList(
+          Coding.builder()
+              .system("http://hl7.org/fhir/ValueSet/diagnostic-service-sections")
+              .code("LAB")
+              .display("Laboratory")
+              .build());
+    }
 
     DiagnosticReport diagnosticReport() {
       return DiagnosticReport.builder()
@@ -213,38 +241,12 @@ public class DiagnosticReportTransformerTest {
           .build();
     }
 
-    private Code status() {
-      return Code._final;
-    }
-
     private Reference reference() {
       return Reference.builder().reference("HelloReference").display("HelloDisplay").build();
     }
 
-    private CodeableConcept code() {
-      return CodeableConcept.builder().text("panel").coding(codeCodings()).build();
-    }
-
-    private List<Coding> codeCodings() {
-      return singletonList(
-          Coding.builder()
-              .system("http://hl7.org/fhir/ValueSet/diagnostic-service-sections")
-              .code("LAB")
-              .display("Laboratory")
-              .build());
-    }
-
-    private CodeableConcept category() {
-      return CodeableConcept.builder().coding(categoryCoding()).build();
-    }
-
-    private List<Coding> categoryCoding() {
-      return singletonList(
-          Coding.builder()
-              .system("http://hl7.org/fhir/ValueSet/diagnostic-service-sections")
-              .code("LAB")
-              .display("Laboratory")
-              .build());
+    private Code status() {
+      return Code._final;
     }
   }
 }

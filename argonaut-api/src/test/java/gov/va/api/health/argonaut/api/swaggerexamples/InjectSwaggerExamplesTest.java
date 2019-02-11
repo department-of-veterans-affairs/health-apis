@@ -33,23 +33,20 @@ import org.springframework.util.ReflectionUtils;
  */
 @Slf4j
 public class InjectSwaggerExamplesTest {
-  @Test
-  public void json() {
-    injectSwaggerExamples("openapi.json", JacksonConfig.createMapper());
-  }
 
-  @Test
-  public void yaml() {
-    injectSwaggerExamples("openapi.yaml", JacksonConfig.createMapper(new YAMLFactory()));
+  private static File toFile(URL url) {
+    try {
+      return new File(url.toURI());
+    } catch (Exception e) {
+      return new File(url.getPath());
+    }
   }
 
   @SneakyThrows
   private void injectSwaggerExamples(String filename, ObjectMapper mapper) {
     final Map<String, Object> swaggerExamples = loadSwaggerExamples();
-
     File swaggerFile = new File(new File(targetDirectory(), "swagger"), filename);
     assertThat(swaggerFile.exists()).isTrue();
-
     JsonNode root = mapper.readTree(swaggerFile);
     List<JsonNode> parents = root.findParents("example");
     Set<String> usedKeys = new LinkedHashSet<>();
@@ -64,14 +61,17 @@ public class InjectSwaggerExamplesTest {
       ((ObjectNode) parent).set("example", exampleJsonNode);
       usedKeys.add(key);
     }
-
     Set<String> unusedKeys = new LinkedHashSet<>(swaggerExamples.keySet());
     unusedKeys.removeAll(usedKeys);
     if (!unusedKeys.isEmpty()) {
       log.warn("No Swagger example injection performed for {}.", unusedKeys);
     }
-
     mapper.writerWithDefaultPrettyPrinter().writeValue(swaggerFile, root);
+  }
+
+  @Test
+  public void json() {
+    injectSwaggerExamples("openapi.json", JacksonConfig.createMapper());
   }
 
   /**
@@ -83,20 +83,16 @@ public class InjectSwaggerExamplesTest {
     final Set<Class<?>> swaggerExampleClasses =
         new Reflections(getClass().getPackage().getName(), new SubTypesScanner(false))
             .getSubTypesOf(Object.class);
-
     final Map<String, Object> swaggerExamples = new LinkedHashMap<>();
     for (Class<?> swaggerExampleClass : swaggerExampleClasses) {
       for (Field swaggerExampleField : swaggerExampleClass.getDeclaredFields()) {
         ReflectionUtils.makeAccessible(swaggerExampleField);
-
         if (!swaggerExampleField.getName().startsWith("SWAGGER_EXAMPLE_")) {
           continue;
         }
-
         assertThat(Modifier.isStatic(swaggerExampleField.getModifiers())).isTrue();
         final Object exampleObject = swaggerExampleField.get(null);
         assertThat(exampleObject).isNotNull();
-
         String key = "\"" + swaggerExampleField.getName() + "\"";
         assertThat(swaggerExamples.containsKey(key)).isFalse();
         swaggerExamples.put(key, exampleObject);
@@ -121,11 +117,8 @@ public class InjectSwaggerExamplesTest {
     }
   }
 
-  private static File toFile(URL url) {
-    try {
-      return new File(url.toURI());
-    } catch (Exception e) {
-      return new File(url.getPath());
-    }
+  @Test
+  public void yaml() {
+    injectSwaggerExamples("openapi.yaml", JacksonConfig.createMapper(new YAMLFactory()));
   }
 }

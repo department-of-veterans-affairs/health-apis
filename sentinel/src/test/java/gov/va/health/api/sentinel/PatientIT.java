@@ -52,6 +52,17 @@ public class PatientIT {
   }
 
   /**
+   * The CDW database has disabled patient searching by identifier for both PROD/QA. We will test
+   * this only in LOCAL mode against the sandbox db.
+   */
+  @Test
+  @Category({NotInProd.class, NotInLab.class})
+  public void patientIdentifierSearching() {
+    verifier.verify(
+        test(200, Patient.Bundle.class, "Patient?identifier={id}", verifier.ids().patient()));
+  }
+
+  /**
    * In the PROD/QA environments, patient reading is restricted to your unique access-token. Any IDs
    * but your own are revoked with a 403 Forbidden. In environments where this restriction is
    * lifted, the result of an unknown ID should be 404 Not Found.
@@ -62,22 +73,10 @@ public class PatientIT {
       verifier.verifyAll(
           test(404, OperationOutcome.class, "Patient/{id}", verifier.ids().unknown()),
           test(404, OperationOutcome.class, "Patient?_id={id}", verifier.ids().unknown()));
-
     } else {
       verifier.verifyAll(
           test(403, OperationOutcome.class, "Patient/{id}", verifier.ids().unknown()),
           test(403, OperationOutcome.class, "Patient?_id={id}", verifier.ids().unknown()));
     }
-  }
-
-  /**
-   * The CDW database has disabled patient searching by identifier for both PROD/QA. We will test
-   * this only in LOCAL mode against the sandbox db.
-   */
-  @Test
-  @Category({NotInProd.class, NotInLab.class})
-  public void patientIdentifierSearching() {
-    verifier.verify(
-        test(200, Patient.Bundle.class, "Patient?identifier={id}", verifier.ids().patient()));
   }
 }

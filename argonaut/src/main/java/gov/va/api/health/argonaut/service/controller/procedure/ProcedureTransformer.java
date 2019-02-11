@@ -46,11 +46,6 @@ public class ProcedureTransformer implements ProcedureController.Transformer {
     return CodeableConcept.builder().coding(codeCodings(source.getCoding())).build();
   }
 
-  List<Coding> codeCodings(List<CdwCode.CdwCoding> source) {
-    List<Coding> codings = convertAll(source, this::codeCoding);
-    return codings == null || codings.isEmpty() ? null : codings;
-  }
-
   private Coding codeCoding(CdwCode.CdwCoding cdw) {
     if (cdw == null || allBlank(cdw.getCode(), cdw.getDisplay(), cdw.getSystem())) {
       return null;
@@ -60,6 +55,11 @@ public class ProcedureTransformer implements ProcedureController.Transformer {
         .code(cdw.getCode())
         .display(cdw.getDisplay())
         .build();
+  }
+
+  List<Coding> codeCodings(List<CdwCode.CdwCoding> source) {
+    List<Coding> codings = convertAll(source, this::codeCoding);
+    return codings == null || codings.isEmpty() ? null : codings;
   }
 
   List<CodeableConcept> reasonNotPerformed(CdwReasonNotPerformed maybeReason) {

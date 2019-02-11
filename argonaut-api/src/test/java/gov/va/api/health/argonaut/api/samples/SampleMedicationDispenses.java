@@ -32,17 +32,6 @@ public class SampleMedicationDispenses {
         .build();
   }
 
-  public Substitution substitution() {
-    return Substitution.builder()
-        .id("456")
-        .modifierExtension(singletonList(extension()))
-        .extension(singletonList(extension()))
-        .type(codeableConcept())
-        .reason(singletonList(codeableConcept()))
-        .responsibleParty(singletonList(reference()))
-        .build();
-  }
-
   public MedicationDispense medicationDispense() {
     return MedicationDispense.builder()
         .resourceType("MedicationDispense")
@@ -70,6 +59,17 @@ public class SampleMedicationDispenses {
         .note("Do not feed to dogs")
         .dosageInstruction(singletonList(dosageInstruction()))
         .substitution(substitution())
+        .build();
+  }
+
+  public Substitution substitution() {
+    return Substitution.builder()
+        .id("456")
+        .modifierExtension(singletonList(extension()))
+        .extension(singletonList(extension()))
+        .type(codeableConcept())
+        .reason(singletonList(codeableConcept()))
+        .responsibleParty(singletonList(reference()))
         .build();
   }
 }

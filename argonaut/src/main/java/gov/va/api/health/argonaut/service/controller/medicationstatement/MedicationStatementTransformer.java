@@ -31,7 +31,6 @@ public class MedicationStatementTransformer implements MedicationStatementContro
 
   @Override
   public MedicationStatement apply(CdwMedicationStatement cdw) {
-
     return MedicationStatement.builder()
         .resourceType("MedicationStatement")
         .id(cdw.getCdwId())
@@ -43,21 +42,6 @@ public class MedicationStatementTransformer implements MedicationStatementContro
         .patient(reference(cdw.getPatient()))
         .status(status(cdw.getStatus()))
         .build();
-  }
-
-  Status status(@NotNull CdwMedicationStatementStatus cdw) {
-    return EnumSearcher.of(Status.class).find(cdw.value());
-  }
-
-  List<Dosage> dosage(CdwMedicationStatement.CdwDosages maybeCdw) {
-    return convertAll(
-        ifPresent(maybeCdw, CdwDosages::getDosage),
-        source ->
-            Dosage.builder()
-                .route(codeableConcept(source.getRoute()))
-                .text(source.getText())
-                .timing(timing(source.getTiming()))
-                .build());
   }
 
   CodeableConcept codeableConcept(CdwCodeableConcept maybeSource) {
@@ -76,16 +60,6 @@ public class MedicationStatementTransformer implements MedicationStatementContro
                 .build());
   }
 
-  Timing timing(CdwTiming maybeSource) {
-    return convert(
-        maybeSource, source -> Timing.builder().code(codeableConcept(source.getCode())).build());
-  }
-
-  List<Coding> codings(List<CdwCoding> source) {
-    List<Coding> codings = convertAll(source, this::coding);
-    return codings == null || codings.isEmpty() ? null : codings;
-  }
-
   private Coding coding(CdwCoding cdw) {
     if (cdw == null || allBlank(cdw.getCode(), cdw.getSystem(), cdw.getDisplay())) {
       return null;
@@ -95,6 +69,22 @@ public class MedicationStatementTransformer implements MedicationStatementContro
         .code(cdw.getCode())
         .display(cdw.getDisplay())
         .build();
+  }
+
+  List<Coding> codings(List<CdwCoding> source) {
+    List<Coding> codings = convertAll(source, this::coding);
+    return codings == null || codings.isEmpty() ? null : codings;
+  }
+
+  List<Dosage> dosage(CdwMedicationStatement.CdwDosages maybeCdw) {
+    return convertAll(
+        ifPresent(maybeCdw, CdwDosages::getDosage),
+        source ->
+            Dosage.builder()
+                .route(codeableConcept(source.getRoute()))
+                .text(source.getText())
+                .timing(timing(source.getTiming()))
+                .build());
   }
 
   Reference reference(CdwReference maybeCdw) {
@@ -108,5 +98,14 @@ public class MedicationStatementTransformer implements MedicationStatementContro
                 .reference(source.getReference())
                 .display(source.getDisplay())
                 .build());
+  }
+
+  Status status(@NotNull CdwMedicationStatementStatus cdw) {
+    return EnumSearcher.of(Status.class).find(cdw.value());
+  }
+
+  Timing timing(CdwTiming maybeSource) {
+    return convert(
+        maybeSource, source -> Timing.builder().code(codeableConcept(source.getCode())).build());
   }
 }

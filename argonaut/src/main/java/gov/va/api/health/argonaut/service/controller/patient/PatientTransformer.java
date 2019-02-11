@@ -53,27 +53,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class PatientTransformer implements PatientController.Transformer {
 
-  Address contactAddress(CdwContact source) {
-    if (isUnusableContactAddress(source)) {
-      return null;
-    }
-    return convert(
-        source,
-        cdw ->
-            Address.builder()
-                .line(contactAddressLine(cdw))
-                .city(cdw.getCity())
-                .state(cdw.getState())
-                .country(cdw.getCountry())
-                .postalCode(cdw.getPostalCode())
-                .build());
-  }
-
-  List<String> contactAddressLine(CdwContact source) {
-    return addressLines(
-        source.getStreetAddress1(), source.getStreetAddress2(), source.getStreetAddress3());
-  }
-
   List<String> addressLine(CdwAddress source) {
     return addressLines(
         source.getStreetAddress1(), source.getStreetAddress2(), source.getStreetAddress3());
@@ -178,6 +157,27 @@ public class PatientTransformer implements PatientController.Transformer {
             .build());
   }
 
+  Address contactAddress(CdwContact source) {
+    if (isUnusableContactAddress(source)) {
+      return null;
+    }
+    return convert(
+        source,
+        cdw ->
+            Address.builder()
+                .line(contactAddressLine(cdw))
+                .city(cdw.getCity())
+                .state(cdw.getState())
+                .country(cdw.getCountry())
+                .postalCode(cdw.getPostalCode())
+                .build());
+  }
+
+  List<String> contactAddressLine(CdwContact source) {
+    return addressLines(
+        source.getStreetAddress1(), source.getStreetAddress2(), source.getStreetAddress3());
+  }
+
   List<CodeableConcept> contactRelationship(CdwRelationship source) {
     if (source == null || allBlank(source.getCoding(), source.getText())) {
       return null;
@@ -222,6 +222,10 @@ public class PatientTransformer implements PatientController.Transformer {
     return extensions;
   }
 
+  Gender gender(CdwAdministrativeGenderCodes source) {
+    return ifPresent(source, gender -> EnumSearcher.of(Patient.Gender.class).find(gender.value()));
+  }
+
   HumanName humanName(String optionalSource) {
     return convert(optionalSource, cdw -> HumanName.builder().text(cdw).build());
   }
@@ -234,16 +238,16 @@ public class PatientTransformer implements PatientController.Transformer {
     return CodeableConcept.builder().coding(identifierTypeCodings(source.getCoding())).build();
   }
 
-  List<Coding> identifierTypeCodings(List<CdwIdentifier.CdwType.CdwCoding> source) {
-    List<Coding> codings = convertAll(source, this::identifierTypeCoding);
-    return codings == null || codings.isEmpty() ? null : codings;
-  }
-
   private Coding identifierTypeCoding(CdwIdentifier.CdwType.CdwCoding cdw) {
     if (cdw == null || allBlank(cdw.getCode(), cdw.getSystem())) {
       return null;
     }
     return Coding.builder().system(cdw.getSystem()).code(cdw.getCode()).build();
+  }
+
+  List<Coding> identifierTypeCodings(List<CdwIdentifier.CdwType.CdwCoding> source) {
+    List<Coding> codings = convertAll(source, this::identifierTypeCoding);
+    return codings == null || codings.isEmpty() ? null : codings;
   }
 
   Identifier.IdentifierUse identifierUse(CdwIdentifier source) {
@@ -263,6 +267,24 @@ public class PatientTransformer implements PatientController.Transformer {
                 .build());
   }
 
+  private Boolean isUnusableContactAddress(CdwContact source) {
+    if (source == null
+        || allBlank(
+            source.getName(),
+            source.getPostalCode(),
+            source.getCity(),
+            source.getState(),
+            source.getStreetAddress1(),
+            source.getStreetAddress2(),
+            source.getStreetAddress3(),
+            source.getCountry(),
+            source.getPhone(),
+            source.getRelationship())) {
+      return true;
+    }
+    return false;
+  }
+
   CodeableConcept maritalStatus(CdwMaritalStatus optionalSource) {
     if (optionalSource == null) {
       return null;
@@ -279,11 +301,6 @@ public class PatientTransformer implements PatientController.Transformer {
                 .build());
   }
 
-  List<Coding> maritalStatusCodings(List<CdwMaritalStatus.CdwCoding> source) {
-    List<Coding> codings = convertAll(source, this::maritalStatusCoding);
-    return codings == null || codings.isEmpty() ? null : codings;
-  }
-
   private Coding maritalStatusCoding(CdwMaritalStatus.CdwCoding cdw) {
     if (cdw == null || allBlank(cdw.getCode(), cdw.getDisplay(), cdw.getSystem())) {
       return null;
@@ -293,6 +310,11 @@ public class PatientTransformer implements PatientController.Transformer {
         .code(ifPresent(cdw.getCode(), CdwMaritalStatusCodes::value))
         .display(cdw.getDisplay())
         .build();
+  }
+
+  List<Coding> maritalStatusCodings(List<CdwMaritalStatus.CdwCoding> source) {
+    List<Coding> codings = convertAll(source, this::maritalStatusCoding);
+    return codings == null || codings.isEmpty() ? null : codings;
   }
 
   List<HumanName> names(CdwName optionalSource) {
@@ -363,27 +385,5 @@ public class PatientTransformer implements PatientController.Transformer {
         .code(source.getCode())
         .system(source.getSystem())
         .build();
-  }
-
-  Gender gender(CdwAdministrativeGenderCodes source) {
-    return ifPresent(source, gender -> EnumSearcher.of(Patient.Gender.class).find(gender.value()));
-  }
-
-  private Boolean isUnusableContactAddress(CdwContact source) {
-    if (source == null
-        || allBlank(
-            source.getName(),
-            source.getPostalCode(),
-            source.getCity(),
-            source.getState(),
-            source.getStreetAddress1(),
-            source.getStreetAddress2(),
-            source.getStreetAddress3(),
-            source.getCountry(),
-            source.getPhone(),
-            source.getRelationship())) {
-      return true;
-    }
-    return false;
   }
 }

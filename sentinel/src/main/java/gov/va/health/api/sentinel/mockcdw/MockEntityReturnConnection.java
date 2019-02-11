@@ -104,8 +104,18 @@ class MockEntityReturnConnection implements Connection {
   }
 
   @Override
+  public void setAutoCommit(boolean autoCommit) {
+    /* noop */
+  }
+
+  @Override
   public String getCatalog() {
     return "mockcdw";
+  }
+
+  @Override
+  public void setCatalog(String catalog) throws SQLException {
+    throw notSupported();
   }
 
   @Override
@@ -119,7 +129,22 @@ class MockEntityReturnConnection implements Connection {
   }
 
   @Override
+  public void setClientInfo(Properties properties) {
+    /* noop */
+  }
+
+  @Override
+  public void setClientInfo(String name, String value) {
+    /* noop */
+  }
+
+  @Override
   public int getHoldability() throws SQLException {
+    throw notSupported();
+  }
+
+  @Override
+  public void setHoldability(int holdability) throws SQLException {
     throw notSupported();
   }
 
@@ -139,12 +164,27 @@ class MockEntityReturnConnection implements Connection {
   }
 
   @Override
+  public void setSchema(String schema) {
+    /* noop */
+  }
+
+  @Override
   public int getTransactionIsolation() throws SQLException {
     throw notSupported();
   }
 
   @Override
+  public void setTransactionIsolation(int level) {
+    /* noop */
+  }
+
+  @Override
   public Map<String, Class<?>> getTypeMap() throws SQLException {
+    throw notSupported();
+  }
+
+  @Override
+  public void setTypeMap(Map<String, Class<?>> map) throws SQLException {
     throw notSupported();
   }
 
@@ -161,6 +201,11 @@ class MockEntityReturnConnection implements Connection {
   @Override
   public boolean isReadOnly() {
     return true;
+  }
+
+  @Override
+  public void setReadOnly(boolean readOnly) {
+    /* noop */
   }
 
   @Override
@@ -252,37 +297,7 @@ class MockEntityReturnConnection implements Connection {
   }
 
   @Override
-  public void setAutoCommit(boolean autoCommit) {
-    /* noop */
-  }
-
-  @Override
-  public void setCatalog(String catalog) throws SQLException {
-    throw notSupported();
-  }
-
-  @Override
-  public void setClientInfo(String name, String value) {
-    /* noop */
-  }
-
-  @Override
-  public void setClientInfo(Properties properties) {
-    /* noop */
-  }
-
-  @Override
-  public void setHoldability(int holdability) throws SQLException {
-    throw notSupported();
-  }
-
-  @Override
   public void setNetworkTimeout(Executor executor, int milliseconds) {
-    /* noop */
-  }
-
-  @Override
-  public void setReadOnly(boolean readOnly) {
     /* noop */
   }
 
@@ -293,21 +308,6 @@ class MockEntityReturnConnection implements Connection {
 
   @Override
   public Savepoint setSavepoint(String name) throws SQLException {
-    throw notSupported();
-  }
-
-  @Override
-  public void setSchema(String schema) {
-    /* noop */
-  }
-
-  @Override
-  public void setTransactionIsolation(int level) {
-    /* noop */
-  }
-
-  @Override
-  public void setTypeMap(Map<String, Class<?>> map) throws SQLException {
     throw notSupported();
   }
 
