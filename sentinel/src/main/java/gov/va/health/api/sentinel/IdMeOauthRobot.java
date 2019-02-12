@@ -141,7 +141,6 @@ public class IdMeOauthRobot {
     public static class UserCredentials {
       @NonNull String id;
       @NonNull String password;
-      @NonNull String icn;
     }
   }
 

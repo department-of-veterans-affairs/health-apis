@@ -3,6 +3,7 @@ package gov.va.health.api.sentinel;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import gov.va.health.api.sentinel.IdMeOauthRobot.Configuration.UserCredentials;
 import gov.va.health.api.sentinel.categories.NotInLab;
 import gov.va.health.api.sentinel.categories.NotInLocal;
 import gov.va.health.api.sentinel.categories.NotInProd;
@@ -29,20 +30,12 @@ public class LabCrawlerTest {
   public void crawl() {
     SystemDefinition env = Sentinel.get().system();
     String patient = System.getProperty("patient-id", "vasdvp+IDME_01@gmail.com");
-    IdMeOauthRobot robot;
-    if (patient.equals("vasdvp+IDME_01@gmail.com")) {
-      robot = robots.user1();
-    } else if (patient.equals("vasdvp+IDME_02@gmail.com")) {
-      robot = robots.user2();
-    } else if (patient.equals("vasdvp+IDME_03@gmail.com")) {
-      robot = robots.user3();
-    } else if (patient.equals("vasdvp+IDME_04@gmail.com")) {
-      robot = robots.user4();
-    } else if (patient.equals("vasdvp+IDME_05@gmail.com")) {
-      robot = robots.user5();
-    } else {
-      throw new IllegalArgumentException(patient + " is not a valid patient id.");
-    }
+    UserCredentials user =
+        UserCredentials.builder()
+            .id(patient)
+            .password(System.getProperty("lab.user-password"))
+            .build();
+    IdMeOauthRobot robot = robots.makeRobot(user);
     Swiggity.swooty(patient);
 
     assertThat(robot.token().accessToken()).isNotBlank();
