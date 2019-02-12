@@ -18,8 +18,8 @@ Commands
 
 Example
   test \
-    --exclude-category gov.va.health.api.sentinel.categories.NotInProd \
-    --include-category gov.va.health.api.sentinel.categories.NotInLocal \
+    --exclude-category gov.va.health.api.sentinel.categories.Manual \
+    --include-category gov.va.health.api.sentinel.categories.Local \
     -Dlab.client-id=12345 \
     -Dlab.client-secret=ABCDEF \
     -Dlab.user-password=secret \

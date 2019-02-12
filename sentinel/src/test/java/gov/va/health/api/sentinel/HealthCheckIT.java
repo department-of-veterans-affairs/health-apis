@@ -2,14 +2,13 @@ package gov.va.health.api.sentinel;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 
-import gov.va.health.api.sentinel.categories.NotInLab;
-import gov.va.health.api.sentinel.categories.NotInProd;
+import gov.va.health.api.sentinel.categories.Local;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 public class HealthCheckIT {
 
-  @Category({NotInLab.class, NotInProd.class})
+  @Category(Local.class)
   @Test
   public void argonautIsHealthy() {
     Sentinel.get()
@@ -21,7 +20,7 @@ public class HealthCheckIT {
         .body("status", equalTo("UP"));
   }
 
-  @Category({NotInLab.class, NotInProd.class})
+  @Category(Local.class)
   @Test
   public void idsIsHealthy() {
     Sentinel.get()
@@ -33,7 +32,7 @@ public class HealthCheckIT {
         .body("status", equalTo("UP"));
   }
 
-  @Category({NotInLab.class, NotInProd.class})
+  @Category(Local.class)
   @Test
   public void mrAndersonIsHealthy() {
     Sentinel.get()

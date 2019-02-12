@@ -18,8 +18,7 @@ import gov.va.api.health.argonaut.api.resources.Organization;
 import gov.va.api.health.argonaut.api.resources.Patient;
 import gov.va.api.health.argonaut.api.resources.Practitioner;
 import gov.va.api.health.argonaut.api.resources.Procedure;
-import gov.va.health.api.sentinel.categories.NotInLab;
-import gov.va.health.api.sentinel.categories.NotInProd;
+import gov.va.health.api.sentinel.categories.Local;
 import lombok.SneakyThrows;
 import org.junit.Before;
 import org.junit.Test;
@@ -57,97 +56,97 @@ public class ArgonautValidateIT {
   }
 
   @Test
-  @Category({NotInProd.class, NotInLab.class})
+  @Category(Local.class)
   public void validateAllergyIntolerance() {
     validate("AllergyIntolerance", ids.allergyIntolerance(), AllergyIntolerance.Bundle.class);
   }
 
   @Test
-  @Category({NotInProd.class, NotInLab.class})
+  @Category(Local.class)
   public void validateAppointment() {
     validate("Appointment", ids.appointment(), Appointment.Bundle.class);
   }
 
   @Test
-  @Category({NotInProd.class, NotInLab.class})
+  @Category(Local.class)
   public void validateCondition() {
     validate("Condition", ids.condition(), Condition.Bundle.class);
   }
 
   @Test
-  @Category({NotInProd.class, NotInLab.class})
+  @Category(Local.class)
   public void validateDiagnosticReport() {
     validate("DiagnosticReport", ids.diagnosticReport(), DiagnosticReport.Bundle.class);
   }
 
   @Test
-  @Category({NotInProd.class, NotInLab.class})
+  @Category(Local.class)
   public void validateEncounter() {
     validate("Encounter", ids.encounter(), Encounter.Bundle.class);
   }
 
   @Test
-  @Category({NotInProd.class, NotInLab.class})
+  @Category(Local.class)
   public void validateImmunization() {
     validate("Immunization", ids.immunization(), Immunization.Bundle.class);
   }
 
   @Test
-  @Category({NotInProd.class, NotInLab.class})
+  @Category(Local.class)
   public void validateLocation() {
     validate("Location", ids.location(), Location.Bundle.class);
   }
 
   @Test
-  @Category({NotInProd.class, NotInLab.class})
+  @Category(Local.class)
   public void validateMedication() {
     validate("Medication", ids.medication(), Medication.Bundle.class);
   }
 
   @Test
-  @Category({NotInProd.class, NotInLab.class})
+  @Category(Local.class)
   public void validateMedicationDispense() {
     validate("MedicationDispense", ids.medicationDispense(), MedicationDispense.Bundle.class);
   }
 
   @Test
-  @Category({NotInProd.class, NotInLab.class})
+  @Category(Local.class)
   public void validateMedicationOrder() {
     validate("MedicationOrder", ids.medicationOrder(), MedicationOrder.Bundle.class);
   }
 
   @Test
-  @Category({NotInProd.class, NotInLab.class})
+  @Category(Local.class)
   public void validateMedicationStatement() {
     validate("MedicationStatement", ids.medicationStatement(), MedicationStatement.Bundle.class);
   }
 
   @Test
-  @Category({NotInProd.class, NotInLab.class})
+  @Category(Local.class)
   public void validateObservation() {
     validate("Observation", ids.observation(), Observation.Bundle.class);
   }
 
   @Test
-  @Category({NotInProd.class, NotInLab.class})
+  @Category(Local.class)
   public void validateOrganization() {
     validate("Organization", ids.organization(), Organization.Bundle.class);
   }
 
   @Test
-  @Category({NotInProd.class, NotInLab.class})
+  @Category(Local.class)
   public void validatePatient() {
     validate("Patient", ids.patient(), Patient.Bundle.class);
   }
 
   @Test
-  @Category({NotInProd.class, NotInLab.class})
+  @Category(Local.class)
   public void validatePractitioner() {
     validate("Practitioner", ids.practitioner(), Practitioner.Bundle.class);
   }
 
   @Test
-  @Category({NotInProd.class, NotInLab.class})
+  @Category(Local.class)
   public void validateProcedure() {
     validate("Procedure", ids.procedure(), Procedure.Bundle.class);
   }

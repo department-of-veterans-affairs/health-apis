@@ -4,9 +4,9 @@ import static gov.va.health.api.sentinel.ResourceVerifier.test;
 
 import gov.va.api.health.argonaut.api.resources.Condition;
 import gov.va.api.health.argonaut.api.resources.OperationOutcome;
-import gov.va.health.api.sentinel.categories.NotInLab;
-import gov.va.health.api.sentinel.categories.NotInLocal;
-import gov.va.health.api.sentinel.categories.NotInProd;
+import gov.va.health.api.sentinel.categories.LabArgo;
+import gov.va.health.api.sentinel.categories.Local;
+import gov.va.health.api.sentinel.categories.ProdArgo;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -14,7 +14,7 @@ public class ConditionIT {
   ResourceVerifier verifier = ResourceVerifier.get();
 
   @Test
-  @Category({NotInProd.class, NotInLab.class})
+  @Category(Local.class)
   public void advanced() {
     verifier.verifyAll(
         test(200, Condition.Bundle.class, "Condition?_id={id}", verifier.ids().condition()),
@@ -23,6 +23,7 @@ public class ConditionIT {
   }
 
   @Test
+  @Category({Local.class, LabArgo.class, ProdArgo.class})
   public void basic() {
     verifier.verifyAll(
         test(
@@ -51,7 +52,7 @@ public class ConditionIT {
   }
 
   @Test
-  @Category(NotInLocal.class)
+  @Category({ProdArgo.class, LabArgo.class})
   public void searchNotMe() {
     verifier.verifyAll(
         test(403, OperationOutcome.class, "Condition?patient={patient}", verifier.ids().unknown()));

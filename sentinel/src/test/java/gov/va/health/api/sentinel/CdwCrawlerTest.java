@@ -4,9 +4,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import gov.va.health.api.sentinel.categories.NotInLab;
-import gov.va.health.api.sentinel.categories.NotInLocal;
-import gov.va.health.api.sentinel.categories.NotInProd;
+import gov.va.health.api.sentinel.categories.Manual;
 import gov.va.health.api.sentinel.crawler.ConcurrentRequestQueue;
 import gov.va.health.api.sentinel.crawler.Crawler;
 import gov.va.health.api.sentinel.crawler.FileResultsCollector;
@@ -24,7 +22,7 @@ import org.junit.experimental.categories.Category;
 @Slf4j
 public class CdwCrawlerTest {
 
-  @Category({NotInLocal.class, NotInLab.class, NotInProd.class})
+  @Category(Manual.class)
   @Test
   public void crawl() {
     SystemDefinition env = Sentinel.get().system();

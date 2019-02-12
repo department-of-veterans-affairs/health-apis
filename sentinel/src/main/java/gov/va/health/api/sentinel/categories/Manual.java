@@ -1,3 +1,3 @@
 package gov.va.health.api.sentinel.categories;
 
-public interface NotInLocal {}
+public interface Manual {}

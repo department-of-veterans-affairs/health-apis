@@ -2,8 +2,7 @@ package gov.va.health.api.sentinel;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import gov.va.health.api.sentinel.categories.NotInLab;
-import gov.va.health.api.sentinel.categories.NotInProd;
+import gov.va.health.api.sentinel.categories.Local;
 import io.restassured.http.Method;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
@@ -22,7 +21,7 @@ public class MrAndersonIT {
     return registrar.registeredIds();
   }
 
-  @Category({NotInProd.class, NotInLab.class})
+  @Category(Local.class)
   @Test
   public void invalidCountSpecifiedReturns400() {
     mrAnderson()
@@ -32,7 +31,7 @@ public class MrAndersonIT {
         .expect(400);
   }
 
-  @Category({NotInProd.class, NotInLab.class})
+  @Category(Local.class)
   @Test
   public void invalidPageSpecifiedReturns400() {
     mrAnderson()
@@ -42,7 +41,7 @@ public class MrAndersonIT {
         .expect(400);
   }
 
-  @Category({NotInProd.class, NotInLab.class})
+  @Category(Local.class)
   @Test
   public void invalidQueryParamsReturns400() {
     mrAnderson().get(apiPath() + "v1/resources/argonaut/Patient/1.03?stuff=missing").expect(400);
@@ -52,7 +51,7 @@ public class MrAndersonIT {
     return Sentinel.get().clients().mrAnderson();
   }
 
-  @Category({NotInProd.class, NotInLab.class})
+  @Category(Local.class)
   @Test
   public void noResultsReturns200WithEmptyResults() {
     String id = registrar.register("DIAGNOSTIC_REPORT", "5555555555555-mra-it");
@@ -65,7 +64,7 @@ public class MrAndersonIT {
     assertThat(records).isEqualTo("0");
   }
 
-  @Category({NotInProd.class, NotInLab.class})
+  @Category(Local.class)
   @Test
   public void pageAndCountCanBeOmittedAndDefaultToOneAnd15() {
     mrAnderson()
@@ -74,7 +73,7 @@ public class MrAndersonIT {
         .expect(200);
   }
 
-  @Category({NotInProd.class, NotInLab.class})
+  @Category(Local.class)
   @Test
   public void patientCanBeReadAfterIdHasBeenRegistered() {
     String cdwId =
@@ -86,7 +85,7 @@ public class MrAndersonIT {
     assertThat(cdwId).isEqualTo(Sentinel.get().system().cdwIds().patient());
   }
 
-  @Category({NotInProd.class, NotInLab.class})
+  @Category(Local.class)
   @Test
   public void rawResponseDoesNotReplaceReferences() {
     String reference =
@@ -107,7 +106,7 @@ public class MrAndersonIT {
     assertThat(reference).isEqualTo("Encounter/1000511190181");
   }
 
-  @Category({NotInProd.class, NotInLab.class})
+  @Category(Local.class)
   @Test
   public void recordsCanBeSearchedByPatientThenReadById() {
     String id =
@@ -128,7 +127,7 @@ public class MrAndersonIT {
     assertThat(id2).isEqualTo(id);
   }
 
-  @Category({NotInProd.class, NotInLab.class})
+  @Category(Local.class)
   @Test
   public void unknownResourceReturns404() {
     mrAnderson()
@@ -136,7 +135,7 @@ public class MrAndersonIT {
         .expect(404);
   }
 
-  @Category({NotInProd.class, NotInLab.class})
+  @Category(Local.class)
   @Test
   public void unregisteredIdReturns404() {
     mrAnderson()
