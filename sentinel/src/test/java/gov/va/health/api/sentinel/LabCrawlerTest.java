@@ -27,9 +27,17 @@ public class LabCrawlerTest {
 
   @Category({NotInLocal.class, NotInLab.class, NotInProd.class})
   @Test
-  public void crawl() {
+  public void crawlPatients() {
     SystemDefinition env = Sentinel.get().system();
-    String patient = System.getProperty("patient-id", "vasdvp+IDME_01@gmail.com");
+    String patientIds = System.getProperty("patient-id", "vasdvp+IDME_01@gmail.com");
+
+    String[] patients = patientIds.split("\\s*,\\s*");
+    for (String patient : patients) {
+      crawl(env, patient);
+    }
+  }
+
+  private void crawl(SystemDefinition env, String patient) {
     UserCredentials user =
         UserCredentials.builder()
             .id(patient)
@@ -42,7 +50,7 @@ public class LabCrawlerTest {
     ResourceDiscovery discovery =
         ResourceDiscovery.builder()
             .patientId(robot.token().patient())
-            .url(env.argonaut().url())
+            .url("https://dev-api.va.gov/services/argonaut/v0")
             .build();
     SummarizingResultCollector results =
         SummarizingResultCollector.wrap(
