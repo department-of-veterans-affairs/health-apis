@@ -76,8 +76,8 @@ public class LabCrawlerTest {
     log.info(
         "Link replacement {} (Override with -Dsentinel.argonaut.url.replace=<url>)", replaceUrl);
     return UrlReplacementRequestQueue.builder()
-        .replaceUrl(replaceUrl)
-        .withUrl(env.argonaut().url())
+        .replaceUrl("https://dev-api.va.gov/services/argonaut/v0")
+        .withUrl(replaceUrl)
         .requestQueue(new ConcurrentRequestQueue())
         .build();
   }
