@@ -26,6 +26,7 @@
     <h2.version>1.4.197</h2.version>
     <jacoco-maven-plugin.version>0.8.2</jacoco-maven-plugin.version>
     <jacoco.coverage>0.95</jacoco.coverage>
+    <jarranger.version>0.1.0</jarranger.version>
     <java.version>1.8</java.version>
     <lighthouse-keystore.version>1.0.20</lighthouse-keystore.version>
     <lombok.version>1.18.2</lombok.version>
@@ -195,7 +196,7 @@
           <plugin>
             <groupId>gov.va.jarranger</groupId>
             <artifactId>jarranger-maven-plugin</artifactId>
-            <version>0.1.0-SNAPSHOT</version>
+            <version>${jarranger.version}</version>
             <executions>
               <execution>
                 <goals>
