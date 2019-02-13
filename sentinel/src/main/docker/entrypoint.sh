@@ -55,8 +55,8 @@ doTest() {
   local tests="$@"
   [ -z "$tests" ] && tests=$(defaultTests)
   local filter
-  [ -n "$EXCLUDE_CATEGORY" ] && filter="--filter=org.junit.experimental.categories.ExcludeCategories=$EXCLUDE_CATEGORY"
-  [ -n "$INCLUDE_CATEGORY" ] && filter+=" org.junit.experimental.categories.IncludeCategories=$INCLUDE_CATEGORY"
+  [ -n "$EXCLUDE_CATEGORY" ] && filter+=" --filter=org.junit.experimental.categories.ExcludeCategories=$EXCLUDE_CATEGORY"
+  [ -n "$INCLUDE_CATEGORY" ] && filter+=" --filter=org.junit.experimental.categories.IncludeCategories=$INCLUDE_CATEGORY"
   local noise="org.junit"
   noise+="|groovy.lang.Meta"
   noise+="|io.restassured.filter"

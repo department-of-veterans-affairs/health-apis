@@ -6,6 +6,7 @@ import gov.va.api.health.argonaut.api.resources.Appointment;
 import gov.va.api.health.argonaut.api.resources.OperationOutcome;
 import gov.va.health.api.sentinel.categories.Local;
 import gov.va.health.api.sentinel.categories.ProdArgo;
+import gov.va.health.api.sentinel.categories.ProdCargo;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -13,7 +14,7 @@ public class AppointmentIT {
 
   ResourceVerifier verifier = ResourceVerifier.get();
 
-  @Category(Local.class)
+  @Category({Local.class, ProdCargo.class})
   @Test
   public void advanced() {
     verifier.verifyAll(
@@ -31,7 +32,7 @@ public class AppointmentIT {
             verifier.ids().patient()));
   }
 
-  @Category({Local.class, ProdArgo.class})
+  @Category({Local.class, ProdArgo.class, ProdCargo.class})
   @Test
   public void basic() {
     verifier.verifyAll(

@@ -6,6 +6,7 @@ import gov.va.api.health.argonaut.api.resources.Encounter;
 import gov.va.api.health.argonaut.api.resources.OperationOutcome;
 import gov.va.health.api.sentinel.categories.Local;
 import gov.va.health.api.sentinel.categories.ProdArgo;
+import gov.va.health.api.sentinel.categories.ProdCargo;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -13,7 +14,7 @@ public class EncounterIT {
 
   ResourceVerifier verifier = ResourceVerifier.get();
 
-  @Category(Local.class)
+  @Category({Local.class, ProdCargo.class})
   @Test
   public void advanced() {
     verifier.verifyAll(
@@ -22,7 +23,7 @@ public class EncounterIT {
         test(200, Encounter.Bundle.class, "Encounter?identifier={id}", verifier.ids().encounter()));
   }
 
-  @Category({Local.class, ProdArgo.class})
+  @Category({Local.class, ProdArgo.class, ProdCargo.class})
   @Test
   public void basic() {
     verifier.verifyAll(
