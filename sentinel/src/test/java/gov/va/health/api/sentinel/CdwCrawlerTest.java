@@ -66,8 +66,8 @@ public class CdwCrawlerTest {
     log.info(
         "Link replacement {} (Override with -Dsentinel.argonaut.url.replace=<url>)", replaceUrl);
     return UrlReplacementRequestQueue.builder()
-        .replaceUrl(env.argonaut().url())
-        .withUrl(replaceUrl)
+        .replaceUrl(replaceUrl)
+        .withUrl(env.argonaut().url())
         .requestQueue(new ConcurrentRequestQueue())
         .build();
   }

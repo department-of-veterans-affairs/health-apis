@@ -42,7 +42,7 @@ public class LabCrawlerTest {
     ResourceDiscovery discovery =
         ResourceDiscovery.builder()
             .patientId(robot.token().patient())
-            .url("https://dev-api.va.gov/services/argonaut/v0")
+            .url(env.argonaut().url())
             .build();
     SummarizingResultCollector results =
         SummarizingResultCollector.wrap(
@@ -76,8 +76,8 @@ public class LabCrawlerTest {
     log.info(
         "Link replacement {} (Override with -Dsentinel.argonaut.url.replace=<url>)", replaceUrl);
     return UrlReplacementRequestQueue.builder()
-        .replaceUrl("https://dev-api.va.gov/services/argonaut/v0")
-        .withUrl(replaceUrl)
+        .replaceUrl(replaceUrl)
+        .withUrl(env.argonaut().url())
         .requestQueue(new ConcurrentRequestQueue())
         .build();
   }
