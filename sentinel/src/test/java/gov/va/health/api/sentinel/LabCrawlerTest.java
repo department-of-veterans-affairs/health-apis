@@ -23,9 +23,8 @@ public class LabCrawlerTest {
 
   private LabRobots robots = LabRobots.fromSystemProperties();
 
-  private int failureCount = 0;
-
-  private void crawl(SystemDefinition env, String patient) {
+  private int crawl(String patient) {
+    SystemDefinition env = Sentinel.get().system();
     UserCredentials user =
         UserCredentials.builder()
             .id(patient)
@@ -58,17 +57,17 @@ public class LabCrawlerTest {
         robot.config().user().id(),
         robot.token().patient(),
         results.message());
-    failureCount += results.failures();
+    return results.failures();
   }
 
   @Category(Manual.class)
   @Test
   public void crawlPatients() {
-    SystemDefinition env = Sentinel.get().system();
+    int failureCount = 0;
     String patientIds = System.getProperty("patient-id", "vasdvp+IDME_01@gmail.com");
-    String[] patients = patientIds.split("\\s*,\\s*");
+    String[] patients = patientIds.split(",");
     for (String patient : patients) {
-      crawl(env, patient);
+      failureCount += crawl(patient.trim());
     }
     assertThat(failureCount).withFailMessage("%d Failures", failureCount).isEqualTo(0);
   }
