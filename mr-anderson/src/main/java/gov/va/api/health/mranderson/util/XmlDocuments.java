@@ -21,7 +21,6 @@ import org.xml.sax.SAXException;
 /** Utilities for working with XML documents. */
 @NoArgsConstructor(staticName = "create")
 public final class XmlDocuments {
-
   /**
    * Finds a DOM implementation is capable of 'Load/Save' operations, which gives us the ability to
    * write Documents.
@@ -38,6 +37,16 @@ public final class XmlDocuments {
     throw new WriteFailed(
         "Unexpected LS DOM implementation. Required: org.w3c.dom.ls.DOMImplementationLS, Got: "
             + domImplementation.getClass());
+  }
+
+  private DOMImplementationRegistry createRegistryOrDie() {
+    DOMImplementationRegistry registry;
+    try {
+      registry = DOMImplementationRegistry.newInstance();
+    } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
+      throw new WriteFailed(e);
+    }
+    return registry;
   }
 
   /**
@@ -71,16 +80,6 @@ public final class XmlDocuments {
     domSerializer.getDomConfig().setParameter("xml-declaration", true);
     domSerializer.write(document, formattedOutput);
     return stringWriter.toString();
-  }
-
-  private DOMImplementationRegistry createRegistryOrDie() {
-    DOMImplementationRegistry registry;
-    try {
-      registry = DOMImplementationRegistry.newInstance();
-    } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
-      throw new WriteFailed(e);
-    }
-    return registry;
   }
 
   public static class ParseFailed extends RuntimeException {

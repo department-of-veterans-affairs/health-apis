@@ -5,9 +5,8 @@ import org.springframework.data.repository.CrudRepository;
 
 public interface ResourceIdentityDetailRepository
     extends CrudRepository<ResourceIdentityDetail, Integer> {
-
-  List<ResourceIdentityDetail> findByUuid(String uuid);
-
   List<ResourceIdentityDetail> findBySystemAndResourceAndIdentifier(
       String system, String resource, String identifier);
+
+  List<ResourceIdentityDetail> findByUuid(String uuid);
 }

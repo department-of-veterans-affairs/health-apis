@@ -11,7 +11,6 @@ import lombok.experimental.Delegate;
 
 @NoArgsConstructor(staticName = "get")
 public class SampleMedicationDispenses {
-
   @Delegate SampleDataTypes dataTypes = SampleDataTypes.get();
 
   public DosageInstruction dosageInstruction() {
@@ -29,17 +28,6 @@ public class SampleMedicationDispenses {
         .doseQuantity(simpleQuantity())
         .rateRatio(ratio())
         .maxDosePerPeriod(ratio())
-        .build();
-  }
-
-  public Substitution substitution() {
-    return Substitution.builder()
-        .id("456")
-        .modifierExtension(singletonList(extension()))
-        .extension(singletonList(extension()))
-        .type(codeableConcept())
-        .reason(singletonList(codeableConcept()))
-        .responsibleParty(singletonList(reference()))
         .build();
   }
 
@@ -70,6 +58,17 @@ public class SampleMedicationDispenses {
         .note("Do not feed to dogs")
         .dosageInstruction(singletonList(dosageInstruction()))
         .substitution(substitution())
+        .build();
+  }
+
+  public Substitution substitution() {
+    return Substitution.builder()
+        .id("456")
+        .modifierExtension(singletonList(extension()))
+        .extension(singletonList(extension()))
+        .type(codeableConcept())
+        .reason(singletonList(codeableConcept()))
+        .responsibleParty(singletonList(reference()))
         .build();
   }
 }

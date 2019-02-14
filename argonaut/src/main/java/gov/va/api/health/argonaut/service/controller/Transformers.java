@@ -16,6 +16,72 @@ import org.apache.commons.lang3.StringUtils;
 /** Utility methods for transforming CDW results to Argonaut. */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Transformers {
+  /**
+   * Return false if at least one value in the given list is a non-blank string, or a non-null
+   * object.
+   */
+  public static boolean allBlank(Object... values) {
+    for (Object v : values) {
+      if (!isBlank(v)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /** Return null if the date is null, otherwise return ands ISO-8601 date. */
+  public static String asDateString(XMLGregorianCalendar maybeDate) {
+    if (maybeDate == null) {
+      return null;
+    }
+    DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+    return formatter.format(maybeDate.toGregorianCalendar().getTime());
+  }
+
+  /** Return null if the date is null, otherwise return an ISO-8601 date time. */
+  public static String asDateTimeString(XMLGregorianCalendar maybeDateTime) {
+    if (maybeDateTime == null) {
+      return null;
+    }
+    return maybeDateTime.toString();
+  }
+
+  /** Return null if the big integer is null, otherwise return the value as an integer. */
+  public static Integer asInteger(BigInteger maybeBigInt) {
+    if (maybeBigInt == null) {
+      return null;
+    }
+    return maybeBigInt.intValue();
+  }
+
+  /** Return null if the given object is null, otherwise return the converted value. */
+  public static <T, R> R convert(T source, Function<T, R> mapper) {
+    if (source == null) {
+      return null;
+    }
+    return mapper.apply(source);
+  }
+
+  /**
+   * Return null if the source list is null or empty, otherwise convert the items in the list and
+   * return a new one.
+   */
+  public static <T, R> List<R> convertAll(List<T> source, Function<T, R> mapper) {
+    if (source == null || source.isEmpty()) {
+      return null;
+    }
+    List<R> probablyItems =
+        source.stream().map(mapper).filter(Objects::nonNull).collect(Collectors.toList());
+    return probablyItems.isEmpty() ? null : probablyItems;
+  }
+
+  /** Throw a MissingPayload exception if the list does not have at least 1 item. */
+  public static <T> T firstPayloadItem(@NonNull List<T> items) {
+    if (items.isEmpty()) {
+      throw new MissingPayload();
+    }
+    return items.get(0);
+  }
 
   /** Throw a MissingPayload exception if the value is null. */
   public static <T> T hasPayload(T value) {
@@ -51,73 +117,6 @@ public final class Transformers {
       return null;
     }
     return extract.apply(object);
-  }
-
-  /** Throw a MissingPayload exception if the list does not have at least 1 item. */
-  public static <T> T firstPayloadItem(@NonNull List<T> items) {
-    if (items.isEmpty()) {
-      throw new MissingPayload();
-    }
-    return items.get(0);
-  }
-
-  /** Return null if the date is null, otherwise return ands ISO-8601 date. */
-  public static String asDateString(XMLGregorianCalendar maybeDate) {
-    if (maybeDate == null) {
-      return null;
-    }
-    DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-    return formatter.format(maybeDate.toGregorianCalendar().getTime());
-  }
-
-  /** Return null if the date is null, otherwise return an ISO-8601 date time. */
-  public static String asDateTimeString(XMLGregorianCalendar maybeDateTime) {
-    if (maybeDateTime == null) {
-      return null;
-    }
-    return maybeDateTime.toString();
-  }
-
-  /** Return null if the big integer is null, otherwise return the value as an integer. */
-  public static Integer asInteger(BigInteger maybeBigInt) {
-    if (maybeBigInt == null) {
-      return null;
-    }
-    return maybeBigInt.intValue();
-  }
-
-  /**
-   * Return null if the source list is null or empty, otherwise convert the items in the list and
-   * return a new one.
-   */
-  public static <T, R> List<R> convertAll(List<T> source, Function<T, R> mapper) {
-    if (source == null || source.isEmpty()) {
-      return null;
-    }
-    List<R> probablyItems =
-        source.stream().map(mapper).filter(Objects::nonNull).collect(Collectors.toList());
-    return probablyItems.isEmpty() ? null : probablyItems;
-  }
-
-  /** Return null if the given object is null, otherwise return the converted value. */
-  public static <T, R> R convert(T source, Function<T, R> mapper) {
-    if (source == null) {
-      return null;
-    }
-    return mapper.apply(source);
-  }
-
-  /**
-   * Return false if at least one value in the given list is a non-blank string, or a non-null
-   * object.
-   */
-  public static boolean allBlank(Object... values) {
-    for (Object v : values) {
-      if (!isBlank(v)) {
-        return false;
-      }
-    }
-    return true;
   }
 
   /** Return true if the value is a blank string, or any other object that is null. */

@@ -7,9 +7,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 public interface Resource {
   String id();
 
-  Meta meta();
-
   String implicitRules();
 
   String language();
+
+  Meta meta();
 }

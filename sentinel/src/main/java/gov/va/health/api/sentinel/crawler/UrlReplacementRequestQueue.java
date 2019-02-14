@@ -9,11 +9,24 @@ import lombok.Builder;
  * are correct when crawling.
  */
 public class UrlReplacementRequestQueue implements RequestQueue {
-
   private final String replaceUrl;
+
   private final String withUrl;
 
   private final RequestQueue requestQueue;
+
+  @Builder
+  UrlReplacementRequestQueue(String replaceUrl, String withUrl, RequestQueue requestQueue) {
+    if (isBlank(withUrl)) {
+      throw new IllegalStateException("withUrl not specified.");
+    }
+    if (isBlank(replaceUrl)) {
+      throw new IllegalStateException("replaceUrl not specified.");
+    }
+    this.replaceUrl = replaceUrl;
+    this.withUrl = withUrl;
+    this.requestQueue = requestQueue;
+  }
 
   @Override
   public void add(String url) {
@@ -28,18 +41,5 @@ public class UrlReplacementRequestQueue implements RequestQueue {
   @Override
   public String next() {
     return requestQueue.next();
-  }
-
-  @Builder
-  UrlReplacementRequestQueue(String replaceUrl, String withUrl, RequestQueue requestQueue) {
-    if (isBlank(withUrl)) {
-      throw new IllegalStateException("withUrl not specified.");
-    }
-    if (isBlank(replaceUrl)) {
-      throw new IllegalStateException("replaceUrl not specified.");
-    }
-    this.replaceUrl = replaceUrl;
-    this.withUrl = withUrl;
-    this.requestQueue = requestQueue;
   }
 }

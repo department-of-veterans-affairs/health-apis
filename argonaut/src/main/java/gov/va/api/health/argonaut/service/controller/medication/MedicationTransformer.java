@@ -32,7 +32,6 @@ public class MedicationTransformer implements MedicationController.Transformer {
     if (optionalSource.getCoding().isEmpty() && isBlank(optionalSource.getText())) {
       return null;
     }
-
     return convert(
         optionalSource,
         cdw ->
@@ -42,20 +41,19 @@ public class MedicationTransformer implements MedicationController.Transformer {
                 .build());
   }
 
-  List<Coding> codeCodings(List<CdwCoding> source) {
-    return convertAll(source, this::codeCoding);
-  }
-
   private Coding codeCoding(CdwCoding cdw) {
     if (cdw == null || allBlank(cdw.getSystem(), cdw.getCode(), cdw.getDisplay())) {
       return null;
     }
-
     return Coding.builder()
         .system(cdw.getSystem())
         .code(cdw.getCode())
         .display(cdw.getDisplay())
         .build();
+  }
+
+  List<Coding> codeCodings(List<CdwCoding> source) {
+    return convertAll(source, this::codeCoding);
   }
 
   CodeableConcept form(CdwCodeableConcept source) {
@@ -71,10 +69,6 @@ public class MedicationTransformer implements MedicationController.Transformer {
         .build();
   }
 
-  List<Coding> formCodings(List<CdwCoding> source) {
-    return convertAll(source, this::formCoding);
-  }
-
   private Coding formCoding(CdwCoding cdw) {
     if (cdw == null || allBlank(cdw.getCode(), cdw.getDisplay(), cdw.getSystem())) {
       return null;
@@ -84,6 +78,10 @@ public class MedicationTransformer implements MedicationController.Transformer {
         .code(cdw.getCode())
         .display(cdw.getDisplay())
         .build();
+  }
+
+  List<Coding> formCodings(List<CdwCoding> source) {
+    return convertAll(source, this::formCoding);
   }
 
   private Medication medication(CdwMedication source) {

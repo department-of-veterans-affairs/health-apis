@@ -11,8 +11,12 @@ import org.junit.Test;
 
 @Slf4j
 public class AppointmentTest {
-
   private final SampleAppointments data = SampleAppointments.get();
+
+  @Test
+  public void appointment() {
+    assertRoundTrip(data.appointment());
+  }
 
   @Test
   public void bundlerCanBuildAppointmentBundles() {
@@ -32,7 +36,6 @@ public class AppointmentTest {
             .request(data.request())
             .response(data.response())
             .build();
-
     Appointment.Bundle bundle =
         Appointment.Bundle.builder()
             .entry(Collections.singletonList(entry))
@@ -44,12 +47,6 @@ public class AppointmentTest {
                         .build()))
             .type(AbstractBundle.BundleType.searchset)
             .build();
-
     assertRoundTrip(bundle);
-  }
-
-  @Test
-  public void appointment() {
-    assertRoundTrip(data.appointment());
   }
 }

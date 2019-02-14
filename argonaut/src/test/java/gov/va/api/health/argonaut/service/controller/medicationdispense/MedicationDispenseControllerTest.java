@@ -39,6 +39,7 @@ public class MedicationDispenseControllerTest {
   @Mock MedicationDispenseController.Transformer tx;
 
   MedicationDispenseController controller;
+
   @Mock Bundler bundler;
 
   @Before
@@ -66,19 +67,14 @@ public class MedicationDispenseControllerTest {
     when(tx.apply(cdwItem2)).thenReturn(item2);
     when(tx.apply(cdwItem3)).thenReturn(item3);
     when(client.search(Mockito.any())).thenReturn(root);
-
     Bundle mockBundle = new Bundle();
     when(bundler.bundle(Mockito.any())).thenReturn(mockBundle);
-
     Bundle actual = invocation.get();
-
     assertThat(actual).isSameAs(mockBundle);
     @SuppressWarnings("unchecked")
     ArgumentCaptor<BundleContext<CdwMedicationDispense, MedicationDispense, Entry, Bundle>> captor =
         ArgumentCaptor.forClass(BundleContext.class);
-
     verify(bundler).bundle(captor.capture());
-
     LinkConfig expectedLinkConfig =
         LinkConfig.builder()
             .page(1)
@@ -144,24 +140,24 @@ public class MedicationDispenseControllerTest {
   }
 
   @Test
-  public void searchByPatientAndType() {
-    assertSearch(
-        () -> controller.searchByPatientAndType("me", "FF,UD", 1, 10),
-        Parameters.builder()
-            .add("patient", "me")
-            .add("type", "FF,UD")
-            .add("page", 1)
-            .add("_count", 10)
-            .build());
-  }
-
-  @Test
   public void searchByPatientAndStatus() {
     assertSearch(
         () -> controller.searchByPatientAndStatus("me", "stopped,completed", 1, 10),
         Parameters.builder()
             .add("patient", "me")
             .add("status", "stopped,completed")
+            .add("page", 1)
+            .add("_count", 10)
+            .build());
+  }
+
+  @Test
+  public void searchByPatientAndType() {
+    assertSearch(
+        () -> controller.searchByPatientAndType("me", "FF,UD", 1, 10),
+        Parameters.builder()
+            .add("patient", "me")
+            .add("type", "FF,UD")
             .add("page", 1)
             .add("_count", 10)
             .build());
@@ -175,7 +171,6 @@ public class MedicationDispenseControllerTest {
             .readValue(
                 getClass().getResourceAsStream("/cdw/medicationdispense-1.00.json"),
                 MedicationDispense.class);
-
     Bundle bundle = bundleOf(resource);
     assertThat(controller.validate(bundle)).isEqualTo(Validator.ok());
   }
@@ -189,7 +184,6 @@ public class MedicationDispenseControllerTest {
                 getClass().getResourceAsStream("/cdw/medicationdispense-1.00.json"),
                 MedicationDispense.class);
     resource.resourceType(null);
-
     Bundle bundle = bundleOf(resource);
     controller.validate(bundle);
   }

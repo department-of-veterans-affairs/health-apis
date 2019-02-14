@@ -38,9 +38,10 @@ import lombok.SneakyThrows;
 import org.junit.Test;
 
 public class AllergyIntoleranceTransformerTest {
-
   private final CdwSampleData cdw = new CdwSampleData();
+
   private final Expected expected = new Expected();
+
   AllergyIntoleranceTransformer tx = new AllergyIntoleranceTransformer();
 
   @Test
@@ -72,23 +73,6 @@ public class AllergyIntoleranceTransformerTest {
   }
 
   @Test
-  public void reactionManifestation() {
-    assertThat(tx.reactionManifestation(null)).isNull();
-    assertThat(tx.reactionManifestation(new CdwManifestations())).isNull();
-    assertThat(tx.reactionManifestation(cdw.manifestation())).isEqualTo(expected.manifestation());
-  }
-
-  @Test
-  public void reactionManifestationCoding() {
-    assertThat(
-            tx.reactionManifestationCoding(
-                cdw.manifestation().getManifestation().get(0).getCoding()))
-        .isEqualTo(expected.manifestation().get(0).coding());
-    assertThat(tx.reactionManifestationCoding(null)).isNull();
-    assertThat(tx.reactionManifestationCoding(new CdwManifestation.CdwCoding())).isNull();
-  }
-
-  @Test
   public void note() {
     assertThat(tx.note(null)).isNull();
     assertThat(tx.note(new CdwNotes())).isNull();
@@ -107,6 +91,23 @@ public class AllergyIntoleranceTransformerTest {
     assertThat(tx.reaction(cdw.reactions())).isEqualTo(expected.reaction());
     assertThat(tx.reaction(null)).isNull();
     assertThat(tx.reaction(new CdwReactions())).isNull();
+  }
+
+  @Test
+  public void reactionManifestation() {
+    assertThat(tx.reactionManifestation(null)).isNull();
+    assertThat(tx.reactionManifestation(new CdwManifestations())).isNull();
+    assertThat(tx.reactionManifestation(cdw.manifestation())).isEqualTo(expected.manifestation());
+  }
+
+  @Test
+  public void reactionManifestationCoding() {
+    assertThat(
+            tx.reactionManifestationCoding(
+                cdw.manifestation().getManifestation().get(0).getCoding()))
+        .isEqualTo(expected.manifestation().get(0).coding());
+    assertThat(tx.reactionManifestationCoding(null)).isNull();
+    assertThat(tx.reactionManifestationCoding(new CdwManifestation.CdwCoding())).isNull();
   }
 
   @Test
@@ -138,7 +139,6 @@ public class AllergyIntoleranceTransformerTest {
   }
 
   private static class CdwSampleData {
-
     private DatatypeFactory datatypeFactory;
 
     @SneakyThrows
@@ -176,15 +176,12 @@ public class AllergyIntoleranceTransformerTest {
       CdwManifestations.CdwManifestation manifestation = new CdwManifestations.CdwManifestation();
       CdwManifestations.CdwManifestation.CdwCoding cdwManifestationCoding =
           new CdwManifestations.CdwManifestation.CdwCoding();
-
       cdwManifestationCoding.setCode("manifestation code");
       cdwManifestationCoding.setDisplay("manifestation display");
       cdwManifestationCoding.setSystem(
           CdwAllergyManifestationSystem.URN_OID_2_16_840_1_113883_6_233);
-
       manifestation.setText("manifestation text");
       manifestation.setCoding(cdwManifestationCoding);
-
       manifestations.getManifestation().add(manifestation);
       return manifestations;
     }
@@ -250,11 +247,9 @@ public class AllergyIntoleranceTransformerTest {
     CdwSubstance substance() {
       CdwSubstance substance = new CdwSubstance();
       CdwSubstance.CdwCoding cdwSubstanceCoding = new CdwSubstance.CdwCoding();
-
       cdwSubstanceCoding.setCode("substance code");
       cdwSubstanceCoding.setDisplay("substance display");
       cdwSubstanceCoding.setSystem(CdwAllergySubstanceSystem.HTTP_HL_7_ORG_FHIR_NDFRT);
-
       substance.setCoding(cdwSubstanceCoding);
       substance.setText("substance text");
       return substance;

@@ -18,8 +18,8 @@ Commands
 
 Example
   test \
-    --exclude-category gov.va.health.api.sentinel.categories.NotInProd \
-    --include-category gov.va.health.api.sentinel.categories.NotInLocal \
+    --exclude-category gov.va.health.api.sentinel.categories.Manual \
+    --include-category gov.va.health.api.sentinel.categories.Local \
     -Dlab.client-id=12345 \
     -Dlab.client-secret=ABCDEF \
     -Dlab.user-password=secret \
@@ -55,8 +55,8 @@ doTest() {
   local tests="$@"
   [ -z "$tests" ] && tests=$(defaultTests)
   local filter
-  [ -n "$EXCLUDE_CATEGORY" ] && filter="--filter=org.junit.experimental.categories.ExcludeCategories=$EXCLUDE_CATEGORY"
-  [ -n "$INCLUDE_CATEGORY" ] && filter+=" org.junit.experimental.categories.IncludeCategories=$INCLUDE_CATEGORY"
+  [ -n "$EXCLUDE_CATEGORY" ] && filter+=" --filter=org.junit.experimental.categories.ExcludeCategories=$EXCLUDE_CATEGORY"
+  [ -n "$INCLUDE_CATEGORY" ] && filter+=" --filter=org.junit.experimental.categories.IncludeCategories=$INCLUDE_CATEGORY"
   local noise="org.junit"
   noise+="|groovy.lang.Meta"
   noise+="|io.restassured.filter"

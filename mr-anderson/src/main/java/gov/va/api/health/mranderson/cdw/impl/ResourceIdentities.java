@@ -11,16 +11,28 @@ import lombok.Value;
 /** Utility methods for working with CDW-related Resource Identity objects. */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 final class ResourceIdentities {
-
-  /** Return true if the given identity belongs to the CDW system. */
-  static boolean isCdw(@NonNull ResourceIdentity identity) {
-    return cdw().equals(identity.system());
-  }
-
   /** The CDW system value. */
   @SuppressWarnings("SameReturnValue")
   public static String cdw() {
     return "CDW";
+  }
+
+  /**
+   * Extract the CDW identity from the possible identities in the given registration. An error is
+   * thrown if a CDW id cannot be found.
+   */
+  private static ResourceIdentity findCdwIdentity(@NonNull Registration registration) {
+    return registration
+        .resourceIdentities()
+        .stream()
+        .filter(ResourceIdentities::isCdw)
+        .findFirst()
+        .orElseThrow(() -> new IllegalArgumentException("No CDW identity for: " + registration));
+  }
+
+  /** Return true if the given identity belongs to the CDW system. */
+  static boolean isCdw(@NonNull ResourceIdentity identity) {
+    return cdw().equals(identity.system());
   }
 
   /** Convert the 'resource/identity' reference into a CDW Resource Identity instance. */
@@ -42,26 +54,11 @@ final class ResourceIdentities {
   /** Create reference pairs of CDW and Universal identities in the `resource/identity` form. */
   static ReferencePair referencesOf(@NonNull Registration registration) {
     ResourceIdentity identity = findCdwIdentity(registration);
-
     String resource = ResourceNameTranslation.create().identityServiceToFhir(identity.resource());
-
     return ReferencePair.builder()
         .cdw(resource + "/" + identity.identifier())
         .universal(resource + "/" + registration.uuid())
         .build();
-  }
-
-  /**
-   * Extract the CDW identity from the possible identities in the given registration. An error is
-   * thrown if a CDW id cannot be found.
-   */
-  private static ResourceIdentity findCdwIdentity(@NonNull Registration registration) {
-    return registration
-        .resourceIdentities()
-        .stream()
-        .filter(ResourceIdentities::isCdw)
-        .findFirst()
-        .orElseThrow(() -> new IllegalArgumentException("No CDW identity for: " + registration));
   }
 
   /** A pair of references that represent the same object, in the `resource/identity` form. */
@@ -69,6 +66,7 @@ final class ResourceIdentities {
   @Builder
   static class ReferencePair {
     String cdw;
+
     String universal;
   }
 }

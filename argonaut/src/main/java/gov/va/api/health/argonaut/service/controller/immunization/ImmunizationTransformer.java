@@ -34,7 +34,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ImmunizationTransformer implements ImmunizationController.Transformer {
-
   @Override
   public Immunization apply(CdwImmunization source) {
     return Immunization.builder()
@@ -58,11 +57,6 @@ public class ImmunizationTransformer implements ImmunizationController.Transform
         .build();
   }
 
-  List<Coding> codings(List<CdwCoding> source) {
-    List<Coding> codings = convertAll(source, this::coding);
-    return codings == null || codings.isEmpty() ? null : codings;
-  }
-
   private Coding coding(CdwCoding cdw) {
     if (cdw == null || allBlank(cdw.getCode(), cdw.getDisplay(), cdw.getSystem())) {
       return null;
@@ -72,6 +66,11 @@ public class ImmunizationTransformer implements ImmunizationController.Transform
         .code(cdw.getCode())
         .display(cdw.getDisplay())
         .build();
+  }
+
+  List<Coding> codings(List<CdwCoding> source) {
+    List<Coding> codings = convertAll(source, this::coding);
+    return codings == null || codings.isEmpty() ? null : codings;
   }
 
   List<Identifier> identifier(CdwIdentifiers maybeSource) {

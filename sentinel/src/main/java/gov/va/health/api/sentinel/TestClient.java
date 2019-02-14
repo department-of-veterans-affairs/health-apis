@@ -5,8 +5,6 @@ package gov.va.health.api.sentinel;
  * responses decorated with easy to assert expectations.
  */
 public interface TestClient {
-  ServiceDefinition service();
-
   /**
    * Perform a get request with optional path params.
    *
@@ -19,4 +17,6 @@ public interface TestClient {
 
   /** Perform a post request with the given body. */
   ExpectedResponse post(String path, Object body);
+
+  ServiceDefinition service();
 }

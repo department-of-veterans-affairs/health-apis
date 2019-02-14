@@ -12,8 +12,27 @@ import lombok.experimental.Delegate;
 
 @NoArgsConstructor(staticName = "get")
 public class SampleProcedures {
-
   @Delegate SampleDataTypes dataTypes = SampleDataTypes.get();
+
+  private FocalDevice focalDevice() {
+    return Procedure.FocalDevice.builder()
+        .id("2468")
+        .extension(Arrays.asList(extension(), extension()))
+        .modifierExtension(Arrays.asList(extension(), extension()))
+        .action(codeableConcept())
+        .manipulated(reference())
+        .build();
+  }
+
+  Procedure.Performer performer() {
+    return Procedure.Performer.builder()
+        .id("9876")
+        .extension(Arrays.asList(extension(), extension()))
+        .modifierExtension(Arrays.asList(extension(), extension()))
+        .actor(reference())
+        .role(codeableConcept())
+        .build();
+  }
 
   public Procedure procedure() {
     return Procedure.builder()
@@ -46,26 +65,6 @@ public class SampleProcedures {
         .request(reference())
         .notes(Arrays.asList(annotation(), annotation()))
         .focalDevice(Collections.singletonList(focalDevice()))
-        .build();
-  }
-
-  private FocalDevice focalDevice() {
-    return Procedure.FocalDevice.builder()
-        .id("2468")
-        .extension(Arrays.asList(extension(), extension()))
-        .modifierExtension(Arrays.asList(extension(), extension()))
-        .action(codeableConcept())
-        .manipulated(reference())
-        .build();
-  }
-
-  Procedure.Performer performer() {
-    return Procedure.Performer.builder()
-        .id("9876")
-        .extension(Arrays.asList(extension(), extension()))
-        .modifierExtension(Arrays.asList(extension(), extension()))
-        .actor(reference())
-        .role(codeableConcept())
         .build();
   }
 }

@@ -31,10 +31,35 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class LocationTransformer implements LocationController.Transformer {
+  Address address(CdwLocationAddress maybeCdw) {
+    if (isUnusableAddress(maybeCdw)) {
+      return null;
+    }
+    return Address.builder()
+        .city(maybeCdw.getCity())
+        .line(maybeCdw.getLine())
+        .postalCode(maybeCdw.getPostalCode())
+        .state(maybeCdw.getState())
+        .build();
+  }
 
   @Override
   public Location apply(CdwLocation location) {
     return location(location);
+  }
+
+  ContactPointSystem contactPointCode(String maybeCdw) {
+    if (StringUtils.isBlank(maybeCdw) || maybeCdw == null) {
+      return null;
+    }
+    return EnumSearcher.of(ContactPointSystem.class).find(maybeCdw);
+  }
+
+  Boolean isUnusableAddress(CdwLocationAddress maybeCdw) {
+    return (maybeCdw == null
+        || allBlank(
+            maybeCdw.getLine(), maybeCdw.getCity(), maybeCdw.getPostalCode(), maybeCdw.getState())
+        || maybeCdw.getLine().isEmpty());
   }
 
   private Location location(CdwLocation source) {
@@ -53,52 +78,6 @@ public class LocationTransformer implements LocationController.Transformer {
         .build();
   }
 
-  Address address(CdwLocationAddress maybeCdw) {
-    if (isUnusableAddress(maybeCdw)) {
-      return null;
-    }
-    return Address.builder()
-        .city(maybeCdw.getCity())
-        .line(maybeCdw.getLine())
-        .postalCode(maybeCdw.getPostalCode())
-        .state(maybeCdw.getState())
-        .build();
-  }
-
-  Reference reference(CdwReference maybeCdw) {
-    if (maybeCdw == null || allBlank(maybeCdw.getReference(), maybeCdw.getDisplay())) {
-      return null;
-    }
-    return convert(
-        maybeCdw,
-        source ->
-            Reference.builder()
-                .reference(source.getReference())
-                .display(source.getDisplay())
-                .build());
-  }
-
-  Mode mode(CdwLocationMode maybeCdw) {
-    if (maybeCdw == null) {
-      return null;
-    }
-    return EnumSearcher.of(Mode.class).find(maybeCdw.value());
-  }
-
-  Status status(CdwLocationStatus maybeCdw) {
-    if (maybeCdw == null) {
-      return null;
-    }
-    return EnumSearcher.of(Status.class).find(maybeCdw.value());
-  }
-
-  ContactPointSystem contactPointCode(String maybeCdw) {
-    if (StringUtils.isBlank(maybeCdw) || maybeCdw == null) {
-      return null;
-    }
-    return EnumSearcher.of(ContactPointSystem.class).find(maybeCdw);
-  }
-
   CodeableConcept locationPhysicalType(CdwLocationPhysicalType maybeCdw) {
     if (maybeCdw == null || allBlank(maybeCdw.getCoding(), maybeCdw.getText())) {
       return null;
@@ -106,22 +85,6 @@ public class LocationTransformer implements LocationController.Transformer {
     return CodeableConcept.builder()
         .coding(locationPhysicalTypeCoding(maybeCdw.getCoding()))
         .text(maybeCdw.getText())
-        .build();
-  }
-
-  List<Coding> locationTypeCodings(List<CdwLocation.CdwType.CdwCoding> maybeCdw) {
-    List<Coding> codings = convertAll(maybeCdw, this::locationTypeCoding);
-    return codings == null || codings.isEmpty() ? null : codings;
-  }
-
-  private Coding locationTypeCoding(CdwLocation.CdwType.CdwCoding cdw) {
-    if (cdw == null || allBlank(cdw.getCode(), cdw.getDisplay(), cdw.getSystem())) {
-      return null;
-    }
-    return Coding.builder()
-        .system(cdw.getSystem())
-        .code(ifPresent(cdw.getCode(), CdwLocationTypeCode::value))
-        .display(ifPresent(cdw.getDisplay(), CdwLocationTypeDisplay::value))
         .build();
   }
 
@@ -138,6 +101,59 @@ public class LocationTransformer implements LocationController.Transformer {
             .build());
   }
 
+  CodeableConcept locationType(CdwLocation.CdwType maybeCdw) {
+    if (maybeCdw == null || maybeCdw.getCoding().isEmpty()) {
+      return null;
+    }
+    return convert(
+        maybeCdw,
+        source ->
+            CodeableConcept.builder().coding(locationTypeCodings(source.getCoding())).build());
+  }
+
+  private Coding locationTypeCoding(CdwLocation.CdwType.CdwCoding cdw) {
+    if (cdw == null || allBlank(cdw.getCode(), cdw.getDisplay(), cdw.getSystem())) {
+      return null;
+    }
+    return Coding.builder()
+        .system(cdw.getSystem())
+        .code(ifPresent(cdw.getCode(), CdwLocationTypeCode::value))
+        .display(ifPresent(cdw.getDisplay(), CdwLocationTypeDisplay::value))
+        .build();
+  }
+
+  List<Coding> locationTypeCodings(List<CdwLocation.CdwType.CdwCoding> maybeCdw) {
+    List<Coding> codings = convertAll(maybeCdw, this::locationTypeCoding);
+    return codings == null || codings.isEmpty() ? null : codings;
+  }
+
+  Mode mode(CdwLocationMode maybeCdw) {
+    if (maybeCdw == null) {
+      return null;
+    }
+    return EnumSearcher.of(Mode.class).find(maybeCdw.value());
+  }
+
+  Reference reference(CdwReference maybeCdw) {
+    if (maybeCdw == null || allBlank(maybeCdw.getReference(), maybeCdw.getDisplay())) {
+      return null;
+    }
+    return convert(
+        maybeCdw,
+        source ->
+            Reference.builder()
+                .reference(source.getReference())
+                .display(source.getDisplay())
+                .build());
+  }
+
+  Status status(CdwLocationStatus maybeCdw) {
+    if (maybeCdw == null) {
+      return null;
+    }
+    return EnumSearcher.of(Status.class).find(maybeCdw.value());
+  }
+
   List<ContactPoint> telecoms(CdwTelecoms maybeCdw) {
     if (maybeCdw == null || maybeCdw.getTelecom().isEmpty()) {
       return null;
@@ -149,22 +165,5 @@ public class LocationTransformer implements LocationController.Transformer {
                 .system(contactPointCode(source.getSystem()))
                 .value(source.getValue())
                 .build());
-  }
-
-  CodeableConcept locationType(CdwLocation.CdwType maybeCdw) {
-    if (maybeCdw == null || maybeCdw.getCoding().isEmpty()) {
-      return null;
-    }
-    return convert(
-        maybeCdw,
-        source ->
-            CodeableConcept.builder().coding(locationTypeCodings(source.getCoding())).build());
-  }
-
-  Boolean isUnusableAddress(CdwLocationAddress maybeCdw) {
-    return (maybeCdw == null
-        || allBlank(
-            maybeCdw.getLine(), maybeCdw.getCity(), maybeCdw.getPostalCode(), maybeCdw.getState())
-        || maybeCdw.getLine().isEmpty());
   }
 }

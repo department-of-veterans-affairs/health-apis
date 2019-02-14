@@ -1,5 +1,7 @@
 package gov.va.health.api.sentinel;
 
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.restassured.RestAssured;
@@ -18,7 +20,6 @@ import lombok.Singular;
 import lombok.SneakyThrows;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -41,7 +42,7 @@ public class IdMeOauthRobot {
     ChromeOptions chromeOptions = new ChromeOptions();
     chromeOptions.setHeadless(config.headless());
     chromeOptions.addArguments("--whitelisted-ips", "--disable-extensions", "--no-sandbox");
-    if (StringUtils.isNotBlank(config.chromeDriver())) {
+    if (isNotBlank(config.chromeDriver())) {
       System.setProperty("webdriver.chrome.driver", config.chromeDriver());
     }
     WebDriver driver = new ChromeDriver(chromeOptions);
@@ -90,11 +91,20 @@ public class IdMeOauthRobot {
             .formParam("grant_type", "authorization_code")
             .formParam("redirect_uri", config.authorization().redirectUrl())
             .formParam("code", code())
+            .log()
+            .all()
             .post(config.tokenUrl())
             .then()
             .extract()
             .as(TokenExchange.class);
     log.info("{}", tokenExchange);
+    if (tokenExchange.isError()) {
+      throw new IllegalStateException(
+          "Failed to exchange code for token: "
+              + tokenExchange.error()
+              + "\n"
+              + tokenExchange.errorDescription());
+    }
     return tokenExchange;
   }
 
@@ -148,6 +158,13 @@ public class IdMeOauthRobot {
   @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
   @AllArgsConstructor
   public static class TokenExchange {
+
+    @JsonProperty("error")
+    String error;
+
+    @JsonProperty("error_description")
+    String errorDescription;
+
     @JsonProperty("access_token")
     String accessToken;
 
@@ -168,5 +185,9 @@ public class IdMeOauthRobot {
 
     @JsonProperty("state")
     String state;
+
+    boolean isError() {
+      return isNotBlank(error) || isNotBlank(errorDescription);
+    }
   }
 }

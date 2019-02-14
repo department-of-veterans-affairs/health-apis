@@ -38,10 +38,8 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class MedicationDispenseTransformer implements MedicationDispenseController.Transformer {
-
   @Override
   public MedicationDispense apply(CdwMedicationDispense cdw) {
-
     return MedicationDispense.builder()
         .resourceType("MedicationDispense")
         .id(cdw.getCdwId())
@@ -61,18 +59,80 @@ public class MedicationDispenseTransformer implements MedicationDispenseControll
         .build();
   }
 
-  Status status(CdwMedicationDispenseStatus source) {
-    if (source == null) {
+  /**
+   * This takes the first element if it exists of Authorizing Prescriptions because it's a 2d array,
+   * which is a funky mapping for this field.
+   */
+  List<Reference> authorizingPrescriptions(List<CdwAuthorizingPrescriptions> maybeCdw) {
+    if (maybeCdw == null || maybeCdw.isEmpty()) {
       return null;
     }
-    return EnumSearcher.of(MedicationDispense.Status.class).find(source.value());
+    CdwAuthorizingPrescriptions firstList = maybeCdw.get(0);
+    if (firstList == null) {
+      return null;
+    }
+    return convertAll(firstList.getAuthorizingPrescription(), this::reference);
   }
 
-  Identifier.IdentifierUse identifierUse(CdwIdentifierUseCodes source) {
-    if (source == null) {
+  /** Generic codeable concept transformer for when cdw isn't returning a one off type. */
+  CodeableConcept codeableConcept(CdwCodeableConcept source) {
+    if (source == null || (source.getCoding().isEmpty() && isBlank(source.getText()))) {
       return null;
     }
-    return EnumSearcher.of(Identifier.IdentifierUse.class).find(source.value());
+    return CodeableConcept.builder()
+        .coding(codings(source.getCoding()))
+        .text(source.getText())
+        .build();
+  }
+
+  /* Is there a nice way to check if all the fields are blank?*/
+  Coding coding(CdwCoding cdw) {
+    if (cdw == null || allBlank(cdw.getCode(), cdw.getDisplay(), cdw.getSystem())) {
+      return null;
+    }
+    return Coding.builder()
+        .system(cdw.getSystem())
+        .code(cdw.getCode())
+        .display(cdw.getDisplay())
+        .build();
+  }
+
+  List<Coding> codings(List<CdwCoding> source) {
+    return convertAll(source, this::coding);
+  }
+
+  DosageInstruction dosageInstruction(CdwDosageInstruction cdw) {
+    if (cdw == null
+        || (allBlank(
+                cdw.getAdditionalInstructions(),
+                cdw.isAsNeededBoolean(),
+                cdw.getDoseQuantity(),
+                cdw.getSiteCodeableConcept(),
+                cdw.getTiming())
+            && isBlank(cdw.getText()))) {
+      return null;
+    }
+    return convert(
+        cdw,
+        source ->
+            DosageInstruction.builder()
+                .text(source.getText())
+                .additionalInstructions(codeableConcept(source.getAdditionalInstructions()))
+                .doseQuantity(simpleQuantity(source.getDoseQuantity()))
+                .timing(timing(source.getTiming()))
+                .asNeededBoolean(source.isAsNeededBoolean())
+                .siteCodeableConcept(codeableConcept(source.getSiteCodeableConcept()))
+                .route(routeCodeableConcept(source.getRoute()))
+                .build());
+  }
+
+  /**
+   * Maps dosage instructions out which is a complex type with multiple complex types contained
+   * within.
+   */
+  List<DosageInstruction> dosageInstructions(CdwDosageInstructions cdw) {
+    return convertAll(
+        ifPresent(cdw, CdwDosageInstructions::getDosageInstruction), this::dosageInstruction);
   }
 
   /**
@@ -95,19 +155,26 @@ public class MedicationDispenseTransformer implements MedicationDispenseControll
         .build();
   }
 
-  /**
-   * This takes the first element if it exists of Authorizing Prescriptions because it's a 2d array,
-   * which is a funky mapping for this field.
-   */
-  List<Reference> authorizingPrescriptions(List<CdwAuthorizingPrescriptions> maybeCdw) {
-    if (maybeCdw == null || maybeCdw.isEmpty()) {
+  Identifier.IdentifierUse identifierUse(CdwIdentifierUseCodes source) {
+    if (source == null) {
       return null;
     }
-    CdwAuthorizingPrescriptions firstList = maybeCdw.get(0);
-    if (firstList == null) {
+    return EnumSearcher.of(Identifier.IdentifierUse.class).find(source.value());
+  }
+
+  private boolean isUsable(CdwReference reference) {
+    return reference != null && !allBlank(reference.getReference(), reference.getDisplay());
+  }
+
+  Double quantityValue(String source) {
+    if (isBlank(source)) {
       return null;
     }
-    return convertAll(firstList.getAuthorizingPrescription(), this::reference);
+    try {
+      return Double.valueOf(source);
+    } catch (NumberFormatException e) {
+      throw new IllegalArgumentException("Cannot create double value from " + source, e);
+    }
   }
 
   Reference reference(CdwReference maybeSource) {
@@ -121,6 +188,49 @@ public class MedicationDispenseTransformer implements MedicationDispenseControll
                 .display(source.getDisplay())
                 .reference(source.getReference())
                 .build());
+  }
+
+  /**
+   * Not a fan of having multiple methods for building codeable concepts just because of these one
+   * off cdw versions. Maybe make more generic so this isn't like this?
+   */
+  CodeableConcept routeCodeableConcept(CdwRoute maybeCdw) {
+    if (maybeCdw == null || isBlank(maybeCdw.getText())) {
+      return null;
+    }
+    return CodeableConcept.builder().text(maybeCdw.getText()).build();
+  }
+
+  /**
+   * simpleQuantity and quantityValue might be useful to take out to Transformers? This same pattern
+   * is in Observation.
+   */
+  SimpleQuantity simpleQuantity(CdwSimpleQuantity source) {
+    if (source == null
+        || allBlank(source.getCode(), source.getSystem(), source.getUnit(), source.getValue())) {
+      return null;
+    }
+    return SimpleQuantity.builder()
+        .value(quantityValue(source.getValue()))
+        .unit(source.getUnit())
+        .code(source.getCode())
+        .system(source.getSystem())
+        .build();
+  }
+
+  Status status(CdwMedicationDispenseStatus source) {
+    if (source == null) {
+      return null;
+    }
+    return EnumSearcher.of(MedicationDispense.Status.class).find(source.value());
+  }
+
+  /** Our version of Timing is just a wrapper around a codeable concept. */
+  Timing timing(CdwTiming maybeCdw) {
+    if (maybeCdw == null || maybeCdw.getCode() == null) {
+      return null;
+    }
+    return Timing.builder().code(codeableConcept(maybeCdw.getCode())).build();
   }
 
   /** Maps codeable concept out of Type field. */
@@ -150,117 +260,5 @@ public class MedicationDispenseTransformer implements MedicationDispenseControll
       builder.display(source.getDisplay().value());
     }
     return builder.system(source.getSystem()).build();
-  }
-
-  /**
-   * simpleQuantity and quantityValue might be useful to take out to Transformers? This same pattern
-   * is in Observation.
-   */
-  SimpleQuantity simpleQuantity(CdwSimpleQuantity source) {
-    if (source == null
-        || allBlank(source.getCode(), source.getSystem(), source.getUnit(), source.getValue())) {
-      return null;
-    }
-    return SimpleQuantity.builder()
-        .value(quantityValue(source.getValue()))
-        .unit(source.getUnit())
-        .code(source.getCode())
-        .system(source.getSystem())
-        .build();
-  }
-
-  Double quantityValue(String source) {
-    if (isBlank(source)) {
-      return null;
-    }
-    try {
-      return Double.valueOf(source);
-    } catch (NumberFormatException e) {
-      throw new IllegalArgumentException("Cannot create double value from " + source, e);
-    }
-  }
-
-  /**
-   * Maps dosage instructions out which is a complex type with multiple complex types contained
-   * within.
-   */
-  List<DosageInstruction> dosageInstructions(CdwDosageInstructions cdw) {
-    return convertAll(
-        ifPresent(cdw, CdwDosageInstructions::getDosageInstruction), this::dosageInstruction);
-  }
-
-  DosageInstruction dosageInstruction(CdwDosageInstruction cdw) {
-    if (cdw == null
-        || (allBlank(
-                cdw.getAdditionalInstructions(),
-                cdw.isAsNeededBoolean(),
-                cdw.getDoseQuantity(),
-                cdw.getSiteCodeableConcept(),
-                cdw.getTiming())
-            && isBlank(cdw.getText()))) {
-      return null;
-    }
-    return convert(
-        cdw,
-        source ->
-            DosageInstruction.builder()
-                .text(source.getText())
-                .additionalInstructions(codeableConcept(source.getAdditionalInstructions()))
-                .doseQuantity(simpleQuantity(source.getDoseQuantity()))
-                .timing(timing(source.getTiming()))
-                .asNeededBoolean(source.isAsNeededBoolean())
-                .siteCodeableConcept(codeableConcept(source.getSiteCodeableConcept()))
-                .route(routeCodeableConcept(source.getRoute()))
-                .build());
-  }
-
-  /** Generic codeable concept transformer for when cdw isn't returning a one off type. */
-  CodeableConcept codeableConcept(CdwCodeableConcept source) {
-    if (source == null || (source.getCoding().isEmpty() && isBlank(source.getText()))) {
-      return null;
-    }
-    return CodeableConcept.builder()
-        .coding(codings(source.getCoding()))
-        .text(source.getText())
-        .build();
-  }
-
-  List<Coding> codings(List<CdwCoding> source) {
-    return convertAll(source, this::coding);
-  }
-
-  /* Is there a nice way to check if all the fields are blank?*/
-  Coding coding(CdwCoding cdw) {
-    if (cdw == null || allBlank(cdw.getCode(), cdw.getDisplay(), cdw.getSystem())) {
-      return null;
-    }
-    return Coding.builder()
-        .system(cdw.getSystem())
-        .code(cdw.getCode())
-        .display(cdw.getDisplay())
-        .build();
-  }
-
-  /** Our version of Timing is just a wrapper around a codeable concept. */
-  Timing timing(CdwTiming maybeCdw) {
-    if (maybeCdw == null || maybeCdw.getCode() == null) {
-      return null;
-    }
-    return Timing.builder().code(codeableConcept(maybeCdw.getCode())).build();
-  }
-
-  /**
-   * Not a fan of having multiple methods for building codeable concepts just because of these one
-   * off cdw versions. Maybe make more generic so this isn't like this?
-   */
-  CodeableConcept routeCodeableConcept(CdwRoute maybeCdw) {
-    if (maybeCdw == null || isBlank(maybeCdw.getText())) {
-      return null;
-    }
-    return CodeableConcept.builder().text(maybeCdw.getText()).build();
-  }
-
-  private boolean isUsable(CdwReference reference) {
-    return reference != null && !allBlank(reference.getReference(), reference.getDisplay());
   }
 }

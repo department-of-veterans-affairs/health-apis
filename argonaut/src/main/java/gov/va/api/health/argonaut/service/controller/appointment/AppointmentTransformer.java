@@ -34,10 +34,8 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class AppointmentTransformer implements AppointmentController.Transformer {
-
   @Override
   public Appointment apply(CdwAppointment cdw) {
-
     return Appointment.builder()
         .resourceType("Appointment")
         .id(cdw.getCdwId())
@@ -112,11 +110,6 @@ public class AppointmentTransformer implements AppointmentController.Transformer
                 .build());
   }
 
-  List<Coding> typeCodings(List<CdwAppointmentParticipantTypeCoding> source) {
-    List<Coding> codings = convertAll(source, this::typeCoding);
-    return codings == null || codings.isEmpty() ? null : codings;
-  }
-
   private Coding typeCoding(CdwAppointmentParticipantTypeCoding cdw) {
     if (cdw == null || allBlank(cdw.getCode(), cdw.getDisplay(), cdw.getSystem())) {
       return null;
@@ -126,6 +119,11 @@ public class AppointmentTransformer implements AppointmentController.Transformer
         .code(ifPresent(cdw.getCode(), CdwAppointmentParticipantTypeCode::value))
         .display(ifPresent(cdw.getDisplay(), CdwAppointmentParticipantTypeDisplay::value))
         .build();
+  }
+
+  List<Coding> typeCodings(List<CdwAppointmentParticipantTypeCoding> source) {
+    List<Coding> codings = convertAll(source, this::typeCoding);
+    return codings == null || codings.isEmpty() ? null : codings;
   }
 
   List<CodeableConcept> types(CdwTypes cdw) {

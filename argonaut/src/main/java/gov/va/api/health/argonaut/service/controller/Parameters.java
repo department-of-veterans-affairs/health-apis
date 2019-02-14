@@ -10,17 +10,16 @@ import org.springframework.util.MultiValueMap;
 /** Provides utilities for working with MultiValueMap typically used for request parameters. */
 @NoArgsConstructor(staticName = "builder")
 public class Parameters {
-
   private final MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-
-  /** Create a new parameter map with single 'identity' entry. */
-  public static MultiValueMap<String, String> forIdentity(String identity) {
-    return Parameters.builder().add("identifier", identity).build();
-  }
 
   /** Create an empty, immutable map. */
   public static MultiValueMap<String, String> empty() {
     return builder().build();
+  }
+
+  /** Create a new parameter map with single 'identity' entry. */
+  public static MultiValueMap<String, String> forIdentity(String identity) {
+    return Parameters.builder().add("identifier", identity).build();
   }
 
   /** Add a single key/value entry. */

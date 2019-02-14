@@ -12,6 +12,12 @@ import org.w3c.dom.Document;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
 
 public class XmlDocumentsTest {
+  @Test(expected = ParseFailed.class)
+  public void badXmlCausesParseFailure() {
+    String xml = "<a><b>bee</b><c><no-closing-tag></c></a>";
+    XmlDocuments.create().parse(xml);
+  }
+
   @Test
   public void roundTrip() {
     String xml =
@@ -19,12 +25,6 @@ public class XmlDocumentsTest {
     Document document = XmlDocuments.create().parse(xml);
     String roundTrip = XmlDocuments.create().write(document);
     assertThat(roundTrip).isEqualToIgnoringWhitespace(xml);
-  }
-
-  @Test(expected = ParseFailed.class)
-  public void badXmlCausesParseFailure() {
-    String xml = "<a><b>bee</b><c><no-closing-tag></c></a>";
-    XmlDocuments.create().parse(xml);
   }
 
   @Test(expected = WriteFailed.class)
@@ -38,7 +38,6 @@ public class XmlDocumentsTest {
   public void writeFailedExceptionIsThrownWhenNoLsDomImplementationIsFound() {
     DOMImplementationRegistry mock = Mockito.mock(DOMImplementationRegistry.class);
     DOMImplementation mockDom = Mockito.mock(DOMImplementation.class);
-
     when(mock.getDOMImplementation(Mockito.any())).thenReturn(mockDom);
     XmlDocuments.findLsDomImplementationOrDie(mock);
   }

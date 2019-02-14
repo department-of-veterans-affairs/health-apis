@@ -58,24 +58,42 @@ public class Practitioner implements DomainResource {
   String language;
 
   @Valid Narrative text;
+
   @Valid List<SimpleResource> contained;
+
   @Valid List<Extension> extension;
+
   @Valid List<Extension> modifierExtension;
+
   @Valid List<Identifier> identifier;
 
   boolean active;
+
   @Valid HumanName name;
+
   @Valid List<ContactPoint> telecom;
+
   @Valid List<Address> address;
+
   Gender gender;
 
   @Pattern(regexp = Fhir.DATE)
   String birthDate;
 
   @Valid List<Attachment> photo;
+
   @Valid List<PractitionerRole> practitionerRole;
+
   @Valid List<Qualification> qualification;
+
   @Valid List<CodeableConcept> communication;
+
+  public enum Gender {
+    male,
+    female,
+    other,
+    unknown
+  }
 
   @Data
   @NoArgsConstructor
@@ -132,11 +150,15 @@ public class Practitioner implements DomainResource {
     String id;
 
     @Valid List<Extension> extension;
+
     @Valid List<Extension> modifierExtension;
 
     @Valid List<Identifier> identifier;
+
     @Valid @NotNull CodeableConcept code;
+
     @Valid Period period;
+
     @Valid Reference issuer;
   }
 
@@ -150,20 +172,19 @@ public class Practitioner implements DomainResource {
     String id;
 
     @Valid List<Extension> extension;
+
     @Valid List<Extension> modifierExtension;
 
     @Valid Reference managingOrganization;
-    @Valid CodeableConcept role;
-    @Valid List<CodeableConcept> specialty;
-    @Valid Period period;
-    @Valid List<Reference> location;
-    @Valid List<Reference> healthcareService;
-  }
 
-  public enum Gender {
-    male,
-    female,
-    other,
-    unknown
+    @Valid CodeableConcept role;
+
+    @Valid List<CodeableConcept> specialty;
+
+    @Valid Period period;
+
+    @Valid List<Reference> location;
+
+    @Valid List<Reference> healthcareService;
   }
 }

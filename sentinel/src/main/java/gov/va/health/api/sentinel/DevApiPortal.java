@@ -17,8 +17,33 @@ import org.openqa.selenium.chrome.ChromeOptions;
 
 @Slf4j
 public class DevApiPortal {
-
   private ChromeDriver driver;
+
+  public WebElement getChild(WebElement element, By by) {
+    return element.findElement(by);
+  }
+
+  public WebElement getElement(By by) {
+    return driver.findElement(by);
+  }
+
+  /** Set up the chrome driver with the proper properties. */
+  public void initializeDriver(String url, int timeOutInSeconds) {
+    Config config = new Config(new File("config/lab.properties"));
+    ChromeOptions chromeOptions = new ChromeOptions();
+    chromeOptions.addArguments("--whitelisted-ips", "--disable-extensions", "--no-sandbox");
+    chromeOptions.setHeadless(config.headless());
+    if (StringUtils.isNotBlank(config.driver())) {
+      System.setProperty("webdriver.chrome.driver", config.driver());
+    }
+    driver = new ChromeDriver(chromeOptions);
+    driver.manage().timeouts().implicitlyWait(timeOutInSeconds, TimeUnit.SECONDS);
+    driver.get(url);
+  }
+
+  public void quit() {
+    driver.quit();
+  }
 
   public static class Config {
     private Properties properties;
@@ -50,31 +75,5 @@ public class DevApiPortal {
       assertThat(value).withFailMessage("System property %s must be specified.", name).isNotBlank();
       return value;
     }
-  }
-
-  /** Set up the chrome driver with the proper properties. */
-  public void initializeDriver(String url, int timeOutInSeconds) {
-    Config config = new Config(new File("config/lab.properties"));
-    ChromeOptions chromeOptions = new ChromeOptions();
-    chromeOptions.addArguments("--whitelisted-ips", "--disable-extensions", "--no-sandbox");
-    chromeOptions.setHeadless(config.headless());
-    if (StringUtils.isNotBlank(config.driver())) {
-      System.setProperty("webdriver.chrome.driver", config.driver());
-    }
-    driver = new ChromeDriver(chromeOptions);
-    driver.manage().timeouts().implicitlyWait(timeOutInSeconds, TimeUnit.SECONDS);
-    driver.get(url);
-  }
-
-  public WebElement getElement(By by) {
-    return driver.findElement(by);
-  }
-
-  public WebElement getChild(WebElement element, By by) {
-    return element.findElement(by);
-  }
-
-  public void quit() {
-    driver.quit();
   }
 }

@@ -36,9 +36,10 @@ import lombok.SneakyThrows;
 import org.junit.Test;
 
 public class MedicationOrderTransformerTest {
-
   MedicationOrderTransformer tx = new MedicationOrderTransformer();
+
   private CdwSampleData cdw = new CdwSampleData();
+
   private Expected expected = new Expected();
 
   @Test
@@ -73,19 +74,19 @@ public class MedicationOrderTransformerTest {
   }
 
   @Test
-  public void dosageInstructions() {
-    assertThat(tx.dosageInstructions(null)).isNull();
-    assertThat(tx.dosageInstructions(new CdwDosageInstructions())).isNull();
-    assertThat(tx.dosageInstructions(cdw.dosageInstructions()))
-        .isEqualTo(expected.dosageInstructions());
-  }
-
-  @Test
   public void dosageInstruction() {
     assertThat(tx.dosageInstruction(null)).isNull();
     assertThat(tx.dosageInstruction(new CdwDosageInstruction())).isNull();
     assertThat(tx.dosageInstruction(cdw.dosageInstruction()))
         .isEqualTo(expected.dosageInstruction());
+  }
+
+  @Test
+  public void dosageInstructions() {
+    assertThat(tx.dosageInstructions(null)).isNull();
+    assertThat(tx.dosageInstructions(new CdwDosageInstructions())).isNull();
+    assertThat(tx.dosageInstructions(cdw.dosageInstructions()))
+        .isEqualTo(expected.dosageInstructions());
   }
 
   @Test
@@ -181,6 +182,15 @@ public class MedicationOrderTransformerTest {
   }
 
   @Test
+  public void timeCodeCoding() {
+    assertThat(tx.timeCodeCodings(cdw.timingCode().getCoding()))
+        .isEqualTo(expected.timingCode().coding());
+    assertThat(tx.timeCodeCodings(null)).isNull();
+    assertThat(tx.timeCodeCodings(emptyList())).isNull();
+    assertThat(tx.timeCodeCodings(singletonList(new CdwCoding()))).isNull();
+  }
+
+  @Test
   public void timing() {
     assertThat(tx.timing(cdw.timing())).isEqualTo(expected.timing());
     assertThat(tx.timing(null)).isNull();
@@ -194,17 +204,7 @@ public class MedicationOrderTransformerTest {
     assertThat(tx.timingCode(null)).isNull();
   }
 
-  @Test
-  public void timeCodeCoding() {
-    assertThat(tx.timeCodeCodings(cdw.timingCode().getCoding()))
-        .isEqualTo(expected.timingCode().coding());
-    assertThat(tx.timeCodeCodings(null)).isNull();
-    assertThat(tx.timeCodeCodings(emptyList())).isNull();
-    assertThat(tx.timeCodeCodings(singletonList(new CdwCoding()))).isNull();
-  }
-
   private static class CdwSampleData {
-
     private DatatypeFactory datatypeFactory;
 
     @SneakyThrows
@@ -294,14 +294,6 @@ public class MedicationOrderTransformerTest {
       return expectedSupplyDuration;
     }
 
-    CdwReference prescriber() {
-      CdwReference prescriber = new CdwReference();
-      prescriber.setDisplay("SMITH,ATTENDING D");
-      prescriber.setReference(
-          "https://www.freedomstream.io/CDCArgonaut/api/Practitioner/93e4e3c3-8d8c-5b53-996f-6047d0232231");
-      return prescriber;
-    }
-
     CdwMedicationOrder103Root.CdwMedicationOrders.CdwMedicationOrder medicationOrder() {
       CdwMedicationOrder103Root.CdwMedicationOrders.CdwMedicationOrder sampleMedicationOrder =
           new CdwMedicationOrder103Root.CdwMedicationOrders.CdwMedicationOrder();
@@ -347,6 +339,14 @@ public class MedicationOrderTransformerTest {
       return sampleMedicationOrder;
     }
 
+    CdwReference prescriber() {
+      CdwReference prescriber = new CdwReference();
+      prescriber.setDisplay("SMITH,ATTENDING D");
+      prescriber.setReference(
+          "https://www.freedomstream.io/CDCArgonaut/api/Practitioner/93e4e3c3-8d8c-5b53-996f-6047d0232231");
+      return prescriber;
+    }
+
     CdwRoute route() {
       CdwRoute route = new CdwRoute();
       route.setText("ORAL");
@@ -377,7 +377,6 @@ public class MedicationOrderTransformerTest {
 
   @NoArgsConstructor(staticName = "get")
   private static class Expected {
-
     CodeableConcept additionalInstructions() {
       return CodeableConcept.builder().text("additional instructions text").build();
     }
@@ -432,14 +431,6 @@ public class MedicationOrderTransformerTest {
           .build();
     }
 
-    Reference prescriber() {
-      return Reference.builder()
-          .reference(
-              "https://www.freedomstream.io/CDCArgonaut/api/Practitioner/93e4e3c3-8d8c-5b53-996f-6047d0232231")
-          .display("SMITH,ATTENDING D")
-          .build();
-    }
-
     MedicationOrder medicationOrder() {
       return MedicationOrder.builder()
           .resourceType("MedicationOrder")
@@ -480,6 +471,14 @@ public class MedicationOrderTransformerTest {
                   "ATORVASTATIN CALCIUM 80MG TAB"))
           .dosageInstruction(dosageInstructions())
           .dispenseRequest(dispenseRequest())
+          .build();
+    }
+
+    Reference prescriber() {
+      return Reference.builder()
+          .reference(
+              "https://www.freedomstream.io/CDCArgonaut/api/Practitioner/93e4e3c3-8d8c-5b53-996f-6047d0232231")
+          .display("SMITH,ATTENDING D")
           .build();
     }
 

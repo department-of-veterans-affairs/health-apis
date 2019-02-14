@@ -39,7 +39,6 @@ public class MedicationDispenseTest {
             .request(data.request())
             .response(data.response())
             .build();
-
     Bundle bundle =
         Bundle.builder()
             .entry(Collections.singletonList(entry))
@@ -51,7 +50,6 @@ public class MedicationDispenseTest {
                         .build()))
             .type(BundleType.searchset)
             .build();
-
     assertRoundTrip(bundle);
   }
 
@@ -61,19 +59,15 @@ public class MedicationDispenseTest {
   }
 
   @Test
-  public void validationIgnoresMissingWhenPrepared() {
-    assertThat(violationsOf(data.medicationDispense().whenPrepared(null))).isEmpty();
-  }
-
-  @Test
-  public void validationReturnsOnlyRegexViolationForBadDate() {
-    Set<ConstraintViolation<MedicationDispense>> violations =
-        violationsOf(data.medicationDispense().whenPrepared("not-a-date"));
-    assertThat(violations).isNotEmpty();
-    // Checking to make sure no message about the dates being in the wrong order comes back
-    assertThat(violations)
-        .filteredOn(violation -> violation.getMessage().contains("before"))
-        .isEmpty();
+  public void relatedFields() {
+    ExactlyOneOfVerifier.builder()
+        .sample(data.medicationDispense())
+        .fieldPrefix("medication")
+        .build();
+    ZeroOrOneOfVerifier.builder().sample(data.medicationDispense()).fieldPrefix("rate").build();
+    ZeroOrOneOfVerifier.builder().sample(data.medicationDispense()).fieldPrefix("asNeeded").build();
+    ZeroOrOneOfVerifier.builder().sample(data.medicationDispense()).fieldPrefix("site").build();
+    ZeroOrOneOfVerifier.builder().sample(data.medicationDispense()).fieldPrefix("dose").build();
   }
 
   @Test
@@ -87,6 +81,11 @@ public class MedicationDispenseTest {
   }
 
   @Test
+  public void validationIgnoresMissingWhenPrepared() {
+    assertThat(violationsOf(data.medicationDispense().whenPrepared(null))).isEmpty();
+  }
+
+  @Test
   public void validationPassesGivenGoodPreparedAndHandedOver() {
     assertThat(
             violationsOf(
@@ -97,15 +96,14 @@ public class MedicationDispenseTest {
   }
 
   @Test
-  public void relatedFields() {
-    ExactlyOneOfVerifier.builder()
-        .sample(data.medicationDispense())
-        .fieldPrefix("medication")
-        .build();
-    ZeroOrOneOfVerifier.builder().sample(data.medicationDispense()).fieldPrefix("rate").build();
-    ZeroOrOneOfVerifier.builder().sample(data.medicationDispense()).fieldPrefix("asNeeded").build();
-    ZeroOrOneOfVerifier.builder().sample(data.medicationDispense()).fieldPrefix("site").build();
-    ZeroOrOneOfVerifier.builder().sample(data.medicationDispense()).fieldPrefix("dose").build();
+  public void validationReturnsOnlyRegexViolationForBadDate() {
+    Set<ConstraintViolation<MedicationDispense>> violations =
+        violationsOf(data.medicationDispense().whenPrepared("not-a-date"));
+    assertThat(violations).isNotEmpty();
+    // Checking to make sure no message about the dates being in the wrong order comes back
+    assertThat(violations)
+        .filteredOn(violation -> violation.getMessage().contains("before"))
+        .isEmpty();
   }
 
   private <T> Set<ConstraintViolation<T>> violationsOf(T object) {

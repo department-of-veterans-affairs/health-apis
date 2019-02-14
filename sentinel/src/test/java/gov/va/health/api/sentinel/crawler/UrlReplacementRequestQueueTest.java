@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Test;
 
 public class UrlReplacementRequestQueueTest {
-
   UrlReplacementRequestQueue rq =
       UrlReplacementRequestQueue.builder()
           .replaceUrl("https://dev-api.va.gov/services/argonaut/v0/")
@@ -48,6 +47,15 @@ public class UrlReplacementRequestQueueTest {
   }
 
   @Test
+  public void forceUrlReplacesBaseUrl() {
+    rq.add(
+        "https://dev-api.va.gov/services/argonaut/v0/AllergyIntolerance/3be00408-b0ff-598d-8ba1-1e0bbfb02b99");
+    String expected =
+        "https://staging-argonaut.lighthouse.va.gov/api/AllergyIntolerance/3be00408-b0ff-598d-8ba1-1e0bbfb02b99";
+    assertThat(rq.next()).isEqualTo(expected);
+  }
+
+  @Test
   public void hasNextReturnsFalseForEmptyQueue() {
     assertThat(rq.hasNext()).isFalse();
     rq.add("x");
@@ -67,15 +75,6 @@ public class UrlReplacementRequestQueueTest {
     assertThat(rq.hasNext()).isTrue();
     assertThat(rq.next()).isEqualTo("c");
     assertThat(rq.hasNext()).isFalse();
-  }
-
-  @Test
-  public void forceUrlReplacesBaseUrl() {
-    rq.add(
-        "https://dev-api.va.gov/services/argonaut/v0/AllergyIntolerance/3be00408-b0ff-598d-8ba1-1e0bbfb02b99");
-    String expected =
-        "https://staging-argonaut.lighthouse.va.gov/api/AllergyIntolerance/3be00408-b0ff-598d-8ba1-1e0bbfb02b99";
-    assertThat(rq.next()).isEqualTo(expected);
   }
 
   @Test(expected = IllegalStateException.class)
@@ -105,10 +104,12 @@ public class UrlReplacementRequestQueueTest {
     rq.add("a");
     rq.add("b");
     rq.add("c");
-    rq.add("a"); // ignored
+    // ignored
+    rq.add("a");
     assertThat(rq.hasNext()).isTrue();
     assertThat(rq.next()).isEqualTo("a");
-    rq.add("a"); // ignored
+    // ignored
+    rq.add("a");
     assertThat(rq.hasNext()).isTrue();
     assertThat(rq.next()).isEqualTo("b");
     assertThat(rq.hasNext()).isTrue();

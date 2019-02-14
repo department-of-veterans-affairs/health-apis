@@ -16,22 +16,27 @@ import org.springframework.util.MultiValueMap;
 @Value
 @Builder(toBuilder = true)
 public class Query {
-
   Profile profile;
-  String resource;
-  String version;
-  MultiValueMap<String, String> parameters;
-  int page;
-  int count;
-  @Builder.Default boolean raw = false;
 
-  private static Stream<String> toKeyValueString(Map.Entry<String, List<String>> entry) {
-    return entry.getValue().stream().map((value) -> entry.getKey() + '=' + decode(value));
-  }
+  String resource;
+
+  String version;
+
+  MultiValueMap<String, String> parameters;
+
+  int page;
+
+  int count;
+
+  @Builder.Default boolean raw = false;
 
   @SneakyThrows
   private static String decode(String value) {
     return URLDecoder.decode(value, "UTF-8");
+  }
+
+  private static Stream<String> toKeyValueString(Map.Entry<String, List<String>> entry) {
+    return entry.getValue().stream().map((value) -> entry.getKey() + '=' + decode(value));
   }
 
   /**

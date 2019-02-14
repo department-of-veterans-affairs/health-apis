@@ -4,9 +4,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.health.api.sentinel.IdMeOauthRobot.Configuration.UserCredentials;
-import gov.va.health.api.sentinel.categories.NotInLab;
-import gov.va.health.api.sentinel.categories.NotInLocal;
-import gov.va.health.api.sentinel.categories.NotInProd;
+import gov.va.health.api.sentinel.categories.Manual;
 import gov.va.health.api.sentinel.crawler.ConcurrentRequestQueue;
 import gov.va.health.api.sentinel.crawler.Crawler;
 import gov.va.health.api.sentinel.crawler.FileResultsCollector;
@@ -26,7 +24,7 @@ public class LabCrawlerTest {
   private LabRobots robots = LabRobots.fromSystemProperties();
   private int failureCount = 0;
 
-  @Category({NotInLocal.class, NotInLab.class, NotInProd.class})
+  @Category(Manual.class)
   @Test
   public void crawlPatients() {
     SystemDefinition env = Sentinel.get().system();

@@ -31,35 +31,10 @@ import org.springframework.web.client.RestTemplate;
 @AllArgsConstructor(onConstructor = @__({@Autowired}))
 @Slf4j
 public class RestIdentityServiceClient implements IdentityService {
-
   private final RestTemplate restTemplate;
 
   @Value("${identityservice.url}")
   private final String url;
-
-  @Override
-  public List<ResourceIdentity> lookup(String id) {
-    log.info("Looking up {}", id);
-    restTemplate.setErrorHandler(new LookupErrorHandler(id));
-
-    ResponseEntity<List<ResourceIdentity>> response =
-        notNull(
-            restTemplate.exchange(
-                url + "/api/resourceIdentity/{id}",
-                HttpMethod.GET,
-                new HttpEntity<List<ResourceIdentity>>(headers()),
-                new ParameterizedTypeReference<List<ResourceIdentity>>() {},
-                id));
-
-    List<ResourceIdentity> body = notNull(response.getBody());
-    log.info("{} {}", response.getStatusCode(), body);
-
-    if (body.isEmpty()) {
-      throw new LookupFailed(
-          id, "No identities returned, but status was " + response.getStatusCode());
-    }
-    return body;
-  }
 
   private HttpHeaders headers() {
     HttpHeaders headers = new HttpHeaders();
@@ -69,11 +44,31 @@ public class RestIdentityServiceClient implements IdentityService {
   }
 
   @Override
+  public List<ResourceIdentity> lookup(String id) {
+    log.info("Looking up {}", id);
+    restTemplate.setErrorHandler(new LookupErrorHandler(id));
+    ResponseEntity<List<ResourceIdentity>> response =
+        notNull(
+            restTemplate.exchange(
+                url + "/api/resourceIdentity/{id}",
+                HttpMethod.GET,
+                new HttpEntity<List<ResourceIdentity>>(headers()),
+                new ParameterizedTypeReference<List<ResourceIdentity>>() {},
+                id));
+    List<ResourceIdentity> body = notNull(response.getBody());
+    log.info("{} {}", response.getStatusCode(), body);
+    if (body.isEmpty()) {
+      throw new LookupFailed(
+          id, "No identities returned, but status was " + response.getStatusCode());
+    }
+    return body;
+  }
+
+  @Override
   public List<Registration> register(List<ResourceIdentity> identities) {
     log.info("Registering {} identities", identities.size());
     log.debug("Registering {}", identities);
     restTemplate.setErrorHandler(new RegisterErrorHandler());
-
     ResponseEntity<List<Registration>> response =
         notNull(
             restTemplate.exchange(
@@ -81,27 +76,18 @@ public class RestIdentityServiceClient implements IdentityService {
                 HttpMethod.POST,
                 new HttpEntity<>(identities, headers()),
                 new ParameterizedTypeReference<List<Registration>>() {}));
-
     List<Registration> body = notNull(response.getBody());
     log.debug("{}: {} identities registered", response.getStatusCode(), body.size());
-
     if (body.isEmpty()) {
       throw new RegistrationFailed(
           "No registrations returned, but status was " + response.getStatusCode());
     }
-
     return body;
   }
 
   @AllArgsConstructor
   static class LookupErrorHandler implements ResponseErrorHandler {
-
     private final String id;
-
-    @Override
-    public boolean hasError(ClientHttpResponse response) throws IOException {
-      return response.getStatusCode().isError();
-    }
 
     @Override
     public void handleError(ClientHttpResponse response) throws IOException {
@@ -112,19 +98,24 @@ public class RestIdentityServiceClient implements IdentityService {
         throw new LookupFailed(id, "Http Response: " + response.getStatusCode());
       }
     }
-  }
 
-  static class RegisterErrorHandler implements ResponseErrorHandler {
     @Override
     public boolean hasError(ClientHttpResponse response) throws IOException {
       return response.getStatusCode().isError();
     }
+  }
 
+  static class RegisterErrorHandler implements ResponseErrorHandler {
     @Override
     public void handleError(ClientHttpResponse response) throws IOException {
       if (response.getStatusCode() != HttpStatus.OK) {
         throw new RegistrationFailed("Http Response: " + response.getStatusCode());
       }
+    }
+
+    @Override
+    public boolean hasError(ClientHttpResponse response) throws IOException {
+      return response.getStatusCode().isError();
     }
   }
 }

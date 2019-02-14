@@ -28,14 +28,18 @@ import lombok.SneakyThrows;
 import org.junit.Test;
 
 public class MedicationStatementTransformerTest {
-
   private final MedicationStatementTransformer tx = new MedicationStatementTransformer();
+
   private final CdwSampleData cdw = CdwSampleData.get();
+
   private final Expected expected = Expected.get();
 
   @Test
-  public void medicationStatement() {
-    assertThat(tx.apply(cdw.medicationStatement())).isEqualTo(expected.medicationStatement());
+  public void codeableConcept() {
+    assertThat(tx.codeableConcept(null)).isNull();
+    assertThat(tx.codeableConcept(new CdwCodeableConcept())).isNull();
+    assertThat(tx.codeableConcept(cdw.route())).isEqualTo(expected.route());
+    assertThat(tx.codeableConcept(cdw.timingCode())).isEqualTo(expected.timingCode());
   }
 
   @Test
@@ -55,11 +59,8 @@ public class MedicationStatementTransformerTest {
   }
 
   @Test
-  public void codeableConcept() {
-    assertThat(tx.codeableConcept(null)).isNull();
-    assertThat(tx.codeableConcept(new CdwCodeableConcept())).isNull();
-    assertThat(tx.codeableConcept(cdw.route())).isEqualTo(expected.route());
-    assertThat(tx.codeableConcept(cdw.timingCode())).isEqualTo(expected.timingCode());
+  public void medicationStatement() {
+    assertThat(tx.apply(cdw.medicationStatement())).isEqualTo(expected.medicationStatement());
   }
 
   @Test
@@ -80,6 +81,33 @@ public class MedicationStatementTransformerTest {
 
   @NoArgsConstructor(staticName = "get")
   private static class CdwSampleData {
+    CdwCoding coding() {
+      CdwCoding coding = new CdwCoding();
+      coding.setSystem("http://example.com");
+      coding.setCode("BID");
+      coding.setDisplay("BID");
+      return coding;
+    }
+
+    @SneakyThrows
+    private XMLGregorianCalendar dateTime(String timestamp) {
+      return DatatypeFactory.newInstance().newXMLGregorianCalendar(timestamp);
+    }
+
+    private CdwDosage dosage() {
+      CdwDosage cdw = new CdwDosage();
+      cdw.setRoute(route());
+      cdw.setText("100MG");
+      cdw.setTiming(timing());
+      return cdw;
+    }
+
+    private CdwDosages dosages() {
+      CdwDosages cdw = new CdwDosages();
+      cdw.getDosage().add(dosage());
+      return cdw;
+    }
+
     private CdwMedicationStatement medicationStatement() {
       CdwMedicationStatement cdw = new CdwMedicationStatement();
       cdw.setCdwId("1400000182118");
@@ -94,29 +122,10 @@ public class MedicationStatementTransformerTest {
       return cdw;
     }
 
-    @SneakyThrows
-    private XMLGregorianCalendar dateTime(String timestamp) {
-      return DatatypeFactory.newInstance().newXMLGregorianCalendar(timestamp);
-    }
-
     private CdwReference reference(String ref, String display) {
       CdwReference cdw = new CdwReference();
       cdw.setReference(ref);
       cdw.setDisplay(display);
-      return cdw;
-    }
-
-    private CdwDosages dosages() {
-      CdwDosages cdw = new CdwDosages();
-      cdw.getDosage().add(dosage());
-      return cdw;
-    }
-
-    private CdwDosage dosage() {
-      CdwDosage cdw = new CdwDosage();
-      cdw.setRoute(route());
-      cdw.setText("100MG");
-      cdw.setTiming(timing());
       return cdw;
     }
 
@@ -138,18 +147,17 @@ public class MedicationStatementTransformerTest {
       cdw.getCoding().add(coding());
       return cdw;
     }
-
-    CdwCoding coding() {
-      CdwCoding coding = new CdwCoding();
-      coding.setSystem("http://example.com");
-      coding.setCode("BID");
-      coding.setDisplay("BID");
-      return coding;
-    }
   }
 
   @NoArgsConstructor(staticName = "get")
   private static class Expected {
+    private Coding coding() {
+      return Coding.builder().display("BID").code("BID").system("http://example.com").build();
+    }
+
+    private List<Dosage> dosage() {
+      return singletonList(Dosage.builder().route(route()).text("100MG").timing(timing()).build());
+    }
 
     private MedicationStatement medicationStatement() {
       return MedicationStatement.builder()
@@ -169,10 +177,6 @@ public class MedicationStatementTransformerTest {
       return Reference.builder().reference(ref).display(display).build();
     }
 
-    private List<Dosage> dosage() {
-      return singletonList(Dosage.builder().route(route()).text("100MG").timing(timing()).build());
-    }
-
     private CodeableConcept route() {
       return CodeableConcept.builder().text("BY MOUTH").build();
     }
@@ -183,10 +187,6 @@ public class MedicationStatementTransformerTest {
 
     private CodeableConcept timingCode() {
       return CodeableConcept.builder().text("EVERY DAY").coding(singletonList(coding())).build();
-    }
-
-    private Coding coding() {
-      return Coding.builder().display("BID").code("BID").system("http://example.com").build();
     }
   }
 }

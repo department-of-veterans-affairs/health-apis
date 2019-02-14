@@ -14,19 +14,10 @@ import lombok.extern.slf4j.Slf4j;
 @Value
 @Slf4j
 public class Sentinel {
-
   static {
     String env = System.getProperty("sentinel", "LOCAL").toUpperCase(Locale.ENGLISH);
     log.info(
         "Using {} Sentinel environment (Override with -Dsentinel=LAB|LOCAL|QA|PROD|STAGING)", env);
-  }
-
-  public enum Environment {
-    LAB,
-    LOCAL,
-    PROD,
-    QA,
-    STAGING
   }
 
   private SystemDefinition system;
@@ -73,5 +64,13 @@ public class Sentinel {
 
   public TestClients clients() {
     return TestClients.of(system());
+  }
+
+  public enum Environment {
+    LAB,
+    LOCAL,
+    PROD,
+    QA,
+    STAGING
   }
 }

@@ -18,19 +18,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RequestMapping(produces = {"application/json", "application/xml"})
 @Slf4j
 public class WebExceptionHandler {
-
-  private ErrorResponse responseFor(Exception e) {
-    ErrorResponse response = ErrorResponse.of(e);
-    log.error("{}: {}", response.type(), response.message(), e);
-    return response;
-  }
-
-  @ExceptionHandler({UnknownResource.class, UnknownIdentityInSearchParameter.class})
-  @ResponseStatus(HttpStatus.NOT_FOUND)
-  public ErrorResponse handleNotFound(Exception e) {
-    return responseFor(e);
-  }
-
   @ExceptionHandler({
     MissingSearchParameters.class,
     javax.validation.ConstraintViolationException.class
@@ -40,9 +27,21 @@ public class WebExceptionHandler {
     return responseFor(e);
   }
 
+  @ExceptionHandler({UnknownResource.class, UnknownIdentityInSearchParameter.class})
+  @ResponseStatus(HttpStatus.NOT_FOUND)
+  public ErrorResponse handleNotFound(Exception e) {
+    return responseFor(e);
+  }
+
   @ExceptionHandler({Exception.class})
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
   public ErrorResponse handleSnafu(Exception e) {
     return responseFor(e);
+  }
+
+  private ErrorResponse responseFor(Exception e) {
+    ErrorResponse response = ErrorResponse.of(e);
+    log.error("{}: {}", response.type(), response.message(), e);
+    return response;
   }
 }
