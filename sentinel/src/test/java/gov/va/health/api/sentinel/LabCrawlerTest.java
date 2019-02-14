@@ -24,6 +24,7 @@ import org.junit.experimental.categories.Category;
 public class LabCrawlerTest {
 
   private LabRobots robots = LabRobots.fromSystemProperties();
+  private int failureCount = 0;
 
   @Category({NotInLocal.class, NotInLab.class, NotInProd.class})
   @Test
@@ -35,6 +36,7 @@ public class LabCrawlerTest {
     for (String patient : patients) {
       crawl(env, patient);
     }
+    assertThat(failureCount).withFailMessage("%d Failures", failureCount).isEqualTo(0);
   }
 
   private void crawl(SystemDefinition env, String patient) {
@@ -72,7 +74,7 @@ public class LabCrawlerTest {
         robot.config().user().id(),
         robot.token().patient(),
         results.message());
-    assertThat(results.failures()).withFailMessage("%d Failures", results.failures()).isEqualTo(0);
+    failureCount += results.failures();
   }
 
   private RequestQueue requestQueue(SystemDefinition env) {
