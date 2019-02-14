@@ -10,7 +10,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 
@@ -90,7 +89,6 @@ public class ResourceVerifier {
     return assertRequest(tc);
   }
 
-  @SneakyThrows
   public void verifyAll(TestCase<?>... testCases) {
     for (TestCase<?> tc : testCases) {
       try {
