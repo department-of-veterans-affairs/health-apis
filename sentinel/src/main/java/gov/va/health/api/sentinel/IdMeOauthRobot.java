@@ -103,7 +103,7 @@ public class IdMeOauthRobot {
           "Failed to exchange code for token: "
               + tokenExchange.error()
               + "\n"
-              + tokenExchange.error_description());
+              + tokenExchange.errorDescription());
     }
     return tokenExchange;
   }
@@ -164,7 +164,7 @@ public class IdMeOauthRobot {
     String error;
 
     @JsonProperty("error_description")
-    String error_description;
+    String errorDescription;
 
     @JsonProperty("access_token")
     String accessToken;
@@ -188,7 +188,7 @@ public class IdMeOauthRobot {
     String state;
 
     boolean isError() {
-      return isNotBlank(error) || isNotBlank(error_description);
+      return isNotBlank(error) || isNotBlank(errorDescription);
     }
   }
 }
