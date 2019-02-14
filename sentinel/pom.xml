@@ -4,7 +4,7 @@
   <parent>
     <groupId>gov.va.api.health</groupId>
     <artifactId>health-apis-parent</artifactId>
-    <version>1.0.175-SNAPSHOT</version>
+    <version>1.0.176-SNAPSHOT</version>
   </parent>
   <artifactId>sentinel</artifactId>
   <packaging>jar</packaging>
@@ -16,8 +16,7 @@
     <maven-shade-plugin.version>3.2.1</maven-shade-plugin.version>
     <selenium.version>3.141.59</selenium.version>
     <!-- JUnit -->
-    <groups/>
-    <excludedGroups>gov.va.health.api.sentinel.categories.NotInLocal</excludedGroups>
+    <groups>gov.va.health.api.sentinel.categories.Local</groups>
     <!-- Docker -->
     <docker-maven-plugin.version>0.24.0</docker-maven-plugin.version>
     <docker.organization>vasdvp</docker.organization>

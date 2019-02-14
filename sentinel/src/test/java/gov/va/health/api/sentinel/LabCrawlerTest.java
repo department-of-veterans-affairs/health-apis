@@ -2,9 +2,7 @@ package gov.va.health.api.sentinel;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import gov.va.health.api.sentinel.categories.NotInLab;
-import gov.va.health.api.sentinel.categories.NotInLocal;
-import gov.va.health.api.sentinel.categories.NotInProd;
+import gov.va.health.api.sentinel.categories.Manual;
 import gov.va.health.api.sentinel.crawler.ConcurrentRequestQueue;
 import gov.va.health.api.sentinel.crawler.Crawler;
 import gov.va.health.api.sentinel.crawler.FileResultsCollector;
@@ -52,31 +50,31 @@ public class LabCrawlerTest {
     assertThat(results.failures()).withFailMessage("%d Failures", results.failures()).isEqualTo(0);
   }
 
-  @Category({NotInLocal.class, NotInLab.class, NotInProd.class})
+  @Category(Manual.class)
   @Test
   public void crawlUser1() {
     crawl(robots.user1());
   }
 
-  @Category({NotInLocal.class, NotInLab.class, NotInProd.class})
+  @Category(Manual.class)
   @Test
   public void crawlUser2() {
     crawl(robots.user2());
   }
 
-  @Category({NotInLocal.class, NotInLab.class, NotInProd.class})
+  @Category(Manual.class)
   @Test
   public void crawlUser3() {
     crawl(robots.user3());
   }
 
-  @Category({NotInLocal.class, NotInLab.class, NotInProd.class})
+  @Category(Manual.class)
   @Test
   public void crawlUser4() {
     crawl(robots.user4());
   }
 
-  @Category({NotInLocal.class, NotInLab.class, NotInProd.class})
+  @Category(Manual.class)
   @Test
   public void crawlUser5() {
     crawl(robots.user5());

@@ -2,9 +2,7 @@ package gov.va.health.api.sentinel;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import gov.va.health.api.sentinel.categories.NotInLab;
-import gov.va.health.api.sentinel.categories.NotInLocal;
-import gov.va.health.api.sentinel.categories.NotInProd;
+import gov.va.health.api.sentinel.categories.Manual;
 import io.restassured.RestAssured;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
@@ -31,13 +29,13 @@ public class SwaggerAvailabilityTest {
     apiPortalPage.quit();
   }
 
-  @Category({NotInLocal.class, NotInLab.class, NotInProd.class})
+  @Category(Manual.class)
   @Test
   public void checkDevAvailability() {
     checkAvailability("https://developer.va.gov/explore/health/docs/argonaut");
   }
 
-  @Category({NotInLocal.class, NotInLab.class, NotInProd.class})
+  @Category(Manual.class)
   @Test
   public void checkDevDevAvailability() {
     checkAvailability("https://dev-developer.va.gov/explore/health/docs/argonaut");
