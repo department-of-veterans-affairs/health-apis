@@ -8,7 +8,6 @@ import lombok.Value;
 @Value
 @AllArgsConstructor(staticName = "of")
 public class TestClients {
-
   SystemDefinition systemDefinition;
 
   TestClient argonaut() {

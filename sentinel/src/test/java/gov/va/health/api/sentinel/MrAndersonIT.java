@@ -4,13 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.health.api.sentinel.categories.Local;
 import io.restassured.http.Method;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-@Slf4j
 public class MrAndersonIT {
-
   private final IdRegistrar registrar = IdRegistrar.of(Sentinel.get().system());
 
   private final String apiPath() {

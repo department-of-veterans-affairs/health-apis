@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.health.api.sentinel.crawler.Result.Outcome;
 import java.io.File;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
@@ -31,7 +30,6 @@ public class FileResultsCollector implements ResultCollector {
   private final AtomicInteger failures = new AtomicInteger(0);
 
   @Override
-  @SneakyThrows
   public void add(Result result) {
     String filename = createFilename(result.query());
     String basicInfo = filename + "," + result.outcome() + "," + result.query();
@@ -87,7 +85,8 @@ public class FileResultsCollector implements ResultCollector {
     log.info("Collecting results to {}", directory.getAbsolutePath());
   }
 
-  private void printBody(String filename, Result result) throws IOException {
+  @SneakyThrows
+  private void printBody(String filename, Result result) {
     String json =
         StringUtils.isBlank(result.body())
             ? "{ \"message\":\"No body for request.\"}"
