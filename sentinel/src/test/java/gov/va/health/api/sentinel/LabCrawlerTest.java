@@ -22,20 +22,8 @@ import org.junit.experimental.categories.Category;
 public class LabCrawlerTest {
 
   private LabRobots robots = LabRobots.fromSystemProperties();
+
   private int failureCount = 0;
-
-  @Category(Manual.class)
-  @Test
-  public void crawlPatients() {
-    SystemDefinition env = Sentinel.get().system();
-    String patientIds = System.getProperty("patient-id", "vasdvp+IDME_01@gmail.com");
-
-    String[] patients = patientIds.split("\\s*,\\s*");
-    for (String patient : patients) {
-      crawl(env, patient);
-    }
-    assertThat(failureCount).withFailMessage("%d Failures", failureCount).isEqualTo(0);
-  }
 
   private void crawl(SystemDefinition env, String patient) {
     UserCredentials user =
@@ -45,7 +33,6 @@ public class LabCrawlerTest {
             .build();
     IdMeOauthRobot robot = robots.makeRobot(user);
     Swiggity.swooty(patient);
-
     assertThat(robot.token().accessToken()).isNotBlank();
     ResourceDiscovery discovery =
         ResourceDiscovery.builder()
@@ -55,7 +42,6 @@ public class LabCrawlerTest {
     SummarizingResultCollector results =
         SummarizingResultCollector.wrap(
             new FileResultsCollector(new File("target/lab-crawl-" + robot.token().patient())));
-
     RequestQueue q = requestQueue(env);
     discovery.queries().forEach(q::add);
     Crawler crawler =
@@ -73,6 +59,18 @@ public class LabCrawlerTest {
         robot.token().patient(),
         results.message());
     failureCount += results.failures();
+  }
+
+  @Category(Manual.class)
+  @Test
+  public void crawlPatients() {
+    SystemDefinition env = Sentinel.get().system();
+    String patientIds = System.getProperty("patient-id", "vasdvp+IDME_01@gmail.com");
+    String[] patients = patientIds.split("\\s*,\\s*");
+    for (String patient : patients) {
+      crawl(env, patient);
+    }
+    assertThat(failureCount).withFailMessage("%d Failures", failureCount).isEqualTo(0);
   }
 
   private RequestQueue requestQueue(SystemDefinition env) {
