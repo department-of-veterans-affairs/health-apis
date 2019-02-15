@@ -57,7 +57,6 @@ public class LabLogInTest {
                         UserCredentials.builder()
                             .id(id)
                             .password(robots.labConfig().userPassword())
-                            .icn("whatever")
                             .build());
                 try {
                   TokenExchange token = robot.token();
