@@ -176,7 +176,7 @@ public class ProcedureController {
 
   /**
    * In some environments, it is necessary to use one test patient's procedure data to service
-   * requests for a different test patient that has no procedure data. These patients are {@link
+   * requests for a different test patient that has none. These patients are {@link
    * #clarkKent} and {@link #superman} respectively.
    *
    * <p>This method returns {@code true} if {@link #clarkKent} and {@link #superman} are configured,
