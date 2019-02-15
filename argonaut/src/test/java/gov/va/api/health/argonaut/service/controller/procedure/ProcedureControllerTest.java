@@ -2,13 +2,14 @@ package gov.va.api.health.argonaut.service.controller.procedure;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import gov.va.api.health.argonaut.api.bundle.BundleLink;
 import gov.va.api.health.argonaut.api.bundle.AbstractBundle.BundleType;
 import gov.va.api.health.argonaut.api.bundle.AbstractEntry.Search;
 import gov.va.api.health.argonaut.api.bundle.AbstractEntry.SearchMode;
+import gov.va.api.health.argonaut.api.bundle.BundleLink;
 import gov.va.api.health.argonaut.api.bundle.BundleLink.LinkRelation;
 import gov.va.api.health.argonaut.api.datatypes.CodeableConcept;
 import gov.va.api.health.argonaut.api.datatypes.Coding;
@@ -35,7 +36,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.util.MultiValueMap;
 
@@ -51,7 +51,12 @@ public class ProcedureControllerTest {
   @Before
   public void _init() {
     MockitoAnnotations.initMocks(this);
-    controller = new ProcedureController(tx, client, bundler);
+    controller =
+        ProcedureController.builder()
+            .transformer(tx)
+            .mrAndersonClient(client)
+            .bundler(bundler)
+            .build();
   }
 
   private void assertSearch(
@@ -71,20 +76,15 @@ public class ProcedureControllerTest {
     when(tx.apply(cdwItem1)).thenReturn(procedure1);
     when(tx.apply(cdwItem2)).thenReturn(procedure2);
     when(tx.apply(cdwItem3)).thenReturn(procedure3);
-    when(client.search(Mockito.any())).thenReturn(root);
-
+    when(client.search(any())).thenReturn(root);
     Procedure.Bundle mockBundle = new Procedure.Bundle();
-    when(bundler.bundle(Mockito.any())).thenReturn(mockBundle);
-
+    when(bundler.bundle(any())).thenReturn(mockBundle);
     Procedure.Bundle actual = invocation.get();
-
     assertThat(actual).isSameAs(mockBundle);
     @SuppressWarnings("unchecked")
     ArgumentCaptor<BundleContext<CdwProcedure, Procedure, Procedure.Entry, Procedure.Bundle>>
         captor = ArgumentCaptor.forClass(BundleContext.class);
-
     verify(bundler).bundle(captor.capture());
-
     LinkConfig expectedLinkConfig =
         LinkConfig.builder()
             .page(1)
@@ -100,6 +100,69 @@ public class ProcedureControllerTest {
     assertThat(captor.getValue().transformer()).isSameAs(tx);
   }
 
+  private Bundle bundleForPatient(String patientId) {
+    return Procedure.Bundle.builder()
+        .resourceType("Bundle")
+        .type(BundleType.searchset)
+        .total(1)
+        .link(
+            asList(
+                BundleLink.builder()
+                    .relation(LinkRelation.self)
+                    .url(
+                        "https://dev-api.va.gov/services/argonaut/v0/Procedure?patient="
+                            + patientId
+                            + "&page=1&_count=15")
+                    .build(),
+                BundleLink.builder()
+                    .relation(LinkRelation.first)
+                    .url(
+                        "https://dev-api.va.gov/services/argonaut/v0/Procedure?patient="
+                            + patientId
+                            + "&page=1&_count=15")
+                    .build(),
+                BundleLink.builder()
+                    .relation(LinkRelation.last)
+                    .url(
+                        "https://dev-api.va.gov/services/argonaut/v0/Procedure?patient="
+                            + patientId
+                            + "&page=1&_count=15")
+                    .build()))
+        .entry(
+            asList(
+                Procedure.Entry.builder()
+                    .fullUrl(
+                        "https://dev-api.va.gov/services/argonaut/v0/Procedure/532070f1-cb7b-582e-9380-9e0ef27bc817")
+                    .resource(
+                        Procedure.builder()
+                            .resourceType("Procedure")
+                            .id("532070f1-cb7b-582e-9380-9e0ef27bc817")
+                            .subject(
+                                Reference.builder()
+                                    .reference(
+                                        "https://dev-api.va.gov/services/argonaut/v0/Patient/"
+                                            + patientId)
+                                    .display("Mr. Aurelio227 Cruickshank494")
+                                    .build())
+                            .status(Procedure.Status.completed)
+                            .code(
+                                CodeableConcept.builder()
+                                    .coding(
+                                        asList(
+                                            Coding.builder()
+                                                .display("Documentation of current medications")
+                                                .system("http://www.ama-assn.org/go/cpt")
+                                                .code("XXXXX")
+                                                .build()))
+                                    .build())
+                            .notPerformed(false)
+                            .performedDateTime("2017-04-24T01:15:52Z")
+                            .build())
+                    .search(Search.builder().mode(SearchMode.match).build())
+                    .build()))
+        .build();
+  }
+
   private Bundle bundleOf(Procedure resource) {
     return Bundle.builder()
         .type(BundleType.searchset)
@@ -110,15 +173,15 @@ public class ProcedureControllerTest {
         .build();
   }
 
-  @SuppressWarnings("unchecked")
   @Test
+  @SuppressWarnings("unchecked")
   public void read() {
     CdwProcedure101Root root = new CdwProcedure101Root();
     root.setProcedures(new CdwProcedures());
     CdwProcedure xmlProcedure = new CdwProcedure();
     root.getProcedures().getProcedure().add(xmlProcedure);
     Procedure item = Procedure.builder().build();
-    when(client.search(Mockito.any())).thenReturn(root);
+    when(client.search(any())).thenReturn(root);
     when(tx.apply(xmlProcedure)).thenReturn(item);
     Procedure actual = controller.read("hello");
     assertThat(actual).isSameAs(item);
@@ -149,86 +212,6 @@ public class ProcedureControllerTest {
   }
 
   @Test
-  @SneakyThrows
-  public void searchByPatientHack() {
-    String INTEGRATION_TEST_ID = "185601V825290";
-    String PLUTO_ID = "1011537977V693883";
-
-    final Procedure.Bundle EXAMPLE_PROCEDURE_BUNDLE =
-        Procedure.Bundle.builder()
-            .resourceType("Bundle")
-            .type(BundleType.searchset)
-            .total(1)
-            .link(
-                asList(
-                    BundleLink.builder()
-                        .relation(LinkRelation.self)
-                        .url(
-                            "https://dev-api.va.gov/services/argonaut/v0/Procedure?patient="
-                                + INTEGRATION_TEST_ID
-                                + "&page=1&_count=15")
-                        .build(),
-                    BundleLink.builder()
-                        .relation(LinkRelation.first)
-                        .url(
-                            "https://dev-api.va.gov/services/argonaut/v0/Procedure?patient="
-                                + INTEGRATION_TEST_ID
-                                + "&page=1&_count=15")
-                        .build(),
-                    BundleLink.builder()
-                        .relation(LinkRelation.last)
-                        .url(
-                            "https://dev-api.va.gov/services/argonaut/v0/Procedure?patient="
-                                + INTEGRATION_TEST_ID
-                                + "&page=1&_count=15")
-                        .build()))
-            .entry(
-                asList(
-                    Procedure.Entry.builder()
-                        .fullUrl(
-                            "https://dev-api.va.gov/services/argonaut/v0/Procedure/532070f1-cb7b-582e-9380-9e0ef27bc817")
-                        .resource(
-                            Procedure.builder()
-                                .resourceType("Procedure")
-                                .id("532070f1-cb7b-582e-9380-9e0ef27bc817")
-                                .subject(
-                                    Reference.builder()
-                                        .reference(
-                                            "https://dev-api.va.gov/services/argonaut/v0/Patient/"
-                                                + INTEGRATION_TEST_ID)
-                                        .display("Mr. Aurelio227 Cruickshank494")
-                                        .build())
-                                .status(Procedure.Status.completed)
-                                .code(
-                                    CodeableConcept.builder()
-                                        .coding(
-                                            asList(
-                                                Coding.builder()
-                                                    .display("Documentation of current medications")
-                                                    .system("http://www.ama-assn.org/go/cpt")
-                                                    .code("XXXXX")
-                                                    .build()))
-                                        .build())
-                                .notPerformed(false)
-                                .performedDateTime("2017-04-24T01:15:52Z")
-                                .build())
-                        .search(Search.builder().mode(SearchMode.match).build())
-                        .build()))
-            .build();
-
-    when(client.search(Mockito.any())).thenReturn(new CdwProcedure101Root());
-    when(bundler.bundle(Mockito.any())).thenReturn(EXAMPLE_PROCEDURE_BUNDLE);
-    Procedure.Bundle resultBundle = controller.searchByPatient(PLUTO_ID, 1, 10);
-
-    for (BundleLink link : resultBundle.link()) {
-      assertThat(link.url()).contains(PLUTO_ID);
-    }
-    for (Procedure.Entry entry : resultBundle.entry()) {
-      assertThat(entry.resource().subject().reference()).contains(PLUTO_ID);
-    }
-  }
-
-  @Test
   public void searchByPatientAndDate() {
     assertSearch(
         () -> controller.searchByPatientAndDate("me", new String[] {"2005", "2006"}, 1, 10),
@@ -242,25 +225,64 @@ public class ProcedureControllerTest {
 
   @Test
   @SneakyThrows
+  public void searchByPatientAndDateHack() {
+    String clarkKent = "1938V0618";
+    String superman = "1938V0610";
+
+    controller =
+        ProcedureController.builder()
+            .transformer(tx)
+            .mrAndersonClient(client)
+            .bundler(bundler)
+            .clarkKent(clarkKent)
+            .superman(superman)
+            .build();
+
+    when(client.search(any())).thenReturn(new CdwProcedure101Root());
+    when(bundler.bundle(any())).thenReturn(bundleForPatient(clarkKent));
+    assertThat(controller.searchByPatientAndDate(superman, new String[] {"2005", "2006"}, 1, 10))
+        .isEqualTo(bundleForPatient(superman));
+  }
+
+  @Test
+  @SneakyThrows
+  public void searchByPatientHack() {
+    String clarkKent = "1938V0618";
+    String superman = "1938V0610";
+
+    controller =
+        ProcedureController.builder()
+            .transformer(tx)
+            .mrAndersonClient(client)
+            .bundler(bundler)
+            .clarkKent(clarkKent)
+            .superman(superman)
+            .build();
+
+    when(client.search(any())).thenReturn(new CdwProcedure101Root());
+    when(bundler.bundle(any())).thenReturn(bundleForPatient(clarkKent));
+    assertThat(controller.searchByPatient(superman, 1, 10)).isEqualTo(bundleForPatient(superman));
+  }
+
+  @Test
+  @SneakyThrows
   public void validateAcceptsValidBundle() {
     Procedure resource =
         JacksonConfig.createMapper()
             .readValue(
                 getClass().getResourceAsStream("/cdw/old-procedure-1.01.json"), Procedure.class);
-
     Procedure.Bundle bundle = bundleOf(resource);
     assertThat(controller.validate(bundle)).isEqualTo(Validator.ok());
   }
 
-  @Test(expected = ConstraintViolationException.class)
   @SneakyThrows
+  @Test(expected = ConstraintViolationException.class)
   public void validateThrowsExceptionForInvalidBundle() {
     Procedure resource =
         JacksonConfig.createMapper()
             .readValue(
                 getClass().getResourceAsStream("/cdw/old-procedure-1.01.json"), Procedure.class);
     resource.resourceType(null);
-
     Procedure.Bundle bundle = bundleOf(resource);
     controller.validate(bundle);
   }

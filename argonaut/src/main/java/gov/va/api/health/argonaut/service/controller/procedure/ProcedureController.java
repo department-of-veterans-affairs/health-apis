@@ -2,12 +2,11 @@ package gov.va.api.health.argonaut.service.controller.procedure;
 
 import static gov.va.api.health.argonaut.service.controller.Transformers.firstPayloadItem;
 import static gov.va.api.health.argonaut.service.controller.Transformers.hasPayload;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gov.va.api.health.argonaut.api.resources.OperationOutcome;
 import gov.va.api.health.argonaut.api.resources.Procedure;
-import gov.va.api.health.argonaut.api.resources.Procedure.Bundle;
-import gov.va.api.health.argonaut.service.config.ArgonautJacksonMapper;
 import gov.va.api.health.argonaut.service.controller.Bundler;
 import gov.va.api.health.argonaut.service.controller.Bundler.BundleContext;
 import gov.va.api.health.argonaut.service.controller.DateTimeParameter;
@@ -18,20 +17,18 @@ import gov.va.api.health.argonaut.service.mranderson.client.MrAndersonClient;
 import gov.va.api.health.argonaut.service.mranderson.client.Query;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.dvp.cdw.xsd.model.CdwProcedure101Root;
-import java.lang.reflect.Field;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.function.Function;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.MultiValueMap;
-import org.springframework.util.ReflectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -47,6 +44,7 @@ import org.springframework.web.bind.annotation.RestController;
  * implementation details.
  */
 @Slf4j
+@Builder
 @Validated
 @RestController
 @RequestMapping(
@@ -55,11 +53,13 @@ import org.springframework.web.bind.annotation.RestController;
 )
 @AllArgsConstructor(onConstructor = @__({@Autowired}))
 public class ProcedureController {
-  private static final String PLUTO_ID = "1011537977V693883";
+  /** Patient ID with procedure data that can service requests for {@link #superman}. */
+  @Value("${clark-kent:}")
+  private final String clarkKent;
 
-  private static final String HAS_PROCEDURE_PATIENT_ID = "1008893838V179036";
-
-  private static final String INTEGRATION_TEST_ID = "185601V825290";
+  /** Patient ID with no procedures whose requests can be serviced by {@link #clarkKent}. */
+  @Value("${superman:}")
+  private final String superman;
 
   private Transformer transformer;
 
@@ -137,9 +137,8 @@ public class ProcedureController {
       @RequestParam("patient") String patient,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @RequestParam(value = "_count", defaultValue = "15") @Min(0) int count) {
-    if (patient.equals(PLUTO_ID)) {
-      Procedure.Bundle bundle = searchByPatient(INTEGRATION_TEST_ID, page, count);
-      return replaceReferences(bundle);
+    if (thisIsAJobForSuperman(patient)) {
+      return usePhoneBooth(searchByPatient(clarkKent, page, count));
     }
     return bundle(
         Parameters.builder().add("patient", patient).add("page", page).add("_count", count).build(),
@@ -155,9 +154,8 @@ public class ProcedureController {
           String[] date,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @RequestParam(value = "_count", defaultValue = "15") @Min(0) int count) {
-    if (patient.equals(PLUTO_ID)) {
-      Procedure.Bundle bundle = searchByPatientAndDate(INTEGRATION_TEST_ID, date, page, count);
-      return replaceReferences(bundle);
+    if (thisIsAJobForSuperman(patient)) {
+      return usePhoneBooth(searchByPatientAndDate(clarkKent, date, page, count));
     }
     return bundle(
         Parameters.builder()
@@ -170,20 +168,26 @@ public class ProcedureController {
         count);
   }
 
+  /**
+   * In some environments, it is necessary to use one test patient's procedure data to service
+   * requests for a different test patient that has no procedure data. These patients are {@link
+   * #clarkKent} and {@link #superman} respectively.
+   *
+   * <p>This method returns {@code true} if {@link #clarkKent} and {@link #superman} are configured,
+   * and superman's procedure bundle is requested.
+   */
+  private boolean thisIsAJobForSuperman(String patient) {
+    return isNotBlank(clarkKent) && isNotBlank(superman) && patient.equals(superman);
+  }
+
+  /** Replace all references to {@link #clarkKent} with {@link #superman} in the bundle. */
   @SneakyThrows
-  public static Procedure.Bundle replaceReferences(Procedure.Bundle bundle) {
-    log.error(
-        "Doing hack to replace pluto ID {} with integration test ID {}.",
-        PLUTO_ID,
-        INTEGRATION_TEST_ID);
+  private Procedure.Bundle usePhoneBooth(Procedure.Bundle clarkKentBundle) {
+    log.info("Disguising procedure bundle for patient {} as patient {}.", clarkKent, superman);
     ObjectMapper mapper = JacksonConfig.createMapper();
-    String bundleString = mapper.writeValueAsString(bundle);
-    String replacedString = bundleString.replaceAll(INTEGRATION_TEST_ID, PLUTO_ID);
-    Procedure.Bundle newBundle = mapper.readValue(replacedString, Procedure.Bundle.class);
-    log.error(
-        "Returned bundle is {}",
-        mapper.writerWithDefaultPrettyPrinter().writeValueAsString(newBundle));
-    return newBundle;
+    String clarkKentBundleString = mapper.writeValueAsString(clarkKentBundle);
+    String supermanBundleString = clarkKentBundleString.replaceAll(clarkKent, superman);
+    return mapper.readValue(supermanBundleString, Procedure.Bundle.class);
   }
 
   /** Hey, this is a validate endpoint. It validates. */
