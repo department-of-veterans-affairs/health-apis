@@ -57,14 +57,14 @@ public class ProcedureController {
    * Optional patient ID with procedure data that can secretly service requests for {@link
    * #superman}.
    */
-  @Value("${clark-kent:}")
+  @Value("${procedure.test-patient-workaround.id-with-records:}")
   private final String clarkKent;
 
   /**
    * Optional patient ID with no procedures whose requests can be secretly serviced by {@link
    * #clarkKent}.
    */
-  @Value("${superman:}")
+  @Value("${procedure.test-patient-workaround.id-without-records:}")
   private final String superman;
 
   private Transformer transformer;
