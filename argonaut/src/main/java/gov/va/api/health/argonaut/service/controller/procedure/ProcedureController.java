@@ -3,11 +3,11 @@ package gov.va.api.health.argonaut.service.controller.procedure;
 import static gov.va.api.health.argonaut.service.controller.Transformers.firstPayloadItem;
 import static gov.va.api.health.argonaut.service.controller.Transformers.hasPayload;
 
-import gov.va.api.health.argonaut.api.bundle.BundleLink;
-import gov.va.api.health.argonaut.api.elements.Reference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import gov.va.api.health.argonaut.api.resources.OperationOutcome;
 import gov.va.api.health.argonaut.api.resources.Procedure;
 import gov.va.api.health.argonaut.api.resources.Procedure.Bundle;
+import gov.va.api.health.argonaut.service.config.ArgonautJacksonMapper;
 import gov.va.api.health.argonaut.service.controller.Bundler;
 import gov.va.api.health.argonaut.service.controller.Bundler.BundleContext;
 import gov.va.api.health.argonaut.service.controller.DateTimeParameter;
@@ -18,6 +18,8 @@ import gov.va.api.health.argonaut.service.mranderson.client.MrAndersonClient;
 import gov.va.api.health.argonaut.service.mranderson.client.Query;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.dvp.cdw.xsd.model.CdwProcedure101Root;
+import java.lang.reflect.Field;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.function.Function;
 import javax.validation.Valid;
@@ -27,7 +29,9 @@ import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.ReflectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -128,14 +132,14 @@ public class ProcedureController {
   }
 
   /** Search by patient. */
-  @SneakyThrows
   @GetMapping(params = {"patient"})
   public Procedure.Bundle searchByPatient(
       @RequestParam("patient") String patient,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @RequestParam(value = "_count", defaultValue = "15") @Min(0) int count) {
     if (patient.equals(PLUTO_ID)) {
-      return searchByPatientHack(page, count);
+      Procedure.Bundle bundle = searchByPatient(INTEGRATION_TEST_ID, page, count);
+      return replaceReferences(bundle);
     }
     return bundle(
         Parameters.builder().add("patient", patient).add("page", page).add("_count", count).build(),
@@ -152,7 +156,8 @@ public class ProcedureController {
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @RequestParam(value = "_count", defaultValue = "15") @Min(0) int count) {
     if (patient.equals(PLUTO_ID)) {
-      return searchByPatientAndDateHack(date, page, count);
+      Procedure.Bundle bundle = searchByPatientAndDate(INTEGRATION_TEST_ID, date, page, count);
+      return replaceReferences(bundle);
     }
     return bundle(
         Parameters.builder()
@@ -166,60 +171,19 @@ public class ProcedureController {
   }
 
   @SneakyThrows
-  private Procedure.Bundle searchByPatientAndDateHack(String[] date, int page, int count) {
+  public static Procedure.Bundle replaceReferences(Procedure.Bundle bundle) {
     log.error(
         "Doing hack to replace pluto ID {} with integration test ID {}.",
         PLUTO_ID,
         INTEGRATION_TEST_ID);
-
-    Bundle bundle =
-        bundle(
-            Parameters.builder()
-                .add("patient", INTEGRATION_TEST_ID)
-                .addAll("date", date)
-                .add("page", page)
-                .add("_count", count)
-                .build(),
-            page,
-            count);
-
-    for (BundleLink link : bundle.link()) {
-      link.url(link.url().replaceAll(INTEGRATION_TEST_ID, PLUTO_ID));
-    }
-    for (Procedure.Entry entry : bundle.entry()) {
-      Reference subject = entry.resource().subject();
-      subject.reference(subject.reference().replaceAll(INTEGRATION_TEST_ID, PLUTO_ID));
-    }
-    log.error("Returned bundle is {}", JacksonConfig.createMapper().writeValueAsString(bundle));
-    return bundle;
-  }
-
-  @SneakyThrows
-  private Procedure.Bundle searchByPatientHack(int page, int count) {
+    ObjectMapper mapper = JacksonConfig.createMapper();
+    String bundleString = mapper.writeValueAsString(bundle);
+    String replacedString = bundleString.replaceAll(INTEGRATION_TEST_ID, PLUTO_ID);
+    Procedure.Bundle newBundle = mapper.readValue(replacedString, Procedure.Bundle.class);
     log.error(
-        "Doing hack to replace pluto ID {} with integration test ID {}.",
-        PLUTO_ID,
-        INTEGRATION_TEST_ID);
-
-    Procedure.Bundle bundle =
-        bundle(
-            Parameters.builder()
-                .add("patient", INTEGRATION_TEST_ID)
-                .add("page", page)
-                .add("_count", count)
-                .build(),
-            page,
-            count);
-
-    for (BundleLink link : bundle.link()) {
-      link.url(link.url().replaceAll(INTEGRATION_TEST_ID, PLUTO_ID));
-    }
-    for (Procedure.Entry entry : bundle.entry()) {
-      Reference subject = entry.resource().subject();
-      subject.reference(subject.reference().replaceAll(INTEGRATION_TEST_ID, PLUTO_ID));
-    }
-    log.error("Returned bundle is {}", JacksonConfig.createMapper().writeValueAsString(bundle));
-    return bundle;
+        "Returned bundle is {}",
+        mapper.writerWithDefaultPrettyPrinter().writeValueAsString(newBundle));
+    return newBundle;
   }
 
   /** Hey, this is a validate endpoint. It validates. */
