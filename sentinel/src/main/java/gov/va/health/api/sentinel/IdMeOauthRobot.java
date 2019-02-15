@@ -101,6 +101,7 @@ public class IdMeOauthRobot {
     url = waitForUrlToChange(driver, url);
   }
 
+  /** Return the authorization code, logging in if necessary. */
   @SneakyThrows
   public String code() {
     if (code != null) {
@@ -185,6 +186,7 @@ public class IdMeOauthRobot {
     }
   }
 
+  /** Return the token exchange, logging in if necessary. */
   public TokenExchange token() {
     if (token != null) {
       return token;
@@ -212,6 +214,7 @@ public class IdMeOauthRobot {
     return token;
   }
 
+  /** Waits for the current page to completely load. */
   public void waitForPageLoad(WebDriver driver) {
     ExpectedCondition<Boolean> pageLoadCondition =
         new ExpectedCondition<Boolean>() {
