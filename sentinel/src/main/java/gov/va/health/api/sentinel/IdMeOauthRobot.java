@@ -98,7 +98,7 @@ public class IdMeOauthRobot {
     url = waitForUrlToChange(driver, url);
     // Continue passed entering the authentication code
     driver.findElement(By.className("btn-primary")).click();
-    url = waitForUrlToChange(driver, url);
+    waitForUrlToChange(driver, url);
   }
 
   /** Return the authorization code, logging in if necessary. */
@@ -216,17 +216,13 @@ public class IdMeOauthRobot {
 
   /** Waits for the current page to completely load. */
   public void waitForPageLoad(WebDriver driver) {
-    ExpectedCondition<Boolean> pageLoadCondition =
-        new ExpectedCondition<Boolean>() {
-          @Override
-          public Boolean apply(WebDriver driver) {
-            return ((JavascriptExecutor) driver)
-                .executeScript("return document.readyState")
-                .equals("complete");
-          }
-        };
     WebDriverWait wait = new WebDriverWait(driver, 30);
-    wait.until(pageLoadCondition);
+    wait.until(
+        (ExpectedCondition<Boolean>)
+            d ->
+                ((JavascriptExecutor) driver)
+                    .executeScript("return document.readyState")
+                    .equals("complete"));
   }
 
   private String waitForUrlToChange(WebDriver driver, String url) {

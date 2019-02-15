@@ -200,7 +200,12 @@ public class LabRobots {
 
       assertThat(conformanceStatement.rest()).isNotEmpty();
       Optional<Extension> smartOnFhir =
-          conformanceStatement.rest().get(0).security().extension().stream()
+          conformanceStatement
+              .rest()
+              .get(0)
+              .security()
+              .extension()
+              .stream()
               .filter(
                   e ->
                       "http://fhir-registry.smarthealthit.org/StructureDefinition/oauth-uris"
@@ -214,7 +219,10 @@ public class LabRobots {
       token = tokenUrl.get().valueUri();
 
       Optional<Extension> authorizeUrl =
-          smartOnFhir.get().extension().stream()
+          smartOnFhir
+              .get()
+              .extension()
+              .stream()
               .filter(e -> "authorize".equals(e.url()))
               .findFirst();
       assertThat(authorizeUrl).isPresent();
