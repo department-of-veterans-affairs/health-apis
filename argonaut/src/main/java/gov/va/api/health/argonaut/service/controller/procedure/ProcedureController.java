@@ -53,11 +53,17 @@ import org.springframework.web.bind.annotation.RestController;
 )
 @AllArgsConstructor(onConstructor = @__({@Autowired}))
 public class ProcedureController {
-  /** Patient ID with procedure data that can service requests for {@link #superman}. */
+  /**
+   * Optional patient ID with procedure data that can secretly service requests for {@link
+   * #superman}.
+   */
   @Value("${clark-kent:}")
   private final String clarkKent;
 
-  /** Patient ID with no procedures whose requests can be serviced by {@link #clarkKent}. */
+  /**
+   * Optional patient ID with no procedures whose requests can be secretly serviced by {@link
+   * #clarkKent}.
+   */
   @Value("${superman:}")
   private final String superman;
 
@@ -180,7 +186,11 @@ public class ProcedureController {
     return isNotBlank(clarkKent) && isNotBlank(superman) && patient.equals(superman);
   }
 
-  /** Replace all references to {@link #clarkKent} with {@link #superman} in the bundle. */
+  /**
+   * Replace all references to {@link #clarkKent} with {@link #superman} in the bundle.
+   *
+   * @see #thisIsAJobForSuperman(String)
+   */
   @SneakyThrows
   private Procedure.Bundle usePhoneBooth(Procedure.Bundle clarkKentBundle) {
     log.info("Disguising procedure bundle for patient {} as patient {}.", clarkKent, superman);
