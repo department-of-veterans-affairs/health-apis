@@ -143,7 +143,7 @@ public class ProcedureController {
       @RequestParam("patient") String patient,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @RequestParam(value = "_count", defaultValue = "15") @Min(0) int count) {
-    if (thisIsAJobForSuperman(patient)) {
+    if (thisLooksLikeAJobForSuperman(patient)) {
       return usePhoneBooth(searchByPatient(clarkKent, page, count));
     }
     return bundle(
@@ -160,7 +160,7 @@ public class ProcedureController {
           String[] date,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @RequestParam(value = "_count", defaultValue = "15") @Min(0) int count) {
-    if (thisIsAJobForSuperman(patient)) {
+    if (thisLooksLikeAJobForSuperman(patient)) {
       return usePhoneBooth(searchByPatientAndDate(clarkKent, date, page, count));
     }
     return bundle(
@@ -176,20 +176,20 @@ public class ProcedureController {
 
   /**
    * In some environments, it is necessary to use one test patient's procedure data to service
-   * requests for a different test patient that has none. These patients are {@link
-   * #clarkKent} and {@link #superman} respectively.
+   * requests for a different test patient that has none. These patients are {@link #clarkKent} and
+   * {@link #superman} respectively.
    *
    * <p>This method returns {@code true} if {@link #clarkKent} and {@link #superman} are configured,
    * and superman's procedure bundle is requested.
    */
-  private boolean thisIsAJobForSuperman(String patient) {
+  private boolean thisLooksLikeAJobForSuperman(String patient) {
     return isNotBlank(clarkKent) && isNotBlank(superman) && patient.equals(superman);
   }
 
   /**
    * Replace all references to {@link #clarkKent} with {@link #superman} in the bundle.
    *
-   * @see #thisIsAJobForSuperman(String)
+   * @see #thisLooksLikeAJobForSuperman(String)
    */
   @SneakyThrows
   private Procedure.Bundle usePhoneBooth(Procedure.Bundle clarkKentBundle) {
