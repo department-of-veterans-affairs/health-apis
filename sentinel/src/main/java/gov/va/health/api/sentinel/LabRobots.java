@@ -45,7 +45,10 @@ public class LabRobots {
     return LabRobots.get(config);
   }
 
-  IdMeOauthRobot makeRobot(UserCredentials user) {
+  /**
+   * Creates IdMeOauthRobot with specified user credentials for Lab environment using Chrome Driver.
+   */
+  public IdMeOauthRobot makeRobot(UserCredentials user) {
 
     SmartOnFhirUrls urls = new SmartOnFhirUrls("https://dev-api.va.gov/services/argonaut/v0");
 
@@ -107,7 +110,6 @@ public class LabRobots {
   UserCredentials userCredentials1() {
     return UserCredentials.builder()
         .id("vasdvp+IDME_01@gmail.com")
-        .icn("1017283132V631076")
         .password(labConfig.userPassword())
         .build();
   }
@@ -115,7 +117,6 @@ public class LabRobots {
   UserCredentials userCredentials2() {
     return UserCredentials.builder()
         .id("vasdvp+IDME_02@gmail.com")
-        .icn("1017283179V257219")
         .password(labConfig.userPassword())
         .build();
   }
@@ -123,7 +124,6 @@ public class LabRobots {
   UserCredentials userCredentials3() {
     return UserCredentials.builder()
         .id("vasdvp+IDME_03@gmail.com")
-        .icn("1012704686V159887")
         .password(labConfig.userPassword())
         .build();
   }
@@ -131,7 +131,6 @@ public class LabRobots {
   UserCredentials userCredentials4() {
     return UserCredentials.builder()
         .id("vasdvp+IDME_04@gmail.com")
-        .icn("1017283180V801730")
         .password(labConfig.userPassword())
         .build();
   }
@@ -139,7 +138,6 @@ public class LabRobots {
   UserCredentials userCredentials5() {
     return UserCredentials.builder()
         .id("vasdvp+IDME_05@gmail.com")
-        .icn("1017283148V813263")
         .password(labConfig.userPassword())
         .build();
   }
