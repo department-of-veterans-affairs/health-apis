@@ -22,7 +22,7 @@ import org.apache.commons.lang3.BooleanUtils;
 @Slf4j
 public class LabRobots {
 
-  private final Config labConfig;
+  @Getter private final Config labConfig;
 
   @Getter(lazy = true)
   private final IdMeOauthRobot user1 = makeRobot1();
@@ -144,7 +144,7 @@ public class LabRobots {
         .build();
   }
 
-  private static class Config {
+  static class Config {
     private Properties properties;
 
     @SneakyThrows
@@ -202,12 +202,7 @@ public class LabRobots {
 
       assertThat(conformanceStatement.rest()).isNotEmpty();
       Optional<Extension> smartOnFhir =
-          conformanceStatement
-              .rest()
-              .get(0)
-              .security()
-              .extension()
-              .stream()
+          conformanceStatement.rest().get(0).security().extension().stream()
               .filter(
                   e ->
                       "http://fhir-registry.smarthealthit.org/StructureDefinition/oauth-uris"
@@ -221,10 +216,7 @@ public class LabRobots {
       token = tokenUrl.get().valueUri();
 
       Optional<Extension> authorizeUrl =
-          smartOnFhir
-              .get()
-              .extension()
-              .stream()
+          smartOnFhir.get().extension().stream()
               .filter(e -> "authorize".equals(e.url()))
               .findFirst();
       assertThat(authorizeUrl).isPresent();

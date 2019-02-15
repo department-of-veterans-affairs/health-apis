@@ -1,6 +1,7 @@
 package gov.va.health.api.sentinel;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.startsWith;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -8,7 +9,9 @@ import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import java.net.URLEncoder;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,10 +24,15 @@ import lombok.SneakyThrows;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.support.ui.ExpectedCondition;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 @Slf4j
 @RequiredArgsConstructor(staticName = "of")
@@ -32,21 +40,116 @@ public class IdMeOauthRobot {
 
   @Getter @NonNull private final Configuration config;
 
-  @Getter(lazy = true)
-  private final String code = authorize();
+  private String code;
 
-  @Getter(lazy = true)
-  private final TokenExchange token = exchangeForCodeForToken();
+  private TokenExchange token;
 
-  private String authorize() {
+  private void checkForBadCredentials(WebDriver driver) {
+    Optional<WebElement> oops =
+        findOptionalElement(
+            driver,
+            By.cssSelector(
+                "#new_user > div.form-container.shared_structure > p.alert.alert-error"));
+    if (oops.isPresent()) {
+      log.error("Failed to log in: " + oops.get().getText());
+      throw new IllegalStateException(
+          "Failed to log in " + config.user().id() + ": " + oops.get().getText());
+    }
+  }
+
+  @SneakyThrows
+  private void checkForConsentForm(WebDriver driver) {
+    String url = driver.getCurrentUrl();
+    if (!startsWith(url, config.authorization().redirectUrl())) {
+      waitForPageLoad(driver);
+      /* There are two different consent forms ... */
+      if (findOptionalElement(driver, By.className("consent-title")).isPresent()) {
+        log.info("Granting consent to access data");
+        driver.findElement(By.className("button-primary")).click();
+        waitForUrlToChange(driver, url);
+      } else if (findOptionalElement(driver, By.id("sr_page_title")).isPresent()) {
+        log.info("Granting consent to access data");
+        driver.findElement(By.className("btn-primary")).click();
+        waitForUrlToChange(driver, url);
+      }
+      waitForPageLoad(driver);
+      /* We sometimes see the server error here. */
+      Optional<WebElement> errorMessage = findOptionalElement(driver, By.id("error-code"));
+      if (errorMessage.isPresent()) {
+        throw new IllegalStateException("Failed grant access: " + errorMessage.get().getText());
+      }
+    }
+  }
+
+  private void checkForMatchingError(WebDriver driver) {
+    Optional<WebElement> matchingError =
+        findOptionalElement(driver, By.className("usa-alert-error"));
+    if (matchingError.isPresent()) {
+      WebElement problem = driver.findElement(By.className("usa-alert-heading"));
+      throw new IllegalStateException("Matching error: " + problem.getText());
+    }
+  }
+
+  private void clickThroughFakeTwoFactorAuthentication(WebDriver driver) {
+    // Continue passed authentication code send form
+    log.info("Clicking through two factor authorization sham");
+    String url = driver.getCurrentUrl();
+    driver.findElement(By.className("btn-primary")).click();
+    url = waitForUrlToChange(driver, url);
+    // Continue passed entering the authentication code
+    driver.findElement(By.className("btn-primary")).click();
+    url = waitForUrlToChange(driver, url);
+  }
+
+  @SneakyThrows
+  public String code() {
+    if (code != null) {
+      return code;
+    }
+
+    WebDriver driver = createWebDriver();
+    try {
+
+      String url = driver.getCurrentUrl();
+      enterCredentials(driver);
+      checkForBadCredentials(driver);
+      url = waitForUrlToChange(driver, url);
+      clickThroughFakeTwoFactorAuthentication(driver);
+      /*
+       * There are possibly two consent forms.
+       */
+      url = waitForUrlToChange(driver, url);
+      checkForConsentForm(driver);
+      checkForConsentForm(driver);
+      checkForMatchingError(driver);
+
+      String code = extractCodeFromRedirectUrl(driver);
+      log.info("Code: {}", code);
+      return code;
+    } catch (Exception e) {
+      log.error("Failed to acquire access code: {}", e.getMessage());
+      throw e;
+    } finally {
+      driver.close();
+      driver.quit();
+    }
+  }
+
+  private WebDriver createWebDriver() {
     ChromeOptions chromeOptions = new ChromeOptions();
     chromeOptions.setHeadless(config.headless());
-    chromeOptions.addArguments("--whitelisted-ips", "--disable-extensions", "--no-sandbox");
+    chromeOptions.addArguments(
+        "--whitelisted-ips", "--disable-extensions", "--no-sandbox", "--disable-logging");
     if (isNotBlank(config.chromeDriver())) {
       System.setProperty("webdriver.chrome.driver", config.chromeDriver());
     }
-    WebDriver driver = new ChromeDriver(chromeOptions);
 
+    WebDriver driver = new ChromeDriver(chromeOptions);
+    driver.manage().timeouts().implicitlyWait(1, TimeUnit.SECONDS);
+    return driver;
+  }
+
+  private void enterCredentials(WebDriver driver) {
     log.info("Loading {}", config.authorization().asUrl());
     driver.get(config.authorization().asUrl());
     log.info("Using Id.me");
@@ -57,33 +160,37 @@ public class IdMeOauthRobot {
     WebElement userPassword = driver.findElement(By.id("user_password"));
     userPassword.sendKeys(config.user().password());
     driver.findElement(By.className("btn-primary")).click();
-    // Continue passed authentication code send form
-    log.info("Clicking through two factor authorization sham");
-    driver.findElement(By.className("btn-primary")).click();
-    // Continue passed entering the authentication code
-    driver.findElement(By.className("btn-primary")).click();
-
-    String url = driver.getCurrentUrl();
-
-    log.info("Redirected {}", url);
-
-    driver.close();
-    driver.quit();
-
-    String code =
-        Arrays.stream(url.split("\\?")[1].split("&"))
-            .filter(p -> p.startsWith("code="))
-            .findFirst()
-            .orElseThrow(() -> new RuntimeException("Cannot find code in url " + url))
-            .split("=")[1];
-
-    log.info("Code: {}", code);
-    return code;
   }
 
-  private TokenExchange exchangeForCodeForToken() {
+  private String extractCodeFromRedirectUrl(WebDriver driver) {
+    String url;
+    new WebDriverWait(driver, 1, 100)
+        .until(ExpectedConditions.urlContains(config.authorization().redirectUrl()));
+    url = driver.getCurrentUrl();
+    log.info("Redirected {}", url);
+
+    return Arrays.stream(url.split("\\?")[1].split("&"))
+        .filter(p -> p.startsWith("code="))
+        .findFirst()
+        .orElseThrow(
+            () -> new RuntimeException("Cannot find code in url " + driver.getCurrentUrl()))
+        .split("=")[1];
+  }
+
+  private Optional<WebElement> findOptionalElement(WebDriver driver, By by) {
+    try {
+      return Optional.ofNullable(driver.findElement(by));
+    } catch (NoSuchElementException e) {
+      return Optional.empty();
+    }
+  }
+
+  public TokenExchange token() {
+    if (token != null) {
+      return token;
+    }
     log.info("Exchanging authorization code for token");
-    TokenExchange tokenExchange =
+    TokenExchange token =
         RestAssured.given()
             .contentType(ContentType.URLENC.withCharset("UTF-8"))
             .formParam("client_id", config.authorization().clientId())
@@ -92,20 +199,37 @@ public class IdMeOauthRobot {
             .formParam("redirect_uri", config.authorization().redirectUrl())
             .formParam("code", code())
             .log()
-            .all()
+            .ifValidationFails()
             .post(config.tokenUrl())
             .then()
             .extract()
             .as(TokenExchange.class);
-    log.info("{}", tokenExchange);
-    if (tokenExchange.isError()) {
+    log.info("{}", token);
+    if (token.isError()) {
       throw new IllegalStateException(
-          "Failed to exchange code for token: "
-              + tokenExchange.error()
-              + "\n"
-              + tokenExchange.errorDescription());
+          "Failed to exchange code for token: " + token.error() + "\n" + token.errorDescription());
     }
-    return tokenExchange;
+    return token;
+  }
+
+  public void waitForPageLoad(WebDriver driver) {
+    ExpectedCondition<Boolean> pageLoadCondition =
+        new ExpectedCondition<Boolean>() {
+          @Override
+          public Boolean apply(WebDriver driver) {
+            return ((JavascriptExecutor) driver)
+                .executeScript("return document.readyState")
+                .equals("complete");
+          }
+        };
+    WebDriverWait wait = new WebDriverWait(driver, 30);
+    wait.until(pageLoadCondition);
+  }
+
+  private String waitForUrlToChange(WebDriver driver, String url) {
+    new WebDriverWait(driver, 1, 100)
+        .until(ExpectedConditions.not(ExpectedConditions.urlToBe(url)));
+    return driver.getCurrentUrl();
   }
 
   @Value
