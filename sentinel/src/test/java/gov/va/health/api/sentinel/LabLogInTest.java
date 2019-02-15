@@ -43,7 +43,7 @@ public class LabLogInTest {
     List<String> losers = new CopyOnWriteArrayList<>();
     LabRobots robots = LabRobots.fromSystemProperties();
 
-    ExecutorService ex = Executors.newFixedThreadPool(8);
+    ExecutorService ex = Executors.newFixedThreadPool(10);
 
     List<Future<?>> futures = new LinkedList<>();
 
