@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.google.common.collect.ImmutableList;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import java.io.File;
 import java.lang.reflect.Field;
@@ -18,10 +17,10 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.stream.Collectors;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.assertj.core.util.Streams;
 import org.junit.Test;
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
@@ -40,12 +39,14 @@ public class InjectSwaggerExamplesTest {
   private static void sortObjectNode(JsonNode node) {
     checkArgument(node instanceof ObjectNode);
     ObjectNode objNode = (ObjectNode) node;
-    Map<String, JsonNode> elements =
-        ImmutableList.copyOf(objNode.fields())
-            .stream()
-            .collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue()));
+    List<Map.Entry<String, JsonNode>> elements =
+        Streams.stream(objNode.fields())
+            .sorted((left, right) -> left.getKey().compareToIgnoreCase(right.getKey()))
+            .collect(Collectors.toList());
     objNode.removeAll();
-    objNode.setAll(new TreeMap<>(elements));
+    for (Map.Entry<String, JsonNode> element : elements) {
+      objNode.set(element.getKey(), element.getValue());
+    }
   }
 
   private static File toFile(URL url) {
