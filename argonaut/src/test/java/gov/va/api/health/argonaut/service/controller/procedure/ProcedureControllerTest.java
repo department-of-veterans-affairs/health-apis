@@ -100,7 +100,7 @@ public class ProcedureControllerTest {
     assertThat(captor.getValue().transformer()).isSameAs(tx);
   }
 
-  private Bundle bundleForPatient(String patientId) {
+  private Bundle bundleForPatient(String patientId, String patientDisplay) {
     return Procedure.Bundle.builder()
         .resourceType("Bundle")
         .type(BundleType.searchset)
@@ -142,7 +142,7 @@ public class ProcedureControllerTest {
                                     .reference(
                                         "https://dev-api.va.gov/services/argonaut/v0/Patient/"
                                             + patientId)
-                                    .display("Mr. Aurelio227 Cruickshank494")
+                                    .display(patientDisplay)
                                     .build())
                             .status(Procedure.Status.completed)
                             .code(
@@ -226,42 +226,53 @@ public class ProcedureControllerTest {
   @Test
   @SneakyThrows
   public void searchByPatientAndDateHack() {
-    String clarkKent = "1938V0618";
-    String superman = "1938V0610";
+    String clarkKentId = "1938V0618";
+    String clarkKentDisplay = "KENT,CLARK JOSEPH";
+    String supermanId = "1938V0610";
+    String supermanDisplay = "EL,KAL";
 
     controller =
         ProcedureController.builder()
             .transformer(tx)
             .mrAndersonClient(client)
             .bundler(bundler)
-            .clarkKent(clarkKent)
-            .superman(superman)
+            .clarkKentId(clarkKentId)
+            .clarkKentDisplay(clarkKentDisplay)
+            .supermanId(supermanId)
+            .supermanDisplay(supermanDisplay)
             .build();
 
     when(client.search(any())).thenReturn(new CdwProcedure101Root());
-    when(bundler.bundle(any())).thenReturn(bundleForPatient(clarkKent));
-    assertThat(controller.searchByPatientAndDate(superman, new String[] {"2005", "2006"}, 1, 10))
-        .isEqualTo(bundleForPatient(superman));
+
+    when(bundler.bundle(any())).thenReturn(bundleForPatient(clarkKentId, clarkKentDisplay));
+
+    assertThat(controller.searchByPatientAndDate(supermanId, new String[] {"2005", "2006"}, 1, 10))
+        .isEqualTo(bundleForPatient(supermanId, supermanDisplay));
   }
 
   @Test
   @SneakyThrows
   public void searchByPatientHack() {
-    String clarkKent = "1938V0618";
-    String superman = "1938V0610";
+    String clarkKentId = "1938V0618";
+    String clarkKentDisplay = "KENT,CLARK JOSEPH";
+    String supermanId = "1938V0610";
+    String supermanDisplay = "EL,KAL";
 
     controller =
         ProcedureController.builder()
             .transformer(tx)
             .mrAndersonClient(client)
             .bundler(bundler)
-            .clarkKent(clarkKent)
-            .superman(superman)
+            .clarkKentId(clarkKentId)
+            .clarkKentDisplay(clarkKentDisplay)
+            .supermanId(supermanId)
+            .supermanDisplay(supermanDisplay)
             .build();
 
     when(client.search(any())).thenReturn(new CdwProcedure101Root());
-    when(bundler.bundle(any())).thenReturn(bundleForPatient(clarkKent));
-    assertThat(controller.searchByPatient(superman, 1, 10)).isEqualTo(bundleForPatient(superman));
+    when(bundler.bundle(any())).thenReturn(bundleForPatient(clarkKentId, clarkKentDisplay));
+    assertThat(controller.searchByPatient(supermanId, 1, 10))
+        .isEqualTo(bundleForPatient(supermanId, supermanDisplay));
   }
 
   @Test

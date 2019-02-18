@@ -54,18 +54,24 @@ import org.springframework.web.bind.annotation.RestController;
 @AllArgsConstructor(onConstructor = @__({@Autowired}))
 public class ProcedureController {
   /**
-   * Optional patient ID with procedure data that can secretly service requests for {@link
-   * #superman}.
+   * Optional ID for a patient with procedure data that can secretly service requests for {@link
+   * #supermanId}.
    */
   @Value("${procedure.test-patient-workaround.id-with-records:}")
-  private final String clarkKent;
+  private final String clarkKentId;
 
   /**
-   * Optional patient ID with no procedures whose requests can be secretly serviced by {@link
-   * #clarkKent}.
+   * Optional ID for a patient with no procedure data, whose requests can be secretly serviced by
+   * {@link #clarkKentId}.
    */
   @Value("${procedure.test-patient-workaround.id-without-records:}")
-  private final String superman;
+  private final String supermanId;
+
+  @Value("${procedure.test-patient-workaround.display-with-records:}")
+  private final String clarkKentDisplay;
+
+  @Value("${procedure.test-patient-workaround.display-without-records:}")
+  private final String supermanDisplay;
 
   private Transformer transformer;
 
@@ -144,7 +150,7 @@ public class ProcedureController {
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @RequestParam(value = "_count", defaultValue = "15") @Min(0) int count) {
     if (thisLooksLikeAJobForSuperman(patient)) {
-      return usePhoneBooth(searchByPatient(clarkKent, page, count));
+      return usePhoneBooth(searchByPatient(clarkKentId, page, count));
     }
     return bundle(
         Parameters.builder().add("patient", patient).add("page", page).add("_count", count).build(),
@@ -161,7 +167,7 @@ public class ProcedureController {
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @RequestParam(value = "_count", defaultValue = "15") @Min(0) int count) {
     if (thisLooksLikeAJobForSuperman(patient)) {
-      return usePhoneBooth(searchByPatientAndDate(clarkKent, date, page, count));
+      return usePhoneBooth(searchByPatientAndDate(clarkKentId, date, page, count));
     }
     return bundle(
         Parameters.builder()
@@ -176,27 +182,41 @@ public class ProcedureController {
 
   /**
    * In some environments, it is necessary to use one test patient's procedure data to service
-   * requests for a different test patient that has none. These patients are {@link #clarkKent} and
-   * {@link #superman} respectively.
+   * requests for a different test patient that has none. These patient IDs are {@link #clarkKentId}
+   * and {@link #supermanId} respectively. Similarly, the displayed names of these patients are
+   * {@link #clarkKentDisplay} and {@link #supermanDisplay}.
    *
-   * <p>This method returns {@code true} if {@link #clarkKent} and {@link #superman} are configured,
-   * and superman's procedure bundle is requested.
+   * <p>This method returns {@code true} if superman's procedure bundle is requested when all four
+   * of these values are configured.
    */
   private boolean thisLooksLikeAJobForSuperman(String patient) {
-    return isNotBlank(clarkKent) && isNotBlank(superman) && patient.equals(superman);
+    return patient.equals(supermanId)
+        && isNotBlank(clarkKentId)
+        && isNotBlank(supermanId)
+        && isNotBlank(clarkKentDisplay)
+        && isNotBlank(supermanDisplay);
   }
 
   /**
-   * Replace all references to {@link #clarkKent} with {@link #superman} in the bundle.
+   * Change a clark-kent bundle into a superman bundle. {@link #clarkKentId} is replaced with {@link
+   * #supermanId} and {@link #clarkKentDisplay} is replaced with {@link #supermanDisplay}
    *
    * @see #thisLooksLikeAJobForSuperman(String)
    */
   @SneakyThrows
   private Procedure.Bundle usePhoneBooth(Procedure.Bundle clarkKentBundle) {
-    log.info("Disguising procedure bundle for patient {} as patient {}.", clarkKent, superman);
+    log.info(
+        "Disguising procedure bundle for patient {} ({}) as patient {} ({}).",
+        clarkKentId,
+        clarkKentDisplay,
+        supermanId,
+        supermanDisplay);
     ObjectMapper mapper = JacksonConfig.createMapper();
     String clarkKentBundleString = mapper.writeValueAsString(clarkKentBundle);
-    String supermanBundleString = clarkKentBundleString.replaceAll(clarkKent, superman);
+    String supermanBundleString =
+        clarkKentBundleString
+            .replaceAll(clarkKentId, supermanId)
+            .replaceAll(clarkKentDisplay, supermanDisplay);
     return mapper.readValue(supermanBundleString, Procedure.Bundle.class);
   }
 
