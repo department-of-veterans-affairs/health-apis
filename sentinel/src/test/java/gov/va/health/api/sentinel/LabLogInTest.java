@@ -2,12 +2,13 @@ package gov.va.health.api.sentinel;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.google.common.io.Files;
 import gov.va.health.api.sentinel.IdMeOauthRobot.Configuration.UserCredentials;
 import gov.va.health.api.sentinel.IdMeOauthRobot.TokenExchange;
 import gov.va.health.api.sentinel.categories.Manual;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -45,7 +46,7 @@ public class LabLogInTest {
 
     ExecutorService ex = Executors.newFixedThreadPool(10);
 
-    List<Future<?>> futures = new LinkedList<>();
+    List<Future<?>> futures = new ArrayList<>(ids.size());
 
     for (String id : ids) {
       futures.add(
@@ -94,7 +95,7 @@ public class LabLogInTest {
         Stream.concat(winners.stream().map(w -> w + " - OK"), losers.stream())
             .sorted()
             .collect(Collectors.joining("\n"));
-    Files.write(report.getBytes(StandardCharsets.UTF_8), new File("lab-users.txt"));
+    Files.write(new File("lab-users.txt").toPath(), report.getBytes(StandardCharsets.UTF_8));
     log.info("Lab Users:\n{}", report);
     assertThat(losers.size()).isZero();
   }

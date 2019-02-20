@@ -164,10 +164,9 @@ public class IdMeOauthRobot {
   }
 
   private String extractCodeFromRedirectUrl(WebDriver driver) {
-    String url;
     new WebDriverWait(driver, 1, 100)
         .until(ExpectedConditions.urlContains(config.authorization().redirectUrl()));
-    url = driver.getCurrentUrl();
+    String url = driver.getCurrentUrl();
     log.info("Redirected {}", url);
 
     return Arrays.stream(url.split("\\?")[1].split("&"))
@@ -215,7 +214,7 @@ public class IdMeOauthRobot {
   }
 
   /** Waits for the current page to completely load. */
-  public void waitForPageLoad(WebDriver driver) {
+  private void waitForPageLoad(WebDriver driver) {
     WebDriverWait wait = new WebDriverWait(driver, 30);
     wait.until(
         (ExpectedCondition<Boolean>)
