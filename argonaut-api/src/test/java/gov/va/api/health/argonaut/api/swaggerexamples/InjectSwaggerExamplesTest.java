@@ -1,5 +1,6 @@
 package gov.va.api.health.argonaut.api.swaggerexamples;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -16,8 +17,10 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.assertj.core.util.Streams;
 import org.junit.Test;
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
@@ -33,12 +36,35 @@ import org.springframework.util.ReflectionUtils;
  */
 @Slf4j
 public class InjectSwaggerExamplesTest {
+  private static void sortObjectNode(JsonNode node) {
+    checkArgument(node instanceof ObjectNode);
+    ObjectNode objNode = (ObjectNode) node;
+    List<Map.Entry<String, JsonNode>> elements =
+        Streams.stream(objNode.fields())
+            .sorted((left, right) -> left.getKey().compareToIgnoreCase(right.getKey()))
+            .collect(Collectors.toList());
+    objNode.removeAll();
+    for (Map.Entry<String, JsonNode> element : elements) {
+      objNode.set(element.getKey(), element.getValue());
+    }
+  }
+
   private static File toFile(URL url) {
     try {
       return new File(url.toURI());
     } catch (Exception e) {
       return new File(url.getPath());
     }
+  }
+
+  @Test
+  public void _json() {
+    injectSwaggerExamples("openapi.json", JacksonConfig.createMapper());
+  }
+
+  @Test
+  public void _yaml() {
+    injectSwaggerExamples("openapi.yaml", JacksonConfig.createMapper(new YAMLFactory()));
   }
 
   @SneakyThrows
@@ -65,12 +91,9 @@ public class InjectSwaggerExamplesTest {
     if (!unusedKeys.isEmpty()) {
       log.warn("No Swagger example injection performed for {}.", unusedKeys);
     }
+    sortObjectNode(root.get("paths"));
+    sortObjectNode(root.get("components").get("schemas"));
     mapper.writerWithDefaultPrettyPrinter().writeValue(swaggerFile, root);
-  }
-
-  @Test
-  public void json() {
-    injectSwaggerExamples("openapi.json", JacksonConfig.createMapper());
   }
 
   /**
@@ -114,10 +137,5 @@ public class InjectSwaggerExamplesTest {
         return file;
       }
     }
-  }
-
-  @Test
-  public void yaml() {
-    injectSwaggerExamples("openapi.yaml", JacksonConfig.createMapper(new YAMLFactory()));
   }
 }

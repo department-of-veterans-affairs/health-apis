@@ -2,7 +2,9 @@ package gov.va.api.health.argonaut.service.controller.procedure;
 
 import static gov.va.api.health.argonaut.service.controller.Transformers.firstPayloadItem;
 import static gov.va.api.health.argonaut.service.controller.Transformers.hasPayload;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import gov.va.api.health.argonaut.api.resources.OperationOutcome;
 import gov.va.api.health.argonaut.api.resources.Procedure;
 import gov.va.api.health.argonaut.service.controller.Bundler;
@@ -13,6 +15,7 @@ import gov.va.api.health.argonaut.service.controller.Parameters;
 import gov.va.api.health.argonaut.service.controller.Validator;
 import gov.va.api.health.argonaut.service.mranderson.client.MrAndersonClient;
 import gov.va.api.health.argonaut.service.mranderson.client.Query;
+import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.dvp.cdw.xsd.model.CdwProcedure101Root;
 import java.util.Collections;
 import java.util.function.Function;
@@ -20,7 +23,11 @@ import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,6 +43,8 @@ import org.springframework.web.bind.annotation.RestController;
  * https://www.fhir.org/guides/argonaut/r2/StructureDefinition-argo-procedure.html for
  * implementation details.
  */
+@Slf4j
+@Builder
 @Validated
 @RestController
 @RequestMapping(
@@ -44,9 +53,30 @@ import org.springframework.web.bind.annotation.RestController;
 )
 @AllArgsConstructor(onConstructor = @__({@Autowired}))
 public class ProcedureController {
+  /**
+   * Optional ID for a patient with procedure data that can secretly service requests for {@link
+   * #supermanId}.
+   */
+  @Value("${procedure.test-patient-workaround.id-with-records:}")
+  private final String clarkKentId;
+
+  /**
+   * Optional ID for a patient with no procedure data, whose requests can be secretly serviced by
+   * {@link #clarkKentId}.
+   */
+  @Value("${procedure.test-patient-workaround.id-without-records:}")
+  private final String supermanId;
+
+  @Value("${procedure.test-patient-workaround.display-with-records:}")
+  private final String clarkKentDisplay;
+
+  @Value("${procedure.test-patient-workaround.display-without-records:}")
+  private final String supermanDisplay;
 
   private Transformer transformer;
+
   private MrAndersonClient mrAndersonClient;
+
   private Bundler bundler;
 
   private Procedure.Bundle bundle(MultiValueMap<String, String> parameters, int page, int count) {
@@ -95,7 +125,6 @@ public class ProcedureController {
       @RequestParam("_id") String id,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @RequestParam(value = "_count", defaultValue = "1") @Min(0) int count) {
-
     return bundle(
         Parameters.builder().add("identifier", id).add("page", page).add("_count", count).build(),
         page,
@@ -120,6 +149,9 @@ public class ProcedureController {
       @RequestParam("patient") String patient,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @RequestParam(value = "_count", defaultValue = "15") @Min(0) int count) {
+    if (thisLooksLikeAJobForSuperman(patient)) {
+      return usePhoneBooth(searchByPatient(clarkKentId, page, count));
+    }
     return bundle(
         Parameters.builder().add("patient", patient).add("page", page).add("_count", count).build(),
         page,
@@ -134,6 +166,9 @@ public class ProcedureController {
           String[] date,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @RequestParam(value = "_count", defaultValue = "15") @Min(0) int count) {
+    if (thisLooksLikeAJobForSuperman(patient)) {
+      return usePhoneBooth(searchByPatientAndDate(clarkKentId, date, page, count));
+    }
     return bundle(
         Parameters.builder()
             .add("patient", patient)
@@ -143,6 +178,46 @@ public class ProcedureController {
             .build(),
         page,
         count);
+  }
+
+  /**
+   * In some environments, it is necessary to use one test patient's procedure data to service
+   * requests for a different test patient that has none. These patient IDs are {@link #clarkKentId}
+   * and {@link #supermanId} respectively. Similarly, the displayed names of these patients are
+   * {@link #clarkKentDisplay} and {@link #supermanDisplay}.
+   *
+   * <p>This method returns {@code true} if superman's procedure bundle is requested when all four
+   * of these values are configured.
+   */
+  private boolean thisLooksLikeAJobForSuperman(String patient) {
+    return patient.equals(supermanId)
+        && isNotBlank(clarkKentId)
+        && isNotBlank(supermanId)
+        && isNotBlank(clarkKentDisplay)
+        && isNotBlank(supermanDisplay);
+  }
+
+  /**
+   * Change a clark-kent bundle into a superman bundle. {@link #clarkKentId} is replaced with {@link
+   * #supermanId} and {@link #clarkKentDisplay} is replaced with {@link #supermanDisplay}
+   *
+   * @see #thisLooksLikeAJobForSuperman(String)
+   */
+  @SneakyThrows
+  private Procedure.Bundle usePhoneBooth(Procedure.Bundle clarkKentBundle) {
+    log.info(
+        "Disguising procedure bundle for patient {} ({}) as patient {} ({}).",
+        clarkKentId,
+        clarkKentDisplay,
+        supermanId,
+        supermanDisplay);
+    ObjectMapper mapper = JacksonConfig.createMapper();
+    String clarkKentBundleString = mapper.writeValueAsString(clarkKentBundle);
+    String supermanBundleString =
+        clarkKentBundleString
+            .replaceAll(clarkKentId, supermanId)
+            .replaceAll(clarkKentDisplay, supermanDisplay);
+    return mapper.readValue(supermanBundleString, Procedure.Bundle.class);
   }
 
   /** Hey, this is a validate endpoint. It validates. */
