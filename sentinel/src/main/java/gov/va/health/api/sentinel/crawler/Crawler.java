@@ -10,17 +10,16 @@ import gov.va.health.api.sentinel.crawler.Result.ResultBuilder;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import java.time.Instant;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
+import java.util.Stack;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import lombok.Builder;
@@ -28,6 +27,8 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+
+import com.google.common.base.Stopwatch;
 
 /** The Crawler will recursive request resources from an Argonaut server. I */
 @Builder
@@ -69,20 +70,30 @@ public class Crawler {
   }
 
   /** Crawler iterates through queue performing all queries. */
+  @SneakyThrows
   public void crawl() {
+    Stopwatch watch = Stopwatch.createStarted();
     results.init();
-    List<Future<?>> futures = new LinkedList<>();
-
+    Stack<Future<?>> futures = new Stack<>();
     ScheduledExecutorService monitor = monitorPendingRequests(futures);
 
     while (hasPendingRequests(futures)) {
+      if (watch.elapsed(TimeUnit.SECONDS) > 10) {
+        log.info(
+            "Time limit reached. Finishing {} pending requests.",
+            futures.stream().filter(f -> !f.isDone()).count());
+        for (final Future<?> future : futures) {
+          future.get(1, TimeUnit.HOURS);
+        }
+        break;
+      }
+
       if (!requestQueue.hasNext()) {
         continue;
       }
 
       String url = requestQueue.next();
-      futures.add(
-          0,
+      futures.push(
           executor.submit(
               () -> {
                 ResultBuilder resultBuilder = Result.builder().timestamp(Instant.now()).query(url);
@@ -100,7 +111,7 @@ public class Crawler {
     results.done();
   }
 
-  private boolean hasPendingRequests(List<Future<?>> futures) {
+  private boolean hasPendingRequests(Collection<Future<?>> futures) {
     if (futures.isEmpty()) {
       /*
        * If there are no futures in the list, then we have not yet processed any requests... this is
@@ -111,11 +122,11 @@ public class Crawler {
     return futures.stream().anyMatch(f -> !f.isDone());
   }
 
-  private ScheduledExecutorService monitorPendingRequests(List<Future<?>> futures) {
+  private ScheduledExecutorService monitorPendingRequests(Collection<Future<?>> futures) {
     ScheduledExecutorService monitor = Executors.newScheduledThreadPool(1);
     monitor.scheduleAtFixedRate(
         () -> {
-          long notDone = futures.stream().filter(f -> !f.isDone()).collect(Collectors.counting());
+          long notDone = futures.stream().filter(f -> !f.isDone()).count();
           log.info("{} pending requests", notDone);
         },
         5,
