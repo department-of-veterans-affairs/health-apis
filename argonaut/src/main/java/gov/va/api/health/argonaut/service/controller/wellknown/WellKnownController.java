@@ -25,6 +25,8 @@ class WellKnownController {
         .authorizationEndpoint(properties.getSecurity().getAuthorizeEndpoint())
         .tokenEndpoint(properties.getSecurity().getTokenEndpoint())
         .capabilities(asList(properties.getCapabilities().split(" ")))
+        .responseTypeSupported(asList(properties.getResponseTypeSupported().split(" ")))
+        .scopesSupported(asList(properties.getScopesSupported().split(" ")))
         .build();
   }
 }

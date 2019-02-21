@@ -21,6 +21,8 @@ import org.springframework.context.annotation.Configuration;
 public class WellKnownProperties {
   private String capabilities;
   private SecurityProperties security;
+  private String responseTypeSupported;
+  private String scopesSupported;
 
   @Data
   @Accessors(fluent = false)

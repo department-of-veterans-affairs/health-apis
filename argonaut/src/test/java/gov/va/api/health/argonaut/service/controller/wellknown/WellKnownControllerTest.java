@@ -23,6 +23,8 @@ public class WellKnownControllerTest {
                 .authorizeEndpoint("https://argonaut.lighthouse.va.gov/authorize")
                 .build())
         .capabilities("context-standalone-patient launch-ehr permission-offline permission-patient")
+        .responseTypeSupported("code refresh-token")
+        .scopesSupported("patient/DiagnosticReport.read patient/Patient.read offline_access")
         .build();
   }
 
