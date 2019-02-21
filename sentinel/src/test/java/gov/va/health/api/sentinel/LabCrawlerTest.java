@@ -4,6 +4,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.health.api.sentinel.IdMeOauthRobot.Configuration.UserCredentials;
+import gov.va.health.api.sentinel.LabRobots.SmartOnFhirUrls;
 import gov.va.health.api.sentinel.categories.Manual;
 import gov.va.health.api.sentinel.crawler.ConcurrentRequestQueue;
 import gov.va.health.api.sentinel.crawler.Crawler;
@@ -30,7 +31,8 @@ public class LabCrawlerTest {
             .id(patient)
             .password(System.getProperty("lab.user-password"))
             .build();
-    IdMeOauthRobot robot = robots.makeRobot(user);
+    IdMeOauthRobot robot =
+        robots.makeRobot(user, new SmartOnFhirUrls(env.argonaut().urlWithApiPath()));
     Swiggity.swooty(patient);
     assertThat(robot.token().accessToken()).isNotBlank();
 

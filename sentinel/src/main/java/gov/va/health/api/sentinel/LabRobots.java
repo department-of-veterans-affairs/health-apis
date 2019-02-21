@@ -52,6 +52,14 @@ public class LabRobots {
 
     SmartOnFhirUrls urls = new SmartOnFhirUrls("https://dev-api.va.gov/services/argonaut/v0");
 
+    return makeRobot(user, urls);
+  }
+
+  /**
+   * Creates IdMeOauthRobot with specified user credentials and urls for Lab environment using
+   * Chrome Driver.
+   */
+  public IdMeOauthRobot makeRobot(UserCredentials user, SmartOnFhirUrls urls) {
     IdMeOauthRobot.Configuration config =
         IdMeOauthRobot.Configuration.builder()
             .authorization(
@@ -187,7 +195,7 @@ public class LabRobots {
   }
 
   @Value
-  private static class SmartOnFhirUrls {
+  public static class SmartOnFhirUrls {
     String token;
     String authorize;
 
@@ -196,7 +204,11 @@ public class LabRobots {
       log.info("Discovering authorization endpoints from {}", baseUrl);
 
       Conformance conformanceStatement =
-          RestAssured.given().baseUri(baseUrl).get("metadata").as(Conformance.class);
+          RestAssured.given()
+              .relaxedHTTPSValidation()
+              .baseUri(baseUrl)
+              .get("metadata")
+              .as(Conformance.class);
 
       assertThat(conformanceStatement.rest()).isNotEmpty();
       Optional<Extension> smartOnFhir =
