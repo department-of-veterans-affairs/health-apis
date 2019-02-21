@@ -2,6 +2,7 @@ package gov.va.health.api.sentinel.crawler;
 
 import static java.util.stream.Collectors.joining;
 
+import com.google.common.base.Stopwatch;
 import gov.va.api.health.argonaut.api.bundle.AbstractBundle;
 import gov.va.api.health.argonaut.api.bundle.BundleLink;
 import gov.va.api.health.argonaut.api.bundle.BundleLink.LinkRelation;
@@ -9,6 +10,7 @@ import gov.va.health.api.sentinel.crawler.Result.Outcome;
 import gov.va.health.api.sentinel.crawler.Result.ResultBuilder;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Optional;
@@ -28,8 +30,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
-import com.google.common.base.Stopwatch;
-
 /** The Crawler will recursive request resources from an Argonaut server. I */
 @Builder
 @Slf4j
@@ -39,6 +39,10 @@ public class Crawler {
   private final Supplier<String> authenticationToken;
   private final ExecutorService executor;
   private final boolean forceJargonaut;
+
+  private static long notDoneCount(Collection<Future<?>> futures) {
+    return futures.stream().filter(f -> !f.isDone()).count();
+  }
 
   private void addLinksFromBundle(Object payload) {
     if (!(payload instanceof AbstractBundle<?>)) {
@@ -75,14 +79,16 @@ public class Crawler {
     results.init();
     Stack<Future<?>> futures = new Stack<>();
     ScheduledExecutorService monitor = monitorPendingRequests(futures);
+    // PETERTODO configurable time limit
+    Duration timeLimit = Duration.parse("PT10S");
+    // PT1H10M10S
 
     while (hasPendingRequests(futures)) {
-      // PETERTODO configurable time limit, use period formatter e.g. 10m5s
-      if (watch.elapsed(TimeUnit.SECONDS) > 10) {
-        // PETERTODO add time limit to log statement
+      if (watch.elapsed(TimeUnit.SECONDS) > timeLimit.getSeconds()) {
         log.info(
-            "Time limit reached. Finishing {} pending requests.",
-            futures.stream().filter(f -> !f.isDone()).count());
+            "Time limit {} reached. Finishing {} pending requests.",
+            timeLimit,
+            notDoneCount(futures));
         for (final Future<?> future : futures) {
           future.get(1, TimeUnit.HOURS);
         }
@@ -127,8 +133,7 @@ public class Crawler {
     ScheduledExecutorService monitor = Executors.newScheduledThreadPool(1);
     monitor.scheduleAtFixedRate(
         () -> {
-          long notDone = futures.stream().filter(f -> !f.isDone()).count();
-          log.info("{} pending requests", notDone);
+          log.info("{} pending requests", notDoneCount(futures));
         },
         5,
         5,

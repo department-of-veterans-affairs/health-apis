@@ -2,12 +2,12 @@ package gov.va.health.api.sentinel.crawler;
 
 import static com.google.common.base.Preconditions.checkState;
 
-import com.google.common.collect.HashMultiset;
-import com.google.common.collect.Multiset;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.NonNull;
@@ -24,10 +24,29 @@ public class ConcurrentResourceBalancingRequestQueue implements RequestQueue {
   /** The current items in the queue. */
   private final Collection<String> requests = new HashSet<>();
 
-  private final Multiset<String> resources = HashMultiset.create();
+  private final Map<String, Integer> scores = new HashMap<>();
 
-  private static String resource(String url) {
-    // PETERTODO unit tests for this
+  private static boolean isSearch(String url) {
+    int apiIndex = url.indexOf("/api/");
+    if (apiIndex <= -1) {
+      return false;
+    }
+    String query = url.substring(apiIndex + "/api/".length());
+    return query.contains("?");
+  }
+
+  /**
+   * Extract resource from URL.
+   *
+   * <p>For example, resource is 'Condition' in these URLs:
+   *
+   * <ul>
+   *   <li>foo/api/Condition
+   *   <li>foo/api/Condition/123
+   *   <li>foo/api/Condition?patient=bobnelson
+   * </ul>
+   */
+  static String resource(String url) {
     Matcher matcher = URL_RESOURCE_PATTERN.matcher(url);
     if (matcher.find()) {
       return matcher.group(1);
@@ -42,7 +61,7 @@ public class ConcurrentResourceBalancingRequestQueue implements RequestQueue {
     if (!allRequests.contains(url)) {
       requests.add(url);
       allRequests.add(url);
-      log.info("Added {}", url);
+      log.info("Enqueued {}.", url);
     }
   }
 
@@ -53,15 +72,27 @@ public class ConcurrentResourceBalancingRequestQueue implements RequestQueue {
 
   @Override
   public synchronized String next() {
-    // PETERTODO confirm that regular priority queue doesn't work
     checkState(hasNext());
+
     final String next =
         Collections.min(
             requests,
-            Comparator.<String>comparingInt(str -> resources.count(resource(str)))
+            Comparator.<String>comparingInt(str -> score(str))
+                .thenComparing(
+                    (left, right) -> -1 * Boolean.compare(isSearch(left), isSearch(right)))
                 .thenComparing(Comparator.naturalOrder()));
+    log.info("Dequeued {}.", next);
     requests.remove(next);
-    resources.add(resource(next));
+
+    if (isSearch(next)) {
+      scores.put(resource(next), score(next) + 15);
+    } else {
+      scores.put(resource(next), score(next) + 1);
+    }
     return next;
+  }
+
+  private int score(String url) {
+    return scores.getOrDefault(resource(url), 0);
   }
 }
