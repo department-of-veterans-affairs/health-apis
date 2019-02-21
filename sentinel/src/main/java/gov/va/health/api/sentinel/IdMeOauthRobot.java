@@ -37,7 +37,6 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 @Slf4j
 @RequiredArgsConstructor(staticName = "of")
 public class IdMeOauthRobot {
-
   @Getter @NonNull private final Configuration config;
 
   private String code;
@@ -110,7 +109,6 @@ public class IdMeOauthRobot {
 
     WebDriver driver = createWebDriver();
     try {
-
       String url = driver.getCurrentUrl();
       enterCredentials(driver);
       checkForBadCredentials(driver);
@@ -233,7 +231,6 @@ public class IdMeOauthRobot {
   @Value
   @Builder
   public static class Configuration {
-
     @NonNull Authorization authorization;
     @NonNull String tokenUrl;
     @NonNull UserCredentials user;
@@ -280,7 +277,6 @@ public class IdMeOauthRobot {
   @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
   @AllArgsConstructor
   public static class TokenExchange {
-
     @JsonProperty("error")
     String error;
 

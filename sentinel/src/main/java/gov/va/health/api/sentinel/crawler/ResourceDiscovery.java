@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.Builder;
@@ -30,7 +32,9 @@ import lombok.extern.slf4j.Slf4j;
 @Value
 @Slf4j
 public class ResourceDiscovery {
+
   String url;
+
   String patientId;
 
   /** The 'url' parameter will be modified if necessary to include a trailing /. */
@@ -40,8 +44,39 @@ public class ResourceDiscovery {
     this.patientId = patientId;
   }
 
+  /** Indicates if a URL represents a search query. */
+  static boolean isSearch(@NonNull String url) {
+    int apiIndex = url.indexOf("/api/");
+    if (apiIndex <= -1) {
+      return false;
+    }
+    String query = url.substring(apiIndex + "/api/".length());
+    return query.contains("?");
+  }
+
   private static <T> Stream<T> nullableListToStream(List<T> list) {
     return list == null ? Stream.empty() : list.stream();
+  }
+
+  /**
+   * Extract resource from URL.
+   *
+   * <p>For example, resource is 'Condition' in these URLs:
+   *
+   * <ul>
+   *   <li>foo/api/Condition
+   *   <li>foo/api/Condition/123
+   *   <li>foo/api/Condition?patient=bobnelson
+   * </ul>
+   */
+  static String resource(@NonNull String url) {
+    Matcher matcher = Pattern.compile(".*/api/([^/^?]+).*").matcher(url);
+    if (matcher.find()) {
+      return matcher.group(1);
+    } else {
+      log.warn("Failed to extract resource from url '{}'.", url);
+      return url;
+    }
   }
 
   /**
@@ -70,15 +105,12 @@ public class ResourceDiscovery {
   }
 
   List<String> patientQueries(List<RestResource> restResources) {
-
     Optional<RestResource> patientMetadata =
         restResources.stream().filter(n -> "Patient".equals(n.type())).findFirst();
     if (!patientMetadata.isPresent()) {
       return emptyList();
     }
-
     List<String> patientQueries = new ArrayList<>();
-
     boolean isReadable =
         patientMetadata
             .get()
@@ -88,14 +120,12 @@ public class ResourceDiscovery {
     if (isReadable) {
       patientQueries.add(url + "Patient/" + patientId);
     }
-
     boolean isSearchable =
         nullableListToStream(patientMetadata.get().searchParam())
             .anyMatch(s -> "_id".equals(s.name()));
     if (isSearchable) {
       patientQueries.add((url + "Patient?_id=" + patientId));
     }
-
     return patientQueries;
   }
 
@@ -123,7 +153,6 @@ public class ResourceDiscovery {
             .get("metadata")
             .as(Conformance.class);
     List<RestResource> restResources = extractRestResources(conformanceStatement);
-
     List<String> queries = new LinkedList<>();
     queries.addAll(patientSearchableResourceQueries(restResources));
     queries.addAll(patientQueries(restResources));

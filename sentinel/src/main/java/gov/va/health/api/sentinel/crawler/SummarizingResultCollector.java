@@ -9,39 +9,17 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 
 /** This collector will provide a text summary upon completion. */
 @RequiredArgsConstructor(staticName = "wrap")
 public class SummarizingResultCollector implements ResultCollector {
-
   private final ResultCollector delegate;
 
   private final Collection<Result.Summary> summaries = new ConcurrentLinkedQueue<>();
 
   private final AtomicInteger failures = new AtomicInteger(0);
-
-  private static boolean isSearch(String url) {
-    int apiIndex = url.indexOf("/api/");
-    if (apiIndex <= -1) {
-      return false;
-    }
-    String query = url.substring(apiIndex + "/api/".length());
-    return query.contains("?");
-  }
-
-  static String resource(String url) {
-    Matcher matcher = Pattern.compile(".*/api/([^/^?]+).*").matcher(url);
-    if (matcher.find()) {
-      return matcher.group(1);
-    } else {
-      // log.warn("Failed to extract resource from url '{}'.", url);
-      return url;
-    }
-  }
 
   @Override
   public void add(Result result) {
@@ -122,9 +100,9 @@ public class SummarizingResultCollector implements ResultCollector {
 
   private Map<String, Integer> resourceReadCounts() {
     Map<String, Integer> counts = new HashMap<>();
-    for (final Summary s : summaries) {
-      String resource = resource(s.query());
-      if (!isSearch(s.query())) {
+    for (final Summary summary : summaries) {
+      String resource = ResourceDiscovery.resource(summary.query());
+      if (!ResourceDiscovery.isSearch(summary.query())) {
         counts.put(resource, counts.getOrDefault(resource, 0) + 1);
       }
     }
@@ -133,9 +111,9 @@ public class SummarizingResultCollector implements ResultCollector {
 
   private Map<String, Integer> resourceSearchCounts() {
     Map<String, Integer> counts = new HashMap<>();
-    for (final Summary s : summaries) {
-      String resource = resource(s.query());
-      if (isSearch(s.query())) {
+    for (final Summary summary : summaries) {
+      String resource = ResourceDiscovery.resource(summary.query());
+      if (ResourceDiscovery.isSearch(summary.query())) {
         counts.put(resource, counts.getOrDefault(resource, 0) + 1);
       }
     }

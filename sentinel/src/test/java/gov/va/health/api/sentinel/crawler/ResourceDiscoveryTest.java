@@ -1,5 +1,6 @@
 package gov.va.health.api.sentinel.crawler;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -25,6 +26,20 @@ public class ResourceDiscoveryTest {
 
   private String expectedSearchUrl(String resource) {
     return resourceDiscovery.url() + resource + "?patient=" + resourceDiscovery.patientId();
+  }
+
+  @Test
+  public void extractResource() {
+    final List<String> urls =
+        asList(
+            "bob",
+            "foo/api/bob",
+            "foo/api/bob/nelson",
+            "foo/api/bob?nel=son",
+            "foo/api/bob/nelson?page=2");
+    for (String url : urls) {
+      assertThat(ResourceDiscovery.resource(url)).isEqualTo("bob");
+    }
   }
 
   @Test

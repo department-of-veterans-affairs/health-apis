@@ -171,7 +171,6 @@ public class Crawler {
       }
 
       addLinksFromBundle(payload);
-
     } else {
       resultBuilder.outcome(Outcome.INVALID_STATUS);
     }

@@ -7,7 +7,6 @@ import java.util.List;
 import org.junit.Test;
 
 public final class ConcurrentResourceBalancingRequestQueueTest {
-
   ConcurrentResourceBalancingRequestQueue q = new ConcurrentResourceBalancingRequestQueue();
 
   @Test
@@ -44,20 +43,6 @@ public final class ConcurrentResourceBalancingRequestQueueTest {
   @Test(expected = IllegalStateException.class)
   public void exceptionIsThrownWhenAttemptingToGetNextQueueThatWasNeverUsed() {
     q.next();
-  }
-
-  @Test
-  public void extractResource() {
-    final List<String> urls =
-        asList(
-            "bob",
-            "foo/api/bob",
-            "foo/api/bob/nelson",
-            "foo/api/bob?nel=son",
-            "foo/api/bob/nelson?page=2");
-    for (String url : urls) {
-      assertThat(ConcurrentResourceBalancingRequestQueue.resource(url)).isEqualTo("bob");
-    }
   }
 
   @Test
