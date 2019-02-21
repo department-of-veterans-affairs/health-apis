@@ -7,22 +7,8 @@ import java.util.List;
 import org.junit.Test;
 
 public final class ConcurrentResourceBalancingRequestQueueTest {
-
   ConcurrentResourceBalancingRequestQueue q = new ConcurrentResourceBalancingRequestQueue();
 
-  // @Test
-  // public void itemsAreRemovedFromQueueInOrderOfAddition() {
-  // q.add("a");
-  // q.add("b");
-  // q.add("c");
-  // assertThat(q.hasNext()).isTrue();
-  // assertThat(q.next()).isEqualTo("a");
-  // assertThat(q.hasNext()).isTrue();
-  // assertThat(q.next()).isEqualTo("b");
-  // assertThat(q.hasNext()).isTrue();
-  // assertThat(q.next()).isEqualTo("c");
-  // assertThat(q.hasNext()).isFalse();
-  // }
   @Test
   public void duplicateItemsIgnored() {
     q.add("a");
