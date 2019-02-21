@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.health.api.sentinel.IdMeOauthRobot.Configuration.UserCredentials;
 import gov.va.health.api.sentinel.categories.Manual;
-import gov.va.health.api.sentinel.crawler.ConcurrentRequestQueue;
+import gov.va.health.api.sentinel.crawler.ConcurrentResourceBalancingRequestQueue;
 import gov.va.health.api.sentinel.crawler.Crawler;
 import gov.va.health.api.sentinel.crawler.FileResultsCollector;
 import gov.va.health.api.sentinel.crawler.RequestQueue;
@@ -20,7 +20,6 @@ import org.junit.experimental.categories.Category;
 
 @Slf4j
 public class LabCrawlerTest {
-
   private LabRobots robots = LabRobots.fromSystemProperties();
 
   private int crawl(String patient) {
@@ -76,14 +75,14 @@ public class LabCrawlerTest {
     String replaceUrl = System.getProperty("sentinel.argonaut.url.replace");
     if (isBlank(replaceUrl)) {
       log.info("Link replacement disabled (Override with -Dsentinel.argonaut.url.replace=<url>)");
-      return new ConcurrentRequestQueue();
+      return new ConcurrentResourceBalancingRequestQueue();
     }
     log.info(
         "Link replacement {} (Override with -Dsentinel.argonaut.url.replace=<url>)", replaceUrl);
     return UrlReplacementRequestQueue.builder()
         .replaceUrl(replaceUrl)
         .withUrl(env.argonaut().url())
-        .requestQueue(new ConcurrentRequestQueue())
+        .requestQueue(new ConcurrentResourceBalancingRequestQueue())
         .build();
   }
 }

@@ -34,7 +34,6 @@ import com.google.common.base.Stopwatch;
 @Builder
 @Slf4j
 public class Crawler {
-
   private final RequestQueue requestQueue;
   private final ResultCollector results;
   private final Supplier<String> authenticationToken;
@@ -78,7 +77,9 @@ public class Crawler {
     ScheduledExecutorService monitor = monitorPendingRequests(futures);
 
     while (hasPendingRequests(futures)) {
+      // PETERTODO configurable time limit, use period formatter e.g. 10m5s
       if (watch.elapsed(TimeUnit.SECONDS) > 10) {
+        // PETERTODO add time limit to log statement
         log.info(
             "Time limit reached. Finishing {} pending requests.",
             futures.stream().filter(f -> !f.isDone()).count());

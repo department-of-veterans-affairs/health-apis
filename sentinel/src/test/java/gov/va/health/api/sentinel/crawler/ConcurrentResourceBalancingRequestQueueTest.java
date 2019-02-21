@@ -4,9 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
 
-public class ConcurrentRequestQueueTest {
-
-  ConcurrentRequestQueue q = new ConcurrentRequestQueue();
+public final class ConcurrentResourceBalancingRequestQueueTest {
+  ConcurrentResourceBalancingRequestQueue q = new ConcurrentResourceBalancingRequestQueue();
 
   @Test(expected = IllegalStateException.class)
   public void exceptionIsThrownWhenAttemptingToGetNextFromEmptyQueue() {
@@ -43,18 +42,32 @@ public class ConcurrentRequestQueueTest {
   }
 
   @Test
-  public void theSameItemCannotBeAddedToTheQueueTwice() {
+  public void duplicateItemsIgnored() {
     q.add("a");
     q.add("b");
     q.add("c");
-    q.add("a"); // ignored
+    // ignored
+    q.add("a");
     assertThat(q.hasNext()).isTrue();
     assertThat(q.next()).isEqualTo("a");
-    q.add("a"); // ignored
+    // ignored
+    q.add("a");
     assertThat(q.hasNext()).isTrue();
     assertThat(q.next()).isEqualTo("b");
     assertThat(q.hasNext()).isTrue();
     assertThat(q.next()).isEqualTo("c");
     assertThat(q.hasNext()).isFalse();
+  }
+
+  @Test
+  public void asdf() {
+	  // PETERTODO
+    q.add("foo.bar/api/apple/1");
+    q.next();
+    
+    q.add("foo.bar/api/apple/2");
+    q.add("foo.bar/api/banana/1");
+    q.add("foo.bar/api/apple/3");
+    System.out.println(q.next());
   }
 }

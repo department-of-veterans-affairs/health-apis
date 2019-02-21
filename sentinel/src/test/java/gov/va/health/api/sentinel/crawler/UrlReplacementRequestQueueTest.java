@@ -9,7 +9,7 @@ public class UrlReplacementRequestQueueTest {
       UrlReplacementRequestQueue.builder()
           .replaceUrl("https://dev-api.va.gov/services/argonaut/v0/")
           .withUrl("https://staging-argonaut.lighthouse.va.gov/api/")
-          .requestQueue(new ConcurrentRequestQueue())
+          .requestQueue(new ConcurrentResourceBalancingRequestQueue())
           .build();
 
   @Test(expected = IllegalStateException.class)
@@ -18,7 +18,7 @@ public class UrlReplacementRequestQueueTest {
         UrlReplacementRequestQueue.builder()
             .replaceUrl("")
             .withUrl("https://staging-argonaut.lighthouse.va.gov/api/")
-            .requestQueue(new ConcurrentRequestQueue())
+            .requestQueue(new ConcurrentResourceBalancingRequestQueue())
             .build();
     emptyBaseUrl.add("Empty forceUrl");
   }
@@ -29,7 +29,7 @@ public class UrlReplacementRequestQueueTest {
         UrlReplacementRequestQueue.builder()
             .replaceUrl("https://dev-api.va.gov/services/argonaut/v0/")
             .withUrl("")
-            .requestQueue(new ConcurrentRequestQueue())
+            .requestQueue(new ConcurrentResourceBalancingRequestQueue())
             .build();
     emptyBaseUrl.add("Empty forceUrl");
   }
@@ -83,7 +83,7 @@ public class UrlReplacementRequestQueueTest {
         UrlReplacementRequestQueue.builder()
             .replaceUrl(null)
             .withUrl("https://staging-argonaut.lighthouse.va.gov/api/")
-            .requestQueue(new ConcurrentRequestQueue())
+            .requestQueue(new ConcurrentResourceBalancingRequestQueue())
             .build();
     emptyBaseUrl.add("Empty baseUrl");
   }
@@ -94,7 +94,7 @@ public class UrlReplacementRequestQueueTest {
         UrlReplacementRequestQueue.builder()
             .replaceUrl("https://dev-api.va.gov/services/argonaut/v0/")
             .withUrl(null)
-            .requestQueue(new ConcurrentRequestQueue())
+            .requestQueue(new ConcurrentResourceBalancingRequestQueue())
             .build();
     emptyBaseUrl.add("Empty forceUrl");
   }

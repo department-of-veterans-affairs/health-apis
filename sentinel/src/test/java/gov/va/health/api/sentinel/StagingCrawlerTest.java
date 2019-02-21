@@ -4,10 +4,9 @@ import static gov.va.health.api.sentinel.SystemDefinitions.magicAccessToken;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.health.api.sentinel.categories.Manual;
-import gov.va.health.api.sentinel.crawler.ConcurrentRequestQueue;
+import gov.va.health.api.sentinel.crawler.ConcurrentResourceBalancingRequestQueue;
 import gov.va.health.api.sentinel.crawler.Crawler;
 import gov.va.health.api.sentinel.crawler.FileResultsCollector;
-import gov.va.health.api.sentinel.crawler.RequestQueue;
 import gov.va.health.api.sentinel.crawler.ResourceDiscovery;
 import gov.va.health.api.sentinel.crawler.SummarizingResultCollector;
 import gov.va.health.api.sentinel.crawler.UrlReplacementRequestQueue;
@@ -20,11 +19,9 @@ import org.junit.experimental.categories.Category;
 
 @Slf4j
 public class StagingCrawlerTest {
-
   @Category(Manual.class)
   @Test
   public void crawlStaging() {
-
     Supplier<String> accessTokenValue = () -> magicAccessToken().get().get();
     assertThat(accessTokenValue.get()).isNotNull();
     log.info("Access token is specified");
@@ -42,12 +39,11 @@ public class StagingCrawlerTest {
         SummarizingResultCollector.wrap(
             new FileResultsCollector(new File("target/staging-crawl-" + patient)));
 
-    RequestQueue q = new ConcurrentRequestQueue();
     UrlReplacementRequestQueue rq =
         UrlReplacementRequestQueue.builder()
             .replaceUrl("https://dev-api.va.gov/services/argonaut/v0/")
             .withUrl("https://staging-argonaut.lighthouse.va.gov/api/")
-            .requestQueue(q)
+            .requestQueue(new ConcurrentResourceBalancingRequestQueue())
             .build();
 
     discovery.queries().forEach(rq::add);
