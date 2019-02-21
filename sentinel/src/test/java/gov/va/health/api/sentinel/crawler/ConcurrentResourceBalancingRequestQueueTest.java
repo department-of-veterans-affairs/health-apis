@@ -7,7 +7,14 @@ import java.util.List;
 import org.junit.Test;
 
 public final class ConcurrentResourceBalancingRequestQueueTest {
+
   ConcurrentResourceBalancingRequestQueue q = new ConcurrentResourceBalancingRequestQueue();
+
+  @Test
+  public void asdf() {
+    System.out.println(String.format("%8d", 50));
+    System.out.println(String.format("%" + "AllergyIntolerance".length() + "s", "Encounter"));
+  }
 
   @Test
   public void duplicateItemsIgnored() {

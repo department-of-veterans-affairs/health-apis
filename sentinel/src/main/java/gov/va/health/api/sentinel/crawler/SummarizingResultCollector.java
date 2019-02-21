@@ -3,8 +3,10 @@ package gov.va.health.api.sentinel.crawler;
 import gov.va.health.api.sentinel.crawler.Result.Outcome;
 import gov.va.health.api.sentinel.crawler.Result.Summary;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.TreeMap;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
@@ -68,14 +70,8 @@ public class SummarizingResultCollector implements ResultCollector {
   public String message() {
     StringBuilder message = new StringBuilder();
     message.append("Outcomes");
-    message.append("\n--------------------\nReads");
-    for (Map.Entry<String, Integer> countEntry : readCounts().entrySet()) {
-      message.append("\n").append(countEntry.getKey()).append(": ").append(countEntry.getValue());
-    }
-    message.append("\n--------------------\nSearches");
-    for (Map.Entry<String, Integer> countEntry : searchCounts().entrySet()) {
-      message.append("\n").append(countEntry.getKey()).append(": ").append(countEntry.getValue());
-    }
+    message.append("\n--------------------");
+    message.append(resourceCountsSummary());
     message.append("\n--------------------");
     for (Outcome outcome : Outcome.values()) {
       message.append("\n").append(outcome).append(": ").append(queriesWithOutcome(outcome).count());
@@ -95,8 +91,37 @@ public class SummarizingResultCollector implements ResultCollector {
     return summaries.stream().filter(s -> s.outcome() == outcome).map(Result.Summary::query);
   }
 
-  private Map<String, Integer> readCounts() {
-    Map<String, Integer> counts = new TreeMap<>();
+  private String resourceCountsSummary() {
+    Map<String, Integer> readCounts = resourceReadCounts();
+    Map<String, Integer> searchCounts = resourceSearchCounts();
+    SortedSet<String> keys = new TreeSet<>();
+    keys.addAll(readCounts.keySet());
+    keys.addAll(searchCounts.keySet());
+    int maxKeyLength = keys.stream().mapToInt(key -> key.length()).max().orElse(0);
+    String readHeader = "Reads";
+    String searchHeader = "Searches";
+    final StringBuilder result = new StringBuilder();
+    result
+        .append("\n")
+        .append(String.format("%-" + maxKeyLength + "s", "Resource"))
+        .append(" ")
+        .append(readHeader)
+        .append(" ")
+        .append(searchHeader);
+    for (String key : keys) {
+      result.append("\n").append(String.format("%-" + maxKeyLength + "s", key));
+      String readCount =
+          String.format("%" + readHeader.length() + "d", readCounts.getOrDefault(key, 0));
+      result.append(" ").append(readCount);
+      String searchCount =
+          String.format("%" + searchHeader.length() + "d", searchCounts.getOrDefault(key, 0));
+      result.append(" ").append(searchCount);
+    }
+    return result.toString();
+  }
+
+  private Map<String, Integer> resourceReadCounts() {
+    Map<String, Integer> counts = new HashMap<>();
     for (final Summary s : summaries) {
       String resource = resource(s.query());
       if (!isSearch(s.query())) {
@@ -106,8 +131,8 @@ public class SummarizingResultCollector implements ResultCollector {
     return counts;
   }
 
-  private Map<String, Integer> searchCounts() {
-    Map<String, Integer> counts = new TreeMap<>();
+  private Map<String, Integer> resourceSearchCounts() {
+    Map<String, Integer> counts = new HashMap<>();
     for (final Summary s : summaries) {
       String resource = resource(s.query());
       if (isSearch(s.query())) {

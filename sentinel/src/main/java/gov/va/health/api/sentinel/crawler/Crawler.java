@@ -80,7 +80,7 @@ public class Crawler {
     Stack<Future<?>> futures = new Stack<>();
     ScheduledExecutorService monitor = monitorPendingRequests(futures);
     // PETERTODO configurable time limit
-    Duration timeLimit = Duration.parse("PT10S");
+    Duration timeLimit = Duration.parse("PT5S");
     // PT1H10M10S
 
     while (hasPendingRequests(futures)) {
