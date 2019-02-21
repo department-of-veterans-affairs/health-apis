@@ -19,18 +19,9 @@ import org.springframework.context.annotation.Configuration;
 @AllArgsConstructor
 @Builder
 public class WellKnownProperties {
-  private Capabilities capabilities;
+  private String capabilities;
   private SecurityProperties security;
 
-  @Data
-  @Accessors(fluent = false)
-  @NoArgsConstructor
-  @AllArgsConstructor
-  @Builder
-  public static class Capabilities {
-    //{ "context-standalone-patient", "launch-ehr", "permission-offline", "permission-patient" }
-    private String[] capabilities;
-  }
 
   @Data
   @Accessors(fluent = false)

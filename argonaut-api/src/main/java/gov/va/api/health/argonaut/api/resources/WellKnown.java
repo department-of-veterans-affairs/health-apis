@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 
 @Data
 @Builder
@@ -12,8 +13,8 @@ import javax.validation.constraints.NotBlank;
 @AllArgsConstructor
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 @Schema(description = "Well-Known")
-public class WellKnown {
-  @NotBlank String resourceType;
+public class WellKnown{
+
   @NotBlank String authorizationEndpoint;
   @NotBlank String tokenEndpoint;
   String[] tokenEndpointAuthMethodsSupported;
@@ -23,6 +24,6 @@ public class WellKnown {
   String managementEndpoint;
   String introspectionEndpoint;
   String revocationEndpoint;
-  @NotBlank String[] capabilities;
+  @NotEmpty String[] capabilities;
 
 }
