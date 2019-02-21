@@ -1,0 +1,10 @@
+{
+  "authorizationEndpoint": "https://argonaut.lighthouse.va.gov/authorize",
+  "tokenEndpoint": "https://argonaut.lighthouse.va.gov/token",
+  "capabilities": [
+    "context-standalone-patient",
+    "launch-ehr",
+    "permission-offline",
+    "permission-patient"
+  ]
+}
