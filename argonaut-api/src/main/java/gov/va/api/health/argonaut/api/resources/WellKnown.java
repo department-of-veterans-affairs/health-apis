@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
-@Schema(description = "Well-Known")
+@Schema(description = "http://hl7.org/fhir/smart-app-launch/conformance/index.html#using-well-known")
 public final class WellKnown {
 
   @NotBlank String authorizationEndpoint;
