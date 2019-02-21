@@ -27,7 +27,7 @@ public class WellKnownControllerTest {
 
   @Test
   @SneakyThrows
-  public void readPatient() {
+  public void read() {
     WellKnownProperties properties = properties();
     WellKnownController controller = new WellKnownController(properties);
     WellKnown old =
