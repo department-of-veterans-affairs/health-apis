@@ -10,12 +10,6 @@ public final class ConcurrentResourceBalancingRequestQueueTest {
   ConcurrentResourceBalancingRequestQueue q = new ConcurrentResourceBalancingRequestQueue();
 
   @Test
-  public void asdf() {
-    System.out.println(String.format("%8d", 50));
-    System.out.println(String.format("%" + "AllergyIntolerance".length() + "s", "Encounter"));
-  }
-
-  @Test
   public void duplicateItemsIgnored() {
     q.add("a");
     q.add("b");
@@ -80,11 +74,13 @@ public final class ConcurrentResourceBalancingRequestQueueTest {
       q.add(url);
     }
     assertThat(q.next()).isEqualTo("foo/api/Condition?patient=bobnelson");
+
     // As a result of the condition search, add page 2 and several condition reads.
     q.add("foo/api/Condition?patient=bobnelson&page=2");
     q.add("foo/api/Condition/2");
     q.add("foo/api/Condition/3");
     q.add("foo/api/Condition/4");
+
     // Reads for all of the other resources should now be exhausted before returning to condition.
     final List<String> expectedOrder =
         asList(
