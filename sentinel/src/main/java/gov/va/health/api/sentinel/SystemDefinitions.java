@@ -60,24 +60,24 @@ public class SystemDefinitions {
     return SystemDefinition.builder()
         .ids(
             ServiceDefinition.builder()
-                .url("https://dev-api.va.gov")
+                .url(optionUrlIds("https://dev-api.va.gov"))
                 .port(443)
                 .accessToken(noAccessToken())
                 .apiPath("/not-available/")
                 .build())
         .mrAnderson(
             ServiceDefinition.builder()
-                .url("https://dev-api.va.gov")
+                .url(optionUrlMrAnderson("https://dev-api.va.gov"))
                 .port(443)
                 .accessToken(noAccessToken())
                 .apiPath("/not-available/")
                 .build())
         .argonaut(
             ServiceDefinition.builder()
-                .url("https://dev-api.va.gov")
+                .url(optionUrlArgonaut("https://dev-api.va.gov"))
                 .port(443)
                 .accessToken(magicAccessToken())
-                .apiPath("/services/argonaut/v0/")
+                .apiPath(optionApiPath("argonaut", "/services/argonaut/v0/"))
                 .build())
         .cdwIds(labAndStagingIds())
         .build();
@@ -133,7 +133,7 @@ public class SystemDefinitions {
                 .url(optionUrlArgonaut("https://localhost"))
                 .port(8090)
                 .accessToken(noAccessToken())
-                .apiPath("/api/")
+                .apiPath(optionApiPath("argonaut", "/api/"))
                 .build())
         .cdwIds(
             TestIds.builder()
@@ -184,6 +184,19 @@ public class SystemDefinitions {
         .build();
   }
 
+  private String optionApiPath(String name, String defaultValue) {
+    String property = "sentinel." + name + ".api-path";
+    String url = System.getProperty(property, defaultValue);
+    if (!url.startsWith("/")) {
+      url = "/" + url;
+    }
+    if (!url.endsWith("/")) {
+      url = url + "/";
+    }
+    log.info("Using {} api path {} (Override with -D{}=<url>)", name, url, property);
+    return url;
+  }
+
   private String optionUrl(String name, String defaultValue) {
     String property = "sentinel." + name + ".url";
     String url = System.getProperty(property, defaultValue);
@@ -231,7 +244,7 @@ public class SystemDefinitions {
                 .url(optionUrlArgonaut("https://argonaut.lighthouse.va.gov"))
                 .port(443)
                 .accessToken(magicAccessToken())
-                .apiPath("/api/")
+                .apiPath(optionApiPath("argonaut", "/api/"))
                 .build())
         .cdwIds(prodAndQaIds())
         .build();
@@ -287,7 +300,7 @@ public class SystemDefinitions {
                 .url(optionUrlArgonaut("https://qa-argonaut.lighthouse.va.gov"))
                 .port(443)
                 .accessToken(magicAccessToken())
-                .apiPath("/api/")
+                .apiPath(optionApiPath("argonaut", "/api/"))
                 .build())
         .cdwIds(prodAndQaIds())
         .build();
@@ -317,7 +330,7 @@ public class SystemDefinitions {
                 .url(optionUrlArgonaut("https://staging-argonaut.lighthouse.va.gov"))
                 .port(443)
                 .accessToken(magicAccessToken())
-                .apiPath("/api/")
+                .apiPath(optionApiPath("argonaut", "/api/"))
                 .build())
         .build();
   }

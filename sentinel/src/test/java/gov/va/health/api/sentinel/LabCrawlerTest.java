@@ -4,6 +4,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.health.api.sentinel.IdMeOauthRobot.Configuration.UserCredentials;
+import gov.va.health.api.sentinel.LabRobots.SmartOnFhirUrls;
 import gov.va.health.api.sentinel.categories.Manual;
 import gov.va.health.api.sentinel.crawler.ConcurrentResourceBalancingRequestQueue;
 import gov.va.health.api.sentinel.crawler.Crawler;
@@ -20,7 +21,7 @@ import org.junit.experimental.categories.Category;
 
 @Slf4j
 public class LabCrawlerTest {
-  private LabRobots robots = LabRobots.fromSystemProperties();
+  private final LabRobots robots = LabRobots.fromSystemProperties();
 
   private int crawl(String patient) {
     SystemDefinition env = Sentinel.get().system();
@@ -29,13 +30,15 @@ public class LabCrawlerTest {
             .id(patient)
             .password(System.getProperty("lab.user-password"))
             .build();
-    IdMeOauthRobot robot = robots.makeRobot(user);
+    IdMeOauthRobot robot =
+        robots.makeRobot(user, new SmartOnFhirUrls(env.argonaut().urlWithApiPath()));
     Swiggity.swooty(patient);
     assertThat(robot.token().accessToken()).isNotBlank();
+
     ResourceDiscovery discovery =
         ResourceDiscovery.builder()
             .patientId(robot.token().patient())
-            .url("https://dev-api.va.gov/services/argonaut/v0")
+            .url(env.argonaut().urlWithApiPath())
             .build();
     SummarizingResultCollector results =
         SummarizingResultCollector.wrap(
@@ -81,7 +84,7 @@ public class LabCrawlerTest {
         "Link replacement {} (Override with -Dsentinel.argonaut.url.replace=<url>)", replaceUrl);
     return UrlReplacementRequestQueue.builder()
         .replaceUrl(replaceUrl)
-        .withUrl(env.argonaut().url())
+        .withUrl(env.argonaut().urlWithApiPath())
         .requestQueue(new ConcurrentResourceBalancingRequestQueue())
         .build();
   }

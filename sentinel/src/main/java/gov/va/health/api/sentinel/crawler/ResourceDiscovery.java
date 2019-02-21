@@ -146,6 +146,7 @@ public class ResourceDiscovery {
    * described in the class documentation.
    */
   public List<String> queries() {
+    log.info("Discovering {}", url);
     Conformance conformanceStatement =
         RestAssured.given()
             .relaxedHTTPSValidation()

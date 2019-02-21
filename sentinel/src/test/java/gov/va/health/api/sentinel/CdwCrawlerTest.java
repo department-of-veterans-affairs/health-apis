@@ -34,7 +34,7 @@ public class CdwCrawlerTest {
     log.info("Access token is specified");
 
     ResourceDiscovery discovery =
-        ResourceDiscovery.builder().patientId(patient).url(env.argonaut().url() + "/api").build();
+        ResourceDiscovery.builder().patientId(patient).url(env.argonaut().urlWithApiPath()).build();
     SummarizingResultCollector results =
         SummarizingResultCollector.wrap(
             new FileResultsCollector(new File("target/cdw-crawl-" + patient)));
@@ -64,7 +64,7 @@ public class CdwCrawlerTest {
         "Link replacement {} (Override with -Dsentinel.argonaut.url.replace=<url>)", replaceUrl);
     return UrlReplacementRequestQueue.builder()
         .replaceUrl(replaceUrl)
-        .withUrl(env.argonaut().url())
+        .withUrl(env.argonaut().urlWithApiPath())
         .requestQueue(new ConcurrentResourceBalancingRequestQueue())
         .build();
   }

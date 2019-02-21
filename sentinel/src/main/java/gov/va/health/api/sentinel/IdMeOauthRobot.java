@@ -122,7 +122,7 @@ public class IdMeOauthRobot {
       checkForConsentForm(driver);
       checkForMatchingError(driver);
 
-      String code = extractCodeFromRedirectUrl(driver);
+      code = extractCodeFromRedirectUrl(driver);
       log.info("Code: {}", code);
       return code;
     } catch (Exception e) {
@@ -189,7 +189,7 @@ public class IdMeOauthRobot {
       return token;
     }
     log.info("Exchanging authorization code for token");
-    TokenExchange token =
+    token =
         RestAssured.given()
             .contentType(ContentType.URLENC.withCharset("UTF-8"))
             .formParam("client_id", config.authorization().clientId())
