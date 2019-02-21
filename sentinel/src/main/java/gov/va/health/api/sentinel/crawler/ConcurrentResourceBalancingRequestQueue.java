@@ -13,7 +13,10 @@ import java.util.Map;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
-/** Provides a thread safe implementation of the request queue. */
+/**
+ * Thread-safe implementation of {@link RequestQueue} that gives higher priority to less-visited
+ * resources.
+ */
 @Slf4j
 public class ConcurrentResourceBalancingRequestQueue implements RequestQueue {
   /** All items that have ever been in the queue. This prevents duplicate entries. */
@@ -22,7 +25,11 @@ public class ConcurrentResourceBalancingRequestQueue implements RequestQueue {
   /** The current items in the queue. */
   private final Collection<String> requests = new HashSet<>();
 
-  private final Map<String, Integer> scores = new HashMap<>();
+  /**
+   * An indication of how often a resource has been dequeued. Higher priority is given to resources
+   * with lower scores.
+   */
+  private final Map<String, Integer> resourceScores = new HashMap<>();
 
   @Override
   public synchronized void add(@NonNull String url) {
@@ -42,10 +49,13 @@ public class ConcurrentResourceBalancingRequestQueue implements RequestQueue {
   public synchronized String next() {
     checkState(hasNext());
 
+    // First consider the requests with the lowest scores.
+    // Then favor searches over reads.
+    // Natural string order is tiebreaker.
     final String next =
         Collections.min(
             requests,
-            Comparator.<String>comparingInt(str -> score(str))
+            Comparator.<String>comparingInt(str -> resourceScore(str))
                 .thenComparing(
                     (left, right) -> -1 * Boolean.compare(isSearch(left), isSearch(right)))
                 .thenComparing(Comparator.naturalOrder()));
@@ -53,14 +63,14 @@ public class ConcurrentResourceBalancingRequestQueue implements RequestQueue {
     requests.remove(next);
 
     if (isSearch(next)) {
-      scores.put(resource(next), score(next) + 15);
+      resourceScores.put(resource(next), resourceScore(next) + 15);
     } else {
-      scores.put(resource(next), score(next) + 1);
+      resourceScores.put(resource(next), resourceScore(next) + 1);
     }
     return next;
   }
 
-  private int score(String url) {
-    return scores.getOrDefault(resource(url), 0);
+  private int resourceScore(String url) {
+    return resourceScores.getOrDefault(resource(url), 0);
   }
 }
