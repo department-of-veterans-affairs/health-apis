@@ -1,5 +1,7 @@
 package gov.va.api.health.argonaut.service.controller.wellknown;
 
+import static java.util.Arrays.asList;
+
 import gov.va.api.health.argonaut.api.resources.WellKnown;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,8 +24,7 @@ class WellKnownController {
     return WellKnown.builder()
         .authorizationEndpoint(properties.getSecurity().getAuthorizeEndpoint())
         .tokenEndpoint(properties.getSecurity().getTokenEndpoint())
-        .capabilities(properties.getCapabilities().split(" "))
+        .capabilities(asList(properties.getCapabilities().split(" ")))
         .build();
   }
-
 }

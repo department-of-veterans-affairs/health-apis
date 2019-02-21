@@ -22,7 +22,6 @@ public class WellKnownProperties {
   private String capabilities;
   private SecurityProperties security;
 
-
   @Data
   @Accessors(fluent = false)
   @NoArgsConstructor

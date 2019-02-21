@@ -1,17 +1,15 @@
 package gov.va.api.health.argonaut.api.resources;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import gov.va.api.health.argonaut.api.Fhir;
-import gov.va.api.health.argonaut.api.elements.Meta;
 import io.swagger.v3.oas.annotations.media.Schema;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Pattern;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.util.List;
 
 @Data
 @Builder
@@ -23,12 +21,12 @@ public final class WellKnown {
 
   @NotBlank String authorizationEndpoint;
   @NotBlank String tokenEndpoint;
-  String[] tokenEndpointAuthMethodsSupported;
+  List<String> tokenEndpointAuthMethodsSupported;
   String registrationEndpoint;
-  String[] scopesSupported;
-  String[] responseTypeSupported;
+  List<String> scopesSupported;
+  List<String> responseTypeSupported;
   String managementEndpoint;
   String introspectionEndpoint;
   String revocationEndpoint;
-  @NotEmpty String[] capabilities;
+  @NotEmpty List<String> capabilities;
 }
