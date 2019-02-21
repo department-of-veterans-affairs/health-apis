@@ -21,7 +21,7 @@ import org.junit.experimental.categories.Category;
 @Slf4j
 public class LabCrawlerTest {
 
-  private LabRobots robots = LabRobots.fromSystemProperties();
+  private final LabRobots robots = LabRobots.fromSystemProperties();
 
   private int crawl(String patient) {
     SystemDefinition env = Sentinel.get().system();
@@ -33,10 +33,11 @@ public class LabCrawlerTest {
     IdMeOauthRobot robot = robots.makeRobot(user);
     Swiggity.swooty(patient);
     assertThat(robot.token().accessToken()).isNotBlank();
+
     ResourceDiscovery discovery =
         ResourceDiscovery.builder()
             .patientId(robot.token().patient())
-            .url("https://dev-api.va.gov/services/argonaut/v0")
+            .url(env.argonaut().urlWithApiPath())
             .build();
     SummarizingResultCollector results =
         SummarizingResultCollector.wrap(
@@ -82,7 +83,7 @@ public class LabCrawlerTest {
         "Link replacement {} (Override with -Dsentinel.argonaut.url.replace=<url>)", replaceUrl);
     return UrlReplacementRequestQueue.builder()
         .replaceUrl(replaceUrl)
-        .withUrl(env.argonaut().url())
+        .withUrl(env.argonaut().urlWithApiPath())
         .requestQueue(new ConcurrentRequestQueue())
         .build();
   }

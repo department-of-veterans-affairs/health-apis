@@ -47,4 +47,20 @@ public class ServiceDefinition {
     }
     return spec;
   }
+
+  /**
+   * Guaranteed to return a url + path that adds / as necessary to produce a url that ends in a /.
+   * e.g. https://something.com/my/cool/api/
+   */
+  String urlWithApiPath() {
+    StringBuilder builder = new StringBuilder(url());
+    if (!apiPath().startsWith("/")) {
+      builder.append('/');
+    }
+    builder.append(apiPath());
+    if (!apiPath.endsWith("/")) {
+      builder.append('/');
+    }
+    return builder.toString();
+  }
 }
