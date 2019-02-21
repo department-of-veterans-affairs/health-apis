@@ -1,6 +1,7 @@
 package gov.va.health.api.sentinel;
 
 import static gov.va.health.api.sentinel.SystemDefinitions.magicAccessToken;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.health.api.sentinel.categories.Manual;
@@ -11,6 +12,8 @@ import gov.va.health.api.sentinel.crawler.ResourceDiscovery;
 import gov.va.health.api.sentinel.crawler.SummarizingResultCollector;
 import gov.va.health.api.sentinel.crawler.UrlReplacementRequestQueue;
 import java.io.File;
+import java.time.Duration;
+import java.time.format.DateTimeParseException;
 import java.util.concurrent.Executors;
 import java.util.function.Supplier;
 import lombok.extern.slf4j.Slf4j;
@@ -54,9 +57,28 @@ public class StagingCrawlerTest {
             .results(results)
             .authenticationToken(accessTokenValue)
             .forceJargonaut(true)
+            .timeLimit(timeLimit())
             .build();
     crawler.crawl();
     log.info("Results for patient : {} \n{}", patient, results.message());
     assertThat(results.failures()).withFailMessage("%d Failures", results.failures()).isEqualTo(0);
+  }
+
+  private Duration timeLimit() {
+    String maybeDuration = System.getProperty("sentinel.crawler.timelimit");
+    if (isNotBlank(maybeDuration)) {
+      try {
+        final Duration timeLimit = Duration.parse(maybeDuration);
+        log.info(
+            "Crawling with time limit {} (Override with -Dsentinel.crawler.timelimit=<PnYnMnDTnHnMnS>)",
+            timeLimit);
+        return timeLimit;
+      } catch (DateTimeParseException e) {
+        log.warn("Bad time limit {}, proceeding with no limit.", maybeDuration);
+      }
+    }
+    log.info(
+        "Crawling with no time limit (Override with -Dsentinel.crawler.timelimit=<PnYnMnDTnHnMnS>)");
+    return null;
   }
 }

@@ -13,6 +13,8 @@ import gov.va.health.api.sentinel.crawler.ResourceDiscovery;
 import gov.va.health.api.sentinel.crawler.SummarizingResultCollector;
 import gov.va.health.api.sentinel.crawler.UrlReplacementRequestQueue;
 import java.io.File;
+import java.time.Duration;
+import java.time.format.DateTimeParseException;
 import java.util.concurrent.Executors;
 import java.util.function.Supplier;
 import lombok.extern.slf4j.Slf4j;
@@ -48,6 +50,7 @@ public class CdwCrawlerTest {
             .results(results)
             .authenticationToken(accessTokenValue)
             .forceJargonaut(true)
+            .timeLimit(timeLimit())
             .build();
     crawler.crawl();
     log.info("Results for patient : {} \n{}", patient, results.message());
@@ -82,5 +85,23 @@ public class CdwCrawlerTest {
     log.info(
         "Crawling with {} threads (Override with -Dsentinel.crawler.threads=<number>)", threads);
     return threads;
+  }
+
+  private Duration timeLimit() {
+    String maybeDuration = System.getProperty("sentinel.crawler.timelimit");
+    if (isNotBlank(maybeDuration)) {
+      try {
+        final Duration timeLimit = Duration.parse(maybeDuration);
+        log.info(
+            "Crawling with time limit {} (Override with -Dsentinel.crawler.timelimit=<PnYnMnDTnHnMnS>)",
+            timeLimit);
+        return timeLimit;
+      } catch (DateTimeParseException e) {
+        log.warn("Bad time limit {}, proceeding with no limit.", maybeDuration);
+      }
+    }
+    log.info(
+        "Crawling with no time limit (Override with -Dsentinel.crawler.timelimit=<PnYnMnDTnHnMnS>)");
+    return null;
   }
 }

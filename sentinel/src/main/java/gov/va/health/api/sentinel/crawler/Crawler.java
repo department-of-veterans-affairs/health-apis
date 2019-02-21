@@ -39,6 +39,7 @@ public class Crawler {
   private final Supplier<String> authenticationToken;
   private final ExecutorService executor;
   private final boolean forceJargonaut;
+  private final Duration timeLimit;
 
   private static long notDoneCount(Collection<Future<?>> futures) {
     return futures.stream().filter(f -> !f.isDone()).count();
@@ -79,12 +80,9 @@ public class Crawler {
     results.init();
     Stack<Future<?>> futures = new Stack<>();
     ScheduledExecutorService monitor = monitorPendingRequests(futures);
-    // PETERTODO configurable time limit
-    Duration timeLimit = Duration.parse("PT5S");
-    // PT1H10M10S
 
     while (hasPendingRequests(futures)) {
-      if (watch.elapsed(TimeUnit.SECONDS) > timeLimit.getSeconds()) {
+      if (timeLimit != null && watch.elapsed(TimeUnit.SECONDS) > timeLimit.getSeconds()) {
         log.info(
             "Time limit {} reached. Finishing {} pending requests.",
             timeLimit,
