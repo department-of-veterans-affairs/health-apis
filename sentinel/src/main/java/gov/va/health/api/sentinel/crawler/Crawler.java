@@ -34,11 +34,17 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 @Builder
 @Slf4j
 public class Crawler {
+
   private final RequestQueue requestQueue;
+
   private final ResultCollector results;
+
   private final Supplier<String> authenticationToken;
+
   private final ExecutorService executor;
+
   private final boolean forceJargonaut;
+
   private final Duration timeLimit;
 
   private static long notDoneCount(Collection<Future<?>> futures) {
@@ -80,23 +86,10 @@ public class Crawler {
     results.init();
     Stack<Future<?>> futures = new Stack<>();
     ScheduledExecutorService monitor = monitorPendingRequests(futures);
-
-    while (hasPendingRequests(futures)) {
-      if (timeLimit != null && watch.elapsed(TimeUnit.SECONDS) > timeLimit.getSeconds()) {
-        log.info(
-            "Time limit {} reached. Finishing {} pending requests.",
-            timeLimit,
-            notDoneCount(futures));
-        for (final Future<?> future : futures) {
-          future.get(1, TimeUnit.HOURS);
-        }
-        break;
-      }
-
+    while (hasPendingRequests(futures) && !timeLimitReached(watch)) {
       if (!requestQueue.hasNext()) {
         continue;
       }
-
       String url = requestQueue.next();
       futures.push(
           executor.submit(
@@ -111,7 +104,15 @@ public class Crawler {
                 results.add(resultBuilder.build());
               }));
     }
-
+    if (timeLimitReached(watch)) {
+      log.info(
+          "Time limit {} reached. Finishing {} pending requests.",
+          timeLimit,
+          notDoneCount(futures));
+      for (final Future<?> future : futures) {
+        future.get(1, TimeUnit.HOURS);
+      }
+    }
     monitor.shutdownNow();
     results.done();
   }
@@ -152,12 +153,10 @@ public class Crawler {
             .get(url)
             .andReturn();
     resultBuilder.httpStatus(response.getStatusCode()).body(response.getBody().asString());
-
     if (response.getStatusCode() == 200) {
       ReferenceInterceptor interceptor = new ReferenceInterceptor();
       Object payload = interceptor.mapper().readValue(response.asByteArray(), type);
       interceptor.references().forEach(u -> requestQueue.add(u));
-
       Set<ConstraintViolation<Object>> violations =
           Validation.buildDefaultValidatorFactory().getValidator().validate(payload);
       if (violations.isEmpty()) {
@@ -167,12 +166,10 @@ public class Crawler {
             .outcome(Outcome.INVALID_PAYLOAD)
             .additionalInfo(violations.stream().map(this::asAdditionalInfo).collect(joining("\n")));
       }
-
       addLinksFromBundle(payload);
     } else {
       resultBuilder.outcome(Outcome.INVALID_STATUS);
     }
-
     slowDownIfApproachingRequestLimit(response);
   }
 
@@ -205,5 +202,9 @@ public class Crawler {
         log.warn("Got abruptly woken up by the rude neighbor!", e);
       }
     }
+  }
+
+  private boolean timeLimitReached(Stopwatch watch) {
+    return timeLimit != null && watch.elapsed(TimeUnit.SECONDS) > timeLimit.getSeconds();
   }
 }
