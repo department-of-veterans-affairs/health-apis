@@ -10,8 +10,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.Builder;
@@ -45,12 +43,7 @@ public class ResourceDiscovery {
 
   /** Indicates if a URL represents a search query. */
   static boolean isSearch(@NonNull String url) {
-    int apiIndex = url.indexOf("/api/");
-    if (apiIndex <= -1) {
-      return false;
-    }
-    String query = url.substring(apiIndex + "/api/".length());
-    return query.contains("?");
+    return url.contains("?");
   }
 
   private static <T> Stream<T> nullableListToStream(List<T> list) {
@@ -60,21 +53,29 @@ public class ResourceDiscovery {
   /**
    * Extract resource from URL.
    *
-   * <p>For example, resource is 'Condition' in these URLs:
+   * <p>For example, resource is 'Condition' for:
    *
    * <ul>
-   *   <li>foo/api/Condition
-   *   <li>foo/api/Condition/123
-   *   <li>foo/api/Condition?patient=bobnelson
+   *   <li>https://foo.gov/services/argonaut/v0/Condition?patient=12345
+   *   <li>https://foo.gov/api/Condition/12345
    * </ul>
    */
   static String resource(@NonNull String url) {
-    Matcher matcher = Pattern.compile(".*/api/([^/^?]+).*").matcher(url);
-    if (matcher.find()) {
-      return matcher.group(1);
+    int lastSlashIndex = url.lastIndexOf("/");
+    if (isSearch(url)) {
+      int questionIndex = url.indexOf("?", lastSlashIndex);
+      if (lastSlashIndex + 1 > questionIndex) {
+        log.warn("Failed to extract resource from url '{}'.", url);
+        return url;
+      }
+      return url.substring(lastSlashIndex + 1, questionIndex);
     } else {
-      log.warn("Failed to extract resource from url '{}'.", url);
-      return url;
+      int secondLastSlashIndex = url.substring(0, lastSlashIndex).lastIndexOf("/");
+      if (secondLastSlashIndex + 1 > lastSlashIndex) {
+        log.warn("Failed to extract resource from url '{}'.", url);
+        return url;
+      }
+      return url.substring(secondLastSlashIndex + 1, lastSlashIndex);
     }
   }
 
