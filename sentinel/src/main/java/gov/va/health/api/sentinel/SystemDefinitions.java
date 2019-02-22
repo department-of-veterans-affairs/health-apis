@@ -200,6 +200,9 @@ public class SystemDefinitions {
   private String optionUrl(String name, String defaultValue) {
     String property = "sentinel." + name + ".url";
     String url = System.getProperty(property, defaultValue);
+    if (url.endsWith("/")) {
+      url = url.substring(0, url.length() - 1);
+    }
     log.info("Using {} url {} (Override with -D{}=<url>)", name, url, property);
     return url;
   }
