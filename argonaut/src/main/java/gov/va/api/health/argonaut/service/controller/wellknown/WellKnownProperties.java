@@ -9,6 +9,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.List;
+
 @SuppressWarnings("DefaultAnnotationParam")
 @Configuration
 @EnableConfigurationProperties
@@ -19,10 +21,10 @@ import org.springframework.context.annotation.Configuration;
 @AllArgsConstructor
 @Builder
 public class WellKnownProperties {
-  private String capabilities;
+  private List<String> capabilities;
   private SecurityProperties security;
-  private String responseTypeSupported;
-  private String scopesSupported;
+  private List<String> responseTypeSupported;
+  private List<String> scopesSupported;
 
   @Data
   @Accessors(fluent = false)

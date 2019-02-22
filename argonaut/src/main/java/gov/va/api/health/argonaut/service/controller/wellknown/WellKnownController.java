@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(
   value = {".well-known/smart-configuration"},
-  produces = {"application/json"}
+  produces = {"application/json", "application/fhir+json", "application/json+fhir"}
 )
 @AllArgsConstructor(onConstructor = @__({@Autowired}))
 class WellKnownController {
@@ -25,16 +25,11 @@ class WellKnownController {
     return WellKnown.builder()
         .authorizationEndpoint(properties.getSecurity().getAuthorizeEndpoint())
         .tokenEndpoint(properties.getSecurity().getTokenEndpoint())
-        .capabilities(split(properties.getCapabilities()))
-        .responseTypeSupported(split(properties.getResponseTypeSupported()))
-        .scopesSupported(split(properties.getScopesSupported()))
+        .capabilities(properties.getCapabilities())
+        .responseTypeSupported(properties.getResponseTypeSupported())
+        .scopesSupported(properties.getScopesSupported())
         .build();
   }
 
-  private List<String> split(String csv) {
-    if (csv == null) {
-      return null;
-    }
-    return asList(csv.replaceAll("\\s+", "").split(","));
-  }
+
 }
