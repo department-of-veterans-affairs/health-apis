@@ -1,4 +1,4 @@
-package gov.va.api.health.argonaut.api.resources;
+package gov.va.api.health.argonaut.api.information;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -16,7 +16,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
-@Schema(description = "http://hl7.org/fhir/smart-app-launch/conformance/index.html#using-well-known")
+@Schema(
+  description = "http://hl7.org/fhir/smart-app-launch/conformance/index.html#using-well-known"
+)
 public final class WellKnown {
 
   @NotBlank String authorizationEndpoint;

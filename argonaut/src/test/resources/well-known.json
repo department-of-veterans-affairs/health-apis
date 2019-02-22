@@ -12,7 +12,7 @@
   ],
   "capabilities" : [
     "context-standalone-patient",
-    "launch-ehr",
+    "launch-standalone",
     "permission-offline",
     "permission-patient"
   ]

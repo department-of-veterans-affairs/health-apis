@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
 @SuppressWarnings("DefaultAnnotationParam")
 @Configuration
 @EnableConfigurationProperties
-@ConfigurationProperties("well-known")
+@ConfigurationProperties("conformance")
 @Data
 @Accessors(fluent = false)
 @NoArgsConstructor

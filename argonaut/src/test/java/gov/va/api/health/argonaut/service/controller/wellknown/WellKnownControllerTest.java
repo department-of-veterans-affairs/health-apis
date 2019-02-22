@@ -2,7 +2,7 @@ package gov.va.api.health.argonaut.service.controller.wellknown;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import gov.va.api.health.argonaut.api.resources.WellKnown;
+import gov.va.api.health.argonaut.api.information.WellKnown;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import lombok.SneakyThrows;
 import org.junit.Test;
@@ -22,9 +22,10 @@ public class WellKnownControllerTest {
                 .tokenEndpoint("https://argonaut.lighthouse.va.gov/token")
                 .authorizeEndpoint("https://argonaut.lighthouse.va.gov/authorize")
                 .build())
-        .capabilities("context-standalone-patient launch-ehr permission-offline permission-patient")
-        .responseTypeSupported("code refresh-token")
-        .scopesSupported("patient/DiagnosticReport.read patient/Patient.read offline_access")
+        .capabilities(
+            "context-standalone-patient,launch-standalone,permission-offline,permission-patient")
+        .responseTypeSupported("code, refresh-token")
+        .scopesSupported("patient/DiagnosticReport.read, patient/Patient.read, offline_access")
         .build();
   }
 
