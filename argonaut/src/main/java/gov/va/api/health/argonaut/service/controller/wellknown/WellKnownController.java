@@ -1,9 +1,6 @@
 package gov.va.api.health.argonaut.service.controller.wellknown;
 
-import static java.util.Arrays.asList;
-
 import gov.va.api.health.argonaut.api.information.WellKnown;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,6 +27,4 @@ class WellKnownController {
         .scopesSupported(properties.getScopesSupported())
         .build();
   }
-
-
 }
