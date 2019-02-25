@@ -23,8 +23,8 @@ public class UrlReplacementRequestQueue implements RequestQueue {
     if (isBlank(replaceUrl)) {
       throw new IllegalStateException("replaceUrl not specified.");
     }
-    this.replaceUrl = replaceUrl;
-    this.withUrl = withUrl;
+    this.replaceUrl = replaceUrl.endsWith("/") ? replaceUrl : replaceUrl + "/";
+    this.withUrl = withUrl.endsWith("/") ? withUrl : withUrl + "/";
     this.requestQueue = requestQueue;
   }
 
