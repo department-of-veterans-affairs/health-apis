@@ -106,11 +106,9 @@ public class Crawler {
     }
     if (timeLimitReached(watch)) {
       log.info(
-          "Time limit {} reached. Finishing {} pending requests.",
-          timeLimit,
-          notDoneCount(futures));
+          "Time limit {} reached. Ignoring {} pending requests.", timeLimit, notDoneCount(futures));
       for (final Future<?> future : futures) {
-        future.get(1, TimeUnit.HOURS);
+        future.cancel(false);
       }
     }
     monitor.shutdownNow();

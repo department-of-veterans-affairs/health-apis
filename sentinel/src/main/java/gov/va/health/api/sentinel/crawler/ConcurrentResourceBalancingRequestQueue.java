@@ -36,7 +36,6 @@ public class ConcurrentResourceBalancingRequestQueue implements RequestQueue {
     if (!allRequests.contains(url)) {
       requests.add(url);
       allRequests.add(url);
-      log.info("Enqueued {}.", url);
     }
   }
 
@@ -59,7 +58,6 @@ public class ConcurrentResourceBalancingRequestQueue implements RequestQueue {
                 .thenComparing(
                     (left, right) -> -1 * Boolean.compare(isSearch(left), isSearch(right)))
                 .thenComparing(Comparator.naturalOrder()));
-    log.info("Dequeued {}.", next);
     requests.remove(next);
 
     if (isSearch(next)) {
