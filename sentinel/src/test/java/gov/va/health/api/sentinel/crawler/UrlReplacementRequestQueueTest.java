@@ -12,7 +12,7 @@ public class UrlReplacementRequestQueueTest {
           .requestQueue(new ConcurrentResourceBalancingRequestQueue())
           .build();
 
-  @Test(expected = IllegalStateException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void emptyBaseUrlThrowsIllegalStateException() {
     UrlReplacementRequestQueue emptyBaseUrl =
         UrlReplacementRequestQueue.builder()
@@ -23,7 +23,7 @@ public class UrlReplacementRequestQueueTest {
     emptyBaseUrl.add("Empty forceUrl");
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void emptyForceUrlThrowsIllegalStateException() {
     UrlReplacementRequestQueue emptyBaseUrl =
         UrlReplacementRequestQueue.builder()
@@ -77,7 +77,7 @@ public class UrlReplacementRequestQueueTest {
     assertThat(rq.hasNext()).isFalse();
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void nullBaseUrlThrowsIllegalStateException() {
     UrlReplacementRequestQueue emptyBaseUrl =
         UrlReplacementRequestQueue.builder()
@@ -88,7 +88,7 @@ public class UrlReplacementRequestQueueTest {
     emptyBaseUrl.add("Empty baseUrl");
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void nullForceUrlThrowsIllegalStateException() {
     UrlReplacementRequestQueue emptyBaseUrl =
         UrlReplacementRequestQueue.builder()

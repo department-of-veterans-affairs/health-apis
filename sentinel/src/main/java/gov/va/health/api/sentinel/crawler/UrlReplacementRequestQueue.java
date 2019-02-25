@@ -18,10 +18,10 @@ public class UrlReplacementRequestQueue implements RequestQueue {
   @Builder
   UrlReplacementRequestQueue(String replaceUrl, String withUrl, RequestQueue requestQueue) {
     if (isBlank(withUrl)) {
-      throw new IllegalStateException("withUrl not specified.");
+      throw new IllegalArgumentException("withUrl not specified.");
     }
     if (isBlank(replaceUrl)) {
-      throw new IllegalStateException("replaceUrl not specified.");
+      throw new IllegalArgumentException("replaceUrl not specified.");
     }
     this.replaceUrl = replaceUrl.endsWith("/") ? replaceUrl : replaceUrl + "/";
     this.withUrl = withUrl.endsWith("/") ? withUrl : withUrl + "/";
