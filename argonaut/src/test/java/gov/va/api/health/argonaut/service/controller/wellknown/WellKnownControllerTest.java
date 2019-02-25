@@ -4,6 +4,7 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.argonaut.api.information.WellKnown;
+import gov.va.api.health.argonaut.service.controller.conformance.ConformanceStatementProperties;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import lombok.SneakyThrows;
 import org.junit.Test;
@@ -26,6 +27,16 @@ public class WellKnownControllerTest {
         .build();
   }
 
+  private ConformanceStatementProperties conformanceProperties() {
+    return ConformanceStatementProperties.builder()
+        .security(
+            ConformanceStatementProperties.SecurityProperties.builder()
+                .authorizeEndpoint("https://argonaut.lighthouse.va.gov/authorize")
+                .tokenEndpoint("https://argonaut.lighthouse.va.gov/token")
+                .build())
+        .build();
+  }
+
   @SneakyThrows
   private String pretty(WellKnown wellKnown) {
     return JacksonConfig.createMapper()
@@ -33,13 +44,21 @@ public class WellKnownControllerTest {
         .writeValueAsString(wellKnown);
   }
 
-  private WellKnownProperties properties() {
+  @Test
+  @SneakyThrows
+  public void read() {
+    WellKnownController controller =
+        new WellKnownController(wellKnownProperties(), conformanceProperties());
+    try {
+      assertThat(pretty(controller.read())).isEqualTo(pretty(actual()));
+    } catch (AssertionError e) {
+      System.out.println(e.getMessage());
+      throw e;
+    }
+  }
+
+  private WellKnownProperties wellKnownProperties() {
     return WellKnownProperties.builder()
-        .security(
-            WellKnownProperties.SecurityProperties.builder()
-                .tokenEndpoint("https://argonaut.lighthouse.va.gov/token")
-                .authorizeEndpoint("https://argonaut.lighthouse.va.gov/authorize")
-                .build())
         .capabilities(
             asList(
                 "context-standalone-patient",
@@ -50,18 +69,5 @@ public class WellKnownControllerTest {
         .scopesSupported(
             asList("patient/DiagnosticReport.read", "patient/Patient.read", "offline_access"))
         .build();
-  }
-
-  @Test
-  @SneakyThrows
-  public void read() {
-    WellKnownProperties properties = properties();
-    WellKnownController controller = new WellKnownController(properties);
-    try {
-      assertThat(pretty(controller.read())).isEqualTo(pretty(actual()));
-    } catch (AssertionError e) {
-      System.out.println(e.getMessage());
-      throw e;
-    }
   }
 }

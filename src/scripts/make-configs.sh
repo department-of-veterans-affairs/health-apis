@@ -147,6 +147,10 @@ configValue argonaut $PROFILE conformance.contact.name "$(whoDis)"
 configValue argonaut $PROFILE conformance.contact.email "$(sendMoarSpams)"
 configValue argonaut $PROFILE conformance.security.token-endpoint https://fake.com/token
 configValue argonaut $PROFILE conformance.security.authorize-endpoint https://fake.com/authorize
+configValue argonaut $PROFILE well-known.capabilities "context-standalone-patient, launch-ehr, permission-offline, permission-patient"
+configValue argonaut $PROFILE well-known.response-type-supported "code, refresh_token"
+configValue argonaut $PROFILE well-known.scopes-supported "patient/DiagnosticReport.read, patient/Patient.read, offline_access"
+
 checkForUnsetValues argonaut $PROFILE
 
 makeSentinelSecrets

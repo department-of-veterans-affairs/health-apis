@@ -10,10 +10,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
-@SuppressWarnings("DefaultAnnotationParam")
 @Configuration
 @EnableConfigurationProperties
-@ConfigurationProperties("conformance")
+@ConfigurationProperties("well-known")
 @Data
 @Accessors(fluent = false)
 @NoArgsConstructor
@@ -21,17 +20,6 @@ import org.springframework.context.annotation.Configuration;
 @Builder
 public class WellKnownProperties {
   private List<String> capabilities;
-  private SecurityProperties security;
   private List<String> responseTypeSupported;
   private List<String> scopesSupported;
-
-  @Data
-  @Accessors(fluent = false)
-  @NoArgsConstructor
-  @AllArgsConstructor
-  @Builder
-  public static class SecurityProperties {
-    private String tokenEndpoint;
-    private String authorizeEndpoint;
-  }
 }
