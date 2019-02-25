@@ -100,6 +100,21 @@ public class UrlReplacementRequestQueueTest {
   }
 
   @Test
+  public void replaceUrlAppendsSlash() {
+    UrlReplacementRequestQueue appendToReplaceUrlRq =
+        UrlReplacementRequestQueue.builder()
+            .replaceUrl("https://dev-api.va.gov/services/argonaut/v0")
+            .withUrl("https://staging-argonaut.lighthouse.va.gov/api/")
+            .requestQueue(new ConcurrentResourceBalancingRequestQueue())
+            .build();
+    appendToReplaceUrlRq.add(
+        "https://dev-api.va.gov/services/argonaut/v0/AllergyIntolerance/3be00408-b0ff-598d-8ba1-1e0bbfb02b99");
+    String expected =
+        "https://staging-argonaut.lighthouse.va.gov/api/AllergyIntolerance/3be00408-b0ff-598d-8ba1-1e0bbfb02b99";
+    assertThat(appendToReplaceUrlRq.next()).isEqualTo(expected);
+  }
+
+  @Test
   public void theSameItemCannotBeAddedToTheQueueTwice() {
     rq.add("a");
     rq.add("b");
@@ -115,5 +130,20 @@ public class UrlReplacementRequestQueueTest {
     assertThat(rq.hasNext()).isTrue();
     assertThat(rq.next()).isEqualTo("c");
     assertThat(rq.hasNext()).isFalse();
+  }
+
+  @Test
+  public void withUrlAppendsSlash() {
+    UrlReplacementRequestQueue appendToWithUrlRq =
+        UrlReplacementRequestQueue.builder()
+            .replaceUrl("https://dev-api.va.gov/services/argonaut/v0/")
+            .withUrl("https://staging-argonaut.lighthouse.va.gov/api")
+            .requestQueue(new ConcurrentResourceBalancingRequestQueue())
+            .build();
+    appendToWithUrlRq.add(
+        "https://dev-api.va.gov/services/argonaut/v0/AllergyIntolerance/3be00408-b0ff-598d-8ba1-1e0bbfb02b99");
+    String expected =
+        "https://staging-argonaut.lighthouse.va.gov/api/AllergyIntolerance/3be00408-b0ff-598d-8ba1-1e0bbfb02b99";
+    assertThat(appendToWithUrlRq.next()).isEqualTo(expected);
   }
 }
