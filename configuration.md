@@ -118,17 +118,3 @@ spring.datasource.url ..................... JDBC URL to CDW
 spring.datasource.username ................ Database user name
 spring.datasource.password ................ Database password
 ```
-
-### Identity Service
-```
-# HTTPS Server
-server.ssl.key-store ...................... Path to keystore, e.g. /opt/va/certs/<any>.jks
-server.ssl.key-store-password ............. Password for the keystore
-server.ssl.key-alias ...................... Key alias in the keystore to use
-
-# Database
-spring.datasource.url ..................... JDBC URL to the identity database
-spring.datasource.username ................ Database user name
-spring.datasource.password ................ Database password
-```
-

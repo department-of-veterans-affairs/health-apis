@@ -10,8 +10,6 @@
   <version>1.0.192-SNAPSHOT</version>
   <packaging>pom</packaging>
   <modules>
-    <module>ids-api</module>
-    <module>ids</module>
     <module>argonaut</module>
     <module>argonaut-api</module>
     <module>mr-anderson</module>
