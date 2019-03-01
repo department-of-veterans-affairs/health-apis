@@ -1,6 +1,6 @@
 package gov.va.api.health.sentinel;
 
-import static org.apache.commons.lang3.StringUtils.isBlank;
+import static gov.va.api.health.sentinel.SentinelProperties.magicAccessToken;
 
 import gov.va.api.health.sentinel.TestIds.DiagnosticReports;
 import gov.va.api.health.sentinel.TestIds.Observations;
@@ -8,15 +8,12 @@ import gov.va.api.health.sentinel.TestIds.PersonallyIdentifiableInformation;
 import gov.va.api.health.sentinel.TestIds.Procedures;
 import gov.va.api.health.sentinel.TestIds.Range;
 import java.util.Optional;
-import java.util.function.Supplier;
 import lombok.experimental.UtilityClass;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * {@link SystemDefinition}s for different environments. {@link #systemDefinition()} method provides
  * the appropriate implementation for the current environment.
  */
-@Slf4j
 @UtilityClass
 public final class SystemDefinitions {
   private static DiagnosticReports diagnosticReports() {
@@ -48,27 +45,17 @@ public final class SystemDefinitions {
   /** Return definitions for the lab environment. */
   private static SystemDefinition lab() {
     return SystemDefinition.builder()
-        .ids(
-            ServiceDefinition.builder()
-                .url(optionUrlIds("https://dev-api.va.gov"))
-                .port(443)
-                .accessToken(noAccessToken())
-                .apiPath("/not-available/")
-                .build())
+        .ids(serviceDefinition("ids", "https://dev-api.va.gov", 443, null, "/not-available/"))
         .mrAnderson(
-            ServiceDefinition.builder()
-                .url(optionUrlMrAnderson("https://dev-api.va.gov"))
-                .port(443)
-                .accessToken(noAccessToken())
-                .apiPath("/not-available/")
-                .build())
+            serviceDefinition(
+                "mr-anderson", "https://dev-api.va.gov", 443, null, "/not-available/"))
         .argonaut(
-            ServiceDefinition.builder()
-                .url(optionUrlArgonaut("https://dev-api.va.gov"))
-                .port(443)
-                .accessToken(() -> Optional.of(magicAccessToken()))
-                .apiPath(optionApiPath("argonaut", "/services/argonaut/v0/"))
-                .build())
+            serviceDefinition(
+                "argonaut",
+                "https://dev-api.va.gov",
+                443,
+                magicAccessToken(),
+                "/services/argonaut/v0/"))
         .cdwIds(labAndStagingIds())
         .build();
   }
@@ -104,73 +91,45 @@ public final class SystemDefinitions {
    */
   private static SystemDefinition local() {
     return SystemDefinition.builder()
-        .ids(
-            ServiceDefinition.builder()
-                .url(optionUrlIds("https://localhost"))
-                .port(8089)
-                .accessToken(noAccessToken())
-                .apiPath("/api/")
-                .build())
-        .mrAnderson(
-            ServiceDefinition.builder()
-                .url(optionUrlMrAnderson("https://localhost"))
-                .port(8088)
-                .accessToken(noAccessToken())
-                .apiPath("/api/")
-                .build())
-        .argonaut(
-            ServiceDefinition.builder()
-                .url(optionUrlArgonaut("https://localhost"))
-                .port(8090)
-                .accessToken(noAccessToken())
-                .apiPath(optionApiPath("argonaut", "/api/"))
-                .build())
-        .cdwIds(
-            TestIds.builder()
-                .publicIds(false)
-                .allergyIntolerance("1000001782544")
-                .appointment("1200438317388")
-                .condition("1400007575530:P")
-                .diagnosticReport("1000000031384:L")
-                .encounter("1200753214085")
-                .diagnosticReports(diagnosticReports())
-                .immunization("1000000043979")
-                .location("166365:L")
-                .medication("212846")
-                .medicationDispense("1200738474343:R")
-                .medicationOrder("1200389904206:O")
-                .medicationStatement("1400000182116")
-                .observation("1201051417263:V")
-                .observations(observations())
-                .organization("1000025431:C")
-                .pii(
-                    PersonallyIdentifiableInformation.builder()
-                        .gender("male")
-                        .birthdate("1970-01-01")
-                        .given("JOHN Q")
-                        .name("VETERAN,JOHN")
-                        .family("VETERAN")
-                        .build())
-                .patient("185601V825290")
-                .practitioner("10092125")
-                .procedure("1400000140034")
-                .procedures(procedures())
-                .unknown("5555555555555")
-                .build())
+        .ids(serviceDefinition("ids", "https://localhost", 8089, null, "/api/"))
+        .mrAnderson(serviceDefinition("mr-anderson", "https://localhost", 8088, null, "/api/"))
+        .argonaut(serviceDefinition("argonaut", "https://localhost", 8090, null, "/api/"))
+        .cdwIds(localIds())
         .build();
   }
 
-  /** Supplies system property access-token, or throws exception if it doesn't exist. */
-  static String magicAccessToken() {
-    final String magic = System.getProperty("access-token");
-    if (isBlank(magic)) {
-      throw new IllegalStateException("Access token not specified, -Daccess-token=<value>");
-    }
-    return magic;
-  }
-
-  private static Supplier<Optional<String>> noAccessToken() {
-    return () -> Optional.empty();
+  private static TestIds localIds() {
+    return TestIds.builder()
+        .publicIds(false)
+        .allergyIntolerance("1000001782544")
+        .appointment("1200438317388")
+        .condition("1400007575530:P")
+        .diagnosticReport("1000000031384:L")
+        .encounter("1200753214085")
+        .diagnosticReports(diagnosticReports())
+        .immunization("1000000043979")
+        .location("166365:L")
+        .medication("212846")
+        .medicationDispense("1200738474343:R")
+        .medicationOrder("1200389904206:O")
+        .medicationStatement("1400000182116")
+        .observation("1201051417263:V")
+        .observations(observations())
+        .organization("1000025431:C")
+        .pii(
+            PersonallyIdentifiableInformation.builder()
+                .gender("male")
+                .birthdate("1970-01-01")
+                .given("JOHN Q")
+                .name("VETERAN,JOHN")
+                .family("VETERAN")
+                .build())
+        .patient("185601V825290")
+        .practitioner("10092125")
+        .procedure("1400000140034")
+        .procedures(procedures())
+        .unknown("5555555555555")
+        .build();
   }
 
   private static Observations observations() {
@@ -183,71 +142,23 @@ public final class SystemDefinitions {
         .build();
   }
 
-  private static String optionApiPath(String name, String defaultValue) {
-    String property = "sentinel." + name + ".api-path";
-    String url = System.getProperty(property, defaultValue);
-    if (!url.startsWith("/")) {
-      url = "/" + url;
-    }
-    if (!url.endsWith("/")) {
-      url = url + "/";
-    }
-    log.info("Using {} api path {} (Override with -D{}=<url>)", name, url, property);
-    return url;
-  }
-
-  private static String optionUrl(String name, String defaultValue) {
-    String property = "sentinel." + name + ".url";
-    String url = System.getProperty(property, defaultValue);
-    if (url.endsWith("/")) {
-      url = url.substring(0, url.length() - 1);
-    }
-    log.info("Using {} url {} (Override with -D{}=<url>)", name, url, property);
-    return url;
-  }
-
-  private static String optionUrlArgonaut(String defaultValue) {
-    return optionUrl("argonaut", defaultValue);
-  }
-
-  private static String optionUrlIds(String defaultValue) {
-    return optionUrl("ids", defaultValue);
-  }
-
-  private static String optionUrlMrAnderson(String defaultValue) {
-    return optionUrl("mr-anderson", defaultValue);
-  }
-
   private static Procedures procedures() {
     return Procedures.builder().fromDate("ge2009").onDate("ge2009").toDate("le2010").build();
   }
 
   /** Return definitions for the production environment. */
   private static SystemDefinition prod() {
+    // Mr Anderson not accessible in this environment
     return SystemDefinition.builder()
         .ids(
-            ServiceDefinition.builder()
-                // Ids not accessible in this environment
-                .url(optionUrlIds("https://argonaut.lighthouse.va.gov"))
-                .port(443)
-                .accessToken(noAccessToken())
-                .apiPath("/not-available/")
-                .build())
+            serviceDefinition(
+                "ids", "https://argonaut.lighthouse.va.gov", 443, null, "/not-available/"))
         .mrAnderson(
-            ServiceDefinition.builder()
-                // Mr Anderson not accessible in this environment
-                .url(optionUrlMrAnderson("https://argonaut.lighthouse.va.gov"))
-                .port(443)
-                .accessToken(noAccessToken())
-                .apiPath("/not-available/")
-                .build())
+            serviceDefinition(
+                "mr-anderson", "https://argonaut.lighthouse.va.gov", 443, null, "/not-available/"))
         .argonaut(
-            ServiceDefinition.builder()
-                .url(optionUrlArgonaut("https://argonaut.lighthouse.va.gov"))
-                .port(443)
-                .accessToken(() -> Optional.of(magicAccessToken()))
-                .apiPath(optionApiPath("argonaut", "/api/"))
-                .build())
+            serviceDefinition(
+                "argonaut", "https://argonaut.lighthouse.va.gov", 443, magicAccessToken(), "/api/"))
         .cdwIds(prodAndQaIds())
         .build();
   }
@@ -280,60 +191,60 @@ public final class SystemDefinitions {
 
   /** Return definitions for the qa environment. */
   private static SystemDefinition qa() {
+    // ID service and Mr Anderson not accessible in this environment
     return SystemDefinition.builder()
         .ids(
-            ServiceDefinition.builder()
-                // Ids not accessible in this environment
-                .url(optionUrlIds("https://qa-argonaut.lighthouse.va.gov"))
-                .port(443)
-                .accessToken(noAccessToken())
-                .apiPath("/not-available/")
-                .build())
+            serviceDefinition(
+                "ids", "https://qa-argonaut.lighthouse.va.gov", 443, null, "/not-available/"))
         .mrAnderson(
-            ServiceDefinition.builder()
-                // Mr Anderson not accessible in this environment
-                .url(optionUrlMrAnderson("https://qa-argonaut.lighthouse.va.gov"))
-                .port(443)
-                .accessToken(noAccessToken())
-                .apiPath("/not-available/")
-                .build())
+            serviceDefinition(
+                "mr-anderson",
+                "https://qa-argonaut.lighthouse.va.gov",
+                443,
+                null,
+                "/not-available/"))
         .argonaut(
-            ServiceDefinition.builder()
-                .url(optionUrlArgonaut("https://qa-argonaut.lighthouse.va.gov"))
-                .port(443)
-                .accessToken(() -> Optional.of(magicAccessToken()))
-                .apiPath(optionApiPath("argonaut", "/api/"))
-                .build())
+            serviceDefinition(
+                "argonaut",
+                "https://qa-argonaut.lighthouse.va.gov",
+                443,
+                magicAccessToken(),
+                "/api/"))
         .cdwIds(prodAndQaIds())
+        .build();
+  }
+
+  private static ServiceDefinition serviceDefinition(
+      String name, String url, int port, String accessToken, String apiPath) {
+    return ServiceDefinition.builder()
+        .url(SentinelProperties.optionUrl(name, url))
+        .port(port)
+        .accessToken(() -> Optional.ofNullable(accessToken))
+        .apiPath(SentinelProperties.optionApiPath(name, apiPath))
         .build();
   }
 
   /** Return definitions for the staging environment. */
   private static SystemDefinition staging() {
+    // ID service and Mr Anderson not accessible in this environment
     return SystemDefinition.builder()
         .ids(
-            ServiceDefinition.builder()
-                // Ids not accessible in this environment
-                .url(optionUrlIds("https://staging-argonaut.lighthouse.va.gov"))
-                .port(443)
-                .accessToken(noAccessToken())
-                .apiPath("/not-available/")
-                .build())
+            serviceDefinition(
+                "ids", "https://staging-argonaut.lighthouse.va.gov", 443, null, "/not-available/"))
         .mrAnderson(
-            ServiceDefinition.builder()
-                // Mr Anderson not accessible in this environment
-                .url(optionUrlMrAnderson("https://staging-argonaut.lighthouse.va.gov"))
-                .port(443)
-                .accessToken(noAccessToken())
-                .apiPath("/not-available/")
-                .build())
+            serviceDefinition(
+                "mr-anderson",
+                "https://staging-argonaut.lighthouse.va.gov",
+                443,
+                null,
+                "/not-available/"))
         .argonaut(
-            ServiceDefinition.builder()
-                .url(optionUrlArgonaut("https://staging-argonaut.lighthouse.va.gov"))
-                .port(443)
-                .accessToken(() -> Optional.of(magicAccessToken()))
-                .apiPath(optionApiPath("argonaut", "/api/"))
-                .build())
+            serviceDefinition(
+                "argonaut",
+                "https://staging-argonaut.lighthouse.va.gov",
+                443,
+                magicAccessToken(),
+                "/api/"))
         .build();
   }
 

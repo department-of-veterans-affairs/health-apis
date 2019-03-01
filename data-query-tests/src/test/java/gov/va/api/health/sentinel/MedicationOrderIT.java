@@ -4,11 +4,11 @@ import static gov.va.api.health.sentinel.ResourceVerifier.test;
 
 import gov.va.api.health.argonaut.api.resources.MedicationOrder;
 import gov.va.api.health.argonaut.api.resources.OperationOutcome;
-import gov.va.api.health.sentinel.categories.LabDataQueryPatient;
 import gov.va.api.health.sentinel.categories.LabDataQueryClinician;
+import gov.va.api.health.sentinel.categories.LabDataQueryPatient;
 import gov.va.api.health.sentinel.categories.Local;
-import gov.va.api.health.sentinel.categories.ProdDataQueryPatient;
 import gov.va.api.health.sentinel.categories.ProdDataQueryClinician;
+import gov.va.api.health.sentinel.categories.ProdDataQueryPatient;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -34,7 +34,13 @@ public class MedicationOrderIT {
   }
 
   @Test
-  @Category({Local.class, LabDataQueryPatient.class, LabDataQueryClinician.class, ProdDataQueryPatient.class, ProdDataQueryClinician.class})
+  @Category({
+    Local.class,
+    LabDataQueryPatient.class,
+    LabDataQueryClinician.class,
+    ProdDataQueryPatient.class,
+    ProdDataQueryClinician.class
+  })
   public void basic() {
     verifier.verifyAll(
         test(200, MedicationOrder.class, "MedicationOrder/{id}", verifier.ids().medicationOrder()),
@@ -47,7 +53,12 @@ public class MedicationOrderIT {
   }
 
   @Test
-  @Category({LabDataQueryPatient.class, LabDataQueryClinician.class, ProdDataQueryPatient.class, ProdDataQueryClinician.class})
+  @Category({
+    LabDataQueryPatient.class,
+    LabDataQueryClinician.class,
+    ProdDataQueryPatient.class,
+    ProdDataQueryClinician.class
+  })
   public void searchNotMe() {
     verifier.verifyAll(
         test(

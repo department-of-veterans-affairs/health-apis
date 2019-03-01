@@ -5,8 +5,8 @@ import static gov.va.api.health.sentinel.ResourceVerifier.test;
 import gov.va.api.health.argonaut.api.resources.MedicationDispense;
 import gov.va.api.health.argonaut.api.resources.OperationOutcome;
 import gov.va.api.health.sentinel.categories.Local;
-import gov.va.api.health.sentinel.categories.ProdDataQueryPatient;
 import gov.va.api.health.sentinel.categories.ProdDataQueryClinician;
+import gov.va.api.health.sentinel.categories.ProdDataQueryPatient;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 

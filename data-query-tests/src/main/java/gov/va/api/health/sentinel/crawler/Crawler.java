@@ -34,7 +34,6 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 @Builder
 @Slf4j
 public class Crawler {
-
   private final RequestQueue requestQueue;
 
   private final ResultCollector results;

@@ -1,19 +1,17 @@
 package gov.va.api.health.sentinel;
 
-import static gov.va.api.health.sentinel.SystemDefinitions.magicAccessToken;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static gov.va.api.health.sentinel.SentinelProperties.magicAccessToken;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.sentinel.categories.Manual;
 import gov.va.api.health.sentinel.crawler.ConcurrentResourceBalancingRequestQueue;
 import gov.va.api.health.sentinel.crawler.Crawler;
+import gov.va.api.health.sentinel.crawler.CrawlerProperties;
 import gov.va.api.health.sentinel.crawler.FileResultsCollector;
 import gov.va.api.health.sentinel.crawler.ResourceDiscovery;
 import gov.va.api.health.sentinel.crawler.SummarizingResultCollector;
 import gov.va.api.health.sentinel.crawler.UrlReplacementRequestQueue;
 import java.io.File;
-import java.time.Duration;
-import java.time.format.DateTimeParseException;
 import java.util.concurrent.Executors;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
@@ -27,7 +25,7 @@ public class StagingCrawlerTest {
     assertThat(magicAccessToken()).isNotNull();
     log.info("Access token is specified");
 
-    String patient = System.getProperty("patient-id", "1011537977V693883");
+    String patient = DataQueryProperties.cdwTestPatient();
     log.info("Using patient {} (Override with -Dpatient-id=<id>)", patient);
     Swiggity.swooty(patient);
 
@@ -55,28 +53,10 @@ public class StagingCrawlerTest {
             .results(results)
             .authenticationToken(() -> magicAccessToken())
             .forceJargonaut(true)
-            .timeLimit(timeLimit())
+            .timeLimit(CrawlerProperties.timeLimit())
             .build();
     crawler.crawl();
     log.info("Results for patient : {} \n{}", patient, results.message());
     assertThat(results.failures()).withFailMessage("%d Failures", results.failures()).isEqualTo(0);
-  }
-
-  private Duration timeLimit() {
-    String maybeDuration = System.getProperty("sentinel.crawler.timelimit");
-    if (isNotBlank(maybeDuration)) {
-      try {
-        final Duration timeLimit = Duration.parse(maybeDuration);
-        log.info(
-            "Crawling with time limit {} (Override with -Dsentinel.crawler.timelimit=<PnYnMnDTnHnMnS>)",
-            timeLimit);
-        return timeLimit;
-      } catch (DateTimeParseException e) {
-        log.warn("Bad time limit {}, proceeding with no limit.", maybeDuration);
-      }
-    }
-    log.info(
-        "Crawling with no time limit (Override with -Dsentinel.crawler.timelimit=<PnYnMnDTnHnMnS>)");
-    return null;
   }
 }

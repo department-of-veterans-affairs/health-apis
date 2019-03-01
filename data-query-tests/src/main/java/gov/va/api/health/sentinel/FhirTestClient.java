@@ -1,6 +1,5 @@
 package gov.va.api.health.sentinel;
 
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,29 +17,18 @@ import lombok.SneakyThrows;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Value
 @Builder
-@Slf4j
 public final class FhirTestClient implements TestClient {
   private final ServiceDefinition service;
 
-  private final ExecutorService executorService = Executors.newFixedThreadPool(threadCount());
+  private final ExecutorService executorService =
+      Executors.newFixedThreadPool(
+          SentinelProperties.threadCount(
+              "sentinel.threads", Runtime.getRuntime().availableProcessors()));
 
   Supplier<ObjectMapper> mapper;
-
-  private static int threadCount() {
-    int threads = Runtime.getRuntime().availableProcessors();
-    String maybeNumber = System.getProperty("sentinel.threads");
-    if (isNotBlank(maybeNumber)) {
-      try {
-        threads = Integer.parseInt(maybeNumber);
-      } catch (NumberFormatException e) {
-        log.warn("Bad thread count {}, assuming {}", maybeNumber, threads);
-      }
-    }
-    log.info("Using {} threads (Override with -Dsentinel.threads=<number>)", threads);
-    return threads;
-  }
 
   /**
    * Remove data from the OO that is unique for each instance. This includes the generated ID and
