@@ -44,18 +44,12 @@ public final class SystemDefinitions {
 
   /** Return definitions for the lab environment. */
   private static SystemDefinition lab() {
+    String url = "https://dev-api.va.gov";
     return SystemDefinition.builder()
-        .ids(serviceDefinition("ids", "https://dev-api.va.gov", 443, null, "/not-available/"))
-        .mrAnderson(
-            serviceDefinition(
-                "mr-anderson", "https://dev-api.va.gov", 443, null, "/not-available/"))
+        .ids(serviceDefinition("ids", url, 443, null, "/not-available/"))
+        .mrAnderson(serviceDefinition("mr-anderson", url, 443, null, "/not-available/"))
         .argonaut(
-            serviceDefinition(
-                "argonaut",
-                "https://dev-api.va.gov",
-                443,
-                magicAccessToken(),
-                "/services/argonaut/v0/"))
+            serviceDefinition("argonaut", url, 443, magicAccessToken(), "/services/argonaut/v0/"))
         .cdwIds(labAndStagingIds())
         .build();
   }
@@ -90,10 +84,11 @@ public final class SystemDefinitions {
    * Return system definitions for local running applications as started by the Maven build process.
    */
   private static SystemDefinition local() {
+    String url = "https://localhost";
     return SystemDefinition.builder()
-        .ids(serviceDefinition("ids", "https://localhost", 8089, null, "/api/"))
-        .mrAnderson(serviceDefinition("mr-anderson", "https://localhost", 8088, null, "/api/"))
-        .argonaut(serviceDefinition("argonaut", "https://localhost", 8090, null, "/api/"))
+        .ids(serviceDefinition("ids", url, 8089, null, "/api/"))
+        .mrAnderson(serviceDefinition("mr-anderson", url, 8088, null, "/api/"))
+        .argonaut(serviceDefinition("argonaut", url, 8090, null, "/api/"))
         .cdwIds(localIds())
         .build();
   }
@@ -149,16 +144,11 @@ public final class SystemDefinitions {
   /** Return definitions for the production environment. */
   private static SystemDefinition prod() {
     // Mr Anderson not accessible in this environment
+    String url = "https://argonaut.lighthouse.va.gov";
     return SystemDefinition.builder()
-        .ids(
-            serviceDefinition(
-                "ids", "https://argonaut.lighthouse.va.gov", 443, null, "/not-available/"))
-        .mrAnderson(
-            serviceDefinition(
-                "mr-anderson", "https://argonaut.lighthouse.va.gov", 443, null, "/not-available/"))
-        .argonaut(
-            serviceDefinition(
-                "argonaut", "https://argonaut.lighthouse.va.gov", 443, magicAccessToken(), "/api/"))
+        .ids(serviceDefinition("ids", url, 443, null, "/not-available/"))
+        .mrAnderson(serviceDefinition("mr-anderson", url, 443, null, "/not-available/"))
+        .argonaut(serviceDefinition("argonaut", url, 443, magicAccessToken(), "/api/"))
         .cdwIds(prodAndQaIds())
         .build();
   }
@@ -192,24 +182,11 @@ public final class SystemDefinitions {
   /** Return definitions for the qa environment. */
   private static SystemDefinition qa() {
     // ID service and Mr Anderson not accessible in this environment
+    String url = "https://qa-argonaut.lighthouse.va.gov";
     return SystemDefinition.builder()
-        .ids(
-            serviceDefinition(
-                "ids", "https://qa-argonaut.lighthouse.va.gov", 443, null, "/not-available/"))
-        .mrAnderson(
-            serviceDefinition(
-                "mr-anderson",
-                "https://qa-argonaut.lighthouse.va.gov",
-                443,
-                null,
-                "/not-available/"))
-        .argonaut(
-            serviceDefinition(
-                "argonaut",
-                "https://qa-argonaut.lighthouse.va.gov",
-                443,
-                magicAccessToken(),
-                "/api/"))
+        .ids(serviceDefinition("ids", url, 443, null, "/not-available/"))
+        .mrAnderson(serviceDefinition("mr-anderson", url, 443, null, "/not-available/"))
+        .argonaut(serviceDefinition("argonaut", url, 443, magicAccessToken(), "/api/"))
         .cdwIds(prodAndQaIds())
         .build();
   }
@@ -227,24 +204,11 @@ public final class SystemDefinitions {
   /** Return definitions for the staging environment. */
   private static SystemDefinition staging() {
     // ID service and Mr Anderson not accessible in this environment
+    String url = "https://staging-argonaut.lighthouse.va.gov";
     return SystemDefinition.builder()
-        .ids(
-            serviceDefinition(
-                "ids", "https://staging-argonaut.lighthouse.va.gov", 443, null, "/not-available/"))
-        .mrAnderson(
-            serviceDefinition(
-                "mr-anderson",
-                "https://staging-argonaut.lighthouse.va.gov",
-                443,
-                null,
-                "/not-available/"))
-        .argonaut(
-            serviceDefinition(
-                "argonaut",
-                "https://staging-argonaut.lighthouse.va.gov",
-                443,
-                magicAccessToken(),
-                "/api/"))
+        .ids(serviceDefinition("ids", url, 443, null, "/not-available/"))
+        .mrAnderson(serviceDefinition("mr-anderson", url, 443, null, "/not-available/"))
+        .argonaut(serviceDefinition("argonaut", url, 443, magicAccessToken(), "/api/"))
         .build();
   }
 
