@@ -30,13 +30,7 @@ OAuth and `id.me` authentication.
 1. The `id.me` robot requires the Selenium Chrome Driver to be installed locally. You'll need to 
    install it. See http://chromedriver.chromium.org/home
 
-2. JUnit categories are used to control which tests Sentinel run. 
-    - Most tests do not have a specific category and are intended to run as part of a normal build. 
-    - A `Lab` category is assigned to tests intended to run against the lab. 
-    - `Lab` tests are disabled by default. To run them, you must enable the `lab` profile. 
-      Lab profile disables normal unit and integration tests and enables only `Lab` category tests.
-
-3. Lab configuration is needed to interact with the lab. Sentinel will expect either System 
+2. Lab configuration is needed to interact with the lab. Sentinel will expect either System 
    properties are specified or you've created a `sentinel/config/lab.properties` file.
    It will complain about missing values if you've omitted. Please see a team member 
    for sensitive information.

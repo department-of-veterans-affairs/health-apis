@@ -26,7 +26,7 @@ public class CdwCrawlerTest {
   @Category(Manual.class)
   @Test
   public void crawl() {
-    DataQuerySystemDefinition env = SystemDefinitions.systemDefinition();
+    SystemDefinition env = SystemDefinitions.systemDefinition();
     String patient = System.getProperty("patient-id", "1011537977V693883");
     log.info("Using patient {} (Override with -Dpatient-id=<id>)", patient);
     Swiggity.swooty(patient);
@@ -57,7 +57,7 @@ public class CdwCrawlerTest {
     assertThat(results.failures()).withFailMessage("%d Failures", results.failures()).isEqualTo(0);
   }
 
-  private RequestQueue requestQueue(DataQuerySystemDefinition env) {
+  private RequestQueue requestQueue(SystemDefinition env) {
     String replaceUrl = System.getProperty("sentinel.argonaut.url.replace");
     if (isBlank(replaceUrl)) {
       log.info("Link replacement disabled (Override with -Dsentinel.argonaut.url.replace=<url>)");

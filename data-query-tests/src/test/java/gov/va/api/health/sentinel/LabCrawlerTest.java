@@ -4,7 +4,6 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import gov.va.api.health.sentinel.IdMeOauthRobot.Configuration.UserCredentials;
 import gov.va.api.health.sentinel.LabRobots.SmartOnFhirUrls;
 import gov.va.api.health.sentinel.categories.Manual;
 import gov.va.api.health.sentinel.crawler.ConcurrentResourceBalancingRequestQueue;
@@ -14,6 +13,8 @@ import gov.va.api.health.sentinel.crawler.RequestQueue;
 import gov.va.api.health.sentinel.crawler.ResourceDiscovery;
 import gov.va.api.health.sentinel.crawler.SummarizingResultCollector;
 import gov.va.api.health.sentinel.crawler.UrlReplacementRequestQueue;
+import gov.va.api.health.sentinel.selenium.IdMeOauthRobot;
+import gov.va.api.health.sentinel.selenium.IdMeOauthRobot.Configuration.UserCredentials;
 import java.io.File;
 import java.time.Duration;
 import java.time.format.DateTimeParseException;
@@ -27,7 +28,7 @@ public class LabCrawlerTest {
   private final LabRobots robots = LabRobots.fromSystemProperties();
 
   private int crawl(String patient) {
-    DataQuerySystemDefinition env = SystemDefinitions.systemDefinition();
+    SystemDefinition env = SystemDefinitions.systemDefinition();
     UserCredentials user =
         UserCredentials.builder()
             .id(patient)
@@ -78,7 +79,7 @@ public class LabCrawlerTest {
     assertThat(failureCount).withFailMessage("%d Failures", failureCount).isEqualTo(0);
   }
 
-  private RequestQueue requestQueue(DataQuerySystemDefinition env) {
+  private RequestQueue requestQueue(SystemDefinition env) {
     String replaceUrl = System.getProperty("sentinel.argonaut.url.replace");
     if (isBlank(replaceUrl)) {
       log.info("Link replacement disabled (Override with -Dsentinel.argonaut.url.replace=<url>)");

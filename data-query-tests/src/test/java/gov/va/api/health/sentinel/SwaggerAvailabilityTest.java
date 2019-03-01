@@ -3,6 +3,7 @@ package gov.va.api.health.sentinel;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.sentinel.categories.Manual;
+import gov.va.api.health.sentinel.selenium.DevApiPortal;
 import io.restassured.RestAssured;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
@@ -14,7 +15,7 @@ import org.openqa.selenium.WebElement;
 public class SwaggerAvailabilityTest {
   DevApiPortal apiPortalPage = new DevApiPortal();
 
-  public void checkAvailability(String url) {
+  private void checkAvailability(String url) {
     log.info("Checking {} for API Documentation", url);
     apiPortalPage.initializeDriver(url, 10);
     assertThat(apiPortalPage.getElement(By.className("swagger-ui"))).isNotNull();

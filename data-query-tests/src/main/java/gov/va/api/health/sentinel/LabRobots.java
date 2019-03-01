@@ -4,8 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.argonaut.api.elements.Extension;
 import gov.va.api.health.argonaut.api.resources.Conformance;
-import gov.va.api.health.sentinel.IdMeOauthRobot.Configuration.Authorization;
-import gov.va.api.health.sentinel.IdMeOauthRobot.Configuration.UserCredentials;
+import gov.va.api.health.sentinel.selenium.IdMeOauthRobot;
+import gov.va.api.health.sentinel.selenium.IdMeOauthRobot.Configuration.Authorization;
+import gov.va.api.health.sentinel.selenium.IdMeOauthRobot.Configuration.UserCredentials;
 import io.restassured.RestAssured;
 import java.io.File;
 import java.io.FileInputStream;

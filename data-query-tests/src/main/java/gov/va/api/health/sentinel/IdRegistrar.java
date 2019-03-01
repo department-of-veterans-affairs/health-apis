@@ -16,7 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 @AllArgsConstructor(staticName = "of")
 @Slf4j
 final class IdRegistrar {
-  DataQuerySystemDefinition system;
+  SystemDefinition system;
 
   @Getter(lazy = true)
   TestIds registeredIds = registerCdwIds();

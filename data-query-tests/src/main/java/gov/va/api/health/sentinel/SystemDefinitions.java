@@ -7,25 +7,18 @@ import gov.va.api.health.sentinel.TestIds.Observations;
 import gov.va.api.health.sentinel.TestIds.PersonallyIdentifiableInformation;
 import gov.va.api.health.sentinel.TestIds.Procedures;
 import gov.va.api.health.sentinel.TestIds.Range;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.function.Supplier;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Data-query implementation of {@link SystemDefinitions} that provides a {@link
- * DataQuerySystemDefinition} for the current environment.
+ * {@link SystemDefinition}s for different environments. {@link #systemDefinition()} method provides
+ * the appropriate implementation for the current environment.
  */
 @Slf4j
 @UtilityClass
 public final class SystemDefinitions {
-  static {
-    String env = System.getProperty("sentinel", "LOCAL").toUpperCase(Locale.ENGLISH);
-    log.info(
-        "Using {} Sentinel environment (Override with -Dsentinel=LAB|LOCAL|QA|PROD|STAGING)", env);
-  }
-
   private static DiagnosticReports diagnosticReports() {
     return DiagnosticReports.builder()
         .loinc1("10000-8")
@@ -53,8 +46,8 @@ public final class SystemDefinitions {
   }
 
   /** Return definitions for the lab environment. */
-  private static DataQuerySystemDefinition lab() {
-    return DataQuerySystemDefinition.builder()
+  private static SystemDefinition lab() {
+    return SystemDefinition.builder()
         .ids(
             ServiceDefinition.builder()
                 .url(optionUrlIds("https://dev-api.va.gov"))
@@ -109,8 +102,8 @@ public final class SystemDefinitions {
   /**
    * Return system definitions for local running applications as started by the Maven build process.
    */
-  private static DataQuerySystemDefinition local() {
-    return DataQuerySystemDefinition.builder()
+  private static SystemDefinition local() {
+    return SystemDefinition.builder()
         .ids(
             ServiceDefinition.builder()
                 .url(optionUrlIds("https://localhost"))
@@ -230,8 +223,8 @@ public final class SystemDefinitions {
   }
 
   /** Return definitions for the production environment. */
-  private static DataQuerySystemDefinition prod() {
-    return DataQuerySystemDefinition.builder()
+  private static SystemDefinition prod() {
+    return SystemDefinition.builder()
         .ids(
             ServiceDefinition.builder()
                 // Ids not accessible in this environment
@@ -286,8 +279,8 @@ public final class SystemDefinitions {
   }
 
   /** Return definitions for the qa environment. */
-  private static DataQuerySystemDefinition qa() {
-    return DataQuerySystemDefinition.builder()
+  private static SystemDefinition qa() {
+    return SystemDefinition.builder()
         .ids(
             ServiceDefinition.builder()
                 // Ids not accessible in this environment
@@ -316,8 +309,8 @@ public final class SystemDefinitions {
   }
 
   /** Return definitions for the staging environment. */
-  private static DataQuerySystemDefinition staging() {
-    return DataQuerySystemDefinition.builder()
+  private static SystemDefinition staging() {
+    return SystemDefinition.builder()
         .ids(
             ServiceDefinition.builder()
                 // Ids not accessible in this environment
@@ -345,7 +338,7 @@ public final class SystemDefinitions {
   }
 
   /** Return the applicable system definition for the current environment. */
-  public static DataQuerySystemDefinition systemDefinition() {
+  public static SystemDefinition systemDefinition() {
     switch (Environment.get()) {
       case LAB:
         return lab();

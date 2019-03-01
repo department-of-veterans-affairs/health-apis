@@ -2,9 +2,10 @@ package gov.va.api.health.sentinel;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import gov.va.api.health.sentinel.IdMeOauthRobot.Configuration.UserCredentials;
-import gov.va.api.health.sentinel.IdMeOauthRobot.TokenExchange;
 import gov.va.api.health.sentinel.categories.Manual;
+import gov.va.api.health.sentinel.selenium.IdMeOauthRobot;
+import gov.va.api.health.sentinel.selenium.IdMeOauthRobot.Configuration.UserCredentials;
+import gov.va.api.health.sentinel.selenium.IdMeOauthRobot.TokenExchange;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;

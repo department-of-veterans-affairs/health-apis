@@ -5,7 +5,7 @@ import lombok.experimental.UtilityClass;
 
 /**
  * Test clients for interacting with different services (ids, mr-anderson, argonaut) in a {@link
- * DataQuerySystemDefinition}.
+ * SystemDefinition}.
  */
 @UtilityClass
 public final class TestClients {
