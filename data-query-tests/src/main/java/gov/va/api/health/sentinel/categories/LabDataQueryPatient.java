@@ -1,3 +1,3 @@
 package gov.va.api.health.sentinel.categories;
 
-public interface LabArgo {}
+public interface LabDataQueryPatient {}

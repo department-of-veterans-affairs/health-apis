@@ -5,8 +5,8 @@ import static gov.va.api.health.sentinel.ResourceVerifier.test;
 import gov.va.api.health.argonaut.api.resources.OperationOutcome;
 import gov.va.api.health.argonaut.api.resources.Practitioner;
 import gov.va.api.health.sentinel.categories.Local;
-import gov.va.api.health.sentinel.categories.ProdArgo;
-import gov.va.api.health.sentinel.categories.ProdCargo;
+import gov.va.api.health.sentinel.categories.ProdDataQueryPatient;
+import gov.va.api.health.sentinel.categories.ProdDataQueryClinician;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -14,7 +14,7 @@ public class PractitionerIT {
 
   ResourceVerifier verifier = ResourceVerifier.get();
 
-  @Category({Local.class, ProdCargo.class})
+  @Category({Local.class, ProdDataQueryClinician.class})
   @Test
   public void advanced() {
     verifier.verifyAll(
@@ -28,7 +28,7 @@ public class PractitionerIT {
             verifier.ids().practitioner()));
   }
 
-  @Category({Local.class, ProdArgo.class, ProdCargo.class})
+  @Category({Local.class, ProdDataQueryPatient.class, ProdDataQueryClinician.class})
   @Test
   public void basic() {
     verifier.verifyAll(
