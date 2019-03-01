@@ -81,7 +81,7 @@ doListTests() {
 
 doListCategories() {
   jar -tf $MAIN_JAR \
-    | grep -E 'gov/va/health/api/sentinel/categories/.*\.class' \
+    | grep -E 'gov/va/api/health/sentinel/categories/.*\.class' \
     | sed 's/\.class//' \
     | tr / . \
     | sort
