@@ -15,7 +15,6 @@ Options
 Secrets Configuration
  This bash file is sourced and expected to set the following variables
  - KEYSTORE_PASSWORD
- - IDS_DB_URL, IDS_DB_USER, IDS_DB_PASSWORD
  - MRANDERSON_DB_URL, MRANDERSON_DB_USER, MRANDERSON_DB_PASSWORD
 
 $1
@@ -49,9 +48,6 @@ echo "Loading secrets: $SECRETS"
 
 MISSING_SECRETS=false
 [ -z "$KEYSTORE_PASSWORD" ] && echo "Missing configuration: KEYSTORE_PASSWORD" && MISSING_SECRETS=true
-[ -z "$IDS_DB_URL" ] && echo "Missing configuration: IDS_DB_URL" && MISSING_SECRETS=true
-[ -z "$IDS_DB_USER" ] && echo "Missing configuration: IDS_DB_USER" && MISSING_SECRETS=true
-[ -z "$IDS_DB_PASSWORD" ] && echo "Missing configuration: IDS_DB_PASSWORD" && MISSING_SECRETS=true
 [ -z "$MRANDERSON_DB_URL" ] && echo "Missing configuration: MRANDERSON_DB_URL" && MISSING_SECRETS=true
 [ -z "$MRANDERSON_DB_USER" ] && echo "Missing configuration: MRANDERSON_DB_USER" && MISSING_SECRETS=true
 [ -z "$MRANDERSON_DB_PASSWORD" ] && echo "Missing configuration: MRANDERSON_DB_PASSWORD" && MISSING_SECRETS=true
@@ -104,7 +100,7 @@ checkForUnsetValues() {
   [ $? == 0 ] && rm -v $target.$MARKER
 }
 
-makeSentinelSecrets() {
+makeTestsSecrets() {
 cat > $REPO/data-query-tests/config/secrets.properties <<EOF
 server.ssl.key-store-password=$KEYSTORE_PASSWORD
 ssl.client-key-password=$KEYSTORE_PASSWORD
@@ -124,12 +120,6 @@ sendMoarSpams() {
   [ -z "$spam" ] && spam=$USER@aol.com
   echo $spam
 }
-
-makeConfig ids $PROFILE
-configValue ids $PROFILE spring.datasource.url "$IDS_DB_URL"
-configValue ids $PROFILE spring.datasource.username "$IDS_DB_USER"
-configValue ids $PROFILE spring.datasource.password "$IDS_DB_PASSWORD"
-checkForUnsetValues ids $PROFILE
 
 makeConfig mr-anderson $PROFILE
 configValue mr-anderson $PROFILE spring.datasource.url "$MRANDERSON_DB_URL"
@@ -153,4 +143,4 @@ configValue argonaut $PROFILE well-known.scopes-supported "patient/DiagnosticRep
 
 checkForUnsetValues argonaut $PROFILE
 
-makeSentinelSecrets
+makeTestsSecrets
