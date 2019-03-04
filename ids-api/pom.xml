@@ -3,16 +3,11 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>gov.va.api.health</groupId>
-    <artifactId>health-apis-parent</artifactId>
+    <artifactId>api-starter</artifactId>
     <version>1.1.0</version>
+    <relativePath/>
   </parent>
-  <artifactId>data-query-parent</artifactId>
+  <artifactId>ids-api</artifactId>
   <version>1.0.194-SNAPSHOT</version>
-  <packaging>pom</packaging>
-  <modules>
-    <module>argonaut</module>
-    <module>argonaut-api</module>
-    <module>mr-anderson</module>
-    <module>data-query-tests</module>
-  </modules>
+  <packaging>jar</packaging>
 </project>

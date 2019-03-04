@@ -7,35 +7,40 @@
     <version>1.1.0</version>
     <relativePath/>
   </parent>
-  <artifactId>mr-anderson</artifactId>
+  <artifactId>ids</artifactId>
   <version>1.0.194-SNAPSHOT</version>
   <packaging>jar</packaging>
   <properties>
-    <ids.version>1.2.0-SNAPSHOT</ids.version>
-    <mssql-jdbc.version>6.2.1.jre8</mssql-jdbc.version>
+    <mysql-connector-java.version>6.0.6</mysql-connector-java.version>
+    <jacoco.coverage>0.94</jacoco.coverage>
+    <java-uuid-generator.version>3.1.5</java-uuid-generator.version>
   </properties>
   <dependencies>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-jdbc</artifactId>
-    </dependency>
     <dependency>
       <groupId>gov.va.api.health</groupId>
       <artifactId>service-auto-config</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.microsoft.sqlserver</groupId>
-      <artifactId>mssql-jdbc</artifactId>
-      <version>${mssql-jdbc.version}</version>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-data-jpa</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-lang3</artifactId>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+      <version>${mysql-connector-java.version}</version>
     </dependency>
     <dependency>
       <groupId>gov.va.api.health</groupId>
-      <artifactId>ids-client</artifactId>
-      <version>${ids.version}</version>
+      <artifactId>ids-api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.uuid</groupId>
+      <artifactId>java-uuid-generator</artifactId>
+      <version>${java-uuid-generator.version}</version>
     </dependency>
   </dependencies>
+  <build>
+    <plugins/>
+  </build>
 </project>
