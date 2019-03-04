@@ -3,26 +3,17 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>gov.va.api.health</groupId>
-    <artifactId>health-apis-parent</artifactId>
-    <version>1.1.0</version>
+    <artifactId>test-starter</artifactId>
+    <version>1.1.1-SNAPSHOT</version>
     <relativePath/>
   </parent>
   <artifactId>data-query-tests</artifactId>
-  <version>1.0.192</version>
+  <version>1.0.193-SNAPSHOT</version>
   <packaging>jar</packaging>
   <properties>
-    <jacoco.skip>true</jacoco.skip>
-    <jacoco.coverage>0.1</jacoco.coverage>
-    <sentinel.skipLaunch>false</sentinel.skipLaunch>
-    <process-exec-maven-plugin.version>0.7</process-exec-maven-plugin.version>
-    <maven-shade-plugin.version>3.2.1</maven-shade-plugin.version>
-    <selenium.version>3.141.59</selenium.version>
-    <!-- JUnit -->
     <groups>gov.va.api.health.sentinel.categories.Local</groups>
-    <!-- Docker -->
-    <docker-maven-plugin.version>0.24.0</docker-maven-plugin.version>
-    <docker.organization>vasdvp</docker.organization>
-    <docker.tag>latest</docker.tag>
+    <selenium.version>3.141.59</selenium.version>
+    <sentinel.skipLaunch>false</sentinel.skipLaunch>
   </properties>
   <dependencies>
     <dependency>
@@ -34,20 +25,6 @@
       <groupId>gov.va.dvp</groupId>
       <artifactId>lighthouse-keystore</artifactId>
       <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.projectlombok</groupId>
-      <artifactId>lombok</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-test</artifactId>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>gov.va.api.health</groupId>
-      <artifactId>service-auto-config</artifactId>
-      <version>1.1.0</version>
     </dependency>
     <dependency>
       <groupId>gov.va.api.health</groupId>
@@ -107,28 +84,8 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>io.rest-assured</groupId>
-      <artifactId>rest-assured</artifactId>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.assertj</groupId>
-      <artifactId>assertj-core</artifactId>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
       <groupId>org.hibernate.validator</groupId>
       <artifactId>hibernate-validator</artifactId>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.glassfish</groupId>
-      <artifactId>javax.el</artifactId>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-classic</artifactId>
       <scope>compile</scope>
     </dependency>
   </dependencies>
