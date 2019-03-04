@@ -8,6 +8,6 @@
     <relativePath/>
   </parent>
   <artifactId>ids-api</artifactId>
-  <version>1.0.192</version>
+  <version>1.0.193-SNAPSHOT</version>
   <packaging>jar</packaging>
 </project>
