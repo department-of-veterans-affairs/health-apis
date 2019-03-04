@@ -12,15 +12,13 @@ Commands
  st, status   Report status of applications
  k, stop      Stop applications
 
-
 Options
  -a, --argonaut      Include Argonaut
- -i, --ids           Include Identity Service
  -m, --mr-anderson   Include Mr. Anderson
 
 Examples
- # Start everything
- $0 -ima s
+ # Start both
+ $0 -ma s
 
  # Stop Mr. Anderson
  $0 --mr-anderson stop
@@ -68,7 +66,6 @@ statusOf() {
 }
 
 doStatus() {
-  statusOf ids
   statusOf mr-anderson
   statusOf argonaut
 }
@@ -76,26 +73,23 @@ doStatus() {
 doStart() {
   export SPRING_PROFILES_ACTIVE
   echo "Using profile: $SPRING_PROFILES_ACTIVE"
-  [ $IDS == true ] && startApp ids
   [ $MRANDERSON == true ] && startApp mr-anderson
   [ $ARGONAUT == true ] && startApp argonaut
 }
 
 doStop() {
-  [ $IDS == true ] && stopApp ids
   [ $MRANDERSON == true ] && stopApp mr-anderson
   [ $ARGONAUT == true ] && stopApp argonaut
 }
 
 
 REPO=$(cd $(dirname $0)/../.. && pwd)
-IDS=false
 MRANDERSON=false
 ARGONAUT=false
 SPRING_PROFILES_ACTIVE=dev
 
 ARGS=$(getopt -n $(basename ${0}) \
-    -l "debug,help,ids,mr-anderson,argonaut" \
+    -l "debug,help,mr-anderson,argonaut" \
     -o "hima" -- "$@")
 [ $? != 0 ] && usage
 eval set -- "$ARGS"
@@ -105,7 +99,6 @@ do
     -a|--argonaut) ARGONAUT=true;;
     --debug) set -x;;
     -h|--help) usage "halp! what this do?";;
-    -i|--ids) IDS=true;;
     -m|--mr-anderson) MRANDERSON=true;;
     --) shift;break;;
   esac
