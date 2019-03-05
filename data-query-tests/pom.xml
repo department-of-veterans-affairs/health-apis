@@ -4,7 +4,7 @@
   <parent>
     <groupId>gov.va.api.health</groupId>
     <artifactId>test-starter</artifactId>
-    <version>1.1.1-SNAPSHOT</version>
+    <version>1.1.2</version>
     <relativePath/>
   </parent>
   <artifactId>data-query-tests</artifactId>
@@ -57,7 +57,7 @@
     <dependency>
       <groupId>gov.va.api.health</groupId>
       <artifactId>sentinel</artifactId>
-      <version>1.1.1-SNAPSHOT</version>
+      <version>1.1.2</version>
     </dependency>
     <dependency>
       <groupId>com.h2database</groupId>
@@ -252,4 +252,26 @@
       </plugin>
     </plugins>
   </build>
+  <profiles>
+    <profile>
+      <id>release</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>io.fabric8</groupId>
+            <artifactId>docker-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>push</id>
+                <phase>deploy</phase>
+                <goals>
+                  <goal>push</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>
