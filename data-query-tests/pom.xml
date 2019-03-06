@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>gov.va.api.health</groupId>
-    <artifactId>health-apis-parent</artifactId>
+    <artifactId>test-starter</artifactId>
     <version>1.1.2</version>
     <relativePath/>
   </parent>
@@ -11,18 +11,9 @@
   <version>1.0.194-SNAPSHOT</version>
   <packaging>jar</packaging>
   <properties>
-    <jacoco.skip>true</jacoco.skip>
-    <jacoco.coverage>0.1</jacoco.coverage>
-    <sentinel.skipLaunch>false</sentinel.skipLaunch>
-    <process-exec-maven-plugin.version>0.7</process-exec-maven-plugin.version>
-    <maven-shade-plugin.version>3.2.1</maven-shade-plugin.version>
-    <selenium.version>3.141.59</selenium.version>
-    <!-- JUnit -->
     <groups>gov.va.api.health.sentinel.categories.Local</groups>
-    <!-- Docker -->
-    <docker-maven-plugin.version>0.24.0</docker-maven-plugin.version>
-    <docker.organization>vasdvp</docker.organization>
-    <docker.tag>latest</docker.tag>
+    <selenium.version>3.141.59</selenium.version>
+    <sentinel.skipLaunch>false</sentinel.skipLaunch>
   </properties>
   <dependencies>
     <dependency>
@@ -34,20 +25,6 @@
       <groupId>gov.va.dvp</groupId>
       <artifactId>lighthouse-keystore</artifactId>
       <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.projectlombok</groupId>
-      <artifactId>lombok</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-test</artifactId>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>gov.va.api.health</groupId>
-      <artifactId>service-auto-config</artifactId>
-      <version>1.1.0</version>
     </dependency>
     <dependency>
       <groupId>gov.va.api.health</groupId>
@@ -80,7 +57,7 @@
     <dependency>
       <groupId>gov.va.api.health</groupId>
       <artifactId>sentinel</artifactId>
-      <version>1.1.0</version>
+      <version>1.1.2</version>
     </dependency>
     <dependency>
       <groupId>com.h2database</groupId>
@@ -107,28 +84,8 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>io.rest-assured</groupId>
-      <artifactId>rest-assured</artifactId>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.assertj</groupId>
-      <artifactId>assertj-core</artifactId>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
       <groupId>org.hibernate.validator</groupId>
       <artifactId>hibernate-validator</artifactId>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.glassfish</groupId>
-      <artifactId>javax.el</artifactId>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-classic</artifactId>
       <scope>compile</scope>
     </dependency>
   </dependencies>
@@ -293,18 +250,6 @@
           </execution>
         </executions>
       </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-failsafe-plugin</artifactId>
-        <executions>
-          <execution>
-            <goals>
-              <goal>integration-test</goal>
-              <goal>verify</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
     </plugins>
   </build>
   <profiles>
@@ -312,129 +257,16 @@
       <id>release</id>
       <build>
         <plugins>
-          <!--
-            Test Jar
-          -->
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-jar-plugin</artifactId>
-            <executions>
-              <execution>
-                <goals>
-                  <goal>test-jar</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-shade-plugin</artifactId>
-            <version>${maven-shade-plugin.version}</version>
-            <executions>
-              <execution>
-                <phase>package</phase>
-                <goals>
-                  <goal>shade</goal>
-                </goals>
-                <configuration>
-                  <createDependencyReducedPom>false</createDependencyReducedPom>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
           <plugin>
             <groupId>io.fabric8</groupId>
             <artifactId>docker-maven-plugin</artifactId>
-            <version>${docker-maven-plugin.version}</version>
-            <configuration>
-              <images>
-                <image>
-                  <name>${docker.organization}/health-apis-${project.artifactId}</name>
-                  <build>
-                    <assembly>
-                      <descriptor>assembly.xml</descriptor>
-                      <targetDir>/sentinel</targetDir>
-                    </assembly>
-                    <dockerFile>${basedir}/src/main/docker/Dockerfile</dockerFile>
-                    <tags>
-                      <tag>${project.version}</tag>
-                      <tag>${docker.tag}</tag>
-                    </tags>
-                  </build>
-                </image>
-              </images>
-            </configuration>
             <executions>
-              <execution>
-                <id>build</id>
-                <phase>package</phase>
-                <goals>
-                  <goal>build</goal>
-                </goals>
-              </execution>
               <execution>
                 <id>push</id>
                 <phase>deploy</phase>
                 <goals>
                   <goal>push</goal>
                 </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-    <!--
-      On Jenkins, the certificate password is provided by Jenkins credentials system and
-      made available as the environment variable 'HEALTH_API_CERTIFICATE_PASSWORD'. This
-      profile generates the 'config/secrets.properties' needed to launch the application.
-    -->
-    <profile>
-      <id>jenkins-config</id>
-      <activation>
-        <property>
-          <name>env.BUILD_ID</name>
-        </property>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <artifactId>maven-resources-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>create-secrets-config</id>
-                <phase>generate-test-resources</phase>
-                <goals>
-                  <goal>copy-resources</goal>
-                </goals>
-                <configuration>
-                  <outputDirectory>${project.basedir}/config</outputDirectory>
-                  <delimiters>
-                    <delimiter>${*}</delimiter>
-                  </delimiters>
-                  <resources>
-                    <resource>
-                      <directory>src/test/config</directory>
-                      <filtering>true</filtering>
-                    </resource>
-                  </resources>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>exec-maven-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>trust-dev-certs</id>
-                <phase>initialize</phase>
-                <goals>
-                  <goal>exec</goal>
-                </goals>
-                <configuration>
-                  <executable>../src/scripts/trust-dev-certs.sh</executable>
-                </configuration>
               </execution>
             </executions>
           </plugin>

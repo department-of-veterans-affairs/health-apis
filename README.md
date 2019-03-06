@@ -9,7 +9,6 @@ backed by information from the Corporate Data Warehouse.
 ![applications](src/plantuml/apps.png)
 - argonaut - Argonaut-compliant experience API
 - [mr-anderson](mr-anderson/README.md) - Corporate Data Warehouse access system API
-- [ids](ids/README.md) - An identity mapping service system API
 - [data-query-tests](data-query-tests/README.md) - Integration tests
 
 ----
