@@ -4,13 +4,12 @@
   <parent>
     <groupId>gov.va.api.health</groupId>
     <artifactId>health-apis-parent</artifactId>
-    <version>1.1.0</version>
+    <version>1.1.2</version>
   </parent>
   <artifactId>data-query-parent</artifactId>
   <version>1.0.194-SNAPSHOT</version>
   <packaging>pom</packaging>
   <modules>
-    <module>ids-api</module>
     <module>ids</module>
     <module>argonaut</module>
     <module>argonaut-api</module>
