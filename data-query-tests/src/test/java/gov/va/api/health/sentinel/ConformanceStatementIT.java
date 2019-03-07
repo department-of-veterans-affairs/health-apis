@@ -2,7 +2,7 @@ package gov.va.api.health.sentinel;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import gov.va.api.health.argonaut.api.resources.Conformance;
+import gov.va.api.health.dataquery.api.resources.Conformance;
 import gov.va.api.health.sentinel.categories.LabDataQueryClinician;
 import gov.va.api.health.sentinel.categories.LabDataQueryPatient;
 import gov.va.api.health.sentinel.categories.Local;

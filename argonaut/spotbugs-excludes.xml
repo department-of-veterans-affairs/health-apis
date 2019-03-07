@@ -5,7 +5,7 @@
     The converter method can return an optional boolean matching the objects property per the FHIR specification.
   -->
   <Match>
-    <Class name="gov.va.api.health.argonaut.service.controller.immunization.ImmunizationTransformer"/>
+    <Class name="gov.va.api.health.dataquery.service.controller.immunization.ImmunizationTransformer"/>
     <Method name="reported"/>
     <Bug pattern="NP_BOOLEAN_RETURN_NULL"/>
   </Match>
@@ -13,7 +13,7 @@
     This is the regular expression defined in the specification: http://hl7.org/fhir/DSTU2/datatypes.html#dateTime
   -->
   <Match>
-    <Class name="gov.va.api.health.argonaut.service.controller.DateTimeParameterValidator"/>
+    <Class name="gov.va.api.health.dataquery.service.controller.DateTimeParameterValidator"/>
     <Bug pattern="REDOS"/>
   </Match>
 </FindBugsFilter>

@@ -221,7 +221,7 @@
                 <argument>-cp</argument>
                 <argument>argonaut.jar</argument>
                 <argument>-Dloader.path=data-query-tests-${project.version}.jar</argument>
-                <argument>-Dloader=gov.va.api.health.argonaut.service.Application</argument>
+                <argument>-Dloader=gov.va.api.health.dataquery.service.Application</argument>
                 <argument>-Dmranderson.url=https://localhost:8088</argument>
                 <argument>-Dargonaut.url=https://localhost:8090</argument>
                 <argument>-Dhealth-check.medication-id=skip</argument>

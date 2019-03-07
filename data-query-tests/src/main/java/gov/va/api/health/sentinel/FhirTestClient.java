@@ -3,7 +3,7 @@ package gov.va.api.health.sentinel;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import gov.va.api.health.argonaut.api.resources.OperationOutcome;
+import gov.va.api.health.dataquery.api.resources.OperationOutcome;
 import io.restassured.http.Method;
 import io.restassured.response.Response;
 import io.restassured.response.ResponseBody;

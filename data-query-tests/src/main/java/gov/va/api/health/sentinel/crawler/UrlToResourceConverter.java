@@ -1,7 +1,7 @@
 package gov.va.api.health.sentinel.crawler;
 
-import gov.va.api.health.argonaut.api.bundle.AbstractBundle;
-import gov.va.api.health.argonaut.api.resources.Resource;
+import gov.va.api.health.dataquery.api.bundle.AbstractBundle;
+import gov.va.api.health.dataquery.api.resources.Resource;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.function.Function;

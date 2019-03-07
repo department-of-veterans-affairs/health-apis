@@ -38,14 +38,14 @@
         <artifactId>swagger-maven-plugin</artifactId>
         <executions>
           <execution>
-            <id>argonaut-swag</id>
+            <id>dataquery-swag</id>
             <phase>compile</phase>
             <goals>
               <goal>resolve</goal>
             </goals>
             <configuration>
               <resourceClasses>
-                <resourceClass>gov.va.api.health.argonaut.api.ArgonautService</resourceClass>
+                <resourceClass>gov.va.api.health.dataquery.api.ArgonautService</resourceClass>
               </resourceClasses>
               <outputFileName>openapi</outputFileName>
               <outputPath>${project.build.directory}/swagger</outputPath>
