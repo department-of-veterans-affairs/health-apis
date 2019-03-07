@@ -21,7 +21,7 @@ public class ResourceVerifier {
 
   private static final String API_PATH = SystemDefinitions.systemDefinition().dataQuery().apiPath();
 
-  @Getter private final TestClient argonaut = TestClients.argonaut();
+  @Getter private final TestClient dataQuery = TestClients.dataQuery();
 
   @Getter
   private final TestIds ids = IdRegistrar.of(SystemDefinitions.systemDefinition()).registeredIds();

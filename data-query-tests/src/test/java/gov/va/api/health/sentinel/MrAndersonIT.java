@@ -11,7 +11,7 @@ public class MrAndersonIT {
   private final IdRegistrar registrar = IdRegistrar.of(SystemDefinitions.systemDefinition());
 
   private final String apiPath() {
-    return TestClients.argonaut().service().apiPath();
+    return TestClients.dataQuery().service().apiPath();
   }
 
   private TestIds ids() {

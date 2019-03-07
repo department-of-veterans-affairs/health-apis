@@ -39,7 +39,7 @@ public class DataQueryValidateIT {
   @Before
   public void _init() {
     ids = IdRegistrar.of(SystemDefinitions.systemDefinition()).registeredIds();
-    argonaut = TestClients.argonaut();
+    argonaut = TestClients.dataQuery();
   }
 
   private void validate(String resource, String id, Class<? extends AbstractBundle<?>> bundleType) {

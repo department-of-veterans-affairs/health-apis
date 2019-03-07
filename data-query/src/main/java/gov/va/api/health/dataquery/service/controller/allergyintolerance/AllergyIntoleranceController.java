@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Request Mappings for the Argonaut Allergy Intolerance Profile, see
+ * Request Mappings for Allergy Intolerance Profile, see
  * http://www.fhir.org/guides/argonaut/r2/StructureDefinition-argo-allergyintolerance.html for
  * implementation details.
  */
@@ -43,7 +43,6 @@ import org.springframework.web.bind.annotation.RestController;
 )
 @AllArgsConstructor(onConstructor = @__({@Autowired}))
 public class AllergyIntoleranceController {
-
   private Transformer transformer;
   private MrAndersonClient mrAndersonClient;
   private Bundler bundler;

@@ -20,7 +20,7 @@ public class WellKnownIT {
     ProdDataQueryClinician.class
   })
   public void wellKnownIsValid() {
-    ExpectedResponse response = TestClients.argonaut().get(".well-known/smart-configuration");
+    ExpectedResponse response = TestClients.dataQuery().get(".well-known/smart-configuration");
     response.expect(200);
     String rawJson = response.response().asString();
     assertThat(rawJson)

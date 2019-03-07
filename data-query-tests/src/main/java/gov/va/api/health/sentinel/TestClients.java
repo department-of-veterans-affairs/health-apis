@@ -9,7 +9,7 @@ import lombok.experimental.UtilityClass;
  */
 @UtilityClass
 public final class TestClients {
-  static TestClient argonaut() {
+  static TestClient dataQuery() {
     return FhirTestClient.builder()
         .service(SystemDefinitions.systemDefinition().dataQuery())
         .mapper(JacksonConfig::createMapper)

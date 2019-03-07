@@ -10,7 +10,7 @@ public class HealthCheckIT {
   @Category(Local.class)
   @Test
   public void argonautIsHealthy() {
-    TestClients.argonaut().get("/actuator/health").response().then().body("status", equalTo("UP"));
+    TestClients.dataQuery().get("/actuator/health").response().then().body("status", equalTo("UP"));
   }
 
   @Category(Local.class)

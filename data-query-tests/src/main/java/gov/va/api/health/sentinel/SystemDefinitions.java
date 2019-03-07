@@ -48,7 +48,7 @@ public final class SystemDefinitions {
     return SystemDefinition.builder()
         .ids(serviceDefinition("ids", url, 443, null, "/not-available/"))
         .mrAnderson(serviceDefinition("mr-anderson", url, 443, null, "/not-available/"))
-        .argonaut(
+        .dataQuery(
             serviceDefinition("argonaut", url, 443, magicAccessToken(), "/services/argonaut/v0/"))
         .cdwIds(labAndStagingIds())
         .build();
@@ -88,7 +88,7 @@ public final class SystemDefinitions {
     return SystemDefinition.builder()
         .ids(serviceDefinition("ids", url, 8089, null, "/api/"))
         .mrAnderson(serviceDefinition("mr-anderson", url, 8088, null, "/api/"))
-        .argonaut(serviceDefinition("argonaut", url, 8090, null, "/api/"))
+        .dataQuery(serviceDefinition("argonaut", url, 8090, null, "/api/"))
         .cdwIds(localIds())
         .build();
   }
@@ -148,7 +148,7 @@ public final class SystemDefinitions {
     return SystemDefinition.builder()
         .ids(serviceDefinition("ids", url, 443, null, "/not-available/"))
         .mrAnderson(serviceDefinition("mr-anderson", url, 443, null, "/not-available/"))
-        .argonaut(serviceDefinition("argonaut", url, 443, magicAccessToken(), "/api/"))
+        .dataQuery(serviceDefinition("argonaut", url, 443, magicAccessToken(), "/api/"))
         .cdwIds(prodAndQaIds())
         .build();
   }
@@ -186,7 +186,7 @@ public final class SystemDefinitions {
     return SystemDefinition.builder()
         .ids(serviceDefinition("ids", url, 443, null, "/not-available/"))
         .mrAnderson(serviceDefinition("mr-anderson", url, 443, null, "/not-available/"))
-        .argonaut(serviceDefinition("argonaut", url, 443, magicAccessToken(), "/api/"))
+        .dataQuery(serviceDefinition("argonaut", url, 443, magicAccessToken(), "/api/"))
         .cdwIds(prodAndQaIds())
         .build();
   }
@@ -208,7 +208,7 @@ public final class SystemDefinitions {
     return SystemDefinition.builder()
         .ids(serviceDefinition("ids", url, 443, null, "/not-available/"))
         .mrAnderson(serviceDefinition("mr-anderson", url, 443, null, "/not-available/"))
-        .argonaut(serviceDefinition("argonaut", url, 443, magicAccessToken(), "/api/"))
+        .dataQuery(serviceDefinition("argonaut", url, 443, magicAccessToken(), "/api/"))
         .build();
   }
 
