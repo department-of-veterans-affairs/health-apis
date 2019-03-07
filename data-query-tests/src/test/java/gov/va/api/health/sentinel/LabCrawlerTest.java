@@ -33,14 +33,14 @@ public class LabCrawlerTest {
             .password(System.getProperty("lab.user-password"))
             .build();
     IdMeOauthRobot robot =
-        robots.makeRobot(user, new SmartOnFhirUrls(env.argonaut().urlWithApiPath()));
+        robots.makeRobot(user, new SmartOnFhirUrls(env.dataQuery().urlWithApiPath()));
     Swiggity.swooty(patient);
     assertThat(robot.token().accessToken()).isNotBlank();
 
     ResourceDiscovery discovery =
         ResourceDiscovery.builder()
             .patientId(robot.token().patient())
-            .url(env.argonaut().urlWithApiPath())
+            .url(env.dataQuery().urlWithApiPath())
             .build();
     SummarizingResultCollector results =
         SummarizingResultCollector.wrap(
@@ -82,7 +82,7 @@ public class LabCrawlerTest {
     }
     return UrlReplacementRequestQueue.builder()
         .replaceUrl(SentinelProperties.urlReplace("argonaut"))
-        .withUrl(env.argonaut().urlWithApiPath())
+        .withUrl(env.dataQuery().urlWithApiPath())
         .requestQueue(new ConcurrentResourceBalancingRequestQueue())
         .build();
   }

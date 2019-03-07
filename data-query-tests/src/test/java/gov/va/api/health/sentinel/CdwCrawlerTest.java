@@ -29,12 +29,12 @@ public class CdwCrawlerTest {
     log.info("Using patient {} (Override with -Dpatient-id=<id>)", patient);
     Swiggity.swooty(patient);
 
-    Supplier<String> accessTokenValue = () -> env.argonaut().accessToken().get().get();
+    Supplier<String> accessTokenValue = () -> env.dataQuery().accessToken().get().get();
     assertThat(accessTokenValue).isNotNull();
     log.info("Access token is specified");
 
     ResourceDiscovery discovery =
-        ResourceDiscovery.builder().patientId(patient).url(env.argonaut().urlWithApiPath()).build();
+        ResourceDiscovery.builder().patientId(patient).url(env.dataQuery().urlWithApiPath()).build();
     SummarizingResultCollector results =
         SummarizingResultCollector.wrap(
             new FileResultsCollector(new File("target/cdw-crawl-" + patient)));
@@ -63,7 +63,7 @@ public class CdwCrawlerTest {
     }
     return UrlReplacementRequestQueue.builder()
         .replaceUrl(SentinelProperties.urlReplace("argonaut"))
-        .withUrl(env.argonaut().urlWithApiPath())
+        .withUrl(env.dataQuery().urlWithApiPath())
         .requestQueue(new ConcurrentResourceBalancingRequestQueue())
         .build();
   }

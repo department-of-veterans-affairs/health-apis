@@ -54,7 +54,7 @@ Applications _must_ define the following properties.
 > configuration properties are available.
 > See `src/main/resources/application.properties` in each application. 
 
-### Argonaut
+### Data Query
 ```
 # HTTPS Server
 server.ssl.key-store ...................... Path to keystore, e.g. /opt/va/certs/<any>.jks
@@ -78,7 +78,7 @@ health-check.medication-id ................ Public ID of a medication record use
                                             checks for the whole system
 
 # Public Information
-argonaut.url .............................. The public URL for Argonaut
+argonaut.url .............................. The public URL for Argonaut Data Query
                                             E.g. https://api.va.gov/services/argonaut/v0
 conformance.contact.name .................. The public liaison
 conformance.contact.email ................. Email address of the public liaison

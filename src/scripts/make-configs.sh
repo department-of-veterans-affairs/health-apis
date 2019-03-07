@@ -128,19 +128,19 @@ configValue mr-anderson $PROFILE spring.datasource.password "$MRANDERSON_DB_PASS
 configValue mr-anderson $PROFILE identityservice.url https://localhost:8089
 checkForUnsetValues mr-anderson $PROFILE
 
-makeConfig argonaut $PROFILE
-configValue argonaut $PROFILE mranderson.url https://localhost:8088
-configValue argonaut $PROFILE argonaut.url https://localhost:8090
-configValue argonaut $PROFILE health-check.medication-id 2f773f73-ad7f-56ca-891e-8e364c913fe0
-configValue argonaut $PROFILE conformance.statement-type patient
-configValue argonaut $PROFILE conformance.contact.name "$(whoDis)"
-configValue argonaut $PROFILE conformance.contact.email "$(sendMoarSpams)"
-configValue argonaut $PROFILE conformance.security.token-endpoint https://fake.com/token
-configValue argonaut $PROFILE conformance.security.authorize-endpoint https://fake.com/authorize
-configValue argonaut $PROFILE well-known.capabilities "context-standalone-patient, launch-ehr, permission-offline, permission-patient"
-configValue argonaut $PROFILE well-known.response-type-supported "code, refresh_token"
-configValue argonaut $PROFILE well-known.scopes-supported "patient/DiagnosticReport.read, patient/Patient.read, offline_access"
+makeConfig data-query $PROFILE
+configValue data-query $PROFILE mranderson.url https://localhost:8088
+configValue data-query $PROFILE argonaut.url https://localhost:8090
+configValue data-query $PROFILE health-check.medication-id 2f773f73-ad7f-56ca-891e-8e364c913fe0
+configValue data-query $PROFILE conformance.statement-type patient
+configValue data-query $PROFILE conformance.contact.name "$(whoDis)"
+configValue data-query $PROFILE conformance.contact.email "$(sendMoarSpams)"
+configValue data-query $PROFILE conformance.security.token-endpoint https://fake.com/token
+configValue data-query $PROFILE conformance.security.authorize-endpoint https://fake.com/authorize
+configValue data-query $PROFILE well-known.capabilities "context-standalone-patient, launch-ehr, permission-offline, permission-patient"
+configValue data-query $PROFILE well-known.response-type-supported "code, refresh_token"
+configValue data-query $PROFILE well-known.scopes-supported "patient/DiagnosticReport.read, patient/Patient.read, offline_access"
 
-checkForUnsetValues argonaut $PROFILE
+checkForUnsetValues data-query $PROFILE
 
 makeTestsSecrets

@@ -11,7 +11,7 @@ import lombok.experimental.UtilityClass;
 public final class TestClients {
   static TestClient argonaut() {
     return FhirTestClient.builder()
-        .service(SystemDefinitions.systemDefinition().argonaut())
+        .service(SystemDefinitions.systemDefinition().dataQuery())
         .mapper(JacksonConfig::createMapper)
         .build();
   }

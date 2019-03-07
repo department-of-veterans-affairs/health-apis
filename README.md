@@ -2,12 +2,12 @@
 
 This project encapsulates the Health APIs. The system consists of three
 [Spring Boot](https://spring.io/projects/spring-boot) microservices that provide
-[Argonaut](http://www.fhir.org/guides/argonaut/r2/profiles.html) compliant resources
+[Argonaut Data Query](http://www.fhir.org/guides/argonaut/r2/profiles.html) compliant resources
 backed by information from the Corporate Data Warehouse.
 
 ###### Health API applications
 ![applications](src/plantuml/apps.png)
-- argonaut - Argonaut-compliant experience API
+- data-query - Argonaut Data Query compliant experience API
 - [mr-anderson](mr-anderson/README.md) - Corporate Data Warehouse access system API
 - [data-query-tests](data-query-tests/README.md) - Integration tests
 

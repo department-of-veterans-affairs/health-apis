@@ -11,7 +11,7 @@ public final class SystemDefinition {
 
   @NonNull ServiceDefinition mrAnderson;
 
-  @NonNull ServiceDefinition argonaut;
+  @NonNull ServiceDefinition dataQuery;
 
   @NonNull TestIds cdwIds;
 }

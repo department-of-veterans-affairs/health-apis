@@ -45,7 +45,7 @@
     </dependency>
     <dependency>
       <groupId>gov.va.api.health</groupId>
-      <artifactId>argonaut</artifactId>
+      <artifactId>data-query</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
@@ -130,7 +130,7 @@
             </goals>
             <configuration>
               <outputDirectory>${project.build.directory}</outputDirectory>
-              <includeArtifactIds>h2,ids,mr-anderson,argonaut</includeArtifactIds>
+              <includeArtifactIds>h2,ids,mr-anderson,data-query</includeArtifactIds>
               <stripVersion>true</stripVersion>
             </configuration>
           </execution>
@@ -207,19 +207,19 @@
             </configuration>
           </execution>
           <execution>
-            <id>argonaut-process</id>
+            <id>data-query-process</id>
             <phase>pre-integration-test</phase>
             <goals>
               <goal>start</goal>
             </goals>
             <configuration>
-              <name>argonaut</name>
+              <name>data-query</name>
               <healthcheckUrl>https://localhost:8090/actuator/health</healthcheckUrl>
               <skip>${sentinel.skipLaunch}</skip>
               <arguments>
                 <argument>java</argument>
                 <argument>-cp</argument>
-                <argument>argonaut.jar</argument>
+                <argument>data-query.jar</argument>
                 <argument>-Dloader.path=data-query-tests-${project.version}.jar</argument>
                 <argument>-Dloader=gov.va.api.health.dataquery.service.Application</argument>
                 <argument>-Dmranderson.url=https://localhost:8088</argument>

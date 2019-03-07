@@ -5,7 +5,7 @@
   <!--
     The following resources have certain fields that are reported
     as data absent reason extensions that is required to have a _
-    prefix by the Argonaut specification.
+    prefix by the Data Query specification.
   -->
   <suppress checks="MemberName" files=".*(/|\\)Immunization.java" message="Member name '(_status|_reported)'"/>
   <suppress checks="MemberName" files=".*(/|\\)DiagnosticReport.java" message="Member name '(_performer)'"/>
