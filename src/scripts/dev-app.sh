@@ -13,7 +13,7 @@ Commands
  k, stop      Stop applications
 
 Options
- -a, --argonaut      Include Argonaut
+ -d, --data-query    Include Data Query
  -m, --mr-anderson   Include Mr. Anderson
 
 Examples
@@ -67,36 +67,36 @@ statusOf() {
 
 doStatus() {
   statusOf mr-anderson
-  statusOf argonaut
+  statusOf data-query
 }
 
 doStart() {
   export SPRING_PROFILES_ACTIVE
   echo "Using profile: $SPRING_PROFILES_ACTIVE"
   [ $MRANDERSON == true ] && startApp mr-anderson
-  [ $ARGONAUT == true ] && startApp argonaut
+  [ $DATAQUERY == true ] && startApp data-query
 }
 
 doStop() {
   [ $MRANDERSON == true ] && stopApp mr-anderson
-  [ $ARGONAUT == true ] && stopApp argonaut
+  [ $DATAQUERY == true ] && stopApp data-query
 }
 
 
 REPO=$(cd $(dirname $0)/../.. && pwd)
 MRANDERSON=false
-ARGONAUT=false
+DATAQUERY=false
 SPRING_PROFILES_ACTIVE=dev
 
 ARGS=$(getopt -n $(basename ${0}) \
-    -l "debug,help,mr-anderson,argonaut" \
+    -l "debug,help,mr-anderson,data-query" \
     -o "hima" -- "$@")
 [ $? != 0 ] && usage
 eval set -- "$ARGS"
 while true
 do
   case "$1" in
-    -a|--argonaut) ARGONAUT=true;;
+    -d|--data-query) DATAQUERY=true;;
     --debug) set -x;;
     -h|--help) usage "halp! what this do?";;
     -m|--mr-anderson) MRANDERSON=true;;

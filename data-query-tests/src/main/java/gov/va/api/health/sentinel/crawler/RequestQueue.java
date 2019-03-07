@@ -1,7 +1,7 @@
 package gov.va.api.health.sentinel.crawler;
 
 /**
- * The request queue manages fully qualified URLs for reading Argonaut resources. It prohibits
+ * The request queue manages fully qualified URLs for reading Data Query resources. It prohibits
  * entries from being added multiple times. Implementations should make provisions for
  * multi-threaded environments.
  */

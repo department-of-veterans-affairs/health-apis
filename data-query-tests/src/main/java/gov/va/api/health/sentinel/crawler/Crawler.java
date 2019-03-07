@@ -30,7 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
-/** The Crawler will recursive request resources from an Argonaut server. I */
+/** The Crawler will recursively request resources from a Data Query server. I */
 @Builder
 @Slf4j
 public class Crawler {
