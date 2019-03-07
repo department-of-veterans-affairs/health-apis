@@ -9,7 +9,7 @@ import org.junit.experimental.categories.Category;
 public class HealthCheckIT {
   @Category(Local.class)
   @Test
-  public void argonautIsHealthy() {
+  public void dataQueryIsHealthy() {
     TestClients.dataQuery().get("/actuator/health").response().then().body("status", equalTo("UP"));
   }
 
