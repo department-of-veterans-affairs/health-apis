@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Request Mappings for the Location Profile, see https://www.hl7.org/fhir/DSTU2/location.html for
+ * Request Mappings for Location Profile, see https://www.hl7.org/fhir/DSTU2/location.html for
  * implementation details.
  */
 @SuppressWarnings("WeakerAccess")

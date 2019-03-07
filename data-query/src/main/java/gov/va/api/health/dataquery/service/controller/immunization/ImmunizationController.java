@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Request Mappings for the Argonaut Immunization Profile, see
+ * Request Mappings for Immunization Profile, see
  * https://www.fhir.org/guides/argonaut/r2/StructureDefinition-argo-Immunization.html for
  * implementation details.
  */

@@ -59,7 +59,7 @@ public class Bundler {
    *
    * @param <X> The CDW Xml item type. This should not be the root, but the resource type itself,
    *     e.g. CdwPatient103Root.CdwPatients.CdwPatient
-   * @param <T> The Argonaut type to produce, e.g. Patient
+   * @param <T> The Data Query type to produce, e.g. Patient
    * @param <E> The entry type, e.g. Patient.Entry
    * @param <B> The bundle type, e.g. Patient.Bundle
    */

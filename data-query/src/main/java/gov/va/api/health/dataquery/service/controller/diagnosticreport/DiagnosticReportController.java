@@ -34,7 +34,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Request Mappings for the Argonaut Diagnostic Report Profile, see
+ * Request Mappings for Diagnostic Report Profile, see
  * https://www.fhir.org/guides/argonaut/r2/StructureDefinition-argo-diagnosticreport.html for
  * implementation details.
  */

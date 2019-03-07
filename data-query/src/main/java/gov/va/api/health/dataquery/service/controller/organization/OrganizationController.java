@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Request Mappings for the DSTU Organization, see https://www.hl7.org/fhir/DSTU2/appointment.html
+ * Request Mappings for DSTU Organization, see https://www.hl7.org/fhir/DSTU2/appointment.html
  * for implementation details.
  */
 @SuppressWarnings("WeakerAccess")

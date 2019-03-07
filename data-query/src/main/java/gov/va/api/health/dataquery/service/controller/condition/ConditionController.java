@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Request Mappings for the Argonaut Condition Profile, see
+ * Request Mappings for Condition Profile, see
  * https://www.fhir.org/guides/argonaut/r2/StructureDefinition-argo-condition.html for
  * implementation details.
  */

@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Request Mappings for the Argonaut Medication Order Profile, see
+ * Request Mappings for Medication Order Profile, see
  * https://www.fhir.org/guides/argonaut/r2/StructureDefinition-argo-medicationorder.html for
  * implementation details.
  */
