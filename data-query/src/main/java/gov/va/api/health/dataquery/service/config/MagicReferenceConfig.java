@@ -50,9 +50,8 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 public class MagicReferenceConfig {
-
   /**
-   * The published URL for argonaut, which is likely not the hostname of the machine running this
+   * The published URL for data-query, which is likely not the hostname of the machine running this
    * application.
    */
   private final String baseUrl;
@@ -61,7 +60,7 @@ public class MagicReferenceConfig {
   /** Property defining the references to serialize. */
   private final ReferenceSerializerProperties config;
 
-  /** Custom Argonaut Jackson Mapper for serialization. */
+  /** Auto-wired constructor. */
   @Autowired
   public MagicReferenceConfig(
       @Value("${argonaut.url}") String baseUrl,

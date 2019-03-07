@@ -15,7 +15,7 @@ public class DataQueryJacksonMapper {
   /** Configure Jackson to magically deal with references. */
   private final MagicReferenceConfig magicReferences;
 
-  /** Custom Argonaut Jackson Mapper for serialization. */
+  /** Custom Data Query Jackson Mapper for serialization. */
   @Autowired
   public DataQueryJacksonMapper(MagicReferenceConfig magicReferences) {
     this.magicReferences = magicReferences;
