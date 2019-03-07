@@ -111,6 +111,7 @@ public class AllergyIntoleranceControllerTest {
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   public void read() {
     CdwAllergyIntolerance103Root root = new CdwAllergyIntolerance103Root();
     root.setAllergyIntolerances(new CdwAllergyIntolerances());

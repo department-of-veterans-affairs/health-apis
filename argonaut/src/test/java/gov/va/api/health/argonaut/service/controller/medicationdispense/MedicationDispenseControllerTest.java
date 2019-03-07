@@ -102,6 +102,7 @@ public class MedicationDispenseControllerTest {
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   public void read() {
     CdwMedicationDispense100Root root = new CdwMedicationDispense100Root();
     root.setMedicationDispenses(new CdwMedicationDispenses());

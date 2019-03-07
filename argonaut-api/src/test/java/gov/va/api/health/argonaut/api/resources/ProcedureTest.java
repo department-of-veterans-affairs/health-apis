@@ -12,10 +12,8 @@ import gov.va.api.health.argonaut.api.resources.Procedure.Bundle;
 import gov.va.api.health.argonaut.api.resources.Procedure.Entry;
 import gov.va.api.health.argonaut.api.samples.SampleProcedures;
 import java.util.Collections;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 
-@Slf4j
 public class ProcedureTest {
   private final SampleProcedures data = SampleProcedures.get();
 

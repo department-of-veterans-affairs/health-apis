@@ -33,8 +33,8 @@ public abstract class AbstractSetFieldCounter<A extends Annotation>
   }
 
   @Override
-  public void initialize(A annotation) {
-    this.annotation = annotation;
+  public void initialize(A theAnnotation) {
+    this.annotation = theAnnotation;
   }
 
   protected abstract boolean isNumberOfFieldsSetValid(int numberOfFieldsSet);

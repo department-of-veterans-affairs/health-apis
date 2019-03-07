@@ -64,16 +64,4 @@ public class SampleDiagnosticReports {
         .presentedForm(Arrays.asList(attachment(), attachment()))
         .build();
   }
-
-  private List<DiagnosticReport.Image> image() {
-    return singletonList(
-        DiagnosticReport.Image.builder()
-            .id("456")
-            .extension(Arrays.asList(extension(), extension()))
-            .modifierExtension(
-                Arrays.asList(extension(), extensionWithQuantity(), extensionWithRatio()))
-            .comment("Hello?")
-            .link(reference())
-            .build());
-  }
 }

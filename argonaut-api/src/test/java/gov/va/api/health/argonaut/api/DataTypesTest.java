@@ -8,10 +8,8 @@ import gov.va.api.health.argonaut.api.ArgonautService.UnknownResource;
 import gov.va.api.health.argonaut.api.resources.OperationOutcome;
 import gov.va.api.health.argonaut.api.samples.SampleDataTypes;
 import java.util.Arrays;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 
-@Slf4j
 public class DataTypesTest {
 
   private final SampleDataTypes data = SampleDataTypes.get();

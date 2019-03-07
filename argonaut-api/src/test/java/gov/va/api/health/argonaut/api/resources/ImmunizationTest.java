@@ -11,10 +11,8 @@ import gov.va.api.health.argonaut.api.resources.Immunization.Bundle;
 import gov.va.api.health.argonaut.api.resources.Immunization.Entry;
 import gov.va.api.health.argonaut.api.samples.SampleImmunizations;
 import java.util.Collections;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 
-@Slf4j
 public class ImmunizationTest {
 
   private final SampleImmunizations data = SampleImmunizations.get();

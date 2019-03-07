@@ -13,7 +13,7 @@ public class ExactlyOneOfVerifier<T> extends AbstractRelatedFieldVerifier<T> {
   private String fieldPrefix;
 
   @Builder
-  public ExactlyOneOfVerifier(T sample, String fieldPrefix, @Singular Collection omissions) {
+  public ExactlyOneOfVerifier(T sample, String fieldPrefix, @Singular Collection<?> omissions) {
     super(sample, name -> name.startsWith(fieldPrefix) && !omissions.contains(name));
     this.fieldPrefix = fieldPrefix;
   }

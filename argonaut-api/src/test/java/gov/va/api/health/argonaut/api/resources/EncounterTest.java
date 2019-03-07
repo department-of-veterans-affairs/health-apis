@@ -9,14 +9,8 @@ import gov.va.api.health.argonaut.api.resources.Encounter.Bundle;
 import gov.va.api.health.argonaut.api.resources.Encounter.Entry;
 import gov.va.api.health.argonaut.api.samples.SampleEncounters;
 import java.util.Collections;
-import java.util.Set;
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.ValidatorFactory;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 
-@Slf4j
 public class EncounterTest {
 
   private final SampleEncounters data = SampleEncounters.get();
@@ -58,10 +52,5 @@ public class EncounterTest {
   @Test
   public void encounter() {
     assertRoundTrip(data.encounter());
-  }
-
-  private <T> Set<ConstraintViolation<T>> violationsOf(T object) {
-    ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-    return factory.getValidator().validate(object);
   }
 }

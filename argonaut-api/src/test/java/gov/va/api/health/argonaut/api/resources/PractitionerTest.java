@@ -6,10 +6,8 @@ import gov.va.api.health.argonaut.api.bundle.AbstractBundle;
 import gov.va.api.health.argonaut.api.bundle.BundleLink;
 import gov.va.api.health.argonaut.api.samples.SamplePractitioners;
 import java.util.Collections;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 
-@Slf4j
 public class PractitionerTest {
 
   private final SamplePractitioners data = SamplePractitioners.get();

@@ -68,8 +68,8 @@ public class MedicationDispenseTransformerTest {
   @Test
   public void codings() {
     assertThat(tx.codings(null)).isNull();
-    List<CdwCoding> cdw = Collections.singletonList(null);
-    assertThat(tx.codings(cdw));
+    List<CdwCoding> nullList = Collections.singletonList(null);
+    assertThat(tx.codings(nullList));
   }
 
   @Test
@@ -138,10 +138,10 @@ public class MedicationDispenseTransformerTest {
   @Test
   public void routeCodeableConcept() {
     assertThat(tx.routeCodeableConcept(null)).isNull();
-    CdwRoute cdw = new CdwRoute();
-    assertThat(tx.routeCodeableConcept(cdw)).isNull();
-    cdw.setText("   ");
-    assertThat(tx.routeCodeableConcept(cdw)).isNull();
+    CdwRoute route = new CdwRoute();
+    assertThat(tx.routeCodeableConcept(route)).isNull();
+    route.setText("   ");
+    assertThat(tx.routeCodeableConcept(route)).isNull();
   }
 
   @Test
@@ -170,9 +170,9 @@ public class MedicationDispenseTransformerTest {
   @Test
   public void typeCodeableConcept() {
     assertThat(tx.typeCodeableConcept(null)).isNull();
-    CdwMedicationDispenseType cdw = new CdwMedicationDispenseType();
-    cdw.setText("   ");
-    assertThat(tx.typeCodeableConcept(cdw)).isNull();
+    CdwMedicationDispenseType medDisp = new CdwMedicationDispenseType();
+    medDisp.setText("   ");
+    assertThat(tx.typeCodeableConcept(medDisp)).isNull();
   }
 
   @Test

@@ -19,7 +19,7 @@ public class ZeroOrOneOfVerifier<T> extends AbstractRelatedFieldVerifier<T> {
   private String fieldPrefix;
 
   @Builder
-  public ZeroOrOneOfVerifier(T sample, String fieldPrefix, @Singular Collection omissions) {
+  public ZeroOrOneOfVerifier(T sample, String fieldPrefix, @Singular Collection<?> omissions) {
     super(sample, name -> name.startsWith(fieldPrefix) && !omissions.contains(name));
     this.fieldPrefix = fieldPrefix;
   }

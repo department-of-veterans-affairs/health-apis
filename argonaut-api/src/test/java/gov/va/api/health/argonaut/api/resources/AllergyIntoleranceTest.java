@@ -9,10 +9,8 @@ import gov.va.api.health.argonaut.api.resources.AllergyIntolerance.Bundle;
 import gov.va.api.health.argonaut.api.resources.AllergyIntolerance.Entry;
 import gov.va.api.health.argonaut.api.samples.SampleAllergyIntolerances;
 import java.util.Collections;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 
-@Slf4j
 public class AllergyIntoleranceTest {
 
   private final SampleAllergyIntolerances data = SampleAllergyIntolerances.get();

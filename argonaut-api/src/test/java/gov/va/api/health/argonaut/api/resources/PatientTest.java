@@ -10,10 +10,8 @@ import gov.va.api.health.argonaut.api.resources.Patient.Bundle;
 import gov.va.api.health.argonaut.api.resources.Patient.Entry;
 import gov.va.api.health.argonaut.api.samples.SamplePatients;
 import java.util.Collections;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 
-@Slf4j
 public class PatientTest {
 
   private final SamplePatients data = SamplePatients.get();

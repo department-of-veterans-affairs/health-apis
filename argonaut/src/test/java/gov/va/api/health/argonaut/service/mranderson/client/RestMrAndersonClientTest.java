@@ -78,7 +78,7 @@ public class RestMrAndersonClientTest {
   @Test
   public void responseBodyIsReturnedFor200Status() {
     CdwPatient103Root root = new CdwPatient103Root();
-    ResponseEntity response = mock(ResponseEntity.class);
+    ResponseEntity<CdwPatient103Root> response = mock(ResponseEntity.class);
     when(response.getStatusCode()).thenReturn(HttpStatus.OK);
     when(response.getBody()).thenReturn(root);
     when(rt.exchange(

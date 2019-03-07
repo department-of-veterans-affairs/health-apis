@@ -185,7 +185,7 @@ public class MagicReferenceConfig {
 
             @Override
             public List<BeanPropertyWriter> changeProperties(
-                SerializationConfig config,
+                SerializationConfig serialConfig,
                 BeanDescription beanDesc,
                 List<BeanPropertyWriter> beanProperties) {
               if (beanDesc.getBeanClass() == Reference.class) {
@@ -197,20 +197,20 @@ public class MagicReferenceConfig {
                 }
               }
 
-              return super.changeProperties(config, beanDesc, beanProperties);
+              return super.changeProperties(serialConfig, beanDesc, beanProperties);
             }
 
             @Override
             @SuppressWarnings("unchecked")
             public JsonSerializer<?> modifySerializer(
-                SerializationConfig config,
+                SerializationConfig serialConfig,
                 BeanDescription beanDesc,
                 JsonSerializer<?> serializer) {
               if (Reference.class.isAssignableFrom(beanDesc.getBeanClass())) {
                 //noinspection unchecked
                 return new OptionalReferenceSerializer((JsonSerializer<Reference>) serializer);
               }
-              return super.modifySerializer(config, beanDesc, serializer);
+              return super.modifySerializer(serialConfig, beanDesc, serializer);
             }
           });
     }

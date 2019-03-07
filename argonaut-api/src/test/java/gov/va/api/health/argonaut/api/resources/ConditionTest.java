@@ -8,10 +8,8 @@ import gov.va.api.health.argonaut.api.bundle.BundleLink;
 import gov.va.api.health.argonaut.api.resources.Condition.Bundle;
 import gov.va.api.health.argonaut.api.samples.SampleConditions;
 import java.util.Collections;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 
-@Slf4j
 public class ConditionTest {
 
   private final SampleConditions data = SampleConditions.get();

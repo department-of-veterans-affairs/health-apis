@@ -11,14 +11,8 @@ import gov.va.api.health.argonaut.api.resources.MedicationStatement.Bundle;
 import gov.va.api.health.argonaut.api.resources.MedicationStatement.Entry;
 import gov.va.api.health.argonaut.api.samples.SampleMedicationStatements;
 import java.util.Collections;
-import java.util.Set;
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.ValidatorFactory;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 
-@Slf4j
 public class MedicationStatementTest {
 
   private final SampleMedicationStatements data = SampleMedicationStatements.get();
@@ -80,10 +74,5 @@ public class MedicationStatementTest {
         .fieldPrefix("medication")
         .build()
         .verify();
-  }
-
-  private <T> Set<ConstraintViolation<T>> violationsOf(T object) {
-    ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-    return factory.getValidator().validate(object);
   }
 }

@@ -58,7 +58,7 @@ public class WebExceptionHandlerTest {
 
   @Parameterized.Parameters(name = "{index}:{0} - {1}")
   public static List<Object[]> parameters() {
-    Query query =
+    Query<?> query =
         Query.builder()
             .profile(Profile.ARGONAUT)
             .resource("Patient")
@@ -91,10 +91,10 @@ public class WebExceptionHandlerTest {
         new ExceptionHandlerExceptionResolver() {
           @Override
           protected ServletInvocableHandlerMethod getExceptionHandlerMethod(
-              HandlerMethod handlerMethod, Exception exception) {
+              HandlerMethod handlerMethod, Exception ex) {
             Method method =
                 new ExceptionHandlerMethodResolver(WebExceptionHandler.class)
-                    .resolveMethod(exception);
+                    .resolveMethod(ex);
             assertThat(method).isNotNull();
             return new ServletInvocableHandlerMethod(exceptionHandler, method);
           }
