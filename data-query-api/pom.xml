@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <dependencies>
+    <dependency>
+      <groupId>org.glassfish</groupId>
+      <artifactId>javax.el</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.reflections</groupId>
+      <artifactId>reflections</artifactId>
+      <version>${reflections.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-beans</artifactId>
+      <scope>compile</scope>
+    </dependency>
+  </dependencies>
+  <parent>
+    <groupId>gov.va.api.health</groupId>
+    <artifactId>api-starter</artifactId>
+    <version>1.1.2</version>
+    <relativePath/>
+  </parent>
+  <artifactId>data-query-api</artifactId>
+  <version>1.0.196-SNAPSHOT</version>
+  <packaging>jar</packaging>
+  <properties>
+    <checkstyle.suppressions.location>${project.basedir}/checkstyle-suppressions.xml</checkstyle.suppressions.location>
+  </properties>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>io.swagger.core.v3</groupId>
+        <artifactId>swagger-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>dataquery-swag</id>
+            <phase>compile</phase>
+            <goals>
+              <goal>resolve</goal>
+            </goals>
+            <configuration>
+              <resourceClasses>
+                <resourceClass>gov.va.api.health.dataquery.api.ArgonautService</resourceClass>
+              </resourceClasses>
+              <outputFileName>openapi</outputFileName>
+              <outputPath>${project.build.directory}/swagger</outputPath>
+              <outputFormat>JSONANDYAML</outputFormat>
+              <prettyPrint>true</prettyPrint>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>compile</phase>
+            <configuration>
+              <tasks>
+                <!--
+                  Sadness here.
+                  Swagger is ignore @JsonProperty annotations on enums. This big bit of sadness changes generated swagger _ to - in enums.
+                -->
+                <replaceregexp byline="true" file="${project.build.directory}/swagger/openapi.yaml" flags="g" match="([a-z])_([a-z])" replace="\1-\2"/>
+                <replaceregexp byline="true" file="${project.build.directory}/swagger/openapi.yaml" flags="g" match="- _([a-z])" replace="- \1"/>
+                <replaceregexp byline="true" file="${project.build.directory}/swagger/openapi.json" flags="g" match="([a-z])_([a-z])" replace="\1-\2"/>
+                <replaceregexp byline="true" file="${project.build.directory}/swagger/openapi.json" flags="g" match="(,|\[) &quot;_([a-z])" replace="\1 &quot;\2"/>
+                <!--
+                  This group is because the swagger auto-generated for dates, times, and datetimes examples doesn't play nice with how swagger is actually consumed.
+                  The first regex captures datetimes and times. The second one covers left over dates.
+                -->
+                <replaceregexp byline="true" file="${project.build.directory}/swagger/openapi.yaml" flags="g" match="\b(([0-9]{4}(-(0[1-9]|1[0-2])(-(0[0-9]|[1-2][0-9]|3[0-1]))?)T)?(([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](\.[0-9]+)?)(Z|(\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00))?)\b" replace="'\1'"/>
+                <replaceregexp byline="true" file="${project.build.directory}/swagger/openapi.yaml" flags="g" match="( ([0-9]{4}-(0[1-9]|1[0-2])(-(0[0-9]|[1-2][0-9]|3[0-1]))?))" replace=" '\2'"/>
+              </tasks>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>attach-artifact</goal>
+            </goals>
+            <configuration>
+              <artifacts>
+                <artifact>
+                  <file>target/swagger/openapi.yaml</file>
+                  <classifier>openapi</classifier>
+                  <type>yaml</type>
+                </artifact>
+                <artifact>
+                  <file>target/swagger/openapi.json</file>
+                  <classifier>openapi</classifier>
+                  <type>json</type>
+                </artifact>
+              </artifacts>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>test-jar</id>
+            <phase>package</phase>
+            <goals>
+              <goal>test-jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>
