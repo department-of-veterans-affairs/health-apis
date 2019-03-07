@@ -26,7 +26,7 @@ import org.junit.experimental.categories.Category;
 import org.springframework.beans.BeanUtils;
 
 public class DataQueryValidateIT {
-  private TestClient argonaut;
+  private TestClient dataQuery;
   private TestIds ids;
 
   @SneakyThrows
@@ -39,19 +39,19 @@ public class DataQueryValidateIT {
   @Before
   public void _init() {
     ids = IdRegistrar.of(SystemDefinitions.systemDefinition()).registeredIds();
-    argonaut = TestClients.dataQuery();
+    dataQuery = TestClients.dataQuery();
   }
 
   private void validate(String resource, String id, Class<? extends AbstractBundle<?>> bundleType) {
-    String path = argonaut.service().apiPath() + resource;
+    String path = dataQuery.service().apiPath() + resource;
 
-    AbstractBundle<?> bundle = argonaut.get(path + "?_id={id}", id).expectValid(bundleType);
-    argonaut.post(path + "/$validate", bundle).expect(200).expectValid(OperationOutcome.class);
+    AbstractBundle<?> bundle = dataQuery.get(path + "?_id={id}", id).expectValid(bundleType);
+    dataQuery.post(path + "/$validate", bundle).expect(200).expectValid(OperationOutcome.class);
     /*
      * Murder the resource so it's not valid.
      */
     murderResourceType(bundle);
-    argonaut.post(path + "/$validate", bundle).expect(400).expectValid(OperationOutcome.class);
+    dataQuery.post(path + "/$validate", bundle).expect(400).expectValid(OperationOutcome.class);
   }
 
   @Test
