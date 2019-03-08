@@ -9,7 +9,7 @@ import javax.ws.rs.Path;
 @OpenAPIDefinition(
   info =
       @Info(
-        title = "Argonaut",
+        title = "Argonaut Data Query",
         version = "v1",
         description =
             "FHIR (Fast Healthcare Interoperability Resources) specification defines a set of"
