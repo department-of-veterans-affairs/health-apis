@@ -67,7 +67,10 @@ public class ResourceVerifier {
         .get(tc.path() + "&_count=-1", tc.parameters())
         .expect(400)
         .expectValid(OperationOutcome.class);
-    dataQuery().get(tc.path() + "&_count=0", tc.parameters()).expect(200).expectValid(tc.response());
+    dataQuery()
+        .get(tc.path() + "&_count=0", tc.parameters())
+        .expect(200)
+        .expectValid(tc.response());
     dataQuery()
         .get(tc.path() + "&_count=21", tc.parameters())
         .expect(200)

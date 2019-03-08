@@ -30,8 +30,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Request Mappings for Practitioner Profile, see
- * http://hl7.org/fhir/DSTU2/practitioner.html for implementation details.
+ * Request Mappings for Practitioner Profile, see http://hl7.org/fhir/DSTU2/practitioner.html for
+ * implementation details.
  */
 @SuppressWarnings("WeakerAccess")
 @Validated

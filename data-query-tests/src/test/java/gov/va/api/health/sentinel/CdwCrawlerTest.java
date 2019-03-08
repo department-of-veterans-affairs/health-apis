@@ -34,7 +34,10 @@ public class CdwCrawlerTest {
     log.info("Access token is specified");
 
     ResourceDiscovery discovery =
-        ResourceDiscovery.builder().patientId(patient).url(env.dataQuery().urlWithApiPath()).build();
+        ResourceDiscovery.builder()
+            .patientId(patient)
+            .url(env.dataQuery().urlWithApiPath())
+            .build();
     SummarizingResultCollector results =
         SummarizingResultCollector.wrap(
             new FileResultsCollector(new File("target/cdw-crawl-" + patient)));
