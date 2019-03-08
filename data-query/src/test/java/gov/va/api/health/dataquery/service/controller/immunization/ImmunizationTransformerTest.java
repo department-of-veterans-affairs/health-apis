@@ -34,7 +34,6 @@ import lombok.SneakyThrows;
 import org.junit.Test;
 
 public class ImmunizationTransformerTest {
-
   private ImmunizationTransformer tx = new ImmunizationTransformer();
   private CdwSampleData cdw = new CdwSampleData();
   private Expected expected = new Expected();
@@ -121,7 +120,6 @@ public class ImmunizationTransformerTest {
   }
 
   private static class CdwSampleData {
-
     @SneakyThrows
     private XMLGregorianCalendar dateTime(String s) {
       return DatatypeFactory.newInstance().newXMLGregorianCalendar(s);
@@ -207,7 +205,6 @@ public class ImmunizationTransformerTest {
   }
 
   private static class Expected {
-
     private Identifier identifier() {
       return Identifier.builder()
           .use(IdentifierUse.official)

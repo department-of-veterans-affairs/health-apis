@@ -42,7 +42,6 @@ public interface DataQueryService
         ObservationApi,
         PatientApi,
         ProcedureApi {
-
   class DataQueryServiceException extends RuntimeException {
     DataQueryServiceException(String message) {
       super(message);

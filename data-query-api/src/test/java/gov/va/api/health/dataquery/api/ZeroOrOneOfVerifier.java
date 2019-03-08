@@ -14,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class ZeroOrOneOfVerifier<T> extends AbstractRelatedFieldVerifier<T> {
-
   /** The prefix of the related fields. */
   private String fieldPrefix;
 

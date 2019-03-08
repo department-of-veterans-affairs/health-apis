@@ -33,7 +33,6 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.util.MultiValueMap;
 
 public class DiagnosticReportControllerTest {
-
   @Mock MrAndersonClient client;
   @Mock DiagnosticReportController.Transformer tx;
   @Mock Bundler bundler;

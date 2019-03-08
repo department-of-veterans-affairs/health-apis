@@ -26,12 +26,10 @@ import org.junit.experimental.categories.Category;
 
 @Slf4j
 public class LabLogInTest {
-
   @Test
   @Category(Manual.class)
   @SneakyThrows
   public void login() {
-
     List<String> ids = new LinkedList<>();
     for (int i = 1; i <= 5; i++) {
       ids.add("vasdvp+IDME_" + String.format("%02d", i) + "@gmail.com");

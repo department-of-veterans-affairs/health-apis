@@ -11,7 +11,6 @@ import lombok.experimental.Delegate;
 @SuppressWarnings("WeakerAccess")
 @NoArgsConstructor(staticName = "get")
 public class SampleMedications {
-
   @Delegate SampleDataTypes dataTypes = SampleDataTypes.get();
 
   public Medication.Batch batch() {

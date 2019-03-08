@@ -19,7 +19,6 @@ import org.springframework.util.MultiValueMap;
 /** This implementation uses a configurable base URL (argonaut.url) for the links. */
 @Service
 public class ConfigurableBaseUrlPageLinks implements PageLinks {
-
   /**
    * The published URL for argonaut, which is likely not the hostname of the machine running this
    * application.

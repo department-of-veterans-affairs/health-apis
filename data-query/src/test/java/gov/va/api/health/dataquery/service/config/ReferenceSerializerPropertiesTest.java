@@ -6,7 +6,6 @@ import gov.va.api.health.dataquery.api.elements.Reference;
 import org.junit.Test;
 
 public class ReferenceSerializerPropertiesTest {
-
   @Test
   public void isEnabled() {
     ReferenceSerializerProperties testProperties =

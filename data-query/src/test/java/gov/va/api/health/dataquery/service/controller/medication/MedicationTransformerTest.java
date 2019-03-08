@@ -21,7 +21,6 @@ import lombok.NoArgsConstructor;
 import org.junit.Test;
 
 public class MedicationTransformerTest {
-
   private final CdwSampleData cdw = CdwSampleData.get();
   private final Expected expected = Expected.get();
   private final MedicationTransformer tx = new MedicationTransformer();
@@ -105,7 +104,6 @@ public class MedicationTransformerTest {
 
   @NoArgsConstructor(staticName = "get")
   private static class Expected {
-
     CodeableConcept code() {
       return CodeableConcept.builder()
           .text("ATORVASTATIN CA 80MG TAB")
@@ -156,7 +154,6 @@ public class MedicationTransformerTest {
 
   @NoArgsConstructor(staticName = "get", access = AccessLevel.PUBLIC)
   private static class CdwSampleData {
-
     CdwCodeableConcept code() {
       CdwCodeableConcept code = new CdwCodeableConcept();
       code.setText("ATORVASTATIN CA 80MG TAB");

@@ -42,7 +42,6 @@ import org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHan
 @SuppressWarnings("DefaultAnnotationParam")
 @RunWith(Parameterized.class)
 public class WebExceptionHandlerTest {
-
   @Parameter(0)
   public HttpStatus status;
 
@@ -108,7 +107,6 @@ public class WebExceptionHandlerTest {
   @Test
   @SneakyThrows
   public void expectStatus() {
-
     when(mrAnderson.search(Mockito.any())).thenThrow(exception);
     when(request.getRequestURI()).thenReturn("/api/Patient/123");
 

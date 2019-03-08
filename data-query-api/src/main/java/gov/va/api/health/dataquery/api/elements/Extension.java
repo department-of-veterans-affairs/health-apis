@@ -60,7 +60,6 @@ import lombok.NoArgsConstructor;
   message = "Only one value type may be specified"
 )
 public class Extension implements Element {
-
   @Pattern(regexp = Fhir.ID)
   String id;
 

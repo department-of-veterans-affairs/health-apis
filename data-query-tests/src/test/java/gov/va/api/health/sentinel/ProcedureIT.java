@@ -13,7 +13,6 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 public class ProcedureIT {
-
   ResourceVerifier verifier = ResourceVerifier.get();
 
   @Test

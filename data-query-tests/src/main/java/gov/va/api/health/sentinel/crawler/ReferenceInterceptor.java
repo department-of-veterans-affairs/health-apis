@@ -59,7 +59,6 @@ class ReferenceInterceptor {
    * with a valid URL specified will be recorded.
    */
   private class ReferenceDeserializer extends BeanDeserializer {
-
     ReferenceDeserializer(BeanDeserializer deserializer) {
       super(deserializer);
     }

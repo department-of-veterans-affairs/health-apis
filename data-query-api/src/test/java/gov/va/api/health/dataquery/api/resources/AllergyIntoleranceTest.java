@@ -12,7 +12,6 @@ import java.util.Collections;
 import org.junit.Test;
 
 public class AllergyIntoleranceTest {
-
   private final SampleAllergyIntolerances data = SampleAllergyIntolerances.get();
 
   @Test

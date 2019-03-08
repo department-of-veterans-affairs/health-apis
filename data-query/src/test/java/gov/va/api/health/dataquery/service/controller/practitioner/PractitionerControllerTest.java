@@ -35,7 +35,6 @@ import org.springframework.util.MultiValueMap;
 
 @SuppressWarnings("WeakerAccess")
 public class PractitionerControllerTest {
-
   @Mock MrAndersonClient client;
 
   @Mock PractitionerController.Transformer tx;

@@ -49,7 +49,6 @@ import lombok.NoArgsConstructor;
   @ExactlyOneOf(fields = {"reported", "_reported"})
 })
 public class Immunization implements Resource {
-
   @NotBlank String resourceType;
 
   @Pattern(regexp = Fhir.ID)
@@ -117,7 +116,6 @@ public class Immunization implements Resource {
   @JsonDeserialize(builder = Immunization.Bundle.BundleBuilder.class)
   @Schema(name = "ImmunizationBundle", example = "SWAGGER_EXAMPLE_IMMUNIZATION_BUNDLE")
   public static class Bundle extends AbstractBundle<Immunization.Entry> {
-
     @Builder
     public Bundle(
         @NotBlank String resourceType,
@@ -141,7 +139,6 @@ public class Immunization implements Resource {
   @JsonDeserialize(builder = Immunization.Entry.EntryBuilder.class)
   @Schema(name = "ImmunizationEntry")
   public static class Entry extends AbstractEntry<Immunization> {
-
     @Builder
     public Entry(
         @Pattern(regexp = Fhir.ID) String id,

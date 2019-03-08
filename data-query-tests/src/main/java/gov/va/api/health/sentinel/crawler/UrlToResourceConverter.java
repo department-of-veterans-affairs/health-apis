@@ -17,7 +17,6 @@ import lombok.NonNull;
  * </pre>
  */
 public class UrlToResourceConverter implements Function<String, Class<?>> {
-
   @Override
   public Class<?> apply(@NonNull String argonautUrl) {
     URL url = asUrl(argonautUrl);
@@ -98,7 +97,6 @@ public class UrlToResourceConverter implements Function<String, Class<?>> {
    * This indicates that the URL cannot be understood and converted into a resource class or bundle.
    */
   public static class DoNotUnderstandUrl extends RuntimeException {
-
     DoNotUnderstandUrl(String message) {
       super(message);
     }

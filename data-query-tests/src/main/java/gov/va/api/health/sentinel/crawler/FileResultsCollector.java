@@ -24,7 +24,6 @@ import org.apache.commons.lang3.StringUtils;
 @Slf4j
 @RequiredArgsConstructor
 public class FileResultsCollector implements ResultCollector {
-
   private final File directory;
   private final Set<String> summary = new ConcurrentSkipListSet<>();
   private final AtomicInteger failures = new AtomicInteger(0);

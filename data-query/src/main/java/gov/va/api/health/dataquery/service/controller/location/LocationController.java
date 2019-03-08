@@ -42,7 +42,6 @@ import org.springframework.web.bind.annotation.RestController;
 )
 @AllArgsConstructor(onConstructor = @__({@Autowired}))
 public class LocationController {
-
   private Transformer transformer;
   private MrAndersonClient mrAndersonClient;
   private Bundler bundler;
@@ -71,7 +70,6 @@ public class LocationController {
   /** Read by id. */
   @GetMapping(value = {"/{publicId}"})
   public Location read(@PathVariable("publicId") String publicId) {
-
     return transformer.apply(
         firstPayloadItem(
             hasPayload(search(Parameters.forIdentity(publicId)).getLocations()).getLocation()));

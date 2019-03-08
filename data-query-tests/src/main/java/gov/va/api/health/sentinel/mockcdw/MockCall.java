@@ -37,7 +37,6 @@ class MockCall {
   }
 
   boolean matches(MockEntries.Entry e) {
-
     if (!e.query().startsWith(resourceAndVersion())) {
       return false;
     }

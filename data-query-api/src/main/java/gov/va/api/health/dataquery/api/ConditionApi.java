@@ -13,7 +13,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 
 public interface ConditionApi {
-
   @Operation(
     summary = "Condition Read",
     description = "https://www.fhir.org/guides/argonaut/r2/StructureDefinition-argo-condition.html",

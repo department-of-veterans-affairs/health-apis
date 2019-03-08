@@ -20,7 +20,6 @@ import lombok.NoArgsConstructor;
   description = "http://hl7.org/fhir/smart-app-launch/conformance/index.html#using-well-known"
 )
 public final class WellKnown {
-
   @NotBlank String authorizationEndpoint;
   @NotBlank String tokenEndpoint;
   List<String> tokenEndpointAuthMethodsSupported;

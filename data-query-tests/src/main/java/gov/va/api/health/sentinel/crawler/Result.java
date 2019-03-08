@@ -13,7 +13,6 @@ import lombok.Value;
 @Builder
 @Value
 public class Result {
-
   @NonNull Instant timestamp;
   @NonNull String query;
   /**

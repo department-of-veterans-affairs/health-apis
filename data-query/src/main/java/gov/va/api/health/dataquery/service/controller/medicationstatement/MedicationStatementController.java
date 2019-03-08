@@ -42,14 +42,12 @@ import org.springframework.web.bind.annotation.RestController;
 )
 @AllArgsConstructor(onConstructor = @__({@Autowired}))
 public class MedicationStatementController {
-
   private Transformer transformer;
   private MrAndersonClient mrAndersonClient;
   private Bundler bundler;
 
   private MedicationStatement.Bundle bundle(
       MultiValueMap<String, String> parameters, int page, int count) {
-
     CdwMedicationStatement102Root root = search(parameters);
     LinkConfig linkConfig =
         LinkConfig.builder()
@@ -73,7 +71,6 @@ public class MedicationStatementController {
   /** Read by id. */
   @GetMapping(value = {"/{publicId}"})
   public MedicationStatement read(@PathVariable("publicId") String publicId) {
-
     return transformer.apply(
         firstPayloadItem(
             hasPayload(search(Parameters.forIdentity(publicId)).getMedicationStatements())

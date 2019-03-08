@@ -57,7 +57,6 @@ import lombok.NoArgsConstructor;
   message = "Exactly one medication field must be specified"
 )
 public class MedicationDispense implements DomainResource {
-
   @NotBlank String resourceType;
 
   @Pattern(regexp = Fhir.ID)
@@ -144,7 +143,6 @@ public class MedicationDispense implements DomainResource {
   @JsonDeserialize(builder = MedicationDispense.Bundle.BundleBuilder.class)
   @Schema(name = "MedicationDispenseBundle", example = "SWAGGER_EXAMPLE_MEDICATION_DISPENSE_BUNDLE")
   public static class Bundle extends AbstractBundle<Entry> {
-
     @Builder
     public Bundle(
         @NotBlank String resourceType,
@@ -214,7 +212,6 @@ public class MedicationDispense implements DomainResource {
   @JsonDeserialize(builder = MedicationDispense.Entry.EntryBuilder.class)
   @Schema(name = "MedicationDispenseEntry")
   public static class Entry extends AbstractEntry<MedicationDispense> {
-
     @Builder
     public Entry(
         @Pattern(regexp = Fhir.ID) String id,

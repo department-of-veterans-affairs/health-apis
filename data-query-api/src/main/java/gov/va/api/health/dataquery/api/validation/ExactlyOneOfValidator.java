@@ -1,7 +1,6 @@
 package gov.va.api.health.dataquery.api.validation;
 
 public class ExactlyOneOfValidator extends AbstractSetFieldCounter<ExactlyOneOf> {
-
   @Override
   protected String[] fields() {
     return annotation.fields();

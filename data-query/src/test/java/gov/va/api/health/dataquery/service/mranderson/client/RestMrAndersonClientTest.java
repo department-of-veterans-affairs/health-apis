@@ -27,7 +27,6 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 public class RestMrAndersonClientTest {
-
   @Rule public final ExpectedException thrown = ExpectedException.none();
 
   @Mock RestTemplate rt;

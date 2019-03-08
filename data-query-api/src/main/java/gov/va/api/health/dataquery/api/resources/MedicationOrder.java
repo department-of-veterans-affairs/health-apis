@@ -66,7 +66,6 @@ import lombok.NoArgsConstructor;
   ),
 })
 public class MedicationOrder implements Resource {
-
   @NotBlank String resourceType;
 
   @Pattern(regexp = Fhir.ID)
@@ -129,7 +128,6 @@ public class MedicationOrder implements Resource {
   @JsonDeserialize(builder = MedicationOrder.Bundle.BundleBuilder.class)
   @Schema(name = "MedicationOrderBundle", example = "SWAGGER_EXAMPLE_MEDICATION_ORDER_BUNDLE")
   public static class Bundle extends AbstractBundle<Entry> {
-
     @Builder
     public Bundle(
         @NotBlank String resourceType,
@@ -226,7 +224,6 @@ public class MedicationOrder implements Resource {
   @JsonDeserialize(builder = MedicationOrder.Entry.EntryBuilder.class)
   @Schema(name = "MedicationOrderEntry")
   public static class Entry extends AbstractEntry<MedicationOrder> {
-
     @Builder
     public Entry(
         @Pattern(regexp = Fhir.ID) String id,

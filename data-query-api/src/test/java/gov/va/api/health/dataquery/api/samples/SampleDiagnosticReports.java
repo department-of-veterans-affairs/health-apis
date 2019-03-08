@@ -13,7 +13,6 @@ import lombok.experimental.Delegate;
 @SuppressWarnings("WeakerAccess")
 @NoArgsConstructor(staticName = "get")
 public class SampleDiagnosticReports {
-
   @Delegate SampleDataTypes dataTypes = SampleDataTypes.get();
 
   private CodeableConcept category() {

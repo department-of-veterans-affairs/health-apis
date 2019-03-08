@@ -62,7 +62,6 @@ import lombok.NoArgsConstructor;
   )
 })
 public class Condition implements Resource {
-
   @Pattern(regexp = Fhir.ID)
   String id;
 
@@ -144,7 +143,6 @@ public class Condition implements Resource {
   @JsonDeserialize(builder = Condition.Bundle.BundleBuilder.class)
   @Schema(name = "ConditionBundle", example = "SWAGGER_EXAMPLE_CONDITION_BUNDLE")
   public static class Bundle extends AbstractBundle<Condition.Entry> {
-
     @Builder
     public Bundle(
         @NotBlank String resourceType,
@@ -168,7 +166,6 @@ public class Condition implements Resource {
   @JsonDeserialize(builder = Condition.Entry.EntryBuilder.class)
   @Schema(name = "ConditionEntry")
   public static class Entry extends AbstractEntry<Condition> {
-
     @Builder
     public Entry(
         @Pattern(regexp = Fhir.ID) String id,

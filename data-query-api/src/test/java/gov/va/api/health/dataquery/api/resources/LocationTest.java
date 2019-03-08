@@ -9,7 +9,6 @@ import java.util.Collections;
 import org.junit.Test;
 
 public class LocationTest {
-
   private final SampleLocations data = SampleLocations.get();
 
   @Test

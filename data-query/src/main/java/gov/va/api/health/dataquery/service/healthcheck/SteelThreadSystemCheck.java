@@ -21,7 +21,6 @@ import org.springframework.web.client.ResourceAccessException;
 @Component
 @Slf4j
 public class SteelThreadSystemCheck implements HealthIndicator {
-
   private final MrAndersonClient client;
 
   @Value("${health-check.medication-id}")

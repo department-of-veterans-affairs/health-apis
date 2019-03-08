@@ -16,7 +16,6 @@ import lombok.NoArgsConstructor;
 @SuppressWarnings("WeakerAccess")
 @NoArgsConstructor(staticName = "get")
 class SampleExtensions {
-
   List<Identifier> identifier() {
     List<Identifier> identifiers = new LinkedList<>();
     identifiers.add(

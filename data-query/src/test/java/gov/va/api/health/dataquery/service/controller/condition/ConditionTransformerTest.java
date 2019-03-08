@@ -28,7 +28,6 @@ import lombok.SneakyThrows;
 import org.junit.Test;
 
 public class ConditionTransformerTest {
-
   private final ConditionTransformer tx = new ConditionTransformer();
   private final CdwSampleData cdw = CdwSampleData.get();
   private final Expected expected = Expected.get();
@@ -107,7 +106,6 @@ public class ConditionTransformerTest {
 
   @NoArgsConstructor(staticName = "get")
   private static class CdwSampleData {
-
     private CdwCategory category() {
       CdwCategory cdw = new CdwCategory();
       cdw.setText("Category");

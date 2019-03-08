@@ -12,7 +12,6 @@ import org.apache.commons.lang3.RegExUtils;
 import org.junit.Test;
 
 public class MockEntityReturnDriverTest {
-
   @Test
   @SneakyThrows
   public void driverCanExecutePrcEntityReturnCalls() {

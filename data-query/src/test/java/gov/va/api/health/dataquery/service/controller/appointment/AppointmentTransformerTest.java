@@ -34,7 +34,6 @@ import lombok.SneakyThrows;
 import org.junit.Test;
 
 public class AppointmentTransformerTest {
-
   private final AppointmentTransformer tx = new AppointmentTransformer();
   private final CdwSampleData cdw = CdwSampleData.get();
   private final Expected expected = Expected.get();
@@ -184,7 +183,6 @@ public class AppointmentTransformerTest {
 
   @NoArgsConstructor(staticName = "get")
   public static class Expected {
-
     Appointment appointment() {
       return Appointment.builder()
           .resourceType("Appointment")

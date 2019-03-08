@@ -42,14 +42,12 @@ import org.springframework.web.bind.annotation.RestController;
 )
 @AllArgsConstructor(onConstructor = @__({@Autowired}))
 public class ImmunizationController {
-
   private Transformer transformer;
   private MrAndersonClient mrAndersonClient;
   private Bundler bundler;
 
   private Immunization.Bundle bundle(
       MultiValueMap<String, String> parameters, int page, int count) {
-
     CdwImmunization103Root root = search(parameters);
     LinkConfig linkConfig =
         LinkConfig.builder()
@@ -73,7 +71,6 @@ public class ImmunizationController {
   /** Read by id. */
   @GetMapping(value = {"/{publicId}"})
   public Immunization read(@PathVariable("publicId") String publicId) {
-
     return transformer.apply(
         firstPayloadItem(
             hasPayload(search(Parameters.forIdentity(publicId)).getImmunizations())

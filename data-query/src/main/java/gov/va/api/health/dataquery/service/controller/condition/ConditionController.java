@@ -70,7 +70,6 @@ public class ConditionController {
   /** Read by id. */
   @GetMapping(value = {"/{publicId}"})
   public Condition read(@PathVariable("publicId") String publicId) {
-
     return transformer.apply(
         firstPayloadItem(
             hasPayload(search(Parameters.forIdentity(publicId)).getConditions()).getCondition()));

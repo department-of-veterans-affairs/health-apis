@@ -11,7 +11,6 @@ import lombok.NonNull;
 /** This class provides data absent reasons. */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class DataAbsentReason {
-
   /**
    * Create a new Extension that indicates a field is absent because for the given reason.
    *

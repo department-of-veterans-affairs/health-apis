@@ -60,7 +60,6 @@ import lombok.NoArgsConstructor;
   )
 })
 public class Patient implements Resource {
-
   @Pattern(regexp = Fhir.ID)
   String id;
 
@@ -157,7 +156,6 @@ public class Patient implements Resource {
   @JsonDeserialize(builder = Patient.Bundle.BundleBuilder.class)
   @Schema(name = "PatientBundle", example = "SWAGGER_EXAMPLE_PATIENT_BUNDLE")
   public static class Bundle extends AbstractBundle<Patient.Entry> {
-
     @Builder
     public Bundle(
         @NotBlank String resourceType,
@@ -180,7 +178,6 @@ public class Patient implements Resource {
   @AllArgsConstructor
   @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
   public static class Communication implements BackboneElement {
-
     @Pattern(regexp = Fhir.ID)
     String id;
 
@@ -220,7 +217,6 @@ public class Patient implements Resource {
   @JsonDeserialize(builder = Patient.Entry.EntryBuilder.class)
   @Schema(name = "PatientEntry")
   public static class Entry extends AbstractEntry<Patient> {
-
     @Builder
     public Entry(
         @Pattern(regexp = Fhir.ID) String id,

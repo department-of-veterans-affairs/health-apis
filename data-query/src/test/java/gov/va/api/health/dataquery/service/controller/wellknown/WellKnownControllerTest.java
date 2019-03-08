@@ -10,7 +10,6 @@ import lombok.SneakyThrows;
 import org.junit.Test;
 
 public class WellKnownControllerTest {
-
   private WellKnown actual() {
     return WellKnown.builder()
         .tokenEndpoint("https://argonaut.lighthouse.va.gov/token")

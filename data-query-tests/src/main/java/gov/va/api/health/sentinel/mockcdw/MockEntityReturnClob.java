@@ -14,7 +14,6 @@ import lombok.RequiredArgsConstructor;
  */
 @RequiredArgsConstructor(staticName = "of")
 class MockEntityReturnClob implements Clob {
-
   private final String value;
 
   @Override

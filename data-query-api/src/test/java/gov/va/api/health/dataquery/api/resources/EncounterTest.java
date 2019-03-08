@@ -12,7 +12,6 @@ import java.util.Collections;
 import org.junit.Test;
 
 public class EncounterTest {
-
   private final SampleEncounters data = SampleEncounters.get();
 
   @Test

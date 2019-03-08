@@ -10,7 +10,6 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 public class ParametersTest {
-
   @Test
   public void add() {
     MultiValueMap<String, String> expected = new LinkedMultiValueMap<>();

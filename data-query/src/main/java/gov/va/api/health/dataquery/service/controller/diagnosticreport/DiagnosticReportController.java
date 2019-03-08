@@ -47,7 +47,6 @@ import org.springframework.web.bind.annotation.RestController;
 )
 @AllArgsConstructor(onConstructor = @__({@Autowired}))
 public class DiagnosticReportController {
-
   private Transformer transformer;
   private MrAndersonClient mrAndersonClient;
   private Bundler bundler;

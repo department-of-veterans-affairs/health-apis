@@ -13,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class ExactlyOneOfExtensionVerifier<T> extends AbstractRelatedFieldVerifier<T> {
-
   /** The base of the related fields, e.g. status vs _status. */
   private String baseField;
 

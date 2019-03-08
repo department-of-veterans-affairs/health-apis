@@ -21,7 +21,6 @@ import lombok.SneakyThrows;
 import org.junit.Test;
 
 public class TransformersTest {
-
   @Test
   public void allBlank() {
     assertThat(Transformers.allBlank()).isTrue();

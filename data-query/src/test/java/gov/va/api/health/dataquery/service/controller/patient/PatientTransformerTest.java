@@ -56,7 +56,6 @@ import lombok.SneakyThrows;
 import org.junit.Test;
 
 public class PatientTransformerTest {
-
   private final PatientTransformer tx = new PatientTransformer();
   private final CdwSampleData cdw = CdwSampleData.get();
   private final Expected expected = Expected.get();
@@ -221,7 +220,6 @@ public class PatientTransformerTest {
 
   @NoArgsConstructor(staticName = "get", access = AccessLevel.PUBLIC)
   static class CdwSampleData {
-
     private CdwAddress address() {
       CdwAddress cdw = new CdwAddress();
       cdw.setState("ARIZONA");
@@ -472,7 +470,6 @@ public class PatientTransformerTest {
 
   @NoArgsConstructor(staticName = "get")
   public static class Expected {
-
     private List<Address> address() {
       return singletonList(
           Address.builder()

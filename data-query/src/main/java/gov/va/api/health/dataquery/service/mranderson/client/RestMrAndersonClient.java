@@ -37,7 +37,6 @@ public class RestMrAndersonClient implements MrAndersonClient {
   @Override
   public <T> T search(Query<T> query) {
     try {
-
       ResponseEntity<T> entity =
           restTemplate.exchange(
               urlOf(query),
@@ -45,7 +44,6 @@ public class RestMrAndersonClient implements MrAndersonClient {
               requestEntity(),
               ParameterizedTypeReference.forType(query.type()));
       return entity.getBody();
-
     } catch (HttpClientErrorException.NotFound e) {
       throw new NotFound(query);
     } catch (HttpClientErrorException.BadRequest e) {

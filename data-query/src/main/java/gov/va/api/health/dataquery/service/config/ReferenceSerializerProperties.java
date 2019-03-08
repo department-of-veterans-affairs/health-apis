@@ -21,7 +21,6 @@ import org.springframework.context.annotation.Configuration;
 @AllArgsConstructor
 @Builder
 public class ReferenceSerializerProperties {
-
   private boolean appointment;
   private boolean encounter;
   private boolean location;

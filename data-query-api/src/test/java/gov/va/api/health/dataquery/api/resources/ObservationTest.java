@@ -18,7 +18,6 @@ import javax.validation.ValidatorFactory;
 import org.junit.Test;
 
 public class ObservationTest {
-
   private final SampleObservations data = SampleObservations.get();
 
   @Test

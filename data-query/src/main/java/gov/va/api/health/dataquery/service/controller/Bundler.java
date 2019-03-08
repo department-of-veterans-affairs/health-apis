@@ -24,7 +24,6 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor(onConstructor = @__({@Autowired}))
 public class Bundler {
-
   private final PageLinks links;
 
   /** Return new bundle, filled with entries created by transforming the XML items. */

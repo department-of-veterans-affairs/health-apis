@@ -21,7 +21,6 @@ import lombok.SneakyThrows;
 import org.junit.Test;
 
 public class ProcedureTransformerTest {
-
   private ProcedureTransformer tx = new ProcedureTransformer();
   private CdwSampleData cdw = new CdwSampleData();
   private Expected expected = new Expected();
@@ -122,7 +121,6 @@ public class ProcedureTransformerTest {
   }
 
   private static class Expected {
-
     private CodeableConcept code() {
       return CodeableConcept.builder().coding(codeCoding()).build();
     }

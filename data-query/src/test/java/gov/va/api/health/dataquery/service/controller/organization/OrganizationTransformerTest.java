@@ -26,7 +26,6 @@ import java.util.List;
 import org.junit.Test;
 
 public class OrganizationTransformerTest {
-
   private final XmlSampleData cdw = new XmlSampleData();
   private final Expected expected = new Expected();
   private final OrganizationTransformer tx = new OrganizationTransformer();

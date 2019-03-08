@@ -41,7 +41,6 @@ import org.springframework.web.bind.annotation.RestController;
 )
 @AllArgsConstructor(onConstructor = @__({@Autowired}))
 public class EncounterController {
-
   private Transformer transformer;
   private MrAndersonClient mrAndersonClient;
   private Bundler bundler;
@@ -70,7 +69,6 @@ public class EncounterController {
   /** Read by id. */
   @GetMapping(value = {"/{publicId}"})
   public Encounter read(@PathVariable("publicId") String publicId) {
-
     return transformer.apply(
         firstPayloadItem(
             hasPayload(search(Parameters.forIdentity(publicId)).getEncounters()).getEncounter()));

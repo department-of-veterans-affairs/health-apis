@@ -61,7 +61,6 @@ import lombok.NoArgsConstructor;
       message = "At most one reason may be specified."
     ))
 public class Procedure implements Resource {
-
   @NotBlank String resourceType;
 
   @Pattern(regexp = Fhir.ID)
@@ -130,7 +129,6 @@ public class Procedure implements Resource {
   @JsonDeserialize(builder = Procedure.Bundle.BundleBuilder.class)
   @Schema(name = "ProcedureBundle", example = "SWAGGER_EXAMPLE_PROCEDURE_BUNDLE")
   public static class Bundle extends AbstractBundle<Procedure.Entry> {
-
     @Builder
     public Bundle(
         @NotBlank String resourceType,
@@ -154,7 +152,6 @@ public class Procedure implements Resource {
   @JsonDeserialize(builder = Procedure.Entry.EntryBuilder.class)
   @Schema(name = "ProcedureEntry")
   public static class Entry extends AbstractEntry<Procedure> {
-
     @Builder
     public Entry(
         @Pattern(regexp = Fhir.ID) String id,

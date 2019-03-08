@@ -14,7 +14,6 @@ import java.util.Collections;
 import org.junit.Test;
 
 public class MedicationStatementTest {
-
   private final SampleMedicationStatements data = SampleMedicationStatements.get();
 
   @Test

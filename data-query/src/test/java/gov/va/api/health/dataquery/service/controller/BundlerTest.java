@@ -28,7 +28,6 @@ import org.mockito.MockitoAnnotations;
 
 @SuppressWarnings("WeakerAccess")
 public class BundlerTest {
-
   private static final Function<FugaziCdwRoot, FugaziArgo> FUGAZIMUS_PRIME =
       x -> FugaziArgo.of(x.id());
 
@@ -43,7 +42,6 @@ public class BundlerTest {
 
   @Test
   public void bundlerBuildsGenericTypeBundle() {
-
     List<BundleLink> bundleLinks =
         Collections.singletonList(
             BundleLink.builder().relation(LinkRelation.self).url("http://whatever.com").build());

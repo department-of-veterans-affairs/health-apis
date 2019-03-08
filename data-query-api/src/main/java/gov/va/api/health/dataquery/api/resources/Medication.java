@@ -45,7 +45,6 @@ import lombok.NoArgsConstructor;
   example = "SWAGGER_EXAMPLE_MEDICATION"
 )
 public class Medication implements Resource {
-
   @Pattern(regexp = Fhir.ID)
   String id;
 

@@ -9,7 +9,6 @@ import java.util.Collections;
 import org.junit.Test;
 
 public class MedicationTest {
-
   private final SampleMedications data = SampleMedications.get();
 
   @Test

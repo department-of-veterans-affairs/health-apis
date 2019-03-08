@@ -71,7 +71,6 @@ public class OrganizationController {
   /** Read by id. */
   @GetMapping(value = {"/{publicId}"})
   public Organization read(@PathVariable("publicId") String publicId) {
-
     return transformer.apply(
         firstPayloadItem(
             hasPayload(search(Parameters.forIdentity(publicId)).getOrganizations())

@@ -6,7 +6,6 @@ import gov.va.api.health.dataquery.api.samples.SampleConformance;
 import org.junit.Test;
 
 public class ConformanceTest {
-
   @Test
   public void conformance() {
     assertRoundTrip(SampleConformance.get().conformance());

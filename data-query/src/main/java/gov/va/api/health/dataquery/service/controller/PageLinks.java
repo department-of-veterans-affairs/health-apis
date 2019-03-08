@@ -11,7 +11,6 @@ import org.springframework.util.MultiValueMap;
  * will conditionally create previous and next links.
  */
 public interface PageLinks {
-
   /** Create a list of parameters that will contain 3 to 5 values. */
   List<BundleLink> create(LinkConfig config);
 

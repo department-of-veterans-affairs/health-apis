@@ -11,7 +11,6 @@ import java.util.Arrays;
 import org.junit.Test;
 
 public class DataTypesTest {
-
   private final SampleDataTypes data = SampleDataTypes.get();
 
   @SuppressWarnings("ThrowableNotThrown")

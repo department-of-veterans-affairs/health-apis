@@ -67,7 +67,6 @@ import lombok.NoArgsConstructor;
   message = "Exactly one medication value must be specified"
 )
 public class MedicationStatement implements Resource {
-
   @NotBlank String resourceType;
 
   @Pattern(regexp = Fhir.ID)
@@ -131,7 +130,6 @@ public class MedicationStatement implements Resource {
     example = "SWAGGER_EXAMPLE_MEDICATION_STATEMENT_BUNDLE"
   )
   public static class Bundle extends AbstractBundle<MedicationStatement.Entry> {
-
     @Builder
     public Bundle(
         @NotBlank String resourceType,
@@ -200,7 +198,6 @@ public class MedicationStatement implements Resource {
   @JsonDeserialize(builder = MedicationStatement.Entry.EntryBuilder.class)
   @Schema(name = "MedicationStatementEntry")
   public static class Entry extends AbstractEntry<MedicationStatement> {
-
     @Builder
     public Entry(
         @Pattern(regexp = Fhir.ID) String id,

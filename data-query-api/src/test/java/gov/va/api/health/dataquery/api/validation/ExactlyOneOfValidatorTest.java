@@ -12,7 +12,6 @@ import lombok.Data;
 import org.junit.Test;
 
 public class ExactlyOneOfValidatorTest {
-
   @Test
   public void exactlyOneOfDoesNotFindProblemsForProperlyCreatedObjects() {
     assertThat(violationsOf(new SingleGroup(1, null))).isEmpty();

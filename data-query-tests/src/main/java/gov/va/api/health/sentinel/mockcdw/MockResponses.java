@@ -22,7 +22,6 @@ class MockResponses {
   }
 
   static class FailedMockResponse extends RuntimeException {
-
     FailedMockResponse(String message) {
       super(message);
     }

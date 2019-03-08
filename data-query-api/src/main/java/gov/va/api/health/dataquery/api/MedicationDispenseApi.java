@@ -13,7 +13,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 
 public interface MedicationDispenseApi {
-
   @Operation(
     summary = "Medication Dispense Read",
     description = "https://www.hl7.org/fhir/DSTU2/medicationdispense.html",

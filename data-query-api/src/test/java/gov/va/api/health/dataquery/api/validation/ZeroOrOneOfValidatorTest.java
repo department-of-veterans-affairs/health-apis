@@ -12,7 +12,6 @@ import lombok.Data;
 import org.junit.Test;
 
 public class ZeroOrOneOfValidatorTest {
-
   @Test
   public void relatedFieldsDoesNotFindProblemsForProperlyCreatedObjects() {
     assertThat(violationsOf(new MultipleGroups("a", null, "b", null))).isEmpty();

@@ -13,7 +13,6 @@ import java.util.Collections;
 import org.junit.Test;
 
 public class PatientTest {
-
   private final SamplePatients data = SamplePatients.get();
 
   @Test

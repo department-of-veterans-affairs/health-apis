@@ -7,7 +7,6 @@ import javax.validation.ConstraintValidatorContext;
 
 /** Verifies that the date time parameter matches a searchable date time. */
 public class DateTimeParameterValidator implements ConstraintValidator<DateTimeParameter, Object> {
-
   private final Pattern pattern = Pattern.compile(Fhir.DATETIME_SEARCH);
 
   @Override

@@ -7,7 +7,6 @@ import java.util.Arrays;
 import org.junit.Test;
 
 public class FhirTest {
-
   /**
    * Datetime is a union of xs:dateTime, xs:date, xs:gYearMonth, xs:gYear. See
    * http://hl7.org/fhir/DSTU2/datatypes.html#datetime

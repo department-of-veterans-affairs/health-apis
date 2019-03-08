@@ -9,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class ExactlyOneOfVerifier<T> extends AbstractRelatedFieldVerifier<T> {
-
   private String fieldPrefix;
 
   @Builder

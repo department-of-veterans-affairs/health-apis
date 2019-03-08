@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 )
 @AllArgsConstructor(onConstructor = @__({@Autowired}))
 class WellKnownController {
-
   private final WellKnownProperties wellKnownProperties;
   private final ConformanceStatementProperties conformanceStatementProperties;
 

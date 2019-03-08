@@ -44,7 +44,6 @@ import org.springframework.web.bind.annotation.RestController;
 )
 @AllArgsConstructor(onConstructor = @__({@Autowired}))
 public class PatientController {
-
   private Transformer transformer;
   private MrAndersonClient mrAndersonClient;
   private Bundler bundler;
@@ -94,7 +93,6 @@ public class PatientController {
       @RequestParam("gender") String gender,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @RequestParam(value = "_count", defaultValue = "15") @Min(0) int count) {
-
     return bundle(
         Parameters.builder()
             .add("family", family)

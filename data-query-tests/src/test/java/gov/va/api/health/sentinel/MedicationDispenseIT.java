@@ -11,7 +11,6 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 public class MedicationDispenseIT {
-
   ResourceVerifier verifier = ResourceVerifier.get();
 
   @Category({Local.class, ProdDataQueryClinician.class})

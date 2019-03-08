@@ -53,7 +53,6 @@ import org.apache.commons.lang3.StringUtils;
   message = "Only one effective value may be specified"
 )
 public class DiagnosticReport implements Resource {
-
   @Pattern(regexp = Fhir.ID)
   String id;
 
@@ -141,7 +140,6 @@ public class DiagnosticReport implements Resource {
   @JsonDeserialize(builder = DiagnosticReport.Bundle.BundleBuilder.class)
   @Schema(name = "DiagnosticReportBundle", example = "SWAGGER_EXAMPLE_DIAGNOSTIC_REPORT_BUNDLE")
   public static class Bundle extends AbstractBundle<DiagnosticReport.Entry> {
-
     @Builder
     public Bundle(
         @NotBlank String resourceType,
@@ -165,7 +163,6 @@ public class DiagnosticReport implements Resource {
   @JsonDeserialize(builder = DiagnosticReport.Entry.EntryBuilder.class)
   @Schema(name = "DiagnosticReportEntry")
   public static class Entry extends AbstractEntry<DiagnosticReport> {
-
     @Builder
     public Entry(
         @Pattern(regexp = Fhir.ID) String id,
@@ -187,7 +184,6 @@ public class DiagnosticReport implements Resource {
   @AllArgsConstructor
   @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
   public static class Image implements BackboneElement {
-
     @Pattern(regexp = Fhir.ID)
     String id;
 

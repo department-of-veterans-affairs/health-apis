@@ -13,7 +13,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 
 public interface MedicationOrderApi {
-
   @Operation(
     summary = "Medication Order Read",
     description =

@@ -15,7 +15,6 @@ import javax.validation.ValidatorFactory;
 import org.junit.Test;
 
 public class DiagnosticReportTest {
-
   private final SampleDiagnosticReports data = SampleDiagnosticReports.get();
 
   @Test

@@ -42,7 +42,6 @@ import lombok.NoArgsConstructor;
   example = "SWAGGER_EXAMPLE_ENCOUNTER"
 )
 public class Encounter implements DomainResource {
-
   @NotBlank String resourceType;
 
   @Pattern(regexp = Fhir.ID)
@@ -115,7 +114,6 @@ public class Encounter implements DomainResource {
   @JsonDeserialize(builder = Encounter.Bundle.BundleBuilder.class)
   @Schema(name = "EncounterBundle", example = "SWAGGER_EXAMPLE_ENCOUNTER_BUNDLE")
   public static class Bundle extends AbstractBundle<Encounter.Entry> {
-
     @Builder
     public Bundle(
         @NotBlank String resourceType,
@@ -139,7 +137,6 @@ public class Encounter implements DomainResource {
   @JsonDeserialize(builder = Encounter.Entry.EntryBuilder.class)
   @Schema(name = "EncounterEntry")
   public static class Entry extends AbstractEntry<Encounter> {
-
     @Builder
     public Entry(
         @Pattern(regexp = Fhir.ID) String id,

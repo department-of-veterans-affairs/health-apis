@@ -78,7 +78,6 @@ import org.apache.commons.lang3.StringUtils;
   )
 })
 public class Observation implements Resource {
-
   @NotBlank String resourceType;
 
   @Pattern(regexp = Fhir.ID)
@@ -182,7 +181,6 @@ public class Observation implements Resource {
   @JsonDeserialize(builder = Observation.Bundle.BundleBuilder.class)
   @Schema(name = "ObservationBundle", example = "SWAGGER_EXAMPLE_OBSERVATION_BUNDLE")
   public static class Bundle extends AbstractBundle<Entry> {
-
     @Builder
     public Bundle(
         @NotBlank String resourceType,
@@ -206,7 +204,6 @@ public class Observation implements Resource {
   @JsonDeserialize(builder = Observation.Entry.EntryBuilder.class)
   @Schema(name = "ObservationEntry")
   public static class Entry extends AbstractEntry<Observation> {
-
     @Builder
     public Entry(
         @Pattern(regexp = Fhir.ID) String id,

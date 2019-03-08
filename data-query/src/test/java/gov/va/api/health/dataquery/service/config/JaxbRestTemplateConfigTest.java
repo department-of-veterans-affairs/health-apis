@@ -15,7 +15,6 @@ import org.springframework.http.converter.xml.Jaxb2RootElementHttpMessageConvert
 import org.springframework.web.client.RestTemplate;
 
 public class JaxbRestTemplateConfigTest {
-
   @Test
   public void jaxbSupportIsAdded() {
     RestTemplate rt = mock(RestTemplate.class);

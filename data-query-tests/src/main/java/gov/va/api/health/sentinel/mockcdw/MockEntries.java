@@ -14,7 +14,6 @@ import lombok.Value;
 @Builder(toBuilder = true)
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 class MockEntries {
-
   List<Entry> entries;
 
   @Value

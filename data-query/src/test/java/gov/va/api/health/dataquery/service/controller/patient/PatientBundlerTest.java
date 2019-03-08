@@ -7,7 +7,6 @@ import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
 public class PatientBundlerTest {
-
   @Test
   public void entriesTransformsPatientRootIntoListOfEntries() {
     List<Patient.Entry> testEntries = new LinkedList<>();

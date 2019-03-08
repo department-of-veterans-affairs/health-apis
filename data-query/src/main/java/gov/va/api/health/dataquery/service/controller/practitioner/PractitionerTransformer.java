@@ -48,7 +48,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class PractitionerTransformer implements PractitionerController.Transformer {
-
   Address address(CdwAddress source) {
     return convert(
         source,

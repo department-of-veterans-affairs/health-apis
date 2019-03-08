@@ -140,7 +140,6 @@ public class AllergyIntolerance implements Resource {
   @JsonDeserialize(builder = AllergyIntolerance.Bundle.BundleBuilder.class)
   @Schema(name = "AllergyIntoleranceBundle", example = "SWAGGER_EXAMPLE_ALLERGY_INTOLERANCE_BUNDLE")
   public static class Bundle extends AbstractBundle<AllergyIntolerance.Entry> {
-
     @Builder
     public Bundle(
         @NotBlank String resourceType,
@@ -164,7 +163,6 @@ public class AllergyIntolerance implements Resource {
   @JsonDeserialize(builder = AllergyIntolerance.Entry.EntryBuilder.class)
   @Schema(name = "AllergyIntoleranceEntry")
   public static class Entry extends AbstractEntry<AllergyIntolerance> {
-
     @Builder
     public Entry(
         @Pattern(regexp = Fhir.ID) String id,

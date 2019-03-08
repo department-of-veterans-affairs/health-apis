@@ -6,7 +6,6 @@ package gov.va.api.health.dataquery.service.mranderson.client;
  * objects.
  */
 public interface MrAndersonClient {
-
   /** Return a JAXB de-serialized root object for the result of the search. */
   <T> T search(Query<T> query);
 

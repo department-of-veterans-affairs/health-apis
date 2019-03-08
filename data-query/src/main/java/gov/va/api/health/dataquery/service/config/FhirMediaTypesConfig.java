@@ -17,12 +17,10 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  */
 @Configuration
 public class FhirMediaTypesConfig implements WebMvcConfigurer {
-
   private static final MediaType JSON_FHIR = MediaType.parseMediaType("application/json+fhir");
 
   @Override
   public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
-
     /*
      * Augment the standard Jackson mapper to also support application/json+fhir.
      */

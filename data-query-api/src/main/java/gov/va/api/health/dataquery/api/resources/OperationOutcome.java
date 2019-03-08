@@ -31,7 +31,6 @@ import lombok.NoArgsConstructor;
   example = "SWAGGER_EXAMPLE_OPERATION_OUTCOME"
 )
 public class OperationOutcome implements DomainResource {
-
   @Pattern(regexp = Fhir.ID)
   String id;
 

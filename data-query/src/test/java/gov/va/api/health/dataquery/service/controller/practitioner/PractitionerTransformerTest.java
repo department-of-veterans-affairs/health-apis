@@ -44,7 +44,6 @@ import lombok.SneakyThrows;
 import org.junit.Test;
 
 public class PractitionerTransformerTest {
-
   private PractitionerTransformer tx = new PractitionerTransformer();
   private CdwSampleData cdw = new CdwSampleData();
   private Expected expected = new Expected();
@@ -200,7 +199,6 @@ public class PractitionerTransformerTest {
   }
 
   private static class CdwSampleData {
-
     CdwAddress address() {
       CdwAddress address = new CdwAddress();
       address.setLines(addressLines());
@@ -322,7 +320,6 @@ public class PractitionerTransformerTest {
   }
 
   private static class Expected {
-
     List<Address> addresses() {
       return singletonList(
           Address.builder()

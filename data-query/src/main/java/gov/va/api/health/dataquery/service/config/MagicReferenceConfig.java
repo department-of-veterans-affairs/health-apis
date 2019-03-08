@@ -105,7 +105,6 @@ public class MagicReferenceConfig {
    * the field will be omitted.
    */
   private class OptionalReferencesFilter extends SimpleBeanPropertyFilter {
-
     /**
      * This is a little gross and only filters when the writer is a bean property writer. We need
      * that type of writer so we can peek at the value we are about to serialize.
@@ -144,7 +143,6 @@ public class MagicReferenceConfig {
    * responsible for making sure the field references are omitted.
    */
   private class OptionalReferenceSerializer extends JsonSerializer<Reference> {
-
     /**
      * This is the default serializer used for references, we will delegate the hard parts to it.
      */
@@ -175,13 +173,11 @@ public class MagicReferenceConfig {
    * URLs and magically omitted reference entries in lists.
    */
   private class MagicReferenceModule extends SimpleModule {
-
     @Override
     public void setupModule(SetupContext context) {
       super.setupModule(context);
       context.addBeanSerializerModifier(
           new BeanSerializerModifier() {
-
             @Override
             public List<BeanPropertyWriter> changeProperties(
                 SerializationConfig serialConfig,
@@ -217,7 +213,6 @@ public class MagicReferenceConfig {
 
   /** Provides fully qualified URLs for references. */
   private class QualifiedReferenceWriter extends BeanPropertyWriter {
-
     private QualifiedReferenceWriter(BeanPropertyWriter base) {
       super(base);
     }

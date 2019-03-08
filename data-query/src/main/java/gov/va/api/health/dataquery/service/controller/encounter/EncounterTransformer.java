@@ -32,7 +32,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class EncounterTransformer implements EncounterController.Transformer {
-
   @Override
   public Encounter apply(CdwEncounter encounter) {
     return encounter(encounter);

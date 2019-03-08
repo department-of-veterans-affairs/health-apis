@@ -42,7 +42,6 @@ import org.springframework.web.bind.annotation.RestController;
 )
 @AllArgsConstructor(onConstructor = @__({@Autowired}))
 public class MedicationController {
-
   private Transformer transformer;
   private MrAndersonClient mrAndersonClient;
   private Bundler bundler;
@@ -71,7 +70,6 @@ public class MedicationController {
   /** Read by id. */
   @GetMapping(value = {"/{publicId}"})
   public Medication read(@PathVariable("publicId") String publicId) {
-
     return transformer.apply(
         firstPayloadItem(
             hasPayload(search(Parameters.forIdentity(publicId)).getMedications()).getMedication()));

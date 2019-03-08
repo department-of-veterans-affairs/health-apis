@@ -34,7 +34,6 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.util.MultiValueMap;
 
 public class ConditionControllerTest {
-
   @Mock MrAndersonClient client;
 
   @Mock ConditionController.Transformer transformer;

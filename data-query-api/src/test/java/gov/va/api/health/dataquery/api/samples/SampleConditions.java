@@ -14,7 +14,6 @@ import lombok.experimental.Delegate;
 @SuppressWarnings("WeakerAccess")
 @NoArgsConstructor(staticName = "get")
 public class SampleConditions {
-
   @Delegate SampleDataTypes dataTypes = SampleDataTypes.get();
 
   public Condition condition() {

@@ -57,7 +57,6 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class MockEntityReturnDriver implements Driver {
-
   private static final String URL_PREFIX = "jdbc:mockcdw://";
 
   static {

@@ -10,7 +10,6 @@ import org.springframework.beans.BeanUtils;
 
 public abstract class AbstractSetFieldCounter<A extends Annotation>
     implements ConstraintValidator<A, Object> {
-
   protected A annotation;
 
   protected abstract String[] fields();

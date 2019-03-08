@@ -11,7 +11,6 @@ import java.util.Collections;
 import org.junit.Test;
 
 public class ConditionTest {
-
   private final SampleConditions data = SampleConditions.get();
 
   @Test

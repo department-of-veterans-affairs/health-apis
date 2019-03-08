@@ -31,7 +31,6 @@ import org.springframework.web.client.HttpClientErrorException;
 @RequestMapping(produces = {"application/json"})
 @Slf4j
 public class WebExceptionHandler {
-
   @ExceptionHandler({BadRequest.class, BindException.class})
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   public OperationOutcome handleBadRequest(Exception e, HttpServletRequest request) {
@@ -74,7 +73,6 @@ public class WebExceptionHandler {
 
   private OperationOutcome responseFor(
       String code, Exception e, HttpServletRequest request, List<String> problems) {
-
     StringBuilder diagnostics = new StringBuilder();
     diagnostics
         .append("Error: ")

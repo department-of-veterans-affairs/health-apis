@@ -30,7 +30,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class OrganizationTransformer implements OrganizationController.Transformer {
-
   List<String> addressLine(CdwOrganizationAddress source) {
     if (source == null || source.getLines() == null || source.getLines().getLine().isEmpty()) {
       return null;

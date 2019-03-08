@@ -13,7 +13,6 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 public class ImmunizationIT {
-
   ResourceVerifier verifier = ResourceVerifier.get();
 
   @Test

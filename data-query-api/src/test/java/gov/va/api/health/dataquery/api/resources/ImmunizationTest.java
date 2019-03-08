@@ -14,7 +14,6 @@ import java.util.Collections;
 import org.junit.Test;
 
 public class ImmunizationTest {
-
   private final SampleImmunizations data = SampleImmunizations.get();
 
   @Test

@@ -9,7 +9,6 @@ import gov.va.api.health.sentinel.crawler.UrlToResourceConverter.DoNotUnderstand
 import org.junit.Test;
 
 public class UrlToResourceConverterTest {
-
   UrlToResourceConverter converter = new UrlToResourceConverter();
 
   @Test

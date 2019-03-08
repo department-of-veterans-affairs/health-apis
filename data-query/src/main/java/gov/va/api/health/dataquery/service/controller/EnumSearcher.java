@@ -8,7 +8,6 @@ import lombok.SneakyThrows;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class EnumSearcher<T extends Enum<T>> {
-
   private final Class<T> desiredType;
 
   /** Start a builder chain to query for a given type. */

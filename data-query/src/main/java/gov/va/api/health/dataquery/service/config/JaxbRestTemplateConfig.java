@@ -19,7 +19,6 @@ import org.springframework.web.client.RestTemplate;
 @Configuration
 @AllArgsConstructor(onConstructor = @__({@Autowired}))
 public class JaxbRestTemplateConfig {
-
   private final SecureRestTemplateConfig secureConfig;
 
   /** Create a instance of the RestTemplate that works only with JAXB data entities. */
