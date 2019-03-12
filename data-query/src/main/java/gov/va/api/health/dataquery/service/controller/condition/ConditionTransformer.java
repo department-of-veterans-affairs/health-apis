@@ -59,8 +59,7 @@ public class ConditionTransformer implements ConditionController.Transformer {
   }
 
   List<Coding> categoryCodings(List<CdwConditionCategoryCoding> source) {
-    List<Coding> codings = convertAll(source, this::categoryCoding);
-    return codings == null || codings.isEmpty() ? null : codings;
+    return convertAll(source, this::categoryCoding);
   }
 
   ClinicalStatusCode clinicalStatusCode(@NotNull CdwConditionClinicalStatus source) {
@@ -94,8 +93,7 @@ public class ConditionTransformer implements ConditionController.Transformer {
   }
 
   List<Coding> codeCodings(List<CdwCoding> source) {
-    List<Coding> codings = convertAll(source, this::codeCoding);
-    return codings == null || codings.isEmpty() ? null : codings;
+    return convertAll(source, this::codeCoding);
   }
 
   private Condition condition(CdwCondition source) {

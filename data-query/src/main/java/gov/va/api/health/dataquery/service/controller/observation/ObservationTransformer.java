@@ -88,8 +88,7 @@ public class ObservationTransformer implements ObservationController.Transformer
   }
 
   List<Coding> categoryCodings(List<CdwCategory.CdwCoding> source) {
-    List<Coding> codings = convertAll(source, this::categoryCoding);
-    return codings == null || codings.isEmpty() ? null : codings;
+    return convertAll(source, this::categoryCoding);
   }
 
   CodeableConcept code(CdwCode maybeCdw) {
@@ -333,8 +332,7 @@ public class ObservationTransformer implements ObservationController.Transformer
   }
 
   List<Coding> valueCodings(List<CdwValueCodeableConcept.CdwCoding> source) {
-    List<Coding> codings = convertAll(source, this::valueCoding);
-    return codings == null || codings.isEmpty() ? null : codings;
+    return convertAll(source, this::valueCoding);
   }
 
   Quantity valueQuantity(CdwValueQuantity maybeCdw) {

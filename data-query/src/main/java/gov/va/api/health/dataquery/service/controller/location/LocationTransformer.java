@@ -123,8 +123,7 @@ public class LocationTransformer implements LocationController.Transformer {
   }
 
   List<Coding> locationTypeCodings(List<CdwLocation.CdwType.CdwCoding> maybeCdw) {
-    List<Coding> codings = convertAll(maybeCdw, this::locationTypeCoding);
-    return codings == null || codings.isEmpty() ? null : codings;
+	  return convertAll(maybeCdw, this::locationTypeCoding);
   }
 
   Mode mode(CdwLocationMode maybeCdw) {

@@ -85,8 +85,7 @@ public class DiagnosticReportTransformer implements DiagnosticReportController.T
   }
 
   List<Coding> codeCodings(List<CdwDiagnosticReportCodeCoding> source) {
-    List<Coding> codings = convertAll(source, this::codeCoding);
-    return codings == null || codings.isEmpty() ? null : codings;
+    return convertAll(source, this::codeCoding);
   }
 
   private DiagnosticReport diagnosticReport(CdwDiagnosticReport source) {

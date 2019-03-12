@@ -62,8 +62,7 @@ public class MedicationOrderTransformer implements MedicationOrderController.Tra
   }
 
   List<Coding> additionalInstructionsCodings(List<CdwCoding> source) {
-    List<Coding> codings = convertAll(source, this::additionalInstructionsCoding);
-    return codings == null || codings.isEmpty() ? null : codings;
+    return convertAll(source, this::additionalInstructionsCoding);
   }
 
   @Override
@@ -134,7 +133,7 @@ public class MedicationOrderTransformer implements MedicationOrderController.Tra
 
   Double doseQuantityValue(String source) {
     Double value;
-    if (source == null || isBlank(source)) {
+    if (isBlank(source)) {
       return null;
     }
     try {
@@ -208,7 +207,7 @@ public class MedicationOrderTransformer implements MedicationOrderController.Tra
   }
 
   SimpleQuantity quantity(String source) {
-    if (source == null || isBlank(source)) {
+    if (isBlank(source)) {
       return null;
     }
     Double value;
