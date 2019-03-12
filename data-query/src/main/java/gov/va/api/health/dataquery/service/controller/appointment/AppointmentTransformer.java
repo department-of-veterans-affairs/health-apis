@@ -122,7 +122,7 @@ public class AppointmentTransformer implements AppointmentController.Transformer
   }
 
   List<Coding> typeCodings(List<CdwAppointmentParticipantTypeCoding> source) {
-	  return convertAll(source, this::typeCoding);
+    return convertAll(source, this::typeCoding);
   }
 
   List<CodeableConcept> types(CdwTypes cdw) {
