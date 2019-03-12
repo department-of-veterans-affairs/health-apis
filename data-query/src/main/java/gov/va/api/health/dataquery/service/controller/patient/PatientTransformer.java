@@ -245,8 +245,7 @@ public class PatientTransformer implements PatientController.Transformer {
   }
 
   List<Coding> identifierTypeCodings(List<CdwIdentifier.CdwType.CdwCoding> source) {
-    List<Coding> codings = convertAll(source, this::identifierTypeCoding);
-    return codings == null || codings.isEmpty() ? null : codings;
+    return convertAll(source, this::identifierTypeCoding);
   }
 
   Identifier.IdentifierUse identifierUse(CdwIdentifier source) {
@@ -312,8 +311,7 @@ public class PatientTransformer implements PatientController.Transformer {
   }
 
   List<Coding> maritalStatusCodings(List<CdwMaritalStatus.CdwCoding> source) {
-    List<Coding> codings = convertAll(source, this::maritalStatusCoding);
-    return codings == null || codings.isEmpty() ? null : codings;
+    return convertAll(source, this::maritalStatusCoding);
   }
 
   List<HumanName> names(CdwName optionalSource) {

@@ -173,10 +173,8 @@ public class PractitionerTransformer implements PractitionerController.Transform
   }
 
   List<PractitionerRole> practitionerRoles(CdwPractitionerRoles source) {
-    List<PractitionerRole> practitionerRoles =
-        convertAll(
-            ifPresent(source, CdwPractitionerRoles::getPractitionerRole), this::practitionerRole);
-    return practitionerRoles == null || practitionerRoles.isEmpty() ? null : practitionerRoles;
+    return convertAll(
+        ifPresent(source, CdwPractitionerRoles::getPractitionerRole), this::practitionerRole);
   }
 
   CodeableConcept role(CdwPractitionerRoleCoding source) {
