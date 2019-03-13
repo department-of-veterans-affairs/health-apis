@@ -1,13 +1,13 @@
-# health-apis
+# health-apis-data-query
 
-This project encapsulates the Health APIs. The system consists of three
+Health APIs Data Query application. The system consists of
 [Spring Boot](https://spring.io/projects/spring-boot) microservices that provide
 [Argonaut Data Query](http://www.fhir.org/guides/argonaut/r2/profiles.html) compliant resources
 backed by information from the Corporate Data Warehouse.
 
-###### Health API applications
+###### Applications
 ![applications](src/plantuml/apps.png)
-- data-query - Argonaut Data Query compliant experience API
+- [data-query](data-query/README.md) - Argonaut Data Query compliant experience API
 - [mr-anderson](mr-anderson/README.md) - Corporate Data Warehouse access system API
 - [data-query-tests](data-query-tests/README.md) - Integration tests
 
@@ -22,7 +22,7 @@ backed by information from the Corporate Data Warehouse.
   with the following plugins
   - [Lombok](https://projectlombok.org/)
   - [Google Java Format](https://github.com/google/google-java-format)
-- [git-secrets](https://github.com/awslabs/git-secrets)    
+- [git-secrets](https://github.com/awslabs/git-secrets)
 
 #### Maven
 - Formats Java, XML, and JSON files
@@ -38,7 +38,7 @@ _standard_ profile, e.g. `mvn -P'!standard' package`
 
 #### git-secrets
 git-secrets must be installed and configured to scan for AWS entries and the patterns in
-[.git-secrets-patterns](.git-secrets-patterns). Exclusions are managed in 
+[.git-secrets-patterns](.git-secrets-patterns). Exclusions are managed in
 [.gitallowed](.gitallowed).
 The [init-git-secrets.sh](src/scripts/init-git-secrets.sh) script can be used to simply set up.
 
@@ -53,20 +53,19 @@ The [init-git-secrets.sh](src/scripts/init-git-secrets.sh) script can be used to
 ## Running
 
 ###### Configuration
-The spring application requires an 
+The spring application requires an
 [external configuration](https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-external-config.html)
-for environment specific information, such as database connection URLs. In production or 
+for environment specific information, such as database connection URLs. In production or
 production-like environments, configuration is stored in AWS S3 buckets. In local developer
 environments, configuration can be `config/` directories that are not maintained in Git. See
 a teammate for connection details to shared databases, etc.
 
 See the [configuration guide](configuration.md) for configuring applications in AWS.
 
-
 ----
 
 ## Tools
-`src/scripts` provides tools to support development activities. 
+`src/scripts` provides tools to support development activities.
 
 > !!  Review each script before running to ensure you understand exactly what it does.
 
