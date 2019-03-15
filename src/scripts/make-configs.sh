@@ -14,6 +14,7 @@ Options
 
 Secrets Configuration
  This bash file is sourced and expected to set the following variables
+ - DATAQUERY_DB_URL, DATAQUERY_DB_USER, DATAQUERY_DB_PASSWORD
  - KEYSTORE_PASSWORD
  - MRANDERSON_DB_URL, MRANDERSON_DB_USER, MRANDERSON_DB_PASSWORD
 
@@ -47,6 +48,9 @@ echo "Loading secrets: $SECRETS"
 . $SECRETS
 
 MISSING_SECRETS=false
+[ -z "$DATAQUERY_DB_URL" ] && echo "Missing configuration: DATAQUERY_DB_URL" && MISSING_SECRETS=true
+[ -z "$DATAQUERY_DB_USER" ] && echo "Missing configuration: DATAQUERY_DB_USER" && MISSING_SECRETS=true
+[ -z "$DATAQUERY_DB_PASSWORD" ] && echo "Missing configuration: DATAQUERY_DB_PASSWORD" && MISSING_SECRETS=true
 [ -z "$KEYSTORE_PASSWORD" ] && echo "Missing configuration: KEYSTORE_PASSWORD" && MISSING_SECRETS=true
 [ -z "$MRANDERSON_DB_URL" ] && echo "Missing configuration: MRANDERSON_DB_URL" && MISSING_SECRETS=true
 [ -z "$MRANDERSON_DB_USER" ] && echo "Missing configuration: MRANDERSON_DB_USER" && MISSING_SECRETS=true
@@ -137,6 +141,9 @@ configValue data-query $PROFILE conformance.contact.name "$(whoDis)"
 configValue data-query $PROFILE conformance.contact.email "$(sendMoarSpams)"
 configValue data-query $PROFILE conformance.security.token-endpoint https://fake.com/token
 configValue data-query $PROFILE conformance.security.authorize-endpoint https://fake.com/authorize
+configValue data-query $PROFILE spring.datasource.url "$DATAQUERY_DB_URL"
+configValue data-query $PROFILE spring.datasource.username "$DATAQUERY_DB_USER"
+configValue data-query $PROFILE spring.datasource.password "$DATAQUERY_DB_PASSWORD"
 configValue data-query $PROFILE well-known.capabilities "context-standalone-patient, launch-ehr, permission-offline, permission-patient"
 configValue data-query $PROFILE well-known.response-type-supported "code, refresh_token"
 configValue data-query $PROFILE well-known.scopes-supported "patient/DiagnosticReport.read, patient/Patient.read, offline_access"
