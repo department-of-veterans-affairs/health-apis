@@ -10,7 +10,19 @@
   <artifactId>data-query</artifactId>
   <version>1.0.199-SNAPSHOT</version>
   <packaging>jar</packaging>
+  <properties>
+    <mssql-jdbc.version>6.2.1.jre8</mssql-jdbc.version>
+  </properties>
   <dependencies>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-jdbc</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.microsoft.sqlserver</groupId>
+      <artifactId>mssql-jdbc</artifactId>
+      <version>${mssql-jdbc.version}</version>
+    </dependency>
     <dependency>
       <groupId>gov.va.api.health</groupId>
       <artifactId>service-auto-config</artifactId>
