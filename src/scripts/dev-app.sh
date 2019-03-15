@@ -12,13 +12,14 @@ Commands
  st, status   Report status of applications
  k, stop      Stop applications
 
+
 Options
- -d, --data-query    Include Data Query
+ -a, --data-query      Include Data Query
  -m, --mr-anderson   Include Mr. Anderson
 
 Examples
- # Start both
- $0 -ma s
+ # Start everything
+ $0 -ima s
 
  # Stop Mr. Anderson
  $0 --mr-anderson stop
@@ -96,7 +97,7 @@ eval set -- "$ARGS"
 while true
 do
   case "$1" in
-    -d|--data-query) DATAQUERY=true;;
+    -a|--data-query) DATAQUERY=true;;
     --debug) set -x;;
     -h|--help) usage "halp! what this do?";;
     -m|--mr-anderson) MRANDERSON=true;;
