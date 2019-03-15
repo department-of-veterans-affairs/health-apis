@@ -50,11 +50,11 @@ public class DiagnosticReportController {
   private Transformer transformer;
   private MrAndersonClient mrAndersonClient;
   private Bundler bundler;
-  // private DiagnosticReportSql sqlRepo;
+  private DiagnosticReportSql sqlRepo;
 
   private Bundle bundle(MultiValueMap<String, String> parameters, int page, int count) {
     // PETERTODO
-    // sqlRepo.execute();
+    sqlRepo.execute();
 
     CdwDiagnosticReport102Root root = search(parameters);
     LinkConfig linkConfig =
