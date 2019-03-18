@@ -26,7 +26,7 @@ public class DiagnosticReportSql {
   public void execute() {
     log.error("data-query sql test");
     jdbc.query(
-        "SELECT * FROM app.DiagnosticReport",
+        "SELECT TOP 100 * FROM app.Patient",
         (rs, rowNum) -> {
           log.error("data-query sql test, row " + rowNum);
           return null;
