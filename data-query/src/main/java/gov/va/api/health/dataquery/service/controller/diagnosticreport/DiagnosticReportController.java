@@ -3,6 +3,7 @@ package gov.va.api.health.dataquery.service.controller.diagnosticreport;
 import static gov.va.api.health.dataquery.service.controller.Transformers.firstPayloadItem;
 import static gov.va.api.health.dataquery.service.controller.Transformers.hasPayload;
 
+import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.api.resources.DiagnosticReport;
 import gov.va.api.health.dataquery.api.resources.DiagnosticReport.Bundle;
 import gov.va.api.health.dataquery.api.resources.OperationOutcome;
@@ -16,12 +17,17 @@ import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
 import gov.va.api.health.dataquery.service.mranderson.client.Query;
 import gov.va.dvp.cdw.xsd.model.CdwDiagnosticReport102Root;
 import gov.va.dvp.cdw.xsd.model.CdwDiagnosticReport102Root.CdwDiagnosticReports.CdwDiagnosticReport;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
 import lombok.AllArgsConstructor;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
@@ -38,6 +44,7 @@ import org.springframework.web.bind.annotation.RestController;
  * https://www.fhir.org/guides/argonaut/r2/StructureDefinition-argo-diagnosticreport.html for
  * implementation details.
  */
+@Slf4j
 @SuppressWarnings("WeakerAccess")
 @Validated
 @RestController
@@ -47,33 +54,67 @@ import org.springframework.web.bind.annotation.RestController;
 )
 @AllArgsConstructor(onConstructor = @__({@Autowired}))
 public class DiagnosticReportController {
+
   private Transformer transformer;
+
   private MrAndersonClient mrAndersonClient;
+
   private Bundler bundler;
-  private DiagnosticReportSql sqlRepo;
+
+  private DiagnosticReportCrudRepository repo;
 
   private Bundle bundle(MultiValueMap<String, String> parameters, int page, int count) {
-    // PETERTODO
-    sqlRepo.execute();
+    CdwDiagnosticReport102Root cdwRoot = search(parameters);
+    final List<CdwDiagnosticReport> reports =
+        cdwRoot.getDiagnosticReports() == null
+            ? Collections.emptyList()
+            : cdwRoot.getDiagnosticReports().getDiagnosticReport();
+    return bundle(parameters, page, count, cdwRoot.getRecordCount().intValue(), reports);
+  }
 
-    CdwDiagnosticReport102Root root = search(parameters);
+  private Bundle bundle(
+      MultiValueMap<String, String> parameters,
+      int page,
+      int count,
+      int totalRecords,
+      List<CdwDiagnosticReport> xmlReports) {
     LinkConfig linkConfig =
         LinkConfig.builder()
             .path("DiagnosticReport")
             .queryParams(parameters)
             .page(page)
             .recordsPerPage(count)
-            .totalRecords(root.getRecordCount().intValue())
+            .totalRecords(totalRecords)
             .build();
     return bundler.bundle(
         BundleContext.of(
             linkConfig,
-            root.getDiagnosticReports() == null
-                ? Collections.emptyList()
-                : root.getDiagnosticReports().getDiagnosticReport(),
+            xmlReports == null ? Collections.emptyList() : xmlReports,
             transformer,
             DiagnosticReport.Entry::new,
             DiagnosticReport.Bundle::new));
+  }
+
+  @SneakyThrows
+  private void jpaLookupExperiment(
+      String id, MultiValueMap<String, String> parameters, int page, int count) {
+    // PETERTODO
+    log.error("Diagnostic report count is {}", repo.count());
+    Optional<DiagnosticReportEntity> entity = repo.findById(1L);
+    log.error("Diagnostic report for id {} is {}", 1L, entity);
+
+    // PETERTODO do a JPQL query on id, page, count
+    List<CdwDiagnosticReport> xmlReports = new ArrayList<>();
+    Bundle bundle = bundle(parameters, page, count, xmlReports.size(), xmlReports);
+    log.error(
+        "JPA bundle is {}",
+        JacksonConfig.createMapper().writerWithDefaultPrettyPrinter().writeValueAsString(bundle));
+    // Query.forType(CdwDiagnosticReport102Root.class)
+    // .profile(Query.Profile.ARGONAUT)
+    // .resource("DiagnosticReport")
+    // .version("1.02")
+    // .parameters(params)
+    // .build();
   }
 
   /** Read by identifier. */
@@ -102,10 +143,10 @@ public class DiagnosticReportController {
       @RequestParam("_id") String id,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @RequestParam(value = "_count", defaultValue = "15") @Min(0) int count) {
-    return bundle(
-        Parameters.builder().add("identifier", id).add("page", page).add("_count", count).build(),
-        page,
-        count);
+    MultiValueMap<String, String> parameters =
+        Parameters.builder().add("identifier", id).add("page", page).add("_count", count).build();
+    jpaLookupExperiment(id, parameters, page, count);
+    return bundle(parameters, page, count);
   }
 
   /** Search by identifier. */
