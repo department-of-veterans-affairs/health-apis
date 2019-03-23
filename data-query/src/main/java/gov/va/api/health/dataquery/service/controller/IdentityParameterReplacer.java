@@ -14,9 +14,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.util.MultiValueMap;
 
-/** Leverages the Identity Service to replace _identifier_ type parameters in Queries. */
-class IdentityParameterReplacer {
-  private final IdentityService identityService;
+/** Leverages the Identity Service to replace _identifier_ type parameters. */
+final class IdentityParameterReplacer {
+  @NonNull private final IdentityService identityService;
 
   private final Set<String> identityKeys;
 
@@ -29,7 +29,6 @@ class IdentityParameterReplacer {
       @Singular List<Pair<String, String>> aliases) {
     this.identityService = identityService;
     this.identityKeys = identityKeys;
-    // PETERTODO is this still necessary ?
     // @Singular Map<String, String> emits a compiler warning from the Lombok code (??)
     // List of pairs is a workaround.
     this.aliases =
