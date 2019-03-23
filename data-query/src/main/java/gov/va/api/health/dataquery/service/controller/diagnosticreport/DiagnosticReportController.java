@@ -14,6 +14,8 @@ import gov.va.api.health.dataquery.service.controller.PageLinks.LinkConfig;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.Validator;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
+import gov.va.api.health.dataquery.service.controller.XmlDocuments;
+import gov.va.api.health.dataquery.service.controller.XmlDocuments.WriteFailed;
 import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
 import gov.va.api.health.dataquery.service.mranderson.client.Query;
 import gov.va.api.health.ids.api.IdentityService;
@@ -43,6 +45,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.w3c.dom.Document;
 
 /**
  * Request Mappings for Diagnostic Report Profile, see
@@ -59,6 +62,7 @@ import org.springframework.web.bind.annotation.RestController;
 )
 @AllArgsConstructor(onConstructor = @__({@Autowired}))
 public class DiagnosticReportController {
+
   // PETERTODO should inject witness protection as a component instead
   private IdentityService identityService;
 
@@ -109,13 +113,14 @@ public class DiagnosticReportController {
     MultiValueMap<String, String> protectedParameters =
         WitnessProtection.replacePublicIdsWithCdwIds(identityService, parameters);
     log.error("witness-protected parameters: {}", protectedParameters);
-    log.error("Sanity check, diagnostic report count is {}", repo.count());
-    // PETERTODO do a JPQL query on id, page, count
 
+    log.error("Sanity check, diagnostic report count is {}", repo.count());
+
+    // PETERTODO do a JPQL query on id, page, count
     List<DiagnosticReportEntity> entities =
         repo.findByIdentifier(protectedParameters.getFirst("identifier"));
     log.error(
-        "Diagnostic reports for identifier {} is {}",
+        "Diagnostic reports for identifier {} are {}",
         protectedParameters.getFirst("identifier"),
         entities);
 
@@ -126,19 +131,19 @@ public class DiagnosticReportController {
             .collect(Collectors.joining());
     String allReports = "<diagnosticReports>" + taggedReports + "</diagnosticReports>";
     String rootDocument = "<root>" + allReports + "</root>";
-    try (Reader reader = new StringReader(rootDocument)) {
+
+    Document xml = WitnessProtection.parse(parameters, rootDocument);
+    // XmlResponseValidator.builder().parameters(parameters).response(xml).build().validate();
+    xml =
+        WitnessProtection.replaceCdwIdsWithPublicIds(
+            identityService, "DiagnosticReport", parameters, xml);
+    String protectedDocument = write(parameters, xml);
+
+    try (Reader reader = new StringReader(protectedDocument)) {
       JAXBContext jaxbContext = JAXBContext.newInstance(CdwDiagnosticReport102Root.class);
       Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
       CdwDiagnosticReport102Root sampleReports =
           (CdwDiagnosticReport102Root) jaxbUnmarshaller.unmarshal(reader);
-
-      // PETERTODO witness-protect what comes back
-      //           Document xml = parse(originalQuery, originalXml);
-      //
-      // XmlResponseValidator.builder().query(originalQuery).response(xml).build().validate();
-      //           xml = replaceCdwIdsWithPublicIds(originalQuery, xml);
-      //           return write(query, xml);
-
       return bundle(
           parameters,
           page,
@@ -177,21 +182,18 @@ public class DiagnosticReportController {
       @RequestParam(value = "_count", defaultValue = "15") @Min(0) int count) {
     MultiValueMap<String, String> parameters =
         Parameters.builder().add("identifier", id).add("page", page).add("_count", count).build();
-
     Bundle jpaBundle = jpaBundle(id, parameters, page, count);
     log.error(
         "JPA bundle is {}",
         JacksonConfig.createMapper()
             .writerWithDefaultPrettyPrinter()
             .writeValueAsString(jpaBundle));
-
     Bundle mrAndersonBundle = bundle(parameters, page, count);
     log.error(
         "mr-anderson bundle is {}",
         JacksonConfig.createMapper()
             .writerWithDefaultPrettyPrinter()
             .writeValueAsString(mrAndersonBundle));
-
     return mrAndersonBundle;
   }
 
@@ -287,6 +289,15 @@ public class DiagnosticReportController {
   )
   public OperationOutcome validate(@RequestBody Bundle bundle) {
     return Validator.create().validate(bundle);
+  }
+
+  private String write(MultiValueMap<String, String> parameters, Document xml) {
+    try {
+      return XmlDocuments.create().write(xml);
+    } catch (WriteFailed e) {
+      log.error("Failed to write XML: {}", e.getMessage());
+      throw new WitnessProtection.SearchFailed(parameters, e);
+    }
   }
 
   public interface Transformer extends Function<CdwDiagnosticReport, DiagnosticReport> {}
