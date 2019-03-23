@@ -167,12 +167,6 @@ public class DiagnosticReportController {
       @RequestParam(value = "_count", defaultValue = "15") @Min(0) int count) {
     MultiValueMap<String, String> parameters =
         Parameters.builder().add("identifier", id).add("page", page).add("_count", count).build();
-    Bundle mrAndersonBundle = bundle(parameters, page, count);
-    log.error(
-        "mr-anderson bundle is {}",
-        JacksonConfig.createMapper()
-            .writerWithDefaultPrettyPrinter()
-            .writeValueAsString(mrAndersonBundle));
 
     Bundle jpaBundle = jpaBundle(id, parameters, page, count);
     log.error(
@@ -180,6 +174,13 @@ public class DiagnosticReportController {
         JacksonConfig.createMapper()
             .writerWithDefaultPrettyPrinter()
             .writeValueAsString(jpaBundle));
+
+    Bundle mrAndersonBundle = bundle(parameters, page, count);
+    log.error(
+        "mr-anderson bundle is {}",
+        JacksonConfig.createMapper()
+            .writerWithDefaultPrettyPrinter()
+            .writeValueAsString(mrAndersonBundle));
 
     return mrAndersonBundle;
   }
