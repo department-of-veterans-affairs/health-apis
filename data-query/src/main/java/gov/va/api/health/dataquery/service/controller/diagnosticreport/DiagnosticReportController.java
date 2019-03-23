@@ -107,8 +107,7 @@ public class DiagnosticReportController {
   }
 
   @SneakyThrows
-  private Bundle jpaBundle(
-      String id, MultiValueMap<String, String> parameters, int page, int count) {
+  private Bundle jpaBundle(MultiValueMap<String, String> parameters, int page, int count) {
     log.error("original parameters: {}", parameters);
     MultiValueMap<String, String> protectedParameters =
         WitnessProtection.replacePublicIdsWithCdwIds(identityService, parameters);
@@ -196,7 +195,7 @@ public class DiagnosticReportController {
             .add("_count", count)
             .build();
 
-    Bundle jpaBundle = jpaBundle(identifier, parameters, page, count);
+    Bundle jpaBundle = jpaBundle(parameters, page, count);
     log.error(
         "JPA bundle is {}",
         JacksonConfig.createMapper()
