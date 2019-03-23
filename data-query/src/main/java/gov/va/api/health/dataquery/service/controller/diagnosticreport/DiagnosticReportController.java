@@ -27,6 +27,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
@@ -72,7 +74,9 @@ public class DiagnosticReportController {
 
   private Bundler bundler;
 
-  private DiagnosticReportCrudRepository repo;
+  // private DiagnosticReportCrudRepository repo;
+
+  private EntityManager entityManager;
 
   private Bundle bundle(MultiValueMap<String, String> parameters, int page, int count) {
     CdwDiagnosticReport102Root cdwRoot = search(parameters);
@@ -113,11 +117,28 @@ public class DiagnosticReportController {
         WitnessProtection.replacePublicIdsWithCdwIds(identityService, parameters);
     log.error("witness-protected parameters: {}", protectedParameters);
 
-    log.error("Sanity check, diagnostic report count is {}", repo.count());
+    TypedQuery<Long> totalQuery =
+        entityManager.createQuery(
+            "Select count(dr.id) from DiagnosticReportEntity dr where dr.identifier is :identifier",
+            Long.class);
+    int totalRecords =
+        totalQuery
+            .setParameter("identifier", protectedParameters.getFirst("identifier"))
+            .getSingleResult()
+            .intValue();
+    log.error("total records: " + totalRecords);
 
-    // PETERTODO do a JPQL query on id, page, count
+    TypedQuery<DiagnosticReportEntity> jpqlQuery =
+        entityManager.createQuery(
+            "Select dr from DiagnosticReportEntity dr where dr.identifier is :identifier",
+            DiagnosticReportEntity.class);
+    jpqlQuery.setFirstResult((page - 1) * count);
+    jpqlQuery.setMaxResults(count);
     List<DiagnosticReportEntity> entities =
-        repo.findByIdentifier(protectedParameters.getFirst("identifier"));
+        jpqlQuery
+            .setParameter("identifier", protectedParameters.getFirst("identifier"))
+            .getResultList();
+
     log.error(
         "Diagnostic reports for identifier {} are {}",
         protectedParameters.getFirst("identifier"),
@@ -147,7 +168,7 @@ public class DiagnosticReportController {
           parameters,
           page,
           count,
-          sampleReports.getDiagnosticReports().getDiagnosticReport().size(),
+          totalRecords,
           sampleReports.getDiagnosticReports().getDiagnosticReport());
     }
   }
