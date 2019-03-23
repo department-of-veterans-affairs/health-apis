@@ -38,6 +38,16 @@ public class DiagnosticReportIT {
   }
 
   @Test
+  public void asdf() {
+    verifier.verifyAll(
+        test(
+            200,
+            DiagnosticReport.Bundle.class,
+            "DiagnosticReport?_id={id}",
+            verifier.ids().diagnosticReport()));
+  }
+
+  @Test
   @Category({
     Local.class,
     LabDataQueryPatient.class,

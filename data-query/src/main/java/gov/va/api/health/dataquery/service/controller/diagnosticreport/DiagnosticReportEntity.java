@@ -30,4 +30,27 @@ public class DiagnosticReportEntity {
   private String code;
 
   private String document;
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (!(obj instanceof DiagnosticReportEntity)) {
+      return false;
+    }
+    DiagnosticReportEntity other = (DiagnosticReportEntity) obj;
+    if (id != other.id) {
+      return false;
+    }
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    return 31 + (int) (id ^ (id >>> 32));
+  }
 }

@@ -13,9 +13,10 @@ import gov.va.api.health.dataquery.service.controller.DateTimeParameter;
 import gov.va.api.health.dataquery.service.controller.PageLinks.LinkConfig;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.Validator;
+import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
 import gov.va.api.health.dataquery.service.mranderson.client.Query;
-import gov.va.api.health.mranderson.cdw.impl.XmlResponseValidator;
+import gov.va.api.health.ids.api.IdentityService;
 import gov.va.dvp.cdw.xsd.model.CdwDiagnosticReport102Root;
 import gov.va.dvp.cdw.xsd.model.CdwDiagnosticReport102Root.CdwDiagnosticReports.CdwDiagnosticReport;
 import java.io.Reader;
@@ -42,7 +43,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.w3c.dom.Document;
 
 /**
  * Request Mappings for Diagnostic Report Profile, see
@@ -59,6 +59,8 @@ import org.w3c.dom.Document;
 )
 @AllArgsConstructor(onConstructor = @__({@Autowired}))
 public class DiagnosticReportController {
+  // PETERTODO should inject witness protection as a component instead
+  private IdentityService identityService;
 
   private Transformer transformer;
 
@@ -101,40 +103,32 @@ public class DiagnosticReportController {
   }
 
   @SneakyThrows
-  private Bundle jpaLookupExperiment(
+  private Bundle jpaBundle(
       String id, MultiValueMap<String, String> parameters, int page, int count) {
-    // PETERTODO convert the ID being doing the query
-
-    //	    log.info("Search {}", originalQuery);
-    //	    validate(originalQuery);
-    //	    Query query = replacePublicIdsWithCdwIds(originalQuery);
-    //	    log.info("Executing {}", query.toQueryString());
-    //	    String originalXml = repository.execute(query);
-    //	    if (query.raw()) {
-    //	      log.info("Validation and reference replacement skipped. Returning raw response.");
-    //	      return originalXml;
-    //	    }
-    //	    Document xml = parse(originalQuery, originalXml);
-    //	    XmlResponseValidator.builder().query(originalQuery).response(xml).build().validate();
-    //	    xml = replaceCdwIdsWithPublicIds(originalQuery, xml);
-    //
-    //	    return write(query, xml);
-
-    log.error("Diagnostic report count is {}", repo.count());
+    log.error("original parameters: {}", parameters);
+    MultiValueMap<String, String> protectedParameters =
+        WitnessProtection.replacePublicIdsWithCdwIds(identityService, parameters);
+    log.error("witness-protected parameters: {}", protectedParameters);
+    log.error("Sanity check, diagnostic report count is {}", repo.count());
+    // PETERTODO do a JPQL query on id, page, count
+    // PETERTODO use paging and sorting repository
     Optional<DiagnosticReportEntity> entity = repo.findById(1L);
     log.error("Diagnostic report for id {} is {}", 1L, entity);
-
     String taggedReport = "<diagnosticReport>" + entity.get().document() + "</diagnosticReport>";
     String allReports = "<diagnosticReports>" + taggedReport + "</diagnosticReports>";
     String rootDocument = "<root>" + allReports + "</root>";
-
     try (Reader reader = new StringReader(rootDocument)) {
       JAXBContext jaxbContext = JAXBContext.newInstance(CdwDiagnosticReport102Root.class);
       Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
       CdwDiagnosticReport102Root sampleReports =
           (CdwDiagnosticReport102Root) jaxbUnmarshaller.unmarshal(reader);
 
-      // PETERTODO do a JPQL query on id, page, count
+      //           Document xml = parse(originalQuery, originalXml);
+      //
+      // XmlResponseValidator.builder().query(originalQuery).response(xml).build().validate();
+      //           xml = replaceCdwIdsWithPublicIds(originalQuery, xml);
+      //           return write(query, xml);
+
       return bundle(
           parameters,
           page,
@@ -173,20 +167,19 @@ public class DiagnosticReportController {
       @RequestParam(value = "_count", defaultValue = "15") @Min(0) int count) {
     MultiValueMap<String, String> parameters =
         Parameters.builder().add("identifier", id).add("page", page).add("_count", count).build();
-
-    Bundle jpaBundle = jpaLookupExperiment(id, parameters, page, count);
-    log.error(
-        "JPA bundle is {}",
-        JacksonConfig.createMapper()
-            .writerWithDefaultPrettyPrinter()
-            .writeValueAsString(jpaBundle));
-
     Bundle mrAndersonBundle = bundle(parameters, page, count);
     log.error(
         "mr-anderson bundle is {}",
         JacksonConfig.createMapper()
             .writerWithDefaultPrettyPrinter()
             .writeValueAsString(mrAndersonBundle));
+
+    Bundle jpaBundle = jpaBundle(id, parameters, page, count);
+    log.error(
+        "JPA bundle is {}",
+        JacksonConfig.createMapper()
+            .writerWithDefaultPrettyPrinter()
+            .writeValueAsString(jpaBundle));
 
     return mrAndersonBundle;
   }
