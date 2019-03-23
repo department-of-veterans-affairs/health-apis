@@ -5,7 +5,6 @@ import static gov.va.api.health.dataquery.service.controller.Transformers.hasPay
 
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.api.resources.DiagnosticReport;
-import gov.va.api.health.dataquery.api.resources.DiagnosticReport.Bundle;
 import gov.va.api.health.dataquery.api.resources.OperationOutcome;
 import gov.va.api.health.dataquery.service.controller.Bundler;
 import gov.va.api.health.dataquery.service.controller.Bundler.BundleContext;
@@ -74,11 +73,31 @@ public class DiagnosticReportController {
 
   private Bundler bundler;
 
-  // private DiagnosticReportCrudRepository repo;
-
   private EntityManager entityManager;
 
-  private Bundle bundle(MultiValueMap<String, String> parameters, int page, int count) {
+  @SneakyThrows
+  private DiagnosticReport.Bundle bothWays(
+      MultiValueMap<String, String> parameters, int page, int count) {
+    DiagnosticReport.Bundle jpaBundle = jpaBundle(parameters, page, count);
+    DiagnosticReport.Bundle mrAndersonBundle = bundle(parameters, page, count);
+    if (!jpaBundle.equals(mrAndersonBundle)) {
+      log.error("JPA bundle and mr-anderson bundle do not match");
+      log.error(
+          "JPA bundle is {}",
+          JacksonConfig.createMapper()
+              .writerWithDefaultPrettyPrinter()
+              .writeValueAsString(jpaBundle));
+      log.error(
+          "mr-anderson bundle is {}",
+          JacksonConfig.createMapper()
+              .writerWithDefaultPrettyPrinter()
+              .writeValueAsString(mrAndersonBundle));
+    }
+    return mrAndersonBundle;
+  }
+
+  private DiagnosticReport.Bundle bundle(
+      MultiValueMap<String, String> parameters, int page, int count) {
     CdwDiagnosticReport102Root cdwRoot = search(parameters);
     final List<CdwDiagnosticReport> reports =
         cdwRoot.getDiagnosticReports() == null
@@ -87,7 +106,7 @@ public class DiagnosticReportController {
     return bundle(parameters, page, count, cdwRoot.getRecordCount().intValue(), reports);
   }
 
-  private Bundle bundle(
+  private DiagnosticReport.Bundle bundle(
       MultiValueMap<String, String> parameters,
       int page,
       int count,
@@ -111,33 +130,25 @@ public class DiagnosticReportController {
   }
 
   @SneakyThrows
-  private Bundle jpaBundle(MultiValueMap<String, String> parameters, int page, int count) {
+  private DiagnosticReport.Bundle jpaBundle(
+      MultiValueMap<String, String> parameters, int page, int count) {
     log.error("original parameters: {}", parameters);
     MultiValueMap<String, String> protectedParameters =
         WitnessProtection.replacePublicIdsWithCdwIds(identityService, parameters);
     log.error("witness-protected parameters: {}", protectedParameters);
 
     TypedQuery<Long> totalQuery =
-        entityManager.createQuery(
-            "Select count(dr.id) from DiagnosticReportEntity dr where dr.identifier is :identifier",
-            Long.class);
-    int totalRecords =
-        totalQuery
-            .setParameter("identifier", protectedParameters.getFirst("identifier"))
-            .getSingleResult()
-            .intValue();
+        entityManager.createQuery(queryTotal(protectedParameters), Long.class);
+    queryAddParameters(totalQuery, protectedParameters);
+    int totalRecords = totalQuery.getSingleResult().intValue();
     log.error("total records: " + totalRecords);
 
     TypedQuery<DiagnosticReportEntity> jpqlQuery =
-        entityManager.createQuery(
-            "Select dr from DiagnosticReportEntity dr where dr.identifier is :identifier",
-            DiagnosticReportEntity.class);
+        entityManager.createQuery(query(protectedParameters), DiagnosticReportEntity.class);
     jpqlQuery.setFirstResult((page - 1) * count);
     jpqlQuery.setMaxResults(count);
-    List<DiagnosticReportEntity> entities =
-        jpqlQuery
-            .setParameter("identifier", protectedParameters.getFirst("identifier"))
-            .getResultList();
+    queryAddParameters(jpqlQuery, protectedParameters);
+    List<DiagnosticReportEntity> entities = jpqlQuery.getResultList();
 
     log.error(
         "Diagnostic reports for identifier {} are {}",
@@ -173,6 +184,35 @@ public class DiagnosticReportController {
     }
   }
 
+  private String query(MultiValueMap<String, String> parameters) {
+    if (parameters.containsKey("identifier")) {
+      return "Select dr from DiagnosticReportEntity dr where dr.identifier is :identifier";
+    } else if (parameters.containsKey("patient")) {
+      return "Select dr from DiagnosticReportEntity dr where dr.patientId is :patient";
+    } else {
+      throw new IllegalArgumentException("Cannot determine query");
+    }
+  }
+
+  private void queryAddParameters(TypedQuery<?> query, MultiValueMap<String, String> parameters) {
+    if (parameters.containsKey("identifier")) {
+      query.setParameter("identifier", parameters.getFirst("identifier"));
+    }
+    if (parameters.containsKey("patient")) {
+      query.setParameter("patient", Long.valueOf(parameters.getFirst("patient")));
+    }
+  }
+
+  private String queryTotal(MultiValueMap<String, String> parameters) {
+    if (parameters.containsKey("identifier")) {
+      return "Select count(dr.id) from DiagnosticReportEntity dr where dr.identifier is :identifier";
+    } else if (parameters.containsKey("patient")) {
+      return "Select count(dr.id) from DiagnosticReportEntity dr where dr.patientId is :patient";
+    } else {
+      throw new IllegalArgumentException("Cannot determine total-query");
+    }
+  }
+
   /** Read by identifier. */
   @GetMapping(value = {"/{publicId}"})
   public DiagnosticReport read(@PathVariable("publicId") String publicId) {
@@ -203,7 +243,6 @@ public class DiagnosticReportController {
   }
 
   /** Search by identifier. */
-  @SneakyThrows
   @GetMapping(params = {"identifier"})
   public DiagnosticReport.Bundle searchByIdentifier(
       @RequestParam("identifier") String identifier,
@@ -215,22 +254,7 @@ public class DiagnosticReportController {
             .add("page", page)
             .add("_count", count)
             .build();
-
-    Bundle jpaBundle = jpaBundle(parameters, page, count);
-    log.error(
-        "JPA bundle is {}",
-        JacksonConfig.createMapper()
-            .writerWithDefaultPrettyPrinter()
-            .writeValueAsString(jpaBundle));
-
-    Bundle mrAndersonBundle = bundle(parameters, page, count);
-    log.error(
-        "mr-anderson bundle is {}",
-        JacksonConfig.createMapper()
-            .writerWithDefaultPrettyPrinter()
-            .writeValueAsString(mrAndersonBundle));
-
-    return mrAndersonBundle;
+    return bothWays(parameters, page, count);
   }
 
   /** Search by patient. */
@@ -239,11 +263,9 @@ public class DiagnosticReportController {
       @RequestParam("patient") String patient,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @RequestParam(value = "_count", defaultValue = "15") @Min(0) int count) {
-    // PETERTODO
-    return bundle(
-        Parameters.builder().add("patient", patient).add("page", page).add("_count", count).build(),
-        page,
-        count);
+    MultiValueMap<String, String> parameters =
+        Parameters.builder().add("patient", patient).add("page", page).add("_count", count).build();
+    return bothWays(parameters, page, count);
   }
 
   /** Search by Patient+Category. */
@@ -311,7 +333,7 @@ public class DiagnosticReportController {
     value = "/$validate",
     consumes = {"application/json", "application/json+fhir", "application/fhir+json"}
   )
-  public OperationOutcome validate(@RequestBody Bundle bundle) {
+  public OperationOutcome validate(@RequestBody DiagnosticReport.Bundle bundle) {
     return Validator.create().validate(bundle);
   }
 
