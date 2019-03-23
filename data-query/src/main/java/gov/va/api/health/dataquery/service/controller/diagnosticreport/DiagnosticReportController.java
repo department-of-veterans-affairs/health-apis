@@ -23,8 +23,8 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
@@ -111,11 +111,20 @@ public class DiagnosticReportController {
     log.error("witness-protected parameters: {}", protectedParameters);
     log.error("Sanity check, diagnostic report count is {}", repo.count());
     // PETERTODO do a JPQL query on id, page, count
-    // PETERTODO use paging and sorting repository
-    Optional<DiagnosticReportEntity> entity = repo.findById(1L);
-    log.error("Diagnostic report for id {} is {}", 1L, entity);
-    String taggedReport = "<diagnosticReport>" + entity.get().document() + "</diagnosticReport>";
-    String allReports = "<diagnosticReports>" + taggedReport + "</diagnosticReports>";
+
+    List<DiagnosticReportEntity> entities =
+        repo.findByIdentifier(protectedParameters.getFirst("identifier"));
+    log.error(
+        "Diagnostic reports for identifier {} is {}",
+        protectedParameters.getFirst("identifier"),
+        entities);
+
+    String taggedReports =
+        entities
+            .stream()
+            .map(entity -> "<diagnosticReport>" + entity.document() + "</diagnosticReport>")
+            .collect(Collectors.joining());
+    String allReports = "<diagnosticReports>" + taggedReports + "</diagnosticReports>";
     String rootDocument = "<root>" + allReports + "</root>";
     try (Reader reader = new StringReader(rootDocument)) {
       JAXBContext jaxbContext = JAXBContext.newInstance(CdwDiagnosticReport102Root.class);
@@ -123,6 +132,7 @@ public class DiagnosticReportController {
       CdwDiagnosticReport102Root sampleReports =
           (CdwDiagnosticReport102Root) jaxbUnmarshaller.unmarshal(reader);
 
+      // PETERTODO witness-protect what comes back
       //           Document xml = parse(originalQuery, originalXml);
       //
       // XmlResponseValidator.builder().query(originalQuery).response(xml).build().validate();
