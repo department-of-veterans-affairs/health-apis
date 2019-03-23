@@ -174,43 +174,43 @@ public class DiagnosticReportController {
   }
 
   /** Search by _id. */
-  @SneakyThrows
   @GetMapping(params = {"_id"})
   public DiagnosticReport.Bundle searchById(
       @RequestParam("_id") String id,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @RequestParam(value = "_count", defaultValue = "15") @Min(0) int count) {
+    return searchByIdentifier(id, page, count);
+  }
+
+  /** Search by identifier. */
+  @SneakyThrows
+  @GetMapping(params = {"identifier"})
+  public DiagnosticReport.Bundle searchByIdentifier(
+      @RequestParam("identifier") String identifier,
+      @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
+      @RequestParam(value = "_count", defaultValue = "15") @Min(0) int count) {
     MultiValueMap<String, String> parameters =
-        Parameters.builder().add("identifier", id).add("page", page).add("_count", count).build();
-    Bundle jpaBundle = jpaBundle(id, parameters, page, count);
+        Parameters.builder()
+            .add("identifier", identifier)
+            .add("page", page)
+            .add("_count", count)
+            .build();
+
+    Bundle jpaBundle = jpaBundle(identifier, parameters, page, count);
     log.error(
         "JPA bundle is {}",
         JacksonConfig.createMapper()
             .writerWithDefaultPrettyPrinter()
             .writeValueAsString(jpaBundle));
+
     Bundle mrAndersonBundle = bundle(parameters, page, count);
     log.error(
         "mr-anderson bundle is {}",
         JacksonConfig.createMapper()
             .writerWithDefaultPrettyPrinter()
             .writeValueAsString(mrAndersonBundle));
-    return mrAndersonBundle;
-  }
 
-  /** Search by identifier. */
-  @GetMapping(params = {"identifier"})
-  public DiagnosticReport.Bundle searchByIdentifier(
-      @RequestParam("identifier") String identifier,
-      @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
-      @RequestParam(value = "_count", defaultValue = "15") @Min(0) int count) {
-    return bundle(
-        Parameters.builder()
-            .add("identifier", identifier)
-            .add("page", page)
-            .add("_count", count)
-            .build(),
-        page,
-        count);
+    return mrAndersonBundle;
   }
 
   /** Search by patient. */
@@ -219,6 +219,7 @@ public class DiagnosticReportController {
       @RequestParam("patient") String patient,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @RequestParam(value = "_count", defaultValue = "15") @Min(0) int count) {
+    // PETERTODO
     return bundle(
         Parameters.builder().add("patient", patient).add("page", page).add("_count", count).build(),
         page,
@@ -232,6 +233,7 @@ public class DiagnosticReportController {
       @RequestParam("category") String category,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @RequestParam(value = "_count", defaultValue = "15") @Min(0) int count) {
+    // PETERTODO
     return bundle(
         Parameters.builder()
             .add("patient", patient)
@@ -252,6 +254,7 @@ public class DiagnosticReportController {
           String[] date,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @RequestParam(value = "_count", defaultValue = "15") @Min(0) int count) {
+    // PETERTODO
     return bundle(
         Parameters.builder()
             .add("patient", patient)
@@ -271,6 +274,7 @@ public class DiagnosticReportController {
       @RequestParam("code") String code,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @RequestParam(value = "_count", defaultValue = "15") @Min(0) int count) {
+    // PETERTODO
     return bundle(
         Parameters.builder()
             .add("patient", patient)
