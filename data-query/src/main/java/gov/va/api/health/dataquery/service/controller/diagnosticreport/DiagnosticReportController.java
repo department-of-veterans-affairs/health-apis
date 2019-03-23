@@ -81,9 +81,9 @@ public class DiagnosticReportController {
     DiagnosticReport.Bundle jpaBundle = jpaBundle(parameters, page, count);
     DiagnosticReport.Bundle mrAndersonBundle = bundle(parameters, page, count);
     if (!jpaBundle.equals(mrAndersonBundle)) {
-      log.error("JPA bundle and mr-anderson bundle do not match");
+      log.error("jpa-bundle and mr-anderson bundle do not match");
       log.error(
-          "JPA bundle is {}",
+          "jpa-bundle is {}",
           JacksonConfig.createMapper()
               .writerWithDefaultPrettyPrinter()
               .writeValueAsString(jpaBundle));
@@ -164,7 +164,6 @@ public class DiagnosticReportController {
     String rootDocument = "<root>" + allReports + "</root>";
 
     Document xml = WitnessProtection.parse(parameters, rootDocument);
-    // XmlResponseValidator.builder().parameters(parameters).response(xml).build().validate();
     xml =
         WitnessProtection.replaceCdwIdsWithPublicIds(
             identityService, "DiagnosticReport", parameters, xml);
@@ -185,6 +184,7 @@ public class DiagnosticReportController {
   }
 
   private String query(MultiValueMap<String, String> parameters) {
+    // PETERTODO refactor to top level
     if (parameters.containsKey("identifier")) {
       return "Select dr from DiagnosticReportEntity dr where dr.identifier is :identifier";
     } else if (parameters.containsKey("patient")) {
@@ -195,6 +195,7 @@ public class DiagnosticReportController {
   }
 
   private void queryAddParameters(TypedQuery<?> query, MultiValueMap<String, String> parameters) {
+    // PETERTODO examine all params and just skip page and _count
     if (parameters.containsKey("identifier")) {
       query.setParameter("identifier", parameters.getFirst("identifier"));
     }
@@ -204,6 +205,7 @@ public class DiagnosticReportController {
   }
 
   private String queryTotal(MultiValueMap<String, String> parameters) {
+    // PETERTODO refactor to top level
     if (parameters.containsKey("identifier")) {
       return "Select count(dr.id) from DiagnosticReportEntity dr where dr.identifier is :identifier";
     } else if (parameters.containsKey("patient")) {
@@ -216,6 +218,7 @@ public class DiagnosticReportController {
   /** Read by identifier. */
   @GetMapping(value = {"/{publicId}"})
   public DiagnosticReport read(@PathVariable("publicId") String publicId) {
+    // PETERTODO
     return transformer.apply(
         firstPayloadItem(
             hasPayload(search(Parameters.forIdentity(publicId)).getDiagnosticReports())
