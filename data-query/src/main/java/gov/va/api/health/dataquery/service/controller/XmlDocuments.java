@@ -9,7 +9,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import lombok.experimental.UtilityClass;
-
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
@@ -22,6 +21,17 @@ import org.xml.sax.SAXException;
 /** Utilities for working with XML documents. */
 @UtilityClass
 final class XmlDocuments {
+
+  private static DOMImplementationRegistry createRegistryOrDie() {
+    DOMImplementationRegistry registry;
+    try {
+      registry = DOMImplementationRegistry.newInstance();
+    } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
+      throw new WriteFailed(e);
+    }
+    return registry;
+  }
+
   /**
    * Finds a DOM implementation is capable of 'Load/Save' operations, which gives us the ability to
    * write Documents.
@@ -38,16 +48,6 @@ final class XmlDocuments {
     throw new WriteFailed(
         "Unexpected LS DOM implementation. Required: org.w3c.dom.ls.DOMImplementationLS, Got: "
             + domImplementation.getClass());
-  }
-
-  private static DOMImplementationRegistry createRegistryOrDie() {
-    DOMImplementationRegistry registry;
-    try {
-      registry = DOMImplementationRegistry.newInstance();
-    } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
-      throw new WriteFailed(e);
-    }
-    return registry;
   }
 
   /**
@@ -86,12 +86,14 @@ final class XmlDocuments {
   }
 
   static class ParseFailed extends RuntimeException {
+
     ParseFailed(Exception cause) {
       super(cause);
     }
   }
 
   static class WriteFailed extends RuntimeException {
+
     WriteFailed(String message) {
       super(message);
     }

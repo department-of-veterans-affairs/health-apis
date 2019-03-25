@@ -58,6 +58,7 @@ import org.springframework.web.bind.annotation.RestController;
 )
 @AllArgsConstructor(onConstructor = @__({@Autowired}))
 public class DiagnosticReportController {
+
   private MrAndersonClient mrAndersonClient;
 
   private WitnessProtection witnessProtection;
@@ -113,34 +114,6 @@ public class DiagnosticReportController {
     }
   }
 
-  @SneakyThrows
-  private DiagnosticReport.Bundle searchOldAndNew(
-      MultiValueMap<String, String> parameters, int page, int count) {
-    DiagnosticReport.Bundle jpaBundle = jpaBundle(parameters, page, count);
-    DiagnosticReport.Bundle mrAndersonBundle = mrAndersonBundle(parameters, page, count);
-    if (!jpaBundle.equals(mrAndersonBundle)) {
-      log.warn(
-          "jpa-bundle and mr-anderson bundle do not match. JPA found {} results and mr-anderson found {} results.",
-          jpaBundle.total(),
-          mrAndersonBundle.total());
-      log.warn("jpa-bundle is {}", JacksonConfig.createMapper().writeValueAsString(jpaBundle));
-      log.warn(
-          "mr-anderson bundle is {}",
-          JacksonConfig.createMapper().writeValueAsString(mrAndersonBundle));
-    }
-    return mrAndersonBundle;
-  }
-
-  private DiagnosticReport.Bundle mrAndersonBundle(
-      MultiValueMap<String, String> parameters, int page, int count) {
-    CdwDiagnosticReport102Root cdwRoot = mrAndersonSearch(parameters);
-    final List<CdwDiagnosticReport> reports =
-        cdwRoot.getDiagnosticReports() == null
-            ? Collections.emptyList()
-            : cdwRoot.getDiagnosticReports().getDiagnosticReport();
-    return bundle(parameters, page, count, cdwRoot.getRecordCount().intValue(), reports);
-  }
-
   private DiagnosticReport.Bundle bundle(
       MultiValueMap<String, String> parameters,
       int page,
@@ -164,6 +137,18 @@ public class DiagnosticReportController {
             DiagnosticReport.Bundle::new));
   }
 
+  private CdwDiagnosticReport102Root cdwRoot(
+      MultiValueMap<String, String> publicParameters,
+      MultiValueMap<String, String> cdwParameters,
+      int page,
+      int count) {
+    List<DiagnosticReportEntity> entities = queryForEntities(cdwParameters, page, count);
+    String cdwXml = entitiesXml(entities);
+    String publicXml =
+        witnessProtection.replaceCdwIdsWithPublicIds("DiagnosticReport", publicParameters, cdwXml);
+    return cdwRootObject(publicXml);
+  }
+
   @SneakyThrows
   private DiagnosticReport.Bundle jpaBundle(
       MultiValueMap<String, String> publicParameters, int page, int count) {
@@ -178,16 +163,25 @@ public class DiagnosticReportController {
         cdwRoot.getDiagnosticReports().getDiagnosticReport());
   }
 
-  private CdwDiagnosticReport102Root cdwRoot(
-      MultiValueMap<String, String> publicParameters,
-      MultiValueMap<String, String> cdwParameters,
-      int page,
-      int count) {
-    List<DiagnosticReportEntity> entities = queryForEntities(cdwParameters, page, count);
-    String cdwXml = entitiesXml(entities);
-    String publicXml =
-        witnessProtection.replaceCdwIdsWithPublicIds("DiagnosticReport", publicParameters, cdwXml);
-    return cdwRootObject(publicXml);
+  private DiagnosticReport.Bundle mrAndersonBundle(
+      MultiValueMap<String, String> parameters, int page, int count) {
+    CdwDiagnosticReport102Root cdwRoot = mrAndersonSearch(parameters);
+    final List<CdwDiagnosticReport> reports =
+        cdwRoot.getDiagnosticReports() == null
+            ? Collections.emptyList()
+            : cdwRoot.getDiagnosticReports().getDiagnosticReport();
+    return bundle(parameters, page, count, cdwRoot.getRecordCount().intValue(), reports);
+  }
+
+  private CdwDiagnosticReport102Root mrAndersonSearch(MultiValueMap<String, String> params) {
+    Query<CdwDiagnosticReport102Root> query =
+        Query.forType(CdwDiagnosticReport102Root.class)
+            .profile(Query.Profile.ARGONAUT)
+            .resource("DiagnosticReport")
+            .version("1.02")
+            .parameters(params)
+            .build();
+    return hasPayload(mrAndersonClient.search(query));
   }
 
   // PETERTODO not diagnostic-report specific
@@ -221,11 +215,9 @@ public class DiagnosticReportController {
   public DiagnosticReport read(@PathVariable("publicId") String publicId) {
     MultiValueMap<String, String> publicParameters = Parameters.forIdentity(publicId);
     CdwDiagnosticReport102Root mrAndersonCdw = mrAndersonSearch(publicParameters);
-
     MultiValueMap<String, String> cdwParameters =
         witnessProtection.replacePublicIdsWithCdwIds(publicParameters);
     CdwDiagnosticReport102Root jpaCdw = cdwRoot(publicParameters, cdwParameters, 1, 15);
-
     DiagnosticReport mrAndersonReport =
         transformer.apply(
             firstPayloadItem(
@@ -233,7 +225,6 @@ public class DiagnosticReportController {
     DiagnosticReport jpaReport =
         transformer.apply(
             firstPayloadItem(hasPayload(jpaCdw.getDiagnosticReports()).getDiagnosticReport()));
-
     if (!jpaReport.equals(mrAndersonReport)) {
       log.warn("jpa read and mr-anderson read do not match.");
       log.warn("jpa report is {}", JacksonConfig.createMapper().writeValueAsString(jpaReport));
@@ -241,19 +232,7 @@ public class DiagnosticReportController {
           "mr-anderson report is {}",
           JacksonConfig.createMapper().writeValueAsString(mrAndersonReport));
     }
-
     return mrAndersonReport;
-  }
-
-  private CdwDiagnosticReport102Root mrAndersonSearch(MultiValueMap<String, String> params) {
-    Query<CdwDiagnosticReport102Root> query =
-        Query.forType(CdwDiagnosticReport102Root.class)
-            .profile(Query.Profile.ARGONAUT)
-            .resource("DiagnosticReport")
-            .version("1.02")
-            .parameters(params)
-            .build();
-    return hasPayload(mrAndersonClient.search(query));
   }
 
   /** Search by _id. */
@@ -349,6 +328,24 @@ public class DiagnosticReportController {
             .build(),
         page,
         count);
+  }
+
+  @SneakyThrows
+  private DiagnosticReport.Bundle searchOldAndNew(
+      MultiValueMap<String, String> parameters, int page, int count) {
+    DiagnosticReport.Bundle jpaBundle = jpaBundle(parameters, page, count);
+    DiagnosticReport.Bundle mrAndersonBundle = mrAndersonBundle(parameters, page, count);
+    if (!jpaBundle.equals(mrAndersonBundle)) {
+      log.warn(
+          "jpa-bundle and mr-anderson bundle do not match. JPA found {} results and mr-anderson found {} results.",
+          jpaBundle.total(),
+          mrAndersonBundle.total());
+      log.warn("jpa-bundle is {}", JacksonConfig.createMapper().writeValueAsString(jpaBundle));
+      log.warn(
+          "mr-anderson bundle is {}",
+          JacksonConfig.createMapper().writeValueAsString(mrAndersonBundle));
+    }
+    return mrAndersonBundle;
   }
 
   // PETERTODO not diagnostic-report specific

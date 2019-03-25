@@ -5,7 +5,6 @@ import gov.va.api.health.dataquery.service.controller.XmlDocuments.WriteFailed;
 import gov.va.api.health.ids.api.IdentityService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
