@@ -21,7 +21,6 @@ import org.xml.sax.SAXException;
 /** Utilities for working with XML documents. */
 @UtilityClass
 final class XmlDocuments {
-
   private static DOMImplementationRegistry createRegistryOrDie() {
     DOMImplementationRegistry registry;
     try {
@@ -86,14 +85,12 @@ final class XmlDocuments {
   }
 
   static class ParseFailed extends RuntimeException {
-
     ParseFailed(Exception cause) {
       super(cause);
     }
   }
 
   static class WriteFailed extends RuntimeException {
-
     WriteFailed(String message) {
       super(message);
     }

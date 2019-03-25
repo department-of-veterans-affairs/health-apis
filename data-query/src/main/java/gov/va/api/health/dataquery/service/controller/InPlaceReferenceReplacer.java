@@ -226,7 +226,6 @@ final class InPlaceReferenceReplacer {
 
   /** This interface defines a generic mechanism to process nodes. */
   private interface ReferenceNodeHandler {
-
     /** Return true if this handler can process the given node, otherwise false. */
     boolean isReference(Node node);
 
@@ -244,7 +243,6 @@ final class InPlaceReferenceReplacer {
    * <reference>resource/identity</reference>}. convention.
    */
   private static class NormalReferenceNodeHandler implements ReferenceNodeHandler {
-
     @Override
     public boolean isReference(Node node) {
       return "reference".equals(node.getNodeName());
@@ -265,7 +263,6 @@ final class InPlaceReferenceReplacer {
   @Value
   @Builder
   static class ReferencePair {
-
     String cdw;
 
     String universal;
@@ -276,7 +273,6 @@ final class InPlaceReferenceReplacer {
    * the resource type.
    */
   private class CdwIdReferenceNodeHandler implements ReferenceNodeHandler {
-
     @Override
     public boolean isReference(Node node) {
       return "cdwId".equals(node.getNodeName());
