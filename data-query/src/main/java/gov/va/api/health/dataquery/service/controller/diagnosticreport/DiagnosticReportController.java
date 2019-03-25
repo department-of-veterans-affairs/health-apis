@@ -168,20 +168,29 @@ public class DiagnosticReportController {
 
   @SneakyThrows
   private DiagnosticReport.Bundle jpaBundle(
-      MultiValueMap<String, String> originalParameters, int page, int count) {
+      MultiValueMap<String, String> publicParameters, int page, int count) {
     MultiValueMap<String, String> cdwParameters =
-        WitnessProtection.replacePublicIdsWithCdwIds(identityService, originalParameters);
+        WitnessProtection.replacePublicIdsWithCdwIds(identityService, publicParameters);
+    CdwDiagnosticReport102Root cdwRoot = cdwRoot(publicParameters, cdwParameters, page, count);
+    return bundle(
+        publicParameters,
+        page,
+        count,
+        totalRecordsCount(cdwParameters),
+        cdwRoot.getDiagnosticReports().getDiagnosticReport());
+  }
+
+  private CdwDiagnosticReport102Root cdwRoot(
+      MultiValueMap<String, String> publicParameters,
+      MultiValueMap<String, String> cdwParameters,
+      int page,
+      int count) {
     List<DiagnosticReportEntity> entities = queryForEntities(cdwParameters, page, count);
     String cdwXml = entitiesXml(entities);
     String publicXml =
         WitnessProtection.replaceCdwIdsWithPublicIds(
-            identityService, "DiagnosticReport", originalParameters, cdwXml);
-    return bundle(
-        originalParameters,
-        page,
-        count,
-        totalRecordsCount(cdwParameters),
-        cdwRootObject(publicXml).getDiagnosticReports().getDiagnosticReport());
+            identityService, "DiagnosticReport", publicParameters, cdwXml);
+    return cdwRootObject(publicXml);
   }
 
   // PETERTODO not diagnostic-report specific
@@ -210,13 +219,33 @@ public class DiagnosticReportController {
   }
 
   /** Read by identifier. */
+  @SneakyThrows
   @GetMapping(value = {"/{publicId}"})
   public DiagnosticReport read(@PathVariable("publicId") String publicId) {
-    // PETERTODO
-    return transformer.apply(
-        firstPayloadItem(
-            hasPayload(mrAndersonSearch(Parameters.forIdentity(publicId)).getDiagnosticReports())
-                .getDiagnosticReport()));
+    MultiValueMap<String, String> publicParameters = Parameters.forIdentity(publicId);
+    CdwDiagnosticReport102Root mrAndersonCdw = mrAndersonSearch(publicParameters);
+
+    MultiValueMap<String, String> cdwParameters =
+        WitnessProtection.replacePublicIdsWithCdwIds(identityService, publicParameters);
+    CdwDiagnosticReport102Root jpaCdw = cdwRoot(publicParameters, cdwParameters, 1, 15);
+
+    DiagnosticReport mrAndersonReport =
+        transformer.apply(
+            firstPayloadItem(
+                hasPayload(mrAndersonCdw.getDiagnosticReports()).getDiagnosticReport()));
+    DiagnosticReport jpaReport =
+        transformer.apply(
+            firstPayloadItem(hasPayload(jpaCdw.getDiagnosticReports()).getDiagnosticReport()));
+
+    if (!jpaReport.equals(mrAndersonReport)) {
+      log.warn("jpa read and mr-anderson read do not match.");
+      log.warn("jpa report is {}", JacksonConfig.createMapper().writeValueAsString(jpaReport));
+      log.warn(
+          "mr-anderson report is {}",
+          JacksonConfig.createMapper().writeValueAsString(mrAndersonReport));
+    }
+
+    return mrAndersonReport;
   }
 
   private CdwDiagnosticReport102Root mrAndersonSearch(MultiValueMap<String, String> params) {
