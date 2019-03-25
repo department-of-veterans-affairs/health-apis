@@ -321,14 +321,17 @@ public class DiagnosticReportController {
       @RequestParam("code") String code,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @RequestParam(value = "_count", defaultValue = "15") @Min(0) int count) {
-    // PETERTODO
-    return mrAndersonBundle(
+    MultiValueMap<String, String> parameters =
         Parameters.builder()
             .add("patient", patient)
             .add("code", code)
             .add("page", page)
             .add("_count", count)
-            .build(),
+            .build();
+    return searchOldAndNew(
+        "Select dr from DiagnosticReportEntity dr where dr.patientId is :patient and dr.code is :code",
+        "Select count(dr.id) from DiagnosticReportEntity dr where dr.patientId is :patient and dr.code is :code",
+        parameters,
         page,
         count);
   }
