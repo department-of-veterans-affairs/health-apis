@@ -73,6 +73,7 @@ public class DiagnosticReportController {
 
   @SneakyThrows
   private static CdwDiagnosticReport102Root cdwRootObject(String xml) {
+    // PETERTODO not diagnostic-report specific
     try (Reader reader = new StringReader(xml)) {
       return (CdwDiagnosticReport102Root)
           JAXBContext.newInstance(CdwDiagnosticReport102Root.class)
@@ -91,6 +92,7 @@ public class DiagnosticReportController {
     return "<root>" + allReports + "</root>";
   }
 
+  // PETERTODO not diagnostic-report specific
   private static void queryAddParameters(
       TypedQuery<?> query, MultiValueMap<String, String> parameters) {
     // PETERTODO examine all params and just skip page and _count
@@ -102,6 +104,7 @@ public class DiagnosticReportController {
     }
   }
 
+  // PETERTODO not diagnostic-report specific
   private static String queryTotal(MultiValueMap<String, String> parameters) {
     // PETERTODO refactor to top level
     if (parameters.containsKey("identifier")) {
@@ -114,10 +117,10 @@ public class DiagnosticReportController {
   }
 
   @SneakyThrows
-  private DiagnosticReport.Bundle bothWays(
+  private DiagnosticReport.Bundle searchOldAndNew(
       MultiValueMap<String, String> parameters, int page, int count) {
     DiagnosticReport.Bundle jpaBundle = jpaBundle(parameters, page, count);
-    DiagnosticReport.Bundle mrAndersonBundle = bundle(parameters, page, count);
+    DiagnosticReport.Bundle mrAndersonBundle = mrAndersonBundle(parameters, page, count);
     if (!jpaBundle.equals(mrAndersonBundle)) {
       log.warn("jpa-bundle and mr-anderson bundle do not match");
       log.warn("jpa-bundle is {}", JacksonConfig.createMapper().writeValueAsString(jpaBundle));
@@ -128,7 +131,7 @@ public class DiagnosticReportController {
     return mrAndersonBundle;
   }
 
-  private DiagnosticReport.Bundle bundle(
+  private DiagnosticReport.Bundle mrAndersonBundle(
       MultiValueMap<String, String> parameters, int page, int count) {
     CdwDiagnosticReport102Root cdwRoot = search(parameters);
     final List<CdwDiagnosticReport> reports =
@@ -179,17 +182,19 @@ public class DiagnosticReportController {
         cdwRootObject(publicXml).getDiagnosticReports().getDiagnosticReport());
   }
 
-  private String query(MultiValueMap<String, String> parameters) {
+  // PETERTODO not diagnostic-report specific
+  private String query(MultiValueMap<String, String> cdwParameters) {
     // PETERTODO refactor to top level
-    if (parameters.containsKey("identifier")) {
+    if (cdwParameters.containsKey("identifier")) {
       return "Select dr from DiagnosticReportEntity dr where dr.identifier is :identifier";
-    } else if (parameters.containsKey("patient")) {
+    } else if (cdwParameters.containsKey("patient")) {
       return "Select dr from DiagnosticReportEntity dr where dr.patientId is :patient";
     } else {
       throw new IllegalArgumentException("Cannot determine query");
     }
   }
 
+  // PETERTODO not diagnostic-report specific
   private List<DiagnosticReportEntity> queryForEntities(
       MultiValueMap<String, String> cdwParameters, int page, int count) {
     TypedQuery<DiagnosticReportEntity> jpqlQuery =
@@ -244,7 +249,7 @@ public class DiagnosticReportController {
             .add("page", page)
             .add("_count", count)
             .build();
-    return bothWays(parameters, page, count);
+    return searchOldAndNew(parameters, page, count);
   }
 
   /** Search by patient. */
@@ -255,7 +260,7 @@ public class DiagnosticReportController {
       @RequestParam(value = "_count", defaultValue = "15") @Min(0) int count) {
     MultiValueMap<String, String> parameters =
         Parameters.builder().add("patient", patient).add("page", page).add("_count", count).build();
-    return bothWays(parameters, page, count);
+    return searchOldAndNew(parameters, page, count);
   }
 
   /** Search by Patient+Category. */
@@ -266,7 +271,7 @@ public class DiagnosticReportController {
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @RequestParam(value = "_count", defaultValue = "15") @Min(0) int count) {
     // PETERTODO
-    return bundle(
+    return mrAndersonBundle(
         Parameters.builder()
             .add("patient", patient)
             .add("category", category)
@@ -287,7 +292,7 @@ public class DiagnosticReportController {
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @RequestParam(value = "_count", defaultValue = "15") @Min(0) int count) {
     // PETERTODO
-    return bundle(
+    return mrAndersonBundle(
         Parameters.builder()
             .add("patient", patient)
             .add("category", category)
@@ -307,7 +312,7 @@ public class DiagnosticReportController {
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @RequestParam(value = "_count", defaultValue = "15") @Min(0) int count) {
     // PETERTODO
-    return bundle(
+    return mrAndersonBundle(
         Parameters.builder()
             .add("patient", patient)
             .add("code", code)
