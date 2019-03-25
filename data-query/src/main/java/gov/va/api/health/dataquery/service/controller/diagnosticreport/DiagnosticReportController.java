@@ -22,7 +22,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.validation.Valid;
@@ -67,6 +66,22 @@ public class DiagnosticReportController {
 
   private Bundler bundler;
 
+  private static void addQueryParameters(
+      TypedQuery<?> query, MultiValueMap<String, String> parameters) {
+    if (parameters.containsKey("category")) {
+      query.setParameter("category", parameters.getFirst("category"));
+    }
+    if (parameters.containsKey("code")) {
+      query.setParameter("code", parameters.getFirst("code"));
+    }
+    if (parameters.containsKey("identifier")) {
+      query.setParameter("identifier", parameters.getFirst("identifier"));
+    }
+    if (parameters.containsKey("patient")) {
+      query.setParameter("patient", Long.valueOf(parameters.getFirst("patient")));
+    }
+  }
+
   private static String entitiesXml(List<DiagnosticReportEntity> entities) {
     String taggedReports =
         entities
@@ -100,21 +115,40 @@ public class DiagnosticReportController {
             DiagnosticReport.Bundle::new));
   }
 
-  private CdwDiagnosticReport102Root cdwRoot(
+  @SneakyThrows
+  private DiagnosticReport.Bundle jpaBundle(
+      String query,
+      String totalRecordsQuery,
+      MultiValueMap<String, String> publicParameters,
+      int page,
+      int count) {
+    MultiValueMap<String, String> cdwParameters =
+        witnessProtection.replacePublicIdsWithCdwIds(publicParameters);
+    CdwDiagnosticReport102Root cdwRoot =
+        jpaCdwRoot(query, publicParameters, cdwParameters, page, count);
+    return bundle(
+        publicParameters,
+        page,
+        count,
+        jpaQueryForTotalRecords(query, cdwParameters),
+        cdwRoot.getDiagnosticReports().getDiagnosticReport());
+  }
+
+  private CdwDiagnosticReport102Root jpaCdwRoot(
       String query,
       MultiValueMap<String, String> publicParameters,
       MultiValueMap<String, String> cdwParameters,
       int page,
       int count) {
     List<DiagnosticReportEntity> entities =
-        queryForEntities(query, cdwParameters, page, count, DiagnosticReportEntity.class);
+        jpaQueryForEntities(query, cdwParameters, page, count, DiagnosticReportEntity.class);
     String cdwXml = entitiesXml(entities);
     String publicXml =
         witnessProtection.replaceCdwIdsWithPublicIds("DiagnosticReport", publicParameters, cdwXml);
     return XmlDocuments.unmarshal(publicXml, CdwDiagnosticReport102Root.class);
   }
 
-  public <T> List<T> queryForEntities(
+  private <T> List<T> jpaQueryForEntities(
       String queryString,
       MultiValueMap<String, String> cdwParameters,
       int page,
@@ -129,53 +163,13 @@ public class DiagnosticReportController {
     return results;
   }
 
-  public int queryForTotalRecords(String queryString, MultiValueMap<String, String> cdwParameters) {
+  private int jpaQueryForTotalRecords(
+      String queryString, MultiValueMap<String, String> cdwParameters) {
     TypedQuery<Long> query = entityManager.createQuery(queryString, Long.class);
     addQueryParameters(query, cdwParameters);
     int totalRecords = query.getSingleResult().intValue();
     log.error("total records: " + totalRecords);
     return totalRecords;
-  }
-
-  @SneakyThrows
-  private DiagnosticReport.Bundle jpaBundle(
-      String query,
-      String totalRecordsQuery,
-      MultiValueMap<String, String> publicParameters,
-      int page,
-      int count) {
-    MultiValueMap<String, String> cdwParameters =
-        witnessProtection.replacePublicIdsWithCdwIds(publicParameters);
-    CdwDiagnosticReport102Root cdwRoot =
-        cdwRoot(query, publicParameters, cdwParameters, page, count);
-
-    return bundle(
-        publicParameters,
-        page,
-        count,
-        queryForTotalRecords(query, cdwParameters),
-        cdwRoot.getDiagnosticReports().getDiagnosticReport());
-  }
-
-  private static void addQueryParameters(
-      TypedQuery<?> query, MultiValueMap<String, String> parameters) {
-    if (parameters.containsKey("category")) {
-      query.setParameter("category", parameters.getFirst("category"));
-    }
-
-    if (parameters.containsKey("code")) {
-      query.setParameter("code", parameters.getFirst("code"));
-    }
-
-    //   PETERTODO date parameters require special consideration
-
-    if (parameters.containsKey("identifier")) {
-      query.setParameter("identifier", parameters.getFirst("identifier"));
-    }
-
-    if (parameters.containsKey("patient")) {
-      query.setParameter("patient", Long.valueOf(parameters.getFirst("patient")));
-    }
   }
 
   private DiagnosticReport.Bundle mrAndersonBundle(
@@ -204,19 +198,16 @@ public class DiagnosticReportController {
   @GetMapping(value = {"/{publicId}"})
   public DiagnosticReport read(@PathVariable("publicId") String publicId) {
     MultiValueMap<String, String> publicParameters = Parameters.forIdentity(publicId);
-
     CdwDiagnosticReport102Root mrAndersonCdw = mrAndersonSearch(publicParameters);
-
     MultiValueMap<String, String> cdwParameters =
         witnessProtection.replacePublicIdsWithCdwIds(publicParameters);
     CdwDiagnosticReport102Root jpaCdw =
-        cdwRoot(
+        jpaCdwRoot(
             "Select dr from DiagnosticReportEntity dr where dr.identifier is :identifier",
             publicParameters,
             cdwParameters,
             1,
             15);
-
     DiagnosticReport mrAndersonReport =
         transformer.apply(
             firstPayloadItem(
@@ -224,7 +215,6 @@ public class DiagnosticReportController {
     DiagnosticReport jpaReport =
         transformer.apply(
             firstPayloadItem(hasPayload(jpaCdw.getDiagnosticReports()).getDiagnosticReport()));
-
     if (!jpaReport.equals(mrAndersonReport)) {
       log.warn("jpa read and mr-anderson read do not match.");
       log.warn("jpa report is {}", JacksonConfig.createMapper().writeValueAsString(jpaReport));
@@ -287,14 +277,17 @@ public class DiagnosticReportController {
       @RequestParam("category") String category,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @RequestParam(value = "_count", defaultValue = "15") @Min(0) int count) {
-    // PETERTODO
-    return mrAndersonBundle(
+    MultiValueMap<String, String> parameters =
         Parameters.builder()
             .add("patient", patient)
             .add("category", category)
             .add("page", page)
             .add("_count", count)
-            .build(),
+            .build();
+    return searchOldAndNew(
+        "Select dr from DiagnosticReportEntity dr where dr.patientId is :patient and dr.category is :category",
+        "Select count(dr.id) from DiagnosticReportEntity dr where dr.patientId is :patient and dr.category is :category",
+        parameters,
         page,
         count);
   }
@@ -350,7 +343,6 @@ public class DiagnosticReportController {
     DiagnosticReport.Bundle jpaBundle =
         jpaBundle(query, totalRecordsQuery, parameters, page, count);
     DiagnosticReport.Bundle mrAndersonBundle = mrAndersonBundle(parameters, page, count);
-
     if (!jpaBundle.equals(mrAndersonBundle)) {
       log.warn(
           "jpa-bundle and mr-anderson bundle do not match. JPA found {} results and mr-anderson found {} results.",
@@ -361,7 +353,6 @@ public class DiagnosticReportController {
           "mr-anderson bundle is {}",
           JacksonConfig.createMapper().writeValueAsString(mrAndersonBundle));
     }
-
     return mrAndersonBundle;
   }
 

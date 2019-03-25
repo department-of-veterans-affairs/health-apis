@@ -10,7 +10,6 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import org.w3c.dom.DOMImplementation;
@@ -25,6 +24,7 @@ import org.xml.sax.SAXException;
 /** Utilities for working with XML documents. */
 @UtilityClass
 public final class XmlDocuments {
+
   private static DOMImplementationRegistry createRegistryOrDie() {
     DOMImplementationRegistry registry;
     try {
@@ -71,6 +71,14 @@ public final class XmlDocuments {
     }
   }
 
+  @SneakyThrows
+  @SuppressWarnings("unchecked")
+  public static <T> T unmarshal(String xml, Class<T> resultClass) {
+    try (Reader reader = new StringReader(xml)) {
+      return (T) JAXBContext.newInstance(resultClass).createUnmarshaller().unmarshal(reader);
+    }
+  }
+
   /**
    * Write the given Document as an indented XML string. A WriteFailed exception will be thrown if
    * the document cannot be written for some reason.
@@ -88,21 +96,15 @@ public final class XmlDocuments {
     return stringWriter.toString();
   }
 
-  @SneakyThrows
-  @SuppressWarnings("unchecked")
-  public static <T> T unmarshal(String xml, Class<T> resultClass) {
-    try (Reader reader = new StringReader(xml)) {
-      return (T) JAXBContext.newInstance(resultClass).createUnmarshaller().unmarshal(reader);
-    }
-  }
-
   static class ParseFailed extends RuntimeException {
+
     ParseFailed(Exception cause) {
       super(cause);
     }
   }
 
   static class WriteFailed extends RuntimeException {
+
     WriteFailed(String message) {
       super(message);
     }
