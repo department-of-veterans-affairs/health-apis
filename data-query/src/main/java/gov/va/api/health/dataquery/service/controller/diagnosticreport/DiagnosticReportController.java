@@ -66,7 +66,7 @@ public class DiagnosticReportController {
 
   private Bundler bundler;
 
-  private static void addQueryParameters(
+  private static void jpaAddQueryParameters(
       TypedQuery<?> query, MultiValueMap<String, String> parameters) {
     if (parameters.containsKey("category")) {
       query.setParameter("category", parameters.getFirst("category"));
@@ -82,7 +82,7 @@ public class DiagnosticReportController {
     }
   }
 
-  private static String entitiesXml(List<DiagnosticReportEntity> entities) {
+  private static String jpaEntitiesXml(List<DiagnosticReportEntity> entities) {
     String taggedReports =
         entities
             .stream()
@@ -130,7 +130,7 @@ public class DiagnosticReportController {
         publicParameters,
         page,
         count,
-        jpaQueryForTotalRecords(query, cdwParameters),
+        jpaQueryForTotalRecords(totalRecordsQuery, cdwParameters),
         cdwRoot.getDiagnosticReports().getDiagnosticReport());
   }
 
@@ -142,7 +142,7 @@ public class DiagnosticReportController {
       int count) {
     List<DiagnosticReportEntity> entities =
         jpaQueryForEntities(query, cdwParameters, page, count, DiagnosticReportEntity.class);
-    String cdwXml = entitiesXml(entities);
+    String cdwXml = jpaEntitiesXml(entities);
     String publicXml =
         witnessProtection.replaceCdwIdsWithPublicIds("DiagnosticReport", publicParameters, cdwXml);
     return XmlDocuments.unmarshal(publicXml, CdwDiagnosticReport102Root.class);
@@ -155,7 +155,7 @@ public class DiagnosticReportController {
       int count,
       Class<T> entityClass) {
     TypedQuery<T> query = entityManager.createQuery(queryString, entityClass);
-    addQueryParameters(query, cdwParameters);
+    jpaAddQueryParameters(query, cdwParameters);
     query.setFirstResult((page - 1) * count);
     query.setMaxResults(count);
     List<T> results = query.getResultList();
@@ -166,7 +166,7 @@ public class DiagnosticReportController {
   private int jpaQueryForTotalRecords(
       String queryString, MultiValueMap<String, String> cdwParameters) {
     TypedQuery<Long> query = entityManager.createQuery(queryString, Long.class);
-    addQueryParameters(query, cdwParameters);
+    jpaAddQueryParameters(query, cdwParameters);
     int totalRecords = query.getSingleResult().intValue();
     log.error("total records: " + totalRecords);
     return totalRecords;

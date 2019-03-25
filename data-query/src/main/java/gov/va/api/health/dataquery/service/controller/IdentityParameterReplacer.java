@@ -74,6 +74,7 @@ final class IdentityParameterReplacer {
     for (Entry<String, List<String>> entry : publicParameters.entrySet()) {
       if (!isIdentity(entry.getKey())) {
         results.addAll(aliasOf(entry.getKey()), entry.getValue());
+        continue;
       }
 
       for (String value : entry.getValue()) {
