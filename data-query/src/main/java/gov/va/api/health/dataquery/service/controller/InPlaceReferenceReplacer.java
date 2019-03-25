@@ -37,7 +37,6 @@ import org.w3c.dom.traversal.NodeIterator;
  */
 @Slf4j
 final class InPlaceReferenceReplacer {
-
   @NonNull private final IdentityService identityService;
 
   @NonNull private final String resource;

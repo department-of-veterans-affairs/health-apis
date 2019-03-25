@@ -15,7 +15,6 @@ import gov.va.api.health.dataquery.service.controller.Validator;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
 import gov.va.api.health.dataquery.service.mranderson.client.Query;
-import gov.va.api.health.ids.api.IdentityService;
 import gov.va.dvp.cdw.xsd.model.CdwDiagnosticReport102Root;
 import gov.va.dvp.cdw.xsd.model.CdwDiagnosticReport102Root.CdwDiagnosticReports.CdwDiagnosticReport;
 import java.io.Reader;
@@ -59,16 +58,15 @@ import org.springframework.web.bind.annotation.RestController;
 )
 @AllArgsConstructor(onConstructor = @__({@Autowired}))
 public class DiagnosticReportController {
-  // PETERTODO should inject witness protection as a component instead
-  private IdentityService identityService;
+  private MrAndersonClient mrAndersonClient;
+
+  private WitnessProtection witnessProtection;
+
+  private EntityManager entityManager;
 
   private Transformer transformer;
 
-  private MrAndersonClient mrAndersonClient;
-
   private Bundler bundler;
-
-  private EntityManager entityManager;
 
   @SneakyThrows
   private static CdwDiagnosticReport102Root cdwRootObject(String xml) {
@@ -170,7 +168,7 @@ public class DiagnosticReportController {
   private DiagnosticReport.Bundle jpaBundle(
       MultiValueMap<String, String> publicParameters, int page, int count) {
     MultiValueMap<String, String> cdwParameters =
-        WitnessProtection.replacePublicIdsWithCdwIds(identityService, publicParameters);
+        witnessProtection.replacePublicIdsWithCdwIds(publicParameters);
     CdwDiagnosticReport102Root cdwRoot = cdwRoot(publicParameters, cdwParameters, page, count);
     return bundle(
         publicParameters,
@@ -188,8 +186,7 @@ public class DiagnosticReportController {
     List<DiagnosticReportEntity> entities = queryForEntities(cdwParameters, page, count);
     String cdwXml = entitiesXml(entities);
     String publicXml =
-        WitnessProtection.replaceCdwIdsWithPublicIds(
-            identityService, "DiagnosticReport", publicParameters, cdwXml);
+        witnessProtection.replaceCdwIdsWithPublicIds("DiagnosticReport", publicParameters, cdwXml);
     return cdwRootObject(publicXml);
   }
 
@@ -226,7 +223,7 @@ public class DiagnosticReportController {
     CdwDiagnosticReport102Root mrAndersonCdw = mrAndersonSearch(publicParameters);
 
     MultiValueMap<String, String> cdwParameters =
-        WitnessProtection.replacePublicIdsWithCdwIds(identityService, publicParameters);
+        witnessProtection.replacePublicIdsWithCdwIds(publicParameters);
     CdwDiagnosticReport102Root jpaCdw = cdwRoot(publicParameters, cdwParameters, 1, 15);
 
     DiagnosticReport mrAndersonReport =
