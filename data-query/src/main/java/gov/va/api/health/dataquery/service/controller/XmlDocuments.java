@@ -1,13 +1,17 @@
 package gov.va.api.health.dataquery.service.controller;
 
 import java.io.IOException;
+import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
 import javax.xml.XMLConstants;
+import javax.xml.bind.JAXBContext;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+
+import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
@@ -20,7 +24,7 @@ import org.xml.sax.SAXException;
 
 /** Utilities for working with XML documents. */
 @UtilityClass
-final class XmlDocuments {
+public final class XmlDocuments {
   private static DOMImplementationRegistry createRegistryOrDie() {
     DOMImplementationRegistry registry;
     try {
@@ -53,7 +57,7 @@ final class XmlDocuments {
    * Parse the given XML into a Document model. A ParseFailed exception can be thrown if the
    * document cannot be read for any reason.
    */
-  static Document parse(String xml) {
+  public static Document parse(String xml) {
     try {
       DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
       factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
@@ -71,7 +75,7 @@ final class XmlDocuments {
    * Write the given Document as an indented XML string. A WriteFailed exception will be thrown if
    * the document cannot be written for some reason.
    */
-  static String write(Document document) {
+  public static String write(Document document) {
     DOMImplementationRegistry registry = createRegistryOrDie();
     DOMImplementationLS domImplementation = findLsDomImplementationOrDie(registry);
     Writer stringWriter = new StringWriter();
@@ -82,6 +86,14 @@ final class XmlDocuments {
     domSerializer.getDomConfig().setParameter("xml-declaration", true);
     domSerializer.write(document, formattedOutput);
     return stringWriter.toString();
+  }
+
+  @SneakyThrows
+  @SuppressWarnings("unchecked")
+  public static <T> T unmarshal(String xml, Class<T> resultClass) {
+    try (Reader reader = new StringReader(xml)) {
+      return (T) JAXBContext.newInstance(resultClass).createUnmarshaller().unmarshal(reader);
+    }
   }
 
   static class ParseFailed extends RuntimeException {

@@ -9,25 +9,25 @@ import gov.va.api.health.dataquery.api.resources.OperationOutcome;
 import gov.va.api.health.dataquery.service.controller.Bundler;
 import gov.va.api.health.dataquery.service.controller.Bundler.BundleContext;
 import gov.va.api.health.dataquery.service.controller.DateTimeParameter;
-import gov.va.api.health.dataquery.service.controller.JpaClient;
 import gov.va.api.health.dataquery.service.controller.PageLinks.LinkConfig;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.Validator;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
+import gov.va.api.health.dataquery.service.controller.XmlDocuments;
 import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
 import gov.va.api.health.dataquery.service.mranderson.client.Query;
 import gov.va.dvp.cdw.xsd.model.CdwDiagnosticReport102Root;
 import gov.va.dvp.cdw.xsd.model.CdwDiagnosticReport102Root.CdwDiagnosticReports.CdwDiagnosticReport;
-import java.io.Reader;
-import java.io.StringReader;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
-import javax.xml.bind.JAXBContext;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -61,22 +61,11 @@ public class DiagnosticReportController {
 
   private WitnessProtection witnessProtection;
 
-  private JpaClient jpaClient;
+  private EntityManager entityManager;
 
   private Transformer transformer;
 
   private Bundler bundler;
-
-  @SneakyThrows
-  private static CdwDiagnosticReport102Root cdwRootObject(String xml) {
-    // PETERTODO not diagnostic-report specific
-    try (Reader reader = new StringReader(xml)) {
-      return (CdwDiagnosticReport102Root)
-          JAXBContext.newInstance(CdwDiagnosticReport102Root.class)
-              .createUnmarshaller()
-              .unmarshal(reader);
-    }
-  }
 
   private static String entitiesXml(List<DiagnosticReportEntity> entities) {
     String taggedReports =
@@ -118,11 +107,34 @@ public class DiagnosticReportController {
       int page,
       int count) {
     List<DiagnosticReportEntity> entities =
-        jpaClient.queryForEntities(query, cdwParameters, page, count, DiagnosticReportEntity.class);
+        queryForEntities(query, cdwParameters, page, count, DiagnosticReportEntity.class);
     String cdwXml = entitiesXml(entities);
     String publicXml =
         witnessProtection.replaceCdwIdsWithPublicIds("DiagnosticReport", publicParameters, cdwXml);
-    return cdwRootObject(publicXml);
+    return XmlDocuments.unmarshal(publicXml, CdwDiagnosticReport102Root.class);
+  }
+
+  public <T> List<T> queryForEntities(
+      String queryString,
+      MultiValueMap<String, String> cdwParameters,
+      int page,
+      int count,
+      Class<T> entityClass) {
+    TypedQuery<T> query = entityManager.createQuery(queryString, entityClass);
+    addQueryParameters(query, cdwParameters);
+    query.setFirstResult((page - 1) * count);
+    query.setMaxResults(count);
+    List<T> results = query.getResultList();
+    log.error("Found {} entities for parameters {}", results.size(), cdwParameters);
+    return results;
+  }
+
+  public int queryForTotalRecords(String queryString, MultiValueMap<String, String> cdwParameters) {
+    TypedQuery<Long> query = entityManager.createQuery(queryString, Long.class);
+    addQueryParameters(query, cdwParameters);
+    int totalRecords = query.getSingleResult().intValue();
+    log.error("total records: " + totalRecords);
+    return totalRecords;
   }
 
   @SneakyThrows
@@ -136,12 +148,34 @@ public class DiagnosticReportController {
         witnessProtection.replacePublicIdsWithCdwIds(publicParameters);
     CdwDiagnosticReport102Root cdwRoot =
         cdwRoot(query, publicParameters, cdwParameters, page, count);
+
     return bundle(
         publicParameters,
         page,
         count,
-        jpaClient.queryForTotalRecords(query, cdwParameters),
+        queryForTotalRecords(query, cdwParameters),
         cdwRoot.getDiagnosticReports().getDiagnosticReport());
+  }
+
+  private static void addQueryParameters(
+      TypedQuery<?> query, MultiValueMap<String, String> parameters) {
+    if (parameters.containsKey("category")) {
+      query.setParameter("category", parameters.getFirst("category"));
+    }
+
+    if (parameters.containsKey("code")) {
+      query.setParameter("code", parameters.getFirst("code"));
+    }
+
+    //   PETERTODO date parameters require special consideration
+
+    if (parameters.containsKey("identifier")) {
+      query.setParameter("identifier", parameters.getFirst("identifier"));
+    }
+
+    if (parameters.containsKey("patient")) {
+      query.setParameter("patient", Long.valueOf(parameters.getFirst("patient")));
+    }
   }
 
   private DiagnosticReport.Bundle mrAndersonBundle(
