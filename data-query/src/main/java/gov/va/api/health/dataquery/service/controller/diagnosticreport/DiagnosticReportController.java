@@ -59,7 +59,6 @@ import org.springframework.web.bind.annotation.RestController;
 )
 @AllArgsConstructor(onConstructor = @__({@Autowired}))
 public class DiagnosticReportController {
-
   // PETERTODO should inject witness protection as a component instead
   private IdentityService identityService;
 
@@ -122,7 +121,10 @@ public class DiagnosticReportController {
     DiagnosticReport.Bundle jpaBundle = jpaBundle(parameters, page, count);
     DiagnosticReport.Bundle mrAndersonBundle = mrAndersonBundle(parameters, page, count);
     if (!jpaBundle.equals(mrAndersonBundle)) {
-      log.warn("jpa-bundle and mr-anderson bundle do not match");
+      log.warn(
+          "jpa-bundle and mr-anderson bundle do not match. JPA found {} results and mr-anderson found {} results.",
+          jpaBundle.total(),
+          mrAndersonBundle.total());
       log.warn("jpa-bundle is {}", JacksonConfig.createMapper().writeValueAsString(jpaBundle));
       log.warn(
           "mr-anderson bundle is {}",
@@ -133,7 +135,7 @@ public class DiagnosticReportController {
 
   private DiagnosticReport.Bundle mrAndersonBundle(
       MultiValueMap<String, String> parameters, int page, int count) {
-    CdwDiagnosticReport102Root cdwRoot = search(parameters);
+    CdwDiagnosticReport102Root cdwRoot = mrAndersonSearch(parameters);
     final List<CdwDiagnosticReport> reports =
         cdwRoot.getDiagnosticReports() == null
             ? Collections.emptyList()
@@ -213,11 +215,11 @@ public class DiagnosticReportController {
     // PETERTODO
     return transformer.apply(
         firstPayloadItem(
-            hasPayload(search(Parameters.forIdentity(publicId)).getDiagnosticReports())
+            hasPayload(mrAndersonSearch(Parameters.forIdentity(publicId)).getDiagnosticReports())
                 .getDiagnosticReport()));
   }
 
-  private CdwDiagnosticReport102Root search(MultiValueMap<String, String> params) {
+  private CdwDiagnosticReport102Root mrAndersonSearch(MultiValueMap<String, String> params) {
     Query<CdwDiagnosticReport102Root> query =
         Query.forType(CdwDiagnosticReport102Root.class)
             .profile(Query.Profile.ARGONAUT)
@@ -323,6 +325,7 @@ public class DiagnosticReportController {
         count);
   }
 
+  // PETERTODO not diagnostic-report specific
   private int totalRecordsCount(MultiValueMap<String, String> protectedParameters) {
     TypedQuery<Long> totalQuery =
         entityManager.createQuery(queryTotal(protectedParameters), Long.class);
