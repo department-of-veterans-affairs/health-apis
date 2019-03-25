@@ -14,13 +14,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.util.MultiValueMap;
 
-/** Leverages the Identity Service to replace _identifier_ type parameters. */
+/** Leverages Identity Service to replace _identifier_ type parameters. */
 final class IdentityParameterReplacer {
   @NonNull private final IdentityService identityService;
 
-  private final Set<String> identityKeys;
+  @NonNull private final Set<String> identityKeys;
 
-  private final Map<String, String> aliases;
+  @NonNull private final Map<String, String> aliases;
 
   @Builder
   private IdentityParameterReplacer(
@@ -29,7 +29,7 @@ final class IdentityParameterReplacer {
       @Singular List<Pair<String, String>> aliases) {
     this.identityService = identityService;
     this.identityKeys = identityKeys;
-    // @Singular Map<String, String> emits a compiler warning from the Lombok code (??)
+    // @Singular Map<String, String> emits a compiler warning from the Lombok code (?)
     // List of pairs is a workaround.
     this.aliases =
         aliases
@@ -62,26 +62,27 @@ final class IdentityParameterReplacer {
 
   /**
    * Return a new Query that matches the given original query except identity type parameters will
-   * have been replaced with CDW identity values returned for the Identity Service.
+   * have been replaced with CDW identity values returned from the Identity Service.
    */
   MultiValueMap<String, String> rebuildWithCdwIdentities(
-      MultiValueMap<String, String> originalParameters) {
-    if (originalParameters == null) {
+      MultiValueMap<String, String> publicParameters) {
+    if (publicParameters == null) {
       return Parameters.empty();
     }
-    Parameters parameters = Parameters.builder();
-    for (Entry<String, List<String>> entry : originalParameters.entrySet()) {
-      if (isIdentity(entry.getKey())) {
-        for (String value : entry.getValue()) {
-          if (StringUtils.isBlank(value)) {
-            throw new WitnessProtection.MissingSearchParameters(originalParameters);
-          }
-          parameters.add(aliasOf(entry.getKey()), lookupCdwId(value));
+
+    Parameters results = Parameters.builder();
+    for (Entry<String, List<String>> entry : publicParameters.entrySet()) {
+      if (!isIdentity(entry.getKey())) {
+        results.addAll(aliasOf(entry.getKey()), entry.getValue());
+      }
+
+      for (String value : entry.getValue()) {
+        if (StringUtils.isBlank(value)) {
+          throw new ResourceExceptions.MissingSearchParameters(publicParameters);
         }
-      } else {
-        parameters.addAll(aliasOf(entry.getKey()), entry.getValue());
+        results.add(aliasOf(entry.getKey()), lookupCdwId(value));
       }
     }
-    return parameters.build();
+    return results.build();
   }
 }

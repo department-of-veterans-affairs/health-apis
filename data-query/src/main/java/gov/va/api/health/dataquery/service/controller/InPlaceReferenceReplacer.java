@@ -1,15 +1,18 @@
 package gov.va.api.health.dataquery.service.controller;
 
-import gov.va.api.health.dataquery.service.controller.ResourceIdentities.ReferencePair;
 import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import lombok.Builder;
+import lombok.NonNull;
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.w3c.dom.Document;
@@ -33,14 +36,15 @@ import org.w3c.dom.traversal.NodeIterator;
  * values.
  */
 @Slf4j
-class InPlaceReferenceReplacer {
-  private final String resource;
+final class InPlaceReferenceReplacer {
 
-  private final MultiValueMap<String, String> parameters;
+  @NonNull private final IdentityService identityService;
 
-  private final Document document;
+  @NonNull private final String resource;
 
-  private final IdentityService identityService;
+  @NonNull private final MultiValueMap<String, String> parameters;
+
+  @NonNull private final Document document;
 
   private final List<ReferenceNodeHandler> handlers =
       Arrays.asList(new NormalReferenceNodeHandler(), new CdwIdReferenceNodeHandler());
@@ -55,6 +59,78 @@ class InPlaceReferenceReplacer {
     this.parameters = parameters;
     this.document = document;
     this.identityService = identityService;
+  }
+
+  /**
+   * Given a FHIR name, magically turn it into an Identity Service name. For example,
+   *
+   * <pre>
+   * Patient -> PATIENT
+   * AllergyIntolerance -> ALLERGY_INTOLERANCE
+   * </pre>
+   */
+  static String fhirToIdentityService(String fhirName) {
+    return Arrays.stream(StringUtils.splitByCharacterTypeCamelCase(fhirName))
+        .map(s -> s.toUpperCase(Locale.ENGLISH))
+        .collect(Collectors.joining("_"));
+  }
+
+  /**
+   * Extract the CDW identity from the possible identities in the given registration. An error is
+   * thrown if a CDW id cannot be found.
+   */
+  private static ResourceIdentity findCdwIdentity(@NonNull Registration registration) {
+    return registration
+        .resourceIdentities()
+        .stream()
+        .filter(InPlaceReferenceReplacer::isCdw)
+        .findFirst()
+        .orElseThrow(() -> new IllegalArgumentException("No CDW identity for: " + registration));
+  }
+
+  /**
+   * Given an Identity Service name, magically turn it into a FHIR name. For example,
+   *
+   * <pre>
+   * PATIENT -> Patient
+   * ALLERGY_INTOLERANCE -> AllergyIntolerance
+   * </pre>
+   */
+  static String identityServiceToFhir(String identityServiceName) {
+    return Arrays.stream(StringUtils.splitByWholeSeparator(identityServiceName, "_"))
+        .map(s -> StringUtils.capitalize(s.toLowerCase(Locale.ENGLISH)))
+        .collect(Collectors.joining());
+  }
+
+  /** Return true if the given identity belongs to the CDW system. */
+  static boolean isCdw(@NonNull ResourceIdentity identity) {
+    return "CDW".equals(identity.system());
+  }
+
+  /** Convert the 'resource/identity' reference into a CDW Resource Identity instance. */
+  static ResourceIdentity referenceToResourceIdentity(@NonNull String typeSlashId) {
+    String[] parts = typeSlashId.split("/");
+    if (parts.length != 2) {
+      throw new IllegalArgumentException(
+          "Invalid reference. Expected resource/identity. Got: " + typeSlashId);
+    }
+    String type = parts[0];
+    String id = parts[1];
+    return ResourceIdentity.builder()
+        .system("CDW")
+        .resource(fhirToIdentityService(type))
+        .identifier(id)
+        .build();
+  }
+
+  /** Create reference pairs of CDW and Universal identities in the `resource/identity` form. */
+  static ReferencePair referencesOf(@NonNull Registration registration) {
+    ResourceIdentity identity = findCdwIdentity(registration);
+    String resource = identityServiceToFhir(identity.resource());
+    return ReferencePair.builder()
+        .cdw(resource + "/" + identity.identifier())
+        .universal(resource + "/" + registration.uuid())
+        .build();
   }
 
   /**
@@ -115,7 +191,7 @@ class InPlaceReferenceReplacer {
         referenceNodes
             .keySet()
             .stream()
-            .map(ResourceIdentities::referenceToResourceIdentity)
+            .map(InPlaceReferenceReplacer::referenceToResourceIdentity)
             .collect(Collectors.toList());
     return identityService.register(identities);
   }
@@ -123,7 +199,7 @@ class InPlaceReferenceReplacer {
   private Consumer<? super Registration> replaceReference(
       MultiValueMap<String, Node> referenceNodes) {
     return (registration) -> {
-      ReferencePair reference = ResourceIdentities.referencesOf(registration);
+      ReferencePair reference = referencesOf(registration);
       List<Node> nodes = referenceNodes.get(reference.cdw());
       if (nodes == null) {
         log.warn(
@@ -151,6 +227,7 @@ class InPlaceReferenceReplacer {
 
   /** This interface defines a generic mechanism to process nodes. */
   private interface ReferenceNodeHandler {
+
     /** Return true if this handler can process the given node, otherwise false. */
     boolean isReference(Node node);
 
@@ -168,6 +245,7 @@ class InPlaceReferenceReplacer {
    * <reference>resource/identity</reference>}. convention.
    */
   private static class NormalReferenceNodeHandler implements ReferenceNodeHandler {
+
     @Override
     public boolean isReference(Node node) {
       return "reference".equals(node.getNodeName());
@@ -184,11 +262,22 @@ class InPlaceReferenceReplacer {
     }
   }
 
+  /** A pair of references that represent the same object, in the `resource/identity` form. */
+  @Value
+  @Builder
+  static class ReferencePair {
+
+    String cdw;
+
+    String universal;
+  }
+
   /**
    * Handler for {@code <cdwId>identity</cdwId>} nodes. The Query object will be used to determine
    * the resource type.
    */
   private class CdwIdReferenceNodeHandler implements ReferenceNodeHandler {
+
     @Override
     public boolean isReference(Node node) {
       return "cdwId".equals(node.getNodeName());
@@ -203,7 +292,7 @@ class InPlaceReferenceReplacer {
     public void updateReference(Node node, String reference) {
       int slash = reference.indexOf('/');
       if (slash < 0 || slash == reference.length() - 2) {
-        throw new WitnessProtection.SearchFailed(
+        throw new ResourceExceptions.SearchFailed(
             parameters, "Do not understand registration value: " + reference);
       }
       node.setTextContent(reference.substring(slash + 1));

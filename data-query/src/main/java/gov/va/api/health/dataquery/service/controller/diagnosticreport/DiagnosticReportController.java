@@ -13,8 +13,6 @@ import gov.va.api.health.dataquery.service.controller.PageLinks.LinkConfig;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.Validator;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
-import gov.va.api.health.dataquery.service.controller.XmlDocuments;
-import gov.va.api.health.dataquery.service.controller.XmlDocuments.WriteFailed;
 import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
 import gov.va.api.health.dataquery.service.mranderson.client.Query;
 import gov.va.api.health.ids.api.IdentityService;
@@ -32,7 +30,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
 import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Unmarshaller;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -46,7 +43,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.w3c.dom.Document;
 
 /**
  * Request Mappings for Diagnostic Report Profile, see
@@ -76,22 +72,58 @@ public class DiagnosticReportController {
   private EntityManager entityManager;
 
   @SneakyThrows
+  private static CdwDiagnosticReport102Root cdwRootObject(String xml) {
+    try (Reader reader = new StringReader(xml)) {
+      return (CdwDiagnosticReport102Root)
+          JAXBContext.newInstance(CdwDiagnosticReport102Root.class)
+              .createUnmarshaller()
+              .unmarshal(reader);
+    }
+  }
+
+  private static String entitiesXml(List<DiagnosticReportEntity> entities) {
+    String taggedReports =
+        entities
+            .stream()
+            .map(entity -> "<diagnosticReport>" + entity.document() + "</diagnosticReport>")
+            .collect(Collectors.joining());
+    String allReports = "<diagnosticReports>" + taggedReports + "</diagnosticReports>";
+    return "<root>" + allReports + "</root>";
+  }
+
+  private static void queryAddParameters(
+      TypedQuery<?> query, MultiValueMap<String, String> parameters) {
+    // PETERTODO examine all params and just skip page and _count
+    if (parameters.containsKey("identifier")) {
+      query.setParameter("identifier", parameters.getFirst("identifier"));
+    }
+    if (parameters.containsKey("patient")) {
+      query.setParameter("patient", Long.valueOf(parameters.getFirst("patient")));
+    }
+  }
+
+  private static String queryTotal(MultiValueMap<String, String> parameters) {
+    // PETERTODO refactor to top level
+    if (parameters.containsKey("identifier")) {
+      return "Select count(dr.id) from DiagnosticReportEntity dr where dr.identifier is :identifier";
+    } else if (parameters.containsKey("patient")) {
+      return "Select count(dr.id) from DiagnosticReportEntity dr where dr.patientId is :patient";
+    } else {
+      throw new IllegalArgumentException("Cannot determine total-query");
+    }
+  }
+
+  @SneakyThrows
   private DiagnosticReport.Bundle bothWays(
       MultiValueMap<String, String> parameters, int page, int count) {
     DiagnosticReport.Bundle jpaBundle = jpaBundle(parameters, page, count);
     DiagnosticReport.Bundle mrAndersonBundle = bundle(parameters, page, count);
     if (!jpaBundle.equals(mrAndersonBundle)) {
-      log.error("jpa-bundle and mr-anderson bundle do not match");
-      log.error(
-          "jpa-bundle is {}",
-          JacksonConfig.createMapper()
-              .writerWithDefaultPrettyPrinter()
-              .writeValueAsString(jpaBundle));
-      log.error(
+      log.warn("jpa-bundle and mr-anderson bundle do not match");
+      log.warn("jpa-bundle is {}", JacksonConfig.createMapper().writeValueAsString(jpaBundle));
+      log.warn(
           "mr-anderson bundle is {}",
-          JacksonConfig.createMapper()
-              .writerWithDefaultPrettyPrinter()
-              .writeValueAsString(mrAndersonBundle));
+          JacksonConfig.createMapper().writeValueAsString(mrAndersonBundle));
     }
     return mrAndersonBundle;
   }
@@ -131,56 +163,20 @@ public class DiagnosticReportController {
 
   @SneakyThrows
   private DiagnosticReport.Bundle jpaBundle(
-      MultiValueMap<String, String> parameters, int page, int count) {
-    log.error("original parameters: {}", parameters);
-    MultiValueMap<String, String> protectedParameters =
-        WitnessProtection.replacePublicIdsWithCdwIds(identityService, parameters);
-    log.error("witness-protected parameters: {}", protectedParameters);
-
-    TypedQuery<Long> totalQuery =
-        entityManager.createQuery(queryTotal(protectedParameters), Long.class);
-    queryAddParameters(totalQuery, protectedParameters);
-    int totalRecords = totalQuery.getSingleResult().intValue();
-    log.error("total records: " + totalRecords);
-
-    TypedQuery<DiagnosticReportEntity> jpqlQuery =
-        entityManager.createQuery(query(protectedParameters), DiagnosticReportEntity.class);
-    jpqlQuery.setFirstResult((page - 1) * count);
-    jpqlQuery.setMaxResults(count);
-    queryAddParameters(jpqlQuery, protectedParameters);
-    List<DiagnosticReportEntity> entities = jpqlQuery.getResultList();
-
-    log.error(
-        "Diagnostic reports for identifier {} are {}",
-        protectedParameters.getFirst("identifier"),
-        entities);
-
-    String taggedReports =
-        entities
-            .stream()
-            .map(entity -> "<diagnosticReport>" + entity.document() + "</diagnosticReport>")
-            .collect(Collectors.joining());
-    String allReports = "<diagnosticReports>" + taggedReports + "</diagnosticReports>";
-    String rootDocument = "<root>" + allReports + "</root>";
-
-    Document xml = WitnessProtection.parse(parameters, rootDocument);
-    xml =
+      MultiValueMap<String, String> originalParameters, int page, int count) {
+    MultiValueMap<String, String> cdwParameters =
+        WitnessProtection.replacePublicIdsWithCdwIds(identityService, originalParameters);
+    List<DiagnosticReportEntity> entities = queryForEntities(cdwParameters, page, count);
+    String cdwXml = entitiesXml(entities);
+    String publicXml =
         WitnessProtection.replaceCdwIdsWithPublicIds(
-            identityService, "DiagnosticReport", parameters, xml);
-    String protectedDocument = write(parameters, xml);
-
-    try (Reader reader = new StringReader(protectedDocument)) {
-      JAXBContext jaxbContext = JAXBContext.newInstance(CdwDiagnosticReport102Root.class);
-      Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-      CdwDiagnosticReport102Root sampleReports =
-          (CdwDiagnosticReport102Root) jaxbUnmarshaller.unmarshal(reader);
-      return bundle(
-          parameters,
-          page,
-          count,
-          totalRecords,
-          sampleReports.getDiagnosticReports().getDiagnosticReport());
-    }
+            identityService, "DiagnosticReport", originalParameters, cdwXml);
+    return bundle(
+        originalParameters,
+        page,
+        count,
+        totalRecordsCount(cdwParameters),
+        cdwRootObject(publicXml).getDiagnosticReports().getDiagnosticReport());
   }
 
   private String query(MultiValueMap<String, String> parameters) {
@@ -194,25 +190,16 @@ public class DiagnosticReportController {
     }
   }
 
-  private void queryAddParameters(TypedQuery<?> query, MultiValueMap<String, String> parameters) {
-    // PETERTODO examine all params and just skip page and _count
-    if (parameters.containsKey("identifier")) {
-      query.setParameter("identifier", parameters.getFirst("identifier"));
-    }
-    if (parameters.containsKey("patient")) {
-      query.setParameter("patient", Long.valueOf(parameters.getFirst("patient")));
-    }
-  }
-
-  private String queryTotal(MultiValueMap<String, String> parameters) {
-    // PETERTODO refactor to top level
-    if (parameters.containsKey("identifier")) {
-      return "Select count(dr.id) from DiagnosticReportEntity dr where dr.identifier is :identifier";
-    } else if (parameters.containsKey("patient")) {
-      return "Select count(dr.id) from DiagnosticReportEntity dr where dr.patientId is :patient";
-    } else {
-      throw new IllegalArgumentException("Cannot determine total-query");
-    }
+  private List<DiagnosticReportEntity> queryForEntities(
+      MultiValueMap<String, String> cdwParameters, int page, int count) {
+    TypedQuery<DiagnosticReportEntity> jpqlQuery =
+        entityManager.createQuery(query(cdwParameters), DiagnosticReportEntity.class);
+    jpqlQuery.setFirstResult((page - 1) * count);
+    jpqlQuery.setMaxResults(count);
+    queryAddParameters(jpqlQuery, cdwParameters);
+    List<DiagnosticReportEntity> results = jpqlQuery.getResultList();
+    log.error("Found {} diagnostic reports for parameters {}", results.size(), cdwParameters);
+    return results;
   }
 
   /** Read by identifier. */
@@ -331,6 +318,15 @@ public class DiagnosticReportController {
         count);
   }
 
+  private int totalRecordsCount(MultiValueMap<String, String> protectedParameters) {
+    TypedQuery<Long> totalQuery =
+        entityManager.createQuery(queryTotal(protectedParameters), Long.class);
+    queryAddParameters(totalQuery, protectedParameters);
+    int totalRecords = totalQuery.getSingleResult().intValue();
+    log.error("total records: " + totalRecords);
+    return totalRecords;
+  }
+
   /** Validate Endpoint. */
   @PostMapping(
     value = "/$validate",
@@ -338,15 +334,6 @@ public class DiagnosticReportController {
   )
   public OperationOutcome validate(@RequestBody DiagnosticReport.Bundle bundle) {
     return Validator.create().validate(bundle);
-  }
-
-  private String write(MultiValueMap<String, String> parameters, Document xml) {
-    try {
-      return XmlDocuments.create().write(xml);
-    } catch (WriteFailed e) {
-      log.error("Failed to write XML: {}", e.getMessage());
-      throw new WitnessProtection.SearchFailed(parameters, e);
-    }
   }
 
   public interface Transformer extends Function<CdwDiagnosticReport, DiagnosticReport> {}

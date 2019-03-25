@@ -25,6 +25,8 @@ public class JaxbRestTemplateConfig {
   @WithJaxb
   public RestTemplate jaxbRestTemplate(@Autowired RestTemplateBuilder restTemplateBuilder) {
     RestTemplate restTemplate = secureConfig.restTemplate(restTemplateBuilder);
+    // The default Jackson converter also supports XML messages.
+    // Put the JAXB converter at the head of the list, so that will be used for XML instead.
     restTemplate.getMessageConverters().add(0, new Jaxb2RootElementHttpMessageConverter());
     return restTemplate;
   }
