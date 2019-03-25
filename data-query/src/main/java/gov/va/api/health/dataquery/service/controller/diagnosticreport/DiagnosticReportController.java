@@ -30,6 +30,7 @@ import javax.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
@@ -37,6 +38,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -140,26 +142,25 @@ public class DiagnosticReportController {
       MultiValueMap<String, String> cdwParameters,
       int page,
       int count) {
-    List<DiagnosticReportEntity> entities =
-        jpaQueryForEntities(query, cdwParameters, page, count, DiagnosticReportEntity.class);
+    List<DiagnosticReportEntity> entities = jpaQueryForEntities(query, cdwParameters, page, count);
     String cdwXml = jpaEntitiesXml(entities);
     String publicXml =
         witnessProtection.replaceCdwIdsWithPublicIds("DiagnosticReport", publicParameters, cdwXml);
     return XmlDocuments.unmarshal(publicXml, CdwDiagnosticReport102Root.class);
   }
 
-  private <T> List<T> jpaQueryForEntities(
-      String queryString,
-      MultiValueMap<String, String> cdwParameters,
-      int page,
-      int count,
-      Class<T> entityClass) {
-    TypedQuery<T> query = entityManager.createQuery(queryString, entityClass);
+  private List<DiagnosticReportEntity> jpaQueryForEntities(
+      String queryString, MultiValueMap<String, String> cdwParameters, int page, int count) {
+    TypedQuery<DiagnosticReportEntity> query =
+        entityManager.createQuery(queryString, DiagnosticReportEntity.class);
     jpaAddQueryParameters(query, cdwParameters);
     query.setFirstResult((page - 1) * count);
     query.setMaxResults(count);
-    List<T> results = query.getResultList();
-    log.error("Found {} entities for parameters {}", results.size(), cdwParameters);
+    List<DiagnosticReportEntity> results = query.getResultList();
+    log.info(
+        "For parameters {}, found entities with ids {}.",
+        cdwParameters,
+        results.stream().map(entity -> entity.id()).collect(Collectors.toList()));
     return results;
   }
 
@@ -170,6 +171,21 @@ public class DiagnosticReportController {
     int totalRecords = query.getSingleResult().intValue();
     log.error("total records: " + totalRecords);
     return totalRecords;
+  }
+
+  private DiagnosticReport jpaRead(String publicId) {
+    MultiValueMap<String, String> publicParameters = Parameters.forIdentity(publicId);
+    MultiValueMap<String, String> cdwParameters =
+        witnessProtection.replacePublicIdsWithCdwIds(publicParameters);
+    CdwDiagnosticReport102Root jpaCdw =
+        jpaCdwRoot(
+            "Select dr from DiagnosticReportEntity dr where dr.identifier is :identifier",
+            publicParameters,
+            cdwParameters,
+            1,
+            15);
+    return transformer.apply(
+        firstPayloadItem(hasPayload(jpaCdw.getDiagnosticReports()).getDiagnosticReport()));
   }
 
   private DiagnosticReport.Bundle mrAndersonBundle(
@@ -196,47 +212,47 @@ public class DiagnosticReportController {
   /** Read by identifier. */
   @SneakyThrows
   @GetMapping(value = {"/{publicId}"})
-  public DiagnosticReport read(@PathVariable("publicId") String publicId) {
-    MultiValueMap<String, String> publicParameters = Parameters.forIdentity(publicId);
-    CdwDiagnosticReport102Root mrAndersonCdw = mrAndersonSearch(publicParameters);
-    MultiValueMap<String, String> cdwParameters =
-        witnessProtection.replacePublicIdsWithCdwIds(publicParameters);
-    CdwDiagnosticReport102Root jpaCdw =
-        jpaCdwRoot(
-            "Select dr from DiagnosticReportEntity dr where dr.identifier is :identifier",
-            publicParameters,
-            cdwParameters,
-            1,
-            15);
+  public DiagnosticReport read(
+      @RequestHeader(value = "Database-2-0-Mode") String database20Mode,
+      @PathVariable("publicId") String publicId) {
+    if (BooleanUtils.isTrue(BooleanUtils.toBooleanObject(database20Mode))) {
+      return jpaRead(publicId);
+    }
+
+    CdwDiagnosticReport102Root mrAndersonCdw = mrAndersonSearch(Parameters.forIdentity(publicId));
     DiagnosticReport mrAndersonReport =
         transformer.apply(
             firstPayloadItem(
                 hasPayload(mrAndersonCdw.getDiagnosticReports()).getDiagnosticReport()));
-    DiagnosticReport jpaReport =
-        transformer.apply(
-            firstPayloadItem(hasPayload(jpaCdw.getDiagnosticReports()).getDiagnosticReport()));
-    if (!jpaReport.equals(mrAndersonReport)) {
-      log.warn("jpa read and mr-anderson read do not match.");
-      log.warn("jpa report is {}", JacksonConfig.createMapper().writeValueAsString(jpaReport));
-      log.warn(
-          "mr-anderson report is {}",
-          JacksonConfig.createMapper().writeValueAsString(mrAndersonReport));
+
+    if ("both".equalsIgnoreCase(database20Mode)) {
+      DiagnosticReport jpaReport = jpaRead(publicId);
+      if (!jpaReport.equals(mrAndersonReport)) {
+        log.warn("jpa read and mr-anderson read do not match.");
+        log.warn("jpa report is {}", JacksonConfig.createMapper().writeValueAsString(jpaReport));
+        log.warn(
+            "mr-anderson report is {}",
+            JacksonConfig.createMapper().writeValueAsString(mrAndersonReport));
+      }
     }
+
     return mrAndersonReport;
   }
 
   /** Search by _id. */
   @GetMapping(params = {"_id"})
   public DiagnosticReport.Bundle searchById(
+      @RequestHeader(value = "Database-2-0-Mode") String database20Mode,
       @RequestParam("_id") String id,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @RequestParam(value = "_count", defaultValue = "15") @Min(0) int count) {
-    return searchByIdentifier(id, page, count);
+    return searchByIdentifier(database20Mode, id, page, count);
   }
 
   /** Search by identifier. */
   @GetMapping(params = {"identifier"})
   public DiagnosticReport.Bundle searchByIdentifier(
+      @RequestHeader(value = "Database-2-0-Mode") String database20Mode,
       @RequestParam("identifier") String identifier,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @RequestParam(value = "_count", defaultValue = "15") @Min(0) int count) {
@@ -246,7 +262,8 @@ public class DiagnosticReportController {
             .add("page", page)
             .add("_count", count)
             .build();
-    return searchOldAndNew(
+    return searchOldOrNew(
+        database20Mode,
         "Select dr from DiagnosticReportEntity dr where dr.identifier is :identifier",
         "Select count(dr.id) from DiagnosticReportEntity dr where dr.identifier is :identifier",
         parameters,
@@ -257,12 +274,14 @@ public class DiagnosticReportController {
   /** Search by patient. */
   @GetMapping(params = {"patient"})
   public DiagnosticReport.Bundle searchByPatient(
+      @RequestHeader(value = "Database-2-0-Mode") String database20Mode,
       @RequestParam("patient") String patient,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @RequestParam(value = "_count", defaultValue = "15") @Min(0) int count) {
     MultiValueMap<String, String> parameters =
         Parameters.builder().add("patient", patient).add("page", page).add("_count", count).build();
-    return searchOldAndNew(
+    return searchOldOrNew(
+        database20Mode,
         "Select dr from DiagnosticReportEntity dr where dr.patientId is :patient",
         "Select count(dr.id) from DiagnosticReportEntity dr where dr.patientId is :patient",
         parameters,
@@ -273,6 +292,7 @@ public class DiagnosticReportController {
   /** Search by Patient+Category. */
   @GetMapping(params = {"patient", "category"})
   public DiagnosticReport.Bundle searchByPatientAndCategory(
+      @RequestHeader(value = "Database-2-0-Mode") String database20Mode,
       @RequestParam("patient") String patient,
       @RequestParam("category") String category,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
@@ -284,7 +304,8 @@ public class DiagnosticReportController {
             .add("page", page)
             .add("_count", count)
             .build();
-    return searchOldAndNew(
+    return searchOldOrNew(
+        database20Mode,
         "Select dr from DiagnosticReportEntity dr where dr.patientId is :patient and dr.category is :category",
         "Select count(dr.id) from DiagnosticReportEntity dr where dr.patientId is :patient and dr.category is :category",
         parameters,
@@ -295,6 +316,7 @@ public class DiagnosticReportController {
   /** Search by Patient+Category+Date. */
   @GetMapping(params = {"patient", "category", "date"})
   public DiagnosticReport.Bundle searchByPatientAndCategoryAndDate(
+      @RequestHeader(value = "Database-2-0-Mode") String database20Mode,
       @RequestParam("patient") String patient,
       @RequestParam("category") String category,
       @RequestParam(value = "date", required = false) @Valid @DateTimeParameter @Size(max = 2)
@@ -317,6 +339,7 @@ public class DiagnosticReportController {
   /** Search by Patient+Code. */
   @GetMapping(params = {"patient", "code"})
   public DiagnosticReport.Bundle searchByPatientAndCode(
+      @RequestHeader(value = "Database-2-0-Mode") String database20Mode,
       @RequestParam("patient") String patient,
       @RequestParam("code") String code,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
@@ -328,7 +351,8 @@ public class DiagnosticReportController {
             .add("page", page)
             .add("_count", count)
             .build();
-    return searchOldAndNew(
+    return searchOldOrNew(
+        database20Mode,
         "Select dr from DiagnosticReportEntity dr where dr.patientId is :patient and dr.code is :code",
         "Select count(dr.id) from DiagnosticReportEntity dr where dr.patientId is :patient and dr.code is :code",
         parameters,
@@ -337,25 +361,35 @@ public class DiagnosticReportController {
   }
 
   @SneakyThrows
-  private DiagnosticReport.Bundle searchOldAndNew(
+  private DiagnosticReport.Bundle searchOldOrNew(
+      String database20Mode,
       String query,
       String totalRecordsQuery,
       MultiValueMap<String, String> parameters,
       int page,
       int count) {
-    DiagnosticReport.Bundle jpaBundle =
-        jpaBundle(query, totalRecordsQuery, parameters, page, count);
-    DiagnosticReport.Bundle mrAndersonBundle = mrAndersonBundle(parameters, page, count);
-    if (!jpaBundle.equals(mrAndersonBundle)) {
-      log.warn(
-          "jpa-bundle and mr-anderson bundle do not match. JPA found {} results and mr-anderson found {} results.",
-          jpaBundle.total(),
-          mrAndersonBundle.total());
-      log.warn("jpa-bundle is {}", JacksonConfig.createMapper().writeValueAsString(jpaBundle));
-      log.warn(
-          "mr-anderson bundle is {}",
-          JacksonConfig.createMapper().writeValueAsString(mrAndersonBundle));
+    if (BooleanUtils.isTrue(BooleanUtils.toBooleanObject(database20Mode))) {
+      return jpaBundle(query, totalRecordsQuery, parameters, page, count);
     }
+
+    DiagnosticReport.Bundle mrAndersonBundle = mrAndersonBundle(parameters, page, count);
+
+    if ("both".equalsIgnoreCase(database20Mode)) {
+      DiagnosticReport.Bundle jpaBundle =
+          jpaBundle(query, totalRecordsQuery, parameters, page, count);
+
+      if (!jpaBundle.equals(mrAndersonBundle)) {
+        log.warn(
+            "jpa-bundle and mr-anderson bundle do not match. JPA found {} results and mr-anderson found {} results.",
+            jpaBundle.total(),
+            mrAndersonBundle.total());
+        log.warn("jpa-bundle is {}", JacksonConfig.createMapper().writeValueAsString(jpaBundle));
+        log.warn(
+            "mr-anderson bundle is {}",
+            JacksonConfig.createMapper().writeValueAsString(mrAndersonBundle));
+      }
+    }
+
     return mrAndersonBundle;
   }
 
