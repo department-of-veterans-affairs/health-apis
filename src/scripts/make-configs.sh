@@ -133,8 +133,9 @@ configValue mr-anderson $PROFILE identityservice.url https://localhost:8089
 checkForUnsetValues mr-anderson $PROFILE
 
 makeConfig data-query $PROFILE
-configValue data-query $PROFILE mranderson.url https://localhost:8088
 configValue data-query $PROFILE argonaut.url https://localhost:8090
+configValue data-query $PROFILE identityservice.url https://localhost:8089
+configValue data-query $PROFILE mranderson.url https://localhost:8088
 configValue data-query $PROFILE health-check.medication-id 2f773f73-ad7f-56ca-891e-8e364c913fe0
 configValue data-query $PROFILE conformance.statement-type patient
 configValue data-query $PROFILE conformance.contact.name "$(whoDis)"
