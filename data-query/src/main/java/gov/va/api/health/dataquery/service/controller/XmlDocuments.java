@@ -8,7 +8,8 @@ import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import lombok.NoArgsConstructor;
+import lombok.experimental.UtilityClass;
+
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
@@ -19,14 +20,14 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 /** Utilities for working with XML documents. */
-@NoArgsConstructor(staticName = "create")
-public final class XmlDocuments {
+@UtilityClass
+final class XmlDocuments {
   /**
    * Finds a DOM implementation is capable of 'Load/Save' operations, which gives us the ability to
    * write Documents.
    */
-  static DOMImplementationLS findLsDomImplementationOrDie(DOMImplementationRegistry registry)
-      throws WriteFailed {
+  private static DOMImplementationLS findLsDomImplementationOrDie(
+      DOMImplementationRegistry registry) throws WriteFailed {
     DOMImplementation domImplementation = registry.getDOMImplementation("LS");
     if (domImplementation == null) {
       throw new WriteFailed("No Load/Save LS DOM implementation available.");
@@ -39,7 +40,7 @@ public final class XmlDocuments {
             + domImplementation.getClass());
   }
 
-  private DOMImplementationRegistry createRegistryOrDie() {
+  private static DOMImplementationRegistry createRegistryOrDie() {
     DOMImplementationRegistry registry;
     try {
       registry = DOMImplementationRegistry.newInstance();
@@ -53,7 +54,7 @@ public final class XmlDocuments {
    * Parse the given XML into a Document model. A ParseFailed exception can be thrown if the
    * document cannot be read for any reason.
    */
-  public Document parse(String xml) {
+  static Document parse(String xml) {
     try {
       DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
       factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
@@ -71,7 +72,7 @@ public final class XmlDocuments {
    * Write the given Document as an indented XML string. A WriteFailed exception will be thrown if
    * the document cannot be written for some reason.
    */
-  public String write(Document document) {
+  static String write(Document document) {
     DOMImplementationRegistry registry = createRegistryOrDie();
     DOMImplementationLS domImplementation = findLsDomImplementationOrDie(registry);
     Writer stringWriter = new StringWriter();
@@ -84,13 +85,13 @@ public final class XmlDocuments {
     return stringWriter.toString();
   }
 
-  public static class ParseFailed extends RuntimeException {
+  static class ParseFailed extends RuntimeException {
     ParseFailed(Exception cause) {
       super(cause);
     }
   }
 
-  public static class WriteFailed extends RuntimeException {
+  static class WriteFailed extends RuntimeException {
     WriteFailed(String message) {
       super(message);
     }

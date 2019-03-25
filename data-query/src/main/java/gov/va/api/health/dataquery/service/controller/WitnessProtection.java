@@ -14,7 +14,7 @@ import org.w3c.dom.Document;
 public final class WitnessProtection {
   private static Document parse(MultiValueMap<String, String> parameters, String xml) {
     try {
-      return XmlDocuments.create().parse(xml);
+      return XmlDocuments.parse(xml);
     } catch (ParseFailed e) {
       log.error("Failed to parse CDW response: {} ", e.getMessage());
       throw new ResourceExceptions.SearchFailed(parameters, e);
@@ -71,7 +71,7 @@ public final class WitnessProtection {
 
   private static String write(MultiValueMap<String, String> parameters, Document xml) {
     try {
-      return XmlDocuments.create().write(xml);
+      return XmlDocuments.write(xml);
     } catch (WriteFailed e) {
       log.error("Failed to write XML: {}", e.getMessage());
       throw new ResourceExceptions.SearchFailed(parameters, e);
