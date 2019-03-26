@@ -84,16 +84,6 @@ public class DiagnosticReportController {
     }
   }
 
-  private static String jpaEntitiesXml(List<DiagnosticReportEntity> entities) {
-    String taggedReports =
-        entities
-            .stream()
-            .map(entity -> "<diagnosticReport>" + entity.document() + "</diagnosticReport>")
-            .collect(Collectors.joining());
-    String allReports = "<diagnosticReports>" + taggedReports + "</diagnosticReports>";
-    return "<root>" + allReports + "</root>";
-  }
-
   private DiagnosticReport.Bundle bundle(
       MultiValueMap<String, String> parameters,
       int page,
@@ -143,10 +133,20 @@ public class DiagnosticReportController {
       int page,
       int count) {
     List<DiagnosticReportEntity> entities = jpaQueryForEntities(query, cdwParameters, page, count);
-    String cdwXml = jpaEntitiesXml(entities);
+    String cdwXml = jpaCdwRootXml(entities);
     String publicXml =
         witnessProtection.replaceCdwIdsWithPublicIds("DiagnosticReport", publicParameters, cdwXml);
     return XmlDocuments.unmarshal(publicXml, CdwDiagnosticReport102Root.class);
+  }
+
+  private static String jpaCdwRootXml(List<DiagnosticReportEntity> entities) {
+    String taggedReports =
+        entities
+            .stream()
+            .map(entity -> "<diagnosticReport>" + entity.document() + "</diagnosticReport>")
+            .collect(Collectors.joining());
+    String allReports = "<diagnosticReports>" + taggedReports + "</diagnosticReports>";
+    return "<root>" + allReports + "</root>";
   }
 
   private List<DiagnosticReportEntity> jpaQueryForEntities(
