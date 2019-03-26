@@ -14,7 +14,7 @@ import org.w3c.dom.Document;
 @Slf4j
 @Component
 @AllArgsConstructor(onConstructor = @__({@Autowired}))
-public final class WitnessProtection {
+public class WitnessProtection {
   private IdentityService identityService;
 
   private static Document parse(MultiValueMap<String, String> parameters, String xml) {
