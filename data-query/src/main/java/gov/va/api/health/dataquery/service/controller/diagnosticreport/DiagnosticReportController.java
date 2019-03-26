@@ -5,10 +5,12 @@ import static gov.va.api.health.dataquery.service.controller.Transformers.hasPay
 
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.api.resources.DiagnosticReport;
+import gov.va.api.health.dataquery.api.resources.DiagnosticReport.Bundle;
 import gov.va.api.health.dataquery.api.resources.OperationOutcome;
 import gov.va.api.health.dataquery.service.controller.Bundler;
 import gov.va.api.health.dataquery.service.controller.Bundler.BundleContext;
 import gov.va.api.health.dataquery.service.controller.DateTimeParameter;
+import gov.va.api.health.dataquery.service.controller.JpaDateTimeParameter;
 import gov.va.api.health.dataquery.service.controller.PageLinks.LinkConfig;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.Validator;
@@ -20,6 +22,7 @@ import gov.va.dvp.cdw.xsd.model.CdwDiagnosticReport102Root;
 import gov.va.dvp.cdw.xsd.model.CdwDiagnosticReport102Root.CdwDiagnosticReports.CdwDiagnosticReport;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
@@ -32,6 +35,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -58,6 +62,7 @@ import org.springframework.web.bind.annotation.RestController;
 )
 @AllArgsConstructor(onConstructor = @__({@Autowired}))
 public class DiagnosticReportController {
+
   private MrAndersonClient mrAndersonClient;
 
   private WitnessProtection witnessProtection;
@@ -76,12 +81,25 @@ public class DiagnosticReportController {
     if (parameters.containsKey("code")) {
       query.setParameter("code", parameters.getFirst("code"));
     }
+    if (parameters.containsKey("date")) {
+      JpaDateTimeParameter.addQueryParameters(query, parameters.get("date"));
+    }
     if (parameters.containsKey("identifier")) {
       query.setParameter("identifier", parameters.getFirst("identifier"));
     }
     if (parameters.containsKey("patient")) {
       query.setParameter("patient", Long.valueOf(parameters.getFirst("patient")));
     }
+  }
+
+  private static String jpaCdwRootXml(List<DiagnosticReportEntity> entities) {
+    String taggedReports =
+        entities
+            .stream()
+            .map(entity -> "<diagnosticReport>" + entity.document() + "</diagnosticReport>")
+            .collect(Collectors.joining());
+    String allReports = "<diagnosticReports>" + taggedReports + "</diagnosticReports>";
+    return "<root>" + allReports + "</root>";
   }
 
   private DiagnosticReport.Bundle bundle(
@@ -139,21 +157,13 @@ public class DiagnosticReportController {
     return XmlDocuments.unmarshal(publicXml, CdwDiagnosticReport102Root.class);
   }
 
-  private static String jpaCdwRootXml(List<DiagnosticReportEntity> entities) {
-    String taggedReports =
-        entities
-            .stream()
-            .map(entity -> "<diagnosticReport>" + entity.document() + "</diagnosticReport>")
-            .collect(Collectors.joining());
-    String allReports = "<diagnosticReports>" + taggedReports + "</diagnosticReports>";
-    return "<root>" + allReports + "</root>";
-  }
-
   private List<DiagnosticReportEntity> jpaQueryForEntities(
       String queryString, MultiValueMap<String, String> cdwParameters, int page, int count) {
     TypedQuery<DiagnosticReportEntity> query =
         entityManager.createQuery(queryString, DiagnosticReportEntity.class);
     jpaAddQueryParameters(query, cdwParameters);
+    // PETERTODO
+    log.error("Executing query " + queryString);
     query.setFirstResult((page - 1) * count);
     query.setMaxResults(count);
     List<DiagnosticReportEntity> results = query.getResultList();
@@ -218,13 +228,11 @@ public class DiagnosticReportController {
     if (BooleanUtils.isTrue(BooleanUtils.toBooleanObject(database20Mode))) {
       return jpaRead(publicId);
     }
-
     CdwDiagnosticReport102Root mrAndersonCdw = mrAndersonSearch(Parameters.forIdentity(publicId));
     DiagnosticReport mrAndersonReport =
         transformer.apply(
             firstPayloadItem(
                 hasPayload(mrAndersonCdw.getDiagnosticReports()).getDiagnosticReport()));
-
     if ("both".equalsIgnoreCase(database20Mode)) {
       DiagnosticReport jpaReport = jpaRead(publicId);
       if (!jpaReport.equals(mrAndersonReport)) {
@@ -235,7 +243,6 @@ public class DiagnosticReportController {
             JacksonConfig.createMapper().writeValueAsString(mrAndersonReport));
       }
     }
-
     return mrAndersonReport;
   }
 
@@ -325,15 +332,23 @@ public class DiagnosticReportController {
           String[] date,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @RequestParam(value = "_count", defaultValue = "15") @Min(0) int count) {
-    // TODO implement old and new
-    return mrAndersonBundle(
+    MultiValueMap<String, String> parameters =
         Parameters.builder()
             .add("patient", patient)
             .add("category", category)
             .addAll("date", date)
             .add("page", page)
             .add("_count", count)
-            .build(),
+            .build();
+    return searchOldOrNew(
+        database20Mode,
+        "Select dr from DiagnosticReportEntity dr"
+            + " where dr.patientId is :patient and dr.category is :category"
+            + JpaDateTimeParameter.querySnippet(date),
+        "Select count(dr.id) from DiagnosticReportEntity dr"
+            + " where dr.patientId is :patient and dr.category is :category"
+            + JpaDateTimeParameter.querySnippet(date),
+        parameters,
         page,
         count);
   }

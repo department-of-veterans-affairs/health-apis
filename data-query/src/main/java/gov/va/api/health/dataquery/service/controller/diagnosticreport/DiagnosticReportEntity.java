@@ -23,9 +23,9 @@ public class DiagnosticReportEntity {
 
   private String category;
 
-  private Instant startedDtg;
+  private Instant effectiveDateTime;
 
-  private Instant endedDtg;
+  private Instant issuedDateTime;
 
   private String code;
 
