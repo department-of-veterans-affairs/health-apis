@@ -42,7 +42,7 @@ public class DiagnosticReportControllerTest {
   @Before
   public void _init() {
     MockitoAnnotations.initMocks(this);
-    controller = new DiagnosticReportController(tx, client, bundler);
+    controller = new DiagnosticReportController(client, null, null, tx, bundler);
   }
 
   private void assertSearch(Supplier<Bundle> invocation, MultiValueMap<String, String> params) {
@@ -118,7 +118,7 @@ public class DiagnosticReportControllerTest {
     DiagnosticReport dr = DiagnosticReport.builder().build();
     when(client.search(Mockito.any())).thenReturn(root);
     when(tx.apply(cdwDR)).thenReturn(dr);
-    DiagnosticReport actual = controller.read("hello");
+    DiagnosticReport actual = controller.read("", "hello");
     assertThat(actual).isSameAs(dr);
     @SuppressWarnings("unchecked")
     ArgumentCaptor<Query<CdwDiagnosticReport102Root>> captor = ArgumentCaptor.forClass(Query.class);
@@ -129,14 +129,14 @@ public class DiagnosticReportControllerTest {
   @Test
   public void searchById() {
     assertSearch(
-        () -> controller.searchById("me", 1, 10),
+        () -> controller.searchById("", "me", 1, 10),
         Parameters.builder().add("identifier", "me").add("page", 1).add("_count", 10).build());
   }
 
   @Test
   public void searchByIdAndCategory() {
     assertSearch(
-        () -> controller.searchByPatientAndCategory("me", "example", 1, 10),
+        () -> controller.searchByPatientAndCategory("", "me", "example", 1, 10),
         Parameters.builder()
             .add("patient", "me")
             .add("category", "example")
@@ -148,14 +148,14 @@ public class DiagnosticReportControllerTest {
   @Test
   public void searchByIdentifier() {
     assertSearch(
-        () -> controller.searchByIdentifier("me", 1, 10),
+        () -> controller.searchByIdentifier("", "me", 1, 10),
         Parameters.builder().add("identifier", "me").add("page", 1).add("_count", 10).build());
   }
 
   @Test
   public void searchByPatient() {
     assertSearch(
-        () -> controller.searchByPatient("me", 1, 10),
+        () -> controller.searchByPatient("", "me", 1, 10),
         Parameters.builder().add("patient", "me").add("page", 1).add("_count", 10).build());
   }
 
@@ -164,7 +164,7 @@ public class DiagnosticReportControllerTest {
     assertSearch(
         () ->
             controller.searchByPatientAndCategoryAndDate(
-                "me", "foo", new String[] {"1000", "2000"}, 1, 10),
+                "", "me", "foo", new String[] {"1000", "2000"}, 1, 10),
         Parameters.builder()
             .add("patient", "me")
             .add("category", "foo")
@@ -177,7 +177,7 @@ public class DiagnosticReportControllerTest {
   @Test
   public void searchByPatientAndCode() {
     assertSearch(
-        () -> controller.searchByPatientAndCode("me", "foo", 1, 10),
+        () -> controller.searchByPatientAndCode("", "me", "foo", 1, 10),
         Parameters.builder()
             .add("patient", "me")
             .add("code", "foo")
@@ -195,7 +195,7 @@ public class DiagnosticReportControllerTest {
     when(client.search(Mockito.any())).thenReturn(root);
     Bundle mockBundle = new Bundle();
     when(bundler.bundle(Mockito.any())).thenReturn(mockBundle);
-    Bundle actual = controller.searchById("me", 1, 10);
+    Bundle actual = controller.searchById("", "me", 1, 10);
     assertThat(actual).isSameAs(mockBundle);
     @SuppressWarnings("unchecked")
     ArgumentCaptor<

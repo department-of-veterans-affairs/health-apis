@@ -306,8 +306,10 @@ public class DiagnosticReportController {
             .build();
     return searchOldOrNew(
         database20Mode,
-        "Select dr from DiagnosticReportEntity dr where dr.patientId is :patient and dr.category is :category",
-        "Select count(dr.id) from DiagnosticReportEntity dr where dr.patientId is :patient and dr.category is :category",
+        "Select dr from DiagnosticReportEntity dr"
+            + " where dr.patientId is :patient and dr.category is :category",
+        "Select count(dr.id) from DiagnosticReportEntity dr"
+            + " where dr.patientId is :patient and dr.category is :category",
         parameters,
         page,
         count);
@@ -353,8 +355,10 @@ public class DiagnosticReportController {
             .build();
     return searchOldOrNew(
         database20Mode,
-        "Select dr from DiagnosticReportEntity dr where dr.patientId is :patient and dr.code is :code",
-        "Select count(dr.id) from DiagnosticReportEntity dr where dr.patientId is :patient and dr.code is :code",
+        "Select dr from DiagnosticReportEntity dr"
+            + " where dr.patientId is :patient and dr.code is :code",
+        "Select count(dr.id) from DiagnosticReportEntity dr"
+            + " where dr.patientId is :patient and dr.code is :code",
         parameters,
         page,
         count);
@@ -380,7 +384,7 @@ public class DiagnosticReportController {
 
       if (!jpaBundle.equals(mrAndersonBundle)) {
         log.warn(
-            "jpa-bundle and mr-anderson bundle do not match. JPA found {} results and mr-anderson found {} results.",
+            "JPA and mr-anderson bundles do not match. {} JPA results, {} mr-anderson results.",
             jpaBundle.total(),
             mrAndersonBundle.total());
         log.warn("jpa-bundle is {}", JacksonConfig.createMapper().writeValueAsString(jpaBundle));

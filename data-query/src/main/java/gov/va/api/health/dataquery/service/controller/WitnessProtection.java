@@ -35,6 +35,11 @@ public class WitnessProtection {
     }
   }
 
+  /**
+   * In the XML string, replace CDW IDs with public IDs.
+   *
+   * @see InPlaceReferenceReplacer
+   */
   public String replaceCdwIdsWithPublicIds(
       String resource, MultiValueMap<String, String> parameters, String cdwXml) {
     try {
@@ -53,6 +58,11 @@ public class WitnessProtection {
     }
   }
 
+  /**
+   * Replace public IDs with CDW IDs in the parameters.
+   *
+   * @see IdentityParameterReplacer
+   */
   public MultiValueMap<String, String> replacePublicIdsWithCdwIds(
       MultiValueMap<String, String> publicParameters) {
     try {

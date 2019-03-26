@@ -24,7 +24,6 @@ import org.xml.sax.SAXException;
 /** Utilities for working with XML documents. */
 @UtilityClass
 public final class XmlDocuments {
-
   private static DOMImplementationRegistry createRegistryOrDie() {
     DOMImplementationRegistry registry;
     try {
@@ -71,6 +70,7 @@ public final class XmlDocuments {
     }
   }
 
+  /** Unmarshal the XML string into the given class. */
   @SneakyThrows
   @SuppressWarnings("unchecked")
   public static <T> T unmarshal(String xml, Class<T> resultClass) {
@@ -97,14 +97,12 @@ public final class XmlDocuments {
   }
 
   static class ParseFailed extends RuntimeException {
-
     ParseFailed(Exception cause) {
       super(cause);
     }
   }
 
   static class WriteFailed extends RuntimeException {
-
     WriteFailed(String message) {
       super(message);
     }
