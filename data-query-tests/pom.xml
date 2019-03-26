@@ -216,15 +216,21 @@
               <name>data-query</name>
               <healthcheckUrl>https://localhost:8090/actuator/health</healthcheckUrl>
               <skip>${sentinel.skipLaunch}</skip>
+              <waitForInterrupt>false</waitForInterrupt>
               <arguments>
                 <argument>java</argument>
                 <argument>-cp</argument>
-                <argument>data-query.jar</argument>
+                <argument>data-query.jar${path.separator}h2.jar</argument>
                 <argument>-Dloader.path=data-query-tests-${project.version}.jar</argument>
                 <argument>-Dloader=gov.va.api.health.dataquery.service.Application</argument>
                 <argument>-Dmranderson.url=https://localhost:8088</argument>
+                <argument>-Didentityservice.url=https://localhost:8089</argument>
                 <argument>-Dargonaut.url=https://localhost:8090</argument>
                 <argument>-Dhealth-check.medication-id=skip</argument>
+                <argument>-Dspring.jpa.generate-ddl=true</argument>
+                <argument>-Dspring.jpa.hibernate.ddl-auto=create-drop</argument>
+                <argument>-Dspring.datasource.driver-class-name=org.h2.Driver</argument>
+                <argument>-Dspring.datasource.url=jdbc:h2:mem:whatever</argument>
                 <argument>-Dconformance.statement-type=patient</argument>
                 <argument>-Dconformance.contact.name=Sentinel</argument>
                 <argument>-Dconformance.contact.email=sentinel@matrix.com</argument>

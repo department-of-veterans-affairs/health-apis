@@ -213,7 +213,7 @@ public class DiagnosticReportController {
   @SneakyThrows
   @GetMapping(value = {"/{publicId}"})
   public DiagnosticReport read(
-      @RequestHeader(value = "Database-2-0-Mode") String database20Mode,
+      @RequestHeader(value = "Database-2-0-Mode", defaultValue = "") String database20Mode,
       @PathVariable("publicId") String publicId) {
     if (BooleanUtils.isTrue(BooleanUtils.toBooleanObject(database20Mode))) {
       return jpaRead(publicId);
@@ -242,7 +242,7 @@ public class DiagnosticReportController {
   /** Search by _id. */
   @GetMapping(params = {"_id"})
   public DiagnosticReport.Bundle searchById(
-      @RequestHeader(value = "Database-2-0-Mode") String database20Mode,
+      @RequestHeader(value = "Database-2-0-Mode", defaultValue = "") String database20Mode,
       @RequestParam("_id") String id,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @RequestParam(value = "_count", defaultValue = "15") @Min(0) int count) {
@@ -252,7 +252,7 @@ public class DiagnosticReportController {
   /** Search by identifier. */
   @GetMapping(params = {"identifier"})
   public DiagnosticReport.Bundle searchByIdentifier(
-      @RequestHeader(value = "Database-2-0-Mode") String database20Mode,
+      @RequestHeader(value = "Database-2-0-Mode", defaultValue = "") String database20Mode,
       @RequestParam("identifier") String identifier,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @RequestParam(value = "_count", defaultValue = "15") @Min(0) int count) {
@@ -274,7 +274,7 @@ public class DiagnosticReportController {
   /** Search by patient. */
   @GetMapping(params = {"patient"})
   public DiagnosticReport.Bundle searchByPatient(
-      @RequestHeader(value = "Database-2-0-Mode") String database20Mode,
+      @RequestHeader(value = "Database-2-0-Mode", defaultValue = "") String database20Mode,
       @RequestParam("patient") String patient,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @RequestParam(value = "_count", defaultValue = "15") @Min(0) int count) {
@@ -292,7 +292,7 @@ public class DiagnosticReportController {
   /** Search by Patient+Category. */
   @GetMapping(params = {"patient", "category"})
   public DiagnosticReport.Bundle searchByPatientAndCategory(
-      @RequestHeader(value = "Database-2-0-Mode") String database20Mode,
+      @RequestHeader(value = "Database-2-0-Mode", defaultValue = "") String database20Mode,
       @RequestParam("patient") String patient,
       @RequestParam("category") String category,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
@@ -318,7 +318,7 @@ public class DiagnosticReportController {
   /** Search by Patient+Category+Date. */
   @GetMapping(params = {"patient", "category", "date"})
   public DiagnosticReport.Bundle searchByPatientAndCategoryAndDate(
-      @RequestHeader(value = "Database-2-0-Mode") String database20Mode,
+      @RequestHeader(value = "Database-2-0-Mode", defaultValue = "") String database20Mode,
       @RequestParam("patient") String patient,
       @RequestParam("category") String category,
       @RequestParam(value = "date", required = false) @Valid @DateTimeParameter @Size(max = 2)
@@ -341,7 +341,7 @@ public class DiagnosticReportController {
   /** Search by Patient+Code. */
   @GetMapping(params = {"patient", "code"})
   public DiagnosticReport.Bundle searchByPatientAndCode(
-      @RequestHeader(value = "Database-2-0-Mode") String database20Mode,
+      @RequestHeader(value = "Database-2-0-Mode", defaultValue = "") String database20Mode,
       @RequestParam("patient") String patient,
       @RequestParam("code") String code,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
