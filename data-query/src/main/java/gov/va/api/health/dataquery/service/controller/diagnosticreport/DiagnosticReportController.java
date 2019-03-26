@@ -325,7 +325,7 @@ public class DiagnosticReportController {
           String[] date,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @RequestParam(value = "_count", defaultValue = "15") @Min(0) int count) {
-    // PETERTODO
+    // TODO implement old and new
     return mrAndersonBundle(
         Parameters.builder()
             .add("patient", patient)
