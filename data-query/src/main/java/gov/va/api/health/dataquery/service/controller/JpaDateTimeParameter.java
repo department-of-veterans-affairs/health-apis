@@ -142,10 +142,15 @@ public final class JpaDateTimeParameter {
   private String querySnippet() {
     switch (prefix()) {
       case EQ:
+        // the range of the search value fully contains the range of the target value
         return String.format(
             " and :%s <= dr.effectiveDateTime and dr.issuedDateTime <= :%s",
             lowerBoundPlaceholder(), upperBoundPlaceholder());
       case NE:
+        // the range of the search value does not fully contain the range of the target value
+        return String.format(
+            " and (dr.effectiveDateTime < :%s or :%s < dr.issuedDateTime)",
+            lowerBoundPlaceholder(), upperBoundPlaceholder());
       case GT:
       case LT:
       case GE:
