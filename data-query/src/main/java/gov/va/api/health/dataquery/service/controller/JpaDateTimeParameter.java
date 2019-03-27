@@ -77,8 +77,24 @@ public final class JpaDateTimeParameter {
   }
 
   private void addQueryParameters(TypedQuery<?> query) {
-    query.setParameter(lowerBoundPlaceholder(), lowerBound());
-    query.setParameter(upperBoundPlaceholder(), upperBound());
+    switch (prefix()) {
+      case EQ:
+      case NE:
+        query.setParameter(lowerBoundPlaceholder(), lowerBound());
+        query.setParameter(upperBoundPlaceholder(), upperBound());
+        return;
+      case GT:
+        query.setParameter(upperBoundPlaceholder(), upperBound());
+        return;
+      case LT:
+      case GE:
+      case LE:
+      case SA:
+      case EB:
+      case AP:
+      default:
+        throw new IllegalArgumentException();
+    }
   }
 
   private Instant computeLowerBound(String paramString) {
@@ -152,6 +168,8 @@ public final class JpaDateTimeParameter {
             " and (dr.effectiveDateTime < :%s or :%s < dr.issuedDateTime)",
             lowerBoundPlaceholder(), upperBoundPlaceholder());
       case GT:
+        // the range above the search value intersects the range of the target value
+        return String.format(" and :%s < dr.issuedDateTime", upperBoundPlaceholder());
       case LT:
       case GE:
       case LE:
