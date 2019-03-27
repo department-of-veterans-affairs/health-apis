@@ -81,6 +81,7 @@ public final class JpaDateTimeParameter {
       case EQ:
       case NE:
       case GE:
+      case LE:
         query.setParameter(lowerBoundPlaceholder(), lowerBound());
         query.setParameter(upperBoundPlaceholder(), upperBound());
         return;
@@ -93,7 +94,6 @@ public final class JpaDateTimeParameter {
         query.setParameter(lowerBoundPlaceholder(), lowerBound());
         return;
 
-      case LE:
       case SA:
       case EB:
       case AP:
@@ -190,6 +190,12 @@ public final class JpaDateTimeParameter {
             lowerBoundPlaceholder(), upperBoundPlaceholder());
 
       case LE:
+        // the range below the search value intersects the range of the target value
+        // or the range of the search value fully contains the range of the target value
+        return String.format(
+            " and (dr.effectiveDateTime < :%s or dr.issuedDateTime <= :%s)",
+            lowerBoundPlaceholder(), upperBoundPlaceholder());
+
       case SA:
       case EB:
       case AP:
