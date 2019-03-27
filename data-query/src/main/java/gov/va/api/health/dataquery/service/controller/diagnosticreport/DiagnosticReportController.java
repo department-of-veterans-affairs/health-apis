@@ -158,14 +158,13 @@ public class DiagnosticReportController {
     TypedQuery<DiagnosticReportEntity> query =
         entityManager.createQuery(queryString, DiagnosticReportEntity.class);
     jpaAddQueryParameters(query, cdwParameters);
-    // PETERTODO
-    log.error("Executing query " + queryString);
     query.setFirstResult((page - 1) * count);
     query.setMaxResults(count);
     List<DiagnosticReportEntity> results = query.getResultList();
     log.info(
-        "For parameters {}, found entities with ids {}.",
+        "For parameters {} and query '{}', found entities with ids {}.",
         cdwParameters,
+        queryString,
         results.stream().map(entity -> entity.id()).collect(Collectors.toList()));
     return results;
   }
@@ -175,7 +174,11 @@ public class DiagnosticReportController {
     TypedQuery<Long> query = entityManager.createQuery(queryString, Long.class);
     jpaAddQueryParameters(query, cdwParameters);
     int totalRecords = query.getSingleResult().intValue();
-    log.error("total records: " + totalRecords);
+    log.info(
+        "For parameters {} and query '{}', found {} total records.",
+        cdwParameters,
+        queryString,
+        totalRecords);
     return totalRecords;
   }
 
