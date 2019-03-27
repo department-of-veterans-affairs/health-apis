@@ -181,22 +181,26 @@ public final class JpaDateTimeParameter {
         return String.format(" and dr.effectiveDateTime < :%s", placeholderLowerBound());
 
       case GE:
+        // the range above the search value intersects the range of the target value
         // or the range of the search value fully contains the range of the target value
         return String.format(
             " and (:%s <= dr.effectiveDateTime or :%s < dr.issuedDateTime)",
             placeholderLowerBound(), placeholderUpperBound());
 
       case LE:
+        // the range below the search value intersects the range of the target value
         // or the range of the search value fully contains the range of the target value
         return String.format(
             " and (dr.effectiveDateTime < :%s or dr.issuedDateTime <= :%s)",
             placeholderLowerBound(), placeholderUpperBound());
 
       case SA:
+        // the range of the search value does not intersect the range of the target value
         // and the range above the search value contains the range of the target value
         return String.format(" and :%s < dr.effectiveDateTime", placeholderUpperBound());
 
       case EB:
+        // the range of the search value does not intersect the range of the target value,
         // and the range below the search value contains the range of the target value
         return String.format(" and dr.issuedDateTime < :%s", placeholderLowerBound());
 
