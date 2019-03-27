@@ -2,7 +2,9 @@ package gov.va.api.health.dataquery.service.controller;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Locale;
 import javax.persistence.TypedQuery;
@@ -106,26 +108,28 @@ public final class JpaDateTimeParameter {
 
   private Instant computeLowerBound(String paramString) {
     log.error("Computing lower bound for " + paramString);
+    ZoneOffset localOffset = ZonedDateTime.now().getOffset();
     switch (paramString.length()) {
       case 4:
-        return OffsetDateTime.parse(
-                String.format(
-                    "%s-01-01T00:00:00.000%s", paramString, ZonedDateTime.now().getOffset()))
+        return OffsetDateTime.parse(String.format("%s-01-01T00:00:00%s", paramString, localOffset))
             .toInstant();
       case 7:
-        // .dateYearMonth("1970-01")
+        return OffsetDateTime.parse(String.format("%s-01T00:00:00%s", paramString, localOffset))
+            .toInstant();
       case 10:
-        // .dateYearMonthDay("1970-01-01")
+        return OffsetDateTime.parse(String.format("%sT00:00:00%s", paramString, localOffset))
+            .toInstant();
       case 13:
-        // .dateYearMonthDayHour("1970-01-01T07")
+        return OffsetDateTime.parse(String.format("%s:00:00%s", paramString, localOffset))
+            .toInstant();
       case 16:
-        // .dateYearMonthDayHourMinute("1970-01-01T07:00")
+        return OffsetDateTime.parse(String.format("%s:00%s", paramString, localOffset)).toInstant();
       case 19:
-        // .dateYearMonthDayHourMinuteSecond("1970-01-01T07:00:00")
+        return OffsetDateTime.parse(paramString + localOffset).toInstant();
       case 20:
-        // .dateYearMonthDayHourMinuteSecondZulu("1970-01-01T07:00:00Z")
+        // falls through
       case 25:
-        // .dateYearMonthDayHourMinuteSecondTimezone("1970-01-01T07:00:00+05:00")
+        return OffsetDateTime.parse(paramString).toInstant();
       default:
         throw new IllegalArgumentException();
     }
@@ -133,26 +137,25 @@ public final class JpaDateTimeParameter {
 
   private Instant computeUpperBound(String paramString) {
     log.error("Computing upper bound for " + paramString);
+    OffsetDateTime theLowerBound =
+        OffsetDateTime.ofInstant(computeLowerBound(paramString), ZonedDateTime.now().getOffset());
     switch (paramString.length()) {
       case 4:
-        return OffsetDateTime.parse(
-                String.format(
-                    "%s-12-31T23:59:59.999%s", paramString, ZonedDateTime.now().getOffset()))
-            .toInstant();
+        return theLowerBound.plusYears(1).minus(1, ChronoUnit.MILLIS).toInstant();
       case 7:
-        // .dateYearMonth("1970-01")
+        return theLowerBound.plusMonths(1).minus(1, ChronoUnit.MILLIS).toInstant();
       case 10:
-        // .dateYearMonthDay("1970-01-01")
+        return theLowerBound.plusDays(1).minus(1, ChronoUnit.MILLIS).toInstant();
       case 13:
-        // .dateYearMonthDayHour("1970-01-01T07")
+        return theLowerBound.plusHours(1).minus(1, ChronoUnit.MILLIS).toInstant();
       case 16:
-        // .dateYearMonthDayHourMinute("1970-01-01T07:00")
+        return theLowerBound.plusMinutes(1).minus(1, ChronoUnit.MILLIS).toInstant();
       case 19:
-        // .dateYearMonthDayHourMinuteSecond("1970-01-01T07:00:00")
+        // falls through
       case 20:
-        // .dateYearMonthDayHourMinuteSecondZulu("1970-01-01T07:00:00Z")
+        // falls through
       case 25:
-        // .dateYearMonthDayHourMinuteSecondTimezone("1970-01-01T07:00:00+05:00")
+        return theLowerBound.plusSeconds(1).minus(1, ChronoUnit.MILLIS).toInstant();
       default:
         throw new IllegalArgumentException();
     }
