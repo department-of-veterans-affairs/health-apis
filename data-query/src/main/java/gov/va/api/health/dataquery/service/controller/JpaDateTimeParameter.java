@@ -24,12 +24,6 @@ public final class JpaDateTimeParameter {
 
   private static final int YEAR_MONTH_DAY = 10;
 
-  private static final int YEAR_MONTH_DAY_HOUR = 13;
-
-  private static final int YEAR_MONTH_DAY_HOUR_MINUTE = 16;
-
-  private static final int YEAR_MONTH_DAY_HOUR_MINUTE_SECOND = 19;
-
   private static final int TIME_ZONE = 20;
 
   private static final int TIME_ZONE_OFFSET = 25;
@@ -43,6 +37,10 @@ public final class JpaDateTimeParameter {
   @Builder
   private JpaDateTimeParameter(int index, String paramString) {
     super();
+    if (paramString.length() <= 1) {
+      throw new IllegalArgumentException(
+          String.format("'{}' is not a valid date-time parameter", paramString));
+    }
     this.index = index;
     if (Character.isLetter(paramString.charAt(0))) {
       prefix = SearchPrefix.valueOf(paramString.substring(0, 2).toUpperCase(Locale.US));
@@ -55,18 +53,13 @@ public final class JpaDateTimeParameter {
 
   /** Add query parameters for the upper and lower bound of each date. */
   public static void addQueryParametersForEach(TypedQuery<?> query, List<String> dateParams) {
-    if (dateParams == null || dateParams.isEmpty()) {
+    if (dateParams == null) {
       return;
     }
-    JpaDateTimeParameter.builder()
-        .index(0)
-        .paramString(dateParams.get(0))
-        .build()
-        .addQueryParameters(query);
-    if (dateParams.size() >= 2) {
+    for (int i = 0; i < dateParams.size(); i++) {
       JpaDateTimeParameter.builder()
-          .index(1)
-          .paramString(dateParams.get(1))
+          .index(i)
+          .paramString(dateParams.get(i))
           .build()
           .addQueryParameters(query);
     }
@@ -78,14 +71,16 @@ public final class JpaDateTimeParameter {
 
   /** Build a combined JPA query snippet representing all the date criteria. */
   public static String querySnippet(String[] dates) {
-    if (dates == null || dates.length == 0) {
+    if (dates == null) {
       return "";
     }
-    if (dates.length == 1) {
-      return JpaDateTimeParameter.builder().index(0).paramString(dates[0]).build().toQuerySnippet();
+
+    StringBuilder querySnippet = new StringBuilder();
+    for (int i = 0; i < dates.length; i++) {
+      querySnippet.append(
+          JpaDateTimeParameter.builder().index(i).paramString(dates[i]).build().toQuerySnippet());
     }
-    return JpaDateTimeParameter.builder().index(0).paramString(dates[0]).build().toQuerySnippet()
-        + JpaDateTimeParameter.builder().index(1).paramString(dates[1]).build().toQuerySnippet();
+    return querySnippet.toString();
   }
 
   private void addQueryParameters(TypedQuery<?> query) {
@@ -135,12 +130,6 @@ public final class JpaDateTimeParameter {
         return OffsetDateTime.parse(String.format("%s-01T00:00:00%s", date(), offset)).toInstant();
       case YEAR_MONTH_DAY:
         return OffsetDateTime.parse(String.format("%sT00:00:00%s", date(), offset)).toInstant();
-      case YEAR_MONTH_DAY_HOUR:
-        return OffsetDateTime.parse(String.format("%s:00:00%s", date(), offset)).toInstant();
-      case YEAR_MONTH_DAY_HOUR_MINUTE:
-        return OffsetDateTime.parse(String.format("%s:00%s", date(), offset)).toInstant();
-      case YEAR_MONTH_DAY_HOUR_MINUTE_SECOND:
-        return OffsetDateTime.parse(date() + offset).toInstant();
       case TIME_ZONE:
         return Instant.parse(date());
       case TIME_ZONE_OFFSET:
@@ -222,12 +211,6 @@ public final class JpaDateTimeParameter {
         return lowerBound.plusMonths(1).minus(1, ChronoUnit.MILLIS).toInstant();
       case YEAR_MONTH_DAY:
         return lowerBound.plusDays(1).minus(1, ChronoUnit.MILLIS).toInstant();
-      case YEAR_MONTH_DAY_HOUR:
-        return lowerBound.plusHours(1).minus(1, ChronoUnit.MILLIS).toInstant();
-      case YEAR_MONTH_DAY_HOUR_MINUTE:
-        return lowerBound.plusMinutes(1).minus(1, ChronoUnit.MILLIS).toInstant();
-      case YEAR_MONTH_DAY_HOUR_MINUTE_SECOND:
-        // falls through
       case TIME_ZONE:
         // falls through
       case TIME_ZONE_OFFSET:
