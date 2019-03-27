@@ -92,11 +92,13 @@ public final class JpaDateTimeParameter {
         return;
 
       case LT:
+      case EB:
         query.setParameter(lowerBoundPlaceholder(), lowerBound());
         return;
 
-      case EB:
       case AP:
+        throw new UnsupportedOperationException();
+
       default:
         throw new IllegalArgumentException();
     }
@@ -197,12 +199,18 @@ public final class JpaDateTimeParameter {
             lowerBoundPlaceholder(), upperBoundPlaceholder());
 
       case SA:
-        // the range of the search value does not intersect the range of the target value,
-        // and the range below the search value contains the range of the target value
+        // the range of the search value does not intersect the range of the target value
+        // and the range above the search value contains the range of the target value
         return String.format(" and :%s < dr.effectiveDateTime", upperBoundPlaceholder());
 
       case EB:
+        // the range of the search value does not intersect the range of the target value,
+        // and the range below the search value contains the range of the target value
+        return String.format(" and dr.issuedDateTime < :%s", lowerBoundPlaceholder());
+
       case AP:
+        throw new UnsupportedOperationException();
+
       default:
         throw new IllegalArgumentException();
     }
