@@ -18,7 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 @Value
 @Getter(AccessLevel.PRIVATE)
 public final class JpaDateTimeParameter {
-
   int index;
 
   SearchPrefix prefix;
@@ -122,11 +121,11 @@ public final class JpaDateTimeParameter {
   }
 
   private String placeholderLowerBound() {
-    return "date" + index + "UpperBound";
+    return "date" + index + "LowerBound";
   }
 
   private String placeholderUpperBound() {
-    return "date" + index + "LowerBound";
+    return "date" + index + "UpperBound";
   }
 
   private String toQuerySnippet() {
