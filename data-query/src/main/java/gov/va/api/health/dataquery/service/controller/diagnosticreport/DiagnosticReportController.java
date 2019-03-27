@@ -59,7 +59,6 @@ import org.springframework.web.bind.annotation.RestController;
 )
 @AllArgsConstructor(onConstructor = @__({@Autowired}))
 public class DiagnosticReportController {
-
   private MrAndersonClient mrAndersonClient;
 
   private WitnessProtection witnessProtection;
@@ -79,7 +78,7 @@ public class DiagnosticReportController {
       query.setParameter("code", parameters.getFirst("code"));
     }
     if (parameters.containsKey("date")) {
-      JpaDateTimeParameter.addQueryParameters(query, parameters.get("date"));
+      JpaDateTimeParameter.addQueryParametersForEach(query, parameters.get("date"));
     }
     if (parameters.containsKey("identifier")) {
       query.setParameter("identifier", parameters.getFirst("identifier"));

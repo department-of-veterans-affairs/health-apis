@@ -12,7 +12,7 @@
   <packaging>jar</packaging>
   <properties>
     <mssql-jdbc.version>6.2.1.jre8</mssql-jdbc.version>
-    <jacoco.coverage>0.87</jacoco.coverage>
+    <jacoco.coverage>0.85</jacoco.coverage>
   </properties>
   <dependencies>
     <dependency>

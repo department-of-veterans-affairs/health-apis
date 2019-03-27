@@ -18,7 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 @Value
 @Getter(AccessLevel.PRIVATE)
 public final class JpaDateTimeParameter {
-  String name;
+  int index;
 
   SearchPrefix prefix;
 
@@ -27,55 +27,52 @@ public final class JpaDateTimeParameter {
   Instant upperBound;
 
   @Builder
-  private JpaDateTimeParameter(String name, String paramString) {
+  private JpaDateTimeParameter(int index, String paramString) {
     super();
-    this.name = name;
+    this.index = index;
     if (Character.isLetter(paramString.charAt(0))) {
       prefix = SearchPrefix.valueOf(paramString.substring(0, 2).toUpperCase(Locale.US));
       lowerBound = computeLowerBound(paramString.substring(2));
-      log.error("lower bound is " + lowerBound);
       upperBound = computeUpperBound(paramString.substring(2));
-      log.error("upper bound is " + upperBound);
     } else {
       prefix = SearchPrefix.EQ;
       lowerBound = computeLowerBound(paramString);
-      log.error("lower bound is " + lowerBound);
       upperBound = computeUpperBound(paramString);
-      log.error("upper bound is " + upperBound);
     }
+
+    log.error("lower bound is " + lowerBound);
+    log.error("upper bound is " + upperBound);
   }
 
-  public static void addQueryParameters(TypedQuery<?> query, List<String> dateParams) {
+  /** Add query parameters for the upper and lower bound of each date. */
+  public static void addQueryParametersForEach(TypedQuery<?> query, List<String> dateParams) {
     if (dateParams == null || dateParams.isEmpty()) {
       return;
     }
     JpaDateTimeParameter.builder()
-        .name("date0")
+        .index(0)
         .paramString(dateParams.get(0))
         .build()
         .addQueryParameters(query);
     if (dateParams.size() >= 2) {
       JpaDateTimeParameter.builder()
-          .name("date1")
+          .index(1)
           .paramString(dateParams.get(1))
           .build()
           .addQueryParameters(query);
     }
   }
 
+  /** Build a combined JPA query snippet representing all the date criteria. */
   public static String querySnippet(String[] dates) {
     if (dates == null || dates.length == 0) {
       return "";
     }
     if (dates.length == 1) {
-      return JpaDateTimeParameter.builder()
-          .name("date0")
-          .paramString(dates[0])
-          .build()
-          .querySnippet();
+      return JpaDateTimeParameter.builder().index(0).paramString(dates[0]).build().toQuerySnippet();
     }
-    return JpaDateTimeParameter.builder().name("date0").paramString(dates[0]).build().querySnippet()
-        + JpaDateTimeParameter.builder().name("date1").paramString(dates[1]).build().querySnippet();
+    return JpaDateTimeParameter.builder().index(0).paramString(dates[0]).build().toQuerySnippet()
+        + JpaDateTimeParameter.builder().index(1).paramString(dates[1]).build().toQuerySnippet();
   }
 
   private void addQueryParameters(TypedQuery<?> query) {
@@ -162,10 +159,10 @@ public final class JpaDateTimeParameter {
   }
 
   private String lowerBoundPlaceholder() {
-    return name + "UpperBound";
+    return "date" + index + "UpperBound";
   }
 
-  private String querySnippet() {
+  private String toQuerySnippet() {
     switch (prefix()) {
       case EQ:
         // the range of the search value fully contains the range of the target value
@@ -220,7 +217,7 @@ public final class JpaDateTimeParameter {
   }
 
   private String upperBoundPlaceholder() {
-    return name + "LowerBound";
+    return "date" + index + "LowerBound";
   }
 
   private static enum SearchPrefix {
