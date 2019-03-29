@@ -4,6 +4,7 @@ import gov.va.api.health.dataquery.service.controller.XmlDocuments.ParseFailed;
 import gov.va.api.health.dataquery.service.controller.XmlDocuments.WriteFailed;
 import gov.va.api.health.ids.api.IdentityService;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import org.springframework.util.MultiValueMap;
 import org.w3c.dom.Document;
 
 @Slf4j
+@Builder
 @Component
 @AllArgsConstructor(onConstructor = @__({@Autowired}))
 public class WitnessProtection {
