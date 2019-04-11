@@ -22,6 +22,7 @@ import gov.va.api.health.dataquery.api.resources.Conformance.RestResource;
 import gov.va.api.health.dataquery.api.resources.Conformance.RestSecurity;
 import gov.va.api.health.dataquery.api.resources.Conformance.SearchParamType;
 import gov.va.api.health.dataquery.api.resources.Conformance.Software;
+import gov.va.api.health.dataquery.service.config.ReferenceSerializerProperties;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -90,6 +91,8 @@ class MetadataController {
       "http://www.fhir.org/guides/argonaut/r2/StructureDefinition-argo-procedure.html";
 
   private final ConformanceStatementProperties properties;
+
+  @Autowired ReferenceSerializerProperties referenceSerializerProperties;
 
   private Collection<SearchParam> appointmentSearchParams() {
     switch (properties.getStatementType()) {
@@ -264,6 +267,7 @@ class MetadataController {
                 .search(procedureSearchParams())
                 .build())
         .map(SupportedResource::asResource)
+        .filter(r -> referenceSerializerProperties.checkForResource(r.type()))
         .collect(Collectors.toList());
   }
 

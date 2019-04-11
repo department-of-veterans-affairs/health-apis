@@ -21,24 +21,24 @@ import org.springframework.context.annotation.Configuration;
 @AllArgsConstructor
 @Builder
 public class ReferenceSerializerProperties {
+
   private boolean appointment;
+
   private boolean encounter;
+
   private boolean location;
+
   private boolean organization;
+
   private boolean practitioner;
+
   private boolean medicationDispense;
 
   /**
-   * Return true if the given reference is well formed, AllergyIntolerance/1234 or
-   * .../AllergyIntolerance/1234 and it is set to true in the properties file. Return true for all
-   * malformed references.
+   * Return boolean property from property file for the listed resources. Return true by default.
    */
-  boolean isEnabled(Reference reference) {
-    String resourceName = resourceName(reference);
-    if (resourceName == null) {
-      return true;
-    }
-    switch (resourceName(reference)) {
+  public boolean checkForResource(String resourceName) {
+    switch (resourceName) {
       case "Appointment":
         return appointment;
       case "Encounter":
@@ -54,6 +54,19 @@ public class ReferenceSerializerProperties {
       default:
         return true;
     }
+  }
+
+  /**
+   * Return true if the given reference is well formed, AllergyIntolerance/1234 or
+   * .../AllergyIntolerance/1234 and it is set to true in the properties file. Return true for all
+   * malformed references.
+   */
+  boolean isEnabled(Reference reference) {
+    String resourceName = resourceName(reference);
+    if (resourceName == null) {
+      return true;
+    }
+    return checkForResource(resourceName);
   }
 
   /** Get the resource name of a reference if it is well formed, else return null. */
