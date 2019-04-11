@@ -58,7 +58,8 @@ public class MetadataControllerTest {
   public void readClinician() {
     ConformanceStatementProperties conformanceStatementProperties =
         conformanceStatementProperties();
-    ReferenceSerializerProperties referenceSerializerProperties = referenceSerializerPropertiesTrue();
+    ReferenceSerializerProperties referenceSerializerProperties =
+        referenceSerializerPropertiesTrue();
     conformanceStatementProperties.setStatementType(StatementType.CLINICIAN);
     MetadataController controller =
         new MetadataController(conformanceStatementProperties, referenceSerializerProperties);
@@ -76,10 +77,32 @@ public class MetadataControllerTest {
 
   @Test
   @SneakyThrows
+  public void readLab() {
+    ConformanceStatementProperties conformanceStatementProperties =
+        conformanceStatementProperties();
+    ReferenceSerializerProperties referenceSerializerProperties =
+        referenceSerializerPropertiesFalse();
+    conformanceStatementProperties.setStatementType(StatementType.PATIENT);
+    MetadataController controller =
+        new MetadataController(conformanceStatementProperties, referenceSerializerProperties);
+    Conformance old =
+        JacksonConfig.createMapper()
+            .readValue(getClass().getResourceAsStream("/lab-conformance.json"), Conformance.class);
+    try {
+      assertThat(pretty(controller.read())).isEqualTo(pretty(old));
+    } catch (AssertionError e) {
+      System.out.println(e.getMessage());
+      throw e;
+    }
+  }
+
+  @Test
+  @SneakyThrows
   public void readPatient() {
     ConformanceStatementProperties conformanceStatementProperties =
         conformanceStatementProperties();
-    ReferenceSerializerProperties referenceSerializerProperties = referenceSerializerPropertiesTrue();
+    ReferenceSerializerProperties referenceSerializerProperties =
+        referenceSerializerPropertiesTrue();
     conformanceStatementProperties.setStatementType(StatementType.PATIENT);
     MetadataController controller =
         new MetadataController(conformanceStatementProperties, referenceSerializerProperties);
@@ -95,25 +118,15 @@ public class MetadataControllerTest {
     }
   }
 
-  @Test
-  @SneakyThrows
-  public void readLab() {
-    ConformanceStatementProperties conformanceStatementProperties =
-        conformanceStatementProperties();
-    ReferenceSerializerProperties referenceSerializerProperties = referenceSerializerPropertiesFalse();
-    conformanceStatementProperties.setStatementType(StatementType.PATIENT);
-    MetadataController controller =
-        new MetadataController(conformanceStatementProperties, referenceSerializerProperties);
-    Conformance old =
-        JacksonConfig.createMapper()
-            .readValue(
-                getClass().getResourceAsStream("/lab-conformance.json"), Conformance.class);
-    try {
-      assertThat(pretty(controller.read())).isEqualTo(pretty(old));
-    } catch (AssertionError e) {
-      System.out.println(e.getMessage());
-      throw e;
-    }
+  private ReferenceSerializerProperties referenceSerializerPropertiesFalse() {
+    return ReferenceSerializerProperties.builder()
+        .appointment(false)
+        .encounter(false)
+        .location(false)
+        .medicationDispense(false)
+        .organization(false)
+        .practitioner(false)
+        .build();
   }
 
   private ReferenceSerializerProperties referenceSerializerPropertiesTrue() {
@@ -124,16 +137,6 @@ public class MetadataControllerTest {
         .medicationDispense(true)
         .organization(true)
         .practitioner(true)
-        .build();
-  }
-  private ReferenceSerializerProperties referenceSerializerPropertiesFalse() {
-    return ReferenceSerializerProperties.builder()
-        .appointment(false)
-        .encounter(false)
-        .location(false)
-        .medicationDispense(false)
-        .organization(false)
-        .practitioner(false)
         .build();
   }
 }
