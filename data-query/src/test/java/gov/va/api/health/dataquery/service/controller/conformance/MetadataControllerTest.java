@@ -59,7 +59,7 @@ public class MetadataControllerTest {
     ConformanceStatementProperties conformanceStatementProperties =
         conformanceStatementProperties();
     ReferenceSerializerProperties referenceSerializerProperties =
-        referenceSerializerPropertiesTrue();
+        referenceSerializerProperties(true);
     conformanceStatementProperties.setStatementType(StatementType.CLINICIAN);
     MetadataController controller =
         new MetadataController(conformanceStatementProperties, referenceSerializerProperties);
@@ -81,7 +81,7 @@ public class MetadataControllerTest {
     ConformanceStatementProperties conformanceStatementProperties =
         conformanceStatementProperties();
     ReferenceSerializerProperties referenceSerializerProperties =
-        referenceSerializerPropertiesFalse();
+        referenceSerializerProperties(false);
     conformanceStatementProperties.setStatementType(StatementType.PATIENT);
     MetadataController controller =
         new MetadataController(conformanceStatementProperties, referenceSerializerProperties);
@@ -102,7 +102,7 @@ public class MetadataControllerTest {
     ConformanceStatementProperties conformanceStatementProperties =
         conformanceStatementProperties();
     ReferenceSerializerProperties referenceSerializerProperties =
-        referenceSerializerPropertiesTrue();
+        referenceSerializerProperties(true);
     conformanceStatementProperties.setStatementType(StatementType.PATIENT);
     MetadataController controller =
         new MetadataController(conformanceStatementProperties, referenceSerializerProperties);
@@ -118,25 +118,14 @@ public class MetadataControllerTest {
     }
   }
 
-  private ReferenceSerializerProperties referenceSerializerPropertiesFalse() {
+  private ReferenceSerializerProperties referenceSerializerProperties(boolean isEnabled) {
     return ReferenceSerializerProperties.builder()
-        .appointment(false)
-        .encounter(false)
-        .location(false)
-        .medicationDispense(false)
-        .organization(false)
-        .practitioner(false)
-        .build();
-  }
-
-  private ReferenceSerializerProperties referenceSerializerPropertiesTrue() {
-    return ReferenceSerializerProperties.builder()
-        .appointment(true)
-        .encounter(true)
-        .location(true)
-        .medicationDispense(true)
-        .organization(true)
-        .practitioner(true)
+        .appointment(isEnabled)
+        .encounter(isEnabled)
+        .location(isEnabled)
+        .medicationDispense(isEnabled)
+        .organization(isEnabled)
+        .practitioner(isEnabled)
         .build();
   }
 }
