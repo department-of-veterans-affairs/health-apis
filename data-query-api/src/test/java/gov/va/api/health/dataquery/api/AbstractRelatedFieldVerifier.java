@@ -17,6 +17,7 @@ import gov.va.api.health.dataquery.api.datatypes.Quantity;
 import gov.va.api.health.dataquery.api.datatypes.Range;
 import gov.va.api.health.dataquery.api.datatypes.Ratio;
 import gov.va.api.health.dataquery.api.datatypes.SampledData;
+import gov.va.api.health.dataquery.api.datatypes.SimpleQuantity;
 import gov.va.api.health.dataquery.api.elements.Extension;
 import gov.va.api.health.dataquery.api.elements.Reference;
 import gov.va.api.health.dataquery.api.samples.SampleDataTypes;
@@ -109,6 +110,7 @@ public abstract class AbstractRelatedFieldVerifier<T> {
     suppliers.put(Reference.class, dataTypes::reference);
     suppliers.put(SampledData.class, dataTypes::sampledData);
     suppliers.put(Age.class, dataTypes::age);
+    suppliers.put(SimpleQuantity.class, dataTypes::simpleQuantity);
     return suppliers;
   }
 

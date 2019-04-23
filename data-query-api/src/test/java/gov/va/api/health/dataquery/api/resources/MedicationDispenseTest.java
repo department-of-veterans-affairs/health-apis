@@ -63,11 +63,28 @@ public class MedicationDispenseTest {
     ExactlyOneOfVerifier.builder()
         .sample(data.medicationDispense())
         .fieldPrefix("medication")
-        .build();
-    ZeroOrOneOfVerifier.builder().sample(data.medicationDispense()).fieldPrefix("rate").build();
-    ZeroOrOneOfVerifier.builder().sample(data.medicationDispense()).fieldPrefix("asNeeded").build();
-    ZeroOrOneOfVerifier.builder().sample(data.medicationDispense()).fieldPrefix("site").build();
-    ZeroOrOneOfVerifier.builder().sample(data.medicationDispense()).fieldPrefix("dose").build();
+        .build()
+        .verify();
+    ZeroOrOneOfVerifier.builder()
+        .sample(data.medicationDispense().dosageInstruction().get(0))
+        .fieldPrefix("rate")
+        .build()
+        .verify();
+    ZeroOrOneOfVerifier.builder()
+        .sample(data.medicationDispense().dosageInstruction().get(0))
+        .fieldPrefix("asNeeded")
+        .build()
+        .verify();
+    ZeroOrOneOfVerifier.builder()
+        .sample(data.medicationDispense().dosageInstruction().get(0))
+        .fieldPrefix("site")
+        .build()
+        .verify();
+    ZeroOrOneOfVerifier.builder()
+        .sample(data.medicationDispense().dosageInstruction().get(0))
+        .fieldPrefix("dose")
+        .build()
+        .verify();
   }
 
   @Test

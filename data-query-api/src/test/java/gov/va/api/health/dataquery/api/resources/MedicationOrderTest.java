@@ -60,31 +60,41 @@ public class MedicationOrderTest {
 
   @Test
   public void relatedFields() {
-    ExactlyOneOfVerifier.builder().sample(data.medicationOrder()).fieldPrefix("medication").build();
+    ExactlyOneOfVerifier.builder()
+        .sample(data.medicationOrder())
+        .fieldPrefix("medication")
+        .build()
+        .verify();
     ZeroOrOneOfVerifier.builder()
         .sample(data.medicationOrder())
         .fieldPrefix("reason")
         .omission("reasonEnded")
-        .build();
+        .build()
+        .verify();
     ZeroOrOneOfVerifier.builder()
-        .sample(data.medicationOrder().dosageInstruction())
+        .sample(data.medicationOrder().dosageInstruction().get(0))
         .fieldPrefix("asNeeded")
-        .build();
+        .build()
+        .verify();
     ZeroOrOneOfVerifier.builder()
-        .sample(data.medicationOrder().dosageInstruction())
+        .sample(data.medicationOrder().dosageInstruction().get(0))
         .fieldPrefix("site")
-        .build();
+        .build()
+        .verify();
     ZeroOrOneOfVerifier.builder()
-        .sample(data.medicationOrder().dosageInstruction())
+        .sample(data.medicationOrder().dosageInstruction().get(0))
         .fieldPrefix("dose")
-        .build();
+        .build()
+        .verify();
     ZeroOrOneOfVerifier.builder()
-        .sample(data.medicationOrder().dosageInstruction())
+        .sample(data.medicationOrder().dosageInstruction().get(0))
         .fieldPrefix("rate")
-        .build();
+        .build()
+        .verify();
     ZeroOrOneOfVerifier.builder()
         .sample(data.medicationOrder().dispenseRequest())
         .fieldPrefix("medication")
-        .build();
+        .build()
+        .verify();
   }
 }
