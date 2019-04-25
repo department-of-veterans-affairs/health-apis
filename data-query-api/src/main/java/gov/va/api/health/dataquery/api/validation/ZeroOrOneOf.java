@@ -36,15 +36,15 @@ import javax.validation.Payload;
 @Constraint(validatedBy = ZeroOrOneOfValidator.class)
 @Documented
 public @interface ZeroOrOneOf {
-  /** @return The fields */
+  /** Return The fields. */
   String[] fields();
 
-  /** Assigns default set of constraints during validation */
+  /** Assigns default set of constraints during validation. */
   Class<?>[] groups() default {};
 
   /** Assigns message for when validation fails. */
   String message() default "Only one value in this group may be specified";
 
-  /** Assigns default payload to constraints */
+  /** Assigns default payload to constraints. */
   Class<? extends Payload>[] payload() default {};
 }

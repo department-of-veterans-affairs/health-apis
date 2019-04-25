@@ -35,15 +35,15 @@ import javax.validation.Payload;
 @Constraint(validatedBy = ExactlyOneOfValidator.class)
 @Documented
 public @interface ExactlyOneOf {
-  /** @return The fields */
+  /** Return The fields. */
   String[] fields();
 
-  /** Assigns default set of constraints during validation */
+  /** Assigns default set of constraints during validation. */
   Class<?>[] groups() default {};
 
   /** Assigns message for when validation fails. */
   String message() default "Exactly one value in this group must be specified";
 
-  /** Assigns default payload to constraints */
+  /** Assigns default payload to constraints. */
   Class<? extends Payload>[] payload() default {};
 }
