@@ -35,7 +35,7 @@ public class SteelThreadHealthCheckTest {
     SteelThreadSystemCheck test =
         new SteelThreadSystemCheck(client, ledger, "123", failureThresholdForTests);
     // We'll return exactly the threshold to check the boundary case.
-    when(ledger.getConsecutiveFailureCount()).thenReturn(failureThresholdForTests);
+    when(ledger.getConsecutiveFailureCount()).thenReturn(failureThresholdForTests-1);
     assertThat(test.health().getStatus()).isEqualTo(Status.UP);
   }
 
@@ -43,7 +43,7 @@ public class SteelThreadHealthCheckTest {
   public void healthCheckSadPathWhenFailureThresholdExceeded() {
     SteelThreadSystemCheck test =
         new SteelThreadSystemCheck(client, ledger, "123", failureThresholdForTests);
-    when(ledger.getConsecutiveFailureCount()).thenReturn(failureThresholdForTests + 1);
+    when(ledger.getConsecutiveFailureCount()).thenReturn(failureThresholdForTests);
     assertThat(test.health().getStatus()).isEqualTo(Status.DOWN);
   }
 
@@ -52,7 +52,7 @@ public class SteelThreadHealthCheckTest {
     SteelThreadSystemCheck test =
         new SteelThreadSystemCheck(client, ledger, "skip", failureThresholdForTests);
     // Exceed threshold to make sure we're actually skipping.
-    when(ledger.getConsecutiveFailureCount()).thenReturn(failureThresholdForTests + 1);
+    when(ledger.getConsecutiveFailureCount()).thenReturn(failureThresholdForTests + 100);
     assertThat(test.health().getStatus()).isEqualTo(Status.UP);
   }
 
@@ -65,6 +65,8 @@ public class SteelThreadHealthCheckTest {
         new SteelThreadSystemCheck(client, ledger, "123", failureThresholdForTests);
     // Just need to thrown any unchecked exception to make sure that we hit the failure reporting.
     when(client.search(Mockito.any())).thenThrow(new IllegalArgumentException("foo"));
+    when(ledger.recordFailure()).thenReturn(failureThresholdForTests);
+
     try {
       test.runSteelThreadCheckAsynchronously();
     } catch (Exception e) {
@@ -104,6 +106,7 @@ public class SteelThreadHealthCheckTest {
                     .resource("Medication")
                     .version("999")
                     .build()));
+    when(ledger.recordFailure()).thenReturn(failureThresholdForTests);
     test.runSteelThreadCheckAsynchronously();
     verify(ledger, times(1)).recordFailure();
   }

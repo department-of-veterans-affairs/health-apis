@@ -47,20 +47,21 @@ public class SteelThreadSystemCheck implements HealthIndicator {
     if ("skip".equals(id)) {
       return Health.up().withDetail("skipped", true).build();
     }
-    // If we've exceeded the sequential failure count - bad. The count is read and stored
-    // because there is another thread writing it and we want a consistent copy through the logic
-    // and logs.
+
+    // The count is read and stored for consistency because there is another thread writing it.
     int consecutiveFails = requestStatusLeger.getConsecutiveFailureCount();
-    if (consecutiveFails > consecutiveFailureThreshold) {
-      return Health.down()
-          .withDetail(
-              "failures",
-              String.format(
-                  "%d consecutive failures exceeds threshold of %s.",
-                  consecutiveFails, consecutiveFailureThreshold))
-          .build();
+
+    if (consecutiveFails < consecutiveFailureThreshold) {
+      return Health.up().build();
     }
-    return Health.up().build();
+
+    return Health.down()
+        .withDetail(
+            "failures",
+            String.format(
+                "Error threshold of %d hit with %d consecutive failure(s).",
+                consecutiveFailureThreshold, consecutiveFails))
+        .build();
   }
 
   private Query<CdwMedication101Root> query() {
