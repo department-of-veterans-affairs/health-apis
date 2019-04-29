@@ -7,6 +7,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 public class HealthCheckIT {
+  // TODO PRS check with BS on future of this before PR.
   @Category(Local.class)
   @Test
   public void dataQueryIsHealthy() {
