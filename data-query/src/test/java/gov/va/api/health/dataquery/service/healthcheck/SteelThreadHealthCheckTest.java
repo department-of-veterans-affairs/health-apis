@@ -35,7 +35,7 @@ public class SteelThreadHealthCheckTest {
     SteelThreadSystemCheck test =
         new SteelThreadSystemCheck(client, ledger, "123", failureThresholdForTests);
     // We'll return exactly the threshold to check the boundary case.
-    when(ledger.getConsecutiveFailureCount()).thenReturn(failureThresholdForTests-1);
+    when(ledger.getConsecutiveFailureCount()).thenReturn(failureThresholdForTests - 1);
     assertThat(test.health().getStatus()).isEqualTo(Status.UP);
   }
 

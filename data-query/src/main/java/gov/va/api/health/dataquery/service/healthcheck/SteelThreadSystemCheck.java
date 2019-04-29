@@ -23,20 +23,25 @@ public class SteelThreadSystemCheck implements HealthIndicator {
 
   private final MrAndersonClient client;
 
-  private final SteelThreadSystemCheckLedger requestStatusLeger;
+  private final SteelThreadSystemCheckLedger ledger;
 
   private final String id;
 
   private final int consecutiveFailureThreshold;
 
-  /** 'By hand' all args constructor is required to inject non-string values from our properties. */
+  /**
+   * 'By hand' all args constructor is required to inject non-string values from our properties.
+   *
+   * @param consecutiveFailureThreshold - once consecutive failures meets or exceeds, report
+   *     failures.
+   */
   public SteelThreadSystemCheck(
       @Autowired MrAndersonClient client,
-      @Autowired SteelThreadSystemCheckLedger requestStatusLeger,
+      @Autowired SteelThreadSystemCheckLedger ledger,
       @Value("${health-check.medication-id}") String id,
       @Value("${health-check.consecutive-failure-threshold}") int consecutiveFailureThreshold) {
     this.client = client;
-    this.requestStatusLeger = requestStatusLeger;
+    this.ledger = ledger;
     this.id = id;
     this.consecutiveFailureThreshold = consecutiveFailureThreshold;
   }
@@ -49,7 +54,7 @@ public class SteelThreadSystemCheck implements HealthIndicator {
     }
 
     // The count is read and stored for consistency because there is another thread writing it.
-    int consecutiveFails = requestStatusLeger.getConsecutiveFailureCount();
+    int consecutiveFails = ledger.getConsecutiveFailureCount();
 
     if (consecutiveFails < consecutiveFailureThreshold) {
       return Health.up().build();
@@ -78,23 +83,23 @@ public class SteelThreadSystemCheck implements HealthIndicator {
    * Frequency is configurable via properties.
    */
   @Scheduled(
-      fixedDelayString = "${health-check.read-frequency-ms}",
-      initialDelayString = "${health-check.read-frequency-ms}"
+    fixedDelayString = "${health-check.read-frequency-ms}",
+    initialDelayString = "${health-check.read-frequency-ms}"
   )
   @SneakyThrows
   public void runSteelThreadCheckAsynchronously() {
     log.info("Performing health check.");
     try {
       client.search(query());
-      requestStatusLeger.recordSuccess();
+      ledger.recordSuccess();
     } catch (HttpServerErrorException
         | HttpClientErrorException
         | ResourceAccessException
         | MrAndersonServiceException e) {
-      int consecutiveFailures = requestStatusLeger.recordFailure();
+      int consecutiveFailures = ledger.recordFailure();
       log.error("Failed to complete health check. Failure count is " + consecutiveFailures);
     } catch (Exception e) {
-      int consecutiveFailures = requestStatusLeger.recordFailure();
+      int consecutiveFailures = ledger.recordFailure();
       log.error("Failed to complete health check. Failure count is " + consecutiveFailures, e);
       throw e;
     }
