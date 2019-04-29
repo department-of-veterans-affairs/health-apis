@@ -18,7 +18,7 @@ Options
 
 Examples
  # Start both
- $0 -ma s
+ $0 -md s
 
  # Stop Mr. Anderson
  $0 --mr-anderson stop
@@ -90,7 +90,7 @@ SPRING_PROFILES_ACTIVE=dev
 
 ARGS=$(getopt -n $(basename ${0}) \
     -l "debug,help,mr-anderson,data-query" \
-    -o "hima" -- "$@")
+    -o "hmd" -- "$@")
 [ $? != 0 ] && usage
 eval set -- "$ARGS"
 while true
