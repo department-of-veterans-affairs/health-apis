@@ -14,7 +14,14 @@ public class SignatureTest {
 
   @Test
   public void signatureWithOnlyWhoReferenceIsValid() {
-    Signature psuedoSignature = signatureWithOnlyWhoReference();
+    Signature psuedoSignature = Signature.builder()
+            .id("1234")
+            .type(SampleDataTypes.get().codingList())
+            .when("2000-01-01T00:00:00-00:00")
+            .whoReference(SampleDataTypes.get().reference())
+            .contentType("contentTypeTest")
+            .blob("aGVsbG8=")
+            .build();
 
     Set<ConstraintViolation<Signature>> problems = Validation
         .buildDefaultValidatorFactory()
@@ -26,7 +33,14 @@ public class SignatureTest {
 
   @Test
   public void signatureWithOnlyWhoUriIsValid() {
-    Signature psuedoSignature = signatureWithOnlyWhoUri();
+    Signature psuedoSignature = Signature.builder()
+            .id("1234")
+            .type(SampleDataTypes.get().codingList())
+            .when("2000-01-01T00:00:00-00:00")
+            .whoUri("123456")
+            .contentType("contentTypeTest")
+            .blob("aGVsbG8=")
+            .build();
 
     Set<ConstraintViolation<Signature>> problems = Validation
         .buildDefaultValidatorFactory()
@@ -38,7 +52,15 @@ public class SignatureTest {
 
   @Test
   public void signatureWithBothWhoUriAndWhoReferenceIsInvalid() {
-    Signature psuedoSignature = signatureWithBothWhoUriAndWhoReference();
+    Signature psuedoSignature = Signature.builder()
+            .id("1234")
+            .type(SampleDataTypes.get().codingList())
+            .when("2000-01-01T00:00:00-00:00")
+            .whoUri("123456")
+            .whoReference(SampleDataTypes.get().reference())
+            .contentType("contentTypeTest")
+            .blob("aGVsbG8=")
+            .build();
 
     Set<ConstraintViolation<Signature>> problems = Validation
         .buildDefaultValidatorFactory()
@@ -50,7 +72,13 @@ public class SignatureTest {
 
   @Test
   public void signatureMissingBothWhoUriAndWhoReferenceIsInvalid() {
-    Signature psuedoSignature = signatureMissingBothWhoUriAndWhoReference();
+    Signature psuedoSignature = Signature.builder()
+            .id("1234")
+            .type(SampleDataTypes.get().codingList())
+            .when("2000-01-01T00:00:00-00:00")
+            .contentType("contentTypeTest")
+            .blob("aGVsbG8=")
+            .build();
 
     Set<ConstraintViolation<Signature>> problems = Validation
         .buildDefaultValidatorFactory()
@@ -58,53 +86,5 @@ public class SignatureTest {
         .validate(psuedoSignature);
 
     assertThat(problems.size()).isEqualTo(1);
-  }
-
-  private Signature signatureWithOnlyWhoReference() {
-    SampleDataTypes data = SampleDataTypes.get();
-    return Signature.builder()
-        .id("1234")
-        .type(data.codingList())
-        .when("2000-01-01T00:00:00-00:00")
-        .whoReference(data.reference())
-        .contentType("contentTypeTest")
-        .blob("aGVsbG8=")
-        .build();
-  }
-
-  private Signature signatureWithOnlyWhoUri() {
-    SampleDataTypes data = SampleDataTypes.get();
-    return Signature.builder()
-        .id("1234")
-        .type(data.codingList())
-        .when("2000-01-01T00:00:00-00:00")
-        .whoUri("123456")
-        .contentType("contentTypeTest")
-        .blob("aGVsbG8=")
-        .build();
-  }
-
-  private Signature signatureWithBothWhoUriAndWhoReference() {
-    SampleDataTypes data = SampleDataTypes.get();
-    return Signature.builder()
-        .id("1234")
-        .type(data.codingList())
-        .when("2000-01-01T00:00:00-00:00")
-        .whoUri("123456")
-        .whoReference(data.reference())
-        .contentType("contentTypeTest")
-        .blob("aGVsbG8=")
-        .build();
-  }
-
-  private Signature signatureMissingBothWhoUriAndWhoReference() {
-    SampleDataTypes data = SampleDataTypes.get();
-    return Signature.builder()
-        .id("1234")
-        .type(data.codingList())
-        .when("2000-01-01T00:00:00-00:00")
-        .contentType("contentTypeTest")
-        .blob("aGVsbG8=")
-        .build();
   }
 }
