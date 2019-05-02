@@ -24,6 +24,7 @@ import gov.va.api.health.dataquery.api.datatypes.Quantity;
 import gov.va.api.health.dataquery.api.datatypes.Range;
 import gov.va.api.health.dataquery.api.datatypes.Ratio;
 import gov.va.api.health.dataquery.api.datatypes.SampledData;
+import gov.va.api.health.dataquery.api.datatypes.Signature;
 import gov.va.api.health.dataquery.api.datatypes.SimpleQuantity;
 import gov.va.api.health.dataquery.api.datatypes.SimpleResource;
 import gov.va.api.health.dataquery.api.datatypes.Timing;
@@ -47,6 +48,7 @@ import lombok.NoArgsConstructor;
 @SuppressWarnings({"WeakerAccess", "unused"})
 @NoArgsConstructor(staticName = "get")
 public final class SampleDataTypes {
+
   public Address address() {
     return Address.builder()
         .id("1234")
@@ -323,6 +325,17 @@ public final class SampleDataTypes {
         .extension(singletonList(extension()))
         .modifierExtension(singletonList(extension()))
         .rank(new BigDecimal(0.5))
+        .build();
+  }
+
+  public Signature signature() {
+    return Signature.builder()
+        .id("1234")
+        .type(SampleDataTypes.get().codingList())
+        .when("2000-01-01T00:00:00-00:00")
+        .whoReference(SampleDataTypes.get().reference())
+        .contentType("contentTypeTest")
+        .blob("aGVsbG8=")
         .build();
   }
 

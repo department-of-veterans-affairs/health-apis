@@ -13,6 +13,8 @@ import gov.va.api.health.dataquery.api.datatypes.Period;
 import gov.va.api.health.dataquery.api.datatypes.Quantity;
 import gov.va.api.health.dataquery.api.datatypes.Range;
 import gov.va.api.health.dataquery.api.datatypes.Ratio;
+import gov.va.api.health.dataquery.api.datatypes.Signature;
+import gov.va.api.health.dataquery.api.datatypes.Timing;
 import gov.va.api.health.dataquery.api.validation.ZeroOrOneOf;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
@@ -36,25 +38,26 @@ import lombok.NoArgsConstructor;
     "valueDecimal",
     "valueDateTime",
     "valueDate",
-    "valueDateTime",
-    "valueDate",
     "valueInstant",
     "valueString",
     "valueUri",
     "valueBoolean",
     "valueCode",
+    "valueMarkdown",
     "valueBase64Binary",
     "valueCoding",
     "valueCodeableConcept",
+    "valueAttachment",
     "valueIdentifier",
     "valueQuantity",
-    "valueAttachment",
     "valueRange",
     "valuePeriod",
     "valueRatio",
     "valueHumanName",
     "valueAddress",
     "valueContactPoint",
+    "valueTiming",
+    "valueSignature",
     "valueReference"
   },
   message = "Only one value type may be specified"
@@ -91,19 +94,23 @@ public class Extension implements Element {
   @Pattern(regexp = Fhir.CODE)
   String valueCode;
 
+  String valueMarkdown;
+
   @Pattern(regexp = Fhir.BASE64)
   String valueBase64Binary;
 
   @Valid Coding valueCoding;
   @Valid CodeableConcept valueCodeableConcept;
+  @Valid Attachment valueAttachment;
   @Valid Identifier valueIdentifier;
   @Valid Quantity valueQuantity;
-  @Valid Attachment valueAttachment;
   @Valid Range valueRange;
   @Valid Period valuePeriod;
   @Valid Ratio valueRatio;
   @Valid HumanName valueHumanName;
   @Valid Address valueAddress;
   @Valid ContactPoint valueContactPoint;
+  @Valid Timing valueTiming;
+  @Valid Signature valueSignature;
   @Valid Reference valueReference;
 }
