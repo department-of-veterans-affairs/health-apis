@@ -121,9 +121,8 @@ entries:
   query: /DiagnosticReport:1.02?code=10000-8,10001-6&patient=185601V825290
   page: 1
   count: 15
-# Create AllergyIntolerance 1.04 fakes from 1.03 samples.
+# Alias the 1.03 Allergy Intolerance samples as 1.04 to make sure they are tested.
 # The schema was unchanged from 1.03 and new schemas and new samples were not generated.
-# Alias the 1.03 samples as 1.04 to make sure they are tested.
 - file: ../../../../target/cdw/samples/AllInt103i1000001782544.xml
   query: /AllergyIntolerance:1.04?identifier=1000001782544
   page: 1
