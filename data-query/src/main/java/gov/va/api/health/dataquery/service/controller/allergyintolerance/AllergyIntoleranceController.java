@@ -82,7 +82,10 @@ public class AllergyIntoleranceController {
         Query.forType(CdwAllergyIntolerance103Root.class)
             .profile(Query.Profile.ARGONAUT)
             .resource("AllergyIntolerance")
-            .version("1.03")
+            // There wasn't a schema change so cdw-schemas was not updated to 1.04 from 1.03.
+            // We do want to hit the allergy intolerance 1.04 cdw queries for the latest.
+            // Intentional mismatch of 103 vs. 1.04 below.
+            .version("1.04")
             .parameters(params)
             .build();
     return hasPayload(mrAndersonClient.search(query));

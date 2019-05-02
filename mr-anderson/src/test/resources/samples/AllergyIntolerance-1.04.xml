@@ -2,7 +2,7 @@
 <root>
   <fhirVersion>DSTU2 Argonaut</fhirVersion>
   <resourceName>allergyintolerance</resourceName>
-  <resourceVersion>1.03</resourceVersion>
+  <resourceVersion>1.04</resourceVersion>
   <returnType>full</returnType>
   <returnFormat>XML</returnFormat>
   <recordsPerPage>15</recordsPerPage>

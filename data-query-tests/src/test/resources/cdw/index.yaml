@@ -121,3 +121,42 @@ entries:
   query: /DiagnosticReport:1.02?code=10000-8,10001-6&patient=185601V825290
   page: 1
   count: 15
+# Create AllergyIntolerance 1.04 fakes from 1.03 samples.
+# The schema was unchanged from 1.03 and new schemas and new samples were not generated.
+# Alias the 1.03 samples as 1.04 to make sure they are tested.
+- file: ../../../../target/cdw/samples/AllInt103i1000001782544.xml
+  query: /AllergyIntolerance:1.04?identifier=1000001782544
+  page: 1
+  count: 15
+- file: ../../../../target/cdw/samples/AllInt103i5555555555555.xml
+  query: /AllergyIntolerance:1.04?identifier=5555555555555
+  page: 1
+  count: 15
+- file: ../../../../target/cdw/samples/AllInt103p185601V825290.xml
+  query: /AllergyIntolerance:1.04?patient=185601V825290
+  page: 1
+  count: 15
+- file: ../../../../target/cdw/samples/AllInt103p185601V825290pg0.xml
+  query: /AllergyIntolerance:1.04?patient=185601V825290
+  page: 0
+  count: 15
+- file: ../../../../target/cdw/samples/AllInt103p185601V825290pg10000ct20.xml
+  query: /AllergyIntolerance:1.04?patient=185601V825290
+  page: 10000
+  count: 20
+- file: ../../../../target/cdw/samples/AllInt103p185601V825290pg1ct0.xml
+  query: /AllergyIntolerance:1.04?patient=185601V825290
+  page: 1
+  count: 0
+- file: ../../../../target/cdw/samples/AllInt103p185601V825290pg1ct2.xml
+  query: /AllergyIntolerance:1.04?patient=185601V825290
+  page: 1
+  count: 2
+- file: ../../../../target/cdw/samples/AllInt103p185601V825290pg1ct21.xml
+  query: /AllergyIntolerance:1.04?patient=185601V825290
+  page: 1
+  count: 21
+- file: ../../../../target/cdw/samples/AllInt103p185601V825290pg2ct2.xml
+  query: /AllergyIntolerance:1.04?patient=185601V825290
+  page: 2
+  count: 2

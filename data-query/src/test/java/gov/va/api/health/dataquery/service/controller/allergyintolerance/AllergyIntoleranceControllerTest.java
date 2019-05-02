@@ -193,7 +193,7 @@ public class AllergyIntoleranceControllerTest {
     AllergyIntolerance resource =
         JacksonConfig.createMapper()
             .readValue(
-                getClass().getResourceAsStream("/cdw/old-allergyintolerance-1.03.json"),
+                getClass().getResourceAsStream("/cdw/old-allergyintolerance-1.04.json"),
                 AllergyIntolerance.class);
     Bundle bundle = bundleOf(resource);
     assertThat(controller.validate(bundle)).isEqualTo(Validator.ok());
@@ -205,7 +205,7 @@ public class AllergyIntoleranceControllerTest {
     AllergyIntolerance resource =
         JacksonConfig.createMapper()
             .readValue(
-                getClass().getResourceAsStream("/cdw/old-allergyintolerance-1.03.json"),
+                getClass().getResourceAsStream("/cdw/old-allergyintolerance-1.04.json"),
                 AllergyIntolerance.class);
     resource.resourceType(null);
 
