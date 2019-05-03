@@ -1,12 +1,12 @@
 package gov.va.api.health.dataquery.service.controller;
 
-import gov.va.api.health.dataquery.api.elements.Narrative;
-import gov.va.api.health.dataquery.api.elements.Narrative.NarrativeStatus;
-import gov.va.api.health.dataquery.api.resources.OperationOutcome;
-import gov.va.api.health.dataquery.api.resources.OperationOutcome.Issue;
-import gov.va.api.health.dataquery.api.resources.OperationOutcome.Issue.IssueSeverity;
 import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient.BadRequest;
 import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient.NotFound;
+import gov.va.api.health.dstu2.api.elements.Narrative;
+import gov.va.api.health.dstu2.api.elements.Narrative.NarrativeStatus;
+import gov.va.api.health.dstu2.api.resources.OperationOutcome;
+import gov.va.api.health.dstu2.api.resources.OperationOutcome.Issue;
+import gov.va.api.health.dstu2.api.resources.OperationOutcome.Issue.IssueSeverity;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;

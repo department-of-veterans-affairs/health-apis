@@ -1,12 +1,12 @@
 package gov.va.api.health.dataquery.service.controller;
 
-import gov.va.api.health.dataquery.api.bundle.AbstractBundle;
-import gov.va.api.health.dataquery.api.bundle.AbstractBundle.BundleType;
-import gov.va.api.health.dataquery.api.bundle.AbstractEntry;
-import gov.va.api.health.dataquery.api.bundle.AbstractEntry.Search;
-import gov.va.api.health.dataquery.api.bundle.AbstractEntry.SearchMode;
-import gov.va.api.health.dataquery.api.resources.Resource;
 import gov.va.api.health.dataquery.service.controller.PageLinks.LinkConfig;
+import gov.va.api.health.dstu2.api.bundle.AbstractBundle;
+import gov.va.api.health.dstu2.api.bundle.AbstractBundle.BundleType;
+import gov.va.api.health.dstu2.api.bundle.AbstractEntry;
+import gov.va.api.health.dstu2.api.bundle.AbstractEntry.Search;
+import gov.va.api.health.dstu2.api.bundle.AbstractEntry.SearchMode;
+import gov.va.api.health.dstu2.api.resources.Resource;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;

@@ -10,7 +10,20 @@
   <artifactId>data-query</artifactId>
   <version>1.0.208-SNAPSHOT</version>
   <packaging>jar</packaging>
+  <properties>
+    <argonaut-dstu2.version>1.0.4-SNAPSHOT</argonaut-dstu2.version>
+  </properties>
   <dependencies>
+    <dependency>
+      <groupId>gov.va.api.health</groupId>
+      <artifactId>argonaut</artifactId>
+      <version>${argonaut-dstu2.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>gov.va.api.health</groupId>
+      <artifactId>dstu2</artifactId>
+      <version>${argonaut-dstu2.version}</version>
+    </dependency>
     <dependency>
       <groupId>gov.va.api.health</groupId>
       <artifactId>service-auto-config</artifactId>

@@ -2,7 +2,7 @@ package gov.va.api.health.dataquery.service.config;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import gov.va.api.health.dataquery.api.elements.Reference;
+import gov.va.api.health.dstu2.api.elements.Reference;
 import org.junit.Test;
 
 public class ReferenceSerializerPropertiesTest {

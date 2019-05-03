@@ -2,17 +2,17 @@ package gov.va.api.health.dataquery.service.controller.allergyintolerance;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import gov.va.api.health.dataquery.api.datatypes.Annotation;
-import gov.va.api.health.dataquery.api.datatypes.CodeableConcept;
-import gov.va.api.health.dataquery.api.datatypes.Coding;
-import gov.va.api.health.dataquery.api.elements.Reference;
-import gov.va.api.health.dataquery.api.resources.AllergyIntolerance;
-import gov.va.api.health.dataquery.api.resources.AllergyIntolerance.Category;
-import gov.va.api.health.dataquery.api.resources.AllergyIntolerance.Certainty;
-import gov.va.api.health.dataquery.api.resources.AllergyIntolerance.Criticality;
-import gov.va.api.health.dataquery.api.resources.AllergyIntolerance.Reaction;
-import gov.va.api.health.dataquery.api.resources.AllergyIntolerance.Status;
-import gov.va.api.health.dataquery.api.resources.AllergyIntolerance.Type;
+import gov.va.api.health.argonaut.api.resources.AllergyIntolerance;
+import gov.va.api.health.argonaut.api.resources.AllergyIntolerance.Category;
+import gov.va.api.health.argonaut.api.resources.AllergyIntolerance.Certainty;
+import gov.va.api.health.argonaut.api.resources.AllergyIntolerance.Criticality;
+import gov.va.api.health.argonaut.api.resources.AllergyIntolerance.Reaction;
+import gov.va.api.health.argonaut.api.resources.AllergyIntolerance.Status;
+import gov.va.api.health.argonaut.api.resources.AllergyIntolerance.Type;
+import gov.va.api.health.dstu2.api.datatypes.Annotation;
+import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
+import gov.va.api.health.dstu2.api.datatypes.Coding;
+import gov.va.api.health.dstu2.api.elements.Reference;
 import gov.va.dvp.cdw.xsd.model.CdwAllergyIntolerance103Root.CdwAllergyIntolerances.CdwAllergyIntolerance;
 import gov.va.dvp.cdw.xsd.model.CdwAllergyIntolerance103Root.CdwAllergyIntolerances.CdwAllergyIntolerance.CdwNotes;
 import gov.va.dvp.cdw.xsd.model.CdwAllergyIntolerance103Root.CdwAllergyIntolerances.CdwAllergyIntolerance.CdwReactions;

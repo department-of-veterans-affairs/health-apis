@@ -3,7 +3,7 @@ package gov.va.api.health.dataquery.service.controller.conformance;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
-import gov.va.api.health.dataquery.api.resources.Conformance;
+import gov.va.api.health.dataquery.service.api.conformance.Conformance;
 import gov.va.api.health.dataquery.service.config.ReferenceSerializerProperties;
 import gov.va.api.health.dataquery.service.controller.conformance.ConformanceStatementProperties.ContactProperties;
 import gov.va.api.health.dataquery.service.controller.conformance.ConformanceStatementProperties.SecurityProperties;

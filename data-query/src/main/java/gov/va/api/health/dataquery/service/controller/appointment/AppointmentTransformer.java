@@ -8,15 +8,15 @@ import static gov.va.api.health.dataquery.service.controller.Transformers.conver
 import static gov.va.api.health.dataquery.service.controller.Transformers.ifPresent;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
-import gov.va.api.health.dataquery.api.datatypes.CodeableConcept;
-import gov.va.api.health.dataquery.api.datatypes.Coding;
-import gov.va.api.health.dataquery.api.elements.Reference;
-import gov.va.api.health.dataquery.api.resources.Appointment;
-import gov.va.api.health.dataquery.api.resources.Appointment.Participant;
-import gov.va.api.health.dataquery.api.resources.Appointment.Participant.ParticipantStatus;
-import gov.va.api.health.dataquery.api.resources.Appointment.Participant.RequiredCode;
-import gov.va.api.health.dataquery.api.resources.Appointment.Status;
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
+import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
+import gov.va.api.health.dstu2.api.datatypes.Coding;
+import gov.va.api.health.dstu2.api.elements.Reference;
+import gov.va.api.health.dstu2.api.resources.Appointment;
+import gov.va.api.health.dstu2.api.resources.Appointment.Participant;
+import gov.va.api.health.dstu2.api.resources.Appointment.Participant.ParticipantStatus;
+import gov.va.api.health.dstu2.api.resources.Appointment.Participant.RequiredCode;
+import gov.va.api.health.dstu2.api.resources.Appointment.Status;
 import gov.va.dvp.cdw.xsd.model.CdwAppointment101Root.CdwAppointments.CdwAppointment;
 import gov.va.dvp.cdw.xsd.model.CdwAppointment101Root.CdwAppointments.CdwAppointment.CdwParticipants;
 import gov.va.dvp.cdw.xsd.model.CdwAppointment101Root.CdwAppointments.CdwAppointment.CdwParticipants.CdwParticipant;

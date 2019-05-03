@@ -5,9 +5,8 @@ import static gov.va.api.health.dataquery.service.controller.Transformers.hasPay
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import gov.va.api.health.argonaut.api.resources.Procedure;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
-import gov.va.api.health.dataquery.api.resources.OperationOutcome;
-import gov.va.api.health.dataquery.api.resources.Procedure;
 import gov.va.api.health.dataquery.service.controller.Bundler;
 import gov.va.api.health.dataquery.service.controller.Bundler.BundleContext;
 import gov.va.api.health.dataquery.service.controller.DateTimeParameter;
@@ -16,6 +15,7 @@ import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.Validator;
 import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
 import gov.va.api.health.dataquery.service.mranderson.client.Query;
+import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import gov.va.dvp.cdw.xsd.model.CdwProcedure101Root;
 import java.util.Collections;
 import java.util.function.Function;

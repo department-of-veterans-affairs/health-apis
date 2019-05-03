@@ -2,7 +2,6 @@ package gov.va.api.health.dataquery.api;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import gov.va.api.health.dataquery.api.DataAbsentReason.Reason;
 import lombok.SneakyThrows;
 import org.junit.Test;
 

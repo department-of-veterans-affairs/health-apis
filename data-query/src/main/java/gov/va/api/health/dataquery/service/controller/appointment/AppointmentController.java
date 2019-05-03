@@ -3,8 +3,6 @@ package gov.va.api.health.dataquery.service.controller.appointment;
 import static gov.va.api.health.dataquery.service.controller.Transformers.firstPayloadItem;
 import static gov.va.api.health.dataquery.service.controller.Transformers.hasPayload;
 
-import gov.va.api.health.dataquery.api.resources.Appointment;
-import gov.va.api.health.dataquery.api.resources.OperationOutcome;
 import gov.va.api.health.dataquery.service.controller.Bundler;
 import gov.va.api.health.dataquery.service.controller.Bundler.BundleContext;
 import gov.va.api.health.dataquery.service.controller.PageLinks.LinkConfig;
@@ -13,6 +11,8 @@ import gov.va.api.health.dataquery.service.controller.Validator;
 import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
 import gov.va.api.health.dataquery.service.mranderson.client.Query;
 import gov.va.api.health.dataquery.service.mranderson.client.Query.Profile;
+import gov.va.api.health.dstu2.api.resources.Appointment;
+import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import gov.va.dvp.cdw.xsd.model.CdwAppointment101Root;
 import java.util.Collections;
 import java.util.function.Function;

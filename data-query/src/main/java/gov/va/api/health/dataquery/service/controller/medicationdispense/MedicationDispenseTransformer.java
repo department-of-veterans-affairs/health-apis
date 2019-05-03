@@ -7,16 +7,16 @@ import static gov.va.api.health.dataquery.service.controller.Transformers.conver
 import static gov.va.api.health.dataquery.service.controller.Transformers.ifPresent;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
-import gov.va.api.health.dataquery.api.datatypes.CodeableConcept;
-import gov.va.api.health.dataquery.api.datatypes.Coding;
-import gov.va.api.health.dataquery.api.datatypes.Identifier;
-import gov.va.api.health.dataquery.api.datatypes.SimpleQuantity;
-import gov.va.api.health.dataquery.api.datatypes.Timing;
-import gov.va.api.health.dataquery.api.elements.Reference;
-import gov.va.api.health.dataquery.api.resources.MedicationDispense;
-import gov.va.api.health.dataquery.api.resources.MedicationDispense.DosageInstruction;
-import gov.va.api.health.dataquery.api.resources.MedicationDispense.Status;
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
+import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
+import gov.va.api.health.dstu2.api.datatypes.Coding;
+import gov.va.api.health.dstu2.api.datatypes.Identifier;
+import gov.va.api.health.dstu2.api.datatypes.SimpleQuantity;
+import gov.va.api.health.dstu2.api.datatypes.Timing;
+import gov.va.api.health.dstu2.api.elements.Reference;
+import gov.va.api.health.dstu2.api.resources.MedicationDispense;
+import gov.va.api.health.dstu2.api.resources.MedicationDispense.DosageInstruction;
+import gov.va.api.health.dstu2.api.resources.MedicationDispense.Status;
 import gov.va.dvp.cdw.xsd.model.CdwCodeableConcept;
 import gov.va.dvp.cdw.xsd.model.CdwCoding;
 import gov.va.dvp.cdw.xsd.model.CdwIdentifierUseCodes;

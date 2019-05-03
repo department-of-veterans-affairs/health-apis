@@ -7,14 +7,14 @@ import static gov.va.api.health.dataquery.service.controller.Transformers.conver
 import static gov.va.api.health.dataquery.service.controller.Transformers.ifPresent;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
-import gov.va.api.health.dataquery.api.DataAbsentReason;
-import gov.va.api.health.dataquery.api.DataAbsentReason.Reason;
-import gov.va.api.health.dataquery.api.datatypes.CodeableConcept;
-import gov.va.api.health.dataquery.api.datatypes.Coding;
-import gov.va.api.health.dataquery.api.elements.Extension;
-import gov.va.api.health.dataquery.api.elements.Reference;
-import gov.va.api.health.dataquery.api.resources.DiagnosticReport;
+import gov.va.api.health.argonaut.api.resources.DiagnosticReport;
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
+import gov.va.api.health.dstu2.api.DataAbsentReason;
+import gov.va.api.health.dstu2.api.DataAbsentReason.Reason;
+import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
+import gov.va.api.health.dstu2.api.datatypes.Coding;
+import gov.va.api.health.dstu2.api.elements.Extension;
+import gov.va.api.health.dstu2.api.elements.Reference;
 import gov.va.dvp.cdw.xsd.model.CdwDiagnosticReport102Root.CdwDiagnosticReports.CdwDiagnosticReport;
 import gov.va.dvp.cdw.xsd.model.CdwDiagnosticReportCategory;
 import gov.va.dvp.cdw.xsd.model.CdwDiagnosticReportCategoryCode;

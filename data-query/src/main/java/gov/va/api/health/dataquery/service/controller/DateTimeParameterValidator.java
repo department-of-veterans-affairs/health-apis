@@ -1,6 +1,6 @@
 package gov.va.api.health.dataquery.service.controller;
 
-import gov.va.api.health.dataquery.api.Fhir;
+import gov.va.api.health.dstu2.api.Fhir;
 import java.util.regex.Pattern;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;

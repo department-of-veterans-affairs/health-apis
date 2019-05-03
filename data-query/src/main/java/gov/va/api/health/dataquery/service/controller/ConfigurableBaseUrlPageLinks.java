@@ -1,7 +1,7 @@
 package gov.va.api.health.dataquery.service.controller;
 
-import gov.va.api.health.dataquery.api.bundle.BundleLink;
-import gov.va.api.health.dataquery.api.bundle.BundleLink.LinkRelation;
+import gov.va.api.health.dstu2.api.bundle.BundleLink;
+import gov.va.api.health.dstu2.api.bundle.BundleLink.LinkRelation;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;

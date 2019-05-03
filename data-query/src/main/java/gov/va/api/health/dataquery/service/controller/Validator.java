@@ -1,12 +1,12 @@
 package gov.va.api.health.dataquery.service.controller;
 
-import gov.va.api.health.dataquery.api.bundle.AbstractBundle;
-import gov.va.api.health.dataquery.api.datatypes.CodeableConcept;
-import gov.va.api.health.dataquery.api.elements.Narrative;
-import gov.va.api.health.dataquery.api.elements.Narrative.NarrativeStatus;
-import gov.va.api.health.dataquery.api.resources.OperationOutcome;
-import gov.va.api.health.dataquery.api.resources.OperationOutcome.Issue;
-import gov.va.api.health.dataquery.api.resources.OperationOutcome.Issue.IssueSeverity;
+import gov.va.api.health.dstu2.api.bundle.AbstractBundle;
+import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
+import gov.va.api.health.dstu2.api.elements.Narrative;
+import gov.va.api.health.dstu2.api.elements.Narrative.NarrativeStatus;
+import gov.va.api.health.dstu2.api.resources.OperationOutcome;
+import gov.va.api.health.dstu2.api.resources.OperationOutcome.Issue;
+import gov.va.api.health.dstu2.api.resources.OperationOutcome.Issue.IssueSeverity;
 import java.util.Collections;
 import java.util.Set;
 import javax.validation.ConstraintViolation;

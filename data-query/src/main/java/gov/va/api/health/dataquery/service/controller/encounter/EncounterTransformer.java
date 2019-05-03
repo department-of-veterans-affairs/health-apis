@@ -6,15 +6,15 @@ import static gov.va.api.health.dataquery.service.controller.Transformers.conver
 import static gov.va.api.health.dataquery.service.controller.Transformers.convertAll;
 import static gov.va.api.health.dataquery.service.controller.Transformers.ifPresent;
 
-import gov.va.api.health.dataquery.api.datatypes.CodeableConcept;
-import gov.va.api.health.dataquery.api.datatypes.Coding;
-import gov.va.api.health.dataquery.api.datatypes.Period;
-import gov.va.api.health.dataquery.api.elements.Reference;
-import gov.va.api.health.dataquery.api.resources.Encounter;
-import gov.va.api.health.dataquery.api.resources.Encounter.EncounterClass;
-import gov.va.api.health.dataquery.api.resources.Encounter.EncounterLocation;
-import gov.va.api.health.dataquery.api.resources.Encounter.Participant;
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
+import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
+import gov.va.api.health.dstu2.api.datatypes.Coding;
+import gov.va.api.health.dstu2.api.datatypes.Period;
+import gov.va.api.health.dstu2.api.elements.Reference;
+import gov.va.api.health.dstu2.api.resources.Encounter;
+import gov.va.api.health.dstu2.api.resources.Encounter.EncounterClass;
+import gov.va.api.health.dstu2.api.resources.Encounter.EncounterLocation;
+import gov.va.api.health.dstu2.api.resources.Encounter.Participant;
 import gov.va.dvp.cdw.xsd.model.CdwEncounter101Root.CdwEncounters.CdwEncounter;
 import gov.va.dvp.cdw.xsd.model.CdwEncounter101Root.CdwEncounters.CdwEncounter.CdwIndications;
 import gov.va.dvp.cdw.xsd.model.CdwEncounter101Root.CdwEncounters.CdwEncounter.CdwLocations;

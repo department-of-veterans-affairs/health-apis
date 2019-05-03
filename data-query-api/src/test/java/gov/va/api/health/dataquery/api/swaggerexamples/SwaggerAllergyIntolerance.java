@@ -11,7 +11,6 @@ import gov.va.api.health.dataquery.api.datatypes.Annotation;
 import gov.va.api.health.dataquery.api.datatypes.CodeableConcept;
 import gov.va.api.health.dataquery.api.datatypes.Coding;
 import gov.va.api.health.dataquery.api.elements.Reference;
-import gov.va.api.health.dataquery.api.resources.AllergyIntolerance;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass

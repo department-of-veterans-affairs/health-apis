@@ -6,14 +6,14 @@ import static gov.va.api.health.dataquery.service.controller.Transformers.conver
 import static gov.va.api.health.dataquery.service.controller.Transformers.ifPresent;
 import static java.util.Collections.singletonList;
 
-import gov.va.api.health.dataquery.api.datatypes.Address;
-import gov.va.api.health.dataquery.api.datatypes.CodeableConcept;
-import gov.va.api.health.dataquery.api.datatypes.Coding;
-import gov.va.api.health.dataquery.api.datatypes.ContactPoint;
-import gov.va.api.health.dataquery.api.datatypes.ContactPoint.ContactPointSystem;
-import gov.va.api.health.dataquery.api.datatypes.ContactPoint.ContactPointUse;
-import gov.va.api.health.dataquery.api.resources.Organization;
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
+import gov.va.api.health.dstu2.api.datatypes.Address;
+import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
+import gov.va.api.health.dstu2.api.datatypes.Coding;
+import gov.va.api.health.dstu2.api.datatypes.ContactPoint;
+import gov.va.api.health.dstu2.api.datatypes.ContactPoint.ContactPointSystem;
+import gov.va.api.health.dstu2.api.datatypes.ContactPoint.ContactPointUse;
+import gov.va.api.health.dstu2.api.resources.Organization;
 import gov.va.dvp.cdw.xsd.model.CdwOrganization100Root.CdwOrganizations.CdwOrganization;
 import gov.va.dvp.cdw.xsd.model.CdwOrganization100Root.CdwOrganizations.CdwOrganization.CdwAddresses;
 import gov.va.dvp.cdw.xsd.model.CdwOrganization100Root.CdwOrganizations.CdwOrganization.CdwTelecoms;

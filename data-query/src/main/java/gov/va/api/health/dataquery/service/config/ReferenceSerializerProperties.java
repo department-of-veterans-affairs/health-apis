@@ -1,6 +1,6 @@
 package gov.va.api.health.dataquery.service.config;
 
-import gov.va.api.health.dataquery.api.elements.Reference;
+import gov.va.api.health.dstu2.api.elements.Reference;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

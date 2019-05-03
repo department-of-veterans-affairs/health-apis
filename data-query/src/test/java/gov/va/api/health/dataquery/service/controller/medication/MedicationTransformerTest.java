@@ -4,12 +4,12 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import gov.va.api.health.dataquery.api.datatypes.CodeableConcept;
-import gov.va.api.health.dataquery.api.datatypes.Coding;
-import gov.va.api.health.dataquery.api.elements.Narrative;
-import gov.va.api.health.dataquery.api.elements.Narrative.NarrativeStatus;
-import gov.va.api.health.dataquery.api.resources.Medication;
-import gov.va.api.health.dataquery.api.resources.Medication.Product;
+import gov.va.api.health.argonaut.api.resources.Medication;
+import gov.va.api.health.argonaut.api.resources.Medication.Product;
+import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
+import gov.va.api.health.dstu2.api.datatypes.Coding;
+import gov.va.api.health.dstu2.api.elements.Narrative;
+import gov.va.api.health.dstu2.api.elements.Narrative.NarrativeStatus;
 import gov.va.dvp.cdw.xsd.model.CdwCodeableConcept;
 import gov.va.dvp.cdw.xsd.model.CdwCoding;
 import gov.va.dvp.cdw.xsd.model.CdwMedication101Root.CdwMedications.CdwMedication;

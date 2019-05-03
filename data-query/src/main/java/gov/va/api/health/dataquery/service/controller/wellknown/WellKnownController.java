@@ -1,6 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.wellknown;
 
-import gov.va.api.health.dataquery.api.information.WellKnown;
+import gov.va.api.health.dataquery.service.api.information.WellKnown;
 import gov.va.api.health.dataquery.service.controller.conformance.ConformanceStatementProperties;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;

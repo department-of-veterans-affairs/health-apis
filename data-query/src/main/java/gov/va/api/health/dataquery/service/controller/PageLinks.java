@@ -1,6 +1,6 @@
 package gov.va.api.health.dataquery.service.controller;
 
-import gov.va.api.health.dataquery.api.bundle.BundleLink;
+import gov.va.api.health.dstu2.api.bundle.BundleLink;
 import java.util.List;
 import lombok.Builder;
 import lombok.Data;

@@ -2,7 +2,6 @@ package gov.va.api.health.sentinel;
 
 import static gov.va.api.health.sentinel.ResourceVerifier.test;
 
-import gov.va.api.health.dataquery.api.resources.AllergyIntolerance;
 import gov.va.api.health.dataquery.api.resources.OperationOutcome;
 import gov.va.api.health.sentinel.categories.LabDataQueryClinician;
 import gov.va.api.health.sentinel.categories.LabDataQueryPatient;

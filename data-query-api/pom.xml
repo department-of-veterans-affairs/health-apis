@@ -45,7 +45,7 @@
             </goals>
             <configuration>
               <resourceClasses>
-                <resourceClass>gov.va.api.health.dataquery.api.DataQueryService</resourceClass>
+                <resourceClass>gov.va.api.health.dataquery.service.api.DataQueryService</resourceClass>
               </resourceClasses>
               <outputFileName>openapi</outputFileName>
               <outputPath>${project.build.directory}/swagger</outputPath>

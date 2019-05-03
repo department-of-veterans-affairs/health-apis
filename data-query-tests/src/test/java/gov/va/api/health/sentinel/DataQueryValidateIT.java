@@ -1,7 +1,6 @@
 package gov.va.api.health.sentinel;
 
 import gov.va.api.health.dataquery.api.bundle.AbstractBundle;
-import gov.va.api.health.dataquery.api.resources.AllergyIntolerance;
 import gov.va.api.health.dataquery.api.resources.Appointment;
 import gov.va.api.health.dataquery.api.resources.Condition;
 import gov.va.api.health.dataquery.api.resources.DiagnosticReport;
