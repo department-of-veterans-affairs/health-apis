@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.regex.Pattern;
 import org.junit.Test;
 
 public class FhirTest {
@@ -52,5 +53,33 @@ public class FhirTest {
   @Test(expected = IllegalArgumentException.class)
   public void parseDateTimeThrowsExceptionWhenCannotBeParsed() {
     Fhir.parseDateTime("nope");
+  }
+
+  @Test
+  public void base64RegexMatches() {
+    assertThat(Pattern.matches(Fhir.BASE64, "SSBhdGUgbWFueSBwZWFudXRz"))
+        .withFailMessage("I ate many peanuts; failed valid BASE64 without padding.")
+        .isTrue();
+
+    assertThat(Pattern.matches(Fhir.BASE64, "SSBqdXN0IGF0ZSBhIHBlYW51dAo="))
+        .withFailMessage("I ate a peanut; failed valid BASE64 with = padding.")
+        .isTrue();
+
+    assertThat(Pattern.matches(Fhir.BASE64, "SSBhdGUgYSBmZXcgcGVhbnV0cw=="))
+        .withFailMessage("I ate a few peanuts; failed valid BASE64 with == padding.")
+        .isTrue();
+
+    assertThat(Pattern.matches(Fhir.BASE64, ""))
+        .withFailMessage("Failed valid BASE64 of an empty string.")
+        .isTrue();
+
+    assertThat(Pattern.matches(Fhir.BASE64, "SSBqdXN0IGF0ZSBhIHBlYW51dAo=SSBqdXN0IGF0ZSBhIHBlYW51dAo="))
+        .withFailMessage("Invalid BASE64. = in middle of string was not rejected.")
+        .isFalse();
+
+    assertThat(Pattern.matches(Fhir.BASE64, "SSBqdXN0IGF0ZSBhIHBlYW51dAo"))
+        .withFailMessage("Invalid BASE64. String missing padding was not rejected.")
+        .isFalse();
+
   }
 }
