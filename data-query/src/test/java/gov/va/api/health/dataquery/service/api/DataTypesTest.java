@@ -5,15 +5,14 @@ import gov.va.api.health.dataquery.service.api.DataQueryService.UnknownResource;
 import org.junit.Test;
 
 public class DataTypesTest {
+
+  @Test
+  public void dataTypes() {}
+
   @SuppressWarnings("ThrowableNotThrown")
   @Test
   public void exceptionConstructors() {
     new UnknownResource("some id");
     new SearchFailed("some id", "some reason");
-  }
-
-  @Test
-  public void dataTypes() {
-
   }
 }

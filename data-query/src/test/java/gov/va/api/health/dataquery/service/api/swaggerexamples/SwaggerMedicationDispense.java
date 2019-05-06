@@ -1,19 +1,19 @@
-package gov.va.api.health.dataquery.api.swaggerexamples;
+package gov.va.api.health.dataquery.service.api.swaggerexamples;
 
 import static java.util.Arrays.asList;
 
-import gov.va.api.health.dataquery.api.bundle.AbstractBundle.BundleType;
-import gov.va.api.health.dataquery.api.bundle.AbstractEntry.Search;
-import gov.va.api.health.dataquery.api.bundle.AbstractEntry.SearchMode;
-import gov.va.api.health.dataquery.api.bundle.BundleLink;
-import gov.va.api.health.dataquery.api.bundle.BundleLink.LinkRelation;
-import gov.va.api.health.dataquery.api.datatypes.CodeableConcept;
-import gov.va.api.health.dataquery.api.datatypes.Coding;
-import gov.va.api.health.dataquery.api.datatypes.Identifier;
-import gov.va.api.health.dataquery.api.datatypes.SimpleQuantity;
-import gov.va.api.health.dataquery.api.datatypes.Timing;
-import gov.va.api.health.dataquery.api.elements.Reference;
-import gov.va.api.health.dataquery.api.resources.MedicationDispense;
+import gov.va.api.health.dstu2.api.bundle.AbstractBundle.BundleType;
+import gov.va.api.health.dstu2.api.bundle.AbstractEntry.Search;
+import gov.va.api.health.dstu2.api.bundle.AbstractEntry.SearchMode;
+import gov.va.api.health.dstu2.api.bundle.BundleLink;
+import gov.va.api.health.dstu2.api.bundle.BundleLink.LinkRelation;
+import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
+import gov.va.api.health.dstu2.api.datatypes.Coding;
+import gov.va.api.health.dstu2.api.datatypes.Identifier;
+import gov.va.api.health.dstu2.api.datatypes.SimpleQuantity;
+import gov.va.api.health.dstu2.api.datatypes.Timing;
+import gov.va.api.health.dstu2.api.elements.Reference;
+import gov.va.api.health.dstu2.api.resources.MedicationDispense;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass

@@ -1,12 +1,12 @@
-package gov.va.api.health.dataquery.api.swaggerexamples;
+package gov.va.api.health.dataquery.service.api.swaggerexamples;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.google.common.base.Preconditions;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import java.io.File;
 import java.lang.reflect.Field;
@@ -37,7 +37,7 @@ import org.springframework.util.ReflectionUtils;
 @Slf4j
 public class InjectSwaggerExamplesTest {
   private static void sortObjectNode(JsonNode node) {
-    checkArgument(node instanceof ObjectNode);
+    Preconditions.checkArgument(node instanceof ObjectNode);
     ObjectNode objNode = (ObjectNode) node;
     List<Map.Entry<String, JsonNode>> elements =
         Streams.stream(objNode.fields())
@@ -70,7 +70,7 @@ public class InjectSwaggerExamplesTest {
   @SneakyThrows
   private void injectSwaggerExamples(String filename, ObjectMapper mapper) {
     final Map<String, Object> swaggerExamples = loadSwaggerExamples();
-    File swaggerFile = new File(new File(targetDirectory(), "swagger"), filename);
+    File swaggerFile = new File(new File(targetDirectory(), "classes"), filename);
     assertThat(swaggerFile.exists()).isTrue();
     JsonNode root = mapper.readTree(swaggerFile);
     List<JsonNode> parents = root.findParents("example");

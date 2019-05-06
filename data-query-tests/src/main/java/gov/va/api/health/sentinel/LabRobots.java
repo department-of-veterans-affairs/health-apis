@@ -2,8 +2,8 @@ package gov.va.api.health.sentinel;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import gov.va.api.health.dataquery.api.elements.Extension;
-import gov.va.api.health.dataquery.api.resources.Conformance;
+import gov.va.api.health.dataquery.service.api.conformance.Conformance;
+import gov.va.api.health.dstu2.api.elements.Extension;
 import gov.va.api.health.sentinel.selenium.IdMeOauthRobot;
 import gov.va.api.health.sentinel.selenium.IdMeOauthRobot.Configuration.Authorization;
 import gov.va.api.health.sentinel.selenium.IdMeOauthRobot.Configuration.UserCredentials;

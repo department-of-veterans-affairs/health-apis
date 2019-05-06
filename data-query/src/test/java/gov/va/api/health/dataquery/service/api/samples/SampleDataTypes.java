@@ -2,6 +2,7 @@ package gov.va.api.health.dataquery.service.api.samples;
 
 import static java.util.Collections.singletonList;
 
+import gov.va.api.health.dstu2.api.datatypes.Annotation;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
 import gov.va.api.health.dstu2.api.datatypes.ContactPoint;
@@ -23,6 +24,10 @@ import lombok.NoArgsConstructor;
 @SuppressWarnings({"WeakerAccess", "unused"})
 @NoArgsConstructor(staticName = "get")
 public final class SampleDataTypes {
+
+  public Annotation annotation() {
+    return Annotation.builder().authorReference(reference()).text("Author").build();
+  }
 
   public CodeableConcept codeableConcept() {
     return CodeableConcept.builder().coding(codingList()).text("code text test").build();

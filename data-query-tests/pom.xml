@@ -11,11 +11,22 @@
   <version>1.0.208-SNAPSHOT</version>
   <packaging>jar</packaging>
   <properties>
+    <argonaut-dstu2.version>1.0.4-SNAPSHOT</argonaut-dstu2.version>
     <groups>gov.va.api.health.sentinel.categories.Local</groups>
     <selenium.version>3.141.59</selenium.version>
     <sentinel.skipLaunch>false</sentinel.skipLaunch>
   </properties>
   <dependencies>
+    <dependency>
+      <groupId>gov.va.api.health</groupId>
+      <artifactId>argonaut</artifactId>
+      <version>${argonaut-dstu2.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>gov.va.api.health</groupId>
+      <artifactId>dstu2</artifactId>
+      <version>${argonaut-dstu2.version}</version>
+    </dependency>
     <dependency>
       <groupId>org.seleniumhq.selenium</groupId>
       <artifactId>selenium-java</artifactId>
@@ -46,12 +57,6 @@
     <dependency>
       <groupId>gov.va.api.health</groupId>
       <artifactId>data-query</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>gov.va.api.health</groupId>
-      <artifactId>data-query-api</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

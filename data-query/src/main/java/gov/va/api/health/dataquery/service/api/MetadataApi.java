@@ -1,7 +1,7 @@
 package gov.va.api.health.dataquery.service.api;
 
-import gov.va.api.health.dataquery.api.resources.OperationOutcome;
 import gov.va.api.health.dataquery.service.api.conformance.Conformance;
+import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;

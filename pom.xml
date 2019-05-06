@@ -14,7 +14,6 @@
   </properties>
   <modules>
     <module>data-query</module>
-    <module>data-query-api</module>
     <module>mr-anderson</module>
     <module>data-query-tests</module>
   </modules>

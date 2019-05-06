@@ -1,15 +1,15 @@
-package gov.va.api.health.dataquery.api.swaggerexamples;
+package gov.va.api.health.dataquery.service.api.swaggerexamples;
 
 import static java.util.Arrays.asList;
 
-import gov.va.api.health.dataquery.api.bundle.AbstractBundle.BundleType;
-import gov.va.api.health.dataquery.api.bundle.AbstractEntry.Search;
-import gov.va.api.health.dataquery.api.bundle.AbstractEntry.SearchMode;
-import gov.va.api.health.dataquery.api.bundle.BundleLink;
-import gov.va.api.health.dataquery.api.bundle.BundleLink.LinkRelation;
-import gov.va.api.health.dataquery.api.elements.Extension;
-import gov.va.api.health.dataquery.api.elements.Reference;
-import gov.va.api.health.dataquery.api.resources.MedicationOrder;
+import gov.va.api.health.argonaut.api.resources.MedicationOrder;
+import gov.va.api.health.dstu2.api.bundle.AbstractBundle.BundleType;
+import gov.va.api.health.dstu2.api.bundle.AbstractEntry.Search;
+import gov.va.api.health.dstu2.api.bundle.AbstractEntry.SearchMode;
+import gov.va.api.health.dstu2.api.bundle.BundleLink;
+import gov.va.api.health.dstu2.api.bundle.BundleLink.LinkRelation;
+import gov.va.api.health.dstu2.api.elements.Extension;
+import gov.va.api.health.dstu2.api.elements.Reference;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass

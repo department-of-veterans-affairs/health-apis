@@ -3,7 +3,6 @@ package gov.va.api.health.dataquery.service.api.samples;
 import static java.util.Collections.singletonList;
 
 import gov.va.api.health.dataquery.service.api.conformance.Conformance;
-import gov.va.api.health.dataquery.service.api.samples.SampleDataTypes;
 import gov.va.api.health.dataquery.service.api.conformance.Conformance.AcceptUnknown;
 import gov.va.api.health.dataquery.service.api.conformance.Conformance.Contact;
 import gov.va.api.health.dataquery.service.api.conformance.Conformance.DeleteCode;
@@ -37,8 +36,7 @@ import lombok.experimental.Delegate;
 @SuppressWarnings({"unused", "WeakerAccess"})
 @NoArgsConstructor(staticName = "get")
 public class SampleConformance {
-  @Delegate
-  SampleDataTypes dataTypes = SampleDataTypes.get();
+  @Delegate SampleDataTypes dataTypes = SampleDataTypes.get();
 
   public Conformance conformance() {
     return Conformance.builder()
