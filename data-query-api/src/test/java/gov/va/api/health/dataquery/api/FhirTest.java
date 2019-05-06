@@ -62,15 +62,15 @@ public class FhirTest {
         .isTrue();
 
     assertThat(Pattern.matches(Fhir.BASE64, "SSBqdXN0IGF0ZSBhIHBlYW51dAo="))
-        .withFailMessage("I ate a peanut; failed valid BASE64 with = padding.")
+        .withFailMessage("I ate a peanut; failed valid BASE64 with one = padding.")
         .isTrue();
 
     assertThat(Pattern.matches(Fhir.BASE64, "SSBhdGUgYSBmZXcgcGVhbnV0cw=="))
-        .withFailMessage("I ate a few peanuts; failed valid BASE64 with == padding.")
+        .withFailMessage("I ate a few peanuts; failed valid BASE64 with two = padding.")
         .isTrue();
 
     assertThat(Pattern.matches(Fhir.BASE64, ""))
-        .withFailMessage("Failed valid BASE64 of an empty string.")
+        .withFailMessage("Failed valid BASE64 empty string.")
         .isTrue();
 
     assertThat(Pattern.matches(Fhir.BASE64, "SSBqdXN0IGF0ZSBhIHBlYW51dAo=SSBqdXN0IGF0ZSBhIHBlYW51dAo="))
