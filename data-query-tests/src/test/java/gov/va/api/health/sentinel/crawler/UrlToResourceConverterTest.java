@@ -2,9 +2,9 @@ package gov.va.api.health.sentinel.crawler;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import gov.va.api.health.dataquery.api.resources.Medication;
-import gov.va.api.health.dataquery.api.resources.MedicationStatement;
-import gov.va.api.health.dataquery.api.resources.Patient;
+import gov.va.api.health.argonaut.api.resources.Medication;
+import gov.va.api.health.argonaut.api.resources.MedicationStatement;
+import gov.va.api.health.argonaut.api.resources.Patient;
 import gov.va.api.health.sentinel.crawler.UrlToResourceConverter.DoNotUnderstandUrl;
 import org.junit.Test;
 

@@ -1,7 +1,7 @@
 package gov.va.api.health.sentinel;
 
-import gov.va.api.health.dataquery.api.bundle.AbstractBundle;
-import gov.va.api.health.dataquery.api.resources.OperationOutcome;
+import gov.va.api.health.dstu2.api.bundle.AbstractBundle;
+import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;

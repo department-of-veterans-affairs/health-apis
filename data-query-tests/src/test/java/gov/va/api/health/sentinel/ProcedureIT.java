@@ -2,8 +2,8 @@ package gov.va.api.health.sentinel;
 
 import static gov.va.api.health.sentinel.ResourceVerifier.test;
 
-import gov.va.api.health.dataquery.api.resources.OperationOutcome;
-import gov.va.api.health.dataquery.api.resources.Procedure;
+import gov.va.api.health.argonaut.api.resources.Procedure;
+import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import gov.va.api.health.sentinel.categories.LabDataQueryClinician;
 import gov.va.api.health.sentinel.categories.LabDataQueryPatient;
 import gov.va.api.health.sentinel.categories.Local;
