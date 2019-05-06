@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.deser.BeanDeserializer;
 import com.fasterxml.jackson.databind.deser.BeanDeserializerModifier;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
-import gov.va.api.health.dataquery.api.elements.Reference;
+import gov.va.api.health.dstu2.api.elements.Reference;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;

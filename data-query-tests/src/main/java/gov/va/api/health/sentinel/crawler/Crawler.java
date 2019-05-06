@@ -3,9 +3,9 @@ package gov.va.api.health.sentinel.crawler;
 import static java.util.stream.Collectors.joining;
 
 import com.google.common.base.Stopwatch;
-import gov.va.api.health.dataquery.api.bundle.AbstractBundle;
-import gov.va.api.health.dataquery.api.bundle.BundleLink;
-import gov.va.api.health.dataquery.api.bundle.BundleLink.LinkRelation;
+import gov.va.api.health.dstu2.api.bundle.AbstractBundle;
+import gov.va.api.health.dstu2.api.bundle.BundleLink;
+import gov.va.api.health.dstu2.api.bundle.BundleLink.LinkRelation;
 import gov.va.api.health.sentinel.crawler.Result.Outcome;
 import gov.va.api.health.sentinel.crawler.Result.ResultBuilder;
 import io.restassured.RestAssured;
