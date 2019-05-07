@@ -2,9 +2,9 @@ package gov.va.api.health.sentinel.crawler;
 
 import static java.util.Collections.emptyList;
 
-import gov.va.api.health.dataquery.service.api.conformance.Conformance;
-import gov.va.api.health.dataquery.service.api.conformance.Conformance.ResourceInteractionCode;
-import gov.va.api.health.dataquery.service.api.conformance.Conformance.RestResource;
+import gov.va.api.health.dstu2.api.resources.Conformance;
+import gov.va.api.health.dstu2.api.resources.Conformance.ResourceInteractionCode;
+import gov.va.api.health.dstu2.api.resources.Conformance.RestResource;
 import io.restassured.RestAssured;
 import java.util.ArrayList;
 import java.util.LinkedList;

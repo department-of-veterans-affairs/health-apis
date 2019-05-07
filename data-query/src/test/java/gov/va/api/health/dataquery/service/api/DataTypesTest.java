@@ -6,9 +6,6 @@ import org.junit.Test;
 
 public class DataTypesTest {
 
-  @Test
-  public void dataTypes() {}
-
   @SuppressWarnings("ThrowableNotThrown")
   @Test
   public void exceptionConstructors() {

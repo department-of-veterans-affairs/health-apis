@@ -10,6 +10,7 @@ import gov.va.api.health.argonaut.api.MedicationStatementApi;
 import gov.va.api.health.argonaut.api.ObservationApi;
 import gov.va.api.health.argonaut.api.PatientApi;
 import gov.va.api.health.argonaut.api.ProcedureApi;
+import gov.va.api.health.dstu2.api.MetadataApi;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Info;

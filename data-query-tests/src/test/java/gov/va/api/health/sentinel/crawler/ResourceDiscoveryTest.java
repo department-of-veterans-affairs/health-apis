@@ -4,12 +4,12 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import gov.va.api.health.dataquery.service.api.conformance.Conformance;
-import gov.va.api.health.dataquery.service.api.conformance.Conformance.ResourceInteraction;
-import gov.va.api.health.dataquery.service.api.conformance.Conformance.ResourceInteractionCode;
-import gov.va.api.health.dataquery.service.api.conformance.Conformance.Rest;
-import gov.va.api.health.dataquery.service.api.conformance.Conformance.RestResource;
-import gov.va.api.health.dataquery.service.api.conformance.Conformance.SearchParam;
+import gov.va.api.health.dstu2.api.resources.Conformance;
+import gov.va.api.health.dstu2.api.resources.Conformance.ResourceInteraction;
+import gov.va.api.health.dstu2.api.resources.Conformance.ResourceInteractionCode;
+import gov.va.api.health.dstu2.api.resources.Conformance.Rest;
+import gov.va.api.health.dstu2.api.resources.Conformance.RestResource;
+import gov.va.api.health.dstu2.api.resources.Conformance.SearchParam;
 import java.util.Arrays;
 import java.util.List;
 import lombok.NoArgsConstructor;
