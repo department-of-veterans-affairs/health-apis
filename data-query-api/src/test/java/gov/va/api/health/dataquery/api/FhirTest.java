@@ -54,23 +54,27 @@ public class FhirTest {
   public void parseDateTime() {
     assertThat(Fhir.parseDateTime(null)).isNull();
     assertThat(Fhir.parseDateTime(" ")).isNull();
-    for (String datetime : // dateTime
+    for (String datetime :
         Arrays.asList(
+            // dateTime
             "2002-05-30T09:00:00",
             "2002-05-30T09:30:10.5",
             "2002-05-30T09:30:10Z",
-            "2002-05-30T09:30:10-06:00", // date
+            "2002-05-30T09:30:10-06:00",
             "2002-05-30T09:30:10+06:00",
+            // date
             "2002-09-24",
             "2002-09-24Z",
-            "2002-09-24-06:00", // gYearMonth
+            "2002-09-24-06:00",
             "2002-09-24+06:00",
+            // gYearMonth
             "2001-10",
             "2001-10+02:00",
             "2001-10Z",
             "2001-10+00:00",
-            "-2001-10", // gYear
+            "-2001-10",
             "-20000-04",
+            // gYear
             "2001",
             "2001+02:00",
             "2001Z",
