@@ -9,6 +9,7 @@ import gov.va.api.health.sentinel.categories.LabDataQueryPatient;
 import gov.va.api.health.sentinel.categories.Local;
 import gov.va.api.health.sentinel.categories.ProdDataQueryClinician;
 import gov.va.api.health.sentinel.categories.ProdDataQueryPatient;
+import gov.va.api.health.sentinel.categories.Smoke;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -48,6 +49,7 @@ public class PatientIT {
   @Test
   @Category({
     Local.class,
+    Smoke.class,
     LabDataQueryPatient.class,
     LabDataQueryClinician.class,
     ProdDataQueryPatient.class,

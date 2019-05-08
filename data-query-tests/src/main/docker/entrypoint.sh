@@ -14,12 +14,14 @@ Commands
   list-tests
   list-categories
   test [--include-category <category>] [--exclude-category <category>] [-Dkey=value] <name> [name] [...]
+  regression-test
+  smoke-test
 
 
 Example
   test \
-    --exclude-category gov.va.api.health.sentinel.categories.Manual \
-    --include-category gov.va.api.health.sentinel.categories.Local \
+    --exclude-category gov.va.api.health.sentinel.categories.Local \
+    --include-category gov.va.api.health.sentinel.categories.Manual \
     -Dlab.client-id=12345 \
     -Dlab.client-secret=ABCDEF \
     -Dlab.user-password=secret \
@@ -87,6 +89,67 @@ doListCategories() {
     | sort
 }
 
+checkAndSetVariables() {
+  # The deployment test contract variables
+  [ -z "$KBS_LOAD_BALANCER" ] && usage "Variable KBS_LOAD_BALANCER must be specified."
+
+  # DataQuery test specific variables
+  [ -z "$TRUST_SERVER" ] && usage "Variable TRUST_SERVER must be specified."
+  [ -z "$TOKEN" ] && usage "Variable TOKEN must be specified."
+  [ -z "$DATA_QUERY_API_PATH" ] && usage "Variable DATA_QUERY_API_PATH must be specified."
+  [ -z "$DATA_QUERY_REPLACE_URL" ] && usage "Variable DATA_QUERY_REPLACE_URL must be specified."
+  [ -z "$SENTINEL_ENV" ] && usage "Variable SENTINEL_ENV must be specified."
+  [ -z "$SENTINEL_SMOKE_TEST_CATEGORY" ] && \
+    usage "Variable SENTINEL_SMOKE_TEST_CATEGORY must be specified."
+  [ -z "$SENTINEL_REGRESSION_TEST_CATEGORY" ] && \
+    usage "Variable SENTINEL_REGRESSION_TEST_CATEGORY must be specified."
+  [ -z "$SENTINEL_CRAWLER_TEST_CATEGORY" ] && \
+    usage "Variable SENTINEL_CRAWLER_TEST_CATEGORY must be specified."
+  [ -z "$SENTINEL_CRAWLER" ] && usage "Variable SENTINEL_CRAWLER must be specified."
+  [ -z "$USER_PASSWORD" ] && usage "Variable USER_PASSWORD must be specified."
+  [ -z "$CLIENT_ID" ] && usage "Variable CLIENT_ID must be specified."
+  [ -z "$CLIENT_SECRET" ] && usage "Variable CLIENT_SECRET must be specified."
+
+  SYSTEM_PROPERTIES+=" -Dsentinel=$SENTINEL_ENV \
+    -Daccess-token=$TOKEN \
+    -Dsentinel.argonaut.url=$KBS_LOAD_BALANCER \
+    -Dlab.user-password=$USER_PASSWORD \
+    -Dlab.client-id=$CLIENT_ID \
+    -Dlab.client-secret=$CLIENT_SECRET \
+    -Dpatient-id=$PATIENT_ID \
+    -Dsentinel.argonaut.api-path=$DATA_QUERY_API_PATH \
+    -Dsentinel.argonaut.url.replace=$DATA_QUERY_REPLACE_URL"
+}
+
+# TODO all regressions and crawler get running
+# TODO get running on the two environments or three environments?
+# TODO bring in joshes docker changes
+# TODO bring in joshes changes to entry point...
+# TODO update the usage for required vars
+# TODO split parent...
+# TODO figure out what goes up to base...
+# TODO does parent need some care and feeding
+# TODO set crawler as a type?
+
+doRegressionTest() {
+  checkAndSetVariables
+
+  # Run IT tests for the specific environment
+  INCLUDE_CATEGORY=$SENTINEL_REGRESSION_TEST_CATEGORY
+  doTest
+
+  # Run the crawler if there is one for the specific environment
+  INCLUDE_CATEGORY=$SENTINEL_CRAWLER_TEST_CATEGORY
+  doTest $SENTINEL_CRAWLER
+}
+
+doSmokeTest() {
+  checkAndSetVariables
+
+  INCLUDE_CATEGORY=$SENTINEL_SMOKE_TEST_CATEGORY
+  doTest
+}
+
 
 ARGS=$(getopt -n $(basename ${0}) \
     -l "exclude-category:,include-category:,debug,help" \
@@ -114,7 +177,8 @@ case "$COMMAND" in
   t|test) doTest $@;;
   lc|list-categories) doListCategories;;
   lt|list-tests) doListTests;;
-  
+  r|regression-test) doRegressionTest;;
+  s|smoke-test) doSmokeTest;;
   *) usage "Unknown command: $COMMAND";;
 esac
 
