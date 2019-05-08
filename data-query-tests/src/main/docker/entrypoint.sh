@@ -13,6 +13,7 @@ cat <<EOF
 Commands
   list-tests
   list-categories
+  test [--include-category <category>] [--exclude-category <category>] [--trust <host>] [-Dkey=value] <name> [name] [...]
   test [--include-category <category>] [--exclude-category <category>] [-Dkey=value] <name> [name] [...]
   regression-test
   smoke-test
@@ -22,6 +23,7 @@ Example
   test \
     --exclude-category gov.va.api.health.sentinel.categories.Local \
     --include-category gov.va.api.health.sentinel.categories.Manual \
+    --trust example.us-gov-west-1.elb.amazonaws.com
     -Dlab.client-id=12345 \
     -Dlab.client-secret=ABCDEF \
     -Dlab.user-password=secret \
@@ -52,8 +54,6 @@ defaultTests() {
 }
 
 doTest() {
-  trustServer qa-argonaut.lighthouse.va.gov
-  trustServer staging-argonaut.lighthouse.va.gov
   local tests="$@"
   [ -z "$tests" ] && tests=$(defaultTests)
   local filter
@@ -89,7 +89,7 @@ doListCategories() {
     | sort
 }
 
-checkAndSetVariables() {
+checkVariablesForAutomation() {
   # The deployment test contract variables
   [ -z "$KBS_LOAD_BALANCER" ] && usage "Variable KBS_LOAD_BALANCER must be specified."
 
@@ -109,6 +109,12 @@ checkAndSetVariables() {
   [ -z "$USER_PASSWORD" ] && usage "Variable USER_PASSWORD must be specified."
   [ -z "$CLIENT_ID" ] && usage "Variable CLIENT_ID must be specified."
   [ -z "$CLIENT_SECRET" ] && usage "Variable CLIENT_SECRET must be specified."
+}
+
+setupForAutomation() {
+  checkVariablesForAutomation
+
+  trustServer $TRUST_SERVER
 
   SYSTEM_PROPERTIES+=" -Dsentinel=$SENTINEL_ENV \
     -Daccess-token=$TOKEN \
@@ -124,7 +130,6 @@ checkAndSetVariables() {
 # TODO all regressions and crawler get running
 # TODO get running on the two environments or three environments?
 # TODO bring in joshes docker changes
-# TODO bring in joshes changes to entry point...
 # TODO update the usage for required vars
 # TODO split parent...
 # TODO figure out what goes up to base...
@@ -132,7 +137,7 @@ checkAndSetVariables() {
 # TODO set crawler as a type?
 
 doRegressionTest() {
-  checkAndSetVariables
+  setupForAutomation
 
   # Run IT tests for the specific environment
   INCLUDE_CATEGORY=$SENTINEL_REGRESSION_TEST_CATEGORY
@@ -144,7 +149,7 @@ doRegressionTest() {
 }
 
 doSmokeTest() {
-  checkAndSetVariables
+  setupForAutomation
 
   INCLUDE_CATEGORY=$SENTINEL_SMOKE_TEST_CATEGORY
   doTest
@@ -152,7 +157,7 @@ doSmokeTest() {
 
 
 ARGS=$(getopt -n $(basename ${0}) \
-    -l "exclude-category:,include-category:,debug,help" \
+    -l "exclude-category:,include-category:,debug,help,trust:" \
     -o "e:i:D:h" -- "$@")
 [ $? != 0 ] && usage
 eval set -- "$ARGS"
@@ -164,6 +169,7 @@ do
     -D) SYSTEM_PROPERTIES+=" -D$2";;
     --debug) set -x;;
     -h|--help) usage "halp! what this do?";;
+    --trust) trustServer $2;;
     --) shift;break;;
   esac
   shift;
