@@ -11,7 +11,7 @@
   <version>1.0.208-SNAPSHOT</version>
   <packaging>jar</packaging>
   <properties>
-    <argonaut-dstu2.version>1.0.4-SNAPSHOT</argonaut-dstu2.version>
+    <argonaut-dstu2.version>1.0.5-SNAPSHOT</argonaut-dstu2.version>
   </properties>
   <dependencies>
     <dependency>
