@@ -18,7 +18,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 @Slf4j
-public class StagingCrawlerTest {
+public class UsingMagicPatientCrawlerTest {
   @Category(Manual.class)
   @Test
   public void crawlStaging() {
@@ -29,10 +29,12 @@ public class StagingCrawlerTest {
     log.info("Using patient {} (Override with -Dpatient-id=<id>)", patient);
     Swiggity.swooty(patient);
 
+    SystemDefinition env = SystemDefinitions.systemDefinition();
+
     ResourceDiscovery discovery =
         ResourceDiscovery.builder()
             .patientId(patient)
-            .url("https://staging-argonaut.lighthouse.va.gov/api/")
+            .url(env.dataQuery().urlWithApiPath())
             .build();
     SummarizingResultCollector results =
         SummarizingResultCollector.wrap(
@@ -41,7 +43,7 @@ public class StagingCrawlerTest {
     UrlReplacementRequestQueue rq =
         UrlReplacementRequestQueue.builder()
             .replaceUrl("https://dev-api.va.gov/services/argonaut/v0/")
-            .withUrl("https://staging-argonaut.lighthouse.va.gov/api/")
+            .withUrl(env.dataQuery().urlWithApiPath())
             .requestQueue(new ConcurrentResourceBalancingRequestQueue())
             .build();
 
