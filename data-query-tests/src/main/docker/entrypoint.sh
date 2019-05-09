@@ -93,10 +93,10 @@ doListCategories() {
 
 # TODO get running on the environments
 #
-# TODO Test         lab                   production            env C          envD
-# TODO SMOKE          x
-# TODO Regression   2-3f/21
-# TODO Crawler      x w/ magic pat
+# TODO Test         lab                   qa            production          staging
+# TODO SMOKE          x                    x
+# TODO Regression   2-3f/21              11f/27 run
+# TODO Crawler      x w/ magic pat    fails pat id?
 
 doSmokeTest() {
   setupForAutomation
@@ -111,7 +111,7 @@ doRegressionTest() {
   INCLUDE_CATEGORY=$SENTINEL_REGRESSION_TEST_CATEGORY
   doTest
 
-  doCrawlerTest
+  #doCrawlerTest
 }
 
 doCrawlerTest() {
@@ -123,8 +123,8 @@ doCrawlerTest() {
 
 checkVariablesForAutomation() {
   # Check out both the deployment contract variables and data query specific variables.
-  for i in "KBS_LOAD_BALANCER" "K8S_ENVIRONMENT" \
-    "SENTINEL_ENV" "SENTINEL_SMOKE_TEST_CATEGORY" "SENTINEL_REGRESSION_TEST_CATEGORY" \
+  for i in "KBS_LOAD_BALANCER" "K8S_ENVIRONMENT" "SENTINEL_ENV" "TOKEN" "FORCE_JARGONAUT" \
+    "SENTINEL_SMOKE_TEST_CATEGORY" "SENTINEL_REGRESSION_TEST_CATEGORY" \
     "SENTINEL_CRAWLER_TEST_CATEGORY" "SENTINEL_CRAWLER" "DATA_QUERY_API_PATH" \
     "DATA_QUERY_REPLACE_URL" "USER_PASSWORD" "CLIENT_ID" "CLIENT_SECRET" "PATIENT_ID"; do
     [ -z ${!i} ] && usage "Variable $i must be specified."
@@ -139,6 +139,7 @@ setupForAutomation() {
   SYSTEM_PROPERTIES="$WEB_DRIVER_PROPERTIES \
     -Dsentinel=$SENTINEL_ENV \
     -Daccess-token=$TOKEN \
+    -Djargonaut=$FORCE_JARGONAUT \
     -Dsentinel.argonaut.url=https://$KBS_LOAD_BALANCER \
     -Dsentinel.argonaut.api-path=$DATA_QUERY_API_PATH \
     -Dsentinel.argonaut.url.replace=$DATA_QUERY_REPLACE_URL \
