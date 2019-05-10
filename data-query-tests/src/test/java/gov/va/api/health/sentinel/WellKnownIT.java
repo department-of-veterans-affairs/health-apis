@@ -3,7 +3,6 @@ package gov.va.api.health.sentinel;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.sentinel.categories.LabDataQueryClinician;
-import gov.va.api.health.sentinel.categories.LabDataQueryPatient;
 import gov.va.api.health.sentinel.categories.Local;
 import gov.va.api.health.sentinel.categories.ProdDataQueryClinician;
 import gov.va.api.health.sentinel.categories.ProdDataQueryPatient;
@@ -14,7 +13,7 @@ public class WellKnownIT {
   @Test
   @Category({
     Local.class,
-    LabDataQueryPatient.class,
+    // TODO This route is not present in the lab yet - LabDataQueryPatient.class,
     LabDataQueryClinician.class,
     ProdDataQueryPatient.class,
     ProdDataQueryClinician.class
