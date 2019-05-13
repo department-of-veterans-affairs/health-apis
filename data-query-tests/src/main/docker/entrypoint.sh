@@ -91,13 +91,6 @@ doListCategories() {
     | sort
 }
 
-# TODO get running on the environments
-#
-# TODO Test         lab                   qa            production          staging
-# TODO SMOKE          x                    x
-# TODO Regression   2-3f/21              11f/27 run
-# TODO Crawler      x w/ magic pat    fails pat id?
-
 doSmokeTest() {
   setupForAutomation
 
@@ -111,7 +104,8 @@ doRegressionTest() {
   INCLUDE_CATEGORY=$SENTINEL_REGRESSION_TEST_CATEGORY
   doTest
 
-  #doCrawlerTest
+  # For regression test, we want to crawl too.
+  doCrawlerTest
 }
 
 doCrawlerTest() {

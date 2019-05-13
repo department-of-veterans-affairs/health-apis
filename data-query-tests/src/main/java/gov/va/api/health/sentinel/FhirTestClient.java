@@ -118,11 +118,28 @@ public final class FhirTestClient implements TestClient {
   }
 
   private Response get(String contentType, String path, Object[] params) {
-    return service()
-        .requestSpecification()
-        .contentType(contentType)
-        .accept(contentType)
-        .request(Method.GET, path, params);
+    Response response = null;
+
+    // We'll make the request at least one time and as many as maxAttempts if we get a 500 error.
+    final int maxAttemps = 3;
+    for (int i = 0; i < maxAttemps; i++) {
+      if (i > 0) {
+        log.info("Making retry attempt {} for {}:{} after failure.", i, contentType, path);
+      }
+
+      response =
+          service()
+              .requestSpecification()
+              .contentType(contentType)
+              .accept(contentType)
+              .request(Method.GET, path, params);
+
+      if (response.getStatusCode() != 500) {
+        break;
+      }
+    }
+
+    return response;
   }
 
   @Override
