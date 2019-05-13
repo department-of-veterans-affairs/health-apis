@@ -121,8 +121,8 @@ public final class FhirTestClient implements TestClient {
     Response response = null;
 
     // We'll make the request at least one time and as many as maxAttempts if we get a 500 error.
-    final int maxAttemps = 3;
-    for (int i = 0; i < maxAttemps; i++) {
+    final int maxAttempts = 3;
+    for (int i = 0; i < maxAttempts; i++) {
       if (i > 0) {
         log.info("Making retry attempt {} for {}:{} after failure.", i, contentType, path);
       }

@@ -72,7 +72,9 @@ doTest() {
   noise+="|sun.reflect"
   java -cp "$(pwd)/*" $SYSTEM_PROPERTIES org.junit.runner.JUnitCore $filter $tests \
     | grep -vE "^	at ($noise)"
-  exit $?
+
+  # Exit on failure otherwise let other actions run.
+  [ $? != 0 ] && exit $?
 }
 
 doListTests() {
