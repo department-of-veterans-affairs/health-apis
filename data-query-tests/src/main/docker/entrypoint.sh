@@ -13,13 +13,14 @@ cat <<EOF
 Commands
   list-tests
   list-categories
-  test [--include-category <category>] [--exclude-category <category>] [-Dkey=value] <name> [name] [...]
+  test [--include-category <category>] [--exclude-category <category>] [--trust <host>] [-Dkey=value] <name> [name] [...]
 
 
 Example
   test \
     --exclude-category gov.va.api.health.sentinel.categories.Manual \
     --include-category gov.va.api.health.sentinel.categories.Local \
+    --trust internal-kubernetes-qa-blue-18139669.us-gov-west-1.elb.amazonaws.com
     -Dlab.client-id=12345 \
     -Dlab.client-secret=ABCDEF \
     -Dlab.user-password=secret \
@@ -50,8 +51,6 @@ defaultTests() {
 }
 
 doTest() {
-  trustServer qa-argonaut.lighthouse.va.gov
-  trustServer staging-argonaut.lighthouse.va.gov
   local tests="$@"
   [ -z "$tests" ] && tests=$(defaultTests)
   local filter
@@ -89,7 +88,7 @@ doListCategories() {
 
 
 ARGS=$(getopt -n $(basename ${0}) \
-    -l "exclude-category:,include-category:,debug,help" \
+    -l "exclude-category:,include-category:,debug,help,trust:" \
     -o "e:i:D:h" -- "$@")
 [ $? != 0 ] && usage
 eval set -- "$ARGS"
@@ -101,6 +100,7 @@ do
     -D) SYSTEM_PROPERTIES+=" -D$2";;
     --debug) set -x;;
     -h|--help) usage "halp! what this do?";;
+    --trust) trustServer $2;;
     --) shift;break;;
   esac
   shift;
