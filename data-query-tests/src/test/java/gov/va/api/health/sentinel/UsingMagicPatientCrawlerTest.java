@@ -19,9 +19,10 @@ import org.junit.experimental.categories.Category;
 
 @Slf4j
 public class UsingMagicPatientCrawlerTest {
+
   @Category(Manual.class)
   @Test
-  public void crawlStaging() {
+  public void crawl() {
     assertThat(magicAccessToken()).isNotNull();
     log.info("Access token is specified");
 
@@ -38,11 +39,11 @@ public class UsingMagicPatientCrawlerTest {
             .build();
     SummarizingResultCollector results =
         SummarizingResultCollector.wrap(
-            new FileResultsCollector(new File("target/staging-crawl-" + patient)));
+            new FileResultsCollector(new File("target/patient-crawl-" + patient)));
 
     UrlReplacementRequestQueue rq =
         UrlReplacementRequestQueue.builder()
-            .replaceUrl("https://dev-api.va.gov/services/argonaut/v0/")
+            .replaceUrl(SentinelProperties.urlReplace("argonaut"))
             .withUrl(env.dataQuery().urlWithApiPath())
             .requestQueue(new ConcurrentResourceBalancingRequestQueue())
             .build();
@@ -50,11 +51,13 @@ public class UsingMagicPatientCrawlerTest {
     discovery.queries().forEach(rq::add);
     Crawler crawler =
         Crawler.builder()
-            .executor(Executors.newFixedThreadPool(4))
+            .executor(
+                Executors.newFixedThreadPool(
+                    SentinelProperties.threadCount("sentinel.crawler.threads", 8)))
             .requestQueue(rq)
             .results(results)
             .authenticationToken(() -> magicAccessToken())
-            .forceJargonaut(true)
+            .forceJargonaut(Boolean.parseBoolean(System.getProperty("jargonaut", "true")))
             .timeLimit(CrawlerProperties.timeLimit())
             .build();
     crawler.crawl();
