@@ -11,8 +11,10 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /** This collector will provide a text summary upon completion. */
+@Slf4j
 @RequiredArgsConstructor(staticName = "wrap")
 public class SummarizingResultCollector implements ResultCollector {
   private final ResultCollector delegate;
@@ -33,6 +35,7 @@ public class SummarizingResultCollector implements ResultCollector {
   @Override
   public void done() {
     delegate.done();
+    log.info(message());
   }
 
   public int failures() {
@@ -45,7 +48,7 @@ public class SummarizingResultCollector implements ResultCollector {
   }
 
   /** Return a message suitable to being printed to the console. */
-  public String message() {
+  private String message() {
     StringBuilder message = new StringBuilder();
     message.append("Outcomes");
     message.append("\n--------------------");

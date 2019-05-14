@@ -56,7 +56,7 @@ public class CdwCrawlerTest {
             .timeLimit(CrawlerProperties.timeLimit())
             .build();
     crawler.crawl();
-    log.info("Results for patient : {} \n{}", patient, results.message());
+    log.info("Results for patient : {}", patient);
     assertThat(results.failures()).withFailMessage("%d Failures", results.failures()).isEqualTo(0);
   }
 

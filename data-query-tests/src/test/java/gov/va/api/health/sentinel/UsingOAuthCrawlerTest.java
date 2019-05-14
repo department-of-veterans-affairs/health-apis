@@ -57,11 +57,7 @@ public class UsingOAuthCrawlerTest {
             .timeLimit(CrawlerProperties.timeLimit())
             .build();
     crawler.crawl();
-    log.info(
-        "Results for {} ({})\n{}",
-        robot.config().user().id(),
-        robot.token().patient(),
-        results.message());
+    log.info("Results for {} ({})", robot.config().user().id(), robot.token().patient());
     return results.failures();
   }
 
