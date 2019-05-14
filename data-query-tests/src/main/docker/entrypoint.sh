@@ -15,7 +15,6 @@ Commands
   list-tests
   list-categories
   test [--include-category <category>] [--exclude-category <category>] [--trust <host>] [-Dkey=value] <name> [name] [...]
-  test [--include-category <category>] [--exclude-category <category>] [-Dkey=value] <name> [name] [...]
   smoke-test
   regression-test
   crawler-test
@@ -29,7 +28,7 @@ Example
     -Dlab.client-id=12345 \
     -Dlab.client-secret=ABCDEF \
     -Dlab.user-password=secret \
-    gov.va.api.health.sentinel.CrawlerUsingOAuthTest
+    gov.va.api.health.sentinel.UsingMagicPatientCrawlerTest
 
 $1
 EOF
@@ -145,7 +144,8 @@ setupForAutomation() {
     -D${K8S_ENVIRONMENT}.client-secret=$CLIENT_SECRET \
     -Dpatient-id=$PATIENT_ID"
 
-  [ -n "$SENTINEL_CRAWLER_IGNORES" ] && SYSTEM_PROPERTIES+=" -Dsentinel.argonaut.crawler.ignores=$SENTINEL_CRAWLER_IGNORES"
+  [ -n "$SENTINEL_CRAWLER_IGNORES" ] \
+    && SYSTEM_PROPERTIES+=" -Dsentinel.argonaut.crawler.ignores=$SENTINEL_CRAWLER_IGNORES"
 }
 
 ARGS=$(getopt -n $(basename ${0}) \
