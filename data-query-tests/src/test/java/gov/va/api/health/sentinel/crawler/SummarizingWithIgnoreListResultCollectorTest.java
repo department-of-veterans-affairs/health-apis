@@ -31,9 +31,8 @@ public class SummarizingWithIgnoreListResultCollectorTest {
   public void addFailureResultMatchingAnIgnoreListFilterIncrementsIgnores() {
     ResultCollector resultCollector = Mockito.mock(ResultCollector.class);
     SummarizingWithIgnoreListResultCollector results =
-        SummarizingWithIgnoreListResultCollector.wrap(
-            resultCollector); // .ignoreList("Resource/z8z848z3-35zz-5zz-93zz-z4z8731z1z11");
-    results.useFilter("foo,Resource/z8z848z3-35zz-5zz-93zz-z4z8731z1z11,bar");
+        SummarizingWithIgnoreListResultCollector.wrap(resultCollector);
+    results.useFilter("foo,bar,Resource/z8z848z3-35zz-5zz-93zz-z4z8731z1z11");
 
     Result badnessResult =
         Result.builder()

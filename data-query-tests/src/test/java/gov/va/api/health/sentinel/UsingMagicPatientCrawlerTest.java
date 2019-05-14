@@ -43,9 +43,12 @@ public class UsingMagicPatientCrawlerTest {
         SummarizingWithIgnoreListResultCollector.wrap(
             SummarizingResultCollector.wrap(
                 new FileResultsCollector(new File("target/patient-crawl-" + patient))));
-    results.useFilter(
-        // "/argonaut/v0/Procedure/f8f848a3-35ae-5aec-93ad-e4d8731a1f11,Procedure/f8c70a3a-809f-5987-816c-78d7c966a194");
-        "Procedure/f8f848a3-35ae-5aec-93ad-e4d8731a1f11");
+
+    // TODO replace with sentinel property.
+    String property = "sentinel.argonaut.crawler-ignores";
+    String tempProperty = System.getProperty(property);
+    log.info("tempProperty is {}", tempProperty);
+    results.useFilter(tempProperty);
 
     UrlReplacementRequestQueue rq =
         UrlReplacementRequestQueue.builder()

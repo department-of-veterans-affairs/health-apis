@@ -1,6 +1,5 @@
 package gov.va.api.health.sentinel.crawler;
 
-import gov.va.api.health.sentinel.crawler.Result.Outcome;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -30,9 +29,14 @@ public class SummarizingWithIgnoreListResultCollector implements ResultCollector
 
   @Override
   public void add(Result result) {
-    if (result.outcome() != Outcome.OK) {
+    // if (result.outcome() != Outcome.OK) {
+    if (true) {
+      log.info("***** Checking ignore for {}", result.query());
       // If this failure is in one or more of the ignore filters then do ignore vs. failure.
+      // List match = failuresToIgnore.stream().filter(f ->
+      // result.query().contains(f)).collect(Collectors.toList());
       if (failuresToIgnore.stream().filter(s -> result.query().contains(s)).count() > 0) {
+        log.info("adding failure to ignore list");
         ignoredFailureSummaries.add(result.query() + " " + result.outcome());
       } else {
         failures.incrementAndGet();
@@ -66,7 +70,7 @@ public class SummarizingWithIgnoreListResultCollector implements ResultCollector
     message.append("\n--------------------");
     message.append("\nConfigured to ignore these failures:\n");
     message.append(
-        failuresToIgnore.size() > 0 ? "NONE" : Arrays.toString(failuresToIgnore.toArray()));
+        failuresToIgnore.size() > 0 ? Arrays.toString(failuresToIgnore.toArray()) : "NONE");
     message.append("\nWhich resulted in the following failures being ignored:\n");
     if (ignoredFailureSummaries.size() > 0) {
       message.append(ignoredFailureSummaries.stream().sorted().collect(Collectors.joining("\n")));
@@ -83,5 +87,9 @@ public class SummarizingWithIgnoreListResultCollector implements ResultCollector
   /** A comma separated filter list used to exclude any errors that match the items in the list. */
   public void useFilter(String filter) {
     failuresToIgnore.addAll(Stream.of(filter.split(",")).collect(Collectors.toList()));
+    log.info(
+        "setting filter to {} size of {}",
+        Arrays.toString(failuresToIgnore.toArray()),
+        failuresToIgnore.size());
   }
 }

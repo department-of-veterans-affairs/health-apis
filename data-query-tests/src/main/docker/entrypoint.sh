@@ -121,8 +121,9 @@ checkVariablesForAutomation() {
   # Check out both the deployment contract variables and data query specific variables.
   for i in "K8S_LOAD_BALANCER" "K8S_ENVIRONMENT" "SENTINEL_ENV" "TOKEN" "JARGONAUT" \
     "SENTINEL_SMOKE_TEST_CATEGORY" "SENTINEL_REGRESSION_TEST_CATEGORY" \
-    "SENTINEL_CRAWLER_TEST_CATEGORY" "SENTINEL_CRAWLER" "DATA_QUERY_API_PATH" \
-    "DATA_QUERY_REPLACE_URL" "USER_PASSWORD" "CLIENT_ID" "CLIENT_SECRET" "PATIENT_ID"; do
+    "SENTINEL_CRAWLER_TEST_CATEGORY" "SENTINEL_CRAWLER" \
+    "DATA_QUERY_API_PATH" "DATA_QUERY_REPLACE_URL" "USER_PASSWORD" "CLIENT_ID" \
+    "CLIENT_SECRET" "PATIENT_ID"; do
     [ -z ${!i} ] && usage "Variable $i must be specified."
   done
 }
@@ -143,6 +144,8 @@ setupForAutomation() {
     -D${K8S_ENVIRONMENT}.client-id=$CLIENT_ID \
     -D${K8S_ENVIRONMENT}.client-secret=$CLIENT_SECRET \
     -Dpatient-id=$PATIENT_ID"
+
+  [ -n "$SENTINEL_CRAWLER_IGNORES" ] && SYSTEM_PROPERTIES+=" -Dsentinel.argonaut.crawler-ignores=$SENTINEL_CRAWLER_IGNORES"
 }
 
 ARGS=$(getopt -n $(basename ${0}) \
