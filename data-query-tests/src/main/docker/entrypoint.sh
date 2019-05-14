@@ -145,7 +145,7 @@ setupForAutomation() {
     -D${K8S_ENVIRONMENT}.client-secret=$CLIENT_SECRET \
     -Dpatient-id=$PATIENT_ID"
 
-  [ -n "$SENTINEL_CRAWLER_IGNORES" ] && SYSTEM_PROPERTIES+=" -Dsentinel.argonaut.crawler-ignores=$SENTINEL_CRAWLER_IGNORES"
+  [ -n "$SENTINEL_CRAWLER_IGNORES" ] && SYSTEM_PROPERTIES+=" -Dsentinel.argonaut.crawler.ignores=$SENTINEL_CRAWLER_IGNORES"
 }
 
 ARGS=$(getopt -n $(basename ${0}) \

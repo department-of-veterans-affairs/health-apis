@@ -10,7 +10,7 @@ import gov.va.api.health.sentinel.crawler.CrawlerProperties;
 import gov.va.api.health.sentinel.crawler.FileResultsCollector;
 import gov.va.api.health.sentinel.crawler.ResourceDiscovery;
 import gov.va.api.health.sentinel.crawler.SummarizingResultCollector;
-import gov.va.api.health.sentinel.crawler.SummarizingWithIgnoreListResultCollector;
+import gov.va.api.health.sentinel.crawler.SummarizingWithIgnoreResultCollector;
 import gov.va.api.health.sentinel.crawler.UrlReplacementRequestQueue;
 import java.io.File;
 import java.util.concurrent.Executors;
@@ -39,13 +39,13 @@ public class UsingMagicPatientCrawlerTest {
             .url(env.dataQuery().urlWithApiPath())
             .build();
 
-    SummarizingWithIgnoreListResultCollector results =
-        SummarizingWithIgnoreListResultCollector.wrap(
+    SummarizingWithIgnoreResultCollector results =
+        SummarizingWithIgnoreResultCollector.wrap(
             SummarizingResultCollector.wrap(
                 new FileResultsCollector(new File("target/patient-crawl-" + patient))));
 
     // TODO replace with sentinel property.
-    String property = "sentinel.argonaut.crawler-ignores";
+    String property = "sentinel.argonaut.crawler.ignores";
     String tempProperty = System.getProperty(property);
     log.info("tempProperty is {}", tempProperty);
     results.useFilter(tempProperty);
