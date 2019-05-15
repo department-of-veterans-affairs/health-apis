@@ -7,13 +7,12 @@ import java.time.Instant;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-public class SummarizingResultCollectorWithIgnoresTest {
+public class IgnoreFilterResultCollectorTest {
 
   @Test
   public void addFailResultIncrementsFailures() {
     ResultCollector resultCollector = Mockito.mock(ResultCollector.class);
-    SummarizingResultCollectorWithIgnores results =
-        SummarizingResultCollectorWithIgnores.wrap(resultCollector);
+    IgnoreFilterResultCollector results = IgnoreFilterResultCollector.wrap(resultCollector);
     results.useFilter("foo,bar");
 
     Result badnessResult =
@@ -24,14 +23,14 @@ public class SummarizingResultCollectorWithIgnoresTest {
             .timestamp(Instant.ofEpochMilli(158994000000L))
             .build();
     results.add(badnessResult);
+
     assertThat(results.failures()).isOne();
   }
 
   @Test
   public void addFailureResultMatchingAnIgnoreListFilterIncrementsIgnores() {
     ResultCollector resultCollector = Mockito.mock(ResultCollector.class);
-    SummarizingResultCollectorWithIgnores results =
-        SummarizingResultCollectorWithIgnores.wrap(resultCollector);
+    IgnoreFilterResultCollector results = IgnoreFilterResultCollector.wrap(resultCollector);
     results.useFilter("foo,bar,Resource/z8z848z3-35zz-5zz-93zz-z4z8731z1z11");
 
     Result badnessResult =
@@ -42,6 +41,7 @@ public class SummarizingResultCollectorWithIgnoresTest {
             .timestamp(Instant.ofEpochMilli(158994000000L))
             .build();
     results.add(badnessResult);
+
     assertThat(results.failures()).isZero();
     assertThat(results.ignoredFailures()).isOne();
   }
@@ -49,9 +49,10 @@ public class SummarizingResultCollectorWithIgnoresTest {
   @Test
   public void addOKResultIncrementsTotals() {
     ResultCollector resultCollector = Mockito.mock(ResultCollector.class);
-    SummarizingResultCollectorWithIgnores results =
-        SummarizingResultCollectorWithIgnores.wrap(resultCollector); // .ignoreList("foo");
+    IgnoreFilterResultCollector results =
+        IgnoreFilterResultCollector.wrap(resultCollector); // .ignoreList("foo");
     results.useFilter("");
+
     Result okResult =
         Result.builder()
             .query(
@@ -60,6 +61,7 @@ public class SummarizingResultCollectorWithIgnoresTest {
             .timestamp(Instant.ofEpochMilli(158994000000L))
             .build();
     results.add(okResult);
+
     assertThat(results.failures()).isZero();
     assertThat(results.ignoredFailures()).isZero();
   }

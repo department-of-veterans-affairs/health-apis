@@ -20,7 +20,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 @Slf4j
 @RequiredArgsConstructor(staticName = "wrap")
-public class SummarizingResultCollectorWithIgnores implements ResultCollector {
+public class IgnoreFilterResultCollector implements ResultCollector {
 
   private final ResultCollector delegate;
 

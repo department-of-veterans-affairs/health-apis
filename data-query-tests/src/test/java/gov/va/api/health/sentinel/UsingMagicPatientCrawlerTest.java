@@ -8,9 +8,9 @@ import gov.va.api.health.sentinel.crawler.ConcurrentResourceBalancingRequestQueu
 import gov.va.api.health.sentinel.crawler.Crawler;
 import gov.va.api.health.sentinel.crawler.CrawlerProperties;
 import gov.va.api.health.sentinel.crawler.FileResultsCollector;
+import gov.va.api.health.sentinel.crawler.IgnoreFilterResultCollector;
 import gov.va.api.health.sentinel.crawler.ResourceDiscovery;
 import gov.va.api.health.sentinel.crawler.SummarizingResultCollector;
-import gov.va.api.health.sentinel.crawler.SummarizingResultCollectorWithIgnores;
 import gov.va.api.health.sentinel.crawler.UrlReplacementRequestQueue;
 import java.io.File;
 import java.util.concurrent.Executors;
@@ -39,12 +39,11 @@ public class UsingMagicPatientCrawlerTest {
             .url(env.dataQuery().urlWithApiPath())
             .build();
 
-    SummarizingResultCollectorWithIgnores results =
-        SummarizingResultCollectorWithIgnores.wrap(
+    IgnoreFilterResultCollector results =
+        IgnoreFilterResultCollector.wrap(
             SummarizingResultCollector.wrap(
                 new FileResultsCollector(new File("target/patient-crawl-" + patient))));
-    // TODO replace with sentinel property that is being added to parent project.
-    results.useFilter(System.getProperty("sentinel.argonaut.crawler.ignores"));
+    results.useFilter(SentinelProperties.optionCrawlerIgnores("argonaut"));
 
     UrlReplacementRequestQueue rq =
         UrlReplacementRequestQueue.builder()
