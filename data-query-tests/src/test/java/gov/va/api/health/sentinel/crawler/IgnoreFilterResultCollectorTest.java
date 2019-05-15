@@ -47,7 +47,7 @@ public class IgnoreFilterResultCollectorTest {
   }
 
   @Test
-  public void addOKResultIncrementsTotals() {
+  public void addOKResult() {
     ResultCollector resultCollector = Mockito.mock(ResultCollector.class);
     IgnoreFilterResultCollector results =
         IgnoreFilterResultCollector.wrap(resultCollector); // .ignoreList("foo");

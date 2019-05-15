@@ -33,7 +33,7 @@ public class IgnoreFilterResultCollector implements ResultCollector {
   @Override
   public void add(Result result) {
     if (result.outcome() != Outcome.OK) {
-      // If this failure is in one or more of the ignore filters then do ignore vs. failure.
+      // If this failure is in one or more of the ignore filters then ignore it instead of failing.
       if (failuresToIgnore.stream().filter(s -> result.query().endsWith(s)).count() > 0) {
         ignoredFailureSummaries.add(result.query() + " " + result.outcome());
       } else {

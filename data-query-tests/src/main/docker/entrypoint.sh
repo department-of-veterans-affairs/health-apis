@@ -17,7 +17,7 @@ Commands
   list-categories
   test [--include-category <category>] [--exclude-category <category>] [--trust <host>] [-Dkey=value] <name> [name] [...]
   smoke-test
-  regression-test --skip-crawler
+  regression-test [--skip-crawler]
   crawler-test
 
 
@@ -34,7 +34,7 @@ Example
 Docker Run Examples
   docker run --rm --init --network=host --env-file qa.testvars vasdvp/health-apis-data-query-tests:latest smoke-test
   docker run --rm --init --network=host --env-file production.testvars vasdvp/health-apis-data-query-tests crawler-test
-  docker run --rm --init --network=host --env-file lab.testvars vasdvp/health-apis-data-query-tests:1.0.210 regression-test --skip-crawler
+  docker run --rm --init --network=host --env-file lab.testvars vasdvp/health-apis-data-query-tests:1.0.210 regression-test -s
 $1
 EOF
 exit 1

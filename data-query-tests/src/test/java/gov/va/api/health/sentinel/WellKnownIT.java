@@ -13,7 +13,7 @@ public class WellKnownIT {
   @Test
   @Category({
     Local.class,
-    // TODO This route is not present in the lab yet - LabDataQueryPatient.class,
+    // TODO Route is not present in the lab so we can't run it there -LabDataQueryPatient.class,
     LabDataQueryClinician.class,
     ProdDataQueryPatient.class,
     ProdDataQueryClinician.class

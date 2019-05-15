@@ -135,7 +135,7 @@ public final class FhirTestClient implements TestClient {
               .request(Method.GET, path, params);
 
       if (response.getStatusCode() != 500) {
-        break;
+        return response;
       }
     }
 
