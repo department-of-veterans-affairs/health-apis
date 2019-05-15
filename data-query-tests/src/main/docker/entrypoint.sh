@@ -144,6 +144,7 @@ setupForAutomation() {
     -D${K8S_ENVIRONMENT}.client-secret=$CLIENT_SECRET \
     -Dpatient-id=$PATIENT_ID"
 
+  # This is an optional, and discouraged flag.
   [ -n "$SENTINEL_CRAWLER_IGNORES" ] \
     && SYSTEM_PROPERTIES+=" -Dsentinel.argonaut.crawler.ignores=$SENTINEL_CRAWLER_IGNORES"
 }

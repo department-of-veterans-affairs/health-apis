@@ -10,7 +10,7 @@ import gov.va.api.health.sentinel.crawler.CrawlerProperties;
 import gov.va.api.health.sentinel.crawler.FileResultsCollector;
 import gov.va.api.health.sentinel.crawler.ResourceDiscovery;
 import gov.va.api.health.sentinel.crawler.SummarizingResultCollector;
-import gov.va.api.health.sentinel.crawler.SummarizingWithIgnoreResultCollector;
+import gov.va.api.health.sentinel.crawler.SummarizingResultCollectorWithIgnores;
 import gov.va.api.health.sentinel.crawler.UrlReplacementRequestQueue;
 import java.io.File;
 import java.util.concurrent.Executors;
@@ -39,16 +39,12 @@ public class UsingMagicPatientCrawlerTest {
             .url(env.dataQuery().urlWithApiPath())
             .build();
 
-    SummarizingWithIgnoreResultCollector results =
-        SummarizingWithIgnoreResultCollector.wrap(
+    SummarizingResultCollectorWithIgnores results =
+        SummarizingResultCollectorWithIgnores.wrap(
             SummarizingResultCollector.wrap(
                 new FileResultsCollector(new File("target/patient-crawl-" + patient))));
-
-    // TODO replace with sentinel property.
-    String property = "sentinel.argonaut.crawler.ignores";
-    String tempProperty = System.getProperty(property);
-    log.info("tempProperty is {}", tempProperty);
-    results.useFilter(tempProperty);
+    // TODO replace with sentinel property that is being added to parent project.
+    results.useFilter(System.getProperty("sentinel.argonaut.crawler.ignores"));
 
     UrlReplacementRequestQueue rq =
         UrlReplacementRequestQueue.builder()

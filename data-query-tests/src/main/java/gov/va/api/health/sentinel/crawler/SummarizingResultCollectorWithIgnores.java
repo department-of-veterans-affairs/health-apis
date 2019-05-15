@@ -11,14 +11,16 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * This collector will provide a text summary upon completion and also allows failures to be marked
- * as ignored one by one with an ignore filter.
+ * as ignored one by one with an ignore filter. An filter applies if it any of the failed query
+ * strings end with one of the filter strings.
  */
 @Slf4j
 @RequiredArgsConstructor(staticName = "wrap")
-public class SummarizingWithIgnoreResultCollector implements ResultCollector {
+public class SummarizingResultCollectorWithIgnores implements ResultCollector {
 
   private final ResultCollector delegate;
 
@@ -32,7 +34,7 @@ public class SummarizingWithIgnoreResultCollector implements ResultCollector {
   public void add(Result result) {
     if (result.outcome() != Outcome.OK) {
       // If this failure is in one or more of the ignore filters then do ignore vs. failure.
-      if (failuresToIgnore.stream().filter(s -> result.query().contains(s)).count() > 0) {
+      if (failuresToIgnore.stream().filter(s -> result.query().endsWith(s)).count() > 0) {
         ignoredFailureSummaries.add(result.query() + " " + result.outcome());
       } else {
         failures.incrementAndGet();
@@ -66,7 +68,7 @@ public class SummarizingWithIgnoreResultCollector implements ResultCollector {
     message.append("\n--------------------");
     message.append("\nConfigured to ignore these failures:\n");
     message.append(
-        failuresToIgnore.size() > 0 ? Arrays.toString(failuresToIgnore.toArray()) : "NONE");
+        failuresToIgnore.size() > 0 ? Arrays.toString(failuresToIgnore.toArray()) : "None");
     message.append("\nWhich resulted in the following failures being ignored:\n");
     if (ignoredFailureSummaries.size() > 0) {
       message.append(ignoredFailureSummaries.stream().sorted().collect(Collectors.joining("\n")));
@@ -75,13 +77,18 @@ public class SummarizingWithIgnoreResultCollector implements ResultCollector {
           .append(ignoredFailureSummaries.size())
           .append(" failures which should be cleaned up!\n");
     } else {
-      message.append("NONE");
+      message.append("None");
     }
     return message.toString();
   }
 
-  /** A comma separated filter list used to exclude any errors that match the items in the list. */
+  /**
+   * A comma separated filter list used to exclude any errors in queries that end with the items in
+   * the list.
+   */
   public void useFilter(String filter) {
-    failuresToIgnore.addAll(Stream.of(filter.split(",")).collect(Collectors.toList()));
+    if (StringUtils.isNotEmpty(filter)) {
+      failuresToIgnore.addAll(Stream.of(filter.split(",")).collect(Collectors.toList()));
+    }
   }
 }

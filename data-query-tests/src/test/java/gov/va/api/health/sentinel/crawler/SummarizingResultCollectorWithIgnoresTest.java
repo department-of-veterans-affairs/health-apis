@@ -7,13 +7,13 @@ import java.time.Instant;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-public class SummarizingWithIgnoreResultCollectorTest {
+public class SummarizingResultCollectorWithIgnoresTest {
 
   @Test
   public void addFailResultIncrementsFailures() {
     ResultCollector resultCollector = Mockito.mock(ResultCollector.class);
-    SummarizingWithIgnoreResultCollector results =
-        SummarizingWithIgnoreResultCollector.wrap(resultCollector);
+    SummarizingResultCollectorWithIgnores results =
+        SummarizingResultCollectorWithIgnores.wrap(resultCollector);
     results.useFilter("foo,bar");
 
     Result badnessResult =
@@ -30,8 +30,8 @@ public class SummarizingWithIgnoreResultCollectorTest {
   @Test
   public void addFailureResultMatchingAnIgnoreListFilterIncrementsIgnores() {
     ResultCollector resultCollector = Mockito.mock(ResultCollector.class);
-    SummarizingWithIgnoreResultCollector results =
-        SummarizingWithIgnoreResultCollector.wrap(resultCollector);
+    SummarizingResultCollectorWithIgnores results =
+        SummarizingResultCollectorWithIgnores.wrap(resultCollector);
     results.useFilter("foo,bar,Resource/z8z848z3-35zz-5zz-93zz-z4z8731z1z11");
 
     Result badnessResult =
@@ -49,8 +49,9 @@ public class SummarizingWithIgnoreResultCollectorTest {
   @Test
   public void addOKResultIncrementsTotals() {
     ResultCollector resultCollector = Mockito.mock(ResultCollector.class);
-    SummarizingWithIgnoreResultCollector results =
-        SummarizingWithIgnoreResultCollector.wrap(resultCollector); // .ignoreList("foo");
+    SummarizingResultCollectorWithIgnores results =
+        SummarizingResultCollectorWithIgnores.wrap(resultCollector); // .ignoreList("foo");
+    results.useFilter("");
     Result okResult =
         Result.builder()
             .query(
