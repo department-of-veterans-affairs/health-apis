@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -o pipefail
+
 [ -z "$SENTINEL_BASE_DIR" ] && SENTINEL_BASE_DIR=/sentinel
 cd $SENTINEL_BASE_DIR
 MAIN_JAR=$(find -maxdepth 1 -name "data-query-tests-*.jar" -a -not -name "data-query-tests-*-tests.jar")
@@ -22,19 +24,27 @@ Commands
 
 
 Example
-  test \
-    --exclude-category gov.va.api.health.sentinel.categories.Local \
-    --include-category gov.va.api.health.sentinel.categories.Manual \
-    --trust example.us-gov-west-1.elb.amazonaws.com
-    -Dlab.client-id=12345 \
-    -Dlab.client-secret=ABCDEF \
-    -Dlab.user-password=secret \
+  test\
+    --exclude-category gov.va.api.health.sentinel.categories.Local\
+    --include-category gov.va.api.health.sentinel.categories.Manual\
+    --trust example.something.elb.amazonaws.com\
+    -Dlab.client-id=12345\
+    -Dlab.client-secret=ABCDEF\
+    -Dlab.user-password=secret\
     gov.va.api.health.sentinel.UsingMagicPatientCrawlerTest
 
 Docker Run Examples
-  docker run --rm --init --network=host --env-file qa.testvars vasdvp/health-apis-data-query-tests:latest smoke-test
-  docker run --rm --init --network=host --env-file production.testvars vasdvp/health-apis-data-query-tests crawler-test
-  docker run --rm --init --network=host --env-file lab.testvars vasdvp/health-apis-data-query-tests:1.0.210 regression-test -s
+  docker run --rm --init --network=host\
+  --env-file qa.testvars --env K8S_LOAD_BALANCER=example.com --env K8S_ENVIRONMENT=qa\
+  vasdvp/health-apis-data-query-tests:latest smoke-test
+
+  docker run --rm --init --network=host\
+  --env-file production.testvars --env K8S_LOAD_BALANCER=example.com --env K8S_ENVIRONMENT=production\
+  vasdvp/health-apis-data-query-tests crawler-test
+
+  docker run --rm --init --network=host\
+  --env-file lab.testvars --env K8S_LOAD_BALANCER=example.com --env K8S_ENVIRONMENT=lab\
+  vasdvp/health-apis-data-query-tests:1.0.210 regression-test -s
 $1
 EOF
 exit 1

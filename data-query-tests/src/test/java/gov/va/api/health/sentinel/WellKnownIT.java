@@ -10,10 +10,11 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 public class WellKnownIT {
+
   @Test
   @Category({
     Local.class,
-    // TODO Route is not present in the lab so we can't run it there -LabDataQueryPatient.class,
+    // TODO ADQ-35 logged. Lab is missing this route. Put LabDataQueryPatient back after added.
     LabDataQueryClinician.class,
     ProdDataQueryPatient.class,
     ProdDataQueryClinician.class
