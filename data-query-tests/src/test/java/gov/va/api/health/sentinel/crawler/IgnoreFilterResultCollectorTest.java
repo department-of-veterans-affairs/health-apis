@@ -25,6 +25,7 @@ public class IgnoreFilterResultCollectorTest {
     results.add(badnessResult);
 
     assertThat(results.failures()).isOne();
+    assertThat(results.ignoredFailures()).isZero();
   }
 
   @Test
