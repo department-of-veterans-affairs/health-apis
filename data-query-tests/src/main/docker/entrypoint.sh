@@ -10,7 +10,6 @@ WEB_DRIVER_PROPERTIES="-Dwebdriver.chrome.driver=/usr/local/bin/chromedriver -Dw
 SYSTEM_PROPERTIES=$WEB_DRIVER_PROPERTIES
 EXCLUDE_CATEGORY=
 INCLUDE_CATEGORY=
-SKIP_CRAWLER=
 
 usage() {
 cat <<EOF
