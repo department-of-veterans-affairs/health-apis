@@ -8,6 +8,7 @@ WEB_DRIVER_PROPERTIES="-Dwebdriver.chrome.driver=/usr/local/bin/chromedriver -Dw
 SYSTEM_PROPERTIES=$WEB_DRIVER_PROPERTIES
 EXCLUDE_CATEGORY=
 INCLUDE_CATEGORY=
+SKIP_CRAWLER=
 
 usage() {
 cat <<EOF
@@ -16,7 +17,7 @@ Commands
   list-categories
   test [--include-category <category>] [--exclude-category <category>] [--trust <host>] [-Dkey=value] <name> [name] [...]
   smoke-test
-  regression-test
+  regression-test --skip-crawler
   crawler-test
 
 
@@ -30,6 +31,10 @@ Example
     -Dlab.user-password=secret \
     gov.va.api.health.sentinel.UsingMagicPatientCrawlerTest
 
+Docker Run Examples
+  docker run --rm --init --network=host --env-file qa.testvars vasdvp/health-apis-data-query-tests:latest smoke-test
+  docker run --rm --init --network=host --env-file production.testvars vasdvp/health-apis-data-query-tests crawler-test
+  docker run --rm --init --network=host --env-file lab.testvars vasdvp/health-apis-data-query-tests:1.0.210 regression-test --skip-crawler
 $1
 EOF
 exit 1
@@ -105,25 +110,26 @@ doRegressionTest() {
   INCLUDE_CATEGORY=$SENTINEL_REGRESSION_TEST_CATEGORY
   doTest
 
-  # For regression test, we want to crawl too.
   doCrawlerTest
 }
 
 doCrawlerTest() {
-  setupForAutomation
+  # If crawler test was specified and not explicitly told to skip then it's crawl time.
+  if [ -z "$SKIP_CRAWLER" ] && [ -n "$SENTINEL_CRAWLER" ]; then
+    setupForAutomation
 
-  INCLUDE_CATEGORY=$SENTINEL_CRAWLER_TEST_CATEGORY
-  doTest $SENTINEL_CRAWLER
+    INCLUDE_CATEGORY=
+    doTest $SENTINEL_CRAWLER
+  fi
 }
 
 checkVariablesForAutomation() {
-  # Check out both the deployment contract variables and data query specific variables.
-  for i in "K8S_LOAD_BALANCER" "K8S_ENVIRONMENT" "SENTINEL_ENV" "TOKEN" "JARGONAUT" \
+  # Check out required deployment variables and data query specific variables.
+  for param in "K8S_LOAD_BALANCER" "K8S_ENVIRONMENT" "SENTINEL_ENV" "TOKEN" "JARGONAUT" \
     "SENTINEL_SMOKE_TEST_CATEGORY" "SENTINEL_REGRESSION_TEST_CATEGORY" \
-    "SENTINEL_CRAWLER_TEST_CATEGORY" "SENTINEL_CRAWLER" \
-    "DATA_QUERY_API_PATH" "DATA_QUERY_REPLACE_URL" "USER_PASSWORD" "CLIENT_ID" \
-    "CLIENT_SECRET" "PATIENT_ID"; do
-    [ -z ${!i} ] && usage "Variable $i must be specified."
+    "DATA_QUERY_API_PATH" "DATA_QUERY_REPLACE_URL" "USER_PASSWORD" \
+    "CLIENT_ID" "CLIENT_SECRET" "PATIENT_ID"; do
+    [ -z ${!param} ] && usage "Variable $param must be specified."
   done
 }
 
@@ -150,8 +156,8 @@ setupForAutomation() {
 }
 
 ARGS=$(getopt -n $(basename ${0}) \
-    -l "exclude-category:,include-category:,debug,help,trust:" \
-    -o "e:i:D:h" -- "$@")
+    -l "exclude-category:,include-category:,debug,help,trust:,skip-crawler" \
+    -o "e:i:D:hs" -- "$@")
 [ $? != 0 ] && usage
 eval set -- "$ARGS"
 while true
@@ -163,6 +169,7 @@ do
     --debug) set -x;;
     -h|--help) usage "halp! what this do?";;
     --trust) trustServer $2;;
+    -s|--skip-crawler) SKIP_CRAWLER="TRUE";;
     --) shift;break;;
   esac
   shift;
