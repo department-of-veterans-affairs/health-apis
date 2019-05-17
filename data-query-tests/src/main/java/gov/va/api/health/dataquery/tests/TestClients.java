@@ -16,7 +16,7 @@ public final class TestClients {
     return FhirTestClient.builder()
         .service(SystemDefinitions.systemDefinition().dataQuery())
         .mapper(JacksonConfig::createMapper)
-        .functionalEqualityCheck(new OperationOutcomesAreFunctionallyEqualCheck())
+        .errorResponseEqualityCheck(new OperationOutcomesAreFunctionallyEqual())
         .build();
   }
 
