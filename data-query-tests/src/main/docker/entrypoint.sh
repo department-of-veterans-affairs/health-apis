@@ -10,7 +10,6 @@ WEB_DRIVER_PROPERTIES="-Dwebdriver.chrome.driver=/usr/local/bin/chromedriver -Dw
 SYSTEM_PROPERTIES=$WEB_DRIVER_PROPERTIES
 EXCLUDE_CATEGORY=
 INCLUDE_CATEGORY=
-SKIP_CRAWLER=
 
 usage() {
 cat <<EOF
@@ -88,7 +87,7 @@ doTest() {
     | grep -vE "^	at ($noise)"
 
   # Exit on failure otherwise let other actions run.
-  [ $? != 0 ] && exit $?
+  [ $? != 0 ] && exit 1
 }
 
 doListTests() {
