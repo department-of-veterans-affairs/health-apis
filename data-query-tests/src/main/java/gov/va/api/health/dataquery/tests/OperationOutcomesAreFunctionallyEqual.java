@@ -5,6 +5,10 @@ import gov.va.api.health.sentinel.ErrorsAreFunctionallyEqual;
 import io.restassured.response.ResponseBody;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Compares two OperationalOutcomes present in a response after first removing the transient time
+ * stamp data.
+ */
 @Slf4j
 public class OperationOutcomesAreFunctionallyEqual implements ErrorsAreFunctionallyEqual {
 

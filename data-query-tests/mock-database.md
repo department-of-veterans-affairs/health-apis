@@ -3,7 +3,7 @@
 Data-query integration tests use a Type 4 JDBC driver implementation
 that mocks the CDW `prc_Entity_Return` stored procedure.
 
-* Driver class: `gov.va.api.health.sentinel.tests.categories.mockcdw.MockEntityReturnDriver`
+* Driver class: `gov.va.api.health.sentinel.tests.mockcdw.MockEntityReturnDriver`
 * JDBC Url: `jdbc:mockcdw://path/to/index.yaml,path/to/another/index.yaml`
 
 > ⚠ This driver supports just enough functionality for Mr. Anderson to function. It is not a

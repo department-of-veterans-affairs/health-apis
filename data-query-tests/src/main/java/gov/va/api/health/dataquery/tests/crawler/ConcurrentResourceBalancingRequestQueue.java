@@ -1,6 +1,8 @@
 package gov.va.api.health.dataquery.tests.crawler;
 
 import static com.google.common.base.Preconditions.checkState;
+import static gov.va.api.health.dataquery.tests.crawler.ResourceDiscovery.isSearch;
+import static gov.va.api.health.dataquery.tests.crawler.ResourceDiscovery.resource;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -52,23 +54,19 @@ public class ConcurrentResourceBalancingRequestQueue implements RequestQueue {
             requests,
             Comparator.<String>comparingInt(str -> resourceScore(str))
                 .thenComparing(
-                    (left, right) ->
-                        -1
-                            * Boolean.compare(
-                                ResourceDiscovery.isSearch(left),
-                                ResourceDiscovery.isSearch(right)))
+                    (left, right) -> -1 * Boolean.compare(isSearch(left), isSearch(right)))
                 .thenComparing(Comparator.naturalOrder()));
     requests.remove(next);
 
-    if (ResourceDiscovery.isSearch(next)) {
-      resourceScores.put(ResourceDiscovery.resource(next), resourceScore(next) + 15);
+    if (isSearch(next)) {
+      resourceScores.put(resource(next), resourceScore(next) + 15);
     } else {
-      resourceScores.put(ResourceDiscovery.resource(next), resourceScore(next) + 1);
+      resourceScores.put(resource(next), resourceScore(next) + 1);
     }
     return next;
   }
 
   private int resourceScore(String url) {
-    return resourceScores.getOrDefault(ResourceDiscovery.resource(url), 0);
+    return resourceScores.getOrDefault(resource(url), 0);
   }
 }
