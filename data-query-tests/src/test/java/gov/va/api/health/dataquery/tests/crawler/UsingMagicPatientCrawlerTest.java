@@ -1,16 +1,12 @@
-package gov.va.api.health.dataquery.tests;
+package gov.va.api.health.dataquery.tests.crawler;
 
 import static gov.va.api.health.sentinel.SentinelProperties.magicAccessToken;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import gov.va.api.health.dataquery.tests.crawler.ConcurrentResourceBalancingRequestQueue;
-import gov.va.api.health.dataquery.tests.crawler.Crawler;
-import gov.va.api.health.dataquery.tests.crawler.CrawlerProperties;
-import gov.va.api.health.dataquery.tests.crawler.FileResultsCollector;
-import gov.va.api.health.dataquery.tests.crawler.IgnoreFilterResultCollector;
-import gov.va.api.health.dataquery.tests.crawler.ResourceDiscovery;
-import gov.va.api.health.dataquery.tests.crawler.SummarizingResultCollector;
-import gov.va.api.health.dataquery.tests.crawler.UrlReplacementRequestQueue;
+import gov.va.api.health.dataquery.tests.DataQueryProperties;
+import gov.va.api.health.dataquery.tests.Swiggity;
+import gov.va.api.health.dataquery.tests.SystemDefinition;
+import gov.va.api.health.dataquery.tests.SystemDefinitions;
 import gov.va.api.health.sentinel.SentinelProperties;
 import gov.va.api.health.sentinel.categories.Manual;
 import java.io.File;

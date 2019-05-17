@@ -216,7 +216,7 @@ public final class SystemDefinitions {
   }
 
   /** Return the applicable system definition for the current environment. */
-  static SystemDefinition systemDefinition() {
+  public static SystemDefinition systemDefinition() {
     switch (Environment.get()) {
       case LAB:
         return lab();

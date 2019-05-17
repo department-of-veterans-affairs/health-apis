@@ -17,24 +17,24 @@ public final class CrawlerProperties {
    * if they fail.
    */
   public static String optionCrawlerIgnores() {
-    String ignores = System.getProperty("sentinel.crawler.ignores");
+    String ignores = System.getProperty("crawler.ignores");
     if (isBlank(ignores)) {
       log.info(
-          "No requests ignored. (Override with -Dsentinel.crawler.ignores=<ignores> "
+          "No requests ignored. (Override with -Dcrawler.ignores=<ignores> "
               + "-- Place ignores in a comma separated list)");
     } else {
       log.info(
           "Ignoring the following requests: {} "
-              + "(Override with -Dsentinel.crawler.ignores=<ignores> "
+              + "(Override with -Dcrawler.ignores=<ignores> "
               + "-- Place ignores in a comma separated list)",
           ignores);
     }
     return ignores;
   }
 
-  /** Read crawler time limit from the property sentinel.crawler.timelimit/ */
+  /** Read crawler time limit from the property crawler.timelimit/ */
   public static Duration timeLimit() {
-    String property = "sentinel.crawler.timelimit";
+    String property = "crawler.timelimit";
     String maybeDuration = System.getProperty(property);
     if (isNotBlank(maybeDuration)) {
       try {
@@ -54,11 +54,11 @@ public final class CrawlerProperties {
 
   /** Read url replacement from system property. */
   public String urlReplace() {
-    String replace = System.getProperty("sentinel.crawler.url.replace");
+    String replace = System.getProperty("crawler.url.replace");
     if (isBlank(replace)) {
-      log.info("URL replacement disabled (Override with -Dsentinel.crawler.url.replace=<url>)");
+      log.info("URL replacement disabled (Override with -Dcrawler.url.replace=<url>)");
     } else {
-      log.info("URL replacement {} (Override with -Dsentinel.crawler.url.replace=<url>)", replace);
+      log.info("URL replacement {} (Override with -Dcrawler.url.replace=<url>)", replace);
     }
     return replace;
   }

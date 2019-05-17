@@ -198,7 +198,8 @@ public final class LabRobots {
     String token;
     String authorize;
 
-    SmartOnFhirUrls(String baseUrl) {
+    /** . */
+    public SmartOnFhirUrls(String baseUrl) {
       log.info("Discovering authorization endpoints from {}", baseUrl);
 
       Conformance conformanceStatement =

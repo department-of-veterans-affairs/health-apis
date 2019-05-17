@@ -30,7 +30,7 @@ Example
     -Dlab.client-id=12345\
     -Dlab.client-secret=ABCDEF\
     -Dlab.user-password=secret\
-    gov.va.api.health.sentinel.UsingMagicPatientCrawlerTest
+    gov.va.api.health.dataquery.tests.UsingMagicPatientCrawlerTest
 
 Docker Run Examples
   docker run --rm --init --network=host\
@@ -100,7 +100,7 @@ doListTests() {
 
 doListCategories() {
   jar -tf $MAIN_JAR \
-    | grep -E 'gov/va/api/health/sentinel/categories/.*\.class' \
+    | grep -E 'gov/va/api/health/sentinel/categories/.*\.class|gov/va/api/health/dataquery/tests/categories/.*\.class' \
     | sed 's/\.class//' \
     | tr / . \
     | sort
@@ -153,7 +153,7 @@ setupForAutomation() {
     -Djargonaut=$JARGONAUT \
     -Dsentinel.argonaut.url=https://$K8S_LOAD_BALANCER \
     -Dsentinel.argonaut.api-path=$DATA_QUERY_API_PATH \
-    -Dsentinel.argonaut.url.replace=$DATA_QUERY_REPLACE_URL \
+    -Dcrawler.url.replace=$DATA_QUERY_REPLACE_URL \
     -D${K8S_ENVIRONMENT}.user-password=$USER_PASSWORD \
     -D${K8S_ENVIRONMENT}.client-id=$CLIENT_ID \
     -D${K8S_ENVIRONMENT}.client-secret=$CLIENT_SECRET \
@@ -161,7 +161,7 @@ setupForAutomation() {
 
   # This is an optional, and discouraged flag.
   [ -n "$SENTINEL_CRAWLER_IGNORES" ] \
-    && SYSTEM_PROPERTIES+=" -Dsentinel.argonaut.crawler.ignores=$SENTINEL_CRAWLER_IGNORES"
+    && SYSTEM_PROPERTIES+=" -Dcrawler.ignores=$SENTINEL_CRAWLER_IGNORES"
 }
 
 ARGS=$(getopt -n $(basename ${0}) \
