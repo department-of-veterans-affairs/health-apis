@@ -1,5 +1,7 @@
 package gov.va.api.health.dataquery.tests;
 
+import static gov.va.api.health.dataquery.tests.ResourceVerifier.test;
+
 import gov.va.api.health.dataquery.api.resources.Medication;
 import gov.va.api.health.dataquery.api.resources.OperationOutcome;
 import gov.va.api.health.dataquery.tests.categories.LabDataQueryClinician;
@@ -17,11 +19,9 @@ public class MedicationIT {
   @Category({Local.class, LabDataQueryClinician.class, ProdDataQueryClinician.class})
   public void advanced() {
     verifier.verifyAll(
-        ResourceVerifier.test(
-            200, Medication.Bundle.class, "Medication?_id={id}", verifier.ids().medication()),
-        ResourceVerifier.test(
-            404, OperationOutcome.class, "Medication?_id={id}", verifier.ids().unknown()),
-        ResourceVerifier.test(
+        test(200, Medication.Bundle.class, "Medication?_id={id}", verifier.ids().medication()),
+        test(404, OperationOutcome.class, "Medication?_id={id}", verifier.ids().unknown()),
+        test(
             200,
             Medication.Bundle.class,
             "Medication?identifier={id}",
@@ -38,9 +38,7 @@ public class MedicationIT {
   })
   public void basic() {
     verifier.verifyAll(
-        ResourceVerifier.test(
-            200, Medication.class, "Medication/{id}", verifier.ids().medication()),
-        ResourceVerifier.test(
-            404, OperationOutcome.class, "Medication/{id}", verifier.ids().unknown()));
+        test(200, Medication.class, "Medication/{id}", verifier.ids().medication()),
+        test(404, OperationOutcome.class, "Medication/{id}", verifier.ids().unknown()));
   }
 }

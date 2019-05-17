@@ -1,5 +1,7 @@
 package gov.va.api.health.dataquery.tests;
 
+import static gov.va.api.health.dataquery.tests.ResourceVerifier.test;
+
 import gov.va.api.health.dataquery.api.resources.MedicationDispense;
 import gov.va.api.health.dataquery.api.resources.OperationOutcome;
 import gov.va.api.health.dataquery.tests.categories.ProdDataQueryClinician;
@@ -15,29 +17,28 @@ public class MedicationDispenseIT {
   @Test
   public void advanced() {
     verifier.verifyAll(
-        ResourceVerifier.test(
+        test(
             200,
             MedicationDispense.Bundle.class,
             "MedicationDispense?_id={id}",
             verifier.ids().medicationDispense()),
-        ResourceVerifier.test(
+        test(
             200,
             MedicationDispense.Bundle.class,
             "MedicationDispense?identifier={id}",
             verifier.ids().medicationDispense()),
-        ResourceVerifier.test(
-            404, OperationOutcome.class, "MedicationDispense?_id={id}", verifier.ids().unknown()),
-        ResourceVerifier.test(
+        test(404, OperationOutcome.class, "MedicationDispense?_id={id}", verifier.ids().unknown()),
+        test(
             200,
             MedicationDispense.Bundle.class,
             "MedicationDispense?patient={patient}&status=stopped,completed",
             verifier.ids().patient()),
-        ResourceVerifier.test(
+        test(
             200,
             MedicationDispense.Bundle.class,
             "MedicationDispense?patient={patient}&type=FF,UD",
             verifier.ids().patient()),
-        ResourceVerifier.test(
+        test(
             200,
             MedicationDispense.Bundle.class,
             "MedicationDispense?patient={patient}",
@@ -48,12 +49,11 @@ public class MedicationDispenseIT {
   @Test
   public void basic() {
     verifier.verifyAll(
-        ResourceVerifier.test(
+        test(
             200,
             MedicationDispense.class,
             "MedicationDispense/{id}",
             verifier.ids().medicationDispense()),
-        ResourceVerifier.test(
-            404, OperationOutcome.class, "MedicationDispense/{id}", verifier.ids().unknown()));
+        test(404, OperationOutcome.class, "MedicationDispense/{id}", verifier.ids().unknown()));
   }
 }

@@ -1,5 +1,7 @@
 package gov.va.api.health.dataquery.tests;
 
+import static gov.va.api.health.dataquery.tests.ResourceVerifier.test;
+
 import gov.va.api.health.dataquery.api.resources.MedicationOrder;
 import gov.va.api.health.dataquery.api.resources.OperationOutcome;
 import gov.va.api.health.dataquery.tests.categories.LabDataQueryClinician;
@@ -17,14 +19,13 @@ public class MedicationOrderIT {
   @Category({Local.class, LabDataQueryClinician.class, ProdDataQueryClinician.class})
   public void advanced() {
     verifier.verifyAll(
-        ResourceVerifier.test(
+        test(
             200,
             MedicationOrder.Bundle.class,
             "MedicationOrder?_id={id}",
             verifier.ids().medicationOrder()),
-        ResourceVerifier.test(
-            404, OperationOutcome.class, "MedicationOrder?_id={id}", verifier.ids().unknown()),
-        ResourceVerifier.test(
+        test(404, OperationOutcome.class, "MedicationOrder?_id={id}", verifier.ids().unknown()),
+        test(
             200,
             MedicationOrder.Bundle.class,
             "MedicationOrder?identifier={id}",
@@ -41,11 +42,9 @@ public class MedicationOrderIT {
   })
   public void basic() {
     verifier.verifyAll(
-        ResourceVerifier.test(
-            200, MedicationOrder.class, "MedicationOrder/{id}", verifier.ids().medicationOrder()),
-        ResourceVerifier.test(
-            404, OperationOutcome.class, "MedicationOrder/{id}", verifier.ids().unknown()),
-        ResourceVerifier.test(
+        test(200, MedicationOrder.class, "MedicationOrder/{id}", verifier.ids().medicationOrder()),
+        test(404, OperationOutcome.class, "MedicationOrder/{id}", verifier.ids().unknown()),
+        test(
             200,
             MedicationOrder.Bundle.class,
             "MedicationOrder?patient={patient}",
@@ -61,7 +60,7 @@ public class MedicationOrderIT {
   })
   public void searchNotMe() {
     verifier.verifyAll(
-        ResourceVerifier.test(
+        test(
             403,
             OperationOutcome.class,
             "MedicationOrder?patient={patient}",

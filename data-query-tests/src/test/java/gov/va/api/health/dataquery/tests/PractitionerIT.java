@@ -1,5 +1,7 @@
 package gov.va.api.health.dataquery.tests;
 
+import static gov.va.api.health.dataquery.tests.ResourceVerifier.test;
+
 import gov.va.api.health.dataquery.api.resources.OperationOutcome;
 import gov.va.api.health.dataquery.api.resources.Practitioner;
 import gov.va.api.health.dataquery.tests.categories.ProdDataQueryClinician;
@@ -15,11 +17,10 @@ public class PractitionerIT {
   @Test
   public void advanced() {
     verifier.verifyAll(
-        ResourceVerifier.test(
+        test(
             200, Practitioner.Bundle.class, "Practitioner?_id={id}", verifier.ids().practitioner()),
-        ResourceVerifier.test(
-            404, OperationOutcome.class, "Practitioner?_id={id}", verifier.ids().unknown()),
-        ResourceVerifier.test(
+        test(404, OperationOutcome.class, "Practitioner?_id={id}", verifier.ids().unknown()),
+        test(
             200,
             Practitioner.Bundle.class,
             "Practitioner?identifier={id}",
@@ -30,9 +31,7 @@ public class PractitionerIT {
   @Test
   public void basic() {
     verifier.verifyAll(
-        ResourceVerifier.test(
-            200, Practitioner.class, "Practitioner/{id}", verifier.ids().practitioner()),
-        ResourceVerifier.test(
-            404, OperationOutcome.class, "Practitioner/{id}", verifier.ids().unknown()));
+        test(200, Practitioner.class, "Practitioner/{id}", verifier.ids().practitioner()),
+        test(404, OperationOutcome.class, "Practitioner/{id}", verifier.ids().unknown()));
   }
 }

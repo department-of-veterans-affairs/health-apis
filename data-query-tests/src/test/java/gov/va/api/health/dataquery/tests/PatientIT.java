@@ -1,5 +1,7 @@
 package gov.va.api.health.dataquery.tests;
 
+import static gov.va.api.health.dataquery.tests.ResourceVerifier.test;
+
 import gov.va.api.health.dataquery.api.resources.OperationOutcome;
 import gov.va.api.health.dataquery.api.resources.Patient;
 import gov.va.api.health.dataquery.tests.categories.LabDataQueryClinician;
@@ -19,25 +21,25 @@ public class PatientIT {
   @Category({Local.class, LabDataQueryClinician.class, ProdDataQueryClinician.class})
   public void advanced() {
     verifier.verifyAll(
-        ResourceVerifier.test(
+        test(
             200,
             Patient.Bundle.class,
             "Patient?family={family}&gender={gender}",
             verifier.ids().pii().family(),
             verifier.ids().pii().gender()),
-        ResourceVerifier.test(
+        test(
             200,
             Patient.Bundle.class,
             "Patient?given={given}&gender={gender}",
             verifier.ids().pii().given(),
             verifier.ids().pii().gender()),
-        ResourceVerifier.test(
+        test(
             200,
             Patient.Bundle.class,
             "Patient?name={name}&birthdate={birthdate}",
             verifier.ids().pii().name(),
             verifier.ids().pii().birthdate()),
-        ResourceVerifier.test(
+        test(
             200,
             Patient.Bundle.class,
             "Patient?name={name}&gender={gender}",
@@ -56,9 +58,8 @@ public class PatientIT {
   })
   public void basic() {
     verifier.verifyAll(
-        ResourceVerifier.test(200, Patient.class, "Patient/{id}", verifier.ids().patient()),
-        ResourceVerifier.test(
-            200, Patient.Bundle.class, "Patient?_id={id}", verifier.ids().patient()));
+        test(200, Patient.class, "Patient/{id}", verifier.ids().patient()),
+        test(200, Patient.Bundle.class, "Patient?_id={id}", verifier.ids().patient()));
   }
 
   /**
@@ -69,8 +70,7 @@ public class PatientIT {
   @Category(Local.class)
   public void patientIdentifierSearching() {
     verifier.verify(
-        ResourceVerifier.test(
-            200, Patient.Bundle.class, "Patient?identifier={id}", verifier.ids().patient()));
+        test(200, Patient.Bundle.class, "Patient?identifier={id}", verifier.ids().patient()));
   }
 
   /**
@@ -89,16 +89,12 @@ public class PatientIT {
   public void patientMatching() {
     if (Environment.get() == Environment.LOCAL) {
       verifier.verifyAll(
-          ResourceVerifier.test(
-              404, OperationOutcome.class, "Patient/{id}", verifier.ids().unknown()),
-          ResourceVerifier.test(
-              404, OperationOutcome.class, "Patient?_id={id}", verifier.ids().unknown()));
+          test(404, OperationOutcome.class, "Patient/{id}", verifier.ids().unknown()),
+          test(404, OperationOutcome.class, "Patient?_id={id}", verifier.ids().unknown()));
     } else {
       verifier.verifyAll(
-          ResourceVerifier.test(
-              403, OperationOutcome.class, "Patient/{id}", verifier.ids().unknown()),
-          ResourceVerifier.test(
-              403, OperationOutcome.class, "Patient?_id={id}", verifier.ids().unknown()));
+          test(403, OperationOutcome.class, "Patient/{id}", verifier.ids().unknown()),
+          test(403, OperationOutcome.class, "Patient?_id={id}", verifier.ids().unknown()));
     }
   }
 }
