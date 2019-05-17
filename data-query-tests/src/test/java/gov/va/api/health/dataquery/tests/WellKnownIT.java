@@ -11,6 +11,9 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 public class WellKnownIT {
+  private final String apiPath() {
+    return TestClients.dataQuery().service().apiPath();
+  }
 
   @Test
   @Category({
@@ -21,7 +24,8 @@ public class WellKnownIT {
     ProdDataQueryClinician.class
   })
   public void wellKnownIsValid() {
-    ExpectedResponse response = TestClients.dataQuery().get(".well-known/smart-configuration");
+    ExpectedResponse response =
+        TestClients.dataQuery().get(apiPath() + ".well-known/smart-configuration");
     response.expect(200);
     String rawJson = response.response().asString();
     assertThat(rawJson)

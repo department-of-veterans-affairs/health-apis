@@ -26,7 +26,7 @@
     <relativePath/>
   </parent>
   <artifactId>data-query-api</artifactId>
-  <version>1.0.211-SNAPSHOT</version>
+  <version>1.0.213-SNAPSHOT</version>
   <packaging>jar</packaging>
   <properties>
     <checkstyle.suppressions.location>${project.basedir}/checkstyle-suppressions.xml</checkstyle.suppressions.location>
