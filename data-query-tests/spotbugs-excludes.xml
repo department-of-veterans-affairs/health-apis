@@ -8,8 +8,8 @@
   -->
   <Match>
     <Or>
-      <Class name="gov.va.api.health.sentinel.mockcdw.MockEntityReturnDriver"/>
-      <Class name="gov.va.api.health.sentinel.mockcdw.MockResponseSource"/>
+      <Class name="gov.va.api.health.dataquery.tests.mockcdw.MockEntityReturnDriver"/>
+      <Class name="gov.va.api.health.dataquery.tests.mockcdw.MockResponseSource"/>
     </Or>
     <Bug pattern="PATH_TRAVERSAL_IN"/>
   </Match>
@@ -18,7 +18,7 @@
     correctly. Details can be read here: https://projectlombok.org/features/GetterLazy
   -->
   <Match>
-    <Class name="gov.va.api.health.sentinel.IdRegistrar"/>
+    <Class name="gov.va.api.health.dataquery.tests.IdRegistrar"/>
     <Method name="registeredIds"/>
     <Or>
       <Bug pattern="JLM_JSR166_UTILCONCURRENT_MONITORENTER"/>
@@ -30,7 +30,7 @@
     correctly. Details can be read here: https://projectlombok.org/features/GetterLazy
   -->
   <Match>
-    <Class name="gov.va.api.health.sentinel.LabRobots"/>
+    <Class name="gov.va.api.health.dataquery.tests.LabRobots"/>
     <Or>
       <Bug pattern="JLM_JSR166_UTILCONCURRENT_MONITORENTER"/>
       <Bug pattern="RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"/>
@@ -40,7 +40,7 @@
     Path is determined automatically and not user specified.
   -->
   <Match>
-    <Class name="gov.va.api.health.sentinel.crawler.FileResultsCollector"/>
+    <Class name="gov.va.api.health.dataquery.tests.crawler.FileResultsCollector"/>
     <Bug pattern="PATH_TRAVERSAL_IN"/>
   </Match>
 </FindBugsFilter>
