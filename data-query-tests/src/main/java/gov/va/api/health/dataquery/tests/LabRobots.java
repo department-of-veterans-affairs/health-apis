@@ -198,7 +198,12 @@ public final class LabRobots {
     String token;
     String authorize;
 
-    /** . */
+    /**
+     * Create a new instance that will reach out to the given base URL to discover SMART on FHIR
+     * information. This class will attempt to interact with /metadata endpoint of the base URL
+     * immediately during construction. Failure to determine the authorize and token end points will
+     * result in an exception.
+     */
     public SmartOnFhirUrls(String baseUrl) {
       log.info("Discovering authorization endpoints from {}", baseUrl);
 
