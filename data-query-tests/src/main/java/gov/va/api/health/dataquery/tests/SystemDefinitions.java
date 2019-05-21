@@ -91,7 +91,7 @@ public final class SystemDefinitions {
     return SystemDefinition.builder()
         .ids(serviceDefinition("ids", url, 8089, null, "/api/"))
         .mrAnderson(serviceDefinition("mr-anderson", url, 8088, null, "/api/"))
-        .dataQuery(serviceDefinition("argonaut", url, 8090, null, "/api/"))
+        .dataQuery(serviceDefinition("argonaut", url, 8090, null, "/"))
         .cdwIds(localIds())
         .build();
   }
@@ -151,7 +151,7 @@ public final class SystemDefinitions {
     return SystemDefinition.builder()
         .ids(serviceDefinition("ids", url, 443, null, "/not-available/"))
         .mrAnderson(serviceDefinition("mr-anderson", url, 443, null, "/not-available/"))
-        .dataQuery(serviceDefinition("argonaut", url, 443, magicAccessToken(), "/api/"))
+        .dataQuery(serviceDefinition("argonaut", url, 443, magicAccessToken(), "/"))
         .cdwIds(prodAndQaIds())
         .build();
   }
@@ -189,7 +189,7 @@ public final class SystemDefinitions {
     return SystemDefinition.builder()
         .ids(serviceDefinition("ids", url, 443, null, "/not-available/"))
         .mrAnderson(serviceDefinition("mr-anderson", url, 443, null, "/not-available/"))
-        .dataQuery(serviceDefinition("argonaut", url, 443, magicAccessToken(), "/api/"))
+        .dataQuery(serviceDefinition("argonaut", url, 443, magicAccessToken(), "/"))
         .cdwIds(prodAndQaIds())
         .build();
   }
@@ -211,7 +211,7 @@ public final class SystemDefinitions {
     return SystemDefinition.builder()
         .ids(serviceDefinition("ids", url, 443, null, "/not-available/"))
         .mrAnderson(serviceDefinition("mr-anderson", url, 443, null, "/not-available/"))
-        .dataQuery(serviceDefinition("argonaut", url, 443, magicAccessToken(), "/api/"))
+        .dataQuery(serviceDefinition("argonaut", url, 443, magicAccessToken(), "/"))
         .build();
   }
 

@@ -13,7 +13,7 @@ public class MrAndersonIT {
   private final IdRegistrar registrar = IdRegistrar.of(SystemDefinitions.systemDefinition());
 
   private final String apiPath() {
-    return TestClients.dataQuery().service().apiPath();
+    return TestClients.mrAnderson().service().apiPath();
   }
 
   private TestIds ids() {

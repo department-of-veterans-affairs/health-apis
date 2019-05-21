@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @Validated
-@RequestMapping("/api")
+@RequestMapping(value = {"/", "/api"})
 @AllArgsConstructor(onConstructor = @__({@Autowired}))
 public class MrAndersonV1ApiController {
 
