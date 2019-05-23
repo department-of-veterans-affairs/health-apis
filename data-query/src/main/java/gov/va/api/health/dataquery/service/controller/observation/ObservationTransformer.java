@@ -49,6 +49,7 @@ public class ObservationTransformer implements ObservationController.Transformer
      * Specimen reference is omitted since we do not support the a specimen resource and
      * do not want dead links
      */
+
     return Observation.builder()
         .resourceType("Observation")
         .id(cdw.getCdwId())
@@ -64,7 +65,10 @@ public class ObservationTransformer implements ObservationController.Transformer
         .valueCodeableConcept(valueCodeableConcept(cdw.getValueCodeableConcept()))
         .interpretation(interpretation(cdw.getInterpretation()))
         .comments(cdw.getComments())
-        .referenceRange(referenceRanges(cdw.getReferenceRanges()))
+        .referenceRange(
+            (cdw.getCategory().getCoding().get(0).getCode().value().equals(CdwObservationCategoryCode.VITAL_SIGNS.value()))
+                ? null
+                : referenceRanges(cdw.getReferenceRanges()))
         .component(components(cdw.getComponents()))
         .build();
   }
