@@ -79,6 +79,16 @@ ssl.trust-store-password=$KEYSTORE_PASSWORD
 EOF
 }
 
+addValue() {
+  local project="$1"
+  local profile="$2"
+  local key="$3"
+  local value="$4"
+  local target="$REPO/$project/config/application-${profile}.properties"
+  local escapedValue=$(echo $value | sed -e 's/\\/\\\\/g; s/\//\\\//g; s/&/\\\&/g')
+  echo "$key=$escapedValue" >> $target
+}
+
 configValue() {
   local project="$1"
   local profile="$2"
@@ -126,6 +136,9 @@ configValue mr-anderson $PROFILE spring.datasource.url "$MRANDERSON_DB_URL"
 configValue mr-anderson $PROFILE spring.datasource.username "$MRANDERSON_DB_USER"
 configValue mr-anderson $PROFILE spring.datasource.password "$MRANDERSON_DB_PASSWORD"
 configValue mr-anderson $PROFILE identityservice.url https://localhost:8089
+# The stored procedure in the lab is named differently
+[[ "$MRANDERSON_DB_URL" =~ .*cdw.lab.freedomstream.io.* ]] \
+  && addValue mr-anderson $PROFILE cdw.stored-procedure prc_resource_return
 checkForUnsetValues mr-anderson $PROFILE
 
 makeConfig data-query $PROFILE
