@@ -43,6 +43,7 @@ import lombok.SneakyThrows;
 import org.junit.Test;
 
 public class ObservationTransformerTest {
+
   private final ObservationTransformer tx = new ObservationTransformer();
 
   private final CdwSampleData cdw = CdwSampleData.get();
@@ -235,8 +236,16 @@ public class ObservationTransformerTest {
         .isEqualTo(expected.emptyCodeValueQuantity());
   }
 
+  @Test
+  public void vitalSignsReferenceRange() {
+    Observation sample = tx.apply(cdw.observationWithCategoryVitalSigns());
+    assertThat(sample.category().coding().get(0).code()).isEqualTo(CdwObservationCategoryCode.VITAL_SIGNS.value());
+    assertThat(sample.referenceRange()).isEqualTo(null);
+  }
+
   @NoArgsConstructor(staticName = "get", access = AccessLevel.PUBLIC)
   public static class CdwSampleData {
+
     private CdwCategory category() {
       CdwCategory cdw = new CdwCategory();
       cdw.getCoding().add(categoryCoding());
@@ -246,8 +255,8 @@ public class ObservationTransformerTest {
     private CdwCoding categoryCoding() {
       CdwCoding cdw = new CdwCoding();
       cdw.setSystem(CdwObservationCategorySystem.HTTP_HL_7_ORG_FHIR_OBSERVATION_CATEGORY);
-      cdw.setCode(CdwObservationCategoryCode.VITAL_SIGNS);
-      cdw.setDisplay(CdwObservationCategoryDisplay.VITAL_SIGNS);
+      cdw.setCode(CdwObservationCategoryCode.LABORATORY);
+      cdw.setDisplay(CdwObservationCategoryDisplay.LABORATORY);
       return cdw;
     }
 
@@ -387,6 +396,18 @@ public class ObservationTransformerTest {
       return cdw;
     }
 
+    CdwObservation observationWithCategoryVitalSigns() {
+      CdwObservation cdw = observation();
+      CdwCoding cdwCoding = new CdwCoding();
+      cdwCoding.setSystem(CdwObservationCategorySystem.HTTP_HL_7_ORG_FHIR_OBSERVATION_CATEGORY);
+      cdwCoding.setCode(CdwObservationCategoryCode.VITAL_SIGNS);
+      cdwCoding.setDisplay(CdwObservationCategoryDisplay.VITAL_SIGNS);
+      CdwCategory cdwCategory = new CdwCategory();
+      cdwCategory.getCoding().add(cdwCoding);
+      cdw.setCategory(cdwCategory);
+      return cdw;
+    }
+
     CdwObservation observationWithValueCodeableConcept() {
       CdwObservation cdw = observation();
       cdw.setValueCodeableConcept(valueCodeableConcept());
@@ -458,9 +479,10 @@ public class ObservationTransformerTest {
 
   @NoArgsConstructor(staticName = "get")
   public static class Expected {
+
     CodeableConcept category() {
       return codeableConcept(
-          coding("http://hl7.org/fhir/observation-category", "vital-signs", "Vital Signs"));
+          coding("http://hl7.org/fhir/observation-category", "laboratory", "Laboratory"));
     }
 
     CodeableConcept code() {
