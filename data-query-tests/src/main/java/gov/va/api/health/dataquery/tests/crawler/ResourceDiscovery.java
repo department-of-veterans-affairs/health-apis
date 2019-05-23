@@ -60,7 +60,7 @@ public class ResourceDiscovery {
    *   <li>https://foo.gov/api/Condition/12345
    * </ul>
    */
-  static String resource(@NonNull String url) throws IllegalStateException {
+  static String resource(@NonNull String url) {
     int lastSlashIndex = url.lastIndexOf("/");
     if (lastSlashIndex == -1) {
       throw new IllegalArgumentException("Missing / in url: " + url);
