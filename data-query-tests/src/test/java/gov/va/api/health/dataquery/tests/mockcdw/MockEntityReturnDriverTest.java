@@ -2,6 +2,7 @@ package gov.va.api.health.dataquery.tests.mockcdw;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import gov.va.api.health.sentinel.categories.Local;
 import java.sql.CallableStatement;
 import java.sql.Clob;
 import java.sql.Connection;
@@ -10,7 +11,9 @@ import java.sql.Types;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.RegExUtils;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
+@Category(Local.class)
 public class MockEntityReturnDriverTest {
   @Test
   @SneakyThrows
@@ -35,7 +38,8 @@ public class MockEntityReturnDriverTest {
     Class.forName(MockEntityReturnDriver.class.getName());
     Connection connection =
         DriverManager.getConnection(
-            "jdbc:mockcdw://src/test/resources/cdw/index.yaml,src/test/resources/gov/va/api/health/sentinel/mockcdw/mock-cdw-test.yaml");
+            "jdbc:mockcdw://src/test/resources/cdw/index.yaml,"
+                + "src/test/resources/gov/va/api/health/dataquery/tests/mockcdw/mockcdw/mock-cdw-test.yaml");
     assertThat(connection).isNotNull();
     CallableStatement cs =
         connection.prepareCall("{call [whatever].[prc_Entity_Return](?,?,?,?,?,?,?)}");

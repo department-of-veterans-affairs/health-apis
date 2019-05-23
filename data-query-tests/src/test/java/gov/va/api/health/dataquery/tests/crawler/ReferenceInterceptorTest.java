@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dstu2.api.elements.Reference;
+import gov.va.api.health.sentinel.categories.Local;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -15,7 +16,9 @@ import lombok.NoArgsConstructor;
 import lombok.Singular;
 import lombok.SneakyThrows;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
+@Category(Local.class)
 public class ReferenceInterceptorTest {
   private Reference reference(String path) {
     return Reference.builder().display("display-value").reference(path).id("id-value").build();

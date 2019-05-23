@@ -3,10 +3,13 @@ package gov.va.api.health.dataquery.tests.crawler;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.dataquery.tests.crawler.Result.Outcome;
+import gov.va.api.health.sentinel.categories.Local;
 import java.time.Instant;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.mockito.Mockito;
 
+@Category(Local.class)
 public class IgnoreFilterResultCollectorTest {
 
   @Test

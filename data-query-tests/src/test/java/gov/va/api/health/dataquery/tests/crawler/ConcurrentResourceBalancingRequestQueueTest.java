@@ -3,9 +3,12 @@ package gov.va.api.health.dataquery.tests.crawler;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import gov.va.api.health.sentinel.categories.Local;
 import java.util.List;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
+@Category(Local.class)
 public final class ConcurrentResourceBalancingRequestQueueTest {
   ConcurrentResourceBalancingRequestQueue q = new ConcurrentResourceBalancingRequestQueue();
 

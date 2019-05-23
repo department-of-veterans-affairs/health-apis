@@ -10,11 +10,14 @@ import gov.va.api.health.dstu2.api.resources.Conformance.ResourceInteractionCode
 import gov.va.api.health.dstu2.api.resources.Conformance.Rest;
 import gov.va.api.health.dstu2.api.resources.Conformance.RestResource;
 import gov.va.api.health.dstu2.api.resources.Conformance.SearchParam;
+import gov.va.api.health.sentinel.categories.Local;
 import java.util.Arrays;
 import java.util.List;
 import lombok.NoArgsConstructor;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
+@Category(Local.class)
 public class ResourceDiscoveryTest {
   private final ConformanceTestData data = ConformanceTestData.get();
   ResourceDiscovery resourceDiscovery =

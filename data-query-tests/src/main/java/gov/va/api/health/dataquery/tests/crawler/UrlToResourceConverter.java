@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.tests.crawler;
 
+import gov.va.api.health.argonaut.api.resources.Patient;
 import gov.va.api.health.dstu2.api.bundle.AbstractBundle;
 import gov.va.api.health.dstu2.api.resources.Resource;
 import java.net.MalformedURLException;
@@ -75,13 +76,18 @@ public class UrlToResourceConverter implements Function<String, Class<?>> {
    * next to {@link Resource}.
    */
   private Class<?> findClass(String resourceName) {
-    String resourcePackage = Resource.class.getPackage().getName();
-    String className = resourcePackage + "." + resourceName;
-    try {
-      return Class.forName(className);
-    } catch (ClassNotFoundException e) {
-      return null;
+    for (String resourcePackage :
+        new String[] {
+          Patient.class.getPackage().getName(), Resource.class.getPackage().getName()
+        }) {
+      String className = resourcePackage + "." + resourceName;
+      try {
+        return Class.forName(className);
+      } catch (ClassNotFoundException e) {
+        // try a different package
+      }
     }
+    return null;
   }
 
   /** Tear the URL into parts of the path, dying if it cannot be split up. */

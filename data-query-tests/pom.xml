@@ -15,6 +15,7 @@
     <groups>gov.va.api.health.sentinel.categories.Local</groups>
     <selenium.version>3.141.59</selenium.version>
     <sentinel.skipLaunch>false</sentinel.skipLaunch>
+    <ids.version>1.1.0</ids.version>
   </properties>
   <dependencies>
     <dependency>
@@ -40,12 +41,12 @@
     <dependency>
       <groupId>gov.va.api.health</groupId>
       <artifactId>ids-api</artifactId>
-      <version>1.1.0</version>
+      <version>${ids.version}</version>
     </dependency>
     <dependency>
       <groupId>gov.va.api.health</groupId>
       <artifactId>ids</artifactId>
-      <version>1.1.0</version>
+      <version>${ids.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -63,12 +64,18 @@
     <dependency>
       <groupId>gov.va.api.health</groupId>
       <artifactId>sentinel</artifactId>
-      <version>2.0.4</version>
+      <version>${project.parent.version}</version>
     </dependency>
     <dependency>
       <groupId>com.h2database</groupId>
       <artifactId>h2</artifactId>
       <version>${h2.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.12</version>
       <scope>test</scope>
     </dependency>
     <dependency>

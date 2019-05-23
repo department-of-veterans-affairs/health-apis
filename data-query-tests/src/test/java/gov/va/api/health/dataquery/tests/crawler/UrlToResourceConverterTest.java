@@ -6,8 +6,11 @@ import gov.va.api.health.argonaut.api.resources.Medication;
 import gov.va.api.health.argonaut.api.resources.MedicationStatement;
 import gov.va.api.health.argonaut.api.resources.Patient;
 import gov.va.api.health.dataquery.tests.crawler.UrlToResourceConverter.DoNotUnderstandUrl;
+import gov.va.api.health.sentinel.categories.Local;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
+@Category(Local.class)
 public class UrlToResourceConverterTest {
   UrlToResourceConverter converter = new UrlToResourceConverter();
 
