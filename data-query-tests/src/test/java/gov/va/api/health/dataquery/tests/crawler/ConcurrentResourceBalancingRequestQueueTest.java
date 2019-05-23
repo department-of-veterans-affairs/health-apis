@@ -10,6 +10,7 @@ import org.junit.experimental.categories.Category;
 
 @Category(Local.class)
 public final class ConcurrentResourceBalancingRequestQueueTest {
+
   ConcurrentResourceBalancingRequestQueue q = new ConcurrentResourceBalancingRequestQueue();
 
   @Test
@@ -19,7 +20,7 @@ public final class ConcurrentResourceBalancingRequestQueueTest {
             "foo/api/AllergyIntolerance/1",
             "foo/api/Condition/1",
             "foo/api/Condition?patient=bobnelson",
-            "foo/api/Condition",
+            "foo/api/Malformed",
             "foo/api/Location/3",
             "foo/api/Encounter/2",
             "foo/api/Location/1",
@@ -40,11 +41,11 @@ public final class ConcurrentResourceBalancingRequestQueueTest {
             "foo/api/AllergyIntolerance/1",
             "foo/api/Encounter/1",
             "foo/api/Location/1",
+            "foo/api/Malformed",
             "foo/api/Encounter/2",
             "foo/api/Location/2",
             "foo/api/Location/3",
             "foo/api/Condition?patient=bobnelson&page=2",
-            "foo/api/Condition",
             "foo/api/Condition/1",
             "foo/api/Condition/2",
             "foo/api/Condition/3",
@@ -57,25 +58,30 @@ public final class ConcurrentResourceBalancingRequestQueueTest {
 
   @Test
   public void duplicateItemsIgnored() {
-    q.add("a");
-    q.add("b");
-    q.add("c");
+    q.add("foo/api/AllergyIntolerance/1");
+    q.add("foo/api/Condition/2");
+    q.add("foo/api/Encounter/3");
     // ignored
-    q.add("a");
+    q.add("foo/api/AllergyIntolerance/1");
     assertThat(q.hasNext()).isTrue();
-    assertThat(q.next()).isEqualTo("a");
+    assertThat(q.next()).isEqualTo("foo/api/AllergyIntolerance/1");
     // ignored
-    q.add("a");
+    q.add("foo/api/AllergyIntolerance/1");
     assertThat(q.hasNext()).isTrue();
-    assertThat(q.next()).isEqualTo("b");
+    assertThat(q.next()).isEqualTo("foo/api/Condition/2");
     assertThat(q.hasNext()).isTrue();
-    assertThat(q.next()).isEqualTo("c");
+    assertThat(q.next()).isEqualTo("foo/api/Encounter/3");
     assertThat(q.hasNext()).isFalse();
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void exceptionIsThrownWhenAttemptingToAddMalformedUrlToQueue() {
+    q.add("x");
   }
 
   @Test(expected = IllegalStateException.class)
   public void exceptionIsThrownWhenAttemptingToGetNextFromEmptyQueue() {
-    q.add("x");
+    q.add("foo/api/AllergyIntolerance/1");
     q.next();
     q.next();
   }
@@ -88,7 +94,7 @@ public final class ConcurrentResourceBalancingRequestQueueTest {
   @Test
   public void hasNextReturnsFalseForEmptyQueue() {
     assertThat(q.hasNext()).isFalse();
-    q.add("x");
+    q.add("foo/api/AllergyIntolerance");
     q.next();
     assertThat(q.hasNext()).isFalse();
   }

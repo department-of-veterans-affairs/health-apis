@@ -32,6 +32,8 @@ public class ConcurrentResourceBalancingRequestQueue implements RequestQueue {
   @Override
   public synchronized void add(@NonNull String url) {
     if (!allRequests.contains(url)) {
+      // Validating the given URL for correct structure
+      resource(url);
       requests.add(url);
       allRequests.add(url);
     }
