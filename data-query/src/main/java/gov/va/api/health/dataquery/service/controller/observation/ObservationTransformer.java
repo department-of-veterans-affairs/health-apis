@@ -295,7 +295,7 @@ public class ObservationTransformer implements ObservationController.Transformer
       CdwReferenceRanges maybeCdw, CdwCategory cdwCategory) {
     List<CdwCategory.CdwCoding> categoryCoding = cdwCategory.getCoding();
     if (categoryCoding.size() > 0
-        && !StringUtils.isEmpty(categoryCoding.get(0).getCode().value())
+        && (categoryCoding.get(0).getCode() != null)
         && categoryCoding
             .get(0)
             .getCode()
