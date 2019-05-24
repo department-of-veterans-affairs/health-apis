@@ -239,7 +239,8 @@ public class ObservationTransformerTest {
   @Test
   public void vitalSignsReferenceRange() {
     Observation sample = tx.apply(cdw.observationWithCategoryVitalSigns());
-    assertThat(sample.category().coding().get(0).code()).isEqualTo(CdwObservationCategoryCode.VITAL_SIGNS.value());
+    assertThat(sample.category().coding().get(0).code())
+        .isEqualTo(CdwObservationCategoryCode.VITAL_SIGNS.value());
     assertThat(sample.referenceRange()).isEqualTo(null);
   }
 
