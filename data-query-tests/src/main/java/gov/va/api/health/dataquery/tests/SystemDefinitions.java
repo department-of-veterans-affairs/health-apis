@@ -185,11 +185,11 @@ public final class SystemDefinitions {
   /** Return definitions for the qa environment. */
   private static SystemDefinition qa() {
     // ID service and Mr Anderson not accessible in this environment
-    String url = "https://qa-argonaut.lighthouse.va.gov";
+    String url = "https://green.qa.lighthouse.va.gov";
     return SystemDefinition.builder()
         .ids(serviceDefinition("ids", url, 443, null, "/not-available/"))
         .mrAnderson(serviceDefinition("mr-anderson", url, 443, null, "/not-available/"))
-        .dataQuery(serviceDefinition("argonaut", url, 443, magicAccessToken(), "/"))
+        .dataQuery(serviceDefinition("argonaut", url, 443, magicAccessToken(), "/services/fhir/v0/argonuat/data-query/"))
         .cdwIds(prodAndQaIds())
         .build();
   }
