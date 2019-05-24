@@ -49,7 +49,6 @@ public class ObservationTransformer implements ObservationController.Transformer
      * Specimen reference is omitted since we do not support the a specimen resource and
      * do not want dead links
      */
-    String categoryCode = cdw.getCategory().getCoding().get(0).getCode().value();
     return Observation.builder()
         .resourceType("Observation")
         .id(cdw.getCdwId())
@@ -65,11 +64,7 @@ public class ObservationTransformer implements ObservationController.Transformer
         .valueCodeableConcept(valueCodeableConcept(cdw.getValueCodeableConcept()))
         .interpretation(interpretation(cdw.getInterpretation()))
         .comments(cdw.getComments())
-        .referenceRange(
-            (!StringUtils.isEmpty(categoryCode)
-                    && categoryCode.equals(CdwObservationCategoryCode.VITAL_SIGNS.value()))
-                ? null
-                : referenceRanges(cdw.getReferenceRanges()))
+        .referenceRange(referenceRanges(cdw.getReferenceRanges(), cdw.getCategory()))
         .component(components(cdw.getComponents()))
         .build();
   }
@@ -296,7 +291,18 @@ public class ObservationTransformer implements ObservationController.Transformer
         .build();
   }
 
-  List<ObservationReferenceRange> referenceRanges(CdwReferenceRanges maybeCdw) {
+  List<ObservationReferenceRange> referenceRanges(
+      CdwReferenceRanges maybeCdw, CdwCategory cdwCategory) {
+    List<CdwCategory.CdwCoding> categoryCoding = cdwCategory.getCoding();
+    if (categoryCoding.size() > 0
+        && !StringUtils.isEmpty(categoryCoding.get(0).getCode().value())
+        && categoryCoding
+            .get(0)
+            .getCode()
+            .value()
+            .equals(CdwObservationCategoryCode.VITAL_SIGNS.value())) {
+      return null;
+    }
     return convertAll(
         ifPresent(maybeCdw, CdwReferenceRanges::getReferenceRange), this::referenceRange);
   }

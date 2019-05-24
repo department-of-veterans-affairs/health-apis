@@ -194,9 +194,10 @@ public class ObservationTransformerTest {
 
   @Test
   public void referenceRanges() {
-    assertThat(tx.referenceRanges(null)).isNull();
-    assertThat(tx.referenceRanges(new CdwReferenceRanges())).isNull();
-    assertThat(tx.referenceRanges(cdw.referenceRanges())).isEqualTo(expected.referenceRanges());
+    assertThat(tx.referenceRanges(null, new CdwCategory())).isNull();
+    assertThat(tx.referenceRanges(new CdwReferenceRanges(), new CdwCategory())).isNull();
+    assertThat(tx.referenceRanges(cdw.referenceRanges(), new CdwCategory()))
+        .isEqualTo(expected.referenceRanges());
   }
 
   @Test
