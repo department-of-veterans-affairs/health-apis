@@ -40,6 +40,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.util.MultiValueMap;
 
 public class ProcedureControllerTest {
+
   @Mock MrAndersonClient client;
 
   @Mock ProcedureController.Transformer tx;
@@ -205,14 +206,30 @@ public class ProcedureControllerTest {
   }
 
   @Test
-  public void searchByPatient() {
-    assertSearch(
-        () -> controller.searchByPatient("me", 1, 10),
-        Parameters.builder().add("patient", "me").add("page", 1).add("_count", 10).build());
+  @SneakyThrows
+  public void searchByPatientAndDateHack() {
+    String clarkKentId = "1938V0618";
+    String clarkKentDisplay = "KENT,CLARK JOSEPH";
+    String supermanId = "1938V0610";
+    String supermanDisplay = "EL,KAL";
+    controller =
+        ProcedureController.builder()
+            .transformer(tx)
+            .mrAndersonClient(client)
+            .bundler(bundler)
+            .clarkKentId(clarkKentId)
+            .clarkKentDisplay(clarkKentDisplay)
+            .supermanId(supermanId)
+            .supermanDisplay(supermanDisplay)
+            .build();
+    when(client.search(any())).thenReturn(new CdwProcedure101Root());
+    when(bundler.bundle(any())).thenReturn(bundleForPatient(clarkKentId, clarkKentDisplay));
+    assertThat(controller.searchByPatientAndDate(supermanId, new String[] {"2005", "2006"}, 1, 10))
+        .isEqualTo(bundleForPatient(supermanId, supermanDisplay));
   }
 
   @Test
-  public void searchByPatientAndDate() {
+  public void searchByPatientAndDateRange() {
     assertSearch(
         () -> controller.searchByPatientAndDate("me", new String[] {"2005", "2006"}, 1, 10),
         Parameters.builder()
@@ -225,39 +242,11 @@ public class ProcedureControllerTest {
 
   @Test
   @SneakyThrows
-  public void searchByPatientAndDateHack() {
-    String clarkKentId = "1938V0618";
-    String clarkKentDisplay = "KENT,CLARK JOSEPH";
-    String supermanId = "1938V0610";
-    String supermanDisplay = "EL,KAL";
-
-    controller =
-        ProcedureController.builder()
-            .transformer(tx)
-            .mrAndersonClient(client)
-            .bundler(bundler)
-            .clarkKentId(clarkKentId)
-            .clarkKentDisplay(clarkKentDisplay)
-            .supermanId(supermanId)
-            .supermanDisplay(supermanDisplay)
-            .build();
-
-    when(client.search(any())).thenReturn(new CdwProcedure101Root());
-
-    when(bundler.bundle(any())).thenReturn(bundleForPatient(clarkKentId, clarkKentDisplay));
-
-    assertThat(controller.searchByPatientAndDate(supermanId, new String[] {"2005", "2006"}, 1, 10))
-        .isEqualTo(bundleForPatient(supermanId, supermanDisplay));
-  }
-
-  @Test
-  @SneakyThrows
   public void searchByPatientHack() {
     String clarkKentId = "1938V0618";
     String clarkKentDisplay = "KENT,CLARK JOSEPH";
     String supermanId = "1938V0610";
     String supermanDisplay = "EL,KAL";
-
     controller =
         ProcedureController.builder()
             .transformer(tx)
@@ -268,11 +257,29 @@ public class ProcedureControllerTest {
             .supermanId(supermanId)
             .supermanDisplay(supermanDisplay)
             .build();
-
     when(client.search(any())).thenReturn(new CdwProcedure101Root());
     when(bundler.bundle(any())).thenReturn(bundleForPatient(clarkKentId, clarkKentDisplay));
-    assertThat(controller.searchByPatient(supermanId, 1, 10))
+    assertThat(controller.searchByPatientAndDate(supermanId, null, 1, 10))
         .isEqualTo(bundleForPatient(supermanId, supermanDisplay));
+  }
+
+  @Test
+  public void searchByPatientandDate() {
+    assertSearch(
+        () -> controller.searchByPatientAndDate("me", new String[] {"2000"}, 1, 10),
+        Parameters.builder()
+            .add("patient", "me")
+            .addAll("date", "2000")
+            .add("page", 1)
+            .add("_count", 10)
+            .build());
+  }
+
+  @Test
+  public void searchByPatientandNoDate() {
+    assertSearch(
+        () -> controller.searchByPatientAndDate("me", null, 1, 10),
+        Parameters.builder().add("patient", "me").add("page", 1).add("_count", 10).build());
   }
 
   @Test

@@ -143,23 +143,8 @@ public class ProcedureController {
         count);
   }
 
-  /** Search by patient. */
+  /** Search by patient and date if provided. */
   @GetMapping(params = {"patient"})
-  public Procedure.Bundle searchByPatient(
-      @RequestParam("patient") String patient,
-      @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
-      @RequestParam(value = "_count", defaultValue = "15") @Min(0) int count) {
-    if (thisLooksLikeAJobForSuperman(patient)) {
-      return usePhoneBooth(searchByPatient(clarkKentId, page, count));
-    }
-    return bundle(
-        Parameters.builder().add("patient", patient).add("page", page).add("_count", count).build(),
-        page,
-        count);
-  }
-
-  /** Search by patient and date. */
-  @GetMapping(params = {"patient", "date"})
   public Procedure.Bundle searchByPatientAndDate(
       @RequestParam("patient") String patient,
       @RequestParam(value = "date", required = false) @Valid @DateTimeParameter @Size(max = 2)

@@ -134,18 +134,6 @@ public class DiagnosticReportControllerTest {
   }
 
   @Test
-  public void searchByIdAndCategory() {
-    assertSearch(
-        () -> controller.searchByPatientAndCategory("me", "example", 1, 10),
-        Parameters.builder()
-            .add("patient", "me")
-            .add("category", "example")
-            .add("page", 1)
-            .add("_count", 10)
-            .build());
-  }
-
-  @Test
   public void searchByIdentifier() {
     assertSearch(
         () -> controller.searchByIdentifier("me", 1, 10),
@@ -160,7 +148,7 @@ public class DiagnosticReportControllerTest {
   }
 
   @Test
-  public void searchByPatientAndCategoryAndDate() {
+  public void searchByPatientAndCategoryAndDateRange() {
     assertSearch(
         () ->
             controller.searchByPatientAndCategoryAndDate(
@@ -169,6 +157,32 @@ public class DiagnosticReportControllerTest {
             .add("patient", "me")
             .add("category", "foo")
             .addAll("date", "1000", "2000")
+            .add("page", 1)
+            .add("_count", 10)
+            .build());
+  }
+
+  @Test
+  public void searchByPatientAndCategoryAndOneDate() {
+    assertSearch(
+        () ->
+            controller.searchByPatientAndCategoryAndDate("me", "foo", new String[] {"1000"}, 1, 10),
+        Parameters.builder()
+            .add("patient", "me")
+            .add("category", "foo")
+            .addAll("date", "1000")
+            .add("page", 1)
+            .add("_count", 10)
+            .build());
+  }
+
+  @Test
+  public void searchByPatientAndCategoryandNoDate() {
+    assertSearch(
+        () -> controller.searchByPatientAndCategoryAndDate("me", "example", null, 1, 10),
+        Parameters.builder()
+            .add("patient", "me")
+            .add("category", "example")
             .add("page", 1)
             .add("_count", 10)
             .build());

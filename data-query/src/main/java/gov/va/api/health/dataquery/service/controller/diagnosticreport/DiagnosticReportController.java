@@ -132,26 +132,8 @@ public class DiagnosticReportController {
         count);
   }
 
-  /** Search by Patient+Category. */
+  /** Search by Patient+Category + Date if provided. */
   @GetMapping(params = {"patient", "category"})
-  public DiagnosticReport.Bundle searchByPatientAndCategory(
-      @RequestParam("patient") String patient,
-      @RequestParam("category") String category,
-      @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
-      @RequestParam(value = "_count", defaultValue = "15") @Min(0) int count) {
-    return bundle(
-        Parameters.builder()
-            .add("patient", patient)
-            .add("category", category)
-            .add("page", page)
-            .add("_count", count)
-            .build(),
-        page,
-        count);
-  }
-
-  /** Search by Patient+Category+Date. */
-  @GetMapping(params = {"patient", "category", "date"})
   public DiagnosticReport.Bundle searchByPatientAndCategoryAndDate(
       @RequestParam("patient") String patient,
       @RequestParam("category") String category,

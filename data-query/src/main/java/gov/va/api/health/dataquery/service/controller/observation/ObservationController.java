@@ -127,7 +127,7 @@ public class ObservationController {
   }
 
   /** Search by patient and category and date if available. */
-  @GetMapping(params = {"patient", "category", "date"})
+  @GetMapping(params = {"patient", "category"})
   public Observation.Bundle searchByPatientAndCategory(
       @RequestParam("patient") String patient,
       @RequestParam("category") String category,
@@ -147,7 +147,7 @@ public class ObservationController {
         count);
   }
 
-  /** Search by patient and category and date if available. */
+  /** Search by patient and code. */
   @GetMapping(params = {"patient", "code"})
   public Observation.Bundle searchByPatientAndCode(
       @RequestParam("patient") String patient,
