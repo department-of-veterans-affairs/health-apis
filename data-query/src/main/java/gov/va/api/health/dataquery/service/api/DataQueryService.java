@@ -30,7 +30,7 @@ import javax.ws.rs.Path;
       ),
   servers = {
     @Server(
-      url = "https://dev-api.va.gov/services/fhir/v0/argonuat/data-query/",
+      url = "https://dev-api.va.gov/services/fhir/v0/argonaut/data-query/",
       description = "Development server"
     )
   },
