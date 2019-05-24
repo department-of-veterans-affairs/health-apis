@@ -37,6 +37,7 @@ import gov.va.dvp.cdw.xsd.model.CdwObservationStatus;
 import gov.va.dvp.cdw.xsd.model.CdwReference;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 import javax.validation.constraints.NotNull;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -219,6 +220,17 @@ public class ObservationTransformer implements ObservationController.Transformer
     return convertAll(ifPresent(maybeCdw, CdwComponents::getComponent), this::component);
   }
 
+  private Optional<CdwObservationCategoryCode> firstCode(CdwCategory maybeCdw) {
+    if (maybeCdw == null) {
+      return Optional.empty();
+    }
+    List<CdwCategory.CdwCoding> categoryCoding = maybeCdw.getCoding();
+    if (categoryCoding.isEmpty()) {
+      return Optional.empty();
+    }
+    return Optional.ofNullable(categoryCoding.get(0).getCode());
+  }
+
   CodeableConcept interpretation(CdwInterpretation maybeCdw) {
     if (maybeCdw == null) {
       return null;
@@ -293,14 +305,8 @@ public class ObservationTransformer implements ObservationController.Transformer
 
   List<ObservationReferenceRange> referenceRanges(
       CdwReferenceRanges maybeCdw, CdwCategory cdwCategory) {
-    List<CdwCategory.CdwCoding> categoryCoding = cdwCategory.getCoding();
-    if (categoryCoding.size() > 0
-        && (categoryCoding.get(0).getCode() != null)
-        && categoryCoding
-            .get(0)
-            .getCode()
-            .value()
-            .equals(CdwObservationCategoryCode.VITAL_SIGNS.value())) {
+    Optional<CdwObservationCategoryCode> code = firstCode(cdwCategory);
+    if (CdwObservationCategoryCode.VITAL_SIGNS.equals(code.orElse(null))) {
       return null;
     }
     return convertAll(
