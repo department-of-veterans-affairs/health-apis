@@ -19,6 +19,7 @@ import lombok.experimental.UtilityClass;
  */
 @UtilityClass
 public final class SystemDefinitions {
+
   private static DiagnosticReports diagnosticReports() {
     return DiagnosticReports.builder()
         .loinc1("10000-8")
@@ -185,7 +186,7 @@ public final class SystemDefinitions {
   /** Return definitions for the qa environment. */
   private static SystemDefinition qa() {
     // ID service and Mr Anderson not accessible in this environment
-    String url = "https://qa-argonaut.lighthouse.va.gov";
+    String url = "https://blue.qa.lighthouse.va.gov";
     return SystemDefinition.builder()
         .ids(serviceDefinition("ids", url, 443, null, "/not-available/"))
         .mrAnderson(serviceDefinition("mr-anderson", url, 443, null, "/not-available/"))
@@ -207,11 +208,24 @@ public final class SystemDefinitions {
   /** Return definitions for the staging environment. */
   private static SystemDefinition staging() {
     // ID service and Mr Anderson not accessible in this environment
-    String url = "https://staging-argonaut.lighthouse.va.gov";
+    String url = "https://blue.staging.lighthouse.va.gov";
     return SystemDefinition.builder()
         .ids(serviceDefinition("ids", url, 443, null, "/not-available/"))
         .mrAnderson(serviceDefinition("mr-anderson", url, 443, null, "/not-available/"))
         .dataQuery(serviceDefinition("argonaut", url, 443, magicAccessToken(), "/"))
+        .cdwIds(productionCdwIds())
+        .build();
+  }
+
+  /** Return definitions for the lab environment. */
+  private static SystemDefinition stagingLab() {
+    String url = "https://blue.staging-lab.lighthouse.va.gov";
+    return SystemDefinition.builder()
+        .ids(serviceDefinition("ids", url, 443, null, "/not-available/"))
+        .mrAnderson(serviceDefinition("mr-anderson", url, 443, null, "/not-available/"))
+        .dataQuery(
+            serviceDefinition("argonaut", url, 443, magicAccessToken(), "/services/argonaut/v0/"))
+        .cdwIds(labMitreIds())
         .build();
   }
 
@@ -228,6 +242,8 @@ public final class SystemDefinitions {
         return qa();
       case STAGING:
         return staging();
+      case STAGING_LAB:
+        return stagingLab();
       default:
         throw new IllegalArgumentException("Unknown sentinel environment: " + Environment.get());
     }
