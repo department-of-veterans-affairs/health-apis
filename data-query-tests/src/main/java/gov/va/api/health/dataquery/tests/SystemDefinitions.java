@@ -19,6 +19,7 @@ import lombok.experimental.UtilityClass;
  */
 @UtilityClass
 public final class SystemDefinitions {
+
   private static DiagnosticReports diagnosticReports() {
     return DiagnosticReports.builder()
         .loinc1("10000-8")
@@ -53,25 +54,25 @@ public final class SystemDefinitions {
         .mrAnderson(serviceDefinition("mr-anderson", url, 443, null, "/not-available/"))
         .dataQuery(
             serviceDefinition("argonaut", url, 443, magicAccessToken(), "/services/argonaut/v0/"))
-        .cdwIds(labAndStagingIds())
+        .cdwIds(labMitreIds())
         .build();
   }
 
-  private static TestIds labAndStagingIds() {
+  private static TestIds labMitreIds() {
     return TestIds.builder()
         .publicIds(true)
-        .allergyIntolerance("17a7e128-8cf2-521f-ba99-b5eadb6ca598")
-        .condition("000f2b73-ebf9-5d10-b45e-90813cd0e42e")
-        .diagnosticReport("1303138b-1548-5663-963e-f346834681ab")
+        .allergyIntolerance("2f7241a3-2f43-58f0-a6e7-ebb85fdf3f84")
+        .condition("0a812fa6-318b-5f8e-84fe-828ed8448be4")
+        .diagnosticReport("580973dd-2f9a-57ac-b2e4-5897ad1c4322")
         .diagnosticReports(diagnosticReports())
-        .immunization("1ec5f832-6faa-5146-925a-e2941a7a332c")
-        .medication("2cb64dd0-ea52-503d-b61e-6060e84ff0ee")
-        .medicationOrder("5a1428a7-fc73-5714-bc9c-670be3834164")
-        .medicationStatement("6e484ab1-e7df-5c0b-8947-65a0bd03504c")
-        .observation("1a21eae3-e08c-5f04-b7a7-fb6681fa2623")
+        .immunization("1b350f07-a1ce-5078-bb60-5d0122fbec50")
+        .medication("30c08673-77e0-5acd-b334-cd5ba153d86d")
+        .medicationOrder("0e4d47c4-dbf1-514b-b0ec-1f29bacaa13b")
+        .medicationStatement("08578f3e-17ea-5454-b88a-4706ab54a95f")
+        .observation("02ef60c8-ab65-5322-9cbb-db01083ec245")
         .observations(observations())
         .patient("1011537977V693883")
-        .procedure("0cbfb880-048f-5cf4-b44f-fed3f7664c7b")
+        .procedure("02b9078b-9665-52ff-b360-9d618ac34df0")
         .procedures(procedures())
         .location("unused")
         .appointment("unused")
@@ -152,11 +153,11 @@ public final class SystemDefinitions {
         .ids(serviceDefinition("ids", url, 443, null, "/not-available/"))
         .mrAnderson(serviceDefinition("mr-anderson", url, 443, null, "/not-available/"))
         .dataQuery(serviceDefinition("argonaut", url, 443, magicAccessToken(), "/"))
-        .cdwIds(prodAndQaIds())
+        .cdwIds(productionCdwIds())
         .build();
   }
 
-  private static TestIds prodAndQaIds() {
+  private static TestIds productionCdwIds() {
     return TestIds.builder()
         .publicIds(true)
         .allergyIntolerance("3be00408-b0ff-598d-8ba1-1e0bbfb02b99")
@@ -185,12 +186,12 @@ public final class SystemDefinitions {
   /** Return definitions for the qa environment. */
   private static SystemDefinition qa() {
     // ID service and Mr Anderson not accessible in this environment
-    String url = "https://qa-argonaut.lighthouse.va.gov";
+    String url = "https://blue.qa.lighthouse.va.gov";
     return SystemDefinition.builder()
         .ids(serviceDefinition("ids", url, 443, null, "/not-available/"))
         .mrAnderson(serviceDefinition("mr-anderson", url, 443, null, "/not-available/"))
         .dataQuery(serviceDefinition("argonaut", url, 443, magicAccessToken(), "/"))
-        .cdwIds(prodAndQaIds())
+        .cdwIds(productionCdwIds())
         .build();
   }
 
@@ -207,11 +208,24 @@ public final class SystemDefinitions {
   /** Return definitions for the staging environment. */
   private static SystemDefinition staging() {
     // ID service and Mr Anderson not accessible in this environment
-    String url = "https://staging-argonaut.lighthouse.va.gov";
+    String url = "https://blue.staging.lighthouse.va.gov";
     return SystemDefinition.builder()
         .ids(serviceDefinition("ids", url, 443, null, "/not-available/"))
         .mrAnderson(serviceDefinition("mr-anderson", url, 443, null, "/not-available/"))
         .dataQuery(serviceDefinition("argonaut", url, 443, magicAccessToken(), "/"))
+        .cdwIds(productionCdwIds())
+        .build();
+  }
+
+  /** Return definitions for the lab environment. */
+  private static SystemDefinition stagingLab() {
+    String url = "https://blue.staging-lab.lighthouse.va.gov";
+    return SystemDefinition.builder()
+        .ids(serviceDefinition("ids", url, 443, null, "/not-available/"))
+        .mrAnderson(serviceDefinition("mr-anderson", url, 443, null, "/not-available/"))
+        .dataQuery(
+            serviceDefinition("argonaut", url, 443, magicAccessToken(), "/services/argonaut/v0/"))
+        .cdwIds(labMitreIds())
         .build();
   }
 
@@ -228,6 +242,8 @@ public final class SystemDefinitions {
         return qa();
       case STAGING:
         return staging();
+      case STAGING_LAB:
+        return stagingLab();
       default:
         throw new IllegalArgumentException("Unknown sentinel environment: " + Environment.get());
     }

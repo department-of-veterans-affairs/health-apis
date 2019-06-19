@@ -144,7 +144,7 @@ public class Crawler {
     Response response =
         RestAssured.given()
             .header("Authorization", "Bearer " + authenticationToken.get())
-            .contentType("application/fhir+json")
+            .accept("application/fhir+json")
             .header("jargonaut", forceJargonaut)
             .relaxedHTTPSValidation()
             .get(url)

@@ -4,14 +4,14 @@
   <parent>
     <groupId>gov.va.api.health</groupId>
     <artifactId>test-starter</artifactId>
-    <version>2.0.5</version>
+    <version>2.0.6</version>
     <relativePath/>
   </parent>
   <artifactId>data-query-tests</artifactId>
-  <version>1.0.221-SNAPSHOT</version>
+  <version>1.0.229-SNAPSHOT</version>
   <packaging>jar</packaging>
   <properties>
-    <argonaut-dstu2.version>1.0.5</argonaut-dstu2.version>
+    <argonaut-dstu2.version>1.0.10</argonaut-dstu2.version>
     <groups>gov.va.api.health.sentinel.categories.Local</groups>
     <selenium.version>3.141.59</selenium.version>
     <sentinel.skipLaunch>false</sentinel.skipLaunch>
