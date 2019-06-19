@@ -45,7 +45,7 @@ public class SqlResourceRepository implements ResourceRepository {
   @Override
   public String execute(Query query) {
     try (Connection connection = Checks.notNull(jdbc.getDataSource()).getConnection()) {
-      try (CallableStatement cs = connection.prepareCall(storedProcedure())) {
+      try (CallableStatement cs = connection.prepareCall(buildStoredProcedure())) {
         cs.closeOnCompletion();
         cs.setObject(Index.FHIR_VERSION, FhirVersion.of(query.profile()), Types.TINYINT);
         cs.setObject(Index.RETURN_TYPE, ReturnType.FULL, Types.TINYINT);
@@ -63,7 +63,7 @@ public class SqlResourceRepository implements ResourceRepository {
     }
   }
 
-  private String storedProcedure() {
+  private String buildStoredProcedure() {
     /*
      * String concatenation is safe because the schema value is verified to contain only letters,
      * numbers, and underscores and does not allow any SQL sensitive characters that could enable
