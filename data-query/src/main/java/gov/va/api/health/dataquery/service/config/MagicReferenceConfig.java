@@ -112,16 +112,25 @@ public class MagicReferenceConfig {
     @Override
     public void serializeAsField(
         Object pojo, JsonGenerator jgen, SerializerProvider provider, PropertyWriter writer)
-        throws Exception {
+        throws IOException {
       boolean include = true;
       if (writer.getType().getRawClass() == Reference.class
           && writer instanceof BeanPropertyWriter) {
-        Reference value = (Reference) ((BeanPropertyWriter) writer).get(pojo);
+        Reference value = null;
+        try {
+          value = (Reference) ((BeanPropertyWriter) writer).get(pojo);
+        } catch (Exception e) {
+          throw new IOException("Failed to get reference from pojo: " + e);
+        }
         include = config.isEnabled(value);
       }
 
       if (include) {
-        writer.serializeAsField(pojo, jgen, provider);
+        try {
+          writer.serializeAsField(pojo, jgen, provider);
+        } catch (Exception e) {
+          throw new IOException("Failed to serialize json field: " + e);
+        }
       } else {
         /*
          * Since the field isn't included, we need to emit a Data Absent Reason if the field is
@@ -132,7 +141,11 @@ public class MagicReferenceConfig {
         if (hasExtensionField(pojo, extensionField)) {
           jgen.writeObjectField(extensionField, DataAbsentReason.of(Reason.unsupported));
         } else if (!jgen.canOmitFields()) {
-          writer.serializeAsOmittedField(pojo, jgen, provider);
+          try {
+            writer.serializeAsOmittedField(pojo, jgen, provider);
+          } catch (Exception e) {
+            throw new IOException("Failed to serialize json field: " + e);
+          }
         }
       }
     }
@@ -232,7 +245,7 @@ public class MagicReferenceConfig {
 
     @Override
     public void serializeAsField(
-        Object shouldBeReference, JsonGenerator gen, SerializerProvider prov) throws Exception {
+        Object shouldBeReference, JsonGenerator gen, SerializerProvider prov) throws IOException {
       if (!(shouldBeReference instanceof Reference)) {
         throw new IllegalArgumentException(
             "Qualified reference writer cannot serialize: " + shouldBeReference);

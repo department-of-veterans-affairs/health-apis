@@ -42,6 +42,15 @@ public class SqlResourceRepository implements ResourceRepository {
     this.storedProcedure = storedProcedure;
   }
 
+  private String buildStoredProcedure() {
+    /*
+     * String concatenation is safe because the schema value is verified to contain only letters,
+     * numbers, and underscores and does not allow any SQL sensitive characters that could enable
+     * SQL injection.
+     */
+    return "{call [" + schema + "].[" + storedProcedure + "](?,?,?,?,?,?,?)}";
+  }
+
   @Override
   public String execute(Query query) {
     try (Connection connection = Checks.notNull(jdbc.getDataSource()).getConnection()) {
@@ -63,18 +72,12 @@ public class SqlResourceRepository implements ResourceRepository {
     }
   }
 
-  private String buildStoredProcedure() {
-    /*
-     * String concatenation is safe because the schema value is verified to contain only letters,
-     * numbers, and underscores and does not allow any SQL sensitive characters that could enable
-     * SQL injection.
-     */
-    return "{call [" + schema + "].[" + storedProcedure + "](?,?,?,?,?,?,?)}";
-  }
-
   interface FhirVersion {
+
     int ARGONAUT = 1;
+
     int DSTU2 = 2;
+
     int STU3 = 3;
 
     static int of(Profile profile) {
@@ -90,23 +93,35 @@ public class SqlResourceRepository implements ResourceRepository {
   }
 
   interface Index {
+
     int FHIR_VERSION = 1;
+
     int RETURN_TYPE = 2;
+
     int FORMAT = 3;
+
     int RECORDS_PER_PAGE = 4;
+
     int PAGE = 5;
+
     int FHIR_STRING = 6;
+
     int RESPONSE_XML = 7;
   }
 
   interface ReturnType {
+
     int COUNT = 1;
+
     int SUMMARY = 2;
+
     int FULL = 3;
   }
 
   interface Format {
+
     int XML = 1;
+
     int JSON = 2;
   }
 }
