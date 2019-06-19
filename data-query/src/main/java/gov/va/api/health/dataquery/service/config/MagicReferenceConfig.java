@@ -20,6 +20,7 @@ import gov.va.api.health.dstu2.api.elements.Reference;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.List;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -110,6 +111,7 @@ public class MagicReferenceConfig {
      * that type of writer so we can peek at the value we are about to serialize.
      */
     @Override
+    @SneakyThrows
     public void serializeAsField(
         Object pojo, JsonGenerator jgen, SerializerProvider provider, PropertyWriter writer)
         throws IOException {
@@ -117,20 +119,12 @@ public class MagicReferenceConfig {
       if (writer.getType().getRawClass() == Reference.class
           && writer instanceof BeanPropertyWriter) {
         Reference value = null;
-        try {
-          value = (Reference) ((BeanPropertyWriter) writer).get(pojo);
-        } catch (Exception e) {
-          throw new IOException("Failed to get reference from pojo: " + e);
-        }
+        value = (Reference) ((BeanPropertyWriter) writer).get(pojo);
         include = config.isEnabled(value);
       }
 
       if (include) {
-        try {
-          writer.serializeAsField(pojo, jgen, provider);
-        } catch (Exception e) {
-          throw new IOException("Failed to serialize json field: " + e);
-        }
+        writer.serializeAsField(pojo, jgen, provider);
       } else {
         /*
          * Since the field isn't included, we need to emit a Data Absent Reason if the field is
@@ -141,11 +135,7 @@ public class MagicReferenceConfig {
         if (hasExtensionField(pojo, extensionField)) {
           jgen.writeObjectField(extensionField, DataAbsentReason.of(Reason.unsupported));
         } else if (!jgen.canOmitFields()) {
-          try {
-            writer.serializeAsOmittedField(pojo, jgen, provider);
-          } catch (Exception e) {
-            throw new IOException("Failed to serialize json field: " + e);
-          }
+          writer.serializeAsOmittedField(pojo, jgen, provider);
         }
       }
     }
