@@ -113,13 +113,11 @@ public class MagicReferenceConfig {
     @Override
     @SneakyThrows
     public void serializeAsField(
-        Object pojo, JsonGenerator jgen, SerializerProvider provider, PropertyWriter writer)
-        throws IOException {
+        Object pojo, JsonGenerator jgen, SerializerProvider provider, PropertyWriter writer) {
       boolean include = true;
       if (writer.getType().getRawClass() == Reference.class
           && writer instanceof BeanPropertyWriter) {
-        Reference value = null;
-        value = (Reference) ((BeanPropertyWriter) writer).get(pojo);
+        Reference value = (Reference) ((BeanPropertyWriter) writer).get(pojo);
         include = config.isEnabled(value);
       }
 
@@ -233,9 +231,10 @@ public class MagicReferenceConfig {
       return baseUrl + "/" + basePath + "/" + reference;
     }
 
+    @SneakyThrows
     @Override
     public void serializeAsField(
-        Object shouldBeReference, JsonGenerator gen, SerializerProvider prov) throws IOException {
+        Object shouldBeReference, JsonGenerator gen, SerializerProvider prov) {
       if (!(shouldBeReference instanceof Reference)) {
         throw new IllegalArgumentException(
             "Qualified reference writer cannot serialize: " + shouldBeReference);
