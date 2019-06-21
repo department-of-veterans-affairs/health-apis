@@ -34,6 +34,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -102,7 +103,16 @@ public class ProcedureController {
 
   /** Read by id. */
   @GetMapping(value = {"/{publicId}"})
-  public Procedure read(@PathVariable("publicId") String publicId) {
+  public Procedure read(
+      @PathVariable("publicId") String publicId,
+      @RequestHeader(value = "X-VA-ICN", required = false) String icnHeader) {
+    if (isNotBlank(icnHeader) && thisLooksLikeAJobForSuperman(icnHeader)) {
+      return usePhoneBooth(
+          transformer.apply(
+              firstPayloadItem(
+                  hasPayload(search(Parameters.forIdentity(publicId)).getProcedures())
+                      .getProcedure())));
+    }
     return transformer.apply(
         firstPayloadItem(
             hasPayload(search(Parameters.forIdentity(publicId)).getProcedures()).getProcedure()));
@@ -203,6 +213,29 @@ public class ProcedureController {
             .replaceAll(clarkKentId, supermanId)
             .replaceAll(clarkKentDisplay, supermanDisplay);
     return mapper.readValue(supermanBundleString, Procedure.Bundle.class);
+  }
+
+  /**
+   * Change a clark-kent procedure into a superman procedure. {@link #clarkKentId} is replaced with
+   * {@link #supermanId} and {@link #clarkKentDisplay} is replaced with {@link #supermanDisplay}
+   *
+   * @see #thisLooksLikeAJobForSuperman(String)
+   */
+  @SneakyThrows
+  private Procedure usePhoneBooth(Procedure clarkKent) {
+    log.info(
+        "Disguising procedure for patient {} ({}) as patient {} ({}).",
+        clarkKentId,
+        clarkKentDisplay,
+        supermanId,
+        supermanDisplay);
+    ObjectMapper mapper = JacksonConfig.createMapper();
+    String clarkKentString = mapper.writeValueAsString(clarkKent);
+    String supermanString =
+        clarkKentString
+            .replaceAll(clarkKentId, supermanId)
+            .replaceAll(clarkKentDisplay, supermanDisplay);
+    return mapper.readValue(supermanString, Procedure.class);
   }
 
   /** Hey, this is a validate endpoint. It validates. */

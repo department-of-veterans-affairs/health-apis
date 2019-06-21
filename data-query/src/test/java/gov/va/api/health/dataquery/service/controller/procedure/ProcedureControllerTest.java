@@ -184,11 +184,46 @@ public class ProcedureControllerTest {
     Procedure item = Procedure.builder().build();
     when(client.search(any())).thenReturn(root);
     when(tx.apply(xmlProcedure)).thenReturn(item);
-    Procedure actual = controller.read("hello");
+    Procedure actual = controller.read("hello", "");
     assertThat(actual).isSameAs(item);
     ArgumentCaptor<Query<CdwProcedure101Root>> captor = ArgumentCaptor.forClass(Query.class);
     verify(client).search(captor.capture());
     assertThat(captor.getValue().parameters()).isEqualTo(Parameters.forIdentity("hello"));
+  }
+
+  @Test
+  @SuppressWarnings("unchecked")
+  public void readHack() {
+    String clarkKentId = "1938V0618";
+    String clarkKentDisplay = "KENT,CLARK JOSEPH";
+    String supermanId = "1938V0610";
+    String supermanDisplay = "EL,KAL";
+    controller =
+        ProcedureController.builder()
+            .transformer(tx)
+            .mrAndersonClient(client)
+            .bundler(bundler)
+            .clarkKentId(clarkKentId)
+            .clarkKentDisplay(clarkKentDisplay)
+            .supermanId(supermanId)
+            .supermanDisplay(supermanDisplay)
+            .build();
+    CdwProcedure101Root root = new CdwProcedure101Root();
+    root.setProcedures(new CdwProcedures());
+    CdwProcedure xmlProcedure = new CdwProcedure();
+    root.getProcedures().getProcedure().add(xmlProcedure);
+    when(client.search(any())).thenReturn(root);
+    Procedure birdPlane =
+        Procedure.builder()
+            .subject(Reference.builder().id("1938V0618").display("KENT,CLARK JOSEPH").build())
+            .build();
+    Procedure superman =
+        Procedure.builder()
+            .subject(Reference.builder().id("1938V0610").display("EL,KAL").build())
+            .build();
+    when(tx.apply(xmlProcedure)).thenReturn(birdPlane);
+    Procedure actual = controller.read("hello", "1938V0610");
+    assertThat(actual).isEqualTo(superman);
   }
 
   @Test
