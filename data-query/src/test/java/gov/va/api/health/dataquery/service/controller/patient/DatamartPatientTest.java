@@ -30,24 +30,31 @@ public final class DatamartPatientTest {
   @SneakyThrows
   public void doIt() {
     String icn = "111222333V000999";
-    DatamartPatient datamart =
-        DatamartPatient.builder().objectType("Patient").objectVersion(1).fullIcn(icn).build();
     PatientSearchEntity search = PatientSearchEntity.builder().icn(icn).build();
     entityManager.persistAndFlush(search);
+
     PatientEntity entity =
         PatientEntity.builder()
             .icn(icn)
-            .payload(JacksonConfig.createMapper().writeValueAsString(datamart))
+            .payload(
+                JacksonConfig.createMapper()
+                    .writeValueAsString(
+                        DatamartPatient.builder()
+                            .objectType("Patient")
+                            .objectVersion(1)
+                            .fullIcn(icn)
+                            .build()))
             .search(search)
             .build();
     entityManager.persistAndFlush(entity);
 
-    IdentityService identityService = mock(IdentityService.class);
-    WitnessProtection witnessProtection =
-        WitnessProtection.builder().identityService(identityService).build();
     PatientController controller =
         new PatientController(
-            null, null, null, witnessProtection, entityManager.getEntityManager());
+            null,
+            null,
+            null,
+            WitnessProtection.builder().identityService(mock(IdentityService.class)).build(),
+            entityManager.getEntityManager());
 
     Patient patient = controller.read("true", icn);
     assertThat(patient)

@@ -17,7 +17,6 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import lombok.NonNull;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.lang3.StringUtils;
 
 /** Utility methods for transforming CDW results to Argonaut. */
