@@ -88,6 +88,9 @@ public class SteelThreadSystemCheck implements HealthIndicator {
   )
   @SneakyThrows
   public void runSteelThreadCheckAsynchronously() {
+    if ("skip".equals(id)) {
+      return;
+    }
     log.info("Performing health check.");
     try {
       client.search(query());

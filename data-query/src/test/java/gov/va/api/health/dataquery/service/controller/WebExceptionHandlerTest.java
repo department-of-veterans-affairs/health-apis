@@ -81,7 +81,7 @@ public class WebExceptionHandlerTest {
   @Before
   public void _init() {
     MockitoAnnotations.initMocks(this);
-    controller = new PatientController(tx, mrAnderson, bundler);
+    controller = new PatientController(tx, mrAnderson, bundler, null, null);
     exceptionHandler = new WebExceptionHandler();
   }
 

@@ -2,11 +2,16 @@
 <FindBugsFilter>
   <!-- Exclusions can be defined here and should include a comment on why the finding can be ignored -->
   <!--
-    The converter method can return an optional boolean matching the objects property per the FHIR specification.
+    The transfomer can return an optional boolean matching the objects property per the FHIR specification.
   -->
   <Match>
     <Class name="gov.va.api.health.dataquery.service.controller.immunization.ImmunizationTransformer"/>
     <Method name="reported"/>
+    <Bug pattern="NP_BOOLEAN_RETURN_NULL"/>
+  </Match>
+  <Match>
+    <Class name="gov.va.api.health.dataquery.service.controller.patient.DatamartPatientTransformer"/>
+    <Method name="deceased"/>
     <Bug pattern="NP_BOOLEAN_RETURN_NULL"/>
   </Match>
   <!--
@@ -15,5 +20,16 @@
   <Match>
     <Class name="gov.va.api.health.dataquery.service.controller.DateTimeParameterValidator"/>
     <Bug pattern="REDOS"/>
+  </Match>
+  <!--
+    Ignore Lombok-generated code.
+  -->
+  <Match>
+    <Class name="gov.va.api.health.dataquery.service.controller.patient.DatamartPatient"/>
+    <Method name="equals"/>
+  </Match>
+  <Match>
+    <Class name="gov.va.api.health.dataquery.service.controller.patient.DatamartPatient"/>
+    <Method name="hashCode"/>
   </Match>
 </FindBugsFilter>

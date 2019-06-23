@@ -1,20 +1,28 @@
 package gov.va.api.health.dataquery.service.controller;
 
+import static org.springframework.util.CollectionUtils.isEmpty;
+
 import java.math.BigInteger;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.xml.datatype.XMLGregorianCalendar;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import lombok.experimental.UtilityClass;
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang3.StringUtils;
 
 /** Utility methods for transforming CDW results to Argonaut. */
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@Slf4j
+@UtilityClass
 public final class Transformers {
   /**
    * Return false if at least one value in the given list is a non-blank string, or a non-null
@@ -67,12 +75,21 @@ public final class Transformers {
    * return a new one.
    */
   public static <T, R> List<R> convertAll(List<T> source, Function<T, R> mapper) {
-    if (source == null || source.isEmpty()) {
+    if (isEmpty(source)) {
       return null;
     }
     List<R> probablyItems =
         source.stream().map(mapper).filter(Objects::nonNull).collect(Collectors.toList());
     return probablyItems.isEmpty() ? null : probablyItems;
+  }
+
+  /** Filter null items and return null if the result is null or empty. */
+  public static <T> List<T> emptyToNull(List<T> items) {
+    if (isEmpty(items)) {
+      return null;
+    }
+    List<T> filtered = items.stream().filter(Objects::nonNull).collect(Collectors.toList());
+    return filtered.isEmpty() ? null : filtered;
   }
 
   /** Throw a MissingPayload exception if the list does not have at least 1 item. */
@@ -124,7 +141,23 @@ public final class Transformers {
     if (value instanceof CharSequence) {
       return StringUtils.isBlank((CharSequence) value);
     }
+    if (value instanceof Collection<?>) {
+      return ((Collection<?>) value).isEmpty();
+    }
+    if (value instanceof Map<?, ?>) {
+      return ((Map<?, ?>) value).isEmpty();
+    }
     return value == null;
+  }
+
+  /** Parse a string as LocalDateTime. */
+  public static LocalDateTime parseLocalDateTime(String dateTime) {
+    try {
+      return LocalDateTime.parse(dateTime);
+    } catch (DateTimeParseException e) {
+      log.error("Failed to parse '{}' as local date time", dateTime);
+      return null;
+    }
   }
 
   /**

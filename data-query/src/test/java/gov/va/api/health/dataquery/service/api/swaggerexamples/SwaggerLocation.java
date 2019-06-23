@@ -1,4 +1,4 @@
-package gov.va.api.health.dstu2.service.api.swaggerexamples;
+package gov.va.api.health.dataquery.service.api.swaggerexamples;
 
 import static java.util.Arrays.asList;
 
