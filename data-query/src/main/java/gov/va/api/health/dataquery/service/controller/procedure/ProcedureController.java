@@ -4,6 +4,7 @@ import static gov.va.api.health.dataquery.service.controller.Transformers.firstP
 import static gov.va.api.health.dataquery.service.controller.Transformers.hasPayload;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gov.va.api.health.argonaut.api.resources.Procedure;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
@@ -17,11 +18,14 @@ import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
 import gov.va.api.health.dataquery.service.mranderson.client.Query;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import gov.va.dvp.cdw.xsd.model.CdwProcedure101Root;
+
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.function.Function;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.SneakyThrows;
@@ -106,12 +110,8 @@ public class ProcedureController {
   public Procedure read(
       @PathVariable("publicId") String publicId,
       @RequestHeader(value = "X-VA-ICN", required = false) String icnHeader) {
-    if (isNotBlank(icnHeader) && thisLooksLikeAJobForSuperman(icnHeader)) {
-      return usePhoneBooth(
-          transformer.apply(
-              firstPayloadItem(
-                  hasPayload(search(Parameters.forIdentity(publicId)).getProcedures())
-                      .getProcedure())));
+    if (thisLooksLikeAJobForSuperman(icnHeader)) {
+          return usePhoneBooth(read(publicId,clarkKentId), Procedure.class);
     }
     return transformer.apply(
         firstPayloadItem(
@@ -162,7 +162,7 @@ public class ProcedureController {
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @RequestParam(value = "_count", defaultValue = "15") @Min(0) int count) {
     if (thisLooksLikeAJobForSuperman(patient)) {
-      return usePhoneBooth(searchByPatientAndDate(clarkKentId, date, page, count));
+      return usePhoneBooth(searchByPatientAndDate(clarkKentId, date, page, count), Procedure.Bundle.class);
     }
     return bundle(
         Parameters.builder()
@@ -193,36 +193,13 @@ public class ProcedureController {
   }
 
   /**
-   * Change a clark-kent bundle into a superman bundle. {@link #clarkKentId} is replaced with {@link
-   * #supermanId} and {@link #clarkKentDisplay} is replaced with {@link #supermanDisplay}
-   *
-   * @see #thisLooksLikeAJobForSuperman(String)
-   */
-  @SneakyThrows
-  private Procedure.Bundle usePhoneBooth(Procedure.Bundle clarkKentBundle) {
-    log.info(
-        "Disguising procedure bundle for patient {} ({}) as patient {} ({}).",
-        clarkKentId,
-        clarkKentDisplay,
-        supermanId,
-        supermanDisplay);
-    ObjectMapper mapper = JacksonConfig.createMapper();
-    String clarkKentBundleString = mapper.writeValueAsString(clarkKentBundle);
-    String supermanBundleString =
-        clarkKentBundleString
-            .replaceAll(clarkKentId, supermanId)
-            .replaceAll(clarkKentDisplay, supermanDisplay);
-    return mapper.readValue(supermanBundleString, Procedure.Bundle.class);
-  }
-
-  /**
    * Change a clark-kent procedure into a superman procedure. {@link #clarkKentId} is replaced with
    * {@link #supermanId} and {@link #clarkKentDisplay} is replaced with {@link #supermanDisplay}
    *
    * @see #thisLooksLikeAJobForSuperman(String)
    */
   @SneakyThrows
-  private Procedure usePhoneBooth(Procedure clarkKent) {
+  private <T> T usePhoneBooth(T clarkKentObj, Class<T> tClass) {
     log.info(
         "Disguising procedure for patient {} ({}) as patient {} ({}).",
         clarkKentId,
@@ -230,12 +207,12 @@ public class ProcedureController {
         supermanId,
         supermanDisplay);
     ObjectMapper mapper = JacksonConfig.createMapper();
-    String clarkKentString = mapper.writeValueAsString(clarkKent);
+    String clarkKentString = mapper.writeValueAsString(clarkKentObj);
     String supermanString =
         clarkKentString
             .replaceAll(clarkKentId, supermanId)
             .replaceAll(clarkKentDisplay, supermanDisplay);
-    return mapper.readValue(supermanString, Procedure.class);
+    return mapper.readValue(supermanString, tClass);
   }
 
   /** Hey, this is a validate endpoint. It validates. */
