@@ -7,7 +7,7 @@
     <version>2.0.6</version>
   </parent>
   <artifactId>data-query-parent</artifactId>
-  <version>1.0.229-SNAPSHOT</version>
+  <version>1.0.231-SNAPSHOT</version>
   <packaging>pom</packaging>
   <properties>
     <health-apis-ids.version>1.1.0</health-apis-ids.version>

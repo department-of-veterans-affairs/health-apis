@@ -34,6 +34,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -102,7 +103,12 @@ public class ProcedureController {
 
   /** Read by id. */
   @GetMapping(value = {"/{publicId}"})
-  public Procedure read(@PathVariable("publicId") String publicId) {
+  public Procedure read(
+      @PathVariable("publicId") String publicId,
+      @RequestHeader(value = "X-VA-ICN", required = false) String icnHeader) {
+    if (isNotBlank(icnHeader) && thisLooksLikeAJobForSuperman(icnHeader)) {
+      return usePhoneBooth(read(publicId, clarkKentId), Procedure.class);
+    }
     return transformer.apply(
         firstPayloadItem(
             hasPayload(search(Parameters.forIdentity(publicId)).getProcedures()).getProcedure()));
@@ -152,7 +158,8 @@ public class ProcedureController {
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @RequestParam(value = "_count", defaultValue = "15") @Min(0) int count) {
     if (thisLooksLikeAJobForSuperman(patient)) {
-      return usePhoneBooth(searchByPatientAndDate(clarkKentId, date, page, count));
+      return usePhoneBooth(
+          searchByPatientAndDate(clarkKentId, date, page, count), Procedure.Bundle.class);
     }
     return bundle(
         Parameters.builder()
@@ -183,26 +190,26 @@ public class ProcedureController {
   }
 
   /**
-   * Change a clark-kent bundle into a superman bundle. {@link #clarkKentId} is replaced with {@link
-   * #supermanId} and {@link #clarkKentDisplay} is replaced with {@link #supermanDisplay}
+   * Change a clark-kent procedure into a superman procedure. {@link #clarkKentId} is replaced with
+   * {@link #supermanId} and {@link #clarkKentDisplay} is replaced with {@link #supermanDisplay}
    *
    * @see #thisLooksLikeAJobForSuperman(String)
    */
   @SneakyThrows
-  private Procedure.Bundle usePhoneBooth(Procedure.Bundle clarkKentBundle) {
+  private <T> T usePhoneBooth(T clarkKentObj, Class<T> genericTClass) {
     log.info(
-        "Disguising procedure bundle for patient {} ({}) as patient {} ({}).",
+        "Disguising procedure for patient {} ({}) as patient {} ({}).",
         clarkKentId,
         clarkKentDisplay,
         supermanId,
         supermanDisplay);
     ObjectMapper mapper = JacksonConfig.createMapper();
-    String clarkKentBundleString = mapper.writeValueAsString(clarkKentBundle);
-    String supermanBundleString =
-        clarkKentBundleString
+    String clarkKentString = mapper.writeValueAsString(clarkKentObj);
+    String supermanString =
+        clarkKentString
             .replaceAll(clarkKentId, supermanId)
             .replaceAll(clarkKentDisplay, supermanDisplay);
-    return mapper.readValue(supermanBundleString, Procedure.Bundle.class);
+    return mapper.readValue(supermanString, genericTClass);
   }
 
   /** Hey, this is a validate endpoint. It validates. */
