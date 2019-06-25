@@ -1,6 +1,7 @@
 package gov.va.api.health.mranderson.controller;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import java.time.Clock;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -26,7 +27,7 @@ public class ErrorResponse {
   /** Create a new error response based on the given exception. */
   public static ErrorResponse of(@NonNull Exception e) {
     return ErrorResponse.builder()
-        .timestamp(System.currentTimeMillis())
+        .timestamp(Clock.systemDefaultZone().millis())
         .type(e.getClass().getSimpleName())
         .message(e.getMessage())
         .build();
