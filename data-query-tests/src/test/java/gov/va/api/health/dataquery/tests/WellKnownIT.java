@@ -3,6 +3,7 @@ package gov.va.api.health.dataquery.tests;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.dataquery.tests.categories.LabDataQueryClinician;
+import gov.va.api.health.dataquery.tests.categories.LabDataQueryPatient;
 import gov.va.api.health.dataquery.tests.categories.ProdDataQueryClinician;
 import gov.va.api.health.dataquery.tests.categories.ProdDataQueryPatient;
 import gov.va.api.health.sentinel.ExpectedResponse;
@@ -18,7 +19,7 @@ public class WellKnownIT {
   @Test
   @Category({
     Local.class,
-    // TODO ADQ-35 logged. Lab is missing this route. Put LabDataQueryPatient back after added.
+    LabDataQueryPatient.class,
     LabDataQueryClinician.class,
     ProdDataQueryPatient.class,
     ProdDataQueryClinician.class
