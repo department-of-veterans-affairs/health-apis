@@ -4,20 +4,22 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-import java.time.Instant;
-import java.time.ZoneOffset;
-
 import gov.va.api.health.argonaut.api.resources.Patient;
 import gov.va.api.health.argonaut.api.resources.Patient.Gender;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.Transformers;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
+import gov.va.api.health.dataquery.service.controller.patient.DatamartPatient.Ethnicity;
+import gov.va.api.health.dataquery.service.controller.patient.DatamartPatient.MaritalStatus;
+import gov.va.api.health.dataquery.service.controller.patient.DatamartPatient.Race;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
 import gov.va.api.health.dstu2.api.datatypes.HumanName;
 import gov.va.api.health.dstu2.api.datatypes.Identifier;
+import gov.va.api.health.dstu2.api.elements.Extension;
 import gov.va.api.health.dstu2.api.elements.Reference;
 import gov.va.api.health.ids.api.IdentityService;
+import java.time.ZoneOffset;
 import lombok.SneakyThrows;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,7 +35,7 @@ public final class DatamartPatientTest {
 
   @Test
   @SneakyThrows
-  public void doIt() {
+  public void basicFields() {
     String icn = "1011537977V693883";
     String ssn = "000001234";
     String name = "TEST,PATIENT ONE";
@@ -68,7 +70,6 @@ public final class DatamartPatientTest {
                             .birthDateTime(birthDateTime)
                             .deceased("N")
                             .gender("M")
-                            // .religion("UNKNOWN\\/NO PREFERENCE")
                             .build()))
             .search(search)
             .build();
@@ -83,7 +84,7 @@ public final class DatamartPatientTest {
             entityManager.getEntityManager());
 
     Patient patient = controller.read("true", icn);
-    System.out.println(JacksonConfig.createMapper().writeValueAsString(patient));
+    // System.out.println(JacksonConfig.createMapper().writeValueAsString(patient));
     assertThat(patient)
         .isEqualTo(
             Patient.builder()
@@ -135,6 +136,122 @@ public final class DatamartPatientTest {
                 .gender(Gender.male)
                 .birthDate("1925-01-01")
                 .deceasedBoolean(false)
+                .build());
+  }
+
+  @Test
+  @SneakyThrows
+  public void extensions() {
+    String icn = "1011537977V693883";
+    PatientSearchEntity search = PatientSearchEntity.builder().icn(icn).build();
+    entityManager.persistAndFlush(search);
+
+    PatientEntity entity =
+        PatientEntity.builder()
+            .icn(icn)
+            .payload(
+                JacksonConfig.createMapper()
+                    .writeValueAsString(
+                        DatamartPatient.builder()
+                            .objectType("Patient")
+                            .objectVersion(1)
+                            .fullIcn(icn)
+                            .maritalStatus(
+                                MaritalStatus.builder()
+                                    .display("UNKNOWN")
+                                    .abbrev("UNK")
+                                    .code("U")
+                                    .build())
+                            .ethnicity(
+                                Ethnicity.builder()
+                                    .display("HISPANIC OR LATINO")
+                                    .abbrev("H")
+                                    .hl7("2135-2")
+                                    .build())
+                            .race(asList(Race.builder().display("ASIAN").abbrev("A").build()))
+                            .build()))
+            .search(search)
+            .build();
+    entityManager.persistAndFlush(entity);
+
+    PatientController controller =
+        new PatientController(
+            null,
+            null,
+            null,
+            WitnessProtection.builder().identityService(mock(IdentityService.class)).build(),
+            entityManager.getEntityManager());
+
+    Patient patient = controller.read("true", icn);
+    // System.out.println(JacksonConfig.createMapper().writeValueAsString(patient));
+    assertThat(patient)
+        .isEqualTo(
+            Patient.builder()
+                .id(icn)
+                .resourceType("Patient")
+                .extension(
+                    asList(
+                        Extension.builder()
+                            .url("http://fhir.org/guides/argonaut/StructureDefinition/argo-race")
+                            .extension(
+                                asList(
+                                    Extension.builder()
+                                        .url("ombCategory")
+                                        .valueCoding(
+                                            Coding.builder()
+                                                .system("http://hl7.org/fhir/v3/Race")
+                                                .code("A")
+                                                .display("ASIAN")
+                                                .build())
+                                        .build(),
+                                    Extension.builder().url("text").valueString("ASIAN").build()))
+                            .build(),
+                        Extension.builder()
+                            .url(
+                                "http://fhir.org/guides/argonaut/StructureDefinition/argo-ethnicity")
+                            .extension(
+                                asList(
+                                    Extension.builder()
+                                        .url("ombCategory")
+                                        .valueCoding(
+                                            Coding.builder()
+                                                .system("http://hl7.org/fhir/ValueSet/v3-Ethnicity")
+                                                .code("2135-2")
+                                                .display("HISPANIC OR LATINO")
+                                                .build())
+                                        .build(),
+                                    Extension.builder()
+                                        .url("text")
+                                        .valueString("HISPANIC OR LATINO")
+                                        .build()))
+                            .build()))
+                .identifier(
+                    asList(
+                        Identifier.builder()
+                            .use(Identifier.IdentifierUse.usual)
+                            .type(
+                                CodeableConcept.builder()
+                                    .coding(
+                                        asList(
+                                            Coding.builder()
+                                                .system("http://hl7.org/fhir/v2/0203")
+                                                .code("MR")
+                                                .build()))
+                                    .build())
+                            .system("http://va.gov/mvi")
+                            .value(icn)
+                            .assigner(Reference.builder().display("Master Veteran Index").build())
+                            .build()))
+                .maritalStatus(
+                    CodeableConcept.builder()
+                        .coding(
+                            asList(
+                                Coding.builder()
+                                    .system("http://hl7.org/fhir/marital-status")
+                                    .code("U")
+                                    .display("UNKNOWN")
+                                    .build()))
+                        .build())
                 .build());
   }
 }
