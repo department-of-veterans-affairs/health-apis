@@ -4,8 +4,13 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
+import java.time.Instant;
+import java.time.ZoneOffset;
+
 import gov.va.api.health.argonaut.api.resources.Patient;
+import gov.va.api.health.argonaut.api.resources.Patient.Gender;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
+import gov.va.api.health.dataquery.service.controller.Transformers;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
@@ -34,12 +39,15 @@ public final class DatamartPatientTest {
     String name = "TEST,PATIENT ONE";
     String firstName = "PATIENT ONE";
     String lastName = "TEST";
+    String birthDateTime = "1925-01-01T00:00:00";
     PatientSearchEntity search =
         PatientSearchEntity.builder()
             .icn(icn)
             .name(name)
             .firstName(firstName)
             .lastName(lastName)
+            .birthDateTime(Transformers.parseLocalDateTime(birthDateTime).toInstant(ZoneOffset.UTC))
+            .gender("M")
             .build();
     entityManager.persistAndFlush(search);
 
@@ -57,6 +65,10 @@ public final class DatamartPatientTest {
                             .name(name)
                             .firstName(firstName)
                             .lastName(lastName)
+                            .birthDateTime(birthDateTime)
+                            .deceased("N")
+                            .gender("M")
+                            // .religion("UNKNOWN\\/NO PREFERENCE")
                             .build()))
             .search(search)
             .build();
@@ -71,7 +83,7 @@ public final class DatamartPatientTest {
             entityManager.getEntityManager());
 
     Patient patient = controller.read("true", icn);
-    // System.out.println(JacksonConfig.createMapper().writeValueAsString(patient));
+    System.out.println(JacksonConfig.createMapper().writeValueAsString(patient));
     assertThat(patient)
         .isEqualTo(
             Patient.builder()
@@ -120,6 +132,9 @@ public final class DatamartPatientTest {
                             .family(asList(lastName))
                             .given(asList(firstName))
                             .build()))
+                .gender(Gender.male)
+                .birthDate("1925-01-01")
+                .deceasedBoolean(false)
                 .build());
   }
 }
