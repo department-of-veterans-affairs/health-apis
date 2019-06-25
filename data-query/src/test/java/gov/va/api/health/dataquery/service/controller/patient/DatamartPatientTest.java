@@ -9,8 +9,8 @@ import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
+import gov.va.api.health.dstu2.api.datatypes.HumanName;
 import gov.va.api.health.dstu2.api.datatypes.Identifier;
-import gov.va.api.health.dstu2.api.datatypes.Identifier.IdentifierUse;
 import gov.va.api.health.dstu2.api.elements.Reference;
 import gov.va.api.health.ids.api.IdentityService;
 import lombok.SneakyThrows;
@@ -29,8 +29,18 @@ public final class DatamartPatientTest {
   @Test
   @SneakyThrows
   public void doIt() {
-    String icn = "111222333V000999";
-    PatientSearchEntity search = PatientSearchEntity.builder().icn(icn).build();
+    String icn = "1011537977V693883";
+    String ssn = "000001234";
+    String name = "TEST,PATIENT ONE";
+    String firstName = "PATIENT ONE";
+    String lastName = "TEST";
+    PatientSearchEntity search =
+        PatientSearchEntity.builder()
+            .icn(icn)
+            .name(name)
+            .firstName(firstName)
+            .lastName(lastName)
+            .build();
     entityManager.persistAndFlush(search);
 
     PatientEntity entity =
@@ -43,6 +53,10 @@ public final class DatamartPatientTest {
                             .objectType("Patient")
                             .objectVersion(1)
                             .fullIcn(icn)
+                            .ssn(ssn)
+                            .name(name)
+                            .firstName(firstName)
+                            .lastName(lastName)
                             .build()))
             .search(search)
             .build();
@@ -57,6 +71,7 @@ public final class DatamartPatientTest {
             entityManager.getEntityManager());
 
     Patient patient = controller.read("true", icn);
+    // System.out.println(JacksonConfig.createMapper().writeValueAsString(patient));
     assertThat(patient)
         .isEqualTo(
             Patient.builder()
@@ -65,7 +80,7 @@ public final class DatamartPatientTest {
                 .identifier(
                     asList(
                         Identifier.builder()
-                            .use(IdentifierUse.usual)
+                            .use(Identifier.IdentifierUse.usual)
                             .type(
                                 CodeableConcept.builder()
                                     .coding(
@@ -78,6 +93,32 @@ public final class DatamartPatientTest {
                             .system("http://va.gov/mvi")
                             .value(icn)
                             .assigner(Reference.builder().display("Master Veteran Index").build())
+                            .build(),
+                        Identifier.builder()
+                            .use(Identifier.IdentifierUse.official)
+                            .type(
+                                CodeableConcept.builder()
+                                    .coding(
+                                        asList(
+                                            Coding.builder()
+                                                .system("http://hl7.org/fhir/v2/0203")
+                                                .code("SB")
+                                                .build()))
+                                    .build())
+                            .system("http://hl7.org/fhir/sid/us-ssn")
+                            .value("000001234")
+                            .assigner(
+                                Reference.builder()
+                                    .display("United States Social Security Number")
+                                    .build())
+                            .build()))
+                .name(
+                    asList(
+                        HumanName.builder()
+                            .use(HumanName.NameUse.usual)
+                            .text(name)
+                            .family(asList(lastName))
+                            .given(asList(firstName))
                             .build()))
                 .build());
   }
