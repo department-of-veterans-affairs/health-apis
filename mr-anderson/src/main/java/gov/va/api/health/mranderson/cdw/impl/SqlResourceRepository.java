@@ -16,7 +16,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 /**
- * The `prc_Entity_Return` stored procedure implementation of the resource repository. No error
+ * The `prc_Entity_Return` stored procedure implementation of the resource repository.  No error
  * checking is performed.
  */
 @Component
@@ -45,7 +45,7 @@ public class SqlResourceRepository implements ResourceRepository {
   @Override
   public String execute(Query query) {
     try (Connection connection = Checks.notNull(jdbc.getDataSource()).getConnection()) {
-      try (CallableStatement cs = connection.prepareCall(storedProcedure())) {
+      try (CallableStatement cs = connection.prepareCall(storedProcedureCallSql())) {
         cs.closeOnCompletion();
         cs.setObject(Index.FHIR_VERSION, FhirVersion.of(query.profile()), Types.TINYINT);
         cs.setObject(Index.RETURN_TYPE, ReturnType.FULL, Types.TINYINT);
@@ -63,7 +63,7 @@ public class SqlResourceRepository implements ResourceRepository {
     }
   }
 
-  private String storedProcedure() {
+  private String storedProcedureCallSql() {
     /*
      * String concatenation is safe because the schema value is verified to contain only letters,
      * numbers, and underscores and does not allow any SQL sensitive characters that could enable
@@ -73,8 +73,11 @@ public class SqlResourceRepository implements ResourceRepository {
   }
 
   interface FhirVersion {
+
     int ARGONAUT = 1;
+
     int DSTU2 = 2;
+
     int STU3 = 3;
 
     static int of(Profile profile) {
@@ -90,23 +93,35 @@ public class SqlResourceRepository implements ResourceRepository {
   }
 
   interface Index {
+
     int FHIR_VERSION = 1;
+
     int RETURN_TYPE = 2;
+
     int FORMAT = 3;
+
     int RECORDS_PER_PAGE = 4;
+
     int PAGE = 5;
+
     int FHIR_STRING = 6;
+
     int RESPONSE_XML = 7;
   }
 
   interface ReturnType {
+
     int COUNT = 1;
+
     int SUMMARY = 2;
+
     int FULL = 3;
   }
 
   interface Format {
+
     int XML = 1;
+
     int JSON = 2;
   }
 }

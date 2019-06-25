@@ -20,6 +20,7 @@ import gov.va.api.health.dstu2.api.elements.Reference;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.List;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -110,9 +111,9 @@ public class MagicReferenceConfig {
      * that type of writer so we can peek at the value we are about to serialize.
      */
     @Override
+    @SneakyThrows
     public void serializeAsField(
-        Object pojo, JsonGenerator jgen, SerializerProvider provider, PropertyWriter writer)
-        throws Exception {
+        Object pojo, JsonGenerator jgen, SerializerProvider provider, PropertyWriter writer) {
       boolean include = true;
       if (writer.getType().getRawClass() == Reference.class
           && writer instanceof BeanPropertyWriter) {
@@ -230,9 +231,10 @@ public class MagicReferenceConfig {
       return baseUrl + "/" + basePath + "/" + reference;
     }
 
+    @SneakyThrows
     @Override
     public void serializeAsField(
-        Object shouldBeReference, JsonGenerator gen, SerializerProvider prov) throws Exception {
+        Object shouldBeReference, JsonGenerator gen, SerializerProvider prov) {
       if (!(shouldBeReference instanceof Reference)) {
         throw new IllegalArgumentException(
             "Qualified reference writer cannot serialize: " + shouldBeReference);
