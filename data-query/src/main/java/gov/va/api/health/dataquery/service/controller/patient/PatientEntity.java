@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import lombok.AccessLevel;
@@ -30,6 +31,7 @@ public class PatientEntity {
   @EqualsAndHashCode.Include
   private String icn;
 
+  @Lob
   @Basic(fetch = FetchType.LAZY)
   @Column(name = "PatientReport")
   private String payload;

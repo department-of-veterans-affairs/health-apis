@@ -35,7 +35,7 @@ public final class DatamartPatientTest {
 
   @Test
   @SneakyThrows
-  public void basicFields() {
+  public void basic() {
     String icn = "1011537977V693883";
     String ssn = "000001234";
     String name = "TEST,PATIENT ONE";
@@ -70,92 +70,6 @@ public final class DatamartPatientTest {
                             .birthDateTime(birthDateTime)
                             .deceased("N")
                             .gender("M")
-                            .build()))
-            .search(search)
-            .build();
-    entityManager.persistAndFlush(entity);
-
-    PatientController controller =
-        new PatientController(
-            null,
-            null,
-            null,
-            WitnessProtection.builder().identityService(mock(IdentityService.class)).build(),
-            entityManager.getEntityManager());
-
-    Patient patient = controller.read("true", icn);
-    // System.out.println(JacksonConfig.createMapper().writeValueAsString(patient));
-    assertThat(patient)
-        .isEqualTo(
-            Patient.builder()
-                .id(icn)
-                .resourceType("Patient")
-                .identifier(
-                    asList(
-                        Identifier.builder()
-                            .use(Identifier.IdentifierUse.usual)
-                            .type(
-                                CodeableConcept.builder()
-                                    .coding(
-                                        asList(
-                                            Coding.builder()
-                                                .system("http://hl7.org/fhir/v2/0203")
-                                                .code("MR")
-                                                .build()))
-                                    .build())
-                            .system("http://va.gov/mvi")
-                            .value(icn)
-                            .assigner(Reference.builder().display("Master Veteran Index").build())
-                            .build(),
-                        Identifier.builder()
-                            .use(Identifier.IdentifierUse.official)
-                            .type(
-                                CodeableConcept.builder()
-                                    .coding(
-                                        asList(
-                                            Coding.builder()
-                                                .system("http://hl7.org/fhir/v2/0203")
-                                                .code("SB")
-                                                .build()))
-                                    .build())
-                            .system("http://hl7.org/fhir/sid/us-ssn")
-                            .value("000001234")
-                            .assigner(
-                                Reference.builder()
-                                    .display("United States Social Security Number")
-                                    .build())
-                            .build()))
-                .name(
-                    asList(
-                        HumanName.builder()
-                            .use(HumanName.NameUse.usual)
-                            .text(name)
-                            .family(asList(lastName))
-                            .given(asList(firstName))
-                            .build()))
-                .gender(Gender.male)
-                .birthDate("1925-01-01")
-                .deceasedBoolean(false)
-                .build());
-  }
-
-  @Test
-  @SneakyThrows
-  public void extensions() {
-    String icn = "1011537977V693883";
-    PatientSearchEntity search = PatientSearchEntity.builder().icn(icn).build();
-    entityManager.persistAndFlush(search);
-
-    PatientEntity entity =
-        PatientEntity.builder()
-            .icn(icn)
-            .payload(
-                JacksonConfig.createMapper()
-                    .writeValueAsString(
-                        DatamartPatient.builder()
-                            .objectType("Patient")
-                            .objectVersion(1)
-                            .fullIcn(icn)
                             .maritalStatus(
                                 MaritalStatus.builder()
                                     .display("UNKNOWN")
@@ -241,7 +155,36 @@ public final class DatamartPatientTest {
                             .system("http://va.gov/mvi")
                             .value(icn)
                             .assigner(Reference.builder().display("Master Veteran Index").build())
+                            .build(),
+                        Identifier.builder()
+                            .use(Identifier.IdentifierUse.official)
+                            .type(
+                                CodeableConcept.builder()
+                                    .coding(
+                                        asList(
+                                            Coding.builder()
+                                                .system("http://hl7.org/fhir/v2/0203")
+                                                .code("SB")
+                                                .build()))
+                                    .build())
+                            .system("http://hl7.org/fhir/sid/us-ssn")
+                            .value("000001234")
+                            .assigner(
+                                Reference.builder()
+                                    .display("United States Social Security Number")
+                                    .build())
                             .build()))
+                .name(
+                    asList(
+                        HumanName.builder()
+                            .use(HumanName.NameUse.usual)
+                            .text(name)
+                            .family(asList(lastName))
+                            .given(asList(firstName))
+                            .build()))
+                .gender(Gender.male)
+                .birthDate("1925-01-01")
+                .deceasedBoolean(false)
                 .maritalStatus(
                     CodeableConcept.builder()
                         .coding(
