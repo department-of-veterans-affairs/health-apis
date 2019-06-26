@@ -25,8 +25,8 @@ public class ErrorResponse {
   String message;
 
   /**
-   * Create a new error response based on the given exception. We are using Instant.now instead of
-   * System.currentTimeMillis to satisfy fortify scans.
+   * Create a new error response based on the given exception. We are using Instant.now to address
+   * fortify concerns.
    */
   public static ErrorResponse of(@NonNull Exception e) {
     return ErrorResponse.builder()
