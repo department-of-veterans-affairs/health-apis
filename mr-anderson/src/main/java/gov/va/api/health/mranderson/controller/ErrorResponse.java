@@ -25,7 +25,7 @@ public class ErrorResponse {
   String message;
 
   /**
-   * Create a new error response based on the given exception. We are using Instant.now to address
+   * Create a new error response based on the given exception.  We are using Instant.now to address
    * fortify concerns.
    */
   public static ErrorResponse of(@NonNull Exception e) {
