@@ -131,12 +131,12 @@ public final class DatamartPatientTest {
                                             Coding.builder()
                                                 .system("http://hl7.org/fhir/ValueSet/v3-Ethnicity")
                                                 .code("2135-2")
-                                                .display("HISPANIC OR LATINO")
+                                                .display("Hispanic or Latino")
                                                 .build())
                                         .build(),
                                     Extension.builder()
                                         .url("text")
-                                        .valueString("HISPANIC OR LATINO")
+                                        .valueString("Hispanic or Latino")
                                         .build()))
                             .build()))
                 .identifier(
@@ -190,11 +190,62 @@ public final class DatamartPatientTest {
                         .coding(
                             asList(
                                 Coding.builder()
-                                    .system("http://hl7.org/fhir/marital-status")
-                                    .code("U")
-                                    .display("UNKNOWN")
+                                    .system("http://hl7.org/fhir/v3/NullFlavor")
+                                    .code("UNK")
+                                    .display("unknown")
                                     .build()))
                         .build())
+                .build());
+  }
+
+  @Test
+  @SneakyThrows
+  public void empty() {
+    String icn = "1011537977V693883";
+    PatientSearchEntity search = PatientSearchEntity.builder().icn(icn).build();
+    entityManager.persistAndFlush(search);
+
+    PatientEntity entity =
+        PatientEntity.builder()
+            .icn(icn)
+            .payload(
+                JacksonConfig.createMapper()
+                    .writeValueAsString(DatamartPatient.builder().fullIcn(icn).build()))
+            .search(search)
+            .build();
+    entityManager.persistAndFlush(entity);
+
+    PatientController controller =
+        new PatientController(
+            null,
+            null,
+            null,
+            WitnessProtection.builder().identityService(mock(IdentityService.class)).build(),
+            entityManager.getEntityManager());
+
+    Patient patient = controller.read("true", icn);
+    assertThat(patient)
+        .isEqualTo(
+            Patient.builder()
+                .id(icn)
+                .resourceType("Patient")
+                .identifier(
+                    asList(
+                        Identifier.builder()
+                            .use(Identifier.IdentifierUse.usual)
+                            .type(
+                                CodeableConcept.builder()
+                                    .coding(
+                                        asList(
+                                            Coding.builder()
+                                                .system("http://hl7.org/fhir/v2/0203")
+                                                .code("MR")
+                                                .build()))
+                                    .build())
+                            .system("http://va.gov/mvi")
+                            .value(icn)
+                            .assigner(Reference.builder().display("Master Veteran Index").build())
+                            .build()))
                 .build());
   }
 }

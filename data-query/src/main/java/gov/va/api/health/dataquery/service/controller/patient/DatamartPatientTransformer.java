@@ -183,7 +183,7 @@ final class DatamartPatientTransformer {
     return HumanName.builder().text(contact.name()).build();
   }
 
-  private static List<Coding> relationshipCodings(DatamartPatient.Contact contact) {
+  private static Coding relationshipCoding(DatamartPatient.Contact contact) {
     if (contact == null || isBlank(contact.type())) {
       return null;
     }
@@ -195,19 +195,19 @@ final class DatamartPatientTransformer {
       case "CIVIL GUARDIAN":
         // falls through
       case "VA GUARDIAN":
-        return asList(builder.code("guardian").display("Guardian").build());
+        return builder.code("guardian").display("Guardian").build();
 
       case "EMERGENCY CONTACT":
         // falls through
       case "SECONDARY EMERGENCY CONTACT":
-        return asList(builder.code("emergency").display("Emergency").build());
+        return builder.code("emergency").display("Emergency").build();
 
       case "NEXT OF KIN":
         // falls through
       case "SECONDARY NEXT OF KIN":
         // falls through
       case "SPOUSE EMPLOYER":
-        return asList(builder.code("family").display("Family").build());
+        return builder.code("family").display("Family").build();
 
       default:
         return null;
@@ -219,12 +219,16 @@ final class DatamartPatientTransformer {
       return null;
     }
 
-    List<Coding> codings = emptyToNull(relationshipCodings(contact));
-    if (allBlank(codings, contact.relationship())) {
+    Coding coding = relationshipCoding(contact);
+    if (allBlank(coding, contact.relationship())) {
       return null;
     }
 
-    return asList(CodeableConcept.builder().coding(codings).text(contact.relationship()).build());
+    return asList(
+        CodeableConcept.builder()
+            .coding(emptyToNull(asList(coding)))
+            .text(contact.relationship())
+            .build());
   }
 
   private List<Address> addresses() {
@@ -369,20 +373,54 @@ final class DatamartPatientTransformer {
 
   private CodeableConcept maritalStatus() {
     DatamartPatient.MaritalStatus status = datamart.maritalStatus();
-
-    if (status == null || allBlank(status.code(), status.display())) {
+    if (status == null) {
       return null;
     }
 
-    return CodeableConcept.builder()
-        .coding(
-            asList(
-                Coding.builder()
-                    .system("http://hl7.org/fhir/marital-status")
-                    .code(status.code())
-                    .display(status.display())
-                    .build()))
-        .build();
+    Coding coding = maritalStatus(status.code());
+    if (coding == null) {
+      coding = maritalStatus(status.abbrev());
+    }
+    if (coding == null) {
+      return null;
+    }
+
+    return CodeableConcept.builder().coding(asList(coding)).build();
+  }
+
+  private Coding maritalStatus(String code) {
+    if (isBlank(code)) {
+      return null;
+    }
+
+    String upper = upperCase(code, Locale.US);
+    Coding.CodingBuilder result =
+        Coding.builder().system("http://hl7.org/fhir/marital-status").code(upper);
+
+    switch (upper) {
+      case "A":
+        return result.display("Annulled").build();
+      case "D":
+        return result.display("Divorced").build();
+      case "I":
+        return result.display("Interlocutory").build();
+      case "L":
+        return result.display("Legally Separated").build();
+      case "M":
+        return result.display("Married").build();
+      case "P":
+        return result.display("Polygamous").build();
+      case "S":
+        return result.display("Never Married").build();
+      case "T":
+        return result.display("Domestic partner").build();
+      case "W":
+        return result.display("Widowed").build();
+      case "UNK":
+        return result.system("http://hl7.org/fhir/v3/NullFlavor").display("unknown").build();
+      default:
+        return null;
+    }
   }
 
   private List<HumanName> names() {
