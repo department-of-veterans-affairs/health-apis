@@ -3,14 +3,13 @@ package gov.va.api.health.dataquery.service.controller.patient;
 import static gov.va.api.health.dataquery.service.controller.Transformers.firstPayloadItem;
 import static gov.va.api.health.dataquery.service.controller.Transformers.hasPayload;
 import static java.util.Arrays.asList;
+import static org.springframework.util.CollectionUtils.isEmpty;
 
 import gov.va.api.health.argonaut.api.resources.Patient;
-import gov.va.api.health.argonaut.api.resources.Patient.Bundle;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.Bundler;
-import gov.va.api.health.dataquery.service.controller.Bundler.BundleContext;
 import gov.va.api.health.dataquery.service.controller.JpaDateTimeParameter;
-import gov.va.api.health.dataquery.service.controller.PageLinks.LinkConfig;
+import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.Validator;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
@@ -18,7 +17,6 @@ import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
 import gov.va.api.health.dataquery.service.mranderson.client.Query;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import gov.va.dvp.cdw.xsd.model.CdwPatient103Root;
-import gov.va.dvp.cdw.xsd.model.CdwPatient103Root.CdwPatients.CdwPatient;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
@@ -105,7 +103,7 @@ public class PatientController {
     return newParameters;
   }
 
-  private Bundle datamartBundle(
+  private Patient.Bundle datamartBundle(
       String query, String totalRecordsQuery, MultiValueMap<String, String> publicParameters) {
     MultiValueMap<String, String> cdwParameters =
         witnessProtection.replacePublicIdsWithCdwIds(publicParameters);
@@ -117,8 +115,8 @@ public class PatientController {
             .map(entity -> entity.asDatamartPatient())
             .map(dm -> DatamartPatientTransformer.builder().datamart(dm).build().toFhirPatient())
             .collect(Collectors.toList());
-    LinkConfig linkConfig =
-        LinkConfig.builder()
+    PageLinks.LinkConfig linkConfig =
+        PageLinks.LinkConfig.builder()
             .path("Patient")
             .queryParams(publicParameters)
             .page(Integer.parseInt(publicParameters.getOrDefault("page", asList("1")).get(0)))
@@ -127,7 +125,7 @@ public class PatientController {
             .totalRecords(jpaQueryForTotalRecords(totalRecordsQuery, cdwParameters))
             .build();
     return bundler.bundle(
-        BundleContext.of(
+        Bundler.BundleContext.of(
             linkConfig, fhir, Function.identity(), Patient.Entry::new, Patient.Bundle::new));
   }
 
@@ -139,7 +137,7 @@ public class PatientController {
     List<PatientEntity> entities =
         jpaQueryForEntities(
             "Select p from PatientEntity p where p.icn is :identifier", cdwParameters);
-    if (entities.isEmpty()) {
+    if (isEmpty(entities)) {
       return null;
     }
     return DatamartPatientTransformer.builder()
@@ -179,9 +177,9 @@ public class PatientController {
   }
 
   private Patient.Bundle mrAndersonBundle(MultiValueMap<String, String> parameters) {
-    CdwPatient103Root root = search(parameters);
-    LinkConfig linkConfig =
-        LinkConfig.builder()
+    CdwPatient103Root root = mrAndersonSearch(parameters);
+    PageLinks.LinkConfig linkConfig =
+        PageLinks.LinkConfig.builder()
             .path("Patient")
             .queryParams(parameters)
             .page(Integer.parseInt(parameters.getOrDefault("page", asList("1")).get(0)))
@@ -190,12 +188,23 @@ public class PatientController {
             .totalRecords(root.getRecordCount())
             .build();
     return bundler.bundle(
-        BundleContext.of(
+        Bundler.BundleContext.of(
             linkConfig,
             root.getPatients() == null ? Collections.emptyList() : root.getPatients().getPatient(),
             transformer,
             Patient.Entry::new,
             Patient.Bundle::new));
+  }
+
+  private CdwPatient103Root mrAndersonSearch(MultiValueMap<String, String> params) {
+    Query<CdwPatient103Root> query =
+        Query.forType(CdwPatient103Root.class)
+            .profile(Query.Profile.ARGONAUT)
+            .resource("Patient")
+            .version("1.03")
+            .parameters(params)
+            .build();
+    return hasPayload(mrAndersonClient.search(query));
   }
 
   /** Read by id. */
@@ -207,10 +216,13 @@ public class PatientController {
     if (BooleanUtils.isTrue(BooleanUtils.toBooleanObject(datamart))) {
       return datamartRead(publicId);
     }
+
     Patient mrAndersonPatient =
         transformer.apply(
             firstPayloadItem(
-                hasPayload(search(Parameters.forIdentity(publicId)).getPatients()).getPatient()));
+                hasPayload(mrAndersonSearch(Parameters.forIdentity(publicId)).getPatients())
+                    .getPatient()));
+
     if ("both".equalsIgnoreCase(datamart)) {
       Patient jpaPatient = datamartRead(publicId);
       if (!mrAndersonPatient.equals(jpaPatient)) {
@@ -220,18 +232,37 @@ public class PatientController {
             JacksonConfig.createMapper().writeValueAsString(mrAndersonPatient));
       }
     }
+
     return mrAndersonPatient;
   }
 
-  private CdwPatient103Root search(MultiValueMap<String, String> params) {
-    Query<CdwPatient103Root> query =
-        Query.forType(CdwPatient103Root.class)
-            .profile(Query.Profile.ARGONAUT)
-            .resource("Patient")
-            .version("1.03")
-            .parameters(params)
-            .build();
-    return hasPayload(mrAndersonClient.search(query));
+  @SneakyThrows
+  private Patient.Bundle search(
+      String datamart,
+      String query,
+      String totalRecordsQuery,
+      MultiValueMap<String, String> parameters) {
+    if (BooleanUtils.isTrue(BooleanUtils.toBooleanObject(datamart))) {
+      return datamartBundle(query, totalRecordsQuery, parameters);
+    }
+
+    Patient.Bundle mrAndersonBundle = mrAndersonBundle(parameters);
+
+    if ("both".equalsIgnoreCase(datamart)) {
+      Patient.Bundle datamartBundle = datamartBundle(query, totalRecordsQuery, parameters);
+      if (!datamartBundle.equals(mrAndersonBundle)) {
+        log.warn(
+            "Datamart and mr-anderson bundles do not match."
+                + " {} Datamart results, {} mr-anderson results."
+                + " Datamart bundle is {} and mr-anderson bundle is {}",
+            datamartBundle.total(),
+            mrAndersonBundle.total(),
+            JacksonConfig.createMapper().writeValueAsString(datamartBundle),
+            JacksonConfig.createMapper().writeValueAsString(mrAndersonBundle));
+      }
+    }
+
+    return mrAndersonBundle;
   }
 
   /** Search by Family+Gender. */
@@ -242,7 +273,7 @@ public class PatientController {
       @RequestParam("gender") String gender,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @RequestParam(value = "_count", defaultValue = "15") @Min(0) int count) {
-    return searchOldOrNew(
+    return search(
         datamart,
         "Select p from PatientEntity p"
             + " where p.search.lastName like :family and p.search.gender is :gender",
@@ -264,7 +295,7 @@ public class PatientController {
       @RequestParam("gender") String gender,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @RequestParam(value = "_count", defaultValue = "15") @Min(0) int count) {
-    return searchOldOrNew(
+    return search(
         datamart,
         "Select p from PatientEntity p where"
             + " p.search.firstName like :given and p.search.gender is :gender",
@@ -285,7 +316,7 @@ public class PatientController {
       @RequestParam("_id") String id,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @RequestParam(value = "_count", defaultValue = "1") @Min(0) int count) {
-    return searchOldOrNew(
+    return search(
         datamart,
         "Select p from PatientEntity p where p.icn is :identifier",
         "Select count(p.icn) from PatientEntity p where p.icn is :identifier",
@@ -299,7 +330,7 @@ public class PatientController {
       @RequestParam("identifier") String id,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @RequestParam(value = "_count", defaultValue = "1") @Min(0) int count) {
-    return searchOldOrNew(
+    return search(
         datamart,
         "Select p from PatientEntity p where p.icn is :identifier",
         "Select count(p.icn) from PatientEntity p where p.icn is :identifier",
@@ -314,7 +345,7 @@ public class PatientController {
       @RequestParam("birthdate") String[] birthdate,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @RequestParam(value = "_count", defaultValue = "15") @Min(0) int count) {
-    return searchOldOrNew(
+    return search(
         datamart,
         "Select p from PatientEntity p where p.search.name like :name"
             + JpaDateTimeParameter.querySnippet(
@@ -338,7 +369,7 @@ public class PatientController {
       @RequestParam("gender") String gender,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @RequestParam(value = "_count", defaultValue = "15") @Min(0) int count) {
-    return searchOldOrNew(
+    return search(
         datamart,
         "Select p from PatientEntity p where"
             + " p.search.name like :name and p.search.gender is :gender",
@@ -352,32 +383,6 @@ public class PatientController {
             .build());
   }
 
-  @SneakyThrows
-  private Patient.Bundle searchOldOrNew(
-      String datamart,
-      String query,
-      String totalRecordsQuery,
-      MultiValueMap<String, String> parameters) {
-    if (BooleanUtils.isTrue(BooleanUtils.toBooleanObject(datamart))) {
-      return datamartBundle(query, totalRecordsQuery, parameters);
-    }
-    Patient.Bundle mrAndersonBundle = mrAndersonBundle(parameters);
-    if ("both".equalsIgnoreCase(datamart)) {
-      Patient.Bundle datamartBundle = datamartBundle(query, totalRecordsQuery, parameters);
-      if (!datamartBundle.equals(mrAndersonBundle)) {
-        log.warn(
-            "Datamart and mr-anderson bundles do not match."
-                + " {} Datamart results, {} mr-anderson results."
-                + " Datamart bundle is {} and mr-anderson bundle is {}",
-            datamartBundle.total(),
-            mrAndersonBundle.total(),
-            JacksonConfig.createMapper().writeValueAsString(datamartBundle),
-            JacksonConfig.createMapper().writeValueAsString(mrAndersonBundle));
-      }
-    }
-    return mrAndersonBundle;
-  }
-
   /** Hey, this is a validate endpoint. It validates. */
   @PostMapping(
     value = "/$validate",
@@ -387,5 +392,6 @@ public class PatientController {
     return Validator.create().validate(bundle);
   }
 
-  public interface Transformer extends Function<CdwPatient, Patient> {}
+  public interface Transformer
+      extends Function<CdwPatient103Root.CdwPatients.CdwPatient, Patient> {}
 }
