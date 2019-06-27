@@ -64,7 +64,8 @@ final class DatamartPatientTransformer {
 
     List<Extension> results = new ArrayList<>(2);
 
-    if (!allBlank(ethnicity.display(), ethnicity.hl7())) {
+    String display = ethnicityDisplay(ethnicity);
+    if (!allBlank(display, ethnicity.hl7())) {
       results.add(
           Extension.builder()
               .url("ombCategory")
@@ -72,13 +73,13 @@ final class DatamartPatientTransformer {
                   Coding.builder()
                       .system("http://hl7.org/fhir/ValueSet/v3-Ethnicity")
                       .code(ethnicity.hl7())
-                      .display(ethnicity.display())
+                      .display(display)
                       .build())
               .build());
     }
 
-    if (isNotBlank(ethnicity.display())) {
-      results.add(Extension.builder().url("text").valueString(ethnicity.display()).build());
+    if (isNotBlank(display)) {
+      results.add(Extension.builder().url("text").valueString(display).build());
     }
 
     return emptyToNull(results);
@@ -256,10 +257,8 @@ final class DatamartPatientTransformer {
     switch (upperCase(datamart.deceased(), Locale.US)) {
       case "Y":
         return true;
-
       case "N":
         return false;
-
       default:
         return null;
     }
@@ -276,6 +275,21 @@ final class DatamartPatientTransformer {
     }
 
     return dateTime.atZone(ZoneId.of("Z")).toString();
+  }
+
+  private static String ethnicityDisplay(DatamartPatient.Ethnicity ethnicity) {
+    if (ethnicity == null || isBlank(ethnicity.hl7())) {
+      return null;
+    }
+
+    switch (upperCase(ethnicity.hl7(), Locale.US)) {
+      case "2135-2":
+        return "Hispanic or Latino";
+      case "2186-5":
+        return "Non Hispanic or Latino";
+      default:
+        return ethnicity.display();
+    }
   }
 
   private List<Extension> extensions() {
