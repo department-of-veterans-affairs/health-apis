@@ -19,7 +19,6 @@ import gov.va.api.health.dataquery.service.mranderson.client.Query;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import gov.va.dvp.cdw.xsd.model.CdwPatient103Root;
 import gov.va.dvp.cdw.xsd.model.CdwPatient103Root.CdwPatients.CdwPatient;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
@@ -91,11 +90,26 @@ public class PatientController {
     }
   }
 
+  private static MultiValueMap<String, String> mapFhirGenderToCdw(
+      MultiValueMap<String, String> cdwParameters) {
+    String fhirGender = cdwParameters.getFirst("gender");
+    if (fhirGender == null) {
+      return cdwParameters;
+    }
+    String cdw = GenderMapping.toCdw(fhirGender);
+    if (cdw == null) {
+      throw new IllegalArgumentException("unknown gender: " + fhirGender);
+    }
+    MultiValueMap<String, String> newParameters = new LinkedMultiValueMap<>(cdwParameters);
+    newParameters.put("gender", asList(cdw));
+    return newParameters;
+  }
+
   private Bundle datamartBundle(
       String query, String totalRecordsQuery, MultiValueMap<String, String> publicParameters) {
     MultiValueMap<String, String> cdwParameters =
         witnessProtection.replacePublicIdsWithCdwIds(publicParameters);
-    cdwParameters = replaceGender(cdwParameters);
+    cdwParameters = mapFhirGenderToCdw(cdwParameters);
     List<PatientEntity> entities = jpaQueryForEntities(query, cdwParameters);
     List<Patient> fhir =
         entities
@@ -207,20 +221,6 @@ public class PatientController {
       }
     }
     return mrAndersonPatient;
-  }
-
-  private MultiValueMap<String, String> replaceGender(MultiValueMap<String, String> cdwParameters) {
-    String gender = cdwParameters.getFirst("gender");
-    if (gender == null) {
-      return cdwParameters;
-    }
-    String cdw = GenderMapping.toCdw(gender);
-    if (cdw == null) {
-      throw new IllegalArgumentException("unknown gender: " + gender);
-    }
-    MultiValueMap<String, String> newParameters = new LinkedMultiValueMap<>(cdwParameters);
-    newParameters.put("gender", Arrays.asList(cdw));
-    return newParameters;
   }
 
   private CdwPatient103Root search(MultiValueMap<String, String> params) {
