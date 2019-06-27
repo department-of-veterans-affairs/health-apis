@@ -130,18 +130,18 @@ public class PatientController {
   }
 
   private Patient datamartRead(String publicId) {
-    MultiValueMap<String, String> publicParameters =
-        Parameters.builder().add("identifier", publicId).add("page", 1).add("_count", 15).build();
+    MultiValueMap<String, String> publicParameters = Parameters.forIdentity(publicId);
     MultiValueMap<String, String> cdwParameters =
         witnessProtection.replacePublicIdsWithCdwIds(publicParameters);
-    List<PatientEntity> entities =
-        jpaQueryForEntities(
-            "Select p from PatientEntity p where p.icn is :identifier", cdwParameters);
-    if (isEmpty(entities)) {
+
+    PatientEntity entity =
+        entityManager.find(PatientEntity.class, cdwParameters.getFirst("identifier"));
+    if (entity == null) {
       return null;
     }
+
     return DatamartPatientTransformer.builder()
-        .datamart(entities.get(0).asDatamartPatient())
+        .datamart(entity.asDatamartPatient())
         .build()
         .toFhirPatient();
   }
@@ -316,11 +316,7 @@ public class PatientController {
       @RequestParam("_id") String id,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @RequestParam(value = "_count", defaultValue = "1") @Min(0) int count) {
-    return search(
-        datamart,
-        "Select p from PatientEntity p where p.icn is :identifier",
-        "Select count(p.icn) from PatientEntity p where p.icn is :identifier",
-        Parameters.builder().add("_id", id).add("page", page).add("_count", count).build());
+    return searchByIdentifier(datamart, id, page, count);
   }
 
   /** Search by Identifier. */
