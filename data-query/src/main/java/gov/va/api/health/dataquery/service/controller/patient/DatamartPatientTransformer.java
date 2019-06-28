@@ -6,6 +6,7 @@ import static gov.va.api.health.dataquery.service.controller.Transformers.parseL
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.length;
 import static org.apache.commons.lang3.StringUtils.upperCase;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
@@ -18,6 +19,8 @@ import gov.va.api.health.dstu2.api.datatypes.HumanName;
 import gov.va.api.health.dstu2.api.datatypes.Identifier;
 import gov.va.api.health.dstu2.api.elements.Extension;
 import gov.va.api.health.dstu2.api.elements.Reference;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -28,6 +31,9 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.StringUtils;
+
 import lombok.Builder;
 import lombok.NonNull;
 
@@ -237,16 +243,16 @@ final class DatamartPatientTransformer {
   }
 
   private String birthDate() {
-    if (isBlank(datamart.birthDateTime())) {
+    if (length(datamart.birthDateTime()) <= 9) {
       return null;
     }
 
-    LocalDateTime dateTime = parseLocalDateTime(datamart.birthDateTime());
-    if (dateTime == null) {
+    LocalDate date = LocalDate.parse(datamart.birthDateTime().substring(0, 10));
+    if (date == null) {
       return null;
     }
 
-    return dateTime.toLocalDate().toString();
+    return date.toString();
   }
 
   private List<Patient.Contact> contacts() {
