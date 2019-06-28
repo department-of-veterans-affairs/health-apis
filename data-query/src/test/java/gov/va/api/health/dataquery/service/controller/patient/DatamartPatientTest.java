@@ -76,13 +76,8 @@ public final class DatamartPatientTest {
                                     .abbrev("UNK")
                                     .code("U")
                                     .build())
-                            .ethnicity(
-                                Ethnicity.builder()
-                                    .display("HISPANIC OR LATINO")
-                                    .abbrev("H")
-                                    .hl7("2135-2")
-                                    .build())
-                            .race(asList(Race.builder().display("ASIAN").abbrev("A").build()))
+                            .ethnicity(Ethnicity.builder().hl7("2135-2").build())
+                            .race(asList(Race.builder().hl7("2028-9").build()))
                             .build()))
             .search(search)
             .build();
@@ -114,11 +109,11 @@ public final class DatamartPatientTest {
                                         .valueCoding(
                                             Coding.builder()
                                                 .system("http://hl7.org/fhir/v3/Race")
-                                                .code("A")
-                                                .display("ASIAN")
+                                                .code("2028-9")
+                                                .display("Asian")
                                                 .build())
                                         .build(),
-                                    Extension.builder().url("text").valueString("ASIAN").build()))
+                                    Extension.builder().url("text").valueString("Asian").build()))
                             .build(),
                         Extension.builder()
                             .url(
@@ -138,6 +133,11 @@ public final class DatamartPatientTest {
                                         .url("text")
                                         .valueString("Hispanic or Latino")
                                         .build()))
+                            .build(),
+                        Extension.builder()
+                            .url(
+                                "http://fhir.org/guides/argonaut/StructureDefinition/argo-birthsex")
+                            .valueCode("M")
                             .build()))
                 .identifier(
                     asList(

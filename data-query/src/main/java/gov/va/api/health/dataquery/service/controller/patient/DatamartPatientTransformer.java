@@ -174,6 +174,36 @@ final class DatamartPatientTransformer {
     return emptyToNull(results);
   }
 
+  private static Coding maritalStatusCoding(String code) {
+    String upper = upperCase(trimToEmpty(code), Locale.US);
+    Coding.CodingBuilder result =
+        Coding.builder().system("http://hl7.org/fhir/marital-status").code(upper);
+    switch (upper) {
+      case "A":
+        return result.display("Annulled").build();
+      case "D":
+        return result.display("Divorced").build();
+      case "I":
+        return result.display("Interlocutory").build();
+      case "L":
+        return result.display("Legally Separated").build();
+      case "M":
+        return result.display("Married").build();
+      case "P":
+        return result.display("Polygamous").build();
+      case "S":
+        return result.display("Never Married").build();
+      case "T":
+        return result.display("Domestic partner").build();
+      case "W":
+        return result.display("Widowed").build();
+      case "UNK":
+        return result.system("http://hl7.org/fhir/v3/NullFlavor").display("unknown").build();
+      default:
+        return null;
+    }
+  }
+
   private static HumanName name(DatamartPatient.Contact contact) {
     if (contact == null || isBlank(contact.name())) {
       return null;
@@ -270,7 +300,7 @@ final class DatamartPatientTransformer {
     return asList(CodeableConcept.builder().coding(asList(coding)).text(contact.type()).build());
   }
 
-  private static int score(ContactPoint.ContactPointUse use) {
+  private static int sortNum(ContactPoint.ContactPointUse use) {
     if (use == null) {
       return 6;
     }
@@ -421,44 +451,14 @@ final class DatamartPatientTransformer {
     if (status == null) {
       return null;
     }
-    Coding coding = maritalStatus(status.code());
+    Coding coding = maritalStatusCoding(status.code());
     if (coding == null) {
-      coding = maritalStatus(status.abbrev());
+      coding = maritalStatusCoding(status.abbrev());
     }
     if (coding == null) {
       return null;
     }
     return CodeableConcept.builder().coding(asList(coding)).build();
-  }
-
-  private Coding maritalStatus(String code) {
-    String upper = upperCase(trimToEmpty(code), Locale.US);
-    Coding.CodingBuilder result =
-        Coding.builder().system("http://hl7.org/fhir/marital-status").code(upper);
-    switch (upper) {
-      case "A":
-        return result.display("Annulled").build();
-      case "D":
-        return result.display("Divorced").build();
-      case "I":
-        return result.display("Interlocutory").build();
-      case "L":
-        return result.display("Legally Separated").build();
-      case "M":
-        return result.display("Married").build();
-      case "P":
-        return result.display("Polygamous").build();
-      case "S":
-        return result.display("Never Married").build();
-      case "T":
-        return result.display("Domestic partner").build();
-      case "W":
-        return result.display("Widowed").build();
-      case "UNK":
-        return result.system("http://hl7.org/fhir/v3/NullFlavor").display("unknown").build();
-      default:
-        return null;
-    }
   }
 
   private List<HumanName> names() {
@@ -513,7 +513,7 @@ final class DatamartPatientTransformer {
     }
     List<ContactPoint> asList = new ArrayList<>(results);
     Collections.sort(
-        asList, (left, right) -> Integer.compare(score(left.use()), score(right.use())));
+        asList, (left, right) -> Integer.compare(sortNum(left.use()), sortNum(right.use())));
     return emptyToNull(asList);
   }
 
