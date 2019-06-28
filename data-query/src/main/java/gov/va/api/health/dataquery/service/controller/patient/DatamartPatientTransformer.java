@@ -126,14 +126,14 @@ final class DatamartPatientTransformer {
       return null;
     }
 
-    HumanName name = name(contact);
     List<CodeableConcept> relationships = emptyToNull(relationships(contact));
-    List<ContactPoint> telecoms = emptyToNull(contactTelecoms(contact.phone()));
-    Address address = address(contact.address());
-
-    if (allBlank(name, relationships, telecoms, address)) {
+    if (isEmpty(relationships)) {
       return null;
     }
+
+    HumanName name = name(contact);
+    List<ContactPoint> telecoms = emptyToNull(contactTelecoms(contact.phone()));
+    Address address = address(contact.address());
 
     return Patient.Contact.builder()
         .name(name)
@@ -148,7 +148,7 @@ final class DatamartPatientTransformer {
       return null;
     }
 
-    List<ContactPoint> results = new ArrayList<>(3);
+    Set<ContactPoint> results = new LinkedHashSet<>(3);
 
     String phoneNumber = stripPhone(phone.phoneNumber());
     if (isNotBlank(phoneNumber)) {
@@ -165,7 +165,6 @@ final class DatamartPatientTransformer {
           ContactPoint.builder()
               .system(ContactPoint.ContactPointSystem.phone)
               .value(workPhoneNumber)
-              .use(ContactPoint.ContactPointUse.work)
               .build());
     }
 
@@ -177,7 +176,7 @@ final class DatamartPatientTransformer {
               .build());
     }
 
-    return emptyToNull(results);
+    return emptyToNull(new ArrayList<>(results));
   }
 
   private static HumanName name(DatamartPatient.Contact contact) {
@@ -224,15 +223,11 @@ final class DatamartPatientTransformer {
     }
 
     Coding coding = relationshipCoding(contact);
-    if (allBlank(coding, contact.relationship())) {
+    if (coding == null) {
       return null;
     }
 
-    return asList(
-        CodeableConcept.builder()
-            .coding(emptyToNull(asList(coding)))
-            .text(contact.relationship())
-            .build());
+    return asList(CodeableConcept.builder().coding(asList(coding)).text(contact.type()).build());
   }
 
   private List<Address> addresses() {
