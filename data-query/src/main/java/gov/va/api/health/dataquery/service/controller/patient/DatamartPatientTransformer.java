@@ -63,7 +63,7 @@ final class DatamartPatientTransformer {
         .build();
   }
 
-  private static List<Extension> argoExtensions(DatamartPatient.Ethnicity ethnicity) {
+  private static List<Extension> ethnicityExtensions(DatamartPatient.Ethnicity ethnicity) {
     if (ethnicity == null) {
       return null;
     }
@@ -91,7 +91,7 @@ final class DatamartPatientTransformer {
     return emptyToNull(results);
   }
 
-  private static List<Extension> argoExtensions(List<DatamartPatient.Race> races) {
+  private static List<Extension> raceExtensions(List<DatamartPatient.Race> races) {
     if (isEmpty(races)) {
       return null;
     }
@@ -149,19 +149,21 @@ final class DatamartPatientTransformer {
 
     List<ContactPoint> results = new ArrayList<>(3);
 
-    if (isNotBlank(phone.phoneNumber())) {
+    String phoneNumber = stripPhone(phone.phoneNumber());
+    if (isNotBlank(phoneNumber)) {
       results.add(
           ContactPoint.builder()
               .system(ContactPoint.ContactPointSystem.phone)
-              .value(phone.phoneNumber())
+              .value(phoneNumber)
               .build());
     }
 
-    if (isNotBlank(phone.workPhoneNumber())) {
+    String workPhoneNumber = stripPhone(phone.workPhoneNumber());
+    if (isNotBlank(workPhoneNumber)) {
       results.add(
           ContactPoint.builder()
               .system(ContactPoint.ContactPointSystem.phone)
-              .value(phone.workPhoneNumber())
+              .value(workPhoneNumber)
               .use(ContactPoint.ContactPointUse.work)
               .build());
     }
@@ -297,7 +299,7 @@ final class DatamartPatientTransformer {
   private List<Extension> extensions() {
     List<Extension> results = new ArrayList<>(2);
 
-    List<Extension> raceExtensions = emptyToNull(argoExtensions(datamart.race()));
+    List<Extension> raceExtensions = emptyToNull(raceExtensions(datamart.race()));
     if (!isEmpty(raceExtensions)) {
       results.add(
           Extension.builder()
@@ -306,12 +308,20 @@ final class DatamartPatientTransformer {
               .build());
     }
 
-    List<Extension> ethnicityExtensions = emptyToNull(argoExtensions(datamart.ethnicity()));
+    List<Extension> ethnicityExtensions = emptyToNull(ethnicityExtensions(datamart.ethnicity()));
     if (!isEmpty(ethnicityExtensions)) {
       results.add(
           Extension.builder()
               .url("http://fhir.org/guides/argonaut/StructureDefinition/argo-ethnicity")
               .extension(ethnicityExtensions)
+              .build());
+    }
+
+    if (isNotBlank(datamart.gender())) {
+      results.add(
+          Extension.builder()
+              .url("http://fhir.org/guides/argonaut/StructureDefinition/argo-birthsex")
+              .valueCode(datamart.gender())
               .build());
     }
 
@@ -475,19 +485,21 @@ final class DatamartPatientTransformer {
         continue;
       }
 
-      if (isNotBlank(telecom.phoneNumber())) {
+      String phoneNumber = stripPhone(telecom.phoneNumber());
+      if (isNotBlank(phoneNumber)) {
         results.add(
             ContactPoint.builder()
                 .system(ContactPoint.ContactPointSystem.phone)
-                .value(telecom.phoneNumber())
+                .value(phoneNumber)
                 .build());
       }
 
-      if (isNotBlank(telecom.workPhoneNumber())) {
+      String workPhoneNumber = stripPhone(telecom.workPhoneNumber());
+      if (isNotBlank(workPhoneNumber)) {
         results.add(
             ContactPoint.builder()
                 .system(ContactPoint.ContactPointSystem.phone)
-                .value(telecom.workPhoneNumber())
+                .value(workPhoneNumber)
                 .use(ContactPoint.ContactPointUse.work)
                 .build());
       }
@@ -502,6 +514,13 @@ final class DatamartPatientTransformer {
     }
 
     return isEmpty(results) ? null : new ArrayList<>(results);
+  }
+
+  private static String stripPhone(String phone) {
+    if (phone == null) {
+      return null;
+    }
+    return phone.replaceAll("\\(|\\)|-", "");
   }
 
   Patient toFhirPatient() {
