@@ -26,6 +26,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -486,11 +487,12 @@ final class DatamartPatientTransformer {
       }
 
       String phoneNumber = stripPhone(telecom.phoneNumber());
-      if (isNotBlank(phoneNumber)) {
+      if (isNotBlank(phoneNumber) && contactPointUse(telecom) != null) {
         results.add(
             ContactPoint.builder()
                 .system(ContactPoint.ContactPointSystem.phone)
                 .value(phoneNumber)
+                .use(contactPointUse(telecom))
                 .build());
       }
 
@@ -509,11 +511,67 @@ final class DatamartPatientTransformer {
             ContactPoint.builder()
                 .system(ContactPoint.ContactPointSystem.email)
                 .value(telecom.email())
+                .use(
+                    Optional.ofNullable(contactPointUse(telecom))
+                        .orElse(ContactPoint.ContactPointUse.temp))
                 .build());
       }
     }
 
-    return isEmpty(results) ? null : new ArrayList<>(results);
+    List<ContactPoint> asList = new ArrayList<>(results);
+    Collections.sort(
+        asList, (left, right) -> Integer.compare(score(left.use()), score(right.use())));
+
+    return emptyToNull(asList);
+  }
+
+  private static int score(ContactPoint.ContactPointUse use) {
+    if (use == null) {
+      return 6;
+    }
+    switch (use) {
+      case mobile:
+        return 1;
+      case home:
+        return 2;
+      case temp:
+        return 3;
+      case work:
+        return 4;
+      case old:
+        return 5;
+      default:
+        return 6;
+    }
+  }
+
+  private static ContactPoint.ContactPointUse contactPointUse(DatamartPatient.Telecom telecom) {
+    if (telecom == null) {
+      return null;
+    }
+
+    switch (upperCase(trimToEmpty(telecom.type()))) {
+      case "PATIENT CELL PHONE":
+        return ContactPoint.ContactPointUse.mobile;
+
+      case "PATIENT RESIDENCE":
+        // falls through
+      case "PATIENT EMAIL":
+        // falls through
+      case "PATIENT PAGER":
+        return ContactPoint.ContactPointUse.home;
+
+      case "PATIENT EMPLOYER":
+        // falls through
+      case "SPOUSE EMPLOYER":
+        return ContactPoint.ContactPointUse.work;
+
+      case "TEMPORARY":
+        return ContactPoint.ContactPointUse.temp;
+
+      default:
+        return null;
+    }
   }
 
   private static String stripPhone(String phone) {
