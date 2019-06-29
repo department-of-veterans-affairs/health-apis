@@ -165,8 +165,6 @@ final class DatamartPatient {
     private String display;
 
     private String abbrev;
-
-    private String hl7;
   }
 
   @Data

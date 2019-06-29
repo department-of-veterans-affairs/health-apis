@@ -9,11 +9,10 @@ import gov.va.api.health.argonaut.api.resources.Patient.Gender;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.Transformers;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
-import gov.va.api.health.dataquery.service.controller.patient.DatamartPatient.Ethnicity;
-import gov.va.api.health.dataquery.service.controller.patient.DatamartPatient.MaritalStatus;
-import gov.va.api.health.dataquery.service.controller.patient.DatamartPatient.Race;
+import gov.va.api.health.dstu2.api.datatypes.Address;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
+import gov.va.api.health.dstu2.api.datatypes.ContactPoint;
 import gov.va.api.health.dstu2.api.datatypes.HumanName;
 import gov.va.api.health.dstu2.api.datatypes.Identifier;
 import gov.va.api.health.dstu2.api.elements.Extension;
@@ -48,8 +47,8 @@ public final class DatamartPatientTest {
             .name(name)
             .firstName(firstName)
             .lastName(lastName)
-            .birthDateTime(Transformers.parseLocalDateTime(birthDateTime).toInstant(ZoneOffset.UTC))
             .gender("M")
+            .birthDateTime(Transformers.parseLocalDateTime(birthDateTime).toInstant(ZoneOffset.UTC))
             .build();
     entityManager.persistAndFlush(search);
 
@@ -71,13 +70,55 @@ public final class DatamartPatientTest {
                             .deceased("N")
                             .gender("M")
                             .maritalStatus(
-                                MaritalStatus.builder()
-                                    .display("UNKNOWN")
-                                    .abbrev("UNK")
-                                    .code("U")
-                                    .build())
-                            .ethnicity(Ethnicity.builder().hl7("2135-2").build())
-                            .race(asList(Race.builder().hl7("2028-9").build()))
+                                DatamartPatient.MaritalStatus.builder().abbrev("UNK").build())
+                            .ethnicity(DatamartPatient.Ethnicity.builder().hl7("2135-2").build())
+                            .race(asList(DatamartPatient.Race.builder().display("asian").build()))
+                            .telecom(
+                                asList(
+                                    DatamartPatient.Telecom.builder()
+                                        .type("confidential")
+                                        .phoneNumber("021234567")
+                                        .build(),
+                                    DatamartPatient.Telecom.builder()
+                                        .type("patient cell phone")
+                                        .phoneNumber("011 9991234567")
+                                        .build(),
+                                    DatamartPatient.Telecom.builder()
+                                        .type("patient residence")
+                                        .phoneNumber("(0900)000-1234")
+                                        .workPhoneNumber("(0900)000-1234")
+                                        .build(),
+                                    DatamartPatient.Telecom.builder()
+                                        .type("temporary")
+                                        .phoneNumber("(02)771-9342")
+                                        .build()))
+                            .address(
+                                asList(
+                                    DatamartPatient.Address.builder()
+                                        .type("Temporary")
+                                        .street1("HOTEL PASAY")
+                                        .street2("232 KAMAGONG ST")
+                                        .city("PASAY")
+                                        .state("*Missing*")
+                                        .postalCode("01300")
+                                        .country("PHILIPPINES")
+                                        .build(),
+                                    DatamartPatient.Address.builder()
+                                        .type("Confidential")
+                                        .street1("1501 ROXAS BLVD")
+                                        .city("PASAY CITY")
+                                        .state("*Missing*")
+                                        .postalCode("01302")
+                                        .country("PHILIPPINES")
+                                        .build(),
+                                    DatamartPatient.Address.builder()
+                                        .type("Patient")
+                                        .street1("55555 ROXAS BOULEVARD")
+                                        .city("PASAY CITY")
+                                        .state("*Missing*")
+                                        .postalCode("01302")
+                                        .country("PHILIPPINES")
+                                        .build()))
                             .build()))
             .search(search)
             .build();
@@ -92,7 +133,7 @@ public final class DatamartPatientTest {
             entityManager.getEntityManager());
 
     Patient patient = controller.read("true", icn);
-    // System.out.println(JacksonConfig.createMapper().writeValueAsString(patient));
+    System.out.println(JacksonConfig.createMapper().writeValueAsString(patient));
     assertThat(patient)
         .isEqualTo(
             Patient.builder()
@@ -182,9 +223,54 @@ public final class DatamartPatientTest {
                             .family(asList(lastName))
                             .given(asList(firstName))
                             .build()))
+                .telecom(
+                    asList(
+                        ContactPoint.builder()
+                            .system(ContactPoint.ContactPointSystem.phone)
+                            .value("011 9991234567")
+                            .use(ContactPoint.ContactPointUse.mobile)
+                            .build(),
+                        ContactPoint.builder()
+                            .system(ContactPoint.ContactPointSystem.phone)
+                            .value("09000001234")
+                            .use(ContactPoint.ContactPointUse.home)
+                            .build(),
+                        ContactPoint.builder()
+                            .system(ContactPoint.ContactPointSystem.phone)
+                            .value("027719342")
+                            .use(ContactPoint.ContactPointUse.temp)
+                            .build(),
+                        ContactPoint.builder()
+                            .system(ContactPoint.ContactPointSystem.phone)
+                            .value("09000001234")
+                            .use(ContactPoint.ContactPointUse.work)
+                            .build()))
                 .gender(Gender.male)
                 .birthDate("1925-01-01")
                 .deceasedBoolean(false)
+                .address(
+                    asList(
+                        Address.builder()
+                            .line(asList("HOTEL PASAY", "232 KAMAGONG ST"))
+                            .city("PASAY")
+                            .state("*Missing*")
+                            .postalCode("01300")
+                            .country("PHILIPPINES")
+                            .build(),
+                        Address.builder()
+                            .line(asList("1501 ROXAS BLVD"))
+                            .city("PASAY CITY")
+                            .state("*Missing*")
+                            .postalCode("01302")
+                            .country("PHILIPPINES")
+                            .build(),
+                        Address.builder()
+                            .line(asList("55555 ROXAS BOULEVARD"))
+                            .city("PASAY CITY")
+                            .state("*Missing*")
+                            .postalCode("01302")
+                            .country("PHILIPPINES")
+                            .build()))
                 .maritalStatus(
                     CodeableConcept.builder()
                         .coding(

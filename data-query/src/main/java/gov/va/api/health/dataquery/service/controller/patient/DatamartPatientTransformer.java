@@ -4,6 +4,7 @@ import static gov.va.api.health.dataquery.service.controller.Transformers.allBla
 import static gov.va.api.health.dataquery.service.controller.Transformers.emptyToNull;
 import static gov.va.api.health.dataquery.service.controller.Transformers.parseLocalDateTime;
 import static java.util.Arrays.asList;
+import static org.apache.commons.lang3.StringUtils.containsIgnoreCase;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.apache.commons.lang3.StringUtils.length;
@@ -212,31 +213,29 @@ final class DatamartPatientTransformer {
   }
 
   private static Coding raceCoding(DatamartPatient.Race race) {
-    if (race == null || isBlank(race.hl7())) {
+    if (race == null || isBlank(race.display())) {
       return null;
     }
-    Coding.CodingBuilder result =
-        Coding.builder().system("http://hl7.org/fhir/v3/Race").code(race.hl7());
-    switch (upperCase(trimToEmpty(race.hl7()), Locale.US)) {
-      case "1002-5":
-        return result.display("American Indian or Alaska Native").build();
-      case "2028-9":
-        return result.display("Asian").build();
-      case "2054-5":
-        return result.display("Black or African American").build();
-      case "2076-8":
-        return result.display("Native Hawaiian or Other Pacific Islander").build();
-      case "2106-3":
-        return result.display("White").build();
-      case "UNK":
-        return result.system("http://hl7.org/fhir/v3/NullFlavor").display("Unknown").build();
-      case "ASKU":
-        return result
-            .system("http://hl7.org/fhir/v3/NullFlavor")
-            .display("Asked but no answer")
-            .build();
-      default:
-        return result.display(race.display()).build();
+    Coding.CodingBuilder result = Coding.builder().system("http://hl7.org/fhir/v3/Race");
+    if (containsIgnoreCase(race.display(), "INDIAN")
+        || containsIgnoreCase(race.display(), "ALASKA")) {
+      return result.code("1002-5").display("American Indian or Alaska Native").build();
+    } else if (containsIgnoreCase(race.display(), "ASIAN")) {
+      return result.code("2028-9").display("Asian").build();
+    } else if (containsIgnoreCase(race.display(), "BLACK")
+        || containsIgnoreCase(race.display(), "AFRICA")) {
+      return result.code("2054-5").display("Black or African American").build();
+    } else if (containsIgnoreCase(race.display(), "HAWAII")
+        || containsIgnoreCase(race.display(), "PACIFIC")) {
+      return result.code("2076-8").display("Native Hawaiian or Other Pacific Islander").build();
+    } else if (containsIgnoreCase(race.display(), "WHITE")) {
+      return result.code("2106-3").display("White").build();
+    } else {
+      return result
+          .system("http://hl7.org/fhir/v3/NullFlavor")
+          .code("UNK")
+          .display("Unknown")
+          .build();
     }
   }
 
