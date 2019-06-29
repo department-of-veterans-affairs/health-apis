@@ -27,6 +27,7 @@ import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.time.StopWatch;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -216,20 +217,25 @@ public class PatientController {
       return datamartRead(publicId);
     }
 
+    StopWatch mraWatch = StopWatch.createStarted();
     Patient mrAndersonPatient =
         transformer.apply(
             firstPayloadItem(
                 hasPayload(mrAndersonSearch(Parameters.forIdentity(publicId)).getPatients())
                     .getPatient()));
+    mraWatch.stop();
 
     if ("both".equalsIgnoreCase(datamart)) {
-      Patient jpaPatient = datamartRead(publicId);
-      if (!mrAndersonPatient.equals(jpaPatient)) {
-        log.warn(
-            "datamart read and mr-anderson read do not match. datamart is {} and mr-anderson is {}",
-            JacksonConfig.createMapper().writeValueAsString(jpaPatient),
-            JacksonConfig.createMapper().writeValueAsString(mrAndersonPatient));
-      }
+      StopWatch datamartWatch = StopWatch.createStarted();
+      Patient datamartPatient = datamartRead(publicId);
+      datamartWatch.stop();
+      log.info(
+          "mr-anderson took {} millis and datamart took {} millis."
+              + " mr-anderson is {} and datamart is {}",
+          mraWatch.getTime(),
+          datamartWatch.getTime(),
+          JacksonConfig.createMapper().writeValueAsString(mrAndersonPatient),
+          JacksonConfig.createMapper().writeValueAsString(datamartPatient));
     }
 
     return mrAndersonPatient;
@@ -245,20 +251,24 @@ public class PatientController {
       return datamartBundle(query, totalRecordsQuery, parameters);
     }
 
+    StopWatch mraWatch = StopWatch.createStarted();
     Patient.Bundle mrAndersonBundle = mrAndersonBundle(parameters);
+    mraWatch.stop();
 
     if ("both".equalsIgnoreCase(datamart)) {
+      StopWatch datamartWatch = StopWatch.createStarted();
       Patient.Bundle datamartBundle = datamartBundle(query, totalRecordsQuery, parameters);
-      if (!datamartBundle.equals(mrAndersonBundle)) {
-        log.warn(
-            "Datamart and mr-anderson bundles do not match."
-                + " {} Datamart results, {} mr-anderson results."
-                + " Datamart bundle is {} and mr-anderson bundle is {}",
-            datamartBundle.total(),
-            mrAndersonBundle.total(),
-            JacksonConfig.createMapper().writeValueAsString(datamartBundle),
-            JacksonConfig.createMapper().writeValueAsString(mrAndersonBundle));
-      }
+      datamartWatch.stop();
+      log.info(
+          "mr-anderson took {} millis and datamart took {} millis."
+              + " {} mr-anderson results, {} datamart results."
+              + " mr-anderson bundle is {} and datamart bundle is {}",
+          mraWatch.getTime(),
+          datamartWatch.getTime(),
+          mrAndersonBundle.total(),
+          datamartBundle.total(),
+          JacksonConfig.createMapper().writeValueAsString(mrAndersonBundle),
+          JacksonConfig.createMapper().writeValueAsString(datamartBundle));
     }
 
     return mrAndersonBundle;
