@@ -39,8 +39,7 @@
       <category>medication</category>
       <notes>
         <note>
-          <text>projectile
-          </text>
+          <text>projectile</text>
           <author>
             <reference>Practitioner/4065807</reference>
             <display>ALEXANDER,REBECCA ANNE</display>
@@ -48,8 +47,7 @@
           <time>2010-01-27T19:08:38Z</time>
         </note>
         <note>
-          <text>Pt reports not allergic to morphine.
-          </text>
+          <text>Pt reports not allergic to morphine.</text>
           <author>
             <reference>Practitioner/1001243023</reference>
             <display>MALONE,LAURA L</display>
