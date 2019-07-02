@@ -4,8 +4,11 @@ import static gov.va.api.health.dataquery.service.controller.Transformers.allBla
 import static gov.va.api.health.dataquery.service.controller.Transformers.emptyToNull;
 import static gov.va.api.health.dataquery.service.controller.Transformers.parseLocalDateTime;
 import static java.util.Arrays.asList;
+import static org.apache.commons.lang3.StringUtils.containsIgnoreCase;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.length;
+import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 import static org.apache.commons.lang3.StringUtils.upperCase;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
@@ -18,13 +21,16 @@ import gov.va.api.health.dstu2.api.datatypes.HumanName;
 import gov.va.api.health.dstu2.api.datatypes.Identifier;
 import gov.va.api.health.dstu2.api.elements.Extension;
 import gov.va.api.health.dstu2.api.elements.Reference;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -33,6 +39,7 @@ import lombok.NonNull;
 
 @Builder
 final class DatamartPatientTransformer {
+
   @NonNull final DatamartPatient datamart;
 
   private static Address address(DatamartPatient.Address address) {
@@ -47,7 +54,6 @@ final class DatamartPatientTransformer {
             address.country())) {
       return null;
     }
-
     return Address.builder()
         .line(emptyToNull(Arrays.asList(address.street1(), address.street2(), address.street3())))
         .city(address.city())
@@ -57,81 +63,17 @@ final class DatamartPatientTransformer {
         .build();
   }
 
-  private static List<Extension> argoExtensions(DatamartPatient.Ethnicity ethnicity) {
-    if (ethnicity == null) {
-      return null;
-    }
-
-    List<Extension> results = new ArrayList<>(2);
-
-    if (!allBlank(ethnicity.display(), ethnicity.hl7())) {
-      results.add(
-          Extension.builder()
-              .url("ombCategory")
-              .valueCoding(
-                  Coding.builder()
-                      .system("http://hl7.org/fhir/ValueSet/v3-Ethnicity")
-                      .code(ethnicity.hl7())
-                      .display(ethnicity.display())
-                      .build())
-              .build());
-    }
-
-    if (isNotBlank(ethnicity.display())) {
-      results.add(Extension.builder().url("text").valueString(ethnicity.display()).build());
-    }
-
-    return emptyToNull(results);
-  }
-
-  private static List<Extension> argoExtensions(List<DatamartPatient.Race> datamartRaces) {
-    if (isEmpty(datamartRaces)) {
-      return null;
-    }
-
-    List<Extension> results = new ArrayList<>(datamartRaces.size() + 1);
-
-    for (DatamartPatient.Race datamartRace : datamartRaces) {
-      if (datamartRace == null || allBlank(datamartRace.abbrev(), datamartRace.display())) {
-        continue;
-      }
-
-      results.add(
-          Extension.builder()
-              .url("ombCategory")
-              .valueCoding(
-                  Coding.builder()
-                      .system("http://hl7.org/fhir/v3/Race")
-                      .code(datamartRace.abbrev())
-                      .display(datamartRace.display())
-                      .build())
-              .build());
-    }
-
-    Optional<DatamartPatient.Race> firstDisplay =
-        datamartRaces.stream().filter(race -> isNotBlank(race.display())).findFirst();
-    if (firstDisplay.isPresent()) {
-      results.add(
-          Extension.builder().url("text").valueString(firstDisplay.get().display()).build());
-    }
-
-    return emptyToNull(results);
-  }
-
   private static Patient.Contact contact(DatamartPatient.Contact contact) {
     if (contact == null) {
       return null;
     }
-
-    HumanName name = name(contact);
     List<CodeableConcept> relationships = emptyToNull(relationships(contact));
-    List<ContactPoint> telecoms = emptyToNull(contactTelecoms(contact.phone()));
-    Address address = address(contact.address());
-
-    if (allBlank(name, relationships, telecoms, address)) {
+    if (isEmpty(relationships)) {
       return null;
     }
-
+    HumanName name = name(contact);
+    List<ContactPoint> telecoms = emptyToNull(contactTelecoms(contact.phone()));
+    Address address = address(contact.address());
     return Patient.Contact.builder()
         .name(name)
         .relationship(relationships)
@@ -140,30 +82,51 @@ final class DatamartPatientTransformer {
         .build();
   }
 
+  private static ContactPoint.ContactPointUse contactPointUse(DatamartPatient.Telecom telecom) {
+    if (telecom == null) {
+      return null;
+    }
+    switch (upperCase(trimToEmpty(telecom.type()))) {
+      case "PATIENT CELL PHONE":
+        return ContactPoint.ContactPointUse.mobile;
+      case "PATIENT RESIDENCE":
+        // falls through
+      case "PATIENT EMAIL":
+        // falls through
+      case "PATIENT PAGER":
+        return ContactPoint.ContactPointUse.home;
+      case "PATIENT EMPLOYER":
+        // falls through
+      case "SPOUSE EMPLOYER":
+        return ContactPoint.ContactPointUse.work;
+      case "TEMPORARY":
+        return ContactPoint.ContactPointUse.temp;
+      default:
+        return null;
+    }
+  }
+
   private static List<ContactPoint> contactTelecoms(DatamartPatient.Contact.Phone phone) {
     if (phone == null) {
       return null;
     }
-
-    List<ContactPoint> results = new ArrayList<>(3);
-
-    if (isNotBlank(phone.phoneNumber())) {
+    Set<ContactPoint> results = new LinkedHashSet<>(3);
+    String phoneNumber = stripPhone(phone.phoneNumber());
+    if (isNotBlank(phoneNumber)) {
       results.add(
           ContactPoint.builder()
               .system(ContactPoint.ContactPointSystem.phone)
-              .value(phone.phoneNumber())
+              .value(phoneNumber)
               .build());
     }
-
-    if (isNotBlank(phone.workPhoneNumber())) {
+    String workPhoneNumber = stripPhone(phone.workPhoneNumber());
+    if (isNotBlank(workPhoneNumber)) {
       results.add(
           ContactPoint.builder()
               .system(ContactPoint.ContactPointSystem.phone)
-              .value(phone.workPhoneNumber())
-              .use(ContactPoint.ContactPointUse.work)
+              .value(workPhoneNumber)
               .build());
     }
-
     if (isNotBlank(phone.email())) {
       results.add(
           ContactPoint.builder()
@@ -171,8 +134,75 @@ final class DatamartPatientTransformer {
               .value(phone.email())
               .build());
     }
+    return emptyToNull(new ArrayList<>(results));
+  }
 
+  private static String ethnicityDisplay(DatamartPatient.Ethnicity ethnicity) {
+    if (ethnicity == null) {
+      return null;
+    }
+    switch (upperCase(trimToEmpty(ethnicity.hl7()), Locale.US)) {
+      case "2135-2":
+        return "Hispanic or Latino";
+      case "2186-5":
+        return "Non Hispanic or Latino";
+      default:
+        return ethnicity.display();
+    }
+  }
+
+  private static List<Extension> ethnicityExtensions(DatamartPatient.Ethnicity ethnicity) {
+    if (ethnicity == null) {
+      return null;
+    }
+    List<Extension> results = new ArrayList<>(2);
+    String display = ethnicityDisplay(ethnicity);
+    if (!allBlank(display, ethnicity.hl7())) {
+      results.add(
+          Extension.builder()
+              .url("ombCategory")
+              .valueCoding(
+                  Coding.builder()
+                      .system("http://hl7.org/fhir/ValueSet/v3-Ethnicity")
+                      .code(ethnicity.hl7())
+                      .display(display)
+                      .build())
+              .build());
+    }
+    if (isNotBlank(display)) {
+      results.add(Extension.builder().url("text").valueString(display).build());
+    }
     return emptyToNull(results);
+  }
+
+  private static Coding maritalStatusCoding(String code) {
+    String upper = upperCase(trimToEmpty(code), Locale.US);
+    Coding.CodingBuilder result =
+        Coding.builder().system("http://hl7.org/fhir/marital-status").code(upper);
+    switch (upper) {
+      case "A":
+        return result.display("Annulled").build();
+      case "D":
+        return result.display("Divorced").build();
+      case "I":
+        return result.display("Interlocutory").build();
+      case "L":
+        return result.display("Legally Separated").build();
+      case "M":
+        return result.display("Married").build();
+      case "P":
+        return result.display("Polygamous").build();
+      case "S":
+        return result.display("Never Married").build();
+      case "T":
+        return result.display("Domestic partner").build();
+      case "W":
+        return result.display("Widowed").build();
+      case "UNK":
+        return result.system("http://hl7.org/fhir/v3/NullFlavor").display("unknown").build();
+      default:
+        return null;
+    }
   }
 
   private static HumanName name(DatamartPatient.Contact contact) {
@@ -182,32 +212,77 @@ final class DatamartPatientTransformer {
     return HumanName.builder().text(contact.name()).build();
   }
 
-  private static List<Coding> relationshipCodings(DatamartPatient.Contact contact) {
-    if (contact == null || isBlank(contact.type())) {
+  private static Coding raceCoding(DatamartPatient.Race race) {
+    if (race == null || isBlank(race.display())) {
       return null;
     }
+    Coding.CodingBuilder result = Coding.builder().system("http://hl7.org/fhir/v3/Race");
+    if (containsIgnoreCase(race.display(), "INDIAN")
+        || containsIgnoreCase(race.display(), "ALASKA")) {
+      return result.code("1002-5").display("American Indian or Alaska Native").build();
+    } else if (containsIgnoreCase(race.display(), "ASIAN")) {
+      return result.code("2028-9").display("Asian").build();
+    } else if (containsIgnoreCase(race.display(), "BLACK")
+        || containsIgnoreCase(race.display(), "AFRICA")) {
+      return result.code("2054-5").display("Black or African American").build();
+    } else if (containsIgnoreCase(race.display(), "HAWAII")
+        || containsIgnoreCase(race.display(), "PACIFIC")) {
+      return result.code("2076-8").display("Native Hawaiian or Other Pacific Islander").build();
+    } else if (containsIgnoreCase(race.display(), "WHITE")) {
+      return result.code("2106-3").display("White").build();
+    } else {
+      return result
+          .system("http://hl7.org/fhir/v3/NullFlavor")
+          .code("UNK")
+          .display("Unknown")
+          .build();
+    }
+  }
 
+  private static List<Extension> raceExtensions(List<DatamartPatient.Race> races) {
+    if (isEmpty(races)) {
+      return null;
+    }
+    List<Extension> results = new ArrayList<>(races.size() + 1);
+    for (DatamartPatient.Race race : races) {
+      if (race == null) {
+        continue;
+      }
+      Coding coding = raceCoding(race);
+      if (coding == null) {
+        continue;
+      }
+      results.add(Extension.builder().url("ombCategory").valueCoding(coding).build());
+    }
+    Optional<Coding> firstCoding =
+        races.stream().map(race -> raceCoding(race)).filter(Objects::nonNull).findFirst();
+    if (firstCoding.isPresent()) {
+      results.add(Extension.builder().url("text").valueString(firstCoding.get().display()).build());
+    }
+    return emptyToNull(results);
+  }
+
+  private static Coding relationshipCoding(DatamartPatient.Contact contact) {
+    if (contact == null) {
+      return null;
+    }
     Coding.CodingBuilder builder =
         Coding.builder().system("http://hl7.org/fhir/patient-contact-relationship");
-
-    switch (upperCase(contact.type(), Locale.US)) {
+    switch (upperCase(trimToEmpty(contact.type()), Locale.US)) {
       case "CIVIL GUARDIAN":
         // falls through
       case "VA GUARDIAN":
-        return asList(builder.code("guardian").display("Guardian").build());
-
+        return builder.code("guardian").display("Guardian").build();
       case "EMERGENCY CONTACT":
         // falls through
       case "SECONDARY EMERGENCY CONTACT":
-        return asList(builder.code("emergency").display("Emergency").build());
-
+        return builder.code("emergency").display("Emergency").build();
       case "NEXT OF KIN":
         // falls through
       case "SECONDARY NEXT OF KIN":
         // falls through
       case "SPOUSE EMPLOYER":
-        return asList(builder.code("family").display("Family").build());
-
+        return builder.code("family").display("Family").build();
       default:
         return null;
     }
@@ -217,13 +292,38 @@ final class DatamartPatientTransformer {
     if (contact == null) {
       return null;
     }
-
-    List<Coding> codings = emptyToNull(relationshipCodings(contact));
-    if (allBlank(codings, contact.relationship())) {
+    Coding coding = relationshipCoding(contact);
+    if (coding == null) {
       return null;
     }
+    return asList(CodeableConcept.builder().coding(asList(coding)).text(contact.type()).build());
+  }
 
-    return asList(CodeableConcept.builder().coding(codings).text(contact.relationship()).build());
+  private static int sortNum(ContactPoint.ContactPointUse use) {
+    if (use == null) {
+      return 6;
+    }
+    switch (use) {
+      case mobile:
+        return 1;
+      case home:
+        return 2;
+      case temp:
+        return 3;
+      case work:
+        return 4;
+      case old:
+        return 5;
+      default:
+        return 6;
+    }
+  }
+
+  private static String stripPhone(String phone) {
+    if (phone == null) {
+      return null;
+    }
+    return phone.replaceAll("\\(|\\)|-", "");
   }
 
   private List<Address> addresses() {
@@ -232,16 +332,14 @@ final class DatamartPatientTransformer {
   }
 
   private String birthDate() {
-    if (isBlank(datamart.birthDateTime())) {
+    if (length(datamart.birthDateTime()) <= 9) {
       return null;
     }
-
-    LocalDateTime dateTime = parseLocalDateTime(datamart.birthDateTime());
-    if (dateTime == null) {
+    LocalDate date = LocalDate.parse(datamart.birthDateTime().substring(0, 10));
+    if (date == null) {
       return null;
     }
-
-    return dateTime.toLocalDate().toString();
+    return date.toString();
   }
 
   private List<Patient.Contact> contacts() {
@@ -250,16 +348,11 @@ final class DatamartPatientTransformer {
   }
 
   private Boolean deceased() {
-    if (isBlank(datamart.deceased())) {
-      return null;
-    }
-    switch (upperCase(datamart.deceased(), Locale.US)) {
+    switch (upperCase(trimToEmpty(datamart.deceased()), Locale.US)) {
       case "Y":
         return true;
-
       case "N":
         return false;
-
       default:
         return null;
     }
@@ -269,19 +362,16 @@ final class DatamartPatientTransformer {
     if (isBlank(datamart.deathDateTime())) {
       return null;
     }
-
     LocalDateTime dateTime = parseLocalDateTime(datamart.deathDateTime());
     if (dateTime == null) {
       return null;
     }
-
     return dateTime.atZone(ZoneId.of("Z")).toString();
   }
 
   private List<Extension> extensions() {
     List<Extension> results = new ArrayList<>(2);
-
-    List<Extension> raceExtensions = emptyToNull(argoExtensions(datamart.race()));
+    List<Extension> raceExtensions = emptyToNull(raceExtensions(datamart.race()));
     if (!isEmpty(raceExtensions)) {
       results.add(
           Extension.builder()
@@ -289,8 +379,7 @@ final class DatamartPatientTransformer {
               .extension(raceExtensions)
               .build());
     }
-
-    List<Extension> ethnicityExtensions = emptyToNull(argoExtensions(datamart.ethnicity()));
+    List<Extension> ethnicityExtensions = emptyToNull(ethnicityExtensions(datamart.ethnicity()));
     if (!isEmpty(ethnicityExtensions)) {
       results.add(
           Extension.builder()
@@ -298,7 +387,13 @@ final class DatamartPatientTransformer {
               .extension(ethnicityExtensions)
               .build());
     }
-
+    if (isNotBlank(datamart.gender())) {
+      results.add(
+          Extension.builder()
+              .url("http://fhir.org/guides/argonaut/StructureDefinition/argo-birthsex")
+              .valueCode(datamart.gender())
+              .build());
+    }
     return emptyToNull(results);
   }
 
@@ -311,7 +406,6 @@ final class DatamartPatientTransformer {
 
   private List<Identifier> identifiers() {
     List<Identifier> results = new ArrayList<>(2);
-
     if (isNotBlank(datamart.fullIcn())) {
       results.add(
           Identifier.builder()
@@ -330,7 +424,6 @@ final class DatamartPatientTransformer {
               .assigner(Reference.builder().display("Master Veteran Index").build())
               .build());
     }
-
     if (isNotBlank(datamart.ssn())) {
       results.add(
           Identifier.builder()
@@ -349,82 +442,78 @@ final class DatamartPatientTransformer {
               .assigner(Reference.builder().display("United States Social Security Number").build())
               .build());
     }
-
     return emptyToNull(results);
   }
 
   private CodeableConcept maritalStatus() {
     DatamartPatient.MaritalStatus status = datamart.maritalStatus();
-
-    if (status == null || allBlank(status.code(), status.display())) {
+    if (status == null) {
       return null;
     }
-
-    return CodeableConcept.builder()
-        .coding(
-            asList(
-                Coding.builder()
-                    .system("http://hl7.org/fhir/marital-status")
-                    .code(status.code())
-                    .display(status.display())
-                    .build()))
-        .build();
+    Coding coding = maritalStatusCoding(status.code());
+    if (coding == null) {
+      coding = maritalStatusCoding(status.abbrev());
+    }
+    if (coding == null) {
+      return null;
+    }
+    return CodeableConcept.builder().coding(asList(coding)).build();
   }
 
   private List<HumanName> names() {
     if (allBlank(datamart.name(), datamart.firstName(), datamart.lastName())) {
       return null;
     }
-
     HumanName.HumanNameBuilder builder =
         HumanName.builder().use(HumanName.NameUse.usual).text(datamart.name());
-
     if (isNotBlank(datamart.firstName())) {
       builder.given(asList(datamart.firstName()));
     }
-
     if (isNotBlank(datamart.lastName())) {
       builder.family(asList(datamart.lastName()));
     }
-
     return asList(builder.build());
   }
 
   private List<ContactPoint> telecoms() {
     Set<ContactPoint> results = new LinkedHashSet<>();
-
     for (final DatamartPatient.Telecom telecom : datamart.telecom()) {
       if (telecom == null) {
         continue;
       }
-
-      if (isNotBlank(telecom.phoneNumber())) {
+      String phoneNumber = stripPhone(telecom.phoneNumber());
+      if (isNotBlank(phoneNumber) && contactPointUse(telecom) != null) {
         results.add(
             ContactPoint.builder()
                 .system(ContactPoint.ContactPointSystem.phone)
-                .value(telecom.phoneNumber())
+                .value(phoneNumber)
+                .use(contactPointUse(telecom))
                 .build());
       }
-
-      if (isNotBlank(telecom.workPhoneNumber())) {
+      String workPhoneNumber = stripPhone(telecom.workPhoneNumber());
+      if (isNotBlank(workPhoneNumber)) {
         results.add(
             ContactPoint.builder()
                 .system(ContactPoint.ContactPointSystem.phone)
-                .value(telecom.workPhoneNumber())
+                .value(workPhoneNumber)
                 .use(ContactPoint.ContactPointUse.work)
                 .build());
       }
-
       if (isNotBlank(telecom.email())) {
         results.add(
             ContactPoint.builder()
                 .system(ContactPoint.ContactPointSystem.email)
                 .value(telecom.email())
+                .use(
+                    Optional.ofNullable(contactPointUse(telecom))
+                        .orElse(ContactPoint.ContactPointUse.temp))
                 .build());
       }
     }
-
-    return isEmpty(results) ? null : new ArrayList<>(results);
+    List<ContactPoint> asList = new ArrayList<>(results);
+    Collections.sort(
+        asList, (left, right) -> Integer.compare(sortNum(left.use()), sortNum(right.use())));
+    return emptyToNull(asList);
   }
 
   Patient toFhirPatient() {
