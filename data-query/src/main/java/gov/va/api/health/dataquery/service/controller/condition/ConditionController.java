@@ -6,6 +6,7 @@ import static gov.va.api.health.dataquery.service.controller.Transformers.hasPay
 import gov.va.api.health.argonaut.api.resources.Condition;
 import gov.va.api.health.dataquery.service.controller.Bundler;
 import gov.va.api.health.dataquery.service.controller.Bundler.BundleContext;
+import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.PageLinks.LinkConfig;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.Validator;
@@ -91,7 +92,7 @@ public class ConditionController {
   public Condition.Bundle searchById(
       @RequestParam("_id") String id,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
-      @RequestParam(value = "_count", defaultValue = "1") @Min(0) int count) {
+      @CountParameter @Min(0) int count) {
     return bundle(
         Parameters.builder().add("identifier", id).add("page", page).add("_count", count).build(),
         page,
@@ -103,7 +104,7 @@ public class ConditionController {
   public Condition.Bundle searchByIdentifier(
       @RequestParam("identifier") String id,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
-      @RequestParam(value = "_count", defaultValue = "1") @Min(0) int count) {
+      @CountParameter @Min(0) int count) {
     return bundle(
         Parameters.builder().add("identifier", id).add("page", page).add("_count", count).build(),
         page,
@@ -115,7 +116,7 @@ public class ConditionController {
   public Condition.Bundle searchByPatient(
       @RequestParam("patient") String patient,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
-      @RequestParam(value = "_count", defaultValue = "15") @Min(0) int count) {
+      @CountParameter @Min(0) int count) {
     return bundle(
         Parameters.builder().add("patient", patient).add("page", page).add("_count", count).build(),
         page,
@@ -128,7 +129,7 @@ public class ConditionController {
       @RequestParam("patient") String patient,
       @RequestParam("category") String category,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
-      @RequestParam(value = "_count", defaultValue = "15") @Min(0) int count) {
+      @CountParameter @Min(0) int count) {
     return bundle(
         Parameters.builder()
             .add("patient", patient)
@@ -146,7 +147,7 @@ public class ConditionController {
       @RequestParam("patient") String patient,
       @RequestParam("clinicalstatus") String clinicalstatus,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
-      @RequestParam(value = "_count", defaultValue = "15") @Min(0) int count) {
+      @CountParameter @Min(0) int count) {
     return bundle(
         Parameters.builder()
             .add("patient", patient)
