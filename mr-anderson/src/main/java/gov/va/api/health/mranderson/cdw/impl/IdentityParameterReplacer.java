@@ -18,7 +18,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 /** Leverages the Identity Service to replace _identifier_ type parameters in Queries. */
-@Slf4j
 class IdentityParameterReplacer {
 
   private final IdentityService identityService;
