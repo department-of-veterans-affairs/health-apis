@@ -15,9 +15,9 @@ import gov.va.api.health.dataquery.service.controller.Validator;
 import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
 import gov.va.api.health.dataquery.service.mranderson.client.Query;
 import gov.va.api.health.dstu2.api.bundle.AbstractBundle.BundleType;
-import gov.va.dvp.cdw.xsd.model.CdwAllergyIntolerance103Root;
-import gov.va.dvp.cdw.xsd.model.CdwAllergyIntolerance103Root.CdwAllergyIntolerances;
-import gov.va.dvp.cdw.xsd.model.CdwAllergyIntolerance103Root.CdwAllergyIntolerances.CdwAllergyIntolerance;
+import gov.va.dvp.cdw.xsd.model.CdwAllergyIntolerance105Root;
+import gov.va.dvp.cdw.xsd.model.CdwAllergyIntolerance105Root.CdwAllergyIntolerances;
+import gov.va.dvp.cdw.xsd.model.CdwAllergyIntolerance105Root.CdwAllergyIntolerances.CdwAllergyIntolerance;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Collections;
@@ -47,7 +47,7 @@ public class AllergyIntoleranceControllerTest {
   }
 
   private void assertSearch(Supplier<Bundle> invocation, MultiValueMap<String, String> params) {
-    CdwAllergyIntolerance103Root root = new CdwAllergyIntolerance103Root();
+    CdwAllergyIntolerance105Root root = new CdwAllergyIntolerance105Root();
     root.setPageNumber(BigInteger.valueOf(1));
     root.setRecordsPerPage(BigInteger.valueOf(10));
     root.setRecordCount(BigInteger.valueOf(3));
@@ -113,18 +113,18 @@ public class AllergyIntoleranceControllerTest {
   @Test
   @SuppressWarnings("unchecked")
   public void read() {
-    CdwAllergyIntolerance103Root root = new CdwAllergyIntolerance103Root();
+    CdwAllergyIntolerance105Root root = new CdwAllergyIntolerance105Root();
     root.setAllergyIntolerances(new CdwAllergyIntolerances());
-    CdwAllergyIntolerance103Root.CdwAllergyIntolerances.CdwAllergyIntolerance
+    CdwAllergyIntolerance105Root.CdwAllergyIntolerances.CdwAllergyIntolerance
         xmlAllergyIntolerance =
-            new CdwAllergyIntolerance103Root.CdwAllergyIntolerances.CdwAllergyIntolerance();
+            new CdwAllergyIntolerance105Root.CdwAllergyIntolerances.CdwAllergyIntolerance();
     root.getAllergyIntolerances().getAllergyIntolerance().add(xmlAllergyIntolerance);
     AllergyIntolerance allergyIntolerance = AllergyIntolerance.builder().build();
     when(client.search(Mockito.any())).thenReturn(root);
     when(tx.apply(xmlAllergyIntolerance)).thenReturn(allergyIntolerance);
     AllergyIntolerance actual = controller.read("hello");
     assertThat(actual).isSameAs(allergyIntolerance);
-    ArgumentCaptor<Query<CdwAllergyIntolerance103Root>> captor =
+    ArgumentCaptor<Query<CdwAllergyIntolerance105Root>> captor =
         ArgumentCaptor.forClass(Query.class);
     verify(client).search(captor.capture());
     assertThat(captor.getValue().parameters()).isEqualTo(Parameters.forIdentity("hello"));
@@ -153,7 +153,7 @@ public class AllergyIntoleranceControllerTest {
 
   @Test
   public void searchReturnsEmptyResults() {
-    CdwAllergyIntolerance103Root root = new CdwAllergyIntolerance103Root();
+    CdwAllergyIntolerance105Root root = new CdwAllergyIntolerance105Root();
     root.setPageNumber(BigInteger.valueOf(1));
     root.setRecordsPerPage(BigInteger.valueOf(10));
     root.setRecordCount(BigInteger.valueOf(0));
@@ -193,7 +193,7 @@ public class AllergyIntoleranceControllerTest {
     AllergyIntolerance resource =
         JacksonConfig.createMapper()
             .readValue(
-                getClass().getResourceAsStream("/cdw/old-allergyintolerance-1.04.json"),
+                getClass().getResourceAsStream("/cdw/old-allergyintolerance-1.05.json"),
                 AllergyIntolerance.class);
     Bundle bundle = bundleOf(resource);
     assertThat(controller.validate(bundle)).isEqualTo(Validator.ok());
@@ -205,7 +205,7 @@ public class AllergyIntoleranceControllerTest {
     AllergyIntolerance resource =
         JacksonConfig.createMapper()
             .readValue(
-                getClass().getResourceAsStream("/cdw/old-allergyintolerance-1.04.json"),
+                getClass().getResourceAsStream("/cdw/old-allergyintolerance-1.05.json"),
                 AllergyIntolerance.class);
     resource.resourceType(null);
 
