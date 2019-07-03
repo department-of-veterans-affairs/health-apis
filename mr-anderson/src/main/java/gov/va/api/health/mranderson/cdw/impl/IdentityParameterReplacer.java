@@ -5,6 +5,7 @@ import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.health.mranderson.cdw.Query;
 import gov.va.api.health.mranderson.cdw.Resources.MissingSearchParameters;
 import gov.va.api.health.mranderson.util.Parameters;
+import gov.va.api.health.mranderson.util.TimeIt;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -12,10 +13,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.Singular;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 /** Leverages the Identity Service to replace _identifier_ type parameters in Queries. */
+@Slf4j
 class IdentityParameterReplacer {
 
   private final IdentityService identityService;
@@ -47,7 +50,8 @@ class IdentityParameterReplacer {
   }
 
   private String lookupCdwId(String uuid) {
-    List<ResourceIdentity> identities = identityService.lookup(uuid);
+    List<ResourceIdentity> identities =
+        TimeIt.logTime(() -> identityService.lookup(uuid), "Identity Service Lookup");
     return identities
         .stream()
         .filter(ResourceIdentities::isCdw)

@@ -4,6 +4,7 @@ import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.mranderson.cdw.Query;
 import gov.va.api.health.mranderson.cdw.ResourceRepository;
 import gov.va.api.health.mranderson.cdw.Resources;
+import gov.va.api.health.mranderson.util.TimeIt;
 import gov.va.api.health.mranderson.util.XmlDocuments;
 import gov.va.api.health.mranderson.util.XmlDocuments.ParseFailed;
 import gov.va.api.health.mranderson.util.XmlDocuments.WriteFailed;
@@ -74,18 +75,19 @@ public class WitnessProtectionResources implements Resources {
   public String search(final Query originalQuery) {
     log.info("Search {}", originalQuery);
     validate(originalQuery);
-    Query query = replacePublicIdsWithCdwIds(originalQuery);
+    Query query =
+        TimeIt.logTime(() -> replacePublicIdsWithCdwIds(originalQuery), "Public Id replacement");
     log.info("Executing {}", query.toQueryString());
-    String originalXml = repository.execute(query);
+    String originalXml = TimeIt.logTime(() -> repository.execute(query), "Cdw query");
     if (query.raw()) {
       log.info("Validation and reference replacement skipped. Returning raw response.");
       return originalXml;
     }
     Document xml = parse(originalQuery, originalXml);
     XmlResponseValidator.builder().query(originalQuery).response(xml).build().validate();
-    xml = replaceCdwIdsWithPublicIds(originalQuery, xml);
-
-    return write(query, xml);
+    Document publicXml =
+        TimeIt.logTime(() -> replaceCdwIdsWithPublicIds(originalQuery, xml), "Cdw id replacement");
+    return write(query, publicXml);
   }
 
   private void validate(Query query) {
