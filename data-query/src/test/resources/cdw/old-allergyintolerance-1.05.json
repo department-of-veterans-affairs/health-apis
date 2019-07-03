@@ -1,7 +1,7 @@
 {
   "resourceType" : "AllergyIntolerance",
   "id" : "0f361f03-28b3-5b4b-ac63-dd0f92ea6c28",
-  "onset" : "2010-02-24T17:06:00Z",
+  "recordedDate" : "2010-07-11T17:06:00Z",
   "recorder" : {
     "reference" : "https://www.freedomstream.io/CDCArgonaut/api/Practitioner/f4fafae0-e966-5bad-a798-eee8cc69940c",
     "display" : "JONES,RESIDENT D"

@@ -13,13 +13,13 @@ import gov.va.api.health.dstu2.api.datatypes.Annotation;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
 import gov.va.api.health.dstu2.api.elements.Reference;
-import gov.va.dvp.cdw.xsd.model.CdwAllergyIntolerance103Root.CdwAllergyIntolerances.CdwAllergyIntolerance;
-import gov.va.dvp.cdw.xsd.model.CdwAllergyIntolerance103Root.CdwAllergyIntolerances.CdwAllergyIntolerance.CdwNotes;
-import gov.va.dvp.cdw.xsd.model.CdwAllergyIntolerance103Root.CdwAllergyIntolerances.CdwAllergyIntolerance.CdwReactions;
-import gov.va.dvp.cdw.xsd.model.CdwAllergyIntolerance103Root.CdwAllergyIntolerances.CdwAllergyIntolerance.CdwReactions.CdwReaction.CdwManifestations;
-import gov.va.dvp.cdw.xsd.model.CdwAllergyIntolerance103Root.CdwAllergyIntolerances.CdwAllergyIntolerance.CdwReactions.CdwReaction.CdwManifestations.CdwManifestation;
-import gov.va.dvp.cdw.xsd.model.CdwAllergyIntolerance103Root.CdwAllergyIntolerances.CdwAllergyIntolerance.CdwSubstance;
-import gov.va.dvp.cdw.xsd.model.CdwAllergyIntolerance103Root.CdwAllergyIntolerances.CdwAllergyIntolerance.CdwSubstance.CdwCoding;
+import gov.va.dvp.cdw.xsd.model.CdwAllergyIntolerance105Root.CdwAllergyIntolerances.CdwAllergyIntolerance;
+import gov.va.dvp.cdw.xsd.model.CdwAllergyIntolerance105Root.CdwAllergyIntolerances.CdwAllergyIntolerance.CdwNotes;
+import gov.va.dvp.cdw.xsd.model.CdwAllergyIntolerance105Root.CdwAllergyIntolerances.CdwAllergyIntolerance.CdwReactions;
+import gov.va.dvp.cdw.xsd.model.CdwAllergyIntolerance105Root.CdwAllergyIntolerances.CdwAllergyIntolerance.CdwReactions.CdwReaction.CdwManifestations;
+import gov.va.dvp.cdw.xsd.model.CdwAllergyIntolerance105Root.CdwAllergyIntolerances.CdwAllergyIntolerance.CdwReactions.CdwReaction.CdwManifestations.CdwManifestation;
+import gov.va.dvp.cdw.xsd.model.CdwAllergyIntolerance105Root.CdwAllergyIntolerances.CdwAllergyIntolerance.CdwSubstance;
+import gov.va.dvp.cdw.xsd.model.CdwAllergyIntolerance105Root.CdwAllergyIntolerances.CdwAllergyIntolerance.CdwSubstance.CdwCoding;
 import gov.va.dvp.cdw.xsd.model.CdwAllergyIntoleranceCategory;
 import gov.va.dvp.cdw.xsd.model.CdwAllergyIntoleranceCertainty;
 import gov.va.dvp.cdw.xsd.model.CdwAllergyIntoleranceCriticality;
@@ -150,7 +150,6 @@ public class AllergyIntoleranceTransformerTest {
       CdwAllergyIntolerance allergyIntolerance = new CdwAllergyIntolerance();
       allergyIntolerance.setCdwId("123456789");
       allergyIntolerance.setRowNumber(new BigInteger("1"));
-      allergyIntolerance.setOnset(onset());
       allergyIntolerance.setRecordedDate(recordedDate());
       allergyIntolerance.setRecorder(recorder());
       allergyIntolerance.setPatient(patient());
@@ -204,14 +203,6 @@ public class AllergyIntoleranceTransformerTest {
       return notes;
     }
 
-    XMLGregorianCalendar onset() {
-      XMLGregorianCalendar gregorianCalendar = datatypeFactory.newXMLGregorianCalendar();
-      gregorianCalendar.setYear(2018);
-      gregorianCalendar.setMonth(11);
-      gregorianCalendar.setDay(7);
-      return gregorianCalendar;
-    }
-
     CdwReference patient() {
       CdwReference cdwReference = new CdwReference();
       cdwReference.setDisplay("patient display");
@@ -261,7 +252,6 @@ public class AllergyIntoleranceTransformerTest {
       return AllergyIntolerance.builder()
           .resourceType("AllergyIntolerance")
           .id("123456789")
-          .onset("2018-11-07")
           .recordedDate("2018-11-07")
           .recorder(recorder())
           .substance(substance())
