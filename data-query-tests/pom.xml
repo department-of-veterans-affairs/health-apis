@@ -223,7 +223,6 @@
               <name>data-query</name>
               <healthcheckUrl>https://localhost:8090/actuator/health</healthcheckUrl>
               <skip>${sentinel.skipLaunch}</skip>
-              <waitForInterrupt>false</waitForInterrupt>
               <arguments>
                 <argument>java</argument>
                 <argument>-cp</argument>
