@@ -7,6 +7,7 @@ import static java.util.Arrays.asList;
 import gov.va.api.health.argonaut.api.resources.Patient;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.Bundler;
+import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.JpaDateTimeParameter;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.Parameters;
@@ -281,7 +282,7 @@ public class PatientController {
       @RequestParam("family") String family,
       @RequestParam("gender") String gender,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
-      @RequestParam(value = "_count", defaultValue = "15") @Min(0) int count) {
+      @CountParameter @Min(0) int count) {
     return search(
         datamart,
         "Select p from PatientEntity p"
@@ -303,7 +304,7 @@ public class PatientController {
       @RequestParam("given") String given,
       @RequestParam("gender") String gender,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
-      @RequestParam(value = "_count", defaultValue = "15") @Min(0) int count) {
+      @CountParameter @Min(0) int count) {
     return search(
         datamart,
         "Select p from PatientEntity p where"
@@ -324,7 +325,7 @@ public class PatientController {
       @RequestHeader(value = "Datamart", defaultValue = "") String datamart,
       @RequestParam("_id") String id,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
-      @RequestParam(value = "_count", defaultValue = "1") @Min(0) int count) {
+      @CountParameter @Min(0) int count) {
     return searchByIdentifier(datamart, id, page, count);
   }
 
@@ -334,7 +335,7 @@ public class PatientController {
       @RequestHeader(value = "Datamart", defaultValue = "") String datamart,
       @RequestParam("identifier") String id,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
-      @RequestParam(value = "_count", defaultValue = "1") @Min(0) int count) {
+      @CountParameter @Min(0) int count) {
     return search(
         datamart,
         "Select p from PatientEntity p where p.icn is :identifier",
@@ -349,7 +350,7 @@ public class PatientController {
       @RequestParam("name") String name,
       @RequestParam("birthdate") String[] birthdate,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
-      @RequestParam(value = "_count", defaultValue = "15") @Min(0) int count) {
+      @CountParameter @Min(0) int count) {
     return search(
         datamart,
         "Select p from PatientEntity p where p.search.name like :name"
@@ -373,7 +374,7 @@ public class PatientController {
       @RequestParam("name") String name,
       @RequestParam("gender") String gender,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
-      @RequestParam(value = "_count", defaultValue = "15") @Min(0) int count) {
+      @CountParameter @Min(0) int count) {
     return search(
         datamart,
         "Select p from PatientEntity p where"

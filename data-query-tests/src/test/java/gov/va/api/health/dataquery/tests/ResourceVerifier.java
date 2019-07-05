@@ -1,5 +1,7 @@
 package gov.va.api.health.dataquery.tests;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import gov.va.api.health.dstu2.api.bundle.AbstractBundle;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import gov.va.api.health.sentinel.TestClient;
@@ -72,10 +74,13 @@ public class ResourceVerifier {
         .get(tc.path() + "&_count=0", tc.parameters())
         .expect(200)
         .expectValid(tc.response());
-    dataQuery()
-        .get(tc.path() + "&_count=21", tc.parameters())
-        .expect(200)
-        .expectValid(tc.response());
+    AbstractBundle bundle =
+        (AbstractBundle<?>)
+            dataQuery()
+                .get(tc.path() + "&_count=21", tc.parameters())
+                .expect(200)
+                .expectValid(tc.response());
+    assertThat(bundle.entry().size()).isLessThan(21);
   }
 
   private <T> T assertRequest(TestCase<T> tc) {
