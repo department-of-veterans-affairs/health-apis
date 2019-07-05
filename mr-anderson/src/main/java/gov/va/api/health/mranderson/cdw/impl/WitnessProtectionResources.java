@@ -76,9 +76,13 @@ public class WitnessProtectionResources implements Resources {
     log.info("Search {}", originalQuery);
     validate(originalQuery);
     Query query =
-        TimeIt.logTime(() -> replacePublicIdsWithCdwIds(originalQuery), "Public Id replacement");
+        TimeIt.builder()
+            .taskName("Public Id replacement")
+            .build()
+            .logTime(() -> replacePublicIdsWithCdwIds(originalQuery));
     log.info("Executing {}", query.toQueryString());
-    String originalXml = TimeIt.logTime(() -> repository.execute(query), "Cdw query");
+    String originalXml =
+        TimeIt.builder().taskName("Cdw query").build().logTime(() -> repository.execute(query));
     if (query.raw()) {
       log.info("Validation and reference replacement skipped. Returning raw response.");
       return originalXml;
@@ -86,7 +90,10 @@ public class WitnessProtectionResources implements Resources {
     Document xml = parse(originalQuery, originalXml);
     XmlResponseValidator.builder().query(originalQuery).response(xml).build().validate();
     Document publicXml =
-        TimeIt.logTime(() -> replaceCdwIdsWithPublicIds(originalQuery, xml), "Cdw id replacement");
+        TimeIt.builder()
+            .taskName("Cdw id replacement")
+            .build()
+            .logTime(() -> replaceCdwIdsWithPublicIds(originalQuery, xml));
     return write(query, publicXml);
   }
 

@@ -13,7 +13,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.Singular;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -50,7 +49,10 @@ class IdentityParameterReplacer {
 
   private String lookupCdwId(String uuid) {
     List<ResourceIdentity> identities =
-        TimeIt.logTime(() -> identityService.lookup(uuid), "Identity Service Lookup");
+        TimeIt.builder()
+            .taskName("Identity Service Lookup")
+            .build()
+            .logTime(() -> identityService.lookup(uuid));
     return identities
         .stream()
         .filter(ResourceIdentities::isCdw)
