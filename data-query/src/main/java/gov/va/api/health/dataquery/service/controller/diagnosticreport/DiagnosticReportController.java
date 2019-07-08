@@ -28,12 +28,16 @@ import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.dvp.cdw.xsd.model.CdwDiagnosticReport102Root;
+
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -218,8 +222,58 @@ public class DiagnosticReportController {
     return bundle(publicParameters, fhir, filtered.size());
   }
 
+  @SneakyThrows
   private DiagnosticReport datamartRead(String publicId) {
-    throw new UnsupportedOperationException("DiagnosticReport read not implemented");
+    MultiValueMap<String, String> publicParameters = Parameters.forIdentity(publicId);
+    MultiValueMap<String, String> cdwParameters =
+        witnessProtection.replacePublicIdsWithCdwIds(publicParameters);
+    String cdwReportId = cdwParameters.getFirst("identifier");
+
+    //        DiagnosticReportPatientEntity.builder()
+    //            .reportId("800260864479:L")
+    //            .icn("1011537977V693883")
+    //            .build();
+    DiagnosticReportPatientEntity crossEntity =
+        entityManager.find(DiagnosticReportPatientEntity.class, cdwReportId);
+    if (crossEntity == null) {
+      return null;
+    }
+
+    //        DiagnosticReportEntity.builder()
+    //            .icn("1011537977V693883")
+    //            .payload(
+    //                Files.readAllLines(
+    //                        Paths.get("C:\\tmp\\datamart-patient/diagnostic-report-payload.json"))
+    //                    .stream()
+    //                    .collect(Collectors.joining("\n")))
+    //            .build();
+    DiagnosticReportEntity entity =
+        entityManager.find(DiagnosticReportEntity.class, crossEntity.icn());
+    if (entity == null) {
+      return null;
+    }
+
+    DatamartDiagnosticReports payload = entity.asDatamartDiagnosticReports();
+    Optional<DatamartDiagnosticReports.DiagnosticReport> maybeReport =
+        payload
+            .reports()
+            .stream()
+            .filter(r -> StringUtils.equals(r.identifier(), cdwReportId))
+            .findFirst();
+    if (!maybeReport.isPresent()) {
+      return null;
+    }
+
+    DatamartDiagnosticReports.DiagnosticReport report = maybeReport.get();
+
+    replaceCdwIdsWithPublicIds(asList(report));
+
+    return DatamartDiagnosticReportTransformer.builder()
+        .datamart(report)
+        .icn(payload.fullIcn())
+        .patientName(payload.patientName())
+        .build()
+        .toFhir();
   }
 
   private DiagnosticReport.Bundle mrAndersonBundle(MultiValueMap<String, String> parameters) {
