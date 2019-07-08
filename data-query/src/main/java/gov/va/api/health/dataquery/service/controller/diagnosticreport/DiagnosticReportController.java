@@ -229,24 +229,12 @@ public class DiagnosticReportController {
         witnessProtection.replacePublicIdsWithCdwIds(publicParameters);
     String cdwReportId = cdwParameters.getFirst("identifier");
 
-    //        DiagnosticReportPatientEntity.builder()
-    //            .reportId("800260864479:L")
-    //            .icn("1011537977V693883")
-    //            .build();
     DiagnosticReportPatientEntity crossEntity =
         entityManager.find(DiagnosticReportPatientEntity.class, cdwReportId);
     if (crossEntity == null) {
       return null;
     }
 
-    //        DiagnosticReportEntity.builder()
-    //            .icn("1011537977V693883")
-    //            .payload(
-    //                Files.readAllLines(
-    //                        Paths.get("C:\\tmp\\datamart-patient/diagnostic-report-payload.json"))
-    //                    .stream()
-    //                    .collect(Collectors.joining("\n")))
-    //            .build();
     DiagnosticReportEntity entity =
         entityManager.find(DiagnosticReportEntity.class, crossEntity.icn());
     if (entity == null) {
