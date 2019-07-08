@@ -1,12 +1,7 @@
 package gov.va.api.health.dataquery.service.controller;
 
 import java.time.Instant;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.Locale;
 import javax.persistence.TypedQuery;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -18,37 +13,15 @@ import lombok.extern.slf4j.Slf4j;
 @Value
 @Getter(AccessLevel.PRIVATE)
 public final class JpaDateTimeParameter {
-  private static final int YEAR = 4;
-
-  private static final int YEAR_MONTH = 7;
-
-  private static final int YEAR_MONTH_DAY = 10;
-
-  private static final int TIME_ZONE = 20;
-
-  private static final int TIME_ZONE_OFFSET = 25;
-
   int index;
 
-  SearchPrefix prefix;
-
-  String date;
+  DateTimeParameters parameter;
 
   @Builder
   private JpaDateTimeParameter(int index, String paramString) {
     super();
-    if (paramString.length() <= 1) {
-      throw new IllegalArgumentException(
-          String.format("'{}' is not a valid date-time parameter", paramString));
-    }
     this.index = index;
-    if (Character.isLetter(paramString.charAt(0))) {
-      prefix = SearchPrefix.valueOf(paramString.substring(0, 2).toUpperCase(Locale.US));
-      date = paramString.substring(2);
-    } else {
-      prefix = SearchPrefix.EQ;
-      date = paramString;
-    }
+    this.parameter = new DateTimeParameters(paramString);
   }
 
   /** Add query parameters for the upper and lower bound of each date. */
@@ -63,10 +36,6 @@ public final class JpaDateTimeParameter {
           .build()
           .addQueryParameters(query);
     }
-  }
-
-  private static UnsupportedOperationException apException() {
-    return new UnsupportedOperationException("AP search prefix not implemented");
   }
 
   /** Build a combined JPA query snippet representing all the date criteria. */
@@ -88,11 +57,11 @@ public final class JpaDateTimeParameter {
   }
 
   private void addQueryParameters(TypedQuery<?> query) {
-    Instant lowerBound = lowerBound();
-    Instant upperBound = upperBound();
-    log.info("Date {} has bounds: [{}, {}]", date(), lowerBound, upperBound);
+    Instant lowerBound = parameter.lowerBound();
+    Instant upperBound = parameter.upperBound();
+    log.info("Date {} has bounds: [{}, {}]", parameter.date(), lowerBound, upperBound);
 
-    switch (prefix()) {
+    switch (parameter.prefix()) {
       case EQ:
         // falls through
       case NE:
@@ -117,29 +86,10 @@ public final class JpaDateTimeParameter {
         return;
 
       case AP:
-        throw apException();
+        throw DateTimeParameters.apException();
 
       default:
-        throw new IllegalArgumentException("Unknown search prefix: " + prefix());
-    }
-  }
-
-  private Instant lowerBound() {
-    ZoneOffset offset = ZonedDateTime.now().getOffset();
-    switch (date().length()) {
-      case YEAR:
-        return OffsetDateTime.parse(String.format("%s-01-01T00:00:00%s", date(), offset))
-            .toInstant();
-      case YEAR_MONTH:
-        return OffsetDateTime.parse(String.format("%s-01T00:00:00%s", date(), offset)).toInstant();
-      case YEAR_MONTH_DAY:
-        return OffsetDateTime.parse(String.format("%sT00:00:00%s", date(), offset)).toInstant();
-      case TIME_ZONE:
-        return Instant.parse(date());
-      case TIME_ZONE_OFFSET:
-        return OffsetDateTime.parse(date()).toInstant();
-      default:
-        throw new IllegalArgumentException("Cannot compute lower bound for date " + date());
+        throw new IllegalArgumentException("Unknown search prefix: " + parameter.prefix());
     }
   }
 
@@ -152,7 +102,7 @@ public final class JpaDateTimeParameter {
   }
 
   private String toQuerySnippet(String lowerTimeField, String higherTimeField) {
-    switch (prefix()) {
+    switch (parameter.prefix()) {
       case EQ:
         // the range of the search value fully contains the range of the target value
         return String.format(
@@ -198,41 +148,10 @@ public final class JpaDateTimeParameter {
         return String.format(" and %s < :%s", higherTimeField, placeholderLowerBound());
 
       case AP:
-        throw apException();
+        throw DateTimeParameters.apException();
 
       default:
-        throw new IllegalArgumentException("Unknown search prefix: " + prefix());
+        throw new IllegalArgumentException("Unknown search prefix: " + parameter.prefix());
     }
-  }
-
-  private Instant upperBound() {
-    OffsetDateTime lowerBound =
-        OffsetDateTime.ofInstant(lowerBound(), ZonedDateTime.now().getOffset());
-    switch (date().length()) {
-      case YEAR:
-        return lowerBound.plusYears(1).minus(1, ChronoUnit.MILLIS).toInstant();
-      case YEAR_MONTH:
-        return lowerBound.plusMonths(1).minus(1, ChronoUnit.MILLIS).toInstant();
-      case YEAR_MONTH_DAY:
-        return lowerBound.plusDays(1).minus(1, ChronoUnit.MILLIS).toInstant();
-      case TIME_ZONE:
-        // falls through
-      case TIME_ZONE_OFFSET:
-        return lowerBound.plusSeconds(1).minus(1, ChronoUnit.MILLIS).toInstant();
-      default:
-        throw new IllegalArgumentException("Cannot compute upper bound for date " + date());
-    }
-  }
-
-  private static enum SearchPrefix {
-    EQ,
-    NE,
-    GT,
-    LT,
-    GE,
-    LE,
-    SA,
-    EB,
-    AP
   }
 }

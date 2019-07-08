@@ -25,11 +25,14 @@
     Ignore Lombok-generated code.
   -->
   <Match>
-    <Class name="gov.va.api.health.dataquery.service.controller.patient.DatamartPatient"/>
-    <Method name="equals"/>
-  </Match>
-  <Match>
-    <Class name="gov.va.api.health.dataquery.service.controller.patient.DatamartPatient"/>
-    <Method name="hashCode"/>
+    <Or>
+      <Class name="gov.va.api.health.dataquery.service.controller.diagnosticreport.DatamartDiagnosticReports"/>
+      <Class name="gov.va.api.health.dataquery.service.controller.diagnosticreport.DatamartDiagnosticReports$DiagnosticReport"/>
+      <Class name="gov.va.api.health.dataquery.service.controller.patient.DatamartPatient"/>
+    </Or>
+    <Or>
+      <Method name="equals"/>
+      <Method name="hashCode"/>
+    </Or>
   </Match>
 </FindBugsFilter>

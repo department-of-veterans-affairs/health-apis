@@ -516,7 +516,7 @@ final class DatamartPatientTransformer {
     return emptyToNull(asList);
   }
 
-  Patient toFhirPatient() {
+  Patient toFhir() {
     return Patient.builder()
         .id(datamart.fullIcn())
         .resourceType("Patient")

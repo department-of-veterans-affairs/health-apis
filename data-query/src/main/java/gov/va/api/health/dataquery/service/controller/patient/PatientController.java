@@ -114,7 +114,7 @@ public class PatientController {
         entities
             .stream()
             .map(entity -> entity.asDatamartPatient())
-            .map(dm -> DatamartPatientTransformer.builder().datamart(dm).build().toFhirPatient())
+            .map(dm -> DatamartPatientTransformer.builder().datamart(dm).build().toFhir())
             .collect(Collectors.toList());
     PageLinks.LinkConfig linkConfig =
         PageLinks.LinkConfig.builder()
@@ -144,7 +144,7 @@ public class PatientController {
     return DatamartPatientTransformer.builder()
         .datamart(entity.asDatamartPatient())
         .build()
-        .toFhirPatient();
+        .toFhir();
   }
 
   private List<PatientEntity> jpaQueryForEntities(
