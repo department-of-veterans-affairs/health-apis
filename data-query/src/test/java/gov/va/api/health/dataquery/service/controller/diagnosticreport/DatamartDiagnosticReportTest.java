@@ -9,11 +9,13 @@ import gov.va.api.health.argonaut.api.resources.DiagnosticReport;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.Bundler;
 import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
+import gov.va.api.health.dataquery.service.controller.Transformers;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
 import gov.va.api.health.dstu2.api.elements.Reference;
 import gov.va.api.health.ids.api.IdentityService;
+import java.time.ZoneId;
 import lombok.SneakyThrows;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,7 +46,6 @@ public final class DatamartDiagnosticReportTest {
                 JacksonConfig.createMapper()
                     .writeValueAsString(
                         DatamartDiagnosticReports.builder()
-                            .fullIcn(icn)
                             .reports(
                                 asList(
                                     DatamartDiagnosticReports.DiagnosticReport.builder()
@@ -66,6 +67,7 @@ public final class DatamartDiagnosticReportTest {
     assertThat(report)
         .isEqualTo(
             DiagnosticReport.builder()
+                .id(reportId)
                 .resourceType("DiagnosticReport")
                 .status(DiagnosticReport.Code._final)
                 .category(
@@ -80,7 +82,6 @@ public final class DatamartDiagnosticReportTest {
                                     .build()))
                         .build())
                 .code(CodeableConcept.builder().text("panel").build())
-                .subject(Reference.builder().reference("Patient/1011537977V693883").build())
                 .build());
   }
 
@@ -89,6 +90,10 @@ public final class DatamartDiagnosticReportTest {
   public void patientSearch() {
     String icn = "1011537977V693883";
     String reportId = "800260864479:L";
+    String effectiveDateTime = "2009-09-24T03:15:24";
+    String issuedDateTime = "2009-09-24T03:36:35";
+    String performer = "655775";
+    String performerDisplay = "MANILA-RO";
 
     DiagnosticReportEntity entity =
         DiagnosticReportEntity.builder()
@@ -102,6 +107,10 @@ public final class DatamartDiagnosticReportTest {
                                 asList(
                                     DatamartDiagnosticReports.DiagnosticReport.builder()
                                         .identifier(reportId)
+                                        .effectiveDateTime(effectiveDateTime)
+                                        .issuedDateTime(issuedDateTime)
+                                        .accessionInstitutionSid(performer)
+                                        .accessionInstitutionName(performerDisplay)
                                         .build()))
                             .build()))
             .build();
@@ -119,6 +128,7 @@ public final class DatamartDiagnosticReportTest {
     assertThat(Iterables.getOnlyElement(bundle.entry()).resource())
         .isEqualTo(
             DiagnosticReport.builder()
+                .id(reportId)
                 .resourceType("DiagnosticReport")
                 .status(DiagnosticReport.Code._final)
                 .category(
@@ -133,7 +143,20 @@ public final class DatamartDiagnosticReportTest {
                                     .build()))
                         .build())
                 .code(CodeableConcept.builder().text("panel").build())
-                .subject(Reference.builder().reference("Patient/1011537977V693883").build())
+                .subject(Reference.builder().reference("Patient/" + icn).build())
+                .effectiveDateTime(
+                    Transformers.parseLocalDateTime(effectiveDateTime)
+                        .atZone(ZoneId.of("Z"))
+                        .toString())
+                .issued(
+                    Transformers.parseLocalDateTime(issuedDateTime)
+                        .atZone(ZoneId.of("Z"))
+                        .toString())
+                .performer(
+                    Reference.builder()
+                        .reference("Organization/" + performer)
+                        .display(performerDisplay)
+                        .build())
                 .build());
   }
 }

@@ -355,9 +355,16 @@ public class DiagnosticReportController {
     }
 
     for (DatamartDiagnosticReports.DiagnosticReport report : reports) {
-      report.identifier(idsTable.get(report.identifier(), "DIAGNOSTIC_REPORT"));
-      report.accessionInstitutionSid(
-          idsTable.get(report.accessionInstitutionSid(), "ORGANIZATION"));
+      String identifier = idsTable.get(report.identifier(), "DIAGNOSTIC_REPORT");
+      if (identifier != null) {
+        report.identifier(identifier);
+      }
+
+      String accessionInstitutionSid =
+          idsTable.get(report.accessionInstitutionSid(), "ORGANIZATION");
+      if (accessionInstitutionSid != null) {
+        report.accessionInstitutionSid(accessionInstitutionSid);
+      }
     }
   }
 
