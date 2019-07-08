@@ -24,14 +24,12 @@ import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
 import gov.va.api.health.dataquery.service.mranderson.client.Query;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
-import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.dvp.cdw.xsd.model.CdwDiagnosticReport102Root;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -85,8 +83,6 @@ public class DiagnosticReportController {
   private WitnessProtection witnessProtection;
 
   private EntityManager entityManager;
-
-  private IdentityService identityService;
 
   private static boolean datesAreSatisfied(
       DatamartDiagnosticReports.DiagnosticReport report, List<DateTimeParameters> parameters) {
@@ -349,7 +345,7 @@ public class DiagnosticReportController {
                             .build()))
             .collect(Collectors.toSet());
 
-    List<Registration> registrations = identityService.register(new ArrayList<>(ids));
+    List<Registration> registrations = witnessProtection.register(ids);
 
     final Table<String, String, String> idsTable = HashBasedTable.create();
     for (Registration r : registrations) {

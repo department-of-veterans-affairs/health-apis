@@ -3,6 +3,7 @@ package gov.va.api.health.dataquery.service.controller.diagnosticreport;
 import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
 import static gov.va.api.health.dataquery.service.controller.Transformers.parseLocalDateTime;
 import static java.util.Arrays.asList;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import gov.va.api.health.argonaut.api.resources.DiagnosticReport;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
@@ -38,6 +39,10 @@ final class DatamartDiagnosticReportTransformer {
   }
 
   private String effectiveDateTime() {
+    if (isBlank(datamart.effectiveDateTime())) {
+      return null;
+    }
+
     LocalDateTime local = parseLocalDateTime(datamart.effectiveDateTime());
     if (local == null) {
       return null;
@@ -47,6 +52,10 @@ final class DatamartDiagnosticReportTransformer {
   }
 
   private String issued() {
+    if (isBlank(datamart.issuedDateTime())) {
+      return null;
+    }
+
     LocalDateTime local = parseLocalDateTime(datamart.issuedDateTime());
     if (local == null) {
       return null;
