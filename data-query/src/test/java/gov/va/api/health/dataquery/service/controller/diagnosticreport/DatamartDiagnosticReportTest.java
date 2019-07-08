@@ -3,13 +3,13 @@ package gov.va.api.health.dataquery.service.controller.diagnosticreport;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static gov.va.api.health.dataquery.service.controller.Transformers.parseLocalDateTime;
 
 import com.google.common.collect.Iterables;
 import gov.va.api.health.argonaut.api.resources.DiagnosticReport;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.Bundler;
 import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
-import gov.va.api.health.dataquery.service.controller.Transformers;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
@@ -145,13 +145,8 @@ public final class DatamartDiagnosticReportTest {
                 .code(CodeableConcept.builder().text("panel").build())
                 .subject(Reference.builder().reference("Patient/" + icn).build())
                 .effectiveDateTime(
-                    Transformers.parseLocalDateTime(effectiveDateTime)
-                        .atZone(ZoneId.of("Z"))
-                        .toString())
-                .issued(
-                    Transformers.parseLocalDateTime(issuedDateTime)
-                        .atZone(ZoneId.of("Z"))
-                        .toString())
+                    parseLocalDateTime(effectiveDateTime).atZone(ZoneId.of("Z")).toString())
+                .issued(parseLocalDateTime(issuedDateTime).atZone(ZoneId.of("Z")).toString())
                 .performer(
                     Reference.builder()
                         .reference("Organization/" + performer)
