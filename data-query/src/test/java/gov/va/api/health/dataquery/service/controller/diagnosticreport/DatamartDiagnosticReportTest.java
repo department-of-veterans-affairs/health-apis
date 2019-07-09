@@ -1,13 +1,13 @@
 package gov.va.api.health.dataquery.service.controller.diagnosticreport;
 
 import static java.util.Arrays.asList;
-import static java.util.Arrays.array;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static gov.va.api.health.dataquery.service.controller.Transformers.parseLocalDateTime;
 
 import com.google.common.collect.Iterables;
 import gov.va.api.health.argonaut.api.resources.DiagnosticReport;
+import gov.va.api.health.argonaut.api.resources.DiagnosticReport.Bundle;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.Bundler;
 import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
@@ -97,9 +97,6 @@ public final class DatamartDiagnosticReportTest {
     String icn = "1011537977V693883";
     String reportId = "800260864479:L";
     String effectiveDateTime = "2009-09-24T03:15:24";
-    String issuedDateTime = "2009-09-24T03:36:35";
-    String performer = "655775";
-    String performerDisplay = "MANILA-RO";
 
     DiagnosticReportsEntity entity =
         DiagnosticReportsEntity.builder()
@@ -114,9 +111,6 @@ public final class DatamartDiagnosticReportTest {
                                     DatamartDiagnosticReports.DiagnosticReport.builder()
                                         .identifier(reportId)
                                         .effectiveDateTime(effectiveDateTime)
-                                        .issuedDateTime(issuedDateTime)
-                                        .accessionInstitutionSid(performer)
-                                        .accessionInstitutionName(performerDisplay)
                                         .build()))
                             .build()))
             .build();
@@ -130,7 +124,14 @@ public final class DatamartDiagnosticReportTest {
             WitnessProtection.builder().identityService(mock(IdentityService.class)).build(),
             entityManager.getEntityManager());
 
-    controller.searchByPatientAndCategoryAndDate("true", icn, "LAB", array("ge1970"), 1, 15);
+    Bundle bundle =
+        controller.searchByPatientAndCategoryAndDate(
+            "true",
+            icn,
+            "LAB",
+            new String[] {"gt2008", "ge2008", "eq2009", "le2010", "lt2010"},
+            1,
+            15);
     assertThat(Iterables.getOnlyElement(bundle.entry()).resource())
         .isEqualTo(
             DiagnosticReport.builder()
@@ -152,12 +153,6 @@ public final class DatamartDiagnosticReportTest {
                 .subject(Reference.builder().reference("Patient/" + icn).build())
                 .effectiveDateTime(
                     parseLocalDateTime(effectiveDateTime).atZone(ZoneId.of("Z")).toString())
-                .issued(parseLocalDateTime(issuedDateTime).atZone(ZoneId.of("Z")).toString())
-                .performer(
-                    Reference.builder()
-                        .reference("Organization/" + performer)
-                        .display(performerDisplay)
-                        .build())
                 .build());
   }
 

@@ -7,6 +7,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
 import com.google.common.collect.HashBasedTable;
@@ -87,9 +88,8 @@ public class DiagnosticReportController {
   private static boolean datesAreSatisfied(
       DatamartDiagnosticReports.DiagnosticReport report, List<DateTimeParameters> parameters) {
     for (DateTimeParameters parameter : parameters) {
-      // PETERTODO missing null check?
-      LocalDateTime effectiveLocal = parseLocalDateTime(report.effectiveDateTime());
-      LocalDateTime issuedLocal = parseLocalDateTime(report.issuedDateTime());
+      LocalDateTime effectiveLocal = parseLocalDateTime(trimToEmpty(report.effectiveDateTime()));
+      LocalDateTime issuedLocal = parseLocalDateTime(trimToEmpty(report.issuedDateTime()));
       if (effectiveLocal == null && issuedLocal == null) {
         return false;
       }
