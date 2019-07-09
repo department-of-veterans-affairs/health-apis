@@ -87,23 +87,28 @@ public class DiagnosticReportController {
   private static boolean datesAreSatisfied(
       DatamartDiagnosticReports.DiagnosticReport report, List<DateTimeParameters> parameters) {
     for (DateTimeParameters parameter : parameters) {
-      LocalDateTime lowerLocal = parseLocalDateTime(report.effectiveDateTime());
-      LocalDateTime upperLocal = parseLocalDateTime(report.issuedDateTime());
-      if (lowerLocal == null && upperLocal == null) {
+      // PETERTODO missing null check?
+      LocalDateTime effectiveLocal = parseLocalDateTime(report.effectiveDateTime());
+      LocalDateTime issuedLocal = parseLocalDateTime(report.issuedDateTime());
+      if (effectiveLocal == null && issuedLocal == null) {
         return false;
       }
 
-      ZonedDateTime lower =
-          lowerLocal == null
-              ? upperLocal.atZone(ZoneId.of("Z"))
-              : lowerLocal.atZone(ZoneId.of("Z"));
-      ZonedDateTime upper =
-          upperLocal == null
-              ? lowerLocal.atZone(ZoneId.of("Z"))
-              : upperLocal.atZone(ZoneId.of("Z"));
+      ZonedDateTime effective =
+          effectiveLocal == null
+              ? issuedLocal.atZone(ZoneId.of("Z"))
+              : effectiveLocal.atZone(ZoneId.of("Z"));
+      ZonedDateTime issued =
+          issuedLocal == null
+              ? effectiveLocal.atZone(ZoneId.of("Z"))
+              : issuedLocal.atZone(ZoneId.of("Z"));
 
-      if (!parameter.isSatisfied(
-          lower.toInstant().toEpochMilli(), upper.toInstant().toEpochMilli())) {
+      long lower =
+          Math.min(effective.toInstant().toEpochMilli(), issued.toInstant().toEpochMilli());
+      long upper =
+          Math.max(effective.toInstant().toEpochMilli(), issued.toInstant().toEpochMilli());
+
+      if (!parameter.isSatisfied(lower, upper)) {
         return false;
       }
     }

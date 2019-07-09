@@ -1,11 +1,14 @@
 package gov.va.api.health.dataquery.service.controller;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Locale;
+
 import lombok.Value;
 
 @Value
@@ -50,6 +53,7 @@ public final class DateTimeParameters {
    * @see JpaDateTimeParameter#toQuerySnippet
    */
   public boolean isSatisfied(long lower, long upper) {
+    checkArgument(lower <= upper);
     long lowerBound = lowerBound().toEpochMilli();
     long upperBound = upperBound().toEpochMilli();
 
