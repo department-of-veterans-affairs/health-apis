@@ -101,6 +101,11 @@ public final class JpaDateTimeParameter {
     return "date" + index + "UpperBound";
   }
 
+  /**
+   * Create a JPA query snippet for this parameter using the given field names.
+   *
+   * @see DateTimeParameters#isSatisfied
+   */
   private String toQuerySnippet(String lowerTimeField, String higherTimeField) {
     switch (parameter.prefix()) {
       case EQ:

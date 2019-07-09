@@ -3,7 +3,10 @@ package gov.va.api.health.dataquery.service.controller.diagnosticreport;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,12 +21,16 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class DiagnosticReportPatientEntity {
+public class DiagnosticReportCrossEntity {
   @Id
   @EqualsAndHashCode.Include
   @Column(name = "Identifier")
   private String reportId;
 
-  @Column(name = "patientFullICN")
+  @Column(name = "PatientFullICN")
   private String icn;
+
+  @ManyToOne
+  @JoinColumn(referencedColumnName = "PatientFullICN")
+  private DiagnosticReportsEntity reportsEntity;
 }

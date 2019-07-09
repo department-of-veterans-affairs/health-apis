@@ -35,12 +35,8 @@ public final class DatamartDiagnosticReportTest {
     String icn = "1011537977V693883";
     String reportId = "800260864479:L";
 
-    DiagnosticReportPatientEntity crossEntity =
-        DiagnosticReportPatientEntity.builder().reportId(reportId).icn(icn).build();
-    entityManager.persistAndFlush(crossEntity);
-
-    DiagnosticReportEntity entity =
-        DiagnosticReportEntity.builder()
+    DiagnosticReportsEntity entity =
+        DiagnosticReportsEntity.builder()
             .icn(icn)
             .payload(
                 JacksonConfig.createMapper()
@@ -54,6 +50,14 @@ public final class DatamartDiagnosticReportTest {
                             .build()))
             .build();
     entityManager.persistAndFlush(entity);
+
+    DiagnosticReportCrossEntity crossEntity =
+        DiagnosticReportCrossEntity.builder()
+            .reportId(reportId)
+            .icn(icn)
+            .reportsEntity(entity)
+            .build();
+    entityManager.persistAndFlush(crossEntity);
 
     DiagnosticReportController controller =
         new DiagnosticReportController(
@@ -95,8 +99,8 @@ public final class DatamartDiagnosticReportTest {
     String performer = "655775";
     String performerDisplay = "MANILA-RO";
 
-    DiagnosticReportEntity entity =
-        DiagnosticReportEntity.builder()
+    DiagnosticReportsEntity entity =
+        DiagnosticReportsEntity.builder()
             .icn(icn)
             .payload(
                 JacksonConfig.createMapper()

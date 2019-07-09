@@ -169,8 +169,8 @@ public class DiagnosticReportController {
       return bundle(publicParameters, emptyList(), 0);
     }
 
-    DiagnosticReportEntity entity =
-        entityManager.find(DiagnosticReportEntity.class, cdwParameters.getFirst("patient"));
+    DiagnosticReportsEntity entity =
+        entityManager.find(DiagnosticReportsEntity.class, cdwParameters.getFirst("patient"));
     if (entity == null) {
       return bundle(publicParameters, emptyList(), 0);
     }
@@ -222,19 +222,13 @@ public class DiagnosticReportController {
         witnessProtection.replacePublicIdsWithCdwIds(publicParameters);
     String cdwReportId = cdwParameters.getFirst("identifier");
 
-    DiagnosticReportPatientEntity crossEntity =
-        entityManager.find(DiagnosticReportPatientEntity.class, cdwReportId);
-    if (crossEntity == null) {
+    DiagnosticReportCrossEntity entity =
+        entityManager.find(DiagnosticReportCrossEntity.class, cdwReportId);
+    if (entity == null || entity.reportsEntity() == null) {
       return null;
     }
 
-    DiagnosticReportEntity entity =
-        entityManager.find(DiagnosticReportEntity.class, crossEntity.icn());
-    if (entity == null) {
-      return null;
-    }
-
-    DatamartDiagnosticReports payload = entity.asDatamartDiagnosticReports();
+    DatamartDiagnosticReports payload = entity.reportsEntity().asDatamartDiagnosticReports();
     Optional<DatamartDiagnosticReports.DiagnosticReport> maybeReport =
         payload
             .reports()

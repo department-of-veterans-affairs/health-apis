@@ -44,7 +44,11 @@ public final class DateTimeParameters {
     return new UnsupportedOperationException("AP search prefix not implemented");
   }
 
-  /** Indicates if the date range satisfies this date-time parameter. */
+  /**
+   * Indicates if the given date range (epoch millis) satisfies this date-time parameter.
+   *
+   * @see JpaDateTimeParameter#toQuerySnippet
+   */
   public boolean isSatisfied(long lower, long upper) {
     long lowerBound = lowerBound().toEpochMilli();
     long upperBound = upperBound().toEpochMilli();

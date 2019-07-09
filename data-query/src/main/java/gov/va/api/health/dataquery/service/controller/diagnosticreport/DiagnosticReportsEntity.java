@@ -23,7 +23,7 @@ import lombok.SneakyThrows;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class DiagnosticReportEntity {
+public class DiagnosticReportsEntity {
   @Id
   @Column(name = "PatientFullIcn")
   @EqualsAndHashCode.Include
