@@ -148,11 +148,12 @@ public final class SystemDefinitions {
   /** Return definitions for the production environment. */
   private static SystemDefinition prod() {
     // Mr Anderson not accessible in this environment
-    String url = "https://argonaut.lighthouse.va.gov";
+    String url = "https://api.va.gov";
     return SystemDefinition.builder()
         .ids(serviceDefinition("ids", url, 443, null, "/not-available/"))
         .mrAnderson(serviceDefinition("mr-anderson", url, 443, null, "/not-available/"))
-        .dataQuery(serviceDefinition("argonaut", url, 443, magicAccessToken(), "/"))
+        .dataQuery(
+            serviceDefinition("argonaut", url, 443, magicAccessToken(), "/services/argonaut/v0/"))
         .cdwIds(productionCdwIds())
         .build();
   }
