@@ -38,7 +38,7 @@ startApp() {
   echo "Starting $app"
   [ ! -d "$where" ] && echo "$where does not exist" && exit 1
   cd $where/$app
-  local jar=$(find target -maxdepth 1 -name "$app-*.jar" | head -1)
+  local jar=$(find target -maxdepth 1 -name "$app-*.jar" | grep -v 'tests')
   [ -z "$jar" ] && echo "Cannot find $app application jar" && exit 1
   java -jar $jar &
 }
