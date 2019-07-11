@@ -5,7 +5,6 @@ import static gov.va.api.health.dataquery.service.controller.Transformers.hasPay
 import static java.util.Arrays.asList;
 
 import gov.va.api.health.argonaut.api.resources.Patient;
-import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.Bundler;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.JpaDateTimeParameter;
@@ -25,7 +24,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.validation.constraints.Min;
 import lombok.AllArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.time.StopWatch;
@@ -209,7 +207,6 @@ public class PatientController {
   }
 
   /** Read by id. */
-  @SneakyThrows
   @GetMapping(value = {"/{publicId}"})
   public Patient read(
       @RequestHeader(value = "Datamart", defaultValue = "") String datamart,
@@ -228,21 +225,17 @@ public class PatientController {
 
     if ("both".equalsIgnoreCase(datamart)) {
       StopWatch datamartWatch = StopWatch.createStarted();
-      Patient datamartPatient = datamartRead(publicId);
+      datamartRead(publicId);
       datamartWatch.stop();
       log.info(
-          "mr-anderson took {} millis and datamart took {} millis."
-              + " mr-anderson is {} and datamart is {}",
+          "mr-anderson took {} millis and datamart took {} millis.",
           mraWatch.getTime(),
-          datamartWatch.getTime(),
-          JacksonConfig.createMapper().writeValueAsString(mrAndersonPatient),
-          JacksonConfig.createMapper().writeValueAsString(datamartPatient));
+          datamartWatch.getTime());
     }
 
     return mrAndersonPatient;
   }
 
-  @SneakyThrows
   private Patient.Bundle search(
       String datamart,
       String query,
@@ -262,14 +255,11 @@ public class PatientController {
       datamartWatch.stop();
       log.info(
           "mr-anderson took {} millis and datamart took {} millis."
-              + " {} mr-anderson results, {} datamart results."
-              + " mr-anderson bundle is {} and datamart bundle is {}",
+              + " {} mr-anderson results, {} datamart results.",
           mraWatch.getTime(),
           datamartWatch.getTime(),
           mrAndersonBundle.total(),
-          datamartBundle.total(),
-          JacksonConfig.createMapper().writeValueAsString(mrAndersonBundle),
-          JacksonConfig.createMapper().writeValueAsString(datamartBundle));
+          datamartBundle.total());
     }
 
     return mrAndersonBundle;

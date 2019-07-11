@@ -13,7 +13,6 @@ import static org.springframework.util.CollectionUtils.isEmpty;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import gov.va.api.health.argonaut.api.resources.DiagnosticReport;
-import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.Bundler;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.DateTimeParameter;
@@ -290,7 +289,6 @@ public class DiagnosticReportController {
   }
 
   /** Read by identifier. */
-  @SneakyThrows
   @GetMapping(value = {"/{publicId}"})
   public DiagnosticReport read(
       @RequestHeader(value = "Datamart", defaultValue = "") String datamart,
@@ -310,15 +308,12 @@ public class DiagnosticReportController {
 
     if ("both".equalsIgnoreCase(datamart)) {
       StopWatch datamartWatch = StopWatch.createStarted();
-      DiagnosticReport datamartReport = datamartRead(publicId);
+      datamartRead(publicId);
       datamartWatch.stop();
       log.info(
-          "mr-anderson took {} millis and datamart took {} millis."
-              + " mr-anderson is {} and datamart is {}",
+          "mr-anderson took {} millis and datamart took {} millis.",
           mraWatch.getTime(),
-          datamartWatch.getTime(),
-          JacksonConfig.createMapper().writeValueAsString(mrAndersonReport),
-          JacksonConfig.createMapper().writeValueAsString(datamartReport));
+          datamartWatch.getTime());
     }
 
     return mrAndersonReport;
@@ -367,7 +362,6 @@ public class DiagnosticReportController {
     }
   }
 
-  @SneakyThrows
   private DiagnosticReport.Bundle search(
       String datamart, MultiValueMap<String, String> parameters) {
     if (BooleanUtils.isTrue(BooleanUtils.toBooleanObject(datamart))) {
@@ -384,14 +378,11 @@ public class DiagnosticReportController {
       datamartWatch.stop();
       log.info(
           "mr-anderson took {} millis and datamart took {} millis."
-              + " {} mr-anderson results, {} datamart results."
-              + " mr-anderson bundle is {} and datamart bundle is {}",
+              + " {} mr-anderson results, {} datamart results.",
           mraWatch.getTime(),
           datamartWatch.getTime(),
           mrAndersonBundle.total(),
-          datamartBundle.total(),
-          JacksonConfig.createMapper().writeValueAsString(mrAndersonBundle),
-          JacksonConfig.createMapper().writeValueAsString(datamartBundle));
+          datamartBundle.total());
     }
 
     return mrAndersonBundle;
