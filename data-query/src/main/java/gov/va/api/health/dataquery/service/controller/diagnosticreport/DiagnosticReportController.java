@@ -2,7 +2,7 @@ package gov.va.api.health.dataquery.service.controller.diagnosticreport;
 
 import static gov.va.api.health.dataquery.service.controller.Transformers.firstPayloadItem;
 import static gov.va.api.health.dataquery.service.controller.Transformers.hasPayload;
-import static gov.va.api.health.dataquery.service.controller.Transformers.parseLocalDateTime;
+import static gov.va.api.health.dataquery.service.controller.Transformers.parseInstant;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
@@ -27,9 +27,7 @@ import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.dvp.cdw.xsd.model.CdwDiagnosticReport102Root;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -87,25 +85,21 @@ public class DiagnosticReportController {
   private static boolean datesAreSatisfied(
       DatamartDiagnosticReports.DiagnosticReport report, List<DateTimeParameters> parameters) {
     for (DateTimeParameters parameter : parameters) {
-      LocalDateTime effectiveLocal = parseLocalDateTime(trimToEmpty(report.effectiveDateTime()));
-      LocalDateTime issuedLocal = parseLocalDateTime(trimToEmpty(report.issuedDateTime()));
-      if (effectiveLocal == null && issuedLocal == null) {
+      Instant effective = parseInstant(trimToEmpty(report.effectiveDateTime()));
+      Instant issued = parseInstant(trimToEmpty(report.issuedDateTime()));
+      if (effective == null && issued == null) {
         return false;
       }
 
-      ZonedDateTime effective =
-          effectiveLocal == null
-              ? issuedLocal.atZone(ZoneId.of("Z"))
-              : effectiveLocal.atZone(ZoneId.of("Z"));
-      ZonedDateTime issued =
-          issuedLocal == null
-              ? effectiveLocal.atZone(ZoneId.of("Z"))
-              : issuedLocal.atZone(ZoneId.of("Z"));
+      if (effective == null) {
+        effective = issued;
+      }
+      if (issued == null) {
+        issued = effective;
+      }
 
-      long lower =
-          Math.min(effective.toInstant().toEpochMilli(), issued.toInstant().toEpochMilli());
-      long upper =
-          Math.max(effective.toInstant().toEpochMilli(), issued.toInstant().toEpochMilli());
+      long lower = Math.min(effective.toEpochMilli(), issued.toEpochMilli());
+      long upper = Math.max(effective.toEpochMilli(), issued.toEpochMilli());
 
       if (!parameter.isSatisfied(lower, upper)) {
         return false;

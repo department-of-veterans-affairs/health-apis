@@ -1,11 +1,12 @@
 package gov.va.api.health.dataquery.service.controller;
 
+import static org.apache.commons.lang3.StringUtils.endsWithIgnoreCase;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
 import java.math.BigInteger;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.time.format.DateTimeParseException;
 import java.util.Collection;
 import java.util.List;
@@ -149,12 +150,15 @@ public final class Transformers {
     return value == null;
   }
 
-  /** Parse a string as LocalDateTime. */
-  public static LocalDateTime parseLocalDateTime(String dateTime) {
+  /**
+   * Parse an Instant from a string such as '2007-12-03T10:15:30Z', appending 'Z' if it is missing.
+   */
+  public static Instant parseInstant(String instant) {
     try {
-      return LocalDateTime.parse(dateTime);
+      String zoned = endsWithIgnoreCase(instant, "Z") ? instant : instant + "Z";
+      return Instant.parse(zoned);
     } catch (DateTimeParseException e) {
-      log.error("Failed to parse '{}' as local date time", dateTime);
+      log.error("Failed to parse '{}' as instant", instant);
       return null;
     }
   }

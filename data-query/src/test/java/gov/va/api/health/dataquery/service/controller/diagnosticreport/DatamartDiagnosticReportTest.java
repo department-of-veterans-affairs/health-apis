@@ -1,6 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.diagnosticreport;
 
-import static gov.va.api.health.dataquery.service.controller.Transformers.parseLocalDateTime;
+import static gov.va.api.health.dataquery.service.controller.Transformers.parseInstant;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -23,7 +23,6 @@ import gov.va.api.health.dstu2.api.elements.Reference;
 import gov.va.api.health.ids.api.IdentityService;
 import gov.va.dvp.cdw.xsd.model.CdwDiagnosticReport102Root;
 import java.math.BigInteger;
-import java.time.ZoneId;
 import java.util.stream.Collectors;
 import lombok.SneakyThrows;
 import org.junit.Test;
@@ -41,7 +40,7 @@ public final class DatamartDiagnosticReportTest {
 
   @Test
   @SneakyThrows
-  public void basicRead() {
+  public void read() {
     String icn = "1011537977V693883";
     String reportId = "800260864479:L";
     DiagnosticReportsEntity entity =
@@ -97,45 +96,73 @@ public final class DatamartDiagnosticReportTest {
 
   @Test
   @SneakyThrows
-  public void both() {
-    CdwDiagnosticReport102Root.CdwDiagnosticReports wrapper =
-        new CdwDiagnosticReport102Root.CdwDiagnosticReports();
-    wrapper
-        .getDiagnosticReport()
-        .add(new CdwDiagnosticReport102Root.CdwDiagnosticReports.CdwDiagnosticReport());
-    CdwDiagnosticReport102Root root = new CdwDiagnosticReport102Root();
-    root.setDiagnosticReports(wrapper);
-    root.setRecordCount(BigInteger.ZERO);
-    MrAndersonClient mrAnderson = mock(MrAndersonClient.class);
-    when(mrAnderson.search(any())).thenReturn(root);
+  public void searchByPatient() {
+    String icn = "1011537977V693883";
+    String reportId = "800260864479:L";
+    String effectiveDateTime = "2009-09-24T03:15:24";
+    String issuedDateTime = "2009-09-24T03:36:35";
+    String performer = "655775";
+    String performerDisplay = "MANILA-RO";
+    DiagnosticReportsEntity entity =
+        DiagnosticReportsEntity.builder()
+            .icn(icn)
+            .payload(
+                JacksonConfig.createMapper()
+                    .writeValueAsString(
+                        DatamartDiagnosticReports.builder()
+                            .fullIcn(icn)
+                            .reports(
+                                asList(
+                                    DatamartDiagnosticReports.DiagnosticReport.builder()
+                                        .identifier(reportId)
+                                        .effectiveDateTime(effectiveDateTime)
+                                        .issuedDateTime(issuedDateTime)
+                                        .accessionInstitutionSid(performer)
+                                        .accessionInstitutionName(performerDisplay)
+                                        .build()))
+                            .build()))
+            .build();
+    entityManager.persistAndFlush(entity);
     DiagnosticReportController controller =
         new DiagnosticReportController(
-            new DiagnosticReportTransformer(),
-            mrAnderson,
+            null,
+            null,
             new Bundler(new ConfigurableBaseUrlPageLinks("", "")),
             WitnessProtection.builder().identityService(mock(IdentityService.class)).build(),
             entityManager.getEntityManager());
-    DiagnosticReport.Bundle bundle = controller.searchByPatient("both", "1011537977V693883", 1, 15);
+    DiagnosticReport.Bundle bundle = controller.searchByPatient("true", icn, 1, 15);
     assertThat(Iterables.getOnlyElement(bundle.entry()).resource())
         .isEqualTo(
             DiagnosticReport.builder()
+                .id(reportId)
                 .resourceType("DiagnosticReport")
-                ._performer(
-                    Extension.builder()
-                        .extension(
+                .status(DiagnosticReport.Code._final)
+                .category(
+                    CodeableConcept.builder()
+                        .coding(
                             asList(
-                                Extension.builder()
-                                    .url(
-                                        "http://hl7.org/fhir/StructureDefinition/data-absent-reason")
-                                    .valueCode("unknown")
+                                Coding.builder()
+                                    .system(
+                                        "http://hl7.org/fhir/ValueSet/diagnostic-service-sections")
+                                    .code("LAB")
+                                    .display("Laboratory")
                                     .build()))
+                        .build())
+                .code(CodeableConcept.builder().text("panel").build())
+                .subject(Reference.builder().reference("Patient/" + icn).build())
+                .effectiveDateTime(parseInstant(effectiveDateTime).toString())
+                .issued(parseInstant(issuedDateTime).toString())
+                .performer(
+                    Reference.builder()
+                        .reference("Organization/" + performer)
+                        .display(performerDisplay)
                         .build())
                 .build());
   }
 
   @Test
   @SneakyThrows
-  public void dateSearch() {
+  public void searchByPatientAndCategoryAndDate() {
     String icn = "1011537977V693883";
     String reportId1 = "1:L";
     String reportId2 = "2:L";
@@ -197,7 +224,7 @@ public final class DatamartDiagnosticReportTest {
                             .build())
                     .code(CodeableConcept.builder().text("panel").build())
                     .subject(Reference.builder().reference("Patient/" + icn).build())
-                    .effectiveDateTime(parseLocalDateTime(time2).atZone(ZoneId.of("Z")).toString())
+                    .effectiveDateTime(parseInstant(time2).toString())
                     .build(),
                 DiagnosticReport.builder()
                     .id(reportId1)
@@ -216,73 +243,44 @@ public final class DatamartDiagnosticReportTest {
                             .build())
                     .code(CodeableConcept.builder().text("panel").build())
                     .subject(Reference.builder().reference("Patient/" + icn).build())
-                    .effectiveDateTime(parseLocalDateTime(time1).atZone(ZoneId.of("Z")).toString())
+                    .effectiveDateTime(parseInstant(time1).toString())
                     .build()));
   }
 
   @Test
   @SneakyThrows
-  public void patientSearch() {
-    String icn = "1011537977V693883";
-    String reportId = "800260864479:L";
-    String effectiveDateTime = "2009-09-24T03:15:24";
-    String issuedDateTime = "2009-09-24T03:36:35";
-    String performer = "655775";
-    String performerDisplay = "MANILA-RO";
-    DiagnosticReportsEntity entity =
-        DiagnosticReportsEntity.builder()
-            .icn(icn)
-            .payload(
-                JacksonConfig.createMapper()
-                    .writeValueAsString(
-                        DatamartDiagnosticReports.builder()
-                            .fullIcn(icn)
-                            .reports(
-                                asList(
-                                    DatamartDiagnosticReports.DiagnosticReport.builder()
-                                        .identifier(reportId)
-                                        .effectiveDateTime(effectiveDateTime)
-                                        .issuedDateTime(issuedDateTime)
-                                        .accessionInstitutionSid(performer)
-                                        .accessionInstitutionName(performerDisplay)
-                                        .build()))
-                            .build()))
-            .build();
-    entityManager.persistAndFlush(entity);
+  public void searchByPatient_both() {
+    CdwDiagnosticReport102Root.CdwDiagnosticReports wrapper =
+        new CdwDiagnosticReport102Root.CdwDiagnosticReports();
+    wrapper
+        .getDiagnosticReport()
+        .add(new CdwDiagnosticReport102Root.CdwDiagnosticReports.CdwDiagnosticReport());
+    CdwDiagnosticReport102Root root = new CdwDiagnosticReport102Root();
+    root.setDiagnosticReports(wrapper);
+    root.setRecordCount(BigInteger.ZERO);
+    MrAndersonClient mrAnderson = mock(MrAndersonClient.class);
+    when(mrAnderson.search(any())).thenReturn(root);
     DiagnosticReportController controller =
         new DiagnosticReportController(
-            null,
-            null,
+            new DiagnosticReportTransformer(),
+            mrAnderson,
             new Bundler(new ConfigurableBaseUrlPageLinks("", "")),
             WitnessProtection.builder().identityService(mock(IdentityService.class)).build(),
             entityManager.getEntityManager());
-    DiagnosticReport.Bundle bundle = controller.searchByPatient("true", icn, 1, 15);
+    DiagnosticReport.Bundle bundle = controller.searchByPatient("both", "1011537977V693883", 1, 15);
     assertThat(Iterables.getOnlyElement(bundle.entry()).resource())
         .isEqualTo(
             DiagnosticReport.builder()
-                .id(reportId)
                 .resourceType("DiagnosticReport")
-                .status(DiagnosticReport.Code._final)
-                .category(
-                    CodeableConcept.builder()
-                        .coding(
+                ._performer(
+                    Extension.builder()
+                        .extension(
                             asList(
-                                Coding.builder()
-                                    .system(
-                                        "http://hl7.org/fhir/ValueSet/diagnostic-service-sections")
-                                    .code("LAB")
-                                    .display("Laboratory")
+                                Extension.builder()
+                                    .url(
+                                        "http://hl7.org/fhir/StructureDefinition/data-absent-reason")
+                                    .valueCode("unknown")
                                     .build()))
-                        .build())
-                .code(CodeableConcept.builder().text("panel").build())
-                .subject(Reference.builder().reference("Patient/" + icn).build())
-                .effectiveDateTime(
-                    parseLocalDateTime(effectiveDateTime).atZone(ZoneId.of("Z")).toString())
-                .issued(parseLocalDateTime(issuedDateTime).atZone(ZoneId.of("Z")).toString())
-                .performer(
-                    Reference.builder()
-                        .reference("Organization/" + performer)
-                        .display(performerDisplay)
                         .build())
                 .build());
   }

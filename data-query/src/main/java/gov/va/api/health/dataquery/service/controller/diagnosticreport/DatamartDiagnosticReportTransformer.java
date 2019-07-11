@@ -1,7 +1,7 @@
 package gov.va.api.health.dataquery.service.controller.diagnosticreport;
 
 import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
-import static gov.va.api.health.dataquery.service.controller.Transformers.parseLocalDateTime;
+import static gov.va.api.health.dataquery.service.controller.Transformers.parseInstant;
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -9,8 +9,7 @@ import gov.va.api.health.argonaut.api.resources.DiagnosticReport;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
 import gov.va.api.health.dstu2.api.elements.Reference;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.Instant;
 import lombok.Builder;
 import lombok.NonNull;
 
@@ -43,12 +42,12 @@ final class DatamartDiagnosticReportTransformer {
       return null;
     }
 
-    LocalDateTime local = parseLocalDateTime(datamart.effectiveDateTime());
-    if (local == null) {
+    Instant instant = parseInstant(datamart.effectiveDateTime());
+    if (instant == null) {
       return null;
     }
 
-    return local.atZone(ZoneId.of("Z")).toString();
+    return instant.toString();
   }
 
   private String issued() {
@@ -56,12 +55,12 @@ final class DatamartDiagnosticReportTransformer {
       return null;
     }
 
-    LocalDateTime local = parseLocalDateTime(datamart.issuedDateTime());
-    if (local == null) {
+    Instant instant = parseInstant(datamart.issuedDateTime());
+    if (instant == null) {
       return null;
     }
 
-    return local.atZone(ZoneId.of("Z")).toString();
+    return instant.toString();
   }
 
   private Reference performer() {
