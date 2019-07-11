@@ -17,6 +17,7 @@ import javax.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindException;
+import org.springframework.web.bind.UnsatisfiedServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -31,7 +32,11 @@ import org.springframework.web.client.HttpClientErrorException;
 @RequestMapping(produces = {"application/json"})
 @Slf4j
 public class WebExceptionHandler {
-  @ExceptionHandler({BadRequest.class, BindException.class})
+  @ExceptionHandler({
+    BadRequest.class,
+    BindException.class,
+    UnsatisfiedServletRequestParameterException.class
+  })
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   public OperationOutcome handleBadRequest(Exception e, HttpServletRequest request) {
     return responseFor("structure", e, request);
