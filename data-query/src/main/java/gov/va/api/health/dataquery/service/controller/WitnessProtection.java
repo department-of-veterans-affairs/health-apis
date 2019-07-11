@@ -1,5 +1,8 @@
 package gov.va.api.health.dataquery.service.controller;
 
+import static java.util.Collections.emptyList;
+import static org.springframework.util.CollectionUtils.isEmpty;
+
 import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
@@ -23,6 +26,9 @@ public class WitnessProtection {
 
   /** Register IDs. */
   public List<Registration> register(Collection<ResourceIdentity> ids) {
+    if (isEmpty(ids)) {
+      return emptyList();
+    }
     return identityService.register(new ArrayList<>(ids));
   }
 
