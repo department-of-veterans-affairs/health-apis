@@ -11,6 +11,7 @@ import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
 import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Table;
 import gov.va.api.health.argonaut.api.resources.DiagnosticReport;
 import gov.va.api.health.dataquery.service.controller.Bundler;
@@ -36,6 +37,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
@@ -217,13 +219,20 @@ public class DiagnosticReportController {
         witnessProtection.replacePublicIdsWithCdwIds(publicParameters);
     String cdwReportId = cdwParameters.getFirst("identifier");
 
-    DiagnosticReportCrossEntity entity =
-        entityManager.find(DiagnosticReportCrossEntity.class, cdwReportId);
-    if (entity == null || entity.reportsEntity() == null) {
+    TypedQuery<DiagnosticReportsEntity> query =
+        entityManager.createQuery(
+            "Select dr from DiagnosticReportsEntity dr join DiagnosticReportCrossEntity drc on"
+                + " dr.icn = drc.icn where drc.reportId = :identifier",
+            DiagnosticReportsEntity.class);
+    query.setParameter("identifier", cdwReportId);
+    query.setMaxResults(1);
+    List<DiagnosticReportsEntity> entities = query.getResultList();
+    if (isEmpty(entities)) {
       return null;
     }
 
-    DatamartDiagnosticReports payload = entity.reportsEntity().asDatamartDiagnosticReports();
+    DatamartDiagnosticReports payload =
+        Iterables.getOnlyElement(entities).asDatamartDiagnosticReports();
     Optional<DatamartDiagnosticReports.DiagnosticReport> maybeReport =
         payload
             .reports()

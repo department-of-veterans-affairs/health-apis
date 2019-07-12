@@ -51,11 +51,7 @@ public final class DatamartDiagnosticReportTest {
             .build();
     entityManager.persistAndFlush(entity);
     DiagnosticReportCrossEntity crossEntity =
-        DiagnosticReportCrossEntity.builder()
-            .reportId(reportId)
-            .icn(icn)
-            .reportsEntity(entity)
-            .build();
+        DiagnosticReportCrossEntity.builder().reportId(reportId).icn(icn).build();
     entityManager.persistAndFlush(crossEntity);
     DiagnosticReportController controller =
         new DiagnosticReportController(
@@ -88,6 +84,20 @@ public final class DatamartDiagnosticReportTest {
 
   @Test
   @SneakyThrows
+  public void read_empty() {
+    DiagnosticReportController controller =
+        new DiagnosticReportController(
+            null,
+            null,
+            null,
+            WitnessProtection.builder().identityService(mock(IdentityService.class)).build(),
+            entityManager.getEntityManager());
+    DiagnosticReport report = controller.read("true", "800260864479:L");
+    assertThat(report).isNull();
+  }
+
+  @Test
+  @SneakyThrows
   public void searchById() {
     String icn = "1011537977V693883";
     String reportId = "800260864479:L";
@@ -107,11 +117,7 @@ public final class DatamartDiagnosticReportTest {
             .build();
     entityManager.persistAndFlush(entity);
     DiagnosticReportCrossEntity crossEntity =
-        DiagnosticReportCrossEntity.builder()
-            .reportId(reportId)
-            .icn(icn)
-            .reportsEntity(entity)
-            .build();
+        DiagnosticReportCrossEntity.builder().reportId(reportId).icn(icn).build();
     entityManager.persistAndFlush(crossEntity);
     DiagnosticReportController controller =
         new DiagnosticReportController(
@@ -163,11 +169,7 @@ public final class DatamartDiagnosticReportTest {
             .build();
     entityManager.persistAndFlush(entity);
     DiagnosticReportCrossEntity crossEntity =
-        DiagnosticReportCrossEntity.builder()
-            .reportId(reportId)
-            .icn(icn)
-            .reportsEntity(entity)
-            .build();
+        DiagnosticReportCrossEntity.builder().reportId(reportId).icn(icn).build();
     entityManager.persistAndFlush(crossEntity);
     DiagnosticReportController controller =
         new DiagnosticReportController(
