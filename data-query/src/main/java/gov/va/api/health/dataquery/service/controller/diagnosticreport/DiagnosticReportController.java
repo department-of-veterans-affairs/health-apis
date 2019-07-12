@@ -81,31 +81,20 @@ public class DiagnosticReportController {
 
   private EntityManager entityManager;
 
-  private static boolean datesAreSatisfied(
-      DatamartDiagnosticReports.DiagnosticReport report, List<DateTimeParameters> parameters) {
-    for (DateTimeParameters parameter : parameters) {
-      Instant effective = parseInstant(trimToEmpty(report.effectiveDateTime()));
-      Instant issued = parseInstant(trimToEmpty(report.issuedDateTime()));
-      if (effective == null && issued == null) {
-        return false;
-      }
-
-      if (effective == null) {
-        effective = issued;
-      }
-      if (issued == null) {
-        issued = effective;
-      }
-
-      long lower = Math.min(effective.toEpochMilli(), issued.toEpochMilli());
-      long upper = Math.max(effective.toEpochMilli(), issued.toEpochMilli());
-
-      if (!parameter.isSatisfied(lower, upper)) {
-        return false;
-      }
+  private static boolean dateParameterIsSatisfied(
+      DatamartDiagnosticReports.DiagnosticReport report, DateTimeParameters parameter) {
+    Instant effective = parseInstant(trimToEmpty(report.effectiveDateTime()));
+    if (effective != null
+        && parameter.isSatisfied(effective.toEpochMilli(), effective.toEpochMilli())) {
+      return true;
     }
 
-    return true;
+    Instant issued = parseInstant(trimToEmpty(report.issuedDateTime()));
+    if (issued != null && parameter.isSatisfied(issued.toEpochMilli(), issued.toEpochMilli())) {
+      return true;
+    }
+
+    return false;
   }
 
   private static List<DatamartDiagnosticReports.DiagnosticReport> filterDates(
@@ -123,7 +112,7 @@ public class DiagnosticReportController {
 
     return datamartReports
         .stream()
-        .filter(r -> datesAreSatisfied(r, parameters))
+        .filter(r -> parameters.stream().allMatch(p -> dateParameterIsSatisfied(r, p)))
         .collect(Collectors.toList());
   }
 

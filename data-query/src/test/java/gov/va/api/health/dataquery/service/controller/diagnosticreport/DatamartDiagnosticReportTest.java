@@ -355,6 +355,159 @@ public final class DatamartDiagnosticReportTest {
 
   @Test
   @SneakyThrows
+  public void searchByPatientAndCategoryAndDate_noDates() {
+    String icn = "1011537977V693883";
+    DiagnosticReportsEntity entity =
+        DiagnosticReportsEntity.builder()
+            .icn(icn)
+            .payload(
+                JacksonConfig.createMapper()
+                    .writeValueAsString(
+                        DatamartDiagnosticReports.builder()
+                            .fullIcn(icn)
+                            .reports(
+                                asList(
+                                    DatamartDiagnosticReports.DiagnosticReport.builder()
+                                        .identifier("1:L")
+                                        .build()))
+                            .build()))
+            .build();
+    entityManager.persistAndFlush(entity);
+
+    DiagnosticReportController controller =
+        new DiagnosticReportController(
+            null,
+            null,
+            new Bundler(new ConfigurableBaseUrlPageLinks("", "")),
+            WitnessProtection.builder().identityService(mock(IdentityService.class)).build(),
+            entityManager.getEntityManager());
+    Bundle bundle =
+        controller.searchByPatientAndCategoryAndDate(
+            "true", icn, "LAB", new String[] {"ge2000"}, 1, 15);
+
+    assertThat(bundle.entry()).isEmpty();
+  }
+
+  @Test
+  @SneakyThrows
+  public void searchByPatientAndCategoryAndDate_exactIssued() {
+    String icn = "1011537977V693883";
+    DiagnosticReportsEntity entity =
+        DiagnosticReportsEntity.builder()
+            .icn(icn)
+            .payload(
+                JacksonConfig.createMapper()
+                    .writeValueAsString(
+                        DatamartDiagnosticReports.builder()
+                            .fullIcn(icn)
+                            .reports(
+                                asList(
+                                    DatamartDiagnosticReports.DiagnosticReport.builder()
+                                        .identifier("1:L")
+                                        .issuedDateTime("2009-09-24T03:15:24")
+                                        .build()))
+                            .build()))
+            .build();
+    entityManager.persistAndFlush(entity);
+
+    DiagnosticReportController controller =
+        new DiagnosticReportController(
+            null,
+            null,
+            new Bundler(new ConfigurableBaseUrlPageLinks("", "")),
+            WitnessProtection.builder().identityService(mock(IdentityService.class)).build(),
+            entityManager.getEntityManager());
+    Bundle bundle =
+        controller.searchByPatientAndCategoryAndDate(
+            "true", icn, "LAB", new String[] {"2009-09-24T03:15:24Z"}, 1, 15);
+
+    assertThat(bundle.entry().size()).isEqualTo(1);
+  }
+
+  @Test
+  @SneakyThrows
+  public void searchByPatientAndCategoryAndDate_exactEffective() {
+    String icn = "1011537977V693883";
+    DiagnosticReportsEntity entity =
+        DiagnosticReportsEntity.builder()
+            .icn(icn)
+            .payload(
+                JacksonConfig.createMapper()
+                    .writeValueAsString(
+                        DatamartDiagnosticReports.builder()
+                            .fullIcn(icn)
+                            .reports(
+                                asList(
+                                    DatamartDiagnosticReports.DiagnosticReport.builder()
+                                        .identifier("1:L")
+                                        .effectiveDateTime("2009-09-24T03:15:24")
+                                        .build()))
+                            .build()))
+            .build();
+    entityManager.persistAndFlush(entity);
+
+    DiagnosticReportController controller =
+        new DiagnosticReportController(
+            null,
+            null,
+            new Bundler(new ConfigurableBaseUrlPageLinks("", "")),
+            WitnessProtection.builder().identityService(mock(IdentityService.class)).build(),
+            entityManager.getEntityManager());
+    Bundle bundle =
+        controller.searchByPatientAndCategoryAndDate(
+            "true", icn, "LAB", new String[] {"2009-09-24T03:15:24Z"}, 1, 15);
+
+    assertThat(bundle.entry().size()).isEqualTo(1);
+  }
+
+  @Test
+  @SneakyThrows
+  public void searchByPatientAndCategoryAndDate_greaterThan() {
+    String icn = "1011537977V693883";
+    DiagnosticReportsEntity entity =
+        DiagnosticReportsEntity.builder()
+            .icn(icn)
+            .payload(
+                JacksonConfig.createMapper()
+                    .writeValueAsString(
+                        DatamartDiagnosticReports.builder()
+                            .fullIcn(icn)
+                            .reports(
+                                asList(
+                                    DatamartDiagnosticReports.DiagnosticReport.builder()
+                                        .identifier("1:L")
+                                        .issuedDateTime("2009-09-24T00:00:00")
+                                        .effectiveDateTime("2009-09-24T01:00:00")
+                                        .build()))
+                            .build()))
+            .build();
+    entityManager.persistAndFlush(entity);
+
+    DiagnosticReportController controller =
+        new DiagnosticReportController(
+            null,
+            null,
+            new Bundler(new ConfigurableBaseUrlPageLinks("", "")),
+            WitnessProtection.builder().identityService(mock(IdentityService.class)).build(),
+            entityManager.getEntityManager());
+
+    assertThat(
+            controller
+                .searchByPatientAndCategoryAndDate(
+                    "true", icn, "LAB", new String[] {"gt2009-09-24T00:00:00Z"}, 1, 15)
+                .entry()
+                .size())
+        .isEqualTo(1);
+    assertThat(
+            controller
+                .searchByPatientAndCategoryAndDate(
+                    "true", icn, "LAB", new String[] {"gt2009-09-24T01:00:00Z"}, 1, 15)
+                .entry())
+        .isEmpty();
+  }
+
+  @Test
+  @SneakyThrows
   public void searchByPatientAndCategoryAndDate_notLab() {
     String icn = "1011537977V693883";
     String reportId = "1:L";
