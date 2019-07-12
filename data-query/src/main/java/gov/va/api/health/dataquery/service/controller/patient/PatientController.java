@@ -26,7 +26,6 @@ import javax.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.time.StopWatch;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -215,25 +214,10 @@ public class PatientController {
       return datamartRead(publicId);
     }
 
-    StopWatch mraWatch = StopWatch.createStarted();
-    Patient mrAndersonPatient =
-        transformer.apply(
-            firstPayloadItem(
-                hasPayload(mrAndersonSearch(Parameters.forIdentity(publicId)).getPatients())
-                    .getPatient()));
-    mraWatch.stop();
-
-    if ("both".equalsIgnoreCase(datamart)) {
-      StopWatch datamartWatch = StopWatch.createStarted();
-      datamartRead(publicId);
-      datamartWatch.stop();
-      log.info(
-          "mr-anderson took {} millis and datamart took {} millis.",
-          mraWatch.getTime(),
-          datamartWatch.getTime());
-    }
-
-    return mrAndersonPatient;
+    return transformer.apply(
+        firstPayloadItem(
+            hasPayload(mrAndersonSearch(Parameters.forIdentity(publicId)).getPatients())
+                .getPatient()));
   }
 
   private Patient.Bundle search(
@@ -244,25 +228,7 @@ public class PatientController {
     if (BooleanUtils.isTrue(BooleanUtils.toBooleanObject(datamart))) {
       return datamartBundle(query, totalRecordsQuery, parameters);
     }
-
-    StopWatch mraWatch = StopWatch.createStarted();
-    Patient.Bundle mrAndersonBundle = mrAndersonBundle(parameters);
-    mraWatch.stop();
-
-    if ("both".equalsIgnoreCase(datamart)) {
-      StopWatch datamartWatch = StopWatch.createStarted();
-      Patient.Bundle datamartBundle = datamartBundle(query, totalRecordsQuery, parameters);
-      datamartWatch.stop();
-      log.info(
-          "mr-anderson took {} millis and datamart took {} millis."
-              + " {} mr-anderson results, {} datamart results.",
-          mraWatch.getTime(),
-          datamartWatch.getTime(),
-          mrAndersonBundle.total(),
-          datamartBundle.total());
-    }
-
-    return mrAndersonBundle;
+    return mrAndersonBundle(parameters);
   }
 
   /** Search by Family+Gender. */

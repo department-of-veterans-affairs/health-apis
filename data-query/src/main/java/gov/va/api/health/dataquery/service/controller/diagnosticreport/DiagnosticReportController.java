@@ -41,10 +41,8 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.StopWatch;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
@@ -62,7 +60,6 @@ import org.springframework.web.bind.annotation.RestController;
  * https://www.fhir.org/guides/argonaut/r2/StructureDefinition-argo-diagnosticreport.html for
  * implementation details.
  */
-@Slf4j
 @Validated
 @RestController
 @SuppressWarnings("WeakerAccess")
@@ -291,26 +288,10 @@ public class DiagnosticReportController {
       return datamartRead(publicId);
     }
 
-    StopWatch mraWatch = StopWatch.createStarted();
-    DiagnosticReport mrAndersonReport =
-        transformer.apply(
-            firstPayloadItem(
-                hasPayload(
-                        mrAndersonSearch(Parameters.forIdentity(publicId)).getDiagnosticReports())
-                    .getDiagnosticReport()));
-    mraWatch.stop();
-
-    if ("both".equalsIgnoreCase(datamart)) {
-      StopWatch datamartWatch = StopWatch.createStarted();
-      datamartRead(publicId);
-      datamartWatch.stop();
-      log.info(
-          "mr-anderson took {} millis and datamart took {} millis.",
-          mraWatch.getTime(),
-          datamartWatch.getTime());
-    }
-
-    return mrAndersonReport;
+    return transformer.apply(
+        firstPayloadItem(
+            hasPayload(mrAndersonSearch(Parameters.forIdentity(publicId)).getDiagnosticReports())
+                .getDiagnosticReport()));
   }
 
   private void replaceCdwIdsWithPublicIds(
@@ -362,24 +343,7 @@ public class DiagnosticReportController {
       return datamartBundle(parameters);
     }
 
-    StopWatch mraWatch = StopWatch.createStarted();
-    DiagnosticReport.Bundle mrAndersonBundle = mrAndersonBundle(parameters);
-    mraWatch.stop();
-
-    if ("both".equalsIgnoreCase(datamart)) {
-      StopWatch datamartWatch = StopWatch.createStarted();
-      DiagnosticReport.Bundle datamartBundle = datamartBundle(parameters);
-      datamartWatch.stop();
-      log.info(
-          "mr-anderson took {} millis and datamart took {} millis."
-              + " {} mr-anderson results, {} datamart results.",
-          mraWatch.getTime(),
-          datamartWatch.getTime(),
-          mrAndersonBundle.total(),
-          datamartBundle.total());
-    }
-
-    return mrAndersonBundle;
+    return mrAndersonBundle(parameters);
   }
 
   /** Search by _id. */

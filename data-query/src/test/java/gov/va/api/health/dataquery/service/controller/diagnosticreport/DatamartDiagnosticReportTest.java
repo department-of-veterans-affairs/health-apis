@@ -3,10 +3,7 @@ package gov.va.api.health.dataquery.service.controller.diagnosticreport;
 import static gov.va.api.health.dataquery.service.controller.Transformers.parseInstant;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Iterables;
 import gov.va.api.health.argonaut.api.resources.DiagnosticReport;
@@ -15,14 +12,10 @@ import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.Bundler;
 import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
-import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
-import gov.va.api.health.dstu2.api.elements.Extension;
 import gov.va.api.health.dstu2.api.elements.Reference;
 import gov.va.api.health.ids.api.IdentityService;
-import gov.va.dvp.cdw.xsd.model.CdwDiagnosticReport102Root;
-import java.math.BigInteger;
 import java.util.stream.Collectors;
 import lombok.SneakyThrows;
 import org.junit.Test;
@@ -90,43 +83,6 @@ public final class DatamartDiagnosticReportTest {
                                     .build()))
                         .build())
                 .code(CodeableConcept.builder().text("panel").build())
-                .build());
-  }
-
-  @Test
-  @SneakyThrows
-  public void read_both() {
-    CdwDiagnosticReport102Root.CdwDiagnosticReports wrapper =
-        new CdwDiagnosticReport102Root.CdwDiagnosticReports();
-    wrapper
-        .getDiagnosticReport()
-        .add(new CdwDiagnosticReport102Root.CdwDiagnosticReports.CdwDiagnosticReport());
-    CdwDiagnosticReport102Root root = new CdwDiagnosticReport102Root();
-    root.setDiagnosticReports(wrapper);
-    MrAndersonClient mrAnderson = mock(MrAndersonClient.class);
-    when(mrAnderson.search(any())).thenReturn(root);
-    DiagnosticReportController controller =
-        new DiagnosticReportController(
-            new DiagnosticReportTransformer(),
-            mrAnderson,
-            null,
-            WitnessProtection.builder().identityService(mock(IdentityService.class)).build(),
-            entityManager.getEntityManager());
-    DiagnosticReport report = controller.read("both", "123");
-    assertThat(report)
-        .isEqualTo(
-            DiagnosticReport.builder()
-                .resourceType("DiagnosticReport")
-                ._performer(
-                    Extension.builder()
-                        .extension(
-                            asList(
-                                Extension.builder()
-                                    .url(
-                                        "http://hl7.org/fhir/StructureDefinition/data-absent-reason")
-                                    .valueCode("unknown")
-                                    .build()))
-                        .build())
                 .build());
   }
 
@@ -510,44 +466,6 @@ public final class DatamartDiagnosticReportTest {
                         .build())
                 .code(CodeableConcept.builder().text("panel").build())
                 .subject(Reference.builder().reference("Patient/" + icn).build())
-                .build());
-  }
-
-  @Test
-  @SneakyThrows
-  public void searchByPatient_both() {
-    CdwDiagnosticReport102Root.CdwDiagnosticReports wrapper =
-        new CdwDiagnosticReport102Root.CdwDiagnosticReports();
-    wrapper
-        .getDiagnosticReport()
-        .add(new CdwDiagnosticReport102Root.CdwDiagnosticReports.CdwDiagnosticReport());
-    CdwDiagnosticReport102Root root = new CdwDiagnosticReport102Root();
-    root.setDiagnosticReports(wrapper);
-    root.setRecordCount(BigInteger.ZERO);
-    MrAndersonClient mrAnderson = mock(MrAndersonClient.class);
-    when(mrAnderson.search(any())).thenReturn(root);
-    DiagnosticReportController controller =
-        new DiagnosticReportController(
-            new DiagnosticReportTransformer(),
-            mrAnderson,
-            new Bundler(new ConfigurableBaseUrlPageLinks("", "")),
-            WitnessProtection.builder().identityService(mock(IdentityService.class)).build(),
-            entityManager.getEntityManager());
-    DiagnosticReport.Bundle bundle = controller.searchByPatient("both", "1011537977V693883", 1, 15);
-    assertThat(Iterables.getOnlyElement(bundle.entry()).resource())
-        .isEqualTo(
-            DiagnosticReport.builder()
-                .resourceType("DiagnosticReport")
-                ._performer(
-                    Extension.builder()
-                        .extension(
-                            asList(
-                                Extension.builder()
-                                    .url(
-                                        "http://hl7.org/fhir/StructureDefinition/data-absent-reason")
-                                    .valueCode("unknown")
-                                    .build()))
-                        .build())
                 .build());
   }
 }
