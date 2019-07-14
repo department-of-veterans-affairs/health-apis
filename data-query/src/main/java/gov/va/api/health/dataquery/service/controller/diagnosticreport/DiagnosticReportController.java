@@ -362,18 +362,14 @@ public class DiagnosticReportController {
       @RequestParam("identifier") String identifier,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
-    MultiValueMap<String, String> parameters =
+    return bundle(
         Parameters.builder()
             .add("identifier", identifier)
             .add("page", page)
             .add("_count", count)
-            .build();
-    try {
-      DiagnosticReport report = read(datamart, identifier);
-      return bundle(parameters, asList(report), 1);
-    } catch (ResourceExceptions.NotFound e) {
-      return bundle(parameters, emptyList(), 0);
-    }
+            .build(),
+        asList(read(datamart, identifier)),
+        1);
   }
 
   /** Search by patient. */
