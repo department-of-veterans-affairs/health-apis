@@ -13,7 +13,7 @@ import lombok.experimental.UtilityClass;
 import org.springframework.util.MultiValueMap;
 
 @UtilityClass
-final class ResourceExceptions {
+public final class ResourceExceptions {
   @SneakyThrows
   private static String decode(String value) {
     return URLDecoder.decode(value, "UTF-8");
@@ -41,6 +41,12 @@ final class ResourceExceptions {
 
   static final class MissingSearchParameters extends ResourcesException {
     public MissingSearchParameters(MultiValueMap<String, String> parameters) {
+      super(toParametersString(parameters));
+    }
+  }
+
+  public static final class NotFound extends ResourcesException {
+    public NotFound(MultiValueMap<String, String> parameters) {
       super(toParametersString(parameters));
     }
   }

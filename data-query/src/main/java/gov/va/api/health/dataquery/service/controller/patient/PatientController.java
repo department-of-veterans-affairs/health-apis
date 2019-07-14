@@ -10,6 +10,7 @@ import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.JpaDateTimeParameter;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.Parameters;
+import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.Validator;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
@@ -135,7 +136,7 @@ public class PatientController {
     PatientEntity entity =
         entityManager.find(PatientEntity.class, cdwParameters.getFirst("identifier"));
     if (entity == null) {
-      return null;
+      throw new ResourceExceptions.NotFound(publicParameters);
     }
 
     return DatamartPatientTransformer.builder()

@@ -20,6 +20,7 @@ import gov.va.api.health.dataquery.service.controller.DateTimeParameter;
 import gov.va.api.health.dataquery.service.controller.DateTimeParameters;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.Parameters;
+import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.Validator;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
@@ -217,7 +218,7 @@ public class DiagnosticReportController {
     query.setMaxResults(1);
     List<DiagnosticReportsEntity> entities = query.getResultList();
     if (isEmpty(entities)) {
-      return null;
+      throw new ResourceExceptions.NotFound(publicParameters);
     }
 
     DatamartDiagnosticReports payload =
@@ -229,7 +230,7 @@ public class DiagnosticReportController {
             .filter(r -> StringUtils.equals(r.identifier(), cdwReportId))
             .findFirst();
     if (!maybeReport.isPresent()) {
-      return null;
+      throw new ResourceExceptions.NotFound(publicParameters);
     }
 
     DatamartDiagnosticReports.DiagnosticReport report = maybeReport.get();
@@ -361,16 +362,18 @@ public class DiagnosticReportController {
       @RequestParam("identifier") String identifier,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
-    DiagnosticReport report = read(datamart, identifier);
-    List<DiagnosticReport> reports = report == null ? emptyList() : asList(report);
-    return bundle(
+    MultiValueMap<String, String> parameters =
         Parameters.builder()
             .add("identifier", identifier)
             .add("page", page)
             .add("_count", count)
-            .build(),
-        reports,
-        reports.size());
+            .build();
+    try {
+      DiagnosticReport report = read(datamart, identifier);
+      return bundle(parameters, asList(report), 1);
+    } catch (ResourceExceptions.NotFound e) {
+      return bundle(parameters, emptyList(), 0);
+    }
   }
 
   /** Search by patient. */
