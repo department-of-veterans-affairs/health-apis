@@ -362,14 +362,15 @@ public class DiagnosticReportController {
       @RequestParam("identifier") String identifier,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
+    DiagnosticReport report = read(datamart, identifier);
     return bundle(
         Parameters.builder()
             .add("identifier", identifier)
             .add("page", page)
             .add("_count", count)
             .build(),
-        asList(read(datamart, identifier)),
-        1);
+        report == null ? emptyList() : asList(report),
+        report == null ? 0 : 1);
   }
 
   /** Search by patient. */

@@ -11,6 +11,7 @@ import gov.va.api.health.argonaut.api.resources.DiagnosticReport.Bundle;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.Bundler;
 import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
+import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
@@ -28,6 +29,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @DataJpaTest
 @RunWith(SpringRunner.class)
 public final class DatamartDiagnosticReportTest {
+
   @Autowired private TestEntityManager entityManager;
 
   @Test
@@ -82,8 +84,7 @@ public final class DatamartDiagnosticReportTest {
                 .build());
   }
 
-  @Test
-  @SneakyThrows
+  @Test(expected = ResourceExceptions.NotFound.class)
   public void read_empty() {
     DiagnosticReportController controller =
         new DiagnosticReportController(
@@ -92,8 +93,7 @@ public final class DatamartDiagnosticReportTest {
             null,
             WitnessProtection.builder().identityService(mock(IdentityService.class)).build(),
             entityManager.getEntityManager());
-    DiagnosticReport report = controller.read("true", "800260864479:L");
-    assertThat(report).isNull();
+    controller.read("true", "800260864479:L");
   }
 
   @Test
@@ -355,7 +355,7 @@ public final class DatamartDiagnosticReportTest {
 
   @Test
   @SneakyThrows
-  public void searchByPatientAndCategoryAndDate_noDates() {
+  public void searchByPatientAndCategoryAndDate_exactEffective() {
     String icn = "1011537977V693883";
     DiagnosticReportsEntity entity =
         DiagnosticReportsEntity.builder()
@@ -369,11 +369,11 @@ public final class DatamartDiagnosticReportTest {
                                 asList(
                                     DatamartDiagnosticReports.DiagnosticReport.builder()
                                         .identifier("1:L")
+                                        .effectiveDateTime("2009-09-24T03:15:24")
                                         .build()))
                             .build()))
             .build();
     entityManager.persistAndFlush(entity);
-
     DiagnosticReportController controller =
         new DiagnosticReportController(
             null,
@@ -383,9 +383,8 @@ public final class DatamartDiagnosticReportTest {
             entityManager.getEntityManager());
     Bundle bundle =
         controller.searchByPatientAndCategoryAndDate(
-            "true", icn, "LAB", new String[] {"ge2000"}, 1, 15);
-
-    assertThat(bundle.entry()).isEmpty();
+            "true", icn, "LAB", new String[] {"2009-09-24T03:15:24Z"}, 1, 15);
+    assertThat(bundle.entry().size()).isEqualTo(1);
   }
 
   @Test
@@ -409,7 +408,6 @@ public final class DatamartDiagnosticReportTest {
                             .build()))
             .build();
     entityManager.persistAndFlush(entity);
-
     DiagnosticReportController controller =
         new DiagnosticReportController(
             null,
@@ -420,43 +418,6 @@ public final class DatamartDiagnosticReportTest {
     Bundle bundle =
         controller.searchByPatientAndCategoryAndDate(
             "true", icn, "LAB", new String[] {"2009-09-24T03:15:24Z"}, 1, 15);
-
-    assertThat(bundle.entry().size()).isEqualTo(1);
-  }
-
-  @Test
-  @SneakyThrows
-  public void searchByPatientAndCategoryAndDate_exactEffective() {
-    String icn = "1011537977V693883";
-    DiagnosticReportsEntity entity =
-        DiagnosticReportsEntity.builder()
-            .icn(icn)
-            .payload(
-                JacksonConfig.createMapper()
-                    .writeValueAsString(
-                        DatamartDiagnosticReports.builder()
-                            .fullIcn(icn)
-                            .reports(
-                                asList(
-                                    DatamartDiagnosticReports.DiagnosticReport.builder()
-                                        .identifier("1:L")
-                                        .effectiveDateTime("2009-09-24T03:15:24")
-                                        .build()))
-                            .build()))
-            .build();
-    entityManager.persistAndFlush(entity);
-
-    DiagnosticReportController controller =
-        new DiagnosticReportController(
-            null,
-            null,
-            new Bundler(new ConfigurableBaseUrlPageLinks("", "")),
-            WitnessProtection.builder().identityService(mock(IdentityService.class)).build(),
-            entityManager.getEntityManager());
-    Bundle bundle =
-        controller.searchByPatientAndCategoryAndDate(
-            "true", icn, "LAB", new String[] {"2009-09-24T03:15:24Z"}, 1, 15);
-
     assertThat(bundle.entry().size()).isEqualTo(1);
   }
 
@@ -482,7 +443,6 @@ public final class DatamartDiagnosticReportTest {
                             .build()))
             .build();
     entityManager.persistAndFlush(entity);
-
     DiagnosticReportController controller =
         new DiagnosticReportController(
             null,
@@ -490,7 +450,6 @@ public final class DatamartDiagnosticReportTest {
             new Bundler(new ConfigurableBaseUrlPageLinks("", "")),
             WitnessProtection.builder().identityService(mock(IdentityService.class)).build(),
             entityManager.getEntityManager());
-
     assertThat(
             controller
                 .searchByPatientAndCategoryAndDate(
@@ -504,6 +463,39 @@ public final class DatamartDiagnosticReportTest {
                     "true", icn, "LAB", new String[] {"gt2009-09-24T01:00:00Z"}, 1, 15)
                 .entry())
         .isEmpty();
+  }
+
+  @Test
+  @SneakyThrows
+  public void searchByPatientAndCategoryAndDate_noDates() {
+    String icn = "1011537977V693883";
+    DiagnosticReportsEntity entity =
+        DiagnosticReportsEntity.builder()
+            .icn(icn)
+            .payload(
+                JacksonConfig.createMapper()
+                    .writeValueAsString(
+                        DatamartDiagnosticReports.builder()
+                            .fullIcn(icn)
+                            .reports(
+                                asList(
+                                    DatamartDiagnosticReports.DiagnosticReport.builder()
+                                        .identifier("1:L")
+                                        .build()))
+                            .build()))
+            .build();
+    entityManager.persistAndFlush(entity);
+    DiagnosticReportController controller =
+        new DiagnosticReportController(
+            null,
+            null,
+            new Bundler(new ConfigurableBaseUrlPageLinks("", "")),
+            WitnessProtection.builder().identityService(mock(IdentityService.class)).build(),
+            entityManager.getEntityManager());
+    Bundle bundle =
+        controller.searchByPatientAndCategoryAndDate(
+            "true", icn, "LAB", new String[] {"ge2000"}, 1, 15);
+    assertThat(bundle.entry()).isEmpty();
   }
 
   @Test
