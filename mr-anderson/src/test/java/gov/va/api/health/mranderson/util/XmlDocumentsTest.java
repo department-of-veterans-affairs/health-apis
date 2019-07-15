@@ -3,6 +3,7 @@ package gov.va.api.health.mranderson.util;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+import gov.va.api.health.mranderson.util.XmlDocuments.ErrorHandler;
 import gov.va.api.health.mranderson.util.XmlDocuments.ParseFailed;
 import gov.va.api.health.mranderson.util.XmlDocuments.WriteFailed;
 import org.junit.Test;
@@ -10,12 +11,22 @@ import org.mockito.Mockito;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
+import org.xml.sax.SAXParseException;
 
 public class XmlDocumentsTest {
   @Test(expected = ParseFailed.class)
   public void badXmlCausesParseFailure() {
     String xml = "<a><b>bee</b><c><no-closing-tag></c></a>";
     XmlDocuments.create().parse(xml);
+  }
+
+  @Test
+  public void errorHandlerJustWritesToTrace() {
+    ErrorHandler eh = new ErrorHandler();
+    eh.error(new SAXParseException("fugazi", null));
+    eh.fatalError(new SAXParseException("fugazi", null));
+    eh.warning(new SAXParseException("fugazi", null));
+    new WriteFailed("fugazi");
   }
 
   @Test

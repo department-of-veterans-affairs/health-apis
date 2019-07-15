@@ -9,6 +9,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
@@ -17,6 +18,7 @@ import org.w3c.dom.ls.LSOutput;
 import org.w3c.dom.ls.LSSerializer;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 
 /** Utilities for working with XML documents. */
 @NoArgsConstructor(staticName = "create")
@@ -59,7 +61,9 @@ public final class XmlDocuments {
       factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
       factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
       factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+      factory.setValidating(true);
       DocumentBuilder builder = factory.newDocumentBuilder();
+      builder.setErrorHandler(new ErrorHandler());
       InputSource is = new InputSource(new StringReader(xml));
       return builder.parse(is);
     } catch (ParserConfigurationException | SAXException | IOException e) {
@@ -82,6 +86,25 @@ public final class XmlDocuments {
     domSerializer.getDomConfig().setParameter("xml-declaration", true);
     domSerializer.write(document, formattedOutput);
     return stringWriter.toString();
+  }
+
+  @Slf4j
+  static class ErrorHandler implements org.xml.sax.ErrorHandler {
+
+    @Override
+    public void error(SAXParseException exception) {
+      log.trace(exception.getMessage());
+    }
+
+    @Override
+    public void fatalError(SAXParseException exception) {
+      log.trace(exception.getMessage());
+    }
+
+    @Override
+    public void warning(SAXParseException exception) {
+      log.trace(exception.getMessage());
+    }
   }
 
   public static class ParseFailed extends RuntimeException {
