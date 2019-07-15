@@ -1,5 +1,5 @@
 ====
 
-    ${Ansi.BLUE}Health API ${Ansi.BOLD}${Ansi.YELLOW}Jargonaut ${Ansi.NORMAL}${Ansi.BLUE}${application.version}${Ansi.NORMAL}
+    ${Ansi.BLUE}Health API ${Ansi.BOLD}${Ansi.YELLOW}Data Query ${Ansi.NORMAL}${Ansi.BLUE}${application.version}${Ansi.NORMAL}
 
 ====

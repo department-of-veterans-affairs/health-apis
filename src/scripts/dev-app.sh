@@ -14,6 +14,7 @@ Commands
 
 Options
  -d, --data-query    Include Data Query
+ -i, --ids           Include Identity Service (located parallel to this repository)
  -m, --mr-anderson   Include Mr. Anderson
 
 Examples
@@ -31,11 +32,13 @@ exit 1
 
 startApp() {
   local app=$1
+  local where=$2
   local pid=$(pidOf $app)
   [ -n "$pid" ] && echo "$app appears to already be running ($pid)" && return
   echo "Starting $app"
-  cd $REPO/$app
-  local jar=$(find target -maxdepth 1 -name "$app-*.jar" | head -1)
+  [ ! -d "$where" ] && echo "$where does not exist" && exit 1
+  cd $where/$app
+  local jar=$(find target -maxdepth 1 -name "$app-*.jar" | grep -v 'tests')
   [ -z "$jar" ] && echo "Cannot find $app application jar" && exit 1
   java -jar $jar &
 }
@@ -45,11 +48,11 @@ stopApp() {
   local pid=$(pidOf $app)
   [ -z "$pid" ] && echo "$app does not appear to be running" && return
   echo "Stopping $app ($pid)"
-  if [[ "$OSTYPE" == "msys" ]]; then
-  taskkill //F //PID $pid
+  if [ "$OSTYPE" == "msys" ]; then
+    taskkill //F //PID $pid
   else
-  kill $pid
-  fi 
+    kill $pid
+  fi
 }
 
 pidOf() {
@@ -68,29 +71,33 @@ statusOf() {
 doStatus() {
   statusOf mr-anderson
   statusOf data-query
+  statusOf ids
 }
 
 doStart() {
   export SPRING_PROFILES_ACTIVE
   echo "Using profile: $SPRING_PROFILES_ACTIVE"
-  [ $MRANDERSON == true ] && startApp mr-anderson
-  [ $DATAQUERY == true ] && startApp data-query
+  [ $MRANDERSON == true ] && startApp mr-anderson $REPO
+  [ $DATAQUERY == true ] && startApp data-query $REPO
+  [ $IDS == true ] && startApp ids $REPO/../health-apis-ids
 }
 
 doStop() {
   [ $MRANDERSON == true ] && stopApp mr-anderson
   [ $DATAQUERY == true ] && stopApp data-query
+  [ $IDS == true ] && stopApp ids
 }
 
 
 REPO=$(cd $(dirname $0)/../.. && pwd)
 MRANDERSON=false
 DATAQUERY=false
+IDS=false
 SPRING_PROFILES_ACTIVE=dev
 
 ARGS=$(getopt -n $(basename ${0}) \
-    -l "debug,help,mr-anderson,data-query" \
-    -o "hmd" -- "$@")
+    -l "debug,help,ids,mr-anderson,data-query" \
+    -o "himd" -- "$@")
 [ $? != 0 ] && usage
 eval set -- "$ARGS"
 while true
@@ -99,6 +106,7 @@ do
     -d|--data-query) DATAQUERY=true;;
     --debug) set -x;;
     -h|--help) usage "halp! what this do?";;
+    -i|--ids) IDS=true;;
     -m|--mr-anderson) MRANDERSON=true;;
     --) shift;break;;
   esac

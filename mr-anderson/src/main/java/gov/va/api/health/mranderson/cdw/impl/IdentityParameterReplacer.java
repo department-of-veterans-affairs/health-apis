@@ -5,6 +5,7 @@ import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.health.mranderson.cdw.Query;
 import gov.va.api.health.mranderson.cdw.Resources.MissingSearchParameters;
 import gov.va.api.health.mranderson.util.Parameters;
+import gov.va.api.health.mranderson.util.TimeIt;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -47,7 +48,11 @@ class IdentityParameterReplacer {
   }
 
   private String lookupCdwId(String uuid) {
-    List<ResourceIdentity> identities = identityService.lookup(uuid);
+    List<ResourceIdentity> identities =
+        TimeIt.builder()
+            .taskName("Identity Service Lookup")
+            .build()
+            .logTime(() -> identityService.lookup(uuid));
     return identities
         .stream()
         .filter(ResourceIdentities::isCdw)

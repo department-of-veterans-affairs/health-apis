@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <fhirVersion>DSTU2 Argonaut</fhirVersion>
+  <resourceName>allergyintolerance</resourceName>
+  <resourceVersion>1.05</resourceVersion>
+  <returnType>full</returnType>
+  <returnFormat>XML</returnFormat>
+  <recordsPerPage>20</recordsPerPage>
+  <pageNumber>0</pageNumber>
+  <startRecord>0</startRecord>
+  <endRecord>0</endRecord>
+  <recordCount>276</recordCount>
+  <pageCount>14</pageCount>
+  <errorNumber>0</errorNumber>
+  <errorLine>0</errorLine>
+</root>
