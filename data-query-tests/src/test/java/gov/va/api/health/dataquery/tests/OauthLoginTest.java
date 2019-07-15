@@ -19,6 +19,24 @@ import org.junit.Test;
 @Slf4j
 public class OauthLoginTest {
 
+  private static List<String> dataQueryScopes() {
+    return Arrays.asList(
+        "patient/AllergyIntolerance.read",
+        "patient/Condition.read",
+        "patient/DiagnosticReport.read",
+        "patient/Immunization.read",
+        "patient/Medication.read",
+        "patient/MedicationOrder.read",
+        "patient/MedicationStatement.read",
+        "patient/Observation.read",
+        "patient/Patient.read",
+        "patient/Procedure.read",
+        "openid",
+        "profile",
+        "offline_access",
+        "launch/patient");
+  }
+
   @Test
   @SneakyThrows
   public void RequestTest() {
@@ -38,7 +56,10 @@ public class OauthLoginTest {
             "Winner: {} is patient {}.",
             labBotUserResult.user().id(),
             labBotUserResult.tokenExchange().patient());
-        winners.add(labBotUserResult.user().id());
+        winners.add(
+            labBotUserResult.user().id()
+                + " is patient "
+                + labBotUserResult.tokenExchange().patient());
       } else {
         log.info(
             "Loser: {} is patient {}.",
@@ -46,6 +67,8 @@ public class OauthLoginTest {
             labBotUserResult.tokenExchange().patient());
         losers.add(
             labBotUserResult.user().id()
+                + " is patient "
+                + labBotUserResult.tokenExchange().patient()
                 + " - "
                 + labBotUserResult.tokenExchange().error()
                 + ": "
@@ -59,23 +82,5 @@ public class OauthLoginTest {
     Files.write(new File("lab-users.txt").toPath(), report.getBytes(StandardCharsets.UTF_8));
     log.info("Lab Users:\n{}", report);
     assertThat(losers.size()).isZero();
-  }
-
-  public static List<String> dataQueryScopes() {
-    return Arrays.asList(
-        "patient/AllergyIntolerance.read",
-        "patient/Condition.read",
-        "patient/DiagnosticReport.read",
-        "patient/Immunization.read",
-        "patient/Medication.read",
-        "patient/MedicationOrder.read",
-        "patient/MedicationStatement.read",
-        "patient/Observation.read",
-        "patient/Patient.read",
-        "patient/Procedure.read",
-        "openid",
-        "profile",
-        "offline_access",
-        "launch/patient");
   }
 }

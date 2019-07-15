@@ -26,17 +26,6 @@
     </Or>
   </Match>
   <!--
-    LabRobots has many Lombok generated lazy getter that is implemented
-    correctly. Details can be read here: https://projectlombok.org/features/GetterLazy
-  -->
-  <Match>
-    <Class name="gov.va.api.health.dataquery.tests.LabRobots"/>
-    <Or>
-      <Bug pattern="JLM_JSR166_UTILCONCURRENT_MONITORENTER"/>
-      <Bug pattern="RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"/>
-    </Or>
-  </Match>
-  <!--
     Path is determined automatically and not user specified.
   -->
   <Match>
