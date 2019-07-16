@@ -3,11 +3,10 @@ package gov.va.api.health.dataquery.tests.crawler;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import gov.va.api.health.dataquery.tests.LabRobots;
-import gov.va.api.health.dataquery.tests.LabRobots.SmartOnFhirUrls;
 import gov.va.api.health.dataquery.tests.Swiggity;
 import gov.va.api.health.dataquery.tests.SystemDefinition;
 import gov.va.api.health.dataquery.tests.SystemDefinitions;
+import gov.va.api.health.sentinel.LabBot;
 import gov.va.api.health.sentinel.categories.Manual;
 import gov.va.api.health.sentinel.selenium.IdMeOauthRobot;
 import gov.va.api.health.sentinel.selenium.IdMeOauthRobot.Configuration.UserCredentials;
@@ -19,7 +18,7 @@ import org.junit.experimental.categories.Category;
 
 @Slf4j
 public class UsingOAuthCrawlerTest {
-  private final LabRobots robots = LabRobots.fromSystemProperties();
+  private final LabBot bot = LabBot.builder().configFile("config/lab.properties").build();
 
   private int crawl(String patient) {
     SystemDefinition env = SystemDefinitions.systemDefinition();
@@ -28,8 +27,7 @@ public class UsingOAuthCrawlerTest {
             .id(patient)
             .password(System.getProperty("lab.user-password"))
             .build();
-    IdMeOauthRobot robot =
-        robots.makeRobot(user, new SmartOnFhirUrls(env.dataQuery().urlWithApiPath()));
+    IdMeOauthRobot robot = bot.makeLabBot(user, env.dataQuery().urlWithApiPath());
     Swiggity.swooty(patient);
     assertThat(robot.token().accessToken()).isNotBlank();
 
