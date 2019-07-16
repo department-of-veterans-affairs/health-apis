@@ -1,12 +1,8 @@
 package gov.va.api.health.dataquery.service.controller;
 
-import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient.BadRequest;
-import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient.NotFound;
+import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
 import gov.va.api.health.dstu2.api.elements.Narrative;
-import gov.va.api.health.dstu2.api.elements.Narrative.NarrativeStatus;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
-import gov.va.api.health.dstu2.api.resources.OperationOutcome.Issue;
-import gov.va.api.health.dstu2.api.resources.OperationOutcome.Issue.IssueSeverity;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
@@ -28,13 +24,14 @@ import org.springframework.web.client.HttpClientErrorException;
  * Exceptions that escape the rest controllers will be processed by this handler. It will convert
  * exception into different HTTP status codes and produce an error response payload.
  */
+@Slf4j
 @RestControllerAdvice
 @RequestMapping(produces = {"application/json"})
-@Slf4j
 public class WebExceptionHandler {
   @ExceptionHandler({
-    BadRequest.class,
     BindException.class,
+    MrAndersonClient.BadRequest.class,
+    ResourceExceptions.MissingSearchParameters.class,
     UnsatisfiedServletRequestParameterException.class
   })
   @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -42,7 +39,13 @@ public class WebExceptionHandler {
     return responseFor("structure", e, request);
   }
 
-  @ExceptionHandler({NotFound.class, HttpClientErrorException.NotFound.class})
+  @ExceptionHandler({
+    HttpClientErrorException.NotFound.class,
+    MrAndersonClient.NotFound.class,
+    ResourceExceptions.NotFound.class,
+    ResourceExceptions.UnknownIdentityInSearchParameter.class,
+    ResourceExceptions.UnknownResource.class
+  })
   @ResponseStatus(HttpStatus.NOT_FOUND)
   public OperationOutcome handleNotFound(Exception e, HttpServletRequest request) {
     return responseFor("not-found", e, request);
@@ -92,13 +95,13 @@ public class WebExceptionHandler {
             .resourceType("OperationOutcome")
             .text(
                 Narrative.builder()
-                    .status(NarrativeStatus.additional)
+                    .status(Narrative.NarrativeStatus.additional)
                     .div("<div>Failure: " + request.getRequestURI() + "</div>")
                     .build())
             .issue(
                 Collections.singletonList(
-                    Issue.builder()
-                        .severity(IssueSeverity.fatal)
+                    OperationOutcome.Issue.builder()
+                        .severity(OperationOutcome.Issue.IssueSeverity.fatal)
                         .code(code)
                         .diagnostics(diagnostics.toString())
                         .build()))

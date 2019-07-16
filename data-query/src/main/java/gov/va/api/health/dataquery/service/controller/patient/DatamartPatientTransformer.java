@@ -2,7 +2,7 @@ package gov.va.api.health.dataquery.service.controller.patient;
 
 import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
 import static gov.va.api.health.dataquery.service.controller.Transformers.emptyToNull;
-import static gov.va.api.health.dataquery.service.controller.Transformers.parseLocalDateTime;
+import static gov.va.api.health.dataquery.service.controller.Transformers.parseInstant;
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.StringUtils.containsIgnoreCase;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -21,9 +21,8 @@ import gov.va.api.health.dstu2.api.datatypes.HumanName;
 import gov.va.api.health.dstu2.api.datatypes.Identifier;
 import gov.va.api.health.dstu2.api.elements.Extension;
 import gov.va.api.health.dstu2.api.elements.Reference;
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -39,7 +38,6 @@ import lombok.NonNull;
 
 @Builder
 final class DatamartPatientTransformer {
-
   @NonNull final DatamartPatient datamart;
 
   private static Address address(DatamartPatient.Address address) {
@@ -362,11 +360,11 @@ final class DatamartPatientTransformer {
     if (isBlank(datamart.deathDateTime())) {
       return null;
     }
-    LocalDateTime dateTime = parseLocalDateTime(datamart.deathDateTime());
-    if (dateTime == null) {
+    Instant instant = parseInstant(datamart.deathDateTime());
+    if (instant == null) {
       return null;
     }
-    return dateTime.atZone(ZoneId.of("Z")).toString();
+    return instant.toString();
   }
 
   private List<Extension> extensions() {
@@ -516,7 +514,7 @@ final class DatamartPatientTransformer {
     return emptyToNull(asList);
   }
 
-  Patient toFhirPatient() {
+  Patient toFhir() {
     return Patient.builder()
         .id(datamart.fullIcn())
         .resourceType("Patient")

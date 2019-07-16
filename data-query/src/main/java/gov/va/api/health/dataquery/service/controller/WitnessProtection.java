@@ -1,6 +1,14 @@
 package gov.va.api.health.dataquery.service.controller;
 
+import static java.util.Collections.emptyList;
+import static org.springframework.util.CollectionUtils.isEmpty;
+
 import gov.va.api.health.ids.api.IdentityService;
+import gov.va.api.health.ids.api.Registration;
+import gov.va.api.health.ids.api.ResourceIdentity;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +23,14 @@ import org.springframework.util.MultiValueMap;
 @AllArgsConstructor(onConstructor = @__({@Autowired}))
 public class WitnessProtection {
   private IdentityService identityService;
+
+  /** Register IDs. */
+  public List<Registration> register(Collection<ResourceIdentity> ids) {
+    if (isEmpty(ids)) {
+      return emptyList();
+    }
+    return identityService.register(new ArrayList<>(ids));
+  }
 
   /**
    * Replace public IDs with CDW IDs in the parameters.

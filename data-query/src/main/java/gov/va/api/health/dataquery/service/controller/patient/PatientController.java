@@ -5,12 +5,12 @@ import static gov.va.api.health.dataquery.service.controller.Transformers.hasPay
 import static java.util.Arrays.asList;
 
 import gov.va.api.health.argonaut.api.resources.Patient;
-import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.Bundler;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.JpaDateTimeParameter;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.Parameters;
+import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.Validator;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
@@ -25,10 +25,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.validation.constraints.Min;
 import lombok.AllArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.time.StopWatch;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -114,7 +112,7 @@ public class PatientController {
         entities
             .stream()
             .map(entity -> entity.asDatamartPatient())
-            .map(dm -> DatamartPatientTransformer.builder().datamart(dm).build().toFhirPatient())
+            .map(dm -> DatamartPatientTransformer.builder().datamart(dm).build().toFhir())
             .collect(Collectors.toList());
     PageLinks.LinkConfig linkConfig =
         PageLinks.LinkConfig.builder()
@@ -138,13 +136,13 @@ public class PatientController {
     PatientEntity entity =
         entityManager.find(PatientEntity.class, cdwParameters.getFirst("identifier"));
     if (entity == null) {
-      return null;
+      throw new ResourceExceptions.NotFound(publicParameters);
     }
 
     return DatamartPatientTransformer.builder()
         .datamart(entity.asDatamartPatient())
         .build()
-        .toFhirPatient();
+        .toFhir();
   }
 
   private List<PatientEntity> jpaQueryForEntities(
@@ -209,7 +207,6 @@ public class PatientController {
   }
 
   /** Read by id. */
-  @SneakyThrows
   @GetMapping(value = {"/{publicId}"})
   public Patient read(
       @RequestHeader(value = "Datamart", defaultValue = "") String datamart,
@@ -218,31 +215,12 @@ public class PatientController {
       return datamartRead(publicId);
     }
 
-    StopWatch mraWatch = StopWatch.createStarted();
-    Patient mrAndersonPatient =
-        transformer.apply(
-            firstPayloadItem(
-                hasPayload(mrAndersonSearch(Parameters.forIdentity(publicId)).getPatients())
-                    .getPatient()));
-    mraWatch.stop();
-
-    if ("both".equalsIgnoreCase(datamart)) {
-      StopWatch datamartWatch = StopWatch.createStarted();
-      Patient datamartPatient = datamartRead(publicId);
-      datamartWatch.stop();
-      log.info(
-          "mr-anderson took {} millis and datamart took {} millis."
-              + " mr-anderson is {} and datamart is {}",
-          mraWatch.getTime(),
-          datamartWatch.getTime(),
-          JacksonConfig.createMapper().writeValueAsString(mrAndersonPatient),
-          JacksonConfig.createMapper().writeValueAsString(datamartPatient));
-    }
-
-    return mrAndersonPatient;
+    return transformer.apply(
+        firstPayloadItem(
+            hasPayload(mrAndersonSearch(Parameters.forIdentity(publicId)).getPatients())
+                .getPatient()));
   }
 
-  @SneakyThrows
   private Patient.Bundle search(
       String datamart,
       String query,
@@ -251,28 +229,7 @@ public class PatientController {
     if (BooleanUtils.isTrue(BooleanUtils.toBooleanObject(datamart))) {
       return datamartBundle(query, totalRecordsQuery, parameters);
     }
-
-    StopWatch mraWatch = StopWatch.createStarted();
-    Patient.Bundle mrAndersonBundle = mrAndersonBundle(parameters);
-    mraWatch.stop();
-
-    if ("both".equalsIgnoreCase(datamart)) {
-      StopWatch datamartWatch = StopWatch.createStarted();
-      Patient.Bundle datamartBundle = datamartBundle(query, totalRecordsQuery, parameters);
-      datamartWatch.stop();
-      log.info(
-          "mr-anderson took {} millis and datamart took {} millis."
-              + " {} mr-anderson results, {} datamart results."
-              + " mr-anderson bundle is {} and datamart bundle is {}",
-          mraWatch.getTime(),
-          datamartWatch.getTime(),
-          mrAndersonBundle.total(),
-          datamartBundle.total(),
-          JacksonConfig.createMapper().writeValueAsString(mrAndersonBundle),
-          JacksonConfig.createMapper().writeValueAsString(datamartBundle));
-    }
-
-    return mrAndersonBundle;
+    return mrAndersonBundle(parameters);
   }
 
   /** Search by Family+Gender. */
