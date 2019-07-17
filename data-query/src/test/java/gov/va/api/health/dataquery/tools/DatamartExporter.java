@@ -1,4 +1,4 @@
-package gov.va.api.health.dataquery.tests;
+package gov.va.api.health.dataquery.tools;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -23,6 +23,7 @@ import javax.persistence.spi.ClassTransformer;
 import javax.persistence.spi.PersistenceUnitInfo;
 import javax.persistence.spi.PersistenceUnitTransactionType;
 import javax.sql.DataSource;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Singular;
 import lombok.SneakyThrows;
@@ -32,16 +33,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.h2.jdbcx.JdbcDataSource;
 import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.jpa.HibernatePersistenceProvider;
-import org.junit.Before;
-import org.junit.Test;
 
 /**
- * This test will copy data out of the Mitre database into a local H2 database. It expects that you
- * will have ./config/lab.properties with Mitre database credentials using standard Spring
+ * This application will copy data out of the Mitre database into a local H2 database. It expects
+ * that you will have ./config/lab.properties with Mitre database credentials using standard Spring
  * properties.
+ *
+ * <p>This test will re-write src/test/resources/mitre, the local H2 mitre database used by
+ * integration tests.
  */
 @Slf4j
-public class DatamartExportTest {
+public class DatamartExporter {
 
   /** Add classes to this list to copy them from Mitre to H2 */
   private static final List<Class<?>> MANAGED_CLASSES =
@@ -54,18 +56,29 @@ public class DatamartExportTest {
   EntityManager h2;
   EntityManager mitre;
 
-  @Before
-  public void _init() {
-    h2 = new LocalH2().get();
-    mitre = new Mitre("config/lab.properties").get();
+  public DatamartExporter(String configFile, String outputFile) {
+    mitre = new Mitre(configFile).get();
+    h2 = new LocalH2(outputFile).get();
   }
 
-  @Test
-  @SneakyThrows
-  public void doIt() {
+  public static void main(String[] args) {
+    if (args.length != 2) {
+      log.error("DatamartExporter <application.properties> <h2-database>");
+      throw new RuntimeException("Missing arguments");
+    }
+    String configFile = args[0];
+    String outputFile = args[1];
+    new DatamartExporter(configFile, outputFile).export();
+    log.info("All done");
+    System.exit(0);
+  }
+
+  public void export() {
     h2.getTransaction().begin();
     MANAGED_CLASSES.stream().forEach(this::steal);
     h2.getTransaction().commit();
+    mitre.close();
+    h2.close();
   }
 
   private <T> void steal(Class<T> type) {
@@ -81,7 +94,10 @@ public class DatamartExportTest {
             });
   }
 
+  @AllArgsConstructor
   private static class LocalH2 implements Supplier<EntityManager> {
+
+    private final String outputFile;
 
     @Override
     @SneakyThrows
@@ -107,8 +123,9 @@ public class DatamartExportTest {
     }
 
     DataSource h2DataSource() {
+      log.info("Exporting to {}", outputFile);
       JdbcDataSource h2 = new JdbcDataSource();
-      h2.setURL("jdbc:h2:./src/test/resources/mitre");
+      h2.setURL("jdbc:h2:" + outputFile);
       h2.setUser("sa");
       h2.setPassword("sa");
       return h2;
@@ -118,6 +135,7 @@ public class DatamartExportTest {
       Properties properties = new Properties();
       properties.put("hibernate.hbm2ddl.auto", "create-drop");
       properties.put("hibernate.connection.autocommit", "true");
+      properties.put("hibernate.show_sql", "false");
       return properties;
     }
   }
@@ -128,6 +146,7 @@ public class DatamartExportTest {
 
     @SneakyThrows
     Mitre(String configFile) {
+      log.info("Loading Mitre connection configuration from {}", configFile);
       config = new Properties(System.getProperties());
       try (FileInputStream inputStream = new FileInputStream(configFile)) {
         config.load(inputStream);
@@ -166,6 +185,7 @@ public class DatamartExportTest {
     Properties mitreProperties() {
       Properties properties = new Properties();
       properties.put("hibernate.hbm2ddl.auto", "none");
+      properties.put("hibernate.show_sql", "false");
       return properties;
     }
 

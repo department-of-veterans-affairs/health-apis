@@ -158,4 +158,38 @@
       </plugin>
     </plugins>
   </build>
+  <profiles>
+    <profile>
+      <!--
+        This profile exists to support the running of the DatamartExporter only. See data-query-tests/export-mitre.sh
+      -->
+      <id>mitre-export</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>export</id>
+                <goals>
+                  <goal>java</goal>
+                </goals>
+                <phase>generate-resources</phase>
+                <configuration>
+                  <mainClass>gov.va.api.health.dataquery.tools.DatamartExporter</mainClass>
+                  <classpathScope>test</classpathScope>
+                  <arguments>
+                    <argument>${configFile}</argument>
+                    <argument>${outputFile}</argument>
+                  </arguments>
+                  <systemProperties></systemProperties>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>
