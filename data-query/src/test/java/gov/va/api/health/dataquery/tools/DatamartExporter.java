@@ -115,10 +115,7 @@ public class DatamartExporter {
           .execute("DROP SCHEMA IF EXISTS APP CASCADE; CREATE SCHEMA APP;");
       return new HibernatePersistenceProvider()
           .createContainerEntityManagerFactory(
-              info,
-              ImmutableMap.builder()
-                  .put(AvailableSettings.JPA_JDBC_DRIVER, "org.h2.Driver")
-                  .build())
+              info, ImmutableMap.of(AvailableSettings.JPA_JDBC_DRIVER, "org.h2.Driver"))
           .createEntityManager();
     }
 
@@ -166,11 +163,9 @@ public class DatamartExporter {
       return new HibernatePersistenceProvider()
           .createContainerEntityManagerFactory(
               info,
-              ImmutableMap.builder()
-                  .put(
-                      AvailableSettings.JPA_JDBC_DRIVER,
-                      "com.microsoft.sqlserver.jdbc.SQLServerDriver")
-                  .build())
+              ImmutableMap.of(
+                  AvailableSettings.JPA_JDBC_DRIVER,
+                  "com.microsoft.sqlserver.jdbc.SQLServerDriver"))
           .createEntityManager();
     }
 
