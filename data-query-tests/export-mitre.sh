@@ -9,12 +9,16 @@
 cd $(dirname $0)
 
 LAB_PROPERTIES=config/lab.properties
+OUTPUT=./src/test/resources/mitre
+
 [ ! -f "$LAB_PROPERTIES" ] && echo "Missing $LAB_PROPERTIES" && exit 1
 
 for p in spring.datasource.username spring.datasource.password spring.datasource.url
 do
   ! grep -q "^$p=" $LAB_PROPERTIES && echo "Missing $p in $LAB_PROPERTIES" && exit 1
 done
+
+[ -f $OUTPUT.mv.db ] && rm -v $OUTPUT.*
 
 mvn -f ../data-query \
   -P'!standard' \
