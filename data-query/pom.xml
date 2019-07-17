@@ -183,7 +183,6 @@
                     <argument>${configFile}</argument>
                     <argument>${outputFile}</argument>
                   </arguments>
-                  <systemProperties></systemProperties>
                 </configuration>
               </execution>
             </executions>

@@ -239,7 +239,7 @@
                 <argument>-Dconformance.security.token-endpoint=http://example.com/token</argument>
                 <argument>-Dconformance.security.authorize-endpoint=http://example.com/authorize</argument>
                 <argument>-Dspring.datasource.driver-class-name=org.h2.Driver</argument>
-                <argument>-Dspring.datasource.url=jdbc:h2:${project.basedir}/src/test/resources/mitre</argument>
+                <argument>-Dspring.datasource.url=jdbc:h2:${project.basedir}/target/test-classes/mitre</argument>
                 <argument>-Dspring.datasource.username=sa</argument>
                 <argument>-Dspring.datasource.password=sa</argument>
                 <argument>-Dspring.jpa.generate-ddl=false</argument>
