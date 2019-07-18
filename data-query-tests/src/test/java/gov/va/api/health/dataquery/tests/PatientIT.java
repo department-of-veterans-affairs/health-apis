@@ -91,14 +91,9 @@ public class PatientIT {
     ProdDataQueryClinician.class
   })
   public void patientMatching() {
-    if (Environment.get() == Environment.LOCAL) {
-      verifier.verifyAll(
-          test(404, OperationOutcome.class, "Patient/{id}", verifier.ids().unknown()),
-          test(404, OperationOutcome.class, "Patient?_id={id}", verifier.ids().unknown()));
-    } else {
-      verifier.verifyAll(
-          test(403, OperationOutcome.class, "Patient/{id}", verifier.ids().unknown()),
-          test(403, OperationOutcome.class, "Patient?_id={id}", verifier.ids().unknown()));
-    }
+    int status = (Environment.get() == Environment.LOCAL) ? 404 : 403;
+    verifier.verifyAll(
+        test(status, OperationOutcome.class, "Patient/{id}", verifier.ids().unknown()),
+        test(status, OperationOutcome.class, "Patient?_id={id}", verifier.ids().unknown()));
   }
 }

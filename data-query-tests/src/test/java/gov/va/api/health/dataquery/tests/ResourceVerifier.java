@@ -2,6 +2,10 @@ package gov.va.api.health.dataquery.tests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import gov.va.api.health.argonaut.api.resources.DiagnosticReport;
+import gov.va.api.health.argonaut.api.resources.Patient;
 import gov.va.api.health.dstu2.api.bundle.AbstractBundle;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import gov.va.api.health.sentinel.TestClient;
@@ -20,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ResourceVerifier {
+
   private static final ResourceVerifier INSTANCE = new ResourceVerifier();
 
   private static final String API_PATH = SystemDefinitions.systemDefinition().dataQuery().apiPath();
@@ -31,6 +36,9 @@ public class ResourceVerifier {
 
   private final Set<Class<?>> verifiedPageBoundsClasses =
       Collections.newSetFromMap(new ConcurrentHashMap<>());
+
+  private ImmutableList<Class<?>> DATAMART_RESOURCES =
+      ImmutableList.of(Patient.class, DiagnosticReport.class);
 
   public static ResourceVerifier get() {
     return INSTANCE;
@@ -84,11 +92,34 @@ public class ResourceVerifier {
   }
 
   private <T> T assertRequest(TestCase<T> tc) {
+    if (isDatamart(tc)) {
+      log.info(
+          "Verify Datamart {} is {} ({})", tc.label(), tc.response().getSimpleName(), tc.status());
+      dataQuery()
+          .get(datamartHeader(), tc.path(), tc.parameters())
+          .expect(tc.status())
+          .expectValid(tc.response());
+    }
     log.info("Verify {} is {} ({})", tc.label(), tc.response().getSimpleName(), tc.status());
     return dataQuery()
         .get(tc.path(), tc.parameters())
         .expect(tc.status())
         .expectValid(tc.response());
+  }
+
+  private ImmutableMap<String, String> datamartHeader() {
+    return ImmutableMap.of("Datamart", "true");
+  }
+
+  private <T> boolean isDatamart(TestCase<T> tc) {
+    /*
+     * If this is a bundle, we want the declaring resource type instead.
+     */
+    Class<?> resource =
+        AbstractBundle.class.isAssignableFrom(tc.response())
+            ? tc.response().getDeclaringClass()
+            : tc.response();
+    return DATAMART_RESOURCES.contains(resource);
   }
 
   public <T> T verify(TestCase<T> tc) {
