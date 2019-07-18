@@ -2,6 +2,7 @@ package gov.va.api.health.dataquery.service.mranderson.client;
 
 import gov.va.api.health.dataquery.service.config.WithJaxb;
 import java.util.Collections;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
@@ -17,6 +18,7 @@ import org.springframework.web.client.RestTemplate;
 
 /** A rest implementation of the Mr. Anderson client. */
 @Component
+@Slf4j
 public class RestMrAndersonClient implements MrAndersonClient {
   private final RestTemplate restTemplate;
 
@@ -50,6 +52,9 @@ public class RestMrAndersonClient implements MrAndersonClient {
       throw new BadRequest(query);
     } catch (HttpStatusCodeException e) {
       throw new SearchFailed(query);
+    } catch (Exception e) {
+      log.error("Oh noes", e);
+      throw e;
     }
   }
 

@@ -67,8 +67,7 @@ public class WebExceptionHandler {
   public OperationOutcome handleValidationException(
       ConstraintViolationException e, HttpServletRequest request) {
     List<String> problems =
-        e.getConstraintViolations()
-            .stream()
+        e.getConstraintViolations().stream()
             .map(v -> v.getPropertyPath() + " " + v.getMessage())
             .collect(Collectors.toList());
 
@@ -86,7 +85,9 @@ public class WebExceptionHandler {
         .append("Error: ")
         .append(e.getClass().getSimpleName())
         .append(" Timestamp:")
-        .append(Instant.now());
+        .append(Instant.now())
+        .append(" - ")
+        .append(e.getMessage());
     problems.forEach(p -> diagnostics.append('\n').append(p));
 
     OperationOutcome response =
