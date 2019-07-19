@@ -16,5 +16,8 @@
     <Class name="gov.va.api.health.mranderson.cdw.impl.SqlResourceRepository"/>
     <Bug pattern="SQL_INJECTION_JDBC"/>
   </Match>
-
+  <!-- ** DONT MERGE **  -->
+  <Match>
+    <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE" />
+  </Match>
 </FindBugsFilter>
