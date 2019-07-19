@@ -16,8 +16,12 @@
     <Class name="gov.va.api.health.mranderson.cdw.impl.SqlResourceRepository"/>
     <Bug pattern="SQL_INJECTION_JDBC"/>
   </Match>
-  <!-- ** DONT MERGE **  -->
+  <!-- ** Unfortunately, this false positive is a common issue with no fix available:
+https://github.com/spotbugs/spotbugs#259
+https://github.com/spotbugs/spotbugs#756
+ **  -->
   <Match>
+    <Class name="gov.va.api.health.mranderson.cdw.impl.SqlResourceRepository"/>
     <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE" />
   </Match>
 </FindBugsFilter>
