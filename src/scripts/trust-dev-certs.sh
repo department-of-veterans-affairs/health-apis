@@ -49,12 +49,15 @@ import_certificate_from_url () {
     -keystore "$TRUST_STORE" \
     -storepass "$TRUST_STORE_PASSWORD" \
     -noprompt
+
+  rm $1.pem
 }
 
 cd $(dirname $0)/../..
 
 [ -z "$JAVA_HOME" ] && echo "JAVA_HOME not set" && exit 1
 [ -z "$HEALTH_API_CERTIFICATE_PASSWORD" ] && echo "HEALTH_API_CERTIFICATE_PASSWORD not set" && exit 1
+[ -f "$JAVA_HOME/lib/security/cacerts" ] && TRUST_STORE="$JAVA_HOME/lib/security/cacerts"
 [ -z "$TRUST_STORE" ] && TRUST_STORE="$JAVA_HOME/jre/lib/security/cacerts"
 [ ! -f "$TRUST_STORE" ] && echo "Trust store not found: $TRUST_STORE" && exit 1
 [ -z "$TRUST_STORE_PASSWORD" ] && TRUST_STORE_PASSWORD=changeit
