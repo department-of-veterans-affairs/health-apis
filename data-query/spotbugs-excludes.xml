@@ -35,4 +35,8 @@
       <Method name="hashCode"/>
     </Or>
   </Match>
+  <!-- ** DONT MERGE ** -->
+  <Match>
+    <Bug pattern="SQL_INJECTION_JPA"/>
+  </Match>
 </FindBugsFilter>
