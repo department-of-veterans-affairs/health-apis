@@ -8,6 +8,7 @@ DESTINATION=src/test/resources/cdw/datamart-index.yaml
 sed \
   -e 's|file: |file: ../../../../target/cdw/samples/|' \
   -e 's/\(query:.*\)185601V825290/\1111222333V000999/' \
+  -e 's/family=VETERAN/family=Olson653/' \
   $SOURCE > $DESTINATION
 
 
