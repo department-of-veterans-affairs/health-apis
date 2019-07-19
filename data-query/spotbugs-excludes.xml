@@ -35,8 +35,17 @@
       <Method name="hashCode"/>
     </Or>
   </Match>
-  <!-- ** DONT MERGE ** -->
+  <!--
+    The 'searchBy...' methods in the controller creates the 'query' and a 'totalRecordsQuery' named parameter
+    prepared JPQL statements. Through this use of JPQL named statements, the JDBC driver will prevent SQL
+    injection by escaping the parameters received, preventing malicious code from ever being executed.
+  -->
   <Match>
-    <Bug pattern="SQL_INJECTION_JPA"/>
+    <Class name="gov.va.api.health.dataquery.service.controller.patient.PatientController" />
+    <Or>
+      <Method name="jpaQueryForEntities" />
+      <Method name="jpaQueryForTotalRecords" />
+    </Or>
+    <Bug pattern="SQL_INJECTION_JPA" />
   </Match>
 </FindBugsFilter>
