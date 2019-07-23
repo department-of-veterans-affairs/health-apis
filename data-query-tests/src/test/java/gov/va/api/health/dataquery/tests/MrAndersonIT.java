@@ -12,7 +12,7 @@ import org.junit.experimental.categories.Category;
 public class MrAndersonIT {
   private final IdRegistrar registrar = IdRegistrar.of(SystemDefinitions.systemDefinition());
 
-  private final String apiPath() {
+  private String apiPath() {
     return TestClients.mrAnderson().service().apiPath();
   }
 
@@ -75,13 +75,9 @@ public class MrAndersonIT {
   @Category(Local.class)
   @Test
   public void patientCanBeReadAfterIdHasBeenRegistered() {
-    String cdwId =
-        mrAnderson()
-            .get(apiPath() + "v1/resources/argonaut/Patient/1.03?identifier={id}", ids().patient())
-            .expect(200)
-            .response()
-            .path("root.patients.patient.cdwId");
-    assertThat(cdwId).isEqualTo(SystemDefinitions.systemDefinition().cdwIds().patient());
+    mrAnderson()
+        .get(apiPath() + "v1/resources/argonaut/Patient/1.03?identifier={id}", ids().patient())
+        .expect(200);
   }
 
   @Category(Local.class)

@@ -1,13 +1,13 @@
 entries:
-  - file: NoResults.xml
+  - file: ./NoResults.xml
     query: /DiagnosticReport:1.02?identifier=5555555555555-mra-it
     page: 1
     count: 15
-  - file: InvalidQueryParams.xml
+  - file: ./InvalidQueryParams.xml
     query: /Patient:1.03?stuff=missing
     page: 1
     count: 15
-  - file: UnknownResource.xml
+  - file: ./UnknownResource.xml
     query: /Patient:9.99?identifier=185601V825290
     page: 1
     count: 15
@@ -121,6 +121,14 @@ entries:
     query: /DiagnosticReport:1.02?code=10000-8,10001-6&patient=185601V825290
     page: 1
     count: 15
+  - file: ../../../../target/cdw/samples/DiaRep102p185601V825290catLABdgt19700101dlt20380101.xml
+    query: /DiagnosticReport:1.02?patient=185601V825290&category=LAB
+    page: 1
+    count: 21
+  - file: ../../../../target/cdw/samples/DiaRep102p185601V825290catLABdgt19700101dlt20380101.xml
+    query: /DiagnosticReport:1.02?patient=185601V825290&category=LAB
+    page: 1
+    count: 20
   # Alias the 1.03 Allergy Intolerance samples as 1.04 to make sure they are tested.
   # The schema was unchanged from 1.03 and new schemas and new samples were not generated.
   - file: ../../../../target/cdw/samples/AllInt103i1000001782544.xml

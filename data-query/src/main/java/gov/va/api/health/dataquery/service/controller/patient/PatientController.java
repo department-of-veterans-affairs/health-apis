@@ -50,8 +50,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @SuppressWarnings("WeakerAccess")
 @RequestMapping(
-    value = {"Patient", "/api/Patient"},
-    produces = {"application/json", "application/json+fhir", "application/fhir+json"})
+  value = {"Patient", "/api/Patient"},
+  produces = {"application/json", "application/json+fhir", "application/fhir+json"}
+)
 @AllArgsConstructor(onConstructor = @__({@Autowired}))
 public class PatientController {
   private Transformer transformer;
@@ -108,7 +109,8 @@ public class PatientController {
     cdwParameters = mapFhirGenderToCdw(cdwParameters);
     List<PatientEntity> entities = jpaQueryForEntities(query, cdwParameters);
     List<Patient> fhir =
-        entities.stream()
+        entities
+            .stream()
             .map(entity -> entity.asDatamartPatient())
             .map(dm -> DatamartPatientTransformer.builder().datamart(dm).build().toFhir())
             .collect(Collectors.toList());
@@ -346,8 +348,9 @@ public class PatientController {
 
   /** Hey, this is a validate endpoint. It validates. */
   @PostMapping(
-      value = "/$validate",
-      consumes = {"application/json", "application/json+fhir", "application/fhir+json"})
+    value = "/$validate",
+    consumes = {"application/json", "application/json+fhir", "application/fhir+json"}
+  )
   public OperationOutcome validate(@RequestBody Patient.Bundle bundle) {
     return Validator.create().validate(bundle);
   }
