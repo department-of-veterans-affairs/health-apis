@@ -86,9 +86,7 @@ public class WebExceptionHandler {
         .append("Error: ")
         .append(e.getClass().getSimpleName())
         .append(" Timestamp:")
-        .append(Instant.now())
-        .append(" - ")
-        .append(e.getMessage());
+        .append(Instant.now());
     problems.forEach(p -> diagnostics.append('\n').append(p));
 
     OperationOutcome response =

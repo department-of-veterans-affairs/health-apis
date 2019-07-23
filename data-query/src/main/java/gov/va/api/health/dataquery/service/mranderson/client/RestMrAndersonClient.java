@@ -53,7 +53,6 @@ public class RestMrAndersonClient implements MrAndersonClient {
     } catch (HttpStatusCodeException e) {
       throw new SearchFailed(query);
     } catch (Exception e) {
-      log.error("Oh noes", e);
       throw e;
     }
   }
