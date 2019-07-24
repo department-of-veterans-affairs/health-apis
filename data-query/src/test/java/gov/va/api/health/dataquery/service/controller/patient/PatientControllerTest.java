@@ -12,19 +12,15 @@ import gov.va.api.health.dataquery.service.controller.Bundler.BundleContext;
 import gov.va.api.health.dataquery.service.controller.PageLinks.LinkConfig;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.Validator;
-import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
 import gov.va.api.health.dataquery.service.mranderson.client.Query;
 import gov.va.api.health.dstu2.api.bundle.AbstractBundle.BundleType;
-import gov.va.api.health.ids.api.IdentityService;
-import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.dvp.cdw.xsd.model.CdwPatient103Root;
 import gov.va.dvp.cdw.xsd.model.CdwPatient103Root.CdwPatients;
 import gov.va.dvp.cdw.xsd.model.CdwPatient103Root.CdwPatients.CdwPatient;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.function.Supplier;
-import javax.persistence.EntityManager;
 import javax.validation.ConstraintViolationException;
 import lombok.SneakyThrows;
 import org.junit.Before;
@@ -40,15 +36,13 @@ public class PatientControllerTest {
   @Mock MrAndersonClient client;
   @Mock PatientController.Transformer tx;
   @Mock Bundler bundler;
-  @Mock IdentityService ids;
-  @Mock EntityManager em;
 
   PatientController controller;
 
   @Before
   public void _init() {
     MockitoAnnotations.initMocks(this);
-    controller = new PatientController(tx, client, bundler, new WitnessProtection(ids), em);
+    controller = new PatientController(tx, client, bundler, null, null);
   }
 
   private void assertSearch(Supplier<Bundle> invocation, MultiValueMap<String, String> params) {
@@ -106,17 +100,6 @@ public class PatientControllerTest {
         .build();
   }
 
-  public void mockIdsLookup(String publicId, String cdwId) {
-    when(ids.lookup(publicId))
-        .thenReturn(
-            Arrays.asList(
-                ResourceIdentity.builder()
-                    .identifier(cdwId)
-                    .resource("PATIENT")
-                    .system("CDW")
-                    .build()));
-  }
-
   @Test
   public void read() {
     CdwPatient103Root root = new CdwPatient103Root();
@@ -132,28 +115,6 @@ public class PatientControllerTest {
     ArgumentCaptor<Query<CdwPatient103Root>> captor = ArgumentCaptor.forClass(Query.class);
     verify(client).search(captor.capture());
     assertThat(captor.getValue().parameters()).isEqualTo(Parameters.forIdentity("hello"));
-  }
-
-  @Test
-  @SneakyThrows
-  public void readDatamartRaw() {
-    mockIdsLookup("hello", "hola");
-    DatamartPatient dm =
-        DatamartPatient.builder()
-            .fullIcn("123")
-            .deceased("false")
-            .firstName("mr")
-            .lastName("pickles")
-            .gender("male")
-            .build();
-    PatientEntity e =
-        PatientEntity.builder()
-            .payload(JacksonConfig.createMapper().writeValueAsString(dm))
-            .build();
-
-    when(em.find(PatientEntity.class, "hola")).thenReturn(e);
-    DatamartPatient p = controller.readRaw("hello");
-    assertThat(p).isEqualTo(dm);
   }
 
   @Test

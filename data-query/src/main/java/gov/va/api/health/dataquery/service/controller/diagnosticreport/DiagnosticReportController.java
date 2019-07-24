@@ -21,6 +21,7 @@ import gov.va.api.health.dataquery.service.controller.DateTimeParameters;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
+import gov.va.api.health.dataquery.service.controller.ResourceExceptions.NotFound;
 import gov.va.api.health.dataquery.service.controller.Validator;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
@@ -47,6 +48,7 @@ import lombok.SneakyThrows;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.util.Pair;
 import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -204,6 +206,22 @@ public class DiagnosticReportController {
 
   @SneakyThrows
   private DiagnosticReport datamartRead(String publicId) {
+    Pair<DatamartDiagnosticReports, DatamartDiagnosticReports.DiagnosticReport> result =
+        datamartReadRaw(publicId);
+    DatamartDiagnosticReports payload = result.getFirst();
+    DatamartDiagnosticReports.DiagnosticReport report = result.getSecond();
+    replaceCdwIdsWithPublicIds(asList(report));
+    return DatamartDiagnosticReportTransformer.builder()
+        .datamart(report)
+        .icn(payload.fullIcn())
+        .patientName(payload.patientName())
+        .build()
+        .toFhir();
+  }
+
+  @SneakyThrows
+  private Pair<DatamartDiagnosticReports, DatamartDiagnosticReports.DiagnosticReport>
+      datamartReadRaw(String publicId) {
     MultiValueMap<String, String> publicParameters = Parameters.forIdentity(publicId);
     MultiValueMap<String, String> cdwParameters =
         witnessProtection.replacePublicIdsWithCdwIds(publicParameters);
@@ -234,15 +252,7 @@ public class DiagnosticReportController {
     }
 
     DatamartDiagnosticReports.DiagnosticReport report = maybeReport.get();
-
-    replaceCdwIdsWithPublicIds(asList(report));
-
-    return DatamartDiagnosticReportTransformer.builder()
-        .datamart(report)
-        .icn(payload.fullIcn())
-        .patientName(payload.patientName())
-        .build()
-        .toFhir();
+    return Pair.of(payload, report);
   }
 
   private DiagnosticReport.Bundle mrAndersonBundle(MultiValueMap<String, String> parameters) {
@@ -291,6 +301,13 @@ public class DiagnosticReportController {
         firstPayloadItem(
             hasPayload(mrAndersonSearch(Parameters.forIdentity(publicId)).getDiagnosticReports())
                 .getDiagnosticReport()));
+  }
+
+  /** Return the raw Datamart document for the given identifier. */
+  @GetMapping(value = {"/{publicId}/raw"})
+  public DatamartDiagnosticReports.DiagnosticReport readRaw(
+      @PathVariable("publicId") String publicId) {
+    return datamartReadRaw(publicId).getSecond();
   }
 
   private void replaceCdwIdsWithPublicIds(
@@ -426,6 +443,25 @@ public class DiagnosticReportController {
             .add("page", page)
             .add("_count", count)
             .build());
+  }
+
+  /** Search by patient. */
+  @GetMapping(
+    value = "/raw",
+    params = {"patient"}
+  )
+  public String searchByPatientRaw(@RequestParam("patient") String patient) {
+    MultiValueMap<String, String> publicParameters =
+        Parameters.builder().add("patient", patient).build();
+    MultiValueMap<String, String> cdwParameters =
+        witnessProtection.replacePublicIdsWithCdwIds(publicParameters);
+
+    DiagnosticReportsEntity entity =
+        entityManager.find(DiagnosticReportsEntity.class, cdwParameters.getFirst("patient"));
+    if (entity == null) {
+      throw new NotFound(publicParameters);
+    }
+    return entity.payload();
   }
 
   /** Validate Endpoint. */
