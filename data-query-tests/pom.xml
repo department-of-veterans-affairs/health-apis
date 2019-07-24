@@ -18,6 +18,7 @@
     <sentinel.skipLaunch>false</sentinel.skipLaunch>
     <ids.version>2.0.0-SNAPSHOT</ids.version>
     <ssl.enabled>false</ssl.enabled>
+    <url.protocol>http</url.protocol>
   </properties>
   <dependencies>
     <dependency>
@@ -162,7 +163,7 @@
             <configuration>
               <name>ids</name>
               <waitForInterrupt>false</waitForInterrupt>
-              <healthcheckUrl>https://localhost:8089/actuator/health</healthcheckUrl>
+              <healthcheckUrl>${url.protocol}://localhost:8089/actuator/health</healthcheckUrl>
               <skip>${sentinel.skipLaunch}</skip>
               <arguments>
                 <argument>java</argument>
@@ -193,7 +194,7 @@
             </goals>
             <configuration>
               <name>mr-anderson</name>
-              <healthcheckUrl>https://localhost:8088/actuator/health</healthcheckUrl>
+              <healthcheckUrl>${url.protocol}://localhost:8088/actuator/health</healthcheckUrl>
               <skip>${sentinel.skipLaunch}</skip>
               <waitForInterrupt>false</waitForInterrupt>
               <arguments>
@@ -205,7 +206,7 @@
                 <argument>-Dmanagement.health.db.enabled=false</argument>
                 <argument>-Dspring.datasource.driver-class-name=gov.va.api.health.dataquery.tests.mockcdw.MockEntityReturnDriver</argument>
                 <argument>-Dspring.datasource.url=jdbc:mockcdw://cdw/samples/index.yaml,${project.basedir}/src/test/resources/cdw/index.yaml</argument>
-                <argument>-Didentityservice.url=https://localhost:8089</argument>
+                <argument>-Didentityservice.url=${url.protocol}://localhost:8089</argument>
                 <argument>-Dserver.ssl.require=${ssl.enabled}</argument>
                 <argument>-Dserver.ssl.enabled=${ssl.enabled}</argument>
                 <argument>-Dserver.ssl.key-store=file:certs/system/DVP-DVP-NONPROD.jks</argument>
@@ -227,7 +228,7 @@
             </goals>
             <configuration>
               <name>data-query</name>
-              <healthcheckUrl>https://localhost:8090/actuator/health</healthcheckUrl>
+              <healthcheckUrl>${url.protocol}://localhost:8090/actuator/health</healthcheckUrl>
               <skip>${sentinel.skipLaunch}</skip>
               <arguments>
                 <argument>java</argument>
@@ -235,9 +236,9 @@
                 <argument>data-query.jar${path.separator}h2.jar</argument>
                 <argument>-Dloader.path=data-query-tests-${project.version}.jar</argument>
                 <argument>-Dloader=gov.va.api.health.dataquery.service.Application</argument>
-                <argument>-Dargonaut.url=https://localhost:8090</argument>
-                <argument>-Didentityservice.url=https://localhost:8089</argument>
-                <argument>-Dmranderson.url=https://localhost:8088</argument>
+                <argument>-Dargonaut.url=${url.protocol}://localhost:8090</argument>
+                <argument>-Didentityservice.url=${url.protocol}://localhost:8089</argument>
+                <argument>-Dmranderson.url=${url.protocol}://localhost:8088</argument>
                 <argument>-Dhealth-check.medication-id=skip</argument>
                 <argument>-Dconformance.statement-type=patient</argument>
                 <argument>-Dconformance.contact.name=Sentinel</argument>

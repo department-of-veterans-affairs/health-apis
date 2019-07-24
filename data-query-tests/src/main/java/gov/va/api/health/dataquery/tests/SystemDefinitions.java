@@ -88,7 +88,7 @@ public final class SystemDefinitions {
    * Return system definitions for local running applications as started by the Maven build process.
    */
   private static SystemDefinition local() {
-    String url = "https://localhost";
+    String url = "http://localhost";
     return SystemDefinition.builder()
         .ids(serviceDefinition("ids", url, 8089, null, "/api/"))
         .mrAnderson(serviceDefinition("mr-anderson", url, 8088, null, "/api/"))
