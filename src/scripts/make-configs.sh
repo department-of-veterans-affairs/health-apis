@@ -63,24 +63,7 @@ makeConfig() {
   local target="$REPO/$project/config/application-${profile}.properties"
   [ -f "$target" ] && mv -v $target $target.$MARKER
   grep -E '(.*= *unset)' "$REPO/$project/src/main/resources/application.properties" \
-    | grep -Ev '(^server\.ssl\.|^ssl\.)' \
     > "$target"
-  cat >> "$target" <<EOF
-# Server SSL
-server.ssl.key-store=file:target/certs/system/DVP-DVP-NONPROD.jks
-server.ssl.key-alias=internal-sys-dev
-server.ssl.key-store-password=$KEYSTORE_PASSWORD
-server.ssl.trust-store=file:target/certs/system/DVP-NONPROD-truststore.jks
-server.ssl.trust-store-password=$KEYSTORE_PASSWORD
-server.ssl.client-auth=want
-# Client SSL
-ssl.key-store=file:target/certs/system/DVP-DVP-NONPROD.jks
-ssl.key-store-password=$KEYSTORE_PASSWORD
-ssl.client-key-password=$KEYSTORE_PASSWORD
-ssl.use-trust-store=true
-ssl.trust-store=file:target/certs/system/DVP-NONPROD-truststore.jks
-ssl.trust-store-password=$KEYSTORE_PASSWORD
-EOF
 }
 
 addValue() {
@@ -112,15 +95,6 @@ checkForUnsetValues() {
   [ $? == 0 ] && echo "Failed to populate all unset values" && exit 1
   diff -q $target $target.$MARKER
   [ $? == 0 ] && rm -v $target.$MARKER
-}
-
-makeTestsSecrets() {
-  cat > $REPO/data-query-tests/config/secrets.properties <<EOF
-server.ssl.key-store-password=$KEYSTORE_PASSWORD
-ssl.client-key-password=$KEYSTORE_PASSWORD
-ssl.key-store-password=$KEYSTORE_PASSWORD
-ssl.trust-store-password=$KEYSTORE_PASSWORD
-EOF
 }
 
 whoDis() {
@@ -163,5 +137,3 @@ configValue data-query $PROFILE well-known.response-type-supported "code, refres
 configValue data-query $PROFILE well-known.scopes-supported "patient/DiagnosticReport.read, patient/Patient.read, offline_access"
 
 checkForUnsetValues data-query $PROFILE
-
-makeTestsSecrets
