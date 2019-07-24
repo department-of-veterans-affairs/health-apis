@@ -8,13 +8,13 @@
     <relativePath/>
   </parent>
   <artifactId>data-query</artifactId>
-  <version>1.0.245-SNAPSHOT</version>
+  <version>1.0.246-SNAPSHOT</version>
   <packaging>jar</packaging>
   <properties>
-    <argonaut-dstu2.version>1.0.13</argonaut-dstu2.version>
+    <argonaut-dstu2.version>1.0.18</argonaut-dstu2.version>
     <cdw-schemas.version>1.0.42</cdw-schemas.version>
     <guava.version>20.0</guava.version>
-    <health-apis-ids.version>1.1.5</health-apis-ids.version>
+    <health-apis-ids.version>1.1.6</health-apis-ids.version>
     <jacoco.coverage>0.90</jacoco.coverage>
     <swagger-maven-plugin.version>2.0.8</swagger-maven-plugin.version>
   </properties>
