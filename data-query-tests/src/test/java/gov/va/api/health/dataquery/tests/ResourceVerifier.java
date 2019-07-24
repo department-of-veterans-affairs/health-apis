@@ -1,6 +1,5 @@
 package gov.va.api.health.dataquery.tests;
 
-import static org.apache.commons.lang3.BooleanUtils.isFalse;
 import static org.apache.commons.lang3.BooleanUtils.isTrue;
 import static org.apache.commons.lang3.BooleanUtils.toBoolean;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -138,7 +137,7 @@ public class ResourceVerifier {
     if (isTrue(toBoolean(System.getProperty("datamart.failures.enabled")))) {
       return true;
     }
-    if (isFalse(toBoolean(System.getenv("DATAMART_FAILURES_ENABLED")))) {
+    if (isTrue(toBoolean(System.getenv("DATAMART_FAILURES_ENABLED")))) {
       return true;
     }
     return false;
