@@ -22,7 +22,7 @@ public class ResourceDiscoveryTest {
   private final ConformanceTestData data = ConformanceTestData.get();
   ResourceDiscovery resourceDiscovery =
       ResourceDiscovery.builder()
-          .url("https://localhost:8090/api/")
+          .url("http://localhost:8090/api/")
           .patientId("185601V825290")
           .build();
 
