@@ -111,7 +111,7 @@ public class ResourceVerifier {
             .get(datamartHeader(), tc.path(), tc.parameters())
             .expect(tc.status())
             .expectValid(tc.response());
-      } catch (Exception e) {
+      } catch (AssertionError | Exception e) {
         if (datamartFailuresEnabled()) {
           throw e;
         } else {
