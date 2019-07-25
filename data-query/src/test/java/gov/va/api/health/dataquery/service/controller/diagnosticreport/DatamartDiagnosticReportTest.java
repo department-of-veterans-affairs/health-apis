@@ -18,7 +18,9 @@ import gov.va.api.health.dstu2.api.datatypes.Coding;
 import gov.va.api.health.dstu2.api.elements.Reference;
 import gov.va.api.health.ids.api.IdentityService;
 import java.util.stream.Collectors;
+import lombok.Builder;
 import lombok.SneakyThrows;
+import lombok.Value;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,243 +34,73 @@ public final class DatamartDiagnosticReportTest {
 
   @Autowired private TestEntityManager entityManager;
 
+  public DiagnosticReportController controller() {
+    return new DiagnosticReportController(
+        null,
+        null,
+        new Bundler(new ConfigurableBaseUrlPageLinks("", "")),
+        WitnessProtection.builder().identityService(mock(IdentityService.class)).build(),
+        entityManager.getEntityManager());
+  }
+
   @Test
-  @SneakyThrows
   public void read() {
-    String icn = "1011537977V693883";
-    String reportId = "800260864479:L";
-    DiagnosticReportsEntity entity =
-        DiagnosticReportsEntity.builder()
-            .icn(icn)
-            .payload(
-                JacksonConfig.createMapper()
-                    .writeValueAsString(
-                        DatamartDiagnosticReports.builder()
-                            .reports(
-                                asList(
-                                    DatamartDiagnosticReports.DiagnosticReport.builder()
-                                        .identifier(reportId)
-                                        .build()))
-                            .build()))
-            .build();
-    entityManager.persistAndFlush(entity);
-    DiagnosticReportCrossEntity crossEntity =
-        DiagnosticReportCrossEntity.builder().reportId(reportId).icn(icn).build();
-    entityManager.persistAndFlush(crossEntity);
-    DiagnosticReportController controller =
-        new DiagnosticReportController(
-            null,
-            null,
-            null,
-            WitnessProtection.builder().identityService(mock(IdentityService.class)).build(),
-            entityManager.getEntityManager());
-    DiagnosticReport report = controller.read("true", reportId);
-    assertThat(report)
-        .isEqualTo(
-            DiagnosticReport.builder()
-                .id(reportId)
-                .resourceType("DiagnosticReport")
-                .status(DiagnosticReport.Code._final)
-                .category(
-                    CodeableConcept.builder()
-                        .coding(
-                            asList(
-                                Coding.builder()
-                                    .system(
-                                        "http://hl7.org/fhir/ValueSet/diagnostic-service-sections")
-                                    .code("LAB")
-                                    .display("Laboratory")
-                                    .build()))
-                        .build())
-                .code(CodeableConcept.builder().text("panel").build())
-                .build());
+    DatamartData dm = DatamartData.create();
+    FhirData fhir = FhirData.from(dm);
+    entityManager.persistAndFlush(dm.entity());
+    entityManager.persistAndFlush(dm.crossEntity());
+    DiagnosticReport report = controller().read("true", dm.reportId());
+    assertThat(report).isEqualTo(fhir.report());
+  }
+
+  @Test
+  public void readRaw() {
+    DatamartData dm = DatamartData.create();
+    entityManager.persistAndFlush(dm.entity());
+    entityManager.persistAndFlush(dm.crossEntity());
+    DatamartDiagnosticReports.DiagnosticReport report = controller().readRaw(dm.reportId());
+    assertThat(report).isEqualTo(dm.report());
   }
 
   @Test(expected = ResourceExceptions.NotFound.class)
   public void read_empty() {
-    DiagnosticReportController controller =
-        new DiagnosticReportController(
-            null,
-            null,
-            null,
-            WitnessProtection.builder().identityService(mock(IdentityService.class)).build(),
-            entityManager.getEntityManager());
+    DiagnosticReportController controller = controller();
     controller.read("true", "800260864479:L");
   }
 
   @Test
-  @SneakyThrows
   public void searchById() {
-    String icn = "1011537977V693883";
-    String reportId = "800260864479:L";
-    DiagnosticReportsEntity entity =
-        DiagnosticReportsEntity.builder()
-            .icn(icn)
-            .payload(
-                JacksonConfig.createMapper()
-                    .writeValueAsString(
-                        DatamartDiagnosticReports.builder()
-                            .reports(
-                                asList(
-                                    DatamartDiagnosticReports.DiagnosticReport.builder()
-                                        .identifier(reportId)
-                                        .build()))
-                            .build()))
-            .build();
-    entityManager.persistAndFlush(entity);
-    DiagnosticReportCrossEntity crossEntity =
-        DiagnosticReportCrossEntity.builder().reportId(reportId).icn(icn).build();
-    entityManager.persistAndFlush(crossEntity);
-    DiagnosticReportController controller =
-        new DiagnosticReportController(
-            null,
-            null,
-            new Bundler(new ConfigurableBaseUrlPageLinks("", "")),
-            WitnessProtection.builder().identityService(mock(IdentityService.class)).build(),
-            entityManager.getEntityManager());
-    DiagnosticReport.Bundle bundle = controller.searchById("true", reportId, 1, 15);
-    assertThat(Iterables.getOnlyElement(bundle.entry()).resource())
-        .isEqualTo(
-            DiagnosticReport.builder()
-                .id(reportId)
-                .resourceType("DiagnosticReport")
-                .status(DiagnosticReport.Code._final)
-                .category(
-                    CodeableConcept.builder()
-                        .coding(
-                            asList(
-                                Coding.builder()
-                                    .system(
-                                        "http://hl7.org/fhir/ValueSet/diagnostic-service-sections")
-                                    .code("LAB")
-                                    .display("Laboratory")
-                                    .build()))
-                        .build())
-                .code(CodeableConcept.builder().text("panel").build())
-                .build());
+    DatamartData dm = DatamartData.create();
+    FhirData fhir = FhirData.from(dm);
+    entityManager.persistAndFlush(dm.entity());
+    entityManager.persistAndFlush(dm.crossEntity());
+    DiagnosticReport.Bundle bundle = controller().searchById("true", dm.reportId(), 1, 15);
+    assertThat(Iterables.getOnlyElement(bundle.entry()).resource()).isEqualTo(fhir.report());
   }
 
   @Test
-  @SneakyThrows
   public void searchByIdentifier() {
-    String icn = "1011537977V693883";
-    String reportId = "800260864479:L";
-    DiagnosticReportsEntity entity =
-        DiagnosticReportsEntity.builder()
-            .icn(icn)
-            .payload(
-                JacksonConfig.createMapper()
-                    .writeValueAsString(
-                        DatamartDiagnosticReports.builder()
-                            .reports(
-                                asList(
-                                    DatamartDiagnosticReports.DiagnosticReport.builder()
-                                        .identifier(reportId)
-                                        .build()))
-                            .build()))
-            .build();
-    entityManager.persistAndFlush(entity);
-    DiagnosticReportCrossEntity crossEntity =
-        DiagnosticReportCrossEntity.builder().reportId(reportId).icn(icn).build();
-    entityManager.persistAndFlush(crossEntity);
-    DiagnosticReportController controller =
-        new DiagnosticReportController(
-            null,
-            null,
-            new Bundler(new ConfigurableBaseUrlPageLinks("", "")),
-            WitnessProtection.builder().identityService(mock(IdentityService.class)).build(),
-            entityManager.getEntityManager());
-    DiagnosticReport.Bundle bundle = controller.searchByIdentifier("true", reportId, 1, 15);
-    assertThat(Iterables.getOnlyElement(bundle.entry()).resource())
-        .isEqualTo(
-            DiagnosticReport.builder()
-                .id(reportId)
-                .resourceType("DiagnosticReport")
-                .status(DiagnosticReport.Code._final)
-                .category(
-                    CodeableConcept.builder()
-                        .coding(
-                            asList(
-                                Coding.builder()
-                                    .system(
-                                        "http://hl7.org/fhir/ValueSet/diagnostic-service-sections")
-                                    .code("LAB")
-                                    .display("Laboratory")
-                                    .build()))
-                        .build())
-                .code(CodeableConcept.builder().text("panel").build())
-                .build());
+    DatamartData dm = DatamartData.create();
+    FhirData fhir = FhirData.from(dm);
+    entityManager.persistAndFlush(dm.entity());
+    entityManager.persistAndFlush(dm.crossEntity());
+    DiagnosticReport.Bundle bundle = controller().searchByIdentifier("true", dm.reportId(), 1, 15);
+    assertThat(Iterables.getOnlyElement(bundle.entry()).resource()).isEqualTo(fhir.report());
   }
 
   @Test
-  @SneakyThrows
   public void searchByPatient() {
-    String icn = "1011537977V693883";
-    String reportId = "800260864479:L";
-    String effectiveDateTime = "2009-09-24T03:15:24";
-    String issuedDateTime = "2009-09-24T03:36:35";
-    String performer = "655775";
-    String performerDisplay = "MANILA-RO";
-    DiagnosticReportsEntity entity =
-        DiagnosticReportsEntity.builder()
-            .icn(icn)
-            .payload(
-                JacksonConfig.createMapper()
-                    .writeValueAsString(
-                        DatamartDiagnosticReports.builder()
-                            .fullIcn(icn)
-                            .reports(
-                                asList(
-                                    DatamartDiagnosticReports.DiagnosticReport.builder()
-                                        .identifier(reportId)
-                                        .effectiveDateTime(effectiveDateTime)
-                                        .issuedDateTime(issuedDateTime)
-                                        .accessionInstitutionSid(performer)
-                                        .accessionInstitutionName(performerDisplay)
-                                        .build()))
-                            .build()))
-            .build();
-    entityManager.persistAndFlush(entity);
-    DiagnosticReportController controller =
-        new DiagnosticReportController(
-            null,
-            null,
-            new Bundler(new ConfigurableBaseUrlPageLinks("", "")),
-            WitnessProtection.builder().identityService(mock(IdentityService.class)).build(),
-            entityManager.getEntityManager());
-    DiagnosticReport.Bundle bundle = controller.searchByPatient("true", icn, 1, 15);
-    assertThat(Iterables.getOnlyElement(bundle.entry()).resource())
-        .isEqualTo(
-            DiagnosticReport.builder()
-                .id(reportId)
-                .resourceType("DiagnosticReport")
-                .status(DiagnosticReport.Code._final)
-                .category(
-                    CodeableConcept.builder()
-                        .coding(
-                            asList(
-                                Coding.builder()
-                                    .system(
-                                        "http://hl7.org/fhir/ValueSet/diagnostic-service-sections")
-                                    .code("LAB")
-                                    .display("Laboratory")
-                                    .build()))
-                        .build())
-                .code(CodeableConcept.builder().text("panel").build())
-                .subject(Reference.builder().reference("Patient/" + icn).build())
-                .effectiveDateTime(parseInstant(effectiveDateTime).toString())
-                .issued(parseInstant(issuedDateTime).toString())
-                .performer(
-                    Reference.builder()
-                        .reference("Organization/" + performer)
-                        .display(performerDisplay)
-                        .build())
-                .build());
+    DatamartData dm = DatamartData.create();
+    FhirData fhir = FhirData.from(dm);
+    entityManager.persistAndFlush(dm.entity());
+    DiagnosticReport.Bundle bundle = controller().searchByPatient("true", dm.icn(), 1, 15);
+    assertThat(Iterables.getOnlyElement(bundle.entry()).resource()).isEqualTo(fhir.report());
   }
 
   @Test
   @SneakyThrows
   public void searchByPatientAndCategoryAndDate() {
+
     String icn = "1011537977V693883";
     String reportId1 = "1:L";
     String reportId2 = "2:L";
@@ -295,21 +127,15 @@ public final class DatamartDiagnosticReportTest {
                             .build()))
             .build();
     entityManager.persistAndFlush(entity);
-    DiagnosticReportController controller =
-        new DiagnosticReportController(
-            null,
-            null,
-            new Bundler(new ConfigurableBaseUrlPageLinks("", "")),
-            WitnessProtection.builder().identityService(mock(IdentityService.class)).build(),
-            entityManager.getEntityManager());
     Bundle bundle =
-        controller.searchByPatientAndCategoryAndDate(
-            "true",
-            icn,
-            "LAB",
-            new String[] {"gt2008", "ge2008", "eq2009", "le2010", "lt2010"},
-            1,
-            15);
+        controller()
+            .searchByPatientAndCategoryAndDate(
+                "true",
+                icn,
+                "LAB",
+                new String[] {"gt2008", "ge2008", "eq2009", "le2010", "lt2010"},
+                1,
+                15);
     assertThat(bundle.entry().stream().map(e -> e.resource()).collect(Collectors.toList()))
         .isEqualTo(
             asList(
@@ -354,265 +180,208 @@ public final class DatamartDiagnosticReportTest {
   }
 
   @Test
-  @SneakyThrows
   public void searchByPatientAndCategoryAndDate_exactEffective() {
-    String icn = "1011537977V693883";
-    DiagnosticReportsEntity entity =
-        DiagnosticReportsEntity.builder()
-            .icn(icn)
-            .payload(
-                JacksonConfig.createMapper()
-                    .writeValueAsString(
-                        DatamartDiagnosticReports.builder()
-                            .fullIcn(icn)
-                            .reports(
-                                asList(
-                                    DatamartDiagnosticReports.DiagnosticReport.builder()
-                                        .identifier("1:L")
-                                        .effectiveDateTime("2009-09-24T03:15:24")
-                                        .build()))
-                            .build()))
-            .build();
-    entityManager.persistAndFlush(entity);
-    DiagnosticReportController controller =
-        new DiagnosticReportController(
-            null,
-            null,
-            new Bundler(new ConfigurableBaseUrlPageLinks("", "")),
-            WitnessProtection.builder().identityService(mock(IdentityService.class)).build(),
-            entityManager.getEntityManager());
+    DatamartData dm = DatamartData.create();
+    FhirData fhir = FhirData.from(dm);
+    entityManager.persistAndFlush(dm.entity());
+    entityManager.persistAndFlush(dm.crossEntity());
+
     Bundle bundle =
-        controller.searchByPatientAndCategoryAndDate(
-            "true", icn, "LAB", new String[] {"2009-09-24T03:15:24Z"}, 1, 15);
+        controller()
+            .searchByPatientAndCategoryAndDate(
+                "true", dm.icn(), "LAB", new String[] {dm.effectiveDateTime()}, 1, 15);
     assertThat(bundle.entry().size()).isEqualTo(1);
   }
 
   @Test
-  @SneakyThrows
   public void searchByPatientAndCategoryAndDate_exactIssued() {
-    String icn = "1011537977V693883";
-    DiagnosticReportsEntity entity =
-        DiagnosticReportsEntity.builder()
-            .icn(icn)
-            .payload(
-                JacksonConfig.createMapper()
-                    .writeValueAsString(
-                        DatamartDiagnosticReports.builder()
-                            .fullIcn(icn)
-                            .reports(
-                                asList(
-                                    DatamartDiagnosticReports.DiagnosticReport.builder()
-                                        .identifier("1:L")
-                                        .issuedDateTime("2009-09-24T03:15:24")
-                                        .build()))
-                            .build()))
-            .build();
-    entityManager.persistAndFlush(entity);
-    DiagnosticReportController controller =
-        new DiagnosticReportController(
-            null,
-            null,
-            new Bundler(new ConfigurableBaseUrlPageLinks("", "")),
-            WitnessProtection.builder().identityService(mock(IdentityService.class)).build(),
-            entityManager.getEntityManager());
+    DatamartData dm = DatamartData.create();
+    FhirData fhir = FhirData.from(dm);
+    entityManager.persistAndFlush(dm.entity());
+    entityManager.persistAndFlush(dm.crossEntity());
+
     Bundle bundle =
-        controller.searchByPatientAndCategoryAndDate(
-            "true", icn, "LAB", new String[] {"2009-09-24T03:15:24Z"}, 1, 15);
+        controller()
+            .searchByPatientAndCategoryAndDate(
+                "true", dm.icn(), "LAB", new String[] {dm.issuedDateTime()}, 1, 15);
     assertThat(bundle.entry().size()).isEqualTo(1);
   }
 
   @Test
-  @SneakyThrows
   public void searchByPatientAndCategoryAndDate_greaterThan() {
-    String icn = "1011537977V693883";
-    DiagnosticReportsEntity entity =
-        DiagnosticReportsEntity.builder()
-            .icn(icn)
-            .payload(
-                JacksonConfig.createMapper()
-                    .writeValueAsString(
-                        DatamartDiagnosticReports.builder()
-                            .fullIcn(icn)
-                            .reports(
-                                asList(
-                                    DatamartDiagnosticReports.DiagnosticReport.builder()
-                                        .identifier("1:L")
-                                        .issuedDateTime("2009-09-24T00:00:00")
-                                        .effectiveDateTime("2009-09-24T01:00:00")
-                                        .build()))
-                            .build()))
+    DatamartData dm =
+        DatamartData.builder()
+            .issuedDateTime("2009-09-24T00:00:00")
+            .effectiveDateTime("2009-09-24T01:00:00")
             .build();
-    entityManager.persistAndFlush(entity);
-    DiagnosticReportController controller =
-        new DiagnosticReportController(
-            null,
-            null,
-            new Bundler(new ConfigurableBaseUrlPageLinks("", "")),
-            WitnessProtection.builder().identityService(mock(IdentityService.class)).build(),
-            entityManager.getEntityManager());
+    FhirData fhir = FhirData.from(dm);
+    entityManager.persistAndFlush(dm.entity());
+    entityManager.persistAndFlush(dm.crossEntity());
+
+    DiagnosticReportController controller = controller();
     assertThat(
             controller
                 .searchByPatientAndCategoryAndDate(
-                    "true", icn, "LAB", new String[] {"gt2009-09-24T00:00:00Z"}, 1, 15)
+                    "true", dm.icn(), "LAB", new String[] {"gt2009-09-24T00:00:00Z"}, 1, 15)
                 .entry()
                 .size())
         .isEqualTo(1);
     assertThat(
             controller
                 .searchByPatientAndCategoryAndDate(
-                    "true", icn, "LAB", new String[] {"gt2009-09-24T01:00:00Z"}, 1, 15)
+                    "true", dm.icn(), "LAB", new String[] {"gt2009-09-24T01:00:00Z"}, 1, 15)
                 .entry())
         .isEmpty();
   }
 
   @Test
-  @SneakyThrows
   public void searchByPatientAndCategoryAndDate_noDates() {
-    String icn = "1011537977V693883";
-    DiagnosticReportsEntity entity =
-        DiagnosticReportsEntity.builder()
-            .icn(icn)
-            .payload(
-                JacksonConfig.createMapper()
-                    .writeValueAsString(
-                        DatamartDiagnosticReports.builder()
-                            .fullIcn(icn)
-                            .reports(
-                                asList(
-                                    DatamartDiagnosticReports.DiagnosticReport.builder()
-                                        .identifier("1:L")
-                                        .build()))
-                            .build()))
-            .build();
-    entityManager.persistAndFlush(entity);
-    DiagnosticReportController controller =
-        new DiagnosticReportController(
-            null,
-            null,
-            new Bundler(new ConfigurableBaseUrlPageLinks("", "")),
-            WitnessProtection.builder().identityService(mock(IdentityService.class)).build(),
-            entityManager.getEntityManager());
+    DatamartData dm = DatamartData.builder().issuedDateTime("").effectiveDateTime("").build();
+    FhirData fhir = FhirData.from(dm);
+    entityManager.persistAndFlush(dm.entity());
+    entityManager.persistAndFlush(dm.crossEntity());
+
     Bundle bundle =
-        controller.searchByPatientAndCategoryAndDate(
-            "true", icn, "LAB", new String[] {"ge2000"}, 1, 15);
+        controller()
+            .searchByPatientAndCategoryAndDate(
+                "true", dm.icn(), "LAB", new String[] {"ge2000"}, 1, 15);
     assertThat(bundle.entry()).isEmpty();
   }
 
   @Test
-  @SneakyThrows
   public void searchByPatientAndCategoryAndDate_notLab() {
-    String icn = "1011537977V693883";
-    String reportId = "1:L";
-    DiagnosticReportsEntity entity =
-        DiagnosticReportsEntity.builder()
-            .icn(icn)
-            .payload(
-                JacksonConfig.createMapper()
-                    .writeValueAsString(
-                        DatamartDiagnosticReports.builder()
-                            .fullIcn(icn)
-                            .reports(
-                                asList(
-                                    DatamartDiagnosticReports.DiagnosticReport.builder()
-                                        .identifier(reportId)
-                                        .build()))
-                            .build()))
-            .build();
-    entityManager.persistAndFlush(entity);
-    DiagnosticReportController controller =
-        new DiagnosticReportController(
-            null,
-            null,
-            new Bundler(new ConfigurableBaseUrlPageLinks("", "")),
-            WitnessProtection.builder().identityService(mock(IdentityService.class)).build(),
-            entityManager.getEntityManager());
+    DatamartData dm = DatamartData.create();
+    FhirData fhir = FhirData.from(dm);
+    entityManager.persistAndFlush(dm.entity());
+    entityManager.persistAndFlush(dm.crossEntity());
     Bundle bundle =
-        controller.searchByPatientAndCategoryAndDate("true", icn, "CHEM", new String[] {}, 1, 15);
+        controller()
+            .searchByPatientAndCategoryAndDate("true", dm.icn(), "CHEM", new String[] {}, 1, 15);
     // Searching for any category except LAB yields no results
     assertThat(bundle.entry()).isEmpty();
   }
 
   @Test
-  @SneakyThrows
   public void searchByPatientAndCode() {
-    String icn = "1011537977V693883";
-    String reportId = "800260864479:L";
-    DiagnosticReportsEntity entity =
-        DiagnosticReportsEntity.builder()
-            .icn(icn)
-            .payload(
-                JacksonConfig.createMapper()
-                    .writeValueAsString(
-                        DatamartDiagnosticReports.builder()
-                            .fullIcn(icn)
-                            .reports(
-                                asList(
-                                    DatamartDiagnosticReports.DiagnosticReport.builder()
-                                        .identifier(reportId)
-                                        .build()))
-                            .build()))
-            .build();
-    entityManager.persistAndFlush(entity);
-    DiagnosticReportController controller =
-        new DiagnosticReportController(
-            null,
-            null,
-            new Bundler(new ConfigurableBaseUrlPageLinks("", "")),
-            WitnessProtection.builder().identityService(mock(IdentityService.class)).build(),
-            entityManager.getEntityManager());
-    DiagnosticReport.Bundle bundle = controller.searchByPatientAndCode("true", icn, "x", 1, 15);
+    DatamartData dm = DatamartData.create();
+    FhirData fhir = FhirData.from(dm);
+    entityManager.persistAndFlush(dm.entity());
+    entityManager.persistAndFlush(dm.crossEntity());
+    DiagnosticReport.Bundle bundle =
+        controller().searchByPatientAndCode("true", dm.icn(), "x", 1, 15);
     // Searching by any code yields no results
     assertThat(bundle.entry()).isEmpty();
   }
 
   @Test
-  @SneakyThrows
   public void searchByPatientAndCode_noCode() {
-    String icn = "1011537977V693883";
-    String reportId = "800260864479:L";
-    DiagnosticReportsEntity entity =
-        DiagnosticReportsEntity.builder()
-            .icn(icn)
-            .payload(
-                JacksonConfig.createMapper()
-                    .writeValueAsString(
-                        DatamartDiagnosticReports.builder()
-                            .fullIcn(icn)
-                            .reports(
-                                asList(
-                                    DatamartDiagnosticReports.DiagnosticReport.builder()
-                                        .identifier(reportId)
-                                        .build()))
-                            .build()))
-            .build();
-    entityManager.persistAndFlush(entity);
-    DiagnosticReportController controller =
-        new DiagnosticReportController(
-            null,
-            null,
-            new Bundler(new ConfigurableBaseUrlPageLinks("", "")),
-            WitnessProtection.builder().identityService(mock(IdentityService.class)).build(),
-            entityManager.getEntityManager());
-    DiagnosticReport.Bundle bundle = controller.searchByPatientAndCode("true", icn, "", 1, 15);
-    assertThat(Iterables.getOnlyElement(bundle.entry()).resource())
-        .isEqualTo(
-            DiagnosticReport.builder()
-                .id(reportId)
-                .resourceType("DiagnosticReport")
-                .status(DiagnosticReport.Code._final)
-                .category(
-                    CodeableConcept.builder()
-                        .coding(
-                            asList(
-                                Coding.builder()
-                                    .system(
-                                        "http://hl7.org/fhir/ValueSet/diagnostic-service-sections")
-                                    .code("LAB")
-                                    .display("Laboratory")
-                                    .build()))
-                        .build())
-                .code(CodeableConcept.builder().text("panel").build())
-                .subject(Reference.builder().reference("Patient/" + icn).build())
-                .build());
+    DatamartData dm = DatamartData.create();
+    FhirData fhir = FhirData.from(dm);
+    entityManager.persistAndFlush(dm.entity());
+    entityManager.persistAndFlush(dm.crossEntity());
+
+    DiagnosticReport.Bundle bundle =
+        controller().searchByPatientAndCode("true", dm.icn(), "", 1, 15);
+    assertThat(Iterables.getOnlyElement(bundle.entry()).resource()).isEqualTo(fhir.report());
+  }
+
+  @Test
+  public void searchByPatientRaw() {
+    DatamartData dm = DatamartData.create();
+    entityManager.persistAndFlush(dm.entity());
+    String json = controller().searchByPatientRaw(dm.icn());
+    assertThat(
+            DiagnosticReportsEntity.builder().payload(json).build().asDatamartDiagnosticReports())
+        .isEqualTo(dm.reports());
+  }
+
+  @Value
+  @Builder
+  private static class DatamartData {
+    @Builder.Default String icn = "1011537977V693883";
+    @Builder.Default String reportId = "800260864479:L";
+    @Builder.Default String effectiveDateTime = "2009-09-24T03:15:24Z";
+    @Builder.Default String issuedDateTime = "2009-09-24T03:36:35Z";
+    @Builder.Default String performer = "655775";
+    @Builder.Default String performerDisplay = "MANILA-RO";
+
+    static DatamartData create() {
+      return DatamartData.builder().build();
+    }
+
+    DiagnosticReportCrossEntity crossEntity() {
+      return DiagnosticReportCrossEntity.builder().reportId(reportId).icn(icn).build();
+    }
+
+    @SneakyThrows
+    DiagnosticReportsEntity entity() {
+      return DiagnosticReportsEntity.builder()
+          .icn(icn)
+          .payload(JacksonConfig.createMapper().writeValueAsString(reports()))
+          .build();
+    }
+
+    DatamartDiagnosticReports.DiagnosticReport report() {
+      return DatamartDiagnosticReports.DiagnosticReport.builder()
+          .identifier(reportId)
+          .effectiveDateTime(effectiveDateTime)
+          .issuedDateTime(issuedDateTime)
+          .accessionInstitutionSid(performer)
+          .accessionInstitutionName(performerDisplay)
+          .build();
+    }
+
+    DatamartDiagnosticReports reports() {
+      return DatamartDiagnosticReports.builder().fullIcn(icn).reports(asList(report())).build();
+    }
+  }
+
+  @Value
+  @Builder
+  private static class FhirData {
+    @Builder.Default String icn = "1011537977V693883";
+    @Builder.Default String reportId = "800260864479:L";
+    @Builder.Default String effectiveDateTime = "2009-09-24T03:15:24";
+    @Builder.Default String issuedDateTime = "2009-09-24T03:36:35";
+    @Builder.Default String performer = "655775";
+    @Builder.Default String performerDisplay = "MANILA-RO";
+
+    static FhirData from(DatamartData dm) {
+      return FhirData.builder()
+          .icn(dm.icn())
+          .reportId(dm.reportId())
+          .effectiveDateTime(dm.effectiveDateTime())
+          .issuedDateTime(dm.issuedDateTime())
+          .performer(dm.performer())
+          .performerDisplay(dm.performerDisplay())
+          .build();
+    }
+
+    DiagnosticReport report() {
+      return DiagnosticReport.builder()
+          .id(reportId)
+          .resourceType("DiagnosticReport")
+          .status(DiagnosticReport.Code._final)
+          .category(
+              CodeableConcept.builder()
+                  .coding(
+                      asList(
+                          Coding.builder()
+                              .system("http://hl7.org/fhir/ValueSet/diagnostic-service-sections")
+                              .code("LAB")
+                              .display("Laboratory")
+                              .build()))
+                  .build())
+          .code(CodeableConcept.builder().text("panel").build())
+          .subject(Reference.builder().reference("Patient/" + icn).build())
+          .effectiveDateTime(parseInstant(effectiveDateTime).toString())
+          .issued(parseInstant(issuedDateTime).toString())
+          .performer(
+              Reference.builder()
+                  .reference("Organization/" + performer)
+                  .display(performerDisplay)
+                  .build())
+          .build();
+    }
   }
 }

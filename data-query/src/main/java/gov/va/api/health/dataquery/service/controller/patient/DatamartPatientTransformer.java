@@ -346,6 +346,9 @@ final class DatamartPatientTransformer {
   }
 
   private Boolean deceased() {
+    if (deceasedDateTime() != null) {
+      return null;
+    }
     switch (upperCase(trimToEmpty(datamart.deceased()), Locale.US)) {
       case "Y":
         return true;

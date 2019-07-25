@@ -14,9 +14,9 @@
     <argonaut-dstu2.version>2.0.0</argonaut-dstu2.version>
     <cdw-schemas.version>1.0.42</cdw-schemas.version>
     <groups>gov.va.api.health.sentinel.categories.Local</groups>
+    <health-apis-ids.version>2.0.0-SNAPSHOT</health-apis-ids.version>
     <selenium.version>3.141.59</selenium.version>
     <sentinel.skipLaunch>false</sentinel.skipLaunch>
-    <ids.version>2.0.0-SNAPSHOT</ids.version>
   </properties>
   <dependencies>
     <dependency>
@@ -42,12 +42,12 @@
     <dependency>
       <groupId>gov.va.api.health</groupId>
       <artifactId>ids-api</artifactId>
-      <version>${ids.version}</version>
+      <version>${health-apis-ids.version}</version>
     </dependency>
     <dependency>
       <groupId>gov.va.api.health</groupId>
       <artifactId>ids</artifactId>
-      <version>${ids.version}</version>
+      <version>${health-apis-ids.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -165,6 +165,7 @@
               <skip>${sentinel.skipLaunch}</skip>
               <arguments>
                 <argument>java</argument>
+                <argument>-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5089</argument>
                 <argument>-cp</argument>
                 <argument>ids.jar${path.separator}h2.jar</argument>
                 <argument>-Dloader=gov.va.api.health.ids.service.Application</argument>
@@ -195,13 +196,14 @@
               <waitForInterrupt>false</waitForInterrupt>
               <arguments>
                 <argument>java</argument>
+                <argument>-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5088</argument>
                 <argument>-cp</argument>
                 <argument>mr-anderson.jar</argument>
                 <argument>-Dloader.path=data-query-tests-${project.version}.jar</argument>
                 <argument>-Dloader=gov.va.api.health.mranderson.Application</argument>
                 <argument>-Dmanagement.health.db.enabled=false</argument>
                 <argument>-Dspring.datasource.driver-class-name=gov.va.api.health.dataquery.tests.mockcdw.MockEntityReturnDriver</argument>
-                <argument>-Dspring.datasource.url=jdbc:mockcdw://cdw/samples/index.yaml,${project.basedir}/src/test/resources/cdw/index.yaml</argument>
+                <argument>-Dspring.datasource.url=jdbc:mockcdw://cdw/samples/index.yaml,${project.basedir}/src/test/resources/cdw/index.yaml,${project.basedir}/src/test/resources/cdw/datamart-index.yaml</argument>
                 <argument>-Didentityservice.url=http://localhost:8089</argument>
                 <argument>-Dserver.ssl.key-store=file:certs/system/DVP-DVP-NONPROD.jks</argument>
                 <argument>-Dserver.ssl.key-alias=internal-sys-dev</argument>
@@ -226,6 +228,7 @@
               <skip>${sentinel.skipLaunch}</skip>
               <arguments>
                 <argument>java</argument>
+                <argument>-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5090</argument>
                 <argument>-cp</argument>
                 <argument>data-query.jar${path.separator}h2.jar</argument>
                 <argument>-Dloader.path=data-query-tests-${project.version}.jar</argument>
@@ -240,7 +243,7 @@
                 <argument>-Dconformance.security.token-endpoint=http://example.com/token</argument>
                 <argument>-Dconformance.security.authorize-endpoint=http://example.com/authorize</argument>
                 <argument>-Dspring.datasource.driver-class-name=org.h2.Driver</argument>
-                <argument>-Dspring.datasource.url=jdbc:h2:${project.basedir}/src/test/resources/mitre</argument>
+                <argument>-Dspring.datasource.url=jdbc:h2:${project.basedir}/target/test-classes/mitre</argument>
                 <argument>-Dspring.datasource.username=sa</argument>
                 <argument>-Dspring.datasource.password=sa</argument>
                 <argument>-Dspring.jpa.generate-ddl=false</argument>

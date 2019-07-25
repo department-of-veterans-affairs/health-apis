@@ -50,6 +50,8 @@ public class RestMrAndersonClient implements MrAndersonClient {
       throw new BadRequest(query);
     } catch (HttpStatusCodeException e) {
       throw new SearchFailed(query);
+    } catch (Exception e) {
+      throw e;
     }
   }
 

@@ -1,7 +1,5 @@
 package gov.va.api.health.dataquery.tests.mockcdw;
 
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.tests.mockcdw.MockResponses.MockResponsesBuilder;
 import java.io.File;
 import java.sql.Connection;
@@ -88,13 +86,7 @@ public class MockEntityReturnDriver implements Driver {
         throw new SQLException("Mock CDW mapping file does not exist: " + index.getAbsolutePath());
       }
       try {
-        MockEntries mockEntries =
-            JacksonConfig.createMapper(new YAMLFactory()).readValue(index, MockEntries.class);
-        responses.source(
-            MockResponseSource.builder()
-                .baseDirectory(index.getParentFile())
-                .entries(mockEntries)
-                .build());
+        responses.source(MockResponseSource.builder().index(index).build());
       } catch (Exception e) {
         log.error("Failed create connection", e);
         throw new SQLException("Failed read mock entries: " + index.getAbsolutePath(), e);

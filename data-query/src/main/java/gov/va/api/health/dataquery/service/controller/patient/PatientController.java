@@ -129,6 +129,13 @@ public class PatientController {
   }
 
   private Patient datamartRead(String publicId) {
+    return DatamartPatientTransformer.builder()
+        .datamart(datamartReadRaw(publicId).asDatamartPatient())
+        .build()
+        .toFhir();
+  }
+
+  private PatientEntity datamartReadRaw(String publicId) {
     MultiValueMap<String, String> publicParameters = Parameters.forIdentity(publicId);
     MultiValueMap<String, String> cdwParameters =
         witnessProtection.replacePublicIdsWithCdwIds(publicParameters);
@@ -139,10 +146,7 @@ public class PatientController {
       throw new ResourceExceptions.NotFound(publicParameters);
     }
 
-    return DatamartPatientTransformer.builder()
-        .datamart(entity.asDatamartPatient())
-        .build()
-        .toFhir();
+    return entity;
   }
 
   private List<PatientEntity> jpaQueryForEntities(
@@ -219,6 +223,12 @@ public class PatientController {
         firstPayloadItem(
             hasPayload(mrAndersonSearch(Parameters.forIdentity(publicId)).getPatients())
                 .getPatient()));
+  }
+
+  /** Return the raw Datamart document for the given identifier. */
+  @GetMapping(value = "/{publicId}/raw")
+  public String readRaw(@PathVariable("publicId") String publicId) {
+    return datamartReadRaw(publicId).payload();
   }
 
   private Patient.Bundle search(

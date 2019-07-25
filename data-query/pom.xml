@@ -210,7 +210,6 @@
                     <argument>${configFile}</argument>
                     <argument>${outputFile}</argument>
                   </arguments>
-                  <systemProperties/>
                 </configuration>
               </execution>
             </executions>
