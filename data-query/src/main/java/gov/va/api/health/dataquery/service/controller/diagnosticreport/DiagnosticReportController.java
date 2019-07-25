@@ -251,8 +251,7 @@ public class DiagnosticReportController {
       throw new ResourceExceptions.NotFound(publicParameters);
     }
 
-    DatamartDiagnosticReports.DiagnosticReport report = maybeReport.get();
-    return Pair.of(payload, report);
+    return Pair.of(payload, maybeReport.get());
   }
 
   private DiagnosticReport.Bundle mrAndersonBundle(MultiValueMap<String, String> parameters) {
