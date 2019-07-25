@@ -12,7 +12,7 @@
   <packaging>jar</packaging>
   <properties>
     <mssql-jdbc.version>6.2.1.jre8</mssql-jdbc.version>
-    <ids-client.version>2.0.0-SNAPSHOT</ids-client.version>
+    <ids-client.version>2.0.0</ids-client.version>
   </properties>
   <dependencies>
     <dependency>

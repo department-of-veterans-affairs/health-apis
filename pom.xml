@@ -10,7 +10,7 @@
   <version>2.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <properties>
-    <health-apis-ids.version>2.0.0-SNAPSHOT</health-apis-ids.version>
+    <health-apis-ids.version>2.0.0</health-apis-ids.version>
   </properties>
   <modules>
     <module>data-query</module>
