@@ -19,8 +19,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class DatamartMedicationStatement {
-  private String objectType;
-  private String objectVersion;
+  @Builder.Default private String objectType = "MedicationStatement";
+  @Builder.Default private String objectVersion = "1";
   private String cdwId;
   private Instant etlDate;
   private DatamartReference patient;

@@ -12,8 +12,6 @@ import org.junit.Test;
 public class DatamartMedicationStatementTest {
   public DatamartMedicationStatement sample() {
     return DatamartMedicationStatement.builder()
-        .objectType("MedicationStatement")
-        .objectVersion("1")
         .cdwId("800008482786")
         .etlDate(Instant.parse("2017-11-03T01:39:21Z"))
         .patient(
