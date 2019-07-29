@@ -16,8 +16,7 @@ public class DatamartReference {
   private Optional<String> reference;
   private Optional<String> display;
 
-  /** Creates a second builder  /** Lazy initialization with empty. */
-  that does not take Optionals. */
+  /** Creates a second builder that does not take Optionals. */
   @Builder(builderMethodName = "of", builderClassName = "DatamartReferenceOfBuilder")
   private DatamartReference(String type, String reference, String display) {
     this(Optional.ofNullable(type), Optional.ofNullable(reference), Optional.ofNullable(display));
