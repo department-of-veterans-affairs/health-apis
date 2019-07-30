@@ -22,6 +22,14 @@ public class DatamartReference {
     this(Optional.ofNullable(type), Optional.ofNullable(reference), Optional.ofNullable(display));
   }
 
+  /** Return "type/reference" if both are available, otherwise return empty. */
+  public Optional<String> asRelativePath() {
+    if (type().isPresent() && reference().isPresent()) {
+      return Optional.of(type().get() + "/" + reference().get());
+    }
+    return Optional.empty();
+  }
+
   /** Lazy initialization with empty. */
   public Optional<String> display() {
     if (display == null) {
