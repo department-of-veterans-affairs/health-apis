@@ -3,17 +3,26 @@ package gov.va.api.health.dataquery.service.controller;
 import static gov.va.api.health.dataquery.service.controller.Transformers.asDateString;
 import static gov.va.api.health.dataquery.service.controller.Transformers.asDateTimeString;
 import static gov.va.api.health.dataquery.service.controller.Transformers.asInteger;
+import static gov.va.api.health.dataquery.service.controller.Transformers.asReference;
 import static gov.va.api.health.dataquery.service.controller.Transformers.convert;
 import static gov.va.api.health.dataquery.service.controller.Transformers.convertAll;
+import static gov.va.api.health.dataquery.service.controller.Transformers.emptyToNull;
 import static gov.va.api.health.dataquery.service.controller.Transformers.firstPayloadItem;
 import static gov.va.api.health.dataquery.service.controller.Transformers.hasPayload;
 import static gov.va.api.health.dataquery.service.controller.Transformers.ifPresent;
+import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.dataquery.service.controller.Transformers.MissingPayload;
+import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
+import gov.va.api.health.dstu2.api.elements.Reference;
 import java.math.BigInteger;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -45,7 +54,22 @@ public class TransformersTest {
 
   @Test
   public void asDateTimeStringReturnsNullWhenCalendarIsNull() {
-    assertThat(asDateTimeString(null)).isNull();
+    assertThat(asDateTimeString((XMLGregorianCalendar) null)).isNull();
+  }
+
+  @Test
+  public void asDateTimeStringReturnsNullWhenInstantIsNull() {
+    assertThat(asDateTimeString((Instant) null)).isNull();
+  }
+
+  @Test
+  public void asDateTimeStringReturnsNullWhenOptionalInstantIsEmpty() {
+    assertThat(asDateTimeString(Optional.empty())).isNull();
+  }
+
+  @Test
+  public void asDateTimeStringReturnsNullWhenOptionalInstantIsNull() {
+    assertThat(asDateTimeString((Optional<Instant>) null)).isNull();
   }
 
   @SneakyThrows
@@ -57,6 +81,18 @@ public class TransformersTest {
   }
 
   @Test
+  public void asDateTimeStringReturnsStringWhenInstantIsNotNull() {
+    Instant time = Instant.parse("2005-01-21T07:57:00.000Z");
+    assertThat(asDateTimeString(time)).isEqualTo("2005-01-21T07:57:00Z");
+  }
+
+  @Test
+  public void asDateTimeStringReturnsStringWhenOptionalInstantIsPresent() {
+    Instant time = Instant.parse("2005-01-21T07:57:00.000Z");
+    assertThat(asDateTimeString(Optional.of(time))).isEqualTo("2005-01-21T07:57:00Z");
+  }
+
+  @Test
   public void asIntegerReturnsNullWhenBigIntIsNull() {
     assertThat(asInteger(null)).isNull();
   }
@@ -64,6 +100,36 @@ public class TransformersTest {
   @Test
   public void asIntegerReturnsValueWhenBigIntIsNull() {
     assertThat(asInteger(BigInteger.TEN)).isEqualTo(10);
+  }
+
+  @Test
+  public void asReferenceReturnsNullWhenRefHasDisplay() {
+    DatamartReference ref = DatamartReference.of().display("d").build();
+    assertThat(asReference(ref)).isEqualTo(Reference.builder().display("d").build());
+  }
+
+  @Test
+  public void asReferenceReturnsNullWhenRefHasDisplayAndTypeAndReference() {
+    DatamartReference ref = DatamartReference.of().display("d").type("t").reference("r").build();
+    assertThat(asReference(ref))
+        .isEqualTo(Reference.builder().display("d").reference("t/r").build());
+  }
+
+  @Test
+  public void asReferenceReturnsNullWhenRefHasTypeAndReference() {
+    DatamartReference ref = DatamartReference.of().type("t").reference("r").build();
+    assertThat(asReference(ref)).isEqualTo(Reference.builder().reference("t/r").build());
+  }
+
+  @Test
+  public void asReferenceReturnsNullWhenRefIsEmpty() {
+    DatamartReference ref = DatamartReference.of().build();
+    assertThat(asReference(ref)).isNull();
+  }
+
+  @Test
+  public void asReferenceReturnsNullWhenRefIsNull() {
+    assertThat(asReference(null)).isNull();
   }
 
   @Test
@@ -100,6 +166,21 @@ public class TransformersTest {
   }
 
   @Test
+  public void emptyToNullReturnsNonNullEntries() {
+    assertThat(emptyToNull(Arrays.asList("a", null, "b", null))).isEqualTo(List.of("a", "b"));
+  }
+
+  @Test
+  public void emptyToNullReturnsNullIfEmpty() {
+    assertThat(emptyToNull(List.of())).isNull();
+  }
+
+  @Test
+  public void emptyToNullReturnsNullIfNull() {
+    assertThat(emptyToNull(null)).isNull();
+  }
+
+  @Test
   public void firstPayloadItemReturnsFirstItemInListWhenPresent() {
     assertThat(firstPayloadItem(Arrays.asList("a", "b"))).isEqualTo("a");
   }
@@ -129,5 +210,17 @@ public class TransformersTest {
   public void ifPresentReturnsNullWhenObjectIsNull() {
     Function<Object, String> extract = (o) -> "x" + o;
     assertThat(ifPresent(null, extract)).isNull();
+  }
+
+  @Test
+  public void isBlankCollection() {
+    assertThat(isBlank(List.of())).isTrue();
+    assertThat(isBlank(List.of("x"))).isFalse();
+  }
+
+  @Test
+  public void isBlankMap() {
+    assertThat(isBlank(Map.of())).isTrue();
+    assertThat(isBlank(Map.of("x", "y"))).isFalse();
   }
 }
