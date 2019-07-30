@@ -63,7 +63,7 @@ public class MedicationOrderTransformerTest {
   public void dateTimeString() {
     assertThat(asDateTimeString(cdw.dateWritten()))
         .isEqualTo(expected.medicationOrder().dateWritten());
-    assertThat(asDateTimeString(null)).isNull();
+    assertThat(asDateTimeString((XMLGregorianCalendar) null)).isNull();
   }
 
   @Test

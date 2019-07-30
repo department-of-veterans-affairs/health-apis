@@ -100,9 +100,9 @@ public class DatamartCondition {
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
   public static class IcdCode {
-    private String code;
-    private String display;
-    private String version;
+    String code;
+    String display;
+    String version;
   }
 
   @Data
@@ -110,7 +110,7 @@ public class DatamartCondition {
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
   public static class SnomedCode {
-    private String code;
-    private String display;
+    String code;
+    String display;
   }
 }

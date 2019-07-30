@@ -3,6 +3,8 @@ package gov.va.api.health.dataquery.service.controller;
 import static org.apache.commons.lang3.StringUtils.endsWithIgnoreCase;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
+import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
+import gov.va.api.health.dstu2.api.elements.Reference;
 import java.math.BigInteger;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -12,6 +14,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -24,6 +27,7 @@ import org.apache.commons.lang3.StringUtils;
 @Slf4j
 @UtilityClass
 public final class Transformers {
+
   /**
    * Return false if at least one value in the given list is a non-blank string, or a non-null
    * object.
@@ -47,6 +51,22 @@ public final class Transformers {
   }
 
   /** Return null if the date is null, otherwise return an ISO-8601 date time. */
+  public static String asDateTimeString(Optional<Instant> maybeDateTime) {
+    if (maybeDateTime == null || maybeDateTime.isEmpty()) {
+      return null;
+    }
+    return maybeDateTime.get().toString();
+  }
+
+  /** Return null if the date is null, otherwise return an ISO-8601 date time. */
+  public static String asDateTimeString(Instant maybeDateTime) {
+    if (maybeDateTime == null) {
+      return null;
+    }
+    return maybeDateTime.toString();
+  }
+
+  /** Return null if the date is null, otherwise return an ISO-8601 date time. */
   public static String asDateTimeString(XMLGregorianCalendar maybeDateTime) {
     if (maybeDateTime == null) {
       return null;
@@ -60,6 +80,21 @@ public final class Transformers {
       return null;
     }
     return maybeBigInt.intValue();
+  }
+
+  /** Convert the datamart reference (if specified) to a FHIR reference. */
+  public static Reference asReference(DatamartReference maybeReference) {
+    if (maybeReference == null) {
+      return null;
+    }
+    Optional<String> path = maybeReference.asRelativePath();
+    if (maybeReference.display().isEmpty() && path.isEmpty()) {
+      return null;
+    }
+    return Reference.builder()
+        .display(maybeReference.display().orElse(null))
+        .reference(path.orElse(null))
+        .build();
   }
 
   /** Return null if the given object is null, otherwise return the converted value. */
@@ -168,6 +203,7 @@ public final class Transformers {
    * there is a bug in CDW, Mr. Anderson, or the Mr. Anderson client.
    */
   static class MissingPayload extends TransformationException {
+
     MissingPayload() {
       super(
           "Payload is missing, but no errors reported by Mr. Anderson."
@@ -178,6 +214,7 @@ public final class Transformers {
 
   /** Base exception for controller errors. */
   static class TransformationException extends RuntimeException {
+
     @SuppressWarnings("SameParameterValue")
     TransformationException(String message) {
       super(message);
