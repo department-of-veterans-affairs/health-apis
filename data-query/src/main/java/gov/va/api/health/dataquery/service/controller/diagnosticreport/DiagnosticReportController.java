@@ -225,7 +225,7 @@ public class DiagnosticReportController {
     MultiValueMap<String, String> publicParameters = Parameters.forIdentity(publicId);
     MultiValueMap<String, String> cdwParameters =
         witnessProtection.replacePublicIdsWithCdwIds(publicParameters);
-    String cdwReportId = cdwParameters.getFirst("identifier");
+    String cdwReportId = Parameters.identiferOf(cdwParameters);
 
     TypedQuery<DiagnosticReportsEntity> query =
         entityManager.createQuery(

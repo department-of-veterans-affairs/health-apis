@@ -141,7 +141,7 @@ public class PatientController {
         witnessProtection.replacePublicIdsWithCdwIds(publicParameters);
 
     PatientEntity entity =
-        entityManager.find(PatientEntity.class, cdwParameters.getFirst("identifier"));
+        entityManager.find(PatientEntity.class, Parameters.identiferOf(cdwParameters));
     if (entity == null) {
       throw new ResourceExceptions.NotFound(publicParameters);
     }

@@ -9,12 +9,15 @@ import gov.va.api.health.dataquery.service.controller.Bundler.BundleContext;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.PageLinks.LinkConfig;
 import gov.va.api.health.dataquery.service.controller.Parameters;
+import gov.va.api.health.dataquery.service.controller.ResourceExceptions.NotFound;
 import gov.va.api.health.dataquery.service.controller.Validator;
+import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
 import gov.va.api.health.dataquery.service.mranderson.client.Query;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import gov.va.dvp.cdw.xsd.model.CdwCondition103Root;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.function.Function;
 import javax.validation.constraints.Min;
 import lombok.AllArgsConstructor;
@@ -46,6 +49,8 @@ public class ConditionController {
   private Transformer transformer;
   private MrAndersonClient mrAndersonClient;
   private Bundler bundler;
+  private ConditionRepository repository;
+  private WitnessProtection witnessProtection;
 
   private Condition.Bundle bundle(MultiValueMap<String, String> parameters, int page, int count) {
     CdwCondition103Root root = search(parameters);
@@ -74,6 +79,16 @@ public class ConditionController {
     return transformer.apply(
         firstPayloadItem(
             hasPayload(search(Parameters.forIdentity(publicId)).getConditions()).getCondition()));
+  }
+
+  /** Read by id. */
+  @GetMapping(value = {"/{publicId}/raw"})
+  public String readRaw(@PathVariable("publicId") String publicId) {
+    MultiValueMap<String, String> publicParameters = Parameters.forIdentity(publicId);
+    MultiValueMap<String, String> cdwParameters =
+        witnessProtection.replacePublicIdsWithCdwIds(publicParameters);
+    Optional<ConditionEntity> entity = repository.findById(Parameters.identiferOf(cdwParameters));
+    return entity.orElseThrow(() -> new NotFound(publicParameters)).payload();
   }
 
   private CdwCondition103Root search(MultiValueMap<String, String> params) {
