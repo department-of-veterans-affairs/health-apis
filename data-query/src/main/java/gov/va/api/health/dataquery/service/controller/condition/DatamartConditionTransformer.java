@@ -1,5 +1,8 @@
 package gov.va.api.health.dataquery.service.controller.condition;
 
+import static gov.va.api.health.dataquery.service.controller.Transformers.asDateString;
+import static gov.va.api.health.dataquery.service.controller.Transformers.asDateTimeString;
+import static gov.va.api.health.dataquery.service.controller.Transformers.asReference;
 import static gov.va.api.health.dataquery.service.controller.Transformers.ifPresent;
 
 import gov.va.api.health.argonaut.api.resources.Condition;
@@ -17,6 +20,20 @@ import lombok.Builder;
 public class DatamartConditionTransformer {
 
   private final DatamartCondition datamart;
+
+  /**
+   * Return snomed code if available, otherwise icd code if available. However, null will be
+   * returned if neither are available.
+   */
+  CodeableConcept bestCode() {
+    if (datamart.snomed().isPresent()) {
+      return code(datamart.snomed().get());
+    }
+    if (datamart.icd().isPresent()) {
+      return code(datamart.icd().get());
+    }
+    return null;
+  }
 
   CodeableConcept category(Category category) {
     if (category == null) {
@@ -56,22 +73,6 @@ public class DatamartConditionTransformer {
         status -> EnumSearcher.of(Condition.ClinicalStatusCode.class).find(status.toString()));
   }
 
-  CodeableConcept code(IcdCode icdCode) {
-    if (icdCode == null) {
-      return null;
-    }
-    return CodeableConcept.builder()
-        .text(icdCode.display())
-        .coding(
-            List.of(
-                Coding.builder()
-                    .system(systemOf(icdCode))
-                    .code(icdCode.code())
-                    .display(icdCode.display())
-                    .build()))
-        .build();
-  }
-
   CodeableConcept code(SnomedCode snomedCode) {
     if (snomedCode == null) {
       return null;
@@ -88,6 +89,22 @@ public class DatamartConditionTransformer {
         .build();
   }
 
+  CodeableConcept code(IcdCode icdCode) {
+    if (icdCode == null) {
+      return null;
+    }
+    return CodeableConcept.builder()
+        .text(icdCode.display())
+        .coding(
+            List.of(
+                Coding.builder()
+                    .system(systemOf(icdCode))
+                    .code(icdCode.code())
+                    .display(icdCode.display())
+                    .build()))
+        .build();
+  }
+
   private String systemOf(IcdCode icdCode) {
     if ("10".equals(icdCode.version())) {
       return "http://hl7.org/fhir/sid/icd-10";
@@ -98,19 +115,20 @@ public class DatamartConditionTransformer {
     throw new IllegalArgumentException("Unsupported ICD code version: " + icdCode.version());
   }
 
+  /** Convert the datamart structure to FHIR compliant structure. */
   public Condition toFhir() {
     return Condition.builder()
         .resourceType("Condition")
-        // .abatementDateTime(asDateTimeString(datamart.abatementDateTime()))
-        // .asserter(reference(datamart.getAsserter()))
+        .abatementDateTime(asDateTimeString(datamart.abatementDateTime()))
+        .asserter(asReference(datamart.asserter().orElse(null)))
         .category(category(datamart.category()))
         .id(datamart.cdwId())
         .clinicalStatus(clinicalStatusCode(datamart.clinicalStatus()))
-        //   .code(code(datamart.code()))
-        //  .dateRecorded(asDateString(datamart.dateRecorded()))
-        //  .encounter(reference(datamart.encounter()))
-        //  .onsetDateTime(asDateTimeString(datamart.onsetDateTime()))
-        //  .patient(reference(datamart.patient()))
+        .code(bestCode())
+        .dateRecorded(asDateString(datamart.dateRecorded()))
+        .encounter(asReference(datamart.encounter().orElse(null)))
+        .onsetDateTime(asDateTimeString(datamart.onsetDateTime()))
+        .patient(asReference(datamart.patient()))
         .verificationStatus(VerificationStatusCode.unknown)
         .build();
   }

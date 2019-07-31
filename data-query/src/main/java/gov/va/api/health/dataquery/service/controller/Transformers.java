@@ -9,9 +9,12 @@ import java.math.BigInteger;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -50,12 +53,30 @@ public final class Transformers {
     return formatter.format(maybeDate.toGregorianCalendar().getTime());
   }
 
-  /** Return null if the date is null, otherwise return an ISO-8601 date time. */
-  public static String asDateTimeString(Optional<Instant> maybeDateTime) {
-    if (maybeDateTime == null || maybeDateTime.isEmpty()) {
+  /** Return null if the date is null, otherwise return an ISO-8601 date. */
+  public static String asDateString(Optional<Instant> maybeDateTime) {
+    if (maybeDateTime == null) {
       return null;
     }
-    return maybeDateTime.get().toString();
+    return asDateString(maybeDateTime.orElse(null));
+  }
+
+  /** Return null if the date is null, otherwise return an ISO-8601 date. */
+  public static String asDateString(Instant maybeDateTime) {
+    if (maybeDateTime == null) {
+      return null;
+    }
+    return DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.US)
+        .withZone(ZoneOffset.UTC)
+        .format(maybeDateTime);
+  }
+
+  /** Return null if the date is null, otherwise return an ISO-8601 date time. */
+  public static String asDateTimeString(Optional<Instant> maybeDateTime) {
+    if (maybeDateTime == null) {
+      return null;
+    }
+    return asDateTimeString(maybeDateTime.orElse(null));
   }
 
   /** Return null if the date is null, otherwise return an ISO-8601 date time. */

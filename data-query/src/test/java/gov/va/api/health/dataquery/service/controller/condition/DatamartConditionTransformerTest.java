@@ -19,6 +19,30 @@ import org.junit.Test;
 public class DatamartConditionTransformerTest {
 
   @Test
+  public void bestCode() {
+    Datamart datamart = Datamart.create();
+    Optional<SnomedCode> snomed = Optional.of(datamart.snomedCode());
+    Optional<IcdCode> icd = Optional.of(datamart.icd10Code());
+    DatamartCondition condition = datamart.condition();
+    // case: icd = no, snomed = no -> null
+    condition.icd(null);
+    condition.snomed(null);
+    assertThat(tx(condition).bestCode()).isNull();
+    // case: icd = no, snomed = yes -> snomed
+    condition.icd(null);
+    condition.snomed(snomed);
+    assertThat(tx(condition).bestCode()).isEqualTo(Fhir.create().snomedCode());
+    // case: icd = yes, snomed = no -> icd
+    condition.icd(icd);
+    condition.snomed(null);
+    assertThat(tx(condition).bestCode()).isEqualTo(Fhir.create().icd10Code());
+    // case: icd = yes, snomed = yes -> snomed
+    condition.icd(icd);
+    condition.snomed(snomed);
+    assertThat(tx(condition).bestCode()).isEqualTo(Fhir.create().snomedCode());
+  }
+
+  @Test
   public void category() {
     Datamart datamart = Datamart.create();
     Fhir fhir = Fhir.create();
@@ -123,7 +147,7 @@ public class DatamartConditionTransformerTest {
           .id("800274570575:D")
           .clinicalStatus(Condition.ClinicalStatusCode.active)
           .code(snomedCode())
-          .dateRecorded("2011-06-27T05:40:00Z")
+          .dateRecorded("2011-06-27")
           .encounter(reference("Outpatient Visit", "Encounter/800285390250"))
           .onsetDateTime("2011-06-27T05:40:00Z")
           .patient(reference("VETERAN,FIRNM MINAM", "Patient/666V666"))
