@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -75,7 +76,9 @@ public class ConditionController {
 
   /** Read by id. */
   @GetMapping(value = {"/{publicId}"})
-  public Condition read(@PathVariable("publicId") String publicId) {
+  public Condition read(
+      @RequestHeader(value = "Datamart", defaultValue = "") String datamart,
+      @PathVariable("publicId") String publicId) {
     return transformer.apply(
         firstPayloadItem(
             hasPayload(search(Parameters.forIdentity(publicId)).getConditions()).getCondition()));
@@ -105,6 +108,7 @@ public class ConditionController {
   /** Search by _id. */
   @GetMapping(params = {"_id"})
   public Condition.Bundle searchById(
+      @RequestHeader(value = "Datamart", defaultValue = "") String datamart,
       @RequestParam("_id") String id,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
@@ -117,6 +121,7 @@ public class ConditionController {
   /** Search by Identifier. */
   @GetMapping(params = {"identifier"})
   public Condition.Bundle searchByIdentifier(
+      @RequestHeader(value = "Datamart", defaultValue = "") String datamart,
       @RequestParam("identifier") String id,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
@@ -129,6 +134,7 @@ public class ConditionController {
   /** Search by patient. */
   @GetMapping(params = {"patient"})
   public Condition.Bundle searchByPatient(
+      @RequestHeader(value = "Datamart", defaultValue = "") String datamart,
       @RequestParam("patient") String patient,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
@@ -141,6 +147,7 @@ public class ConditionController {
   /** Search by patient and category if available. */
   @GetMapping(params = {"patient", "category"})
   public Condition.Bundle searchByPatientAndCategory(
+      @RequestHeader(value = "Datamart", defaultValue = "") String datamart,
       @RequestParam("patient") String patient,
       @RequestParam("category") String category,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
@@ -159,6 +166,7 @@ public class ConditionController {
   /** Search by patient and clinical status if available. */
   @GetMapping(params = {"patient", "clinicalstatus"})
   public Condition.Bundle searchByPatientAndClinicalStatus(
+      @RequestHeader(value = "Datamart", defaultValue = "") String datamart,
       @RequestParam("patient") String patient,
       @RequestParam("clinicalstatus") String clinicalstatus,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
