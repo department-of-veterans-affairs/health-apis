@@ -130,6 +130,18 @@ public class TransformersTest {
   }
 
   @Test
+  public void asReferenceReturnsNullWhenOptionalRefHasDisplayAndTypeAndReference() {
+    DatamartReference ref = DatamartReference.of().display("d").type("t").reference("r").build();
+    assertThat(asReference(Optional.of(ref)))
+        .isEqualTo(Reference.builder().display("d").reference("t/r").build());
+  }
+
+  @Test
+  public void asReferenceReturnsNullWhenOptionalRefIsNull() {
+    assertThat(asReference((Optional<DatamartReference>) null)).isNull();
+  }
+
+  @Test
   public void asReferenceReturnsNullWhenRefHasDisplay() {
     DatamartReference ref = DatamartReference.of().display("d").build();
     assertThat(asReference(ref)).isEqualTo(Reference.builder().display("d").build());
@@ -156,7 +168,7 @@ public class TransformersTest {
 
   @Test
   public void asReferenceReturnsNullWhenRefIsNull() {
-    assertThat(asReference(null)).isNull();
+    assertThat(asReference((DatamartReference) null)).isNull();
   }
 
   @Test

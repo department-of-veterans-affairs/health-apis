@@ -104,6 +104,14 @@ public final class Transformers {
   }
 
   /** Convert the datamart reference (if specified) to a FHIR reference. */
+  public static Reference asReference(Optional<DatamartReference> maybeReference) {
+    if (maybeReference == null) {
+      return null;
+    }
+    return asReference(maybeReference.get());
+  }
+
+  /** Convert the datamart reference (if specified) to a FHIR reference. */
   public static Reference asReference(DatamartReference maybeReference) {
     if (maybeReference == null) {
       return null;
