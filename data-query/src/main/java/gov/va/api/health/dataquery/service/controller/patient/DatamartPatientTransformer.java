@@ -38,9 +38,17 @@ import lombok.NonNull;
 
 @Builder
 final class DatamartPatientTransformer {
+
   @NonNull final DatamartPatient datamart;
 
-  private static Address address(DatamartPatient.Address address) {
+  private static String stripPhone(String phone) {
+    if (phone == null) {
+      return null;
+    }
+    return phone.replaceAll("\\(|\\)|-", "");
+  }
+
+  Address address(DatamartPatient.Address address) {
     if (address == null
         || allBlank(
             address.street1(),
@@ -61,7 +69,23 @@ final class DatamartPatientTransformer {
         .build();
   }
 
-  private static Patient.Contact contact(DatamartPatient.Contact contact) {
+  private List<Address> addresses() {
+    return emptyToNull(
+        datamart.address().stream().map(adr -> address(adr)).collect(Collectors.toList()));
+  }
+
+  private String birthDate() {
+    if (length(datamart.birthDateTime()) <= 9) {
+      return null;
+    }
+    LocalDate date = LocalDate.parse(datamart.birthDateTime().substring(0, 10));
+    if (date == null) {
+      return null;
+    }
+    return date.toString();
+  }
+
+  Patient.Contact contact(DatamartPatient.Contact contact) {
     if (contact == null) {
       return null;
     }
@@ -80,7 +104,7 @@ final class DatamartPatientTransformer {
         .build();
   }
 
-  private static ContactPoint.ContactPointUse contactPointUse(DatamartPatient.Telecom telecom) {
+  ContactPoint.ContactPointUse contactPointUse(DatamartPatient.Telecom telecom) {
     if (telecom == null) {
       return null;
     }
@@ -104,7 +128,7 @@ final class DatamartPatientTransformer {
     }
   }
 
-  private static List<ContactPoint> contactTelecoms(DatamartPatient.Contact.Phone phone) {
+  List<ContactPoint> contactTelecoms(DatamartPatient.Contact.Phone phone) {
     if (phone == null) {
       return null;
     }
@@ -135,211 +159,6 @@ final class DatamartPatientTransformer {
     return emptyToNull(new ArrayList<>(results));
   }
 
-  private static String ethnicityDisplay(DatamartPatient.Ethnicity ethnicity) {
-    if (ethnicity == null) {
-      return null;
-    }
-    switch (upperCase(trimToEmpty(ethnicity.hl7()), Locale.US)) {
-      case "2135-2":
-        return "Hispanic or Latino";
-      case "2186-5":
-        return "Non Hispanic or Latino";
-      default:
-        return ethnicity.display();
-    }
-  }
-
-  private static List<Extension> ethnicityExtensions(DatamartPatient.Ethnicity ethnicity) {
-    if (ethnicity == null) {
-      return null;
-    }
-    List<Extension> results = new ArrayList<>(2);
-    String display = ethnicityDisplay(ethnicity);
-    if (!allBlank(display, ethnicity.hl7())) {
-      results.add(
-          Extension.builder()
-              .url("ombCategory")
-              .valueCoding(
-                  Coding.builder()
-                      .system("http://hl7.org/fhir/ValueSet/v3-Ethnicity")
-                      .code(ethnicity.hl7())
-                      .display(display)
-                      .build())
-              .build());
-    }
-    if (isNotBlank(display)) {
-      results.add(Extension.builder().url("text").valueString(display).build());
-    }
-    return emptyToNull(results);
-  }
-
-  private static Coding maritalStatusCoding(String code) {
-    String upper = upperCase(trimToEmpty(code), Locale.US);
-    Coding.CodingBuilder result =
-        Coding.builder().system("http://hl7.org/fhir/marital-status").code(upper);
-    switch (upper) {
-      case "A":
-        return result.display("Annulled").build();
-      case "D":
-        return result.display("Divorced").build();
-      case "I":
-        return result.display("Interlocutory").build();
-      case "L":
-        return result.display("Legally Separated").build();
-      case "M":
-        return result.display("Married").build();
-      case "P":
-        return result.display("Polygamous").build();
-      case "S":
-        return result.display("Never Married").build();
-      case "T":
-        return result.display("Domestic partner").build();
-      case "W":
-        return result.display("Widowed").build();
-      case "UNK":
-        return result.system("http://hl7.org/fhir/v3/NullFlavor").display("unknown").build();
-      default:
-        return null;
-    }
-  }
-
-  private static HumanName name(DatamartPatient.Contact contact) {
-    if (contact == null || isBlank(contact.name())) {
-      return null;
-    }
-    return HumanName.builder().text(contact.name()).build();
-  }
-
-  private static Coding raceCoding(DatamartPatient.Race race) {
-    if (race == null || isBlank(race.display())) {
-      return null;
-    }
-    Coding.CodingBuilder result = Coding.builder().system("http://hl7.org/fhir/v3/Race");
-    if (containsIgnoreCase(race.display(), "INDIAN")
-        || containsIgnoreCase(race.display(), "ALASKA")) {
-      return result.code("1002-5").display("American Indian or Alaska Native").build();
-    } else if (containsIgnoreCase(race.display(), "ASIAN")) {
-      return result.code("2028-9").display("Asian").build();
-    } else if (containsIgnoreCase(race.display(), "BLACK")
-        || containsIgnoreCase(race.display(), "AFRICA")) {
-      return result.code("2054-5").display("Black or African American").build();
-    } else if (containsIgnoreCase(race.display(), "HAWAII")
-        || containsIgnoreCase(race.display(), "PACIFIC")) {
-      return result.code("2076-8").display("Native Hawaiian or Other Pacific Islander").build();
-    } else if (containsIgnoreCase(race.display(), "WHITE")) {
-      return result.code("2106-3").display("White").build();
-    } else {
-      return result
-          .system("http://hl7.org/fhir/v3/NullFlavor")
-          .code("UNK")
-          .display("Unknown")
-          .build();
-    }
-  }
-
-  private static List<Extension> raceExtensions(List<DatamartPatient.Race> races) {
-    if (isEmpty(races)) {
-      return null;
-    }
-    List<Extension> results = new ArrayList<>(races.size() + 1);
-    for (DatamartPatient.Race race : races) {
-      if (race == null) {
-        continue;
-      }
-      Coding coding = raceCoding(race);
-      if (coding == null) {
-        continue;
-      }
-      results.add(Extension.builder().url("ombCategory").valueCoding(coding).build());
-    }
-    Optional<Coding> firstCoding =
-        races.stream().map(race -> raceCoding(race)).filter(Objects::nonNull).findFirst();
-    if (firstCoding.isPresent()) {
-      results.add(Extension.builder().url("text").valueString(firstCoding.get().display()).build());
-    }
-    return emptyToNull(results);
-  }
-
-  private static Coding relationshipCoding(DatamartPatient.Contact contact) {
-    if (contact == null) {
-      return null;
-    }
-    Coding.CodingBuilder builder =
-        Coding.builder().system("http://hl7.org/fhir/patient-contact-relationship");
-    switch (upperCase(trimToEmpty(contact.type()), Locale.US)) {
-      case "CIVIL GUARDIAN":
-        // falls through
-      case "VA GUARDIAN":
-        return builder.code("guardian").display("Guardian").build();
-      case "EMERGENCY CONTACT":
-        // falls through
-      case "SECONDARY EMERGENCY CONTACT":
-        return builder.code("emergency").display("Emergency").build();
-      case "NEXT OF KIN":
-        // falls through
-      case "SECONDARY NEXT OF KIN":
-        // falls through
-      case "SPOUSE EMPLOYER":
-        return builder.code("family").display("Family").build();
-      default:
-        return null;
-    }
-  }
-
-  private static List<CodeableConcept> relationships(DatamartPatient.Contact contact) {
-    if (contact == null) {
-      return null;
-    }
-    Coding coding = relationshipCoding(contact);
-    if (coding == null) {
-      return null;
-    }
-    return asList(CodeableConcept.builder().coding(asList(coding)).text(contact.type()).build());
-  }
-
-  private static int sortNum(ContactPoint.ContactPointUse use) {
-    if (use == null) {
-      return 6;
-    }
-    switch (use) {
-      case mobile:
-        return 1;
-      case home:
-        return 2;
-      case temp:
-        return 3;
-      case work:
-        return 4;
-      case old:
-        return 5;
-      default:
-        return 6;
-    }
-  }
-
-  private static String stripPhone(String phone) {
-    if (phone == null) {
-      return null;
-    }
-    return phone.replaceAll("\\(|\\)|-", "");
-  }
-
-  private List<Address> addresses() {
-    return emptyToNull(
-        datamart.address().stream().map(adr -> address(adr)).collect(Collectors.toList()));
-  }
-
-  private String birthDate() {
-    if (length(datamart.birthDateTime()) <= 9) {
-      return null;
-    }
-    LocalDate date = LocalDate.parse(datamart.birthDateTime().substring(0, 10));
-    if (date == null) {
-      return null;
-    }
-    return date.toString();
-  }
-
   private List<Patient.Contact> contacts() {
     return emptyToNull(
         datamart.contact().stream().map(con -> contact(con)).collect(Collectors.toList()));
@@ -368,6 +187,44 @@ final class DatamartPatientTransformer {
       return null;
     }
     return instant.toString();
+  }
+
+  String ethnicityDisplay(DatamartPatient.Ethnicity ethnicity) {
+    if (ethnicity == null) {
+      return null;
+    }
+    switch (upperCase(trimToEmpty(ethnicity.hl7()), Locale.US)) {
+      case "2135-2":
+        return "Hispanic or Latino";
+      case "2186-5":
+        return "Non Hispanic or Latino";
+      default:
+        return ethnicity.display();
+    }
+  }
+
+  List<Extension> ethnicityExtensions(DatamartPatient.Ethnicity ethnicity) {
+    if (ethnicity == null) {
+      return null;
+    }
+    List<Extension> results = new ArrayList<>(2);
+    String display = ethnicityDisplay(ethnicity);
+    if (!allBlank(display, ethnicity.hl7())) {
+      results.add(
+          Extension.builder()
+              .url("ombCategory")
+              .valueCoding(
+                  Coding.builder()
+                      .system("http://hl7.org/fhir/ValueSet/v3-Ethnicity")
+                      .code(ethnicity.hl7())
+                      .display(display)
+                      .build())
+              .build());
+    }
+    if (isNotBlank(display)) {
+      results.add(Extension.builder().url("text").valueString(display).build());
+    }
+    return emptyToNull(results);
   }
 
   private List<Extension> extensions() {
@@ -461,6 +318,43 @@ final class DatamartPatientTransformer {
     return CodeableConcept.builder().coding(asList(coding)).build();
   }
 
+  Coding maritalStatusCoding(String code) {
+    String upper = upperCase(trimToEmpty(code), Locale.US);
+    Coding.CodingBuilder result =
+        Coding.builder().system("http://hl7.org/fhir/marital-status").code(upper);
+    switch (upper) {
+      case "A":
+        return result.display("Annulled").build();
+      case "D":
+        return result.display("Divorced").build();
+      case "I":
+        return result.display("Interlocutory").build();
+      case "L":
+        return result.display("Legally Separated").build();
+      case "M":
+        return result.display("Married").build();
+      case "P":
+        return result.display("Polygamous").build();
+      case "S":
+        return result.display("Never Married").build();
+      case "T":
+        return result.display("Domestic partner").build();
+      case "W":
+        return result.display("Widowed").build();
+      case "UNK":
+        return result.system("http://hl7.org/fhir/v3/NullFlavor").display("unknown").build();
+      default:
+        return null;
+    }
+  }
+
+  HumanName name(DatamartPatient.Contact contact) {
+    if (contact == null || isBlank(contact.name())) {
+      return null;
+    }
+    return HumanName.builder().text(contact.name()).build();
+  }
+
   private List<HumanName> names() {
     if (allBlank(datamart.name(), datamart.firstName(), datamart.lastName())) {
       return null;
@@ -474,6 +368,113 @@ final class DatamartPatientTransformer {
       builder.family(asList(datamart.lastName()));
     }
     return asList(builder.build());
+  }
+
+  Coding raceCoding(DatamartPatient.Race race) {
+    if (race == null || isBlank(race.display())) {
+      return null;
+    }
+    Coding.CodingBuilder result = Coding.builder().system("http://hl7.org/fhir/v3/Race");
+    if (containsIgnoreCase(race.display(), "INDIAN")
+        || containsIgnoreCase(race.display(), "ALASKA")) {
+      return result.code("1002-5").display("American Indian or Alaska Native").build();
+    } else if (containsIgnoreCase(race.display(), "ASIAN")) {
+      return result.code("2028-9").display("Asian").build();
+    } else if (containsIgnoreCase(race.display(), "BLACK")
+        || containsIgnoreCase(race.display(), "AFRICA")) {
+      return result.code("2054-5").display("Black or African American").build();
+    } else if (containsIgnoreCase(race.display(), "HAWAII")
+        || containsIgnoreCase(race.display(), "PACIFIC")) {
+      return result.code("2076-8").display("Native Hawaiian or Other Pacific Islander").build();
+    } else if (containsIgnoreCase(race.display(), "WHITE")) {
+      return result.code("2106-3").display("White").build();
+    } else {
+      return result
+          .system("http://hl7.org/fhir/v3/NullFlavor")
+          .code("UNK")
+          .display("Unknown")
+          .build();
+    }
+  }
+
+  List<Extension> raceExtensions(List<DatamartPatient.Race> races) {
+    if (isEmpty(races)) {
+      return null;
+    }
+    List<Extension> results = new ArrayList<>(races.size() + 1);
+    for (DatamartPatient.Race race : races) {
+      if (race == null) {
+        continue;
+      }
+      Coding coding = raceCoding(race);
+      if (coding == null) {
+        continue;
+      }
+      results.add(Extension.builder().url("ombCategory").valueCoding(coding).build());
+    }
+    Optional<Coding> firstCoding =
+        races.stream().map(race -> raceCoding(race)).filter(Objects::nonNull).findFirst();
+    if (firstCoding.isPresent()) {
+      results.add(Extension.builder().url("text").valueString(firstCoding.get().display()).build());
+    }
+    return emptyToNull(results);
+  }
+
+  Coding relationshipCoding(DatamartPatient.Contact contact) {
+    if (contact == null) {
+      return null;
+    }
+    Coding.CodingBuilder builder =
+        Coding.builder().system("http://hl7.org/fhir/patient-contact-relationship");
+    switch (upperCase(trimToEmpty(contact.type()), Locale.US)) {
+      case "CIVIL GUARDIAN":
+        // falls through
+      case "VA GUARDIAN":
+        return builder.code("guardian").display("Guardian").build();
+      case "EMERGENCY CONTACT":
+        // falls through
+      case "SECONDARY EMERGENCY CONTACT":
+        return builder.code("emergency").display("Emergency").build();
+      case "NEXT OF KIN":
+        // falls through
+      case "SECONDARY NEXT OF KIN":
+        // falls through
+      case "SPOUSE EMPLOYER":
+        return builder.code("family").display("Family").build();
+      default:
+        return null;
+    }
+  }
+
+  List<CodeableConcept> relationships(DatamartPatient.Contact contact) {
+    if (contact == null) {
+      return null;
+    }
+    Coding coding = relationshipCoding(contact);
+    if (coding == null) {
+      return null;
+    }
+    return asList(CodeableConcept.builder().coding(asList(coding)).text(contact.type()).build());
+  }
+
+  int sortNum(ContactPoint.ContactPointUse use) {
+    if (use == null) {
+      return 6;
+    }
+    switch (use) {
+      case mobile:
+        return 1;
+      case home:
+        return 2;
+      case temp:
+        return 3;
+      case work:
+        return 4;
+      case old:
+        return 5;
+      default:
+        return 6;
+    }
   }
 
   private List<ContactPoint> telecoms() {
