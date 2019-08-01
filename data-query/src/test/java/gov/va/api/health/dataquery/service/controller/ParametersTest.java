@@ -81,4 +81,14 @@ public class ParametersTest {
     expected.set("identifier", "123");
     assertThat(Parameters.forIdentity("123")).isEqualTo(expected);
   }
+
+  @Test
+  public void identityOf() {
+    MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+    params.set("_id", "xxx");
+    params.set("identifier", "123");
+    params.add("identifier", "456");
+    assertThat(Parameters.identiferOf(params)).isEqualTo("123");
+    assertThat(Parameters.identiferOf(new LinkedMultiValueMap<>())).isNull();
+  }
 }
