@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.diagnosticreport;
 
+import static gov.va.api.health.autoconfig.configuration.JacksonConfig.createMapper;
 import static gov.va.api.health.dataquery.service.controller.Transformers.parseInstant;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -8,7 +9,6 @@ import static org.mockito.Mockito.mock;
 import com.google.common.collect.Iterables;
 import gov.va.api.health.argonaut.api.resources.DiagnosticReport;
 import gov.va.api.health.argonaut.api.resources.DiagnosticReport.Bundle;
-import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.Bundler;
 import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
@@ -41,6 +41,76 @@ public final class DatamartDiagnosticReportTest {
         new Bundler(new ConfigurableBaseUrlPageLinks("", "")),
         WitnessProtection.builder().identityService(mock(IdentityService.class)).build(),
         entityManager.getEntityManager());
+  }
+
+  private DatamartDiagnosticReports datamartDrSample() {
+    DatamartDiagnosticReports.DiagnosticReport dr =
+        DatamartDiagnosticReports.DiagnosticReport.builder()
+            .identifier("111:L")
+            .sta3n("111")
+            .effectiveDateTime("2019-06-30T10:51:06Z")
+            .issuedDateTime("2019-07-01T10:51:06Z")
+            .etlEditDateTime("2019-07-31T14:51:06Z")
+            .accessionInstitutionSid("999")
+            .accessionInstitutionName("ABC-DEF")
+            .topographySid("777")
+            .topographyName("PLASMA")
+            .orders(
+                asList(
+                    DatamartDiagnosticReports.Order.builder()
+                        .sid("555")
+                        .display("RENAL PANEL")
+                        .build()))
+            .results(
+                asList(
+                    DatamartDiagnosticReports.Result.builder()
+                        .result("111:L")
+                        .display("ALBUMIN")
+                        .build(),
+                    DatamartDiagnosticReports.Result.builder()
+                        .result("222:L")
+                        .display("ALB/GLOB RATIO")
+                        .build(),
+                    DatamartDiagnosticReports.Result.builder()
+                        .result("333:L")
+                        .display("PROTEIN,TOTAL")
+                        .build()))
+            .build();
+    return DatamartDiagnosticReports.builder()
+        .objectType("DiagnosticReport")
+        .objectVersion(1)
+        .fullIcn("666V666")
+        .patientName("VETERAN,HERNAM MINAM")
+        .reports(asList(dr))
+        .build();
+  }
+
+  @Test
+  public void edtIsEmpty() {
+    DatamartDiagnosticReports.DiagnosticReport dm =
+        DatamartDiagnosticReports.DiagnosticReport.builder().effectiveDateTime("").build();
+    assertThat(tx(dm).effectiveDateTime()).isNull();
+  }
+
+  @Test
+  public void edtIsUnparseable() {
+    DatamartDiagnosticReports.DiagnosticReport dm =
+        DatamartDiagnosticReports.DiagnosticReport.builder().effectiveDateTime("aDateTime").build();
+    assertThat(tx(dm).effectiveDateTime()).isNull();
+  }
+
+  @Test
+  public void emptyReports() {
+    DatamartDiagnosticReports emptyReports =
+        DatamartDiagnosticReports.builder().reports(null).build();
+    assertThat(emptyReports.reports()).isEmpty();
+  }
+
+  @Test
+  public void idtIsUnparseable() {
+    DatamartDiagnosticReports.DiagnosticReport dm =
+        DatamartDiagnosticReports.DiagnosticReport.builder().issuedDateTime("aDateTime").build();
+    assertThat(tx(dm).issued()).isNull();
   }
 
   @Test
@@ -100,7 +170,6 @@ public final class DatamartDiagnosticReportTest {
   @Test
   @SneakyThrows
   public void searchByPatientAndCategoryAndDate() {
-
     String icn = "1011537977V693883";
     String reportId1 = "1:L";
     String reportId2 = "2:L";
@@ -110,7 +179,7 @@ public final class DatamartDiagnosticReportTest {
         DiagnosticReportsEntity.builder()
             .icn(icn)
             .payload(
-                JacksonConfig.createMapper()
+                createMapper()
                     .writeValueAsString(
                         DatamartDiagnosticReports.builder()
                             .fullIcn(icn)
@@ -185,7 +254,6 @@ public final class DatamartDiagnosticReportTest {
     FhirData fhir = FhirData.from(dm);
     entityManager.persistAndFlush(dm.entity());
     entityManager.persistAndFlush(dm.crossEntity());
-
     Bundle bundle =
         controller()
             .searchByPatientAndCategoryAndDate(
@@ -199,7 +267,6 @@ public final class DatamartDiagnosticReportTest {
     FhirData fhir = FhirData.from(dm);
     entityManager.persistAndFlush(dm.entity());
     entityManager.persistAndFlush(dm.crossEntity());
-
     Bundle bundle =
         controller()
             .searchByPatientAndCategoryAndDate(
@@ -217,7 +284,6 @@ public final class DatamartDiagnosticReportTest {
     FhirData fhir = FhirData.from(dm);
     entityManager.persistAndFlush(dm.entity());
     entityManager.persistAndFlush(dm.crossEntity());
-
     DiagnosticReportController controller = controller();
     assertThat(
             controller
@@ -240,7 +306,6 @@ public final class DatamartDiagnosticReportTest {
     FhirData fhir = FhirData.from(dm);
     entityManager.persistAndFlush(dm.entity());
     entityManager.persistAndFlush(dm.crossEntity());
-
     Bundle bundle =
         controller()
             .searchByPatientAndCategoryAndDate(
@@ -279,7 +344,6 @@ public final class DatamartDiagnosticReportTest {
     FhirData fhir = FhirData.from(dm);
     entityManager.persistAndFlush(dm.entity());
     entityManager.persistAndFlush(dm.crossEntity());
-
     DiagnosticReport.Bundle bundle =
         controller().searchByPatientAndCode("true", dm.icn(), "", 1, 15);
     assertThat(Iterables.getOnlyElement(bundle.entry()).resource()).isEqualTo(fhir.report());
@@ -295,14 +359,47 @@ public final class DatamartDiagnosticReportTest {
         .isEqualTo(dm.reports());
   }
 
+  @Test
+  public void subjectIsEmpty() {
+    DiagnosticReport dm =
+        DatamartDiagnosticReportTransformer.builder()
+            .icn("")
+            .patientName("")
+            .datamart(DatamartDiagnosticReports.DiagnosticReport.builder().build())
+            .build()
+            .toFhir();
+    assertThat(dm.subject()).isNull();
+  }
+
+  private DiagnosticReport tx(DatamartDiagnosticReports.DiagnosticReport dmDr) {
+    return DatamartDiagnosticReportTransformer.builder().datamart(dmDr).build().toFhir();
+  }
+
+  @Test
+  @SneakyThrows
+  public void unmarshalSample() {
+    DatamartDiagnosticReports dmDr =
+        createMapper()
+            .readValue(
+                getClass().getResourceAsStream("datamart-diagnostic-report.json"),
+                DatamartDiagnosticReports.class);
+    assertThat(dmDr).isEqualTo(datamartDrSample());
+  }
+
   @Value
   @Builder
   private static class DatamartData {
+
     @Builder.Default String icn = "1011537977V693883";
+
     @Builder.Default String reportId = "800260864479:L";
+
     @Builder.Default String effectiveDateTime = "2009-09-24T03:15:24Z";
+
     @Builder.Default String issuedDateTime = "2009-09-24T03:36:35Z";
+
     @Builder.Default String performer = "655775";
+
     @Builder.Default String performerDisplay = "MANILA-RO";
 
     static DatamartData create() {
@@ -317,7 +414,7 @@ public final class DatamartDiagnosticReportTest {
     DiagnosticReportsEntity entity() {
       return DiagnosticReportsEntity.builder()
           .icn(icn)
-          .payload(JacksonConfig.createMapper().writeValueAsString(reports()))
+          .payload(createMapper().writeValueAsString(reports()))
           .build();
     }
 
@@ -339,11 +436,17 @@ public final class DatamartDiagnosticReportTest {
   @Value
   @Builder
   private static class FhirData {
+
     @Builder.Default String icn = "1011537977V693883";
+
     @Builder.Default String reportId = "800260864479:L";
+
     @Builder.Default String effectiveDateTime = "2009-09-24T03:15:24";
+
     @Builder.Default String issuedDateTime = "2009-09-24T03:36:35";
+
     @Builder.Default String performer = "655775";
+
     @Builder.Default String performerDisplay = "MANILA-RO";
 
     static FhirData from(DatamartData dm) {
