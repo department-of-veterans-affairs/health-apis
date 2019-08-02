@@ -41,7 +41,22 @@ public class TransformersTest {
 
   @Test
   public void asDateStringReturnsNullWhenCalendarIsNull() {
-    assertThat(asDateString(null)).isNull();
+    assertThat(asDateString((XMLGregorianCalendar) null)).isNull();
+  }
+
+  @Test
+  public void asDateStringReturnsNullWhenInstantIsNull() {
+    assertThat(asDateString((Instant) null)).isNull();
+  }
+
+  @Test
+  public void asDateStringReturnsNullWhenOptionalInstantIsEmpty() {
+    assertThat(asDateString(Optional.empty())).isNull();
+  }
+
+  @Test
+  public void asDateStringReturnsNullWhenOptionalInstantIsNull() {
+    assertThat(asDateString((Optional<Instant>) null)).isNull();
   }
 
   @SneakyThrows
@@ -50,6 +65,18 @@ public class TransformersTest {
     XMLGregorianCalendar time =
         DatatypeFactory.newInstance().newXMLGregorianCalendar(2005, 1, 21, 7, 57, 0, 0, 0);
     assertThat(asDateString(time)).isEqualTo("2005-01-21");
+  }
+
+  @Test
+  public void asDateStringReturnsStringWhenInstantIsNotNull() {
+    Instant time = Instant.parse("2005-01-21T00:00:00Z");
+    assertThat(asDateString(time)).isEqualTo("2005-01-21");
+  }
+
+  @Test
+  public void asDateStringReturnsStringWhenOptionalInstantIsNotNull() {
+    Instant time = Instant.parse("2005-01-21T00:00:00Z");
+    assertThat(asDateString(Optional.of(time))).isEqualTo("2005-01-21");
   }
 
   @Test
@@ -103,6 +130,18 @@ public class TransformersTest {
   }
 
   @Test
+  public void asReferenceReturnsNullWhenOptionalRefHasDisplayAndTypeAndReference() {
+    DatamartReference ref = DatamartReference.of().display("d").type("t").reference("r").build();
+    assertThat(asReference(Optional.of(ref)))
+        .isEqualTo(Reference.builder().display("d").reference("t/r").build());
+  }
+
+  @Test
+  public void asReferenceReturnsNullWhenOptionalRefIsNull() {
+    assertThat(asReference((Optional<DatamartReference>) null)).isNull();
+  }
+
+  @Test
   public void asReferenceReturnsNullWhenRefHasDisplay() {
     DatamartReference ref = DatamartReference.of().display("d").build();
     assertThat(asReference(ref)).isEqualTo(Reference.builder().display("d").build());
@@ -129,7 +168,7 @@ public class TransformersTest {
 
   @Test
   public void asReferenceReturnsNullWhenRefIsNull() {
-    assertThat(asReference(null)).isNull();
+    assertThat(asReference((DatamartReference) null)).isNull();
   }
 
   @Test
