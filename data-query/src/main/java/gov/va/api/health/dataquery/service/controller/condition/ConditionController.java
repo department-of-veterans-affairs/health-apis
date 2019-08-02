@@ -2,11 +2,15 @@ package gov.va.api.health.dataquery.service.controller.condition;
 
 import static gov.va.api.health.dataquery.service.controller.Transformers.firstPayloadItem;
 import static gov.va.api.health.dataquery.service.controller.Transformers.hasPayload;
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 
 import gov.va.api.health.argonaut.api.resources.Condition;
+import gov.va.api.health.argonaut.api.resources.Condition.Bundle;
 import gov.va.api.health.dataquery.service.controller.Bundler;
 import gov.va.api.health.dataquery.service.controller.Bundler.BundleContext;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
+import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.PageLinks.LinkConfig;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions.NotFound;
@@ -47,8 +51,9 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 @RestController
 @RequestMapping(
-    value = {"Condition", "/api/Condition"},
-    produces = {"application/json", "application/json+fhir", "application/fhir+json"})
+  value = {"Condition", "/api/Condition"},
+  produces = {"application/json", "application/json+fhir", "application/fhir+json"}
+)
 public class ConditionController {
   private final Datamart datamart = new Datamart();
 
@@ -64,6 +69,7 @@ public class ConditionController {
 
   private boolean defaultToDatamart;
 
+  /** Spring constructor. */
   public ConditionController(
       @Value("${datamart.condition}") boolean defaultToDatamart,
       @Autowired Transformer transformer,
@@ -134,11 +140,18 @@ public class ConditionController {
   @GetMapping(params = {"_id"})
   public Condition.Bundle searchById(
       @RequestHeader(value = "Datamart", defaultValue = "") String datamartHeader,
-      @RequestParam("_id") String id,
+      @RequestParam("_id") String publicId,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
+    if (datamart.isDatamartRequest(datamartHeader)) {
+      return datamart.searchById(publicId, page, count);
+    }
     return bundle(
-        Parameters.builder().add("identifier", id).add("page", page).add("_count", count).build(),
+        Parameters.builder()
+            .add("identifier", publicId)
+            .add("page", page)
+            .add("_count", count)
+            .build(),
         page,
         count);
   }
@@ -209,8 +222,9 @@ public class ConditionController {
 
   /** Hey, this is a validate endpoint. It validates. */
   @PostMapping(
-      value = "/$validate",
-      consumes = {"application/json", "application/json+fhir", "application/fhir+json"})
+    value = "/$validate",
+    consumes = {"application/json", "application/json+fhir", "application/fhir+json"}
+  )
   public OperationOutcome validate(@RequestBody Condition.Bundle bundle) {
     return Validator.create().validate(bundle);
   }
@@ -224,6 +238,26 @@ public class ConditionController {
    * eliminated.
    */
   private class Datamart {
+    private Condition.Bundle bundle(
+        MultiValueMap<String, String> parameters, List<Condition> reports, int totalRecords) {
+      PageLinks.LinkConfig linkConfig =
+          PageLinks.LinkConfig.builder()
+              .path("Condition")
+              .queryParams(parameters)
+              .page(Integer.parseInt(parameters.getOrDefault("page", asList("1")).get(0)))
+              .recordsPerPage(
+                  Integer.parseInt(parameters.getOrDefault("_count", asList("15")).get(0)))
+              .totalRecords(totalRecords)
+              .build();
+      return bundler.bundle(
+          Bundler.BundleContext.of(
+              linkConfig,
+              reports,
+              Function.identity(),
+              Condition.Entry::new,
+              Condition.Bundle::new));
+    }
+
     ConditionEntity findById(@PathVariable("publicId") String publicId) {
       MultiValueMap<String, String> publicParameters = Parameters.forIdentity(publicId);
       MultiValueMap<String, String> cdwParameters =
@@ -257,6 +291,18 @@ public class ConditionController {
                   resource.patient(),
                   resource.asserter().orElse(null),
                   resource.encounter().orElse(null)));
+    }
+
+    Bundle searchById(String publicId, int page, int count) {
+      Condition resource = read(publicId);
+      return bundle(
+          Parameters.builder()
+              .add("identifier", publicId)
+              .add("page", page)
+              .add("_count", count)
+              .build(),
+          resource == null || count == 0 ? emptyList() : asList(resource),
+          resource == null ? 0 : 1);
     }
 
     Condition transform(DatamartCondition dm) {

@@ -1,17 +1,26 @@
 package gov.va.api.health.dataquery.service.controller.condition;
 
 import gov.va.api.health.argonaut.api.resources.Condition;
+import gov.va.api.health.argonaut.api.resources.Condition.Bundle;
+import gov.va.api.health.argonaut.api.resources.Condition.Entry;
 import gov.va.api.health.argonaut.api.resources.Condition.VerificationStatusCode;
 import gov.va.api.health.dataquery.service.controller.condition.DatamartCondition.IcdCode;
 import gov.va.api.health.dataquery.service.controller.condition.DatamartCondition.SnomedCode;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
+import gov.va.api.health.dstu2.api.bundle.AbstractBundle.BundleType;
+import gov.va.api.health.dstu2.api.bundle.AbstractEntry.Search;
+import gov.va.api.health.dstu2.api.bundle.AbstractEntry.SearchMode;
+import gov.va.api.health.dstu2.api.bundle.BundleLink;
+import gov.va.api.health.dstu2.api.bundle.BundleLink.LinkRelation;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
 import gov.va.api.health.dstu2.api.elements.Reference;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.experimental.UtilityClass;
 
@@ -22,7 +31,7 @@ public class DatamartConditionSamples {
   static class Datamart {
     public DatamartCondition condition() {
       return DatamartCondition.builder()
-          .etlDate(Instant.parse("2011-06-27T05:40:00Z"))
+          .etlDate("2011-06-27T05:40:00")
           .cdwId("800274570575:D")
           .patient(
               DatamartReference.of()
@@ -73,13 +82,46 @@ public class DatamartConditionSamples {
 
   @AllArgsConstructor(staticName = "create")
   static class Fhir {
+
+    static Condition.Bundle asBundle(
+        String baseUrl, List<Condition> conditions, BundleLink... links) {
+      return Bundle.builder()
+          .resourceType("Bundle")
+          .type(BundleType.searchset)
+          .total(1)
+          .link(Arrays.asList(links))
+          .entry(
+              conditions
+                  .stream()
+                  .map(
+                      c ->
+                          Entry.builder()
+                              .fullUrl(baseUrl + "/Condition/" + c.id())
+                              .resource(c)
+                              .search(Search.builder().mode(SearchMode.match).build())
+                              .build())
+                  .collect(Collectors.toList()))
+          .build();
+    }
+
+    static BundleLink link(LinkRelation rel, String base, int page, int count) {
+      return BundleLink.builder()
+          .relation(rel)
+          .url(base + "&page=" + page + "&_count=" + count)
+          .build();
+    }
+
     public Condition condition() {
+      return condition("800274570575:D");
+    }
+
+    public Condition condition(String id) {
       return Condition.builder()
           .resourceType("Condition")
           .abatementDateTime("2011-06-27T01:11:00Z")
           .asserter(reference("DOCLANAM,DOCFIRNAM E", "Practitioner/1294265"))
           .category(diagnosisCategory())
-          .id("800274570575:D")
+          .id(id)
           .clinicalStatus(Condition.ClinicalStatusCode.active)
           .code(snomedCode())
           .dateRecorded("2011-06-27")

@@ -14,7 +14,7 @@ public class DatamartConditionTest {
 
   private DatamartCondition sample() {
     return DatamartCondition.builder()
-        .etlDate(Instant.parse("2011-06-27T05:40:00Z"))
+        .etlDate("2011-06-27T05:40:00")
         .cdwId("800274570575:D")
         .patient(
             DatamartReference.of()

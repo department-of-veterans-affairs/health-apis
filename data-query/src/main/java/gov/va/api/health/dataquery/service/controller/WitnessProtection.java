@@ -6,6 +6,7 @@ import static org.springframework.util.CollectionUtils.isEmpty;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
+import gov.va.api.health.dataquery.service.controller.datamart.HasReplaceableId;
 import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
@@ -34,12 +35,12 @@ import org.springframework.util.MultiValueMap;
 public class WitnessProtection {
   private IdentityService identityService;
 
-  /** Register IDs. */
-  public List<Registration> register(Collection<ResourceIdentity> ids) {
-    if (isEmpty(ids)) {
-      return emptyList();
-    }
-    return identityService.register(new ArrayList<>(ids));
+  private <T extends HasReplaceableId> Function<T, Stream<DatamartReference>> imbellish(
+      Function<T, Stream<DatamartReference>> referencesOf) {
+    return t ->
+        Stream.concat(
+            Stream.of(DatamartReference.of().type(t.objectType()).reference(t.cdwId()).build()),
+            referencesOf.apply(t));
   }
 
   /**
@@ -47,17 +48,32 @@ public class WitnessProtection {
    * stream of references using the provided function. The IdentityMapping returned can be used for
    * look up.
    */
-  public <T> IdentityMapping register(
+  public <T extends HasReplaceableId> IdentityMapping register(
       Collection<T> resources, Function<T, Stream<DatamartReference>> referencesOf) {
     Set<ResourceIdentity> ids =
-        resources.stream()
-            .flatMap(referencesOf)
+        resources
+            .stream()
+            .flatMap(imbellish(referencesOf))
             .filter(Objects::nonNull)
             .map(DatamartReference::asResourceIdentity)
             .filter(Optional::isPresent)
             .map(Optional::get)
             .collect(Collectors.toSet());
-    return registerAndMap(ids);
+    IdentityMapping identityMapping = registerAndMap(ids);
+
+    resources
+        .stream()
+        .forEach(r -> identityMapping.publicIdOf(r.asReference()).ifPresent(r::cdwId));
+
+    return identityMapping;
+  }
+
+  /** Register IDs. */
+  public List<Registration> register(Collection<ResourceIdentity> ids) {
+    if (isEmpty(ids)) {
+      return emptyList();
+    }
+    return identityService.register(new ArrayList<>(ids));
   }
 
   /** Register IDs and return an IdentityMapping that can be used to easily find public IDs. */
@@ -70,10 +86,11 @@ public class WitnessProtection {
    * stream of references using the provided function. After registration, the references WILL BE
    * MODIFIED to include new identity values.
    */
-  public <T> void registerAndUpdateReferences(
+  public <T extends HasReplaceableId> void registerAndUpdateReferences(
       Collection<T> resources, Function<T, Stream<DatamartReference>> referencesOf) {
     IdentityMapping mapping = register(resources, referencesOf);
-    resources.stream()
+    resources
+        .stream()
         .flatMap(referencesOf)
         .filter(Objects::nonNull)
         .forEach(
@@ -122,6 +139,7 @@ public class WitnessProtection {
 
     private final Table<String, String, Registration> ids;
 
+    /** Create a new instance with the given registrations. */
     public IdentityMapping(List<Registration> registrations) {
       ids = HashBasedTable.create();
       for (Registration r : registrations) {
