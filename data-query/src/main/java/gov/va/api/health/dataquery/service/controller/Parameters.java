@@ -3,6 +3,7 @@ package gov.va.api.health.dataquery.service.controller;
 import java.util.Arrays;
 import java.util.List;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -20,6 +21,11 @@ public class Parameters {
   /** Create a new parameter map with single 'identity' entry. */
   public static MultiValueMap<String, String> forIdentity(String identity) {
     return Parameters.builder().add("identifier", identity).build();
+  }
+
+  /** Return null or the first 'identifier' value. */
+  public static String identiferOf(@NonNull MultiValueMap<String, String> parameters) {
+    return parameters.getFirst("identifier");
   }
 
   /** Add a single key/value entry. */
