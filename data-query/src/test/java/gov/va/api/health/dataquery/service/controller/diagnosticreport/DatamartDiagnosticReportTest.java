@@ -101,8 +101,7 @@ public final class DatamartDiagnosticReportTest {
 
   @Test
   public void emptyReports() {
-    DatamartDiagnosticReports emptyReports =
-        DatamartDiagnosticReports.builder().reports(null).build();
+    DatamartDiagnosticReports emptyReports = DatamartDiagnosticReports.builder().build();
     assertThat(emptyReports.reports()).isEmpty();
   }
 

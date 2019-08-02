@@ -39,19 +39,7 @@ public final class DatamartPatientTest {
   public void address() {
     DatamartPatientTransformer tx =
         DatamartPatientTransformer.builder().datamart(DatamartData.create().patient()).build();
-    assertThat(DatamartData.create().patient().address()).isNotEmpty();
-    assertThat(
-            tx.address(
-                DatamartPatient.Address.builder()
-                    .street1("")
-                    .street2("")
-                    .street3("")
-                    .city("")
-                    .state("")
-                    .postalCode("")
-                    .country("")
-                    .build()))
-        .isNull();
+    assertThat(tx.address(DatamartPatient.Address.builder().build())).isNull();
     assertThat(tx.address(null)).isNull();
   }
 
@@ -145,11 +133,13 @@ public final class DatamartPatientTest {
   @Test
   public void deceased() {
     DatamartPatient unparseable = DatamartPatient.builder().deathDateTime("unparseable").build();
+    assertThat(tx(unparseable).deceasedDateTime()).isNull();
+
     DatamartPatient deceasedBool = DatamartPatient.builder().deceased("Y").build();
+    assertThat(tx(deceasedBool).deceasedBoolean()).isTrue();
+
     DatamartPatient deceasedDt =
         DatamartPatient.builder().deathDateTime("2013-11-16T02:33:33").build();
-    assertThat(tx(unparseable).deceasedDateTime()).isNull();
-    assertThat(tx(deceasedBool).deceasedBoolean()).isTrue();
     assertThat(tx(deceasedDt).deceasedDateTime()).isEqualTo("2013-11-16T02:33:33Z");
   }
 
@@ -283,13 +273,9 @@ public final class DatamartPatientTest {
                 DatamartPatient.Telecom.builder()
                     .type("Patient Cell Phone")
                     .phoneNumber("555-294-5041")
-                    .workPhoneNumber(null)
-                    .email(null)
                     .build(),
                 DatamartPatient.Telecom.builder()
                     .type("Patient Email")
-                    .phoneNumber(null)
-                    .workPhoneNumber(null)
                     .email("Conrad619.Olson653@email.example")
                     .build()))
         .address(
@@ -297,12 +283,9 @@ public final class DatamartPatientTest {
                 DatamartPatient.Address.builder()
                     .type("Legal Residence")
                     .street1("716 Flatley Heights")
-                    .street2(null)
-                    .street3(null)
                     .city("Montgomery")
                     .state("Alabama")
                     .postalCode("36043")
-                    .county(null)
                     .country("USA")
                     .build()))
         .contact(
@@ -315,18 +298,12 @@ public final class DatamartPatientTest {
                         DatamartPatient.Contact.Phone.builder()
                             .phoneNumber("(0909)000-1234")
                             .workPhoneNumber("(0999)000-1234")
-                            .email(null)
                             .build())
                     .address(
                         DatamartPatient.Address.builder()
                             .street1("1501 ROXAS BOULEVARD")
-                            .street2(null)
-                            .street3(null)
                             .city("PASAY CITY, METRO MANILA")
                             .state("PHILIPPINES")
-                            .postalCode(null)
-                            .county(null)
-                            .country(null)
                             .build())
                     .build()))
         .build();
@@ -404,14 +381,27 @@ public final class DatamartPatientTest {
 
   @Test
   public void sortNum() {
-    DatamartPatientTransformer tx =
-        DatamartPatientTransformer.builder().datamart(DatamartData.create().patient()).build();
-    assertThat(tx.sortNum(null)).isEqualTo(6);
-    assertThat(tx.sortNum(ContactPoint.ContactPointUse.mobile)).isEqualTo(1);
-    assertThat(tx.sortNum(ContactPoint.ContactPointUse.home)).isEqualTo(2);
-    assertThat(tx.sortNum(ContactPoint.ContactPointUse.temp)).isEqualTo(3);
-    assertThat(tx.sortNum(ContactPoint.ContactPointUse.work)).isEqualTo(4);
-    assertThat(tx.sortNum(ContactPoint.ContactPointUse.old)).isEqualTo(5);
+    DatamartPatient dm =
+        DatamartPatient.builder()
+            .telecom(
+                asList(
+                    DatamartPatient.Telecom.builder().email("three@temp.com").build(),
+                    DatamartPatient.Telecom.builder()
+                        .phoneNumber("(222)222-2222")
+                        .type("PATIENT RESIDENCE")
+                        .build(),
+                    DatamartPatient.Telecom.builder().workPhoneNumber("(444)444-4444").build(),
+                    DatamartPatient.Telecom.builder()
+                        .phoneNumber("(111)111-1111")
+                        .type("PATIENT CELL PHONE")
+                        .build()))
+            .build();
+
+    Patient pat = tx(dm);
+    assertThat(pat.telecom().get(0).value()).isEqualTo("1111111111");
+    assertThat(pat.telecom().get(1).value()).isEqualTo("2222222222");
+    assertThat(pat.telecom().get(2).value()).isEqualTo("three@temp.com");
+    assertThat(pat.telecom().get(3).value()).isEqualTo("4444444444");
   }
 
   public Patient tx(DatamartPatient dmPatient) {
