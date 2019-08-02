@@ -44,7 +44,7 @@ public class ConditionControllerTest {
   @Before
   public void _init() {
     MockitoAnnotations.initMocks(this);
-    controller = new ConditionController(transformer, client, bundler, null, null);
+    controller = new ConditionController(false, transformer, client, bundler, null, null);
   }
 
   private void assertSearch(Supplier<Bundle> invocation, MultiValueMap<String, String> params) {
