@@ -2,6 +2,7 @@ package gov.va.api.health.dataquery.service.controller.condition;
 
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -21,7 +22,7 @@ public class DatamartCondition {
   private DatamartReference patient;
   private Optional<DatamartReference> encounter;
   private Optional<DatamartReference> asserter;
-  private Optional<Instant> dateRecorded;
+  private Optional<LocalDate> dateRecorded;
   private Optional<SnomedCode> snomed;
   private Optional<IcdCode> icd;
   private Category category;
@@ -46,7 +47,7 @@ public class DatamartCondition {
   }
 
   /** Lazy initialization with empty. */
-  public Optional<Instant> dateRecorded() {
+  public Optional<LocalDate> dateRecorded() {
     if (dateRecorded == null) {
       dateRecorded = Optional.empty();
     }

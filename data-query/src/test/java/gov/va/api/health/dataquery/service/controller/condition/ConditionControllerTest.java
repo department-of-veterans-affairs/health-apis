@@ -44,7 +44,7 @@ public class ConditionControllerTest {
   @Before
   public void _init() {
     MockitoAnnotations.initMocks(this);
-    controller = new ConditionController(transformer, client, bundler, null, null);
+    controller = new ConditionController(false, transformer, client, bundler, null, null);
   }
 
   private void assertSearch(Supplier<Bundle> invocation, MultiValueMap<String, String> params) {
@@ -112,7 +112,7 @@ public class ConditionControllerTest {
     Condition item = Condition.builder().build();
     when(client.search(Mockito.any())).thenReturn(root);
     when(transformer.apply(xmlCondition)).thenReturn(item);
-    Condition actual = controller.read("hello");
+    Condition actual = controller.read("false", "hello");
     assertThat(actual).isSameAs(item);
     ArgumentCaptor<Query<CdwCondition103Root>> captor = ArgumentCaptor.forClass(Query.class);
     verify(client).search(captor.capture());
@@ -122,28 +122,28 @@ public class ConditionControllerTest {
   @Test
   public void searchById() {
     assertSearch(
-        () -> controller.searchById("me", 1, 10),
+        () -> controller.searchById("false", "me", 1, 10),
         Parameters.builder().add("identifier", "me").add("page", 1).add("_count", 10).build());
   }
 
   @Test
   public void searchByIdentifier() {
     assertSearch(
-        () -> controller.searchByIdentifier("me", 1, 10),
+        () -> controller.searchByIdentifier("false", "me", 1, 10),
         Parameters.builder().add("identifier", "me").add("page", 1).add("_count", 10).build());
   }
 
   @Test
   public void searchByPatient() {
     assertSearch(
-        () -> controller.searchByPatient("me", 1, 10),
+        () -> controller.searchByPatient("false", "me", 1, 10),
         Parameters.builder().add("patient", "me").add("page", 1).add("_count", 10).build());
   }
 
   @Test
   public void searchByPatientAndCategory() {
     assertSearch(
-        () -> controller.searchByPatientAndCategory("me", "active", 1, 10),
+        () -> controller.searchByPatientAndCategory("false", "me", "active", 1, 10),
         Parameters.builder()
             .add("patient", "me")
             .add("category", "active")
@@ -155,7 +155,7 @@ public class ConditionControllerTest {
   @Test
   public void searchByPatientAndCode() {
     assertSearch(
-        () -> controller.searchByPatientAndClinicalStatus("me", "provisional", 1, 10),
+        () -> controller.searchByPatientAndClinicalStatus("false", "me", "provisional", 1, 10),
         Parameters.builder()
             .add("patient", "me")
             .add("clinicalstatus", "provisional")

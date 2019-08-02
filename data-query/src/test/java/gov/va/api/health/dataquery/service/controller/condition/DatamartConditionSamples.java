@@ -9,6 +9,7 @@ import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
 import gov.va.api.health.dstu2.api.elements.Reference;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
@@ -43,7 +44,7 @@ public class DatamartConditionSamples {
                       .reference("1294265")
                       .display("DOCLANAM,DOCFIRNAM E")
                       .build()))
-          .dateRecorded(Optional.of(Instant.parse("2011-06-27T05:40:00Z")))
+          .dateRecorded(Optional.of(LocalDate.parse("2011-06-27")))
           .snomed(Optional.of(snomedCode()))
           .icd(Optional.of(icd10Code()))
           .category(DatamartCondition.Category.diagnosis)

@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import gov.va.api.health.argonaut.api.resources.Condition;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.Bundler;
 import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
@@ -43,6 +44,7 @@ public class DatamartConditionControllerTest {
 
   ConditionController controller() {
     return new ConditionController(
+        true,
         null,
         null,
         new Bundler(new ConfigurableBaseUrlPageLinks("", "")),
@@ -59,6 +61,15 @@ public class DatamartConditionControllerTest {
                     .resource("CONDITION")
                     .identifier(cdwId)
                     .build()));
+  }
+
+  @Test
+  public void read() {
+    DatamartCondition dm = Datamart.create().condition();
+    repository.save(asEntity(dm));
+    mockConditionIdentity("x", dm.cdwId());
+    Condition actual = controller().read("true", "x");
+    assertThat(actual).isEqualTo(DatamartConditionSamples.Fhir.create().condition());
   }
 
   @Test

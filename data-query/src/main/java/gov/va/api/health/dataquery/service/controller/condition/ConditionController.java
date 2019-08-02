@@ -16,18 +16,24 @@ import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
 import gov.va.api.health.dataquery.service.mranderson.client.Query;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import gov.va.dvp.cdw.xsd.model.CdwCondition103Root;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Stream;
 import javax.validation.constraints.Min;
-import lombok.AllArgsConstructor;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -41,16 +47,37 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 @RestController
 @RequestMapping(
-  value = {"Condition", "/api/Condition"},
-  produces = {"application/json", "application/json+fhir", "application/fhir+json"}
-)
-@AllArgsConstructor(onConstructor = @__({@Autowired}))
+    value = {"Condition", "/api/Condition"},
+    produces = {"application/json", "application/json+fhir", "application/fhir+json"})
 public class ConditionController {
+  private final Datamart datamart = new Datamart();
+
   private Transformer transformer;
+
   private MrAndersonClient mrAndersonClient;
+
   private Bundler bundler;
+
   private ConditionRepository repository;
+
   private WitnessProtection witnessProtection;
+
+  private boolean defaultToDatamart;
+
+  public ConditionController(
+      @Value("${datamart.condition}") boolean defaultToDatamart,
+      @Autowired Transformer transformer,
+      @Autowired MrAndersonClient mrAndersonClient,
+      @Autowired Bundler bundler,
+      @Autowired ConditionRepository repository,
+      @Autowired WitnessProtection witnessProtection) {
+    this.defaultToDatamart = defaultToDatamart;
+    this.transformer = transformer;
+    this.mrAndersonClient = mrAndersonClient;
+    this.bundler = bundler;
+    this.repository = repository;
+    this.witnessProtection = witnessProtection;
+  }
 
   private Condition.Bundle bundle(MultiValueMap<String, String> parameters, int page, int count) {
     CdwCondition103Root root = search(parameters);
@@ -75,7 +102,12 @@ public class ConditionController {
 
   /** Read by id. */
   @GetMapping(value = {"/{publicId}"})
-  public Condition read(@PathVariable("publicId") String publicId) {
+  public Condition read(
+      @RequestHeader(value = "Datamart", defaultValue = "") String datamartHeader,
+      @PathVariable("publicId") String publicId) {
+    if (datamart.isDatamartRequest(datamartHeader)) {
+      return datamart.read(publicId);
+    }
     return transformer.apply(
         firstPayloadItem(
             hasPayload(search(Parameters.forIdentity(publicId)).getConditions()).getCondition()));
@@ -84,11 +116,7 @@ public class ConditionController {
   /** Read by id. */
   @GetMapping(value = {"/{publicId}/raw"})
   public String readRaw(@PathVariable("publicId") String publicId) {
-    MultiValueMap<String, String> publicParameters = Parameters.forIdentity(publicId);
-    MultiValueMap<String, String> cdwParameters =
-        witnessProtection.replacePublicIdsWithCdwIds(publicParameters);
-    Optional<ConditionEntity> entity = repository.findById(Parameters.identiferOf(cdwParameters));
-    return entity.orElseThrow(() -> new NotFound(publicParameters)).payload();
+    return datamart.readRaw(publicId);
   }
 
   private CdwCondition103Root search(MultiValueMap<String, String> params) {
@@ -105,6 +133,7 @@ public class ConditionController {
   /** Search by _id. */
   @GetMapping(params = {"_id"})
   public Condition.Bundle searchById(
+      @RequestHeader(value = "Datamart", defaultValue = "") String datamartHeader,
       @RequestParam("_id") String id,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
@@ -117,6 +146,7 @@ public class ConditionController {
   /** Search by Identifier. */
   @GetMapping(params = {"identifier"})
   public Condition.Bundle searchByIdentifier(
+      @RequestHeader(value = "Datamart", defaultValue = "") String datamartHeader,
       @RequestParam("identifier") String id,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
@@ -129,6 +159,7 @@ public class ConditionController {
   /** Search by patient. */
   @GetMapping(params = {"patient"})
   public Condition.Bundle searchByPatient(
+      @RequestHeader(value = "Datamart", defaultValue = "") String datamartHeader,
       @RequestParam("patient") String patient,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
@@ -141,6 +172,7 @@ public class ConditionController {
   /** Search by patient and category if available. */
   @GetMapping(params = {"patient", "category"})
   public Condition.Bundle searchByPatientAndCategory(
+      @RequestHeader(value = "Datamart", defaultValue = "") String datamartHeader,
       @RequestParam("patient") String patient,
       @RequestParam("category") String category,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
@@ -159,6 +191,7 @@ public class ConditionController {
   /** Search by patient and clinical status if available. */
   @GetMapping(params = {"patient", "clinicalstatus"})
   public Condition.Bundle searchByPatientAndClinicalStatus(
+      @RequestHeader(value = "Datamart", defaultValue = "") String datamartHeader,
       @RequestParam("patient") String patient,
       @RequestParam("clinicalstatus") String clinicalstatus,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
@@ -176,13 +209,58 @@ public class ConditionController {
 
   /** Hey, this is a validate endpoint. It validates. */
   @PostMapping(
-    value = "/$validate",
-    consumes = {"application/json", "application/json+fhir", "application/fhir+json"}
-  )
+      value = "/$validate",
+      consumes = {"application/json", "application/json+fhir", "application/fhir+json"})
   public OperationOutcome validate(@RequestBody Condition.Bundle bundle) {
     return Validator.create().validate(bundle);
   }
 
   public interface Transformer
       extends Function<CdwCondition103Root.CdwConditions.CdwCondition, Condition> {}
+
+  /**
+   * This class is being used to help organize the code such that all the datamart logic is
+   * contained together. In the future when Mr. Anderson support is dropped, this class can be
+   * eliminated.
+   */
+  private class Datamart {
+    ConditionEntity findById(@PathVariable("publicId") String publicId) {
+      MultiValueMap<String, String> publicParameters = Parameters.forIdentity(publicId);
+      MultiValueMap<String, String> cdwParameters =
+          witnessProtection.replacePublicIdsWithCdwIds(publicParameters);
+      Optional<ConditionEntity> entity = repository.findById(Parameters.identiferOf(cdwParameters));
+      return entity.orElseThrow(() -> new NotFound(publicParameters));
+    }
+
+    boolean isDatamartRequest(String datamartHeader) {
+      if (StringUtils.isBlank(datamartHeader)) {
+        return defaultToDatamart;
+      }
+      return BooleanUtils.isTrue(BooleanUtils.toBooleanObject(datamartHeader));
+    }
+
+    Condition read(String publicId) {
+      DatamartCondition condition = findById(publicId).asDatamartCondition();
+      replaceReferences(List.of(condition));
+      return transform(condition);
+    }
+
+    String readRaw(@PathVariable("publicId") String publicId) {
+      return findById(publicId).payload();
+    }
+
+    void replaceReferences(Collection<DatamartCondition> resources) {
+      witnessProtection.registerAndUpdateReferences(
+          resources,
+          resource ->
+              Stream.of(
+                  resource.patient(),
+                  resource.asserter().orElse(null),
+                  resource.encounter().orElse(null)));
+    }
+
+    Condition transform(DatamartCondition dm) {
+      return DatamartConditionTransformer.builder().datamart(dm).build().toFhir();
+    }
+  }
 }
