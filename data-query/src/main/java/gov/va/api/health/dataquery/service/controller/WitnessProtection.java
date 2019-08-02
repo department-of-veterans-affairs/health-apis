@@ -134,8 +134,8 @@ public class WitnessProtection {
     /** Return the mapping for the public ID of the reference if it exists. */
     public Optional<String> publicIdOf(@NonNull DatamartReference reference) {
       return publicIdOf(
-          reference.type().get(),
-          ResourceNameTranslation.get().fhirToIdentityService(reference.reference().get()));
+          ResourceNameTranslation.get().fhirToIdentityService(reference.type().get()),
+          reference.reference().get());
     }
 
     /**
