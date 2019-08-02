@@ -252,7 +252,6 @@ public class AllergyIntoleranceTransformerTest {
       return AllergyIntolerance.builder()
           .resourceType("AllergyIntolerance")
           .id("123456789")
-          .recordedDate("2018-11-07")
           .recorder(recorder())
           .substance(substance())
           .patient(patient())
