@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.validation.constraints.Min;
@@ -30,6 +31,8 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -195,7 +198,7 @@ public class AllergyIntoleranceController {
       @CountParameter @Min(0) int count) {
     MultiValueMap<String, String> parameters =
         Parameters.builder().add("patient", patient).add("page", page).add("_count", count).build();
-    if (BooleanUtils.isTrue(BooleanUtils.toBooleanObject(datamartHeader))) {
+    if (datamart.isDatamartRequest(datamartHeader)) {
       return datamart.bundle(parameters);
     }
     return mrAndersonBundle(parameters);
@@ -230,8 +233,40 @@ public class AllergyIntoleranceController {
       return entity.orElseThrow(() -> new ResourceExceptions.NotFound(publicParameters));
     }
 
-    public AllergyIntolerance.Bundle bundle(MultiValueMap<String, String> parameters) {
-      throw new UnsupportedOperationException();
+    AllergyIntolerance.Bundle bundle(MultiValueMap<String, String> publicParameters) {
+      MultiValueMap<String, String> cdwParameters =
+          witnessProtection.replacePublicIdsWithCdwIds(publicParameters);
+
+      // Only patient search is supported
+      String icn = cdwParameters.getFirst("patient");
+      int page = Integer.parseInt(cdwParameters.getOrDefault("page", asList("1")).get(0));
+      int count = Integer.parseInt(cdwParameters.getOrDefault("_count", asList("15")).get(0));
+      Page<AllergyIntoleranceEntity> entitiesPage =
+          repository.findAllByIcn(icn, PageRequest.of(page, count));
+
+      List<AllergyIntolerance> fhir =
+          entitiesPage
+              .stream()
+              .map(entity -> entity.asDatamartAllergyIntolerance())
+              .map(
+                  dm ->
+                      DatamartAllergyIntoleranceTransformer.builder().datamart(dm).build().toFhir())
+              .collect(Collectors.toList());
+      PageLinks.LinkConfig linkConfig =
+          PageLinks.LinkConfig.builder()
+              .path("AllergyIntolerance")
+              .queryParams(publicParameters)
+              .page(page)
+              .recordsPerPage(count)
+              .totalRecords((int) entitiesPage.getTotalElements())
+              .build();
+      return bundler.bundle(
+          Bundler.BundleContext.of(
+              linkConfig,
+              fhir,
+              Function.identity(),
+              AllergyIntolerance.Entry::new,
+              AllergyIntolerance.Bundle::new));
     }
 
     boolean isDatamartRequest(String datamartHeader) {
