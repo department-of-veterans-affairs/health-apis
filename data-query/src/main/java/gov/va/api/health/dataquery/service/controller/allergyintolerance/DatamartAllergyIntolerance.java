@@ -23,7 +23,7 @@ public class DatamartAllergyIntolerance {
 
   private String cdwId;
 
-  private Optional<Instant> etlDate;
+  private String etlDate;
 
   private Optional<DatamartReference> patient;
 
@@ -42,14 +42,6 @@ public class DatamartAllergyIntolerance {
   private List<Note> notes;
 
   private Optional<Reaction> reactions;
-
-  /** Lazy getter. */
-  public Optional<Instant> etlDate() {
-    if (etlDate == null) {
-      etlDate = Optional.empty();
-    }
-    return etlDate;
-  }
 
   /** Lazy getter. */
   public List<Note> notes() {
