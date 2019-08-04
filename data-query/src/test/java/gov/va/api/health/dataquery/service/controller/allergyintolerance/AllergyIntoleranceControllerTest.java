@@ -196,41 +196,44 @@ public class AllergyIntoleranceControllerTest {
         Parameters.builder().add("patient", "me").add("page", 1).add("_count", 10).build());
   }
 
-  //  @Test
-  //  public void searchReturnsEmptyResults() {
-  //    CdwAllergyIntolerance105Root root = new CdwAllergyIntolerance105Root();
-  //    root.setPageNumber(BigInteger.valueOf(1));
-  //    root.setRecordsPerPage(BigInteger.valueOf(10));
-  //    root.setRecordCount(BigInteger.valueOf(0));
-  //    when(client.search(any())).thenReturn(root);
-  //    Bundle mockBundle = new Bundle();
-  //    when(bundler.bundle(any())).thenReturn(mockBundle);
-  //    Bundle actual = controller.searchById("", "me", 1, 10);
-  //    assertThat(actual).isSameAs(mockBundle);
-  //    @SuppressWarnings("unchecked")
-  //    ArgumentCaptor<
-  //            BundleContext<
-  //                CdwAllergyIntolerance, AllergyIntolerance, AllergyIntolerance.Entry,
-  //                AllergyIntolerance.Bundle>>
-  //        captor = ArgumentCaptor.forClass(BundleContext.class);
-  //
-  //    verify(bundler).bundle(captor.capture());
-  //    LinkConfig expectedLinkConfig =
-  //        LinkConfig.builder()
-  //            .page(1)
-  //            .recordsPerPage(10)
-  //            .totalRecords(0)
-  //            .path("AllergyIntolerance")
-  //            .queryParams(
-  //                Parameters.builder()
-  //                    .add("identifier", "me")
-  //                    .add("page", 1)
-  //                    .add("_count", 10)
-  //                    .build())
-  //            .build();
-  //    assertThat(captor.getValue().linkConfig()).isEqualTo(expectedLinkConfig);
-  //    assertThat(captor.getValue().xmlItems()).isEmpty();
-  //  }
+  @Test
+  @SuppressWarnings("unchecked")
+  public void searchReturnsEmptyResults() {
+    CdwAllergyIntolerance105Root root = new CdwAllergyIntolerance105Root();
+    root.setPageNumber(BigInteger.valueOf(1));
+    root.setRecordsPerPage(BigInteger.valueOf(10));
+    root.setRecordCount(BigInteger.valueOf(0));
+    when(client.search(any())).thenReturn(root);
+
+    AllergyIntolerance.Bundle mockBundle = new AllergyIntolerance.Bundle();
+    when(bundler.bundle(any())).thenReturn(mockBundle);
+
+    AllergyIntolerance.Bundle actual = controller.searchByPatient("", "me", 1, 10);
+
+    assertThat(actual).isSameAs(mockBundle);
+    ArgumentCaptor<
+            Bundler.BundleContext<
+                CdwAllergyIntolerance105Root.CdwAllergyIntolerances.CdwAllergyIntolerance,
+                AllergyIntolerance, AllergyIntolerance.Entry, AllergyIntolerance.Bundle>>
+        captor = ArgumentCaptor.forClass(Bundler.BundleContext.class);
+
+    verify(bundler).bundle(captor.capture());
+    PageLinks.LinkConfig expectedLinkConfig =
+        PageLinks.LinkConfig.builder()
+            .page(1)
+            .recordsPerPage(10)
+            .totalRecords(0)
+            .path("AllergyIntolerance")
+            .queryParams(
+                Parameters.builder()
+                    .add("patient", "me")
+                    .add("page", 1)
+                    .add("_count", 10)
+                    .build())
+            .build();
+    assertThat(captor.getValue().linkConfig()).isEqualTo(expectedLinkConfig);
+    assertThat(captor.getValue().xmlItems()).isEmpty();
+  }
 
   @Test
   @SneakyThrows
