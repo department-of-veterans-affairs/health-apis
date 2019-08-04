@@ -1,61 +1,62 @@
 package gov.va.api.health.dataquery.service.controller.allergyintolerance;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import gov.va.api.health.argonaut.api.resources.AllergyIntolerance;
-import gov.va.api.health.argonaut.api.resources.AllergyIntolerance.Bundle;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.Bundler;
-import gov.va.api.health.dataquery.service.controller.Bundler.BundleContext;
-import gov.va.api.health.dataquery.service.controller.PageLinks.LinkConfig;
+import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
+import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.Validator;
 import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
 import gov.va.api.health.dataquery.service.mranderson.client.Query;
 import gov.va.api.health.dstu2.api.bundle.AbstractBundle.BundleType;
 import gov.va.dvp.cdw.xsd.model.CdwAllergyIntolerance105Root;
-import gov.va.dvp.cdw.xsd.model.CdwAllergyIntolerance105Root.CdwAllergyIntolerances;
-import gov.va.dvp.cdw.xsd.model.CdwAllergyIntolerance105Root.CdwAllergyIntolerances.CdwAllergyIntolerance;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.function.Supplier;
 import javax.validation.ConstraintViolationException;
 import lombok.SneakyThrows;
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.springframework.util.MultiValueMap;
 
+import com.google.common.collect.Iterables;
+
 public class AllergyIntoleranceControllerTest {
-  @Mock MrAndersonClient client;
+  AllergyIntoleranceController.Transformer tx =
+      mock(AllergyIntoleranceController.Transformer.class);
 
-  @Mock AllergyIntoleranceController.Transformer tx;
+  MrAndersonClient client = mock(MrAndersonClient.class);
 
-  @Mock Bundler bundler;
+  Bundler bundler = mock(Bundler.class);
 
-  AllergyIntoleranceController controller;
+  AllergyIntoleranceController controller =
+      new AllergyIntoleranceController(false, tx, client, bundler, null, null);
 
-  @Before
-  public void _init() {
-    MockitoAnnotations.initMocks(this);
-    controller = new AllergyIntoleranceController(false, tx, client, bundler, null, null);
-  }
-
-  private void assertSearch(Supplier<Bundle> invocation, MultiValueMap<String, String> params) {
+  private void assertSearch(
+      Supplier<AllergyIntolerance.Bundle> invocation, MultiValueMap<String, String> params) {
     CdwAllergyIntolerance105Root root = new CdwAllergyIntolerance105Root();
     root.setPageNumber(BigInteger.valueOf(1));
     root.setRecordsPerPage(BigInteger.valueOf(10));
     root.setRecordCount(BigInteger.valueOf(3));
-    root.setAllergyIntolerances(new CdwAllergyIntolerances());
-    CdwAllergyIntolerance xmlAllergyIntolerance1 = new CdwAllergyIntolerance();
-    CdwAllergyIntolerance xmlAllergyIntolerance2 = new CdwAllergyIntolerance();
-    CdwAllergyIntolerance xmlAllergyIntolerance3 = new CdwAllergyIntolerance();
+    root.setAllergyIntolerances(new CdwAllergyIntolerance105Root.CdwAllergyIntolerances());
+    CdwAllergyIntolerance105Root.CdwAllergyIntolerances.CdwAllergyIntolerance
+        xmlAllergyIntolerance1 =
+            new CdwAllergyIntolerance105Root.CdwAllergyIntolerances.CdwAllergyIntolerance();
+    CdwAllergyIntolerance105Root.CdwAllergyIntolerances.CdwAllergyIntolerance
+        xmlAllergyIntolerance2 =
+            new CdwAllergyIntolerance105Root.CdwAllergyIntolerances.CdwAllergyIntolerance();
+    CdwAllergyIntolerance105Root.CdwAllergyIntolerances.CdwAllergyIntolerance
+        xmlAllergyIntolerance3 =
+            new CdwAllergyIntolerance105Root.CdwAllergyIntolerances.CdwAllergyIntolerance();
     root.getAllergyIntolerances()
         .getAllergyIntolerance()
         .addAll(
@@ -66,24 +67,25 @@ public class AllergyIntoleranceControllerTest {
     when(tx.apply(xmlAllergyIntolerance1)).thenReturn(allergyIntolerance1);
     when(tx.apply(xmlAllergyIntolerance2)).thenReturn(allergyIntolerance2);
     when(tx.apply(xmlAllergyIntolerance3)).thenReturn(allergyIntolerance3);
-    when(client.search(Mockito.any())).thenReturn(root);
+    when(client.search(any())).thenReturn(root);
 
-    Bundle mockBundle = new Bundle();
-    when(bundler.bundle(Mockito.any())).thenReturn(mockBundle);
+    AllergyIntolerance.Bundle mockBundle = new AllergyIntolerance.Bundle();
+    when(bundler.bundle(any())).thenReturn(mockBundle);
 
-    Bundle actual = invocation.get();
+    AllergyIntolerance.Bundle actual = invocation.get();
 
     assertThat(actual).isSameAs(mockBundle);
     @SuppressWarnings("unchecked")
     ArgumentCaptor<
-            BundleContext<
-                CdwAllergyIntolerance, AllergyIntolerance, AllergyIntolerance.Entry, Bundle>>
-        captor = ArgumentCaptor.forClass(BundleContext.class);
+            Bundler.BundleContext<
+                CdwAllergyIntolerance105Root.CdwAllergyIntolerances.CdwAllergyIntolerance,
+                AllergyIntolerance, AllergyIntolerance.Entry, AllergyIntolerance.Bundle>>
+        captor = ArgumentCaptor.forClass(Bundler.BundleContext.class);
 
     verify(bundler).bundle(captor.capture());
 
-    LinkConfig expectedLinkConfig =
-        LinkConfig.builder()
+    PageLinks.LinkConfig expectedLinkConfig =
+        PageLinks.LinkConfig.builder()
             .page(1)
             .recordsPerPage(10)
             .totalRecords(3)
@@ -98,8 +100,8 @@ public class AllergyIntoleranceControllerTest {
     assertThat(captor.getValue().transformer()).isSameAs(tx);
   }
 
-  private Bundle bundleOf(AllergyIntolerance resource) {
-    return Bundle.builder()
+  private AllergyIntolerance.Bundle bundleOf(AllergyIntolerance resource) {
+    return AllergyIntolerance.Bundle.builder()
         .type(BundleType.searchset)
         .resourceType("Bundle")
         .entry(
@@ -115,13 +117,13 @@ public class AllergyIntoleranceControllerTest {
   @SuppressWarnings("unchecked")
   public void read() {
     CdwAllergyIntolerance105Root root = new CdwAllergyIntolerance105Root();
-    root.setAllergyIntolerances(new CdwAllergyIntolerances());
+    root.setAllergyIntolerances(new CdwAllergyIntolerance105Root.CdwAllergyIntolerances());
     CdwAllergyIntolerance105Root.CdwAllergyIntolerances.CdwAllergyIntolerance
         xmlAllergyIntolerance =
             new CdwAllergyIntolerance105Root.CdwAllergyIntolerances.CdwAllergyIntolerance();
     root.getAllergyIntolerances().getAllergyIntolerance().add(xmlAllergyIntolerance);
     AllergyIntolerance allergyIntolerance = AllergyIntolerance.builder().build();
-    when(client.search(Mockito.any())).thenReturn(root);
+    when(client.search(any())).thenReturn(root);
     when(tx.apply(xmlAllergyIntolerance)).thenReturn(allergyIntolerance);
     AllergyIntolerance actual = controller.read("", "hello");
     assertThat(actual).isSameAs(allergyIntolerance);
@@ -131,12 +133,33 @@ public class AllergyIntoleranceControllerTest {
     assertThat(captor.getValue().parameters()).isEqualTo(Parameters.forIdentity("hello"));
   }
 
-  //  @Test
-  //  public void searchById() {
-  //    assertSearch(
-  //        () -> controller.searchById("", "me", 1, 10),
-  //        Parameters.builder().add("identifier", "me").add("page", 1).add("_count", 10).build());
-  //  }
+  @Test
+  @SuppressWarnings("unchecked")
+  public void searchById() {
+    bundler = new Bundler(new ConfigurableBaseUrlPageLinks("", ""));
+    controller = new AllergyIntoleranceController(false, tx, client, bundler, null, null);
+
+    CdwAllergyIntolerance105Root root = new CdwAllergyIntolerance105Root();
+    root.setAllergyIntolerances(new CdwAllergyIntolerance105Root.CdwAllergyIntolerances());
+    CdwAllergyIntolerance105Root.CdwAllergyIntolerances.CdwAllergyIntolerance
+        xmlAllergyIntolerance =
+            new CdwAllergyIntolerance105Root.CdwAllergyIntolerances.CdwAllergyIntolerance();
+    root.getAllergyIntolerances().getAllergyIntolerance().add(xmlAllergyIntolerance);
+    when(client.search(any())).thenReturn(root);
+
+    AllergyIntolerance allergyIntolerance = AllergyIntolerance.builder().build();
+    when(tx.apply(xmlAllergyIntolerance)).thenReturn(allergyIntolerance);
+
+    AllergyIntolerance.Bundle actual = controller.searchById("", "me", 1, 10);
+
+    assertThat(Iterables.getOnlyElement(actual.entry()).resource()).isSameAs(allergyIntolerance);
+
+    ArgumentCaptor<Query<CdwAllergyIntolerance105Root>> captor =
+        ArgumentCaptor.forClass(Query.class);
+    verify(client).search(captor.capture());
+    assertThat(captor.getValue().parameters())
+        .isEqualTo(Parameters.builder().add("identifier", "me").build());
+  }
 
   //  @Test
   //  public void searchByIdentifier() {
@@ -158,9 +181,9 @@ public class AllergyIntoleranceControllerTest {
   //    root.setPageNumber(BigInteger.valueOf(1));
   //    root.setRecordsPerPage(BigInteger.valueOf(10));
   //    root.setRecordCount(BigInteger.valueOf(0));
-  //    when(client.search(Mockito.any())).thenReturn(root);
+  //    when(client.search(any())).thenReturn(root);
   //    Bundle mockBundle = new Bundle();
-  //    when(bundler.bundle(Mockito.any())).thenReturn(mockBundle);
+  //    when(bundler.bundle(any())).thenReturn(mockBundle);
   //    Bundle actual = controller.searchById("", "me", 1, 10);
   //    assertThat(actual).isSameAs(mockBundle);
   //    @SuppressWarnings("unchecked")
@@ -196,12 +219,12 @@ public class AllergyIntoleranceControllerTest {
             .readValue(
                 getClass().getResourceAsStream("/cdw/old-allergyintolerance-1.05.json"),
                 AllergyIntolerance.class);
-    Bundle bundle = bundleOf(resource);
+    AllergyIntolerance.Bundle bundle = bundleOf(resource);
     assertThat(controller.validate(bundle)).isEqualTo(Validator.ok());
   }
 
-  @Test(expected = ConstraintViolationException.class)
   @SneakyThrows
+  @Test(expected = ConstraintViolationException.class)
   public void validateThrowsExceptionForInvalidBundle() {
     AllergyIntolerance resource =
         JacksonConfig.createMapper()
@@ -209,8 +232,7 @@ public class AllergyIntoleranceControllerTest {
                 getClass().getResourceAsStream("/cdw/old-allergyintolerance-1.05.json"),
                 AllergyIntolerance.class);
     resource.resourceType(null);
-
-    Bundle bundle = bundleOf(resource);
+    AllergyIntolerance.Bundle bundle = bundleOf(resource);
     controller.validate(bundle);
   }
 }
