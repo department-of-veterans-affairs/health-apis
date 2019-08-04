@@ -189,12 +189,12 @@ public class AllergyIntoleranceControllerTest {
         .isEqualTo(Parameters.builder().add("identifier", "me").build());
   }
 
-  //  @Test
-  //  public void searchByPatient() {
-  //    assertSearch(
-  //        () -> controller.searchByPatient("", "me", 1, 10),
-  //        Parameters.builder().add("patient", "me").add("page", 1).add("_count", 10).build());
-  //  }
+  @Test
+  public void searchByPatient() {
+    assertSearch(
+        () -> controller.searchByPatient("", "me", 1, 10),
+        Parameters.builder().add("patient", "me").add("page", 1).add("_count", 10).build());
+  }
 
   //  @Test
   //  public void searchReturnsEmptyResults() {
