@@ -2,6 +2,8 @@ package gov.va.api.health.dataquery.service.controller.allergyintolerance;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
+import gov.va.api.health.dataquery.service.controller.datamart.HasReplaceableId;
+
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +18,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class DatamartAllergyIntolerance {
+public class DatamartAllergyIntolerance implements HasReplaceableId {
   private String objectType;
 
   private int objectVersion;

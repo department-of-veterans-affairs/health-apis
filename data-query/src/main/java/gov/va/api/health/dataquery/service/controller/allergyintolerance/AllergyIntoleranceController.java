@@ -86,7 +86,8 @@ public class AllergyIntoleranceController {
     this.witnessProtection = witnessProtection;
   }
 
-  private AllergyIntolerance.Bundle bundle(
+  // PETERTODO not public lol
+  public AllergyIntolerance.Bundle bundle(
       MultiValueMap<String, String> parameters,
       List<AllergyIntolerance> records,
       int totalRecords) {
