@@ -222,10 +222,10 @@ public class AllergyIntoleranceController {
    * eliminated.
    */
   private class Datamart {
-
     AllergyIntolerance.Bundle bundle(MultiValueMap<String, String> publicParameters) {
       MultiValueMap<String, String> cdwParameters =
           witnessProtection.replacePublicIdsWithCdwIds(publicParameters);
+
       // Only patient search is supported
       String icn = cdwParameters.getFirst("patient");
       TypedQuery<AllergyIntoleranceEntity> query =
@@ -233,19 +233,20 @@ public class AllergyIntoleranceController {
               "Select ai from AllergyIntoleranceEntity ai where ai.icn = :patient",
               AllergyIntoleranceEntity.class);
       query.setParameter("patient", icn);
+
       int page = Integer.parseInt(cdwParameters.getOrDefault("page", asList("1")).get(0));
       int count = Integer.parseInt(cdwParameters.getOrDefault("_count", asList("15")).get(0));
       query.setFirstResult((page - 1) * count);
       query.setMaxResults(count);
-      // Page<AllergyIntoleranceEntity> entitiesPage =
-      // repository.findByIcn(PageRequest.of(page, count), icn);
-      // System.out.println(entitiesPage);
+
       List<DatamartAllergyIntolerance> payloads =
           query
               .getResultStream()
               .map(entity -> entity.asDatamartAllergyIntolerance())
               .collect(Collectors.toList());
+
       replaceReferences(payloads);
+
       List<AllergyIntolerance> fhir =
           payloads
               .stream()
@@ -253,21 +254,8 @@ public class AllergyIntoleranceController {
                   dm ->
                       DatamartAllergyIntoleranceTransformer.builder().datamart(dm).build().toFhir())
               .collect(Collectors.toList());
-      PageLinks.LinkConfig linkConfig =
-          PageLinks.LinkConfig.builder()
-              .path("AllergyIntolerance")
-              .queryParams(publicParameters)
-              .page(page)
-              .recordsPerPage(count)
-              .totalRecords(totalRecords(icn))
-              .build();
-      return bundler.bundle(
-          Bundler.BundleContext.of(
-              linkConfig,
-              fhir,
-              Function.identity(),
-              AllergyIntolerance.Entry::new,
-              AllergyIntolerance.Bundle::new));
+
+      return AllergyIntoleranceController.this.bundle(publicParameters, fhir, totalRecords(icn));
     }
 
     AllergyIntoleranceEntity findById(@PathVariable("publicId") String publicId) {
@@ -308,7 +296,7 @@ public class AllergyIntoleranceController {
                   resource.notes().stream().map(n -> n.practitioner().orElse(null))));
     }
 
-    private int totalRecords(String icn) {
+    int totalRecords(String icn) {
       TypedQuery<Long> totalQuery =
           entityManager.createQuery(
               "Select count(ai.id) from AllergyIntoleranceEntity ai where ai.icn = :patient",

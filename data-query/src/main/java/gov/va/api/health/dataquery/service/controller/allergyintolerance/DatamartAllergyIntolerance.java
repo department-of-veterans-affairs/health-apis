@@ -18,7 +18,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class DatamartAllergyIntolerance implements HasReplaceableId {
-
   private String objectType;
 
   private int objectVersion;
@@ -125,7 +124,6 @@ public class DatamartAllergyIntolerance implements HasReplaceableId {
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
   static final class Coding {
-
     private String system;
 
     private String code;
@@ -138,7 +136,6 @@ public class DatamartAllergyIntolerance implements HasReplaceableId {
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
   static final class Note {
-
     private String text;
 
     private Optional<Instant> time;
@@ -183,7 +180,6 @@ public class DatamartAllergyIntolerance implements HasReplaceableId {
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
   static final class Reaction {
-
     private Certainty certainty;
 
     private List<Coding> manifestations;
@@ -202,7 +198,6 @@ public class DatamartAllergyIntolerance implements HasReplaceableId {
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
   static final class Substance {
-
     private Optional<Coding> coding;
 
     private String text;
