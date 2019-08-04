@@ -22,7 +22,6 @@ import gov.va.dvp.cdw.xsd.model.CdwAllergyIntolerance105Root;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -56,7 +55,6 @@ import org.springframework.web.bind.annotation.RestController;
   produces = {"application/json", "application/json+fhir", "application/fhir+json"}
 )
 public class AllergyIntoleranceController {
-
   private final Datamart datamart = new Datamart();
 
   private Transformer transformer;
@@ -66,8 +64,6 @@ public class AllergyIntoleranceController {
   private Bundler bundler;
 
   private WitnessProtection witnessProtection;
-
-  private AllergyIntoleranceRepository repository;
 
   private EntityManager entityManager;
 
@@ -79,14 +75,12 @@ public class AllergyIntoleranceController {
       @Autowired Transformer transformer,
       @Autowired MrAndersonClient mrAndersonClient,
       @Autowired Bundler bundler,
-      @Autowired AllergyIntoleranceRepository repository,
       @Autowired EntityManager entityManager,
       @Autowired WitnessProtection witnessProtection) {
     this.defaultToDatamart = defaultToDatamart;
     this.transformer = transformer;
     this.mrAndersonClient = mrAndersonClient;
     this.bundler = bundler;
-    this.repository = repository;
     this.entityManager = entityManager;
     this.witnessProtection = witnessProtection;
   }
@@ -291,9 +285,12 @@ public class AllergyIntoleranceController {
       MultiValueMap<String, String> publicParameters = Parameters.forIdentity(publicId);
       MultiValueMap<String, String> cdwParameters =
           witnessProtection.replacePublicIdsWithCdwIds(publicParameters);
-      Optional<AllergyIntoleranceEntity> entity =
-          repository.findById(Parameters.identiferOf(cdwParameters));
-      return entity.orElseThrow(() -> new ResourceExceptions.NotFound(publicParameters));
+      AllergyIntoleranceEntity entity =
+          entityManager.find(AllergyIntoleranceEntity.class, Parameters.identiferOf(cdwParameters));
+      if (entity == null) {
+        throw new ResourceExceptions.NotFound(publicParameters);
+      }
+      return entity;
     }
 
     boolean isDatamartRequest(String datamartHeader) {
