@@ -161,12 +161,33 @@ public class AllergyIntoleranceControllerTest {
         .isEqualTo(Parameters.builder().add("identifier", "me").build());
   }
 
-  //  @Test
-  //  public void searchByIdentifier() {
-  //    assertSearch(
-  //        () -> controller.searchByIdentifier("", "me", 1, 10),
-  //        Parameters.builder().add("identifier", "me").add("page", 1).add("_count", 10).build());
-  //  }
+  @Test
+  @SuppressWarnings("unchecked")
+  public void searchByIdentifier() {
+    bundler = new Bundler(new ConfigurableBaseUrlPageLinks("", ""));
+    controller = new AllergyIntoleranceController(false, tx, client, bundler, null, null);
+
+    CdwAllergyIntolerance105Root root = new CdwAllergyIntolerance105Root();
+    root.setAllergyIntolerances(new CdwAllergyIntolerance105Root.CdwAllergyIntolerances());
+    CdwAllergyIntolerance105Root.CdwAllergyIntolerances.CdwAllergyIntolerance
+        xmlAllergyIntolerance =
+            new CdwAllergyIntolerance105Root.CdwAllergyIntolerances.CdwAllergyIntolerance();
+    root.getAllergyIntolerances().getAllergyIntolerance().add(xmlAllergyIntolerance);
+    when(client.search(any())).thenReturn(root);
+
+    AllergyIntolerance allergyIntolerance = AllergyIntolerance.builder().build();
+    when(tx.apply(xmlAllergyIntolerance)).thenReturn(allergyIntolerance);
+
+    AllergyIntolerance.Bundle actual = controller.searchByIdentifier("", "me", 1, 10);
+
+    assertThat(Iterables.getOnlyElement(actual.entry()).resource()).isSameAs(allergyIntolerance);
+
+    ArgumentCaptor<Query<CdwAllergyIntolerance105Root>> captor =
+        ArgumentCaptor.forClass(Query.class);
+    verify(client).search(captor.capture());
+    assertThat(captor.getValue().parameters())
+        .isEqualTo(Parameters.builder().add("identifier", "me").build());
+  }
 
   //  @Test
   //  public void searchByPatient() {
