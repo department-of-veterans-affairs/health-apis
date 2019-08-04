@@ -13,9 +13,11 @@ import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.Validator;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
+import gov.va.api.health.dataquery.service.controller.diagnosticreport.DiagnosticReportsEntity;
 import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
 import gov.va.api.health.dataquery.service.mranderson.client.Query;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
+import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.dvp.cdw.xsd.model.CdwAllergyIntolerance105Root;
 import java.util.Collection;
 import java.util.Collections;
@@ -24,6 +26,9 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
 import javax.validation.constraints.Min;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -68,6 +73,8 @@ public class AllergyIntoleranceController {
 
   private AllergyIntoleranceRepository repository;
 
+  private EntityManager entityManager;
+
   private boolean defaultToDatamart;
 
   /** Autowired constructor. */
@@ -77,12 +84,14 @@ public class AllergyIntoleranceController {
       @Autowired MrAndersonClient mrAndersonClient,
       @Autowired Bundler bundler,
       @Autowired AllergyIntoleranceRepository repository,
+      @Autowired EntityManager entityManager,
       @Autowired WitnessProtection witnessProtection) {
     this.defaultToDatamart = defaultToDatamart;
     this.transformer = transformer;
     this.mrAndersonClient = mrAndersonClient;
     this.bundler = bundler;
     this.repository = repository;
+    this.entityManager = entityManager;
     this.witnessProtection = witnessProtection;
   }
 
@@ -198,6 +207,16 @@ public class AllergyIntoleranceController {
       @RequestParam("patient") String patient,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
+
+    // PETERTODO
+    witnessProtection.register(
+        asList(
+            ResourceIdentity.builder()
+                .system("CDW")
+                .resource("PATIENT")
+                .identifier(patient)
+                .build()));
+
     MultiValueMap<String, String> parameters =
         Parameters.builder().add("patient", patient).add("page", page).add("_count", count).build();
     if (datamart.isDatamartRequest(datamartHeader)) {
@@ -226,31 +245,57 @@ public class AllergyIntoleranceController {
    * eliminated.
    */
   private class Datamart {
-
     AllergyIntolerance.Bundle bundle(MultiValueMap<String, String> publicParameters) {
       MultiValueMap<String, String> cdwParameters =
           witnessProtection.replacePublicIdsWithCdwIds(publicParameters);
       // Only patient search is supported
       String icn = cdwParameters.getFirst("patient");
+
+      TypedQuery<Long> totalQuery =
+          entityManager.createQuery(
+              "Select count(ai.id) from AllergyIntoleranceEntity ai where ai.icn = :patient",
+              Long.class);
+      totalQuery.setParameter("patient", icn);
+      int totalRecords = totalQuery.getSingleResult().intValue();
+
+      TypedQuery<AllergyIntoleranceEntity> query =
+          entityManager.createQuery(
+              "Select ai from AllergyIntoleranceEntity ai where ai.icn = :patient",
+              AllergyIntoleranceEntity.class);
+      query.setParameter("patient", icn);
+
       int page = Integer.parseInt(cdwParameters.getOrDefault("page", asList("1")).get(0));
       int count = Integer.parseInt(cdwParameters.getOrDefault("_count", asList("15")).get(0));
-      Page<AllergyIntoleranceEntity> entitiesPage =
-          repository.findAllByIcn(icn, PageRequest.of(page, count));
-      List<AllergyIntolerance> fhir =
-          entitiesPage
-              .stream()
+      query.setFirstResult((page - 1) * count);
+      query.setMaxResults(count);
+
+      //      Page<AllergyIntoleranceEntity> entitiesPage =
+      //          repository.findByIcn(PageRequest.of(page, count), icn);
+      //      System.out.println(entitiesPage);
+
+      List<DatamartAllergyIntolerance> payloads =
+          query
+              .getResultStream()
               .map(entity -> entity.asDatamartAllergyIntolerance())
+              .collect(Collectors.toList());
+
+      replaceReferences(payloads);
+
+      List<AllergyIntolerance> fhir =
+          payloads
+              .stream()
               .map(
                   dm ->
                       DatamartAllergyIntoleranceTransformer.builder().datamart(dm).build().toFhir())
               .collect(Collectors.toList());
+
       PageLinks.LinkConfig linkConfig =
           PageLinks.LinkConfig.builder()
               .path("AllergyIntolerance")
               .queryParams(publicParameters)
               .page(page)
               .recordsPerPage(count)
-              .totalRecords((int) entitiesPage.getTotalElements())
+              .totalRecords(totalRecords)
               .build();
       return bundler.bundle(
           Bundler.BundleContext.of(
