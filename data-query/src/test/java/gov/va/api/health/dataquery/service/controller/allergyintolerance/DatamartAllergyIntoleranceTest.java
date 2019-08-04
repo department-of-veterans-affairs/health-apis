@@ -1,16 +1,14 @@
 package gov.va.api.health.dataquery.service.controller.allergyintolerance;
 
-import static java.util.Arrays.asList;
 import static gov.va.api.health.autoconfig.configuration.JacksonConfig.createMapper;
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import java.time.Instant;
 import java.util.Optional;
-
 import lombok.SneakyThrows;
 import org.junit.Test;
-
-import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 
 public class DatamartAllergyIntoleranceTest {
   @Test
