@@ -5,8 +5,6 @@ import static gov.va.api.health.dataquery.service.controller.Transformers.hasPay
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 
-import java.util.Collection;
-
 import gov.va.api.health.argonaut.api.resources.AllergyIntolerance;
 import gov.va.api.health.dataquery.service.controller.Bundler;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
@@ -19,13 +17,13 @@ import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
 import gov.va.api.health.dataquery.service.mranderson.client.Query;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import gov.va.dvp.cdw.xsd.model.CdwAllergyIntolerance105Root;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import javax.validation.constraints.Min;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -57,6 +55,7 @@ import org.springframework.web.bind.annotation.RestController;
   produces = {"application/json", "application/json+fhir", "application/fhir+json"}
 )
 public class AllergyIntoleranceController {
+
   private final Datamart datamart = new Datamart();
 
   private Transformer transformer;
@@ -71,6 +70,7 @@ public class AllergyIntoleranceController {
 
   private boolean defaultToDatamart;
 
+  /** Autowired constructor. */
   public AllergyIntoleranceController(
       @Value("${datamart.allergy-intolerance}") boolean defaultToDatamart,
       @Autowired Transformer transformer,
@@ -87,6 +87,7 @@ public class AllergyIntoleranceController {
   }
 
   // PETERTODO not public lol
+  /** Bundle the things. */
   public AllergyIntolerance.Bundle bundle(
       MultiValueMap<String, String> parameters,
       List<AllergyIntolerance> records,
@@ -225,26 +226,16 @@ public class AllergyIntoleranceController {
    * eliminated.
    */
   private class Datamart {
-    AllergyIntoleranceEntity findById(@PathVariable("publicId") String publicId) {
-      MultiValueMap<String, String> publicParameters = Parameters.forIdentity(publicId);
-      MultiValueMap<String, String> cdwParameters =
-          witnessProtection.replacePublicIdsWithCdwIds(publicParameters);
-      Optional<AllergyIntoleranceEntity> entity =
-          repository.findById(Parameters.identiferOf(cdwParameters));
-      return entity.orElseThrow(() -> new ResourceExceptions.NotFound(publicParameters));
-    }
 
     AllergyIntolerance.Bundle bundle(MultiValueMap<String, String> publicParameters) {
       MultiValueMap<String, String> cdwParameters =
           witnessProtection.replacePublicIdsWithCdwIds(publicParameters);
-
       // Only patient search is supported
       String icn = cdwParameters.getFirst("patient");
       int page = Integer.parseInt(cdwParameters.getOrDefault("page", asList("1")).get(0));
       int count = Integer.parseInt(cdwParameters.getOrDefault("_count", asList("15")).get(0));
       Page<AllergyIntoleranceEntity> entitiesPage =
           repository.findAllByIcn(icn, PageRequest.of(page, count));
-
       List<AllergyIntolerance> fhir =
           entitiesPage
               .stream()
@@ -268,6 +259,15 @@ public class AllergyIntoleranceController {
               Function.identity(),
               AllergyIntolerance.Entry::new,
               AllergyIntolerance.Bundle::new));
+    }
+
+    AllergyIntoleranceEntity findById(@PathVariable("publicId") String publicId) {
+      MultiValueMap<String, String> publicParameters = Parameters.forIdentity(publicId);
+      MultiValueMap<String, String> cdwParameters =
+          witnessProtection.replacePublicIdsWithCdwIds(publicParameters);
+      Optional<AllergyIntoleranceEntity> entity =
+          repository.findById(Parameters.identiferOf(cdwParameters));
+      return entity.orElseThrow(() -> new ResourceExceptions.NotFound(publicParameters));
     }
 
     boolean isDatamartRequest(String datamartHeader) {
