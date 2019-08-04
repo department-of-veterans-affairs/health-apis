@@ -159,17 +159,9 @@ public class DatamartAllergyIntolerance implements HasReplaceableId {
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
   static final class Reaction {
-    private Optional<Certainty> certainty;
+    private Certainty certainty;
 
     private List<Coding> manifestations;
-
-    /** Lazy getter. */
-    public Optional<Certainty> certainty() {
-      if (certainty == null) {
-        certainty = Optional.empty();
-      }
-      return certainty;
-    }
 
     /** Lazy getter. */
     public List<Coding> manifestations() {
