@@ -18,6 +18,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class DatamartAllergyIntolerance implements HasReplaceableId {
+
   private String objectType;
 
   private int objectVersion;
@@ -124,6 +125,7 @@ public class DatamartAllergyIntolerance implements HasReplaceableId {
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
   static final class Coding {
+
     private String system;
 
     private String code;
@@ -136,11 +138,20 @@ public class DatamartAllergyIntolerance implements HasReplaceableId {
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
   static final class Note {
+
     private String text;
 
     private Optional<Instant> time;
 
     private Optional<DatamartReference> practitioner;
+
+    /** Lazy getter. */
+    public Optional<DatamartReference> practitioner() {
+      if (practitioner == null) {
+        practitioner = Optional.empty();
+      }
+      return practitioner;
+    }
 
     public void setReferencePractitionerId(String id) {
       if (practitioner().isEmpty()) {
@@ -159,14 +170,6 @@ public class DatamartAllergyIntolerance implements HasReplaceableId {
     }
 
     /** Lazy getter. */
-    public Optional<DatamartReference> practitioner() {
-      if (practitioner == null) {
-        practitioner = Optional.empty();
-      }
-      return practitioner;
-    }
-
-    /** Lazy getter. */
     public Optional<Instant> time() {
       if (time == null) {
         time = Optional.empty();
@@ -180,6 +183,7 @@ public class DatamartAllergyIntolerance implements HasReplaceableId {
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
   static final class Reaction {
+
     private Certainty certainty;
 
     private List<Coding> manifestations;
@@ -198,6 +202,7 @@ public class DatamartAllergyIntolerance implements HasReplaceableId {
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
   static final class Substance {
+
     private Optional<Coding> coding;
 
     private String text;

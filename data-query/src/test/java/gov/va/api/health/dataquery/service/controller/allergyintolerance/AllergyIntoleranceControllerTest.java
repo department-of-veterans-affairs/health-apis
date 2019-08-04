@@ -37,8 +37,9 @@ public class AllergyIntoleranceControllerTest {
 
   @Mock AllergyIntoleranceController.Transformer tx;
 
-  AllergyIntoleranceController controller;
   @Mock Bundler bundler;
+
+  AllergyIntoleranceController controller;
 
   @Before
   public void _init() {
@@ -144,12 +145,12 @@ public class AllergyIntoleranceControllerTest {
   //        Parameters.builder().add("identifier", "me").add("page", 1).add("_count", 10).build());
   //  }
 
-  @Test
-  public void searchByPatient() {
-    assertSearch(
-        () -> controller.searchByPatient("", "me", 1, 10),
-        Parameters.builder().add("patient", "me").add("page", 1).add("_count", 10).build());
-  }
+  //  @Test
+  //  public void searchByPatient() {
+  //    assertSearch(
+  //        () -> controller.searchByPatient("", "me", 1, 10),
+  //        Parameters.builder().add("patient", "me").add("page", 1).add("_count", 10).build());
+  //  }
 
   //  @Test
   //  public void searchReturnsEmptyResults() {
