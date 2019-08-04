@@ -17,7 +17,6 @@ import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
 import gov.va.api.health.dataquery.service.mranderson.client.Query;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
-import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.dvp.cdw.xsd.model.CdwAllergyIntolerance105Root;
 import java.util.Collection;
 import java.util.Collections;
@@ -85,9 +84,7 @@ public class AllergyIntoleranceController {
     this.witnessProtection = witnessProtection;
   }
 
-  // PETERTODO not public lol
-  /** Bundle the things. */
-  public AllergyIntolerance.Bundle bundle(
+  private AllergyIntolerance.Bundle bundle(
       MultiValueMap<String, String> parameters,
       List<AllergyIntolerance> records,
       int totalRecords) {
@@ -197,14 +194,6 @@ public class AllergyIntoleranceController {
       @RequestParam("patient") String patient,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
-    // PETERTODO
-    witnessProtection.register(
-        asList(
-            ResourceIdentity.builder()
-                .system("CDW")
-                .resource("PATIENT")
-                .identifier(patient)
-                .build()));
     MultiValueMap<String, String> parameters =
         Parameters.builder().add("patient", patient).add("page", page).add("_count", count).build();
     if (datamart.isDatamartRequest(datamartHeader)) {

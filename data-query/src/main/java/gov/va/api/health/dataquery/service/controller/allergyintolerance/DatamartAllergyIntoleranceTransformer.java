@@ -138,9 +138,7 @@ public final class DatamartAllergyIntoleranceTransformer {
         .build();
   }
 
-  // PETERTODO not public lol
-  /** Transform to FHIR. */
-  public AllergyIntolerance toFhir() {
+  AllergyIntolerance toFhir() {
     return AllergyIntolerance.builder()
         .id(datamart.cdwId())
         .resourceType("AllergyIntolerance")
