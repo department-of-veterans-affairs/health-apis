@@ -43,7 +43,7 @@ public class AllergyIntoleranceControllerTest {
   @Before
   public void _init() {
     MockitoAnnotations.initMocks(this);
-    controller = new AllergyIntoleranceController(false, tx, client, bundler, null, null);
+    controller = new AllergyIntoleranceController(false, tx, client, bundler, null, null, null);
   }
 
   private void assertSearch(Supplier<Bundle> invocation, MultiValueMap<String, String> params) {

@@ -140,9 +140,31 @@ public class DatamartAllergyIntolerance implements HasReplaceableId {
 
     private Optional<Instant> time;
 
-    private String referencePractitionerId;
+    private Optional<DatamartReference> practitioner;
 
-    private String referencePractitionerName;
+    public void setReferencePractitionerId(String id) {
+      if (practitioner().isEmpty()) {
+        practitioner(
+            Optional.of(DatamartReference.builder().type(Optional.of("Practitioner")).build()));
+      }
+      practitioner().get().reference(Optional.of(id));
+    }
+
+    public void setReferencePractitionerName(String name) {
+      if (practitioner().isEmpty()) {
+        practitioner(
+            Optional.of(DatamartReference.builder().type(Optional.of("Practitioner")).build()));
+      }
+      practitioner().get().display(Optional.of(name));
+    }
+
+    /** Lazy getter. */
+    public Optional<DatamartReference> practitioner() {
+      if (practitioner == null) {
+        practitioner = Optional.empty();
+      }
+      return practitioner;
+    }
 
     /** Lazy getter. */
     public Optional<Instant> time() {

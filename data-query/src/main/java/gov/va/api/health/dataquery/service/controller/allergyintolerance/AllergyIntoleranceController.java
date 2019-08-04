@@ -11,8 +11,11 @@ import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
+import gov.va.api.health.dataquery.service.controller.Transformers;
 import gov.va.api.health.dataquery.service.controller.Validator;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
+import gov.va.api.health.dataquery.service.controller.allergyintolerance.DatamartAllergyIntolerance.Note;
+import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dataquery.service.controller.diagnosticreport.DiagnosticReportsEntity;
 import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
 import gov.va.api.health.dataquery.service.mranderson.client.Query;
@@ -21,7 +24,9 @@ import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.dvp.cdw.xsd.model.CdwAllergyIntolerance105Root;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -31,7 +36,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.validation.constraints.Min;
 import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -316,7 +322,7 @@ public class AllergyIntoleranceController {
     }
 
     boolean isDatamartRequest(String datamartHeader) {
-      if (StringUtils.isBlank(datamartHeader)) {
+      if (isBlank(datamartHeader)) {
         return defaultToDatamart;
       }
       return BooleanUtils.isTrue(BooleanUtils.toBooleanObject(datamartHeader));
@@ -335,7 +341,10 @@ public class AllergyIntoleranceController {
     void replaceReferences(Collection<DatamartAllergyIntolerance> resources) {
       witnessProtection.registerAndUpdateReferences(
           resources,
-          resource -> Stream.of(resource.recorder().orElse(null), resource.patient().orElse(null)));
+          resource ->
+              Stream.concat(
+                  Stream.of(resource.recorder().orElse(null), resource.patient().orElse(null)),
+                  resource.notes().stream().map(n -> n.practitioner().orElse(null))));
     }
 
     AllergyIntolerance transform(DatamartAllergyIntolerance dm) {

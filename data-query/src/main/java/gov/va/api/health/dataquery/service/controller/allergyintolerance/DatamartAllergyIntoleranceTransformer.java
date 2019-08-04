@@ -24,18 +24,18 @@ public final class DatamartAllergyIntoleranceTransformer {
 
   @NonNull final DatamartAllergyIntolerance datamart;
 
-  private Reference authorReference(DatamartAllergyIntolerance.Note note) {
-    if (note == null) {
-      return null;
-    }
-    if (allBlank(note.referencePractitionerId(), note.referencePractitionerName())) {
-      return null;
-    }
-    return Reference.builder()
-        .reference("Practitioner/" + note.referencePractitionerId())
-        .display(note.referencePractitionerName())
-        .build();
-  }
+  //  private Reference authorReference(DatamartAllergyIntolerance.Note note) {
+  //    if (note == null) {
+  //      return null;
+  //    }
+  //    if (allBlank(note.referencePractitionerId(), note.referencePractitionerName())) {
+  //      return null;
+  //    }
+  //    return Reference.builder()
+  //        .reference("Practitioner/" + note.referencePractitionerId())
+  //        .display(note.referencePractitionerName())
+  //        .build();
+  //  }
 
   private AllergyIntolerance.Category category(DatamartAllergyIntolerance.Category category) {
     if (category == null) {
@@ -86,7 +86,7 @@ public final class DatamartAllergyIntoleranceTransformer {
       return null;
     }
     DatamartAllergyIntolerance.Note note = notes.get(0);
-    Reference authorReference = authorReference(note);
+    Reference authorReference = asReference(note.practitioner());
     String time = asDateTimeString(note.time());
     if (allBlank(authorReference, time, note.text())) {
       return null;
