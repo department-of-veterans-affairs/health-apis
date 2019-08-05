@@ -38,12 +38,13 @@ public class AllergyIntoleranceControllerTest {
   @Mock AllergyIntoleranceController.Transformer tx;
 
   AllergyIntoleranceController controller;
+
   @Mock Bundler bundler;
 
   @Before
   public void _init() {
     MockitoAnnotations.initMocks(this);
-    controller = new AllergyIntoleranceController(tx, client, bundler);
+    controller = new AllergyIntoleranceController(false, tx, client, bundler, null, null);
   }
 
   private void assertSearch(Supplier<Bundle> invocation, MultiValueMap<String, String> params) {
@@ -122,7 +123,7 @@ public class AllergyIntoleranceControllerTest {
     AllergyIntolerance allergyIntolerance = AllergyIntolerance.builder().build();
     when(client.search(Mockito.any())).thenReturn(root);
     when(tx.apply(xmlAllergyIntolerance)).thenReturn(allergyIntolerance);
-    AllergyIntolerance actual = controller.read("hello");
+    AllergyIntolerance actual = controller.read("", "hello");
     assertThat(actual).isSameAs(allergyIntolerance);
     ArgumentCaptor<Query<CdwAllergyIntolerance105Root>> captor =
         ArgumentCaptor.forClass(Query.class);
@@ -133,21 +134,21 @@ public class AllergyIntoleranceControllerTest {
   @Test
   public void searchById() {
     assertSearch(
-        () -> controller.searchById("me", 1, 10),
+        () -> controller.searchById("", "me", 1, 10),
         Parameters.builder().add("identifier", "me").add("page", 1).add("_count", 10).build());
   }
 
   @Test
   public void searchByIdentifier() {
     assertSearch(
-        () -> controller.searchByIdentifier("me", 1, 10),
+        () -> controller.searchByIdentifier("", "me", 1, 10),
         Parameters.builder().add("identifier", "me").add("page", 1).add("_count", 10).build());
   }
 
   @Test
   public void searchByPatient() {
     assertSearch(
-        () -> controller.searchByPatient("me", 1, 10),
+        () -> controller.searchByPatient("", "me", 1, 10),
         Parameters.builder().add("patient", "me").add("page", 1).add("_count", 10).build());
   }
 
@@ -160,7 +161,7 @@ public class AllergyIntoleranceControllerTest {
     when(client.search(Mockito.any())).thenReturn(root);
     Bundle mockBundle = new Bundle();
     when(bundler.bundle(Mockito.any())).thenReturn(mockBundle);
-    Bundle actual = controller.searchById("me", 1, 10);
+    Bundle actual = controller.searchById("", "me", 1, 10);
     assertThat(actual).isSameAs(mockBundle);
     @SuppressWarnings("unchecked")
     ArgumentCaptor<
