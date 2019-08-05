@@ -48,6 +48,7 @@ public final class DatamartPatientTest {
 
   public PatientController controller() {
     return new PatientController(
+        true,
         null,
         null,
         null,
