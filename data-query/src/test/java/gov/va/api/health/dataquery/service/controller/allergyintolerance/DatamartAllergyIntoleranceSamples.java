@@ -160,19 +160,27 @@ public class DatamartAllergyIntoleranceSamples {
           .build();
     }
 
+    static final String ID = "865e1010-99b6-4b8d-a5c9-4ad259db0857";
+
+    static final String RECORDER_ID = "c8779355-6c0c-40c3-94d1-a8e2a785adfd";
+
+    static final String PATIENT_ID = "04daf655-fcb4-480c-84bf-4319a3af93d7";
+
+    static final String NOTE_AUTHOR_ID = "5d7a23c1-2f9d-4793-b171-b607970b56b8";
+
     public AllergyIntolerance allergyIntolerance() {
       return AllergyIntolerance.builder()
           .resourceType("AllergyIntolerance")
-          .id("800001608621")
+          .id(ID)
           .recordedDate("2017-07-23T04:27:43Z")
           .recorder(
               Reference.builder()
-                  .reference("Practitioner/4182448")
+                  .reference("Practitioner/" + RECORDER_ID)
                   .display("MONTAGNE,JO BONES")
                   .build())
           .patient(
               Reference.builder()
-                  .reference("Patient/666V666")
+                  .reference("Patient/" + PATIENT_ID)
                   .display("VETERAN,HERNAM MINAM")
                   .build())
           .substance(
@@ -193,7 +201,7 @@ public class DatamartAllergyIntoleranceSamples {
               Annotation.builder()
                   .authorReference(
                       Reference.builder()
-                          .reference("Practitioner/1319143")
+                          .reference("Practitioner/" + NOTE_AUTHOR_ID)
                           .display("PROVID,ALLIN DOC")
                           .build())
                   .time("2012-03-29T01:55:03Z")

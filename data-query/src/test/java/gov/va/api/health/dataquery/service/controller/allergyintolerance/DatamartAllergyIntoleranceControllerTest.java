@@ -46,7 +46,6 @@ public class DatamartAllergyIntoleranceControllerTest {
 
   @Test
   public void readRaw() {
-    String publicId = "865e1010-99b6-4b8d-a5c9-4ad259db0857";
     IdentityService ids = mock(IdentityService.class);
 
     AllergyIntoleranceController controller =
@@ -62,22 +61,15 @@ public class DatamartAllergyIntoleranceControllerTest {
         DatamartAllergyIntoleranceSamples.Datamart.create().allergyIntolerance();
     entityManager.persistAndFlush(asEntity(dm));
 
-    when(ids.lookup(publicId))
-        .thenReturn(
-            asList(
-                ResourceIdentity.builder()
-                    .system("CDW")
-                    .resource("CONDITION")
-                    .identifier(dm.cdwId())
-                    .build()));
+    setUpIds(ids, dm);
 
-    assertThat(toObject(controller.readRaw(publicId))).isEqualTo(dm);
+    assertThat(toObject(controller.readRaw(DatamartAllergyIntoleranceSamples.Fhir.ID)))
+        .isEqualTo(dm);
   }
 
   // identifier id patient
   @Test
   public void read() {
-    String publicId = "865e1010-99b6-4b8d-a5c9-4ad259db0857";
     IdentityService ids = mock(IdentityService.class);
 
     AllergyIntoleranceController controller =
@@ -93,21 +85,60 @@ public class DatamartAllergyIntoleranceControllerTest {
         DatamartAllergyIntoleranceSamples.Datamart.create().allergyIntolerance();
     entityManager.persistAndFlush(asEntity(dm));
 
-    when(ids.lookup(publicId))
+    setUpIds(ids, dm);
+
+    assertThat(controller.read("true", DatamartAllergyIntoleranceSamples.Fhir.ID))
+        .isEqualTo(DatamartAllergyIntoleranceSamples.Fhir.create().allergyIntolerance());
+  }
+
+  private static void setUpIds(IdentityService ids, DatamartAllergyIntolerance dm) {
+    when(ids.lookup(DatamartAllergyIntoleranceSamples.Fhir.ID))
         .thenReturn(
             asList(
                 ResourceIdentity.builder()
                     .system("CDW")
-                    .resource("CONDITION")
+                    .resource("ALLERGY_INTOLERANCE")
                     .identifier(dm.cdwId())
                     .build()));
-    //    when(ids.register(Mockito.any()))
-    //    .thenReturn(
-    //        List.of(
-    //
-    // Registration.builder().uuid(publicId).resourceIdentity(resourceIdentity).build()));
 
-    assertThat(controller.read("true", publicId))
-        .isEqualTo(DatamartAllergyIntoleranceSamples.Fhir.create().allergyIntolerance());
+    when(ids.register(Mockito.any()))
+        .thenReturn(
+            asList(
+                Registration.builder()
+                    .uuid(DatamartAllergyIntoleranceSamples.Fhir.ID)
+                    .resourceIdentity(
+                        ResourceIdentity.builder()
+                            .system("CDW")
+                            .resource("ALLERGY_INTOLERANCE")
+                            .identifier(dm.cdwId())
+                            .build())
+                    .build(),
+                Registration.builder()
+                    .uuid(DatamartAllergyIntoleranceSamples.Fhir.RECORDER_ID)
+                    .resourceIdentity(
+                        ResourceIdentity.builder()
+                            .system("CDW")
+                            .resource("PRACTITIONER")
+                            .identifier(dm.recorder().get().reference().get())
+                            .build())
+                    .build(),
+                Registration.builder()
+                    .uuid(DatamartAllergyIntoleranceSamples.Fhir.PATIENT_ID)
+                    .resourceIdentity(
+                        ResourceIdentity.builder()
+                            .system("CDW")
+                            .resource("PATIENT")
+                            .identifier(dm.patient().get().reference().get())
+                            .build())
+                    .build(),
+                Registration.builder()
+                    .uuid(DatamartAllergyIntoleranceSamples.Fhir.NOTE_AUTHOR_ID)
+                    .resourceIdentity(
+                        ResourceIdentity.builder()
+                            .system("CDW")
+                            .resource("PRACTITIONER")
+                            .identifier(dm.notes().get(0).practitioner().get().reference().get())
+                            .build())
+                    .build()));
   }
 }

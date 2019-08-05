@@ -280,7 +280,7 @@ public class AllergyIntoleranceController {
     AllergyIntolerance read(String publicId) {
       DatamartAllergyIntolerance ai = findById(publicId).asDatamartAllergyIntolerance();
       replaceReferences(List.of(ai));
-      return transform(ai);
+      return DatamartAllergyIntoleranceTransformer.builder().datamart(ai).build().toFhir();
     }
 
     String readRaw(@PathVariable("publicId") String publicId) {
@@ -303,10 +303,6 @@ public class AllergyIntoleranceController {
               Long.class);
       totalQuery.setParameter("patient", icn);
       return totalQuery.getSingleResult().intValue();
-    }
-
-    AllergyIntolerance transform(DatamartAllergyIntolerance dm) {
-      return DatamartAllergyIntoleranceTransformer.builder().datamart(dm).build().toFhir();
     }
   }
 }
