@@ -46,6 +46,7 @@ import org.springframework.web.bind.annotation.RestController;
 )
 @AllArgsConstructor(onConstructor = @__({@Autowired}))
 public class MedicationStatementController {
+  private final Datamart datamart = new Datamart();
   private Transformer transformer;
   private MrAndersonClient mrAndersonClient;
   private Bundler bundler;
@@ -86,12 +87,7 @@ public class MedicationStatementController {
   /** Read by id, raw data. */
   @GetMapping(value = {"/{publicId}/raw"})
   public String readRaw(@PathVariable("publicId") String publicId) {
-    MultiValueMap<String, String> publicParameters = Parameters.forIdentity(publicId);
-    MultiValueMap<String, String> cdwParameters =
-        witnessProtection.replacePublicIdsWithCdwIds(publicParameters);
-    Optional<MedicationStatementEntity> entity =
-        repository.findById(Parameters.identiferOf(cdwParameters));
-    return entity.orElseThrow(() -> new NotFound(publicParameters)).payload();
+    return datamart.readRaw(publicId);
   }
 
   private CdwMedicationStatement102Root search(MultiValueMap<String, String> params) {
@@ -154,4 +150,22 @@ public class MedicationStatementController {
       extends Function<
           CdwMedicationStatement102Root.CdwMedicationStatements.CdwMedicationStatement,
           MedicationStatement> {}
+
+  /**
+   * This class is being used to help organize the code such that all the datamart logic is
+   * contained together. In the future when Mr. Anderson support is dropped, this class can be
+   * eliminated.
+   */
+  private class Datamart {
+
+    MedicationStatementEntity findById(String publicId) {
+      Optional<MedicationStatementEntity> entity =
+          repository.findById(witnessProtection.toCdwId(publicId));
+      return entity.orElseThrow(() -> new NotFound(publicId));
+    }
+
+    String readRaw(String publicId) {
+      return findById(publicId).payload();
+    }
+  }
 }
