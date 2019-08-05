@@ -2,7 +2,6 @@ package gov.va.api.health.dataquery.service.controller.condition;
 
 import static gov.va.api.health.dataquery.service.controller.Transformers.firstPayloadItem;
 import static gov.va.api.health.dataquery.service.controller.Transformers.hasPayload;
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 
 import gov.va.api.health.argonaut.api.resources.Condition;
@@ -24,13 +23,18 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.validation.constraints.Min;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -48,6 +52,7 @@ import org.springframework.web.bind.annotation.RestController;
  * implementation details.
  */
 @SuppressWarnings("WeakerAccess")
+@Slf4j
 @Validated
 @RestController
 @RequestMapping(
@@ -70,6 +75,7 @@ public class ConditionController {
   private boolean defaultToDatamart;
 
   /** Spring constructor. */
+  @SuppressWarnings("ParameterHidesMemberVariable")
   public ConditionController(
       @Value("${datamart.condition}") boolean defaultToDatamart,
       @Autowired Transformer transformer,
@@ -160,13 +166,10 @@ public class ConditionController {
   @GetMapping(params = {"identifier"})
   public Condition.Bundle searchByIdentifier(
       @RequestHeader(value = "Datamart", defaultValue = "") String datamartHeader,
-      @RequestParam("identifier") String id,
+      @RequestParam("identifier") String publicId,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
-    return bundle(
-        Parameters.builder().add("identifier", id).add("page", page).add("_count", count).build(),
-        page,
-        count);
+    return searchById(datamartHeader, publicId, page, count);
   }
 
   /** Search by patient. */
@@ -176,6 +179,9 @@ public class ConditionController {
       @RequestParam("patient") String patient,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
+    if (datamart.isDatamartRequest(datamartHeader)) {
+      return datamart.searchByPatient(patient, page, count);
+    }
     return bundle(
         Parameters.builder().add("patient", patient).add("page", page).add("_count", count).build(),
         page,
@@ -190,6 +196,9 @@ public class ConditionController {
       @RequestParam("category") String category,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
+    if (datamart.isDatamartRequest(datamartHeader)) {
+      return datamart.searchByPatientAndCategory(patient, category, page, count);
+    }
     return bundle(
         Parameters.builder()
             .add("patient", patient)
@@ -206,13 +215,16 @@ public class ConditionController {
   public Condition.Bundle searchByPatientAndClinicalStatus(
       @RequestHeader(value = "Datamart", defaultValue = "") String datamartHeader,
       @RequestParam("patient") String patient,
-      @RequestParam("clinicalstatus") String clinicalstatus,
+      @RequestParam("clinicalstatus") String clinicalStatus,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
+    if (datamart.isDatamartRequest(datamartHeader)) {
+      return datamart.searchByPatientAndClinicalStatus(patient, clinicalStatus, page, count);
+    }
     return bundle(
         Parameters.builder()
             .add("patient", patient)
-            .add("clinicalstatus", clinicalstatus)
+            .add("clinicalstatus", clinicalStatus)
             .add("page", page)
             .add("_count", count)
             .build(),
@@ -244,9 +256,9 @@ public class ConditionController {
           PageLinks.LinkConfig.builder()
               .path("Condition")
               .queryParams(parameters)
-              .page(Integer.parseInt(parameters.getOrDefault("page", asList("1")).get(0)))
+              .page(Integer.parseInt(parameters.getOrDefault("page", List.of("1")).get(0)))
               .recordsPerPage(
-                  Integer.parseInt(parameters.getOrDefault("_count", asList("15")).get(0)))
+                  Integer.parseInt(parameters.getOrDefault("_count", List.of("15")).get(0)))
               .totalRecords(totalRecords)
               .build();
       return bundler.bundle(
@@ -258,12 +270,30 @@ public class ConditionController {
               Condition.Bundle::new));
     }
 
-    ConditionEntity findById(@PathVariable("publicId") String publicId) {
-      MultiValueMap<String, String> publicParameters = Parameters.forIdentity(publicId);
-      MultiValueMap<String, String> cdwParameters =
-          witnessProtection.replacePublicIdsWithCdwIds(publicParameters);
-      Optional<ConditionEntity> entity = repository.findById(Parameters.identiferOf(cdwParameters));
-      return entity.orElseThrow(() -> new NotFound(publicParameters));
+    private Bundle bundle(
+        MultiValueMap<String, String> parameters, int count, Page<ConditionEntity> entities) {
+
+      log.info("Search {} found {} results", parameters, entities.getTotalElements());
+      if (count == 0) {
+        return bundle(parameters, emptyList(), (int) entities.getTotalElements());
+      }
+
+      return bundle(
+          parameters,
+          replaceReferences(
+                  entities
+                      .get()
+                      .map(ConditionEntity::asDatamartCondition)
+                      .collect(Collectors.toList()))
+              .stream()
+              .map(this::transform)
+              .collect(Collectors.toList()),
+          (int) entities.getTotalElements());
+    }
+
+    ConditionEntity findById(String publicId) {
+      Optional<ConditionEntity> entity = repository.findById(witnessProtection.toCdwId(publicId));
+      return entity.orElseThrow(() -> new NotFound(publicId));
     }
 
     boolean isDatamartRequest(String datamartHeader) {
@@ -279,11 +309,11 @@ public class ConditionController {
       return transform(condition);
     }
 
-    String readRaw(@PathVariable("publicId") String publicId) {
+    String readRaw(String publicId) {
       return findById(publicId).payload();
     }
 
-    void replaceReferences(Collection<DatamartCondition> resources) {
+    Collection<DatamartCondition> replaceReferences(Collection<DatamartCondition> resources) {
       witnessProtection.registerAndUpdateReferences(
           resources,
           resource ->
@@ -291,6 +321,7 @@ public class ConditionController {
                   resource.patient(),
                   resource.asserter().orElse(null),
                   resource.encounter().orElse(null)));
+      return resources;
     }
 
     Bundle searchById(String publicId, int page, int count) {
@@ -301,8 +332,49 @@ public class ConditionController {
               .add("page", page)
               .add("_count", count)
               .build(),
-          resource == null || count == 0 ? emptyList() : asList(resource),
+          resource == null || count == 0 ? emptyList() : List.of(resource),
           resource == null ? 0 : 1);
+    }
+
+    public Bundle searchByPatient(String patient, int page, int count) {
+      String icn = witnessProtection.toCdwId(patient);
+      log.info("Looking for {} ({})", patient, icn);
+      return bundle(
+          Parameters.builder()
+              .add("patient", patient)
+              .add("page", page)
+              .add("_count", count)
+              .build(),
+          count,
+          repository.findByIcn(icn, PageRequest.of(page - 1, count)));
+    }
+
+    public Bundle searchByPatientAndCategory(String patient, String category, int page, int count) {
+      String icn = witnessProtection.toCdwId(patient);
+      return bundle(
+          Parameters.builder()
+              .add("patient", patient)
+              .add("category", category)
+              .add("page", page)
+              .add("_count", count)
+              .build(),
+          count,
+          repository.findByIcnAndCategory(icn, category, PageRequest.of(page - 1, count)));
+    }
+
+    public Bundle searchByPatientAndClinicalStatus(
+        String patient, String clinicalStatusCsv, int page, int count) {
+      String icn = witnessProtection.toCdwId(patient);
+      return bundle(
+          Parameters.builder()
+              .add("patient", patient)
+              .add("clinicalstatus", clinicalStatusCsv)
+              .add("page", page)
+              .add("_count", count)
+              .build(),
+          count,
+          repository.findByIcnAndClinicalStatusIn(
+              icn, Set.of(clinicalStatusCsv.split("\\s*,\\s*")), PageRequest.of(page - 1, count)));
     }
 
     Condition transform(DatamartCondition dm) {

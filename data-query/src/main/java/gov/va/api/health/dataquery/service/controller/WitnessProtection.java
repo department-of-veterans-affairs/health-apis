@@ -35,7 +35,7 @@ import org.springframework.util.MultiValueMap;
 public class WitnessProtection {
   private IdentityService identityService;
 
-  private <T extends HasReplaceableId> Function<T, Stream<DatamartReference>> imbellish(
+  private <T extends HasReplaceableId> Function<T, Stream<DatamartReference>> embellish(
       Function<T, Stream<DatamartReference>> referencesOf) {
     return t ->
         Stream.concat(
@@ -53,7 +53,7 @@ public class WitnessProtection {
     Set<ResourceIdentity> ids =
         resources
             .stream()
-            .flatMap(imbellish(referencesOf))
+            .flatMap(embellish(referencesOf))
             .filter(Objects::nonNull)
             .map(DatamartReference::asResourceIdentity)
             .filter(Optional::isPresent)
@@ -132,6 +132,13 @@ public class WitnessProtection {
       log.error("Identity is not known: {}", e.getMessage());
       throw new ResourceExceptions.UnknownIdentityInSearchParameter(publicParameters, e);
     }
+  }
+
+  /** Lookup and convert the given public ID to a CDW id. */
+  public String toCdwId(String publicId) {
+    MultiValueMap<String, String> publicParameters = Parameters.forIdentity(publicId);
+    MultiValueMap<String, String> cdwParameters = replacePublicIdsWithCdwIds(publicParameters);
+    return Parameters.identiferOf(cdwParameters);
   }
 
   /** Utility for easy look up of ids. */

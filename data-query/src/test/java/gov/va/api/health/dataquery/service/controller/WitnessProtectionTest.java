@@ -118,6 +118,15 @@ public class WitnessProtectionTest {
     wp.replacePublicIdsWithCdwIds(Parameters.forIdentity("x"));
   }
 
+  @Test
+  public void toCdwId() {
+    when(ids.lookup("x"))
+        .thenReturn(
+            List.of(
+                ResourceIdentity.builder().system("CDW").resource("X").identifier("XXX").build()));
+    assertThat(wp.toCdwId("x")).isEqualTo("XXX");
+  }
+
   @Data
   @AllArgsConstructor
   private static class Witness implements HasReplaceableId {

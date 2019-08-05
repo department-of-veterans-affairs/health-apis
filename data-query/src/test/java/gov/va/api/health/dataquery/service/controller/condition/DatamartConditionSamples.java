@@ -18,6 +18,7 @@ import gov.va.api.health.dstu2.api.elements.Reference;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -30,13 +31,17 @@ public class DatamartConditionSamples {
   @AllArgsConstructor(staticName = "create")
   static class Datamart {
     public DatamartCondition condition() {
+      return condition("800274570575:D", "666V666", "2011-06-27");
+    }
+
+    public DatamartCondition condition(String cdwId, String patientId, String dateRecorded) {
       return DatamartCondition.builder()
           .etlDate("2011-06-27T05:40:00")
-          .cdwId("800274570575:D")
+          .cdwId(cdwId)
           .patient(
               DatamartReference.of()
                   .type("Patient")
-                  .reference("666V666")
+                  .reference(patientId)
                   .display("VETERAN,FIRNM MINAM")
                   .build())
           .encounter(
@@ -53,7 +58,7 @@ public class DatamartConditionSamples {
                       .reference("1294265")
                       .display("DOCLANAM,DOCFIRNAM E")
                       .build()))
-          .dateRecorded(Optional.of(LocalDate.parse("2011-06-27")))
+          .dateRecorded(Optional.of(LocalDate.parse(dateRecorded)))
           .snomed(Optional.of(snomedCode()))
           .icd(Optional.of(icd10Code()))
           .category(DatamartCondition.Category.diagnosis)
@@ -84,11 +89,11 @@ public class DatamartConditionSamples {
   static class Fhir {
 
     static Condition.Bundle asBundle(
-        String baseUrl, List<Condition> conditions, BundleLink... links) {
+        String baseUrl, Collection<Condition> conditions, BundleLink... links) {
       return Bundle.builder()
           .resourceType("Bundle")
           .type(BundleType.searchset)
-          .total(1)
+          .total(conditions.size())
           .link(Arrays.asList(links))
           .entry(
               conditions
@@ -116,6 +121,10 @@ public class DatamartConditionSamples {
     }
 
     public Condition condition(String id) {
+      return condition(id, "666V666", "2011-06-27");
+    }
+
+    public Condition condition(String id, String patientId, String dateRecorded) {
       return Condition.builder()
           .resourceType("Condition")
           .abatementDateTime("2011-06-27T01:11:00Z")
@@ -124,10 +133,10 @@ public class DatamartConditionSamples {
           .id(id)
           .clinicalStatus(Condition.ClinicalStatusCode.active)
           .code(snomedCode())
-          .dateRecorded("2011-06-27")
+          .dateRecorded(dateRecorded)
           .encounter(reference("Outpatient Visit", "Encounter/800285390250"))
           .onsetDateTime("2011-06-27T05:40:00Z")
-          .patient(reference("VETERAN,FIRNM MINAM", "Patient/666V666"))
+          .patient(reference("VETERAN,FIRNM MINAM", "Patient/" + patientId))
           .verificationStatus(VerificationStatusCode.unknown)
           .build();
     }
