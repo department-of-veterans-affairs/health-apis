@@ -168,7 +168,12 @@ public class AllergyIntoleranceController {
       @RequestParam("_id") String id,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
-    return searchByIdentifier(datamartHeader, id, page, count);
+    if (datamart.isDatamartRequest(datamartHeader)) {
+      return searchByIdentifier(datamartHeader, id, page, count);
+    }
+
+    return mrAndersonBundle(
+        Parameters.builder().add("identifier", id).add("page", page).add("_count", count).build());
   }
 
   /** Search by identifier. */
@@ -178,15 +183,24 @@ public class AllergyIntoleranceController {
       @RequestParam("identifier") String identifier,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
-    AllergyIntolerance resource = read(datamartHeader, identifier);
-    return bundle(
+    if (datamart.isDatamartRequest(datamartHeader)) {
+      AllergyIntolerance resource = datamart.read(identifier);
+      return bundle(
+          Parameters.builder()
+              .add("identifier", identifier)
+              .add("page", page)
+              .add("_count", count)
+              .build(),
+          resource == null ? emptyList() : asList(resource),
+          resource == null ? 0 : 1);
+    }
+
+    return mrAndersonBundle(
         Parameters.builder()
             .add("identifier", identifier)
             .add("page", page)
             .add("_count", count)
-            .build(),
-        resource == null ? emptyList() : asList(resource),
-        resource == null ? 0 : 1);
+            .build());
   }
 
   /** Search by patient. */
