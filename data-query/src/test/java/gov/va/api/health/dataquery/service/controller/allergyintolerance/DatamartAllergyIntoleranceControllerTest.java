@@ -28,6 +28,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 public class DatamartAllergyIntoleranceControllerTest {
   @Autowired private TestEntityManager entityManager;
 
+  @Autowired private AllergyIntoleranceRepository repository;
+
   @SneakyThrows
   private static AllergyIntoleranceEntity asEntity(DatamartAllergyIntolerance dm) {
     return AllergyIntoleranceEntity.builder()
@@ -101,7 +103,7 @@ public class DatamartAllergyIntoleranceControllerTest {
             null,
             null,
             new Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool")),
-            entityManager.getEntityManager(),
+            repository,
             WitnessProtection.builder().identityService(ids).build());
     DatamartAllergyIntolerance dm =
         DatamartAllergyIntoleranceSamples.Datamart.create().allergyIntolerance();
@@ -122,7 +124,7 @@ public class DatamartAllergyIntoleranceControllerTest {
             null,
             null,
             new Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool")),
-            entityManager.getEntityManager(),
+            repository,
             WitnessProtection.builder().identityService(ids).build());
     DatamartAllergyIntolerance dm =
         DatamartAllergyIntoleranceSamples.Datamart.create().allergyIntolerance();
@@ -143,7 +145,7 @@ public class DatamartAllergyIntoleranceControllerTest {
             null,
             null,
             new Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool")),
-            entityManager.getEntityManager(),
+            repository,
             WitnessProtection.builder().identityService(ids).build());
     DatamartAllergyIntolerance dm =
         DatamartAllergyIntoleranceSamples.Datamart.create().allergyIntolerance();
@@ -164,7 +166,7 @@ public class DatamartAllergyIntoleranceControllerTest {
             null,
             null,
             new Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool")),
-            entityManager.getEntityManager(),
+            repository,
             WitnessProtection.builder().identityService(ids).build());
     DatamartAllergyIntolerance otherDm =
         DatamartAllergyIntoleranceSamples.Datamart.create().allergyIntolerance();
@@ -193,7 +195,7 @@ public class DatamartAllergyIntoleranceControllerTest {
             null,
             null,
             new Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool")),
-            entityManager.getEntityManager(),
+            repository,
             WitnessProtection.builder().identityService(ids).build());
     DatamartAllergyIntolerance dm =
         DatamartAllergyIntoleranceSamples.Datamart.create().allergyIntolerance();
@@ -213,7 +215,7 @@ public class DatamartAllergyIntoleranceControllerTest {
             null,
             null,
             new Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool")),
-            entityManager.getEntityManager(),
+            repository,
             WitnessProtection.builder().identityService(ids).build());
     DatamartAllergyIntolerance dm =
         DatamartAllergyIntoleranceSamples.Datamart.create().allergyIntolerance();

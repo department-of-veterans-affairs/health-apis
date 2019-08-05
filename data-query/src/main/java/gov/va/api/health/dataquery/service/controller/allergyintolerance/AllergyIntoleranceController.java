@@ -21,15 +21,16 @@ import gov.va.dvp.cdw.xsd.model.CdwAllergyIntolerance105Root;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
 import javax.validation.constraints.Min;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -64,7 +65,7 @@ public class AllergyIntoleranceController {
 
   private WitnessProtection witnessProtection;
 
-  private EntityManager entityManager;
+  private AllergyIntoleranceRepository repository;
 
   private boolean defaultToDatamart;
 
@@ -74,13 +75,13 @@ public class AllergyIntoleranceController {
       @Autowired Transformer transformer,
       @Autowired MrAndersonClient mrAndersonClient,
       @Autowired Bundler bundler,
-      @Autowired EntityManager entityManager,
+      @Autowired AllergyIntoleranceRepository repository,
       @Autowired WitnessProtection witnessProtection) {
     this.defaultToDatamart = defaultToDatamart;
     this.transformer = transformer;
     this.mrAndersonClient = mrAndersonClient;
     this.bundler = bundler;
-    this.entityManager = entityManager;
+    this.repository = repository;
     this.witnessProtection = witnessProtection;
   }
 
@@ -228,46 +229,41 @@ public class AllergyIntoleranceController {
 
       // Only patient search is supported
       String icn = cdwParameters.getFirst("patient");
-      TypedQuery<AllergyIntoleranceEntity> query =
-          entityManager.createQuery(
-              "Select ai from AllergyIntoleranceEntity ai where ai.icn = :patient",
-              AllergyIntoleranceEntity.class);
-      query.setParameter("patient", icn);
-
       int page = Integer.parseInt(cdwParameters.getOrDefault("page", asList("1")).get(0));
       int count = Integer.parseInt(cdwParameters.getOrDefault("_count", asList("15")).get(0));
-      query.setFirstResult((page - 1) * count);
-      query.setMaxResults(count);
+      Page<AllergyIntoleranceEntity> entitiesPage =
+          repository.findByIcn(icn, PageRequest.of(page - 1, count));
 
-      List<DatamartAllergyIntolerance> payloads =
-          query
-              .getResultStream()
-              .map(entity -> entity.asDatamartAllergyIntolerance())
+      List<DatamartAllergyIntolerance> datamarts =
+          entitiesPage
+              .stream()
+              .map(e -> e.asDatamartAllergyIntolerance())
               .collect(Collectors.toList());
 
-      replaceReferences(payloads);
+      replaceReferences(datamarts);
 
       List<AllergyIntolerance> fhir =
-          payloads
+          datamarts
               .stream()
               .map(
                   dm ->
                       DatamartAllergyIntoleranceTransformer.builder().datamart(dm).build().toFhir())
               .collect(Collectors.toList());
 
-      return AllergyIntoleranceController.this.bundle(publicParameters, fhir, totalRecords(icn));
+      return AllergyIntoleranceController.this.bundle(
+          publicParameters, fhir, (int) entitiesPage.getTotalElements());
     }
 
     AllergyIntoleranceEntity findById(@PathVariable("publicId") String publicId) {
       MultiValueMap<String, String> publicParameters = Parameters.forIdentity(publicId);
       MultiValueMap<String, String> cdwParameters =
           witnessProtection.replacePublicIdsWithCdwIds(publicParameters);
-      AllergyIntoleranceEntity entity =
-          entityManager.find(AllergyIntoleranceEntity.class, Parameters.identiferOf(cdwParameters));
-      if (entity == null) {
+      Optional<AllergyIntoleranceEntity> maybeEntity =
+          repository.findById(Parameters.identiferOf(cdwParameters));
+      if (!maybeEntity.isPresent()) {
         throw new ResourceExceptions.NotFound(publicParameters);
       }
-      return entity;
+      return maybeEntity.get();
     }
 
     boolean isDatamartRequest(String datamartHeader) {
@@ -294,15 +290,6 @@ public class AllergyIntoleranceController {
               Stream.concat(
                   Stream.of(resource.recorder().orElse(null), resource.patient().orElse(null)),
                   resource.notes().stream().map(n -> n.practitioner().orElse(null))));
-    }
-
-    int totalRecords(String icn) {
-      TypedQuery<Long> totalQuery =
-          entityManager.createQuery(
-              "Select count(ai.id) from AllergyIntoleranceEntity ai where ai.icn = :patient",
-              Long.class);
-      totalQuery.setParameter("patient", icn);
-      return totalQuery.getSingleResult().intValue();
     }
   }
 }
