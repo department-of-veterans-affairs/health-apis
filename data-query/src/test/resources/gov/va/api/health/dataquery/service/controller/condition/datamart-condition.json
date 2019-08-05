@@ -1,7 +1,7 @@
 {
   "objectType" : "Condition",
   "objectVersion" : "1",
-  "etlDate" : "2011-06-27T05:40:00Z",
+  "etlDate" : "2011-06-27T05:40:00",
   "cdwId" : "800274570575:D",
   "patient" : {
     "type" : "Patient",
@@ -18,7 +18,7 @@
     "reference" : "1294265",
     "display" : "DOCLANAM,DOCFIRNAM E"
   },
-  "dateRecorded" : "2011-06-27T05:40:00Z",
+  "dateRecorded" : "2011-06-27",
   "snomed" : {
     "code" : "70650003",
     "display" : "Urinary bladder stone"

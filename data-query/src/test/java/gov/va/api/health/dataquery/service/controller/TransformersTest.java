@@ -18,6 +18,7 @@ import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference
 import gov.va.api.health.dstu2.api.elements.Reference;
 import java.math.BigInteger;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -46,7 +47,7 @@ public class TransformersTest {
 
   @Test
   public void asDateStringReturnsNullWhenInstantIsNull() {
-    assertThat(asDateString((Instant) null)).isNull();
+    assertThat(asDateString((LocalDate) null)).isNull();
   }
 
   @Test
@@ -56,7 +57,7 @@ public class TransformersTest {
 
   @Test
   public void asDateStringReturnsNullWhenOptionalInstantIsNull() {
-    assertThat(asDateString((Optional<Instant>) null)).isNull();
+    assertThat(asDateString((Optional<LocalDate>) null)).isNull();
   }
 
   @SneakyThrows
@@ -69,13 +70,13 @@ public class TransformersTest {
 
   @Test
   public void asDateStringReturnsStringWhenInstantIsNotNull() {
-    Instant time = Instant.parse("2005-01-21T00:00:00Z");
+    LocalDate time = LocalDate.parse("2005-01-21");
     assertThat(asDateString(time)).isEqualTo("2005-01-21");
   }
 
   @Test
   public void asDateStringReturnsStringWhenOptionalInstantIsNotNull() {
-    Instant time = Instant.parse("2005-01-21T00:00:00Z");
+    LocalDate time = LocalDate.parse("2005-01-21");
     assertThat(asDateString(Optional.of(time))).isEqualTo("2005-01-21");
   }
 
