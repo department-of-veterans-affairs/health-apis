@@ -43,7 +43,6 @@ public class AllergyIntoleranceTransformer implements AllergyIntoleranceControll
     return AllergyIntolerance.builder()
         .id(source.getCdwId())
         .resourceType("AllergyIntolerance")
-        .recordedDate(asDateTimeString(source.getRecordedDate()))
         .recorder(reference(source.getRecorder()))
         .substance(substance(source.getSubstance()))
         .patient(reference(source.getPatient()))
