@@ -8,7 +8,6 @@ import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -19,31 +18,13 @@ import org.junit.Test;
 @Slf4j
 public class OauthLoginTest {
 
-  private static List<String> dataQueryScopes() {
-    return Arrays.asList(
-        "patient/AllergyIntolerance.read",
-        "patient/Condition.read",
-        "patient/DiagnosticReport.read",
-        "patient/Immunization.read",
-        "patient/Medication.read",
-        "patient/MedicationOrder.read",
-        "patient/MedicationStatement.read",
-        "patient/Observation.read",
-        "patient/Patient.read",
-        "patient/Procedure.read",
-        "openid",
-        "profile",
-        "offline_access",
-        "launch/patient");
-  }
-
   @Test
   @SneakyThrows
   public void RequestTest() {
     List<LabBotUserResult> labBotUserResultList =
         LabBot.builder()
             .userIds(LabBot.allUsers())
-            .scopes(dataQueryScopes())
+            .scopes(DataQueryScopes.labResources())
             .configFile("config/lab.properties")
             .build()
             .request("/services/fhir/v0/dstu2/Patient/{icn}");
@@ -69,10 +50,12 @@ public class OauthLoginTest {
             labBotUserResult.user().id()
                 + " is patient "
                 + labBotUserResult.tokenExchange().patient()
-                + " - "
+                + " - Token Exchange Error"
                 + labBotUserResult.tokenExchange().error()
                 + ": "
-                + labBotUserResult.tokenExchange().errorDescription());
+                + labBotUserResult.tokenExchange().errorDescription()
+                + " - Request Error: "
+                + labBotUserResult.response());
       }
     }
     String report =
