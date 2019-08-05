@@ -256,8 +256,8 @@ public class ConditionController {
           PageLinks.LinkConfig.builder()
               .path("Condition")
               .queryParams(parameters)
-              .page(Parameters.pageOf(parameters, 1))
-              .recordsPerPage(Parameters.countOf(parameters, 15))
+              .page(Parameters.pageOf(parameters))
+              .recordsPerPage(Parameters.countOf(parameters))
               .totalRecords(totalRecords)
               .build();
       return bundler.bundle(

@@ -15,10 +15,10 @@ public class Parameters {
   private final MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 
   /** Return first '_count' value or the default. */
-  public static int countOf(@NonNull MultiValueMap<String, String> parameters, int defaultVal) {
+  public static int countOf(@NonNull MultiValueMap<String, String> parameters) {
     String count = parameters.getFirst("_count");
     if (count == null) {
-      return defaultVal;
+      return 15;
     }
     return Integer.parseInt(count);
   }
@@ -39,10 +39,10 @@ public class Parameters {
   }
 
   /** Return first 'page' value or the default. */
-  public static int pageOf(@NonNull MultiValueMap<String, String> parameters, int defaultVal) {
+  public static int pageOf(@NonNull MultiValueMap<String, String> parameters) {
     String page = parameters.getFirst("page");
     if (page == null) {
-      return defaultVal;
+      return 1;
     }
     return Integer.parseInt(page);
   }

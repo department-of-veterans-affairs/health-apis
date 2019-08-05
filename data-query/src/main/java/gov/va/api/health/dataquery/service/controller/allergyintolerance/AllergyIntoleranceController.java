@@ -94,8 +94,8 @@ public class AllergyIntoleranceController {
         PageLinks.LinkConfig.builder()
             .path("AllergyIntolerance")
             .queryParams(parameters)
-            .page(Parameters.pageOf(parameters, 1))
-            .recordsPerPage(Parameters.countOf(parameters, 15))
+            .page(Parameters.pageOf(parameters))
+            .recordsPerPage(Parameters.countOf(parameters))
             .totalRecords(totalRecords)
             .build();
     return bundler.bundle(
@@ -113,8 +113,8 @@ public class AllergyIntoleranceController {
         PageLinks.LinkConfig.builder()
             .path("AllergyIntolerance")
             .queryParams(parameters)
-            .page(Parameters.pageOf(parameters, 1))
-            .recordsPerPage(Parameters.countOf(parameters, 15))
+            .page(Parameters.pageOf(parameters))
+            .recordsPerPage(Parameters.countOf(parameters))
             .totalRecords(root.getRecordCount().intValue())
             .build();
     return bundler.bundle(
@@ -279,8 +279,8 @@ public class AllergyIntoleranceController {
       MultiValueMap<String, String> cdwParameters =
           witnessProtection.replacePublicIdsWithCdwIds(publicParameters);
       String icn = cdwParameters.getFirst("patient");
-      int page = Parameters.pageOf(cdwParameters, 1);
-      int count = Parameters.countOf(cdwParameters, 15);
+      int page = Parameters.pageOf(cdwParameters);
+      int count = Parameters.countOf(cdwParameters);
       Page<AllergyIntoleranceEntity> entitiesPage =
           repository.findByIcn(icn, PageRequest.of(page - 1, count));
       List<DatamartAllergyIntolerance> datamarts =

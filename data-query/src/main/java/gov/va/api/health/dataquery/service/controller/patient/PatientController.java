@@ -118,8 +118,8 @@ public class PatientController {
         PageLinks.LinkConfig.builder()
             .path("Patient")
             .queryParams(publicParameters)
-            .page(Parameters.pageOf(publicParameters, 1))
-            .recordsPerPage(Parameters.countOf(publicParameters, 15))
+            .page(Parameters.pageOf(publicParameters))
+            .recordsPerPage(Parameters.countOf(publicParameters))
             .totalRecords(jpaQueryForTotalRecords(totalRecordsQuery, cdwParameters))
             .build();
     return bundler.bundle(
@@ -152,8 +152,8 @@ public class PatientController {
       String queryString, MultiValueMap<String, String> cdwParameters) {
     TypedQuery<PatientEntity> query = entityManager.createQuery(queryString, PatientEntity.class);
     jpaAddQueryParameters(query, cdwParameters);
-    int page = Parameters.pageOf(cdwParameters, 1);
-    int count = Parameters.countOf(cdwParameters, 15);
+    int page = Parameters.pageOf(cdwParameters);
+    int count = Parameters.countOf(cdwParameters);
     query.setFirstResult((page - 1) * count);
     query.setMaxResults(count);
     List<PatientEntity> results = query.getResultList();
@@ -184,8 +184,8 @@ public class PatientController {
         PageLinks.LinkConfig.builder()
             .path("Patient")
             .queryParams(parameters)
-            .page(Parameters.pageOf(parameters, 1))
-            .recordsPerPage(Parameters.countOf(parameters, 15))
+            .page(Parameters.pageOf(parameters))
+            .recordsPerPage(Parameters.countOf(parameters))
             .totalRecords(root.getRecordCount())
             .build();
     return bundler.bundle(
