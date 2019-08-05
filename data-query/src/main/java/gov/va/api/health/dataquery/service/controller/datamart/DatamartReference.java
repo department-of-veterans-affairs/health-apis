@@ -1,5 +1,7 @@
 package gov.va.api.health.dataquery.service.controller.datamart;
 
+import gov.va.api.health.dataquery.service.controller.ResourceNameTranslation;
+import gov.va.api.health.ids.api.ResourceIdentity;
 import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -28,6 +30,19 @@ public class DatamartReference {
       return Optional.of(type().get() + "/" + reference().get());
     }
     return Optional.empty();
+  }
+
+  /** Return a ResourceIdentity if the type and reference fields are available. */
+  public Optional<ResourceIdentity> asResourceIdentity() {
+    if (type().isEmpty() && reference().isEmpty()) {
+      return Optional.empty();
+    }
+    return Optional.of(
+        ResourceIdentity.builder()
+            .system("CDW")
+            .resource(ResourceNameTranslation.get().fhirToIdentityService(type().get()))
+            .identifier(reference().get())
+            .build());
   }
 
   /** Lazy initialization with empty. */

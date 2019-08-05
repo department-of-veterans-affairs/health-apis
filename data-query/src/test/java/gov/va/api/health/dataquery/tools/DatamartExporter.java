@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
 import com.microsoft.sqlserver.jdbc.SQLServerDataSource;
+import gov.va.api.health.dataquery.service.controller.condition.ConditionEntity;
 import gov.va.api.health.dataquery.service.controller.diagnosticreport.DiagnosticReportCrossEntity;
 import gov.va.api.health.dataquery.service.controller.diagnosticreport.DiagnosticReportsEntity;
 import gov.va.api.health.dataquery.service.controller.patient.PatientEntity;
@@ -48,10 +49,13 @@ public class DatamartExporter {
   /** Add classes to this list to copy them from Mitre to H2 */
   private static final List<Class<?>> MANAGED_CLASSES =
       Arrays.asList(
-          PatientEntity.class,
-          PatientSearchEntity.class,
+          ConditionEntity.class,
+          DiagnosticReportCrossEntity.class,
           DiagnosticReportsEntity.class,
-          DiagnosticReportCrossEntity.class);
+          PatientEntity.class,
+          PatientSearchEntity.class
+          //
+          );
 
   EntityManager h2;
   EntityManager mitre;
