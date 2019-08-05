@@ -9,6 +9,7 @@ import java.math.BigInteger;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -54,7 +55,7 @@ public final class Transformers {
   }
 
   /** Return null if the date is null, otherwise return an ISO-8601 date. */
-  public static String asDateString(Optional<Instant> maybeDateTime) {
+  public static String asDateString(Optional<LocalDate> maybeDateTime) {
     if (maybeDateTime == null) {
       return null;
     }
@@ -62,7 +63,7 @@ public final class Transformers {
   }
 
   /** Return null if the date is null, otherwise return an ISO-8601 date. */
-  public static String asDateString(Instant maybeDateTime) {
+  public static String asDateString(LocalDate maybeDateTime) {
     if (maybeDateTime == null) {
       return null;
     }

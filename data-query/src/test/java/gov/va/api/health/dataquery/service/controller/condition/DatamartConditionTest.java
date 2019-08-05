@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Optional;
 import lombok.SneakyThrows;
 import org.junit.Test;
@@ -13,7 +14,7 @@ public class DatamartConditionTest {
 
   private DatamartCondition sample() {
     return DatamartCondition.builder()
-        .etlDate(Instant.parse("2011-06-27T05:40:00Z"))
+        .etlDate("2011-06-27T05:40:00")
         .cdwId("800274570575:D")
         .patient(
             DatamartReference.of()
@@ -35,7 +36,7 @@ public class DatamartConditionTest {
                     .reference("1294265")
                     .display("DOCLANAM,DOCFIRNAM E")
                     .build()))
-        .dateRecorded(Optional.of(Instant.parse("2011-06-27T05:40:00Z")))
+        .dateRecorded(Optional.of(LocalDate.parse("2011-06-27")))
         .snomed(
             Optional.of(
                 DatamartCondition.SnomedCode.builder()

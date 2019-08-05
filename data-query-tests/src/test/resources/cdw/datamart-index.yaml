@@ -81,7 +81,7 @@ entries:
   page: 1
   count: 15
 - file: ../../../../target/cdw/samples/Con103i1400007575530P.xml
-  query: /Condition:1.03?identifier=1400007575530:P
+  query: /Condition:1.03?identifier=1234567:D
   page: 1
   count: 15
 - file: ../../../../target/cdw/samples/Con103i5555555555555P.xml
@@ -856,7 +856,7 @@ entries:
   count: 15
   # Condition alias
 - file: ../../../../target/cdw/samples/Con103p185601V825290pg2ct2.xml
-  query: /Condition:1.03?identifier=1400007575530:P
+  query: /Condition:1.03?identifier=1234567:D
   page: 1
   count: 1
 - file: ../../../../target/cdw/samples/Con103p185601V825290pg2ct2.xml

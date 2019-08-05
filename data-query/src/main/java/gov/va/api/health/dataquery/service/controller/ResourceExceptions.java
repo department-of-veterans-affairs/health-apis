@@ -47,7 +47,11 @@ public final class ResourceExceptions {
 
   public static final class NotFound extends ResourcesException {
     public NotFound(MultiValueMap<String, String> parameters) {
-      super(toParametersString(parameters));
+      this(toParametersString(parameters));
+    }
+
+    public NotFound(String message) {
+      super(message);
     }
   }
 
