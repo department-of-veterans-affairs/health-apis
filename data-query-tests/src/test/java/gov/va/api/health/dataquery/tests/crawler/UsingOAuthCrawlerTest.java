@@ -10,6 +10,7 @@ import gov.va.api.health.sentinel.LabBot;
 import gov.va.api.health.sentinel.categories.Manual;
 import gov.va.api.health.sentinel.selenium.IdMeOauthRobot;
 import gov.va.api.health.sentinel.selenium.IdMeOauthRobot.Configuration.UserCredentials;
+import gov.va.api.health.sentinel.selenium.IdMeOauthRobot.OAuthCredentialsMode;
 import java.io.File;
 import java.util.concurrent.Executors;
 import lombok.extern.slf4j.Slf4j;
@@ -20,14 +21,14 @@ import org.junit.experimental.categories.Category;
 public class UsingOAuthCrawlerTest {
   private final LabBot bot = LabBot.builder().configFile("config/lab.properties").build();
 
-  private int crawl(String patient) {
+  private int crawl(String patient, OAuthCredentialsMode credentialsMode) {
     SystemDefinition env = SystemDefinitions.systemDefinition();
     UserCredentials user =
         UserCredentials.builder()
             .id(patient)
             .password(System.getProperty("lab.user-password"))
             .build();
-    IdMeOauthRobot robot = bot.makeLabBot(user, env.dataQuery().urlWithApiPath());
+    IdMeOauthRobot robot = bot.makeLabBot(user, env.dataQuery().urlWithApiPath(),credentialsMode);
     Swiggity.swooty(patient);
     assertThat(robot.token().accessToken()).isNotBlank();
 
@@ -58,10 +59,14 @@ public class UsingOAuthCrawlerTest {
   @Category(Manual.class)
   @Test
   public void crawlPatients() {
+    int counter = 0;
     int failureCount = 0;
     String[] patients = System.getProperty("patient-id", "vasdvp+IDME_01@gmail.com").split(",");
     for (String patient : patients) {
-      failureCount += crawl(patient.trim());
+      final OAuthCredentialsMode credentialsMode =
+              counter % 2 == 0 ? OAuthCredentialsMode.HEADER : OAuthCredentialsMode.REQUEST_BODY;
+      failureCount += crawl(patient.trim(), credentialsMode);
+      counter++;
     }
     assertThat(failureCount).withFailMessage("%d Failures", failureCount).isEqualTo(0);
   }
