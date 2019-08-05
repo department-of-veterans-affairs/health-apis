@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import gov.va.api.health.argonaut.api.resources.MedicationStatement;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.Bundler;
 import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
@@ -41,11 +42,12 @@ public class DatamartMedicationStatementControllerTest {
 
   MedicationStatementController controller() {
     return new MedicationStatementController(
+        true,
         null,
         null,
-        new Bundler(new ConfigurableBaseUrlPageLinks("", "")),
-        WitnessProtection.builder().identityService(ids).build(),
-        repository);
+        new Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool")),
+        repository,
+        WitnessProtection.builder().identityService(ids).build());
   }
 
   public void mockMedicationStatementIdentity(String publicId, String cdwId) {
@@ -66,6 +68,15 @@ public class DatamartMedicationStatementControllerTest {
     mockMedicationStatementIdentity("x", dm.cdwId());
     String json = controller().readRaw("x");
     assertThat(toObject(json)).isEqualTo(dm);
+  }
+
+  @Test
+  public void read() {
+    DatamartMedicationStatement dm = Datamart.create().medicationStatement();
+    repository.save(asEntity(dm));
+    mockMedicationStatementIdentity("x", dm.cdwId());
+    MedicationStatement actual = controller().read("true", "x");
+    assertThat(actual).isEqualTo(DatamartMedicationStatementSamples.Fhir.create().medicationStatement("x"));
   }
 
   @SneakyThrows

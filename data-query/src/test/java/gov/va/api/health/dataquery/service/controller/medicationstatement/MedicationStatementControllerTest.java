@@ -44,7 +44,7 @@ public class MedicationStatementControllerTest {
   @Before
   public void _init() {
     MockitoAnnotations.initMocks(this);
-    controller = new MedicationStatementController(tx, client, bundler, null, null);
+    controller = new MedicationStatementController(false, tx, client, bundler, null, null);
   }
 
   private void assertSearch(Supplier<Bundle> invocation, MultiValueMap<String, String> params) {
@@ -120,7 +120,7 @@ public class MedicationStatementControllerTest {
     MedicationStatement item = MedicationStatement.builder().build();
     when(client.search(Mockito.any())).thenReturn(root);
     when(tx.apply(xmlMedicationStatement)).thenReturn(item);
-    MedicationStatement actual = controller.read("hello");
+    MedicationStatement actual = controller.read("false", "hello");
     assertThat(actual).isSameAs(item);
     ArgumentCaptor<Query<CdwMedicationStatement102Root>> captor =
         ArgumentCaptor.forClass(Query.class);
