@@ -66,11 +66,11 @@ public class PatientController {
 
   private EntityManager entityManager;
 
-  private Boolean defaultToDatamart;
+  private boolean defaultToDatamart;
 
   /** All args constructor. */
   public PatientController(
-      @Value("${datamart.patient}") Boolean defaultToDatamart,
+      @Value("${datamart.patient}") boolean defaultToDatamart,
       @Autowired Transformer transformer,
       @Autowired MrAndersonClient mrAndersonClient,
       @Autowired Bundler bundler,
@@ -166,7 +166,7 @@ public class PatientController {
     return entity;
   }
 
-  Boolean isDatamartRequest(String datamartHeader) {
+  boolean isDatamartRequest(String datamartHeader) {
     if (StringUtils.isBlank(datamartHeader)) {
       return defaultToDatamart;
     }
