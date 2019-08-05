@@ -156,6 +156,35 @@ public class DatamartAllergyIntoleranceControllerTest {
   }
 
   @Test
+  public void patient_page2() {
+    IdentityService ids = mock(IdentityService.class);
+    AllergyIntoleranceController controller =
+        new AllergyIntoleranceController(
+            true,
+            null,
+            null,
+            new Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool")),
+            entityManager.getEntityManager(),
+            WitnessProtection.builder().identityService(ids).build());
+    DatamartAllergyIntolerance otherDm =
+        DatamartAllergyIntoleranceSamples.Datamart.create().allergyIntolerance();
+    otherDm.cdwId("DUMMY_ID");
+    entityManager.persistAndFlush(asEntity(otherDm));
+
+    DatamartAllergyIntolerance dm =
+        DatamartAllergyIntoleranceSamples.Datamart.create().allergyIntolerance();
+    entityManager.persistAndFlush(asEntity(dm));
+
+    setUpIds(ids, dm);
+
+    AllergyIntolerance.Bundle result =
+        controller.searchByPatient("true", dm.patient().get().reference().get(), 2, 1);
+    assertThat(result.total()).isEqualTo(2);
+    assertThat(Iterables.getOnlyElement(result.entry()).resource())
+        .isEqualTo(DatamartAllergyIntoleranceSamples.Fhir.create().allergyIntolerance());
+  }
+
+  @Test
   public void read() {
     IdentityService ids = mock(IdentityService.class);
     AllergyIntoleranceController controller =
