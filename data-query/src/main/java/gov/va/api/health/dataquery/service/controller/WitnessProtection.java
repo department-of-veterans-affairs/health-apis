@@ -35,7 +35,7 @@ import org.springframework.util.MultiValueMap;
 public class WitnessProtection {
   private IdentityService identityService;
 
-  private <T extends HasReplaceableId> Function<T, Stream<DatamartReference>> imbellish(
+  private <T extends HasReplaceableId> Function<T, Stream<DatamartReference>> embellish(
       Function<T, Stream<DatamartReference>> referencesOf) {
     return t ->
         Stream.concat(
@@ -53,7 +53,7 @@ public class WitnessProtection {
     Set<ResourceIdentity> ids =
         resources
             .stream()
-            .flatMap(imbellish(referencesOf))
+            .flatMap(embellish(referencesOf))
             .filter(Objects::nonNull)
             .map(DatamartReference::asResourceIdentity)
             .filter(Optional::isPresent)

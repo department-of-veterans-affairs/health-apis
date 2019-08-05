@@ -277,13 +277,12 @@ public class ConditionController {
       if (count == 0) {
         return bundle(parameters, emptyList(), (int) entities.getTotalElements());
       }
-      List<ConditionEntity> xxx = entities.get().collect(Collectors.toList());
-      log.info("GOT {}", xxx);
 
       return bundle(
           parameters,
           replaceReferences(
-                  xxx.stream()
+                  entities
+                      .get()
                       .map(ConditionEntity::asDatamartCondition)
                       .collect(Collectors.toList()))
               .stream()
