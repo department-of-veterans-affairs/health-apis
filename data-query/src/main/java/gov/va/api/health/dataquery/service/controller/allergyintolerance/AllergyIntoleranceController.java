@@ -55,6 +55,7 @@ import org.springframework.web.bind.annotation.RestController;
   produces = {"application/json", "application/json+fhir", "application/fhir+json"}
 )
 public class AllergyIntoleranceController {
+
   private final Datamart datamart = new Datamart();
 
   private Transformer transformer;
@@ -198,7 +199,7 @@ public class AllergyIntoleranceController {
     MultiValueMap<String, String> parameters =
         Parameters.builder().add("patient", patient).add("page", page).add("_count", count).build();
     if (datamart.isDatamartRequest(datamartHeader)) {
-      return datamart.bundle(parameters);
+      return datamart.searchByPatient(parameters);
     }
     return mrAndersonBundle(parameters);
   }
@@ -223,36 +224,6 @@ public class AllergyIntoleranceController {
    * eliminated.
    */
   private class Datamart {
-    AllergyIntolerance.Bundle bundle(MultiValueMap<String, String> publicParameters) {
-      MultiValueMap<String, String> cdwParameters =
-          witnessProtection.replacePublicIdsWithCdwIds(publicParameters);
-
-      // Only patient search is supported
-      String icn = cdwParameters.getFirst("patient");
-      int page = Integer.parseInt(cdwParameters.getOrDefault("page", asList("1")).get(0));
-      int count = Integer.parseInt(cdwParameters.getOrDefault("_count", asList("15")).get(0));
-      Page<AllergyIntoleranceEntity> entitiesPage =
-          repository.findByIcn(icn, PageRequest.of(page - 1, count));
-
-      List<DatamartAllergyIntolerance> datamarts =
-          entitiesPage
-              .stream()
-              .map(e -> e.asDatamartAllergyIntolerance())
-              .collect(Collectors.toList());
-
-      replaceReferences(datamarts);
-
-      List<AllergyIntolerance> fhir =
-          datamarts
-              .stream()
-              .map(
-                  dm ->
-                      DatamartAllergyIntoleranceTransformer.builder().datamart(dm).build().toFhir())
-              .collect(Collectors.toList());
-
-      return AllergyIntoleranceController.this.bundle(
-          publicParameters, fhir, (int) entitiesPage.getTotalElements());
-    }
 
     AllergyIntoleranceEntity findById(@PathVariable("publicId") String publicId) {
       MultiValueMap<String, String> publicParameters = Parameters.forIdentity(publicId);
@@ -274,9 +245,9 @@ public class AllergyIntoleranceController {
     }
 
     AllergyIntolerance read(String publicId) {
-      DatamartAllergyIntolerance ai = findById(publicId).asDatamartAllergyIntolerance();
-      replaceReferences(List.of(ai));
-      return DatamartAllergyIntoleranceTransformer.builder().datamart(ai).build().toFhir();
+      DatamartAllergyIntolerance dm = findById(publicId).asDatamartAllergyIntolerance();
+      replaceReferences(List.of(dm));
+      return DatamartAllergyIntoleranceTransformer.builder().datamart(dm).build().toFhir();
     }
 
     String readRaw(@PathVariable("publicId") String publicId) {
@@ -290,6 +261,31 @@ public class AllergyIntoleranceController {
               Stream.concat(
                   Stream.of(resource.recorder().orElse(null), resource.patient().orElse(null)),
                   resource.notes().stream().map(n -> n.practitioner().orElse(null))));
+    }
+
+    AllergyIntolerance.Bundle searchByPatient(MultiValueMap<String, String> publicParameters) {
+      MultiValueMap<String, String> cdwParameters =
+          witnessProtection.replacePublicIdsWithCdwIds(publicParameters);
+      String icn = cdwParameters.getFirst("patient");
+      int page = Integer.parseInt(cdwParameters.getOrDefault("page", asList("1")).get(0));
+      int count = Integer.parseInt(cdwParameters.getOrDefault("_count", asList("15")).get(0));
+      Page<AllergyIntoleranceEntity> entitiesPage =
+          repository.findByIcn(icn, PageRequest.of(page - 1, count));
+      List<DatamartAllergyIntolerance> datamarts =
+          entitiesPage
+              .stream()
+              .map(e -> e.asDatamartAllergyIntolerance())
+              .collect(Collectors.toList());
+      replaceReferences(datamarts);
+      List<AllergyIntolerance> fhir =
+          datamarts
+              .stream()
+              .map(
+                  dm ->
+                      DatamartAllergyIntoleranceTransformer.builder().datamart(dm).build().toFhir())
+              .collect(Collectors.toList());
+      return AllergyIntoleranceController.this.bundle(
+          publicParameters, fhir, (int) entitiesPage.getTotalElements());
     }
   }
 }
