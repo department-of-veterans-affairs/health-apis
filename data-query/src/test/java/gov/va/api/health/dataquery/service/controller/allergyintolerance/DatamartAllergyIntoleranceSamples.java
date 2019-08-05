@@ -1,17 +1,16 @@
 package gov.va.api.health.dataquery.service.controller.allergyintolerance;
 
-import gov.va.api.health.dstu2.api.bundle.AbstractBundle;
+import static java.util.Arrays.asList;
+
 import gov.va.api.health.argonaut.api.resources.AllergyIntolerance;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
+import gov.va.api.health.dstu2.api.bundle.AbstractBundle;
+import gov.va.api.health.dstu2.api.bundle.AbstractEntry;
 import gov.va.api.health.dstu2.api.bundle.BundleLink;
 import gov.va.api.health.dstu2.api.datatypes.Annotation;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
 import gov.va.api.health.dstu2.api.elements.Reference;
-import gov.va.api.health.dstu2.api.bundle.AbstractEntry;
-
-import static java.util.Arrays.asList;
-
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
@@ -22,8 +21,10 @@ import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class DatamartAllergyIntoleranceSamples {
+
   @AllArgsConstructor(staticName = "create")
   static class Datamart {
+
     public DatamartAllergyIntolerance allergyIntolerance() {
       return DatamartAllergyIntolerance.builder()
           .objectType("AllergyIntolerance")
@@ -129,6 +130,15 @@ public class DatamartAllergyIntoleranceSamples {
 
   @AllArgsConstructor(staticName = "create")
   static class Fhir {
+
+    static final String ID = "865e1010-99b6-4b8d-a5c9-4ad259db0857";
+
+    static final String RECORDER_ID = "c8779355-6c0c-40c3-94d1-a8e2a785adfd";
+
+    static final String PATIENT_ID = "04daf655-fcb4-480c-84bf-4319a3af93d7";
+
+    static final String NOTE_AUTHOR_ID = "5d7a23c1-2f9d-4793-b171-b607970b56b8";
+
     static AllergyIntolerance.Bundle asBundle(
         String baseUrl, List<AllergyIntolerance> resources, BundleLink... links) {
       return AllergyIntolerance.Bundle.builder()
@@ -159,14 +169,6 @@ public class DatamartAllergyIntoleranceSamples {
           .url(base + "&page=" + page + "&_count=" + count)
           .build();
     }
-
-    static final String ID = "865e1010-99b6-4b8d-a5c9-4ad259db0857";
-
-    static final String RECORDER_ID = "c8779355-6c0c-40c3-94d1-a8e2a785adfd";
-
-    static final String PATIENT_ID = "04daf655-fcb4-480c-84bf-4319a3af93d7";
-
-    static final String NOTE_AUTHOR_ID = "5d7a23c1-2f9d-4793-b171-b607970b56b8";
 
     public AllergyIntolerance allergyIntolerance() {
       return AllergyIntolerance.builder()
