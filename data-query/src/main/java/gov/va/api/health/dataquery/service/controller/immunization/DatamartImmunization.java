@@ -25,13 +25,13 @@ public class DatamartImmunization {
 
   private Status status;
 
-  private Instant etlDate;
+  private String etlDate;
 
   private VaccineCode vaccineCode;
 
   private DatamartReference patient;
 
-  private Boolean wasNotGiven;
+  private boolean wasNotGiven;
 
   private Optional<DatamartReference> performer;
 
@@ -88,14 +88,11 @@ public class DatamartImmunization {
   }
 
   public enum Status {
-    @JsonProperty("in-progress")
-    in_progress,
-    @JsonProperty("on-hold")
-    on_hold,
     completed,
     @JsonProperty("entered-in-error")
     entered_in_error,
-    stopped
+    @JsonProperty("data-absent-reason:unsupported")
+    data_absent_reason_unsupported
   }
 
   @Data
