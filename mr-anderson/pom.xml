@@ -8,7 +8,7 @@
     <relativePath/>
   </parent>
   <artifactId>mr-anderson</artifactId>
-  <version>2.0.13-SNAPSHOT</version>
+  <version>2.0.16-SNAPSHOT</version>
   <packaging>jar</packaging>
   <properties>
     <mssql-jdbc.version>6.2.1.jre8</mssql-jdbc.version>

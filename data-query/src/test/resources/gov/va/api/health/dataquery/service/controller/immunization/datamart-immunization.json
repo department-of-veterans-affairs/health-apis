@@ -1,0 +1,47 @@
+{
+  "objectType" : "Immunization",
+  "objectVersion" : "1",
+  "cdwId" : "1000000030337",
+  "status" : "completed",
+  "etlDate" : "1997-04-03T21:02:15Z",
+  "vaccineCode" : {
+    "text" : "TETANUS TOXOID, UNSPECIFIED FORMULATION",
+    "code" : "112"
+  },
+  "patient" : {
+    "type" : "Patient",
+    "reference" : "1011549983V753765",
+    "display" : "ZZTESTPATIENT,THOMAS THE"
+  },
+  "wasNotGiven" : false,
+  "performer" : {
+    "type" : "Practitioner",
+    "reference" : "3868169",
+    "display" : "ZHIVAGO,YURI ANDREYEVICH"
+  },
+  "requester" : {
+    "type" : "Practitioner",
+    "reference" : "1702436",
+    "display" : "SHINE,DOC RAINER"
+  },
+  "encounter" : {
+    "type" : "Encounter",
+    "reference" : "1000589847194",
+    "display" : "1000589847194"
+  },
+  "location" : {
+    "type" : "Location",
+    "reference" : "358359",
+    "display" : "ZZGOLD PRIMARY CARE"
+  },
+  "note" : "PATIENT CALM AFTER VACCINATION",
+  "reaction" : {
+    "type" : "Observation",
+    "reference" : null,
+    "display" : "Other"
+  },
+  "vaccinationProtocols" : {
+    "series" : "Booster",
+    "seriesDoses" : 1
+  }
+}

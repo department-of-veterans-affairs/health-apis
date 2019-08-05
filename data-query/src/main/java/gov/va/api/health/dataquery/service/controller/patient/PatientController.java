@@ -24,10 +24,11 @@ import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.validation.constraints.Min;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
@@ -53,8 +54,8 @@ import org.springframework.web.bind.annotation.RestController;
   value = {"Patient", "/api/Patient"},
   produces = {"application/json", "application/json+fhir", "application/fhir+json"}
 )
-@AllArgsConstructor(onConstructor = @__({@Autowired}))
 public class PatientController {
+
   private Transformer transformer;
 
   private MrAndersonClient mrAndersonClient;
@@ -64,6 +65,24 @@ public class PatientController {
   private WitnessProtection witnessProtection;
 
   private EntityManager entityManager;
+
+  private boolean defaultToDatamart;
+
+  /** All args constructor. */
+  public PatientController(
+      @Value("${datamart.patient}") boolean defaultToDatamart,
+      @Autowired Transformer transformer,
+      @Autowired MrAndersonClient mrAndersonClient,
+      @Autowired Bundler bundler,
+      @Autowired WitnessProtection witnessProtection,
+      @Autowired EntityManager entityManager) {
+    this.defaultToDatamart = defaultToDatamart;
+    this.transformer = transformer;
+    this.mrAndersonClient = mrAndersonClient;
+    this.bundler = bundler;
+    this.witnessProtection = witnessProtection;
+    this.entityManager = entityManager;
+  }
 
   private static void jpaAddQueryParameters(
       TypedQuery<?> query, MultiValueMap<String, String> parameters) {
@@ -118,9 +137,8 @@ public class PatientController {
         PageLinks.LinkConfig.builder()
             .path("Patient")
             .queryParams(publicParameters)
-            .page(Integer.parseInt(publicParameters.getOrDefault("page", asList("1")).get(0)))
-            .recordsPerPage(
-                Integer.parseInt(publicParameters.getOrDefault("_count", asList("15")).get(0)))
+            .page(Parameters.pageOf(publicParameters))
+            .recordsPerPage(Parameters.countOf(publicParameters))
             .totalRecords(jpaQueryForTotalRecords(totalRecordsQuery, cdwParameters))
             .build();
     return bundler.bundle(
@@ -139,22 +157,27 @@ public class PatientController {
     MultiValueMap<String, String> publicParameters = Parameters.forIdentity(publicId);
     MultiValueMap<String, String> cdwParameters =
         witnessProtection.replacePublicIdsWithCdwIds(publicParameters);
-
     PatientEntity entity =
         entityManager.find(PatientEntity.class, Parameters.identiferOf(cdwParameters));
     if (entity == null) {
       throw new ResourceExceptions.NotFound(publicParameters);
     }
-
     return entity;
+  }
+
+  boolean isDatamartRequest(String datamartHeader) {
+    if (StringUtils.isBlank(datamartHeader)) {
+      return defaultToDatamart;
+    }
+    return BooleanUtils.isTrue(BooleanUtils.toBooleanObject(datamartHeader));
   }
 
   private List<PatientEntity> jpaQueryForEntities(
       String queryString, MultiValueMap<String, String> cdwParameters) {
     TypedQuery<PatientEntity> query = entityManager.createQuery(queryString, PatientEntity.class);
     jpaAddQueryParameters(query, cdwParameters);
-    int page = Integer.parseInt(cdwParameters.getOrDefault("page", asList("1")).get(0));
-    int count = Integer.parseInt(cdwParameters.getOrDefault("_count", asList("15")).get(0));
+    int page = Parameters.pageOf(cdwParameters);
+    int count = Parameters.countOf(cdwParameters);
     query.setFirstResult((page - 1) * count);
     query.setMaxResults(count);
     List<PatientEntity> results = query.getResultList();
@@ -185,9 +208,8 @@ public class PatientController {
         PageLinks.LinkConfig.builder()
             .path("Patient")
             .queryParams(parameters)
-            .page(Integer.parseInt(parameters.getOrDefault("page", asList("1")).get(0)))
-            .recordsPerPage(
-                Integer.parseInt(parameters.getOrDefault("_count", asList("15")).get(0)))
+            .page(Parameters.pageOf(parameters))
+            .recordsPerPage(Parameters.countOf(parameters))
             .totalRecords(root.getRecordCount())
             .build();
     return bundler.bundle(
@@ -215,10 +237,9 @@ public class PatientController {
   public Patient read(
       @RequestHeader(value = "Datamart", defaultValue = "") String datamart,
       @PathVariable("publicId") String publicId) {
-    if (BooleanUtils.isTrue(BooleanUtils.toBooleanObject(datamart))) {
+    if (isDatamartRequest(datamart)) {
       return datamartRead(publicId);
     }
-
     return transformer.apply(
         firstPayloadItem(
             hasPayload(mrAndersonSearch(Parameters.forIdentity(publicId)).getPatients())
@@ -236,7 +257,7 @@ public class PatientController {
       String query,
       String totalRecordsQuery,
       MultiValueMap<String, String> parameters) {
-    if (BooleanUtils.isTrue(BooleanUtils.toBooleanObject(datamart))) {
+    if (isDatamartRequest(datamart)) {
       return datamartBundle(query, totalRecordsQuery, parameters);
     }
     return mrAndersonBundle(parameters);
