@@ -28,7 +28,7 @@ public class UsingOAuthCrawlerTest {
             .id(patient)
             .password(System.getProperty("lab.user-password"))
             .build();
-    IdMeOauthRobot robot = bot.makeLabBot(user, env.dataQuery().urlWithApiPath(),credentialsMode);
+    IdMeOauthRobot robot = bot.makeLabBot(user, env.dataQuery().urlWithApiPath(), credentialsMode);
     Swiggity.swooty(patient);
     assertThat(robot.token().accessToken()).isNotBlank();
 
@@ -64,7 +64,7 @@ public class UsingOAuthCrawlerTest {
     String[] patients = System.getProperty("patient-id", "vasdvp+IDME_01@gmail.com").split(",");
     for (String patient : patients) {
       final OAuthCredentialsMode credentialsMode =
-              counter % 2 == 0 ? OAuthCredentialsMode.HEADER : OAuthCredentialsMode.REQUEST_BODY;
+          counter % 2 == 0 ? OAuthCredentialsMode.HEADER : OAuthCredentialsMode.REQUEST_BODY;
       failureCount += crawl(patient.trim(), credentialsMode);
       counter++;
     }
