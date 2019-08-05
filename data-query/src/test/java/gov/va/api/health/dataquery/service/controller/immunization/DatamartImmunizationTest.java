@@ -14,7 +14,7 @@ public class DatamartImmunizationTest {
     return DatamartImmunization.builder()
         .cdwId("1000000030337")
         .status(DatamartImmunization.Status.completed)
-        .etlDate(Instant.parse("1997-04-03T21:02:15Z"))
+        .etlDate("1997-04-03T21:02:15Z")
         .vaccineCode(
             DatamartImmunization.VaccineCode.builder()
                 .code("112")
