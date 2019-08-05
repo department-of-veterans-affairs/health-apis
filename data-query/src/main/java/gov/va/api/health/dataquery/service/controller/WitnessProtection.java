@@ -134,6 +134,13 @@ public class WitnessProtection {
     }
   }
 
+  /** Lookup and convert the given public ID to a CDW id. */
+  public String toCdwId(String publicId) {
+    MultiValueMap<String, String> publicParameters = Parameters.forIdentity(publicId);
+    MultiValueMap<String, String> cdwParameters = replacePublicIdsWithCdwIds(publicParameters);
+    return Parameters.identiferOf(cdwParameters);
+  }
+
   /** Utility for easy look up of ids. */
   public static class IdentityMapping {
 
