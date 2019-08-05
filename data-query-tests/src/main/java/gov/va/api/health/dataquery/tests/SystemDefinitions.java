@@ -100,7 +100,7 @@ public final class SystemDefinitions {
   private static TestIds localIds() {
     return TestIds.builder()
         .publicIds(false)
-        .allergyIntolerance("1000001782544")
+        .allergyIntolerance("10000020531")
         .appointment("1200438317388")
         .condition("1234567:D")
         .diagnosticReport("1400096309217:L")
