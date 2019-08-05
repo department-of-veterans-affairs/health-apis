@@ -238,13 +238,10 @@ public class AllergyIntoleranceController {
   private class Datamart {
 
     AllergyIntoleranceEntity findById(@PathVariable("publicId") String publicId) {
-      MultiValueMap<String, String> publicParameters = Parameters.forIdentity(publicId);
-      MultiValueMap<String, String> cdwParameters =
-          witnessProtection.replacePublicIdsWithCdwIds(publicParameters);
-      Optional<AllergyIntoleranceEntity> maybeEntity =
-          repository.findById(Parameters.identiferOf(cdwParameters));
+      String cdwId = witnessProtection.toCdwId(publicId);
+      Optional<AllergyIntoleranceEntity> maybeEntity = repository.findById(cdwId);
       if (!maybeEntity.isPresent()) {
-        throw new ResourceExceptions.NotFound(publicParameters);
+        throw new ResourceExceptions.NotFound(publicId);
       }
       return maybeEntity.get();
     }
@@ -276,13 +273,12 @@ public class AllergyIntoleranceController {
     }
 
     AllergyIntolerance.Bundle searchByPatient(MultiValueMap<String, String> publicParameters) {
-      MultiValueMap<String, String> cdwParameters =
-          witnessProtection.replacePublicIdsWithCdwIds(publicParameters);
-      String icn = cdwParameters.getFirst("patient");
-      int page = Parameters.pageOf(cdwParameters);
-      int count = Parameters.countOf(cdwParameters);
+      String publicIcn = publicParameters.getFirst("patient");
+      String cdwIcn = witnessProtection.toCdwId(publicIcn);
+      int page = Parameters.pageOf(publicParameters);
+      int count = Parameters.countOf(publicParameters);
       Page<AllergyIntoleranceEntity> entitiesPage =
-          repository.findByIcn(icn, PageRequest.of(page - 1, count));
+          repository.findByIcn(cdwIcn, PageRequest.of(page - 1, count));
       List<DatamartAllergyIntolerance> datamarts =
           entitiesPage
               .stream()
