@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
 import com.microsoft.sqlserver.jdbc.SQLServerDataSource;
+
+import gov.va.api.health.dataquery.service.controller.allergyintolerance.AllergyIntoleranceEntity;
 import gov.va.api.health.dataquery.service.controller.condition.ConditionEntity;
 import gov.va.api.health.dataquery.service.controller.diagnosticreport.DiagnosticReportCrossEntity;
 import gov.va.api.health.dataquery.service.controller.diagnosticreport.DiagnosticReportsEntity;
@@ -49,6 +51,7 @@ public class DatamartExporter {
   /** Add classes to this list to copy them from Mitre to H2 */
   private static final List<Class<?>> MANAGED_CLASSES =
       Arrays.asList(
+          AllergyIntoleranceEntity.class,
           ConditionEntity.class,
           DiagnosticReportCrossEntity.class,
           DiagnosticReportsEntity.class,
