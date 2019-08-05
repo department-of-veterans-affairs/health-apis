@@ -2,7 +2,6 @@ package gov.va.api.health.dataquery.service.controller.immunization;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
-import java.time.Instant;
 import java.util.Optional;
 import javax.validation.constraints.Min;
 import lombok.AccessLevel;
