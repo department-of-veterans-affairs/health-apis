@@ -11,7 +11,17 @@ import org.springframework.util.MultiValueMap;
 /** Provides utilities for working with MultiValueMap typically used for request parameters. */
 @NoArgsConstructor(staticName = "builder")
 public class Parameters {
+
   private final MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+
+  /** Return first '_count' value or the default. */
+  public static int countOf(@NonNull MultiValueMap<String, String> parameters, int defaultVal) {
+    String count = parameters.getFirst("_count");
+    if (count == null) {
+      return defaultVal;
+    }
+    return Integer.parseInt(count);
+  }
 
   /** Create an empty, immutable map. */
   public static MultiValueMap<String, String> empty() {
@@ -26,6 +36,15 @@ public class Parameters {
   /** Return null or the first 'identifier' value. */
   public static String identiferOf(@NonNull MultiValueMap<String, String> parameters) {
     return parameters.getFirst("identifier");
+  }
+
+  /** Return first 'page' value or the default. */
+  public static int pageOf(@NonNull MultiValueMap<String, String> parameters, int defaultVal) {
+    String page = parameters.getFirst("page");
+    if (page == null) {
+      return defaultVal;
+    }
+    return Integer.parseInt(page);
   }
 
   /** Add a single key/value entry. */

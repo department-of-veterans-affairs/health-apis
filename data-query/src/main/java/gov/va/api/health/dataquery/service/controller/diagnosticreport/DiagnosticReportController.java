@@ -125,9 +125,8 @@ public class DiagnosticReportController {
         PageLinks.LinkConfig.builder()
             .path("DiagnosticReport")
             .queryParams(parameters)
-            .page(Integer.parseInt(parameters.getOrDefault("page", asList("1")).get(0)))
-            .recordsPerPage(
-                Integer.parseInt(parameters.getOrDefault("_count", asList("15")).get(0)))
+            .page(Parameters.pageOf(parameters, 1))
+            .recordsPerPage(Parameters.countOf(parameters, 15))
             .totalRecords(totalRecords)
             .build();
     return bundler.bundle(
@@ -179,8 +178,8 @@ public class DiagnosticReportController {
           return StringUtils.compare(right.issuedDateTime(), left.issuedDateTime());
         });
 
-    int page = Integer.parseInt(cdwParameters.getOrDefault("page", asList("1")).get(0));
-    int count = Integer.parseInt(cdwParameters.getOrDefault("_count", asList("15")).get(0));
+    int page = Parameters.pageOf(cdwParameters, 1);
+    int count = Parameters.countOf(cdwParameters, 15);
 
     int fromIndex = Math.min((page - 1) * count, filtered.size());
     int toIndex = Math.min(fromIndex + count, filtered.size());
@@ -260,9 +259,8 @@ public class DiagnosticReportController {
         PageLinks.LinkConfig.builder()
             .path("DiagnosticReport")
             .queryParams(parameters)
-            .page(Integer.parseInt(parameters.getOrDefault("page", asList("1")).get(0)))
-            .recordsPerPage(
-                Integer.parseInt(parameters.getOrDefault("_count", asList("15")).get(0)))
+            .page(Parameters.pageOf(parameters, 1))
+            .recordsPerPage(Parameters.countOf(parameters, 15))
             .totalRecords(root.getRecordCount().intValue())
             .build();
     return bundler.bundle(
