@@ -125,9 +125,8 @@ public class DiagnosticReportController {
         PageLinks.LinkConfig.builder()
             .path("DiagnosticReport")
             .queryParams(parameters)
-            .page(Integer.parseInt(parameters.getOrDefault("page", asList("1")).get(0)))
-            .recordsPerPage(
-                Integer.parseInt(parameters.getOrDefault("_count", asList("15")).get(0)))
+            .page(Parameters.pageOf(parameters))
+            .recordsPerPage(Parameters.countOf(parameters))
             .totalRecords(totalRecords)
             .build();
     return bundler.bundle(
@@ -179,9 +178,8 @@ public class DiagnosticReportController {
           return StringUtils.compare(right.issuedDateTime(), left.issuedDateTime());
         });
 
-    int page = Integer.parseInt(cdwParameters.getOrDefault("page", asList("1")).get(0));
-    int count = Integer.parseInt(cdwParameters.getOrDefault("_count", asList("15")).get(0));
-
+    int page = Parameters.pageOf(cdwParameters);
+    int count = Parameters.countOf(cdwParameters);
     int fromIndex = Math.min((page - 1) * count, filtered.size());
     int toIndex = Math.min(fromIndex + count, filtered.size());
     List<DatamartDiagnosticReports.DiagnosticReport> paged = filtered.subList(fromIndex, toIndex);
@@ -260,9 +258,8 @@ public class DiagnosticReportController {
         PageLinks.LinkConfig.builder()
             .path("DiagnosticReport")
             .queryParams(parameters)
-            .page(Integer.parseInt(parameters.getOrDefault("page", asList("1")).get(0)))
-            .recordsPerPage(
-                Integer.parseInt(parameters.getOrDefault("_count", asList("15")).get(0)))
+            .page(Parameters.pageOf(parameters))
+            .recordsPerPage(Parameters.countOf(parameters))
             .totalRecords(root.getRecordCount().intValue())
             .build();
     return bundler.bundle(
