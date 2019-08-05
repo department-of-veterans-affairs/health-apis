@@ -9,12 +9,15 @@ import gov.va.api.health.dataquery.service.controller.Bundler.BundleContext;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.PageLinks.LinkConfig;
 import gov.va.api.health.dataquery.service.controller.Parameters;
+import gov.va.api.health.dataquery.service.controller.ResourceExceptions.NotFound;
 import gov.va.api.health.dataquery.service.controller.Validator;
+import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
 import gov.va.api.health.dataquery.service.mranderson.client.Query;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import gov.va.dvp.cdw.xsd.model.CdwMedicationStatement102Root;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.function.Function;
 import javax.validation.constraints.Min;
 import lombok.AllArgsConstructor;
@@ -46,6 +49,8 @@ public class MedicationStatementController {
   private Transformer transformer;
   private MrAndersonClient mrAndersonClient;
   private Bundler bundler;
+  private WitnessProtection witnessProtection;
+  private MedicationStatementRepository repository;
 
   private MedicationStatement.Bundle bundle(
       MultiValueMap<String, String> parameters, int page, int count) {
@@ -76,6 +81,17 @@ public class MedicationStatementController {
         firstPayloadItem(
             hasPayload(search(Parameters.forIdentity(publicId)).getMedicationStatements())
                 .getMedicationStatement()));
+  }
+
+  /** Read by id, raw data. */
+  @GetMapping(value = {"/{publicId}/raw"})
+  public String readRaw(@PathVariable("publicId") String publicId) {
+    MultiValueMap<String, String> publicParameters = Parameters.forIdentity(publicId);
+    MultiValueMap<String, String> cdwParameters =
+        witnessProtection.replacePublicIdsWithCdwIds(publicParameters);
+    Optional<MedicationStatementEntity> entity =
+        repository.findById(Parameters.identiferOf(cdwParameters));
+    return entity.orElseThrow(() -> new NotFound(publicParameters)).payload();
   }
 
   private CdwMedicationStatement102Root search(MultiValueMap<String, String> params) {
