@@ -1,7 +1,7 @@
 # GENERATED USING rebuild-datamart-index.sh
 entries:
-- file: ../../../../target/cdw/samples/AllInt103i1000001782544.xml
-  query: /AllergyIntolerance:1.03?identifier=1000001782544
+- file: ../../../../target/cdw/samples/AllInt103i10000020559.xml
+  query: /AllergyIntolerance:1.03?identifier=10000020559
   page: 1
   count: 15
 - file: ../../../../target/cdw/samples/AllInt103i5555555555555.xml
@@ -916,8 +916,8 @@ entries:
   count: 20
   # Alias the 1.03 Allergy Intolerance samples as 1.04 to make sure they are tested.
   # The schema was unchanged from 1.03 and new schemas and new samples were not generated.
-- file: ../../../../target/cdw/samples/AllInt103i1000001782544.xml
-  query: /AllergyIntolerance:1.04?identifier=1000001782544
+- file: ../../../../target/cdw/samples/AllInt103i10000020559.xml
+  query: /AllergyIntolerance:1.04?identifier=10000020559
   page: 1
   count: 15
 - file: ../../../../target/cdw/samples/AllInt103i5555555555555.xml
@@ -990,8 +990,8 @@ entries:
   count: 2
   # AllergyIntolerance 1.05 needs sample data, but the sandbox database is hosed...
   # We are doing some sad-magic hackery to provide samples for data-query-tests
-- file: AllergyIntoleranceV1.05/AllInt105p1000001782544.xml
-  query: /AllergyIntolerance:1.05?identifier=1000001782544
+- file: AllergyIntoleranceV1.05/AllInt105p10000020559.xml
+  query: /AllergyIntolerance:1.05?identifier=10000020559
   page: 1
   count: 15
 - file:  AllergyIntoleranceV1.05/AllInt105p5555555555555.xml
