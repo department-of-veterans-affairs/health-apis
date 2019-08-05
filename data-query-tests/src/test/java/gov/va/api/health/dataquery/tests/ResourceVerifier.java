@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import gov.va.api.health.argonaut.api.resources.Condition;
 import gov.va.api.health.argonaut.api.resources.DiagnosticReport;
 import gov.va.api.health.argonaut.api.resources.Patient;
 import gov.va.api.health.dstu2.api.bundle.AbstractBundle;
@@ -49,7 +50,10 @@ public class ResourceVerifier {
       Collections.newSetFromMap(new ConcurrentHashMap<>());
 
   private ImmutableList<Class<?>> DATAMART_RESOURCES =
-      ImmutableList.of(Patient.class, DiagnosticReport.class);
+      ImmutableList.of(
+          Condition.class, DiagnosticReport.class, Patient.class
+          //
+          );
 
   public static ResourceVerifier get() {
     return INSTANCE;

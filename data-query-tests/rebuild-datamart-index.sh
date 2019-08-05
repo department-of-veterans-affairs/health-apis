@@ -24,6 +24,7 @@ do
     -e 's/birthdate=1970-01-01/birthdate=1948-06-28/' \
     -e 's/1000000031384:L/1400096309217:L/' \
     -e 's/\(DiagnosticReport.*\)eq1970-01-01$/\1eq2013-03-21/' \
+    -e 's/1400007575530:P/1234567:D/' \
     $SOURCE >> $DESTINATION
 done
 

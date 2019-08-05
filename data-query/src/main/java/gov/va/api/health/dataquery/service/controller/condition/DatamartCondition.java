@@ -1,7 +1,9 @@
 package gov.va.api.health.dataquery.service.controller.condition;
 
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
+import gov.va.api.health.dataquery.service.controller.datamart.HasReplaceableId;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -13,15 +15,15 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class DatamartCondition {
+public class DatamartCondition implements HasReplaceableId {
   @Builder.Default private String objectType = "Condition";
   @Builder.Default private String objectVersion = "1";
-  private Instant etlDate;
+  private String etlDate;
   private String cdwId;
   private DatamartReference patient;
   private Optional<DatamartReference> encounter;
   private Optional<DatamartReference> asserter;
-  private Optional<Instant> dateRecorded;
+  private Optional<LocalDate> dateRecorded;
   private Optional<SnomedCode> snomed;
   private Optional<IcdCode> icd;
   private Category category;
@@ -46,7 +48,7 @@ public class DatamartCondition {
   }
 
   /** Lazy initialization with empty. */
-  public Optional<Instant> dateRecorded() {
+  public Optional<LocalDate> dateRecorded() {
     if (dateRecorded == null) {
       dateRecorded = Optional.empty();
     }
