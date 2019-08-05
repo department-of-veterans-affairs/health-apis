@@ -102,7 +102,7 @@ public final class SystemDefinitions {
         .publicIds(false)
         .allergyIntolerance("1000001782544")
         .appointment("1200438317388")
-        .condition("1400007575530:P")
+        .condition("1234567:D")
         .diagnosticReport("1400096309217:L")
         .encounter("1200753214085")
         .diagnosticReports(diagnosticReports())

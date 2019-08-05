@@ -38,9 +38,10 @@ import lombok.NonNull;
 
 @Builder
 final class DatamartPatientTransformer {
+
   @NonNull final DatamartPatient datamart;
 
-  private static Address address(DatamartPatient.Address address) {
+  static Address address(DatamartPatient.Address address) {
     if (address == null
         || allBlank(
             address.street1(),
@@ -61,7 +62,7 @@ final class DatamartPatientTransformer {
         .build();
   }
 
-  private static Patient.Contact contact(DatamartPatient.Contact contact) {
+  static Patient.Contact contact(DatamartPatient.Contact contact) {
     if (contact == null) {
       return null;
     }
@@ -80,7 +81,7 @@ final class DatamartPatientTransformer {
         .build();
   }
 
-  private static ContactPoint.ContactPointUse contactPointUse(DatamartPatient.Telecom telecom) {
+  static ContactPoint.ContactPointUse contactPointUse(DatamartPatient.Telecom telecom) {
     if (telecom == null) {
       return null;
     }
@@ -104,7 +105,7 @@ final class DatamartPatientTransformer {
     }
   }
 
-  private static List<ContactPoint> contactTelecoms(DatamartPatient.Contact.Phone phone) {
+  static List<ContactPoint> contactTelecoms(DatamartPatient.Contact.Phone phone) {
     if (phone == null) {
       return null;
     }
@@ -135,7 +136,7 @@ final class DatamartPatientTransformer {
     return emptyToNull(new ArrayList<>(results));
   }
 
-  private static String ethnicityDisplay(DatamartPatient.Ethnicity ethnicity) {
+  static String ethnicityDisplay(DatamartPatient.Ethnicity ethnicity) {
     if (ethnicity == null) {
       return null;
     }
@@ -149,7 +150,7 @@ final class DatamartPatientTransformer {
     }
   }
 
-  private static List<Extension> ethnicityExtensions(DatamartPatient.Ethnicity ethnicity) {
+  static List<Extension> ethnicityExtensions(DatamartPatient.Ethnicity ethnicity) {
     if (ethnicity == null) {
       return null;
     }
@@ -173,7 +174,7 @@ final class DatamartPatientTransformer {
     return emptyToNull(results);
   }
 
-  private static Coding maritalStatusCoding(String code) {
+  static Coding maritalStatusCoding(String code) {
     String upper = upperCase(trimToEmpty(code), Locale.US);
     Coding.CodingBuilder result =
         Coding.builder().system("http://hl7.org/fhir/marital-status").code(upper);
@@ -203,14 +204,14 @@ final class DatamartPatientTransformer {
     }
   }
 
-  private static HumanName name(DatamartPatient.Contact contact) {
+  static HumanName name(DatamartPatient.Contact contact) {
     if (contact == null || isBlank(contact.name())) {
       return null;
     }
     return HumanName.builder().text(contact.name()).build();
   }
 
-  private static Coding raceCoding(DatamartPatient.Race race) {
+  static Coding raceCoding(DatamartPatient.Race race) {
     if (race == null || isBlank(race.display())) {
       return null;
     }
@@ -237,7 +238,7 @@ final class DatamartPatientTransformer {
     }
   }
 
-  private static List<Extension> raceExtensions(List<DatamartPatient.Race> races) {
+  static List<Extension> raceExtensions(List<DatamartPatient.Race> races) {
     if (isEmpty(races)) {
       return null;
     }
@@ -260,7 +261,7 @@ final class DatamartPatientTransformer {
     return emptyToNull(results);
   }
 
-  private static Coding relationshipCoding(DatamartPatient.Contact contact) {
+  static Coding relationshipCoding(DatamartPatient.Contact contact) {
     if (contact == null) {
       return null;
     }
@@ -286,7 +287,7 @@ final class DatamartPatientTransformer {
     }
   }
 
-  private static List<CodeableConcept> relationships(DatamartPatient.Contact contact) {
+  static List<CodeableConcept> relationships(DatamartPatient.Contact contact) {
     if (contact == null) {
       return null;
     }

@@ -1,0 +1,81 @@
+{
+  "objectType" : "Patient",
+  "objectVersion" : "1",
+  "fullIcn" : "111222333V000999",
+  "ssn" : "999727566",
+  "name" : "Olson653, Conrad619",
+  "lastName" : "Olson653",
+  "firstName" : "Conrad619",
+  "birthDateTime" : "1948-06-28T02:33:33",
+  "deceased" : "Y",
+  "deathDateTime" : "2013-11-16T02:33:33",
+  "gender" : "M",
+  "selfIdentifiedGender" : "Male",
+  "religion" : "None",
+  "managingOrganization" : "17229:I",
+  "maritalStatus" : {
+    "display" : "SEPARATED",
+    "abbrev" : "NULL",
+    "code" : "S"
+  },
+  "ethnicity" : {
+    "display" : "HISPANIC OR LATINO",
+    "abbrev" : "H",
+    "hl7" : "2135-2"
+  },
+  "race" : [
+    {
+      "display" : "WHITE, NOT OF HISPANIC ORIGIN",
+      "abbrev" : "6"
+    }
+  ],
+  "telecom" : [
+    {
+      "type" : "Patient Cell Phone",
+      "phoneNumber" : "555-294-5041",
+      "workPhoneNumber" : null,
+      "email" : null
+    },
+    {
+      "type" : "Patient Email",
+      "phoneNumber" : null,
+      "workPhoneNumber" : null,
+      "email" : "Conrad619.Olson653@email.example"
+    }
+  ],
+  "address" : [
+    {
+      "type" : "Legal Residence",
+      "street1" : "716 Flatley Heights",
+      "street2" : null,
+      "street3" : null,
+      "city" : "Montgomery",
+      "state" : "Alabama",
+      "postalCode" : "36043",
+      "county" : null,
+      "country" : "USA"
+    }
+  ],
+  "contact" : [
+    {
+      "name" : "UNK,UNKO",
+      "type" : "Emergency Contact",
+      "relationship" : "WIFE",
+      "phone" : {
+        "phoneNumber" : "(0909)000-1234",
+        "workPhoneNumber" : "(0999)000-1234",
+        "email" : null
+      },
+      "address" : {
+        "street1" : "1501 ROXAS BOULEVARD",
+        "street2" : null,
+        "street3" : null,
+        "city" : "PASAY CITY, METRO MANILA",
+        "state" : "PHILIPPINES",
+        "postalCode" : null,
+        "county" : null,
+        "country" : null
+      }
+    }
+  ]
+}
