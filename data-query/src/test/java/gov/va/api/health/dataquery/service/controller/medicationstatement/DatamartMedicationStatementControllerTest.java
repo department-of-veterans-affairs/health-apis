@@ -41,11 +41,12 @@ public class DatamartMedicationStatementControllerTest {
 
   MedicationStatementController controller() {
     return new MedicationStatementController(
+        true,
         null,
         null,
-        new Bundler(new ConfigurableBaseUrlPageLinks("", "")),
-        WitnessProtection.builder().identityService(ids).build(),
-        repository);
+        new Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool")),
+        repository,
+        WitnessProtection.builder().identityService(ids).build());
   }
 
   public void mockMedicationStatementIdentity(String publicId, String cdwId) {
@@ -54,7 +55,7 @@ public class DatamartMedicationStatementControllerTest {
             List.of(
                 ResourceIdentity.builder()
                     .system("CDW")
-                    .resource("CONDITION")
+                    .resource("MEDICATION_STATEMENT")
                     .identifier(cdwId)
                     .build()));
   }

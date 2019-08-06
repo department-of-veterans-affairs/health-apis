@@ -20,8 +20,10 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.function.Function;
 import javax.validation.constraints.Min;
-import lombok.AllArgsConstructor;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -44,7 +46,6 @@ import org.springframework.web.bind.annotation.RestController;
   value = {"MedicationStatement", "/api/MedicationStatement"},
   produces = {"application/json", "application/json+fhir", "application/fhir+json"}
 )
-@AllArgsConstructor(onConstructor = @__({@Autowired}))
 public class MedicationStatementController {
   private final Datamart datamart = new Datamart();
   private Transformer transformer;
@@ -52,6 +53,24 @@ public class MedicationStatementController {
   private Bundler bundler;
   private WitnessProtection witnessProtection;
   private MedicationStatementRepository repository;
+  private boolean defaultToDatamart;
+
+  /** Spring constructor. */
+  @SuppressWarnings("ParameterHidesMemberVariable")
+  public MedicationStatementController(
+      @Value("${datamart.medication-statement}") boolean defaultToDatamart,
+      @Autowired MedicationStatementController.Transformer transformer,
+      @Autowired MrAndersonClient mrAndersonClient,
+      @Autowired Bundler bundler,
+      @Autowired MedicationStatementRepository repository,
+      @Autowired WitnessProtection witnessProtection) {
+    this.defaultToDatamart = defaultToDatamart;
+    this.transformer = transformer;
+    this.mrAndersonClient = mrAndersonClient;
+    this.bundler = bundler;
+    this.repository = repository;
+    this.witnessProtection = witnessProtection;
+  }
 
   private MedicationStatement.Bundle bundle(
       MultiValueMap<String, String> parameters, int page, int count) {
@@ -157,11 +176,17 @@ public class MedicationStatementController {
    * eliminated.
    */
   private class Datamart {
-
     MedicationStatementEntity findById(String publicId) {
       Optional<MedicationStatementEntity> entity =
           repository.findById(witnessProtection.toCdwId(publicId));
       return entity.orElseThrow(() -> new NotFound(publicId));
+    }
+
+    boolean isDatamartRequest(String datamartHeader) {
+      if (StringUtils.isBlank(datamartHeader)) {
+        return defaultToDatamart;
+      }
+      return BooleanUtils.isTrue(BooleanUtils.toBooleanObject(datamartHeader));
     }
 
     String readRaw(String publicId) {
