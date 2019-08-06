@@ -1,17 +1,32 @@
 package gov.va.api.health.dataquery.service.controller.immunization;
 
+import gov.va.api.health.argonaut.api.resources.Immunization;
+import gov.va.api.health.argonaut.api.resources.Immunization.Bundle;
+import gov.va.api.health.argonaut.api.resources.Immunization.Entry;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
+import gov.va.api.health.dstu2.api.bundle.AbstractBundle.BundleType;
+import gov.va.api.health.dstu2.api.bundle.AbstractEntry.Search;
+import gov.va.api.health.dstu2.api.bundle.AbstractEntry.SearchMode;
+import gov.va.api.health.dstu2.api.bundle.BundleLink;
+import gov.va.api.health.dstu2.api.bundle.BundleLink.LinkRelation;
+import gov.va.api.health.dstu2.api.elements.Reference;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
-public class DatamartImmunizationSamples {
+class DatamartImmunizationSamples {
 
   @AllArgsConstructor(staticName = "create")
-  public static class Datamart {
+  static class Datamart {
     DatamartImmunization immunization() {
-      String cdwId = "1000000030337";
+      return immunization("1000000030337", "1011549983V753765");
+    }
+
+    DatamartImmunization immunization(String cdwId, String patientId) {
       return DatamartImmunization.builder()
           .cdwId(cdwId)
           .status(DatamartImmunization.Status.completed)
@@ -24,7 +39,7 @@ public class DatamartImmunizationSamples {
           .patient(
               DatamartReference.of()
                   .type("Patient")
-                  .reference("1011549983V753765")
+                  .reference(patientId)
                   .display("ZZTESTPATIENT,THOMAS THE")
                   .build())
           .wasNotGiven(false)
@@ -75,5 +90,41 @@ public class DatamartImmunizationSamples {
   }
 
   @AllArgsConstructor(staticName = "create")
-  static class Fhir {}
+  static class Fhir {
+    static Bundle asBundle(
+        String baseUrl, Collection<Immunization> conditions, BundleLink... links) {
+      return Bundle.builder()
+          .resourceType("Bundle")
+          .type(BundleType.searchset)
+          .total(conditions.size())
+          .link(Arrays.asList(links))
+          .entry(
+              conditions
+                  .stream()
+                  .map(
+                      c ->
+                          Entry.builder()
+                              .fullUrl(baseUrl + "/Immunization/" + c.id())
+                              .resource(c)
+                              .search(Search.builder().mode(SearchMode.match).build())
+                              .build())
+                  .collect(Collectors.toList()))
+          .build();
+    }
+
+    static BundleLink link(LinkRelation rel, String base, int page, int count) {
+      return BundleLink.builder()
+          .relation(rel)
+          .url(base + "&page=" + page + "&_count=" + count)
+          .build();
+    }
+    // TODO these will likely come from Evans transformer work
+    Immunization immunization(String id, String patientId) {
+      return Immunization.builder()
+          .resourceType(Immunization.class.getSimpleName())
+          .id(id)
+          .patient(Reference.builder().reference("Patient/" + patientId).display(patientId).build())
+          .build();
+    }
+  }
 }

@@ -109,7 +109,7 @@ public class DatamartConditionSamples {
           .build();
     }
 
-    static BundleLink link(LinkRelation rel, String base, int page, int count) {
+    public static BundleLink link(LinkRelation rel, String base, int page, int count) {
       return BundleLink.builder()
           .relation(rel)
           .url(base + "&page=" + page + "&_count=" + count)
