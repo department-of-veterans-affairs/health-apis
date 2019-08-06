@@ -55,6 +55,7 @@ public class WitnessProtection {
             .stream()
             .flatMap(embellish(referencesOf))
             .filter(Objects::nonNull)
+            .filter(DatamartReference::hasTypeAndReference)
             .map(DatamartReference::asResourceIdentity)
             .filter(Optional::isPresent)
             .map(Optional::get)
@@ -158,6 +159,9 @@ public class WitnessProtection {
 
     /** Return the mapping for the public ID of the reference if it exists. */
     public Optional<String> publicIdOf(@NonNull DatamartReference reference) {
+      if (!reference.hasTypeAndReference()) {
+        return Optional.empty();
+      }
       return publicIdOf(
           ResourceNameTranslation.get().fhirToIdentityService(reference.type().get()),
           reference.reference().get());
