@@ -3,15 +3,24 @@ package gov.va.api.health.dataquery.service.controller.immunization;
 import gov.va.api.health.argonaut.api.resources.Immunization;
 import gov.va.api.health.argonaut.api.resources.Immunization.Bundle;
 import gov.va.api.health.argonaut.api.resources.Immunization.Entry;
+import gov.va.api.health.argonaut.api.resources.Immunization.Reaction;
+import gov.va.api.health.argonaut.api.resources.Immunization.Status;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
+import gov.va.api.health.dataquery.service.controller.immunization.DatamartImmunization.VaccineCode;
+import gov.va.api.health.dstu2.api.DataAbsentReason;
+import gov.va.api.health.dstu2.api.DataAbsentReason.Reason;
 import gov.va.api.health.dstu2.api.bundle.AbstractBundle.BundleType;
 import gov.va.api.health.dstu2.api.bundle.AbstractEntry.Search;
 import gov.va.api.health.dstu2.api.bundle.AbstractEntry.SearchMode;
 import gov.va.api.health.dstu2.api.bundle.BundleLink;
 import gov.va.api.health.dstu2.api.bundle.BundleLink.LinkRelation;
+import gov.va.api.health.dstu2.api.datatypes.Annotation;
+import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
+import gov.va.api.health.dstu2.api.datatypes.Coding;
 import gov.va.api.health.dstu2.api.elements.Reference;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
@@ -31,11 +40,7 @@ class DatamartImmunizationSamples {
           .cdwId(cdwId)
           .status(DatamartImmunization.Status.completed)
           .etlDate("1997-04-03T21:02:15Z")
-          .vaccineCode(
-              DatamartImmunization.VaccineCode.builder()
-                  .code("112")
-                  .text("TETANUS TOXOID, UNSPECIFIED FORMULATION")
-                  .build())
+          .vaccineCode(vaccineCode())
           .patient(
               DatamartReference.of()
                   .type("Patient")
@@ -72,19 +77,24 @@ class DatamartImmunizationSamples {
                       .display("ZZGOLD PRIMARY CARE")
                       .build()))
           .note(Optional.of("PATIENT CALM AFTER VACCINATION"))
-          .reaction(
-              Optional.of(
-                  DatamartReference.of()
-                      .type("Observation")
-                      .reference(null)
-                      .display("Other")
-                      .build()))
+          .reaction(Optional.of(reaction()))
           .vaccinationProtocols(
               Optional.of(
                   DatamartImmunization.VaccinationProtocols.builder()
                       .series("Booster")
                       .seriesDoses(1)
                       .build()))
+          .build();
+    }
+
+    DatamartReference reaction() {
+      return DatamartReference.of().type("Observation").reference(null).display("Other").build();
+    }
+
+    VaccineCode vaccineCode() {
+      return VaccineCode.builder()
+          .code("112")
+          .text("TETANUS TOXOID, UNSPECIFIED FORMULATION")
           .build();
     }
   }
@@ -99,8 +109,7 @@ class DatamartImmunizationSamples {
           .total(conditions.size())
           .link(Arrays.asList(links))
           .entry(
-              conditions
-                  .stream()
+              conditions.stream()
                   .map(
                       c ->
                           Entry.builder()
@@ -118,12 +127,53 @@ class DatamartImmunizationSamples {
           .url(base + "&page=" + page + "&_count=" + count)
           .build();
     }
-    // TODO these will likely come from Evans transformer work
+
+    Immunization immunization() {
+      return immunization("1000000030337", "1011549983V753765");
+    }
+
     Immunization immunization(String id, String patientId) {
       return Immunization.builder()
           .resourceType(Immunization.class.getSimpleName())
           .id(id)
-          .patient(Reference.builder().reference("Patient/" + patientId).display(patientId).build())
+          .status(Status.completed)
+          ._status(null)
+          // TODO .date(...)
+          .vaccineCode(vaccineCode())
+          .patient(reference("ZZTESTPATIENT,THOMAS THE", "Patient/" + patientId))
+          .wasNotGiven(false)
+          .reported(null)
+          ._reported(DataAbsentReason.of(Reason.unsupported))
+          .performer(reference("ZHIVAGO,YURI ANDREYEVICH", "Practitioner/3868169"))
+          .requester(reference("SHINE,DOC RAINER", "Practitioner/1702436"))
+          .encounter(reference("1000589847194", "Encounter/1000589847194"))
+          .location(reference("ZZGOLD PRIMARY CARE", "Location/358359"))
+          .note(note("PATIENT CALM AFTER VACCINATION"))
+          .reaction(reactions())
+          .build();
+    }
+
+    List<Annotation> note(String text) {
+      return List.of(Annotation.builder().text(text).build());
+    }
+
+    Reaction reaction(String display) {
+      return Reaction.builder().detail(Reference.builder().display(display).build()).build();
+    }
+
+    List<Reaction> reactions() {
+      return List.of(reaction("Other"));
+    }
+
+    Reference reference(String display, String ref) {
+      return Reference.builder().display(display).reference(ref).build();
+    }
+
+    CodeableConcept vaccineCode() {
+      return CodeableConcept.builder()
+          .text("TETANUS TOXOID, UNSPECIFIED FORMULATION")
+          .coding(
+              List.of(Coding.builder().code("112").system("http://hl7.org/fhir/sid/cvx").build()))
           .build();
     }
   }
