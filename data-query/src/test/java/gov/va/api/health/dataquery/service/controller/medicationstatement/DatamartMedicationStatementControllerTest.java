@@ -5,18 +5,20 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import gov.va.api.health.argonaut.api.resources.MedicationStatement;
-
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
+
 import gov.va.api.health.dataquery.service.controller.Bundler;
 import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
-import gov.va.api.health.dataquery.service.controller.medicationstatement.DatamartMedicationStatementTransformerTest.Datamart;
+import gov.va.api.health.dataquery.service.controller.medicationstatement.DatamartMedicationStatementSamples.Fhir;
 import gov.va.api.health.ids.api.IdentityService;
+import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
 import java.util.List;
 import lombok.SneakyThrows;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
@@ -25,12 +27,10 @@ import org.springframework.test.context.junit4.SpringRunner;
 @DataJpaTest
 @RunWith(SpringRunner.class)
 public class DatamartMedicationStatementControllerTest {
-
+  @Autowired private TestEntityManager entityManager;
+  @Autowired private MedicationStatementRepository repository;
   private IdentityService ids = mock(IdentityService.class);
 
-  @Autowired private MedicationStatementRepository repository;
-
-  @Autowired private TestEntityManager entityManager;
 
   @SneakyThrows
   private MedicationStatementEntity asEntity(DatamartMedicationStatement dm) {
@@ -51,33 +51,36 @@ public class DatamartMedicationStatementControllerTest {
         WitnessProtection.builder().identityService(ids).build());
   }
 
+  @SneakyThrows
+  String json(Object o) {
+    return JacksonConfig.createMapper().writerWithDefaultPrettyPrinter().writeValueAsString(o);
+  }
+
   public void mockMedicationStatementIdentity(String publicId, String cdwId) {
-    when(ids.lookup(publicId))
+    ResourceIdentity resourceIdentity =
+        ResourceIdentity.builder().system("CDW").resource("MEDICATION_STATEMENT").identifier(cdwId).build();
+    when(ids.lookup(publicId)).thenReturn(List.of(resourceIdentity));
+    when(ids.register(Mockito.any()))
         .thenReturn(
-            List.of(
-                ResourceIdentity.builder()
-                    .system("CDW")
-                    .resource("MEDICATION_STATEMENT")
-                    .identifier(cdwId)
-                    .build()));
+            List.of(Registration.builder().uuid(publicId).resourceIdentity(resourceIdentity).build()));
   }
 
   @Test
   public void readRaw() {
-    DatamartMedicationStatement dm = Datamart.create().medicationStatement();
+    DatamartMedicationStatement dm = DatamartMedicationStatementSamples.Datamart.create().medicationStatement();
     repository.save(asEntity(dm));
-    mockMedicationStatementIdentity("x", dm.cdwId());
-    String json = controller().readRaw("x");
+    mockMedicationStatementIdentity("1", dm.cdwId());
+    String json = controller().readRaw("1");
     assertThat(toObject(json)).isEqualTo(dm);
   }
 
   @Test
   public void read() {
-    DatamartMedicationStatement dm = Datamart.create().medicationStatement();
+    DatamartMedicationStatement dm = DatamartMedicationStatementSamples.Datamart.create().medicationStatement();
     repository.save(asEntity(dm));
-    mockMedicationStatementIdentity("x", dm.cdwId());
-    MedicationStatement actual = controller().read("true", "x");
-    assertThat(actual).isEqualTo(DatamartMedicationStatementSamples.Fhir.create().medicationStatement("x"));
+    mockMedicationStatementIdentity("1", dm.cdwId());
+    MedicationStatement actual = controller().read("true", "1");
+    assertThat(json(actual)).isEqualTo(json(Fhir.create().medicationStatement("1")));
   }
 
   @SneakyThrows

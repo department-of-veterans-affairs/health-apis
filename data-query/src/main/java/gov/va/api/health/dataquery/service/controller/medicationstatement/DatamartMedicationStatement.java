@@ -23,7 +23,7 @@ public class DatamartMedicationStatement implements HasReplaceableId {
   @Builder.Default private String objectType = "MedicationStatement";
   @Builder.Default private String objectVersion = "1";
   private String cdwId;
-  private Instant etlDate;
+  private String etlDate;
   private DatamartReference patient;
   private Instant dateAsserted;
   private Status status;

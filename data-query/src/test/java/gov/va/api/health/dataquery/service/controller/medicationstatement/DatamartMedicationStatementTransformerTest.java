@@ -82,7 +82,7 @@ public class DatamartMedicationStatementTransformerTest {
     DatamartMedicationStatement medicationStatement() {
       return DatamartMedicationStatement.builder()
           .cdwId("800008482786")
-          .etlDate(Instant.parse("2017-11-03T01:39:21Z"))
+          .etlDate("2017-11-03T01:39:21Z")
           .patient(
               DatamartReference.of()
                   .type("Patient")
