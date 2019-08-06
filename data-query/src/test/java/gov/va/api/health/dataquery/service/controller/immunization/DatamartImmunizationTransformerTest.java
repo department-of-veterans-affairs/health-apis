@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.argonaut.api.resources.Immunization;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
+import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dataquery.service.controller.immunization.DatamartImmunization.Status;
 import gov.va.api.health.dataquery.service.controller.immunization.DatamartImmunizationSamples.Datamart;
 import gov.va.api.health.dataquery.service.controller.immunization.DatamartImmunizationSamples.Fhir;
@@ -39,6 +40,11 @@ public class DatamartImmunizationTransformerTest {
         tx(DatamartImmunizationSamples.Datamart.create().immunization());
 
     assertThat(tx.reaction(Optional.empty())).isNull();
+    assertThat(
+            tx.reaction(
+                Optional.of(
+                    DatamartReference.of().type(null).reference(null).display(null).build())))
+        .isNull();
     assertThat(tx.reaction(Optional.of(Datamart.create().reaction())))
         .isEqualTo(Fhir.create().reactions());
   }

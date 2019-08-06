@@ -53,6 +53,14 @@ public class DatamartReference {
     return display;
   }
 
+  /**
+   * Return true if this can be converted into a valid FHIR reference object with either the display
+   * and/or the reference link.
+   */
+  public boolean hasDisplayOrTypeAndReference() {
+    return display().isPresent() || hasTypeAndReference();
+  }
+
   public boolean hasTypeAndReference() {
     return type().isPresent() && reference().isPresent();
   }
