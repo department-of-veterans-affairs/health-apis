@@ -1,25 +1,24 @@
 {
-  "objectType" : "MedicationStatement",
-  "objectVersion" : "1",
-  "cdwId" : "800008482786",
-  "etlDate" : "2017-11-03T01:39:21Z",
-  "patient" : {
-    "type" : "Patient",
-    "reference" : "1004810366V403573",
-    "display" : "BARKER,BOBBIE LEE"
+  "objectType": "MedicationStatement",
+  "objectVersion": "1",
+  "cdwId": "800008482786",
+  "patient": {
+    "type": "Patient",
+    "reference": "1004810366V403573",
+    "display": "BARKER,BOBBIE LEE"
   },
-  "dateAsserted" : "2017-11-03T01:39:21Z",
-  "status" : "completed",
-  "effectiveDateTime" : "2017-11-03T01:39:21Z",
-  "note" : null,
-  "medication" : {
-    "type" : "Medication",
-    "reference" : null,
-    "display" : "SAW PALMETTO"
+  "dateAsserted": "2017-11-03T01:39:21Z",
+  "status": "completed",
+  "effectiveDateTime": "2017-11-03T01:39:21Z",
+  "note": null,
+  "medication": {
+    "type": "Medication",
+    "reference": null,
+    "display": "SAW PALMETTO"
   },
-  "dosage" : {
-    "text" : "1",
-    "timingCodeText" : "EVERYDAY",
-    "routeText" : "MOUTH"
+  "dosage": {
+    "text": "1",
+    "timingCodeText": "EVERYDAY",
+    "routeText": "MOUTH"
   }
 }

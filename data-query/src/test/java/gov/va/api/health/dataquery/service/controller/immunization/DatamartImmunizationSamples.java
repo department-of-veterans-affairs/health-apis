@@ -40,7 +40,6 @@ class DatamartImmunizationSamples {
       return DatamartImmunization.builder()
           .cdwId(cdwId)
           .status(DatamartImmunization.Status.completed)
-          .etlDate("1997-04-03T21:02:15Z")
           .date(Instant.parse("1997-05-09T14:21:18Z"))
           .vaccineCode(vaccineCode())
           .patient(
@@ -111,8 +110,7 @@ class DatamartImmunizationSamples {
           .total(conditions.size())
           .link(Arrays.asList(links))
           .entry(
-              conditions
-                  .stream()
+              conditions.stream()
                   .map(
                       c ->
                           Entry.builder()

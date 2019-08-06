@@ -31,7 +31,6 @@ public class DatamartAllergyIntoleranceSamples {
           .objectType("AllergyIntolerance")
           .objectVersion(1)
           .cdwId("800001608621")
-          .etlDate("2017-07-23T04:27:43Z")
           .patient(
               Optional.of(
                   DatamartReference.builder()
@@ -148,8 +147,7 @@ public class DatamartAllergyIntoleranceSamples {
           .total(1)
           .link(Arrays.asList(links))
           .entry(
-              resources
-                  .stream()
+              resources.stream()
                   .map(
                       a ->
                           AllergyIntolerance.Entry.builder()

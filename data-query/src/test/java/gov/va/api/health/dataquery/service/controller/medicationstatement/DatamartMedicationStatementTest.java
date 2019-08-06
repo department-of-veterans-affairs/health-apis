@@ -10,10 +10,16 @@ import lombok.SneakyThrows;
 import org.junit.Test;
 
 public class DatamartMedicationStatementTest {
+  public void assertReadable(String json) throws java.io.IOException {
+    DatamartMedicationStatement ms =
+        createMapper()
+            .readValue(getClass().getResourceAsStream(json), DatamartMedicationStatement.class);
+    assertThat(ms).isEqualTo(sample());
+  }
+
   public DatamartMedicationStatement sample() {
     return DatamartMedicationStatement.builder()
         .cdwId("800008482786")
-        .etlDate(Instant.parse("2017-11-03T01:39:21Z"))
         .patient(
             DatamartReference.of()
                 .type("Patient")
@@ -42,11 +48,12 @@ public class DatamartMedicationStatementTest {
   @Test
   @SneakyThrows
   public void unmarshalSample() {
-    DatamartMedicationStatement ms =
-        createMapper()
-            .readValue(
-                getClass().getResourceAsStream("datamart-medication-statement.json"),
-                DatamartMedicationStatement.class);
-    assertThat(ms).isEqualTo(sample());
+    assertReadable("datamart-medication-statement.json");
+  }
+
+  @Test
+  @SneakyThrows
+  public void unmarshalSampleV0() {
+    assertReadable("datamart-medication-statement-v0.json");
   }
 }
