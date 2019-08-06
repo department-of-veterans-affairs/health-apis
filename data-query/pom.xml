@@ -4,7 +4,7 @@
   <parent>
     <groupId>gov.va.api.health</groupId>
     <artifactId>service-starter</artifactId>
-    <version>3.0.11-SNAPSHOT</version>
+    <version>3.0.11</version>
     <relativePath/>
   </parent>
   <artifactId>data-query</artifactId>
