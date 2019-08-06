@@ -16,6 +16,7 @@ Options
  -d, --data-query    Include Data Query
  -i, --ids           Include Identity Service (located parallel to this repository)
  -m, --mr-anderson   Include Mr. Anderson
+ -l, --local         Use local H2 database for Identity Service
 
 Examples
  # Start both
@@ -33,6 +34,7 @@ exit 1
 startApp() {
   local app=$1
   local where=$2
+  local useH2=${3:-false}
   local pid=$(pidOf $app)
   [ -n "$pid" ] && echo "$app appears to already be running ($pid)" && return
   echo "Starting $app"
@@ -40,7 +42,21 @@ startApp() {
   cd $where/$app
   local jar=$(find target -maxdepth 1 -name "$app-*.jar" | grep -v 'tests')
   [ -z "$jar" ] && echo "Cannot find $app application jar" && exit 1
-  java -jar $jar &
+  local options="-Dapp.name=$app"
+  if [ "$useH2" == "true" ]
+  then
+    local pathSeparator=':'
+    [ "$(uname)" != "Darwin" ] && echo "Add support for your operating system" && exit 1
+    echo "Using local H2 database"
+    options+=" -cp $(readlink -f $jar)${pathSeparator}$(readlink -f ~/.m2/repository/com/h2database/h2/1.4.197/h2-1.4.197.jar)"
+    options+=" -Dspring.jpa.generate-ddl=true"
+    options+=" -Dspring.jpa.hibernate.ddl-auto=create-drop"
+    options+=" -Dspring.datasource.driver-class-name=org.h2.Driver"
+    options+=" -Dspring.datasource.url=jdbc:h2:mem:whatever"
+    java ${options} org.springframework.boot.loader.PropertiesLauncher &
+  else
+    java ${options} -jar $jar &
+  fi
 }
 
 stopApp() {
@@ -57,7 +73,7 @@ stopApp() {
 
 pidOf() {
   local app=$1
-  jps -l | grep -E "target/$app-.*\.jar" | cut -d ' ' -f 1
+  jps -v | grep -F -- "-Dapp.name=$app" | cut -d ' ' -f 1
 }
 
 statusOf() {
@@ -79,7 +95,7 @@ doStart() {
   echo "Using profile: $SPRING_PROFILES_ACTIVE"
   [ $MRANDERSON == true ] && startApp mr-anderson $REPO
   [ $DATAQUERY == true ] && startApp data-query $REPO
-  [ $IDS == true ] && startApp ids $REPO/../health-apis-ids
+  [ $IDS == true ] && startApp ids $REPO/../health-apis-ids $LOCAL
 }
 
 doStop() {
@@ -94,10 +110,11 @@ MRANDERSON=false
 DATAQUERY=false
 IDS=false
 SPRING_PROFILES_ACTIVE=dev
+LOCAL=false
 
 ARGS=$(getopt -n $(basename ${0}) \
-    -l "debug,help,ids,mr-anderson,data-query" \
-    -o "himd" -- "$@")
+    -l "debug,help,local,ids,mr-anderson,data-query" \
+    -o "hlimd" -- "$@")
 [ $? != 0 ] && usage
 eval set -- "$ARGS"
 while true
@@ -108,6 +125,7 @@ do
     -h|--help) usage "halp! what this do?";;
     -i|--ids) IDS=true;;
     -m|--mr-anderson) MRANDERSON=true;;
+    -l|--local) LOCAL=true;;
     --) shift;break;;
   esac
   shift;

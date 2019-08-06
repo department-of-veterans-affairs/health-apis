@@ -50,7 +50,7 @@ public class ImmunizationEntity {
   @Column(name = "PatientFullICN")
   private String icn;
 
-  @Column(name = "Condition")
+  @Column(name = "Immunization")
   @Basic(fetch = FetchType.LAZY)
   @Lob
   private String payload;
