@@ -5,6 +5,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import gov.va.api.health.argonaut.api.resources.MedicationStatement;
+
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.Bundler;
 import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
@@ -56,7 +57,7 @@ public class DatamartMedicationStatementControllerTest {
             List.of(
                 ResourceIdentity.builder()
                     .system("CDW")
-                    .resource("CONDITION")
+                    .resource("MEDICATION_STATEMENT")
                     .identifier(cdwId)
                     .build()));
   }

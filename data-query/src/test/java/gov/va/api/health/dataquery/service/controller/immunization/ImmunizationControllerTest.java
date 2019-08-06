@@ -44,7 +44,7 @@ public class ImmunizationControllerTest {
   @Before
   public void _init() {
     MockitoAnnotations.initMocks(this);
-    controller = new ImmunizationController(tx, client, bundler);
+    controller = new ImmunizationController(false, tx, client, bundler, null, null);
   }
 
   private void assertSearch(Supplier<Bundle> invocation, MultiValueMap<String, String> params) {
@@ -115,7 +115,7 @@ public class ImmunizationControllerTest {
     Immunization item = Immunization.builder().build();
     when(client.search(Mockito.any())).thenReturn(root);
     when(tx.apply(xmlImmunization)).thenReturn(item);
-    Immunization actual = controller.read("hello");
+    Immunization actual = controller.read("false", "hello");
     assertThat(actual).isSameAs(item);
     ArgumentCaptor<Query<CdwImmunization103Root>> captor = ArgumentCaptor.forClass(Query.class);
     verify(client).search(captor.capture());
@@ -125,21 +125,21 @@ public class ImmunizationControllerTest {
   @Test
   public void searchById() {
     assertSearch(
-        () -> controller.searchById("me", 1, 10),
+        () -> controller.searchById("false", "me", 1, 10),
         Parameters.builder().add("identifier", "me").add("page", 1).add("_count", 10).build());
   }
 
   @Test
   public void searchByIdentifier() {
     assertSearch(
-        () -> controller.searchByIdentifier("me", 1, 10),
+        () -> controller.searchByIdentifier("false", "me", 1, 10),
         Parameters.builder().add("identifier", "me").add("page", 1).add("_count", 10).build());
   }
 
   @Test
   public void searchByPatient() {
     assertSearch(
-        () -> controller.searchByPatient("me", 1, 10),
+        () -> controller.searchByPatient("false", "me", 1, 10),
         Parameters.builder().add("patient", "me").add("page", 1).add("_count", 10).build());
   }
 

@@ -335,7 +335,7 @@ public class ConditionController {
           resource == null ? 0 : 1);
     }
 
-    public Bundle searchByPatient(String patient, int page, int count) {
+    Bundle searchByPatient(String patient, int page, int count) {
       String icn = witnessProtection.toCdwId(patient);
       log.info("Looking for {} ({})", patient, icn);
       return bundle(
@@ -348,7 +348,7 @@ public class ConditionController {
           repository.findByIcn(icn, PageRequest.of(page - 1, count)));
     }
 
-    public Bundle searchByPatientAndCategory(String patient, String category, int page, int count) {
+    Bundle searchByPatientAndCategory(String patient, String category, int page, int count) {
       String icn = witnessProtection.toCdwId(patient);
       return bundle(
           Parameters.builder()
@@ -361,7 +361,7 @@ public class ConditionController {
           repository.findByIcnAndCategory(icn, category, PageRequest.of(page - 1, count)));
     }
 
-    public Bundle searchByPatientAndClinicalStatus(
+    Bundle searchByPatientAndClinicalStatus(
         String patient, String clinicalStatusCsv, int page, int count) {
       String icn = witnessProtection.toCdwId(patient);
       return bundle(

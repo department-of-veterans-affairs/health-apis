@@ -40,7 +40,7 @@ public class DiagnosticReportControllerTest {
   @Before
   public void _init() {
     MockitoAnnotations.initMocks(this);
-    controller = new DiagnosticReportController(tx, mraClient, bundler, null, null);
+    controller = new DiagnosticReportController(false, tx, mraClient, bundler, null, null);
   }
 
   private void assertSearch(
@@ -139,7 +139,12 @@ public class DiagnosticReportControllerTest {
   public void searchById() {
     controller =
         new DiagnosticReportController(
-            tx, mraClient, new Bundler(new ConfigurableBaseUrlPageLinks("", "")), null, null);
+            false,
+            tx,
+            mraClient,
+            new Bundler(new ConfigurableBaseUrlPageLinks("", "")),
+            null,
+            null);
 
     CdwDiagnosticReport102Root.CdwDiagnosticReports wrapper =
         new CdwDiagnosticReport102Root.CdwDiagnosticReports();
@@ -164,7 +169,12 @@ public class DiagnosticReportControllerTest {
   public void searchByIdentifier() {
     controller =
         new DiagnosticReportController(
-            tx, mraClient, new Bundler(new ConfigurableBaseUrlPageLinks("", "")), null, null);
+            false,
+            tx,
+            mraClient,
+            new Bundler(new ConfigurableBaseUrlPageLinks("", "")),
+            null,
+            null);
 
     CdwDiagnosticReport102Root.CdwDiagnosticReports wrapper =
         new CdwDiagnosticReport102Root.CdwDiagnosticReports();

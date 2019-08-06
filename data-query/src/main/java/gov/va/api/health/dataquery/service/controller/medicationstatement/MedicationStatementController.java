@@ -23,7 +23,6 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
 import javax.validation.constraints.Min;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -50,31 +49,25 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 @RestController
 @RequestMapping(
-  value = {"MedicationStatement", "/api/MedicationStatement"},
-  produces = {"application/json", "application/json+fhir", "application/fhir+json"}
-)
-@AllArgsConstructor(onConstructor = @__({@Autowired}))
+    value = {"MedicationStatement", "/api/MedicationStatement"},
+    produces = {"application/json", "application/json+fhir", "application/fhir+json"})
 public class MedicationStatementController {
 
   private final Datamart datamart = new Datamart();
-
   private Transformer transformer;
 
   private MrAndersonClient mrAndersonClient;
 
   private Bundler bundler;
-
   private WitnessProtection witnessProtection;
-
   private MedicationStatementRepository repository;
-
   private boolean defaultToDatamart;
 
   /** Spring constructor. */
   @SuppressWarnings("ParameterHidesMemberVariable")
   public MedicationStatementController(
       @Value("${datamart.medication-statement}") boolean defaultToDatamart,
-      @Autowired Transformer transformer,
+      @Autowired MedicationStatementController.Transformer transformer,
       @Autowired MrAndersonClient mrAndersonClient,
       @Autowired Bundler bundler,
       @Autowired MedicationStatementRepository repository,
@@ -178,9 +171,8 @@ public class MedicationStatementController {
 
   /** Hey, this is a validate endpoint. It validates. */
   @PostMapping(
-    value = "/$validate",
-    consumes = {"application/json", "application/json+fhir", "application/fhir+json"}
-  )
+      value = "/$validate",
+      consumes = {"application/json", "application/json+fhir", "application/fhir+json"})
   public OperationOutcome validate(@RequestBody MedicationStatement.Bundle bundle) {
     return Validator.create().validate(bundle);
   }

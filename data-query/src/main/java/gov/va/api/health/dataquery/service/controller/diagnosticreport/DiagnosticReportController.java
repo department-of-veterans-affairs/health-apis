@@ -43,11 +43,11 @@ import javax.persistence.TypedQuery;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
-import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.util.Pair;
 import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
@@ -68,12 +68,12 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 @RestController
 @SuppressWarnings("WeakerAccess")
-@AllArgsConstructor(onConstructor = @__({@Autowired}))
 @RequestMapping(
   value = {"DiagnosticReport", "/api/DiagnosticReport"},
   produces = {"application/json", "application/json+fhir", "application/fhir+json"}
 )
 public class DiagnosticReportController {
+
   private Transformer transformer;
 
   private MrAndersonClient mrAndersonClient;
@@ -84,6 +84,24 @@ public class DiagnosticReportController {
 
   private EntityManager entityManager;
 
+  private boolean defaultToDatamart;
+
+  /** All args constructor. */
+  public DiagnosticReportController(
+      @Value("${datamart.diagnostic-report}") boolean defaultToDatamart,
+      @Autowired Transformer transformer,
+      @Autowired MrAndersonClient mrAndersonClient,
+      @Autowired Bundler bundler,
+      @Autowired WitnessProtection witnessProtection,
+      @Autowired EntityManager entityManager) {
+    this.defaultToDatamart = defaultToDatamart;
+    this.transformer = transformer;
+    this.mrAndersonClient = mrAndersonClient;
+    this.bundler = bundler;
+    this.witnessProtection = witnessProtection;
+    this.entityManager = entityManager;
+  }
+
   private static boolean dateParameterIsSatisfied(
       DatamartDiagnosticReports.DiagnosticReport report, DateTimeParameters parameter) {
     Instant effective = parseInstant(trimToEmpty(report.effectiveDateTime()));
@@ -91,12 +109,10 @@ public class DiagnosticReportController {
         && parameter.isSatisfied(effective.toEpochMilli(), effective.toEpochMilli())) {
       return true;
     }
-
     Instant issued = parseInstant(trimToEmpty(report.issuedDateTime()));
     if (issued != null && parameter.isSatisfied(issued.toEpochMilli(), issued.toEpochMilli())) {
       return true;
     }
-
     return false;
   }
 
@@ -106,13 +122,11 @@ public class DiagnosticReportController {
     if (isEmpty(dateParameters)) {
       return datamartReports;
     }
-
     List<DateTimeParameters> parameters =
         dateParameters
             .stream()
             .map(date -> new DateTimeParameters(date))
             .collect(Collectors.toList());
-
     return datamartReports
         .stream()
         .filter(r -> parameters.stream().allMatch(p -> dateParameterIsSatisfied(r, p)))
@@ -142,31 +156,26 @@ public class DiagnosticReportController {
   private DiagnosticReport.Bundle datamartBundle(MultiValueMap<String, String> publicParameters) {
     MultiValueMap<String, String> cdwParameters =
         witnessProtection.replacePublicIdsWithCdwIds(publicParameters);
-
     // Filter category
     String category = cdwParameters.getFirst("category");
     if (isNotBlank(category) && !equalsIgnoreCase(category, "LAB")) {
       // All diagnostic reports are labs
       return bundle(publicParameters, emptyList(), 0);
     }
-
     // Filter code
     String code = cdwParameters.getFirst("code");
     if (isNotBlank(code)) {
       // LOINC codes are not available in CDW
       return bundle(publicParameters, emptyList(), 0);
     }
-
     DiagnosticReportsEntity entity =
         entityManager.find(DiagnosticReportsEntity.class, cdwParameters.getFirst("patient"));
     if (entity == null) {
       return bundle(publicParameters, emptyList(), 0);
     }
-
     DatamartDiagnosticReports payload = entity.asDatamartDiagnosticReports();
     List<DatamartDiagnosticReports.DiagnosticReport> filtered =
         filterDates(payload.reports(), cdwParameters.get("date"));
-
     // Most recent reports first
     Collections.sort(
         filtered,
@@ -177,15 +186,12 @@ public class DiagnosticReportController {
           }
           return StringUtils.compare(right.issuedDateTime(), left.issuedDateTime());
         });
-
     int page = Parameters.pageOf(cdwParameters);
     int count = Parameters.countOf(cdwParameters);
     int fromIndex = Math.min((page - 1) * count, filtered.size());
     int toIndex = Math.min(fromIndex + count, filtered.size());
     List<DatamartDiagnosticReports.DiagnosticReport> paged = filtered.subList(fromIndex, toIndex);
-
     replaceCdwIdsWithPublicIds(paged);
-
     List<DiagnosticReport> fhir =
         paged
             .stream()
@@ -198,7 +204,6 @@ public class DiagnosticReportController {
                         .build()
                         .toFhir())
             .collect(Collectors.toList());
-
     return bundle(publicParameters, fhir, filtered.size());
   }
 
@@ -224,7 +229,6 @@ public class DiagnosticReportController {
     MultiValueMap<String, String> cdwParameters =
         witnessProtection.replacePublicIdsWithCdwIds(publicParameters);
     String cdwReportId = Parameters.identiferOf(cdwParameters);
-
     TypedQuery<DiagnosticReportsEntity> query =
         entityManager.createQuery(
             "Select dr from DiagnosticReportsEntity dr join DiagnosticReportCrossEntity drc on"
@@ -236,7 +240,6 @@ public class DiagnosticReportController {
     if (isEmpty(entities)) {
       throw new ResourceExceptions.NotFound(publicParameters);
     }
-
     DatamartDiagnosticReports payload =
         Iterables.getOnlyElement(entities).asDatamartDiagnosticReports();
     Optional<DatamartDiagnosticReports.DiagnosticReport> maybeReport =
@@ -248,8 +251,14 @@ public class DiagnosticReportController {
     if (!maybeReport.isPresent()) {
       throw new ResourceExceptions.NotFound(publicParameters);
     }
-
     return Pair.of(payload, maybeReport.get());
+  }
+
+  boolean isDatamartRequest(String datamartHeader) {
+    if (StringUtils.isBlank(datamartHeader)) {
+      return defaultToDatamart;
+    }
+    return BooleanUtils.isTrue(BooleanUtils.toBooleanObject(datamartHeader));
   }
 
   private DiagnosticReport.Bundle mrAndersonBundle(MultiValueMap<String, String> parameters) {
@@ -289,10 +298,9 @@ public class DiagnosticReportController {
   public DiagnosticReport read(
       @RequestHeader(value = "Datamart", defaultValue = "") String datamart,
       @PathVariable("publicId") String publicId) {
-    if (BooleanUtils.isTrue(BooleanUtils.toBooleanObject(datamart))) {
+    if (isDatamartRequest(datamart)) {
       return datamartRead(publicId);
     }
-
     return transformer.apply(
         firstPayloadItem(
             hasPayload(mrAndersonSearch(Parameters.forIdentity(publicId)).getDiagnosticReports())
@@ -325,22 +333,18 @@ public class DiagnosticReportController {
                             .identifier(report.accessionInstitutionSid())
                             .build()))
             .collect(Collectors.toSet());
-
     List<Registration> registrations = witnessProtection.register(ids);
-
     final Table<String, String, String> idsTable = HashBasedTable.create();
     for (Registration r : registrations) {
       for (ResourceIdentity id : r.resourceIdentities()) {
         idsTable.put(id.identifier(), id.resource(), r.uuid());
       }
     }
-
     for (DatamartDiagnosticReports.DiagnosticReport report : reports) {
       String identifier = idsTable.get(report.identifier(), "DIAGNOSTIC_REPORT");
       if (identifier != null) {
         report.identifier(identifier);
       }
-
       String accessionInstitutionSid =
           idsTable.get(report.accessionInstitutionSid(), "ORGANIZATION");
       if (accessionInstitutionSid != null) {
@@ -351,10 +355,9 @@ public class DiagnosticReportController {
 
   private DiagnosticReport.Bundle search(
       String datamart, MultiValueMap<String, String> parameters) {
-    if (BooleanUtils.isTrue(BooleanUtils.toBooleanObject(datamart))) {
+    if (isDatamartRequest(datamart)) {
       return datamartBundle(parameters);
     }
-
     return mrAndersonBundle(parameters);
   }
 
@@ -451,7 +454,6 @@ public class DiagnosticReportController {
         Parameters.builder().add("patient", patient).build();
     MultiValueMap<String, String> cdwParameters =
         witnessProtection.replacePublicIdsWithCdwIds(publicParameters);
-
     DiagnosticReportsEntity entity =
         entityManager.find(DiagnosticReportsEntity.class, cdwParameters.getFirst("patient"));
     if (entity == null) {

@@ -4,6 +4,7 @@ import static gov.va.api.health.autoconfig.configuration.JacksonConfig.createMap
 import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
+import java.time.Instant;
 import java.util.Optional;
 import lombok.SneakyThrows;
 import org.junit.Test;
@@ -14,6 +15,7 @@ public class DatamartImmunizationTest {
         .cdwId("1000000030337")
         .status(DatamartImmunization.Status.completed)
         .etlDate("1997-04-03T21:02:15Z")
+        .date(Instant.parse("1997-05-09T14:21:18Z"))
         .vaccineCode(
             DatamartImmunization.VaccineCode.builder()
                 .code("112")

@@ -277,7 +277,7 @@ entries:
   page: 1
   count: 15
 - file: ../../../../target/cdw/samples/Imm103i1000000043979.xml
-  query: /Immunization:1.03?identifier=1000000043979
+  query: /Immunization:1.03?identifier=12345678
   page: 1
   count: 15
 - file: ../../../../target/cdw/samples/Imm103i5555555555555.xml
@@ -796,6 +796,11 @@ entries:
   query: /Patient:9.99?identifier=111222333V000999
   page: 1
   count: 15
+  # Immunization aliases
+- file: ../../../../target/cdw/samples/Imm103p185601V825290.xml
+  query: /Immunization:1.03?patient=111222333V000999
+  page: 1
+  count: 20
   # Patient aliases
 - file: ../../../../target/cdw/samples/Pat103nameVETERANbirthd19700101.xml
   query: /Patient:1.03?name=Olson653, Conrad619&birthdate=1948-06-28

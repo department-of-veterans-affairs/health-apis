@@ -2,6 +2,8 @@ package gov.va.api.health.dataquery.service.controller.immunization;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
+import gov.va.api.health.dataquery.service.controller.datamart.HasReplaceableId;
+import java.time.Instant;
 import java.util.Optional;
 import javax.validation.constraints.Min;
 import lombok.AccessLevel;
@@ -14,7 +16,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class DatamartImmunization {
+public class DatamartImmunization implements HasReplaceableId {
 
   @Builder.Default private String objectType = "Immunization";
 
@@ -25,6 +27,8 @@ public class DatamartImmunization {
   private Status status;
 
   private String etlDate;
+
+  private Instant date;
 
   private VaccineCode vaccineCode;
 
@@ -98,22 +102,22 @@ public class DatamartImmunization {
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
-  public static class VaccineCode {
-
-    String text;
-
-    String code;
-  }
-
-  @Data
-  @Builder
-  @NoArgsConstructor(access = AccessLevel.PRIVATE)
-  @AllArgsConstructor(access = AccessLevel.PRIVATE)
   public static class VaccinationProtocols {
 
     String series;
 
     @Min(1)
     int seriesDoses;
+  }
+
+  @Data
+  @Builder
+  @NoArgsConstructor(access = AccessLevel.PRIVATE)
+  @AllArgsConstructor(access = AccessLevel.PRIVATE)
+  public static class VaccineCode {
+
+    String text;
+
+    String code;
   }
 }
