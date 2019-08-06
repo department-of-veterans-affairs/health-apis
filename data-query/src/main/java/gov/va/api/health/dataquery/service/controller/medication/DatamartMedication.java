@@ -18,20 +18,13 @@ public class DatamartMedication {
 
   private String cdwId;
 
-  private String etlDate;
-
   private RxNorm rxnorm;
 
   private Product product;
 
-  @Data
-  @Builder
-  @NoArgsConstructor(access = AccessLevel.PRIVATE)
-  @AllArgsConstructor(access = AccessLevel.PRIVATE)
-  public static class RxNorm {
-    String code;
-
-    String text;
+  /** Backwards compatibility for etlDate. */
+  private void setEtlDate(String unused) {
+    /* no op */
   }
 
   @Data
@@ -42,5 +35,15 @@ public class DatamartMedication {
     String id;
 
     String formText;
+  }
+
+  @Data
+  @Builder
+  @NoArgsConstructor(access = AccessLevel.PRIVATE)
+  @AllArgsConstructor(access = AccessLevel.PRIVATE)
+  public static class RxNorm {
+    String code;
+
+    String text;
   }
 }

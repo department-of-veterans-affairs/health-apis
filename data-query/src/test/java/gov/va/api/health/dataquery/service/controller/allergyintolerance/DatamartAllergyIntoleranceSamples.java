@@ -147,7 +147,8 @@ public class DatamartAllergyIntoleranceSamples {
           .total(1)
           .link(Arrays.asList(links))
           .entry(
-              resources.stream()
+              resources
+                  .stream()
                   .map(
                       a ->
                           AllergyIntolerance.Entry.builder()

@@ -1,34 +1,34 @@
 {
-  "objectType": "Condition",
-  "objectVersion": "1",
-  "cdwId": "800274570575:D",
-  "patient": {
-    "type": "Patient",
-    "reference": "666V666",
-    "display": "VETERAN,FIRNM MINAM"
+  "objectType" : "Condition",
+  "objectVersion" : "1",
+  "cdwId" : "800274570575:D",
+  "patient" : {
+    "type" : "Patient",
+    "reference" : "666V666",
+    "display" : "VETERAN,FIRNM MINAM"
   },
-  "encounter": {
-    "type": "Encounter",
-    "reference": "800285390250",
-    "display": "Outpatient Visit"
+  "encounter" : {
+    "type" : "Encounter",
+    "reference" : "800285390250",
+    "display" : "Outpatient Visit"
   },
-  "asserter": {
-    "type": "Practitioner",
-    "reference": "1294265",
-    "display": "DOCLANAM,DOCFIRNAM E"
+  "asserter" : {
+    "type" : "Practitioner",
+    "reference" : "1294265",
+    "display" : "DOCLANAM,DOCFIRNAM E"
   },
-  "dateRecorded": "2011-06-27",
-  "snomed": {
-    "code": "70650003",
-    "display": "Urinary bladder stone"
+  "dateRecorded" : "2011-06-27",
+  "snomed" : {
+    "code" : "70650003",
+    "display" : "Urinary bladder stone"
   },
-  "icd": {
-    "code": "N210",
-    "display": "Calculus in bladder",
-    "version": "10"
+  "icd" : {
+    "code" : "N210",
+    "display" : "Calculus in bladder",
+    "version" : "10"
   },
-  "category": "diagnosis",
-  "clinicalStatus": "active",
-  "onsetDateTime": "2011-06-27T05:40:00Z",
-  "abatementDateTime": null
+  "category" : "diagnosis",
+  "clinicalStatus" : "active",
+  "onsetDateTime" : "2011-06-27T05:40:00Z",
+  "abatementDateTime" : null
 }

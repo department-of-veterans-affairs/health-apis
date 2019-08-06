@@ -26,8 +26,6 @@ public class DatamartImmunization implements HasReplaceableId {
 
   private Status status;
 
-  private String etlDate;
-
   private Instant date;
 
   private VaccineCode vaccineCode;
@@ -88,6 +86,11 @@ public class DatamartImmunization implements HasReplaceableId {
       requester = Optional.empty();
     }
     return requester;
+  }
+
+  /** Backwards compatibility for etlDate. */
+  private void setEtlDate(String unused) {
+    /* no op */
   }
 
   public enum Status {

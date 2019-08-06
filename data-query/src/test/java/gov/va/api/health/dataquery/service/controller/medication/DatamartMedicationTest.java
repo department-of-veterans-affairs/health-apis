@@ -18,7 +18,6 @@ public class DatamartMedicationTest {
         .objectType("Medication")
         .objectVersion("1")
         .cdwId("1000")
-        .etlDate("2019-08-06T16:12:26.430")
         .rxnorm(
             DatamartMedication.RxNorm.builder()
                 .code("284205")

@@ -1,36 +1,36 @@
 {
-  "objectType": "DiagnosticReport",
-  "objectVersion": "1",
-  "fullIcn": "666V666",
-  "patientName": "VETERAN,HERNAM MINAM",
-  "DiagnosticReports": [
+  "objectType" : "DiagnosticReport",
+  "objectVersion" : "1",
+  "fullIcn" : "666V666",
+  "patientName" : "VETERAN,HERNAM MINAM",
+  "DiagnosticReports" : [
     {
-      "identifier": "111:L",
-      "sta3n": 111,
-      "effectiveDateTime": "2019-06-30T10:51:06Z",
-      "issuedDateTime": "2019-07-01T10:51:06Z",
-      "accessionInstitutionSid": 999,
-      "accessionInstitutionName": "ABC-DEF",
-      "topographySid": 777,
-      "topographyName": "PLASMA",
-      "orders": [
+      "identifier" : "111:L",
+      "sta3n" : 111,
+      "effectiveDateTime" : "2019-06-30T10:51:06Z",
+      "issuedDateTime" : "2019-07-01T10:51:06Z",
+      "accessionInstitutionSid" : 999,
+      "accessionInstitutionName" : "ABC-DEF",
+      "topographySid" : 777,
+      "topographyName" : "PLASMA",
+      "orders" : [
         {
-          "sid": 555,
-          "display": "RENAL PANEL"
+          "sid" : 555,
+          "display" : "RENAL PANEL"
         }
       ],
-      "results": [
+      "results" : [
         {
-          "result": "111:L",
-          "display": "ALBUMIN"
+          "result" : "111:L",
+          "display" : "ALBUMIN"
         },
         {
-          "result": "222:L",
-          "display": "ALB/GLOB RATIO"
+          "result" : "222:L",
+          "display" : "ALB/GLOB RATIO"
         },
         {
-          "result": "333:L",
-          "display": "PROTEIN,TOTAL"
+          "result" : "333:L",
+          "display" : "PROTEIN,TOTAL"
         }
       ]
     }
