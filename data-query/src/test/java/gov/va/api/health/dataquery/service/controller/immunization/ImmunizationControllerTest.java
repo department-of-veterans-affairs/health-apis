@@ -44,7 +44,7 @@ public class ImmunizationControllerTest {
   @Before
   public void _init() {
     MockitoAnnotations.initMocks(this);
-    // controller = new ImmunizationController(tx, client, bundler);
+    controller = new ImmunizationController(false, tx, client, bundler, null, null);
   }
 
   private void assertSearch(Supplier<Bundle> invocation, MultiValueMap<String, String> params) {

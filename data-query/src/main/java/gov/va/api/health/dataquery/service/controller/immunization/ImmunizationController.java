@@ -16,11 +16,13 @@ import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
 import gov.va.api.health.dataquery.service.mranderson.client.Query;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import gov.va.dvp.cdw.xsd.model.CdwImmunization103Root;
+import java.math.BigInteger;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.function.Function;
 import javax.validation.constraints.Min;
-import lombok.AllArgsConstructor;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.MultiValueMap;
@@ -42,26 +44,26 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 @RestController
 @RequestMapping(
-    value = {"Immunization", "/api/Immunization"},
-    produces = {"application/json", "application/json+fhir", "application/fhir+json"})
-@AllArgsConstructor(onConstructor = @__({@Autowired}))
+  value = {"Immunization", "/api/Immunization"},
+  produces = {"application/json", "application/json+fhir", "application/fhir+json"}
+)
 public class ImmunizationController {
   private final ImmunizationController.Datamart datamart = new ImmunizationController.Datamart();
   private Transformer transformer;
   private MrAndersonClient mrAndersonClient;
   private Bundler bundler;
-  private ImmuizationRepository repository;
+  private ImmunizationRepository repository;
   private WitnessProtection witnessProtection;
   private boolean defaultToDatamart;
 
   /** Spring constructor. */
   @SuppressWarnings("ParameterHidesMemberVariable")
   public ImmunizationController(
-      @Value("${datamart.condition}") boolean defaultToDatamart,
+      @Value("${datamart.immunization}") boolean defaultToDatamart,
       @Autowired ImmunizationController.Transformer transformer,
       @Autowired MrAndersonClient mrAndersonClient,
       @Autowired Bundler bundler,
-      @Autowired ImmuizationRepository repository,
+      @Autowired ImmunizationRepository repository,
       @Autowired WitnessProtection witnessProtection) {
     this.defaultToDatamart = defaultToDatamart;
     this.transformer = transformer;
@@ -157,8 +159,9 @@ public class ImmunizationController {
 
   /** Hey, this is a validate endpoint. It validates. */
   @PostMapping(
-      value = "/$validate",
-      consumes = {"application/json", "application/json+fhir", "application/fhir+json"})
+    value = "/$validate",
+    consumes = {"application/json", "application/json+fhir", "application/fhir+json"}
+  )
   public OperationOutcome validate(@RequestBody Immunization.Bundle bundle) {
     return Validator.create().validate(bundle);
   }
@@ -166,11 +169,24 @@ public class ImmunizationController {
   public interface Transformer
       extends Function<CdwImmunization103Root.CdwImmunizations.CdwImmunization, Immunization> {}
 
+  /**
+   * This class is being used to help organize the code such that all the datamart logic is
+   * contained together. In the future when Mr. Anderson support is dropped, this class can be
+   * eliminated.
+   */
   private class Datamart {
+
     ImmunizationEntity findById(String publicId) {
       Optional<ImmunizationEntity> entity =
-          repository.findById(witnessProtection.toCdwId(publicId));
+          repository.findById(new BigInteger(witnessProtection.toCdwId(publicId)));
       return entity.orElseThrow(() -> new NotFound(publicId));
+    }
+
+    boolean isDatamartRequest(String datamartHeader) {
+      if (StringUtils.isBlank(datamartHeader)) {
+        return defaultToDatamart;
+      }
+      return BooleanUtils.isTrue(BooleanUtils.toBooleanObject(datamartHeader));
     }
 
     String readRaw(String publicId) {
