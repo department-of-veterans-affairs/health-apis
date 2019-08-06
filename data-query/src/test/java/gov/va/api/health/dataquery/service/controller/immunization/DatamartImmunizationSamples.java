@@ -109,7 +109,8 @@ class DatamartImmunizationSamples {
           .total(conditions.size())
           .link(Arrays.asList(links))
           .entry(
-              conditions.stream()
+              conditions
+                  .stream()
                   .map(
                       c ->
                           Entry.builder()
