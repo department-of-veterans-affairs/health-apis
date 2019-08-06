@@ -4,6 +4,7 @@ import static gov.va.api.health.autoconfig.configuration.JacksonConfig.createMap
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import java.time.Instant;
 import java.util.Optional;
@@ -47,7 +48,7 @@ public class DatamartAllergyIntoleranceTest {
                         DatamartAllergyIntolerance.Substance.builder()
                             .coding(
                                 Optional.of(
-                                    DatamartAllergyIntolerance.Coding.builder()
+                                    DatamartCoding.of()
                                         .system("http://www.nlm.nih.gov/research/umls/rxnorm")
                                         .code("70618")
                                         .display("Penicillin")
@@ -109,12 +110,12 @@ public class DatamartAllergyIntoleranceTest {
                             .certainty(DatamartAllergyIntolerance.Certainty.likely)
                             .manifestations(
                                 asList(
-                                    DatamartAllergyIntolerance.Coding.builder()
+                                    DatamartCoding.of()
                                         .system("urn:oid:2.16.840.1.113883.6.233")
                                         .code("4637183")
                                         .display("RESPIRATORY DISTRESS")
                                         .build(),
-                                    DatamartAllergyIntolerance.Coding.builder()
+                                    DatamartCoding.of()
                                         .system("urn:oid:2.16.840.1.113883.6.233")
                                         .code("4538635")
                                         .display("RASH")
