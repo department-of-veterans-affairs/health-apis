@@ -65,7 +65,7 @@ public class DatamartImmunizationControllerTest {
 
   public void mockImmunizationIdentity(String publicId, String cdwId) {
     ResourceIdentity resourceIdentity =
-        ResourceIdentity.builder().system("CDW").resource("Immunization").identifier(cdwId).build();
+        ResourceIdentity.builder().system("CDW").resource("IMMUNIZATION").identifier(cdwId).build();
     when(ids.lookup(publicId)).thenReturn(List.of(resourceIdentity));
     when(ids.register(Mockito.any()))
         .thenReturn(
@@ -107,7 +107,8 @@ public class DatamartImmunizationControllerTest {
     repository.save(asEntity(dm));
     mockImmunizationIdentity("1", dm.cdwId());
     Immunization actual = controller().read("true", "1");
-    assertThat(actual).isEqualTo(Fhir.create().immunization("1", dm.patient().reference().get()));
+    assertThat(json(actual))
+        .isEqualTo(json(Fhir.create().immunization("1", dm.patient().reference().get())));
   }
 
   @Test

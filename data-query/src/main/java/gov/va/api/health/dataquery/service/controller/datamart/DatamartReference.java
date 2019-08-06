@@ -26,15 +26,15 @@ public class DatamartReference {
 
   /** Return "type/reference" if both are available, otherwise return empty. */
   public Optional<String> asRelativePath() {
-    if (type().isPresent() && reference().isPresent()) {
-      return Optional.of(type().get() + "/" + reference().get());
+    if (!hasTypeAndReference()) {
+      return Optional.empty();
     }
-    return Optional.empty();
+    return Optional.of(type().get() + "/" + reference().get());
   }
 
   /** Return a ResourceIdentity if the type and reference fields are available. */
   public Optional<ResourceIdentity> asResourceIdentity() {
-    if (type().isEmpty() && reference().isEmpty()) {
+    if (!hasTypeAndReference()) {
       return Optional.empty();
     }
     return Optional.of(
@@ -51,6 +51,10 @@ public class DatamartReference {
       display = Optional.empty();
     }
     return display;
+  }
+
+  public boolean hasTypeAndReference() {
+    return type().isPresent() && reference().isPresent();
   }
 
   /** Lazy initialization with empty. */

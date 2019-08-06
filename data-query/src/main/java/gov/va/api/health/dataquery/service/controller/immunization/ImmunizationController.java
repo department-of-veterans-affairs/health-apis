@@ -17,7 +17,6 @@ import gov.va.api.health.dataquery.service.controller.Validator;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
 import gov.va.api.health.dataquery.service.mranderson.client.Query;
-import gov.va.api.health.dstu2.api.elements.Reference;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import gov.va.dvp.cdw.xsd.model.CdwImmunization103Root;
 import java.math.BigInteger;
@@ -56,9 +55,8 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 @RestController
 @RequestMapping(
-  value = {"Immunization", "/api/Immunization"},
-  produces = {"application/json", "application/json+fhir", "application/fhir+json"}
-)
+    value = {"Immunization", "/api/Immunization"},
+    produces = {"application/json", "application/json+fhir", "application/fhir+json"})
 @Slf4j
 public class ImmunizationController {
   private final ImmunizationController.Datamart datamart = new ImmunizationController.Datamart();
@@ -187,9 +185,8 @@ public class ImmunizationController {
 
   /** Hey, this is a validate endpoint. It validates. */
   @PostMapping(
-    value = "/$validate",
-    consumes = {"application/json", "application/json+fhir", "application/fhir+json"}
-  )
+      value = "/$validate",
+      consumes = {"application/json", "application/json+fhir", "application/fhir+json"})
   public OperationOutcome validate(@RequestBody Immunization.Bundle bundle) {
     return Validator.create().validate(bundle);
   }
@@ -268,16 +265,19 @@ public class ImmunizationController {
     }
 
     Collection<DatamartImmunization> replaceReferences(Collection<DatamartImmunization> resources) {
+      /*
+       * Reaction is not a reference to another resource and is intentionally excluded from
+       * registration.
+       */
       witnessProtection.registerAndUpdateReferences(
           resources,
           resource ->
               Stream.of(
-                  resource.patient()
-                  //                  resource.performer().orElse(null),
-                  //                  resource.requester().orElse(null),
-                  //                  resource.encounter().orElse(null),
-                  //                  resource.location().orElse(null),
-                  //                  resource.reaction().orElse(null)
+                  resource.patient(),
+                  resource.performer().orElse(null),
+                  resource.requester().orElse(null),
+                  resource.encounter().orElse(null),
+                  resource.location().orElse(null)
                   //
                   ));
       return resources;
@@ -309,16 +309,7 @@ public class ImmunizationController {
     }
 
     Immunization transform(DatamartImmunization dm) {
-      // TODO replace with transformer
-      return Immunization.builder()
-          .resourceType("Immunization")
-          .id(dm.cdwId())
-          .patient(
-              Reference.builder()
-                  .display(dm.patient().reference().get())
-                  .reference("Patient/" + dm.patient().reference().get())
-                  .build())
-          .build();
+      return DatamartImmunizationTransformer.builder().datamart(dm).build().toFhir();
     }
   }
 }
