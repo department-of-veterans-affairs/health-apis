@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.immunization;
 
+import static gov.va.api.health.dataquery.service.controller.Transformers.asDateTimeString;
 import static gov.va.api.health.dataquery.service.controller.Transformers.asReference;
 
 import gov.va.api.health.argonaut.api.resources.Immunization;
@@ -65,7 +66,7 @@ public class DatamartImmunizationTransformer {
         // .identifier() omitted since none are being emitted from CDW
         .status(status(datamart.status()))
         ._status(statusExtension(datamart.status()))
-        // TODO .date(asDateTimeString(datamart..getDate()))
+        .date(asDateTimeString(datamart.date()))
         .vaccineCode(vaccineCode(datamart.vaccineCode()))
         .patient(asReference(datamart.patient()))
         .wasNotGiven(datamart.wasNotGiven())

@@ -106,7 +106,7 @@ public final class SystemDefinitions {
         .diagnosticReport("1400096309217:L")
         .encounter("1200753214085")
         .diagnosticReports(diagnosticReports())
-        .immunization("1000000043979")
+        .immunization("12345678")
         .location("166365:L")
         .medication("212846")
         .medicationDispense("1200738474343:R")

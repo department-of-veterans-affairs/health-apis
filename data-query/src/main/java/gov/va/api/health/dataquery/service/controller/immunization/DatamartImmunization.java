@@ -3,6 +3,7 @@ package gov.va.api.health.dataquery.service.controller.immunization;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dataquery.service.controller.datamart.HasReplaceableId;
+import java.time.Instant;
 import java.util.Optional;
 import javax.validation.constraints.Min;
 import lombok.AccessLevel;
@@ -26,6 +27,8 @@ public class DatamartImmunization implements HasReplaceableId {
   private Status status;
 
   private String etlDate;
+
+  private Instant date;
 
   private VaccineCode vaccineCode;
 

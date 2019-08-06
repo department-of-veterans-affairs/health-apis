@@ -18,6 +18,7 @@ import gov.va.api.health.dstu2.api.datatypes.Annotation;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
 import gov.va.api.health.dstu2.api.elements.Reference;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -40,6 +41,7 @@ class DatamartImmunizationSamples {
           .cdwId(cdwId)
           .status(DatamartImmunization.Status.completed)
           .etlDate("1997-04-03T21:02:15Z")
+          .date(Instant.parse("1997-05-09T14:21:18Z"))
           .vaccineCode(vaccineCode())
           .patient(
               DatamartReference.of()
@@ -109,8 +111,7 @@ class DatamartImmunizationSamples {
           .total(conditions.size())
           .link(Arrays.asList(links))
           .entry(
-              conditions
-                  .stream()
+              conditions.stream()
                   .map(
                       c ->
                           Entry.builder()
@@ -137,6 +138,7 @@ class DatamartImmunizationSamples {
       return Immunization.builder()
           .resourceType(Immunization.class.getSimpleName())
           .id(id)
+          .date("1997-05-09T14:21:18Z")
           .status(Status.completed)
           ._status(null)
           // TODO .date(...)
