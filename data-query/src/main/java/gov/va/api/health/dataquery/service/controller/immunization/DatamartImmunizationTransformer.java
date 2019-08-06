@@ -26,9 +26,9 @@ public class DatamartImmunizationTransformer {
   }
 
   List<Immunization.Reaction> reaction(Optional<DatamartReference> reaction) {
-    return reaction.isEmpty()
-        ? null
-        : List.of(Immunization.Reaction.builder().detail(asReference(reaction)).build());
+    return (reaction.isPresent() && reaction.get().hasDisplayOrTypeAndReference())
+        ? List.of(Immunization.Reaction.builder().detail(asReference(reaction)).build())
+        : null;
   }
 
   Immunization.Status status(DatamartImmunization.Status status) {
