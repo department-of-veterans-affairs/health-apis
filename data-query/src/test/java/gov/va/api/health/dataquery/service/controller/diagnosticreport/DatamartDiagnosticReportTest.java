@@ -36,6 +36,7 @@ public final class DatamartDiagnosticReportTest {
 
   public DiagnosticReportController controller() {
     return new DiagnosticReportController(
+        true,
         null,
         null,
         new Bundler(new ConfigurableBaseUrlPageLinks("", "")),
