@@ -18,11 +18,14 @@ public class DatamartMedication {
 
   private String cdwId;
 
-  private String etlDate;
-
   private RxNorm rxnorm;
 
   private Product product;
+
+  /** Backwards compatibility for etlDate. */
+  private void setEtlDate(String unused) {
+    /* no op */
+  }
 
   @Data
   @Builder

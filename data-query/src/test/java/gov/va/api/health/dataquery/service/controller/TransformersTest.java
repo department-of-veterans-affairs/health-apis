@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.controller;
 
+import static gov.va.api.health.dataquery.service.controller.Transformers.asCodeableConceptWrapping;
 import static gov.va.api.health.dataquery.service.controller.Transformers.asCoding;
 import static gov.va.api.health.dataquery.service.controller.Transformers.asDateString;
 import static gov.va.api.health.dataquery.service.controller.Transformers.asDateTimeString;
@@ -17,6 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import gov.va.api.health.dataquery.service.controller.Transformers.MissingPayload;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
+import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
 import gov.va.api.health.dstu2.api.elements.Reference;
 import java.math.BigInteger;
@@ -41,6 +43,22 @@ public class TransformersTest {
     assertThat(Transformers.allBlank(null, "", " ")).isTrue();
     assertThat(Transformers.allBlank(null, 1, null, null)).isFalse();
     assertThat(Transformers.allBlank(1, "x", "z", 2.0)).isFalse();
+  }
+
+  @Test
+  public void asCodeableConceptWrappingReturnsNullIfCodingCannotBeConverted() {
+    assertThat(asCodeableConceptWrapping(null)).isNull();
+  }
+
+  @Test
+  public void asCodeableConceptWrappingReturnsValueIfCodingCanBeConverted() {
+    assertThat(
+            asCodeableConceptWrapping(
+                DatamartCoding.of().system("s").code("c").display("d").build()))
+        .isEqualTo(
+            CodeableConcept.builder()
+                .coding(List.of(Coding.builder().system("s").code("c").display("d").build()))
+                .build());
   }
 
   @Test

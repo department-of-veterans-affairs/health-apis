@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.condition;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dataquery.service.controller.datamart.HasReplaceableId;
 import java.time.Instant;
@@ -18,7 +19,6 @@ import lombok.NoArgsConstructor;
 public class DatamartCondition implements HasReplaceableId {
   @Builder.Default private String objectType = "Condition";
   @Builder.Default private String objectVersion = "1";
-  private String etlDate;
   private String cdwId;
   private DatamartReference patient;
   private Optional<DatamartReference> encounter;
@@ -79,6 +79,11 @@ public class DatamartCondition implements HasReplaceableId {
     return onsetDateTime;
   }
 
+  /** Backwards compatibility for etlDate. */
+  private void setEtlDate(String unused) {
+    /* no op */
+  }
+
   /** Lazy initialization with empty. */
   public Optional<SnomedCode> snomed() {
     if (snomed == null) {
@@ -101,18 +106,30 @@ public class DatamartCondition implements HasReplaceableId {
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
+  @JsonIgnoreProperties({"usable"})
   public static class IcdCode {
     private String code;
     private String display;
     private String version;
+
+    /** Determine if an icd code can be mapped without null values. */
+    public boolean isUsable() {
+      return code != null && display != null;
+    }
   }
 
   @Data
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
+  @JsonIgnoreProperties({"usable"})
   public static class SnomedCode {
     private String code;
     private String display;
+
+    /** Determine if a snomed code can be mapped without null values. */
+    public boolean isUsable() {
+      return code != null && display != null;
+    }
   }
 }

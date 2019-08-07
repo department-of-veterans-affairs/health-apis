@@ -12,9 +12,14 @@ import org.junit.Test;
 
 public class DatamartConditionTest {
 
+  public void assertReadable(String json) throws java.io.IOException {
+    DatamartCondition dm =
+        createMapper().readValue(getClass().getResourceAsStream(json), DatamartCondition.class);
+    assertThat(dm).isEqualTo(sample());
+  }
+
   private DatamartCondition sample() {
     return DatamartCondition.builder()
-        .etlDate("2011-06-27T05:40:00")
         .cdwId("800274570575:D")
         .patient(
             DatamartReference.of()
@@ -60,10 +65,12 @@ public class DatamartConditionTest {
   @Test
   @SneakyThrows
   public void unmarshalSample() {
-    DatamartCondition dm =
-        createMapper()
-            .readValue(
-                getClass().getResourceAsStream("datamart-condition.json"), DatamartCondition.class);
-    assertThat(dm).isEqualTo(sample());
+    assertReadable("datamart-condition.json");
+  }
+
+  @Test
+  @SneakyThrows
+  public void unmarshalSampleV0() {
+    assertReadable("datamart-condition-v0.json");
   }
 }

@@ -25,8 +25,6 @@ public class DatamartAllergyIntolerance implements HasReplaceableId {
 
   private String cdwId;
 
-  private String etlDate;
-
   private Optional<DatamartReference> patient;
 
   private Optional<Instant> recordedDate;
@@ -83,6 +81,11 @@ public class DatamartAllergyIntolerance implements HasReplaceableId {
       recorder = Optional.empty();
     }
     return recorder;
+  }
+
+  /** Backwards compatibility for etlDate. */
+  private void setEtlDate(String unused) {
+    /* no op */
   }
 
   /** Lazy getter. */

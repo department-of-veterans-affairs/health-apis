@@ -23,7 +23,6 @@ public class DatamartMedicationSamples {
           .objectType("Medication")
           .objectVersion("1")
           .cdwId(cdwId)
-          .etlDate("2019-08-06T16:12:26.430")
           .rxnorm(rxNorm())
           .product(product())
           .build();
