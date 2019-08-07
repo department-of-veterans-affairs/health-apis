@@ -5,6 +5,7 @@ import static org.springframework.util.CollectionUtils.isEmpty;
 
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
+import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
 import gov.va.api.health.dstu2.api.elements.Reference;
 import java.math.BigInteger;
@@ -45,6 +46,18 @@ public final class Transformers {
       }
     }
     return true;
+  }
+
+  /**
+   * Convert the coding to a FHIR coding and wrap it with a codeable concept. Returns null of it
+   * cannot be converted.
+   */
+  public static CodeableConcept asCodeableConceptWrapping(DatamartCoding coding) {
+    Coding fhirCoding = asCoding(coding);
+    if (fhirCoding == null) {
+      return null;
+    }
+    return CodeableConcept.builder().coding(List.of(fhirCoding)).build();
   }
 
   /** Convert the datamart coding to coding if possible, otherwise return null. */
