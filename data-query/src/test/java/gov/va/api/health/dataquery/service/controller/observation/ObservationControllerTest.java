@@ -39,12 +39,13 @@ public class ObservationControllerTest {
   @Mock ObservationController.Transformer tx;
 
   ObservationController controller;
+
   @Mock Bundler bundler;
 
   @Before
   public void _init() {
     MockitoAnnotations.initMocks(this);
-    controller = new ObservationController(tx, client, bundler);
+    controller = new ObservationController(false, tx, client, bundler, null, null);
   }
 
   private void assertSearch(Supplier<Bundle> invocation, MultiValueMap<String, String> params) {

@@ -5,23 +5,25 @@ import static gov.va.api.health.dataquery.service.controller.Transformers.hasPay
 
 import gov.va.api.health.argonaut.api.resources.Observation;
 import gov.va.api.health.dataquery.service.controller.Bundler;
-import gov.va.api.health.dataquery.service.controller.Bundler.BundleContext;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.DateTimeParameter;
-import gov.va.api.health.dataquery.service.controller.PageLinks.LinkConfig;
+import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.Parameters;
+import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.Validator;
+import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
 import gov.va.api.health.dataquery.service.mranderson.client.Query;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import gov.va.dvp.cdw.xsd.model.CdwObservation104Root;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.function.Function;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
-import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -44,16 +46,41 @@ import org.springframework.web.bind.annotation.RestController;
   value = {"Observation", "/api/Observation"},
   produces = {"application/json", "application/json+fhir", "application/fhir+json"}
 )
-@AllArgsConstructor(onConstructor = @__({@Autowired}))
 public class ObservationController {
+  private final Datamart datamart = new Datamart();
+
+  private boolean defaultToDatamart;
+
   private Transformer transformer;
+
   private MrAndersonClient mrAndersonClient;
+
   private Bundler bundler;
+
+  private WitnessProtection witnessProtection;
+
+  private ObservationRepository repository;
+
+  /** Autowired constructor. */
+  public ObservationController(
+      @Value("${datamart.observation}") boolean defaultToDatamart,
+      @Autowired Transformer transformer,
+      @Autowired MrAndersonClient mrAndersonClient,
+      @Autowired Bundler bundler,
+      @Autowired ObservationRepository repository,
+      @Autowired WitnessProtection witnessProtection) {
+    this.defaultToDatamart = defaultToDatamart;
+    this.transformer = transformer;
+    this.mrAndersonClient = mrAndersonClient;
+    this.bundler = bundler;
+    this.repository = repository;
+    this.witnessProtection = witnessProtection;
+  }
 
   private Observation.Bundle bundle(MultiValueMap<String, String> parameters, int page, int count) {
     CdwObservation104Root root = search(parameters);
-    LinkConfig linkConfig =
-        LinkConfig.builder()
+    PageLinks.LinkConfig linkConfig =
+        PageLinks.LinkConfig.builder()
             .path("Observation")
             .queryParams(parameters)
             .page(page)
@@ -61,7 +88,7 @@ public class ObservationController {
             .totalRecords(root.getRecordCount().intValue())
             .build();
     return bundler.bundle(
-        BundleContext.of(
+        Bundler.BundleContext.of(
             linkConfig,
             root.getObservations() == null
                 ? Collections.emptyList()
@@ -78,6 +105,12 @@ public class ObservationController {
         firstPayloadItem(
             hasPayload(search(Parameters.forIdentity(publicId)).getObservations())
                 .getObservation()));
+  }
+
+  /** Return the raw Datamart document for the given identifier. */
+  @GetMapping(value = "/{publicId}/raw")
+  public String readRaw(@PathVariable("publicId") String publicId) {
+    return datamart.readRaw(publicId);
   }
 
   private CdwObservation104Root search(MultiValueMap<String, String> params) {
@@ -177,4 +210,24 @@ public class ObservationController {
 
   public interface Transformer
       extends Function<CdwObservation104Root.CdwObservations.CdwObservation, Observation> {}
+
+  /**
+   * This class is being used to help organize the code such that all the datamart logic is
+   * contained together. In the future when Mr. Anderson support is dropped, this class can be
+   * eliminated.
+   */
+  private class Datamart {
+    ObservationEntity findById(@PathVariable("publicId") String publicId) {
+      String cdwId = witnessProtection.toCdwId(publicId);
+      Optional<ObservationEntity> maybeEntity = repository.findById(cdwId);
+      if (!maybeEntity.isPresent()) {
+        throw new ResourceExceptions.NotFound(publicId);
+      }
+      return maybeEntity.get();
+    }
+
+    String readRaw(@PathVariable("publicId") String publicId) {
+      return findById(publicId).payload();
+    }
+  }
 }
