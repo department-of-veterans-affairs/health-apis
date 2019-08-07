@@ -195,9 +195,7 @@ final class DatamartObservation implements HasReplaceableId {
     cancelled,
     @JsonProperty("entered-in-error")
     entered_in_error,
-    unknown,
-    @JsonProperty("data-absent-reason:unsupported")
-    data_absent_reason_unsupported
+    unknown
   }
 
   @Data
