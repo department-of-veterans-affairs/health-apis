@@ -1,9 +1,20 @@
 package gov.va.api.health.dataquery.service.controller.medication;
 
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
-import lombok.*;
-
-import javax.persistence.*;
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.Lob;
+import javax.persistence.Table;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.SneakyThrows;
 
 /**
  *
@@ -27,18 +38,18 @@ import javax.persistence.*;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class MedicationEntity {
 
-    @Id
-    @Column(name = "CDWId")
-    @EqualsAndHashCode.Include
-    private String cdwId;
+  @Id
+  @Column(name = "CDWId")
+  @EqualsAndHashCode.Include
+  private String cdwId;
 
-    @Column(name = "Medication")
-    @Basic(fetch = FetchType.LAZY)
-    @Lob
-    private String payload;
+  @Column(name = "Medication")
+  @Basic(fetch = FetchType.LAZY)
+  @Lob
+  private String payload;
 
-    @SneakyThrows
-    DatamartMedication asDatamartMedication() {
-        return JacksonConfig.createMapper().readValue(payload, DatamartMedication.class);
-    }
+  @SneakyThrows
+  DatamartMedication asDatamartMedication() {
+    return JacksonConfig.createMapper().readValue(payload, DatamartMedication.class);
+  }
 }

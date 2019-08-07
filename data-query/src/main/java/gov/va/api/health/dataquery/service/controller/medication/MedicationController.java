@@ -5,22 +5,25 @@ import static gov.va.api.health.dataquery.service.controller.Transformers.hasPay
 import static java.util.Collections.emptyList;
 
 import gov.va.api.health.argonaut.api.resources.Medication;
-import gov.va.api.health.dataquery.service.controller.*;
+import gov.va.api.health.argonaut.api.resources.Medication.Bundle;
+import gov.va.api.health.argonaut.api.resources.Medication.Entry;
+import gov.va.api.health.dataquery.service.controller.Bundler;
 import gov.va.api.health.dataquery.service.controller.Bundler.BundleContext;
+import gov.va.api.health.dataquery.service.controller.CountParameter;
+import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.PageLinks.LinkConfig;
+import gov.va.api.health.dataquery.service.controller.Parameters;
+import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
+import gov.va.api.health.dataquery.service.controller.Validator;
+import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
 import gov.va.api.health.dataquery.service.mranderson.client.Query;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import gov.va.dvp.cdw.xsd.model.CdwMedication101Root;
-
-
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,12 +31,16 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import gov.va.api.health.argonaut.api.resources.Medication.Bundle;
-import gov.va.api.health.argonaut.api.resources.Medication.Entry;
 import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Request Mappings for Medication Profile, see
@@ -61,12 +68,12 @@ public class MedicationController {
   /** Spring constructor. */
   @SuppressWarnings("ParameterHidesMemberVariable")
   public MedicationController(
-          @Value("${datamart.medication}") boolean defaultToDatamart,
-          @Autowired MedicationController.Transformer transformer,
-          @Autowired MrAndersonClient mrAndersonClient,
-          @Autowired Bundler bundler,
-          @Autowired MedicationRepository repository,
-          @Autowired WitnessProtection witnessProtection) {
+      @Value("${datamart.medication}") boolean defaultToDatamart,
+      @Autowired MedicationController.Transformer transformer,
+      @Autowired MrAndersonClient mrAndersonClient,
+      @Autowired Bundler bundler,
+      @Autowired MedicationRepository repository,
+      @Autowired WitnessProtection witnessProtection) {
     this.defaultToDatamart = defaultToDatamart;
     this.transformer = transformer;
     this.mrAndersonClient = mrAndersonClient;
@@ -99,8 +106,8 @@ public class MedicationController {
   /** Read by id. */
   @GetMapping(value = {"/{publicId}"})
   public Medication read(
-          @RequestHeader(value = "Datamart", defaultValue = "") String datamartHeader,
-          @PathVariable("publicId") String publicId) {
+      @RequestHeader(value = "Datamart", defaultValue = "") String datamartHeader,
+      @PathVariable("publicId") String publicId) {
     if (datamart.isDatamartRequest(datamartHeader)) {
       return datamart.read(publicId);
     }
@@ -112,12 +119,7 @@ public class MedicationController {
   /** Read by id, raw data. */
   @GetMapping(value = {"/{publicId}/raw"})
   public String readRaw(@PathVariable("publicId") String publicId) {
-    MultiValueMap<String, String> publicParameters = Parameters.forIdentity(publicId);
-    MultiValueMap<String, String> cdwParameters =
-            witnessProtection.replacePublicIdsWithCdwIds(publicParameters);
-    Optional<MedicationEntity> entity =
-            repository.findById(Parameters.identiferOf(cdwParameters));
-    return entity.orElseThrow(() -> new ResourceExceptions.NotFound(publicParameters)).payload();
+    return datamart.readRaw(publicId);
   }
 
   private CdwMedication101Root search(MultiValueMap<String, String> params) {
@@ -134,7 +136,7 @@ public class MedicationController {
   /** Search by _id. */
   @GetMapping(params = {"_id"})
   public Bundle searchById(
-          @RequestHeader(value = "Datamart", defaultValue = "") String datamartHeader,
+      @RequestHeader(value = "Datamart", defaultValue = "") String datamartHeader,
       @RequestParam("_id") String id,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
@@ -150,7 +152,7 @@ public class MedicationController {
   /** Search by Identifier. */
   @GetMapping(params = {"identifier"})
   public Bundle searchByIdentifier(
-          @RequestHeader(value = "Datamart", defaultValue = "") String datamartHeader,
+      @RequestHeader(value = "Datamart", defaultValue = "") String datamartHeader,
       @RequestParam("identifier") String id,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
@@ -180,47 +182,22 @@ public class MedicationController {
   private class Datamart {
 
     private Bundle bundle(
-            MultiValueMap<String, String> parameters, List<Medication> reports, int totalRecords) {
+        MultiValueMap<String, String> parameters, List<Medication> reports, int totalRecords) {
       PageLinks.LinkConfig linkConfig =
-              PageLinks.LinkConfig.builder()
-                      .path("Medication")
-                      .queryParams(parameters)
-                      .page(Parameters.pageOf(parameters))
-                      .recordsPerPage(Parameters.countOf(parameters))
-                      .totalRecords(totalRecords)
-                      .build();
+          PageLinks.LinkConfig.builder()
+              .path("Medication")
+              .queryParams(parameters)
+              .page(Parameters.pageOf(parameters))
+              .recordsPerPage(Parameters.countOf(parameters))
+              .totalRecords(totalRecords)
+              .build();
       return bundler.bundle(
-              Bundler.BundleContext.of(
-                      linkConfig,
-                      reports,
-                      Function.identity(),
-                      Entry::new,
-                      Bundle::new));
-    }
-
-    private Bundle bundle(
-            MultiValueMap<String, String> parameters, int count, Page<MedicationEntity> entities) {
-
-      log.info("Search {} found {} results", parameters, entities.getTotalElements());
-      if (count == 0) {
-        return bundle(parameters, emptyList(), (int) entities.getTotalElements());
-      }
-
-      return bundle(
-              parameters,
-                      entities
-                              .get()
-                              .map(MedicationEntity::asDatamartMedication)
-                              .collect(Collectors.toList())
-                      .stream()
-                      .map(this::transform)
-                      .collect(Collectors.toList()),
-              (int) entities.getTotalElements());
+          Bundler.BundleContext.of(
+              linkConfig, reports, Function.identity(), Entry::new, Bundle::new));
     }
 
     MedicationEntity findById(String publicId) {
-      Optional<MedicationEntity> entity =
-              repository.findById(witnessProtection.toCdwId(publicId));
+      Optional<MedicationEntity> entity = repository.findById(witnessProtection.toCdwId(publicId));
       return entity.orElseThrow(() -> new ResourceExceptions.NotFound(publicId));
     }
 
@@ -240,17 +217,16 @@ public class MedicationController {
       return findById(publicId).payload();
     }
 
-
     Bundle searchById(String publicId, int page, int count) {
       Medication resource = read(publicId);
       return bundle(
-              Parameters.builder()
-                      .add("identifier", publicId)
-                      .add("page", page)
-                      .add("_count", count)
-                      .build(),
-              resource == null || count == 0 ? emptyList() : List.of(resource),
-              resource == null ? 0 : 1);
+          Parameters.builder()
+              .add("identifier", publicId)
+              .add("page", page)
+              .add("_count", count)
+              .build(),
+          resource == null || count == 0 ? emptyList() : List.of(resource),
+          resource == null ? 0 : 1);
     }
 
     Medication transform(DatamartMedication dm) {
