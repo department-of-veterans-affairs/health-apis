@@ -31,19 +31,19 @@ public class DatamartMedication {
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
-  public static class Product {
-    String id;
+  public static class RxNorm {
+    private String code;
 
-    String formText;
+    private String text;
   }
 
   @Data
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
-  public static class RxNorm {
-    String code;
+  public static class Product {
+    private String id;
 
-    String text;
+    private String formText;
   }
 }
