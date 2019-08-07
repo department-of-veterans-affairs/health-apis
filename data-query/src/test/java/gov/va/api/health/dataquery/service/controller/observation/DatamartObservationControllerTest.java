@@ -10,7 +10,6 @@ import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.api.ResourceIdentity;
 import lombok.SneakyThrows;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +19,17 @@ import org.springframework.test.context.junit4.SpringRunner;
 @DataJpaTest
 @RunWith(SpringRunner.class)
 public class DatamartObservationControllerTest {
+
   @Autowired private ObservationRepository repository;
+
+  @SneakyThrows
+  private static ObservationEntity asEntity(DatamartObservation dm) {
+    return ObservationEntity.builder()
+        .id(dm.cdwId())
+        .icn(dm.subject().get().reference().get())
+        .payload(JacksonConfig.createMapper().writeValueAsString(dm))
+        .build();
+  }
 
   private static void setUpIds(IdentityService ids, DatamartObservation dm) {
     when(ids.lookup(DatamartObservationSamples.Fhir.ID))
@@ -31,15 +40,6 @@ public class DatamartObservationControllerTest {
                     .resource("OBSERVATION")
                     .identifier(dm.cdwId())
                     .build()));
-  }
-
-  @SneakyThrows
-  private static ObservationEntity asEntity(DatamartObservation dm) {
-    return ObservationEntity.builder()
-        .id(dm.cdwId())
-        .icn(dm.subject().get().reference().get())
-        .payload(JacksonConfig.createMapper().writeValueAsString(dm))
-        .build();
   }
 
   @SneakyThrows

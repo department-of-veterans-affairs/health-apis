@@ -182,6 +182,7 @@ public class MedicationStatementController {
       return entity.orElseThrow(() -> new NotFound(publicId));
     }
 
+    @SuppressWarnings("unused")
     boolean isDatamartRequest(String datamartHeader) {
       if (StringUtils.isBlank(datamartHeader)) {
         return defaultToDatamart;
