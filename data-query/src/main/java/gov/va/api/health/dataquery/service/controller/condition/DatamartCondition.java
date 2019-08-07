@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.condition;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dataquery.service.controller.datamart.HasReplaceableId;
 import java.time.Instant;
@@ -105,18 +106,30 @@ public class DatamartCondition implements HasReplaceableId {
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
+  @JsonIgnoreProperties({"usable"})
   public static class IcdCode {
     String code;
     String display;
     String version;
+
+    /** Determine if an icd code can be mapped without null values. */
+    public boolean isUsable() {
+      return code != null && display != null;
+    }
   }
 
   @Data
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
+  @JsonIgnoreProperties({"usable"})
   public static class SnomedCode {
     String code;
     String display;
+
+    /** Determine if a snomed code can be mapped without null values. */
+    public boolean isUsable() {
+      return code != null && display != null;
+    }
   }
 }

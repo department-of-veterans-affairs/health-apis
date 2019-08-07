@@ -37,6 +37,19 @@ public class DatamartConditionTransformerTest {
     condition.snomed(snomed);
     assertThat(tx(condition).bestCode())
         .isEqualTo(DatamartConditionSamples.Fhir.create().snomedCode());
+    // case: icd = yes, snomed = yes, snomed.code = no -> icd
+    condition.icd(icd);
+    condition.snomed(Optional.of(datamart.snomedCode().code(null)));
+    assertThat(tx(condition).bestCode())
+        .isEqualTo(DatamartConditionSamples.Fhir.create().icd10Code());
+    // case: icd = yes, icd.code = no, snomed = yes, snomed.display = no -> null
+    condition.icd(Optional.of(datamart.icd10Code().code(null)));
+    condition.snomed(Optional.of(datamart.snomedCode().display(null)));
+    assertThat(tx(condition).bestCode()).isNull();
+    // case: snomed = no, icd = yes, icd.display = no -> null
+    condition.icd(Optional.of(datamart.icd10Code().display(null)));
+    condition.snomed(null);
+    assertThat(tx(condition).bestCode()).isNull();
   }
 
   @Test
