@@ -18,7 +18,7 @@ public class DatamartObservationSamples {
     static final String ID = "2b45ed16-3d77-45b0-b540-928605528ef0";
 
     public Observation observation() {
-      return Observation.builder().build();
+      return Observation.builder().resourceType("Observation").id(ID).build();
     }
   }
 }

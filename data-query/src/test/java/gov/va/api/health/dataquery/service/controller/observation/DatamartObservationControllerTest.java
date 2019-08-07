@@ -6,17 +6,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
-import gov.va.api.health.dataquery.service.controller.Bundler;
-import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.ids.api.IdentityService;
-import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
 import lombok.SneakyThrows;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -41,7 +37,7 @@ public class DatamartObservationControllerTest {
   private static ObservationEntity asEntity(DatamartObservation dm) {
     return ObservationEntity.builder()
         .id(dm.cdwId())
-        .icn(dm.patient().get().reference().get())
+        .icn(dm.subject().get().reference().get())
         .payload(JacksonConfig.createMapper().writeValueAsString(dm))
         .build();
   }
