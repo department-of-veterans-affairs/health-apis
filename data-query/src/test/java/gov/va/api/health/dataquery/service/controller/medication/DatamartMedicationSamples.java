@@ -1,10 +1,18 @@
 package gov.va.api.health.dataquery.service.controller.medication;
 
 import gov.va.api.health.argonaut.api.resources.Medication;
+import gov.va.api.health.dstu2.api.bundle.AbstractBundle;
+import gov.va.api.health.dstu2.api.bundle.AbstractEntry;
+import gov.va.api.health.dstu2.api.bundle.BundleLink;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
 import gov.va.api.health.dstu2.api.elements.Narrative;
+
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import lombok.AllArgsConstructor;
 import lombok.experimental.UtilityClass;
 
@@ -42,6 +50,34 @@ public class DatamartMedicationSamples {
 
   @AllArgsConstructor(staticName = "create")
   static class Fhir {
+
+    static Medication.Bundle asBundle(
+            String baseUrl, Collection<Medication> medications, BundleLink... links) {
+      return Medication.Bundle.builder()
+              .resourceType("Bundle")
+              .type(AbstractBundle.BundleType.searchset)
+              .total(medications.size())
+              .link(Arrays.asList(links))
+              .entry(
+                      medications
+                              .stream()
+                              .map(
+                                      c ->
+                                              Medication.Entry.builder()
+                                                      .fullUrl(baseUrl + "/Medication/" + c.id())
+                                                      .resource(c)
+                                                      .search(AbstractEntry.Search.builder().mode(AbstractEntry.SearchMode.match).build())
+                                                      .build())
+                              .collect(Collectors.toList()))
+              .build();
+    }
+
+    static BundleLink link(BundleLink.LinkRelation rel, String base, int page, int count) {
+      return BundleLink.builder()
+              .relation(rel)
+              .url(base + "&page=" + page + "&_count=" + count)
+              .build();
+    }
 
     CodeableConcept code() {
       return CodeableConcept.builder()

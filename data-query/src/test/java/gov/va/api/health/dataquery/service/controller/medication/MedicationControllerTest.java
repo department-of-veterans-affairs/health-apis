@@ -44,7 +44,7 @@ public class MedicationControllerTest {
   @Before
   public void _init() {
     MockitoAnnotations.initMocks(this);
-    controller = new MedicationController(tx, client, bundler);
+    controller = new MedicationController(false, tx, client, bundler,null,null);
   }
 
   private void assertSearch(
@@ -119,7 +119,7 @@ public class MedicationControllerTest {
     Medication medication = Medication.builder().build();
     when(client.search(Mockito.any())).thenReturn(root);
     when(tx.apply(xmlMedication)).thenReturn(medication);
-    Medication actual = controller.read("hello");
+    Medication actual = controller.read("false","hello");
     assertThat(actual).isSameAs(medication);
     ArgumentCaptor<Query<CdwMedication101Root>> captor = ArgumentCaptor.forClass(Query.class);
     verify(client).search(captor.capture());
@@ -129,14 +129,14 @@ public class MedicationControllerTest {
   @Test
   public void searchById() {
     assertSearch(
-        () -> controller.searchById("me", 1, 10),
+        () -> controller.searchById("false","me", 1, 10),
         Parameters.builder().add("identifier", "me").add("page", 1).add("_count", 10).build());
   }
 
   @Test
   public void searchByIdentifier() {
     assertSearch(
-        () -> controller.searchByIdentifier("me", 1, 10),
+        () -> controller.searchByIdentifier("false","me", 1, 10),
         Parameters.builder().add("identifier", "me").add("page", 1).add("_count", 10).build());
   }
 
