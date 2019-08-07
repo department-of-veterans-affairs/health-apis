@@ -26,10 +26,10 @@ public class DatamartConditionTransformer {
    * returned if neither are available.
    */
   CodeableConcept bestCode() {
-    if (datamart.snomed().isPresent()) {
+    if (datamart.snomed().isPresent() && datamart.snomed().get().isUsable()) {
       return code(datamart.snomed().get());
     }
-    if (datamart.icd().isPresent()) {
+    if (datamart.icd().isPresent() && datamart.icd().get().isUsable()) {
       return code(datamart.icd().get());
     }
     return null;
@@ -86,6 +86,7 @@ public class DatamartConditionTransformer {
                     .code(snomedCode.code())
                     .display(snomedCode.display())
                     .build()))
+        .text(snomedCode.display())
         .build();
   }
 
@@ -102,6 +103,7 @@ public class DatamartConditionTransformer {
                     .code(icdCode.code())
                     .display(icdCode.display())
                     .build()))
+        .text(icdCode.display())
         .build();
   }
 
