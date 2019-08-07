@@ -27,10 +27,14 @@ public class DatamartConditionTransformer {
    */
   CodeableConcept bestCode() {
     if (datamart.snomed().isPresent()) {
-      return code(datamart.snomed().get());
+      if (datamart.snomed().get().code() != null && datamart.snomed().get().display() != null) {
+        return code(datamart.snomed().get());
+      }
     }
     if (datamart.icd().isPresent()) {
-      return code(datamart.icd().get());
+      if (datamart.icd().get().code() != null && datamart.icd().get().display() != null) {
+        return code(datamart.icd().get());
+      }
     }
     return null;
   }
@@ -86,6 +90,7 @@ public class DatamartConditionTransformer {
                     .code(snomedCode.code())
                     .display(snomedCode.display())
                     .build()))
+        .text(snomedCode.display())
         .build();
   }
 
@@ -102,6 +107,7 @@ public class DatamartConditionTransformer {
                     .code(icdCode.code())
                     .display(icdCode.display())
                     .build()))
+        .text(icdCode.display())
         .build();
   }
 
