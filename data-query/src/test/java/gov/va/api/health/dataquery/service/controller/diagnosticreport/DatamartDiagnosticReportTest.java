@@ -34,6 +34,13 @@ public final class DatamartDiagnosticReportTest {
 
   @Autowired private TestEntityManager entityManager;
 
+  public void assertReadable(String json) throws java.io.IOException {
+    DatamartDiagnosticReports dmDr =
+        createMapper()
+            .readValue(getClass().getResourceAsStream(json), DatamartDiagnosticReports.class);
+    assertThat(dmDr).isEqualTo(datamartDrSample());
+  }
+
   public DiagnosticReportController controller() {
     return new DiagnosticReportController(
         true,
@@ -51,7 +58,6 @@ public final class DatamartDiagnosticReportTest {
             .sta3n("111")
             .effectiveDateTime("2019-06-30T10:51:06Z")
             .issuedDateTime("2019-07-01T10:51:06Z")
-            .etlEditDateTime("2019-07-31T14:51:06Z")
             .accessionInstitutionSid("999")
             .accessionInstitutionName("ABC-DEF")
             .topographySid("777")
@@ -378,12 +384,13 @@ public final class DatamartDiagnosticReportTest {
   @Test
   @SneakyThrows
   public void unmarshalSample() {
-    DatamartDiagnosticReports dmDr =
-        createMapper()
-            .readValue(
-                getClass().getResourceAsStream("datamart-diagnostic-report.json"),
-                DatamartDiagnosticReports.class);
-    assertThat(dmDr).isEqualTo(datamartDrSample());
+    assertReadable("datamart-diagnostic-report.json");
+  }
+
+  @Test
+  @SneakyThrows
+  public void unmarshalSampleV0() {
+    assertReadable("datamart-diagnostic-report-v0.json");
   }
 
   @Value

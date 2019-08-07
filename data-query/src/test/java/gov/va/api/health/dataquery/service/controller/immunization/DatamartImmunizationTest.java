@@ -10,11 +10,16 @@ import lombok.SneakyThrows;
 import org.junit.Test;
 
 public class DatamartImmunizationTest {
+  public void assertReadable(String json) throws java.io.IOException {
+    DatamartImmunization dm =
+        createMapper().readValue(getClass().getResourceAsStream(json), DatamartImmunization.class);
+    assertThat(dm).isEqualTo(sample());
+  }
+
   private DatamartImmunization sample() {
     return DatamartImmunization.builder()
         .cdwId("1000000030337")
         .status(DatamartImmunization.Status.completed)
-        .etlDate("1997-04-03T21:02:15Z")
         .date(Instant.parse("1997-05-09T14:21:18Z"))
         .vaccineCode(
             DatamartImmunization.VaccineCode.builder()
@@ -76,11 +81,12 @@ public class DatamartImmunizationTest {
   @Test
   @SneakyThrows
   public void unmarshalSample() {
-    DatamartImmunization dm =
-        createMapper()
-            .readValue(
-                getClass().getResourceAsStream("datamart-immunization.json"),
-                DatamartImmunization.class);
-    assertThat(dm).isEqualTo(sample());
+    assertReadable("datamart-immunization.json");
+  }
+
+  @Test
+  @SneakyThrows
+  public void unmarshalSampleV0() {
+    assertReadable("datamart-immunization-v0.json");
   }
 }

@@ -2,6 +2,7 @@
   "objectType" : "MedicationStatement",
   "objectVersion" : "1",
   "cdwId" : "800008482786",
+  "etlDate" : "2017-11-03T01:39:21Z",
   "patient" : {
     "type" : "Patient",
     "reference" : "1004810366V403573",

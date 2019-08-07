@@ -1,0 +1,13 @@
+{
+  "objectType" : "Medication",
+  "objectVersion" : "1",
+  "cdwId" : "1000",
+  "rxnorm" : {
+    "code" : "284205",
+    "text" : "ALMOTRIPTAN MALATE 12.5MG TAB,UD"
+  },
+  "product" : {
+    "id" : "4015523",
+    "formText" : "TAB"
+  }
+}

@@ -36,7 +36,6 @@ public class DatamartConditionSamples {
 
     public DatamartCondition condition(String cdwId, String patientId, String dateRecorded) {
       return DatamartCondition.builder()
-          .etlDate("2011-06-27T05:40:00")
           .cdwId(cdwId)
           .patient(
               DatamartReference.of()
