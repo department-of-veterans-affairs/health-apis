@@ -2,6 +2,7 @@ package gov.va.api.health.dataquery.service.controller.observation;
 
 import static gov.va.api.health.dataquery.service.controller.Transformers.firstPayloadItem;
 import static gov.va.api.health.dataquery.service.controller.Transformers.hasPayload;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import gov.va.api.health.argonaut.api.resources.Observation;
 import gov.va.api.health.dataquery.service.controller.Bundler;
@@ -22,6 +23,7 @@ import java.util.function.Function;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.MultiValueMap;
@@ -224,6 +226,13 @@ public class ObservationController {
         throw new ResourceExceptions.NotFound(publicId);
       }
       return maybeEntity.get();
+    }
+
+    boolean isDatamartRequest(String datamartHeader) {
+      if (isBlank(datamartHeader)) {
+        return defaultToDatamart;
+      }
+      return BooleanUtils.isTrue(BooleanUtils.toBooleanObject(datamartHeader));
     }
 
     String readRaw(@PathVariable("publicId") String publicId) {
