@@ -12,14 +12,13 @@ import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.PageLinks.LinkConfig;
 import gov.va.api.health.dataquery.service.controller.Parameters;
-import gov.va.api.health.dataquery.service.controller.ResourceExceptions.NotFound;
+import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.Validator;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
 import gov.va.api.health.dataquery.service.mranderson.client.Query;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import gov.va.dvp.cdw.xsd.model.CdwImmunization103Root;
-import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -244,9 +243,12 @@ public class ImmunizationController {
     }
 
     ImmunizationEntity findById(String publicId) {
-      Optional<ImmunizationEntity> entity =
-          repository.findById(new BigInteger(witnessProtection.toCdwId(publicId)));
-      return entity.orElseThrow(() -> new NotFound(publicId));
+      String cdwId = witnessProtection.toCdwId(publicId);
+      Optional<ImmunizationEntity> maybeEntity = repository.findById(cdwId);
+      if (!maybeEntity.isPresent()) {
+        throw new ResourceExceptions.NotFound(publicId);
+      }
+      return maybeEntity.get();
     }
 
     boolean isDatamartRequest(String datamartHeader) {
