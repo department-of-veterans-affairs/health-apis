@@ -45,9 +45,6 @@ final class DatamartDiagnosticReports {
 
     private String issuedDateTime;
 
-    @JsonProperty("ETLEditDateTime")
-    private String etlEditDateTime;
-
     private String accessionInstitutionSid;
 
     private String accessionInstitutionName;
@@ -78,6 +75,12 @@ final class DatamartDiagnosticReports {
         results = new ArrayList<>();
       }
       return results;
+    }
+
+    /** Backwards compatibility for etlDate. */
+    @JsonProperty("ETLEditDateTime")
+    private void setEtlDate(String unused) {
+      /* no op */
     }
   }
 

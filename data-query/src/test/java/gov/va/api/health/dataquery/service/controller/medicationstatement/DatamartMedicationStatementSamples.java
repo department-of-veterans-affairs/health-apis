@@ -36,7 +36,6 @@ public class DatamartMedicationStatementSamples {
     public DatamartMedicationStatement medicationStatement(String cdwId, String patientId) {
       return DatamartMedicationStatement.builder()
           .cdwId(cdwId)
-          .etlDate("2014-12-06T05:53:02Z")
           .patient(
               DatamartReference.of()
                   .type("Patient")

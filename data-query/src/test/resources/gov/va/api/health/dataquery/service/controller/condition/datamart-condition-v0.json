@@ -1,6 +1,7 @@
 {
   "objectType" : "Condition",
   "objectVersion" : "1",
+  "etlDate" : "2011-06-27T05:40:00",
   "cdwId" : "800274570575:D",
   "patient" : {
     "type" : "Patient",

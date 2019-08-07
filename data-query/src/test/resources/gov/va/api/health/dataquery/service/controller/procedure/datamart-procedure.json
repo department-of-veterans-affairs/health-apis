@@ -1,0 +1,30 @@
+{
+  "objectType" : "Procedure",
+  "objectVersion" : "1",
+  "cdwId" : "1000000719261",
+  "etlDate" : "2008-01-02T06:00:00Z",
+  "patient" : {
+    "type" : "Patient",
+    "reference" : "1004476237V111282",
+    "display" : "VETERAN,GRAY PRO"
+  },
+  "status" : "completed",
+  "coding" : {
+    "system" : "http://www.ama-assn.org/go/cpt",
+    "code" : "90870",
+    "display" : "ELECTROCONVULSIVE THERAPY"
+  },
+  "notPerformed" : false,
+  "reasonNotPerformed" : "CASE MOVED TO EARLIER DATE",
+  "performedDateTime" : "2008-01-02T06:00:00Z",
+  "encounter" : {
+    "type" : "Encounter",
+    "reference" : "1000124525706",
+    "display" : "1000124525706"
+  },
+  "location" : {
+    "type" : "Location",
+    "reference" : "237281",
+    "display" : "ZZPSYCHIATRY"
+  }
+}

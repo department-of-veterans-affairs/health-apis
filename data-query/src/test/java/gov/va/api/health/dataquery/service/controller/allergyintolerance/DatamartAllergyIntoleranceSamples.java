@@ -31,7 +31,6 @@ public class DatamartAllergyIntoleranceSamples {
           .objectType("AllergyIntolerance")
           .objectVersion(1)
           .cdwId("800001608621")
-          .etlDate("2017-07-23T04:27:43Z")
           .patient(
               Optional.of(
                   DatamartReference.builder()
