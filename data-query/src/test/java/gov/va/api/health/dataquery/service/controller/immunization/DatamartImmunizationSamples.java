@@ -104,14 +104,14 @@ class DatamartImmunizationSamples {
   @AllArgsConstructor(staticName = "create")
   static class Fhir {
     static Bundle asBundle(
-        String baseUrl, Collection<Immunization> conditions, BundleLink... links) {
+        String baseUrl, Collection<Immunization> immunizations, BundleLink... links) {
       return Bundle.builder()
           .resourceType("Bundle")
           .type(BundleType.searchset)
-          .total(conditions.size())
+          .total(immunizations.size())
           .link(Arrays.asList(links))
           .entry(
-              conditions
+              immunizations
                   .stream()
                   .map(
                       c ->
@@ -142,7 +142,6 @@ class DatamartImmunizationSamples {
           .date("1997-05-09T14:21:18Z")
           .status(Status.completed)
           ._status(null)
-          // TODO .date(...)
           .vaccineCode(vaccineCode())
           .patient(reference("ZZTESTPATIENT,THOMAS THE", "Patient/" + patientId))
           .wasNotGiven(false)
