@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.observation;
 
+import gov.va.api.health.argonaut.api.resources.Observation;
 import lombok.AllArgsConstructor;
 import lombok.experimental.UtilityClass;
 
@@ -7,7 +8,7 @@ import lombok.experimental.UtilityClass;
 public class DatamartObservationSamples {
   @AllArgsConstructor(staticName = "create")
   static class Datamart {
-    public DatamartObservation allergyIntolerance() {
+    public DatamartObservation observation() {
       return DatamartObservation.builder().build();
     }
   }
