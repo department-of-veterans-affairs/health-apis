@@ -3,6 +3,7 @@ package gov.va.api.health.dataquery.service.controller.allergyintolerance;
 import static java.util.Arrays.asList;
 
 import gov.va.api.health.argonaut.api.resources.AllergyIntolerance;
+import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dstu2.api.bundle.AbstractBundle;
 import gov.va.api.health.dstu2.api.bundle.AbstractEntry;
@@ -51,7 +52,7 @@ public class DatamartAllergyIntoleranceSamples {
                   DatamartAllergyIntolerance.Substance.builder()
                       .coding(
                           Optional.of(
-                              DatamartAllergyIntolerance.Coding.builder()
+                              DatamartCoding.of()
                                   .system("http://www.nlm.nih.gov/research/umls/rxnorm")
                                   .code("70618")
                                   .display("Penicillin")
@@ -113,12 +114,12 @@ public class DatamartAllergyIntoleranceSamples {
                       .certainty(DatamartAllergyIntolerance.Certainty.likely)
                       .manifestations(
                           asList(
-                              DatamartAllergyIntolerance.Coding.builder()
+                              DatamartCoding.of()
                                   .system("urn:oid:2.16.840.1.113883.6.233")
                                   .code("4637183")
                                   .display("RESPIRATORY DISTRESS")
                                   .build(),
-                              DatamartAllergyIntolerance.Coding.builder()
+                              DatamartCoding.of()
                                   .system("urn:oid:2.16.840.1.113883.6.233")
                                   .code("4538635")
                                   .display("RASH")

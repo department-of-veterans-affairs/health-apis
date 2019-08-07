@@ -1,6 +1,7 @@
 package gov.va.api.health.dataquery.service.controller.allergyintolerance;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dataquery.service.controller.datamart.HasReplaceableId;
 import java.time.Instant;
@@ -123,18 +124,6 @@ public class DatamartAllergyIntolerance implements HasReplaceableId {
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
-  static final class Coding {
-    private String system;
-
-    private String code;
-
-    private String display;
-  }
-
-  @Data
-  @Builder
-  @NoArgsConstructor(access = AccessLevel.PRIVATE)
-  @AllArgsConstructor(access = AccessLevel.PRIVATE)
   static final class Note {
     private String text;
 
@@ -182,10 +171,10 @@ public class DatamartAllergyIntolerance implements HasReplaceableId {
   static final class Reaction {
     private Certainty certainty;
 
-    private List<Coding> manifestations;
+    private List<DatamartCoding> manifestations;
 
     /** Lazy getter. */
-    public List<Coding> manifestations() {
+    public List<DatamartCoding> manifestations() {
       if (manifestations == null) {
         manifestations = new ArrayList<>();
       }
@@ -198,12 +187,12 @@ public class DatamartAllergyIntolerance implements HasReplaceableId {
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
   static final class Substance {
-    private Optional<Coding> coding;
+    private Optional<DatamartCoding> coding;
 
     private String text;
 
     /** Lazy getter. */
-    public Optional<Coding> coding() {
+    public Optional<DatamartCoding> coding() {
       if (coding == null) {
         coding = Optional.empty();
       }

@@ -1,6 +1,7 @@
 package gov.va.api.health.dataquery.service.controller.allergyintolerance;
 
 import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
+import static gov.va.api.health.dataquery.service.controller.Transformers.asCoding;
 import static gov.va.api.health.dataquery.service.controller.Transformers.asDateTimeString;
 import static gov.va.api.health.dataquery.service.controller.Transformers.asReference;
 import static gov.va.api.health.dataquery.service.controller.Transformers.emptyToNull;
@@ -9,6 +10,7 @@ import static org.springframework.util.CollectionUtils.isEmpty;
 
 import gov.va.api.health.argonaut.api.resources.AllergyIntolerance;
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
+import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
 import gov.va.api.health.dstu2.api.datatypes.Annotation;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
@@ -37,23 +39,7 @@ public final class DatamartAllergyIntoleranceTransformer {
     return EnumSearcher.of(AllergyIntolerance.Certainty.class).find(certainty.toString());
   }
 
-  private Coding coding(Optional<DatamartAllergyIntolerance.Coding> maybeCoding) {
-    if (!maybeCoding.isPresent()) {
-      return null;
-    }
-    DatamartAllergyIntolerance.Coding coding = maybeCoding.get();
-    if (allBlank(coding.system(), coding.code(), coding.display())) {
-      return null;
-    }
-    return Coding.builder()
-        .system(coding.system())
-        .code(coding.code())
-        .display(coding.display())
-        .build();
-  }
-
-  private List<CodeableConcept> manifestations(
-      List<DatamartAllergyIntolerance.Coding> manifestations) {
+  private List<CodeableConcept> manifestations(List<DatamartCoding> manifestations) {
     if (isEmpty(manifestations)) {
       return null;
     }
@@ -62,7 +48,7 @@ public final class DatamartAllergyIntoleranceTransformer {
             .coding(
                 manifestations
                     .stream()
-                    .map(m -> coding(Optional.ofNullable(m)))
+                    .map(m -> asCoding(Optional.ofNullable(m)))
                     .collect(Collectors.toList()))
             .build());
   }
@@ -114,7 +100,7 @@ public final class DatamartAllergyIntoleranceTransformer {
       return null;
     }
     DatamartAllergyIntolerance.Substance substance = maybeSubstance.get();
-    Coding coding = coding(substance.coding());
+    Coding coding = asCoding(substance.coding());
     if (allBlank(coding, substance.text())) {
       return null;
     }
