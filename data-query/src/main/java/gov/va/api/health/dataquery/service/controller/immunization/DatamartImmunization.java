@@ -26,8 +26,6 @@ public class DatamartImmunization implements HasReplaceableId {
 
   private Status status;
 
-  private String etlDate;
-
   private Instant date;
 
   private VaccineCode vaccineCode;
@@ -90,6 +88,11 @@ public class DatamartImmunization implements HasReplaceableId {
     return requester;
   }
 
+  /** Backwards compatibility for etlDate. */
+  private void setEtlDate(String unused) {
+    /* no op */
+  }
+
   public enum Status {
     completed,
     @JsonProperty("entered-in-error")
@@ -104,10 +107,10 @@ public class DatamartImmunization implements HasReplaceableId {
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
   public static class VaccinationProtocols {
 
-    String series;
+    private String series;
 
     @Min(1)
-    int seriesDoses;
+    private int seriesDoses;
   }
 
   @Data
@@ -116,8 +119,8 @@ public class DatamartImmunization implements HasReplaceableId {
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
   public static class VaccineCode {
 
-    String text;
+    private String text;
 
-    String code;
+    private String code;
   }
 }

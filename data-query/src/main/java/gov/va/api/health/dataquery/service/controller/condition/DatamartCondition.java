@@ -19,7 +19,6 @@ import lombok.NoArgsConstructor;
 public class DatamartCondition implements HasReplaceableId {
   @Builder.Default private String objectType = "Condition";
   @Builder.Default private String objectVersion = "1";
-  private String etlDate;
   private String cdwId;
   private DatamartReference patient;
   private Optional<DatamartReference> encounter;
@@ -80,6 +79,11 @@ public class DatamartCondition implements HasReplaceableId {
     return onsetDateTime;
   }
 
+  /** Backwards compatibility for etlDate. */
+  private void setEtlDate(String unused) {
+    /* no op */
+  }
+
   /** Lazy initialization with empty. */
   public Optional<SnomedCode> snomed() {
     if (snomed == null) {
@@ -104,9 +108,9 @@ public class DatamartCondition implements HasReplaceableId {
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
   @JsonIgnoreProperties({"usable"})
   public static class IcdCode {
-    String code;
-    String display;
-    String version;
+    private String code;
+    private String display;
+    private String version;
 
     /** Determine if an icd code can be mapped without null values. */
     public boolean isUsable() {
@@ -120,8 +124,8 @@ public class DatamartCondition implements HasReplaceableId {
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
   @JsonIgnoreProperties({"usable"})
   public static class SnomedCode {
-    String code;
-    String display;
+    private String code;
+    private String display;
 
     /** Determine if a snomed code can be mapped without null values. */
     public boolean isUsable() {

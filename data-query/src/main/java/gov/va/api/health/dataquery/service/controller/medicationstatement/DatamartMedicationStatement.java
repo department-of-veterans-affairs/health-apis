@@ -22,7 +22,6 @@ public class DatamartMedicationStatement {
   @Builder.Default private String objectType = "MedicationStatement";
   @Builder.Default private String objectVersion = "1";
   private String cdwId;
-  private Instant etlDate;
   private DatamartReference patient;
   private Instant dateAsserted;
   private Status status;
@@ -45,6 +44,11 @@ public class DatamartMedicationStatement {
       note = Optional.empty();
     }
     return note;
+  }
+
+  /** Backwards compatibility for etlDate. */
+  private void setEtlDate(String unused) {
+    /* no op */
   }
 
   public enum Status {
