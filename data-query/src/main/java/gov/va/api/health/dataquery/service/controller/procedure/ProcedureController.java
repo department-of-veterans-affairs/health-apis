@@ -331,11 +331,11 @@ public class ProcedureController {
     Procedure read(String publicId, String icnHeader) {
       DatamartProcedure procedure = findById(publicId).asDatamartProcedure();
       replaceReferences(List.of(procedure));
+      Procedure fhir = transform(procedure);
       if (isNotBlank(icnHeader) && thisLooksLikeAJobForSuperman(icnHeader)) {
-        throw new NotImplementedException("superman");
-        // TODO superman goes to datamart
+        fhir = usePhoneBooth(fhir, Procedure.class);
       }
-      return transform(procedure);
+      return fhir;
     }
 
     String readRaw(String publicId) {
@@ -372,26 +372,32 @@ public class ProcedureController {
     }
 
     Bundle searchByPatient(String patient, String[] date, int page, int count) {
-      if (thisLooksLikeAJobForSuperman(patient)) {
-        throw new NotImplementedException("superman");
-        // TODO superman goes to datamart
-      }
 
       if (date != null && date.length != 0) {
         throw new NotImplementedException("date");
         // TODO date support
       }
+      boolean aJobForSuperman = thisLooksLikeAJobForSuperman(patient);
+      if (aJobForSuperman) {
+        patient = clarkKentId;
+      }
 
       String icn = witnessProtection.toCdwId(patient);
       log.info("Looking for {} ({})", patient, icn);
-      return bundle(
-          Parameters.builder()
-              .add("patient", patient)
-              .add("page", page)
-              .add("_count", count)
-              .build(),
-          count,
-          repository.findByIcn(icn, PageRequest.of(page - 1, count)));
+      Bundle bundle =
+          bundle(
+              Parameters.builder()
+                  .add("patient", patient)
+                  // TODO add date parameters
+                  .add("page", page)
+                  .add("_count", count)
+                  .build(),
+              count,
+              repository.findByIcn(icn, PageRequest.of(page - 1, count)));
+      if (aJobForSuperman) {
+        bundle = usePhoneBooth(bundle, Bundle.class);
+      }
+      return bundle;
     }
 
     Procedure transform(DatamartProcedure dm) {

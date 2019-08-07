@@ -140,7 +140,19 @@ public class DatamartProcedureControllerTest {
 
   @Test
   public void readSuperman() {
-    fail();
+    // clark - has procedures
+    // superman - no procedures
+    DatamartProcedure dm =
+        Datamart.create().procedure("clrks-cdw-procedure", "clark", "2005-01-21T07:57:00Z");
+    repository.save(asEntity(dm));
+    mockProcedureIdentity("clrks-procedure", "clrks-cdw-procedure");
+    Procedure actual = controller().read("true", "clrks-procedure", "superman");
+    assertThat(json(actual))
+        .isEqualTo(
+            json(
+                Fhir.create()
+                    .procedure(
+                        "clrks-procedure", "superman", dm.performedDateTime().get().toString())));
   }
 
   @Test
@@ -167,7 +179,37 @@ public class DatamartProcedureControllerTest {
 
   @Test
   public void searchByIdSuperman() {
-    fail();
+    // clark - has procedures
+    // superman - no procedures
+    DatamartProcedure dm =
+        Datamart.create().procedure("clrks-cdw-procedure", "clark", "2005-01-21T07:57:00Z");
+    repository.save(asEntity(dm));
+    mockProcedureIdentity("clrks-procedure", "clrks-cdw-procedure");
+    Bundle actual = controller().searchById("true", "superman", "clrks-procedure", 1, 1);
+    Procedure procedure =
+        Fhir.create()
+            .procedure("clrks-procedure", "superman", dm.performedDateTime().get().toString());
+    assertThat(json(actual))
+        .isEqualTo(
+            json(
+                Fhir.asBundle(
+                    "http://fonzy.com/cool",
+                    List.of(procedure),
+                    link(
+                        LinkRelation.first,
+                        "http://fonzy.com/cool/Procedure?identifier=clrks-procedure",
+                        1,
+                        1),
+                    link(
+                        LinkRelation.self,
+                        "http://fonzy.com/cool/Procedure?identifier=clrks-procedure",
+                        1,
+                        1),
+                    link(
+                        LinkRelation.last,
+                        "http://fonzy.com/cool/Procedure?identifier=clrks-procedure",
+                        1,
+                        1))));
   }
 
   @Test
@@ -196,7 +238,37 @@ public class DatamartProcedureControllerTest {
 
   @Test
   public void searchByPatientSuperman() {
-    fail();
+    // clark - has procedures
+    // superman - no procedures
+    DatamartProcedure dm =
+        Datamart.create().procedure("clrks-cdw-procedure", "clark", "2005-01-21T07:57:00Z");
+    repository.save(asEntity(dm));
+    mockProcedureIdentity("clrks-procedure", "clrks-cdw-procedure");
+    Bundle actual = controller().searchByPatientAndDate("true", "superman", null, 1, 1);
+    Procedure procedure =
+        Fhir.create()
+            .procedure("clrks-procedure", "superman", dm.performedDateTime().get().toString());
+    assertThat(json(actual))
+        .isEqualTo(
+            json(
+                Fhir.asBundle(
+                    "http://fonzy.com/cool",
+                    List.of(procedure),
+                    link(
+                        LinkRelation.first,
+                        "http://fonzy.com/cool/Procedure?patient=superman",
+                        1,
+                        1),
+                    link(
+                        LinkRelation.self,
+                        "http://fonzy.com/cool/Procedure?patient=superman",
+                        1,
+                        1),
+                    link(
+                        LinkRelation.last,
+                        "http://fonzy.com/cool/Procedure?patient=superman",
+                        1,
+                        1))));
   }
 
   @SneakyThrows

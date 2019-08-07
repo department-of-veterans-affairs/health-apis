@@ -32,6 +32,8 @@ public class ProcedureEntity {
   @Column(name = "PatientFullICN")
   private String icn;
 
+  private long performedOnDate;
+
   @Column(name = "Procedure")
   @Basic(fetch = FetchType.EAGER)
   @Lob
