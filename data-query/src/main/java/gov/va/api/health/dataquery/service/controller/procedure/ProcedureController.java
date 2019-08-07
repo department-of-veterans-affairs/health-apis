@@ -19,6 +19,7 @@ import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions.NotFound;
 import gov.va.api.health.dataquery.service.controller.Validator;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
+import gov.va.api.health.dataquery.service.controller.procedure.ProcedureRepository.PatientAndDateSpecification;
 import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
 import gov.va.api.health.dataquery.service.mranderson.client.Query;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
@@ -38,7 +39,6 @@ import lombok.Builder;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -372,28 +372,28 @@ public class ProcedureController {
     }
 
     Bundle searchByPatient(String patient, String[] date, int page, int count) {
-
-      if (date != null && date.length != 0) {
-        throw new NotImplementedException("date");
-        // TODO date support
-      }
-      boolean aJobForSuperman = thisLooksLikeAJobForSuperman(patient);
+      final boolean aJobForSuperman = thisLooksLikeAJobForSuperman(patient);
       if (aJobForSuperman) {
         patient = clarkKentId;
       }
-
       String icn = witnessProtection.toCdwId(patient);
-      log.info("Looking for {} ({})", patient, icn);
+
+      PatientAndDateSpecification spec =
+          PatientAndDateSpecification.builder().patient(patient).dates(date).build();
+      log.info("Looking for {} ({}) {}", patient, icn, spec);
+      Page<ProcedureEntity> pageOfProcedures =
+          repository.findAll(spec, PageRequest.of(page - 1, count));
+
       Bundle bundle =
           bundle(
               Parameters.builder()
                   .add("patient", patient)
-                  // TODO add date parameters
+                  .addAll("date", date)
                   .add("page", page)
                   .add("_count", count)
                   .build(),
               count,
-              repository.findByIcn(icn, PageRequest.of(page - 1, count)));
+              pageOfProcedures);
       if (aJobForSuperman) {
         bundle = usePhoneBooth(bundle, Bundle.class);
       }

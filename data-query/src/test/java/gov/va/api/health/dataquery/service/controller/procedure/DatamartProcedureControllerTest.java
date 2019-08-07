@@ -23,6 +23,7 @@ import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.SneakyThrows;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,6 +45,7 @@ public class DatamartProcedureControllerTest {
     return ProcedureEntity.builder()
         .cdwId(dm.cdwId())
         .icn(dm.patient().reference().get())
+        .performedOnEpochTime(dm.performedDateTime().get().toEpochMilli())
         .payload(JacksonConfig.createMapper().writeValueAsString(dm))
         .build();
   }
@@ -228,7 +230,67 @@ public class DatamartProcedureControllerTest {
 
   @Test
   public void searchByPatientAndDateOneDate() {
-    fail();
+    Multimap<String, Procedure> procedureByPatient = populateData();
+    // Procedure Dates for p0:
+    // 2005-01-10T07:57:00Z
+    // 2005-01-12T07:57:00Z
+    // 2005-01-14T07:57:00Z
+    // 2005-01-16T07:57:00Z
+    // 2005-01-18T07:57:00Z
+    Multimap<String, String> testDates = LinkedHashMultimap.create();
+    testDates.putAll(
+        "gt2004",
+        List.of(
+            "2005-01-10T07:57:00Z",
+            "2005-01-12T07:57:00Z",
+            "2005-01-14T07:57:00Z",
+            "2005-01-16T07:57:00Z",
+            "2005-01-18T07:57:00Z"));
+    testDates.putAll("eq2005-01-14", List.of("2005-01-14T07:57:00Z"));
+    testDates.putAll(
+        "ne2005-01-14",
+        List.of(
+            "2005-01-10T07:57:00Z",
+            "2005-01-12T07:57:00Z",
+            "2005-01-16T07:57:00Z",
+            "2005-01-18T07:57:00Z"));
+    testDates.putAll(
+        "le2005-01-14",
+        List.of("2005-01-10T07:57:00Z", "2005-01-12T07:57:00Z", "2005-01-14T07:57:00Z"));
+    testDates.putAll("lt2005-01-14", List.of("2005-01-10T07:57:00Z", "2005-01-12T07:57:00Z"));
+    testDates.putAll("eb2005-01-14", List.of("2005-01-10T07:57:00Z", "2005-01-12T07:57:00Z"));
+    testDates.putAll(
+        "ge2005-01-14",
+        List.of("2005-01-14T07:57:00Z", "2005-01-16T07:57:00Z", "2005-01-18T07:57:00Z"));
+    testDates.putAll("gt2005-01-14", List.of("2005-01-16T07:57:00Z", "2005-01-18T07:57:00Z"));
+    testDates.putAll("sa2005-01-14", List.of("2005-01-16T07:57:00Z", "2005-01-18T07:57:00Z"));
+
+    for (var date : testDates.keySet()) {
+      assertThat(
+              json(controller().searchByPatientAndDate("true", "p0", new String[] {date}, 1, 10)))
+          .isEqualTo(
+              json(
+                  Fhir.asBundle(
+                      "http://fonzy.com/cool",
+                      procedureByPatient.get("p0").stream()
+                          .filter(p -> testDates.get(date).contains(p.performedDateTime()))
+                          .collect(Collectors.toList()),
+                      link(
+                          LinkRelation.first,
+                          "http://fonzy.com/cool/Procedure?date=" + date + "&patient=p0",
+                          1,
+                          10),
+                      link(
+                          LinkRelation.self,
+                          "http://fonzy.com/cool/Procedure?date=" + date + "&patient=p0",
+                          1,
+                          10),
+                      link(
+                          LinkRelation.last,
+                          "http://fonzy.com/cool/Procedure?date=" + date + "&patient=p0",
+                          1,
+                          10))));
+    }
   }
 
   @Test

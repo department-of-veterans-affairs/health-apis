@@ -78,7 +78,8 @@ class DatamartProcedureSamples {
           .total(resources.size())
           .link(Arrays.asList(links))
           .entry(
-              resources.stream()
+              resources
+                  .stream()
                   .map(
                       c ->
                           Entry.builder()
