@@ -58,7 +58,7 @@ public class ConditionEntity {
   private String clinicalStatus;
 
   @Column(name = "Condition")
-  @Basic(fetch = FetchType.LAZY)
+  @Basic(fetch = FetchType.EAGER)
   @Lob
   private String payload;
 

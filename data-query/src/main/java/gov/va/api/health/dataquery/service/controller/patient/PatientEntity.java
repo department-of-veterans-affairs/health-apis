@@ -32,7 +32,7 @@ public class PatientEntity {
   private String icn;
 
   @Lob
-  @Basic(fetch = FetchType.LAZY)
+  @Basic(fetch = FetchType.EAGER)
   @Column(name = "PatientReport")
   private String payload;
 

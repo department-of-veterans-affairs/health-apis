@@ -48,7 +48,7 @@ public class MedicationStatementEntity {
   private String icn;
 
   @Column(name = "MedicationStatement")
-  @Basic(fetch = FetchType.LAZY)
+  @Basic(fetch = FetchType.EAGER)
   @Lob
   private String payload;
 

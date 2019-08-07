@@ -33,7 +33,7 @@ public class AllergyIntoleranceEntity {
   private String icn;
 
   @Lob
-  @Basic(fetch = FetchType.LAZY)
+  @Basic(fetch = FetchType.EAGER)
   @Column(name = "AllergyIntolerance")
   private String payload;
 

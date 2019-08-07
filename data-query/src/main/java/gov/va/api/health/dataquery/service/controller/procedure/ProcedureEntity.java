@@ -1,4 +1,4 @@
-package gov.va.api.health.dataquery.service.controller.diagnosticreport;
+package gov.va.api.health.dataquery.service.controller.procedure;
 
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import javax.persistence.Basic;
@@ -19,23 +19,26 @@ import lombok.SneakyThrows;
 @Data
 @Entity
 @Builder
-@Table(name = "app.DiagnosticReport")
+@Table(name = "app.Procedure")
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class DiagnosticReportsEntity {
+public class ProcedureEntity {
   @Id
-  @Column(name = "PatientFullIcn")
+  @Column(name = "CDWId")
   @EqualsAndHashCode.Include
+  private String cdwId;
+
+  @Column(name = "PatientFullICN")
   private String icn;
 
-  @Lob
+  @Column(name = "Procedure")
   @Basic(fetch = FetchType.EAGER)
-  @Column(name = "DiagnosticReport")
+  @Lob
   private String payload;
 
   @SneakyThrows
-  DatamartDiagnosticReports asDatamartDiagnosticReports() {
-    return JacksonConfig.createMapper().readValue(payload, DatamartDiagnosticReports.class);
+  DatamartProcedure asDatamartProcedure() {
+    return JacksonConfig.createMapper().readValue(payload, DatamartProcedure.class);
   }
 }
