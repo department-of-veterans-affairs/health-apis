@@ -82,12 +82,12 @@ public class DatamartImmunizationTransformer {
 
   CodeableConcept vaccineCode(DatamartImmunization.VaccineCode vaccineCode) {
     return CodeableConcept.builder()
-        .text(vaccineCode.text)
+        .text(vaccineCode.text())
         .coding(
             List.of(
                 Coding.builder()
                     .system("http://hl7.org/fhir/sid/cvx")
-                    .code(vaccineCode.code)
+                    .code(vaccineCode.code())
                     .build()))
         .build();
   }

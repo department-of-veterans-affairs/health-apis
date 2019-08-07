@@ -29,9 +29,9 @@ public class DatamartMedication {
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
   public static class RxNorm {
-    String code;
+    private String code;
 
-    String text;
+    private String text;
   }
 
   @Data
@@ -39,8 +39,8 @@ public class DatamartMedication {
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
   public static class Product {
-    String id;
+    private String id;
 
-    String formText;
+    private String formText;
   }
 }

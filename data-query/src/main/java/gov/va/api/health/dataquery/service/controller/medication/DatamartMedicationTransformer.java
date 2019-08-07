@@ -18,18 +18,18 @@ public class DatamartMedicationTransformer {
         .coding(
             List.of(
                 Coding.builder()
-                    .code(rxnorm.code)
-                    .display(rxnorm.text)
+                    .code(rxnorm.code())
+                    .display(rxnorm.text())
                     .system("https://www.nlm.nih.gov/research/umls/rxnorm/")
                     .build()))
-        .text(rxnorm.text)
+        .text(rxnorm.text())
         .build();
   }
 
   Product product(DatamartMedication.Product product) {
     return Medication.Product.builder()
-        .id(product.id)
-        .form(CodeableConcept.builder().text(product.formText).build())
+        .id(product.id())
+        .form(CodeableConcept.builder().text(product.formText()).build())
         .build();
   }
 
@@ -46,7 +46,7 @@ public class DatamartMedicationTransformer {
         .resourceType(Medication.class.getSimpleName())
         .id(datamart.cdwId())
         .product(product(datamart.product()))
-        .text(text(datamart.rxnorm().text))
+        .text(text(datamart.rxnorm().text()))
         .code(code(datamart.rxnorm()))
         .build();
   }

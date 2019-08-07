@@ -37,7 +37,7 @@ public class DatamartMedicationTransformerTest {
   @Test
   public void text() {
     DatamartMedicationTransformer tx = tx(DatamartMedicationSamples.Datamart.create().medication());
-    assertThat(tx.text(Datamart.create().medication().rxnorm().text))
+    assertThat(tx.text(Datamart.create().medication().rxnorm().text()))
         .isEqualTo(Fhir.create().text());
   }
 
