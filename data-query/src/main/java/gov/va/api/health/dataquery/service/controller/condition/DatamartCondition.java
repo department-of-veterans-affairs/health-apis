@@ -110,10 +110,7 @@ public class DatamartCondition implements HasReplaceableId {
 
     /** Determine if an icd code can be mapped without null values. */
     public boolean isUsable() {
-      if (code != null && display != null) {
-        return true;
-      }
-      return false;
+      return code != null && display != null;
     }
   }
 
@@ -128,10 +125,7 @@ public class DatamartCondition implements HasReplaceableId {
 
     /** Determine if a snomed code can be mapped without null values. */
     public boolean isUsable() {
-      if (code != null && display != null) {
-        return true;
-      }
-      return false;
+      return code != null && display != null;
     }
   }
 }
