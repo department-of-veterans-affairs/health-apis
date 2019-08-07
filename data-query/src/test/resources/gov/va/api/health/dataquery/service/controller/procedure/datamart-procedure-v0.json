@@ -2,7 +2,6 @@
   "objectType": "Procedure",
   "objectVersion": "1",
   "cdwId": "1000000719261",
-  "etlDate": "2008-01-02T06:00:00Z",
   "patient": {
     "type": "Patient",
     "reference": "1004476237V111282",

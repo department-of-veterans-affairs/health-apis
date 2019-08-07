@@ -3,52 +3,66 @@ package gov.va.api.health.dataquery.service.controller.procedure;
 import static gov.va.api.health.autoconfig.configuration.JacksonConfig.createMapper;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
-import gov.va.api.health.dataquery.service.controller.immunization.DatamartImmunization;
+import gov.va.api.health.dataquery.service.controller.procedure.DatamartProcedure.Status;
+import java.time.Instant;
+import java.util.Optional;
 import lombok.SneakyThrows;
 import org.junit.Test;
 
 public class DatamartProcedureTest {
+  public void assertReadable(String json) throws java.io.IOException {
+    DatamartProcedure dm =
+        createMapper().readValue(getClass().getResourceAsStream(json), DatamartProcedure.class);
+    assertThat(dm).isEqualTo(sample());
+  }
+
   private DatamartProcedure sample() {
     return DatamartProcedure.builder()
-   .cdwId("1000000719261")
-       .etlDate("2008-01-02T06:00:00Z")
-       .patient(DatamartReference.of()
-     .type("Patient")
-         .reference("1004476237V111282")
-         .display("VETERAN,GRAY PRO").build()) 
-   .status("completed")
-       .coding": {
-     .system("http://www.ama-assn.org/go/cpt")
-         .code("90870")
-         .display("ELECTROCONVULSIVE THERAPY"
-    },
-   .notPerformed": false,
-       .reasonNotPerformed": null,
-       .performedDateTime("2008-01-02T06:00:00Z")
-       .encounter(DatamartReference.of()
-     .type("Encounter")
-         .reference("1000124525706")
-         .display("1000124525706").build()
-       .location(DatamartReference.of()
-     .type("Location")
-         .reference("237281")
-         .display("ZZPSYCHIATRY")
-    .build())
-        
-        
+        .cdwId("1000000719261")
+        .patient(
+            DatamartReference.of()
+                .type("Patient")
+                .reference("1004476237V111282")
+                .display("VETERAN,GRAY PRO")
+                .build())
+        .status(Status.completed)
+        .coding(
+            DatamartCoding.of()
+                .system("http://www.ama-assn.org/go/cpt")
+                .code("90870")
+                .display("ELECTROCONVULSIVE THERAPY")
+                .build())
+        .notPerformed(false)
+        .reasonNotPerformed(Optional.of("CASE MOVED TO EARLIER DATE"))
+        .performedDateTime(Optional.of(Instant.parse("2008-01-02T06:00:00Z")))
+        .encounter(
+            Optional.of(
+                DatamartReference.of()
+                    .type("Encounter")
+                    .reference("1000124525706")
+                    .display("1000124525706")
+                    .build()))
+        .location(
+            Optional.of(
+                DatamartReference.of()
+                    .type("Location")
+                    .reference("237281")
+                    .display("ZZPSYCHIATRY")
+                    .build()))
         .build();
-    
   }
 
   @Test
   @SneakyThrows
   public void unmarshalSample() {
-    DatamartImmunization dm =
-        createMapper()
-            .readValue(
-                getClass().getResourceAsStream("datamart-procedure.json"),
-                DatamartImmunization.class);
-    assertThat(dm).isEqualTo(sample());
+    assertReadable("datamart-procedure.json");
+  }
+
+  @Test
+  @SneakyThrows
+  public void unmarshalSampleV0() {
+    assertReadable("datamart-procedure-v0.json");
   }
 }
