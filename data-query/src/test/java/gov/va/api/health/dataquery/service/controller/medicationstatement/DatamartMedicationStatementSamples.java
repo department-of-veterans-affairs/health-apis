@@ -3,16 +3,23 @@ package gov.va.api.health.dataquery.service.controller.medicationstatement;
 import static java.util.Collections.singletonList;
 
 import gov.va.api.health.argonaut.api.resources.MedicationStatement;
+import gov.va.api.health.argonaut.api.resources.MedicationStatement.Bundle;
+import gov.va.api.health.argonaut.api.resources.MedicationStatement.Entry;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
-import gov.va.api.health.dataquery.service.controller.medicationstatement.DatamartMedicationStatement.Dosage;
-import gov.va.api.health.dataquery.service.controller.medicationstatement.DatamartMedicationStatement.Status;
+import gov.va.api.health.dstu2.api.bundle.AbstractBundle.BundleType;
+import gov.va.api.health.dstu2.api.bundle.AbstractEntry.Search;
+import gov.va.api.health.dstu2.api.bundle.AbstractEntry.SearchMode;
+import gov.va.api.health.dstu2.api.bundle.BundleLink;
+import gov.va.api.health.dstu2.api.bundle.BundleLink.LinkRelation;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
-import gov.va.api.health.dstu2.api.datatypes.CodeableConcept.CodeableConceptBuilder;
 import gov.va.api.health.dstu2.api.datatypes.Timing;
 import gov.va.api.health.dstu2.api.elements.Reference;
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.experimental.UtilityClass;
 
@@ -21,18 +28,19 @@ public class DatamartMedicationStatementSamples {
 
   @AllArgsConstructor(staticName = "create")
   static class Datamart {
+
     public DatamartMedicationStatement medicationStatement() {
-      return medicationStatement("800008482786", "666V666", "2019-07-01");
+      return medicationStatement("800008482786", "666V666");
     }
 
-    public DatamartMedicationStatement medicationStatement(String cdwId, String patientId, String dateRecorded) {
+    public DatamartMedicationStatement medicationStatement(String cdwId, String patientId) {
       return DatamartMedicationStatement.builder()
           .cdwId(cdwId)
           .etlDate("2014-12-06T05:53:02Z")
           .patient(
               DatamartReference.of()
                   .type("Patient")
-                  .reference("1004810366V403573")
+                  .reference(patientId)
                   .display("BARKER,BOBBIE LEE")
                   .build())
           .dateAsserted(Instant.parse("2017-11-03T01:39:21Z"))
@@ -58,19 +66,52 @@ public class DatamartMedicationStatementSamples {
   @AllArgsConstructor(staticName = "create")
   static class Fhir {
 
+    static Bundle asBundle(
+        String baseUrl, Collection<MedicationStatement> medicationStatements, BundleLink... links) {
+      return Bundle.builder()
+          .resourceType("Bundle")
+          .type(BundleType.searchset)
+          .total(medicationStatements.size())
+          .link(Arrays.asList(links))
+          .entry(
+              medicationStatements
+                  .stream()
+                  .map(
+                      c ->
+                          Entry.builder()
+                              .fullUrl(baseUrl + "/MedicationStatement/" + c.id())
+                              .resource(c)
+                              .search(Search.builder().mode(SearchMode.match).build())
+                              .build())
+                  .collect(Collectors.toList()))
+          .build();
+    }
+
+    static BundleLink link(LinkRelation rel, String base, int page, int count) {
+      return BundleLink.builder()
+          .relation(rel)
+          .url(base + "&page=" + page + "&_count=" + count)
+          .build();
+    }
+
+    private List<MedicationStatement.Dosage> Dosage() {
+      return singletonList(
+          MedicationStatement.Dosage.builder().route(route()).text("1").timing(timing()).build());
+    }
+
     public MedicationStatement medicationStatement() {
       return medicationStatement("800008482786");
     }
 
     public MedicationStatement medicationStatement(String id) {
-      return medicationStatement(id, "666V666", "2019-07-01");
+      return medicationStatement(id, "666V666");
     }
 
-    public MedicationStatement medicationStatement(String id, String patiendId, String dateRecorded) {
+    public MedicationStatement medicationStatement(String id, String patiendId) {
       return MedicationStatement.builder()
           .resourceType("MedicationStatement")
           .id(id)
-          .patient(reference("Patient/1004810366V403573", "BARKER,BOBBIE LEE"))
+          .patient(reference("Patient/" + patiendId, "BARKER,BOBBIE LEE"))
           .dateAsserted("2017-11-03T01:39:21Z")
           .note("NOTES NOTES NOTES")
           .status(MedicationStatement.Status.completed)
@@ -80,9 +121,8 @@ public class DatamartMedicationStatementSamples {
           .build();
     }
 
-    private List<MedicationStatement.Dosage> Dosage() {
-      return singletonList(
-          MedicationStatement.Dosage.builder().route(route()).text("1").timing(timing()).build());
+    private Reference reference(String ref, String display) {
+      return Reference.builder().reference(ref).display(display).build();
     }
 
     private CodeableConcept route() {
@@ -96,10 +136,5 @@ public class DatamartMedicationStatementSamples {
     private CodeableConcept timingCode() {
       return CodeableConcept.builder().text("EVERYDAY").build();
     }
-
-    private Reference reference(String ref, String display) {
-      return Reference.builder().reference(ref).display(display).build();
-    }
-
   }
 }

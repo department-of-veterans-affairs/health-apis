@@ -131,21 +131,21 @@ public class MedicationStatementControllerTest {
   @Test
   public void searchById() {
     assertSearch(
-        () -> controller.searchById("me", 1, 10),
+        () -> controller.searchById("false", "me", 1, 10),
         Parameters.builder().add("identifier", "me").add("page", 1).add("_count", 10).build());
   }
 
   @Test
   public void searchByIdentifier() {
     assertSearch(
-        () -> controller.searchByIdentifier("me", 1, 10),
+        () -> controller.searchByIdentifier("false", "me", 1, 10),
         Parameters.builder().add("identifier", "me").add("page", 1).add("_count", 10).build());
   }
 
   @Test
   public void searchByPatient() {
     assertSearch(
-        () -> controller.searchByPatient("me", 1, 10),
+        () -> controller.searchByPatient("false", "me", 1, 10),
         Parameters.builder().add("patient", "me").add("page", 1).add("_count", 10).build());
   }
 
