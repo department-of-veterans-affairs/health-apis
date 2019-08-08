@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import javax.validation.constraints.Min;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -48,14 +47,13 @@ import org.springframework.web.bind.annotation.RestController;
  * implementation details.
  */
 @SuppressWarnings("WeakerAccess")
+@Slf4j
 @Validated
 @RestController
 @RequestMapping(
   value = {"Medication", "/api/Medication"},
   produces = {"application/json", "application/json+fhir", "application/fhir+json"}
 )
-@Slf4j
-@AllArgsConstructor(onConstructor = @__({@Autowired}))
 public class MedicationController {
   private final MedicationController.Datamart datamart = new MedicationController.Datamart();
   private Transformer transformer;
