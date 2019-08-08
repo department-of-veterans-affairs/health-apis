@@ -11,6 +11,7 @@ import gov.va.api.health.dataquery.service.controller.diagnosticreport.Diagnosti
 import gov.va.api.health.dataquery.service.controller.immunization.ImmunizationEntity;
 import gov.va.api.health.dataquery.service.controller.patient.PatientEntity;
 import gov.va.api.health.dataquery.service.controller.patient.PatientSearchEntity;
+import gov.va.api.health.dataquery.service.controller.procedure.ProcedureEntity;
 import java.io.FileInputStream;
 import java.net.URL;
 import java.util.Arrays;
@@ -57,7 +58,8 @@ public class DatamartExporter {
           DiagnosticReportsEntity.class,
           ImmunizationEntity.class,
           PatientEntity.class,
-          PatientSearchEntity.class
+          PatientSearchEntity.class,
+          ProcedureEntity.class
           //
           );
 

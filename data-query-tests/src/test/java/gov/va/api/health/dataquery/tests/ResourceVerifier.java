@@ -57,7 +57,8 @@ public class ResourceVerifier {
           Condition.class,
           DiagnosticReport.class,
           Immunization.class,
-          Patient.class
+          Patient.class,
+          Procedure.class
           //
           );
 

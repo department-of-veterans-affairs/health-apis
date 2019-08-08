@@ -8,15 +8,13 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import lombok.Builder;
 import lombok.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
 public interface ProcedureRepository
-    extends PagingAndSortingRepository<ProcedureEntity, String>, JpaSpecificationExecutor {
-  Page<ProcedureEntity> findByIcn(String icn, Pageable pageable);
+    extends PagingAndSortingRepository<ProcedureEntity, String>,
+        JpaSpecificationExecutor<ProcedureEntity> {
 
   @Value
   class PatientAndDateSpecification implements Specification<ProcedureEntity> {
@@ -27,8 +25,8 @@ public interface ProcedureRepository
     @Builder
     private PatientAndDateSpecification(String patient, String[] dates) {
       this.patient = patient;
-      date1 = dates.length < 1 ? null : new DateTimeParameters(dates[0]);
-      date2 = dates.length < 2 ? null : new DateTimeParameters(dates[1]);
+      date1 = (dates == null || dates.length < 1) ? null : new DateTimeParameters(dates[0]);
+      date2 = (dates == null || dates.length < 2) ? null : new DateTimeParameters(dates[1]);
     }
 
     @Override

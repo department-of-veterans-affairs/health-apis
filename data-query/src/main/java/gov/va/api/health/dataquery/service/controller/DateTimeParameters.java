@@ -2,6 +2,7 @@ package gov.va.api.health.dataquery.service.controller;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -14,7 +15,8 @@ import javax.persistence.criteria.Predicate;
 import lombok.Value;
 
 @Value
-public final class DateTimeParameters {
+public final class DateTimeParameters implements Serializable {
+
   private static final int YEAR = 4;
 
   private static final int YEAR_MONTH = 7;
@@ -52,7 +54,7 @@ public final class DateTimeParameters {
   /**
    * Indicates if the given date range (epoch millis) satisfies this date-time parameter.
    *
-   * @see JpaDateTimeParameter#toQuerySnippet
+   * <p>See JpaDateTimeParameter.toQuerySnippet(...)
    */
   public boolean isSatisfied(long lower, long upper) {
     checkArgument(lower <= upper);

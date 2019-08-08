@@ -43,11 +43,20 @@
     injection by escaping the parameters received, preventing malicious code from ever being executed.
   -->
   <Match>
-    <Class name="gov.va.api.health.dataquery.service.controller.patient.PatientController" />
+    <Class name="gov.va.api.health.dataquery.service.controller.patient.PatientController"/>
     <Or>
-      <Method name="jpaQueryForEntities" />
-      <Method name="jpaQueryForTotalRecords" />
+      <Method name="jpaQueryForEntities"/>
+      <Method name="jpaQueryForTotalRecords"/>
     </Or>
-    <Bug pattern="SQL_INJECTION_JPA" />
+    <Bug pattern="SQL_INJECTION_JPA"/>
+  </Match>
+  <!--
+    This lombok generated builder accepts an array which is ultimated given to the PatientAndDateSpecification
+    constructor. This constructor processes the array to store individual fields. The array is not stored
+    directly.
+  -->
+  <Match>
+    <Class name="gov.va.api.health.dataquery.service.controller.procedure.ProcedureRepository$PatientAndDateSpecification$PatientAndDateSpecificationBuilder"/>
+    <Bug pattern="EI_EXPOSE_REP2"/>
   </Match>
 </FindBugsFilter>

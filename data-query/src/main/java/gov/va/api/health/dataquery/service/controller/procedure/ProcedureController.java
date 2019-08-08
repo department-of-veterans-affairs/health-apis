@@ -65,8 +65,9 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 @RestController
 @RequestMapping(
-    value = {"Procedure", "/api/Procedure"},
-    produces = {"application/json", "application/json+fhir", "application/fhir+json"})
+  value = {"Procedure", "/api/Procedure"},
+  produces = {"application/json", "application/json+fhir", "application/fhir+json"}
+)
 @AllArgsConstructor(onConstructor = @__({@Autowired}))
 public class ProcedureController {
   private final Datamart datamart = new Datamart();
@@ -260,8 +261,9 @@ public class ProcedureController {
 
   /** Hey, this is a validate endpoint. It validates. */
   @PostMapping(
-      value = "/$validate",
-      consumes = {"application/json", "application/json+fhir", "application/fhir+json"})
+    value = "/$validate",
+    consumes = {"application/json", "application/json+fhir", "application/fhir+json"}
+  )
   public OperationOutcome validate(@RequestBody Procedure.Bundle bundle) {
     return Validator.create().validate(bundle);
   }

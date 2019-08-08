@@ -272,7 +272,9 @@ public class DatamartProcedureControllerTest {
               json(
                   Fhir.asBundle(
                       "http://fonzy.com/cool",
-                      procedureByPatient.get("p0").stream()
+                      procedureByPatient
+                          .get("p0")
+                          .stream()
                           .filter(p -> testDates.get(date).contains(p.performedDateTime()))
                           .collect(Collectors.toList()),
                       link(
@@ -327,7 +329,9 @@ public class DatamartProcedureControllerTest {
               json(
                   Fhir.asBundle(
                       "http://fonzy.com/cool",
-                      procedureByPatient.get("p0").stream()
+                      procedureByPatient
+                          .get("p0")
+                          .stream()
                           .filter(p -> testDates.get(date).contains(p.performedDateTime()))
                           .collect(Collectors.toList()),
                       link(
