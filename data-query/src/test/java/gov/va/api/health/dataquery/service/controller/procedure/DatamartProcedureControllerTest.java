@@ -2,7 +2,6 @@ package gov.va.api.health.dataquery.service.controller.procedure;
 
 import static gov.va.api.health.dataquery.service.controller.procedure.DatamartProcedureSamples.Fhir.link;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -25,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.SneakyThrows;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -295,7 +295,69 @@ public class DatamartProcedureControllerTest {
 
   @Test
   public void searchByPatientAndDateTwoDates() {
-    fail();
+    /*
+     * The single date test verifies correct working of the different prefixes, like gt. So for two
+     * date fields, we do not have to exhaustively test combinations.
+     */
+    Multimap<String, Procedure> procedureByPatient = populateData();
+    // Procedure Dates for p0:
+    // 2005-01-10T07:57:00Z
+    // 2005-01-12T07:57:00Z
+    // 2005-01-14T07:57:00Z
+    // 2005-01-16T07:57:00Z
+    // 2005-01-18T07:57:00Z
+    Multimap<Pair<String, String>, String> testDates = LinkedHashMultimap.create();
+    testDates.putAll(
+        Pair.of("gt2004", "lt2006"),
+        List.of(
+            "2005-01-10T07:57:00Z",
+            "2005-01-12T07:57:00Z",
+            "2005-01-14T07:57:00Z",
+            "2005-01-16T07:57:00Z",
+            "2005-01-18T07:57:00Z"));
+    testDates.putAll(Pair.of("gt2005-01-13", "lt2005-01-15"), List.of("2005-01-14T07:57:00Z"));
+
+    for (var date : testDates.keySet()) {
+      assertThat(
+              json(
+                  controller()
+                      .searchByPatientAndDate(
+                          "true", "p0", new String[] {date.getLeft(), date.getRight()}, 1, 10)))
+          .isEqualTo(
+              json(
+                  Fhir.asBundle(
+                      "http://fonzy.com/cool",
+                      procedureByPatient.get("p0").stream()
+                          .filter(p -> testDates.get(date).contains(p.performedDateTime()))
+                          .collect(Collectors.toList()),
+                      link(
+                          LinkRelation.first,
+                          "http://fonzy.com/cool/Procedure?date="
+                              + date.getLeft()
+                              + "&date="
+                              + date.getRight()
+                              + "&patient=p0",
+                          1,
+                          10),
+                      link(
+                          LinkRelation.self,
+                          "http://fonzy.com/cool/Procedure?date="
+                              + date.getLeft()
+                              + "&date="
+                              + date.getRight()
+                              + "&patient=p0",
+                          1,
+                          10),
+                      link(
+                          LinkRelation.last,
+                          "http://fonzy.com/cool/Procedure?date="
+                              + date.getLeft()
+                              + "&date="
+                              + date.getRight()
+                              + "&patient=p0",
+                          1,
+                          10))));
+    }
   }
 
   @Test
