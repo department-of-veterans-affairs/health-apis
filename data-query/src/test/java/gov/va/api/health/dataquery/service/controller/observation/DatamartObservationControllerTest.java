@@ -5,13 +5,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import gov.va.api.health.argonaut.api.resources.Observation;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
+import gov.va.api.health.dataquery.service.controller.Bundler;
+import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.ids.api.IdentityService;
+import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
 import lombok.SneakyThrows;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -26,6 +31,9 @@ public class DatamartObservationControllerTest {
     return ObservationEntity.builder()
         .id(dm.cdwId())
         .icn(dm.subject().get().reference().get())
+        .category(dm.category().toString())
+        .code(dm.code().get().coding().get().code().get())
+        .epochTime(dm.effectiveDateTime().get().toEpochMilli())
         .payload(JacksonConfig.createMapper().writeValueAsString(dm))
         .build();
   }
@@ -39,6 +47,55 @@ public class DatamartObservationControllerTest {
                     .resource("OBSERVATION")
                     .identifier(dm.cdwId())
                     .build()));
+
+    when(ids.register(Mockito.any()))
+        .thenReturn(
+            asList(
+                Registration.builder()
+                    .uuid(DatamartObservationSamples.Fhir.ID)
+                    .resourceIdentity(
+                        ResourceIdentity.builder()
+                            .system("CDW")
+                            .resource("OBSERVATION")
+                            .identifier(dm.cdwId())
+                            .build())
+                    .build(),
+                Registration.builder()
+                    .uuid(DatamartObservationSamples.Fhir.SUBJECT_ID)
+                    .resourceIdentity(
+                        ResourceIdentity.builder()
+                            .system("CDW")
+                            .resource("PATIENT")
+                            .identifier(dm.subject().get().reference().get())
+                            .build())
+                    .build(),
+                Registration.builder()
+                    .uuid(DatamartObservationSamples.Fhir.ENCOUNTER_ID)
+                    .resourceIdentity(
+                        ResourceIdentity.builder()
+                            .system("CDW")
+                            .resource("ENCOUNTER")
+                            .identifier(dm.encounter().get().reference().get())
+                            .build())
+                    .build(),
+                Registration.builder()
+                    .uuid(DatamartObservationSamples.Fhir.PERFORMER_ID_1)
+                    .resourceIdentity(
+                        ResourceIdentity.builder()
+                            .system("CDW")
+                            .resource("PRACTITIONER")
+                            .identifier(dm.performer().get(0).reference().get())
+                            .build())
+                    .build(),
+                Registration.builder()
+                    .uuid(DatamartObservationSamples.Fhir.PERFORMER_ID_2)
+                    .resourceIdentity(
+                        ResourceIdentity.builder()
+                            .system("CDW")
+                            .resource("ORGANIZATION")
+                            .identifier(dm.performer().get(1).reference().get())
+                            .build())
+                    .build()));
   }
 
   @SneakyThrows
@@ -48,6 +105,12 @@ public class DatamartObservationControllerTest {
 
   @Test
   public void readRaw() {
+    //	  searchById(String, String, int, int)
+    //	  searchByIdentifier(String, String, int, int)
+    //	  searchByPatient(String, String, int, int)
+    //	  searchByPatientAndCategory(String, String, String, String[], int, int)
+    //	  searchByPatientAndCode(String, String, String, int, int)
+
     IdentityService ids = mock(IdentityService.class);
     ObservationController controller =
         new ObservationController(
@@ -59,8 +122,28 @@ public class DatamartObservationControllerTest {
             WitnessProtection.builder().identityService(ids).build());
     DatamartObservation dm = DatamartObservationSamples.Datamart.create().observation();
     repository.save(asEntity(dm));
-    // entityManager.persistAndFlush(asEntity(dm));
     setUpIds(ids, dm);
     assertThat(toObject(controller.readRaw(DatamartObservationSamples.Fhir.ID))).isEqualTo(dm);
+  }
+
+  @Test
+  @SneakyThrows
+  public void read() {
+    IdentityService ids = mock(IdentityService.class);
+    ObservationController controller =
+        new ObservationController(
+            true,
+            null,
+            null,
+            new Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool")),
+            repository,
+            WitnessProtection.builder().identityService(ids).build());
+    DatamartObservation dm = DatamartObservationSamples.Datamart.create().observation();
+    repository.save(asEntity(dm));
+    setUpIds(ids, dm);
+    Observation result = controller.read("", DatamartObservationSamples.Fhir.ID);
+    System.out.println(
+        JacksonConfig.createMapper().writerWithDefaultPrettyPrinter().writeValueAsString(result));
+    assertThat(result).isEqualTo(DatamartObservationSamples.Fhir.create().observation());
   }
 }

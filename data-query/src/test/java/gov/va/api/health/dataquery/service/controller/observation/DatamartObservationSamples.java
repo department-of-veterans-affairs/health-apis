@@ -5,6 +5,12 @@ import static java.util.Arrays.asList;
 import gov.va.api.health.argonaut.api.resources.Observation;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
+import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
+import gov.va.api.health.dstu2.api.datatypes.Coding;
+import gov.va.api.health.dstu2.api.datatypes.Quantity;
+import gov.va.api.health.dstu2.api.datatypes.SimpleQuantity;
+import gov.va.api.health.dstu2.api.elements.Reference;
+
 import java.time.Instant;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
@@ -296,8 +302,271 @@ public class DatamartObservationSamples {
   static class Fhir {
     static final String ID = "2b45ed16-3d77-45b0-b540-928605528ef0";
 
+    static final String SUBJECT_ID = "a54f0884-e781-47e0-b1b3-59ab9764c019";
+
+    static final String ENCOUNTER_ID = "68dc7dd9-1f4e-43fa-b07f-234766aa3d5d";
+
+    static final String PERFORMER_ID_1 = "f07c0bbc-780f-4dd2-b1f3-4e2158e97273";
+
+    static final String PERFORMER_ID_2 = "a695b2b2-49bc-42c8-99fc-2b405be77f36";
+
     public Observation observation() {
-      return Observation.builder().resourceType("Observation").id(ID).build();
+      return Observation.builder()
+          .resourceType("Observation")
+          .id(ID)
+          .status(Observation.Status._final)
+          .category(
+              CodeableConcept.builder()
+                  .coding(
+                      asList(
+                          Coding.builder()
+                              .system("http://hl7.org/fhir/observation-category")
+                              .code("laboratory")
+                              .display("Laboratory")
+                              .build()))
+                  .build())
+          .code(
+              CodeableConcept.builder()
+                  .coding(
+                      asList(
+                          Coding.builder()
+                              .system("http://loinc.org")
+                              .code("1989-3")
+                              .display("VITAMIN D,25-OH,TOTAL")
+                              .build()))
+                  .text("VITAMIN D,25-OH,TOTAL")
+                  .build())
+          .subject(
+              Reference.builder()
+                  .reference("Patient/" + SUBJECT_ID)
+                  .display("VETERAN,AUDIE OBS")
+                  .build())
+          .encounter(
+              Reference.builder()
+                  .reference("Encounter/" + ENCOUNTER_ID)
+                  .display("Ambulatory")
+                  .build())
+          .effectiveDateTime("2012-12-24T14:12:00Z")
+          .issued("2012-12-26T19:42:00Z")
+          .performer(
+              asList(
+                  Reference.builder()
+                      .reference("Practitioner/" + PERFORMER_ID_1)
+                      .display("WELBY,MARCUS MCCOY")
+                      .build(),
+                  Reference.builder()
+                      .reference("Organization/" + PERFORMER_ID_2)
+                      .display("WHITE RIVER JCT VAMROC")
+                      .build()))
+          .valueQuantity(
+              Quantity.builder()
+                  .value(111.82)
+                  .unit("ng/mL")
+                  .system("http://unitsofmeasure.org")
+                  .code("ng/mL")
+                  .build())
+          .valueCodeableConcept(
+              CodeableConcept.builder()
+                  .coding(
+                      asList(
+                          Coding.builder()
+                              .system("http://snomed.info/sct")
+                              .code("112283007")
+                              .display("ESCHERICHIA COLI")
+                              .build()))
+                  .text("ESCHERICHIA COLI")
+                  .build())
+          .interpretation(
+              CodeableConcept.builder()
+                  .coding(
+                      asList(
+                          Coding.builder().system("http://hl7.org/fhir/v2/0078").code("H").build()))
+                  .text("H")
+                  .build())
+          .comments(
+              "CYTOSPIN:NO ACID-FAST BACILLI SEEN. 01/02/2015 BACILLI ISOLATED AFTER 6 WEEKS BY LABCORP")
+          .referenceRange(
+              asList(
+                  Observation.ObservationReferenceRange.builder()
+                      .low(
+                          SimpleQuantity.builder()
+                              .value(30.0)
+                              .unit("ng/mL")
+                              .system("http://unitsofmeasure.org")
+                              .code("ng/mL")
+                              .build())
+                      .high(
+                          SimpleQuantity.builder()
+                              .value(100.0)
+                              .unit("ng/mL")
+                              .system("http://unitsofmeasure.org")
+                              .code("ng/mL")
+                              .build())
+                      .build()))
+          .component(
+              asList(
+                  Observation.ObservationComponent.builder()
+                      .code(
+                          CodeableConcept.builder()
+                              .coding(
+                                  asList(
+                                      Coding.builder()
+                                          .system("http://loinc.org")
+                                          .code("8480-6")
+                                          .display("Systolic blood pressure")
+                                          .build()))
+                              .build())
+                      .valueQuantity(
+                          Quantity.builder()
+                              .value(114.0)
+                              .unit("mm[Hg]")
+                              .system("http://unitsofmeasure.org")
+                              .code("mm[Hg]")
+                              .build())
+                      .build(),
+                  Observation.ObservationComponent.builder()
+                      .code(
+                          CodeableConcept.builder()
+                              .coding(
+                                  asList(
+                                      Coding.builder()
+                                          .system("http://loinc.org")
+                                          .code("8462-4")
+                                          .display("Diastolic blood pressure")
+                                          .build()))
+                              .build())
+                      .valueQuantity(
+                          Quantity.builder()
+                              .value(62.0)
+                              .unit("mm[Hg]")
+                              .system("http://unitsofmeasure.org")
+                              .code("mm[Hg]")
+                              .build())
+                      .build(),
+                  Observation.ObservationComponent.builder()
+                      .code(
+                          CodeableConcept.builder()
+                              .coding(
+                                  asList(
+                                      Coding.builder()
+                                          .system("http://loinc.org")
+                                          .code("76-0")
+                                          .display("CEFAZOLIN")
+                                          .build()))
+                              .text("CEFAZOLIN-1")
+                              .build())
+                      .valueCodeableConcept(
+                          CodeableConcept.builder()
+                              .coding(
+                                  asList(
+                                      Coding.builder()
+                                          .system("http://snomed.info/sct")
+                                          .code("S")
+                                          .display("Sensitive")
+                                          .build()))
+                              .build())
+                      .build(),
+                  Observation.ObservationComponent.builder()
+                      .code(
+                          CodeableConcept.builder()
+                              .coding(
+                                  asList(
+                                      Coding.builder()
+                                          .system("http://loinc.org")
+                                          .code("279-0")
+                                          .display("IMIPENEM")
+                                          .build()))
+                              .text("IMIPENEM")
+                              .build())
+                      .valueCodeableConcept(
+                          CodeableConcept.builder()
+                              .coding(
+                                  asList(
+                                      Coding.builder()
+                                          .system("http://snomed.info/sct")
+                                          .code("S")
+                                          .display("Sensitive")
+                                          .build()))
+                              .build())
+                      .build(),
+                  Observation.ObservationComponent.builder()
+                      .code(
+                          CodeableConcept.builder()
+                              .coding(
+                                  asList(
+                                      Coding.builder()
+                                          .system("http://loinc.org")
+                                          .code("185-9")
+                                          .display("CIPROFLOXACIN")
+                                          .build()))
+                              .text("CIPROFLOXACIN")
+                              .build())
+                      .valueCodeableConcept(
+                          CodeableConcept.builder()
+                              .coding(
+                                  asList(
+                                      Coding.builder()
+                                          .system("http://snomed.info/sct")
+                                          .code("S")
+                                          .display("Sensitive")
+                                          .build()))
+                              .build())
+                      .build(),
+                  Observation.ObservationComponent.builder()
+                      .code(
+                          CodeableConcept.builder()
+                              .coding(
+                                  asList(
+                                      Coding.builder()
+                                          .system("http://loinc.org")
+                                          .code("141-2")
+                                          .display("CEFTRIAXONE")
+                                          .build()))
+                              .text("CEFTRIAXONE-3")
+                              .build())
+                      .valueCodeableConcept(
+                          CodeableConcept.builder()
+                              .coding(
+                                  asList(
+                                      Coding.builder()
+                                          .system("http://snomed.info/sct")
+                                          .code("S")
+                                          .display("Sensitive")
+                                          .build()))
+                              .build())
+                      .build(),
+                  Observation.ObservationComponent.builder()
+                      .code(
+                          CodeableConcept.builder()
+                              .coding(
+                                  asList(
+                                      Coding.builder()
+                                          .system("http://loinc.org")
+                                          .code("516-5")
+                                          .display("TRIMETHOPRIM+SULFAMETHOXAZOLE")
+                                          .build()))
+                              .text("SXT (BACTRIM)")
+                              .build())
+                      .valueCodeableConcept(
+                          CodeableConcept.builder()
+                              .coding(
+                                  asList(
+                                      Coding.builder()
+                                          .system("http://snomed.info/sct")
+                                          .code("R")
+                                          .display("Resistant")
+                                          .build()))
+                              .build())
+                      .build(),
+                  Observation.ObservationComponent.builder()
+                      .code(CodeableConcept.builder().text("Acid Fast Stain").build())
+                      .valueString("Concentrate Negative")
+                      .build(),
+                  Observation.ObservationComponent.builder()
+                      .code(CodeableConcept.builder().text("Sputum Screen").build())
+                      .valueString("GOOD QUALITY SPECIMEN BY GRAM STAIN EVALUATION")
+                      .build()))
+          .build();
     }
   }
 }
