@@ -108,7 +108,7 @@ public final class SystemDefinitions {
         .diagnosticReports(diagnosticReports())
         .immunization("12345678")
         .location("166365:L")
-        .medication("212846")
+        .medication("18")
         .medicationDispense("1200738474343:R")
         .medicationOrder("1200389904206:O")
         .medicationStatement("800000000707")

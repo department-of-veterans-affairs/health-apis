@@ -44,7 +44,7 @@ public class MedicationEntity {
   private String cdwId;
 
   @Column(name = "Medication")
-  @Basic(fetch = FetchType.LAZY)
+  @Basic(fetch = FetchType.EAGER)
   @Lob
   private String payload;
 
