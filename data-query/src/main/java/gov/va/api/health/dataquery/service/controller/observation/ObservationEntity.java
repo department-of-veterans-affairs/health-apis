@@ -32,6 +32,15 @@ public class ObservationEntity {
   @Column(name = "PatientFullICN")
   private String icn;
 
+  @Column(name = "Category", nullable = true)
+  private String category;
+
+  @Column(name = "Code", nullable = true)
+  private String code;
+
+  @Column(name = "Date", nullable = true)
+  private Long epochTime;
+
   @Lob
   @Basic(fetch = FetchType.EAGER)
   @Column(name = "Observation")

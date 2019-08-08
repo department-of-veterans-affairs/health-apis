@@ -28,6 +28,7 @@ import java.util.stream.Stream;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -57,7 +58,6 @@ import org.springframework.web.bind.annotation.RestController;
   produces = {"application/json", "application/json+fhir", "application/fhir+json"}
 )
 public class ObservationController {
-
   private final Datamart datamart = new Datamart();
 
   private boolean defaultToDatamart;
@@ -198,7 +198,7 @@ public class ObservationController {
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
     if (datamart.isDatamartRequest(datamartHeader)) {
-      return datamart.searchByPatientAndCategory(patient, category, date, page, count);
+      return datamart.searchByPatientAndCategoryAndDate(patient, category, date, page, count);
     }
     return mrAndersonBundle(
         Parameters.builder()
@@ -252,7 +252,6 @@ public class ObservationController {
    * eliminated.
    */
   private class Datamart {
-
     Observation.Bundle bundle(
         MultiValueMap<String, String> parameters, List<Observation> records, int totalRecords) {
       PageLinks.LinkConfig linkConfig =
@@ -270,6 +269,21 @@ public class ObservationController {
               Function.identity(),
               Observation.Entry::new,
               Observation.Bundle::new));
+    }
+
+    Observation.Bundle bundle(
+        MultiValueMap<String, String> parameters, Page<ObservationEntity> entitiesPage) {
+      List<DatamartObservation> datamarts =
+          entitiesPage.stream().map(e -> e.asDatamartObservation()).collect(Collectors.toList());
+      replaceReferences(datamarts);
+
+      List<Observation> fhir =
+          datamarts
+              .stream()
+              .map(dm -> DatamartObservationTransformer.builder().datamart(dm).build().toFhir())
+              .collect(Collectors.toList());
+
+      return bundle(parameters, fhir, (int) entitiesPage.getTotalElements());
     }
 
     ObservationEntity findById(@PathVariable("publicId") String publicId) {
@@ -323,31 +337,55 @@ public class ObservationController {
       String cdwPatient = witnessProtection.toCdwId(publicPatient);
       Page<ObservationEntity> entitiesPage =
           repository.findByIcn(cdwPatient, PageRequest.of(page - 1, count));
-      List<DatamartObservation> datamarts =
-          entitiesPage.stream().map(e -> e.asDatamartObservation()).collect(Collectors.toList());
-      replaceReferences(datamarts);
-      List<Observation> fhir =
-          datamarts
-              .stream()
-              .map(dm -> DatamartObservationTransformer.builder().datamart(dm).build().toFhir())
-              .collect(Collectors.toList());
+
       return bundle(
           Parameters.builder()
               .add("patient", publicPatient)
               .add("page", page)
               .add("_count", count)
               .build(),
-          fhir,
-          (int) entitiesPage.getTotalElements());
+          entitiesPage);
     }
 
-    Observation.Bundle searchByPatientAndCategory(
-        String patient, String category, String[] date, int page, int count) {
-      throw new UnsupportedOperationException("TODO");
+    Observation.Bundle searchByPatientAndCategoryAndDate(
+        String publicPatient, String category, String[] date, int page, int count) {
+      String cdwPatient = witnessProtection.toCdwId(publicPatient);
+
+      ObservationRepository.PatientAndCategoryAndDateSpecification spec =
+          ObservationRepository.PatientAndCategoryAndDateSpecification.builder()
+              .patient(cdwPatient)
+              .category(category)
+              .dates(date)
+              .build();
+      // log.info("Looking for {} ({}) {}", publicPatient, cdwPatient, spec);
+      Page<ObservationEntity> entitiesPage =
+          repository.findAll(spec, PageRequest.of(page - 1, count));
+
+      return bundle(
+          Parameters.builder()
+              .add("patient", publicPatient)
+              .add("category", category)
+              .addAll("date", date)
+              .add("page", page)
+              .add("_count", count)
+              .build(),
+          entitiesPage);
     }
 
-    Observation.Bundle searchByPatientAndCode(String patient, String code, int page, int count) {
-      throw new UnsupportedOperationException("TODO");
+    Observation.Bundle searchByPatientAndCode(
+        String publicPatient, String code, int page, int count) {
+      String cdwPatient = witnessProtection.toCdwId(publicPatient);
+      Page<ObservationEntity> entitiesPage =
+          repository.findByIcnAndCode(cdwPatient, code, PageRequest.of(page - 1, count));
+
+      return bundle(
+          Parameters.builder()
+              .add("patient", publicPatient)
+              .add("code", code)
+              .add("page", page)
+              .add("_count", count)
+              .build(),
+          entitiesPage);
     }
   }
 }
