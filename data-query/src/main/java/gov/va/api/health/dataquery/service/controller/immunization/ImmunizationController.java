@@ -12,7 +12,7 @@ import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.PageLinks.LinkConfig;
 import gov.va.api.health.dataquery.service.controller.Parameters;
-import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
+import gov.va.api.health.dataquery.service.controller.ResourceExceptions.NotFound;
 import gov.va.api.health.dataquery.service.controller.Validator;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
@@ -54,9 +54,8 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 @RestController
 @RequestMapping(
-  value = {"Immunization", "/api/Immunization"},
-  produces = {"application/json", "application/json+fhir", "application/fhir+json"}
-)
+    value = {"Immunization", "/api/Immunization"},
+    produces = {"application/json", "application/json+fhir", "application/fhir+json"})
 @Slf4j
 public class ImmunizationController {
   private final ImmunizationController.Datamart datamart = new ImmunizationController.Datamart();
@@ -185,9 +184,8 @@ public class ImmunizationController {
 
   /** Hey, this is a validate endpoint. It validates. */
   @PostMapping(
-    value = "/$validate",
-    consumes = {"application/json", "application/json+fhir", "application/fhir+json"}
-  )
+      value = "/$validate",
+      consumes = {"application/json", "application/json+fhir", "application/fhir+json"})
   public OperationOutcome validate(@RequestBody Immunization.Bundle bundle) {
     return Validator.create().validate(bundle);
   }
@@ -244,11 +242,8 @@ public class ImmunizationController {
 
     ImmunizationEntity findById(String publicId) {
       String cdwId = witnessProtection.toCdwId(publicId);
-      Optional<ImmunizationEntity> maybeEntity = repository.findById(cdwId);
-      if (!maybeEntity.isPresent()) {
-        throw new ResourceExceptions.NotFound(publicId);
-      }
-      return maybeEntity.get();
+      Optional<ImmunizationEntity> entity = repository.findById(cdwId);
+      return entity.orElseThrow(() -> new NotFound(publicId));
     }
 
     boolean isDatamartRequest(String datamartHeader) {
