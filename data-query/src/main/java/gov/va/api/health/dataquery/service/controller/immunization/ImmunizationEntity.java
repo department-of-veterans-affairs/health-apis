@@ -1,7 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.immunization;
 
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
-import java.math.BigInteger;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -45,7 +44,7 @@ public class ImmunizationEntity {
   @Id
   @Column(name = "CDWId")
   @EqualsAndHashCode.Include
-  private BigInteger cdwId;
+  private String cdwId;
 
   @Column(name = "PatientFullICN")
   private String icn;
