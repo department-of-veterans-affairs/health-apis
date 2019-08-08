@@ -190,7 +190,9 @@ public class DatamartExporter {
     Properties mitreProperties() {
       Properties properties = new Properties();
       properties.put("hibernate.hbm2ddl.auto", "none");
-      properties.put("hibernate.show_sql", "false");
+      properties.put("hibernate.show_sql", "true");
+      properties.put("hibernate.format_sql", "true");
+      properties.put("hibernate.globally_quoted_identifiers", "true");
       return properties;
     }
 

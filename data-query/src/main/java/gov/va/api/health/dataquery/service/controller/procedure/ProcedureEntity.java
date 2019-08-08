@@ -32,7 +32,7 @@ public class ProcedureEntity {
   @Column(name = "PatientFullICN")
   private String icn;
 
-  @Column(name = "PerformedOnEpochTime", nullable = true)
+  @Column(name = "Date", nullable = true)
   private Long performedOnEpochTime;
 
   @Column(name = "Procedure")
