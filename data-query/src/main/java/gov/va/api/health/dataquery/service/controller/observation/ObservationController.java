@@ -282,12 +282,12 @@ public class ObservationController {
     }
 
     Observation.Bundle searchByPatientAndCode(String patient, String code, int page, int count) {
-      throw new UnsupportedOperationException();
+      throw new UnsupportedOperationException("TODO");
     }
 
     Observation.Bundle searchByPatientAndCategory(
         String patient, String category, String[] date, int page, int count) {
-      throw new UnsupportedOperationException();
+      throw new UnsupportedOperationException("TODO");
     }
 
     Observation.Bundle searchByPatient(String publicPatient, int page, int count) {
