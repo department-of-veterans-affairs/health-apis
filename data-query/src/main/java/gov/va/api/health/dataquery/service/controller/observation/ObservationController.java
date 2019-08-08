@@ -2,9 +2,9 @@ package gov.va.api.health.dataquery.service.controller.observation;
 
 import static gov.va.api.health.dataquery.service.controller.Transformers.firstPayloadItem;
 import static gov.va.api.health.dataquery.service.controller.Transformers.hasPayload;
-import static org.apache.commons.lang3.StringUtils.isBlank;
-import static java.util.Collections.emptyList;
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import gov.va.api.health.argonaut.api.resources.Observation;
 import gov.va.api.health.dataquery.service.controller.Bundler;
@@ -19,14 +19,12 @@ import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
 import gov.va.api.health.dataquery.service.mranderson.client.Query;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import gov.va.dvp.cdw.xsd.model.CdwObservation104Root;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
@@ -59,6 +57,7 @@ import org.springframework.web.bind.annotation.RestController;
   produces = {"application/json", "application/json+fhir", "application/fhir+json"}
 )
 public class ObservationController {
+
   private final Datamart datamart = new Datamart();
 
   private boolean defaultToDatamart;
@@ -253,6 +252,7 @@ public class ObservationController {
    * eliminated.
    */
   private class Datamart {
+
     Observation.Bundle bundle(
         MultiValueMap<String, String> parameters, List<Observation> records, int totalRecords) {
       PageLinks.LinkConfig linkConfig =
@@ -281,38 +281,31 @@ public class ObservationController {
       return maybeEntity.get();
     }
 
-    Observation.Bundle searchByPatientAndCode(String patient, String code, int page, int count) {
-      throw new UnsupportedOperationException("TODO");
+    boolean isDatamartRequest(String datamartHeader) {
+      if (isBlank(datamartHeader)) {
+        return defaultToDatamart;
+      }
+      return BooleanUtils.isTrue(BooleanUtils.toBooleanObject(datamartHeader));
     }
 
-    Observation.Bundle searchByPatientAndCategory(
-        String patient, String category, String[] date, int page, int count) {
-      throw new UnsupportedOperationException("TODO");
+    Observation read(String publicId) {
+      DatamartObservation dm = findById(publicId).asDatamartObservation();
+      replaceReferences(List.of(dm));
+      return DatamartObservationTransformer.builder().datamart(dm).build().toFhir();
     }
 
-    Observation.Bundle searchByPatient(String publicPatient, int page, int count) {
-      String cdwPatient = witnessProtection.toCdwId(publicPatient);
-      Page<ObservationEntity> entitiesPage =
-          repository.findByIcn(cdwPatient, PageRequest.of(page - 1, count));
+    String readRaw(@PathVariable("publicId") String publicId) {
+      return findById(publicId).payload();
+    }
 
-      List<DatamartObservation> datamarts =
-          entitiesPage.stream().map(e -> e.asDatamartObservation()).collect(Collectors.toList());
-      replaceReferences(datamarts);
-
-      List<Observation> fhir =
-          datamarts
-              .stream()
-              .map(dm -> DatamartObservationTransformer.builder().datamart(dm).build().toFhir())
-              .collect(Collectors.toList());
-
-      return bundle(
-          Parameters.builder()
-              .add("patient", publicPatient)
-              .add("page", page)
-              .add("_count", count)
-              .build(),
-          fhir,
-          (int) entitiesPage.getTotalElements());
+    void replaceReferences(Collection<DatamartObservation> resources) {
+      // Specimen is omitted because we do not support that resource.
+      witnessProtection.registerAndUpdateReferences(
+          resources,
+          resource ->
+              Stream.concat(
+                  Stream.of(resource.subject().orElse(null), resource.encounter().orElse(null)),
+                  resource.performer().stream()));
     }
 
     Observation.Bundle searchById(String id, int page, int count) {
@@ -326,31 +319,35 @@ public class ObservationController {
           parameters, resource == null ? emptyList() : asList(resource), resource == null ? 0 : 1);
     }
 
-    Observation read(String publicId) {
-      DatamartObservation dm = findById(publicId).asDatamartObservation();
-      replaceReferences(List.of(dm));
-      return DatamartObservationTransformer.builder().datamart(dm).build().toFhir();
+    Observation.Bundle searchByPatient(String publicPatient, int page, int count) {
+      String cdwPatient = witnessProtection.toCdwId(publicPatient);
+      Page<ObservationEntity> entitiesPage =
+          repository.findByIcn(cdwPatient, PageRequest.of(page - 1, count));
+      List<DatamartObservation> datamarts =
+          entitiesPage.stream().map(e -> e.asDatamartObservation()).collect(Collectors.toList());
+      replaceReferences(datamarts);
+      List<Observation> fhir =
+          datamarts
+              .stream()
+              .map(dm -> DatamartObservationTransformer.builder().datamart(dm).build().toFhir())
+              .collect(Collectors.toList());
+      return bundle(
+          Parameters.builder()
+              .add("patient", publicPatient)
+              .add("page", page)
+              .add("_count", count)
+              .build(),
+          fhir,
+          (int) entitiesPage.getTotalElements());
     }
 
-    void replaceReferences(Collection<DatamartObservation> resources) {
-      // Specimen is omitted because we do not support that resource.
-      witnessProtection.registerAndUpdateReferences(
-          resources,
-          resource ->
-              Stream.concat(
-                  Stream.of(resource.subject().orElse(null), resource.encounter().orElse(null)),
-                  resource.performer().stream()));
+    Observation.Bundle searchByPatientAndCategory(
+        String patient, String category, String[] date, int page, int count) {
+      throw new UnsupportedOperationException("TODO");
     }
 
-    boolean isDatamartRequest(String datamartHeader) {
-      if (isBlank(datamartHeader)) {
-        return defaultToDatamart;
-      }
-      return BooleanUtils.isTrue(BooleanUtils.toBooleanObject(datamartHeader));
-    }
-
-    String readRaw(@PathVariable("publicId") String publicId) {
-      return findById(publicId).payload();
+    Observation.Bundle searchByPatientAndCode(String patient, String code, int page, int count) {
+      throw new UnsupportedOperationException("TODO");
     }
   }
 }

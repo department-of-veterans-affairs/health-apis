@@ -1,34 +1,34 @@
 package gov.va.api.health.dataquery.service.controller.observation;
 
-import static java.util.Arrays.asList;
-
-import java.util.List;
-import java.util.Locale;
-
 import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
-import static gov.va.api.health.dataquery.service.controller.Transformers.asReference;
+import static gov.va.api.health.dataquery.service.controller.Transformers.asCoding;
 import static gov.va.api.health.dataquery.service.controller.Transformers.asDateTimeString;
+import static gov.va.api.health.dataquery.service.controller.Transformers.asReference;
 import static gov.va.api.health.dataquery.service.controller.Transformers.emptyToNull;
-
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import static org.apache.commons.lang3.StringUtils.lowerCase;
-
+import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.lowerCase;
 import static org.apache.commons.lang3.StringUtils.trimToEmpty;
-
 import static org.springframework.util.CollectionUtils.isEmpty;
 
 import gov.va.api.health.argonaut.api.resources.Observation;
+import gov.va.api.health.argonaut.api.resources.Observation.ObservationComponent;
+import gov.va.api.health.argonaut.api.resources.Observation.ObservationReferenceRange;
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
-
-import static gov.va.api.health.dataquery.service.controller.Transformers.asCoding;
+import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation.AntibioticComponent;
+import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation.BacteriologyComponent;
+import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation.ReferenceRange;
+import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation.VitalsComponent;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
 import gov.va.api.health.dstu2.api.datatypes.Quantity;
+import gov.va.api.health.dstu2.api.datatypes.SimpleQuantity;
 import gov.va.api.health.dstu2.api.elements.Reference;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.NonNull;
 
@@ -48,10 +48,8 @@ final class DatamartObservationTransformer {
     if (category == null) {
       return null;
     }
-
     Coding.CodingBuilder coding =
         Coding.builder().system("http://hl7.org/fhir/observation-category");
-
     switch (category) {
       case exam:
         return coding.code("exam").display("Exam").build();
@@ -74,54 +72,33 @@ final class DatamartObservationTransformer {
     }
   }
 
-  private static Observation.Status status(DatamartObservation.Status status) {
-    if (status == null) {
-      return null;
-    }
-    return EnumSearcher.of(Observation.Status.class).find(status.toString());
-  }
-
-  private static List<Reference> performers(List<DatamartReference> performers) {
-    if (isEmpty(performers)) {
-      return null;
-    }
-
-    List<Reference> results =
-        performers.stream().map(p -> asReference(p)).collect(Collectors.toList());
-    return emptyToNull(results);
-  }
-
-  private static Quantity valueQuantity(Optional<DatamartObservation.Quantity> maybeQuantity) {
-    if (maybeQuantity == null || maybeQuantity.isEmpty()) {
-      return null;
-    }
-
-    DatamartObservation.Quantity quantity = maybeQuantity.get();
-    if (allBlank(quantity.value(), quantity.unit(), quantity.system(), quantity.code())) {
-      return null;
-    }
-
-    return Quantity.builder()
-        .value(quantity.value())
-        .unit(quantity.unit())
-        .system(quantity.system())
-        .code(quantity.code())
-        .build();
-  }
-
   private static CodeableConcept codeableConcept(
       Optional<DatamartObservation.CodeableConcept> maybeCode) {
     if (maybeCode == null || maybeCode.isEmpty()) {
       return null;
     }
-
     DatamartObservation.CodeableConcept dmCode = maybeCode.get();
     Coding coding = asCoding(dmCode.coding());
     if (allBlank(coding, dmCode.text())) {
       return null;
     }
-
     return CodeableConcept.builder().coding(asList(coding)).text(dmCode.text()).build();
+  }
+
+  private static CodeableConcept interpretation(String interpretation) {
+    if (isBlank(interpretation)) {
+      return null;
+    }
+    return CodeableConcept.builder()
+        .coding(
+            asList(
+                Coding.builder()
+                    .system("http://hl7.org/fhir/v2/0078")
+                    .code(interpretation)
+                    .display(interpretationDisplay(interpretation))
+                    .build()))
+        .text(interpretation)
+        .build();
   }
 
   private static String interpretationDisplay(String interpretation) {
@@ -197,26 +174,74 @@ final class DatamartObservationTransformer {
     }
   }
 
-  private static CodeableConcept interpretation(String interpretation) {
-    if (isBlank(interpretation)) {
+  private static List<Reference> performers(List<DatamartReference> performers) {
+    if (isEmpty(performers)) {
       return null;
     }
-    return CodeableConcept.builder()
-        .coding(
-            asList(
-                Coding.builder()
-                    .system("http://hl7.org/fhir/v2/0078")
-                    .code(interpretation)
-                    .display(interpretationDisplay(interpretation))
-                    .build()))
-        .text(interpretation)
+    List<Reference> results =
+        performers.stream().map(p -> asReference(p)).collect(Collectors.toList());
+    return emptyToNull(results);
+  }
+
+  private static Quantity quantity(Optional<DatamartObservation.Quantity> maybeQuantity) {
+    if (maybeQuantity == null || maybeQuantity.isEmpty()) {
+      return null;
+    }
+    DatamartObservation.Quantity quantity = maybeQuantity.get();
+    if (allBlank(quantity.value(), quantity.unit(), quantity.system(), quantity.code())) {
+      return null;
+    }
+    return Quantity.builder()
+        .value(quantity.value())
+        .unit(quantity.unit())
+        .system(quantity.system())
+        .code(quantity.code())
         .build();
   }
 
-  Observation toFhir() {
-    //    .referenceRange(referenceRanges(datamart.ReferenceRanges(), datamart.Category()))
-    //    .component(components(datamart.Components()))
+  private static List<ObservationReferenceRange> referenceRanges(
+      Optional<ReferenceRange> maybeRange) {
+    if (maybeRange == null || maybeRange.isEmpty()) {
+      return null;
+    }
+    ReferenceRange dm = maybeRange.get();
+    SimpleQuantity low = simpleQuantity(quantity(dm.low()));
+    SimpleQuantity high = simpleQuantity(quantity(dm.high()));
+    if (low == null || high == null) {
+      return null;
+    }
+    return asList(ObservationReferenceRange.builder().low(low).high(high).build());
+  }
 
+  private static SimpleQuantity simpleQuantity(Quantity quantity) {
+    if (quantity == null) {
+      return null;
+    }
+    return SimpleQuantity.builder()
+        .value(quantity.value())
+        .unit(quantity.unit())
+        .system(quantity.system())
+        .code(quantity.code())
+        .build();
+  }
+
+  private static Observation.Status status(DatamartObservation.Status status) {
+    if (status == null) {
+      return null;
+    }
+    return EnumSearcher.of(Observation.Status.class).find(status.toString());
+  }
+
+  private List<ObservationComponent> components() {
+    // datamart:
+    // vitalsComponents;
+    // antibioticComponents;
+    // mycobacteriologyComponents;
+    // bacteriologyComponents;
+    return null;
+  }
+
+  Observation toFhir() {
     /*
      * Specimen reference is omitted since we do not support the a specimen resource and
      * do not want dead links
@@ -232,10 +257,12 @@ final class DatamartObservationTransformer {
         .effectiveDateTime(asDateTimeString(datamart.effectiveDateTime()))
         .issued(asDateTimeString(datamart.issued()))
         .performer(performers(datamart.performer()))
-        .valueQuantity(valueQuantity(datamart.valueQuantity()))
+        .valueQuantity(quantity(datamart.valueQuantity()))
         .valueCodeableConcept(codeableConcept(datamart.valueCodeableConcept()))
         .interpretation(interpretation(datamart.interpretation()))
         .comments(datamart.comment())
+        .referenceRange(referenceRanges(datamart.referenceRange()))
+        .component(components())
         .build();
   }
 }
