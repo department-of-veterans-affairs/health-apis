@@ -216,6 +216,7 @@
                 <argument>-Dspring.datasource.password=sa</argument>
                 <argument>-Dspring.jpa.generate-ddl=false</argument>
                 <argument>-Dspring.jpa.hibernate.ddl-auto=none</argument>
+                <argument>-Dspring.jpa.properties.hibernate.globally_quoted_identifiers=false</argument>
                 <argument>-Dspring.config.location=classpath:/application.properties,file:${project.basedir}/config/secrets.properties</argument>
                 <argument>org.springframework.boot.loader.PropertiesLauncher</argument>
               </arguments>
