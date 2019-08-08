@@ -364,10 +364,6 @@ public class ProcedureController {
     }
 
     Collection<DatamartProcedure> replaceReferences(Collection<DatamartProcedure> resources) {
-      /*
-       * Reaction is not a reference to another resource and is intentionally excluded from
-       * registration.
-       */
       witnessProtection.registerAndUpdateReferences(
           resources,
           resource ->
