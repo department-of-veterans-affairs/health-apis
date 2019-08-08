@@ -120,7 +120,7 @@ public class MedicationStatementControllerTest {
     MedicationStatement item = MedicationStatement.builder().build();
     when(client.search(Mockito.any())).thenReturn(root);
     when(tx.apply(xmlMedicationStatement)).thenReturn(item);
-    MedicationStatement actual = controller.read("hello");
+    MedicationStatement actual = controller.read("false", "hello");
     assertThat(actual).isSameAs(item);
     ArgumentCaptor<Query<CdwMedicationStatement102Root>> captor =
         ArgumentCaptor.forClass(Query.class);
@@ -131,21 +131,21 @@ public class MedicationStatementControllerTest {
   @Test
   public void searchById() {
     assertSearch(
-        () -> controller.searchById("me", 1, 10),
+        () -> controller.searchById("false", "me", 1, 10),
         Parameters.builder().add("identifier", "me").add("page", 1).add("_count", 10).build());
   }
 
   @Test
   public void searchByIdentifier() {
     assertSearch(
-        () -> controller.searchByIdentifier("me", 1, 10),
+        () -> controller.searchByIdentifier("false", "me", 1, 10),
         Parameters.builder().add("identifier", "me").add("page", 1).add("_count", 10).build());
   }
 
   @Test
   public void searchByPatient() {
     assertSearch(
-        () -> controller.searchByPatient("me", 1, 10),
+        () -> controller.searchByPatient("false", "me", 1, 10),
         Parameters.builder().add("patient", "me").add("page", 1).add("_count", 10).build());
   }
 

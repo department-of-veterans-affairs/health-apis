@@ -2,11 +2,14 @@ package gov.va.api.health.dataquery.service.controller.medicationstatement;
 
 import static gov.va.api.health.dataquery.service.controller.Transformers.firstPayloadItem;
 import static gov.va.api.health.dataquery.service.controller.Transformers.hasPayload;
+import static java.util.Collections.emptyList;
 
 import gov.va.api.health.argonaut.api.resources.MedicationStatement;
+import gov.va.api.health.argonaut.api.resources.MedicationStatement.Bundle;
 import gov.va.api.health.dataquery.service.controller.Bundler;
 import gov.va.api.health.dataquery.service.controller.Bundler.BundleContext;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
+import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.PageLinks.LinkConfig;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions.NotFound;
@@ -16,20 +19,27 @@ import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
 import gov.va.api.health.dataquery.service.mranderson.client.Query;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import gov.va.dvp.cdw.xsd.model.CdwMedicationStatement102Root;
-import java.util.Collections;
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.validation.constraints.Min;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -40,6 +50,7 @@ import org.springframework.web.bind.annotation.RestController;
  * implementation details.
  */
 @SuppressWarnings("WeakerAccess")
+@Slf4j
 @Validated
 @RestController
 @RequestMapping(
@@ -47,12 +58,19 @@ import org.springframework.web.bind.annotation.RestController;
   produces = {"application/json", "application/json+fhir", "application/fhir+json"}
 )
 public class MedicationStatementController {
+
   private final Datamart datamart = new Datamart();
+
   private Transformer transformer;
+
   private MrAndersonClient mrAndersonClient;
+
   private Bundler bundler;
+
   private WitnessProtection witnessProtection;
+
   private MedicationStatementRepository repository;
+
   private boolean defaultToDatamart;
 
   /** Spring constructor. */
@@ -87,7 +105,7 @@ public class MedicationStatementController {
         BundleContext.of(
             linkConfig,
             root.getMedicationStatements() == null
-                ? Collections.emptyList()
+                ? emptyList()
                 : root.getMedicationStatements().getMedicationStatement(),
             transformer,
             MedicationStatement.Entry::new,
@@ -96,7 +114,12 @@ public class MedicationStatementController {
 
   /** Read by id. */
   @GetMapping(value = {"/{publicId}"})
-  public MedicationStatement read(@PathVariable("publicId") String publicId) {
+  public MedicationStatement read(
+      @RequestHeader(value = "Datamart", defaultValue = "") String datamartHeader,
+      @PathVariable("publicId") String publicId) {
+    if (datamart.isDatamartRequest(datamartHeader)) {
+      return datamart.read(publicId);
+    }
     return transformer.apply(
         firstPayloadItem(
             hasPayload(search(Parameters.forIdentity(publicId)).getMedicationStatements())
@@ -123,11 +146,19 @@ public class MedicationStatementController {
   /** Search by _id. */
   @GetMapping(params = {"_id"})
   public MedicationStatement.Bundle searchById(
-      @RequestParam("_id") String id,
+      @RequestHeader(value = "Datamart", defaultValue = "") String datamartHeader,
+      @RequestParam("_id") String publicId,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
+    if (datamart.isDatamartRequest(datamartHeader)) {
+      return datamart.searchById(publicId, page, count);
+    }
     return bundle(
-        Parameters.builder().add("identifier", id).add("page", page).add("_count", count).build(),
+        Parameters.builder()
+            .add("identifier", publicId)
+            .add("page", page)
+            .add("_count", count)
+            .build(),
         page,
         count);
   }
@@ -135,21 +166,23 @@ public class MedicationStatementController {
   /** Search by Identifier. */
   @GetMapping(params = {"identifier"})
   public MedicationStatement.Bundle searchByIdentifier(
-      @RequestParam("identifier") String id,
+      @RequestHeader(value = "Datamart", defaultValue = "") String datamartHeader,
+      @RequestParam("identifier") String publicId,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
-    return bundle(
-        Parameters.builder().add("identifier", id).add("page", page).add("_count", count).build(),
-        page,
-        count);
+    return searchById(datamartHeader, publicId, page, count);
   }
 
   /** Search by patient. */
   @GetMapping(params = {"patient"})
   public MedicationStatement.Bundle searchByPatient(
+      @RequestHeader(value = "Datamart", defaultValue = "") String datamartHeader,
       @RequestParam("patient") String patient,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
+    if (datamart.isDatamartRequest(datamartHeader)) {
+      return datamart.searchByPatient(patient, page, count);
+    }
     return bundle(
         Parameters.builder().add("patient", patient).add("page", page).add("_count", count).build(),
         page,
@@ -176,6 +209,49 @@ public class MedicationStatementController {
    * eliminated.
    */
   private class Datamart {
+
+    private Bundle bundle(
+        MultiValueMap<String, String> parameters,
+        List<MedicationStatement> reports,
+        int totalRecords) {
+      PageLinks.LinkConfig linkConfig =
+          PageLinks.LinkConfig.builder()
+              .path("MedicationStatement")
+              .queryParams(parameters)
+              .page(Parameters.pageOf(parameters))
+              .recordsPerPage(Parameters.countOf(parameters))
+              .totalRecords(totalRecords)
+              .build();
+      return bundler.bundle(
+          Bundler.BundleContext.of(
+              linkConfig,
+              reports,
+              Function.identity(),
+              MedicationStatement.Entry::new,
+              MedicationStatement.Bundle::new));
+    }
+
+    private Bundle bundle(
+        MultiValueMap<String, String> parameters,
+        int count,
+        Page<MedicationStatementEntity> entities) {
+      log.info("Search {} found {} results", parameters, entities.getTotalElements());
+      if (count == 0) {
+        return bundle(parameters, emptyList(), (int) entities.getTotalElements());
+      }
+      return bundle(
+          parameters,
+          replaceReferences(
+                  entities
+                      .get()
+                      .map(MedicationStatementEntity::asDatamartMedicationStatement)
+                      .collect(Collectors.toList()))
+              .stream()
+              .map(this::transform)
+              .collect(Collectors.toList()),
+          (int) entities.getTotalElements());
+    }
+
     MedicationStatementEntity findById(String publicId) {
       Optional<MedicationStatementEntity> entity =
           repository.findById(witnessProtection.toCdwId(publicId));
@@ -189,8 +265,51 @@ public class MedicationStatementController {
       return BooleanUtils.isTrue(BooleanUtils.toBooleanObject(datamartHeader));
     }
 
+    MedicationStatement read(String publicId) {
+      DatamartMedicationStatement medicationStatement =
+          findById(publicId).asDatamartMedicationStatement();
+      replaceReferences(List.of(medicationStatement));
+      return transform(medicationStatement);
+    }
+
     String readRaw(String publicId) {
       return findById(publicId).payload();
+    }
+
+    Collection<DatamartMedicationStatement> replaceReferences(
+        Collection<DatamartMedicationStatement> resources) {
+      witnessProtection.registerAndUpdateReferences(
+          resources, resource -> Stream.of(resource.patient(), resource.medication()));
+      return resources;
+    }
+
+    Bundle searchById(String publicId, int page, int count) {
+      MedicationStatement resource = read(publicId);
+      return bundle(
+          Parameters.builder()
+              .add("identifier", publicId)
+              .add("page", page)
+              .add("_count", count)
+              .build(),
+          resource == null || count == 0 ? emptyList() : List.of(resource),
+          resource == null ? 0 : 1);
+    }
+
+    Bundle searchByPatient(String patient, int page, int count) {
+      String icn = witnessProtection.toCdwId(patient);
+      log.info("Looking for {} ({})", patient, icn);
+      return bundle(
+          Parameters.builder()
+              .add("patient", patient)
+              .add("page", page)
+              .add("_count", count)
+              .build(),
+          count,
+          repository.findByIcn(icn, PageRequest.of(page - 1, count)));
+    }
+
+    MedicationStatement transform(DatamartMedicationStatement dm) {
+      return DatamartMedicationStatementTransformer.builder().datamart(dm).build().toFhir();
     }
   }
 }
