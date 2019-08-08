@@ -34,7 +34,6 @@ import java.util.stream.Stream;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -68,31 +67,25 @@ import org.springframework.web.bind.annotation.RestController;
   value = {"Procedure", "/api/Procedure"},
   produces = {"application/json", "application/json+fhir", "application/fhir+json"}
 )
-@AllArgsConstructor(onConstructor = @__({@Autowired}))
 public class ProcedureController {
   private final Datamart datamart = new Datamart();
 
-  @Value("${datamart.procedure}")
   private final boolean defaultToDatamart;
 
   /**
    * Optional ID for a patient with procedure data that can secretly service requests for {@link
    * #supermanId}.
    */
-  @Value("${procedure.test-patient-workaround.id-with-records:}")
   private final String clarkKentId;
 
   /**
    * Optional ID for a patient with no procedure data, whose requests can be secretly serviced by
    * {@link #clarkKentId}.
    */
-  @Value("${procedure.test-patient-workaround.id-without-records:}")
   private final String supermanId;
 
-  @Value("${procedure.test-patient-workaround.display-with-records:}")
   private final String clarkKentDisplay;
 
-  @Value("${procedure.test-patient-workaround.display-without-records:}")
   private final String supermanDisplay;
 
   private Transformer transformer;
@@ -104,6 +97,32 @@ public class ProcedureController {
   private ProcedureRepository repository;
 
   private WitnessProtection witnessProtection;
+
+  /** Let's try something new. */
+  @Autowired
+  public ProcedureController(
+      @Value("${datamart.procedure}") boolean defaultToDatamart,
+      @Value("${procedure.test-patient-workaround.id-with-records:}") String clarkKentId,
+      @Value("${procedure.test-patient-workaround.id-without-records:}") String supermanId,
+      @Value("${procedure.test-patient-workaround.display-with-records:}") String clarkKentDisplay,
+      @Value("${procedure.test-patient-workaround.display-without-records:}")
+          String supermanDisplay,
+      Transformer transformer,
+      MrAndersonClient mrAndersonClient,
+      Bundler bundler,
+      ProcedureRepository repository,
+      WitnessProtection witnessProtection) {
+    this.defaultToDatamart = defaultToDatamart;
+    this.clarkKentId = clarkKentId;
+    this.supermanId = supermanId;
+    this.clarkKentDisplay = clarkKentDisplay;
+    this.supermanDisplay = supermanDisplay;
+    this.transformer = transformer;
+    this.mrAndersonClient = mrAndersonClient;
+    this.bundler = bundler;
+    this.repository = repository;
+    this.witnessProtection = witnessProtection;
+  }
 
   private Procedure.Bundle bundle(MultiValueMap<String, String> parameters, int page, int count) {
     CdwProcedure101Root root = search(parameters);

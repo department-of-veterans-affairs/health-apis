@@ -27,6 +27,7 @@ do
     -e 's/1400007575530:P/1234567:D/' \
     -e 's/\(Immunization.*\)1000000043979/\112345678/' \
     -e 's/identifier=1000001782544/identifier=10000020531/' \
+    -e 's/identifier=1400000140034/identifier=1000001259996/' \
     $SOURCE >> $DESTINATION
 done
 
