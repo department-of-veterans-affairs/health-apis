@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dataquery.service.controller.datamart.HasReplaceableId;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import lombok.AccessLevel;
@@ -46,6 +47,22 @@ public class DatamartMedicationOrder implements HasReplaceableId {
       return Optional.empty();
     }
     return dateEnded;
+  }
+
+  /** Lazy Inititialization with empty. */
+  public Optional<DispenseRequest> dispenseRequest() {
+    if (dispenseRequest == null) {
+      return Optional.empty();
+    }
+    return dispenseRequest;
+  }
+
+  /** Lazy Getter. */
+  public List<DosageInstruction> dosageInstruction() {
+    if (dosageInstruction == null) {
+      return new ArrayList<>();
+    }
+    return dosageInstruction;
   }
 
   /** Backwards compatibility for etlDate. */
