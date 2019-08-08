@@ -2,12 +2,11 @@ package gov.va.api.health.dataquery.service.controller.observation;
 
 import static java.util.Arrays.asList;
 
-import java.time.Instant;
-import java.util.Optional;
-
 import gov.va.api.health.argonaut.api.resources.Observation;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
+import java.time.Instant;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.experimental.UtilityClass;
 
