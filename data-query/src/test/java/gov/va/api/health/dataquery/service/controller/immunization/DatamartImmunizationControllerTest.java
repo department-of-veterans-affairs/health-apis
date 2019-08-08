@@ -20,7 +20,6 @@ import gov.va.api.health.dstu2.api.bundle.BundleLink.LinkRelation;
 import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.SneakyThrows;
@@ -42,7 +41,7 @@ public class DatamartImmunizationControllerTest {
   @SneakyThrows
   private ImmunizationEntity asEntity(DatamartImmunization dm) {
     return ImmunizationEntity.builder()
-        .cdwId(new BigInteger(dm.cdwId()))
+        .cdwId(dm.cdwId())
         .icn(dm.patient().reference().get())
         .payload(JacksonConfig.createMapper().writeValueAsString(dm))
         .build();

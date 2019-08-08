@@ -19,7 +19,6 @@ import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
 import gov.va.api.health.dataquery.service.mranderson.client.Query;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import gov.va.dvp.cdw.xsd.model.CdwImmunization103Root;
-import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -244,8 +243,8 @@ public class ImmunizationController {
     }
 
     ImmunizationEntity findById(String publicId) {
-      Optional<ImmunizationEntity> entity =
-          repository.findById(new BigInteger(witnessProtection.toCdwId(publicId)));
+      String cdwId = witnessProtection.toCdwId(publicId);
+      Optional<ImmunizationEntity> entity = repository.findById(cdwId);
       return entity.orElseThrow(() -> new NotFound(publicId));
     }
 
