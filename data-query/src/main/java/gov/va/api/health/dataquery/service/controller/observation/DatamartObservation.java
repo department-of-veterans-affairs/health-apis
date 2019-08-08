@@ -297,7 +297,7 @@ final class DatamartObservation implements HasReplaceableId {
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
   static final class Quantity {
-    String value;
+    Double value;
 
     String unit;
 

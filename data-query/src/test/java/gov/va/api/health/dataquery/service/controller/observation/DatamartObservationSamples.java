@@ -64,7 +64,7 @@ public class DatamartObservationSamples {
           .valueQuantity(
               Optional.of(
                   DatamartObservation.Quantity.builder()
-                      .value("111.82")
+                      .value(111.82)
                       .unit("ng/mL")
                       .system("http://unitsofmeasure.org")
                       .code("ng/mL")
@@ -97,7 +97,7 @@ public class DatamartObservationSamples {
                       .high(
                           Optional.of(
                               DatamartObservation.Quantity.builder()
-                                  .value("100")
+                                  .value(100D)
                                   .unit("ng/mL")
                                   .system("http://unitsofmeasure.org")
                                   .code("ng/mL")
@@ -105,7 +105,7 @@ public class DatamartObservationSamples {
                       .low(
                           Optional.of(
                               DatamartObservation.Quantity.builder()
-                                  .value("30")
+                                  .value(30D)
                                   .unit("ng/mL")
                                   .system("http://unitsofmeasure.org")
                                   .code("ng/mL")
@@ -124,7 +124,7 @@ public class DatamartObservationSamples {
                       .valueQuantity(
                           Optional.of(
                               DatamartObservation.Quantity.builder()
-                                  .value("114")
+                                  .value(114D)
                                   .unit("mm[Hg]")
                                   .system("http://unitsofmeasure.org")
                                   .code("mm[Hg]")
@@ -141,7 +141,7 @@ public class DatamartObservationSamples {
                       .valueQuantity(
                           Optional.of(
                               DatamartObservation.Quantity.builder()
-                                  .value("62")
+                                  .value(62D)
                                   .unit("mm[Hg]")
                                   .system("http://unitsofmeasure.org")
                                   .code("mm[Hg]")
