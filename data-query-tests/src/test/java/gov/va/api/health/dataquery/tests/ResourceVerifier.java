@@ -10,6 +10,7 @@ import gov.va.api.health.argonaut.api.resources.AllergyIntolerance;
 import gov.va.api.health.argonaut.api.resources.Condition;
 import gov.va.api.health.argonaut.api.resources.DiagnosticReport;
 import gov.va.api.health.argonaut.api.resources.Immunization;
+import gov.va.api.health.argonaut.api.resources.MedicationStatement;
 import gov.va.api.health.argonaut.api.resources.Patient;
 import gov.va.api.health.dstu2.api.bundle.AbstractBundle;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
@@ -57,6 +58,7 @@ public class ResourceVerifier {
           Condition.class,
           DiagnosticReport.class,
           Immunization.class,
+          MedicationStatement.class,
           Patient.class
           //
           );
