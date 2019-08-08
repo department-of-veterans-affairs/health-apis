@@ -12,14 +12,8 @@ import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
 import gov.va.api.health.argonaut.api.resources.Observation;
-import gov.va.api.health.argonaut.api.resources.Observation.ObservationComponent;
-import gov.va.api.health.argonaut.api.resources.Observation.ObservationReferenceRange;
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
-import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation.AntibioticComponent;
-import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation.BacteriologyComponent;
-import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation.ReferenceRange;
-import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation.VitalsComponent;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
 import gov.va.api.health.dstu2.api.datatypes.Quantity;
@@ -199,18 +193,18 @@ final class DatamartObservationTransformer {
         .build();
   }
 
-  private static List<ObservationReferenceRange> referenceRanges(
-      Optional<ReferenceRange> maybeRange) {
+  private static List<Observation.ObservationReferenceRange> referenceRanges(
+      Optional<DatamartObservation.ReferenceRange> maybeRange) {
     if (maybeRange == null || maybeRange.isEmpty()) {
       return null;
     }
-    ReferenceRange dm = maybeRange.get();
+    DatamartObservation.ReferenceRange dm = maybeRange.get();
     SimpleQuantity low = simpleQuantity(quantity(dm.low()));
     SimpleQuantity high = simpleQuantity(quantity(dm.high()));
     if (low == null || high == null) {
       return null;
     }
-    return asList(ObservationReferenceRange.builder().low(low).high(high).build());
+    return asList(Observation.ObservationReferenceRange.builder().low(low).high(high).build());
   }
 
   private static SimpleQuantity simpleQuantity(Quantity quantity) {
@@ -232,7 +226,7 @@ final class DatamartObservationTransformer {
     return EnumSearcher.of(Observation.Status.class).find(status.toString());
   }
 
-  private List<ObservationComponent> components() {
+  private List<Observation.ObservationComponent> components() {
     // datamart:
     // vitalsComponents;
     // antibioticComponents;
