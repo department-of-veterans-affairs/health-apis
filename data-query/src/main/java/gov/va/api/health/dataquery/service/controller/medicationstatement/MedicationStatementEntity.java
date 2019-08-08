@@ -38,7 +38,6 @@ import lombok.SneakyThrows;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class MedicationStatementEntity {
-
   @Id
   @Column(name = "CDWId")
   @EqualsAndHashCode.Include
