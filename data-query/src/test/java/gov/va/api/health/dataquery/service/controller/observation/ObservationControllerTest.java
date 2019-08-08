@@ -116,7 +116,7 @@ public class ObservationControllerTest {
     Observation item = Observation.builder().build();
     when(client.search(Mockito.any())).thenReturn(root);
     when(tx.apply(xmlObservation)).thenReturn(item);
-    Observation actual = controller.read("hello");
+    Observation actual = controller.read("", "hello");
     assertThat(actual).isSameAs(item);
     ArgumentCaptor<Query<CdwObservation104Root>> captor = ArgumentCaptor.forClass(Query.class);
     verify(client).search(captor.capture());
@@ -126,21 +126,21 @@ public class ObservationControllerTest {
   @Test
   public void searchById() {
     assertSearch(
-        () -> controller.searchById("me", 1, 10),
+        () -> controller.searchById("", "me", 1, 10),
         Parameters.builder().add("identifier", "me").add("page", 1).add("_count", 10).build());
   }
 
   @Test
   public void searchByIdentifier() {
     assertSearch(
-        () -> controller.searchByIdentifier("me", 1, 10),
+        () -> controller.searchByIdentifier("", "me", 1, 10),
         Parameters.builder().add("identifier", "me").add("page", 1).add("_count", 10).build());
   }
 
   @Test
   public void searchByPatient() {
     assertSearch(
-        () -> controller.searchByPatient("me", 1, 10),
+        () -> controller.searchByPatient("", "me", 1, 10),
         Parameters.builder().add("patient", "me").add("page", 1).add("_count", 10).build());
   }
 
@@ -149,7 +149,7 @@ public class ObservationControllerTest {
     assertSearch(
         () ->
             controller.searchByPatientAndCategory(
-                "me", "laboratory,vital-signs", new String[] {"2005", "2006"}, 1, 10),
+                "", "me", "laboratory,vital-signs", new String[] {"2005", "2006"}, 1, 10),
         Parameters.builder()
             .add("patient", "me")
             .add("category", "laboratory,vital-signs")
@@ -162,7 +162,8 @@ public class ObservationControllerTest {
   @Test
   public void searchByPatientAndCategoryNoDate() {
     assertSearch(
-        () -> controller.searchByPatientAndCategory("me", "laboratory,vital-signs", null, 1, 10),
+        () ->
+            controller.searchByPatientAndCategory("", "me", "laboratory,vital-signs", null, 1, 10),
         Parameters.builder()
             .add("patient", "me")
             .add("category", "laboratory,vital-signs")
@@ -176,7 +177,7 @@ public class ObservationControllerTest {
     assertSearch(
         () ->
             controller.searchByPatientAndCategory(
-                "me", "laboratory,vital-signs", new String[] {"2005"}, 1, 10),
+                "", "me", "laboratory,vital-signs", new String[] {"2005"}, 1, 10),
         Parameters.builder()
             .add("patient", "me")
             .add("category", "laboratory,vital-signs")
@@ -189,7 +190,7 @@ public class ObservationControllerTest {
   @Test
   public void searchByPatientAndCode() {
     assertSearch(
-        () -> controller.searchByPatientAndCode("me", "123,456", 1, 10),
+        () -> controller.searchByPatientAndCode("", "me", "123,456", 1, 10),
         Parameters.builder()
             .add("patient", "me")
             .add("code", "123,456")
@@ -211,8 +212,8 @@ public class ObservationControllerTest {
     assertThat(controller.validate(bundle)).isEqualTo(Validator.ok());
   }
 
-  @Test(expected = ConstraintViolationException.class)
   @SneakyThrows
+  @Test(expected = ConstraintViolationException.class)
   public void validateThrowsExceptionForInvalidBundle() {
     Observation resource =
         JacksonConfig.createMapper()

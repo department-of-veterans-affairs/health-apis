@@ -33,12 +33,12 @@ public class ObservationEntity {
   private String icn;
 
   @Lob
-  @Basic(fetch = FetchType.LAZY)
+  @Basic(fetch = FetchType.EAGER)
   @Column(name = "Observation")
   private String payload;
 
   @SneakyThrows
-  DatamartObservation asDatamartAllergyIntolerance() {
+  DatamartObservation asDatamartObservation() {
     return JacksonConfig.createMapper().readValue(payload, DatamartObservation.class);
   }
 }
