@@ -19,7 +19,7 @@ import lombok.SneakyThrows;
 @Data
 @Entity
 @Builder
-@Table(name = "app.AllergyIntolerance")
+@Table(name = "AllergyIntolerance", schema = "app")
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -33,7 +33,7 @@ public class AllergyIntoleranceEntity {
   private String icn;
 
   @Lob
-  @Basic(fetch = FetchType.LAZY)
+  @Basic(fetch = FetchType.EAGER)
   @Column(name = "AllergyIntolerance")
   private String payload;
 

@@ -111,7 +111,7 @@ public final class SystemDefinitions {
         .medication("212846")
         .medicationDispense("1200738474343:R")
         .medicationOrder("1200389904206:O")
-        .medicationStatement("1400000182116")
+        .medicationStatement("800000000707")
         .observation("1201051417263:V")
         .observations(observations())
         .organization("1000025431:C")
@@ -125,7 +125,7 @@ public final class SystemDefinitions {
                 .build())
         .patient("111222333V000999")
         .practitioner("10092125")
-        .procedure("1400000140034")
+        .procedure("1000001259996")
         .procedures(procedures())
         .unknown("5555555555555")
         .build();

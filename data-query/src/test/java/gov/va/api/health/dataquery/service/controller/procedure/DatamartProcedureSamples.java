@@ -32,7 +32,7 @@ class DatamartProcedureSamples {
       return procedure("1000000719261", "1004476237V111282", "2008-01-02T06:00:00Z");
     }
 
-    private DatamartProcedure procedure(String cdwId, String patientId, String performedOn) {
+    DatamartProcedure procedure(String cdwId, String patientId, String performedOn) {
       return DatamartProcedure.builder()
           .cdwId(cdwId)
           .patient(
