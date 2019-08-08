@@ -45,6 +45,7 @@ public class DatamartMedicationOrder implements HasReplaceableId {
     return dateEnded;
   }
 
+  /** Lazy initialization with empty. */
   public List<DosageInstruction> dosageInstruction() {
     if (dosageInstruction == null) {
       dosageInstruction = new ArrayList<>();
