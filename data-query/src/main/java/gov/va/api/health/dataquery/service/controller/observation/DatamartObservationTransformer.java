@@ -19,6 +19,7 @@ import gov.va.api.health.dstu2.api.datatypes.Coding;
 import gov.va.api.health.dstu2.api.datatypes.Quantity;
 import gov.va.api.health.dstu2.api.datatypes.SimpleQuantity;
 import gov.va.api.health.dstu2.api.elements.Reference;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -71,18 +72,76 @@ final class DatamartObservationTransformer {
     if (maybeCode == null || maybeCode.isEmpty()) {
       return null;
     }
+
     DatamartObservation.CodeableConcept dmCode = maybeCode.get();
     Coding coding = asCoding(dmCode.coding());
     if (allBlank(coding, dmCode.text())) {
       return null;
     }
+
     return CodeableConcept.builder().coding(asList(coding)).text(dmCode.text()).build();
+  }
+
+  private static Observation.ObservationComponent component(
+      DatamartObservation.VitalsComponent component) {
+    if (component == null) {
+      return null;
+    }
+
+    Coding coding = asCoding(component.code());
+    Quantity quantity = quantity(component.valueQuantity());
+    if (allBlank(coding, quantity)) {
+      return null;
+    }
+
+    return Observation.ObservationComponent.builder()
+        .code(CodeableConcept.builder().coding(asList(coding)).build())
+        .valueQuantity(quantity)
+        .build();
+  }
+
+  private static Observation.ObservationComponent component(
+      DatamartObservation.AntibioticComponent component) {
+    if (component == null) {
+      return null;
+    }
+
+    CodeableConcept concept = codeableConcept(component.code());
+    Coding valueCoding = asCoding(component.valueCodeableConcept());
+    if (allBlank(concept, valueCoding)) {
+      return null;
+    }
+
+    return Observation.ObservationComponent.builder()
+        .code(concept)
+        .valueCodeableConcept(CodeableConcept.builder().coding(asList(valueCoding)).build())
+        .build();
+  }
+
+  private static Observation.ObservationComponent component(
+      DatamartObservation.BacteriologyComponent component) {
+    if (component == null) {
+      return null;
+    }
+
+    String codeText = component.code().isPresent() ? component.code().get().text() : null;
+    String valueText =
+        component.valueText().isPresent() ? component.valueText().get().text() : null;
+    if (allBlank(codeText, valueText)) {
+      return null;
+    }
+
+    return Observation.ObservationComponent.builder()
+        .code(CodeableConcept.builder().text(codeText).build())
+        .valueString(valueText)
+        .build();
   }
 
   private static CodeableConcept interpretation(String interpretation) {
     if (isBlank(interpretation)) {
       return null;
     }
+
     return CodeableConcept.builder()
         .coding(
             asList(
@@ -181,10 +240,12 @@ final class DatamartObservationTransformer {
     if (maybeQuantity == null || maybeQuantity.isEmpty()) {
       return null;
     }
+
     DatamartObservation.Quantity quantity = maybeQuantity.get();
     if (allBlank(quantity.value(), quantity.unit(), quantity.system(), quantity.code())) {
       return null;
     }
+
     return Quantity.builder()
         .value(quantity.value())
         .unit(quantity.unit())
@@ -198,12 +259,14 @@ final class DatamartObservationTransformer {
     if (maybeRange == null || maybeRange.isEmpty()) {
       return null;
     }
+
     DatamartObservation.ReferenceRange dm = maybeRange.get();
     SimpleQuantity low = simpleQuantity(quantity(dm.low()));
     SimpleQuantity high = simpleQuantity(quantity(dm.high()));
-    if (low == null || high == null) {
+    if (allBlank(low, high)) {
       return null;
     }
+
     return asList(Observation.ObservationReferenceRange.builder().low(low).high(high).build());
   }
 
@@ -227,12 +290,32 @@ final class DatamartObservationTransformer {
   }
 
   private List<Observation.ObservationComponent> components() {
-    // datamart:
-    // vitalsComponents;
-    // antibioticComponents;
-    // mycobacteriologyComponents;
-    // bacteriologyComponents;
-    return null;
+    List<Observation.ObservationComponent> results =
+        new ArrayList<>(
+            datamart.vitalsComponents().size() + datamart.antibioticComponents().size() + 2);
+    List<Observation.ObservationComponent> vitals =
+        emptyToNull(
+            datamart
+                .vitalsComponents()
+                .stream()
+                .map(v -> component(v))
+                .collect(Collectors.toList()));
+    if (vitals != null) {
+      results.addAll(vitals);
+    }
+    List<Observation.ObservationComponent> antibiotics =
+        emptyToNull(
+            datamart
+                .antibioticComponents()
+                .stream()
+                .map(v -> component(v))
+                .collect(Collectors.toList()));
+    if (antibiotics != null) {
+      results.addAll(antibiotics);
+    }
+    results.add(component(datamart.mycobacteriologyComponents().orElse(null)));
+    results.add(component(datamart.bacteriologyComponents().orElse(null)));
+    return emptyToNull(results);
   }
 
   Observation toFhir() {

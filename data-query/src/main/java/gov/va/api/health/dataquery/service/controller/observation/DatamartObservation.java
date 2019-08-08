@@ -319,9 +319,9 @@ final class DatamartObservation implements HasReplaceableId {
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
   static final class ReferenceRange {
-    private Optional<Quantity> high;
-
     private Optional<Quantity> low;
+
+    private Optional<Quantity> high;
 
     /** Lazy getter. */
     public Optional<Quantity> high() {
