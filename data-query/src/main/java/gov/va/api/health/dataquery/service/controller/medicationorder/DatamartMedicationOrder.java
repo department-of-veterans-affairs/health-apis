@@ -49,14 +49,6 @@ public class DatamartMedicationOrder implements HasReplaceableId {
     return dateEnded;
   }
 
-  /** Lazy initialization with empty. */
-  public List<DosageInstruction> dosageInstruction() {
-    if (dosageInstruction == null) {
-      dosageInstruction = new ArrayList<>();
-    }
-    return dosageInstruction;
-  }
-
   /** Backwards compatibility for etlDate. */
   private void setEtlDate(String unused) {
     /* no op */
