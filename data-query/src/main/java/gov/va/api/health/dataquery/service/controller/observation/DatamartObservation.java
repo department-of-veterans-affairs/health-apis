@@ -203,13 +203,13 @@ final class DatamartObservation implements HasReplaceableId {
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
   static final class AntibioticComponent {
-    String id;
+    private String id;
 
-    String codeText;
+    private String codeText;
 
-    Optional<CodeableConcept> code;
+    private Optional<CodeableConcept> code;
 
-    Optional<DatamartCoding> valueCodeableConcept;
+    private Optional<DatamartCoding> valueCodeableConcept;
 
     /** Lazy getter. */
     public Optional<CodeableConcept> code() {
@@ -233,9 +233,9 @@ final class DatamartObservation implements HasReplaceableId {
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
   static final class BacteriologyComponent {
-    Optional<Text> code;
+    private Optional<Text> code;
 
-    Optional<Text> valueText;
+    private Optional<Text> valueText;
 
     /** Lazy getter. */
     public Optional<Text> code() {
@@ -259,7 +259,7 @@ final class DatamartObservation implements HasReplaceableId {
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
   static final class CodeableConcept {
-    Optional<DatamartCoding> coding;
+    private Optional<DatamartCoding> coding;
 
     private String text;
 
@@ -297,13 +297,13 @@ final class DatamartObservation implements HasReplaceableId {
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
   static final class Quantity {
-    Double value;
+    private Double value;
 
-    String unit;
+    private String unit;
 
-    String system;
+    private String system;
 
-    String code;
+    private String code;
 
     void setUnitCode(String code) {
       code(code);
