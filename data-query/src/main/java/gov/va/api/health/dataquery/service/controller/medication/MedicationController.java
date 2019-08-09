@@ -154,10 +154,7 @@ public class MedicationController {
       @RequestParam("identifier") String id,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
-    return bundle(
-        Parameters.builder().add("identifier", id).add("page", page).add("_count", count).build(),
-        page,
-        count);
+    return searchById(datamartHeader, id, page, count);
   }
 
   /** Hey, this is a validate endpoint. It validates. */
