@@ -26,7 +26,9 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Builder
 final class DatamartObservationTransformer {
   @NonNull final DatamartObservation datamart;
@@ -154,8 +156,8 @@ final class DatamartObservationTransformer {
         .build();
   }
 
-  static String interpretationDisplay(String interpretation) {
-    switch (upperCase(trimToEmpty(interpretation), Locale.US)) {
+  static String interpretationDisplay(String code) {
+    switch (upperCase(trimToEmpty(code), Locale.US)) {
       case "<":
         return "Off scale low";
       case ">":
@@ -223,6 +225,7 @@ final class DatamartObservationTransformer {
       case "WR":
         return "Weakly reactive";
       default:
+        log.error("No display value for interpretation code '{}'.", code);
         return null;
     }
   }
