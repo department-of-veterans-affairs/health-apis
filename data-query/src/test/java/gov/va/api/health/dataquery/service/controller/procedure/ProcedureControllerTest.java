@@ -184,7 +184,7 @@ public class ProcedureControllerTest {
     Procedure item = Procedure.builder().build();
     when(client.search(any())).thenReturn(root);
     when(tx.apply(xmlProcedure)).thenReturn(item);
-    Procedure actual = controller.read("hello", "");
+    Procedure actual = controller.read("false", "hello", "");
     assertThat(actual).isSameAs(item);
     ArgumentCaptor<Query<CdwProcedure101Root>> captor = ArgumentCaptor.forClass(Query.class);
     verify(client).search(captor.capture());
@@ -222,21 +222,21 @@ public class ProcedureControllerTest {
             .subject(Reference.builder().id("1938V0610").display("EL,KAL").build())
             .build();
     when(tx.apply(xmlProcedure)).thenReturn(birdPlane);
-    Procedure actual = controller.read("hello", "1938V0610");
+    Procedure actual = controller.read("false", "hello", "1938V0610");
     assertThat(actual).isEqualTo(superman);
   }
 
   @Test
   public void searchById() {
     assertSearch(
-        () -> controller.searchById("me", 1, 10),
+        () -> controller.searchById("false", "me", "me", 1, 10),
         Parameters.builder().add("identifier", "me").add("page", 1).add("_count", 10).build());
   }
 
   @Test
   public void searchByIdentifier() {
     assertSearch(
-        () -> controller.searchByIdentifier("me", 1, 10),
+        () -> controller.searchByIdentifier("false", "me", "me", 1, 10),
         Parameters.builder().add("identifier", "me").add("page", 1).add("_count", 10).build());
   }
 
@@ -259,14 +259,17 @@ public class ProcedureControllerTest {
             .build();
     when(client.search(any())).thenReturn(new CdwProcedure101Root());
     when(bundler.bundle(any())).thenReturn(bundleForPatient(clarkKentId, clarkKentDisplay));
-    assertThat(controller.searchByPatientAndDate(supermanId, new String[] {"2005", "2006"}, 1, 10))
+    assertThat(
+            controller.searchByPatientAndDate(
+                "false", supermanId, new String[] {"2005", "2006"}, 1, 10))
         .isEqualTo(bundleForPatient(supermanId, supermanDisplay));
   }
 
   @Test
   public void searchByPatientAndDateRange() {
     assertSearch(
-        () -> controller.searchByPatientAndDate("me", new String[] {"2005", "2006"}, 1, 10),
+        () ->
+            controller.searchByPatientAndDate("false", "me", new String[] {"2005", "2006"}, 1, 10),
         Parameters.builder()
             .add("patient", "me")
             .addAll("date", "2005", "2006")
@@ -294,14 +297,14 @@ public class ProcedureControllerTest {
             .build();
     when(client.search(any())).thenReturn(new CdwProcedure101Root());
     when(bundler.bundle(any())).thenReturn(bundleForPatient(clarkKentId, clarkKentDisplay));
-    assertThat(controller.searchByPatientAndDate(supermanId, null, 1, 10))
+    assertThat(controller.searchByPatientAndDate("false", supermanId, null, 1, 10))
         .isEqualTo(bundleForPatient(supermanId, supermanDisplay));
   }
 
   @Test
   public void searchByPatientandDate() {
     assertSearch(
-        () -> controller.searchByPatientAndDate("me", new String[] {"2000"}, 1, 10),
+        () -> controller.searchByPatientAndDate("false", "me", new String[] {"2000"}, 1, 10),
         Parameters.builder()
             .add("patient", "me")
             .addAll("date", "2000")
@@ -313,7 +316,7 @@ public class ProcedureControllerTest {
   @Test
   public void searchByPatientandNoDate() {
     assertSearch(
-        () -> controller.searchByPatientAndDate("me", null, 1, 10),
+        () -> controller.searchByPatientAndDate("false", "me", null, 1, 10),
         Parameters.builder().add("patient", "me").add("page", 1).add("_count", 10).build());
   }
 

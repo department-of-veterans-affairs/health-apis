@@ -21,7 +21,7 @@ import lombok.SneakyThrows;
 @Data
 @Entity
 @Builder
-@Table(name = "app.PatientReport")
+@Table(name = "PatientReport", schema = "app")
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -32,7 +32,7 @@ public class PatientEntity {
   private String icn;
 
   @Lob
-  @Basic(fetch = FetchType.LAZY)
+  @Basic(fetch = FetchType.EAGER)
   @Column(name = "PatientReport")
   private String payload;
 
