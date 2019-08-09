@@ -453,11 +453,11 @@ entries:
   page: 1
   count: 15
 - file: ../../../../target/cdw/samples/Obs102i1201051417263V.xml
-  query: /Observation:1.02?identifier=1201051417263:V
+  query: /Observation:1.02?identifier=1201472002950:V
   page: 1
   count: 15
 - file: ../../../../target/cdw/samples/Obs102i1201051417263V.xml
-  query: /Observation:1.02?identifier=1201051417263:V
+  query: /Observation:1.02?identifier=1201472002950:V
   page: 1
   count: 15
 - file: ../../../../target/cdw/samples/Obs102i5555555555555V.xml
@@ -517,11 +517,11 @@ entries:
   page: 1
   count: 15
 - file: ../../../../target/cdw/samples/Obs103i1201051417263V.xml
-  query: /Observation:1.03?identifier=1201051417263:V
+  query: /Observation:1.03?identifier=1201472002950:V
   page: 1
   count: 15
 - file: ../../../../target/cdw/samples/Obs103i1201051417263V.xml
-  query: /Observation:1.03?identifier=1201051417263:V
+  query: /Observation:1.03?identifier=1201472002950:V
   page: 1
   count: 15
 - file: ../../../../target/cdw/samples/Obs103i5555555555555V.xml
@@ -581,11 +581,11 @@ entries:
   page: 1
   count: 15
 - file: ../../../../target/cdw/samples/Obs104i1201051417263V.xml
-  query: /Observation:1.04?identifier=1201051417263:V
+  query: /Observation:1.04?identifier=1201472002950:V
   page: 1
   count: 15
 - file: ../../../../target/cdw/samples/Obs104i1201051417263V.xml
-  query: /Observation:1.04?identifier=1201051417263:V
+  query: /Observation:1.04?identifier=1201472002950:V
   page: 1
   count: 15
 - file: ../../../../target/cdw/samples/Obs104i5555555555555V.xml
