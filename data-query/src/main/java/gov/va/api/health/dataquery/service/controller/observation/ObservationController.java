@@ -216,16 +216,16 @@ public class ObservationController {
   public Observation.Bundle searchByPatientAndCode(
       @RequestHeader(value = "Datamart", defaultValue = "") String datamartHeader,
       @RequestParam("patient") String patient,
-      @RequestParam("code") String code,
+      @RequestParam("code") String codeCsv,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
     if (datamart.isDatamartRequest(datamartHeader)) {
-      return datamart.searchByPatientAndCode(patient, code, page, count);
+      return datamart.searchByPatientAndCode(patient, codeCsv, page, count);
     }
     return mrAndersonBundle(
         Parameters.builder()
             .add("patient", patient)
-            .add("code", code)
+            .add("code", codeCsv)
             .add("page", page)
             .add("_count", count)
             .build(),
@@ -356,7 +356,6 @@ public class ObservationController {
               .category(category)
               .dates(date)
               .build();
-      // log.info("Looking for {} ({}) {}", publicPatient, cdwPatient, spec);
       Page<ObservationEntity> entitiesPage =
           repository.findAll(spec, PageRequest.of(page - 1, count));
 
@@ -372,15 +371,16 @@ public class ObservationController {
     }
 
     Observation.Bundle searchByPatientAndCode(
-        String publicPatient, String code, int page, int count) {
+        String publicPatient, String codeCsv, int page, int count) {
       String cdwPatient = witnessProtection.toCdwId(publicPatient);
+      // TODO handle list of codes
       Page<ObservationEntity> entitiesPage =
-          repository.findByIcnAndCode(cdwPatient, code, PageRequest.of(page - 1, count));
+          repository.findByIcnAndCode(cdwPatient, codeCsv, PageRequest.of(page - 1, count));
 
       return bundle(
           Parameters.builder()
               .add("patient", publicPatient)
-              .add("code", code)
+              .add("code", codeCsv)
               .add("page", page)
               .add("_count", count)
               .build(),
