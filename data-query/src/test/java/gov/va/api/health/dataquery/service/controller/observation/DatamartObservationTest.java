@@ -6,6 +6,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
+import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation.AntibioticComponent;
+import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation.BacteriologyComponent;
+import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation.ReferenceRange;
+import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation.VitalsComponent;
 import java.time.Instant;
 import java.util.Optional;
 import lombok.SneakyThrows;
@@ -23,15 +27,40 @@ public class DatamartObservationTest {
 
   @Test
   @SneakyThrows
-  public void empty() {
-    DatamartObservation.builder().build().toString();
-    DatamartObservation.AntibioticComponent.builder().build().toString();
-    DatamartObservation.BacteriologyComponent.builder().build().toString();
-    DatamartObservation.CodeableConcept.builder().build().toString();
-    DatamartObservation.Quantity.builder().build().toString();
-    DatamartObservation.ReferenceRange.builder().build().toString();
-    DatamartObservation.Text.builder().build().toString();
-    DatamartObservation.VitalsComponent.builder().build().toString();
+  public void lazy() {
+    DatamartObservation dm = DatamartObservation.builder().build();
+    assertThat(dm.antibioticComponents()).isNotNull();
+    assertThat(dm.bacteriologyComponents()).isNotNull();
+    assertThat(dm.code()).isNotNull();
+    assertThat(dm.effectiveDateTime()).isNotNull();
+    assertThat(dm.encounter()).isNotNull();
+    assertThat(dm.issued()).isNotNull();
+    assertThat(dm.mycobacteriologyComponents()).isNotNull();
+    assertThat(dm.performer()).isNotNull();
+    assertThat(dm.referenceRange()).isNotNull();
+    assertThat(dm.specimen()).isNotNull();
+    assertThat(dm.subject()).isNotNull();
+    assertThat(dm.valueCodeableConcept()).isNotNull();
+    assertThat(dm.valueQuantity()).isNotNull();
+    assertThat(dm.vitalsComponents()).isNotNull();
+
+    AntibioticComponent abc = DatamartObservation.AntibioticComponent.builder().build();
+    assertThat(abc.code()).isNotNull();
+    assertThat(abc.valueCodeableConcept()).isNotNull();
+
+    BacteriologyComponent bc = DatamartObservation.BacteriologyComponent.builder().build();
+    assertThat(bc.code()).isNotNull();
+    assertThat(bc.valueText()).isNotNull();
+
+    assertThat(DatamartObservation.CodeableConcept.builder().build().coding()).isNotNull();
+
+    ReferenceRange rr = DatamartObservation.ReferenceRange.builder().build();
+    assertThat(rr.high()).isNotNull();
+    assertThat(rr.low()).isNotNull();
+
+    VitalsComponent vc = DatamartObservation.VitalsComponent.builder().build();
+    assertThat(vc.code()).isNotNull();
+    assertThat(vc.valueQuantity()).isNotNull();
   }
 
   public DatamartObservation sample() {
