@@ -51,6 +51,7 @@ startApp() {
     options+=" -cp $(readlink -f $jar)${pathSeparator}$(readlink -f ~/.m2/repository/com/h2database/h2/1.4.197/h2-1.4.197.jar)"
     options+=" -Dspring.jpa.generate-ddl=true"
     options+=" -Dspring.jpa.hibernate.ddl-auto=create-drop"
+    options+=" -Dspring.jpa.hibernate.globally_quoted_identifiers=true"
     options+=" -Dspring.datasource.driver-class-name=org.h2.Driver"
     options+=" -Dspring.datasource.url=jdbc:h2:mem:whatever"
     java ${options} org.springframework.boot.loader.PropertiesLauncher &

@@ -1,4 +1,4 @@
-package gov.va.api.health.dataquery.service.controller.immunization;
+package gov.va.api.health.dataquery.service.controller.medication;
 
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import javax.persistence.Basic;
@@ -20,13 +20,9 @@ import lombok.SneakyThrows;
  *
  *
  * <pre>
- *  CREATE TABLE [app].[Immunization](
- *         [CDWId] [bigint] NOT NULL,
- *         [PatientFullICN] [varchar](50) NOT NULL,
- *         [PerformerCDWId] [int] NULL,
- *         [RequesterCDWId] [int] NULL,
- *         [DateRecorded] [datetime2](0) NULL,
- *         [Immunization] [varchar](max) NULL,
+ *  CREATE TABLE [app].[Medication](
+ *         [CDWId] [varchar](50) NOT NULL,
+ *         [Medication] [varchar](max) NULL,
  *         [ETLBatchId] [int] NULL,
  *         [ETLCreateDate] [datetime2](0) NULL,
  *         [ETLEditDate] [datetime2](0) NULL,
@@ -36,26 +32,24 @@ import lombok.SneakyThrows;
 @Data
 @Entity
 @Builder
-@Table(name = "Immunization", schema = "app")
+@Table(name = "Medication", schema = "app")
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class ImmunizationEntity {
+public class MedicationEntity {
+
   @Id
   @Column(name = "CDWId")
   @EqualsAndHashCode.Include
   private String cdwId;
 
-  @Column(name = "PatientFullICN")
-  private String icn;
-
-  @Column(name = "Immunization")
-  @Basic(fetch = FetchType.EAGER)
+  @Column(name = "Medication")
+  @Basic(fetch = FetchType.LAZY)
   @Lob
   private String payload;
 
   @SneakyThrows
-  DatamartImmunization asDatamartImmunization() {
-    return JacksonConfig.createMapper().readValue(payload, DatamartImmunization.class);
+  DatamartMedication asDatamartMedication() {
+    return JacksonConfig.createMapper().readValue(payload, DatamartMedication.class);
   }
 }

@@ -741,7 +741,7 @@ entries:
   page: 1
   count: 21
 - file: ../../../../target/cdw/samples/Pro101i1400000140034.xml
-  query: /Procedure:1.01?identifier=1400000140034
+  query: /Procedure:1.01?identifier=1000001259996
   page: 1
   count: 15
 - file: ../../../../target/cdw/samples/Pro101i5555555555555.xml
