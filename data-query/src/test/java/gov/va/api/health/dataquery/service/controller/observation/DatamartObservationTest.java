@@ -16,7 +16,6 @@ import lombok.SneakyThrows;
 import org.junit.Test;
 
 public class DatamartObservationTest {
-
   @SneakyThrows
   public void assertReadable(String json) {
     assertThat(
