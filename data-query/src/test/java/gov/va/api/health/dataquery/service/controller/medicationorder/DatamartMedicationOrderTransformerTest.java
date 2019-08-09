@@ -1,0 +1,202 @@
+package gov.va.api.health.dataquery.service.controller.medicationorder;
+
+import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import gov.va.api.health.argonaut.api.resources.MedicationOrder;
+import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
+import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
+import gov.va.api.health.dstu2.api.datatypes.Duration;
+import gov.va.api.health.dstu2.api.datatypes.SimpleQuantity;
+import gov.va.api.health.dstu2.api.datatypes.Timing;
+import gov.va.api.health.dstu2.api.elements.Reference;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import lombok.AllArgsConstructor;
+import org.junit.Test;
+
+public class DatamartMedicationOrderTransformerTest {
+
+  @Test
+  public void dispenseRequest() {
+    DatamartMedicationOrderTransformer tx =
+        DatamartMedicationOrderTransformer.builder()
+            .datamart(Datamart.create().medicationOrder())
+            .build();
+    assertThat(tx.dispenseRequest(Optional.empty())).isNull();
+    assertThat(tx.dispenseRequest(Optional.of(Datamart.create().dispenseRequest())))
+        .isEqualTo(Fhir.create().dispenseRequest());
+  }
+
+  @Test
+  public void dosageInstruction() {
+    DatamartMedicationOrderTransformer tx =
+        DatamartMedicationOrderTransformer.builder()
+            .datamart(Datamart.create().medicationOrder())
+            .build();
+    assertThat(tx.dosageInstructions(new ArrayList<>())).isNull();
+    assertThat(tx.dosageInstructions(Datamart.create().dosageInstruction()))
+        .isEqualTo(Fhir.create().dosageInstruction());
+  }
+
+  @Test
+  public void medicationOrder() {
+    assertThat(tx(Datamart.create().medicationOrder())).isEqualTo(Fhir.create().medicationOrder());
+  }
+
+  @Test
+  public void status() {
+    DatamartMedicationOrderTransformer tx =
+        DatamartMedicationOrderTransformer.builder()
+            .datamart(Datamart.create().medicationOrder())
+            .build();
+    assertThat(tx.status(null)).isNull();
+    assertThat(tx.status(DatamartMedicationOrder.Status.active))
+        .isEqualTo(MedicationOrder.Status.active);
+    assertThat(tx.status(DatamartMedicationOrder.Status.completed))
+        .isEqualTo(MedicationOrder.Status.completed);
+    assertThat(tx.status(DatamartMedicationOrder.Status.draft))
+        .isEqualTo(MedicationOrder.Status.draft);
+    assertThat(tx.status(DatamartMedicationOrder.Status.entered_in_error))
+        .isEqualTo(MedicationOrder.Status.entered_in_error);
+    assertThat(tx.status(DatamartMedicationOrder.Status.on_hold))
+        .isEqualTo(MedicationOrder.Status.on_hold);
+  }
+
+  MedicationOrder tx(DatamartMedicationOrder datamart) {
+    return DatamartMedicationOrderTransformer.builder().datamart(datamart).build().toFhir();
+  }
+
+  @AllArgsConstructor(staticName = "create")
+  static class Datamart {
+
+    public DatamartMedicationOrder.DispenseRequest dispenseRequest() {
+      return DatamartMedicationOrder.DispenseRequest.builder()
+          .numberOfRepeatsAllowed(Optional.of(0))
+          .quantity(Optional.of(42.0))
+          .unit(Optional.of("TAB"))
+          .expectedSupplyDuration(Optional.of(21))
+          .supplyDurationUnits(Optional.of("days"))
+          .build();
+    }
+
+    public List<DatamartMedicationOrder.DosageInstruction> dosageInstruction() {
+      return asList(
+          DatamartMedicationOrder.DosageInstruction.builder()
+              .dosageText(
+                  Optional.of(
+                      "TAKE ONE TABLET BY MOUTH TWICE A DAY FOR 7 DAYS TO PREVENT BLOOD CLOTS"))
+              .timingText(Optional.of("BID"))
+              .additionalInstructions(Optional.of("DO NOT TAKE NSAIDS WITH THIS MEDICATION"))
+              .asNeeded(false)
+              .routeText(Optional.of("ORAL"))
+              .doseQuantityValue(Optional.of(1.0))
+              .doseQuantityUnit(Optional.of("TAB"))
+              .build(),
+          DatamartMedicationOrder.DosageInstruction.builder()
+              .dosageText(
+                  Optional.of(
+                      "THEN TAKE ONE TABLET BY MOUTH ONCE A DAY FOR 7 DAYS TO PREVENT BLOOD CLOTS"))
+              .timingText(Optional.of("QDAILY"))
+              .additionalInstructions(Optional.of("DO NOT TAKE NSAIDS WITH THIS MEDICATION"))
+              .asNeeded(false)
+              .routeText(Optional.of("ORAL"))
+              .doseQuantityValue(Optional.of(1.0))
+              .doseQuantityUnit(Optional.of("TAB"))
+              .build());
+    }
+
+    public DatamartMedicationOrder medicationOrder() {
+      return DatamartMedicationOrder.builder()
+          .cdwId("1400181354458:O")
+          .patient(
+              DatamartReference.of()
+                  .type("Patient")
+                  .reference("1012958529V624991")
+                  .display("VETERAN,FARM ACY")
+                  .build())
+          .dateWritten(Instant.parse("2016-11-17T18:02:04Z"))
+          .status(DatamartMedicationOrder.Status.stopped)
+          .dateEnded(Optional.of(Instant.parse("2017-02-15T05:00:00Z")))
+          .prescriber(
+              DatamartReference.of()
+                  .type("Practitioner")
+                  .reference("1404497883")
+                  .display("HIPPOCRATES,OATH J")
+                  .build())
+          .medication(
+              DatamartReference.of()
+                  .type("Medication")
+                  .reference("1400021372")
+                  .display("RIVAROXABAN 15MG TAB")
+                  .build())
+          .dosageInstruction(dosageInstruction())
+          .dispenseRequest(Optional.of(dispenseRequest()))
+          .build();
+    }
+  }
+
+  @AllArgsConstructor(staticName = "create")
+  static class Fhir {
+
+    public MedicationOrder.DispenseRequest dispenseRequest() {
+      return MedicationOrder.DispenseRequest.builder()
+          .numberOfRepeatsAllowed(0)
+          .quantity(SimpleQuantity.builder().value(42.0).unit("TAB").build())
+          .expectedSupplyDuration(Duration.builder().value((double) 21).unit("days").build())
+          .build();
+    }
+
+    public List<MedicationOrder.DosageInstruction> dosageInstruction() {
+      return asList(
+          MedicationOrder.DosageInstruction.builder()
+              .text("TAKE ONE TABLET BY MOUTH TWICE A DAY FOR 7 DAYS TO PREVENT BLOOD CLOTS")
+              .timing(Timing.builder().code(CodeableConcept.builder().text("BID").build()).build())
+              .additionalInstructions(
+                  CodeableConcept.builder().text("DO NOT TAKE NSAIDS WITH THIS MEDICATION").build())
+              .asNeededBoolean(false)
+              .route(CodeableConcept.builder().text("ORAL").build())
+              .doseQuantity(SimpleQuantity.builder().value(1.0).unit("TAB").build())
+              .build(),
+          MedicationOrder.DosageInstruction.builder()
+              .text("THEN TAKE ONE TABLET BY MOUTH ONCE A DAY FOR 7 DAYS TO PREVENT BLOOD CLOTS")
+              .timing(
+                  Timing.builder().code(CodeableConcept.builder().text("QDAILY").build()).build())
+              .additionalInstructions(
+                  CodeableConcept.builder().text("DO NOT TAKE NSAIDS WITH THIS MEDICATION").build())
+              .asNeededBoolean(false)
+              .route(CodeableConcept.builder().text("ORAL").build())
+              .doseQuantity(SimpleQuantity.builder().value(1.0).unit("TAB").build())
+              .build());
+    }
+
+    public MedicationOrder medicationOrder() {
+      return MedicationOrder.builder()
+          .resourceType("MedicationOrder")
+          .id("1400181354458:O")
+          .patient(
+              Reference.builder()
+                  .reference("Patient/1012958529V624991")
+                  .display("VETERAN,FARM ACY")
+                  .build())
+          .dateWritten("2016-11-17T18:02:04Z")
+          .status(MedicationOrder.Status.stopped)
+          .dateEnded("2017-02-15T05:00:00Z")
+          .prescriber(
+              Reference.builder()
+                  .reference("Practitioner/1404497883")
+                  .display("HIPPOCRATES,OATH J")
+                  .build())
+          .medicationReference(
+              Reference.builder()
+                  .reference("Medication/1400021372")
+                  .display("RIVAROXABAN 15MG TAB")
+                  .build())
+          .dosageInstruction(dosageInstruction())
+          .dispenseRequest(dispenseRequest())
+          .build();
+    }
+  }
+}
