@@ -10,7 +10,6 @@ import gov.va.api.health.dstu2.api.datatypes.Coding;
 import gov.va.api.health.dstu2.api.datatypes.Quantity;
 import gov.va.api.health.dstu2.api.datatypes.SimpleQuantity;
 import gov.va.api.health.dstu2.api.elements.Reference;
-
 import java.time.Instant;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
@@ -380,7 +379,11 @@ public class DatamartObservationSamples {
               CodeableConcept.builder()
                   .coding(
                       asList(
-                          Coding.builder().system("http://hl7.org/fhir/v2/0078").code("H").build()))
+                          Coding.builder()
+                              .system("http://hl7.org/fhir/v2/0078")
+                              .code("H")
+                              .display("High")
+                              .build()))
                   .text("H")
                   .build())
           .comments(

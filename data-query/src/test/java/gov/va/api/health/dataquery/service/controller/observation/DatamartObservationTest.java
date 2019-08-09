@@ -12,12 +12,26 @@ import lombok.SneakyThrows;
 import org.junit.Test;
 
 public class DatamartObservationTest {
+
   @SneakyThrows
   public void assertReadable(String json) {
     assertThat(
             createMapper()
                 .readValue(getClass().getResourceAsStream(json), DatamartObservation.class))
         .isEqualTo(sample());
+  }
+
+  @Test
+  @SneakyThrows
+  public void empty() {
+    DatamartObservation.builder().build().toString();
+    DatamartObservation.AntibioticComponent.builder().build().toString();
+    DatamartObservation.BacteriologyComponent.builder().build().toString();
+    DatamartObservation.CodeableConcept.builder().build().toString();
+    DatamartObservation.Quantity.builder().build().toString();
+    DatamartObservation.ReferenceRange.builder().build().toString();
+    DatamartObservation.Text.builder().build().toString();
+    DatamartObservation.VitalsComponent.builder().build().toString();
   }
 
   public DatamartObservation sample() {

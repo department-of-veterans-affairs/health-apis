@@ -7,8 +7,8 @@ import static gov.va.api.health.dataquery.service.controller.Transformers.asRefe
 import static gov.va.api.health.dataquery.service.controller.Transformers.emptyToNull;
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.StringUtils.lowerCase;
 import static org.apache.commons.lang3.StringUtils.trimToEmpty;
+import static org.apache.commons.lang3.StringUtils.upperCase;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
 import gov.va.api.health.argonaut.api.resources.Observation;
@@ -39,7 +39,7 @@ final class DatamartObservationTransformer {
     return CodeableConcept.builder().coding(asList(coding)).build();
   }
 
-  private static Coding categoryCoding(DatamartObservation.Category category) {
+  static Coding categoryCoding(DatamartObservation.Category category) {
     if (category == null) {
       return null;
     }
@@ -154,8 +154,8 @@ final class DatamartObservationTransformer {
         .build();
   }
 
-  private static String interpretationDisplay(String interpretation) {
-    switch (lowerCase(trimToEmpty(interpretation), Locale.US)) {
+  static String interpretationDisplay(String interpretation) {
+    switch (upperCase(trimToEmpty(interpretation), Locale.US)) {
       case "<":
         return "Off scale low";
       case ">":

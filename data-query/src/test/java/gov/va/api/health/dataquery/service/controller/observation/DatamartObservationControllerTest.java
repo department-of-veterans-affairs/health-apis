@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.Iterables;
 import gov.va.api.health.argonaut.api.resources.Observation;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.Bundler;
@@ -104,13 +105,25 @@ public class DatamartObservationControllerTest {
   }
 
   @Test
-  public void readRaw() {
-    //	  searchById(String, String, int, int)
-    //	  searchByIdentifier(String, String, int, int)
-    //	  searchByPatient(String, String, int, int)
-    //	  searchByPatientAndCategory(String, String, String, String[], int, int)
-    //	  searchByPatientAndCode(String, String, String, int, int)
+  public void read() {
+    IdentityService ids = mock(IdentityService.class);
+    ObservationController controller =
+        new ObservationController(
+            true,
+            null,
+            null,
+            new Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool")),
+            repository,
+            WitnessProtection.builder().identityService(ids).build());
+    DatamartObservation dm = DatamartObservationSamples.Datamart.create().observation();
+    repository.save(asEntity(dm));
+    setUpIds(ids, dm);
+    Observation result = controller.read("", DatamartObservationSamples.Fhir.ID);
+    assertThat(result).isEqualTo(DatamartObservationSamples.Fhir.create().observation());
+  }
 
+  @Test
+  public void readRaw() {
     IdentityService ids = mock(IdentityService.class);
     ObservationController controller =
         new ObservationController(
@@ -127,8 +140,47 @@ public class DatamartObservationControllerTest {
   }
 
   @Test
-  @SneakyThrows
-  public void read() {
+  public void searchById() {
+    IdentityService ids = mock(IdentityService.class);
+    ObservationController controller =
+        new ObservationController(
+            false,
+            null,
+            null,
+            new Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool")),
+            repository,
+            WitnessProtection.builder().identityService(ids).build());
+    DatamartObservation dm = DatamartObservationSamples.Datamart.create().observation();
+    repository.save(asEntity(dm));
+    setUpIds(ids, dm);
+    Observation.Bundle result =
+        controller.searchById("true", DatamartObservationSamples.Fhir.ID, 1, 15);
+    assertThat(Iterables.getOnlyElement(result.entry()).resource())
+        .isEqualTo(DatamartObservationSamples.Fhir.create().observation());
+  }
+
+  @Test
+  public void searchByIdentifier() {
+    IdentityService ids = mock(IdentityService.class);
+    ObservationController controller =
+        new ObservationController(
+            false,
+            null,
+            null,
+            new Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool")),
+            repository,
+            WitnessProtection.builder().identityService(ids).build());
+    DatamartObservation dm = DatamartObservationSamples.Datamart.create().observation();
+    repository.save(asEntity(dm));
+    setUpIds(ids, dm);
+    Observation.Bundle result =
+        controller.searchByIdentifier("true", DatamartObservationSamples.Fhir.ID, 1, 15);
+    assertThat(Iterables.getOnlyElement(result.entry()).resource())
+        .isEqualTo(DatamartObservationSamples.Fhir.create().observation());
+  }
+
+  @Test
+  public void searchByPatient() {
     IdentityService ids = mock(IdentityService.class);
     ObservationController controller =
         new ObservationController(
@@ -141,9 +193,49 @@ public class DatamartObservationControllerTest {
     DatamartObservation dm = DatamartObservationSamples.Datamart.create().observation();
     repository.save(asEntity(dm));
     setUpIds(ids, dm);
-    Observation result = controller.read("", DatamartObservationSamples.Fhir.ID);
-    System.out.println(
-        JacksonConfig.createMapper().writerWithDefaultPrettyPrinter().writeValueAsString(result));
-    assertThat(result).isEqualTo(DatamartObservationSamples.Fhir.create().observation());
+    Observation.Bundle result = controller.searchByPatient("", "1002003004V666666", 1, 15);
+    assertThat(Iterables.getOnlyElement(result.entry()).resource())
+        .isEqualTo(DatamartObservationSamples.Fhir.create().observation());
+  }
+
+  @Test
+  public void searchByPatientAndCategory() {
+    IdentityService ids = mock(IdentityService.class);
+    ObservationController controller =
+        new ObservationController(
+            true,
+            null,
+            null,
+            new Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool")),
+            repository,
+            WitnessProtection.builder().identityService(ids).build());
+    DatamartObservation dm = DatamartObservationSamples.Datamart.create().observation();
+    repository.save(asEntity(dm));
+    setUpIds(ids, dm);
+    Observation.Bundle result =
+        controller.searchByPatientAndCategory(
+            "", "1002003004V666666", "laboratory", new String[] {"eq2012-12-24"}, 1, 15);
+    assertThat(Iterables.getOnlyElement(result.entry()).resource())
+        .isEqualTo(DatamartObservationSamples.Fhir.create().observation());
+  }
+
+  @Test
+  public void searchByPatientAndCode() {
+    IdentityService ids = mock(IdentityService.class);
+    ObservationController controller =
+        new ObservationController(
+            true,
+            null,
+            null,
+            new Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool")),
+            repository,
+            WitnessProtection.builder().identityService(ids).build());
+    DatamartObservation dm = DatamartObservationSamples.Datamart.create().observation();
+    repository.save(asEntity(dm));
+    setUpIds(ids, dm);
+    Observation.Bundle result =
+        controller.searchByPatientAndCode("", "1002003004V666666", "1989-3", 1, 15);
+    assertThat(Iterables.getOnlyElement(result.entry()).resource())
+        .isEqualTo(DatamartObservationSamples.Fhir.create().observation());
   }
 }
