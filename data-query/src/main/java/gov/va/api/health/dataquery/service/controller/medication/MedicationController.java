@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import javax.validation.constraints.Min;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +46,6 @@ import org.springframework.web.bind.annotation.RestController;
  * implementation details.
  */
 @SuppressWarnings("WeakerAccess")
-@Slf4j
 @Validated
 @RestController
 @RequestMapping(
