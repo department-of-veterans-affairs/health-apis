@@ -1,6 +1,7 @@
 {
   "objectType" : "MedicationOrder",
   "objectVersion" : "1",
+  "etlDate" : "2019-07-17T18:02:04Z",
   "cdwId" : "1400181354458:O",
   "patient" : {
     "type" : "Patient",
