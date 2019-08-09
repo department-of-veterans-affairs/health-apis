@@ -1,0 +1,50 @@
+{
+  "objectType" : "MedicationOrder",
+  "objectVersion" : "1",
+  "cdwId" : "1400181354458:O",
+  "patient" : {
+    "type" : "Patient",
+    "reference" : "1012958529V624991",
+    "display" : "VETERAN,FARM ACY"
+  },
+  "dateWritten" : "2016-11-17T18:02:04Z",
+  "status" : "stopped",
+  "dateEnded" : "2017-02-15T05:00:00Z",
+  "prescriber" : {
+    "type" : "Practitioner",
+    "reference" : "1404497883",
+    "display" : "HIPPOCRATES,OATH J"
+  },
+  "medication" : {
+    "type" : "Medication",
+    "reference" : "1400021372",
+    "display" : "RIVAROXABAN 15MG TAB"
+  },
+  "dosageInstruction" : [
+    {
+      "dosageText" : " TAKE ONE TABLET BY MOUTH TWICE A DAY FOR 7 DAYS TO PREVENT BLOOD CLOTS",
+      "timingText" : "BID",
+      "additionalInstructions" : "DO NOT TAKE NSAIDS WITH THIS MEDICATION",
+      "asNeeded" : false,
+      "routeText" : "ORAL",
+      "doseQuantityValue" : 1.0,
+      "doseQuantityUnit" : "TAB"
+    },
+    {
+      "dosageText" : " THEN TAKE ONE TABLET BY MOUTH ONCE A DAY FOR 7 DAYS TO PREVENT BLOOD CLOTS",
+      "timingText" : "QDAILY",
+      "additionalInstructions" : "DO NOT TAKE NSAIDS WITH THIS MEDICATION",
+      "asNeeded" : false,
+      "routeText" : "ORAL",
+      "doseQuantityValue" : 1.0,
+      "doseQuantityUnit" : "TAB"
+    }
+  ],
+  "dispenseRequest" : {
+    "numberOfRepeatsAllowed" : 0,
+    "quantity" : 42.0,
+    "unit" : "TAB",
+    "expectedSupplyDuration" : 21,
+    "supplyDurationUnits" : "days"
+  }
+}
