@@ -6,6 +6,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
+import com.google.common.base.Splitter;
 import gov.va.api.health.argonaut.api.resources.Observation;
 import gov.va.api.health.dataquery.service.controller.Bundler;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
@@ -373,9 +374,14 @@ public class ObservationController {
     Observation.Bundle searchByPatientAndCode(
         String publicPatient, String codeCsv, int page, int count) {
       String cdwPatient = witnessProtection.toCdwId(publicPatient);
-      // TODO handle list of codes
+
+      ObservationRepository.PatientAndCodesSpecification spec =
+          ObservationRepository.PatientAndCodesSpecification.builder()
+              .patient(cdwPatient)
+              .codes(Splitter.on(",").trimResults().splitToList(codeCsv))
+              .build();
       Page<ObservationEntity> entitiesPage =
-          repository.findByIcnAndCode(cdwPatient, codeCsv, PageRequest.of(page - 1, count));
+          repository.findAll(spec, PageRequest.of(page - 1, count));
 
       return bundle(
           Parameters.builder()

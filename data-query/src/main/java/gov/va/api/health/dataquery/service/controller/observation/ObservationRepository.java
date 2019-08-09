@@ -2,6 +2,10 @@ package gov.va.api.health.dataquery.service.controller.observation;
 
 import gov.va.api.health.dataquery.service.controller.DateTimeParameters;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
@@ -24,8 +28,11 @@ public interface ObservationRepository
   @Value
   class PatientAndCategoryAndDateSpecification implements Specification<ObservationEntity> {
     String patient;
+
     String category;
+
     DateTimeParameters date1;
+
     DateTimeParameters date2;
 
     @Builder
@@ -42,7 +49,7 @@ public interface ObservationRepository
         Root<ObservationEntity> root,
         CriteriaQuery<?> criteriaQuery,
         CriteriaBuilder criteriaBuilder) {
-      var predicates = new ArrayList<>(4);
+      List<Predicate> predicates = new ArrayList<>(4);
       predicates.add(criteriaBuilder.equal(root.get("icn"), patient()));
       predicates.add(criteriaBuilder.equal(root.get("category"), category()));
       if (date1() != null) {
@@ -52,6 +59,33 @@ public interface ObservationRepository
         predicates.add(date2().toPredicate(root.get("epochTime"), criteriaBuilder));
       }
       return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+    }
+  }
+
+  @Value
+  class PatientAndCodesSpecification implements Specification<ObservationEntity> {
+    String patient;
+
+    Set<String> codes;
+
+    @Builder
+    private PatientAndCodesSpecification(String patient, Collection<String> codes) {
+      this.patient = patient;
+      this.codes = new HashSet<>(codes);
+    }
+
+    @Override
+    public Predicate toPredicate(
+        Root<ObservationEntity> root,
+        CriteriaQuery<?> criteriaQuery,
+        CriteriaBuilder criteriaBuilder) {
+      return criteriaBuilder.and(
+          criteriaBuilder.equal(root.get("icn"), patient()),
+          criteriaBuilder.or(
+              codes
+                  .stream()
+                  .map(c -> criteriaBuilder.equal(root.get("code"), c))
+                  .toArray(Predicate[]::new)));
     }
   }
 }

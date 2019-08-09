@@ -26,6 +26,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @DataJpaTest
 @RunWith(SpringRunner.class)
 public class DatamartObservationControllerTest {
+
   @Autowired private ObservationRepository repository;
 
   @SneakyThrows
@@ -49,7 +50,6 @@ public class DatamartObservationControllerTest {
                     .resource("OBSERVATION")
                     .identifier(dm.cdwId())
                     .build()));
-
     when(ids.register(Mockito.any()))
         .thenReturn(
             asList(
@@ -119,27 +119,8 @@ public class DatamartObservationControllerTest {
     DatamartObservation dm = DatamartObservationSamples.Datamart.create().observation();
     repository.save(asEntity(dm));
     setUpIds(ids, dm);
-
     Observation result = controller.read("", DatamartObservationSamples.Fhir.ID);
     assertThat(result).isEqualTo(DatamartObservationSamples.Fhir.create().observation());
-  }
-
-  @Test(expected = ResourceExceptions.NotFound.class)
-  public void read_unknown() {
-    IdentityService ids = mock(IdentityService.class);
-    ObservationController controller =
-        new ObservationController(
-            true,
-            null,
-            null,
-            null,
-            repository,
-            WitnessProtection.builder().identityService(ids).build());
-    DatamartObservation dm = DatamartObservationSamples.Datamart.create().observation();
-    repository.save(asEntity(dm));
-    setUpIds(ids, dm);
-
-    controller.read("", "55555");
   }
 
   @Test
@@ -176,6 +157,23 @@ public class DatamartObservationControllerTest {
     controller.readRaw("55555");
   }
 
+  @Test(expected = ResourceExceptions.NotFound.class)
+  public void read_unknown() {
+    IdentityService ids = mock(IdentityService.class);
+    ObservationController controller =
+        new ObservationController(
+            true,
+            null,
+            null,
+            null,
+            repository,
+            WitnessProtection.builder().identityService(ids).build());
+    DatamartObservation dm = DatamartObservationSamples.Datamart.create().observation();
+    repository.save(asEntity(dm));
+    setUpIds(ids, dm);
+    controller.read("", "55555");
+  }
+
   @Test
   public void searchById() {
     IdentityService ids = mock(IdentityService.class);
@@ -190,12 +188,10 @@ public class DatamartObservationControllerTest {
     DatamartObservation dm = DatamartObservationSamples.Datamart.create().observation();
     repository.save(asEntity(dm));
     setUpIds(ids, dm);
-
     assertThat(controller.searchById("true", DatamartObservationSamples.Fhir.ID, 2, 1).entry())
         .isEmpty();
     assertThat(controller.searchById("true", DatamartObservationSamples.Fhir.ID, 1, 0).entry())
         .isEmpty();
-
     assertThat(
             Iterables.getOnlyElement(
                     controller.searchById("true", DatamartObservationSamples.Fhir.ID, 1, 1).entry())
@@ -217,7 +213,6 @@ public class DatamartObservationControllerTest {
     DatamartObservation dm = DatamartObservationSamples.Datamart.create().observation();
     repository.save(asEntity(dm));
     setUpIds(ids, dm);
-
     controller.searchById("true", "55555", 1, 15);
   }
 
@@ -235,14 +230,12 @@ public class DatamartObservationControllerTest {
     DatamartObservation dm = DatamartObservationSamples.Datamart.create().observation();
     repository.save(asEntity(dm));
     setUpIds(ids, dm);
-
     assertThat(
             controller.searchByIdentifier("true", DatamartObservationSamples.Fhir.ID, 2, 1).entry())
         .isEmpty();
     assertThat(
             controller.searchByIdentifier("true", DatamartObservationSamples.Fhir.ID, 1, 0).entry())
         .isEmpty();
-
     assertThat(
             Iterables.getOnlyElement(
                     controller
@@ -283,10 +276,8 @@ public class DatamartObservationControllerTest {
     DatamartObservation dm = DatamartObservationSamples.Datamart.create().observation();
     repository.save(asEntity(dm));
     setUpIds(ids, dm);
-
     assertThat(controller.searchByPatient("", "55555", 1, 1).entry()).isEmpty();
     assertThat(controller.searchByPatient("", "1002003004V666666", 2, 1).entry()).isEmpty();
-
     assertThat(
             Iterables.getOnlyElement(
                     controller.searchByPatient("", "1002003004V666666", 1, 1).entry())
@@ -308,28 +299,24 @@ public class DatamartObservationControllerTest {
     DatamartObservation dm = DatamartObservationSamples.Datamart.create().observation();
     repository.save(asEntity(dm));
     setUpIds(ids, dm);
-
     assertThat(
             controller
                 .searchByPatientAndCategory(
                     "", "55555", "laboratory", new String[] {"eq2012-12-24"}, 1, 1)
                 .entry())
         .isEmpty();
-
     assertThat(
             controller
                 .searchByPatientAndCategory(
                     "", "1002003004V666666", "imaging", new String[] {"eq2012-12-24"}, 1, 1)
                 .entry())
         .isEmpty();
-
     assertThat(
             controller
                 .searchByPatientAndCategory(
                     "", "1002003004V666666", "laboratory", new String[] {"eq2012-12-24"}, 2, 1)
                 .entry())
         .isEmpty();
-
     assertThat(
             Iterables.getOnlyElement(
                     controller
@@ -338,7 +325,6 @@ public class DatamartObservationControllerTest {
                         .entry())
                 .resource())
         .isEqualTo(DatamartObservationSamples.Fhir.create().observation());
-
     assertThat(
             Iterables.getOnlyElement(
                     controller
@@ -352,7 +338,6 @@ public class DatamartObservationControllerTest {
                         .entry())
                 .resource())
         .isEqualTo(DatamartObservationSamples.Fhir.create().observation());
-
     assertThat(
             Iterables.getOnlyElement(
                     controller
@@ -382,13 +367,31 @@ public class DatamartObservationControllerTest {
     DatamartObservation dm = DatamartObservationSamples.Datamart.create().observation();
     repository.save(asEntity(dm));
     setUpIds(ids, dm);
-    Observation.Bundle result =
-        controller.searchByPatientAndCode("", "1002003004V666666", "1989-3", 1, 15);
-    assertThat(Iterables.getOnlyElement(result.entry()).resource())
+    assertThat(controller.searchByPatientAndCode("", "1002003004V666666", "1989-3", 2, 1).entry())
+        .isEmpty();
+    assertThat(controller.searchByPatientAndCode("", "55555", "1989-3", 1, 1).entry()).isEmpty();
+    assertThat(controller.searchByPatientAndCode("", "1002003004V666666", "55555", 1, 1).entry())
+        .isEmpty();
+    assertThat(
+            Iterables.getOnlyElement(
+                    controller
+                        .searchByPatientAndCode("", "1002003004V666666", "1989-3", 1, 1)
+                        .entry())
+                .resource())
         .isEqualTo(DatamartObservationSamples.Fhir.create().observation());
-
-    // TODO negative tests
-    // TODO multiple codes
-    // TODO vary page and count
+    assertThat(
+            Iterables.getOnlyElement(
+                    controller
+                        .searchByPatientAndCode("", "1002003004V666666", "8480-6, 1989-3", 1, 1)
+                        .entry())
+                .resource())
+        .isEqualTo(DatamartObservationSamples.Fhir.create().observation());
+    assertThat(
+            Iterables.getOnlyElement(
+                    controller
+                        .searchByPatientAndCode("", "1002003004V666666", " 1989-3, 1989-3", 1, 1)
+                        .entry())
+                .resource())
+        .isEqualTo(DatamartObservationSamples.Fhir.create().observation());
   }
 }
