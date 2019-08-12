@@ -69,18 +69,19 @@ public class DatamartMedicationOrderTransformer {
   }
 
   private Duration duration(Optional<Integer> maybeValue, Optional<String> maybeUnit) {
-    if (maybeValue.isPresent() && maybeUnit.isPresent()) {
-      return Duration.builder()
-          .value(Double.valueOf(maybeValue.get()))
-          .unit(maybeUnit.get())
-          .build();
+    if (maybeValue.isPresent() || maybeUnit.isPresent()) {
+      Double durationValue = maybeValue.isPresent() ? Double.valueOf(maybeValue.get()) : null;
+      return Duration.builder().value(durationValue).unit(maybeUnit.orElse(null)).build();
     }
     return null;
   }
 
   private SimpleQuantity simpleQuantity(Optional<Double> maybeValue, Optional<String> maybeUnit) {
-    if (maybeValue.isPresent() && maybeUnit.isPresent()) {
-      return SimpleQuantity.builder().value(maybeValue.get()).unit(maybeUnit.get()).build();
+    if (maybeValue.isPresent() || maybeUnit.isPresent()) {
+      return SimpleQuantity.builder()
+          .value(maybeValue.orElse(null))
+          .unit(maybeUnit.orElse(null))
+          .build();
     }
     return null;
   }
