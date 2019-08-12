@@ -192,6 +192,8 @@ public class DatamartObservationControllerTest {
         .isEmpty();
     assertThat(controller.searchById("true", DatamartObservationSamples.Fhir.ID, 1, 0).entry())
         .isEmpty();
+    assertThat(controller.searchById("true", DatamartObservationSamples.Fhir.ID, 1, 0).total())
+        .isEqualTo(1);
     assertThat(
             Iterables.getOnlyElement(
                     controller.searchById("true", DatamartObservationSamples.Fhir.ID, 1, 1).entry())

@@ -329,12 +329,12 @@ public class ObservationController {
     Observation.Bundle searchById(String id, int page, int count) {
       MultiValueMap<String, String> parameters =
           Parameters.builder().add("identifier", id).add("page", page).add("_count", count).build();
-      if (page != 1 || count <= 0) {
-        return bundle(parameters, emptyList(), 0);
-      }
       Observation resource = read(id);
-      return bundle(
-          parameters, resource == null ? emptyList() : asList(resource), resource == null ? 0 : 1);
+      int totalRecords = resource == null ? 0 : 1;
+      if (resource == null || page != 1 || count <= 0) {
+        return bundle(parameters, emptyList(), totalRecords);
+      }
+      return bundle(parameters, asList(resource), totalRecords);
     }
 
     Observation.Bundle searchByPatient(String publicPatient, int page, int count) {
