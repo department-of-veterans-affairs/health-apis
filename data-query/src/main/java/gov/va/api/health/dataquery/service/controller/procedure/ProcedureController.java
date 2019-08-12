@@ -399,7 +399,7 @@ public class ProcedureController {
           PatientAndDateSpecification.builder().patient(patient).dates(date).build();
       log.info("Looking for {} ({}) {}", patient, icn, spec);
       Page<ProcedureEntity> pageOfProcedures =
-          repository.findAll(spec, PageRequest.of(page - 1, count));
+          repository.findAll(spec, PageRequest.of(page - 1, count == 0 ? 1 : count));
 
       Bundle bundle =
           bundle(
