@@ -164,17 +164,7 @@ public class MedicationOrderController {
       @RequestParam("identifier") String identifier,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
-    if (datamart.isDatamartRequest(datamartHeader)) {
-      return datamart.searchById(identifier, page, count);
-    }
-    return bundle(
-        Parameters.builder()
-            .add("identifier", identifier)
-            .add("page", page)
-            .add("_count", count)
-            .build(),
-        page,
-        count);
+    return searchById(datamartHeader, identifier, page, count);
   }
 
   /** Search by patient. */

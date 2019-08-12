@@ -19,8 +19,11 @@ public class DatamartMedicationOrderTransformer {
 
   @NonNull private final DatamartMedicationOrder datamart;
 
-  private CodeableConcept codeableConceptText(String text) {
-    return CodeableConcept.builder().text(text).build();
+  private CodeableConcept codeableConceptText(Optional<String> maybeText) {
+    if (maybeText.isPresent()) {
+      return CodeableConcept.builder().text(maybeText.get()).build();
+    }
+    return null;
   }
 
   /** Convert datamart.MedicationOrder.DispenseRequest to a FHIR MedicationOrder.DispenseRequest */
@@ -32,16 +35,10 @@ public class DatamartMedicationOrderTransformer {
     DatamartMedicationOrder.DispenseRequest dispenseRequest = maybeDispenseRequest.get();
     return MedicationOrder.DispenseRequest.builder()
         .numberOfRepeatsAllowed(dispenseRequest.numberOfRepeatsAllowed().orElse(null))
-        .quantity(
-            SimpleQuantity.builder()
-                .value(dispenseRequest.quantity().orElse(null))
-                .unit(dispenseRequest.unit().orElse(null))
-                .build())
+        .quantity(isValidSimpleQuantity(dispenseRequest.quantity(), dispenseRequest.unit()))
         .expectedSupplyDuration(
-            Duration.builder()
-                .value((double) dispenseRequest.expectedSupplyDuration().orElse(null))
-                .unit(dispenseRequest.supplyDurationUnits().orElse(null))
-                .build())
+            isValidDispenseRequestDuration(
+                dispenseRequest.expectedSupplyDuration(), dispenseRequest.supplyDurationUnits()))
         .build();
   }
 
@@ -58,22 +55,44 @@ public class DatamartMedicationOrderTransformer {
       results.add(
           MedicationOrder.DosageInstruction.builder()
               .text(dosageInstruction.dosageText().orElse(null))
-              .timing(
-                  Timing.builder()
-                      .code(codeableConceptText(dosageInstruction.timingText().orElse(null)))
-                      .build())
+              .timing(isValidTiming(dosageInstruction.timingText()))
               .additionalInstructions(
-                  codeableConceptText(dosageInstruction.additionalInstructions().orElse(null)))
+                  codeableConceptText(dosageInstruction.additionalInstructions()))
               .asNeededBoolean(dosageInstruction.asNeeded())
-              .route(codeableConceptText(dosageInstruction.routeText().orElse(null)))
+              .route(codeableConceptText(dosageInstruction.routeText()))
               .doseQuantity(
-                  SimpleQuantity.builder()
-                      .value(dosageInstruction.doseQuantityValue().orElse(null))
-                      .unit(dosageInstruction.doseQuantityUnit().orElse(null))
-                      .build())
+                  isValidSimpleQuantity(
+                      dosageInstruction.doseQuantityValue(), dosageInstruction.doseQuantityUnit()))
               .build());
     }
     return results;
+  }
+
+  private Duration isValidDispenseRequestDuration(
+      Optional<Integer> maybeValue, Optional<String> maybeUnit) {
+    if (maybeValue.isPresent() && maybeUnit.isPresent()) {
+      return Duration.builder()
+          .value(Double.valueOf(maybeValue.get()))
+          .unit(maybeUnit.get())
+          .build();
+    }
+    return null;
+  }
+
+  private SimpleQuantity isValidSimpleQuantity(
+      Optional<Double> maybeValue, Optional<String> maybeUnit) {
+    if (maybeValue.isPresent() && maybeUnit.isPresent()) {
+      return SimpleQuantity.builder().value(maybeValue.get()).unit(maybeUnit.get()).build();
+    }
+    return null;
+  }
+
+  private Timing isValidTiming(Optional<String> maybeTimingText) {
+    CodeableConcept maybeCcText = codeableConceptText(maybeTimingText);
+    if (maybeCcText != null) {
+      return Timing.builder().code(maybeCcText).build();
+    }
+    return null;
   }
 
   /** Convert from datamart.MedicationOrder.Status to MedicationOrder.Status */
