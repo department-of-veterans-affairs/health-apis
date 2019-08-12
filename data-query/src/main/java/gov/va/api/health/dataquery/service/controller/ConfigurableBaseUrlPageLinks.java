@@ -38,15 +38,22 @@ public class ConfigurableBaseUrlPageLinks implements PageLinks {
   public List<BundleLink> create(LinkConfig config) {
     LinkContext context = new LinkContext(config);
     List<BundleLink> links = new LinkedList<>();
-    links.add(context.first());
-    if (context.hasPrevious()) {
-      links.add(context.previous());
+    /*
+     * If recordsPerPage = 0, then only return the self link.
+     */
+    if (!context.isCountOnly()) {
+      links.add(context.first());
+      if (context.hasPrevious()) {
+        links.add(context.previous());
+      }
     }
     links.add(context.self());
-    if (context.hasNext()) {
-      links.add(context.next());
+    if (!context.isCountOnly()) {
+      if (context.hasNext()) {
+        links.add(context.next());
+      }
+      links.add(context.last());
     }
-    links.add(context.last());
     return links;
   }
 
@@ -70,6 +77,10 @@ public class ConfigurableBaseUrlPageLinks implements PageLinks {
 
     boolean hasPrevious() {
       return config.page() > 1 && config.page() <= lastPage();
+    }
+
+    boolean isCountOnly() {
+      return config.recordsPerPage() == 0;
     }
 
     BundleLink last() {

@@ -84,6 +84,12 @@ public class ConfigurableBaseUrlPageLinksTest {
   }
 
   @Test
+  public void onlySelfLinkWhenCountIsZero() {
+    List<BundleLink> actual = links.create(forCurrentPage(2, 0, 15));
+    assertThat(actual).containsExactlyInAnyOrder(link(LinkRelation.self, 2, 0));
+  }
+
+  @Test
   public void previousLinkOmittedWhenOnFirstPage() {
     List<BundleLink> actual = links.create(forCurrentPage(1, 3, 15));
     assertThat(actual)

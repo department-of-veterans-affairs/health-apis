@@ -278,7 +278,7 @@ public class AllergyIntoleranceController {
       int page = Parameters.pageOf(publicParameters);
       int count = Parameters.countOf(publicParameters);
       Page<AllergyIntoleranceEntity> entitiesPage =
-          repository.findByIcn(cdwIcn, PageRequest.of(page - 1, count));
+          repository.findByIcn(cdwIcn, PageRequest.of(page - 1, count == 0 ? 1 : count));
       List<DatamartAllergyIntolerance> datamarts =
           entitiesPage
               .stream()
