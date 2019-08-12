@@ -9,6 +9,7 @@ import gov.va.api.health.dataquery.service.controller.condition.ConditionEntity;
 import gov.va.api.health.dataquery.service.controller.diagnosticreport.DiagnosticReportCrossEntity;
 import gov.va.api.health.dataquery.service.controller.diagnosticreport.DiagnosticReportsEntity;
 import gov.va.api.health.dataquery.service.controller.immunization.ImmunizationEntity;
+import gov.va.api.health.dataquery.service.controller.medicationorder.MedicationOrderEntity;
 import gov.va.api.health.dataquery.service.controller.medicationstatement.MedicationStatementEntity;
 import gov.va.api.health.dataquery.service.controller.patient.PatientEntity;
 import gov.va.api.health.dataquery.service.controller.patient.PatientSearchEntity;
@@ -58,6 +59,7 @@ public class DatamartExporter {
           DiagnosticReportCrossEntity.class,
           DiagnosticReportsEntity.class,
           ImmunizationEntity.class,
+          MedicationOrderEntity.class,
           MedicationStatementEntity.class,
           PatientEntity.class,
           PatientSearchEntity.class,
