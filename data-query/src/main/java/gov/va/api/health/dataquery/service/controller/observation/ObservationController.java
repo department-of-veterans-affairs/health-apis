@@ -273,6 +273,10 @@ public class ObservationController {
 
     Observation.Bundle bundle(
         MultiValueMap<String, String> parameters, Page<ObservationEntity> entitiesPage) {
+      if (Parameters.countOf(parameters) <= 0) {
+        return bundle(parameters, emptyList(), (int) entitiesPage.getTotalElements());
+      }
+
       List<DatamartObservation> datamarts =
           entitiesPage.stream().map(e -> e.asDatamartObservation()).collect(Collectors.toList());
       replaceReferences(datamarts);
@@ -336,7 +340,7 @@ public class ObservationController {
     Observation.Bundle searchByPatient(String publicPatient, int page, int count) {
       String cdwPatient = witnessProtection.toCdwId(publicPatient);
       Page<ObservationEntity> entitiesPage =
-          repository.findByIcn(cdwPatient, PageRequest.of(page - 1, count));
+          repository.findByIcn(cdwPatient, PageRequest.of(page - 1, Math.max(count, 1)));
 
       return bundle(
           Parameters.builder()
@@ -358,7 +362,7 @@ public class ObservationController {
               .dates(date)
               .build();
       Page<ObservationEntity> entitiesPage =
-          repository.findAll(spec, PageRequest.of(page - 1, count));
+          repository.findAll(spec, PageRequest.of(page - 1, Math.max(count, 1)));
 
       return bundle(
           Parameters.builder()
@@ -381,7 +385,7 @@ public class ObservationController {
               .codes(Splitter.on(",").trimResults().splitToList(codeCsv))
               .build();
       Page<ObservationEntity> entitiesPage =
-          repository.findAll(spec, PageRequest.of(page - 1, count));
+          repository.findAll(spec, PageRequest.of(page - 1, Math.max(count, 1)));
 
       return bundle(
           Parameters.builder()

@@ -278,6 +278,7 @@ public class DatamartObservationControllerTest {
     setUpIds(ids, dm);
     assertThat(controller.searchByPatient("", "55555", 1, 1).entry()).isEmpty();
     assertThat(controller.searchByPatient("", "1002003004V666666", 2, 1).entry()).isEmpty();
+    assertThat(controller.searchByPatient("", "1002003004V666666", 1, 0).entry()).isEmpty();
     assertThat(
             Iterables.getOnlyElement(
                     controller.searchByPatient("", "1002003004V666666", 1, 1).entry())
@@ -315,6 +316,12 @@ public class DatamartObservationControllerTest {
             controller
                 .searchByPatientAndCategory(
                     "", "1002003004V666666", "laboratory", new String[] {"eq2012-12-24"}, 2, 1)
+                .entry())
+        .isEmpty();
+    assertThat(
+            controller
+                .searchByPatientAndCategory(
+                    "", "1002003004V666666", "laboratory", new String[] {"eq2012-12-24"}, 1, 0)
                 .entry())
         .isEmpty();
     assertThat(
@@ -368,6 +375,8 @@ public class DatamartObservationControllerTest {
     repository.save(asEntity(dm));
     setUpIds(ids, dm);
     assertThat(controller.searchByPatientAndCode("", "1002003004V666666", "1989-3", 2, 1).entry())
+        .isEmpty();
+    assertThat(controller.searchByPatientAndCode("", "1002003004V666666", "1989-3", 1, 0).entry())
         .isEmpty();
     assertThat(controller.searchByPatientAndCode("", "55555", "1989-3", 1, 1).entry()).isEmpty();
     assertThat(controller.searchByPatientAndCode("", "1002003004V666666", "55555", 1, 1).entry())
