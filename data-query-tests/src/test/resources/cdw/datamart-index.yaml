@@ -365,7 +365,7 @@ entries:
   page: 1
   count: 15
 - file: ../../../../target/cdw/samples/MedOrd103i1200389904206O.xml
-  query: /MedicationOrder:1.03?identifier=1200389904206:O
+  query: /MedicationOrder:1.03?identifier=1400162277477:O
   page: 1
   count: 15
 - file: ../../../../target/cdw/samples/MedOrd103i5555555555555O.xml
@@ -958,7 +958,7 @@ entries:
   # Alias the 1.03 MedicationOrder samples as 1.04 to make sure they are tested.
   # The schema was unchanged from 1.03 and new schemas and new samples were not generated.
 - file: ../../../../target/cdw/samples/MedOrd103i1200389904206O.xml
-  query: /MedicationOrder:1.04?identifier=1200389904206:O
+  query: /MedicationOrder:1.04?identifier=1400162277477:O
   page: 1
   count: 15
 - file: ../../../../target/cdw/samples/MedOrd103i5555555555555O.xml
