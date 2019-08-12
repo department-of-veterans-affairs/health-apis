@@ -35,9 +35,9 @@ public class DatamartMedicationOrderTransformer {
     DatamartMedicationOrder.DispenseRequest dispenseRequest = maybeDispenseRequest.get();
     return MedicationOrder.DispenseRequest.builder()
         .numberOfRepeatsAllowed(dispenseRequest.numberOfRepeatsAllowed().orElse(null))
-        .quantity(isValidSimpleQuantity(dispenseRequest.quantity(), dispenseRequest.unit()))
+        .quantity(simpleQuantity(dispenseRequest.quantity(), dispenseRequest.unit()))
         .expectedSupplyDuration(
-            isValidDispenseRequestDuration(
+            duration(
                 dispenseRequest.expectedSupplyDuration(), dispenseRequest.supplyDurationUnits()))
         .build();
   }
@@ -55,21 +55,20 @@ public class DatamartMedicationOrderTransformer {
       results.add(
           MedicationOrder.DosageInstruction.builder()
               .text(dosageInstruction.dosageText().orElse(null))
-              .timing(isValidTiming(dosageInstruction.timingText()))
+              .timing(timing(dosageInstruction.timingText()))
               .additionalInstructions(
                   codeableConceptText(dosageInstruction.additionalInstructions()))
               .asNeededBoolean(dosageInstruction.asNeeded())
               .route(codeableConceptText(dosageInstruction.routeText()))
               .doseQuantity(
-                  isValidSimpleQuantity(
+                  simpleQuantity(
                       dosageInstruction.doseQuantityValue(), dosageInstruction.doseQuantityUnit()))
               .build());
     }
     return results;
   }
 
-  private Duration isValidDispenseRequestDuration(
-      Optional<Integer> maybeValue, Optional<String> maybeUnit) {
+  private Duration duration(Optional<Integer> maybeValue, Optional<String> maybeUnit) {
     if (maybeValue.isPresent() && maybeUnit.isPresent()) {
       return Duration.builder()
           .value(Double.valueOf(maybeValue.get()))
@@ -79,18 +78,9 @@ public class DatamartMedicationOrderTransformer {
     return null;
   }
 
-  private SimpleQuantity isValidSimpleQuantity(
-      Optional<Double> maybeValue, Optional<String> maybeUnit) {
+  private SimpleQuantity simpleQuantity(Optional<Double> maybeValue, Optional<String> maybeUnit) {
     if (maybeValue.isPresent() && maybeUnit.isPresent()) {
       return SimpleQuantity.builder().value(maybeValue.get()).unit(maybeUnit.get()).build();
-    }
-    return null;
-  }
-
-  private Timing isValidTiming(Optional<String> maybeTimingText) {
-    CodeableConcept maybeCcText = codeableConceptText(maybeTimingText);
-    if (maybeCcText != null) {
-      return Timing.builder().code(maybeCcText).build();
     }
     return null;
   }
@@ -116,6 +106,14 @@ public class DatamartMedicationOrderTransformer {
       default:
         throw new IllegalArgumentException("Unsupported Status: " + status);
     }
+  }
+
+  private Timing timing(Optional<String> maybeTimingText) {
+    CodeableConcept maybeCcText = codeableConceptText(maybeTimingText);
+    if (maybeCcText != null) {
+      return Timing.builder().code(maybeCcText).build();
+    }
+    return null;
   }
 
   /** Convert from datamart to FHIR compliant resource. */
