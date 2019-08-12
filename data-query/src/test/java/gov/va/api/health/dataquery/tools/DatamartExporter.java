@@ -13,6 +13,7 @@ import gov.va.api.health.dataquery.service.controller.medication.MedicationEntit
 import gov.va.api.health.dataquery.service.controller.medicationstatement.MedicationStatementEntity;
 import gov.va.api.health.dataquery.service.controller.patient.PatientEntity;
 import gov.va.api.health.dataquery.service.controller.patient.PatientSearchEntity;
+import gov.va.api.health.dataquery.service.controller.procedure.ProcedureEntity;
 import java.io.FileInputStream;
 import java.net.URL;
 import java.util.Arrays;
@@ -61,7 +62,8 @@ public class DatamartExporter {
           MedicationEntity.class,
           MedicationStatementEntity.class,
           PatientEntity.class,
-          PatientSearchEntity.class
+          PatientSearchEntity.class,
+          ProcedureEntity.class
           //
           );
 
@@ -192,7 +194,9 @@ public class DatamartExporter {
     Properties mitreProperties() {
       Properties properties = new Properties();
       properties.put("hibernate.hbm2ddl.auto", "none");
-      properties.put("hibernate.show_sql", "false");
+      properties.put("hibernate.show_sql", "false"); // <---- CHANGE TO TRUE TO DEBUG
+      properties.put("hibernate.format_sql", "true");
+      properties.put("hibernate.globally_quoted_identifiers", "true");
       return properties;
     }
 

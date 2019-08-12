@@ -125,7 +125,7 @@ public final class SystemDefinitions {
                 .build())
         .patient("111222333V000999")
         .practitioner("10092125")
-        .procedure("1400000140034")
+        .procedure("1000001259996")
         .procedures(procedures())
         .unknown("5555555555555")
         .build();

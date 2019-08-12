@@ -38,7 +38,7 @@ import lombok.SneakyThrows;
 @Data
 @Entity
 @Builder
-@Table(name = "app.Condition")
+@Table(name = "Condition", schema = "app")
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -58,7 +58,7 @@ public class ConditionEntity {
   private String clinicalStatus;
 
   @Column(name = "Condition")
-  @Basic(fetch = FetchType.LAZY)
+  @Basic(fetch = FetchType.EAGER)
   @Lob
   private String payload;
 
