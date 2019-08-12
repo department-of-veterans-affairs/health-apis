@@ -23,8 +23,6 @@ public interface ObservationRepository
         JpaSpecificationExecutor<ObservationEntity> {
   Page<ObservationEntity> findByIcn(String icn, Pageable pageable);
 
-  Page<ObservationEntity> findByIcnAndCode(String icn, String code, Pageable pageable);
-
   @Value
   class PatientAndCategoryAndDateSpecification implements Specification<ObservationEntity> {
     String patient;
