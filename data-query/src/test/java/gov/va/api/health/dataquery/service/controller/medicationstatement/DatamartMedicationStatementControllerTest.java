@@ -137,6 +137,17 @@ public class DatamartMedicationStatementControllerTest {
     controller().readRaw("1");
   }
 
+  @Test(expected = ResourceExceptions.NotFound.class)
+  public void readThrowsNotFoundWhenDataIsMissing() {
+    mockMedicationStatementIdentity("1", "1");
+    controller().read("true", "1");
+  }
+
+  @Test(expected = ResourceExceptions.NotFound.class)
+  public void readThrowsNotFoundWhenIdIsUnknown() {
+    controller().read("true", "1");
+  }
+
   @Test
   public void searchById() {
     DatamartMedicationStatement dm = Datamart.create().medicationStatement();

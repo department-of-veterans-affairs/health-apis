@@ -42,6 +42,7 @@ public class DatamartConditionControllerTest {
   private IdentityService ids = mock(IdentityService.class);
 
   @Autowired private ConditionRepository repository;
+
   @Autowired private TestEntityManager entityManager;
 
   @SneakyThrows
@@ -94,7 +95,6 @@ public class DatamartConditionControllerTest {
       dm.category(Category.values()[i % 2]);
       dm.clinicalStatus(ClinicalStatus.values()[i % 2]);
       repository.save(asEntity(dm));
-
       Condition condition = fhir.condition(publicId, patientId, dateRecorded);
       condition.clinicalStatus(
           dm.clinicalStatus() == ClinicalStatus.active
@@ -102,9 +102,7 @@ public class DatamartConditionControllerTest {
               : ClinicalStatusCode.resolved);
       condition.category(
           dm.category() == Category.problem ? fhir.problemCategory() : fhir.diagnosisCategory());
-
       conditionsByPatient.put(patientId, condition);
-
       ResourceIdentity resourceIdentity =
           ResourceIdentity.builder().system("CDW").resource("CONDITION").identifier(cdwId).build();
       Registration registration =
@@ -143,6 +141,17 @@ public class DatamartConditionControllerTest {
   @Test(expected = ResourceExceptions.NotFound.class)
   public void readRawThrowsNotFoundWhenIdIsUnknown() {
     controller().readRaw("x");
+  }
+
+  @Test(expected = ResourceExceptions.NotFound.class)
+  public void readThrowsNotFoundWhenDataIsMissing() {
+    mockConditionIdentity("x", "x");
+    controller().read("true", "x");
+  }
+
+  @Test(expected = ResourceExceptions.NotFound.class)
+  public void readThrowsNotFoundWhenIdIsUnknown() {
+    controller().read("true", "x");
   }
 
   @Test

@@ -139,9 +139,27 @@ public final class DatamartDiagnosticReportTest {
   }
 
   @Test(expected = ResourceExceptions.NotFound.class)
+  public void readRaw_empty() {
+    DiagnosticReportController controller = controller();
+    controller.readRaw("800260864479:L");
+  }
+
+  @Test(expected = ResourceExceptions.NotFound.class)
+  public void readRaw_unknown() {
+    DiagnosticReportController controller = controller();
+    controller.readRaw("123456:X");
+  }
+
+  @Test(expected = ResourceExceptions.NotFound.class)
   public void read_empty() {
     DiagnosticReportController controller = controller();
     controller.read("true", "800260864479:L");
+  }
+
+  @Test(expected = ResourceExceptions.NotFound.class)
+  public void read_unknown() {
+    DiagnosticReportController controller = controller();
+    controller.read("true", "123456:X");
   }
 
   @Test
