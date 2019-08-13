@@ -73,7 +73,7 @@ public final class SystemDefinitions {
         .observations(observations())
         .patient("1011537977V693883")
         .procedure("02b9078b-9665-52ff-b360-9d618ac34df0")
-        .procedures(procedures())
+        .procedures(localAndLabProcedures())
         .location("unused")
         .appointment("unused")
         .medicationDispense("unused")
@@ -126,7 +126,7 @@ public final class SystemDefinitions {
         .patient("111222333V000999")
         .practitioner("10092125")
         .procedure("1000001259996")
-        .procedures(procedures())
+        .procedures(localAndLabProcedures())
         .unknown("5555555555555")
         .build();
   }
@@ -141,8 +141,12 @@ public final class SystemDefinitions {
         .build();
   }
 
-  private static Procedures procedures() {
+  private static Procedures localAndLabProcedures() {
     return Procedures.builder().fromDate("ge2009").onDate("ge2009").toDate("le2010").build();
+  }
+
+  private static Procedures productionCdwProcedures() {
+    return Procedures.builder().fromDate("ge2009").onDate("ge2009").toDate("le2014").build();
   }
 
   /** Return definitions for the production environment. */
@@ -178,8 +182,8 @@ public final class SystemDefinitions {
         .organization("3e5dbe7a-72ca-5441-9287-0b639ae7a1bc")
         .patient("1011537977V693883")
         .practitioner("7b4c6b83-2c5a-5cbf-836c-875253fb9bf9")
-        .procedure("c416df15-fc1d-5a04-ab11-34d7bf453d15")
-        .procedures(procedures())
+        .procedure("6f260748-c3be-5333-9f90-a2d429249c7f")
+        .procedures(productionCdwProcedures())
         .unknown("5555555555555")
         .build();
   }
