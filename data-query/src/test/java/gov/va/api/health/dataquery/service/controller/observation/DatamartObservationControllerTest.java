@@ -32,7 +32,7 @@ public class DatamartObservationControllerTest {
   @SneakyThrows
   private static ObservationEntity asEntity(DatamartObservation dm) {
     return ObservationEntity.builder()
-        .id(dm.cdwId())
+        .cdwId(dm.cdwId())
         .icn(dm.subject().get().reference().get())
         .category(dm.category().toString())
         .code(dm.code().get().coding().get().code().get())

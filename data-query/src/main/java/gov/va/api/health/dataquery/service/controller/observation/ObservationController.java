@@ -34,6 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -306,6 +307,10 @@ public class ObservationController {
       return BooleanUtils.isTrue(BooleanUtils.toBooleanObject(datamartHeader));
     }
 
+    Pageable page(int page, int count) {
+      return PageRequest.of(page - 1, Math.max(count, 1), ObservationEntity.naturalOrder());
+    }
+
     Observation read(String publicId) {
       DatamartObservation dm = findById(publicId).asDatamartObservation();
       replaceReferences(List.of(dm));
@@ -339,8 +344,7 @@ public class ObservationController {
 
     Observation.Bundle searchByPatient(String publicPatient, int page, int count) {
       String cdwPatient = witnessProtection.toCdwId(publicPatient);
-      Page<ObservationEntity> entitiesPage =
-          repository.findByIcn(cdwPatient, PageRequest.of(page - 1, Math.max(count, 1)));
+      Page<ObservationEntity> entitiesPage = repository.findByIcn(cdwPatient, page(page, count));
 
       return bundle(
           Parameters.builder()
@@ -361,8 +365,7 @@ public class ObservationController {
               .category(category)
               .dates(date)
               .build();
-      Page<ObservationEntity> entitiesPage =
-          repository.findAll(spec, PageRequest.of(page - 1, Math.max(count, 1)));
+      Page<ObservationEntity> entitiesPage = repository.findAll(spec, page(page, count));
 
       return bundle(
           Parameters.builder()
@@ -384,8 +387,7 @@ public class ObservationController {
               .patient(cdwPatient)
               .codes(Splitter.on(",").trimResults().splitToList(codeCsv))
               .build();
-      Page<ObservationEntity> entitiesPage =
-          repository.findAll(spec, PageRequest.of(page - 1, Math.max(count, 1)));
+      Page<ObservationEntity> entitiesPage = repository.findAll(spec, page(page, count));
 
       return bundle(
           Parameters.builder()

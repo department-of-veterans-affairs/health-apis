@@ -15,6 +15,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
+import org.springframework.data.domain.Sort;
 
 @Data
 @Entity
@@ -27,7 +28,7 @@ public class ObservationEntity {
   @Id
   @Column(name = "CDWId")
   @EqualsAndHashCode.Include
-  private String id;
+  private String cdwId;
 
   @Column(name = "PatientFullICN")
   private String icn;
@@ -45,6 +46,10 @@ public class ObservationEntity {
   @Basic(fetch = FetchType.EAGER)
   @Column(name = "Observation")
   private String payload;
+
+  static Sort naturalOrder() {
+    return Sort.by("cdwId").ascending();
+  }
 
   @SneakyThrows
   DatamartObservation asDatamartObservation() {
