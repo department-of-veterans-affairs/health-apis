@@ -43,7 +43,7 @@ public class DatamartAllergyIntoleranceControllerTest {
   @SneakyThrows
   private AllergyIntoleranceEntity asEntity(DatamartAllergyIntolerance dm) {
     return AllergyIntoleranceEntity.builder()
-        .id(dm.cdwId())
+        .cdwId(dm.cdwId())
         .icn(dm.patient().get().reference().get())
         .payload(JacksonConfig.createMapper().writeValueAsString(dm))
         .build();

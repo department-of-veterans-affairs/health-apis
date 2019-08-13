@@ -253,6 +253,11 @@ public class AllergyIntoleranceController {
       return BooleanUtils.isTrue(BooleanUtils.toBooleanObject(datamartHeader));
     }
 
+    private PageRequest page(int page, int count) {
+      return PageRequest.of(
+          page - 1, count == 0 ? 1 : count, AllergyIntoleranceEntity.naturalOrder());
+    }
+
     AllergyIntolerance read(String publicId) {
       DatamartAllergyIntolerance dm = findById(publicId).asDatamartAllergyIntolerance();
       replaceReferences(List.of(dm));
@@ -277,8 +282,7 @@ public class AllergyIntoleranceController {
       String cdwIcn = witnessProtection.toCdwId(publicIcn);
       int page = Parameters.pageOf(publicParameters);
       int count = Parameters.countOf(publicParameters);
-      Page<AllergyIntoleranceEntity> entitiesPage =
-          repository.findByIcn(cdwIcn, PageRequest.of(page - 1, count == 0 ? 1 : count));
+      Page<AllergyIntoleranceEntity> entitiesPage = repository.findByIcn(cdwIcn, page(page, count));
       List<DatamartAllergyIntolerance> datamarts =
           entitiesPage
               .stream()
@@ -292,8 +296,7 @@ public class AllergyIntoleranceController {
                   dm ->
                       DatamartAllergyIntoleranceTransformer.builder().datamart(dm).build().toFhir())
               .collect(Collectors.toList());
-      return AllergyIntoleranceController.this.bundle(
-          publicParameters, fhir, (int) entitiesPage.getTotalElements());
+      return bundle(publicParameters, fhir, (int) entitiesPage.getTotalElements());
     }
   }
 }

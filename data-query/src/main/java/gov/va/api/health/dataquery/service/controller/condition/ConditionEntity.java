@@ -15,6 +15,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
+import org.springframework.data.domain.Sort;
 
 /**
  * Datamart Condition representing the following table.
@@ -61,6 +62,10 @@ public class ConditionEntity {
   @Basic(fetch = FetchType.EAGER)
   @Lob
   private String payload;
+
+  static Sort naturalOrder() {
+    return Sort.by("cdwId").ascending();
+  }
 
   @SneakyThrows
   DatamartCondition asDatamartCondition() {
