@@ -17,6 +17,7 @@ import gov.va.api.health.dstu2.api.datatypes.Address;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
 import gov.va.api.health.dstu2.api.datatypes.ContactPoint;
+import gov.va.api.health.dstu2.api.datatypes.ContactPoint.ContactPointUse;
 import gov.va.api.health.dstu2.api.datatypes.HumanName;
 import gov.va.api.health.dstu2.api.datatypes.Identifier;
 import gov.va.api.health.dstu2.api.elements.Extension;
@@ -115,6 +116,7 @@ final class DatamartPatientTransformer {
       results.add(
           ContactPoint.builder()
               .system(ContactPoint.ContactPointSystem.phone)
+              .use(ContactPointUse.home)
               .value(phoneNumber)
               .build());
     }
@@ -123,6 +125,7 @@ final class DatamartPatientTransformer {
       results.add(
           ContactPoint.builder()
               .system(ContactPoint.ContactPointSystem.phone)
+              .use(ContactPointUse.work)
               .value(workPhoneNumber)
               .build());
     }

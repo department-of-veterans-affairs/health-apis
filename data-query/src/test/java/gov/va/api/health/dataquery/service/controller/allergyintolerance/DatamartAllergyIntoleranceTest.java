@@ -21,8 +21,6 @@ public class DatamartAllergyIntoleranceTest {
 
   public DatamartAllergyIntolerance sample() {
     return DatamartAllergyIntolerance.builder()
-        .objectType("AllergyIntolerance")
-        .objectVersion(1)
         .cdwId("800001608621")
         .patient(
             Optional.of(
