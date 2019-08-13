@@ -15,6 +15,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
+import org.springframework.data.domain.Sort;
 
 /**
  * Datamart MedicationOrder representing the following table.
@@ -51,6 +52,10 @@ public class MedicationOrderEntity {
   @Basic(fetch = FetchType.EAGER)
   @Column(name = "MedicationOrder")
   private String payload;
+
+  static Sort naturalOrder() {
+    return Sort.by("cdwId").ascending();
+  }
 
   @SneakyThrows
   DatamartMedicationOrder asDatamartMedicationOrder() {

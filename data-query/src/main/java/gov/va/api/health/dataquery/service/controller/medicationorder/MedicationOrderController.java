@@ -254,6 +254,10 @@ public class MedicationOrderController {
       return BooleanUtils.isTrue(BooleanUtils.toBooleanObject(datamartHeader));
     }
 
+    private PageRequest page(int page, int count) {
+      return PageRequest.of(page - 1, count == 0 ? 1 : count, MedicationOrderEntity.naturalOrder());
+    }
+
     MedicationOrder read(String publicId) {
       DatamartMedicationOrder medicationOrder = findById(publicId).asDatamartMedicationOrder();
       replaceReferences(List.of(medicationOrder));
@@ -294,7 +298,7 @@ public class MedicationOrderController {
               .add("_count", count)
               .build(),
           count,
-          repository.findByIcn(icn, PageRequest.of(page - 1, count)));
+          repository.findByIcn(icn, page(page, count)));
     }
 
     MedicationOrder transform(DatamartMedicationOrder dm) {
