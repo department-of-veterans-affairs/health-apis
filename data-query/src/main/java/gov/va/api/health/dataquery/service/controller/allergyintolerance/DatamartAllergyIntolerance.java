@@ -19,26 +19,16 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class DatamartAllergyIntolerance implements HasReplaceableId {
-  private String objectType;
-
-  private int objectVersion;
-
+  @Builder.Default private String objectType = "AllergyIntolerance";
+  @Builder.Default private String objectVersion = "1";
   private String cdwId;
-
   private Optional<DatamartReference> patient;
-
   private Optional<Instant> recordedDate;
-
   private Optional<DatamartReference> recorder;
-
   private Optional<Substance> substance;
-
   private Status status;
-
   private Type type;
-
   private Category category;
-
   private List<Note> notes;
 
   private Optional<Reaction> reactions;

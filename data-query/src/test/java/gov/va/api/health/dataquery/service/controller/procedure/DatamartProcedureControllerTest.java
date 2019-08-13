@@ -36,8 +36,11 @@ import org.springframework.test.context.junit4.SpringRunner;
 @DataJpaTest
 @RunWith(SpringRunner.class)
 public class DatamartProcedureControllerTest {
+
   private IdentityService ids = mock(IdentityService.class);
+
   @Autowired private ProcedureRepository repository;
+
   @Autowired private TestEntityManager entityManager;
 
   @SneakyThrows
@@ -157,6 +160,17 @@ public class DatamartProcedureControllerTest {
                         "clrks-procedure", "superman", dm.performedDateTime().get().toString())));
   }
 
+  @Test(expected = ResourceExceptions.NotFound.class)
+  public void readThrowsNotFoundWhenDataIsMissing() {
+    mockProcedureIdentity("1", "1");
+    controller().read("true", "1", "1");
+  }
+
+  @Test(expected = ResourceExceptions.NotFound.class)
+  public void readThrowsNotFoundWhenIdIsUnknown() {
+    controller().read("true", "1", "1");
+  }
+
   @Test
   public void searchById() {
     DatamartProcedure dm = Datamart.create().procedure();
@@ -264,7 +278,6 @@ public class DatamartProcedureControllerTest {
         List.of("2005-01-14T07:57:00Z", "2005-01-16T07:57:00Z", "2005-01-18T07:57:00Z"));
     testDates.putAll("gt2005-01-14", List.of("2005-01-16T07:57:00Z", "2005-01-18T07:57:00Z"));
     testDates.putAll("sa2005-01-14", List.of("2005-01-16T07:57:00Z", "2005-01-18T07:57:00Z"));
-
     for (var date : testDates.keySet()) {
       assertThat(
               json(controller().searchByPatientAndDate("true", "p0", new String[] {date}, 1, 10)))
@@ -318,7 +331,6 @@ public class DatamartProcedureControllerTest {
             "2005-01-16T07:57:00Z",
             "2005-01-18T07:57:00Z"));
     testDates.putAll(Pair.of("gt2005-01-13", "lt2005-01-15"), List.of("2005-01-14T07:57:00Z"));
-
     for (var date : testDates.keySet()) {
       assertThat(
               json(
