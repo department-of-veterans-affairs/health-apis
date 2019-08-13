@@ -15,24 +15,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
+import org.springframework.data.domain.Sort;
 
-/**
- *
- *
- * <pre>
- *  CREATE TABLE [app].[Immunization](
- *         [CDWId] [bigint] NOT NULL,
- *         [PatientFullICN] [varchar](50) NOT NULL,
- *         [PerformerCDWId] [int] NULL,
- *         [RequesterCDWId] [int] NULL,
- *         [DateRecorded] [datetime2](0) NULL,
- *         [Immunization] [varchar](max) NULL,
- *         [ETLBatchId] [int] NULL,
- *         [ETLCreateDate] [datetime2](0) NULL,
- *         [ETLEditDate] [datetime2](0) NULL,
- * PRIMARY KEY CLUSTERED
- * </pre>
- */
 @Data
 @Entity
 @Builder
@@ -53,6 +37,10 @@ public class ImmunizationEntity {
   @Basic(fetch = FetchType.EAGER)
   @Lob
   private String payload;
+
+  static Sort naturalOrder() {
+    return Sort.by("cdwId").ascending();
+  }
 
   @SneakyThrows
   DatamartImmunization asDatamartImmunization() {
