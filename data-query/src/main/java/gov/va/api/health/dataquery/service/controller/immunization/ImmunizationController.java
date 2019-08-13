@@ -306,7 +306,7 @@ public class ImmunizationController {
               .add("_count", count)
               .build(),
           count,
-          repository.findByIcn(icn, PageRequest.of(page - 1, count)));
+          repository.findByIcn(icn, PageRequest.of(page - 1, count == 0 ? 1 : count)));
     }
 
     Immunization transform(DatamartImmunization dm) {

@@ -305,7 +305,7 @@ public class MedicationStatementController {
               .add("_count", count)
               .build(),
           count,
-          repository.findByIcn(icn, PageRequest.of(page - 1, count)));
+          repository.findByIcn(icn, PageRequest.of(page - 1, count == 0 ? 1 : count)));
     }
 
     MedicationStatement transform(DatamartMedicationStatement dm) {

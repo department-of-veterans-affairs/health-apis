@@ -345,7 +345,7 @@ public class ConditionController {
               .add("_count", count)
               .build(),
           count,
-          repository.findByIcn(icn, PageRequest.of(page - 1, count)));
+          repository.findByIcn(icn, PageRequest.of(page - 1, count == 0 ? 1 : count)));
     }
 
     Bundle searchByPatientAndCategory(String patient, String category, int page, int count) {
@@ -358,7 +358,8 @@ public class ConditionController {
               .add("_count", count)
               .build(),
           count,
-          repository.findByIcnAndCategory(icn, category, PageRequest.of(page - 1, count)));
+          repository.findByIcnAndCategory(
+              icn, category, PageRequest.of(page - 1, count == 0 ? 1 : count)));
     }
 
     Bundle searchByPatientAndClinicalStatus(
@@ -373,7 +374,9 @@ public class ConditionController {
               .build(),
           count,
           repository.findByIcnAndClinicalStatusIn(
-              icn, Set.of(clinicalStatusCsv.split("\\s*,\\s*")), PageRequest.of(page - 1, count)));
+              icn,
+              Set.of(clinicalStatusCsv.split("\\s*,\\s*")),
+              PageRequest.of(page - 1, count == 0 ? 1 : count)));
     }
 
     Condition transform(DatamartCondition dm) {
