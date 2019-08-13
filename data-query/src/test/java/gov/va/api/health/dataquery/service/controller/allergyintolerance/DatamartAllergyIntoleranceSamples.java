@@ -220,7 +220,11 @@ public class DatamartAllergyIntoleranceSamples {
                                               .system("urn:oid:2.16.840.1.113883.6.233")
                                               .code("4637183")
                                               .display("RESPIRATORY DISTRESS")
-                                              .build(),
+                                              .build()))
+                                  .build(),
+                              CodeableConcept.builder()
+                                  .coding(
+                                      asList(
                                           Coding.builder()
                                               .system("urn:oid:2.16.840.1.113883.6.233")
                                               .code("4538635")
