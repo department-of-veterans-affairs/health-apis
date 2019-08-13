@@ -15,9 +15,10 @@ import gov.va.api.health.dstu2.api.datatypes.Annotation;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
 import gov.va.api.health.dstu2.api.elements.Reference;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.NonNull;
 
@@ -39,15 +40,20 @@ public final class DatamartAllergyIntoleranceTransformer {
     return EnumSearcher.of(AllergyIntolerance.Certainty.class).find(certainty.toString());
   }
 
-  private List<CodeableConcept> manifestations(List<DatamartCoding> maybeManifestations) {
-    if (isEmpty(maybeManifestations)) {
+  private List<CodeableConcept> manifestations(List<DatamartCoding> manifestations) {
+    if (isEmpty(manifestations)) {
       return null;
     }
-    List<CodeableConcept> manifestations = new ArrayList<>();
-    for (DatamartCoding manifestation : maybeManifestations) {
-      manifestations.add(CodeableConcept.builder().coding(asList(asCoding(manifestation))).build());
-    }
-    return emptyToNull(manifestations);
+    List<Coding> codings =
+        manifestations
+            .stream()
+            .map(m -> asCoding(m))
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
+    return codings
+        .stream()
+        .map(coding -> CodeableConcept.builder().coding(asList(coding)).build())
+        .collect(Collectors.toList());
   }
 
   private Annotation notes(List<DatamartAllergyIntolerance.Note> notes) {
