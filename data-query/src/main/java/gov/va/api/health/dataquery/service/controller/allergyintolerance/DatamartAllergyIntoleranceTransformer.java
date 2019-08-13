@@ -50,10 +50,11 @@ public final class DatamartAllergyIntoleranceTransformer {
             .map(m -> asCoding(m))
             .filter(Objects::nonNull)
             .collect(Collectors.toList());
-    return codings
-        .stream()
-        .map(coding -> CodeableConcept.builder().coding(asList(coding)).build())
-        .collect(Collectors.toList());
+    return emptyToNull(
+        codings
+            .stream()
+            .map(coding -> CodeableConcept.builder().coding(asList(coding)).build())
+            .collect(Collectors.toList()));
   }
 
   private Annotation notes(List<DatamartAllergyIntolerance.Note> notes) {
