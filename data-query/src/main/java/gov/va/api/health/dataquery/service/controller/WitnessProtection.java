@@ -5,6 +5,7 @@ import static org.springframework.util.CollectionUtils.isEmpty;
 
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
+import gov.va.api.health.autoconfig.logging.Loggable;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dataquery.service.controller.datamart.HasReplaceableId;
 import gov.va.api.health.ids.api.IdentityService;
@@ -48,11 +49,11 @@ public class WitnessProtection {
    * stream of references using the provided function. The IdentityMapping returned can be used for
    * look up.
    */
+  @Loggable(arguments = false)
   public <T extends HasReplaceableId> IdentityMapping register(
       Collection<T> resources, Function<T, Stream<DatamartReference>> referencesOf) {
     Set<ResourceIdentity> ids =
-        resources
-            .stream()
+        resources.stream()
             .flatMap(embellish(referencesOf))
             .filter(Objects::nonNull)
             .filter(DatamartReference::hasTypeAndReference)
@@ -62,8 +63,7 @@ public class WitnessProtection {
             .collect(Collectors.toSet());
     IdentityMapping identityMapping = registerAndMap(ids);
 
-    resources
-        .stream()
+    resources.stream()
         .forEach(r -> identityMapping.publicIdOf(r.asReference()).ifPresent(r::cdwId));
 
     return identityMapping;
@@ -87,20 +87,11 @@ public class WitnessProtection {
    * stream of references using the provided function. After registration, the references WILL BE
    * MODIFIED to include new identity values.
    */
+  @Loggable(arguments = true)
   public <T extends HasReplaceableId> void registerAndUpdateReferences(
       Collection<T> resources, Function<T, Stream<DatamartReference>> referencesOf) {
     IdentityMapping mapping = register(resources, referencesOf);
-    resources
-        .stream()
-        .flatMap(referencesOf)
-        .filter(Objects::nonNull)
-        .forEach(
-            reference -> {
-              var id = mapping.publicIdOf(reference);
-              if (id.isPresent()) {
-                reference.reference(id);
-              }
-            });
+    replaceReferences(resources, referencesOf, mapping);
   }
 
   /**
@@ -135,7 +126,25 @@ public class WitnessProtection {
     }
   }
 
+  @Loggable(arguments = false)
+  private <T extends HasReplaceableId> void replaceReferences(
+      Collection<T> resources,
+      Function<T, Stream<DatamartReference>> referencesOf,
+      IdentityMapping mapping) {
+    resources.stream()
+        .flatMap(referencesOf)
+        .filter(Objects::nonNull)
+        .forEach(
+            reference -> {
+              var id = mapping.publicIdOf(reference);
+              if (id.isPresent()) {
+                reference.reference(id);
+              }
+            });
+  }
+
   /** Lookup and convert the given public ID to a CDW id. */
+  @Loggable
   public String toCdwId(String publicId) {
     MultiValueMap<String, String> publicParameters = Parameters.forIdentity(publicId);
     MultiValueMap<String, String> cdwParameters = replacePublicIdsWithCdwIds(publicParameters);

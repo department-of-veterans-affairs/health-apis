@@ -1,10 +1,12 @@
 package gov.va.api.health.dataquery.service.controller.condition;
 
+import gov.va.api.health.autoconfig.logging.Loggable;
 import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
+@Loggable
 public interface ConditionRepository extends PagingAndSortingRepository<ConditionEntity, String> {
   Page<ConditionEntity> findByIcn(String icn, Pageable pageable);
 
