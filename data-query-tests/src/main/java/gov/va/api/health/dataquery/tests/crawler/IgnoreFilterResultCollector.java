@@ -28,16 +28,20 @@ public class IgnoreFilterResultCollector implements ResultCollector {
 
   private final Set<String> ignoredFailureSummaries = new ConcurrentSkipListSet<>();
 
+  private final Set<String> notIgnoredFailureSummaries = new ConcurrentSkipListSet<>();
+
   private final List<String> failuresToIgnore = new ArrayList<>();
 
   @Override
   public void add(Result result) {
     if (result.outcome() != Outcome.OK) {
       // If this failure is in one or more of the ignore filters then record it but don't fail.
+      String summary = result.query() + " " + result.outcome();
       if (failuresToIgnore.stream().anyMatch(s -> result.query().endsWith(s))) {
-        ignoredFailureSummaries.add(result.query() + " " + result.outcome());
+        ignoredFailureSummaries.add(summary);
       } else {
         failures.incrementAndGet();
+        notIgnoredFailureSummaries.add(summary);
       }
     }
     delegate.add(result);
@@ -79,6 +83,7 @@ public class IgnoreFilterResultCollector implements ResultCollector {
     } else {
       message.append("None");
     }
+    message.append("\nThese failures are not ignored");
     return message.toString();
   }
 
