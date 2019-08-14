@@ -1,4 +1,4 @@
-package gov.va.api.health.dataquery.service.controller.immunization;
+package gov.va.api.health.dataquery.service.controller.observation;
 
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import javax.persistence.Basic;
@@ -20,11 +20,11 @@ import org.springframework.data.domain.Sort;
 @Data
 @Entity
 @Builder
-@Table(name = "Immunization", schema = "app")
+@Table(name = "Observation", schema = "app")
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class ImmunizationEntity {
+public class ObservationEntity {
   @Id
   @Column(name = "CDWId")
   @EqualsAndHashCode.Include
@@ -33,9 +33,18 @@ public class ImmunizationEntity {
   @Column(name = "PatientFullICN")
   private String icn;
 
-  @Column(name = "Immunization")
-  @Basic(fetch = FetchType.EAGER)
+  @Column(name = "Category", nullable = true)
+  private String category;
+
+  @Column(name = "Code", nullable = true)
+  private String code;
+
+  @Column(name = "Date", nullable = true)
+  private Long epochTime;
+
   @Lob
+  @Basic(fetch = FetchType.EAGER)
+  @Column(name = "Observation")
   private String payload;
 
   static Sort naturalOrder() {
@@ -43,7 +52,7 @@ public class ImmunizationEntity {
   }
 
   @SneakyThrows
-  DatamartImmunization asDatamartImmunization() {
-    return JacksonConfig.createMapper().readValue(payload, DatamartImmunization.class);
+  DatamartObservation asDatamartObservation() {
+    return JacksonConfig.createMapper().readValue(payload, DatamartObservation.class);
   }
 }
