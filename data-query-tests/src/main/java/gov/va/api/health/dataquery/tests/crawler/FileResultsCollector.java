@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.tomcat.util.http.fileupload.FileUtils;
 
 /**
  * A implementation of the results collector that prints each result to a file and creates a
@@ -75,10 +76,11 @@ public class FileResultsCollector implements ResultCollector {
         StandardOpenOption.CREATE);
   }
 
+  @SneakyThrows
   @Override
   public void init() {
     if (directory.exists()) {
-      assertThat(directory.delete()).withFailMessage("Failed to delete %s", directory).isTrue();
+      FileUtils.deleteDirectory(directory);
     }
     assertThat(directory.mkdirs()).withFailMessage("Failed to create %s", directory).isTrue();
     log.info("Collecting results to {}", directory.getAbsolutePath());
