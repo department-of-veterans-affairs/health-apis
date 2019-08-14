@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Optional;
+
 @Data
 @Builder
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -18,9 +20,35 @@ public class DatamartMedication {
 
   private String cdwId;
 
-  private RxNorm rxnorm;
+  String localDrugName;
 
-  private Product product;
+  private Optional<RxNorm> rxnorm;
+
+  private Optional<Product> product;
+
+  /** Lazy getter. */
+  public String localDrugName() {
+    if (localDrugName == null) {
+      return "**Unknown**";
+    }
+    return localDrugName;
+  }
+
+  /** Lazy initialization. */
+  public Optional<RxNorm> rxnorm() {
+    if (rxnorm == null) {
+      return Optional.empty();
+    }
+    return rxnorm;
+  }
+
+  /** Lazy initialization. */
+  public Optional<Product> product() {
+    if (product == null) {
+      return Optional.empty();
+    }
+    return product;
+  }
 
   /** Backwards compatibility for etlDate. */
   private void setEtlDate(String unused) {
