@@ -62,38 +62,5 @@ cd $(dirname $0)/../..
 [ ! -f "$TRUST_STORE" ] && echo "Trust store not found: $TRUST_STORE" && exit 1
 [ -z "$TRUST_STORE_PASSWORD" ] && TRUST_STORE_PASSWORD=changeit
 
-KEYSTORE=mr-anderson/target/certs/system/DVP-DVP-NONPROD.jks
-ALIAS=internal-sys-dev
-
-[ ! -f "$KEYSTORE" ] && echo -e "OH NOES! Keystore not found: $KEYSTORE\nTry building mr-anderson project" && exit 1
-
-set -e
-
-BACKUP=$(basename "$TRUST_STORE").$(date +%s)
-cp "$TRUST_STORE" "$BACKUP"
-echo -e "Backed up $TRUST_STORE\nto $(pwd)/$BACKUP"
-
-remove_old_certificate $ALIAS
-
-echo -e "Exporting certificate $ALIAS from keystore $KEYSTORE to $ALIAS.crt"
-keytool \
-  -exportcert \
-  -storepass "$HEALTH_API_CERTIFICATE_PASSWORD" \
-  -keystore "$KEYSTORE" \
-  -alias $ALIAS \
-  -file $ALIAS.crt
-
-echo "Importing $ALIAS.crt"
-keytool \
-  -import \
-  -trustcacerts \
-  -alias $ALIAS \
-  -file $ALIAS.crt \
-  -keypass "$HEALTH_API_CERTIFICATE_PASSWORD" \
-  -keystore "$TRUST_STORE" \
-  -storepass "$TRUST_STORE_PASSWORD" \
-  -noprompt
-
 import_certificate_from_url nexus.freedomstream.io
-
 import_certificate_from_url tools.health.dev-developer.va.gov

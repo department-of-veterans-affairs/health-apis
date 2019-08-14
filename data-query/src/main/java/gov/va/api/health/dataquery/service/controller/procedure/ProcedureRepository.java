@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.procedure;
 
+import gov.va.api.health.autoconfig.logging.Loggable;
 import gov.va.api.health.dataquery.service.controller.DateTimeParameters;
 import java.util.ArrayList;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -12,6 +13,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
+@Loggable
 public interface ProcedureRepository
     extends PagingAndSortingRepository<ProcedureEntity, String>,
         JpaSpecificationExecutor<ProcedureEntity> {
