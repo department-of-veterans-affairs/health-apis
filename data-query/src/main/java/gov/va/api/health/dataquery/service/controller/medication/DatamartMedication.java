@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class DatamartMedication {
 
-  String localDrugName;
+  private String localDrugName;
 
   @Builder.Default private String objectType = "Medication";
 
