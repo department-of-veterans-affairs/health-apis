@@ -255,6 +255,10 @@ public class ImmunizationController {
       return BooleanUtils.isTrue(BooleanUtils.toBooleanObject(datamartHeader));
     }
 
+    private PageRequest page(int page, int count) {
+      return PageRequest.of(page - 1, count == 0 ? 1 : count, ImmunizationEntity.naturalOrder());
+    }
+
     Immunization read(String publicId) {
       DatamartImmunization immunization = findById(publicId).asDatamartImmunization();
       replaceReferences(List.of(immunization));
@@ -306,7 +310,7 @@ public class ImmunizationController {
               .add("_count", count)
               .build(),
           count,
-          repository.findByIcn(icn, PageRequest.of(page - 1, count)));
+          repository.findByIcn(icn, page(page, count)));
     }
 
     Immunization transform(DatamartImmunization dm) {

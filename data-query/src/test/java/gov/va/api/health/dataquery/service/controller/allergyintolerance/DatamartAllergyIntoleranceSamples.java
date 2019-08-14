@@ -14,7 +14,7 @@ import gov.va.api.health.dstu2.api.datatypes.Coding;
 import gov.va.api.health.dstu2.api.elements.Reference;
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.List;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
@@ -27,15 +27,17 @@ public class DatamartAllergyIntoleranceSamples {
   static class Datamart {
 
     public DatamartAllergyIntolerance allergyIntolerance() {
+      return allergyIntolerance("800001608621", "666V666");
+    }
+
+    public DatamartAllergyIntolerance allergyIntolerance(String cdwId, String patientId) {
       return DatamartAllergyIntolerance.builder()
-          .objectType("AllergyIntolerance")
-          .objectVersion(1)
-          .cdwId("800001608621")
+          .cdwId(cdwId)
           .patient(
               Optional.of(
                   DatamartReference.builder()
                       .type(Optional.of("Patient"))
-                      .reference(Optional.of("666V666"))
+                      .reference(Optional.of(patientId))
                       .display(Optional.of("VETERAN,HERNAM MINAM"))
                       .build()))
           .recordedDate(Optional.of(Instant.parse("2017-07-23T04:27:43Z")))
@@ -43,7 +45,7 @@ public class DatamartAllergyIntoleranceSamples {
               Optional.of(
                   DatamartReference.builder()
                       .type(Optional.of("Practitioner"))
-                      .reference(Optional.of("4182448"))
+                      .reference(Optional.of("1234"))
                       .display(Optional.of("MONTAGNE,JO BONES"))
                       .build()))
           .substance(
@@ -70,7 +72,7 @@ public class DatamartAllergyIntoleranceSamples {
                           Optional.of(
                               DatamartReference.builder()
                                   .type(Optional.of("Practitioner"))
-                                  .reference(Optional.of("1319143"))
+                                  .reference(Optional.of("12345"))
                                   .display(Optional.of("PROVID,ALLIN DOC"))
                                   .build()))
                       .build(),
@@ -81,7 +83,7 @@ public class DatamartAllergyIntoleranceSamples {
                           Optional.of(
                               DatamartReference.builder()
                                   .type(Optional.of("Practitioner"))
-                                  .reference(Optional.of("1319143"))
+                                  .reference(Optional.of("12345"))
                                   .display(Optional.of("PROVID,ALLIN DOC"))
                                   .build()))
                       .build(),
@@ -92,7 +94,7 @@ public class DatamartAllergyIntoleranceSamples {
                           Optional.of(
                               DatamartReference.builder()
                                   .type(Optional.of("Practitioner"))
-                                  .reference(Optional.of("1319143"))
+                                  .reference(Optional.of("12345"))
                                   .display(Optional.of("PROVID,ALLIN DOC"))
                                   .build()))
                       .build(),
@@ -103,7 +105,7 @@ public class DatamartAllergyIntoleranceSamples {
                           Optional.of(
                               DatamartReference.builder()
                                   .type(Optional.of("Practitioner"))
-                                  .reference(Optional.of("1319143"))
+                                  .reference(Optional.of("12345"))
                                   .display(Optional.of("PROVID,ALLIN DOC"))
                                   .build()))
                       .build()))
@@ -131,20 +133,12 @@ public class DatamartAllergyIntoleranceSamples {
   @AllArgsConstructor(staticName = "create")
   static class Fhir {
 
-    static final String ID = "865e1010-99b6-4b8d-a5c9-4ad259db0857";
-
-    static final String RECORDER_ID = "c8779355-6c0c-40c3-94d1-a8e2a785adfd";
-
-    static final String PATIENT_ID = "04daf655-fcb4-480c-84bf-4319a3af93d7";
-
-    static final String NOTE_AUTHOR_ID = "5d7a23c1-2f9d-4793-b171-b607970b56b8";
-
     static AllergyIntolerance.Bundle asBundle(
-        String baseUrl, List<AllergyIntolerance> resources, BundleLink... links) {
+        String baseUrl, Collection<AllergyIntolerance> resources, BundleLink... links) {
       return AllergyIntolerance.Bundle.builder()
           .resourceType("Bundle")
           .type(AbstractBundle.BundleType.searchset)
-          .total(1)
+          .total(resources.size())
           .link(Arrays.asList(links))
           .entry(
               resources
@@ -170,19 +164,23 @@ public class DatamartAllergyIntoleranceSamples {
           .build();
     }
 
-    public AllergyIntolerance allergyIntolerance() {
+    public AllergyIntolerance allergyIntolerance(String cdwId) {
+      return allergyIntolerance(cdwId, "666V666");
+    }
+
+    public AllergyIntolerance allergyIntolerance(String cdwId, String patientId) {
       return AllergyIntolerance.builder()
           .resourceType("AllergyIntolerance")
-          .id(ID)
+          .id(cdwId)
           .recordedDate("2017-07-23T04:27:43Z")
           .recorder(
               Reference.builder()
-                  .reference("Practitioner/" + RECORDER_ID)
+                  .reference("Practitioner/1234")
                   .display("MONTAGNE,JO BONES")
                   .build())
           .patient(
               Reference.builder()
-                  .reference("Patient/" + PATIENT_ID)
+                  .reference("Patient/" + patientId)
                   .display("VETERAN,HERNAM MINAM")
                   .build())
           .substance(
@@ -203,7 +201,7 @@ public class DatamartAllergyIntoleranceSamples {
               Annotation.builder()
                   .authorReference(
                       Reference.builder()
-                          .reference("Practitioner/" + NOTE_AUTHOR_ID)
+                          .reference("Practitioner/12345")
                           .display("PROVID,ALLIN DOC")
                           .build())
                   .time("2012-03-29T01:55:03Z")
@@ -222,7 +220,11 @@ public class DatamartAllergyIntoleranceSamples {
                                               .system("urn:oid:2.16.840.1.113883.6.233")
                                               .code("4637183")
                                               .display("RESPIRATORY DISTRESS")
-                                              .build(),
+                                              .build()))
+                                  .build(),
+                              CodeableConcept.builder()
+                                  .coding(
+                                      asList(
                                           Coding.builder()
                                               .system("urn:oid:2.16.840.1.113883.6.233")
                                               .code("4538635")

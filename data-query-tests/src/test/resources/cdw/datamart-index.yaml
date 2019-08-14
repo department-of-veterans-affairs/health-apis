@@ -325,7 +325,7 @@ entries:
   page: 1
   count: 15
 - file: ../../../../target/cdw/samples/Med101i212846.xml
-  query: /Medication:1.01?identifier=212846
+  query: /Medication:1.01?identifier=18
   page: 1
   count: 15
 - file: ../../../../target/cdw/samples/Med101i555555.xml
@@ -453,11 +453,11 @@ entries:
   page: 1
   count: 15
 - file: ../../../../target/cdw/samples/Obs102i1201051417263V.xml
-  query: /Observation:1.02?identifier=1201051417263:V
+  query: /Observation:1.02?identifier=1201472002950:V
   page: 1
   count: 15
 - file: ../../../../target/cdw/samples/Obs102i1201051417263V.xml
-  query: /Observation:1.02?identifier=1201051417263:V
+  query: /Observation:1.02?identifier=1201472002950:V
   page: 1
   count: 15
 - file: ../../../../target/cdw/samples/Obs102i5555555555555V.xml
@@ -517,11 +517,11 @@ entries:
   page: 1
   count: 15
 - file: ../../../../target/cdw/samples/Obs103i1201051417263V.xml
-  query: /Observation:1.03?identifier=1201051417263:V
+  query: /Observation:1.03?identifier=1201472002950:V
   page: 1
   count: 15
 - file: ../../../../target/cdw/samples/Obs103i1201051417263V.xml
-  query: /Observation:1.03?identifier=1201051417263:V
+  query: /Observation:1.03?identifier=1201472002950:V
   page: 1
   count: 15
 - file: ../../../../target/cdw/samples/Obs103i5555555555555V.xml
@@ -581,11 +581,11 @@ entries:
   page: 1
   count: 15
 - file: ../../../../target/cdw/samples/Obs104i1201051417263V.xml
-  query: /Observation:1.04?identifier=1201051417263:V
+  query: /Observation:1.04?identifier=1201472002950:V
   page: 1
   count: 15
 - file: ../../../../target/cdw/samples/Obs104i1201051417263V.xml
-  query: /Observation:1.04?identifier=1201051417263:V
+  query: /Observation:1.04?identifier=1201472002950:V
   page: 1
   count: 15
 - file: ../../../../target/cdw/samples/Obs104i5555555555555V.xml
@@ -955,6 +955,15 @@ entries:
   count: 20
 - file: ../../../../target/cdw/samples/AllInt103p185601V825290pg2ct2.xml
   query: /AllergyIntolerance:1.04?patient=111222333V000999
+   # Medication Aliases
+- file: ../../../../target/cdw/samples/Med101i212846.xml
+  query: /Medication:1.01?identifier=18
+  page: 1
+  count: 15
+- file: ../../../../target/cdw/samples/Med101i555555.xml
+  query: /Medication:1.01?identifier=555555
+  page: 1
+  count: 15
   # Alias the 1.03 MedicationOrder samples as 1.04 to make sure they are tested.
   # The schema was unchanged from 1.03 and new schemas and new samples were not generated.
 - file: ../../../../target/cdw/samples/MedOrd103i1200389904206O.xml

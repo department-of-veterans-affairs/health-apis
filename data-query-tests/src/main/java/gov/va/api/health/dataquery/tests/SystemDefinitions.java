@@ -73,7 +73,7 @@ public final class SystemDefinitions {
         .observations(observations())
         .patient("1011537977V693883")
         .procedure("02b9078b-9665-52ff-b360-9d618ac34df0")
-        .procedures(procedures())
+        .procedures(localAndLabProcedures())
         .location("unused")
         .appointment("unused")
         .medicationDispense("unused")
@@ -97,6 +97,10 @@ public final class SystemDefinitions {
         .build();
   }
 
+  private static Procedures localAndLabProcedures() {
+    return Procedures.builder().fromDate("ge2009").onDate("ge2009").toDate("le2010").build();
+  }
+
   private static TestIds localIds() {
     return TestIds.builder()
         .publicIds(false)
@@ -108,11 +112,11 @@ public final class SystemDefinitions {
         .diagnosticReports(diagnosticReports())
         .immunization("12345678")
         .location("166365:L")
-        .medication("212846")
+        .medication("18")
         .medicationDispense("1200738474343:R")
         .medicationOrder("1400162277477:O")
         .medicationStatement("800000000707")
-        .observation("1201051417263:V")
+        .observation("1201472002950:V")
         .observations(observations())
         .organization("1000025431:C")
         .pii(
@@ -126,7 +130,7 @@ public final class SystemDefinitions {
         .patient("111222333V000999")
         .practitioner("10092125")
         .procedure("1000001259996")
-        .procedures(procedures())
+        .procedures(localAndLabProcedures())
         .unknown("5555555555555")
         .build();
   }
@@ -139,10 +143,6 @@ public final class SystemDefinitions {
         .onDate("2015-04-15")
         .dateRange(Range.allTime())
         .build();
-  }
-
-  private static Procedures procedures() {
-    return Procedures.builder().fromDate("ge2009").onDate("ge2009").toDate("le2010").build();
   }
 
   /** Return definitions for the production environment. */
@@ -163,8 +163,8 @@ public final class SystemDefinitions {
         .publicIds(true)
         .allergyIntolerance("3be00408-b0ff-598d-8ba1-1e0bbfb02b99")
         .appointment("f7721341-03ad-56cf-b0e5-e96fded23a1b")
-        .condition("ea59bc29-d507-571b-a4c6-9ac0d2146c45")
-        .diagnosticReport("0bca2c42-8d23-5d36-90b8-81a8b12bb1b5")
+        .condition("e4bc4b8f-a51d-58aa-b62a-6b1e6a02a22b")
+        .diagnosticReport("708d00e3-c753-50c9-9da6-6d87ce618f0b")
         .diagnosticReports(diagnosticReports())
         .encounter("05d66afc-3a1a-5277-8b26-a8084ac46a08")
         .immunization("00f4000a-b1c9-5190-993a-644569d2722b")
@@ -172,16 +172,20 @@ public final class SystemDefinitions {
         .medication("89a46bce-8b95-5a91-bbef-1fb5f8a2a292")
         .medicationDispense("773bb1ab-4430-5012-b203-a88c41c5dde9")
         .medicationOrder("91f4a9d2-e7fa-5b34-a875-6d75761221c7")
-        .medicationStatement("e4573ebc-40e4-51bb-9da1-20a91b31ff24")
+        .medicationStatement("4cb8152a-67aa-569c-bc30-9e672b5c72fd")
         .observation("40e2ced6-32e2-503e-85b8-198690f6611b")
         .observations(observations())
         .organization("3e5dbe7a-72ca-5441-9287-0b639ae7a1bc")
         .patient("1011537977V693883")
         .practitioner("7b4c6b83-2c5a-5cbf-836c-875253fb9bf9")
-        .procedure("c416df15-fc1d-5a04-ab11-34d7bf453d15")
-        .procedures(procedures())
+        .procedure("6f260748-c3be-5333-9f90-a2d429249c7f")
+        .procedures(productionCdwProcedures())
         .unknown("5555555555555")
         .build();
+  }
+
+  private static Procedures productionCdwProcedures() {
+    return Procedures.builder().fromDate("ge2009").onDate("ge2009").toDate("le2014").build();
   }
 
   /** Return definitions for the qa environment. */

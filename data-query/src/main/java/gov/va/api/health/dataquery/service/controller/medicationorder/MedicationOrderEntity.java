@@ -1,4 +1,4 @@
-package gov.va.api.health.dataquery.service.controller.immunization;
+package gov.va.api.health.dataquery.service.controller.medicationorder;
 
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import javax.persistence.Basic;
@@ -17,25 +17,40 @@ import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.data.domain.Sort;
 
+/**
+ * Datamart MedicationOrder representing the following table.
+ *
+ * <pre>
+ * CREATE TABLE [app].[MedicationOrder](
+ *   [CDWId] [bigint] NOT NULL,
+ *   [PatientFullICN] [varchar](50) NOT NULL,
+ *   [DateRecorded] [datetime2](0) NULL,
+ *   [MedicationOrder] [varchar](max) NULL,
+ *   [ETLBatchId] [int] NULL,
+ *   [ETLCreateDate] [datetime2](0) NULL,
+ *   [ETLEditDate] [datetime2](0) NULL,
+ * </pre>
+ */
 @Data
 @Entity
 @Builder
-@Table(name = "Immunization", schema = "app")
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@Table(name = "MedicationOrder", schema = "app")
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class ImmunizationEntity {
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public class MedicationOrderEntity {
+
   @Id
-  @Column(name = "CDWId")
   @EqualsAndHashCode.Include
+  @Column(name = "CDWId")
   private String cdwId;
 
   @Column(name = "PatientFullICN")
   private String icn;
 
-  @Column(name = "Immunization")
-  @Basic(fetch = FetchType.EAGER)
   @Lob
+  @Basic(fetch = FetchType.EAGER)
+  @Column(name = "MedicationOrder")
   private String payload;
 
   static Sort naturalOrder() {
@@ -43,7 +58,7 @@ public class ImmunizationEntity {
   }
 
   @SneakyThrows
-  DatamartImmunization asDatamartImmunization() {
-    return JacksonConfig.createMapper().readValue(payload, DatamartImmunization.class);
+  DatamartMedicationOrder asDatamartMedicationOrder() {
+    return JacksonConfig.createMapper().readValue(payload, DatamartMedicationOrder.class);
   }
 }

@@ -28,10 +28,12 @@ do
     -e 's/\(DiagnosticReport.*\)eq1970-01-01$/\1eq2013-03-21/' \
     -e 's/1400007575530:P/1234567:D/' \
     -e 's/\(Immunization.*\)1000000043979/\112345678/' \
+    -e 's/\(Medication.*\)212846/\118/' \
     -e 's/\(MedicationStatement.*\)1400000182116/\1800000000707/' \
     -e 's/identifier=1000001782544/identifier=10000020531/' \
     -e 's/identifier=1400000140034/identifier=1000001259996/' \
     -e 's/\(MedicationOrder.*\)1200389904206/\11400162277477/' \
+    -e 's/1201051417263:V/1201472002950:V/' \
     $SOURCE >> $DESTINATION
 done
 

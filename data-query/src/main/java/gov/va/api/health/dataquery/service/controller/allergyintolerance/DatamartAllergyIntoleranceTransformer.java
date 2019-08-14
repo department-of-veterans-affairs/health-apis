@@ -16,6 +16,7 @@ import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
 import gov.va.api.health.dstu2.api.elements.Reference;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.Builder;
@@ -43,14 +44,17 @@ public final class DatamartAllergyIntoleranceTransformer {
     if (isEmpty(manifestations)) {
       return null;
     }
-    return asList(
-        CodeableConcept.builder()
-            .coding(
-                manifestations
-                    .stream()
-                    .map(m -> asCoding(Optional.ofNullable(m)))
-                    .collect(Collectors.toList()))
-            .build());
+    List<Coding> codings =
+        manifestations
+            .stream()
+            .map(m -> asCoding(m))
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
+    return emptyToNull(
+        codings
+            .stream()
+            .map(coding -> CodeableConcept.builder().coding(asList(coding)).build())
+            .collect(Collectors.toList()));
   }
 
   private Annotation notes(List<DatamartAllergyIntolerance.Note> notes) {

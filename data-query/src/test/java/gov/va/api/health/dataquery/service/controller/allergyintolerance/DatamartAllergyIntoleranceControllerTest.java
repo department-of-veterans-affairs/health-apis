@@ -1,19 +1,26 @@
 package gov.va.api.health.dataquery.service.controller.allergyintolerance;
 
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.google.common.collect.Iterables;
+import com.google.common.collect.LinkedHashMultimap;
+import com.google.common.collect.Multimap;
 import gov.va.api.health.argonaut.api.resources.AllergyIntolerance;
+import gov.va.api.health.argonaut.api.resources.AllergyIntolerance.Bundle;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.Bundler;
 import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
+import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
+import gov.va.api.health.dataquery.service.controller.allergyintolerance.DatamartAllergyIntoleranceSamples.Datamart;
+import gov.va.api.health.dataquery.service.controller.allergyintolerance.DatamartAllergyIntoleranceSamples.Fhir;
+import gov.va.api.health.dstu2.api.bundle.BundleLink.LinkRelation;
 import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.SneakyThrows;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,202 +33,180 @@ import org.springframework.test.context.junit4.SpringRunner;
 @DataJpaTest
 @RunWith(SpringRunner.class)
 public class DatamartAllergyIntoleranceControllerTest {
+
+  private IdentityService ids = mock(IdentityService.class);
+
   @Autowired private TestEntityManager entityManager;
 
   @Autowired private AllergyIntoleranceRepository repository;
 
   @SneakyThrows
-  private static AllergyIntoleranceEntity asEntity(DatamartAllergyIntolerance dm) {
+  private AllergyIntoleranceEntity asEntity(DatamartAllergyIntolerance dm) {
     return AllergyIntoleranceEntity.builder()
-        .id(dm.cdwId())
+        .cdwId(dm.cdwId())
         .icn(dm.patient().get().reference().get())
         .payload(JacksonConfig.createMapper().writeValueAsString(dm))
         .build();
   }
 
-  private static void setUpIds(IdentityService ids, DatamartAllergyIntolerance dm) {
-    when(ids.lookup(DatamartAllergyIntoleranceSamples.Fhir.ID))
-        .thenReturn(
-            asList(
-                ResourceIdentity.builder()
-                    .system("CDW")
-                    .resource("ALLERGY_INTOLERANCE")
-                    .identifier(dm.cdwId())
-                    .build()));
-    when(ids.register(Mockito.any()))
-        .thenReturn(
-            asList(
-                Registration.builder()
-                    .uuid(DatamartAllergyIntoleranceSamples.Fhir.ID)
-                    .resourceIdentity(
-                        ResourceIdentity.builder()
-                            .system("CDW")
-                            .resource("ALLERGY_INTOLERANCE")
-                            .identifier(dm.cdwId())
-                            .build())
-                    .build(),
-                Registration.builder()
-                    .uuid(DatamartAllergyIntoleranceSamples.Fhir.RECORDER_ID)
-                    .resourceIdentity(
-                        ResourceIdentity.builder()
-                            .system("CDW")
-                            .resource("PRACTITIONER")
-                            .identifier(dm.recorder().get().reference().get())
-                            .build())
-                    .build(),
-                Registration.builder()
-                    .uuid(DatamartAllergyIntoleranceSamples.Fhir.PATIENT_ID)
-                    .resourceIdentity(
-                        ResourceIdentity.builder()
-                            .system("CDW")
-                            .resource("PATIENT")
-                            .identifier(dm.patient().get().reference().get())
-                            .build())
-                    .build(),
-                Registration.builder()
-                    .uuid(DatamartAllergyIntoleranceSamples.Fhir.NOTE_AUTHOR_ID)
-                    .resourceIdentity(
-                        ResourceIdentity.builder()
-                            .system("CDW")
-                            .resource("PRACTITIONER")
-                            .identifier(dm.notes().get(0).practitioner().get().reference().get())
-                            .build())
-                    .build()));
+  AllergyIntoleranceController controller() {
+    return new AllergyIntoleranceController(
+        true,
+        null,
+        null,
+        new Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool")),
+        repository,
+        WitnessProtection.builder().identityService(ids).build());
   }
 
   @SneakyThrows
-  private static DatamartAllergyIntolerance toObject(String payload) {
-    return JacksonConfig.createMapper().readValue(payload, DatamartAllergyIntolerance.class);
+  String json(Object o) {
+    return JacksonConfig.createMapper().writerWithDefaultPrettyPrinter().writeValueAsString(o);
   }
 
-  @Test
-  public void id() {
-    IdentityService ids = mock(IdentityService.class);
-    AllergyIntoleranceController controller =
-        new AllergyIntoleranceController(
-            true,
-            null,
-            null,
-            new Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool")),
-            repository,
-            WitnessProtection.builder().identityService(ids).build());
-    DatamartAllergyIntolerance dm =
-        DatamartAllergyIntoleranceSamples.Datamart.create().allergyIntolerance();
-    entityManager.persistAndFlush(asEntity(dm));
-    setUpIds(ids, dm);
-    AllergyIntolerance.Bundle result =
-        controller.searchById("true", DatamartAllergyIntoleranceSamples.Fhir.ID, 1, 15);
-    assertThat(Iterables.getOnlyElement(result.entry()).resource())
-        .isEqualTo(DatamartAllergyIntoleranceSamples.Fhir.create().allergyIntolerance());
+  public void mockAllergyIntoleranceIdentity(String publicId, String cdwId) {
+    ResourceIdentity resourceIdentity =
+        ResourceIdentity.builder()
+            .system("CDW")
+            .resource("ALLERGY_INTOLERANCE")
+            .identifier(cdwId)
+            .build();
+    when(ids.lookup(publicId)).thenReturn(List.of(resourceIdentity));
+    when(ids.register(Mockito.any()))
+        .thenReturn(
+            List.of(
+                Registration.builder().uuid(publicId).resourceIdentity(resourceIdentity).build()));
   }
 
-  @Test
-  public void identifier() {
-    IdentityService ids = mock(IdentityService.class);
-    AllergyIntoleranceController controller =
-        new AllergyIntoleranceController(
-            true,
-            null,
-            null,
-            new Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool")),
-            repository,
-            WitnessProtection.builder().identityService(ids).build());
-    DatamartAllergyIntolerance dm =
-        DatamartAllergyIntoleranceSamples.Datamart.create().allergyIntolerance();
-    entityManager.persistAndFlush(asEntity(dm));
-    setUpIds(ids, dm);
-    AllergyIntolerance.Bundle result =
-        controller.searchByIdentifier("true", DatamartAllergyIntoleranceSamples.Fhir.ID, 1, 15);
-    assertThat(Iterables.getOnlyElement(result.entry()).resource())
-        .isEqualTo(DatamartAllergyIntoleranceSamples.Fhir.create().allergyIntolerance());
-  }
-
-  @Test
-  public void patient() {
-    IdentityService ids = mock(IdentityService.class);
-    AllergyIntoleranceController controller =
-        new AllergyIntoleranceController(
-            true,
-            null,
-            null,
-            new Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool")),
-            repository,
-            WitnessProtection.builder().identityService(ids).build());
-    DatamartAllergyIntolerance dm =
-        DatamartAllergyIntoleranceSamples.Datamart.create().allergyIntolerance();
-    entityManager.persistAndFlush(asEntity(dm));
-    setUpIds(ids, dm);
-    AllergyIntolerance.Bundle result =
-        controller.searchByPatient("true", dm.patient().get().reference().get(), 1, 15);
-    assertThat(Iterables.getOnlyElement(result.entry()).resource())
-        .isEqualTo(DatamartAllergyIntoleranceSamples.Fhir.create().allergyIntolerance());
-  }
-
-  @Test
-  public void patient_page2() {
-    IdentityService ids = mock(IdentityService.class);
-    AllergyIntoleranceController controller =
-        new AllergyIntoleranceController(
-            true,
-            null,
-            null,
-            new Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool")),
-            repository,
-            WitnessProtection.builder().identityService(ids).build());
-    DatamartAllergyIntolerance otherDm =
-        DatamartAllergyIntoleranceSamples.Datamart.create().allergyIntolerance();
-    otherDm.cdwId("DUMMY_ID");
-    entityManager.persistAndFlush(asEntity(otherDm));
-
-    DatamartAllergyIntolerance dm =
-        DatamartAllergyIntoleranceSamples.Datamart.create().allergyIntolerance();
-    entityManager.persistAndFlush(asEntity(dm));
-
-    setUpIds(ids, dm);
-
-    AllergyIntolerance.Bundle result =
-        controller.searchByPatient("true", dm.patient().get().reference().get(), 2, 1);
-    assertThat(result.total()).isEqualTo(2);
-    assertThat(Iterables.getOnlyElement(result.entry()).resource())
-        .isEqualTo(DatamartAllergyIntoleranceSamples.Fhir.create().allergyIntolerance());
+  private Multimap<String, AllergyIntolerance> populateData() {
+    var fhir = Fhir.create();
+    var datamart = Datamart.create();
+    var allergyIntoleranceByPatient = LinkedHashMultimap.<String, AllergyIntolerance>create();
+    var registrations = new ArrayList<Registration>(10);
+    for (int i = 0; i < 10; i++) {
+      String patientId = "p" + i % 2;
+      String cdwId = "" + i;
+      String publicId = "90" + i;
+      var dm = datamart.allergyIntolerance(cdwId, patientId);
+      repository.save(asEntity(dm));
+      var medicationStatement = fhir.allergyIntolerance(publicId, patientId);
+      allergyIntoleranceByPatient.put(patientId, medicationStatement);
+      ResourceIdentity resourceIdentity =
+          ResourceIdentity.builder()
+              .system("CDW")
+              .resource("ALLERGY_INTOLERANCE")
+              .identifier(cdwId)
+              .build();
+      Registration registration =
+          Registration.builder().uuid(publicId).resourceIdentity(resourceIdentity).build();
+      registrations.add(registration);
+      when(ids.lookup(publicId)).thenReturn(List.of(resourceIdentity));
+    }
+    when(ids.register(Mockito.any())).thenReturn(registrations);
+    return allergyIntoleranceByPatient;
   }
 
   @Test
   public void read() {
-    IdentityService ids = mock(IdentityService.class);
-    AllergyIntoleranceController controller =
-        new AllergyIntoleranceController(
-            true,
-            null,
-            null,
-            new Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool")),
-            repository,
-            WitnessProtection.builder().identityService(ids).build());
     DatamartAllergyIntolerance dm =
         DatamartAllergyIntoleranceSamples.Datamart.create().allergyIntolerance();
-    entityManager.persistAndFlush(asEntity(dm));
-    setUpIds(ids, dm);
-    AllergyIntolerance result = controller.read("true", DatamartAllergyIntoleranceSamples.Fhir.ID);
-    assertThat(result)
-        .isEqualTo(DatamartAllergyIntoleranceSamples.Fhir.create().allergyIntolerance());
+    repository.save(asEntity(dm));
+    mockAllergyIntoleranceIdentity("1", dm.cdwId());
+    AllergyIntolerance actual = controller().read("true", "1");
+    assertThat(json(actual)).isEqualTo(json(Fhir.create().allergyIntolerance("1")));
   }
 
   @Test
   public void readRaw() {
-    IdentityService ids = mock(IdentityService.class);
-    AllergyIntoleranceController controller =
-        new AllergyIntoleranceController(
-            true,
-            null,
-            null,
-            new Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool")),
-            repository,
-            WitnessProtection.builder().identityService(ids).build());
     DatamartAllergyIntolerance dm =
         DatamartAllergyIntoleranceSamples.Datamart.create().allergyIntolerance();
-    entityManager.persistAndFlush(asEntity(dm));
-    setUpIds(ids, dm);
-    assertThat(toObject(controller.readRaw(DatamartAllergyIntoleranceSamples.Fhir.ID)))
-        .isEqualTo(dm);
+    repository.save(asEntity(dm));
+    mockAllergyIntoleranceIdentity("1", dm.cdwId());
+    String json = controller().readRaw("1");
+    assertThat(toObject(json)).isEqualTo(dm);
+  }
+
+  @Test(expected = ResourceExceptions.NotFound.class)
+  public void readRawThrowsNotFoundWhenDataIsMissing() {
+    mockAllergyIntoleranceIdentity("1", "1");
+    controller().readRaw("1");
+  }
+
+  @Test(expected = ResourceExceptions.NotFound.class)
+  public void readRawThrowsNotFoundWhenIdIsUnknown() {
+    controller().readRaw("1");
+  }
+
+  @Test(expected = ResourceExceptions.NotFound.class)
+  public void readThrowsNotFoundWhenDataIsMissing() {
+    mockAllergyIntoleranceIdentity("1", "1");
+    controller().read("true", "1");
+  }
+
+  @Test(expected = ResourceExceptions.NotFound.class)
+  public void readThrowsNotFoundWhenIdIsUnknown() {
+    controller().read("true", "1");
+  }
+
+  @Test
+  public void searchById() {
+    DatamartAllergyIntolerance dm = Datamart.create().allergyIntolerance();
+    repository.save(asEntity(dm));
+    mockAllergyIntoleranceIdentity("1", dm.cdwId());
+    Bundle actual = controller().searchById("true", "1", 1, 1);
+    AllergyIntolerance allergyIntolerance =
+        Fhir.create().allergyIntolerance("1", dm.patient().get().reference().get());
+    assertThat(json(actual))
+        .isEqualTo(
+            json(
+                Fhir.asBundle(
+                    "http://fonzy.com/cool",
+                    List.of(allergyIntolerance),
+                    Fhir.link(
+                        LinkRelation.first,
+                        "http://fonzy.com/cool/AllergyIntolerance?identifier=1",
+                        1,
+                        1),
+                    Fhir.link(
+                        LinkRelation.self,
+                        "http://fonzy.com/cool/AllergyIntolerance?identifier=1",
+                        1,
+                        1),
+                    Fhir.link(
+                        LinkRelation.last,
+                        "http://fonzy.com/cool/AllergyIntolerance?identifier=1",
+                        1,
+                        1))));
+  }
+
+  @Test
+  public void searchByPatient() {
+    Multimap<String, AllergyIntolerance> allergyIntoleranceByPatient = populateData();
+    assertThat(json(controller().searchByPatient("true", "p0", 1, 10)))
+        .isEqualTo(
+            json(
+                Fhir.asBundle(
+                    "http://fonzy.com/cool",
+                    allergyIntoleranceByPatient.get("p0"),
+                    Fhir.link(
+                        LinkRelation.first,
+                        "http://fonzy.com/cool/AllergyIntolerance?patient=p0",
+                        1,
+                        10),
+                    Fhir.link(
+                        LinkRelation.self,
+                        "http://fonzy.com/cool/AllergyIntolerance?patient=p0",
+                        1,
+                        10),
+                    Fhir.link(
+                        LinkRelation.last,
+                        "http://fonzy.com/cool/AllergyIntolerance?patient=p0",
+                        1,
+                        10))));
+  }
+
+  @SneakyThrows
+  private DatamartAllergyIntolerance toObject(String json) {
+    return JacksonConfig.createMapper().readValue(json, DatamartAllergyIntolerance.class);
   }
 }

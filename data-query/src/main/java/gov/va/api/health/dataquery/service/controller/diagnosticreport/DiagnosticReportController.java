@@ -378,15 +378,18 @@ public class DiagnosticReportController {
       @RequestParam("identifier") String identifier,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
-    DiagnosticReport report = read(datamart, identifier);
-    return bundle(
+    MultiValueMap<String, String> parameters =
         Parameters.builder()
             .add("identifier", identifier)
             .add("page", page)
             .add("_count", count)
-            .build(),
-        report == null ? emptyList() : asList(report),
-        report == null ? 0 : 1);
+            .build();
+    DiagnosticReport report = read(datamart, identifier);
+    int totalRecords = report == null ? 0 : 1;
+    if (report == null || page != 1 || count <= 0) {
+      return bundle(parameters, emptyList(), totalRecords);
+    }
+    return bundle(parameters, asList(report), totalRecords);
   }
 
   /** Search by patient. */

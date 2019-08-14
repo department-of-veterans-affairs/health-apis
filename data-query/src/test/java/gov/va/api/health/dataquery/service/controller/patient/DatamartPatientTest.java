@@ -14,6 +14,7 @@ import gov.va.api.health.dstu2.api.datatypes.Address;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
 import gov.va.api.health.dstu2.api.datatypes.ContactPoint;
+import gov.va.api.health.dstu2.api.datatypes.ContactPoint.ContactPointUse;
 import gov.va.api.health.dstu2.api.datatypes.HumanName;
 import gov.va.api.health.dstu2.api.datatypes.Identifier;
 import gov.va.api.health.dstu2.api.elements.Extension;
@@ -51,7 +52,7 @@ public final class DatamartPatientTest {
     entityManager.persistAndFlush(dm.entity());
     PatientController controller = controller();
     Patient patient = controller.read("true", dm.icn());
-    assertThat(patient).isEqualTo(fhir.patient());
+    assertThat(json(patient)).isEqualTo(json(fhir.patient()));
   }
 
   Coding coding(String system, String code, String display) {
@@ -199,6 +200,11 @@ public final class DatamartPatientTest {
             tx.ethnicityDisplay(
                 DatamartPatient.Ethnicity.builder().hl7("else").display("other").build()))
         .isEqualTo("other");
+  }
+
+  @SneakyThrows
+  String json(Object o) {
+    return JacksonConfig.createMapper().writerWithDefaultPrettyPrinter().writeValueAsString(o);
   }
 
   @Test
@@ -734,10 +740,12 @@ public final class DatamartPatientTest {
                           asList(
                               ContactPoint.builder()
                                   .system(ContactPoint.ContactPointSystem.phone)
+                                  .use(ContactPointUse.home)
                                   .value("09090001234")
                                   .build(),
                               ContactPoint.builder()
                                   .system(ContactPoint.ContactPointSystem.phone)
+                                  .use(ContactPointUse.work)
                                   .value("09990001234")
                                   .build(),
                               ContactPoint.builder()

@@ -349,6 +349,10 @@ public class ProcedureController {
       return BooleanUtils.isTrue(BooleanUtils.toBooleanObject(datamartHeader));
     }
 
+    private PageRequest page(int page, int count) {
+      return PageRequest.of(page - 1, count == 0 ? 1 : count, ProcedureEntity.naturalOrder());
+    }
+
     Procedure read(String publicId, String icnHeader) {
       DatamartProcedure procedure = findById(publicId).asDatamartProcedure();
       replaceReferences(List.of(procedure));
@@ -398,8 +402,7 @@ public class ProcedureController {
       PatientAndDateSpecification spec =
           PatientAndDateSpecification.builder().patient(patient).dates(date).build();
       log.info("Looking for {} ({}) {}", patient, icn, spec);
-      Page<ProcedureEntity> pageOfProcedures =
-          repository.findAll(spec, PageRequest.of(page - 1, count));
+      Page<ProcedureEntity> pageOfProcedures = repository.findAll(spec, page(page, count));
 
       Bundle bundle =
           bundle(

@@ -31,8 +31,11 @@ import org.springframework.test.context.junit4.SpringRunner;
 @DataJpaTest
 @RunWith(SpringRunner.class)
 public class DatamartMedicationControllerTest {
+
   private IdentityService ids = mock(IdentityService.class);
+
   @Autowired private MedicationRepository repository;
+
   @Autowired private TestEntityManager entityManager;
 
   @SneakyThrows
@@ -95,6 +98,17 @@ public class DatamartMedicationControllerTest {
   @Test(expected = ResourceExceptions.NotFound.class)
   public void readRawThrowsNotFoundWhenIdIsUnknown() {
     controller().readRaw("1");
+  }
+
+  @Test(expected = ResourceExceptions.NotFound.class)
+  public void readThrowsNotFoundWhenDataIsMissing() {
+    mockMedicationIdentity("1", "1");
+    controller().read("true", "1");
+  }
+
+  @Test(expected = ResourceExceptions.NotFound.class)
+  public void readThrowsNotFoundWhenIdIsUnknown() {
+    controller().read("true", "1");
   }
 
   @Test

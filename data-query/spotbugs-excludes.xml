@@ -31,6 +31,7 @@
       <Class name="gov.va.api.health.dataquery.service.controller.diagnosticreport.DatamartDiagnosticReports"/>
       <Class name="gov.va.api.health.dataquery.service.controller.diagnosticreport.DatamartDiagnosticReports$DiagnosticReport"/>
       <Class name="gov.va.api.health.dataquery.service.controller.medicationorder.DatamartMedicationOrder"/>
+      <Class name="gov.va.api.health.dataquery.service.controller.observation.DatamartObservation"/>
       <Class name="gov.va.api.health.dataquery.service.controller.patient.DatamartPatient"/>
     </Or>
     <Or>
@@ -57,7 +58,10 @@
     directly.
   -->
   <Match>
-    <Class name="gov.va.api.health.dataquery.service.controller.procedure.ProcedureRepository$PatientAndDateSpecification$PatientAndDateSpecificationBuilder"/>
+    <Or>
+      <Class name="gov.va.api.health.dataquery.service.controller.observation.ObservationRepository$PatientAndCategoryAndDateSpecification$PatientAndCategoryAndDateSpecificationBuilder"/>
+      <Class name="gov.va.api.health.dataquery.service.controller.procedure.ProcedureRepository$PatientAndDateSpecification$PatientAndDateSpecificationBuilder"/>
+    </Or>
     <Bug pattern="EI_EXPOSE_REP2"/>
   </Match>
 </FindBugsFilter>
