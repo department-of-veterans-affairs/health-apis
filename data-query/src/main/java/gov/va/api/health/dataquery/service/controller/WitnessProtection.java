@@ -53,7 +53,8 @@ public class WitnessProtection {
   public <T extends HasReplaceableId> IdentityMapping register(
       Collection<T> resources, Function<T, Stream<DatamartReference>> referencesOf) {
     Set<ResourceIdentity> ids =
-        resources.stream()
+        resources
+            .stream()
             .flatMap(embellish(referencesOf))
             .filter(Objects::nonNull)
             .filter(DatamartReference::hasTypeAndReference)
@@ -63,7 +64,8 @@ public class WitnessProtection {
             .collect(Collectors.toSet());
     IdentityMapping identityMapping = registerAndMap(ids);
 
-    resources.stream()
+    resources
+        .stream()
         .forEach(r -> identityMapping.publicIdOf(r.asReference()).ifPresent(r::cdwId));
 
     return identityMapping;
@@ -131,7 +133,8 @@ public class WitnessProtection {
       Collection<T> resources,
       Function<T, Stream<DatamartReference>> referencesOf,
       IdentityMapping mapping) {
-    resources.stream()
+    resources
+        .stream()
         .flatMap(referencesOf)
         .filter(Objects::nonNull)
         .forEach(

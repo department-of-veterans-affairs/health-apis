@@ -82,7 +82,8 @@ public interface ObservationRepository
       return criteriaBuilder.and(
           criteriaBuilder.equal(root.get("icn"), patient()),
           criteriaBuilder.or(
-              codes.stream()
+              codes
+                  .stream()
                   .map(c -> criteriaBuilder.equal(root.get("code"), c))
                   .toArray(Predicate[]::new)));
     }
