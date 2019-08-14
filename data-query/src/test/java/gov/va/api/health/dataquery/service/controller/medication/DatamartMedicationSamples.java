@@ -10,6 +10,7 @@ import gov.va.api.health.dstu2.api.elements.Narrative;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.experimental.UtilityClass;
@@ -29,20 +30,23 @@ public class DatamartMedicationSamples {
           .objectType("Medication")
           .objectVersion("1")
           .cdwId(cdwId)
+          .localDrugName("Axert")
           .rxnorm(rxNorm())
           .product(product())
           .build();
     }
 
-    DatamartMedication.Product product() {
-      return DatamartMedication.Product.builder().id("4015523").formText("TAB").build();
+    Optional<DatamartMedication.Product> product() {
+      return Optional.of(
+          DatamartMedication.Product.builder().id("4015523").formText("TAB").build());
     }
 
-    DatamartMedication.RxNorm rxNorm() {
-      return DatamartMedication.RxNorm.builder()
-          .code("284205")
-          .text("ALMOTRIPTAN MALATE 12.5MG TAB,UD")
-          .build();
+    Optional<DatamartMedication.RxNorm> rxNorm() {
+      return Optional.of(
+          DatamartMedication.RxNorm.builder()
+              .code("284205")
+              .text("ALMOTRIPTAN MALATE 12.5MG TAB,UD")
+              .build());
     }
   }
 
@@ -80,7 +84,11 @@ public class DatamartMedicationSamples {
           .build();
     }
 
-    CodeableConcept code() {
+    CodeableConcept codeLocalDrugName() {
+      return CodeableConcept.builder().text("Axert").build();
+    }
+
+    CodeableConcept codeRxNorm() {
       return CodeableConcept.builder()
           .coding(
               List.of(
@@ -101,9 +109,9 @@ public class DatamartMedicationSamples {
       return Medication.builder()
           .resourceType(Medication.class.getSimpleName())
           .id(id)
-          .code(code())
+          .code(codeRxNorm())
           .product(product())
-          .text(text())
+          .text(textRxNorm())
           .build();
     }
 
@@ -114,7 +122,14 @@ public class DatamartMedicationSamples {
           .build();
     }
 
-    Narrative text() {
+    Narrative textLocalDrugName() {
+      return Narrative.builder()
+          .status(Narrative.NarrativeStatus.additional)
+          .div("<div>Axert</div>")
+          .build();
+    }
+
+    Narrative textRxNorm() {
       return Narrative.builder()
           .status(Narrative.NarrativeStatus.additional)
           .div("<div>ALMOTRIPTAN MALATE 12.5MG TAB,UD</div>")

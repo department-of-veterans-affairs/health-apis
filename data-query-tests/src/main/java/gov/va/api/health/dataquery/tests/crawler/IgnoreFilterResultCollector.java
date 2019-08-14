@@ -28,16 +28,20 @@ public class IgnoreFilterResultCollector implements ResultCollector {
 
   private final Set<String> ignoredFailureSummaries = new ConcurrentSkipListSet<>();
 
+  private final Set<String> realFailureSummaries = new ConcurrentSkipListSet<>();
+
   private final List<String> failuresToIgnore = new ArrayList<>();
 
   @Override
   public void add(Result result) {
     if (result.outcome() != Outcome.OK) {
       // If this failure is in one or more of the ignore filters then record it but don't fail.
+      String summary = result.query() + " " + result.outcome();
       if (failuresToIgnore.stream().anyMatch(s -> result.query().endsWith(s))) {
-        ignoredFailureSummaries.add(result.query() + " " + result.outcome());
+        ignoredFailureSummaries.add(summary);
       } else {
         failures.incrementAndGet();
+        realFailureSummaries.add(summary);
       }
     }
     delegate.add(result);
@@ -68,7 +72,7 @@ public class IgnoreFilterResultCollector implements ResultCollector {
     message.append("\n--------------------");
     message.append("\nConfigured to ignore these failures:\n");
     message.append(
-        failuresToIgnore.size() > 0 ? Arrays.toString(failuresToIgnore.toArray()) : "None");
+        failuresToIgnore.size() > 0 ? Arrays.toString(failuresToIgnore.toArray()) : "  None");
     message.append("\nWhich resulted in the following failures being ignored:\n");
     if (ignoredFailureSummaries.size() > 0) {
       message.append(ignoredFailureSummaries.stream().sorted().collect(Collectors.joining("\n")));
@@ -77,8 +81,11 @@ public class IgnoreFilterResultCollector implements ResultCollector {
           .append(ignoredFailureSummaries.size())
           .append(" failures which should be cleaned up!\n");
     } else {
-      message.append("None");
+      message.append("  None");
     }
+    message.append("\n\nThese failures are not ignored and must be addressed:\n");
+    message.append(realFailureSummaries.stream().sorted().collect(Collectors.joining("\n")));
+    message.append("\n\n").append(realFailureSummaries.size()).append(" failures\n");
     return message.toString();
   }
 

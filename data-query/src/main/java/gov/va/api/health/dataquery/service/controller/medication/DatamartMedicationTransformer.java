@@ -6,6 +6,7 @@ import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
 import gov.va.api.health.dstu2.api.elements.Narrative;
 import java.util.List;
+import java.util.Optional;
 import lombok.Builder;
 
 @Builder
@@ -13,30 +14,38 @@ public class DatamartMedicationTransformer {
 
   private final DatamartMedication datamart;
 
-  CodeableConcept code(DatamartMedication.RxNorm rxnorm) {
-    return CodeableConcept.builder()
-        .coding(
-            List.of(
-                Coding.builder()
-                    .code(rxnorm.code())
-                    .display(rxnorm.text())
-                    .system("https://www.nlm.nih.gov/research/umls/rxnorm/")
-                    .build()))
-        .text(rxnorm.text())
-        .build();
+  CodeableConcept bestCode() {
+    if (datamart.rxnorm().isPresent()) {
+      return CodeableConcept.builder()
+          .coding(
+              List.of(
+                  Coding.builder()
+                      .code(datamart.rxnorm().get().code())
+                      .display(datamart.rxnorm().get().text())
+                      .system("https://www.nlm.nih.gov/research/umls/rxnorm/")
+                      .build()))
+          .text(datamart.rxnorm().get().text())
+          .build();
+    }
+    return CodeableConcept.builder().text(datamart.localDrugName()).build();
   }
 
-  Product product(DatamartMedication.Product product) {
-    return Medication.Product.builder()
-        .id(product.id())
-        .form(CodeableConcept.builder().text(product.formText()).build())
-        .build();
-  }
-
-  Narrative text(String text) {
+  Narrative bestText() {
+    String text =
+        datamart.rxnorm().isPresent() ? datamart.rxnorm().get().text() : datamart.localDrugName();
     return Narrative.builder()
         .div("<div>" + text + "</div>")
         .status(Narrative.NarrativeStatus.additional)
+        .build();
+  }
+
+  Product product(Optional<DatamartMedication.Product> product) {
+    if (!product.isPresent()) {
+      return null;
+    }
+    return Medication.Product.builder()
+        .id(product.get().id())
+        .form(CodeableConcept.builder().text(product.get().formText()).build())
         .build();
   }
 
@@ -46,8 +55,8 @@ public class DatamartMedicationTransformer {
         .resourceType(Medication.class.getSimpleName())
         .id(datamart.cdwId())
         .product(product(datamart.product()))
-        .text(text(datamart.rxnorm().text()))
-        .code(code(datamart.rxnorm()))
+        .text(bestText())
+        .code(bestCode())
         .build();
   }
 }
