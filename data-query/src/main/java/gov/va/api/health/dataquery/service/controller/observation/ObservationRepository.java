@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.observation;
 
+import gov.va.api.health.autoconfig.logging.Loggable;
 import gov.va.api.health.dataquery.service.controller.DateTimeParameters;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,6 +19,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
+@Loggable
 public interface ObservationRepository
     extends PagingAndSortingRepository<ObservationEntity, String>,
         JpaSpecificationExecutor<ObservationEntity> {
