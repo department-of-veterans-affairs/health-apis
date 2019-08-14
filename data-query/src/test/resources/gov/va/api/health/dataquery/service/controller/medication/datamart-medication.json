@@ -2,6 +2,7 @@
   "objectType" : "Medication",
   "objectVersion" : "1",
   "cdwId" : "1000",
+  "localDrugName" : "Axert",
   "rxnorm" : {
     "code" : "284205",
     "text" : "ALMOTRIPTAN MALATE 12.5MG TAB,UD"

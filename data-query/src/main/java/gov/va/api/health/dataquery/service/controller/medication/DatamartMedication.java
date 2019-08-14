@@ -1,12 +1,11 @@
 package gov.va.api.health.dataquery.service.controller.medication;
 
+import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.Optional;
 
 @Data
 @Builder
@@ -14,13 +13,13 @@ import java.util.Optional;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class DatamartMedication {
 
+  String localDrugName;
+
   @Builder.Default private String objectType = "Medication";
 
   @Builder.Default private String objectVersion = "1";
 
   private String cdwId;
-
-  String localDrugName;
 
   private Optional<RxNorm> rxnorm;
 
@@ -29,17 +28,9 @@ public class DatamartMedication {
   /** Lazy getter. */
   public String localDrugName() {
     if (localDrugName == null) {
-      return "**Unknown**";
+      return "Unknown";
     }
     return localDrugName;
-  }
-
-  /** Lazy initialization. */
-  public Optional<RxNorm> rxnorm() {
-    if (rxnorm == null) {
-      return Optional.empty();
-    }
-    return rxnorm;
   }
 
   /** Lazy initialization. */
@@ -48,6 +39,14 @@ public class DatamartMedication {
       return Optional.empty();
     }
     return product;
+  }
+
+  /** Lazy initialization. */
+  public Optional<RxNorm> rxnorm() {
+    if (rxnorm == null) {
+      return Optional.empty();
+    }
+    return rxnorm;
   }
 
   /** Backwards compatibility for etlDate. */
@@ -60,6 +59,7 @@ public class DatamartMedication {
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
   public static class RxNorm {
+
     private String code;
 
     private String text;
@@ -70,6 +70,7 @@ public class DatamartMedication {
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
   public static class Product {
+
     private String id;
 
     private String formText;

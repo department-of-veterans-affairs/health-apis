@@ -5,15 +5,67 @@ import static org.assertj.core.api.Assertions.assertThat;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.medication.DatamartMedicationSamples.Datamart;
 import gov.va.api.health.dataquery.service.controller.medication.DatamartMedicationSamples.Fhir;
+import java.util.Optional;
 import lombok.SneakyThrows;
 import org.junit.Test;
 
 public class DatamartMedicationTransformerTest {
 
   @Test
+  public void bestCode() {
+    DatamartMedication dm = DatamartMedicationSamples.Datamart.create().medication();
+    Optional<DatamartMedication.RxNorm> rxnorm = dm.rxnorm();
+    String localDrugName = dm.localDrugName();
+    // rxnorm: yes, localDrugName: yes
+    dm.rxnorm(rxnorm);
+    dm.localDrugName(localDrugName);
+    assertThat(tx(dm).bestCode()).isEqualTo(DatamartMedicationSamples.Fhir.create().codeRxNorm());
+    // rxnorm: yes, localDrugName: no
+    dm.rxnorm(rxnorm);
+    dm.localDrugName(null);
+    assertThat(tx(dm).bestCode()).isEqualTo(DatamartMedicationSamples.Fhir.create().codeRxNorm());
+    // rxnorm: no, localDrugName: yes
+    dm.rxnorm(null);
+    dm.localDrugName(localDrugName);
+    assertThat(tx(dm).bestCode())
+        .isEqualTo(DatamartMedicationSamples.Fhir.create().codeLocalDrugName());
+    // rxnorm: no, localDrugName: no
+    dm.rxnorm(null);
+    dm.localDrugName(null);
+    assertThat(tx(dm).bestCode())
+        .isEqualTo(DatamartMedicationSamples.Fhir.create().codeLocalDrugName().text("Unknown"));
+  }
+
+  @Test
+  public void bestText() {
+    DatamartMedication dm = DatamartMedicationSamples.Datamart.create().medication();
+    Optional<DatamartMedication.RxNorm> rxnorm = dm.rxnorm();
+    String localDrugName = dm.localDrugName();
+    // rxnorm: yes, localDrugName: yes
+    dm.rxnorm(rxnorm);
+    dm.localDrugName(localDrugName);
+    assertThat(tx(dm).bestText()).isEqualTo(DatamartMedicationSamples.Fhir.create().textRxNorm());
+    // rxnorm: yes, localDrugName: no
+    dm.rxnorm(rxnorm);
+    dm.localDrugName(null);
+    assertThat(tx(dm).bestText()).isEqualTo(DatamartMedicationSamples.Fhir.create().textRxNorm());
+    // rxnorm: no, localDrugName: yes
+    dm.rxnorm(null);
+    dm.localDrugName(localDrugName);
+    assertThat(tx(dm).bestText())
+        .isEqualTo(DatamartMedicationSamples.Fhir.create().textLocalDrugName());
+    // rxnorm: no, localDrugName: no
+    dm.rxnorm(null);
+    dm.localDrugName(null);
+    assertThat(tx(dm).bestText())
+        .isEqualTo(
+            DatamartMedicationSamples.Fhir.create().textLocalDrugName().div("<div>Unknown</div>"));
+  }
+
+  @Test
   public void code() {
     DatamartMedicationTransformer tx = tx(DatamartMedicationSamples.Datamart.create().medication());
-    assertThat(tx.code(Datamart.create().medication().rxnorm())).isEqualTo(Fhir.create().code());
+    assertThat(tx.bestCode()).isEqualTo(Fhir.create().codeRxNorm());
   }
 
   @SneakyThrows
@@ -37,8 +89,7 @@ public class DatamartMedicationTransformerTest {
   @Test
   public void text() {
     DatamartMedicationTransformer tx = tx(DatamartMedicationSamples.Datamart.create().medication());
-    assertThat(tx.text(Datamart.create().medication().rxnorm().text()))
-        .isEqualTo(Fhir.create().text());
+    assertThat(tx.bestText()).isEqualTo(Fhir.create().textRxNorm());
   }
 
   DatamartMedicationTransformer tx(DatamartMedication dm) {

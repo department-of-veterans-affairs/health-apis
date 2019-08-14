@@ -7,7 +7,6 @@ import gov.va.api.health.dstu2.api.datatypes.Coding;
 import gov.va.api.health.dstu2.api.elements.Narrative;
 import java.util.List;
 import java.util.Optional;
-
 import lombok.Builder;
 
 @Builder
@@ -18,39 +17,35 @@ public class DatamartMedicationTransformer {
   CodeableConcept bestCode() {
     if (datamart.rxnorm().isPresent()) {
       return CodeableConcept.builder()
-              .coding(
-                      List.of(
-                              Coding.builder()
-                                      .code(datamart.rxnorm().get().code())
-                                      .display(datamart.rxnorm().get().text())
-                                      .system("https://www.nlm.nih.gov/research/umls/rxnorm/")
-                                      .build()))
-              .text(datamart.rxnorm().get().text())
-              .build();
+          .coding(
+              List.of(
+                  Coding.builder()
+                      .code(datamart.rxnorm().get().code())
+                      .display(datamart.rxnorm().get().text())
+                      .system("https://www.nlm.nih.gov/research/umls/rxnorm/")
+                      .build()))
+          .text(datamart.rxnorm().get().text())
+          .build();
     }
-    return CodeableConcept.builder()
-            .text(datamart.localDrugName())
-            .build();
+    return CodeableConcept.builder().text(datamart.localDrugName()).build();
+  }
 
+  Narrative bestText() {
+    String text =
+        datamart.rxnorm().isPresent() ? datamart.rxnorm().get().text() : datamart.localDrugName();
+    return Narrative.builder()
+        .div("<div>" + text + "</div>")
+        .status(Narrative.NarrativeStatus.additional)
+        .build();
   }
 
   Product product(Optional<DatamartMedication.Product> product) {
-    if(!product.isPresent()) {
+    if (!product.isPresent()) {
       return null;
     }
     return Medication.Product.builder()
         .id(product.get().id())
         .form(CodeableConcept.builder().text(product.get().formText()).build())
-        .build();
-  }
-
-  Narrative bestText() {
-    String text = datamart.rxnorm().isPresent()
-            ? datamart.rxnorm().get().text()
-            : datamart.localDrugName();
-    return Narrative.builder()
-        .div("<div>" + text + "</div>")
-        .status(Narrative.NarrativeStatus.additional)
         .build();
   }
 
