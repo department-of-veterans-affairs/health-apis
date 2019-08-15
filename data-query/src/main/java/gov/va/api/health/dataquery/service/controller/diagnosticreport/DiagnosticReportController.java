@@ -240,9 +240,9 @@ public class DiagnosticReportController {
             DiagnosticReportsEntity.class);
     query.setParameter("identifier", cdwReportId);
     query.setMaxResults(1);
-    log.info("Starting Query");
+    log.info("Starting Read");
     List<DiagnosticReportsEntity> entities = query.getResultList();
-    log.info("Finished Query");
+    log.info("Finished Read");
     if (isEmpty(entities)) {
       throw new ResourceExceptions.NotFound(publicParameters);
     }
