@@ -44,6 +44,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,6 +68,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @Validated
 @RestController
+@Slf4j
 @SuppressWarnings("WeakerAccess")
 @RequestMapping(
   value = {"DiagnosticReport", "/api/DiagnosticReport"},
@@ -168,8 +170,10 @@ public class DiagnosticReportController {
       // LOINC codes are not available in CDW
       return bundle(publicParameters, emptyList(), 0);
     }
+    log.info("Starting Search");
     DiagnosticReportsEntity entity =
         entityManager.find(DiagnosticReportsEntity.class, cdwParameters.getFirst("patient"));
+    log.info("Finished Search");
     if (entity == null) {
       return bundle(publicParameters, emptyList(), 0);
     }
@@ -236,7 +240,9 @@ public class DiagnosticReportController {
             DiagnosticReportsEntity.class);
     query.setParameter("identifier", cdwReportId);
     query.setMaxResults(1);
+    log.info("Starting Query");
     List<DiagnosticReportsEntity> entities = query.getResultList();
+    log.info("Finished Query");
     if (isEmpty(entities)) {
       throw new ResourceExceptions.NotFound(publicParameters);
     }

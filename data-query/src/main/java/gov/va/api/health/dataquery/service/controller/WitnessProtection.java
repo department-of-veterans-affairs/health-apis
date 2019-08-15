@@ -72,6 +72,7 @@ public class WitnessProtection {
   }
 
   /** Register IDs. */
+  @Loggable
   public List<Registration> register(Collection<ResourceIdentity> ids) {
     if (isEmpty(ids)) {
       return emptyList();
@@ -80,6 +81,7 @@ public class WitnessProtection {
   }
 
   /** Register IDs and return an IdentityMapping that can be used to easily find public IDs. */
+  @Loggable
   public IdentityMapping registerAndMap(Collection<ResourceIdentity> ids) {
     return new IdentityMapping(register(ids));
   }
@@ -101,6 +103,7 @@ public class WitnessProtection {
    *
    * @see IdentityParameterReplacer
    */
+  @Loggable
   public MultiValueMap<String, String> replacePublicIdsWithCdwIds(
       MultiValueMap<String, String> publicParameters) {
     try {
@@ -170,6 +173,7 @@ public class WitnessProtection {
     }
 
     /** Return the mapping for the public ID of the reference if it exists. */
+    @Loggable
     public Optional<String> publicIdOf(@NonNull DatamartReference reference) {
       if (!reference.hasTypeAndReference()) {
         return Optional.empty();
@@ -183,6 +187,7 @@ public class WitnessProtection {
      * Return the mapping for the public ID of the resource and id if it exists. The resource name
      * should be in IdentityService format, e.g. DIAGNOSTIC_REPORT instead of "DiagnosticReport"
      */
+    @Loggable
     public Optional<String> publicIdOf(String resourceInIdentityServiceFormat, String identifier) {
       Registration registration = ids.get(resourceInIdentityServiceFormat, identifier);
       return Optional.ofNullable(registration == null ? null : registration.uuid());
