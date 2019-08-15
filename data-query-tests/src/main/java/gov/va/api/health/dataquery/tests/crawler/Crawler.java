@@ -6,10 +6,12 @@ import com.google.common.base.Stopwatch;
 import gov.va.api.health.dataquery.tests.crawler.Result.Outcome;
 import gov.va.api.health.dataquery.tests.crawler.Result.ResultBuilder;
 import gov.va.api.health.dstu2.api.bundle.AbstractBundle;
+import gov.va.api.health.dstu2.api.bundle.AbstractEntry;
 import gov.va.api.health.dstu2.api.bundle.BundleLink;
 import gov.va.api.health.dstu2.api.bundle.BundleLink.LinkRelation;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
+import io.restassured.specification.RequestSpecification;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Collection;
@@ -31,6 +33,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 /** The Crawler will recursively request resources from a Data Query server. I */
+@SuppressWarnings("WeakerAccess")
 @Builder
 @Slf4j
 public class Crawler {
@@ -57,10 +60,8 @@ public class Crawler {
     AbstractBundle<?> bundle = (AbstractBundle<?>) payload;
     Optional<BundleLink> next =
         bundle.link().stream().filter(l -> l.relation() == LinkRelation.next).findFirst();
-    if (next.isPresent()) {
-      requestQueue.add(next.get().url());
-    }
-    bundle.entry().stream().map(entry -> entry.fullUrl()).forEach(requestQueue::add);
+    next.ifPresent(bundleLink -> requestQueue.add(bundleLink.url()));
+    bundle.entry().stream().map(AbstractEntry::fullUrl).forEach(requestQueue::add);
   }
 
   private String asAdditionalInfo(ConstraintViolation<?> v) {
@@ -68,17 +69,16 @@ public class Crawler {
   }
 
   private String asAdditionalInfo(Exception e) {
-    StringBuilder info = new StringBuilder();
-    info.append("Exception: ")
-        .append(e.getClass().getName())
-        .append("\nMessage: ")
-        .append(e.getMessage())
-        .append("\n----\n")
-        .append(ExceptionUtils.getStackTrace(e));
-    return info.toString();
+    return "Exception: "
+        + e.getClass().getName()
+        + "\nMessage: "
+        + e.getMessage()
+        + "\n----\n"
+        + ExceptionUtils.getStackTrace(e);
   }
 
   /** Crawler iterates through queue performing all queries. */
+  @SuppressWarnings("WeakerAccess")
   @SneakyThrows
   public void crawl() {
     Stopwatch watch = Stopwatch.createStarted();
@@ -128,32 +128,29 @@ public class Crawler {
   private ScheduledExecutorService monitorPendingRequests(Collection<Future<?>> futures) {
     ScheduledExecutorService monitor = Executors.newScheduledThreadPool(1);
     monitor.scheduleAtFixedRate(
-        () -> {
-          log.info("{} pending requests", notDoneCount(futures));
-        },
-        5,
-        5,
-        TimeUnit.SECONDS);
+        () -> log.info("{} pending requests", notDoneCount(futures)), 5, 5, TimeUnit.SECONDS);
     return monitor;
   }
 
   @SneakyThrows
   private void process(String url, ResultBuilder resultBuilder) {
     Class<?> type = new UrlToResourceConverter().apply(url);
-    log.info("Requesting {} as {}", url, type.getName());
-    Response response =
+    String datamart = System.getProperty("datamart");
+    log.info("Requesting {} as {} (Datamart={})", url, type.getName(), datamart);
+    RequestSpecification specification =
         RestAssured.given()
             .header("Authorization", "Bearer " + authenticationToken.get())
             .accept("application/fhir+json")
-            .header("jargonaut", forceJargonaut)
-            .relaxedHTTPSValidation()
-            .get(url)
-            .andReturn();
+            .header("jargonaut", forceJargonaut);
+    if (StringUtils.isNotBlank(datamart)) {
+      specification.header("Datamart", datamart);
+    }
+    Response response = specification.relaxedHTTPSValidation().get(url).andReturn();
     resultBuilder.httpStatus(response.getStatusCode()).body(response.getBody().asString());
     if (response.getStatusCode() == 200) {
       ReferenceInterceptor interceptor = new ReferenceInterceptor();
       Object payload = interceptor.mapper().readValue(response.asByteArray(), type);
-      interceptor.references().forEach(u -> requestQueue.add(u));
+      interceptor.references().forEach(requestQueue::add);
       Set<ConstraintViolation<Object>> violations =
           Validation.buildDefaultValidatorFactory().getValidator().validate(payload);
       if (violations.isEmpty()) {
