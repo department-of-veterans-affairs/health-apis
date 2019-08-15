@@ -179,7 +179,7 @@ public class DatamartAllergyIntolerance implements HasReplaceableId {
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
-  static final class Substance {
+  public static final class Substance {
     private Optional<DatamartCoding> coding;
 
     private String text;
