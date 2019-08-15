@@ -28,7 +28,7 @@ public class DatamartMedicationOrderSamples {
 
     DatamartMedicationOrder.DispenseRequest dispenseRequest() {
       return DatamartMedicationOrder.DispenseRequest.builder()
-          .numberOfRepeatsAllowed(Optional.of(0))
+          .numberOfRepeatsAllowed(Optional.of(1))
           .quantity(Optional.of(42.0))
           .unit(Optional.of("TAB"))
           .expectedSupplyDuration(Optional.of(21))
@@ -132,7 +132,7 @@ public class DatamartMedicationOrderSamples {
 
     MedicationOrder.DispenseRequest dispenseRequest() {
       return MedicationOrder.DispenseRequest.builder()
-          .numberOfRepeatsAllowed(0)
+          .numberOfRepeatsAllowed(1)
           .quantity(SimpleQuantity.builder().value(42.0).unit("TAB").build())
           .expectedSupplyDuration(Duration.builder().value((double) 21).unit("days").build())
           .build();
