@@ -235,9 +235,11 @@ public class DiagnosticReportController {
     String cdwReportId = Parameters.identiferOf(cdwParameters);
     TypedQuery<DiagnosticReportsEntity> query =
         entityManager.createQuery(
-            "Select dr from DiagnosticReportsEntity dr join DiagnosticReportCrossEntity drc on"
+            "SELECT dr FROM DiagnosticReportCrossEntity drc join"
+                + " DiagnosticReportsEntity dr on"
                 + " dr.icn = drc.icn where drc.reportId = :identifier",
             DiagnosticReportsEntity.class);
+
     query.setParameter("identifier", cdwReportId);
     query.setMaxResults(1);
     log.info("Starting Diagnostic Report Read");
