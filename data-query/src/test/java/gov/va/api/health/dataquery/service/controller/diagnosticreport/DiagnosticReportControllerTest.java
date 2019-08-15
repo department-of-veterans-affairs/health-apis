@@ -161,7 +161,6 @@ public class DiagnosticReportControllerTest {
     when(tx.apply(cdwDr)).thenReturn(dr);
 
     DiagnosticReport.Bundle actual = controller.searchById("", "me", 1, 10);
-    System.out.println(actual);
     assertThat(Iterables.getOnlyElement(actual.entry()).resource()).isSameAs(dr);
   }
 
@@ -191,7 +190,6 @@ public class DiagnosticReportControllerTest {
     when(tx.apply(cdwDr)).thenReturn(dr);
 
     DiagnosticReport.Bundle actual = controller.searchByIdentifier("", "me", 1, 10);
-    System.out.println(actual);
     assertThat(Iterables.getOnlyElement(actual.entry()).resource()).isSameAs(dr);
   }
 

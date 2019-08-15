@@ -148,6 +148,7 @@
                 <argument>-cp</argument>
                 <argument>ids.jar${path.separator}h2.jar</argument>
                 <argument>-Dloader=gov.va.api.health.ids.service.Application</argument>
+                <argument>-Dlogging.level.root=ERROR</argument>
                 <argument>-Dspring.jpa.generate-ddl=true</argument>
                 <argument>-Dspring.jpa.hibernate.ddl-auto=create-drop</argument>
                 <argument>-Dspring.datasource.driver-class-name=org.h2.Driver</argument>
@@ -173,6 +174,7 @@
                 <argument>-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5088</argument>
                 <argument>-cp</argument>
                 <argument>mr-anderson.jar</argument>
+                <argument>-Dlogging.level.root=ERROR</argument>
                 <argument>-Dloader.path=data-query-tests-${project.version}.jar</argument>
                 <argument>-Dloader=gov.va.api.health.mranderson.Application</argument>
                 <argument>-Dmanagement.health.db.enabled=false</argument>
@@ -199,6 +201,7 @@
                 <argument>-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5090</argument>
                 <argument>-cp</argument>
                 <argument>data-query.jar${path.separator}h2.jar</argument>
+                <argument>-Dlogging.level.root=ERROR</argument>
                 <argument>-Dloader.path=data-query-tests-${project.version}.jar</argument>
                 <argument>-Dloader=gov.va.api.health.dataquery.service.Application</argument>
                 <argument>-Dargonaut.url=http://localhost:8090</argument>

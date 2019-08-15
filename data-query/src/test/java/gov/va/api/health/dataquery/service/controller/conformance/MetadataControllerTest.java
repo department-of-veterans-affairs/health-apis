@@ -67,12 +67,7 @@ public class MetadataControllerTest {
         JacksonConfig.createMapper()
             .readValue(
                 getClass().getResourceAsStream("/clinician-conformance.json"), Conformance.class);
-    try {
-      assertThat(pretty(controller.read())).isEqualTo(pretty(old));
-    } catch (AssertionError e) {
-      System.out.println(e.getMessage());
-      throw e;
-    }
+    assertThat(pretty(controller.read())).isEqualTo(pretty(old));
   }
 
   @Test

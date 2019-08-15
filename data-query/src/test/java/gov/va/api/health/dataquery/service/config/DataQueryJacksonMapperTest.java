@@ -102,8 +102,6 @@ public class DataQueryJacksonMapperTest {
     FugaziReferencemajig actual =
         JacksonConfig.createMapper().readValue(qualifiedJson, FugaziReferencemajig.class);
 
-    System.out.println(qualifiedJson);
-
     assertThat(actual).isEqualTo(expected);
   }
 
