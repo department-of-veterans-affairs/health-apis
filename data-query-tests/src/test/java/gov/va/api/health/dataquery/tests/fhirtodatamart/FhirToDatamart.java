@@ -5,39 +5,43 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import gov.va.api.health.argonaut.api.resources.AllergyIntolerance;
-import gov.va.api.health.dataquery.service.controller.EnumSearcher;
 import gov.va.api.health.dataquery.service.controller.allergyintolerance.DatamartAllergyIntolerance;
-import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
-import gov.va.api.health.dataquery.service.controller.observation.ObservationEntity;
-import gov.va.api.health.dstu2.api.elements.Reference;
-import lombok.SneakyThrows;
-import org.junit.Test;
-
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.Instant;
+import java.text.SimpleDateFormat;
 import java.util.List;
-import java.util.Optional;
 import java.util.Properties;
 import java.util.stream.Collectors;
-
-import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
-import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
-
-
+import lombok.SneakyThrows;
+import org.junit.Test;
 
 public class FhirToDatamart {
 
   private final Properties config = new Properties(System.getProperties());
-  F2DAllergyIntoleranceTransformer allergyIntoleranceTransformer = new F2DAllergyIntoleranceTransformer();
+
+  F2DAllergyIntoleranceTransformer allergyIntoleranceTransformer =
+      new F2DAllergyIntoleranceTransformer();
 
   @SneakyThrows
   private Path directory() {
-    String directoryPath = config.getProperty("fhir.json.directory", "/home/lighthouse/Documents/health-apis-data-query/data-query-tests/target/lab-crawl-1017283132V631076");
+    String directoryPath =
+        config.getProperty(
+            "fhir.json.directory",
+            "/home/lighthouse/Documents/health-apis-data-query/data-query-tests/target/lab-crawl-1017283132V631076");
     File directory = new File(directoryPath);
     return directory.toPath();
+  }
+
+  private ObjectMapper mapper() {
+    return new ObjectMapper()
+        .setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY)
+        .setSerializationInclusion(JsonInclude.Include.NON_NULL)
+        .registerModule(new Jdk8Module())
+        .registerModule(new JavaTimeModule())
+        .setDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"));
   }
 
   private String pattern(String Resource) {
@@ -67,24 +71,24 @@ public class FhirToDatamart {
     }
   }
 
-private ObjectMapper mapper(){
-    return new ObjectMapper().setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY).setSerializationInclusion(JsonInclude.Include.NON_NULL).registerModule(new Jdk8Module());
-}
-
   @SneakyThrows
   @Test
   public void readInAllergyIntolerance() {
     ObjectMapper mapper = mapper();
-    List<File> files = Files.walk(directory())
+    List<File> files =
+        Files.walk(directory())
             .filter(Files::isRegularFile)
             .map(Path::toFile)
             .filter(f -> f.getName().matches(pattern("AllergyIntolerance")))
             .collect(Collectors.toList());
-    for (File file : files){
+    for (File file : files) {
       AllergyIntolerance allergyIntolerance = mapper.readValue(file, AllergyIntolerance.class);
-      DatamartAllergyIntolerance datamartAllergyIntolerance = allergyIntoleranceTransformer.fhirToDatamart(allergyIntolerance);
-      mapper.writeValue(new File("target/DMAllInt"+datamartAllergyIntolerance.cdwId().replaceAll("-","")+".json"),datamartAllergyIntolerance);
+      DatamartAllergyIntolerance datamartAllergyIntolerance =
+          allergyIntoleranceTransformer.fhirToDatamart(allergyIntolerance);
+      mapper.writeValue(
+          new File(
+              "target/DMAllInt" + datamartAllergyIntolerance.cdwId().replaceAll("-", "") + ".json"),
+          datamartAllergyIntolerance);
     }
-
   }
 }
