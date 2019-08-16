@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-final class DatamartObservation implements HasReplaceableId {
+public class DatamartObservation implements HasReplaceableId {
   private String objectType;
 
   private int objectVersion;

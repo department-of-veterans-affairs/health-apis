@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-final class DatamartDiagnosticReports {
+public class DatamartDiagnosticReports {
   private String objectType;
 
   private int objectVersion;
