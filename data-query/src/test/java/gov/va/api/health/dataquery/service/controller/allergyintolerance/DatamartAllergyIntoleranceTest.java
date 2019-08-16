@@ -23,12 +23,11 @@ public class DatamartAllergyIntoleranceTest {
     return DatamartAllergyIntolerance.builder()
         .cdwId("800001608621")
         .patient(
-            Optional.of(
-                DatamartReference.builder()
-                    .type(Optional.of("Patient"))
-                    .reference(Optional.of("666V666"))
-                    .display(Optional.of("VETERAN,HERNAM MINAM"))
-                    .build()))
+            DatamartReference.builder()
+                .type(Optional.of("Patient"))
+                .reference(Optional.of("666V666"))
+                .display(Optional.of("VETERAN,HERNAM MINAM"))
+                .build())
         .recordedDate(Optional.of(Instant.parse("2017-07-23T04:27:43Z")))
         .recorder(
             Optional.of(
