@@ -117,7 +117,7 @@ public class DatamartAllergyIntolerance implements HasReplaceableId {
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
-  static final class Note {
+  public static final class Note {
     private String text;
 
     private Optional<Instant> time;
@@ -132,6 +132,7 @@ public class DatamartAllergyIntolerance implements HasReplaceableId {
       return practitioner;
     }
 
+    /** Set Practitioner Reference's ID. */
     public void setReferencePractitionerId(String id) {
       if (practitioner().isEmpty()) {
         practitioner(
@@ -140,6 +141,7 @@ public class DatamartAllergyIntolerance implements HasReplaceableId {
       practitioner().get().reference(Optional.of(id));
     }
 
+    /** Set Practitioner Reference's Name. */
     public void setReferencePractitionerName(String name) {
       if (practitioner().isEmpty()) {
         practitioner(
@@ -161,7 +163,7 @@ public class DatamartAllergyIntolerance implements HasReplaceableId {
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
-  static final class Reaction {
+  public static final class Reaction {
     private Certainty certainty;
 
     private List<DatamartCoding> manifestations;
