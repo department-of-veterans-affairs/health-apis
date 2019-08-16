@@ -6,7 +6,7 @@
       <Pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n</Pattern>
     </layout>
   </appender>
-  <root level="${LOGBACK_ROOT_LEVEL:-OFF}">
+  <root level="${LOGBACK_ROOT_LEVEL:-INFO}">
     <appender-ref ref="STDOUT"/>
   </root>
   <logger level="OFF" name="org.apache.http"/>
