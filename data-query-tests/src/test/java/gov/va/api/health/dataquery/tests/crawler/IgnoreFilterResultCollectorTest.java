@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.dataquery.tests.crawler.Result.Outcome;
 import gov.va.api.health.sentinel.categories.Local;
+import java.time.Duration;
 import java.time.Instant;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -24,6 +25,7 @@ public class IgnoreFilterResultCollectorTest {
                 "https://somepath.va.gov/services/argonaut/v0/Resource/z8z848z3-35zz-5zz-93zz-z4z8731z1z11")
             .outcome(Outcome.INVALID_PAYLOAD)
             .timestamp(Instant.ofEpochMilli(158994000000L))
+            .duration(Duration.ofMillis(10))
             .build();
     results.add(badnessResult);
 
@@ -43,6 +45,7 @@ public class IgnoreFilterResultCollectorTest {
                 "https://somepath.va.gov/services/argonaut/v0/Resource/z8z848z3-35zz-5zz-93zz-z4z8731z1z11")
             .outcome(Outcome.INVALID_PAYLOAD)
             .timestamp(Instant.ofEpochMilli(158994000000L))
+            .duration(Duration.ofMillis(10))
             .build();
     results.add(badnessResult);
 
@@ -63,6 +66,7 @@ public class IgnoreFilterResultCollectorTest {
                 "https://somepath.va.gov/services/argonaut/v0/Resource/z8z848z3-35zz-5zz-93zz-z4z8731z1z11")
             .outcome(Outcome.OK)
             .timestamp(Instant.ofEpochMilli(158994000000L))
+            .duration(Duration.ofMillis(10))
             .build();
     results.add(okResult);
 

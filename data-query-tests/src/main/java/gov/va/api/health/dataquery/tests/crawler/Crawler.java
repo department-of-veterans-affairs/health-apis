@@ -145,8 +145,12 @@ public class Crawler {
     if (StringUtils.isNotBlank(datamart)) {
       specification.header("Datamart", datamart);
     }
+    Instant start = Instant.now();
     Response response = specification.relaxedHTTPSValidation().get(url).andReturn();
-    resultBuilder.httpStatus(response.getStatusCode()).body(response.getBody().asString());
+    resultBuilder
+        .duration(Duration.between(start, Instant.now()))
+        .httpStatus(response.getStatusCode())
+        .body(response.getBody().asString());
     if (response.getStatusCode() == 200) {
       ReferenceInterceptor interceptor = new ReferenceInterceptor();
       Object payload = interceptor.mapper().readValue(response.asByteArray(), type);

@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.tests.crawler;
 
+import java.time.Duration;
 import java.time.Instant;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -24,6 +25,7 @@ public class Result {
   String body;
   @NonNull Outcome outcome;
   String additionalInfo;
+  @NonNull Duration duration;
 
   public Summary summarize() {
     return new Summary(query, outcome);
