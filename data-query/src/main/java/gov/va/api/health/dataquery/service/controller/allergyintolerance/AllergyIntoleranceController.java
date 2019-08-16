@@ -272,7 +272,7 @@ public class AllergyIntoleranceController {
           resources,
           resource ->
               Stream.concat(
-                  Stream.of(resource.recorder().orElse(null), resource.patient().orElse(null)),
+                  Stream.of(resource.recorder().orElse(null), resource.patient()),
                   resource.notes().stream().map(n -> n.practitioner().orElse(null))));
     }
 

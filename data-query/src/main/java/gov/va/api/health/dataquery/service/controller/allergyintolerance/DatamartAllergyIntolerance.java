@@ -22,7 +22,7 @@ public class DatamartAllergyIntolerance implements HasReplaceableId {
   @Builder.Default private String objectType = "AllergyIntolerance";
   @Builder.Default private String objectVersion = "1";
   private String cdwId;
-  private Optional<DatamartReference> patient;
+  private DatamartReference patient;
   private Optional<Instant> recordedDate;
   private Optional<DatamartReference> recorder;
   private Optional<Substance> substance;
@@ -39,14 +39,6 @@ public class DatamartAllergyIntolerance implements HasReplaceableId {
       notes = new ArrayList<>();
     }
     return notes;
-  }
-
-  /** Lazy getter. */
-  public Optional<DatamartReference> patient() {
-    if (patient == null) {
-      patient = Optional.empty();
-    }
-    return patient;
   }
 
   /** Lazy getter. */
