@@ -53,6 +53,7 @@ public class DatamartPatient {
 
   private List<Contact> contact;
 
+  /** Lazy getter. */
   public List<Address> address() {
     if (address == null) {
       address = new ArrayList<>();
@@ -60,6 +61,7 @@ public class DatamartPatient {
     return address;
   }
 
+  /** Lazy getter. */
   public List<Contact> contact() {
     if (contact == null) {
       contact = new ArrayList<>();
@@ -67,6 +69,7 @@ public class DatamartPatient {
     return contact;
   }
 
+  /** Lazy getter. */
   public List<Race> race() {
     if (race == null) {
       race = new ArrayList<>();
@@ -74,6 +77,7 @@ public class DatamartPatient {
     return race;
   }
 
+  /** Lazy getter. */
   public List<Telecom> telecom() {
     if (telecom == null) {
       telecom = new ArrayList<>();

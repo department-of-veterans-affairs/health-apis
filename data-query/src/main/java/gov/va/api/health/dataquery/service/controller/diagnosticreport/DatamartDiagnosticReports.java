@@ -25,6 +25,7 @@ public class DatamartDiagnosticReports {
   @JsonProperty("DiagnosticReports")
   private List<DiagnosticReport> reports;
 
+  /** Lazy getter. */
   public List<DiagnosticReport> reports() {
     if (reports == null) {
       reports = new ArrayList<>();
