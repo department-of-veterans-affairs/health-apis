@@ -79,6 +79,10 @@ public class DatamartExporter {
     h2 = new LocalH2(outputFile).get();
   }
 
+  public static EntityManager getH2(String outputFile) {
+    return new LocalH2(outputFile).get();
+  }
+
   public static void main(String[] args) {
     if (args.length != 2) {
       log.error("DatamartExporter <application.properties> <h2-database>");
