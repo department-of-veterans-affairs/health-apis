@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import gov.va.api.health.argonaut.api.resources.AllergyIntolerance;
+import gov.va.api.health.dataquery.service.controller.allergyintolerance.DatamartAllergyIntolerance;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -14,8 +15,6 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
-
-import gov.va.api.health.dataquery.service.controller.allergyintolerance.DatamartAllergyIntolerance;
 import lombok.SneakyThrows;
 import org.junit.Test;
 

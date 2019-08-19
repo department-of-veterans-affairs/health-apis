@@ -42,6 +42,7 @@ public class MitreMinimartMaker {
 
   private EntityManager entityManager;
 
+  /** Uses the resource name to determine what the prefix of the file should be. */
   public String determineFilePrefix(String resourceFullName) {
     String abbreviation = "";
     switch (resourceFullName) {
@@ -81,6 +82,7 @@ public class MitreMinimartMaker {
     return "dm" + abbreviation;
   }
 
+  /** Uses the entity manager to insert each record into the database without committing. */
   @SneakyThrows
   public void insertByResourceType(String resourceName, File file) {
     switch (resourceName) {
@@ -139,7 +141,7 @@ public class MitreMinimartMaker {
                 .build();
         entityManager.persist(medEntity);
         break;
-        case "MedicationOrder":
+      case "MedicationOrder":
         DatamartMedicationOrder medOrd =
             JacksonConfig.createMapper().readValue(file, DatamartMedicationOrder.class);
         MedicationOrderEntity moEntity =
@@ -149,7 +151,7 @@ public class MitreMinimartMaker {
                 .payload(Files.readAllBytes(Paths.get(file.getPath())).toString())
                 .build();
         entityManager.persist(moEntity);
-          break;
+        break;
       case "MedicationStatement":
         DatamartMedicationStatement medSta =
             JacksonConfig.createMapper().readValue(file, DatamartMedicationStatement.class);
@@ -168,9 +170,6 @@ public class MitreMinimartMaker {
             ObservationEntity.builder()
                 .cdwId(obs.cdwId())
                 .icn(obs.subject().isPresent() ? patientIcn(obs.subject().get()) : null)
-                // .code(obs.code().isPresent() ? obs.code().get() : null)
-                // .category(obs.category())
-                // .epochTime(obs.effectiveDateTime())
                 .payload(Files.readAllBytes(Paths.get(file.getPath())).toString())
                 .build();
         entityManager.persist(obsEntity);
@@ -201,8 +200,6 @@ public class MitreMinimartMaker {
             ProcedureEntity.builder()
                 .cdwId(proc.cdwId())
                 .icn(patientIcn(proc.patient()))
-                // .performedOnEpochTime(proc.performedDateTime().isPresent() ?
-                // proc.performedDateTime().get() : null)
                 .payload(Files.readAllBytes(Paths.get(file.getPath())).toString())
                 .build();
         entityManager.persist(procEntity);
@@ -212,11 +209,10 @@ public class MitreMinimartMaker {
     }
   }
 
-  public String patientIcn(DatamartReference dm) {
-    return dm != null && dm.reference().isPresent() ? dm.reference().get() : null;
-  }
-
-  public void prepareMitreResource() {
+  /** Main. */
+  public void main(String[] args) {
+    resourceToSync = args[0];
+    directory = argss[1];
     File dmDirectory = new File(directory);
     List<File> dmFiles = Arrays.stream(dmDirectory.listFiles()).collect(Collectors.toList());
     dmFiles =
@@ -236,5 +232,9 @@ public class MitreMinimartMaker {
       }
     }
     entityManager.getTransaction().commit();
+  }
+
+  public String patientIcn(DatamartReference dm) {
+    return dm != null && dm.reference().isPresent() ? dm.reference().get() : null;
   }
 }
