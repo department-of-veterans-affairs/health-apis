@@ -1,4 +1,4 @@
-package gov.va.api.health.dataquery.tests.fhirtodatamart;
+package gov.va.api.health.dataquery.tools.minimart.transformers;
 
 import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
 
