@@ -55,7 +55,6 @@
       <groupId>gov.va.api.health</groupId>
       <artifactId>data-query</artifactId>
       <version>${project.version}</version>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>gov.va.api.health</groupId>

@@ -47,24 +47,34 @@ public class MitreMinimartMaker {
     switch (resourceFullName) {
       case "AllergyIntolerance":
         abbreviation = "AllInt";
+        break;
       case "Condition":
         abbreviation = "Con";
+        break;
       case "DiagnosticReport":
         abbreviation = "DiaRep";
+        break;
       case "Immunization":
         abbreviation = "Imm";
+        break;
       case "MedicationStatement":
         abbreviation = "MedSta";
+        break;
       case "MedicationOrder":
         abbreviation = "MedOrd";
+        break;
       case "Medication":
         abbreviation = "Med";
+        break;
       case "Observation":
         abbreviation = "Obs";
+        break;
       case "Patient":
         abbreviation = "Pat";
+        break;
       case "Procedure":
         abbreviation = "Pro";
+        break;
       default:
         abbreviation = "--FAILURE--";
     }
@@ -84,6 +94,7 @@ public class MitreMinimartMaker {
                 .payload(Files.readAllBytes(Paths.get(file.getPath())).toString())
                 .build();
         entityManager.persist(aiEntity);
+        break;
       case "Condition":
         DatamartCondition cond =
             JacksonConfig.createMapper().readValue(file, DatamartCondition.class);
@@ -96,6 +107,7 @@ public class MitreMinimartMaker {
                 .payload(Files.readAllBytes(Paths.get(file.getPath())).toString())
                 .build();
         entityManager.persist(condEntity);
+        break;
       case "DiagnosticReport":
         DatamartDiagnosticReports dr =
             JacksonConfig.createMapper().readValue(file, DatamartDiagnosticReports.class);
@@ -105,6 +117,7 @@ public class MitreMinimartMaker {
                 .payload(Files.readAllBytes(Paths.get(file.getPath())).toString())
                 .build();
         entityManager.persist(drEntity);
+        break;
       case "Immunization":
         DatamartImmunization imm =
             JacksonConfig.createMapper().readValue(file, DatamartImmunization.class);
@@ -115,6 +128,7 @@ public class MitreMinimartMaker {
                 .payload(Files.readAllBytes(Paths.get(file.getPath())).toString())
                 .build();
         entityManager.persist(immEntity);
+        break;
       case "Medication":
         DatamartMedication med =
             JacksonConfig.createMapper().readValue(file, DatamartMedication.class);
@@ -124,7 +138,8 @@ public class MitreMinimartMaker {
                 .payload(Files.readAllBytes(Paths.get(file.getPath())).toString())
                 .build();
         entityManager.persist(medEntity);
-      case "MedicationOrder":
+        break;
+        case "MedicationOrder":
         DatamartMedicationOrder medOrd =
             JacksonConfig.createMapper().readValue(file, DatamartMedicationOrder.class);
         MedicationOrderEntity moEntity =
@@ -134,6 +149,7 @@ public class MitreMinimartMaker {
                 .payload(Files.readAllBytes(Paths.get(file.getPath())).toString())
                 .build();
         entityManager.persist(moEntity);
+          break;
       case "MedicationStatement":
         DatamartMedicationStatement medSta =
             JacksonConfig.createMapper().readValue(file, DatamartMedicationStatement.class);
@@ -144,6 +160,7 @@ public class MitreMinimartMaker {
                 .payload(Files.readAllBytes(Paths.get(file.getPath())).toString())
                 .build();
         entityManager.persist(msEntity);
+        break;
       case "Observation":
         DatamartObservation obs =
             JacksonConfig.createMapper().readValue(file, DatamartObservation.class);
@@ -157,6 +174,7 @@ public class MitreMinimartMaker {
                 .payload(Files.readAllBytes(Paths.get(file.getPath())).toString())
                 .build();
         entityManager.persist(obsEntity);
+        break;
       case "Patient":
         DatamartPatient pat = JacksonConfig.createMapper().readValue(file, DatamartPatient.class);
         PatientSearchEntity patientSearchEntity =
@@ -175,6 +193,7 @@ public class MitreMinimartMaker {
                 .payload(Files.readAllBytes(Paths.get(file.getPath())).toString())
                 .build();
         entityManager.persist(patEntity);
+        break;
       case "Procedure":
         DatamartProcedure proc =
             JacksonConfig.createMapper().readValue(file, DatamartProcedure.class);
@@ -187,6 +206,7 @@ public class MitreMinimartMaker {
                 .payload(Files.readAllBytes(Paths.get(file.getPath())).toString())
                 .build();
         entityManager.persist(procEntity);
+        break;
       default:
         throw new RuntimeException("Couldnt determine resource type for file: " + resourceToSync);
     }
