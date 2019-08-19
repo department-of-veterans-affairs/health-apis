@@ -66,6 +66,7 @@ public class F2DAllergyIntoleranceTransformer {
     return Optional.of(Instant.parse(date));
   }
 
+  /** Transforms a Fhir compliant AllergyIntolerance model to a datamart model of data. */
   public DatamartAllergyIntolerance fhirToDatamart(AllergyIntolerance allergyIntolerance) {
     return DatamartAllergyIntolerance.builder()
         .objectType(allergyIntolerance.resourceType())

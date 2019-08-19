@@ -30,7 +30,8 @@ public class FhirToDatamart {
     String directoryPath =
         config.getProperty(
             "fhir.json.directory",
-            "/home/lighthouse/Documents/health-apis-data-query/data-query-tests/target/lab-crawl-1017283132V631076");
+            "/home/lighthouse/Documents/health-apis-data-query"
+                + "/data-query-tests/target/lab-crawl-1017283132V631076");
     File directory = new File(directoryPath);
     return directory.toPath();
   }
@@ -44,8 +45,8 @@ public class FhirToDatamart {
         .setDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"));
   }
 
-  private String pattern(String Resource) {
-    switch (Resource) {
+  private String pattern(String resource) {
+    switch (resource) {
       case "AllergyIntolerance":
         return "^AllInt(?!P).*json";
       case "Condition":
@@ -67,7 +68,9 @@ public class FhirToDatamart {
       case "Procedure":
         return "^Pro(?!P).*json";
       default:
-        return "^AllInt(?!P).*json|^Con(?!P).*json|^DiaRep(?!P).*json|^Imm(?!P).*json|^Med(?!P).*json|^MedOrd(?!P).*json|^MedSta(?!P).*json|^Obs(?!P).*json|^Pat(?!P).*json|^Pro(?!P).*json";
+        return "^AllInt(?!P).*json|^Con(?!P).*json|^DiaRep(?!P).*json|^Imm(?!P).*json"
+            + "|^Med(?!P).*json|^MedOrd(?!P).*json|^MedSta(?!P).*json"
+            + "|^Obs(?!P).*json|^Pat(?!P).*json|^Pro(?!P).*json";
     }
   }
 
