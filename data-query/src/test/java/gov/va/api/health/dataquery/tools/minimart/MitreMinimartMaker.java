@@ -23,6 +23,7 @@ import gov.va.api.health.dataquery.service.controller.patient.PatientEntity;
 import gov.va.api.health.dataquery.service.controller.patient.PatientSearchEntity;
 import gov.va.api.health.dataquery.service.controller.procedure.DatamartProcedure;
 import gov.va.api.health.dataquery.service.controller.procedure.ProcedureEntity;
+import gov.va.api.health.dataquery.tools.DatamartExporter;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -31,17 +32,17 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
-
-import gov.va.api.health.dataquery.tools.DatamartExporter;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
+@Slf4j
 public class MitreMinimartMaker {
 
-  private EntityManager entityManager;
+  private static EntityManager entityManager;
 
   /** Uses the resource name to determine what the prefix of the file should be. */
-  public String determineFilePrefix(String resourceFullName) {
+  private static String determineFilePrefix(String resourceFullName) {
     String abbreviation = "";
     switch (resourceFullName) {
       case "AllergyIntolerance":
@@ -82,7 +83,7 @@ public class MitreMinimartMaker {
 
   /** Uses the entity manager to insert each record into the database without committing. */
   @SneakyThrows
-  public void insertByResourceType(String resourceName, File file) {
+  private static void insertByResourceType(String resourceName, File file) {
     switch (resourceName) {
       case "AllergyIntolerance":
         DatamartAllergyIntolerance ai =
@@ -208,14 +209,21 @@ public class MitreMinimartMaker {
   }
 
   /** Main. */
-  public void main(String[] args) {
-    if (args.length != 3) {
+  public static void main(String[] args) {
+    /*if (args.length != 3) {
       throw new RuntimeException("Arg Count Incorrect: " + args.length);
     }
     String resourceToSync = args[0];
     String directory = args[1];
-    entityManager = DatamartExporter.getH2(args[2]);
+    entityManager = DatamartExporter.getH2(args[2]);*/
+    String resourceToSync = "AllergyIntolerance";
+    String directory = "/home/jhulbert/Downloads/";
+    entityManager = DatamartExporter.getH2("./src/test/resources/minimart");
     File dmDirectory = new File(directory);
+    if (dmDirectory.listFiles() == null) {
+      log.info("No files in directory {}", directory);
+      throw new RuntimeException("No files found in directory: " + directory);
+    }
     List<File> dmFiles = Arrays.stream(dmDirectory.listFiles()).collect(Collectors.toList());
     dmFiles =
         dmFiles
@@ -224,19 +232,19 @@ public class MitreMinimartMaker {
                 f ->
                     StringUtils.containsIgnoreCase(
                         f.getName(), determineFilePrefix(resourceToSync)))
+            .filter(f -> f.isFile())
             .collect(Collectors.toList());
     entityManager.getTransaction().begin();
     for (File file : dmFiles) {
-      if (file.isFile()) {
-        insertByResourceType(resourceToSync, file);
-        entityManager.flush();
-        entityManager.clear();
-      }
+      insertByResourceType(resourceToSync, file);
+      entityManager.flush();
+      entityManager.clear();
     }
     entityManager.getTransaction().commit();
+    System.exit(0);
   }
 
-  public String patientIcn(DatamartReference dm) {
+  private static String patientIcn(DatamartReference dm) {
     return dm != null && dm.reference().isPresent() ? dm.reference().get() : null;
   }
 }
