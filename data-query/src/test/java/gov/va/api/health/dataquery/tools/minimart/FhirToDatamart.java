@@ -12,6 +12,7 @@ import gov.va.api.health.dataquery.tools.minimart.transformers.F2DAllergyIntoler
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,20 +23,35 @@ public class FhirToDatamart {
   F2DAllergyIntoleranceTransformer allergyIntoleranceTransformer =
       new F2DAllergyIntoleranceTransformer();
 
+  String inputDirectory;
+
+  String resourceType;
+
+  public FhirToDatamart(String directory, String resource) {
+    inputDirectory = directory;
+    resourceType = resource;
+  }
+
   @SneakyThrows
-  public void main(String[] args) {
+  public static void main(String[] args) {
     if (args.length != 2) {
       throw new RuntimeException("Arg Count Incorrect: " + args.length);
     }
-    String resource = args[0];
-    String directory = args[1];
+    String resourceType = args[0];
+    String inputDirectory = args[1];
+    new FhirToDatamart(inputDirectory, resourceType).fhirToDatamart();
+    System.exit(0);
+  }
+
+  @SneakyThrows
+  private void fhirToDatamart() {
     List<File> files =
-        Files.walk(Path.of(directory))
+        Files.walk(Paths.get(inputDirectory))
             .filter(Files::isRegularFile)
             .map(Path::toFile)
-            .filter(f -> f.getName().matches(pattern(resource)))
+            .filter(f -> f.getName().matches(pattern(resourceType)))
             .collect(Collectors.toList());
-    transformAndWriteFiles(files, resource);
+    transformAndWriteFiles(files, resourceType);
   }
 
   private ObjectMapper mapper() {
@@ -58,7 +74,7 @@ public class FhirToDatamart {
       case "Immunization":
         return "^Imm(?!P).*json";
       case "Medication":
-        return "^Med(?!P).*json";
+        return "^Med(?!P|Sta|Ord).*json";
       case "MedicationOrder":
         return "^MedOrd(?!P).*json";
       case "MedicationStatement":
@@ -85,7 +101,7 @@ public class FhirToDatamart {
               allergyIntoleranceTransformer.fhirToDatamart(allergyIntolerance);
           mapper.writeValue(
               new File(
-                  "target/DMAllInt"
+                  "target/dmAllInt"
                       + datamartAllergyIntolerance.cdwId().replaceAll("-", "")
                       + ".json"),
               datamartAllergyIntolerance);

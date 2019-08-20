@@ -5,8 +5,7 @@ DIRECTORY=$2
 RESOURCE_TYPE=$3
 
 cd $(dirname $0)
-PROJECT_VERSION=$(mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version \
-  | grep -v -E 'INFO|Download')
+PROJECT_VERSION=$(mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version | grep -v -E 'INFO|Download')
 
 pushToDatabase() {
   [ -z "$DIRECTORY" ] && echo "Directory is a Required Param." && exit 1
@@ -14,7 +13,7 @@ pushToDatabase() {
   outputFile="./src/test/resources/minimart"
   [ -f "$outputFile" ] && rm -v "$ouputFile/*"
   mvn -f ../data-query test-compile && \
-  mvn -f ../data-query \
+    mvn -f ../data-query \
     -P'!standard' \
     -Pmitre-minimart-maker \
     exec:java@pushToDatabase \
@@ -22,13 +21,21 @@ pushToDatabase() {
     -DresourceType="$RESOURCE_TYPE" \
     -DinputDirectory="$DIRECTORY" \
     -DoutputFile="$outputFile" \
-  -Dorg.jboss.logging.provider=jdk \
-  -Djava.util.logging.config.file=nope
+    -Dorg.jboss.logging.provider=jdk \
+    -Djava.util.logging.config.file=nope
 
 }
 
 transformFhirToDatamart() {
-  echo "WHY!?!"
+  [ -z "$DIRECTORY" ] && echo "Directory is a Required Param." && exit 1
+  [ -z "$RESOURCE_TYPE" ] && echo "Resource Type is a Required Param." && exit 1
+  mvn -f ../data-query test-compile && \
+    mvn -f ../data-query \
+    -P'!standard' \
+    -Pmitre-minimart-maker \
+    generate-resources \
+    -DresourceType="$RESOURCE_TYPE" \
+    -DinputDirectory="$DIRECTORY"
 }
 
 minimartDatabase() {
@@ -38,7 +45,7 @@ minimartDatabase() {
 case $COMMAND in
   pushToDb) pushToDatabase ;;
   transformToDatamart) transformFhirToDatamart ;;
-#  mitreMinimart) transformFhirToDatamart && pushToDatabase ;;
+    #  mitreMinimart) transformFhirToDatamart && pushToDatabase ;;
   openDb) minimartDatabase ;;
-  *) echo "Invalid Command: $COMMAND" && exit 1;;
+  *) echo "Invalid Command: $COMMAND" && exit 1 ;;
 esac
