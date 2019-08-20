@@ -7,6 +7,7 @@ import gov.va.api.health.dataquery.service.controller.condition.ConditionEntity;
 import gov.va.api.health.dataquery.service.controller.condition.DatamartCondition;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dataquery.service.controller.diagnosticreport.DatamartDiagnosticReports;
+import gov.va.api.health.dataquery.service.controller.diagnosticreport.DiagnosticReportCrossEntity;
 import gov.va.api.health.dataquery.service.controller.diagnosticreport.DiagnosticReportsEntity;
 import gov.va.api.health.dataquery.service.controller.immunization.DatamartImmunization;
 import gov.va.api.health.dataquery.service.controller.immunization.ImmunizationEntity;
@@ -84,9 +85,20 @@ public class MitreMinimartMaker {
   private static void insertByDiagnosticReport(File file) {
     DatamartDiagnosticReports dm =
         JacksonConfig.createMapper().readValue(file, DatamartDiagnosticReports.class);
-    DiagnosticReportsEntity entity =
+    // DR Entity
+    DiagnosticReportsEntity drEntity =
         DiagnosticReportsEntity.builder().icn(dm.fullIcn()).payload(fileToString(file)).build();
-    entityManager.persist(entity);
+    entityManager.persist(drEntity);
+    // DR Crosswalk Entities
+    dm.reports()
+        .stream()
+        .forEach(
+            report ->
+                entityManager.persist(
+                    DiagnosticReportCrossEntity.builder()
+                        .icn(dm.fullIcn())
+                        .reportId(report.identifier())
+                        .build()));
     flushAndClear();
   }
 
@@ -167,6 +179,7 @@ public class MitreMinimartMaker {
             .birthDateTime(Instant.parse(dm.birthDateTime()))
             .gender(dm.gender())
             .build();
+    entityManager.persist(patientSearchEntity);
     PatientEntity patEntity =
         PatientEntity.builder()
             .icn(dm.fullIcn())

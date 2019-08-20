@@ -37,7 +37,7 @@ public class DatamartDiagnosticReports {
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
-  static final class DiagnosticReport {
+  public static final class DiagnosticReport {
     private String identifier;
 
     private String sta3n;
@@ -64,6 +64,7 @@ public class DatamartDiagnosticReports {
 
     private String reportStatus;
 
+    /** Lazy Getter. */
     public List<Order> orders() {
       if (orders == null) {
         orders = new ArrayList<>();
@@ -71,6 +72,7 @@ public class DatamartDiagnosticReports {
       return orders;
     }
 
+    /** Lazy Getter. */
     public List<Result> results() {
       if (results == null) {
         results = new ArrayList<>();
