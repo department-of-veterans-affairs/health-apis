@@ -71,5 +71,3 @@ See the [configuration guide](configuration.md) for configuring applications in 
 
 - `init-git-secrets.sh`
   Initializes your clone of this repository to work with git secrets.
-- `trust-dev-certs.sh`
-  Configures the `cacerts` in your Java home to trust the development certs.
