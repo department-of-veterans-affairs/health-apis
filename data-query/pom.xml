@@ -217,5 +217,36 @@
         </plugins>
       </build>
     </profile>
+    <profile>
+      <!--
+        This profile exists to support the running of the mitre-minimart-maker only. See data-query-tests/mitre-minimart-maker.sh
+      -->
+      <id>mitre-minimart-maker</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>minimart</id>
+                <goals>
+                  <goal>java</goal>
+                </goals>
+                <phase>generate-resources</phase>
+                <configuration>
+                  <mainClass>gov.va.api.health.dataquery.tools.minimart.FhirToDatamart</mainClass>
+                  <classpathScope>test</classpathScope>
+                  <arguments>
+                    <argument>${resourceType}</argument>
+                    <argument>${inputDirectory}</argument>
+                  </arguments>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
   </profiles>
 </project>
