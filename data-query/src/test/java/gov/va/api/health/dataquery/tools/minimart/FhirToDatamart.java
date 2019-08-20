@@ -20,9 +20,6 @@ import lombok.SneakyThrows;
 
 public class FhirToDatamart {
 
-  F2DAllergyIntoleranceTransformer allergyIntoleranceTransformer =
-      new F2DAllergyIntoleranceTransformer();
-
   String inputDirectory;
 
   String resourceType;
@@ -92,6 +89,8 @@ public class FhirToDatamart {
 
   @SneakyThrows
   private void transformAndWriteFiles(List<File> files, String resource) {
+    F2DAllergyIntoleranceTransformer allergyIntoleranceTransformer =
+            new F2DAllergyIntoleranceTransformer();
     ObjectMapper mapper = mapper();
     switch (resource) {
       case "AllergyIntolerance":
