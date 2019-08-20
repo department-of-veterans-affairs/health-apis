@@ -291,6 +291,7 @@ public class MitreMinimartMaker {
         throw new RuntimeException("Couldnt determine resource type for file: " + resourceToSync);
     }
     entityManager.getTransaction().commit();
+    log.info("{} sync complete", resourceToSync);
     System.exit(0);
   }
 

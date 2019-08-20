@@ -11,16 +11,20 @@ PROJECT_VERSION=$(mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate 
 pushToDatabase() {
   [ -z "$DIRECTORY" ] && echo "Directory is a Required Param." && exit 1
   [ -z "$RESOURCE_TYPE" ] && echo "Resource Type is a Required Param." && exit 1
-  ouputFile="./src/test/resources/minimart"
+  outputFile="./src/test/resources/minimart"
   [ -f "$outputFile" ] && rm -v "$ouputFile/*"
-  [ ! -f "../data-query/target/data-query-$PROJECT_VERSION-tests.jar" ] \
-    && echo "Build project before running." \
-    && exit 1
-  java -cp ../data-query/target/data-query-$PROJECT_VERSION-tests.jar \
-    gov.va.api.health.dataquery.tools.minimart.MitreMinimartMaker \
-    -DresourceToSync="$RESOURCE_TYPE" \
-    -Ddirectory="$DIRECTORY" \
-    -DoutputFile="$outputFile"
+  mvn test-compile && \
+  mvn -f ../data-query \
+    -P'!standard' \
+    -Pmitre-minimart-maker \
+    exec:java@pushToDatabase \
+    generate-resources \
+    -DresourceType="$RESOURCE_TYPE" \
+    -DinputDirectory="$DIRECTORY" \
+    -DoutputFile="$outputFile" \
+  -Dorg.jboss.logging.provider=jdk \
+  -Djava.util.logging.config.file=nope
+
 }
 
 transformFhirToDatamart() {
