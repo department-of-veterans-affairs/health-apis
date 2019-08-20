@@ -13,7 +13,7 @@ pushToDatabase() {
   [ -z "$RESOURCE_TYPE" ] && echo "Resource Type is a Required Param." && exit 1
   outputFile="./src/test/resources/minimart"
   [ -f "$outputFile" ] && rm -v "$ouputFile/*"
-  mvn test-compile && \
+  mvn -f ../data-query test-compile && \
   mvn -f ../data-query \
     -P'!standard' \
     -Pmitre-minimart-maker \
