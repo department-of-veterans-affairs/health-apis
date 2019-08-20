@@ -2,6 +2,7 @@ package gov.va.api.health.dataquery.service.controller.patient;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -35,11 +36,11 @@ final class DatamartPatient {
 
   private String gender;
 
-  private String selfIdentifiedGender;
+  private Optional<String> selfIdentifiedGender;
 
-  private String religion;
+  private Optional<String> religion;
 
-  private String managingOrganization;
+  private Optional<String> managingOrganization;
 
   private MaritalStatus maritalStatus;
 
