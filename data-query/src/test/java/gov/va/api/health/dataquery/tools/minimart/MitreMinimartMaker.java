@@ -41,6 +41,16 @@ public class MitreMinimartMaker {
   private static EntityManager entityManager;
 
   @SneakyThrows
+  private static String fileToString(File file) {
+    return new String(Files.readAllBytes(Paths.get(file.getPath())));
+  }
+
+  private static void flushAndClear() {
+    entityManager.flush();
+    entityManager.clear();
+  }
+
+  @SneakyThrows
   private static void insertByAllergyIntolerance(File file) {
     DatamartAllergyIntolerance dm =
         JacksonConfig.createMapper().readValue(file, DatamartAllergyIntolerance.class);
@@ -104,11 +114,11 @@ public class MitreMinimartMaker {
   }
 
   @SneakyThrows
-  private static void insertByMedictionOrder(File file) {
-    DatamartMedicationOrder dm =
-        JacksonConfig.createMapper().readValue(file, DatamartMedicationOrder.class);
-    MedicationOrderEntity entity =
-        MedicationOrderEntity.builder()
+  private static void insertByMedicationStatement(File file) {
+    DatamartMedicationStatement dm =
+        JacksonConfig.createMapper().readValue(file, DatamartMedicationStatement.class);
+    MedicationStatementEntity entity =
+        MedicationStatementEntity.builder()
             .cdwId(dm.cdwId())
             .icn(patientIcn(dm.patient()))
             .payload(fileToString(file))
@@ -118,11 +128,11 @@ public class MitreMinimartMaker {
   }
 
   @SneakyThrows
-  private static void insertByMedicationStatement(File file) {
-    DatamartMedicationStatement dm =
-        JacksonConfig.createMapper().readValue(file, DatamartMedicationStatement.class);
-    MedicationStatementEntity entity =
-        MedicationStatementEntity.builder()
+  private static void insertByMedictionOrder(File file) {
+    DatamartMedicationOrder dm =
+        JacksonConfig.createMapper().readValue(file, DatamartMedicationOrder.class);
+    MedicationOrderEntity entity =
+        MedicationOrderEntity.builder()
             .cdwId(dm.cdwId())
             .icn(patientIcn(dm.patient()))
             .payload(fileToString(file))
@@ -188,83 +198,90 @@ public class MitreMinimartMaker {
     String resourceToSync = args[0];
     String directory = args[1];
     entityManager = DatamartExporter.getH2(args[2]);
-
     log.info("Syncing {} file in {} to {}", resourceToSync, directory, args[2]);
-
     File dmDirectory = new File(directory);
     if (dmDirectory.listFiles() == null) {
       log.error("No files in directory {}", directory);
       throw new RuntimeException("No files found in directory: " + directory);
     }
-
     List<File> dmFiles = Arrays.stream(dmDirectory.listFiles()).collect(Collectors.toList());
     entityManager.getTransaction().begin();
     switch (resourceToSync) {
       case "AllergyIntolerance":
-        dmFiles.stream()
+        dmFiles
+            .stream()
             .filter(f -> f.getName().matches("^dmAllInt.*json$"))
             .filter(File::isFile)
             .collect(Collectors.toList())
             .forEach(MitreMinimartMaker::insertByAllergyIntolerance);
         break;
       case "Condition":
-        dmFiles.stream()
+        dmFiles
+            .stream()
             .filter(f -> f.getName().matches("^dmCon.*json$"))
             .filter(File::isFile)
             .collect(Collectors.toList())
             .forEach(MitreMinimartMaker::insertByCondition);
         break;
       case "DiagnosticReport":
-        dmFiles.stream()
+        dmFiles
+            .stream()
             .filter(f -> f.getName().matches("^dmDiaRep.*json$"))
             .filter(File::isFile)
             .collect(Collectors.toList())
             .forEach(MitreMinimartMaker::insertByDiagnosticReport);
         break;
       case "Immunization":
-        dmFiles.stream()
+        dmFiles
+            .stream()
             .filter(f -> f.getName().matches("^dmImm.*json$"))
             .filter(File::isFile)
             .collect(Collectors.toList())
             .forEach(MitreMinimartMaker::insertByImmunization);
         break;
       case "Medication":
-        dmFiles.stream()
+        dmFiles
+            .stream()
             .filter(f -> f.getName().matches("^dmMed(?!Sta|Ord).*json$"))
             .filter(File::isFile)
             .collect(Collectors.toList())
             .forEach(MitreMinimartMaker::insertByMedication);
         break;
       case "MedicationOrder":
-        dmFiles.stream()
+        dmFiles
+            .stream()
             .filter(f -> f.getName().matches("^dmMedOrd.*json$"))
             .filter(File::isFile)
             .collect(Collectors.toList())
             .forEach(MitreMinimartMaker::insertByMedictionOrder);
         break;
       case "MedicationStatement":
-        dmFiles.stream()
+        dmFiles
+            .stream()
             .filter(f -> f.getName().matches("^dmMedSta.*json$"))
             .filter(File::isFile)
             .collect(Collectors.toList())
             .forEach(MitreMinimartMaker::insertByMedicationStatement);
         break;
       case "Observation":
-        dmFiles.stream()
+        dmFiles
+            .stream()
             .filter(f -> f.getName().matches("^dmObs.*json$"))
             .filter(File::isFile)
             .collect(Collectors.toList())
             .forEach(MitreMinimartMaker::insertByObservation);
         break;
       case "Patient":
-        dmFiles.stream()
+        dmFiles
+            .stream()
             .filter(f -> f.getName().matches("^dmPat.*json$"))
             .filter(File::isFile)
             .collect(Collectors.toList())
             .forEach(MitreMinimartMaker::insertByPatient);
         break;
       case "Procedure":
-        dmFiles.stream()
+        dmFiles
+            .stream()
             .filter(f -> f.getName().matches("^dmPro.*json$"))
             .filter(File::isFile)
             .collect(Collectors.toList())
@@ -273,22 +290,11 @@ public class MitreMinimartMaker {
       default:
         throw new RuntimeException("Couldnt determine resource type for file: " + resourceToSync);
     }
-
     entityManager.getTransaction().commit();
     System.exit(0);
   }
 
-  private static void flushAndClear() {
-    entityManager.flush();
-    entityManager.clear();
-  }
-
   private static String patientIcn(DatamartReference dm) {
     return dm != null && dm.reference().isPresent() ? dm.reference().get() : null;
-  }
-
-  @SneakyThrows
-  private static String fileToString(File file) {
-    return new String(Files.readAllBytes(Paths.get(file.getPath())));
   }
 }
