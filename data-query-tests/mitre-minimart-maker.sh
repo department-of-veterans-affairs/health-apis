@@ -9,6 +9,8 @@ PROJECT_VERSION=$(mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate 
   | grep -v -E 'INFO|Download')
 
 pushToDatabase() {
+  [ -z "$DIRECTORY" ] && echo "Directory is a Required Param." && exit 1
+  [ -z "$RESOURCE_TYPE" ] && echo "Resource Type is a Required Param." && exit 1
   ouputFile="./src/test/resources/minimart"
   [ -f "$outputFile" ] && rm -v "$ouputFile/*"
   [ ! -f "../data-query/target/data-query-$PROJECT_VERSION-tests.jar" ] \

@@ -7,32 +7,44 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import gov.va.api.health.argonaut.api.resources.AllergyIntolerance;
-import gov.va.api.health.argonaut.api.resources.Condition;
 import gov.va.api.health.dataquery.service.controller.allergyintolerance.DatamartAllergyIntolerance;
-import gov.va.api.health.dataquery.service.controller.condition.DatamartCondition;
 import gov.va.api.health.dataquery.tools.minimart.transformers.F2DAllergyIntoleranceTransformer;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.List;
-import java.util.Properties;
 import java.util.stream.Collectors;
 import lombok.SneakyThrows;
-import org.junit.Test;
 
 public class FhirToDatamart {
 
   F2DAllergyIntoleranceTransformer allergyIntoleranceTransformer =
-          new F2DAllergyIntoleranceTransformer();
+      new F2DAllergyIntoleranceTransformer();
+
+  @SneakyThrows
+  public void main(String[] args) {
+    if (args.length != 2) {
+      throw new RuntimeException("Arg Count Incorrect: " + args.length);
+    }
+    String resource = args[0];
+    String directory = args[1];
+    List<File> files =
+        Files.walk(Path.of(directory))
+            .filter(Files::isRegularFile)
+            .map(Path::toFile)
+            .filter(f -> f.getName().matches(pattern(resource)))
+            .collect(Collectors.toList());
+    transformAndWriteFiles(files, resource);
+  }
 
   private ObjectMapper mapper() {
     return new ObjectMapper()
-            .setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY)
-            .setSerializationInclusion(JsonInclude.Include.NON_NULL)
-            .registerModule(new Jdk8Module())
-            .registerModule(new JavaTimeModule())
-            .setDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"));
+        .setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY)
+        .setSerializationInclusion(JsonInclude.Include.NON_NULL)
+        .registerModule(new Jdk8Module())
+        .registerModule(new JavaTimeModule())
+        .setDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"));
   }
 
   private String pattern(String resource) {
@@ -70,31 +82,17 @@ public class FhirToDatamart {
         for (File file : files) {
           AllergyIntolerance allergyIntolerance = mapper.readValue(file, AllergyIntolerance.class);
           DatamartAllergyIntolerance datamartAllergyIntolerance =
-                  allergyIntoleranceTransformer.fhirToDatamart(allergyIntolerance);
+              allergyIntoleranceTransformer.fhirToDatamart(allergyIntolerance);
           mapper.writeValue(
-                  new File(
-                          "target/DMAllInt" + datamartAllergyIntolerance.cdwId().replaceAll("-", "") + ".json"),
-                  datamartAllergyIntolerance);
+              new File(
+                  "target/DMAllInt"
+                      + datamartAllergyIntolerance.cdwId().replaceAll("-", "")
+                      + ".json"),
+              datamartAllergyIntolerance);
         }
         break;
       default:
         throw new IllegalArgumentException("Unsupported Resource : " + resource);
     }
-  }
-
-  @SneakyThrows
-  public void main(String[] args) {
-    if (args.length != 2) {
-      throw new RuntimeException("Arg Count Incorrect: " + args.length);
-    }
-    String resource = args[0];
-    String directory = args[1];
-    List<File> files =
-            Files.walk(Path.of(directory))
-                    .filter(Files::isRegularFile)
-                    .map(Path::toFile)
-                    .filter(f -> f.getName().matches(pattern(resource)))
-                    .collect(Collectors.toList());
-    transformAndWriteFiles(files, resource);
   }
 }
