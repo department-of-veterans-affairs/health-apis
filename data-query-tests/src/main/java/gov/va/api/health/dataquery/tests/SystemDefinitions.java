@@ -167,7 +167,7 @@ public final class SystemDefinitions {
         .diagnosticReport("708d00e3-c753-50c9-9da6-6d87ce618f0b")
         .diagnosticReports(diagnosticReports())
         .encounter("05d66afc-3a1a-5277-8b26-a8084ac46a08")
-        .immunization("00f4000a-b1c9-5190-993a-644569d2722b")
+        .immunization("3c009e39-7960-56d6-8597-fb1f9d169360")
         .location("a146313b-9a77-5337-a442-bee6ceb4aa5c")
         .medication("89a46bce-8b95-5a91-bbef-1fb5f8a2a292")
         .medicationDispense("773bb1ab-4430-5012-b203-a88c41c5dde9")
