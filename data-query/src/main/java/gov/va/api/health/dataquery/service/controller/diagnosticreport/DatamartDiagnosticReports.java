@@ -91,7 +91,7 @@ public class DatamartDiagnosticReports {
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
-  static final class Order {
+  public static final class Order {
     private String sid;
 
     private String display;
@@ -101,7 +101,7 @@ public class DatamartDiagnosticReports {
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
-  static final class Result {
+  public static final class Result {
     private String result;
 
     private String display;
