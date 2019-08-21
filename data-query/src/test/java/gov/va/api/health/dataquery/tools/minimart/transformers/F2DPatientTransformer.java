@@ -58,13 +58,15 @@ public class F2DPatientTransformer {
   }
 
   private String gender(Patient.Gender gender) {
-    switch (gender.toString()) {
-      case "male":
+    switch (gender) {
+      case male:
         return "M";
-      case "female":
+      case female:
         return "F";
-      case "other":
-        return "X";
+      case other:
+        return "*MISSING*";
+      case unknown:
+        return "*UNKNOWN AT THIS TIME*";
       default:
         return null;
     }
