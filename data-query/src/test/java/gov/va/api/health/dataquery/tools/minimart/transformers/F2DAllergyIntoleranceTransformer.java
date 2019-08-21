@@ -45,10 +45,7 @@ public class F2DAllergyIntoleranceTransformer {
   }
 
   private List<DatamartCoding> codings(List<Coding> codings) {
-    if (codings == null) {
-      return null;
-    }
-    if (codings.isEmpty()) {
+    if (codings == null || codings.isEmpty()) {
       return null;
     }
     return codings
@@ -102,10 +99,7 @@ public class F2DAllergyIntoleranceTransformer {
 
   private Optional<DatamartAllergyIntolerance.Reaction> reactions(
       List<AllergyIntolerance.Reaction> reactions) {
-    if (reactions == null) {
-      return null;
-    }
-    if (reactions.isEmpty()) {
+    if (reactions == null || reactions.isEmpty()) {
       return null;
     }
     AllergyIntolerance.Reaction reaction = reactions.get(0);
@@ -118,10 +112,7 @@ public class F2DAllergyIntoleranceTransformer {
   }
 
   private Optional<DatamartReference> reference(Reference reference, String type) {
-    if (reference == null) {
-      return null;
-    }
-    if (allBlank(reference.display(), reference.reference())) {
+    if (reference == null || allBlank(reference.display(), reference.reference())) {
       return null;
     }
     return Optional.of(
@@ -140,10 +131,7 @@ public class F2DAllergyIntoleranceTransformer {
   }
 
   private Optional<DatamartAllergyIntolerance.Substance> substance(CodeableConcept substance) {
-    if (substance == null) {
-      return null;
-    }
-    if (substance.coding() == null) {
+    if (substance == null || substance.coding() == null) {
       return null;
     }
     return Optional.of(
