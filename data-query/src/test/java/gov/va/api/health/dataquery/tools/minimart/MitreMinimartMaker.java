@@ -55,6 +55,10 @@ public class MitreMinimartMaker {
   private static void insertByAllergyIntolerance(File file) {
     DatamartAllergyIntolerance dm =
         JacksonConfig.createMapper().readValue(file, DatamartAllergyIntolerance.class);
+    log.info(
+        "Processing cdwId ({}) for icn ({})",
+        dm.cdwId(),
+        patientIcn(dm.patient().isPresent() ? dm.patient().get() : null));
     AllergyIntoleranceEntity entity =
         AllergyIntoleranceEntity.builder()
             .cdwId(dm.cdwId())
@@ -80,25 +84,32 @@ public class MitreMinimartMaker {
     flushAndClear();
   }
 
-  // TODO Crosswalk Things
   @SneakyThrows
   private static void insertByDiagnosticReport(File file) {
     DatamartDiagnosticReports dm =
         JacksonConfig.createMapper().readValue(file, DatamartDiagnosticReports.class);
     // DR Entity
-    DiagnosticReportsEntity drEntity =
-        DiagnosticReportsEntity.builder().icn(dm.fullIcn()).payload(fileToString(file)).build();
-    entityManager.persist(drEntity);
+    entityManager.persist(
+        DiagnosticReportsEntity.builder()
+            .icn(dm.fullIcn())
+            .payload(
+                JacksonConfig.createMapper()
+                    .writerWithDefaultPrettyPrinter()
+                    .writeValueAsString(dm.reports()))
+            .build());
+
     // DR Crosswalk Entities
     dm.reports()
         .stream()
         .forEach(
-            report ->
-                entityManager.persist(
-                    DiagnosticReportCrossEntity.builder()
-                        .icn(dm.fullIcn())
-                        .reportId(report.identifier())
-                        .build()));
+            report -> {
+              log.info("Processing id {} for patient {}", report.identifier(), dm.fullIcn());
+              entityManager.persist(
+                  DiagnosticReportCrossEntity.builder()
+                      .icn(dm.fullIcn())
+                      .reportId(report.identifier())
+                      .build());
+            });
     flushAndClear();
   }
 

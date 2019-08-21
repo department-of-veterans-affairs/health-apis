@@ -7,8 +7,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import gov.va.api.health.argonaut.api.resources.AllergyIntolerance;
+import gov.va.api.health.argonaut.api.resources.DiagnosticReport;
 import gov.va.api.health.dataquery.service.controller.allergyintolerance.DatamartAllergyIntolerance;
+import gov.va.api.health.dataquery.service.controller.diagnosticreport.DatamartDiagnosticReports;
 import gov.va.api.health.dataquery.tools.minimart.transformers.F2DAllergyIntoleranceTransformer;
+import gov.va.api.health.dataquery.tools.minimart.transformers.F2DDiagnosticReportTransformer;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -105,6 +108,21 @@ public class FhirToDatamart {
                       + datamartAllergyIntolerance.cdwId().replaceAll("-", "")
                       + ".json"),
               datamartAllergyIntolerance);
+        }
+        break;
+      case "DiagnosticReport":
+        F2DDiagnosticReportTransformer diagnosticReportTransformer =
+            new F2DDiagnosticReportTransformer();
+        for (File f : files) {
+          DiagnosticReport diagnosticReport = mapper.readValue(f, DiagnosticReport.class);
+          DatamartDiagnosticReports datamartDiagnosticReports =
+              diagnosticReportTransformer.fhirToDatamart(diagnosticReport);
+          mapper.writeValue(
+              new File(
+                  "target/DiaRep/dmDiaRep"
+                      + datamartDiagnosticReports.reports().get(0).identifier().replaceAll("-", "")
+                      + ".json"),
+              datamartDiagnosticReports);
         }
         break;
       default:
