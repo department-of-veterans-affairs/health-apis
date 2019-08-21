@@ -32,12 +32,28 @@ public class FileResultsCollector implements ResultCollector {
   @Override
   public void add(Result result) {
     String filename = createFilename(result.query());
-    String basicInfo = filename + "," + result.outcome() + "," + result.query();
+    String basicInfo =
+        filename
+            + ","
+            + result.outcome()
+            + ","
+            + result.httpStatus()
+            + ","
+            + result.duration().toMillis()
+            + ","
+            + result.query();
     summary.add(basicInfo);
-    log.info("{} {}", result.query(), result.outcome());
+    log.info(
+        "{} {} {} {}",
+        result.query(),
+        result.outcome(),
+        result.httpStatus(),
+        result.duration().toMillis());
     if (result.outcome() != Outcome.OK) {
       log.error("{}", result.body());
-      log.error("{}", result.additionalInfo());
+      if (StringUtils.isNotBlank(result.additionalInfo())) {
+        log.error("{}", result.additionalInfo());
+      }
       failures.incrementAndGet();
     }
     printBody(filename, result);

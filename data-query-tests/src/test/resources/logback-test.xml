@@ -6,9 +6,9 @@
       <Pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n</Pattern>
     </layout>
   </appender>
-  <root level="info">
+  <root level="${LOGBACK_ROOT_LEVEL:-INFO}">
     <appender-ref ref="STDOUT"/>
   </root>
-  <logger level="INFO" name="org.apache.http"/>
-  <logger level="WARN" name="org.hibernate.validator.internal"/>
+  <logger level="OFF" name="org.apache.http"/>
+  <logger level="OFF" name="org.hibernate.validator.internal"/>
 </configuration>

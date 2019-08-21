@@ -33,8 +33,9 @@ public class DatamartMedicationOrderTransformer {
       return null;
     }
     DatamartMedicationOrder.DispenseRequest dispenseRequest = maybeDispenseRequest.get();
+    Integer numberOfRepeatsAllowed = dispenseRequest.numberOfRepeatsAllowed().orElse(0);
     return MedicationOrder.DispenseRequest.builder()
-        .numberOfRepeatsAllowed(dispenseRequest.numberOfRepeatsAllowed().orElse(null))
+        .numberOfRepeatsAllowed(numberOfRepeatsAllowed < 1 ? null : numberOfRepeatsAllowed)
         .quantity(simpleQuantity(dispenseRequest.quantity(), dispenseRequest.unit()))
         .expectedSupplyDuration(
             duration(

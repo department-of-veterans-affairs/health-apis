@@ -20,6 +20,7 @@ import gov.va.api.health.dstu2.api.datatypes.Identifier;
 import gov.va.api.health.dstu2.api.elements.Extension;
 import gov.va.api.health.dstu2.api.elements.Reference;
 import gov.va.api.health.ids.api.IdentityService;
+import java.util.Optional;
 import lombok.Builder;
 import lombok.SneakyThrows;
 import lombok.Value;
@@ -254,9 +255,9 @@ public final class DatamartPatientTest {
         .deceased("Y")
         .deathDateTime("2013-11-16T02:33:33")
         .gender("M")
-        .selfIdentifiedGender("Male")
-        .religion("None")
-        .managingOrganization("17229:I")
+        .selfIdentifiedGender(Optional.of("Male"))
+        .religion(Optional.of("None"))
+        .managingOrganization(Optional.of("17229:I"))
         .maritalStatus(
             DatamartPatient.MaritalStatus.builder()
                 .display("SEPARATED")

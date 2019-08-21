@@ -72,6 +72,7 @@ public class WitnessProtection {
   }
 
   /** Register IDs. */
+  @Loggable(arguments = false)
   public List<Registration> register(Collection<ResourceIdentity> ids) {
     if (isEmpty(ids)) {
       return emptyList();
@@ -80,6 +81,7 @@ public class WitnessProtection {
   }
 
   /** Register IDs and return an IdentityMapping that can be used to easily find public IDs. */
+  @Loggable(arguments = false)
   public IdentityMapping registerAndMap(Collection<ResourceIdentity> ids) {
     return new IdentityMapping(register(ids));
   }
@@ -89,7 +91,7 @@ public class WitnessProtection {
    * stream of references using the provided function. After registration, the references WILL BE
    * MODIFIED to include new identity values.
    */
-  @Loggable(arguments = true)
+  @Loggable(arguments = false)
   public <T extends HasReplaceableId> void registerAndUpdateReferences(
       Collection<T> resources, Function<T, Stream<DatamartReference>> referencesOf) {
     IdentityMapping mapping = register(resources, referencesOf);
@@ -101,6 +103,7 @@ public class WitnessProtection {
    *
    * @see IdentityParameterReplacer
    */
+  @Loggable(arguments = false)
   public MultiValueMap<String, String> replacePublicIdsWithCdwIds(
       MultiValueMap<String, String> publicParameters) {
     try {
@@ -147,7 +150,7 @@ public class WitnessProtection {
   }
 
   /** Lookup and convert the given public ID to a CDW id. */
-  @Loggable
+  @Loggable(arguments = false)
   public String toCdwId(String publicId) {
     MultiValueMap<String, String> publicParameters = Parameters.forIdentity(publicId);
     MultiValueMap<String, String> cdwParameters = replacePublicIdsWithCdwIds(publicParameters);
@@ -170,6 +173,7 @@ public class WitnessProtection {
     }
 
     /** Return the mapping for the public ID of the reference if it exists. */
+    @Loggable(arguments = false)
     public Optional<String> publicIdOf(@NonNull DatamartReference reference) {
       if (!reference.hasTypeAndReference()) {
         return Optional.empty();
@@ -183,6 +187,7 @@ public class WitnessProtection {
      * Return the mapping for the public ID of the resource and id if it exists. The resource name
      * should be in IdentityService format, e.g. DIAGNOSTIC_REPORT instead of "DiagnosticReport"
      */
+    @Loggable(arguments = false)
     public Optional<String> publicIdOf(String resourceInIdentityServiceFormat, String identifier) {
       Registration registration = ids.get(resourceInIdentityServiceFormat, identifier);
       return Optional.ofNullable(registration == null ? null : registration.uuid());

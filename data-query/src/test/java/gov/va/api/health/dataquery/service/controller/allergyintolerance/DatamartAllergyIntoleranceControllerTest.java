@@ -44,7 +44,7 @@ public class DatamartAllergyIntoleranceControllerTest {
   private AllergyIntoleranceEntity asEntity(DatamartAllergyIntolerance dm) {
     return AllergyIntoleranceEntity.builder()
         .cdwId(dm.cdwId())
-        .icn(dm.patient().get().reference().get())
+        .icn(dm.patient().reference().get())
         .payload(JacksonConfig.createMapper().writeValueAsString(dm))
         .build();
   }
@@ -155,7 +155,7 @@ public class DatamartAllergyIntoleranceControllerTest {
     mockAllergyIntoleranceIdentity("1", dm.cdwId());
     Bundle actual = controller().searchById("true", "1", 1, 1);
     AllergyIntolerance allergyIntolerance =
-        Fhir.create().allergyIntolerance("1", dm.patient().get().reference().get());
+        Fhir.create().allergyIntolerance("1", dm.patient().reference().get());
     assertThat(json(actual))
         .isEqualTo(
             json(

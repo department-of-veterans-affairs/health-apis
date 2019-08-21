@@ -36,7 +36,7 @@ public class IgnoreFilterResultCollector implements ResultCollector {
   public void add(Result result) {
     if (result.outcome() != Outcome.OK) {
       // If this failure is in one or more of the ignore filters then record it but don't fail.
-      String summary = result.query() + " " + result.outcome();
+      String summary = result.outcome() + " " + result.httpStatus() + " " + result.query();
       if (failuresToIgnore.stream().anyMatch(s -> result.query().endsWith(s))) {
         ignoredFailureSummaries.add(summary);
       } else {

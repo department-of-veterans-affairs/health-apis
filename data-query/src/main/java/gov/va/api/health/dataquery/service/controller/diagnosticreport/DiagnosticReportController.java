@@ -44,6 +44,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,6 +68,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @Validated
 @RestController
+@Slf4j
 @SuppressWarnings("WeakerAccess")
 @RequestMapping(
   value = {"DiagnosticReport", "/api/DiagnosticReport"},
@@ -168,8 +170,10 @@ public class DiagnosticReportController {
       // LOINC codes are not available in CDW
       return bundle(publicParameters, emptyList(), 0);
     }
+    log.info("Starting Diagnostic Report search by patient");
     DiagnosticReportsEntity entity =
         entityManager.find(DiagnosticReportsEntity.class, cdwParameters.getFirst("patient"));
+    log.info("Finished Diagnostic Report search by patient");
     if (entity == null) {
       return bundle(publicParameters, emptyList(), 0);
     }
@@ -231,12 +235,16 @@ public class DiagnosticReportController {
     String cdwReportId = Parameters.identiferOf(cdwParameters);
     TypedQuery<DiagnosticReportsEntity> query =
         entityManager.createQuery(
-            "Select dr from DiagnosticReportsEntity dr join DiagnosticReportCrossEntity drc on"
+            "SELECT dr FROM DiagnosticReportCrossEntity drc join"
+                + " DiagnosticReportsEntity dr on"
                 + " dr.icn = drc.icn where drc.reportId = :identifier",
             DiagnosticReportsEntity.class);
+
     query.setParameter("identifier", cdwReportId);
     query.setMaxResults(1);
+    log.info("Starting Diagnostic Report Read");
     List<DiagnosticReportsEntity> entities = query.getResultList();
+    log.info("Finished Diagnostic Report Read");
     if (isEmpty(entities)) {
       throw new ResourceExceptions.NotFound(publicParameters);
     }

@@ -48,12 +48,7 @@ public class WellKnownControllerTest {
   public void read() {
     WellKnownController controller =
         new WellKnownController(wellKnownProperties(), conformanceProperties());
-    try {
-      assertThat(pretty(controller.read())).isEqualTo(pretty(actual()));
-    } catch (AssertionError e) {
-      System.out.println(e.getMessage());
-      throw e;
-    }
+    assertThat(pretty(controller.read())).isEqualTo(pretty(actual()));
   }
 
   private WellKnownProperties wellKnownProperties() {
