@@ -68,7 +68,12 @@ public class F2DAllergyIntoleranceTransformer {
     return DatamartAllergyIntolerance.builder()
         .objectType(allergyIntolerance.resourceType())
         .cdwId(allergyIntolerance.id())
-        .patient(reference(allergyIntolerance.patient(), "Patient"))
+        .patient(
+            DatamartReference.builder()
+                .display(Optional.of(allergyIntolerance.patient().display()))
+                .reference(Optional.of(allergyIntolerance.patient().reference()))
+                .type(Optional.of("Patient"))
+                .build())
         .recordedDate(dateTime(allergyIntolerance.recordedDate()))
         .recorder(reference(allergyIntolerance.recorder(), "Practitioner"))
         .substance(substance(allergyIntolerance.substance()))

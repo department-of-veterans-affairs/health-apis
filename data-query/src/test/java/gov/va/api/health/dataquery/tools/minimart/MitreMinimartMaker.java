@@ -55,14 +55,11 @@ public class MitreMinimartMaker {
   private static void insertByAllergyIntolerance(File file) {
     DatamartAllergyIntolerance dm =
         JacksonConfig.createMapper().readValue(file, DatamartAllergyIntolerance.class);
-    log.info(
-        "Processing cdwId ({}) for icn ({})",
-        dm.cdwId(),
-        patientIcn(dm.patient().isPresent() ? dm.patient().get() : null));
+    log.info("Processing AllergyIntolerance cdwId: {}", dm.cdwId());
     AllergyIntoleranceEntity entity =
         AllergyIntoleranceEntity.builder()
             .cdwId(dm.cdwId())
-            .icn(patientIcn(dm.patient().isPresent() ? dm.patient().get() : null))
+            .icn(patientIcn(dm.patient()))
             .payload(fileToString(file))
             .build();
     entityManager.persist(entity);

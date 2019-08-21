@@ -93,7 +93,7 @@ public class FhirToDatamart {
   @SneakyThrows
   private void transformAndWriteFiles(List<File> files, String resource) {
     F2DAllergyIntoleranceTransformer allergyIntoleranceTransformer =
-            new F2DAllergyIntoleranceTransformer();
+        new F2DAllergyIntoleranceTransformer();
     ObjectMapper mapper = mapper();
     switch (resource) {
       case "AllergyIntolerance":
