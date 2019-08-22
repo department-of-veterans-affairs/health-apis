@@ -43,12 +43,9 @@ public class MitreMinimartMaker {
 
   private EntityManager entityManager;
 
-  private RevealSecretIdentity villain;
-
   public MitreMinimartMaker(String resourceToSync, String dbLocation) {
     this.resourceToSync = resourceToSync;
     this.entityManager = DatamartExporter.getH2(dbLocation);
-    this.villain = new RevealSecretIdentity();
   }
 
   /** Main. */
@@ -87,7 +84,7 @@ public class MitreMinimartMaker {
     log.info("Processing AllergyIntolerance cdwId: {}", dm.cdwId());
     AllergyIntoleranceEntity entity =
         AllergyIntoleranceEntity.builder()
-            .cdwId(villain.unmask(dm.cdwId()))
+            .cdwId(dm.cdwId())
             .icn(patientIcn(dm.patient()))
             .payload(fileToString(file))
             .build();
@@ -98,6 +95,7 @@ public class MitreMinimartMaker {
   @SneakyThrows
   private void insertByCondition(File file) {
     DatamartCondition dm = JacksonConfig.createMapper().readValue(file, DatamartCondition.class);
+    log.info("Processing Condition cdwId: {}", dm.cdwId());
     ConditionEntity entity =
         ConditionEntity.builder()
             .cdwId(dm.cdwId())

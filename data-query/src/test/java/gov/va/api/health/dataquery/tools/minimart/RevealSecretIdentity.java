@@ -12,20 +12,17 @@ import org.springframework.web.client.RestTemplate;
 @Slf4j
 public class RevealSecretIdentity {
 
-  private RestTemplate restTemplate;
-
-  private String idsUrl;
-
-  private IdentityService identityService;
+  private WitnessProtection witnessProtection;
 
   public RevealSecretIdentity() {
-    restTemplate = new RestTemplate();
-    idsUrl = "http://localhost:8089";
-    identityService =
+    String idsUrl = "http://localhost:8089";
+    RestTemplate restTemplate = new RestTemplate();
+    IdentityService identityService =
         new RestIdentityServiceClientConfig(restTemplate, idsUrl).restIdentityServiceClient();
+    this.witnessProtection = new WitnessProtection(identityService);
   }
 
-  public Optional<DatamartReference> toDatamartReference(Reference reference) {
+  public Optional<DatamartReference> toDatamartReferenceWithCdwId(Reference reference) {
     if (reference == null) {
       return null;
     }
@@ -41,6 +38,6 @@ public class RevealSecretIdentity {
   }
 
   public String unmask(String villainId) {
-    return new WitnessProtection(identityService).toCdwId(villainId);
+    return witnessProtection.toCdwId(villainId);
   }
 }

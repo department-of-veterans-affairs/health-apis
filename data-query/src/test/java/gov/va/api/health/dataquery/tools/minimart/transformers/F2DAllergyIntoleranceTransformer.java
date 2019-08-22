@@ -69,10 +69,11 @@ public class F2DAllergyIntoleranceTransformer {
     RevealSecretIdentity revealSecretIdentity = new RevealSecretIdentity();
     return DatamartAllergyIntolerance.builder()
         .objectType(allergyIntolerance.resourceType())
-        .cdwId(allergyIntolerance.id())
-        .patient(revealSecretIdentity.toDatamartReference(allergyIntolerance.patient()).get())
+        .cdwId(revealSecretIdentity.unmask(allergyIntolerance.id()))
+        .patient(
+            revealSecretIdentity.toDatamartReferenceWithCdwId(allergyIntolerance.patient()).get())
         .recordedDate(dateTime(allergyIntolerance.recordedDate()))
-        .recorder(revealSecretIdentity.toDatamartReference(allergyIntolerance.recorder()))
+        .recorder(revealSecretIdentity.toDatamartReferenceWithCdwId(allergyIntolerance.recorder()))
         .substance(substance(allergyIntolerance.substance()))
         .status(status(allergyIntolerance.status()))
         .type(type(allergyIntolerance.type()))
