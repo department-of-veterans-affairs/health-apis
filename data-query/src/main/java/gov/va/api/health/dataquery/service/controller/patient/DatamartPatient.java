@@ -142,7 +142,7 @@ public class DatamartPatient {
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
-  static final class Ethnicity {
+  public static final class Ethnicity {
     private String display;
 
     private String abbrev;
@@ -154,7 +154,7 @@ public class DatamartPatient {
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
-  static final class MaritalStatus {
+  public static final class MaritalStatus {
     private String display;
 
     private String abbrev;

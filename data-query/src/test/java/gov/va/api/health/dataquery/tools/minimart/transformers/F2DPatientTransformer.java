@@ -5,20 +5,52 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import gov.va.api.health.argonaut.api.resources.Patient;
 import gov.va.api.health.dataquery.service.controller.patient.DatamartPatient;
+import gov.va.api.health.dstu2.api.datatypes.Address;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.ContactPoint;
 import gov.va.api.health.dstu2.api.datatypes.HumanName;
+import gov.va.api.health.dstu2.api.datatypes.Identifier;
+import gov.va.api.health.dstu2.api.elements.Extension;
+
 import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class F2DPatientTransformer {
 
+  private DatamartPatient.Address address(Address address) {
+    if (address == null) {
+      return null;
+    }
+    String street1 = null;
+    String street2 = null;
+    String street3 = null;
+    if (address.line() != null && !address.line().isEmpty()) {
+      street1 = address.line().get(0);
+      if (address.line().size() > 1) {
+        street2 = address.line().get(1);
+      }
+      if (address.line().size() > 2) {
+        street3 = address.line().get(2);
+      }
+    }
+    return DatamartPatient.Address.builder()
+        .street1(street1)
+        .street2(street2)
+        .street3(street3)
+        .city(address.city())
+        .state(address.state())
+        .country(address.country())
+        .postalCode(address.postalCode())
+        .build();
+  }
+
   private DatamartPatient.Contact contact(Patient.Contact contact) {
     if (contact == null) {
       return null;
     }
     return DatamartPatient.Contact.builder()
+        .address(address(contact.address()))
         .phone(phone(contact.telecom()))
         .name(contactName(contact.name()))
         .type(type(contact.relationship()))
@@ -59,6 +91,7 @@ public class F2DPatientTransformer {
 
   public DatamartPatient fhirToDatamart(Patient patient) {
     return DatamartPatient.builder()
+        .objectVersion(1)
         .objectType(patient.resourceType())
         .fullIcn(patient.id())
         .firstName(firstName(patient.name()))
@@ -69,8 +102,42 @@ public class F2DPatientTransformer {
         .deceased(deceased(patient.deceasedDateTime(), patient.deceasedBoolean()))
         .gender(gender(patient.gender()))
         .contact(contacts(patient.contact()))
+        .maritalStatus(maritalStatus(patient.maritalStatus()))
+            .ssn(ssn(patient.identifier()))
+            .ethnicity(ethnicityExtension(patient.extension()))
+
         .objectVersion(1)
         .build();
+  }
+
+  private DatamartPatient.Ethnicity ethnicityExtension(List<Extension> extensions) {
+    if (extensions==null){
+      return null;
+    }
+    List<Extension> ethnicityExtensions = findExtension(extensions, "http://fhir.org/guides/argonaut/StructureDefinition/argo-ethnicity").extension();
+    if(ethnicityExtensions==null){
+      return null;
+    }
+    Extension ethnicityExtension = findExtension(ethnicityExtensions,"ombCategory");
+    if(ethnicityExtension==null||ethnicityExtension.valueCoding()==null){
+      return null;
+    }
+    return DatamartPatient.Ethnicity.builder().hl7(ethnicityExtension.valueCoding().code()).display(ethnicityExtension.valueCoding().display()).build();
+  }
+  Extension findExtension(List<Extension> extensions, String url){
+    for (Extension extension :extensions){
+      if(extension.url().equals(url)){
+        return extension;
+      }
+    }
+    return null;
+  }
+
+  private String ssn(List<Identifier> identifier) {
+    if (identifier==null||identifier.size()<2||identifier.get(1)==null){
+      return null;
+    }
+   return identifier.get(1).value();
   }
 
   private String firstName(List<HumanName> name) {
@@ -108,6 +175,39 @@ public class F2DPatientTransformer {
       return null;
     }
     return name.get(0).family().get(0);
+  }
+
+  private DatamartPatient.MaritalStatus maritalStatus(CodeableConcept maritalStatus) {
+    if (maritalStatus == null || maritalStatus.coding().isEmpty()) {
+      return null;
+    }
+    String codingDisplay = maritalStatus.coding().get(0).display();
+    String code;
+    switch (codingDisplay) {
+      case "Annulled":
+        code = "A";
+      case "Divorced":
+        code = "D";
+      case "Interlocutory":
+        code = "I";
+      case "Legally Separated":
+        code = "L";
+      case "Married":
+        code = "M";
+      case "Polygamous":
+        code = "P";
+      case "Never Married":
+        code = "S";
+      case "Domestic partner":
+        code = "T";
+      case "Widowed":
+        code = "W";
+      case "unknown":
+        code = "UNK";
+      default:
+        code = null;
+    }
+    return DatamartPatient.MaritalStatus.builder().abbrev(code).code(code).build();
   }
 
   private String name(List<HumanName> name) {
