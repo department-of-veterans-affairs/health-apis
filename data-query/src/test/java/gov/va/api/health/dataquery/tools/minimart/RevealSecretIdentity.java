@@ -1,9 +1,9 @@
 package gov.va.api.health.dataquery.tools.minimart;
 
+import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dstu2.api.elements.Reference;
 import gov.va.api.health.ids.api.IdentityService;
-import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.health.ids.client.RestIdentityServiceClientConfig;
 import groovy.util.logging.Slf4j;
 import java.util.Optional;
@@ -41,12 +41,6 @@ public class RevealSecretIdentity {
   }
 
   public String unmask(String villainId) {
-    return identityService
-        .lookup(villainId)
-        .stream()
-        .filter(id -> id.system().equalsIgnoreCase("CDW"))
-        .map(ResourceIdentity::identifier)
-        .findFirst()
-        .orElse(null);
+    return new WitnessProtection(identityService).toCdwId(villainId);
   }
 }
