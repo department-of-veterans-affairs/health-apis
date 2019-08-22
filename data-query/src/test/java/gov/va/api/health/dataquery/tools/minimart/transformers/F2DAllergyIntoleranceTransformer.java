@@ -7,6 +7,7 @@ import gov.va.api.health.dataquery.service.controller.EnumSearcher;
 import gov.va.api.health.dataquery.service.controller.allergyintolerance.DatamartAllergyIntolerance;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
+import gov.va.api.health.dataquery.tools.minimart.RevealSecretIdentity;
 import gov.va.api.health.dstu2.api.datatypes.Annotation;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
@@ -65,17 +66,13 @@ public class F2DAllergyIntoleranceTransformer {
 
   /** Transforms a Fhir compliant AllergyIntolerance model to a datamart model of data. */
   public DatamartAllergyIntolerance fhirToDatamart(AllergyIntolerance allergyIntolerance) {
+    RevealSecretIdentity revealSecretIdentity = new RevealSecretIdentity();
     return DatamartAllergyIntolerance.builder()
         .objectType(allergyIntolerance.resourceType())
         .cdwId(allergyIntolerance.id())
-        .patient(
-            DatamartReference.builder()
-                .display(Optional.of(allergyIntolerance.patient().display()))
-                .reference(Optional.of(idFromReference(allergyIntolerance.patient().reference())))
-                .type(Optional.of("Patient"))
-                .build())
+        .patient(revealSecretIdentity.toDatamartReference(allergyIntolerance.patient()).get())
         .recordedDate(dateTime(allergyIntolerance.recordedDate()))
-        .recorder(reference(allergyIntolerance.recorder(), "Practitioner"))
+        .recorder(revealSecretIdentity.toDatamartReference(allergyIntolerance.recorder()))
         .substance(substance(allergyIntolerance.substance()))
         .status(status(allergyIntolerance.status()))
         .type(type(allergyIntolerance.type()))

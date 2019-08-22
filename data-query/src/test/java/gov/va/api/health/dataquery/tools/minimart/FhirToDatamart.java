@@ -95,6 +95,11 @@ public class FhirToDatamart {
     F2DAllergyIntoleranceTransformer allergyIntoleranceTransformer =
         new F2DAllergyIntoleranceTransformer();
     ObjectMapper mapper = mapper();
+    String outputDirectoryName = "target/fhir-to-datamart-samples";
+    File outputDirectory = new File(outputDirectoryName);
+    if (!outputDirectory.exists()) {
+      outputDirectory.mkdir();
+    }
     switch (resource) {
       case "AllergyIntolerance":
         for (File file : files) {
@@ -103,7 +108,8 @@ public class FhirToDatamart {
               allergyIntoleranceTransformer.fhirToDatamart(allergyIntolerance);
           mapper.writeValue(
               new File(
-                  "target/dmAllInt"
+                  outputDirectory
+                      + "/dmAllInt"
                       + datamartAllergyIntolerance.cdwId().replaceAll("-", "")
                       + ".json"),
               datamartAllergyIntolerance);
@@ -118,7 +124,8 @@ public class FhirToDatamart {
               diagnosticReportTransformer.fhirToDatamart(diagnosticReport);
           mapper.writeValue(
               new File(
-                  "target/DiaRep/dmDiaRep"
+                  outputDirectory
+                      + "/dmDiaRep"
                       + datamartDiagnosticReports.reports().get(0).identifier().replaceAll("-", "")
                       + ".json"),
               datamartDiagnosticReports);

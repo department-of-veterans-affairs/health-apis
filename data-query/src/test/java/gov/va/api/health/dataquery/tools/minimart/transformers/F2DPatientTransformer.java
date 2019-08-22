@@ -5,7 +5,6 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import gov.va.api.health.argonaut.api.resources.Patient;
 import gov.va.api.health.dataquery.service.controller.patient.DatamartPatient;
-import gov.va.api.health.dstu2.api.datatypes.Address;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.ContactPoint;
 import gov.va.api.health.dstu2.api.datatypes.HumanName;
@@ -14,6 +13,28 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class F2DPatientTransformer {
+
+  private DatamartPatient.Contact contact(Patient.Contact contact) {
+    if (contact == null) {
+      return null;
+    }
+    return DatamartPatient.Contact.builder()
+        .phone(phone(contact.telecom()))
+        .name(contactName(contact.name()))
+        .type(type(contact.relationship()))
+        .build();
+  }
+
+  private String contactName(HumanName humanName) {
+    if (humanName == null) {
+      return null;
+    }
+    return humanName.text();
+  }
+
+  private List<DatamartPatient.Contact> contacts(List<Patient.Contact> contact) {
+    return contact.stream().map(this::contact).collect(Collectors.toList());
+  }
 
   private String deathDateTime(String deathDateTime, Boolean deceasedBoolean) {
     if (deceasedBoolean != null || isBlank(deathDateTime)) {
@@ -36,38 +57,6 @@ public class F2DPatientTransformer {
     return "N";
   }
 
-  private List<DatamartPatient.Contact> contacts (List<Patient.Contact> contact){
-    return contact.stream().map(this::contact).collect(Collectors.toList());
-  }
-
-  private DatamartPatient.Contact contact (Patient.Contact contact){
-    if (contact == null) {
-      return null;
-    }
-    List<CodeableConcept> relationships = contact.relationship();
-    if (relationships==null||relationships.isEmpty()) {
-      return null;
-    }
-    return DatamartPatient.Contact
-            .builder()
-            .phone(phone(contact.telecom()))
-            .address()
-            .relationship()
-            .name()
-            .type()
-            .build();
-  }
-
-  private DatamartPatient.Contact.Phone phone(List<ContactPoint>  telecoms){
-    if (telecoms==null||telecoms.isEmpty()){
-      return null;
-    }
-    String phoneNumber = telecoms.get(0)==null?null:telecoms.get(0).value();
-    String workPhoneNumber = telecoms.get(1)==null?null:telecoms.get(1).value();
-    String email = telecoms.get(2)==null?null:telecoms.get(2).value();
-    return DatamartPatient.Contact.Phone.builder().phoneNumber(phoneNumber).workPhoneNumber(workPhoneNumber).email(email).build();
-  }
-
   public DatamartPatient fhirToDatamart(Patient patient) {
     return DatamartPatient.builder()
         .objectType(patient.resourceType())
@@ -79,13 +68,7 @@ public class F2DPatientTransformer {
         .deathDateTime(deathDateTime(patient.deceasedDateTime(), patient.deceasedBoolean()))
         .deceased(deceased(patient.deceasedDateTime(), patient.deceasedBoolean()))
         .gender(gender(patient.gender()))
-        .race()
         .contact(contacts(patient.contact()))
-        .maritalStatus()
-        .ethnicity()
-        .ssn()
-        .telecom()
-        .address()
         .objectVersion(1)
         .build();
   }
@@ -132,5 +115,26 @@ public class F2DPatientTransformer {
       return null;
     }
     return name.get(0).text();
+  }
+
+  private DatamartPatient.Contact.Phone phone(List<ContactPoint> telecoms) {
+    if (telecoms == null || telecoms.isEmpty()) {
+      return null;
+    }
+    String phoneNumber = telecoms.get(0) == null ? null : telecoms.get(0).value();
+    String workPhoneNumber = telecoms.get(1) == null ? null : telecoms.get(1).value();
+    String email = telecoms.get(2) == null ? null : telecoms.get(2).value();
+    return DatamartPatient.Contact.Phone.builder()
+        .phoneNumber(phoneNumber)
+        .workPhoneNumber(workPhoneNumber)
+        .email(email)
+        .build();
+  }
+
+  private String type(List<CodeableConcept> relationship) {
+    if (relationship == null || relationship.isEmpty() || relationship.get(0) == null) {
+      return null;
+    }
+    return relationship.get(0).text();
   }
 }
