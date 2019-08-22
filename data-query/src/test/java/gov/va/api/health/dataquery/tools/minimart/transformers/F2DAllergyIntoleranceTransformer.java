@@ -71,7 +71,7 @@ public class F2DAllergyIntoleranceTransformer {
         .patient(
             DatamartReference.builder()
                 .display(Optional.of(allergyIntolerance.patient().display()))
-                .reference(Optional.of(allergyIntolerance.patient().reference()))
+                .reference(Optional.of(idFromReference(allergyIntolerance.patient().reference())))
                 .type(Optional.of("Patient"))
                 .build())
         .recordedDate(dateTime(allergyIntolerance.recordedDate()))
@@ -83,6 +83,11 @@ public class F2DAllergyIntoleranceTransformer {
         .notes(notes(allergyIntolerance.note()))
         .reactions(reactions(allergyIntolerance.reaction()))
         .build();
+  }
+
+  private String idFromReference(String reference) {
+    String[] referenceArray = reference.split("/");
+    return referenceArray[referenceArray.length - 1];
   }
 
   private List<DatamartCoding> manifestations(List<CodeableConcept> manifestations) {
@@ -123,7 +128,7 @@ public class F2DAllergyIntoleranceTransformer {
     return Optional.of(
         DatamartReference.builder()
             .display(Optional.of(reference.display()))
-            .reference(Optional.of(reference.reference()))
+            .reference(Optional.of(idFromReference(reference.reference())))
             .type(Optional.of(type))
             .build());
   }

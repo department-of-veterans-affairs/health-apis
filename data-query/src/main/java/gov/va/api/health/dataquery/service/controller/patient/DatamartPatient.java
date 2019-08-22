@@ -90,7 +90,7 @@ public class DatamartPatient {
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
-  static final class Address {
+  public static final class Address {
     private String type;
 
     private String street1;
@@ -114,7 +114,7 @@ public class DatamartPatient {
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
-  static final class Contact {
+  public static final class Contact {
     private String name;
 
     private String type;
@@ -129,7 +129,7 @@ public class DatamartPatient {
     @Builder
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    static final class Phone {
+    public static final class Phone {
       private String phoneNumber;
 
       private String workPhoneNumber;
