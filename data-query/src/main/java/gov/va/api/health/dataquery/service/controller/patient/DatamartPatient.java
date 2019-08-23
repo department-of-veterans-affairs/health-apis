@@ -166,7 +166,7 @@ public class DatamartPatient {
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
-  static final class Race {
+  public static final class Race {
     private String display;
 
     private String abbrev;
@@ -176,7 +176,7 @@ public class DatamartPatient {
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
-  static final class Telecom {
+  public static final class Telecom {
     private String type;
 
     private String phoneNumber;

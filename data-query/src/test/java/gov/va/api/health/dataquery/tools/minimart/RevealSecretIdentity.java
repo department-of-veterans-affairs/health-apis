@@ -5,12 +5,11 @@ import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dstu2.api.elements.Reference;
 import gov.va.api.health.ids.api.ResourceIdentity;
-import java.util.List;
-import java.util.Optional;
-
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
+import java.util.List;
+import java.util.Optional;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
@@ -51,7 +50,8 @@ public class RevealSecretIdentity {
         JacksonConfig.createMapper()
             .readValue(jsonBody, new TypeReference<List<ResourceIdentity>>() {});
 
-    return resourceIdentities.stream()
+    return resourceIdentities
+        .stream()
         .filter(i -> i.system().equalsIgnoreCase("CDW"))
         .map(ResourceIdentity::identifier)
         .findFirst()

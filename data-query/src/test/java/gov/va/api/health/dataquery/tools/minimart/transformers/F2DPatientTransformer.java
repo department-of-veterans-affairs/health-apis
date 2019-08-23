@@ -7,11 +7,11 @@ import gov.va.api.health.argonaut.api.resources.Patient;
 import gov.va.api.health.dataquery.service.controller.patient.DatamartPatient;
 import gov.va.api.health.dstu2.api.datatypes.Address;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
+import gov.va.api.health.dstu2.api.datatypes.Coding;
 import gov.va.api.health.dstu2.api.datatypes.ContactPoint;
 import gov.va.api.health.dstu2.api.datatypes.HumanName;
 import gov.va.api.health.dstu2.api.datatypes.Identifier;
 import gov.va.api.health.dstu2.api.elements.Extension;
-
 import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -89,6 +89,30 @@ public class F2DPatientTransformer {
     return "N";
   }
 
+  private DatamartPatient.Ethnicity ethnicity(List<Extension> extensions) {
+    if (extensions == null) {
+      return null;
+    }
+    Extension ethnicityExtensions =
+        findExtension(
+            extensions, "http://fhir.org/guides/argonaut/StructureDefinition/argo-ethnicity");
+    if (ethnicityExtensions == null) {
+      return null;
+    }
+    List<Extension> ethnicities = ethnicityExtensions.extension();
+    if (ethnicities == null || ethnicities.isEmpty()) {
+      return null;
+    }
+    Extension ethnicityExtension = findExtension(ethnicities, "ombCategory");
+    if (ethnicityExtension == null || ethnicityExtension.valueCoding() == null) {
+      return null;
+    }
+    return DatamartPatient.Ethnicity.builder()
+        .hl7(ethnicityExtension.valueCoding().code())
+        .display(ethnicityExtension.valueCoding().display())
+        .build();
+  }
+
   public DatamartPatient fhirToDatamart(Patient patient) {
     return DatamartPatient.builder()
         .objectVersion(1)
@@ -103,41 +127,21 @@ public class F2DPatientTransformer {
         .gender(gender(patient.gender()))
         .contact(contacts(patient.contact()))
         .maritalStatus(maritalStatus(patient.maritalStatus()))
-            .ssn(ssn(patient.identifier()))
-            .ethnicity(ethnicityExtension(patient.extension()))
-
+        .ssn(ssn(patient.identifier()))
+        .ethnicity(ethnicity(patient.extension()))
+        .race(race(patient.extension()))
+        .address(patient.address().stream().map(a -> address(a)).collect(Collectors.toList()))
         .objectVersion(1)
         .build();
   }
 
-  private DatamartPatient.Ethnicity ethnicityExtension(List<Extension> extensions) {
-    if (extensions==null){
-      return null;
-    }
-    List<Extension> ethnicityExtensions = findExtension(extensions, "http://fhir.org/guides/argonaut/StructureDefinition/argo-ethnicity").extension();
-    if(ethnicityExtensions==null){
-      return null;
-    }
-    Extension ethnicityExtension = findExtension(ethnicityExtensions,"ombCategory");
-    if(ethnicityExtension==null||ethnicityExtension.valueCoding()==null){
-      return null;
-    }
-    return DatamartPatient.Ethnicity.builder().hl7(ethnicityExtension.valueCoding().code()).display(ethnicityExtension.valueCoding().display()).build();
-  }
-  Extension findExtension(List<Extension> extensions, String url){
-    for (Extension extension :extensions){
-      if(extension.url().equals(url)){
+  Extension findExtension(List<Extension> extensions, String url) {
+    for (Extension extension : extensions) {
+      if (extension.url().equals(url)) {
         return extension;
       }
     }
     return null;
-  }
-
-  private String ssn(List<Identifier> identifier) {
-    if (identifier==null||identifier.size()<2||identifier.get(1)==null){
-      return null;
-    }
-   return identifier.get(1).value();
   }
 
   private String firstName(List<HumanName> name) {
@@ -229,6 +233,34 @@ public class F2DPatientTransformer {
         .workPhoneNumber(workPhoneNumber)
         .email(email)
         .build();
+  }
+
+  private List<DatamartPatient.Race> race(List<Extension> extensions) {
+    if (extensions == null || extensions.isEmpty()) {
+      return null;
+    }
+    Extension raceExtension =
+        findExtension(extensions, "http://fhir.org/guides/argonaut/StructureDefinition/argo-race");
+    if (raceExtension == null) {
+      return null;
+    }
+    List<Extension> races = raceExtension.extension();
+    if (races == null || races.isEmpty()) {
+      return null;
+    }
+    return races
+        .stream()
+        .map(Extension::valueCoding)
+        .map(Coding::display)
+        .map(d -> DatamartPatient.Race.builder().display(d).build())
+        .collect(Collectors.toList());
+  }
+
+  private String ssn(List<Identifier> identifier) {
+    if (identifier == null || identifier.size() < 2 || identifier.get(1) == null) {
+      return null;
+    }
+    return identifier.get(1).value();
   }
 
   private String type(List<CodeableConcept> relationship) {

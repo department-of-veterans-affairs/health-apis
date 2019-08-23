@@ -1,17 +1,15 @@
 package gov.va.api.health.dataquery.tools.minimart.transformers;
 
-import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
+import static gov.va.api.health.dataquery.tools.minimart.RevealSecretIdentity.toDatamartReferenceWithCdwId;
+import static gov.va.api.health.dataquery.tools.minimart.RevealSecretIdentity.unmask;
 
 import gov.va.api.health.argonaut.api.resources.AllergyIntolerance;
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
 import gov.va.api.health.dataquery.service.controller.allergyintolerance.DatamartAllergyIntolerance;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
-import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
-import gov.va.api.health.dataquery.tools.minimart.RevealSecretIdentity;
 import gov.va.api.health.dstu2.api.datatypes.Annotation;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
-import gov.va.api.health.dstu2.api.elements.Reference;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -66,14 +64,12 @@ public class F2DAllergyIntoleranceTransformer {
 
   /** Transforms a Fhir compliant AllergyIntolerance model to a datamart model of data. */
   public DatamartAllergyIntolerance fhirToDatamart(AllergyIntolerance allergyIntolerance) {
-    RevealSecretIdentity revealSecretIdentity = new RevealSecretIdentity();
     return DatamartAllergyIntolerance.builder()
         .objectType(allergyIntolerance.resourceType())
-        .cdwId(revealSecretIdentity.unmask(allergyIntolerance.id()))
-        .patient(
-            revealSecretIdentity.toDatamartReferenceWithCdwId(allergyIntolerance.patient()).get())
+        .cdwId(unmask(allergyIntolerance.id()))
+        .patient(toDatamartReferenceWithCdwId(allergyIntolerance.patient()).get())
         .recordedDate(dateTime(allergyIntolerance.recordedDate()))
-        .recorder(revealSecretIdentity.toDatamartReferenceWithCdwId(allergyIntolerance.recorder()))
+        .recorder(toDatamartReferenceWithCdwId(allergyIntolerance.recorder()))
         .substance(substance(allergyIntolerance.substance()))
         .status(status(allergyIntolerance.status()))
         .type(type(allergyIntolerance.type()))
@@ -81,11 +77,6 @@ public class F2DAllergyIntoleranceTransformer {
         .notes(notes(allergyIntolerance.note()))
         .reactions(reactions(allergyIntolerance.reaction()))
         .build();
-  }
-
-  private String idFromReference(String reference) {
-    String[] referenceArray = reference.split("/");
-    return referenceArray[referenceArray.length - 1];
   }
 
   private List<DatamartCoding> manifestations(List<CodeableConcept> manifestations) {
@@ -99,7 +90,7 @@ public class F2DAllergyIntoleranceTransformer {
   private List<DatamartAllergyIntolerance.Note> notes(Annotation note) {
     return List.of(
         DatamartAllergyIntolerance.Note.builder()
-            .practitioner(reference(note.authorReference(), "Practitioner"))
+            .practitioner(toDatamartReferenceWithCdwId(note.authorReference()))
             .text(note.text())
             .time(dateTime(note.time()))
             .build());
@@ -116,18 +107,6 @@ public class F2DAllergyIntoleranceTransformer {
         DatamartAllergyIntolerance.Reaction.builder()
             .certainty(certainty(reaction.certainty()))
             .manifestations(manifestations)
-            .build());
-  }
-
-  private Optional<DatamartReference> reference(Reference reference, String type) {
-    if (reference == null || allBlank(reference.display(), reference.reference())) {
-      return null;
-    }
-    return Optional.of(
-        DatamartReference.builder()
-            .display(Optional.of(reference.display()))
-            .reference(Optional.of(idFromReference(reference.reference())))
-            .type(Optional.of(type))
             .build());
   }
 
