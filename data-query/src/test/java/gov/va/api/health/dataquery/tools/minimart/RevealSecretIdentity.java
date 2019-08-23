@@ -1,43 +1,60 @@
 package gov.va.api.health.dataquery.tools.minimart;
 
-import gov.va.api.health.dataquery.service.controller.WitnessProtection;
+import com.fasterxml.jackson.core.type.TypeReference;
+import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dstu2.api.elements.Reference;
-import gov.va.api.health.ids.api.IdentityService;
-import gov.va.api.health.ids.client.RestIdentityServiceClientConfig;
-import groovy.util.logging.Slf4j;
+import gov.va.api.health.ids.api.ResourceIdentity;
+import java.util.List;
 import java.util.Optional;
-import org.springframework.web.client.RestTemplate;
+
+import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
+import io.restassured.response.Response;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class RevealSecretIdentity {
 
-  private WitnessProtection witnessProtection;
-
-  public RevealSecretIdentity() {
-    String idsUrl = "http://localhost:8089";
-    RestTemplate restTemplate = new RestTemplate();
-    IdentityService identityService =
-        new RestIdentityServiceClientConfig(restTemplate, idsUrl).restIdentityServiceClient();
-    this.witnessProtection = new WitnessProtection(identityService);
-  }
-
-  public Optional<DatamartReference> toDatamartReferenceWithCdwId(Reference reference) {
+  public static Optional<DatamartReference> toDatamartReferenceWithCdwId(Reference reference) {
     if (reference == null) {
       return null;
     }
     String[] fhirUrl = reference.reference().split("/");
     String referenceType = fhirUrl[fhirUrl.length - 2];
     String referenceId = fhirUrl[fhirUrl.length - 1];
+    String realId = unmask(referenceId);
     return Optional.of(
         DatamartReference.builder()
             .type(Optional.of(referenceType))
-            .reference(Optional.of(unmask(referenceId)))
-            .display(Optional.of(reference.display()))
+            .reference(realId != null ? Optional.of(realId) : null)
+            .display(reference.display() != null ? Optional.of(reference.display()) : null)
             .build());
   }
 
-  public String unmask(String villainId) {
-    return witnessProtection.toCdwId(villainId);
+  @SneakyThrows
+  public static String unmask(String villainId) {
+    Response response =
+        RestAssured.given()
+            .headers("Content-Type", ContentType.JSON, "Accept", ContentType.JSON)
+            .when()
+            .get("http://localhost:8089/api/resourceIdentity/{id}", villainId)
+            .then()
+            .contentType(ContentType.JSON)
+            .extract()
+            .response();
+
+    String jsonBody = response.getBody().print();
+
+    List<ResourceIdentity> resourceIdentities =
+        JacksonConfig.createMapper()
+            .readValue(jsonBody, new TypeReference<List<ResourceIdentity>>() {});
+
+    return resourceIdentities.stream()
+        .filter(i -> i.system().equalsIgnoreCase("CDW"))
+        .map(ResourceIdentity::identifier)
+        .findFirst()
+        .orElse(null);
   }
 }
