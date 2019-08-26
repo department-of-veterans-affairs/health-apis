@@ -37,6 +37,7 @@ public class F2DDiagnosticReportTransformer {
   }
 
   public String splitReference(String reference, String resource) {
-    return reference.replaceAll("^http.*/fhir/v0/dstu2/" + resource + "/", "");
+    String[] splitRef = reference.split("/");
+    return splitRef[splitRef.length - 1];
   }
 }

@@ -118,12 +118,16 @@ public class F2DAllergyIntoleranceTransformer {
   }
 
   private Optional<DatamartAllergyIntolerance.Substance> substance(CodeableConcept substance) {
-    if (substance == null || substance.coding() == null) {
+    if (substance == null) {
       return null;
     }
     return Optional.of(
         DatamartAllergyIntolerance.Substance.builder()
-            .coding(coding((substance.coding().isEmpty()) ? null : substance.coding().get(0)))
+            .coding(
+                coding(
+                    substance.coding() == null || substance.coding().isEmpty()
+                        ? null
+                        : substance.coding().get(0)))
             .text(substance.text())
             .build());
   }
