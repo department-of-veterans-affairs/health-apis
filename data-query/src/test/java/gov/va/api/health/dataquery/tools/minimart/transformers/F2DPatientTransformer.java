@@ -131,8 +131,53 @@ public class F2DPatientTransformer {
         .ethnicity(ethnicity(patient.extension()))
         .race(race(patient.extension()))
         .address(patient.address().stream().map(a -> address(a)).collect(Collectors.toList()))
+            .telecom(telecoms(patient.telecom()))
         .objectVersion(1)
         .build();
+  }
+
+  private List<DatamartPatient.Telecom> telecoms(List<ContactPoint> telecoms) {
+    if (telecoms==null) {
+      return null;
+    }
+      return telecoms.stream().map(t -> telecom(t)).collect(Collectors.toList());
+  }
+
+  private DatamartPatient.Telecom telecom(ContactPoint contactPoint) {
+    if (contactPoint==null){
+      return null;
+    }
+    String workPhoneNumber=null;
+    String phoneNumber=null;
+    String email=null;
+    String type=null;
+    if(contactPoint.system()==ContactPoint.ContactPointSystem.phone){
+      if(contactPoint.use()==ContactPoint.ContactPointUse.work){
+        workPhoneNumber=contactPoint.value();
+        type="Patient Employer";
+      }
+      else{
+        switch (contactPoint.use()) {
+          case mobile:
+            type="Patient Cell Phone";
+          case temp:
+            type="Temporary";
+          case home:
+            type="Patient Resident";
+        }
+        phoneNumber=contactPoint.value();
+      }
+    }
+    if(contactPoint.system()==ContactPoint.ContactPointSystem.email){
+      type="Patient Email";
+      email=contactPoint.value();
+    }
+    return DatamartPatient.Telecom.builder()
+            .workPhoneNumber(workPhoneNumber)
+            .phoneNumber(phoneNumber)
+            .email(email)
+            .type(type)
+            .build();
   }
 
   Extension findExtension(List<Extension> extensions, String url) {
