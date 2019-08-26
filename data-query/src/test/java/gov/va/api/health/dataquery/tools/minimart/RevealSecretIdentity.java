@@ -41,6 +41,7 @@ public class RevealSecretIdentity {
             .get("http://localhost:8089/api/resourceIdentity/{id}", villainId)
             .then()
             .contentType(ContentType.JSON)
+            .statusCode(200)
             .extract()
             .response();
 

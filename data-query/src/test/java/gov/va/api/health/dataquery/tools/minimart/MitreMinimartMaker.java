@@ -50,20 +50,17 @@ public class MitreMinimartMaker {
 
   /** Main. */
   public static void main(String[] args) {
-    // String directory = args[1];
-    String resourceToSync = "AllergyIntolerance";
-    String directory = "/home/jhulbert/development/health-apis-data-query/data-query-tests/target";
-    log.info("Syncing {} files in {} to db", resourceToSync, directory);
+    String directory = args[1];
+    MitreMinimartMaker mmm = new MitreMinimartMaker(args[0], args[2]);
+    log.info("Syncing {} files in {} to db", mmm.resourceToSync, directory);
     File dmDirectory = new File(directory);
     if (dmDirectory.listFiles() == null) {
       log.error("No files in directory {}", directory);
       throw new RuntimeException("No files found in directory: " + directory);
     }
     List<File> dmFiles = Arrays.stream(dmDirectory.listFiles()).collect(Collectors.toList());
-    // MitreMinimartMaker mmm = new MitreMinimartMaker(args[0], args[2]);
-    new MitreMinimartMaker(resourceToSync, "./src/test/resources/minimart")
-        .pushToDatabaseByResourceType(dmFiles);
-    log.info("{} sync complete", resourceToSync);
+    mmm.pushToDatabaseByResourceType(dmFiles);
+    log.info("{} sync complete", mmm.resourceToSync);
     System.exit(0);
   }
 
