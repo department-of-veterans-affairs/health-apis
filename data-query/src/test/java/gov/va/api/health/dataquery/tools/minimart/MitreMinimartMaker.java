@@ -53,13 +53,7 @@ public class MitreMinimartMaker {
     String directory = args[1];
     MitreMinimartMaker mmm = new MitreMinimartMaker(args[0], args[2]);
     log.info("Syncing {} files in {} to db", mmm.resourceToSync, directory);
-    File dmDirectory = new File(directory);
-    if (dmDirectory.listFiles() == null) {
-      log.error("No files in directory {}", directory);
-      throw new RuntimeException("No files found in directory: " + directory);
-    }
-    List<File> dmFiles = Arrays.stream(dmDirectory.listFiles()).collect(Collectors.toList());
-    mmm.pushToDatabaseByResourceType(dmFiles);
+    mmm.pushToDatabaseByResourceType(directory);
     log.info("{} sync complete", mmm.resourceToSync);
     System.exit(0);
   }
@@ -233,6 +227,13 @@ public class MitreMinimartMaker {
     flushAndClear();
   }
 
+  private List<File> listByPattern(File dmDirectory, String filePattern) {
+    return Arrays.stream(dmDirectory.listFiles())
+        .filter(File::isFile)
+        .filter(f -> f.getName().matches(filePattern))
+        .collect(Collectors.toList());
+  }
+
   private String patientIcn(DatamartReference dm) {
     if (dm != null && dm.reference().isPresent()) {
       return dm.reference().get().replaceAll("http.*/fhir/v0/dstu2/Patient/", "");
@@ -240,88 +241,48 @@ public class MitreMinimartMaker {
     return null;
   }
 
-  private void pushToDatabaseByResourceType(List<File> dmFiles) {
+  private void pushToDatabaseByResourceType(String directory) {
+    File dmDirectory = new File(directory);
+    if (dmDirectory.listFiles() == null) {
+      log.error("No files in directory {}", directory);
+      throw new RuntimeException("No files found in directory: " + directory);
+    }
     entityManager.getTransaction().begin();
     switch (resourceToSync) {
       case "AllergyIntolerance":
-        dmFiles
-            .stream()
-            .filter(f -> f.getName().matches("^dmAllInt.*json$"))
-            .filter(File::isFile)
-            .collect(Collectors.toList())
+        listByPattern(dmDirectory, "^dmAllInt.*json$")
             .forEach(file -> insertByAllergyIntolerance(file));
         break;
       case "Condition":
-        dmFiles
-            .stream()
-            .filter(f -> f.getName().matches("^dmCon.*json$"))
-            .filter(File::isFile)
-            .collect(Collectors.toList())
-            .forEach(file -> insertByCondition(file));
+        listByPattern(dmDirectory, "^dmCon.*json$").forEach(file -> insertByCondition(file));
         break;
       case "DiagnosticReport":
-        dmFiles
-            .stream()
-            .filter(f -> f.getName().matches("^dmDiaRep.*json$"))
-            .filter(File::isFile)
-            .collect(Collectors.toList())
+        listByPattern(dmDirectory, "^dmDiaRep.*json$")
             .forEach(file -> insertByDiagnosticReport(file));
         break;
       case "Immunization":
-        dmFiles
-            .stream()
-            .filter(f -> f.getName().matches("^dmImm.*json$"))
-            .filter(File::isFile)
-            .collect(Collectors.toList())
-            .forEach(file -> insertByImmunization(file));
+        listByPattern(dmDirectory, "^dmImm.*json$").forEach(file -> insertByImmunization(file));
         break;
       case "Medication":
-        dmFiles
-            .stream()
-            .filter(f -> f.getName().matches("^dmMed(?!Sta|Ord).*json$"))
-            .filter(File::isFile)
-            .collect(Collectors.toList())
+        listByPattern(dmDirectory, "^dmMed(?!Sta|Ord).*json$")
             .forEach(file -> insertByMedication(file));
         break;
       case "MedicationOrder":
-        dmFiles
-            .stream()
-            .filter(f -> f.getName().matches("^dmMedOrd.*json$"))
-            .filter(File::isFile)
-            .collect(Collectors.toList())
+        listByPattern(dmDirectory, "^dmMedOrd.*json$")
             .forEach(file -> insertByMedictionOrder(file));
         break;
       case "MedicationStatement":
-        dmFiles
-            .stream()
-            .filter(f -> f.getName().matches("^dmMedSta.*json$"))
-            .filter(File::isFile)
-            .collect(Collectors.toList())
+        listByPattern(dmDirectory, "^dmMedSta.*json$")
             .forEach(file -> insertByMedicationStatement(file));
         break;
       case "Observation":
-        dmFiles
-            .stream()
-            .filter(f -> f.getName().matches("^dmObs.*json$"))
-            .filter(File::isFile)
-            .collect(Collectors.toList())
-            .forEach(file -> insertByObservation(file));
+        listByPattern(dmDirectory, "^dmObs.*json$").forEach(file -> insertByObservation(file));
         break;
       case "Patient":
-        dmFiles
-            .stream()
-            .filter(f -> f.getName().matches("^dmPat.*json$"))
-            .filter(File::isFile)
-            .collect(Collectors.toList())
-            .forEach(file -> insertByPatient(file));
+        listByPattern(dmDirectory, "^dmPat.*json$").forEach(file -> insertByPatient(file));
         break;
       case "Procedure":
-        dmFiles
-            .stream()
-            .filter(f -> f.getName().matches("^dmPro.*json$"))
-            .filter(File::isFile)
-            .collect(Collectors.toList())
-            .forEach(file -> insertByProcedure(file));
+        listByPattern(dmDirectory, "^dmPro.*json$").forEach(file -> insertByProcedure(file));
         break;
       default:
         throw new RuntimeException("Couldnt determine resource type for file: " + resourceToSync);
