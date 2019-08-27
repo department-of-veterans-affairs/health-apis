@@ -46,7 +46,7 @@ startApp() {
   if [ "$useH2" == "true" ]
   then
     local pathSeparator=':'
-    [ "$(uname)" != "Darwin" ] && echo "Add support for your operating system" && exit 1
+    [ "$(uname)" != "Darwin" ] && [ "$(uname)" != "Linux" ] && echo "Add support for your operating system" && exit 1
     echo "Using local H2 database"
     options+=" -cp $(readlink -f $jar)${pathSeparator}$(readlink -f ~/.m2/repository/com/h2database/h2/1.4.197/h2-1.4.197.jar)"
     options+=" -Dspring.jpa.generate-ddl=true"
