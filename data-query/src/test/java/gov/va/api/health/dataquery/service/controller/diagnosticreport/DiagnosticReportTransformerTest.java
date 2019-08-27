@@ -11,6 +11,8 @@ import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
 import gov.va.api.health.dstu2.api.elements.Reference;
 import gov.va.dvp.cdw.xsd.model.CdwDiagnosticReport102Root;
+import gov.va.dvp.cdw.xsd.model.CdwDiagnosticReport102Root.CdwDiagnosticReports.CdwDiagnosticReport;
+import gov.va.dvp.cdw.xsd.model.CdwDiagnosticReport102Root.CdwDiagnosticReports.CdwDiagnosticReport.CdwResults;
 import gov.va.dvp.cdw.xsd.model.CdwDiagnosticReportCategory;
 import gov.va.dvp.cdw.xsd.model.CdwDiagnosticReportCategoryCode;
 import gov.va.dvp.cdw.xsd.model.CdwDiagnosticReportCategoryCoding;
@@ -19,6 +21,7 @@ import gov.va.dvp.cdw.xsd.model.CdwDiagnosticReportCode;
 import gov.va.dvp.cdw.xsd.model.CdwDiagnosticReportCodeCoding;
 import gov.va.dvp.cdw.xsd.model.CdwDiagnosticReportStatus;
 import gov.va.dvp.cdw.xsd.model.CdwReference;
+import java.util.Arrays;
 import java.util.List;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -26,6 +29,7 @@ import lombok.SneakyThrows;
 import org.junit.Test;
 
 public class DiagnosticReportTransformerTest {
+
   private final DiagnosticReportTransformer tx = new DiagnosticReportTransformer();
 
   private final CdwSampleData cdw = new CdwSampleData();
@@ -85,6 +89,13 @@ public class DiagnosticReportTransformerTest {
   }
 
   @Test
+  public void result() {
+    assertThat(tx.result(null)).isNull();
+    assertThat(tx.result(new CdwResults())).isNull();
+    assertThat(tx.result(cdw.cdwResults())).isEqualTo(expected.result());
+  }
+
+  @Test
   public void status() {
     assertThat(tx.status(cdw.status())).isEqualTo(expected.status());
     assertThat(tx.status(CdwDiagnosticReportStatus.APPENDED)).isEqualTo(Code.appended);
@@ -99,6 +110,7 @@ public class DiagnosticReportTransformerTest {
   }
 
   private static class CdwSampleData {
+
     private CdwDiagnosticReportCategory category() {
       CdwDiagnosticReportCategory category = new CdwDiagnosticReportCategory();
       category.setCoding(categoryCoding());
@@ -118,6 +130,13 @@ public class DiagnosticReportTransformerTest {
       ref.setReference("HelloReference");
       ref.setDisplay("HelloDisplay");
       return ref;
+    }
+
+    private CdwResults cdwResults() {
+      CdwDiagnosticReport.CdwResults results = new CdwResults();
+      var references = Arrays.asList(cdwReference(), cdwReference(), cdwReference());
+      results.getResult().addAll(references);
+      return results;
     }
 
     private CdwDiagnosticReportCode code() {
@@ -147,6 +166,7 @@ public class DiagnosticReportTransformerTest {
       sampleDR.setEffective(effective());
       sampleDR.setIssued(issued());
       sampleDR.setPerformer(cdwReference());
+      sampleDR.setResults(cdwResults());
       return sampleDR;
     }
 
@@ -163,6 +183,7 @@ public class DiagnosticReportTransformerTest {
       sampleDR.setEffective(effective());
       sampleDR.setIssued(issued());
       sampleDR.setPerformer(null);
+      sampleDR.setResults(cdwResults());
       return sampleDR;
     }
 
@@ -182,6 +203,7 @@ public class DiagnosticReportTransformerTest {
   }
 
   private static class Expected {
+
     private CodeableConcept category() {
       return CodeableConcept.builder().coding(categoryCoding()).build();
     }
@@ -220,6 +242,7 @@ public class DiagnosticReportTransformerTest {
           .effectiveDateTime("2013-06-21T19:03:16Z")
           .issued("2013-06-21T20:05:12Z")
           .performer(reference())
+          .result(result())
           .build();
     }
 
@@ -235,11 +258,16 @@ public class DiagnosticReportTransformerTest {
           .effectiveDateTime("2013-06-21T19:03:16Z")
           .issued("2013-06-21T20:05:12Z")
           ._performer(DataAbsentReason.of(Reason.unknown))
+          .result(result())
           .build();
     }
 
     private Reference reference() {
       return Reference.builder().reference("HelloReference").display("HelloDisplay").build();
+    }
+
+    private List<Reference> result() {
+      return Arrays.asList(reference(), reference(), reference());
     }
 
     private Code status() {
