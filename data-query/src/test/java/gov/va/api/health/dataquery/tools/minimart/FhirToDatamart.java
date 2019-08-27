@@ -1,13 +1,9 @@
 package gov.va.api.health.dataquery.tools.minimart;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import gov.va.api.health.argonaut.api.resources.AllergyIntolerance;
 import gov.va.api.health.argonaut.api.resources.DiagnosticReport;
+import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.allergyintolerance.DatamartAllergyIntolerance;
 import gov.va.api.health.dataquery.service.controller.diagnosticreport.DatamartDiagnosticReports;
 import gov.va.api.health.dataquery.tools.minimart.transformers.F2DAllergyIntoleranceTransformer;
@@ -17,25 +13,21 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
-import java.util.List;
-import java.util.stream.Collectors;
+import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 
+@AllArgsConstructor
 public class FhirToDatamart {
 
-  String inputDirectory;
+  private String inputDirectory;
 
-  String resourceType;
-
-  public FhirToDatamart(String directory, String resource) {
-    inputDirectory = directory;
-    resourceType = resource;
-  }
+  private String resourceType;
 
   @SneakyThrows
   public static void main(String[] args) {
     if (args.length != 2) {
-      throw new RuntimeException("Arg Count Incorrect: " + args.length);
+      throw new RuntimeException(
+          "Missing command line arguments. Expected <resource-type> <input-directory>");
     }
     String resourceType = args[0];
     String inputDirectory = args[1];
@@ -44,92 +36,76 @@ public class FhirToDatamart {
   }
 
   @SneakyThrows
-  private void fhirToDatamart() {
-    List<File> files =
-        Files.walk(Paths.get(inputDirectory))
-            .filter(Files::isRegularFile)
-            .map(Path::toFile)
-            .filter(f -> f.getName().matches(pattern(resourceType)))
-            .collect(Collectors.toList());
-    transformAndWriteFiles(files, resourceType);
-  }
-
-  private ObjectMapper mapper() {
-    return new ObjectMapper()
-        .setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY)
-        .setSerializationInclusion(JsonInclude.Include.NON_NULL)
-        .registerModule(new Jdk8Module())
-        .registerModule(new JavaTimeModule())
-        .setDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"));
-  }
-
-  private String pattern(String resource) {
-    switch (resource) {
-      case "AllergyIntolerance":
-        return "^AllInt(?!P).*json";
-      case "Condition":
-        return "^Con(?!P).*json";
-      case "DiagnosticReport":
-        return "^DiaRep(?!P).*json";
-      case "Immunization":
-        return "^Imm(?!P).*json";
-      case "Medication":
-        return "^Med(?!P|Sta|Ord).*json";
-      case "MedicationOrder":
-        return "^MedOrd(?!P).*json";
-      case "MedicationStatement":
-        return "^MedSta(?!P).*json";
-      case "Observation":
-        return "^Obs(?!P).*json";
-      case "Patient":
-        return "^Pat(?!P).*json";
-      case "Procedure":
-        return "^Pro(?!P).*json";
-      default:
-        throw new IllegalArgumentException("Unknown Resource : " + resource);
-    }
-  }
-
-  @SneakyThrows
-  private void transformAndWriteFiles(List<File> files, String resource) {
-    F2DAllergyIntoleranceTransformer allergyIntoleranceTransformer =
-        new F2DAllergyIntoleranceTransformer();
+  private void dmObjectToFile(String fileName, Object object) {
     ObjectMapper mapper = mapper();
     String outputDirectoryName = "target/fhir-to-datamart-samples";
     File outputDirectory = new File(outputDirectoryName);
     if (!outputDirectory.exists()) {
       outputDirectory.mkdir();
     }
+    mapper.writeValue(new File(outputDirectory + "/dm" + fileName), object);
+  }
+
+  @SneakyThrows
+  private void fhirToDatamart() {
+    Files.walk(Paths.get(inputDirectory))
+        .filter(Files::isRegularFile)
+        .map(Path::toFile)
+        .filter(f -> f.getName().matches(pattern(resourceType)))
+        .forEach(f -> transformToDm(f, resourceType));
+  }
+
+  private ObjectMapper mapper() {
+    return JacksonConfig.createMapper()
+        .setDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"));
+  }
+
+  private String pattern(String resource) {
     switch (resource) {
       case "AllergyIntolerance":
-        for (File file : files) {
-          AllergyIntolerance allergyIntolerance = mapper.readValue(file, AllergyIntolerance.class);
-          DatamartAllergyIntolerance datamartAllergyIntolerance =
-              allergyIntoleranceTransformer.fhirToDatamart(allergyIntolerance);
-          mapper.writeValue(
-              new File(
-                  outputDirectory
-                      + "/dmAllInt"
-                      + datamartAllergyIntolerance.cdwId().replaceAll("-", "")
-                      + ".json"),
-              datamartAllergyIntolerance);
-        }
+        return "^AllInt(?!P).*json$";
+      case "Condition":
+        return "^Con(?!P).*json$";
+      case "DiagnosticReport":
+        return "^DiaRep(?!P).*json$";
+      case "Immunization":
+        return "^Imm(?!P).*json$";
+      case "Medication":
+        return "^Med(?!P|Sta|Ord).*json$";
+      case "MedicationOrder":
+        return "^MedOrd(?!P).*json$";
+      case "MedicationStatement":
+        return "^MedSta(?!P).*json$";
+      case "Observation":
+        return "^Obs(?!P).*json$";
+      case "Patient":
+        return "^Pat(?!P).*json$";
+      case "Procedure":
+        return "^Pro(?!P).*json$";
+      default:
+        throw new IllegalArgumentException("Unknown Resource : " + resource);
+    }
+  }
+
+  @SneakyThrows
+  private void transformToDm(File file, String resource) {
+    ObjectMapper mapper = JacksonConfig.createMapper();
+    switch (resource) {
+      case "AllergyIntolerance":
+        F2DAllergyIntoleranceTransformer allergyIntoleranceTransformer =
+            new F2DAllergyIntoleranceTransformer();
+        DatamartAllergyIntolerance datamartAllergyIntolerance =
+            allergyIntoleranceTransformer.fhirToDatamart(
+                mapper.readValue(file, AllergyIntolerance.class));
+        dmObjectToFile(file.getName(), datamartAllergyIntolerance);
         break;
       case "DiagnosticReport":
         F2DDiagnosticReportTransformer diagnosticReportTransformer =
             new F2DDiagnosticReportTransformer();
-        for (File f : files) {
-          DiagnosticReport diagnosticReport = mapper.readValue(f, DiagnosticReport.class);
-          DatamartDiagnosticReports datamartDiagnosticReports =
-              diagnosticReportTransformer.fhirToDatamart(diagnosticReport);
-          mapper.writeValue(
-              new File(
-                  outputDirectory
-                      + "/dmDiaRep"
-                      + datamartDiagnosticReports.reports().get(0).identifier().replaceAll("-", "")
-                      + ".json"),
-              datamartDiagnosticReports);
-        }
+        DatamartDiagnosticReports datamartDiagnosticReports =
+            diagnosticReportTransformer.fhirToDatamart(
+                mapper.readValue(file, DiagnosticReport.class));
+        dmObjectToFile(file.getName(), datamartDiagnosticReports);
         break;
       default:
         throw new IllegalArgumentException("Unsupported Resource : " + resource);
