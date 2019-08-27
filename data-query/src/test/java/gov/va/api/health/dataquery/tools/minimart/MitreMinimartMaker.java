@@ -295,5 +295,6 @@ public class MitreMinimartMaker {
     }
     // Commit changes to db
     entityManager.getTransaction().commit();
+    entityManager.close();
   }
 }
