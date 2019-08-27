@@ -3,11 +3,14 @@ package gov.va.api.health.dataquery.tools.minimart;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gov.va.api.health.argonaut.api.resources.AllergyIntolerance;
 import gov.va.api.health.argonaut.api.resources.DiagnosticReport;
+import gov.va.api.health.argonaut.api.resources.Patient;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.allergyintolerance.DatamartAllergyIntolerance;
 import gov.va.api.health.dataquery.service.controller.diagnosticreport.DatamartDiagnosticReports;
+import gov.va.api.health.dataquery.service.controller.patient.DatamartPatient;
 import gov.va.api.health.dataquery.tools.minimart.transformers.F2DAllergyIntoleranceTransformer;
 import gov.va.api.health.dataquery.tools.minimart.transformers.F2DDiagnosticReportTransformer;
+import gov.va.api.health.dataquery.tools.minimart.transformers.F2DPatientTransformer;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -15,7 +18,9 @@ import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @AllArgsConstructor
 public class FhirToDatamart {
 
@@ -43,11 +48,13 @@ public class FhirToDatamart {
     if (!outputDirectory.exists()) {
       outputDirectory.mkdir();
     }
+    log.info("Outputting to " + outputDirectory + "/dm" + fileName);
     mapper.writeValue(new File(outputDirectory + "/dm" + fileName), object);
   }
 
   @SneakyThrows
   private void fhirToDatamart() {
+    log.info("Discovering " + resourceType + " files from " + inputDirectory);
     Files.walk(Paths.get(inputDirectory))
         .filter(Files::isRegularFile)
         .map(Path::toFile)
@@ -79,7 +86,7 @@ public class FhirToDatamart {
       case "Observation":
         return "^Obs(?!P).*json$";
       case "Patient":
-        return "^Pat(?!P).*json$";
+        return "^Pat(?!i).*json$";
       case "Procedure":
         return "^Pro(?!P).*json$";
       default:
@@ -106,6 +113,12 @@ public class FhirToDatamart {
             diagnosticReportTransformer.fhirToDatamart(
                 mapper.readValue(file, DiagnosticReport.class));
         dmObjectToFile(file.getName(), datamartDiagnosticReports);
+        break;
+      case "Patient":
+        F2DPatientTransformer patientTransformer = new F2DPatientTransformer();
+        DatamartPatient datamartPatient =
+            patientTransformer.fhirToDatamart(mapper.readValue(file, Patient.class));
+        dmObjectToFile(file.getName(), datamartPatient);
         break;
       default:
         throw new IllegalArgumentException("Unsupported Resource : " + resource);
