@@ -131,17 +131,17 @@
             <configuration>
               <target>
                 <!--
-                                  Sadness here.
-                                  Swagger is ignore @JsonProperty annotations on enums. This big bit of sadness changes generated swagger _ to - in enums.
-                                -->
+                  Sadness here.
+                  Swagger is ignore @JsonProperty annotations on enums. This big bit of sadness changes generated swagger _ to - in enums.
+                -->
                 <replaceregexp byline="true" file="${project.build.outputDirectory}/openapi.yaml" flags="g" match="([a-z])_([a-z])" replace="\1-\2"/>
                 <replaceregexp byline="true" file="${project.build.outputDirectory}/openapi.yaml" flags="g" match="- _([a-z])" replace="- \1"/>
                 <replaceregexp byline="true" file="${project.build.outputDirectory}/openapi.json" flags="g" match="([a-z])_([a-z])" replace="\1-\2"/>
                 <replaceregexp byline="true" file="${project.build.outputDirectory}/openapi.json" flags="g" match="(,|\[) &quot;_([a-z])" replace="\1 &quot;\2"/>
                 <!--
-                                  This group is because the swagger auto-generated for dates, times, and datetimes examples doesn't play nice with how swagger is actually consumed.
-                                  The first regex captures datetimes and times. The second one covers left over dates.
-                                -->
+                  This group is because the swagger auto-generated for dates, times, and datetimes examples doesn't play nice with how swagger is actually consumed.
+                  The first regex captures datetimes and times. The second one covers left over dates.
+                -->
                 <replaceregexp byline="true" file="${project.build.outputDirectory}/openapi.yaml" flags="g" match="\b(([0-9]{4}(-(0[1-9]|1[0-2])(-(0[0-9]|[1-2][0-9]|3[0-1]))?)T)?(([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](\.[0-9]+)?)(Z|(\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00))?)\b" replace="'\1'"/>
                 <replaceregexp byline="true" file="${project.build.outputDirectory}/openapi.yaml" flags="g" match="( ([0-9]{4}-(0[1-9]|1[0-2])(-(0[0-9]|[1-2][0-9]|3[0-1]))?))" replace=" '\2'"/>
               </target>
@@ -188,8 +188,8 @@
   <profiles>
     <profile>
       <!--
-              This profile exists to support the running of the DatamartExporter only. See data-query-tests/export-mitre.sh
-            -->
+        This profile exists to support the running of the DatamartExporter only. See data-query-tests/export-mitre.sh
+      -->
       <id>mitre-export</id>
       <build>
         <plugins>
