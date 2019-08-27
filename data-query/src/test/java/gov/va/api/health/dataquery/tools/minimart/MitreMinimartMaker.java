@@ -24,7 +24,7 @@ import gov.va.api.health.dataquery.service.controller.patient.PatientEntity;
 import gov.va.api.health.dataquery.service.controller.patient.PatientSearchEntity;
 import gov.va.api.health.dataquery.service.controller.procedure.DatamartProcedure;
 import gov.va.api.health.dataquery.service.controller.procedure.ProcedureEntity;
-import gov.va.api.health.dataquery.tools.DatamartExporter;
+import gov.va.api.health.dataquery.tools.LocalH2;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -39,13 +39,19 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class MitreMinimartMaker {
 
+  private final List<Class<?>> MANAGED_CLASSES =
+      Arrays.asList(
+          AllergyIntoleranceEntity.class
+          //
+          );
+
   private String resourceToSync;
 
   private EntityManager entityManager;
 
   public MitreMinimartMaker(String resourceToSync, String dbLocation) {
     this.resourceToSync = resourceToSync;
-    this.entityManager = DatamartExporter.getH2(dbLocation);
+    this.entityManager = new LocalH2(dbLocation, MANAGED_CLASSES).get();
   }
 
   /** Main. */

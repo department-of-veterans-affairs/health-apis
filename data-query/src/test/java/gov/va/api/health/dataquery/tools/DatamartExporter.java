@@ -17,28 +17,15 @@ import gov.va.api.health.dataquery.service.controller.patient.PatientEntity;
 import gov.va.api.health.dataquery.service.controller.patient.PatientSearchEntity;
 import gov.va.api.health.dataquery.service.controller.procedure.ProcedureEntity;
 import java.io.FileInputStream;
-import java.net.URL;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
-import javax.persistence.SharedCacheMode;
-import javax.persistence.ValidationMode;
-import javax.persistence.spi.ClassTransformer;
 import javax.persistence.spi.PersistenceUnitInfo;
-import javax.persistence.spi.PersistenceUnitTransactionType;
 import javax.sql.DataSource;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Singular;
 import lombok.SneakyThrows;
-import lombok.Value;
-import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
-import org.h2.jdbcx.JdbcDataSource;
 import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.jpa.HibernatePersistenceProvider;
 
@@ -76,11 +63,7 @@ public class DatamartExporter {
 
   public DatamartExporter(String configFile, String outputFile) {
     mitre = new Mitre(configFile).get();
-    h2 = new LocalH2(outputFile).get();
-  }
-
-  public static EntityManager getH2(String outputFile) {
-    return new LocalH2(outputFile).get();
+    h2 = new LocalH2(outputFile, MANAGED_CLASSES).get();
   }
 
   public static void main(String[] args) {
@@ -114,49 +97,6 @@ public class DatamartExporter {
               log.info("{}", e);
               h2.persist(e);
             });
-  }
-
-  @AllArgsConstructor
-  private static class LocalH2 implements Supplier<EntityManager> {
-
-    private final String outputFile;
-
-    @Override
-    @SneakyThrows
-    public EntityManager get() {
-      PersistenceUnitInfo info =
-          PersistenceUnit.builder()
-              .persistenceUnitName("h2")
-              .jtaDataSource(h2DataSource())
-              .managedClasses(MANAGED_CLASSES)
-              .properties(h2Properties())
-              .build();
-      info.getJtaDataSource()
-          .getConnection()
-          .createStatement()
-          .execute("DROP SCHEMA IF EXISTS APP CASCADE; CREATE SCHEMA APP;");
-      return new HibernatePersistenceProvider()
-          .createContainerEntityManagerFactory(
-              info, ImmutableMap.of(AvailableSettings.JPA_JDBC_DRIVER, "org.h2.Driver"))
-          .createEntityManager();
-    }
-
-    DataSource h2DataSource() {
-      log.info("Exporting to {}", outputFile);
-      JdbcDataSource h2 = new JdbcDataSource();
-      h2.setURL("jdbc:h2:" + outputFile);
-      h2.setUser("sa");
-      h2.setPassword("sa");
-      return h2;
-    }
-
-    Properties h2Properties() {
-      Properties properties = new Properties();
-      properties.put("hibernate.hbm2ddl.auto", "create-drop");
-      properties.put("hibernate.connection.autocommit", "true");
-      properties.put("hibernate.show_sql", "false");
-      return properties;
-    }
   }
 
   private static class Mitre implements Supplier<EntityManager> {
@@ -212,54 +152,6 @@ public class DatamartExporter {
       String value = config.getProperty(name, "");
       assertThat(value).withFailMessage("System property %s must be specified.", name).isNotBlank();
       return value;
-    }
-  }
-
-  @Value
-  @Accessors(fluent = false)
-  @Builder
-  private static class PersistenceUnit implements PersistenceUnitInfo {
-    String persistenceUnitName;
-
-    @Builder.Default
-    String persistenceProviderClassName = HibernatePersistenceProvider.class.getName();
-
-    @Builder.Default
-    PersistenceUnitTransactionType transactionType = PersistenceUnitTransactionType.RESOURCE_LOCAL;
-
-    DataSource jtaDataSource;
-    @Builder.Default List<String> mappingFileNames = Collections.emptyList();
-    @Builder.Default List<URL> jarFileUrls = Collections.emptyList();
-    URL persistenceUnitRootUrl;
-    @Singular List<Class<?>> managedClasses;
-    @Builder.Default boolean excludeUnlistedClasses = false;
-    @Builder.Default SharedCacheMode sharedCacheMode = SharedCacheMode.NONE;
-    @Builder.Default ValidationMode validationMode = ValidationMode.AUTO;
-    @Builder.Default Properties properties = new Properties();
-    @Builder.Default String persistenceXMLSchemaVersion = "2.1";
-    @Builder.Default ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-
-    @Override
-    public void addTransformer(ClassTransformer transformer) {}
-
-    @Override
-    public boolean excludeUnlistedClasses() {
-      return excludeUnlistedClasses;
-    }
-
-    @Override
-    public List<String> getManagedClassNames() {
-      return managedClasses.stream().map(Class::getName).collect(Collectors.toList());
-    }
-
-    @Override
-    public ClassLoader getNewTempClassLoader() {
-      return null;
-    }
-
-    @Override
-    public DataSource getNonJtaDataSource() {
-      return getJtaDataSource();
     }
   }
 }
