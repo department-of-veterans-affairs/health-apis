@@ -178,7 +178,7 @@ public final class SystemDefinitions {
         .organization("3e5dbe7a-72ca-5441-9287-0b639ae7a1bc")
         .patient("1011537977V693883")
         .practitioner("7b4c6b83-2c5a-5cbf-836c-875253fb9bf9")
-        .procedure("6f260748-c3be-5333-9f90-a2d429249c7f")
+        .procedure("a96963bc-226c-5027-89e5-e55804685b0e")
         .procedures(productionCdwProcedures())
         .unknown("5555555555555")
         .build();
