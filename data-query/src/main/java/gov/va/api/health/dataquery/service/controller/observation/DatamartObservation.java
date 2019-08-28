@@ -202,7 +202,7 @@ public class DatamartObservation implements HasReplaceableId {
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
-  static final class AntibioticComponent {
+  public static final class AntibioticComponent {
     private String id;
 
     private String codeText;
@@ -258,7 +258,7 @@ public class DatamartObservation implements HasReplaceableId {
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
-  static final class CodeableConcept {
+  public static final class CodeableConcept {
     private Optional<DatamartCoding> coding;
 
     private String text;
