@@ -38,6 +38,14 @@ final class DatamartDiagnosticReportTransformer {
     return Reference.builder().display(r.display()).reference(r.result()).build();
   }
 
+  static List<Reference> results(List<Result> results) {
+    if (isEmpty(results)) {
+      return null;
+    }
+    var newResults = results.stream().map(r -> result(r)).collect(Collectors.toList());
+    return emptyToNull(newResults);
+  }
+
   private CodeableConcept category() {
     return CodeableConcept.builder()
         .coding(
@@ -84,14 +92,6 @@ final class DatamartDiagnosticReportTransformer {
         .reference("Organization/" + datamart.accessionInstitutionSid())
         .display(datamart.accessionInstitutionName())
         .build();
-  }
-
-  private List<Reference> results(List<Result> results) {
-    if (isEmpty(results)) {
-      return null;
-    }
-    var newResults = results.stream().map(r -> result(r)).collect(Collectors.toList());
-    return emptyToNull(newResults);
   }
 
   private Reference subject() {
