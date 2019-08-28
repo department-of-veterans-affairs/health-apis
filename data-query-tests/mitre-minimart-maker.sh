@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+
+
 REPO="$(cd $(dirname $0)/../../ && pwd)"
 IDS_H2="$REPO/health-apis-ids/ids/target/minimartIds"
 DQ_H2="$REPO/health-apis-data-query/data-query-tests/target/minimart"
@@ -43,6 +45,7 @@ startMinimartApp() {
   local pathSeparator=':'
   [ "$(uname)" != "Darwin" ] && [ "$(uname)" != "Linux" ] && echo "Add support for your operating system" && exit 1
   echo "Using local H2 database for $app..."
+  set -x
   options+=" -cp $(readlink -f $jar)${pathSeparator}$(readlink -f ~/.m2/repository/com/h2database/h2/1.4.197/h2-1.4.197.jar)"
   if [ "$app" == 'data-query' ]
   then
@@ -58,13 +61,13 @@ startMinimartApp() {
     options+=" -Dconformance.contact.email=joshua.hulbert@libertyits.com"
     options+=" -Dconformance.security.token-endpoint=http://fake.com/token"
     options+=" -Dconformance.security.authorize-endpoint=http://fake.com/authorize"
-    options+=" -Dhealth-check.read-frequency-ms=300000"
+    options+=" -Dhealth-check.medication-id=skip"
   fi
   options+=" -Dspring.jpa.generate-ddl=false"
   options+=" -Dspring.jpa.hibernate.ddl-auto=$DDL_AUTO"
-  options+=" -Dspring.jpa.hibernate.globally_quoted_identifiers=false"
+  options+=" -Dspring.jpa.properties.hibernate.globally_quoted_identifiers=false"
   options+=" -Dspring.datasource.driver-class-name=org.h2.Driver"
-  options+=" -Dspring.datasource.url=jdbc:h2:file:$3"
+  options+=" -Dspring.datasource.url=jdbc:h2:$3"
   options+=" -Dspring.datasource.username=sa"
   options+=" -Dspring.datasource.password=sa"
   java ${options} org.springframework.boot.loader.PropertiesLauncher &
