@@ -35,7 +35,7 @@ final class DatamartDiagnosticReportTransformer {
     if (Transformers.isBlank(r.display()) || Transformers.isBlank(r.result())) {
       return null;
     }
-    return Reference.builder().display(r.display()).reference(r.result()).build();
+    return Reference.builder().display(r.display()).reference("Observation/" + r.result()).build();
   }
 
   static List<Reference> results(List<Result> results) {
