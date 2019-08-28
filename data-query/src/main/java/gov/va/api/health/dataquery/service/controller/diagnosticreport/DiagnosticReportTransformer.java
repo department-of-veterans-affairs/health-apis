@@ -16,6 +16,7 @@ import gov.va.api.health.dstu2.api.datatypes.Coding;
 import gov.va.api.health.dstu2.api.elements.Extension;
 import gov.va.api.health.dstu2.api.elements.Reference;
 import gov.va.dvp.cdw.xsd.model.CdwDiagnosticReport102Root.CdwDiagnosticReports.CdwDiagnosticReport;
+import gov.va.dvp.cdw.xsd.model.CdwDiagnosticReport102Root.CdwDiagnosticReports.CdwDiagnosticReport.CdwResults;
 import gov.va.dvp.cdw.xsd.model.CdwDiagnosticReportCategory;
 import gov.va.dvp.cdw.xsd.model.CdwDiagnosticReportCategoryCode;
 import gov.va.dvp.cdw.xsd.model.CdwDiagnosticReportCategoryCoding;
@@ -30,6 +31,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class DiagnosticReportTransformer implements DiagnosticReportController.Transformer {
+
   @Override
   public DiagnosticReport apply(CdwDiagnosticReport source) {
     return diagnosticReport(source);
@@ -106,6 +108,7 @@ public class DiagnosticReportTransformer implements DiagnosticReportController.T
         .issued(asDateTimeString(source.getIssued()))
         .performer(performer(source.getPerformer()))
         ._performer(performerExtenstion(source.getPerformer()))
+        .result(result(source.getResults()))
         .build();
   }
 
@@ -144,6 +147,10 @@ public class DiagnosticReportTransformer implements DiagnosticReportController.T
                 .reference(source.getReference())
                 .display(source.getDisplay())
                 .build());
+  }
+
+  List<Reference> result(CdwResults maybeCdw) {
+    return convertAll(ifPresent(maybeCdw, CdwResults::getResult), this::reference);
   }
 
   DiagnosticReport.Code status(CdwDiagnosticReportStatus source) {
