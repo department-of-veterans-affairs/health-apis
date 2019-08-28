@@ -171,7 +171,7 @@ public final class SystemDefinitions {
         .location("a146313b-9a77-5337-a442-bee6ceb4aa5c")
         .medication("89a46bce-8b95-5a91-bbef-1fb5f8a2a292")
         .medicationDispense("773bb1ab-4430-5012-b203-a88c41c5dde9")
-        .medicationOrder("82709314-b500-51d8-a5f3-08a5295f813a")
+        .medicationOrder("0f3a2a06-2e3e-5994-a5bf-1d3f161468a9")
         .medicationStatement("4cb8152a-67aa-569c-bc30-9e672b5c72fd")
         .observation("cc8cb528-b9e2-558d-a316-ce8df08e9fb5")
         .observations(observations())
