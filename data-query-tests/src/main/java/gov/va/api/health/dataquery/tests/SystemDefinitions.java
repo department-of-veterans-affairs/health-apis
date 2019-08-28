@@ -173,7 +173,7 @@ public final class SystemDefinitions {
         .medicationDispense("773bb1ab-4430-5012-b203-a88c41c5dde9")
         .medicationOrder("0f3a2a06-2e3e-5994-a5bf-1d3f161468a9")
         .medicationStatement("4cb8152a-67aa-569c-bc30-9e672b5c72fd")
-        .observation("cc8cb528-b9e2-558d-a316-ce8df08e9fb5")
+        .observation("0a4e972a-83ad-5911-829c-17b4600e2fef")
         .observations(observations())
         .organization("3e5dbe7a-72ca-5441-9287-0b639ae7a1bc")
         .patient("1011537977V693883")
