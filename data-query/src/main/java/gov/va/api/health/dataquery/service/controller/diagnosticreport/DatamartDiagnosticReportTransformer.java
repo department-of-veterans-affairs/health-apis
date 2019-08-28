@@ -1,25 +1,50 @@
 package gov.va.api.health.dataquery.service.controller.diagnosticreport;
 
 import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
+import static gov.va.api.health.dataquery.service.controller.Transformers.emptyToNull;
 import static gov.va.api.health.dataquery.service.controller.Transformers.parseInstant;
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.springframework.util.CollectionUtils.isEmpty;
 
 import gov.va.api.health.argonaut.api.resources.DiagnosticReport;
+import gov.va.api.health.dataquery.service.controller.Transformers;
+import gov.va.api.health.dataquery.service.controller.diagnosticreport.DatamartDiagnosticReports.Result;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
 import gov.va.api.health.dstu2.api.elements.Reference;
 import java.time.Instant;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.NonNull;
 
 @Builder
 final class DatamartDiagnosticReportTransformer {
+
   @NonNull final DatamartDiagnosticReports.DiagnosticReport datamart;
 
   final String icn;
 
   final String patientName;
+
+  static Reference result(Result r) {
+    if (r == null) {
+      return null;
+    }
+    if (Transformers.isBlank(r.display()) || Transformers.isBlank(r.result())) {
+      return null;
+    }
+    return Reference.builder().display(r.display()).reference(r.result()).build();
+  }
+
+  static List<Reference> results(List<Result> results) {
+    if (isEmpty(results)) {
+      return null;
+    }
+    var newResults = results.stream().map(r -> result(r)).collect(Collectors.toList());
+    return emptyToNull(newResults);
+  }
 
   private CodeableConcept category() {
     return CodeableConcept.builder()
@@ -41,12 +66,10 @@ final class DatamartDiagnosticReportTransformer {
     if (isBlank(datamart.effectiveDateTime())) {
       return null;
     }
-
     Instant instant = parseInstant(datamart.effectiveDateTime());
     if (instant == null) {
       return null;
     }
-
     return instant.toString();
   }
 
@@ -54,12 +77,10 @@ final class DatamartDiagnosticReportTransformer {
     if (isBlank(datamart.issuedDateTime())) {
       return null;
     }
-
     Instant instant = parseInstant(datamart.issuedDateTime());
     if (instant == null) {
       return null;
     }
-
     return instant.toString();
   }
 
@@ -96,6 +117,7 @@ final class DatamartDiagnosticReportTransformer {
         .effectiveDateTime(effectiveDateTime())
         .issued(issued())
         .performer(performer())
+        .result(results(datamart.results()))
         .build();
   }
 }
