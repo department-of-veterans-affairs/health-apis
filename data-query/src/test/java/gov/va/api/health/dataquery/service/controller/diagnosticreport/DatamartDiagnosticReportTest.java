@@ -167,7 +167,8 @@ public final class DatamartDiagnosticReportTest {
   @Test
   public void results() {
     assertThat(DatamartDiagnosticReportTransformer.results(null)).isEqualTo(null);
-    var expected = Arrays.asList(Reference.builder().reference("sample").display("test").build());
+    var expected =
+        Arrays.asList(Reference.builder().reference("Observation/sample").display("test").build());
     var sample = Arrays.asList(Result.builder().result("sample").display("test").build());
     assertThat(DatamartDiagnosticReportTransformer.results(sample)).isEqualTo(expected);
     var emptySample = Arrays.asList(Result.builder().build());
