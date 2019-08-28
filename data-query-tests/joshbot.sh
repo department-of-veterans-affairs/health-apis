@@ -24,7 +24,7 @@ va-oauth-robot.user-password
 
 va-oauth-robot.credentials-type
   A value of ID_ME will use ID.me during the log in process.
-  A value of MY_HEALTHE_VET will us My HealtheVet during the log in process.
+  A value of MY_HEALTHE_VET will use My HealtheVet during the log in process.
 
 va-oauth-robot.skip-two-factor-authentication=false
   For real users this value must be false. Two factor authentication is required and you
