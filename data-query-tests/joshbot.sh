@@ -48,7 +48,7 @@ va-oauth-robot.credentials-mode
 
 va-oauth-robot.redirect-url=https://app/after-auth
 va-oauth-robot.state=unused
-va-oauth-robot.aud=alec
+va-oauth-robot.aud=josh
   OAuth token request values. The above values will work for 99% of scenarios.
 
 webdriver.chrome.driver
