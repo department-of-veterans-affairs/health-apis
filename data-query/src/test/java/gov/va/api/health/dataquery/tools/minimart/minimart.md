@@ -2,6 +2,8 @@
 
 ## Usage
 
+Minimart Maker shell script is located in: `data-query-tests`
+
 ### 1. Generate and Populate the Identity Service
 ```
 # Creates and starts a local H2 ids database 
@@ -31,7 +33,7 @@ curl -k -X POST \
 # Before continuing, make sure the database has been closed.
 ```
 
-### 2. Crawl till your heart's content
+### 2. Crawl to your heart's content
 Use `./mitre-minimart-maker.sh minimartIds --start` to start up a local version of 
 the ids that points to the H2 database that was created in the previous step.
 
