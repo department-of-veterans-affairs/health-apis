@@ -45,7 +45,6 @@ startMinimartApp() {
   local pathSeparator=':'
   [ "$(uname)" != "Darwin" ] && [ "$(uname)" != "Linux" ] && echo "Add support for your operating system" && exit 1
   echo "Using local H2 database for $app..."
-  set -x
   options+=" -cp $(readlink -f $jar)${pathSeparator}$(readlink -f ~/.m2/repository/com/h2database/h2/1.4.197/h2-1.4.197.jar)"
   if [ "$app" == 'data-query' ]
   then
