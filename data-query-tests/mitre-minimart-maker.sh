@@ -119,13 +119,13 @@ usage() {
 cat <<EOF
 ---
 Commands:
-  minimartIds <create|start|stop>
+  minimartIds <create|start|stop|open>
     Creates, starts, or stops the local ids
   transformToDatamart <directory-to-read-files-from> <resource-name>
     Takes all files for the given resource in the directory and transforms them to datamart schema
   pushToMinimartDb <directory-to-read-files-from> <resource-name>
     Pushes all files for the given resource and directory to a local h2 repository
-  minimartDb <create|start|stop>
+  minimartDb <start|stop|open>
     Creates, starts, or stops the local data-query minimart app
 ---
 Options:
@@ -141,7 +141,7 @@ Examples:
   minimartIds --create|--start|--stop|--open
   transformToDatamart -d "$(pwd)/data-query-tests/target" -r AllergyIntolerance
   pushToMinimartDb -d "$(pwd)/data-query-tests/target/fhir-to-datamart" -r AllergyIntolerance
-  minimartDb --create|--start|--stop|--open
+  minimartDb --start|--stop|--open
 ---
 $1
 EOF
