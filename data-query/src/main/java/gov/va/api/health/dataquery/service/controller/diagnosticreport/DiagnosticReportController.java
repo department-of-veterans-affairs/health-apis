@@ -329,18 +329,31 @@ public class DiagnosticReportController {
             .stream()
             .flatMap(
                 report ->
-                    Stream.of(
-                        ResourceIdentity.builder()
-                            .system("CDW")
-                            .resource("DIAGNOSTIC_REPORT")
-                            .identifier(report.identifier())
-                            .build(),
-                        ResourceIdentity.builder()
-                            .system("CDW")
-                            .resource("ORGANIZATION")
-                            .identifier(report.accessionInstitutionSid())
-                            .build()))
+                    Stream.concat(
+                        Stream.of(
+                            ResourceIdentity.builder()
+                                .system("CDW")
+                                .resource("DIAGNOSTIC_REPORT")
+                                .identifier(report.identifier())
+                                .build(),
+                            ResourceIdentity.builder()
+                                .system("CDW")
+                                .resource("ORGANIZATION")
+                                .identifier(report.accessionInstitutionSid())
+                                .build()),
+                        report
+                            .results()
+                            .stream()
+                            .flatMap(
+                                r ->
+                                    Stream.of(
+                                        ResourceIdentity.builder()
+                                            .system("CDW")
+                                            .resource("OBSERVATION")
+                                            .identifier(r.result())
+                                            .build()))))
             .collect(Collectors.toSet());
+
     List<Registration> registrations = witnessProtection.register(ids);
     final Table<String, String, String> idsTable = HashBasedTable.create();
     for (Registration r : registrations) {
@@ -357,6 +370,12 @@ public class DiagnosticReportController {
           idsTable.get(report.accessionInstitutionSid(), "ORGANIZATION");
       if (accessionInstitutionSid != null) {
         report.accessionInstitutionSid(accessionInstitutionSid);
+      }
+      for (var result : report.results()) {
+        String resultId = idsTable.get(result.result(), "OBSERVATION");
+        if (resultId != null) {
+          result.result(resultId);
+        }
       }
     }
   }
