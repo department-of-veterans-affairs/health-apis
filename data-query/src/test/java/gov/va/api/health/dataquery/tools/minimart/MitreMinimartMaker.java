@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.tools.minimart;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.allergyintolerance.AllergyIntoleranceEntity;
 import gov.va.api.health.dataquery.service.controller.allergyintolerance.DatamartAllergyIntolerance;
@@ -26,6 +27,7 @@ import gov.va.api.health.dataquery.service.controller.procedure.DatamartProcedur
 import gov.va.api.health.dataquery.service.controller.procedure.ProcedureEntity;
 import gov.va.api.health.dataquery.tools.LocalH2;
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.Instant;
@@ -41,7 +43,9 @@ public class MitreMinimartMaker {
 
   private final List<Class<?>> MANAGED_CLASSES =
       Arrays.asList(
-          AllergyIntoleranceEntity.class
+          AllergyIntoleranceEntity.class,
+          DiagnosticReportCrossEntity.class,
+          DiagnosticReportsEntity.class
           //
           );
 
@@ -109,15 +113,6 @@ public class MitreMinimartMaker {
   private void insertByDiagnosticReport(File file) {
     DatamartDiagnosticReports dm =
         JacksonConfig.createMapper().readValue(file, DatamartDiagnosticReports.class);
-    // DR Entity
-    entityManager.persist(
-        DiagnosticReportsEntity.builder()
-            .icn(dm.fullIcn())
-            .payload(
-                JacksonConfig.createMapper()
-                    .writerWithDefaultPrettyPrinter()
-                    .writeValueAsString(dm.reports()))
-            .build());
     // DR Crosswalk Entities
     dm.reports()
         .forEach(
@@ -129,6 +124,74 @@ public class MitreMinimartMaker {
                       .reportId(report.identifier())
                       .build());
             });
+
+    Object queryResult =
+        entityManager
+            .createQuery(
+                "select count(*) from "
+                    + DiagnosticReportsEntity.class.getSimpleName()
+                    + " where PatientFullIcn = :paticn")
+            .setParameter("paticn", dm.fullIcn())
+            .getSingleResult();
+    Integer count = queryResult != null ? Integer.parseInt(queryResult.toString()) : 0;
+    // DR Entity
+    if (count == 0) {
+      entityManager.persist(
+          DiagnosticReportsEntity.builder()
+              .icn(dm.fullIcn())
+              .payload(
+                  JacksonConfig.createMapper()
+                      .writerWithDefaultPrettyPrinter()
+                      .writeValueAsString(dm))
+              .build());
+    } else {
+      // Patient Icn is the primary key, so there should only ever be one.
+      entityManager
+          .createQuery(
+              "select e from "
+                  + DiagnosticReportsEntity.class.getSimpleName()
+                  + " e where PatientFullIcn = :paticn")
+          .setParameter("paticn", dm.fullIcn())
+          .getResultStream()
+          .forEach(
+              dr -> {
+                DiagnosticReportsEntity entity =
+                    JacksonConfig.createMapper().convertValue(dr, DiagnosticReportsEntity.class);
+                DatamartDiagnosticReports payload = null;
+                try {
+                  payload =
+                      JacksonConfig.createMapper()
+                          .readValue(entity.payload(), DatamartDiagnosticReports.class);
+                } catch (IOException e) {
+                  log.error("Couldn't process payload for id {} from database", entity.icn());
+                  System.exit(1);
+                }
+                for (DatamartDiagnosticReports.DiagnosticReport report : dm.reports()) {
+                  if (payload
+                          .reports()
+                          .stream()
+                          .filter(r -> r.identifier() == report.identifier())
+                          .collect(Collectors.toList())
+                          .size()
+                      == 0) {
+                    payload.reports().add(report);
+                  } else {
+                    log.info("Report {} already exists in payload", report.identifier());
+                  }
+                }
+                String jsonPayload = "";
+                try {
+                  jsonPayload =
+                      JacksonConfig.createMapper()
+                          .writerWithDefaultPrettyPrinter()
+                          .writeValueAsString(payload);
+                } catch (JsonProcessingException e) {
+                  log.error("Couldnt process to json: {}", payload);
+                  System.exit(1);
+                }
+                entityManager.merge(entity.payload(jsonPayload));
+              });
+    }
     flushAndClear();
   }
 
