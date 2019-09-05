@@ -263,6 +263,7 @@ public class DatamartObservation implements HasReplaceableId {
 
     private String text;
 
+    /** Lazy getter. */
     public Optional<DatamartCoding> coding() {
       if (coding == null) {
         coding = Optional.empty();
