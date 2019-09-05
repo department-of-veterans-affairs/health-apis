@@ -2,13 +2,16 @@ package gov.va.api.health.dataquery.tools.minimart;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gov.va.api.health.argonaut.api.resources.AllergyIntolerance;
+import gov.va.api.health.argonaut.api.resources.Condition;
 import gov.va.api.health.argonaut.api.resources.DiagnosticReport;
 import gov.va.api.health.argonaut.api.resources.Patient;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.allergyintolerance.DatamartAllergyIntolerance;
+import gov.va.api.health.dataquery.service.controller.condition.DatamartCondition;
 import gov.va.api.health.dataquery.service.controller.diagnosticreport.DatamartDiagnosticReports;
 import gov.va.api.health.dataquery.service.controller.patient.DatamartPatient;
 import gov.va.api.health.dataquery.tools.minimart.transformers.F2DAllergyIntoleranceTransformer;
+import gov.va.api.health.dataquery.tools.minimart.transformers.F2DConditionTransformer;
 import gov.va.api.health.dataquery.tools.minimart.transformers.F2DDiagnosticReportTransformer;
 import gov.va.api.health.dataquery.tools.minimart.transformers.F2DPatientTransformer;
 import java.io.File;
@@ -105,6 +108,12 @@ public class FhirToDatamart {
             allergyIntoleranceTransformer.fhirToDatamart(
                 mapper.readValue(file, AllergyIntolerance.class));
         dmObjectToFile(file.getName(), datamartAllergyIntolerance);
+        break;
+      case "Condition":
+        F2DConditionTransformer conditionTransformer = new F2DConditionTransformer();
+        DatamartCondition datamartCondition =
+            conditionTransformer.fhirToDatamart(mapper.readValue(file, Condition.class));
+        dmObjectToFile(file.getName(), datamartCondition);
         break;
       case "DiagnosticReport":
         F2DDiagnosticReportTransformer diagnosticReportTransformer =

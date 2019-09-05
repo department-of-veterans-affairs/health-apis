@@ -19,17 +19,17 @@ import lombok.NoArgsConstructor;
 public class DatamartCondition implements HasReplaceableId {
   @Builder.Default private String objectType = "Condition";
   @Builder.Default private String objectVersion = "1";
-  private String cdwId;
-  private DatamartReference patient;
-  private Optional<DatamartReference> encounter;
-  private Optional<DatamartReference> asserter;
-  private Optional<LocalDate> dateRecorded;
+  private String cdwId; //
+  private DatamartReference patient; //
+  private Optional<DatamartReference> encounter; //
+  private Optional<DatamartReference> asserter; //
+  private Optional<LocalDate> dateRecorded; //
   private Optional<SnomedCode> snomed;
   private Optional<IcdCode> icd;
-  private Category category;
-  private ClinicalStatus clinicalStatus;
-  private Optional<Instant> onsetDateTime;
-  private Optional<Instant> abatementDateTime;
+  private Category category; //
+  private ClinicalStatus clinicalStatus; //
+  private Optional<Instant> onsetDateTime; //
+  private Optional<Instant> abatementDateTime; //
 
   /** Lazy initialization with empty. */
   public Optional<Instant> abatementDateTime() {
