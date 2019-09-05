@@ -63,27 +63,20 @@ public class F2DConditionTransformer {
         .build();
   }
 
-  private CodeSystem whichCode(Coding coding) {
-    if (coding.system().contains("icd")) {
-      return CodeSystem.icd;
-    }
-    if (coding.system().contains("snomed")) {
-      return CodeSystem.snomed;
-    }
-    return null;
-  }
-
   private Optional<IcdCode> maybeIcd(CodeableConcept code) {
     if (code == null) {
       return null;
     }
-    return code.coding().stream()
+    return code.coding()
+        .stream()
         .filter(coding -> whichCode(coding) == CodeSystem.icd)
-        .map(coding -> IcdCode.builder()
-            .code(coding.code())
-            .display(coding.display())
-            .version(coding.version())
-            .build())
+        .map(
+            coding ->
+                IcdCode.builder()
+                    .code(coding.code())
+                    .display(coding.display())
+                    .version(coding.version())
+                    .build())
         .findFirst();
   }
 
@@ -91,12 +84,10 @@ public class F2DConditionTransformer {
     if (code == null) {
       return null;
     }
-    return code.coding().stream()
+    return code.coding()
+        .stream()
         .filter(coding -> whichCode(coding) == CodeSystem.snomed)
-        .map(coding -> SnomedCode.builder()
-            .code(coding.code())
-            .display(coding.display())
-            .build())
+        .map(coding -> SnomedCode.builder().code(coding.code()).display(coding.display()).build())
         .findFirst();
   }
 
@@ -105,6 +96,16 @@ public class F2DConditionTransformer {
       return null;
     }
     return Optional.of(Instant.parse(onsetDateTime));
+  }
+
+  private CodeSystem whichCode(Coding coding) {
+    if (coding.system().contains("icd")) {
+      return CodeSystem.icd;
+    }
+    if (coding.system().contains("snomed")) {
+      return CodeSystem.snomed;
+    }
+    return null;
   }
 
   private enum CodeSystem {
