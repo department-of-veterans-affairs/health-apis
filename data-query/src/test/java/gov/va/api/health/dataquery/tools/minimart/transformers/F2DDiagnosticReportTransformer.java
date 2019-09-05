@@ -21,29 +21,12 @@ public class F2DDiagnosticReportTransformer {
         .build();
   }
 
-  private List<DatamartDiagnosticReports.Order> orders(List<Reference> results) {
-    if (results == null || results.isEmpty()) {
-      return null;
-    }
-    return results
-        .stream()
-        .map(
-            r ->
-                DatamartDiagnosticReports.Order.builder()
-                    .sid(RevealSecretIdentity.unmask(splitReference(r.reference())))
-                    .display(r.display())
-                    .build())
-        .collect(Collectors.toList());
-  }
-
   public List<DatamartDiagnosticReports.DiagnosticReport> reports(
       DiagnosticReport diagnosticReport) {
-
     String performer =
         diagnosticReport.performer() != null && diagnosticReport.performer().reference() != null
             ? RevealSecretIdentity.unmask(splitReference(diagnosticReport.performer().reference()))
             : null;
-
     return Transformers.emptyToNull(
         asList(
             DatamartDiagnosticReports.DiagnosticReport.builder()
@@ -53,8 +36,23 @@ public class F2DDiagnosticReportTransformer {
                 .accessionInstitutionSid(performer)
                 .accessionInstitutionName(
                     performer != null ? diagnosticReport.performer().display() : null)
-                .orders(orders(diagnosticReport.result()))
+                .results(results(diagnosticReport.result()))
                 .build()));
+  }
+
+  private List<DatamartDiagnosticReports.Result> results(List<Reference> results) {
+    if (results == null || results.isEmpty()) {
+      return null;
+    }
+    return results
+        .stream()
+        .map(
+            r ->
+                DatamartDiagnosticReports.Result.builder()
+                    .result(RevealSecretIdentity.unmask(splitReference(r.reference())))
+                    .display(r.display())
+                    .build())
+        .collect(Collectors.toList());
   }
 
   public String splitReference(String reference) {
