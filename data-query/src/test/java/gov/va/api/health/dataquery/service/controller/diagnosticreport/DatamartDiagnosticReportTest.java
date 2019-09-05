@@ -13,10 +13,12 @@ import gov.va.api.health.dataquery.service.controller.Bundler;
 import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
+import gov.va.api.health.dataquery.service.controller.diagnosticreport.DatamartDiagnosticReports.Result;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
 import gov.va.api.health.dstu2.api.elements.Reference;
 import gov.va.api.health.ids.api.IdentityService;
+import java.util.Arrays;
 import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.SneakyThrows;
@@ -160,6 +162,17 @@ public final class DatamartDiagnosticReportTest {
   public void read_unknown() {
     DiagnosticReportController controller = controller();
     controller.read("true", "123456:X");
+  }
+
+  @Test
+  public void results() {
+    assertThat(DatamartDiagnosticReportTransformer.results(null)).isEqualTo(null);
+    var expected =
+        Arrays.asList(Reference.builder().reference("Observation/sample").display("test").build());
+    var sample = Arrays.asList(Result.builder().result("sample").display("test").build());
+    assertThat(DatamartDiagnosticReportTransformer.results(sample)).isEqualTo(expected);
+    var emptySample = Arrays.asList(Result.builder().build());
+    assertThat(DatamartDiagnosticReportTransformer.results(emptySample)).isEqualTo(null);
   }
 
   @Test
