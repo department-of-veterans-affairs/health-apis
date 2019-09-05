@@ -177,19 +177,19 @@ public class MitreMinimartMaker {
                     payload.reports().add(report);
                   } else {
                     log.info("Report {} already exists in payload", report.identifier());
+                    continue;
                   }
                 }
-                String jsonPayload = "";
                 try {
-                  jsonPayload =
-                      JacksonConfig.createMapper()
-                          .writerWithDefaultPrettyPrinter()
-                          .writeValueAsString(payload);
+                  entityManager.merge(
+                      entity.payload(
+                          JacksonConfig.createMapper()
+                              .writerWithDefaultPrettyPrinter()
+                              .writeValueAsString(payload)));
                 } catch (JsonProcessingException e) {
                   log.error("Couldnt process to json: {}", payload);
                   System.exit(1);
                 }
-                entityManager.merge(entity.payload(jsonPayload));
               });
     }
     flushAndClear();
