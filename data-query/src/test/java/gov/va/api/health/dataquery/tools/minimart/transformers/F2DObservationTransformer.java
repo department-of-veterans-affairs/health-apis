@@ -5,6 +5,8 @@ import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
 import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
+import gov.va.api.health.dstu2.api.datatypes.Quantity;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -61,8 +63,14 @@ public class F2DObservationTransformer {
   public DatamartObservation fhirToDatamart(Observation observation) {
     return DatamartObservation.builder()
         .antibioticComponents(antibioticObservations(observation.component()))
+            .valueQuantity(valueQuantity(observation.valueQuantity()))
         .build();
   }
+
+  private Optional<DatamartObservation.Quantity> valueQuantity(Quantity valueQuantity) {
+  return Optional.of(DatamartObservation.Quantity.builder().code(valueQuantity.code()).system(valueQuantity.system()).unit(valueQuantity.unit()).value(valueQuantity.value()).build());
+  }
+
 
   private Optional<DatamartCoding> valueCodeableConcept(CodeableConcept valueCodeableConcept) {
     if (valueCodeableConcept == null
