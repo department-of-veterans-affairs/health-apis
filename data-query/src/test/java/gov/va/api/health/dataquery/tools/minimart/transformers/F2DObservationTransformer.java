@@ -87,7 +87,23 @@ public class F2DObservationTransformer {
             .code(code(observation.code()))
             .encounter(toDatamartReferenceWithCdwId(observation.encounter()))
             .effectiveDateTime(instant(observation.effectiveDateTime()))
+            .valueCodeableConcept(valueCodeableConcept(observation.valueCodeableConcept()))
+            .category(category(observation.category()))
         .build();
+  }
+
+  private DatamartObservation.Category category(CodeableConcept category) {
+    if(category==null||category.coding()==null||category.coding().isEmpty()||category.coding().get(0)==null){
+      return null;
+    }
+    return EnumSearcher.of(DatamartObservation.Category.class).find(category.coding().get(0).code());
+  }
+
+  private Optional<DatamartObservation.CodeableConcept> valueCodeableConcept(CodeableConcept valueCodeableConcept) {
+    if(valueCodeableConcept==null){
+      return null;
+    }
+   return Optional.of(DatamartObservation.CodeableConcept.builder().coding(coding(valueCodeableConcept.coding())).text(valueCodeableConcept.text()).build());
   }
 
   private Optional<DatamartObservation.CodeableConcept> code(CodeableConcept code) {
