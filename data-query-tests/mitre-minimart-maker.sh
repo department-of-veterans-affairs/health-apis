@@ -82,7 +82,7 @@ pushToDatabase() {
   local workingDir="$REPO/health-apis-data-query"
   [ -z "$DIRECTORY" ] && usage "Directory is a Required Param." && exit 1
   [ -z "$RESOURCE_TYPE" ] && usage "Resource Type is a Required Param." && exit 1
-  [ -f "$outputFile" ] && rm -v "$ouputFile/*"
+  [ -z "$CONFIG_FILE" ] && usage "Config file is necessary for pushing to db" && exit 1
   mvn -f "$workingDir/data-query" test-compile && \
     mvn -f "$workingDir/data-query" \
     -P'!standard' \
@@ -91,7 +91,7 @@ pushToDatabase() {
     generate-resources \
     -DresourceType="$RESOURCE_TYPE" \
     -DinputDirectory="$DIRECTORY" \
-    -DoutputFile="$DQ_H2" \
+    -DconfigFile="$CONFIG_FILE" \
     -Dorg.jboss.logging.provider=jdk \
     -Djava.util.logging.config.file=nope
 
@@ -125,7 +125,7 @@ Commands:
   pushToMinimartDb <directory-to-read-files-from> <resource-name>
     Pushes all files for the given resource and directory to a local h2 repository
   minimartDb <start|stop|open>
-    Creates, starts, or stops the local data-query minimart app
+    Creates, starts, or stops the local data-query minimart h2 database
 ---
 Options:
   -s|--start) Can be used with minimartIds command to start local minimartIds (db must first be created)
@@ -133,13 +133,14 @@ Options:
   -c|--create) Can be used with minimartIds command to create local minimartIds
   -d|--directory) Use to specify the directory files are located in for a transform or dbPush
   -r|--resource) Use to specify the resource to transform or push to db
+  -f|--config) Config file used with pushToMinimartDb command to connect to sql server db
   -o|--open) Open the database from the given command
   -h|--help) I need an adult!!!
 ---
 Examples:
   minimartIds --create|--start|--stop|--open
   transformToDatamart -d "$(pwd)/data-query-tests/target" -r AllergyIntolerance
-  pushToMinimartDb -d "$(pwd)/data-query-tests/target/fhir-to-datamart" -r AllergyIntolerance
+  pushToMinimartDb -d "$(pwd)/data-query-tests/target/fhir-to-datamart" -r AllergyIntolerance -f "$(pwd)/my-super-awesome-config.properties"
   minimartDb --start|--stop|--open
 ---
 $1
@@ -147,8 +148,8 @@ EOF
 }
 
 ARGS=$(getopt -n $(basename ${0}) \
-    -l "help,start,stop,directory:,resource:,create,open" \
-    -o "hskd:r:co" -- "$@")
+    -l "help,start,stop,directory:,resource:,create,open,config:" \
+    -o "hskd:r:cof" -- "$@")
 [ $? != 0 ] && usage
 eval set -- "$ARGS"
 while true
@@ -159,6 +160,7 @@ do
     -c|--create) START=true && DDL_AUTO="create";;
     -d|--directory) DIRECTORY="$2";;
     -r|--resource) RESOURCE_TYPE="$2";;
+    -f|--config) CONFIG_FILE="$2";;
     -o|--open) OPEN_DB=true;;
     -h|--help) usage && exit 0;;
     --) shift;break;;

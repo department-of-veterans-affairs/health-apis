@@ -255,7 +255,7 @@
                   <arguments>
                     <argument>${resourceType}</argument>
                     <argument>${inputDirectory}</argument>
-                    <argument>${outputFile}</argument>
+                    <argument>${configFile}</argument>
                   </arguments>
                 </configuration>
               </execution>

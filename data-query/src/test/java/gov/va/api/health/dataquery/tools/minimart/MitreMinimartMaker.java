@@ -24,7 +24,7 @@ import gov.va.api.health.dataquery.service.controller.patient.PatientEntity;
 import gov.va.api.health.dataquery.service.controller.patient.PatientSearchEntity;
 import gov.va.api.health.dataquery.service.controller.procedure.DatamartProcedure;
 import gov.va.api.health.dataquery.service.controller.procedure.ProcedureEntity;
-import gov.va.api.health.dataquery.tools.LocalH2;
+import gov.va.api.health.dataquery.tools.SqlServerDb;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -49,9 +49,9 @@ public class MitreMinimartMaker {
 
   private EntityManager entityManager;
 
-  public MitreMinimartMaker(String resourceToSync, String dbLocation) {
+  public MitreMinimartMaker(String resourceToSync, String configFile) {
     this.resourceToSync = resourceToSync;
-    this.entityManager = new LocalH2(dbLocation, MANAGED_CLASSES).get();
+    this.entityManager = new SqlServerDb(configFile, MANAGED_CLASSES).get();
   }
 
   /** Main. */
