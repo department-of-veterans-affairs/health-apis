@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Stream;
 import javax.validation.constraints.Min;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -49,9 +50,8 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 @RestController
 @RequestMapping(
-  value = {"Medication", "/api/Medication"},
-  produces = {"application/json", "application/json+fhir", "application/fhir+json"}
-)
+    value = {"Medication", "/api/Medication"},
+    produces = {"application/json", "application/json+fhir", "application/fhir+json"})
 public class MedicationController {
   private final MedicationController.Datamart datamart = new MedicationController.Datamart();
   private Transformer transformer;
@@ -157,9 +157,8 @@ public class MedicationController {
 
   /** Hey, this is a validate endpoint. It validates. */
   @PostMapping(
-    value = "/$validate",
-    consumes = {"application/json", "application/json+fhir", "application/fhir+json"}
-  )
+      value = "/$validate",
+      consumes = {"application/json", "application/json+fhir", "application/fhir+json"})
   public OperationOutcome validate(@RequestBody Bundle bundle) {
     return Validator.create().validate(bundle);
   }
@@ -203,6 +202,8 @@ public class MedicationController {
 
     Medication read(String publicId) {
       DatamartMedication medication = findById(publicId).asDatamartMedication();
+      witnessProtection.registerAndUpdateReferences(
+          List.of(medication), resource -> Stream.empty());
       return transform(medication);
     }
 
