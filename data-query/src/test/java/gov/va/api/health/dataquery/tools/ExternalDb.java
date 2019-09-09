@@ -17,14 +17,14 @@ import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.jpa.HibernatePersistenceProvider;
 
 @Slf4j
-public class SqlServerDb implements Supplier<EntityManager> {
+public class ExternalDb implements Supplier<EntityManager> {
 
   private final Properties config;
 
   private final List<Class<?>> managedClasses;
 
   @SneakyThrows
-  public SqlServerDb(String configFile, List<Class<?>> managedClasses) {
+  public ExternalDb(String configFile, List<Class<?>> managedClasses) {
     log.info("Loading Mitre connection configuration from {}", configFile);
     config = new Properties(System.getProperties());
     try (FileInputStream inputStream = new FileInputStream(configFile)) {
@@ -47,7 +47,7 @@ public class SqlServerDb implements Supplier<EntityManager> {
         .createContainerEntityManagerFactory(
             info,
             ImmutableMap.of(
-                AvailableSettings.JPA_JDBC_DRIVER, "com.microsoft.sqlserver.jdbc.SQLServerDriver"))
+                AvailableSettings.JPA_JDBC_DRIVER, valueOf("spring.datasource.driver-class-name")))
         .createEntityManager();
   }
 

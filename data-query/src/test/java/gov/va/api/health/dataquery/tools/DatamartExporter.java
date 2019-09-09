@@ -50,7 +50,7 @@ public class DatamartExporter {
   EntityManager mitre;
 
   public DatamartExporter(String configFile, String outputFile) {
-    mitre = new SqlServerDb(configFile, MANAGED_CLASSES).get();
+    mitre = new ExternalDb(configFile, MANAGED_CLASSES).get();
     h2 = new LocalH2(outputFile, MANAGED_CLASSES).get();
   }
 

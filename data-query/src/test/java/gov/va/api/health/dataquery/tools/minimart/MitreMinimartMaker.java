@@ -24,7 +24,8 @@ import gov.va.api.health.dataquery.service.controller.patient.PatientEntity;
 import gov.va.api.health.dataquery.service.controller.patient.PatientSearchEntity;
 import gov.va.api.health.dataquery.service.controller.procedure.DatamartProcedure;
 import gov.va.api.health.dataquery.service.controller.procedure.ProcedureEntity;
-import gov.va.api.health.dataquery.tools.SqlServerDb;
+import gov.va.api.health.dataquery.tools.ExternalDb;
+import gov.va.api.health.dataquery.tools.LocalH2;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -51,14 +52,19 @@ public class MitreMinimartMaker {
 
   public MitreMinimartMaker(String resourceToSync, String configFile) {
     this.resourceToSync = resourceToSync;
-    this.entityManager = new SqlServerDb(configFile, MANAGED_CLASSES).get();
+    if (configFile == null || configFile.isBlank()) {
+      log.info("No config file was specified... Defaulting to local h2 database...");
+      this.entityManager = new LocalH2("./target/minimart", MANAGED_CLASSES).get();
+    } else {
+      this.entityManager = new ExternalDb(configFile, MANAGED_CLASSES).get();
+    }
   }
 
   /** Main. */
   public static void main(String[] args) {
-    if (args.length != 3) {
+    if (args.length > 3 || args.length < 2) {
       throw new RuntimeException(
-              "Missing command line arguments. Expected <resource-type> <input-directory> <local-db-location>");
+          "Missing command line arguments. Expected <resource-type> <input-directory> <external-db-config>");
     }
     String directory = args[1];
     MitreMinimartMaker mmm = new MitreMinimartMaker(args[0], args[2]);

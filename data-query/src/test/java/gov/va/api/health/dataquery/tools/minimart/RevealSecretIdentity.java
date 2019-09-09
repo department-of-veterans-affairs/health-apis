@@ -45,6 +45,7 @@ public class RevealSecretIdentity {
     if (cdwId.isBlank()) {
       throw new RuntimeException("Ids value not found for property: " + idsPropertyName);
     }
+    log.info("{}:{} - cdwId {}", resourceName, publicId, cdwId);
     return cdwId;
   }
 }

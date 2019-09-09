@@ -82,7 +82,6 @@ pushToDatabase() {
   local workingDir="$REPO/health-apis-data-query"
   [ -z "$DIRECTORY" ] && usage "Directory is a Required Param." && exit 1
   [ -z "$RESOURCE_TYPE" ] && usage "Resource Type is a Required Param." && exit 1
-  [ -z "$CONFIG_FILE" ] && usage "Config file is necessary for pushing to db" && exit 1
   mvn -f "$workingDir/data-query" test-compile && \
     mvn -f "$workingDir/data-query" \
     -P'!standard' \
@@ -138,14 +137,15 @@ Options:
   -c|--create) Can be used with minimartIds command to create local minimartIds
   -d|--directory) Use to specify the directory files are located in for a transform or dbPush
   -r|--resource) Use to specify the resource to transform or push to db
-  -f|--config) Config file used with pushToMinimartDb command to connect to sql server db
+  -f|--config) Config file used with pushToMinimartDb command to connect to sql server db or create h2
   -o|--open) Open the database from the given command
   -h|--help) I need an adult!!!
 ---
 Examples:
   minimartIds --create|--start|--stop|--open
   transformToDatamart -d "$(pwd)/data-query-tests/target" -r AllergyIntolerance
-  pushToMinimartDb -d "$(pwd)/data-query-tests/target/fhir-to-datamart" -r AllergyIntolerance -f "$(pwd)/my-super-awesome-config.properties"
+  sqlServer: pushToMinimartDb -d "$(pwd)/data-query-tests/target/fhir-to-datamart" -r AllergyIntolerance -f "$(pwd)/my-super-awesome-config.properties"
+  h2: pushToMinimartDb -d "$(pwd)/data-query-tests/target/fhir-to-datamart" -r AllergyIntolerance -f "$(pwd)/my-super-awesome-h2-db"
   minimartDb --start|--stop|--open
 ---
 $1
@@ -166,7 +166,6 @@ do
     -d|--directory) DIRECTORY="$2";;
     -f|--config) CONFIG_FILE="$2";;
     -r|--resource) RESOURCE_TYPE="$2";;
-    -f|--config) CONFIG_FILE="$2";;
     -o|--open) OPEN_DB=true;;
     -h|--help) usage && exit 0;;
     --) shift;break;;
