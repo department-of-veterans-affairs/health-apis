@@ -20,16 +20,25 @@ public class RevealSecretIdentity {
     if (reference == null) {
       return null;
     }
-    String[] fhirUrl = reference.reference().split("/");
-    String referenceType = fhirUrl[fhirUrl.length - 2];
-    String referenceId = fhirUrl[fhirUrl.length - 1];
-    String realId = unmask(referenceId);
-    return Optional.of(
-        DatamartReference.builder()
-            .type(Optional.of(referenceType))
-            .reference(realId != null ? Optional.of(realId) : null)
-            .display(reference.display() != null ? Optional.of(reference.display()) : null)
-            .build());
+    if (reference.reference() == null && reference.display() == null) {
+      return null;
+    }
+
+    if (reference.reference() != null) {
+      String[] fhirUrl = reference.reference().split("/");
+      String referenceType = fhirUrl[fhirUrl.length - 2];
+      String referenceId = fhirUrl[fhirUrl.length - 1];
+      String realId = unmask(referenceId);
+      return Optional.of(
+          DatamartReference.builder()
+              .type(Optional.of(referenceType))
+              .reference(realId != null ? Optional.of(realId) : null)
+              .display(reference.display() != null ? Optional.of(reference.display()) : null)
+              .build());
+    } else {
+      return Optional.of(
+          DatamartReference.builder().display(Optional.of(reference.display())).build());
+    }
   }
 
   @SneakyThrows
