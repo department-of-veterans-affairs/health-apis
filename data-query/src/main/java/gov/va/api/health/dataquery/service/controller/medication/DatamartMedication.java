@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.medication;
 
+import gov.va.api.health.dataquery.service.controller.datamart.HasReplaceableId;
 import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -11,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class DatamartMedication {
+public class DatamartMedication implements HasReplaceableId {
 
   private String localDrugName;
 
@@ -58,21 +59,21 @@ public class DatamartMedication {
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
-  public static class RxNorm {
+  public static class Product {
 
-    private String code;
+    private String id;
 
-    private String text;
+    private String formText;
   }
 
   @Data
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
-  public static class Product {
+  public static class RxNorm {
 
-    private String id;
+    private String code;
 
-    private String formText;
+    private String text;
   }
 }
