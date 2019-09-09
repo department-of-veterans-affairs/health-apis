@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.patient;
 
+import gov.va.api.health.dataquery.service.controller.datamart.DatamartEntity;
 import java.time.Instant;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -19,7 +20,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class PatientSearchEntity {
+public class PatientSearchEntity implements DatamartEntity {
   @Id
   @Column(name = "fullIcn")
   @EqualsAndHashCode.Include
@@ -39,4 +40,9 @@ public class PatientSearchEntity {
 
   @Column(name = "birthDateTime")
   private Instant birthDateTime;
+
+  @Override
+  public String cdwId() {
+    return icn();
+  }
 }
