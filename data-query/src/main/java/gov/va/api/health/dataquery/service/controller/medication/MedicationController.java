@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Stream;
 import javax.validation.constraints.Min;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -203,6 +204,8 @@ public class MedicationController {
 
     Medication read(String publicId) {
       DatamartMedication medication = findById(publicId).asDatamartMedication();
+      witnessProtection.registerAndUpdateReferences(
+          List.of(medication), resource -> Stream.empty());
       return transform(medication);
     }
 
