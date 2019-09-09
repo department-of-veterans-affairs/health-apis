@@ -5,6 +5,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import gov.va.api.health.argonaut.api.resources.Patient;
 import gov.va.api.health.dataquery.service.controller.patient.DatamartPatient;
+import gov.va.api.health.dataquery.tools.minimart.RevealSecretIdentity;
 import gov.va.api.health.dstu2.api.datatypes.Address;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
@@ -15,8 +16,12 @@ import gov.va.api.health.dstu2.api.elements.Extension;
 import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.AllArgsConstructor;
 
+@AllArgsConstructor
 public class F2DPatientTransformer {
+
+  RevealSecretIdentity fauxIds;
 
   private DatamartPatient.Address address(Address address) {
     if (address == null) {
@@ -117,7 +122,7 @@ public class F2DPatientTransformer {
     return DatamartPatient.builder()
         .objectVersion(1)
         .objectType(patient.resourceType())
-        .fullIcn(patient.id())
+        .fullIcn(fauxIds.unmask("Patient", patient.id()))
         .firstName(firstName(patient.name()))
         .lastName(lastName(patient.name()))
         .name(name(patient.name()))

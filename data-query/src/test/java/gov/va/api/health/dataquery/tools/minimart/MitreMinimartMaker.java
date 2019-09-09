@@ -56,6 +56,10 @@ public class MitreMinimartMaker {
 
   /** Main. */
   public static void main(String[] args) {
+    if (args.length != 3) {
+      throw new RuntimeException(
+              "Missing command line arguments. Expected <resource-type> <input-directory> <local-db-location>");
+    }
     String directory = args[1];
     MitreMinimartMaker mmm = new MitreMinimartMaker(args[0], args[2]);
     log.info("Syncing {} files in {} to db", mmm.resourceToSync, directory);
