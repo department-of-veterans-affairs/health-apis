@@ -137,7 +137,7 @@ Options:
   -c|--create) Can be used with minimartIds command to create local minimartIds
   -d|--directory) Use to specify the directory files are located in for a transform or dbPush
   -r|--resource) Use to specify the resource to transform or push to db
-  -f|--config) Config file used with pushToMinimartDb command to connect to sql server db or create h2
+  -f|--config) Config file used either specify location of properties for different actions
   -o|--open) Open the database from the given command
   -h|--help) I need an adult!!!
 ---
@@ -145,7 +145,7 @@ Examples:
   minimartIds --create|--start|--stop|--open
   transformToDatamart -d "$(pwd)/data-query-tests/target" -r AllergyIntolerance
   sqlServer: pushToMinimartDb -d "$(pwd)/data-query-tests/target/fhir-to-datamart" -r AllergyIntolerance -f "$(pwd)/my-super-awesome-config.properties"
-  h2: pushToMinimartDb -d "$(pwd)/data-query-tests/target/fhir-to-datamart" -r AllergyIntolerance -f "$(pwd)/my-super-awesome-h2-db"
+  h2: pushToMinimartDb -d "$(pwd)/data-query-tests/target/fhir-to-datamart" -r AllergyIntolerance
   minimartDb --start|--stop|--open
 ---
 $1
