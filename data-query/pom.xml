@@ -240,6 +240,7 @@
                   <arguments>
                     <argument>${resourceType}</argument>
                     <argument>${inputDirectory}</argument>
+                    <argument>${idsConfig}</argument>
                   </arguments>
                 </configuration>
               </execution>

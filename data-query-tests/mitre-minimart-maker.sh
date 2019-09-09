@@ -101,13 +101,18 @@ transformFhirToDatamart() {
   local workingDir="$REPO/health-apis-data-query"
   [ -z "$DIRECTORY" ] && usage "Directory is a Required Option." && exit 1
   [ -z "$RESOURCE_TYPE" ] && usage "Resource Type is a Required Option." && exit 1
+  [ -z "$CONFIG_FILE" ] \
+    && [ ! -d "$REPO/health-apis-data-query-synthetic-records" ] \
+    && usage 'Either `health-apis-data-query-sythetic-records` needs to be cloned in parent directory or config file needs to be defined.' \
+    && exit 1
   mvn -f "$workingDir/data-query" test-compile && \
     mvn -f "$workingDir/data-query" \
     -P'!standard' \
     -Pmitre-minimart-maker \
     generate-resources \
     -DresourceType="$RESOURCE_TYPE" \
-    -DinputDirectory="$DIRECTORY"
+    -DinputDirectory="$DIRECTORY" \
+    -DidsConfig=${CONFIG_FILE:-"$REPO/health-apis-data-query-synthetic-records/identity-service.properties"}
 }
 
 openDatabase() {
@@ -147,8 +152,8 @@ EOF
 }
 
 ARGS=$(getopt -n $(basename ${0}) \
-    -l "help,start,stop,directory:,resource:,create,open" \
-    -o "hskd:r:co" -- "$@")
+    -l "help,start,stop,directory:,resource:,create,open,config:" \
+    -o "hskd:r:cof:" -- "$@")
 [ $? != 0 ] && usage
 eval set -- "$ARGS"
 while true
@@ -158,6 +163,7 @@ do
     -k|--stop) STOP=true;;
     -c|--create) START=true && DDL_AUTO="create";;
     -d|--directory) DIRECTORY="$2";;
+    -f|--config) CONFIG_FILE="$2";;
     -r|--resource) RESOURCE_TYPE="$2";;
     -o|--open) OPEN_DB=true;;
     -h|--help) usage && exit 0;;
