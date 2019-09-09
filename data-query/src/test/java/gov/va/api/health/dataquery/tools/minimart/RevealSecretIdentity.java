@@ -41,8 +41,8 @@ public class RevealSecretIdentity {
 
   public String unmask(String resourceName, String publicId) {
     String idsPropertyName = resourceName.toUpperCase() + "+" + publicId;
-    String cdwId = props.getProperty(idsPropertyName);
-    if (cdwId == null) {
+    String cdwId = props.getProperty(idsPropertyName, "");
+    if (cdwId.isBlank()) {
       throw new RuntimeException("Ids value not found for property: " + idsPropertyName);
     }
     return cdwId;
