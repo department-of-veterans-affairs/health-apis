@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.diagnosticreport;
 
+import gov.va.api.health.dataquery.service.controller.datamart.DatamartEntity;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -18,7 +19,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class DiagnosticReportCrossEntity {
+public class DiagnosticReportCrossEntity implements DatamartEntity {
   @Id
   @EqualsAndHashCode.Include
   @Column(name = "Identifier")
@@ -26,4 +27,9 @@ public class DiagnosticReportCrossEntity {
 
   @Column(name = "PatientFullICN")
   private String icn;
+
+  @Override
+  public String cdwId() {
+    return reportId();
+  }
 }

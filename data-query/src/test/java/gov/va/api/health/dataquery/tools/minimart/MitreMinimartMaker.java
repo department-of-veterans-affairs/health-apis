@@ -5,6 +5,7 @@ import gov.va.api.health.dataquery.service.controller.allergyintolerance.Allergy
 import gov.va.api.health.dataquery.service.controller.allergyintolerance.DatamartAllergyIntolerance;
 import gov.va.api.health.dataquery.service.controller.condition.ConditionEntity;
 import gov.va.api.health.dataquery.service.controller.condition.DatamartCondition;
+import gov.va.api.health.dataquery.service.controller.datamart.DatamartEntity;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dataquery.service.controller.diagnosticreport.DatamartDiagnosticReports;
 import gov.va.api.health.dataquery.service.controller.diagnosticreport.DiagnosticReportCrossEntity;
@@ -51,14 +52,14 @@ public class MitreMinimartMaker {
 
   public MitreMinimartMaker(String resourceToSync, String configFile) {
     this.resourceToSync = resourceToSync;
-    this.entityManager = new SqlServerDb(configFile, MANAGED_CLASSES).get();
+    entityManager = new SqlServerDb(configFile, MANAGED_CLASSES).get();
   }
 
   /** Main. */
   public static void main(String[] args) {
     if (args.length != 3) {
       throw new RuntimeException(
-              "Missing command line arguments. Expected <resource-type> <input-directory> <local-db-location>");
+          "Missing command line arguments. Expected <resource-type> <input-directory> <local-db-location>");
     }
     String directory = args[1];
     MitreMinimartMaker mmm = new MitreMinimartMaker(args[0], args[2]);
@@ -82,21 +83,18 @@ public class MitreMinimartMaker {
   private void insertByAllergyIntolerance(File file) {
     DatamartAllergyIntolerance dm =
         JacksonConfig.createMapper().readValue(file, DatamartAllergyIntolerance.class);
-    log.info("Processing AllergyIntolerance cdwId: {}", dm.cdwId());
     AllergyIntoleranceEntity entity =
         AllergyIntoleranceEntity.builder()
             .cdwId(dm.cdwId())
             .icn(patientIcn(dm.patient()))
             .payload(fileToString(file))
             .build();
-    entityManager.persist(entity);
-    flushAndClear();
+    save(entity);
   }
 
   @SneakyThrows
   private void insertByCondition(File file) {
     DatamartCondition dm = JacksonConfig.createMapper().readValue(file, DatamartCondition.class);
-    log.info("Processing Condition cdwId: {}", dm.cdwId());
     ConditionEntity entity =
         ConditionEntity.builder()
             .cdwId(dm.cdwId())
@@ -105,8 +103,7 @@ public class MitreMinimartMaker {
             .clinicalStatus(dm.clinicalStatus().toString())
             .payload(fileToString(file))
             .build();
-    entityManager.persist(entity);
-    flushAndClear();
+    save(entity);
   }
 
   @SneakyThrows
@@ -114,7 +111,7 @@ public class MitreMinimartMaker {
     DatamartDiagnosticReports dm =
         JacksonConfig.createMapper().readValue(file, DatamartDiagnosticReports.class);
     // DR Entity
-    entityManager.persist(
+    save(
         DiagnosticReportsEntity.builder()
             .icn(dm.fullIcn())
             .payload(
@@ -126,14 +123,12 @@ public class MitreMinimartMaker {
     dm.reports()
         .forEach(
             report -> {
-              log.info("Processing id {} for patient {}", report.identifier(), dm.fullIcn());
-              entityManager.persist(
+              save(
                   DiagnosticReportCrossEntity.builder()
                       .icn(dm.fullIcn())
                       .reportId(report.identifier())
                       .build());
             });
-    flushAndClear();
   }
 
   @SneakyThrows
@@ -146,8 +141,7 @@ public class MitreMinimartMaker {
             .icn(patientIcn(dm.patient()))
             .payload(fileToString(file))
             .build();
-    entityManager.persist(entity);
-    flushAndClear();
+    save(entity);
   }
 
   @SneakyThrows
@@ -155,8 +149,20 @@ public class MitreMinimartMaker {
     DatamartMedication dm = JacksonConfig.createMapper().readValue(file, DatamartMedication.class);
     MedicationEntity entity =
         MedicationEntity.builder().cdwId(dm.cdwId()).payload(fileToString(file)).build();
-    entityManager.persist(entity);
-    flushAndClear();
+    save(entity);
+  }
+
+  @SneakyThrows
+  private void insertByMedicationOrder(File file) {
+    DatamartMedicationOrder dm =
+        JacksonConfig.createMapper().readValue(file, DatamartMedicationOrder.class);
+    MedicationOrderEntity entity =
+        MedicationOrderEntity.builder()
+            .cdwId(dm.cdwId())
+            .icn(patientIcn(dm.patient()))
+            .payload(fileToString(file))
+            .build();
+    save(entity);
   }
 
   @SneakyThrows
@@ -169,22 +175,7 @@ public class MitreMinimartMaker {
             .icn(patientIcn(dm.patient()))
             .payload(fileToString(file))
             .build();
-    entityManager.persist(entity);
-    flushAndClear();
-  }
-
-  @SneakyThrows
-  private void insertByMedictionOrder(File file) {
-    DatamartMedicationOrder dm =
-        JacksonConfig.createMapper().readValue(file, DatamartMedicationOrder.class);
-    MedicationOrderEntity entity =
-        MedicationOrderEntity.builder()
-            .cdwId(dm.cdwId())
-            .icn(patientIcn(dm.patient()))
-            .payload(fileToString(file))
-            .build();
-    entityManager.persist(entity);
-    flushAndClear();
+    save(entity);
   }
 
   @SneakyThrows
@@ -197,8 +188,7 @@ public class MitreMinimartMaker {
             .icn(dm.subject().isPresent() ? patientIcn(dm.subject().get()) : null)
             .payload(fileToString(file))
             .build();
-    entityManager.persist(entity);
-    flushAndClear();
+    save(entity);
   }
 
   @SneakyThrows
@@ -213,15 +203,14 @@ public class MitreMinimartMaker {
             .birthDateTime(Instant.parse(dm.birthDateTime()))
             .gender(dm.gender())
             .build();
-    entityManager.persist(patientSearchEntity);
+    save(patientSearchEntity);
     PatientEntity patEntity =
         PatientEntity.builder()
             .icn(dm.fullIcn())
             .search(patientSearchEntity)
             .payload(fileToString(file))
             .build();
-    entityManager.persist(patEntity);
-    flushAndClear();
+    save(patEntity);
   }
 
   @SneakyThrows
@@ -233,8 +222,7 @@ public class MitreMinimartMaker {
             .icn(patientIcn(dm.patient()))
             .payload(fileToString(file))
             .build();
-    entityManager.persist(entity);
-    flushAndClear();
+    save(entity);
   }
 
   private List<File> listByPattern(File dmDirectory, String filePattern) {
@@ -279,7 +267,7 @@ public class MitreMinimartMaker {
         break;
       case "MedicationOrder":
         listByPattern(dmDirectory, "^dmMedOrd.*json$")
-            .forEach(file -> insertByMedictionOrder(file));
+            .forEach(file -> insertByMedicationOrder(file));
         break;
       case "MedicationStatement":
         listByPattern(dmDirectory, "^dmMedSta.*json$")
@@ -300,5 +288,18 @@ public class MitreMinimartMaker {
     // Commit changes to db
     entityManager.getTransaction().commit();
     entityManager.close();
+  }
+
+  private <T extends DatamartEntity> void save(T entity) {
+    DatamartEntity existing = entityManager.find(entity.getClass(), entity.cdwId());
+    if (existing == null) {
+      log.info("Adding {} {}", entity.getClass().getSimpleName(), entity.cdwId());
+      entityManager.persist(entity);
+    } else {
+      log.info("Updating {} {}", entity.getClass().getSimpleName(), entity.cdwId());
+      entityManager.merge(entity);
+    }
+    entityManager.flush();
+    entityManager.clear();
   }
 }
