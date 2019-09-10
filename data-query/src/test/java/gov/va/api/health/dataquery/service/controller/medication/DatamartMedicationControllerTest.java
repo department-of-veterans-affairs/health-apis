@@ -117,7 +117,7 @@ public class DatamartMedicationControllerTest {
     repository.save(asEntity(dm));
     mockMedicationIdentity("1", dm.cdwId());
     Bundle actual = controller().searchById("true", "1", 1, 1);
-    Medication medication = Fhir.create().medication("1000");
+    Medication medication = Fhir.create().medication("1");
     assertThat(json(actual))
         .isEqualTo(
             json(
