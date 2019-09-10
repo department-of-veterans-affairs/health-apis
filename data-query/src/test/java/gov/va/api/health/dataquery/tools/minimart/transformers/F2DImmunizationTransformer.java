@@ -1,6 +1,5 @@
 package gov.va.api.health.dataquery.tools.minimart.transformers;
 
-
 import gov.va.api.health.argonaut.api.resources.Immunization;
 import gov.va.api.health.argonaut.api.resources.Immunization.Reaction;
 import gov.va.api.health.argonaut.api.resources.Immunization.VaccinationProtocol;
@@ -17,7 +16,9 @@ import gov.va.api.health.dstu2.api.elements.Reference;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import lombok.AllArgsConstructor;
 
+@AllArgsConstructor
 public class F2DImmunizationTransformer {
 
   FhirToDatamartUtils fauxIds;
@@ -92,7 +93,7 @@ public class F2DImmunizationTransformer {
       return null;
     }
     return VaccineCode.builder()
-        .code(vaccineCode.coding() == null ? null :vaccineCode.coding().get(0).code())
+        .code(vaccineCode.coding() == null ? null : vaccineCode.coding().get(0).code())
         .text(vaccineCode.text())
         .build();
   }

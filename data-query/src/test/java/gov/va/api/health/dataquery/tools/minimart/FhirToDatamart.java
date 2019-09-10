@@ -125,7 +125,8 @@ public class FhirToDatamart {
         dmObjectToFile(file.getName(), datamartDiagnosticReports);
         break;
       case "Immunization":
-        F2DImmunizationTransformer immunizationTransformer = new F2DImmunizationTransformer();
+        F2DImmunizationTransformer immunizationTransformer =
+            new F2DImmunizationTransformer(fauxIds);
         DatamartImmunization datamartImmunization =
             immunizationTransformer.fhirToDatamart(mapper.readValue(file, Immunization.class));
         dmObjectToFile(file.getName(), datamartImmunization);
