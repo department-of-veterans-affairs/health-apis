@@ -1,7 +1,5 @@
 package gov.va.api.health.dataquery.tools.minimart.transformers;
 
-import static gov.va.api.health.dataquery.tools.minimart.RevealSecretIdentity.toDatamartReferenceWithCdwId;
-import static gov.va.api.health.dataquery.tools.minimart.RevealSecretIdentity.unmask;
 
 import gov.va.api.health.argonaut.api.resources.Condition;
 import gov.va.api.health.argonaut.api.resources.Condition.ClinicalStatusCode;
@@ -11,6 +9,7 @@ import gov.va.api.health.dataquery.service.controller.condition.DatamartConditio
 import gov.va.api.health.dataquery.service.controller.condition.DatamartCondition.ClinicalStatus;
 import gov.va.api.health.dataquery.service.controller.condition.DatamartCondition.IcdCode;
 import gov.va.api.health.dataquery.service.controller.condition.DatamartCondition.SnomedCode;
+import gov.va.api.health.dataquery.tools.minimart.FhirToDatamartUtils;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
 import java.time.Instant;
@@ -18,6 +17,8 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 public class F2DConditionTransformer {
+
+  FhirToDatamartUtils fauxIds;
 
   private Optional<Instant> abatementDateTime(String abatementDatetime) {
     if (abatementDatetime == null) {
@@ -50,14 +51,14 @@ public class F2DConditionTransformer {
   public DatamartCondition fhirToDatamart(Condition condition) {
     return DatamartCondition.builder()
         .abatementDateTime(abatementDateTime(condition.abatementDateTime()))
-        .asserter(toDatamartReferenceWithCdwId(condition.asserter()))
+        .asserter(fauxIds.toDatamartReferenceWithCdwId(condition.asserter()))
         .category(category(condition.category()))
-        .cdwId(unmask(condition.id()))
+        .cdwId(fauxIds.unmask("Condition", condition.id()))
         .clinicalStatus(clinicalStatus(condition.clinicalStatus()))
         .dateRecorded(dateTime(condition.dateRecorded()))
-        .encounter(toDatamartReferenceWithCdwId(condition.encounter()))
+        .encounter(fauxIds.toDatamartReferenceWithCdwId(condition.encounter()))
         .onsetDateTime(onsetDateTime(condition.onsetDateTime()))
-        .patient(toDatamartReferenceWithCdwId(condition.patient()).get())
+        .patient(fauxIds.toDatamartReferenceWithCdwId(condition.patient()).get())
         .snomed(maybeSnomed(condition.code()))
         .icd(maybeIcd(condition.code()))
         .build();
