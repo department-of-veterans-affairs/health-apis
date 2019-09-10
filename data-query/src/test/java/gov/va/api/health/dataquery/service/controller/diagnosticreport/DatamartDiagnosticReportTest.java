@@ -14,6 +14,7 @@ import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLin
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.diagnosticreport.DatamartDiagnosticReports.Result;
+import gov.va.api.health.dstu2.api.DataAbsentReason;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
 import gov.va.api.health.dstu2.api.elements.Reference;
@@ -263,6 +264,7 @@ public final class DatamartDiagnosticReportTest {
                     .code(CodeableConcept.builder().text("panel").build())
                     .subject(Reference.builder().reference("Patient/" + icn).build())
                     .effectiveDateTime(parseInstant(time2).toString())
+                    ._performer(DataAbsentReason.of(DataAbsentReason.Reason.unknown))
                     .build(),
                 DiagnosticReport.builder()
                     .id(reportId1)
@@ -282,6 +284,7 @@ public final class DatamartDiagnosticReportTest {
                     .code(CodeableConcept.builder().text("panel").build())
                     .subject(Reference.builder().reference("Patient/" + icn).build())
                     .effectiveDateTime(parseInstant(time1).toString())
+                    ._performer(DataAbsentReason.of(DataAbsentReason.Reason.unknown))
                     .build()));
   }
 

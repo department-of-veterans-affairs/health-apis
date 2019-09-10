@@ -1,12 +1,10 @@
 package gov.va.api.health.dataquery.tools.minimart.transformers;
 
-import static gov.va.api.health.dataquery.tools.minimart.RevealSecretIdentity.toDatamartReferenceWithCdwId;
-import static gov.va.api.health.dataquery.tools.minimart.RevealSecretIdentity.unmask;
-
 import gov.va.api.health.argonaut.api.resources.AllergyIntolerance;
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
 import gov.va.api.health.dataquery.service.controller.allergyintolerance.DatamartAllergyIntolerance;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
+import gov.va.api.health.dataquery.tools.minimart.FhirToDatamartUtils;
 import gov.va.api.health.dstu2.api.datatypes.Annotation;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
@@ -14,8 +12,12 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import lombok.AllArgsConstructor;
 
+@AllArgsConstructor
 public class F2DAllergyIntoleranceTransformer {
+
+  FhirToDatamartUtils fauxIds;
 
   private DatamartAllergyIntolerance.Category category(AllergyIntolerance.Category category) {
     if (category == null) {
@@ -66,10 +68,10 @@ public class F2DAllergyIntoleranceTransformer {
   public DatamartAllergyIntolerance fhirToDatamart(AllergyIntolerance allergyIntolerance) {
     return DatamartAllergyIntolerance.builder()
         .objectType(allergyIntolerance.resourceType())
-        .cdwId(unmask(allergyIntolerance.id()))
-        .patient(toDatamartReferenceWithCdwId(allergyIntolerance.patient()).get())
+        .cdwId(fauxIds.unmask("AllergyIntolerance", allergyIntolerance.id()))
+        .patient(fauxIds.toDatamartReferenceWithCdwId(allergyIntolerance.patient()).get())
         .recordedDate(dateTime(allergyIntolerance.recordedDate()))
-        .recorder(toDatamartReferenceWithCdwId(allergyIntolerance.recorder()))
+        .recorder(fauxIds.toDatamartReferenceWithCdwId(allergyIntolerance.recorder()))
         .substance(substance(allergyIntolerance.substance()))
         .status(status(allergyIntolerance.status()))
         .type(type(allergyIntolerance.type()))
@@ -90,7 +92,7 @@ public class F2DAllergyIntoleranceTransformer {
   private List<DatamartAllergyIntolerance.Note> notes(Annotation note) {
     return List.of(
         DatamartAllergyIntolerance.Note.builder()
-            .practitioner(toDatamartReferenceWithCdwId(note.authorReference()))
+            .practitioner(fauxIds.toDatamartReferenceWithCdwId(note.authorReference()))
             .text(note.text())
             .time(dateTime(note.time()))
             .build());

@@ -1,6 +1,7 @@
 package gov.va.api.health.dataquery.service.controller.patient;
 
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
+import gov.va.api.health.dataquery.service.controller.datamart.DatamartEntity;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -25,7 +26,7 @@ import lombok.SneakyThrows;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class PatientEntity {
+public class PatientEntity implements DatamartEntity {
   @Id
   @Column(name = "PatientFullIcn")
   @EqualsAndHashCode.Include
@@ -43,5 +44,10 @@ public class PatientEntity {
   @SneakyThrows
   DatamartPatient asDatamartPatient() {
     return JacksonConfig.createMapper().readValue(payload, DatamartPatient.class);
+  }
+
+  @Override
+  public String cdwId() {
+    return icn();
   }
 }

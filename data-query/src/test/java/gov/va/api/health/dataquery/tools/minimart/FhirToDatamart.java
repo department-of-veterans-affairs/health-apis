@@ -19,27 +19,34 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
-import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@AllArgsConstructor
 public class FhirToDatamart {
 
   private String inputDirectory;
 
   private String resourceType;
 
+  private FhirToDatamartUtils fauxIds;
+
+  public FhirToDatamart(String inputDirectory, String resourceType, String idsFile) {
+    this.inputDirectory = inputDirectory;
+    this.resourceType = resourceType;
+    this.fauxIds = new FhirToDatamartUtils(idsFile);
+  }
+
   @SneakyThrows
   public static void main(String[] args) {
-    if (args.length != 2) {
+    if (args.length != 3) {
       throw new RuntimeException(
-          "Missing command line arguments. Expected <resource-type> <input-directory>");
+          "Missing command line arguments. Expected <resource-type> <input-directory> <config-file>");
     }
     String resourceType = args[0];
     String inputDirectory = args[1];
-    new FhirToDatamart(inputDirectory, resourceType).fhirToDatamart();
+    String configFile = args[2];
+    new FhirToDatamart(inputDirectory, resourceType, configFile).fhirToDatamart();
     System.exit(0);
   }
 
@@ -103,7 +110,7 @@ public class FhirToDatamart {
     switch (resource) {
       case "AllergyIntolerance":
         F2DAllergyIntoleranceTransformer allergyIntoleranceTransformer =
-            new F2DAllergyIntoleranceTransformer();
+            new F2DAllergyIntoleranceTransformer(fauxIds);
         DatamartAllergyIntolerance datamartAllergyIntolerance =
             allergyIntoleranceTransformer.fhirToDatamart(
                 mapper.readValue(file, AllergyIntolerance.class));
@@ -117,14 +124,14 @@ public class FhirToDatamart {
         break;
       case "DiagnosticReport":
         F2DDiagnosticReportTransformer diagnosticReportTransformer =
-            new F2DDiagnosticReportTransformer();
+            new F2DDiagnosticReportTransformer(fauxIds);
         DatamartDiagnosticReports datamartDiagnosticReports =
             diagnosticReportTransformer.fhirToDatamart(
                 mapper.readValue(file, DiagnosticReport.class));
         dmObjectToFile(file.getName(), datamartDiagnosticReports);
         break;
       case "Patient":
-        F2DPatientTransformer patientTransformer = new F2DPatientTransformer();
+        F2DPatientTransformer patientTransformer = new F2DPatientTransformer(fauxIds);
         DatamartPatient datamartPatient =
             patientTransformer.fhirToDatamart(mapper.readValue(file, Patient.class));
         dmObjectToFile(file.getName(), datamartPatient);
