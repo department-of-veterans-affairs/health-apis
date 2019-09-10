@@ -1,6 +1,5 @@
 package gov.va.api.health.dataquery.tools.minimart.transformers;
 
-
 import gov.va.api.health.argonaut.api.resources.Condition;
 import gov.va.api.health.argonaut.api.resources.Condition.ClinicalStatusCode;
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
@@ -15,7 +14,9 @@ import gov.va.api.health.dstu2.api.datatypes.Coding;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Optional;
+import lombok.AllArgsConstructor;
 
+@AllArgsConstructor
 public class F2DConditionTransformer {
 
   FhirToDatamartUtils fauxIds;

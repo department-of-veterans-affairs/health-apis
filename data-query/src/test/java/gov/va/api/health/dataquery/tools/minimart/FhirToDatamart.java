@@ -117,7 +117,7 @@ public class FhirToDatamart {
         dmObjectToFile(file.getName(), datamartAllergyIntolerance);
         break;
       case "Condition":
-        F2DConditionTransformer conditionTransformer = new F2DConditionTransformer();
+        F2DConditionTransformer conditionTransformer = new F2DConditionTransformer(fauxIds);
         DatamartCondition datamartCondition =
             conditionTransformer.fhirToDatamart(mapper.readValue(file, Condition.class));
         dmObjectToFile(file.getName(), datamartCondition);
