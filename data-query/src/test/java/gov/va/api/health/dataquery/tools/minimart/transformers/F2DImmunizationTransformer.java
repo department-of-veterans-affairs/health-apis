@@ -88,8 +88,11 @@ public class F2DImmunizationTransformer {
   }
 
   private VaccineCode vaccineCode(CodeableConcept vaccineCode) {
+    if (vaccineCode == null) {
+      return null;
+    }
     return VaccineCode.builder()
-        .code(vaccineCode.coding().get(0).code())
+        .code(vaccineCode.coding() == null ? null :vaccineCode.coding().get(0).code())
         .text(vaccineCode.text())
         .build();
   }
