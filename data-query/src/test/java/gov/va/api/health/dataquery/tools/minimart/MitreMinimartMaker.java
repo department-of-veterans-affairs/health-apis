@@ -45,7 +45,8 @@ public class MitreMinimartMaker {
       Arrays.asList(
           AllergyIntoleranceEntity.class,
           DiagnosticReportCrossEntity.class,
-          DiagnosticReportsEntity.class
+          DiagnosticReportsEntity.class,
+          MedicationOrderEntity.class
           //
           );
 

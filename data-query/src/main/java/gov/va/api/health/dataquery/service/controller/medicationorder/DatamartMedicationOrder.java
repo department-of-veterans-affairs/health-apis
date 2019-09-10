@@ -85,7 +85,7 @@ public class DatamartMedicationOrder implements HasReplaceableId {
   @Builder
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
-  static final class DosageInstruction {
+  public static final class DosageInstruction {
 
     private Optional<String> dosageText;
 
@@ -154,7 +154,7 @@ public class DatamartMedicationOrder implements HasReplaceableId {
   @Builder
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
-  static final class DispenseRequest {
+  public static final class DispenseRequest {
 
     private Optional<Integer> numberOfRepeatsAllowed;
 
