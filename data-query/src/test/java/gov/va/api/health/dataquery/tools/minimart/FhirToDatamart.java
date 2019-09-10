@@ -126,7 +126,7 @@ public class FhirToDatamart {
         break;
       case "MedicationOrder":
         F2DMedicationOrderTransformer medicationOrderTransformer =
-            new F2DMedicationOrderTransformer();
+            new F2DMedicationOrderTransformer(fauxIds);
         DatamartMedicationOrder datamartMedicationOrder =
             medicationOrderTransformer.fhirToDatamart(
                 mapper.readValue(file, MedicationOrder.class));

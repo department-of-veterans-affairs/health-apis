@@ -43,7 +43,7 @@ public class FhirToDatamartUtils {
       String[] fhirUrl = reference.reference().split("/");
       String referenceType = fhirUrl[fhirUrl.length - 2];
       String referenceId = fhirUrl[fhirUrl.length - 1];
-      String realId = revealSecretIdentity(referenceId);
+      String realId = unmask(referenceType, referenceId);
       return Optional.of(
           DatamartReference.builder()
               .type(Optional.of(referenceType))

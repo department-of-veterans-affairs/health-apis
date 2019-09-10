@@ -1,7 +1,5 @@
 package gov.va.api.health.dataquery.tools.minimart.transformers;
 
-
-
 import gov.va.api.health.argonaut.api.resources.MedicationOrder;
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
@@ -20,8 +18,10 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 
+@AllArgsConstructor
 public class F2DMedicationOrderTransformer {
 
   FhirToDatamartUtils fauxIds;
@@ -148,7 +148,8 @@ public class F2DMedicationOrderTransformer {
         .status(status(medicationOrder.status()))
         .dateEnded(dateEnded(medicationOrder.dateEnded()))
         .prescriber(prescriber(medicationOrder.prescriber(), medicationOrder._prescriber()))
-        .medication(fauxIds.toDatamartReferenceWithCdwId(medicationOrder.medicationReference()).get())
+        .medication(
+            fauxIds.toDatamartReferenceWithCdwId(medicationOrder.medicationReference()).get())
         .dosageInstruction(dosageInstruction(medicationOrder.dosageInstruction()))
         .dispenseRequest(dispenseRequest(medicationOrder.dispenseRequest()))
         .build();
