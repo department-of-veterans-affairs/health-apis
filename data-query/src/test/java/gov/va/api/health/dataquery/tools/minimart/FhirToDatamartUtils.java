@@ -14,26 +14,15 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class RevealSecretIdentity {
+public class FhirToDatamartUtils {
 
-  public static Optional<DatamartReference> toDatamartReferenceWithCdwId(Reference reference) {
-    if (reference == null) {
-      return null;
-    }
-    String[] fhirUrl = reference.reference().split("/");
-    String referenceType = fhirUrl[fhirUrl.length - 2];
-    String referenceId = fhirUrl[fhirUrl.length - 1];
-    String realId = unmask(referenceId);
-    return Optional.of(
-        DatamartReference.builder()
-            .type(Optional.of(referenceType))
-            .reference(realId != null ? Optional.of(realId) : null)
-            .display(reference.display() != null ? Optional.of(reference.display()) : null)
-            .build());
+  public static String getReferenceIdentifier(String reference) {
+    String[] splitRef = reference.split("/");
+    return splitRef[splitRef.length - 1];
   }
 
   @SneakyThrows
-  public static String unmask(String villainId) {
+  public static String revealSecretIdentity(String villainId) {
     Response response =
         RestAssured.given()
             .headers("Content-Type", ContentType.JSON, "Accept", ContentType.JSON)
@@ -44,18 +33,31 @@ public class RevealSecretIdentity {
             .statusCode(200)
             .extract()
             .response();
-
     String jsonBody = response.getBody().print();
-
     List<ResourceIdentity> resourceIdentities =
         JacksonConfig.createMapper()
             .readValue(jsonBody, new TypeReference<List<ResourceIdentity>>() {});
-
     return resourceIdentities
         .stream()
         .filter(i -> i.system().equalsIgnoreCase("CDW"))
         .map(ResourceIdentity::identifier)
         .findFirst()
         .orElse(null);
+  }
+
+  public static Optional<DatamartReference> toDatamartReferenceWithCdwId(Reference reference) {
+    if (reference == null) {
+      return null;
+    }
+    String[] fhirUrl = reference.reference().split("/");
+    String referenceType = fhirUrl[fhirUrl.length - 2];
+    String referenceId = fhirUrl[fhirUrl.length - 1];
+    String realId = revealSecretIdentity(referenceId);
+    return Optional.of(
+        DatamartReference.builder()
+            .type(Optional.of(referenceType))
+            .reference(realId != null ? Optional.of(realId) : null)
+            .display(reference.display() != null ? Optional.of(reference.display()) : null)
+            .build());
   }
 }
