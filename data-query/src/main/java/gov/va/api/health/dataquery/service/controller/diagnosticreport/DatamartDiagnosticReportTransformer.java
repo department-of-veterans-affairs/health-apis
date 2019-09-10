@@ -10,8 +10,10 @@ import static org.springframework.util.CollectionUtils.isEmpty;
 import gov.va.api.health.argonaut.api.resources.DiagnosticReport;
 import gov.va.api.health.dataquery.service.controller.Transformers;
 import gov.va.api.health.dataquery.service.controller.diagnosticreport.DatamartDiagnosticReports.Result;
+import gov.va.api.health.dstu2.api.DataAbsentReason;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
+import gov.va.api.health.dstu2.api.elements.Extension;
 import gov.va.api.health.dstu2.api.elements.Reference;
 import java.time.Instant;
 import java.util.List;
@@ -73,6 +75,10 @@ final class DatamartDiagnosticReportTransformer {
     return instant.toString();
   }
 
+  private boolean isValidPerformer() {
+    return !allBlank(datamart.accessionInstitutionSid(), datamart.accessionInstitutionName());
+  }
+
   private String issued() {
     if (isBlank(datamart.issuedDateTime())) {
       return null;
@@ -85,13 +91,20 @@ final class DatamartDiagnosticReportTransformer {
   }
 
   private Reference performer() {
-    if (allBlank(datamart.accessionInstitutionSid(), datamart.accessionInstitutionName())) {
+    if (!isValidPerformer()) {
       return null;
     }
     return Reference.builder()
         .reference("Organization/" + datamart.accessionInstitutionSid())
         .display(datamart.accessionInstitutionName())
         .build();
+  }
+
+  private Extension performerExtension() {
+    if (isValidPerformer()) {
+      return null;
+    }
+    return DataAbsentReason.of(DataAbsentReason.Reason.unknown);
   }
 
   private Reference subject() {
@@ -117,6 +130,7 @@ final class DatamartDiagnosticReportTransformer {
         .effectiveDateTime(effectiveDateTime())
         .issued(issued())
         .performer(performer())
+        ._performer(performerExtension())
         .result(results(datamart.results()))
         .build();
   }

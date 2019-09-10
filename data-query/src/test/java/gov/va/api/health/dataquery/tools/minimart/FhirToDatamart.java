@@ -26,12 +26,12 @@ public class FhirToDatamart {
 
   private String resourceType;
 
-  private RevealSecretIdentity fauxIds;
+  private FhirToDatamartUtils fauxIds;
 
   public FhirToDatamart(String inputDirectory, String resourceType, String idsFile) {
     this.inputDirectory = inputDirectory;
     this.resourceType = resourceType;
-    this.fauxIds = new RevealSecretIdentity(idsFile);
+    this.fauxIds = new FhirToDatamartUtils(idsFile);
   }
 
   @SneakyThrows

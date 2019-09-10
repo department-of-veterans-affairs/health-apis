@@ -9,16 +9,26 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class RevealSecretIdentity {
+public class FhirToDatamartUtils {
 
   private final Properties props;
 
   @SneakyThrows
-  RevealSecretIdentity(String configFile) {
+  FhirToDatamartUtils(String configFile) {
     this.props = new Properties(System.getProperties());
     try (FileInputStream inputStream = new FileInputStream(configFile)) {
       props.load(inputStream);
     }
+  }
+
+  public static String getReferenceIdentifier(String reference) {
+    String[] splitRef = reference.split("/");
+    return splitRef[splitRef.length - 1];
+  }
+
+  public static String getReferenceType(String reference) {
+    String[] splitRef = reference.split("/");
+    return splitRef[splitRef.length - 2];
   }
 
   public Optional<DatamartReference> toDatamartReferenceWithCdwId(Reference reference) {
@@ -47,5 +57,9 @@ public class RevealSecretIdentity {
     }
     log.info("{}:{} - cdwId {}", resourceName, publicId, cdwId);
     return cdwId;
+  }
+
+  public String unmaskByReference(String reference) {
+    return unmask(getReferenceType(reference), getReferenceIdentifier(reference));
   }
 }

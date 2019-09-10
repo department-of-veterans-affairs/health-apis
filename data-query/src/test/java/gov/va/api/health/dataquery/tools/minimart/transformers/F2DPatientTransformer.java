@@ -5,7 +5,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import gov.va.api.health.argonaut.api.resources.Patient;
 import gov.va.api.health.dataquery.service.controller.patient.DatamartPatient;
-import gov.va.api.health.dataquery.tools.minimart.RevealSecretIdentity;
+import gov.va.api.health.dataquery.tools.minimart.FhirToDatamartUtils;
 import gov.va.api.health.dstu2.api.datatypes.Address;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
@@ -21,7 +21,7 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class F2DPatientTransformer {
 
-  RevealSecretIdentity fauxIds;
+  FhirToDatamartUtils fauxIds;
 
   private DatamartPatient.Address address(Address address) {
     if (address == null) {
