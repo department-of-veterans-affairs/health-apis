@@ -1,6 +1,7 @@
 package gov.va.api.health.dataquery.service.controller.medication;
 
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
+import gov.va.api.health.dataquery.service.controller.datamart.DatamartEntity;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -36,7 +37,7 @@ import lombok.SneakyThrows;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class MedicationEntity {
+public class MedicationEntity implements DatamartEntity {
 
   @Id
   @Column(name = "CDWId")

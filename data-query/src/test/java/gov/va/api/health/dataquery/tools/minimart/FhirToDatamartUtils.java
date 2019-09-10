@@ -1,63 +1,65 @@
 package gov.va.api.health.dataquery.tools.minimart;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dstu2.api.elements.Reference;
-import gov.va.api.health.ids.api.ResourceIdentity;
-import io.restassured.RestAssured;
-import io.restassured.http.ContentType;
-import io.restassured.response.Response;
-import java.util.List;
+import java.io.FileInputStream;
 import java.util.Optional;
+import java.util.Properties;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class FhirToDatamartUtils {
 
+  private final Properties props;
+
+  @SneakyThrows
+  FhirToDatamartUtils(String configFile) {
+    this.props = new Properties(System.getProperties());
+    try (FileInputStream inputStream = new FileInputStream(configFile)) {
+      props.load(inputStream);
+    }
+  }
+
   public static String getReferenceIdentifier(String reference) {
     String[] splitRef = reference.split("/");
     return splitRef[splitRef.length - 1];
   }
 
-  @SneakyThrows
-  public static String revealSecretIdentity(String villainId) {
-    Response response =
-        RestAssured.given()
-            .headers("Content-Type", ContentType.JSON, "Accept", ContentType.JSON)
-            .when()
-            .get("http://localhost:8089/api/resourceIdentity/{id}", villainId)
-            .then()
-            .contentType(ContentType.JSON)
-            .statusCode(200)
-            .extract()
-            .response();
-    String jsonBody = response.getBody().print();
-    List<ResourceIdentity> resourceIdentities =
-        JacksonConfig.createMapper()
-            .readValue(jsonBody, new TypeReference<List<ResourceIdentity>>() {});
-    return resourceIdentities
-        .stream()
-        .filter(i -> i.system().equalsIgnoreCase("CDW"))
-        .map(ResourceIdentity::identifier)
-        .findFirst()
-        .orElse(null);
+  public static String getReferenceType(String reference) {
+    String[] splitRef = reference.split("/");
+    return splitRef[splitRef.length - 2];
   }
 
-  public static Optional<DatamartReference> toDatamartReferenceWithCdwId(Reference reference) {
+  public Optional<DatamartReference> toDatamartReferenceWithCdwId(Reference reference) {
     if (reference == null) {
       return null;
     }
     String[] fhirUrl = reference.reference().split("/");
+    // Fhir Resource
     String referenceType = fhirUrl[fhirUrl.length - 2];
+    // Public Id
     String referenceId = fhirUrl[fhirUrl.length - 1];
-    String realId = revealSecretIdentity(referenceId);
+    String realId = unmask(referenceType, referenceId);
     return Optional.of(
         DatamartReference.builder()
             .type(Optional.of(referenceType))
             .reference(realId != null ? Optional.of(realId) : null)
             .display(reference.display() != null ? Optional.of(reference.display()) : null)
             .build());
+  }
+
+  public String unmask(String resourceName, String publicId) {
+    String idsPropertyName = resourceName.toUpperCase() + "+" + publicId;
+    String cdwId = props.getProperty(idsPropertyName, "");
+    if (cdwId.isBlank()) {
+      throw new RuntimeException("Ids value not found for property: " + idsPropertyName);
+    }
+    log.info("{}:{} - cdwId {}", resourceName, publicId, cdwId);
+    return cdwId;
+  }
+
+  public String unmaskByReference(String reference) {
+    return unmask(getReferenceType(reference), getReferenceIdentifier(reference));
   }
 }
