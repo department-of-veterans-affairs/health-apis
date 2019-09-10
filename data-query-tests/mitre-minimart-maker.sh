@@ -82,7 +82,6 @@ pushToDatabase() {
   local workingDir="$REPO/health-apis-data-query"
   [ -z "$DIRECTORY" ] && usage "Directory is a Required Param." && exit 1
   [ -z "$RESOURCE_TYPE" ] && usage "Resource Type is a Required Param." && exit 1
-  [ -f "$outputFile" ] && rm -v "$ouputFile/*"
   mvn -f "$workingDir/data-query" test-compile && \
     mvn -f "$workingDir/data-query" \
     -P'!standard' \
@@ -91,7 +90,7 @@ pushToDatabase() {
     generate-resources \
     -DresourceType="$RESOURCE_TYPE" \
     -DinputDirectory="$DIRECTORY" \
-    -DoutputFile="$DQ_H2" \
+    -DconfigFile="$CONFIG_FILE" \
     -Dorg.jboss.logging.provider=jdk \
     -Djava.util.logging.config.file=nope
 
@@ -101,13 +100,18 @@ transformFhirToDatamart() {
   local workingDir="$REPO/health-apis-data-query"
   [ -z "$DIRECTORY" ] && usage "Directory is a Required Option." && exit 1
   [ -z "$RESOURCE_TYPE" ] && usage "Resource Type is a Required Option." && exit 1
+  [ -z "$CONFIG_FILE" ] \
+    && [ ! -d "$REPO/health-apis-data-query-synthetic-records" ] \
+    && usage 'Either `health-apis-data-query-sythetic-records` needs to be cloned in parent directory or config file needs to be defined.' \
+    && exit 1
   mvn -f "$workingDir/data-query" test-compile && \
     mvn -f "$workingDir/data-query" \
     -P'!standard' \
     -Pmitre-minimart-maker \
     generate-resources \
     -DresourceType="$RESOURCE_TYPE" \
-    -DinputDirectory="$DIRECTORY"
+    -DinputDirectory="$DIRECTORY" \
+    -DidsConfig=${CONFIG_FILE:-"$REPO/health-apis-data-query-synthetic-records/identity-service.properties"}
 }
 
 openDatabase() {
@@ -125,7 +129,7 @@ Commands:
   pushToMinimartDb <directory-to-read-files-from> <resource-name>
     Pushes all files for the given resource and directory to a local h2 repository
   minimartDb <start|stop|open>
-    Creates, starts, or stops the local data-query minimart app
+    Creates, starts, or stops the local data-query minimart h2 database
 ---
 Options:
   -s|--start) Can be used with minimartIds command to start local minimartIds (db must first be created)
@@ -133,13 +137,15 @@ Options:
   -c|--create) Can be used with minimartIds command to create local minimartIds
   -d|--directory) Use to specify the directory files are located in for a transform or dbPush
   -r|--resource) Use to specify the resource to transform or push to db
+  -f|--config) Config file used either specify location of properties for different actions
   -o|--open) Open the database from the given command
   -h|--help) I need an adult!!!
 ---
 Examples:
   minimartIds --create|--start|--stop|--open
   transformToDatamart -d "$(pwd)/data-query-tests/target" -r AllergyIntolerance
-  pushToMinimartDb -d "$(pwd)/data-query-tests/target/fhir-to-datamart" -r AllergyIntolerance
+  sqlServer: pushToMinimartDb -d "$(pwd)/data-query-tests/target/fhir-to-datamart" -r AllergyIntolerance -f "$(pwd)/my-super-awesome-config.properties"
+  h2: pushToMinimartDb -d "$(pwd)/data-query-tests/target/fhir-to-datamart" -r AllergyIntolerance
   minimartDb --start|--stop|--open
 ---
 $1
@@ -147,8 +153,8 @@ EOF
 }
 
 ARGS=$(getopt -n $(basename ${0}) \
-    -l "help,start,stop,directory:,resource:,create,open" \
-    -o "hskd:r:co" -- "$@")
+    -l "help,start,stop,directory:,resource:,create,open,config:" \
+    -o "hskd:r:cof:" -- "$@")
 [ $? != 0 ] && usage
 eval set -- "$ARGS"
 while true
@@ -158,6 +164,7 @@ do
     -k|--stop) STOP=true;;
     -c|--create) START=true && DDL_AUTO="create";;
     -d|--directory) DIRECTORY="$2";;
+    -f|--config) CONFIG_FILE="$2";;
     -r|--resource) RESOURCE_TYPE="$2";;
     -o|--open) OPEN_DB=true;;
     -h|--help) usage && exit 0;;

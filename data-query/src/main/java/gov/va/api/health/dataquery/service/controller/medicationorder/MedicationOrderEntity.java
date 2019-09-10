@@ -1,6 +1,7 @@
 package gov.va.api.health.dataquery.service.controller.medicationorder;
 
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
+import gov.va.api.health.dataquery.service.controller.datamart.DatamartEntity;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -38,7 +39,7 @@ import org.springframework.data.domain.Sort;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class MedicationOrderEntity {
+public class MedicationOrderEntity implements DatamartEntity {
 
   @Id
   @EqualsAndHashCode.Include

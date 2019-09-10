@@ -1,6 +1,7 @@
 package gov.va.api.health.dataquery.service.controller.observation;
 
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
+import gov.va.api.health.dataquery.service.controller.datamart.DatamartEntity;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -24,7 +25,7 @@ import org.springframework.data.domain.Sort;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class ObservationEntity {
+public class ObservationEntity implements DatamartEntity {
   @Id
   @Column(name = "CDWId")
   @EqualsAndHashCode.Include
