@@ -1,7 +1,5 @@
 package gov.va.api.health.dataquery.tools.minimart.transformers;
 
-import static gov.va.api.health.dataquery.tools.minimart.RevealSecretIdentity.toDatamartReferenceWithCdwId;
-import static gov.va.api.health.dataquery.tools.minimart.RevealSecretIdentity.unmask;
 
 import gov.va.api.health.argonaut.api.resources.Immunization;
 import gov.va.api.health.argonaut.api.resources.Immunization.Reaction;
@@ -11,6 +9,7 @@ import gov.va.api.health.dataquery.service.controller.immunization.DatamartImmun
 import gov.va.api.health.dataquery.service.controller.immunization.DatamartImmunization.Status;
 import gov.va.api.health.dataquery.service.controller.immunization.DatamartImmunization.VaccinationProtocols;
 import gov.va.api.health.dataquery.service.controller.immunization.DatamartImmunization.VaccineCode;
+import gov.va.api.health.dataquery.tools.minimart.FhirToDatamartUtils;
 import gov.va.api.health.dstu2.api.datatypes.Annotation;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.elements.Extension;
@@ -21,6 +20,8 @@ import java.util.Optional;
 
 public class F2DImmunizationTransformer {
 
+  FhirToDatamartUtils fauxIds;
+
   private Instant date(String date) {
     if (date == null) {
       return null;
@@ -30,18 +31,18 @@ public class F2DImmunizationTransformer {
 
   public DatamartImmunization fhirToDatamart(Immunization immunization) {
     return DatamartImmunization.builder()
-        .cdwId(unmask(immunization.id()))
+        .cdwId(fauxIds.unmask("Immunization", immunization.id()))
         .status(status(immunization.status(), immunization._status()))
         .date(date(immunization.date()))
         .vaccineCode(vaccineCode(immunization.vaccineCode()))
-        .patient(toDatamartReferenceWithCdwId(immunization.patient()).get())
+        .patient(fauxIds.toDatamartReferenceWithCdwId(immunization.patient()).get())
         .wasNotGiven(immunization.wasNotGiven())
-        .performer(toDatamartReferenceWithCdwId(immunization.performer()))
-        .requester(toDatamartReferenceWithCdwId(immunization.requester()))
-        .encounter(toDatamartReferenceWithCdwId(immunization.encounter()))
-        .location(toDatamartReferenceWithCdwId(immunization.location()))
+        .performer(fauxIds.toDatamartReferenceWithCdwId(immunization.performer()))
+        .requester(fauxIds.toDatamartReferenceWithCdwId(immunization.requester()))
+        .encounter(fauxIds.toDatamartReferenceWithCdwId(immunization.encounter()))
+        .location(fauxIds.toDatamartReferenceWithCdwId(immunization.location()))
         .note(note(immunization.note()))
-        .reaction(toDatamartReferenceWithCdwId(reaction(immunization.reaction())))
+        .reaction(fauxIds.toDatamartReferenceWithCdwId(reaction(immunization.reaction())))
         .vaccinationProtocols(vaccinationProtocols(immunization.vaccinationProtocol()))
         .build();
   }
