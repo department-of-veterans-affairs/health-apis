@@ -1,7 +1,6 @@
 package gov.va.api.health.dataquery.tools.minimart.transformers;
 
-import static gov.va.api.health.dataquery.tools.minimart.FhirToDatamartUtils.revealSecretIdentity;
-import static gov.va.api.health.dataquery.tools.minimart.FhirToDatamartUtils.toDatamartReferenceWithCdwId;
+
 
 import gov.va.api.health.argonaut.api.resources.MedicationOrder;
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
@@ -10,6 +9,7 @@ import gov.va.api.health.dataquery.service.controller.medicationorder.DatamartMe
 import gov.va.api.health.dataquery.service.controller.medicationorder.DatamartMedicationOrder.DispenseRequest;
 import gov.va.api.health.dataquery.service.controller.medicationorder.DatamartMedicationOrder.DosageInstruction;
 import gov.va.api.health.dataquery.service.controller.medicationorder.DatamartMedicationOrder.Status;
+import gov.va.api.health.dataquery.tools.minimart.FhirToDatamartUtils;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Duration;
 import gov.va.api.health.dstu2.api.datatypes.SimpleQuantity;
@@ -23,6 +23,8 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
 public class F2DMedicationOrderTransformer {
+
+  FhirToDatamartUtils fauxIds;
 
   private String additionalInstructions(CodeableConcept additionalInstructions) {
     if (additionalInstructions == null) {
@@ -140,13 +142,13 @@ public class F2DMedicationOrderTransformer {
 
   public DatamartMedicationOrder fhirToDatamart(MedicationOrder medicationOrder) {
     return DatamartMedicationOrder.builder()
-        .cdwId(revealSecretIdentity(medicationOrder.id()))
-        .patient(toDatamartReferenceWithCdwId(medicationOrder.patient()).get())
+        .cdwId(fauxIds.unmask("MedicationOrder", medicationOrder.id()))
+        .patient(fauxIds.toDatamartReferenceWithCdwId(medicationOrder.patient()).get())
         .dateWritten(dateWritten(medicationOrder.dateWritten()))
         .status(status(medicationOrder.status()))
         .dateEnded(dateEnded(medicationOrder.dateEnded()))
         .prescriber(prescriber(medicationOrder.prescriber(), medicationOrder._prescriber()))
-        .medication(toDatamartReferenceWithCdwId(medicationOrder.medicationReference()).get())
+        .medication(fauxIds.toDatamartReferenceWithCdwId(medicationOrder.medicationReference()).get())
         .dosageInstruction(dosageInstruction(medicationOrder.dosageInstruction()))
         .dispenseRequest(dispenseRequest(medicationOrder.dispenseRequest()))
         .build();
@@ -154,7 +156,7 @@ public class F2DMedicationOrderTransformer {
 
   private DatamartReference prescriber(Reference prescriber, Extension dar) {
     if (dar == null) {
-      return toDatamartReferenceWithCdwId(prescriber).get();
+      return fauxIds.toDatamartReferenceWithCdwId(prescriber).get();
     } else {
       return DatamartReference.builder()
           .display(Optional.empty())

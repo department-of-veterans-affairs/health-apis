@@ -9,14 +9,16 @@ import gov.va.api.health.dataquery.tools.minimart.FhirToDatamartUtils;
 import gov.va.api.health.dstu2.api.elements.Reference;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.AllArgsConstructor;
 
+@AllArgsConstructor
 public class F2DDiagnosticReportTransformer {
+
+  FhirToDatamartUtils fauxIds;
 
   public DatamartDiagnosticReports fhirToDatamart(DiagnosticReport diagnosticReport) {
     return DatamartDiagnosticReports.builder()
-        .fullIcn(
-            FhirToDatamartUtils.revealSecretIdentity(
-                FhirToDatamartUtils.getReferenceIdentifier(diagnosticReport.subject().reference())))
+        .fullIcn(fauxIds.unmaskByReference(diagnosticReport.subject().reference()))
         .patientName(diagnosticReport.subject().display())
         .reports(reports(diagnosticReport))
         .build();
@@ -26,19 +28,20 @@ public class F2DDiagnosticReportTransformer {
       DiagnosticReport diagnosticReport) {
     String performer =
         diagnosticReport.performer() != null && diagnosticReport.performer().reference() != null
-            ? FhirToDatamartUtils.revealSecretIdentity(
-                FhirToDatamartUtils.getReferenceIdentifier(
-                    diagnosticReport.performer().reference()))
+            ? fauxIds.unmaskByReference(diagnosticReport.performer().reference())
             : null;
     return Transformers.emptyToNull(
         asList(
             DatamartDiagnosticReports.DiagnosticReport.builder()
-                .identifier(FhirToDatamartUtils.revealSecretIdentity(diagnosticReport.id()))
+                .identifier(fauxIds.unmask("DiagnosticReport", diagnosticReport.id()))
                 .effectiveDateTime(diagnosticReport.effectiveDateTime())
                 .issuedDateTime(diagnosticReport.issued())
                 .accessionInstitutionSid(performer)
                 .accessionInstitutionName(
-                    performer != null ? diagnosticReport.performer().display() : null)
+                    diagnosticReport.performer() != null
+                            && diagnosticReport.performer().display() != null
+                        ? diagnosticReport.performer().display()
+                        : null)
                 .results(results(diagnosticReport.result()))
                 .build()));
   }
@@ -52,9 +55,7 @@ public class F2DDiagnosticReportTransformer {
         .map(
             r ->
                 DatamartDiagnosticReports.Result.builder()
-                    .result(
-                        FhirToDatamartUtils.revealSecretIdentity(
-                            FhirToDatamartUtils.getReferenceIdentifier(r.reference())))
+                    .result(fauxIds.unmaskByReference(r.reference()))
                     .display(r.display())
                     .build())
         .collect(Collectors.toList());
