@@ -4,13 +4,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import gov.va.api.health.argonaut.api.resources.AllergyIntolerance;
 import gov.va.api.health.argonaut.api.resources.DiagnosticReport;
 import gov.va.api.health.argonaut.api.resources.Patient;
+import gov.va.api.health.argonaut.api.resources.Procedure;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.allergyintolerance.DatamartAllergyIntolerance;
 import gov.va.api.health.dataquery.service.controller.diagnosticreport.DatamartDiagnosticReports;
 import gov.va.api.health.dataquery.service.controller.patient.DatamartPatient;
+import gov.va.api.health.dataquery.service.controller.procedure.DatamartProcedure;
 import gov.va.api.health.dataquery.tools.minimart.transformers.F2DAllergyIntoleranceTransformer;
 import gov.va.api.health.dataquery.tools.minimart.transformers.F2DDiagnosticReportTransformer;
 import gov.va.api.health.dataquery.tools.minimart.transformers.F2DPatientTransformer;
+import gov.va.api.health.dataquery.tools.minimart.transformers.F2DProcedureTransformer;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -28,7 +31,7 @@ public class FhirToDatamart {
 
   private FhirToDatamartUtils fauxIds;
 
-  public FhirToDatamart(String inputDirectory, String resourceType, String idsFile) {
+  FhirToDatamart(String inputDirectory, String resourceType, String idsFile) {
     this.inputDirectory = inputDirectory;
     this.resourceType = resourceType;
     this.fauxIds = new FhirToDatamartUtils(idsFile);
@@ -126,6 +129,12 @@ public class FhirToDatamart {
         DatamartPatient datamartPatient =
             patientTransformer.fhirToDatamart(mapper.readValue(file, Patient.class));
         dmObjectToFile(file.getName(), datamartPatient);
+        break;
+      case "Procedure":
+        F2DProcedureTransformer procedureTransformer = new F2DProcedureTransformer(fauxIds);
+        DatamartProcedure datamartProcedure =
+            procedureTransformer.fhirToDatamart(mapper.readValue(file, Procedure.class));
+        dmObjectToFile(file.getName(), datamartProcedure);
         break;
       default:
         throw new IllegalArgumentException("Unsupported Resource : " + resource);

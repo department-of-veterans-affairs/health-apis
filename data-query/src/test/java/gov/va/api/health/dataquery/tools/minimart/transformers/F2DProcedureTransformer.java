@@ -9,8 +9,12 @@ import gov.va.api.health.dstu2.api.datatypes.Coding;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import lombok.AllArgsConstructor;
 
+@AllArgsConstructor
 public class F2DProcedureTransformer {
+
+  FhirToDatamartUtils fauxIds;
 
   private DatamartCoding coding(List<Coding> procCoding) {
     if (procCoding == null || procCoding.isEmpty()) {
@@ -28,14 +32,15 @@ public class F2DProcedureTransformer {
   public DatamartProcedure fhirToDatamart(Procedure procedure) {
     return DatamartProcedure.builder()
         .cdwId(procedure.id())
-        .patient(FhirToDatamartUtils.toDatamartReferenceWithCdwId(procedure.subject()).get())
+        // Subject should always be there so if it isn't, we probably want the NPE
+        .patient(fauxIds.toDatamartReferenceWithCdwId(procedure.subject()).get())
         .status(DatamartProcedure.Status.valueOf(procedure.status().toString()))
         .coding(coding(procedure.code().coding()))
         .notPerformed(procedure.notPerformed())
         .reasonNotPerformed(reasonNotPerformed(procedure.reasonNotPerformed()))
         .performedDateTime(performedDateTime(procedure.performedDateTime()))
-        .encounter(FhirToDatamartUtils.toDatamartReferenceWithCdwId(procedure.encounter()))
-        .location(FhirToDatamartUtils.toDatamartReferenceWithCdwId(procedure.location()))
+        .encounter(fauxIds.toDatamartReferenceWithCdwId(procedure.encounter()))
+        .location(fauxIds.toDatamartReferenceWithCdwId(procedure.location()))
         .build();
   }
 
