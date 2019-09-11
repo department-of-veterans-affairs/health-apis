@@ -1,8 +1,10 @@
 package gov.va.api.health.dataquery.tools.minimart.transformers;
 
+import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
+import static gov.va.api.health.dataquery.tools.minimart.RevealSecretIdentity.toDatamartReferenceWithCdwId;
+
 import gov.va.api.health.argonaut.api.resources.Observation;
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
-import gov.va.api.health.dataquery.service.controller.Transformers;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation;
@@ -11,14 +13,10 @@ import gov.va.api.health.dstu2.api.datatypes.Coding;
 import gov.va.api.health.dstu2.api.datatypes.Quantity;
 import gov.va.api.health.dstu2.api.datatypes.SimpleQuantity;
 import gov.va.api.health.dstu2.api.elements.Reference;
-
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
-import static gov.va.api.health.dataquery.tools.minimart.RevealSecretIdentity.toDatamartReferenceWithCdwId;
 
 public class F2DObservationTransformer {
 
@@ -48,6 +46,50 @@ public class F2DObservationTransformer {
         .collect(Collectors.toList());
   }
 
+  public Optional<DatamartObservation.BacteriologyComponent> bacteriologyComponents(
+      Observation.ObservationComponent component) {
+    if (component == null) {
+      return null;
+    }
+    if (component.valueString() == null
+        && (component.code() == null || component.code().text() == null)) {
+      return null;
+    }
+    Optional<DatamartObservation.Text> valueText =
+        component.valueString() != null ? Optional.of(dmText(component.valueString())) : null;
+    Optional<DatamartObservation.Text> code = null;
+    if (component.code() != null) {
+      code = component.code().text() != null ? Optional.of(dmText(component.code().text())) : null;
+    }
+    return Optional.ofNullable(
+        DatamartObservation.BacteriologyComponent.builder()
+            .code(code)
+            .valueText(valueText)
+            .build());
+  }
+
+  private DatamartObservation.Category category(CodeableConcept category) {
+    if (category == null
+        || category.coding() == null
+        || category.coding().isEmpty()
+        || category.coding().get(0) == null) {
+      return null;
+    }
+    return EnumSearcher.of(DatamartObservation.Category.class)
+        .find(category.coding().get(0).code());
+  }
+
+  private Optional<DatamartObservation.CodeableConcept> code(CodeableConcept code) {
+    if (code == null) {
+      return null;
+    }
+    return Optional.of(
+        DatamartObservation.CodeableConcept.builder()
+            .coding(coding(code))
+            .text(code.text())
+            .build());
+  }
+
   private Optional<DatamartObservation.CodeableConcept> codeableConcept(
       CodeableConcept codeableConcept) {
     return Optional.of(
@@ -69,96 +111,6 @@ public class F2DObservationTransformer {
             .build());
   }
 
-  public DatamartObservation fhirToDatamart(Observation observation) {
-    return DatamartObservation.builder()
-            .objectVersion(1)
-            .objectType(observation.resourceType())
-            .cdwId(observation.id())
-        .antibioticComponents(antibioticObservations(observation.component()))
-            .valueQuantity(valueQuantity(observation.valueQuantity()))
-            .issued(instant(observation.issued()))
-            .subject(toDatamartReferenceWithCdwId(observation.subject()))
-            .status(status(observation.status()))
-            .specimen(toDatamartReferenceWithCdwId(observation.specimen()))
-            .performer(performer(observation.performer()))
-            .referenceRange(referenceRange(observation.referenceRange()))
-            .interpretation(observation.interpretation()==null?null:observation.interpretation().text())
-            .comment(observation.comments())
-            .code(code(observation.code()))
-            .encounter(toDatamartReferenceWithCdwId(observation.encounter()))
-            .effectiveDateTime(instant(observation.effectiveDateTime()))
-            .valueCodeableConcept(valueCodeableConcept(observation.valueCodeableConcept()))
-            .category(category(observation.category()))
-        .build();
-  }
-
-  private DatamartObservation.Category category(CodeableConcept category) {
-    if(category==null||category.coding()==null||category.coding().isEmpty()||category.coding().get(0)==null){
-      return null;
-    }
-    return EnumSearcher.of(DatamartObservation.Category.class).find(category.coding().get(0).code());
-  }
-
-  private Optional<DatamartObservation.CodeableConcept> valueCodeableConcept(CodeableConcept valueCodeableConcept) {
-    if(valueCodeableConcept==null){
-      return null;
-    }
-   return Optional.of(DatamartObservation.CodeableConcept.builder().coding(coding(valueCodeableConcept.coding())).text(valueCodeableConcept.text()).build());
-  }
-
-  private Optional<DatamartObservation.CodeableConcept> code(CodeableConcept code) {
-    if (code==null){
-      return null;
-    }
-    return Optional.of(DatamartObservation.CodeableConcept.builder().coding(coding(code)).text(code.text()).build());
-  }
-
-  private Optional<DatamartObservation.ReferenceRange> referenceRange(List<Observation.ObservationReferenceRange> referenceRange) {
-    if(referenceRange==null||referenceRange.isEmpty()){
-      return null;
-    }
-    return Optional.of(DatamartObservation.ReferenceRange.builder().high(quantity(referenceRange.get(0).high())).low(quantity(referenceRange.get(0).low())).build());
-  }
-
-  private Optional<DatamartObservation.Quantity> quantity(SimpleQuantity simpleQuantity) {
-    if (simpleQuantity==null) {
-      return null;
-    }
-    return Optional.of(DatamartObservation.Quantity.builder().value(simpleQuantity.value()).unit(simpleQuantity.unit()).code(simpleQuantity.code()).build());
-  }
-
-  private List<DatamartReference> performer(List<Reference> performer) {
-    if (performer==null||performer.isEmpty()){
-      return null;
-    }
-   return performer.stream()
-           .filter(x->x!= null)
-           .map(p->toDatamartReferenceWithCdwId(p))
-           .filter(x->x.isPresent())
-           .map(o->o.get())
-           .collect(Collectors.toList());
-  }
-
-  private DatamartObservation.Status status(Observation.Status status) {
-    if (status == null) {
-      return null;
-    }
-    return EnumSearcher.of(DatamartObservation.Status.class).find(status.toString());
-  }
-
-  private Optional<Instant> instant(String issued) {
-    if (isBlank(issued)){
-      return null;
-    }
-    return Optional.of(Instant.parse(issued));
-  }
-
-
-  private Optional<DatamartObservation.Quantity> valueQuantity(Quantity valueQuantity) {
-  return Optional.of(DatamartObservation.Quantity.builder().code(valueQuantity.code()).system(valueQuantity.system()).unit(valueQuantity.unit()).value(valueQuantity.value()).build());
-  }
-
-
   private Optional<DatamartCoding> coding(CodeableConcept valueCodeableConcept) {
     if (valueCodeableConcept == null
         || valueCodeableConcept.coding() == null
@@ -172,6 +124,114 @@ public class F2DObservationTransformer {
             .system(Optional.of(coding.system()))
             .code(Optional.of(coding.code()))
             .display(Optional.of(coding.display()))
+            .build());
+  }
+
+  private DatamartObservation.Text dmText(String text) {
+    return DatamartObservation.Text.builder().text(text).build();
+  }
+
+  public DatamartObservation fhirToDatamart(Observation observation) {
+    DatamartObservation.DatamartObservationBuilder obsBuilder = DatamartObservation.builder();
+    obsBuilder
+        .cdwId(observation.id())
+        .antibioticComponents(antibioticObservations(observation.component()))
+        .valueQuantity(valueQuantity(observation.valueQuantity()))
+        .issued(instant(observation.issued()))
+        .subject(toDatamartReferenceWithCdwId(observation.subject()))
+        .status(status(observation.status()))
+        .specimen(toDatamartReferenceWithCdwId(observation.specimen()))
+        .performer(performer(observation.performer()))
+        .referenceRange(referenceRange(observation.referenceRange()))
+        .interpretation(
+            observation.interpretation() == null ? null : observation.interpretation().text())
+        .comment(observation.comments())
+        .code(code(observation.code()))
+        .encounter(toDatamartReferenceWithCdwId(observation.encounter()))
+        .effectiveDateTime(instant(observation.effectiveDateTime()))
+        .valueCodeableConcept(valueCodeableConcept(observation.valueCodeableConcept()))
+        .category(category(observation.category()));
+    int componentSize = observation.component() != null ? observation.component().size() : 0;
+    if (componentSize > 0) {
+      obsBuilder.bacteriologyComponents(bacteriologyComponents(observation.component().get(0)));
+      if (componentSize > 1) {
+        obsBuilder.mycobacteriologyComponents(
+            bacteriologyComponents(observation.component().get(1)));
+      }
+    }
+    return obsBuilder.build();
+  }
+
+  private Optional<Instant> instant(String issued) {
+    if (isBlank(issued)) {
+      return null;
+    }
+    return Optional.of(Instant.parse(issued));
+  }
+
+  private List<DatamartReference> performer(List<Reference> performer) {
+    if (performer == null || performer.isEmpty()) {
+      return null;
+    }
+    return performer
+        .stream()
+        .filter(x -> x != null)
+        .map(p -> toDatamartReferenceWithCdwId(p))
+        .filter(x -> x.isPresent())
+        .map(o -> o.get())
+        .collect(Collectors.toList());
+  }
+
+  private Optional<DatamartObservation.Quantity> quantity(SimpleQuantity simpleQuantity) {
+    if (simpleQuantity == null) {
+      return null;
+    }
+    return Optional.of(
+        DatamartObservation.Quantity.builder()
+            .value(simpleQuantity.value())
+            .unit(simpleQuantity.unit())
+            .code(simpleQuantity.code())
+            .build());
+  }
+
+  private Optional<DatamartObservation.ReferenceRange> referenceRange(
+      List<Observation.ObservationReferenceRange> referenceRange) {
+    if (referenceRange == null || referenceRange.isEmpty()) {
+      return null;
+    }
+    return Optional.of(
+        DatamartObservation.ReferenceRange.builder()
+            .high(quantity(referenceRange.get(0).high()))
+            .low(quantity(referenceRange.get(0).low()))
+            .build());
+  }
+
+  private DatamartObservation.Status status(Observation.Status status) {
+    if (status == null) {
+      return null;
+    }
+    return EnumSearcher.of(DatamartObservation.Status.class).find(status.toString());
+  }
+
+  private Optional<DatamartObservation.CodeableConcept> valueCodeableConcept(
+      CodeableConcept valueCodeableConcept) {
+    if (valueCodeableConcept == null) {
+      return null;
+    }
+    return Optional.of(
+        DatamartObservation.CodeableConcept.builder()
+            .coding(coding(valueCodeableConcept.coding()))
+            .text(valueCodeableConcept.text())
+            .build());
+  }
+
+  private Optional<DatamartObservation.Quantity> valueQuantity(Quantity valueQuantity) {
+    return Optional.of(
+        DatamartObservation.Quantity.builder()
+            .code(valueQuantity.code())
+            .system(valueQuantity.system())
+            .unit(valueQuantity.unit())
+            .value(valueQuantity.value())
             .build());
   }
 }
