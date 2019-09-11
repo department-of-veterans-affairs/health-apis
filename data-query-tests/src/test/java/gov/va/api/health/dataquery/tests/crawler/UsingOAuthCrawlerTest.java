@@ -40,7 +40,9 @@ public class UsingOAuthCrawlerTest {
     discovery.queries().forEach(q::add);
     Crawler crawler =
         Crawler.builder()
-            .executor(Executors.newFixedThreadPool(10))
+            .executor(
+                Executors.newFixedThreadPool(
+                    Integer.parseInt(System.getProperty("crawler.threads", "10"))))
             .requestQueue(q)
             .results(results)
             .authenticationToken(() -> userResult.tokenExchange().accessToken())
