@@ -29,7 +29,7 @@ public class F2DConditionTransformer {
   }
 
   private Category category(CodeableConcept category) {
-    if (category == null || category.coding().isEmpty()) {
+    if (category == null || category.coding() == null || category.coding().isEmpty()) {
       return null;
     }
     return EnumSearcher.of(DatamartCondition.Category.class).find(category.coding().get(0).code());
@@ -71,7 +71,7 @@ public class F2DConditionTransformer {
     }
     return code.coding()
         .stream()
-        .filter(coding -> whichCode(coding) == CodeSystem.icd)
+        .filter(coding -> whichCode(coding) == CodeSystem.ICD)
         .map(
             coding ->
                 IcdCode.builder()
@@ -88,7 +88,7 @@ public class F2DConditionTransformer {
     }
     return code.coding()
         .stream()
-        .filter(coding -> whichCode(coding) == CodeSystem.snomed)
+        .filter(coding -> whichCode(coding) == CodeSystem.SNOMED)
         .map(coding -> SnomedCode.builder().code(coding.code()).display(coding.display()).build())
         .findFirst();
   }
@@ -102,16 +102,16 @@ public class F2DConditionTransformer {
 
   private CodeSystem whichCode(Coding coding) {
     if (coding.system().contains("icd")) {
-      return CodeSystem.icd;
+      return CodeSystem.ICD;
     }
     if (coding.system().contains("snomed")) {
-      return CodeSystem.snomed;
+      return CodeSystem.SNOMED;
     }
     return null;
   }
 
   private enum CodeSystem {
-    snomed,
-    icd
+    SNOMED,
+    ICD
   }
 }
