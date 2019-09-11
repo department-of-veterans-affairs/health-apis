@@ -92,8 +92,11 @@ public class F2DImmunizationTransformer {
     if (vaccineCode == null) {
       return null;
     }
+    if (vaccineCode.coding() == null || vaccineCode.coding().isEmpty()) {
+      return null;
+    }
     return VaccineCode.builder()
-        .code(vaccineCode.coding() == null ? null : vaccineCode.coding().get(0).code())
+        .code(vaccineCode.coding().get(0).code())
         .text(vaccineCode.text())
         .build();
   }
