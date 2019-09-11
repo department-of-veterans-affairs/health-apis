@@ -50,7 +50,6 @@ public class MitreMinimartMaker {
           DiagnosticReportsEntity.class,
           DiagnosticReportCrossEntity.class,
           ImmunizationEntity.class,
-          DiagnosticReportsEntity.class,
           MedicationOrderEntity.class
           //
           );
