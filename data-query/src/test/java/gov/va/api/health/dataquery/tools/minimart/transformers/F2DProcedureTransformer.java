@@ -31,7 +31,7 @@ public class F2DProcedureTransformer {
 
   public DatamartProcedure fhirToDatamart(Procedure procedure) {
     return DatamartProcedure.builder()
-        .cdwId(procedure.id())
+        .cdwId(fauxIds.unmask("Procedure", procedure.id()))
         // Subject should always be there so if it isn't, we probably want the NPE
         .patient(fauxIds.toDatamartReferenceWithCdwId(procedure.subject()).get())
         .status(DatamartProcedure.Status.valueOf(procedure.status().toString()))
