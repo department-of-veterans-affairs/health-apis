@@ -46,7 +46,10 @@ public class MitreMinimartMaker {
   private final List<Class<?>> MANAGED_CLASSES =
       Arrays.asList(
           AllergyIntoleranceEntity.class,
+          ConditionEntity.class,
+          DiagnosticReportsEntity.class,
           DiagnosticReportCrossEntity.class,
+          ImmunizationEntity.class,
           DiagnosticReportsEntity.class,
           MedicationOrderEntity.class
           //

@@ -47,8 +47,8 @@ public class FhirToDatamartUtils {
       return Optional.of(
           DatamartReference.builder()
               .type(Optional.of(referenceType))
-              .reference(realId != null ? Optional.of(realId) : null)
-              .display(reference.display() != null ? Optional.of(reference.display()) : null)
+              .display(Optional.ofNullable(reference.display()))
+              .reference(Optional.ofNullable(realId))
               .build());
     } else {
       return Optional.of(
