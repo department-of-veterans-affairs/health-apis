@@ -4,15 +4,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import gov.va.api.health.argonaut.api.resources.AllergyIntolerance;
 import gov.va.api.health.argonaut.api.resources.Condition;
 import gov.va.api.health.argonaut.api.resources.DiagnosticReport;
+import gov.va.api.health.argonaut.api.resources.Immunization;
 import gov.va.api.health.argonaut.api.resources.Patient;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.allergyintolerance.DatamartAllergyIntolerance;
 import gov.va.api.health.dataquery.service.controller.condition.DatamartCondition;
 import gov.va.api.health.dataquery.service.controller.diagnosticreport.DatamartDiagnosticReports;
+import gov.va.api.health.dataquery.service.controller.immunization.DatamartImmunization;
 import gov.va.api.health.dataquery.service.controller.patient.DatamartPatient;
 import gov.va.api.health.dataquery.tools.minimart.transformers.F2DAllergyIntoleranceTransformer;
 import gov.va.api.health.dataquery.tools.minimart.transformers.F2DConditionTransformer;
 import gov.va.api.health.dataquery.tools.minimart.transformers.F2DDiagnosticReportTransformer;
+import gov.va.api.health.dataquery.tools.minimart.transformers.F2DImmunizationTransformer;
 import gov.va.api.health.dataquery.tools.minimart.transformers.F2DPatientTransformer;
 import java.io.File;
 import java.nio.file.Files;
@@ -129,6 +132,13 @@ public class FhirToDatamart {
             diagnosticReportTransformer.fhirToDatamart(
                 mapper.readValue(file, DiagnosticReport.class));
         dmObjectToFile(file.getName(), datamartDiagnosticReports);
+        break;
+      case "Immunization":
+        F2DImmunizationTransformer immunizationTransformer =
+            new F2DImmunizationTransformer(fauxIds);
+        DatamartImmunization datamartImmunization =
+            immunizationTransformer.fhirToDatamart(mapper.readValue(file, Immunization.class));
+        dmObjectToFile(file.getName(), datamartImmunization);
         break;
       case "Patient":
         F2DPatientTransformer patientTransformer = new F2DPatientTransformer(fauxIds);

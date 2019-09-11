@@ -29,7 +29,7 @@ public interface ObservationRepository
   class PatientAndCategoryAndDateSpecification implements Specification<ObservationEntity> {
     String patient;
 
-    String category;
+    Set<String> categories;
 
     DateTimeParameters date1;
 
@@ -37,9 +37,9 @@ public interface ObservationRepository
 
     @Builder
     private PatientAndCategoryAndDateSpecification(
-        String patient, String category, String[] dates) {
+        String patient, Collection<String> categories, String[] dates) {
       this.patient = patient;
-      this.category = category;
+      this.categories = new HashSet<>(categories);
       date1 = (dates == null || dates.length < 1) ? null : new DateTimeParameters(dates[0]);
       date2 = (dates == null || dates.length < 2) ? null : new DateTimeParameters(dates[1]);
     }
@@ -51,7 +51,13 @@ public interface ObservationRepository
         CriteriaBuilder criteriaBuilder) {
       List<Predicate> predicates = new ArrayList<>(4);
       predicates.add(criteriaBuilder.equal(root.get("icn"), patient()));
-      predicates.add(criteriaBuilder.equal(root.get("category"), category()));
+      predicates.add(
+          criteriaBuilder.or(
+              categories
+                  .stream()
+                  .map(c -> criteriaBuilder.equal(root.get("category"), c))
+                  .toArray(Predicate[]::new)));
+
       if (date1() != null) {
         predicates.add(date1().toPredicate(root.get("epochTime"), criteriaBuilder));
       }
