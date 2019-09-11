@@ -55,9 +55,8 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 @RestController
 @RequestMapping(
-  value = {"Observation", "/api/Observation"},
-  produces = {"application/json", "application/json+fhir", "application/fhir+json"}
-)
+    value = {"Observation", "/api/Observation"},
+    produces = {"application/json", "application/json+fhir", "application/fhir+json"})
 public class ObservationController {
   private final Datamart datamart = new Datamart();
 
@@ -193,18 +192,18 @@ public class ObservationController {
   public Observation.Bundle searchByPatientAndCategory(
       @RequestHeader(value = "Datamart", defaultValue = "") String datamartHeader,
       @RequestParam("patient") String patient,
-      @RequestParam("category") String category,
+      @RequestParam("category") String categoryCsv,
       @RequestParam(value = "date", required = false) @Valid @DateTimeParameter @Size(max = 2)
           String[] date,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
     if (datamart.isDatamartRequest(datamartHeader)) {
-      return datamart.searchByPatientAndCategoryAndDate(patient, category, date, page, count);
+      return datamart.searchByPatientAndCategoryAndDate(patient, categoryCsv, date, page, count);
     }
     return mrAndersonBundle(
         Parameters.builder()
             .add("patient", patient)
-            .add("category", category)
+            .add("category", categoryCsv)
             .addAll("date", date)
             .add("page", page)
             .add("_count", count)
@@ -237,9 +236,8 @@ public class ObservationController {
 
   /** Hey, this is a validate endpoint. It validates. */
   @PostMapping(
-    value = "/$validate",
-    consumes = {"application/json", "application/json+fhir", "application/fhir+json"}
-  )
+      value = "/$validate",
+      consumes = {"application/json", "application/json+fhir", "application/fhir+json"})
   public OperationOutcome validate(@RequestBody Observation.Bundle bundle) {
     return Validator.create().validate(bundle);
   }
@@ -283,8 +281,7 @@ public class ObservationController {
       replaceReferences(datamarts);
 
       List<Observation> fhir =
-          datamarts
-              .stream()
+          datamarts.stream()
               .map(dm -> DatamartObservationTransformer.builder().datamart(dm).build().toFhir())
               .collect(Collectors.toList());
 
@@ -356,13 +353,13 @@ public class ObservationController {
     }
 
     Observation.Bundle searchByPatientAndCategoryAndDate(
-        String publicPatient, String category, String[] date, int page, int count) {
+        String publicPatient, String categoryCsv, String[] date, int page, int count) {
       String cdwPatient = witnessProtection.toCdwId(publicPatient);
 
       ObservationRepository.PatientAndCategoryAndDateSpecification spec =
           ObservationRepository.PatientAndCategoryAndDateSpecification.builder()
               .patient(cdwPatient)
-              .category(category)
+              .categories(Splitter.on(",").trimResults().splitToList(categoryCsv))
               .dates(date)
               .build();
       Page<ObservationEntity> entitiesPage = repository.findAll(spec, page(page, count));
@@ -370,7 +367,7 @@ public class ObservationController {
       return bundle(
           Parameters.builder()
               .add("patient", publicPatient)
-              .add("category", category)
+              .add("category", categoryCsv)
               .addAll("date", date)
               .add("page", page)
               .add("_count", count)
