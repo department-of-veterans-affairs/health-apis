@@ -336,11 +336,13 @@ public class DiagnosticReportController {
                                 .resource("DIAGNOSTIC_REPORT")
                                 .identifier(report.identifier())
                                 .build(),
-                            ResourceIdentity.builder()
-                                .system("CDW")
-                                .resource("ORGANIZATION")
-                                .identifier(report.accessionInstitutionSid())
-                                .build()),
+                            report.accessionInstitutionSid() != null
+                                ? ResourceIdentity.builder()
+                                    .system("CDW")
+                                    .resource("ORGANIZATION")
+                                    .identifier(report.accessionInstitutionSid())
+                                    .build()
+                                : null),
                         report
                             .results()
                             .stream()
@@ -352,6 +354,7 @@ public class DiagnosticReportController {
                                             .resource("OBSERVATION")
                                             .identifier(r.result())
                                             .build()))))
+            .filter(r -> r != null)
             .collect(Collectors.toSet());
 
     List<Registration> registrations = witnessProtection.register(ids);

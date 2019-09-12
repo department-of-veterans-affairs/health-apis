@@ -1,13 +1,13 @@
 package gov.va.api.health.dataquery.tools.minimart.transformers;
 
 import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
-import static gov.va.api.health.dataquery.tools.minimart.RevealSecretIdentity.toDatamartReferenceWithCdwId;
 
 import gov.va.api.health.argonaut.api.resources.Observation;
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation;
+import gov.va.api.health.dataquery.tools.minimart.FhirToDatamartUtils;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
 import gov.va.api.health.dstu2.api.datatypes.Quantity;
@@ -19,6 +19,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class F2DObservationTransformer {
+
+  FhirToDatamartUtils fauxIds;
 
   private DatamartObservation.AntibioticComponent antibioticComponent(
       Observation.ObservationComponent component) {
@@ -36,7 +38,6 @@ public class F2DObservationTransformer {
         .valueCodeableConcept(coding(component.valueCodeableConcept()))
         .build();
   }
-
 
   public Optional<DatamartObservation.BacteriologyComponent> bacteriologyComponent(
       Observation.ObservationComponent component) {
@@ -119,6 +120,38 @@ public class F2DObservationTransformer {
             .build());
   }
 
+  private DatamartObservation components(
+      DatamartObservation.DatamartObservationBuilder obsBuilder,
+      List<Observation.ObservationComponent> component) {
+    List<DatamartObservation.AntibioticComponent> ac =
+        component
+            .stream()
+            .filter(c -> c != null && c.id() != null)
+            .map(c -> antibioticComponent(c))
+            .filter(a -> a != null)
+            .collect(Collectors.toList());
+    List<DatamartObservation.VitalsComponent> vc =
+        component
+            .stream()
+            .filter(c -> c != null && c.valueQuantity() != null)
+            .map(c -> vitalsComponent(c))
+            .filter(v -> v != null)
+            .collect(Collectors.toList());
+    List<Optional<DatamartObservation.BacteriologyComponent>> bc =
+        component
+            .stream()
+            .filter(c -> c != null && c.valueString() != null)
+            .map(c -> bacteriologyComponent(c))
+            .filter(b -> b != null)
+            .collect(Collectors.toList());
+    return obsBuilder
+        .antibioticComponents(ac)
+        .vitalsComponents(vc)
+        .bacteriologyComponents(bc.isEmpty() ? null : bc.get(0))
+        .mycobacteriologyComponents(bc.size() < 2 ? null : (bc.get(1)))
+        .build();
+  }
+
   private DatamartObservation.Text dmText(String text) {
     return DatamartObservation.Text.builder().text(text).build();
   }
@@ -129,55 +162,20 @@ public class F2DObservationTransformer {
         .cdwId(observation.id())
         .valueQuantity(valueQuantity(observation.valueQuantity()))
         .issued(instant(observation.issued()))
-        .subject(toDatamartReferenceWithCdwId(observation.subject()))
+        .subject(fauxIds.toDatamartReferenceWithCdwId(observation.subject()))
         .status(status(observation.status()))
-        .specimen(toDatamartReferenceWithCdwId(observation.specimen()))
+        .specimen(fauxIds.toDatamartReferenceWithCdwId(observation.specimen()))
         .performer(performer(observation.performer()))
         .referenceRange(referenceRange(observation.referenceRange()))
         .interpretation(
             observation.interpretation() == null ? null : observation.interpretation().text())
         .comment(observation.comments())
         .code(code(observation.code()))
-        .encounter(toDatamartReferenceWithCdwId(observation.encounter()))
+        .encounter(fauxIds.toDatamartReferenceWithCdwId(observation.encounter()))
         .effectiveDateTime(instant(observation.effectiveDateTime()))
         .valueCodeableConcept(valueCodeableConcept(observation.valueCodeableConcept()))
         .category(category(observation.category()));
-
-    return components(obsBuilder,observation.component());
-  }
-
-  private DatamartObservation components(DatamartObservation.DatamartObservationBuilder obsBuilder, List<Observation.ObservationComponent> component) {
-    List<DatamartObservation.AntibioticComponent> ac = component
-            .stream()
-            .filter(c -> c != null && c.id()!=null)
-            .map(c -> antibioticComponent(c))
-            .filter(a -> a != null)
-            .collect(Collectors.toList());
-    List<DatamartObservation.VitalsComponent> vc = component
-            .stream()
-            .filter(c -> c != null && c.valueQuantity()!=null)
-            .map(c -> vitalsComponent(c))
-            .filter(v -> v != null)
-            .collect(Collectors.toList());
-    List<Optional<DatamartObservation.BacteriologyComponent>> bc = component
-            .stream()
-            .filter(c -> c != null && c.valueString() != null)
-            .map(c -> bacteriologyComponent(c))
-            .filter(b -> b != null)
-            .collect(Collectors.toList());
-    return obsBuilder
-            .antibioticComponents(ac)
-            .vitalsComponents(vc)
-            .bacteriologyComponents(bc.isEmpty()?null:bc.get(0))
-            .mycobacteriologyComponents(bc.size()<2?null:(bc.get(1)))
-            .build();
-  }
-
-  private DatamartObservation.VitalsComponent vitalsComponent(Observation.ObservationComponent component) {
-      if (component == null|| component.valueQuantity()==null) {
-        return null;
-      }
-    return DatamartObservation.VitalsComponent.builder().code(coding(component.code())).valueQuantity(valueQuantity(component.valueQuantity())).build();
+    return components(obsBuilder, observation.component());
   }
 
   private Optional<Instant> instant(String issued) {
@@ -194,7 +192,7 @@ public class F2DObservationTransformer {
     return performer
         .stream()
         .filter(x -> x != null)
-        .map(p -> toDatamartReferenceWithCdwId(p))
+        .map(p -> fauxIds.toDatamartReferenceWithCdwId(p))
         .filter(x -> x.isPresent())
         .map(o -> o.get())
         .collect(Collectors.toList());
@@ -251,5 +249,16 @@ public class F2DObservationTransformer {
             .unit(valueQuantity.unit())
             .value(valueQuantity.value())
             .build());
+  }
+
+  private DatamartObservation.VitalsComponent vitalsComponent(
+      Observation.ObservationComponent component) {
+    if (component == null || component.valueQuantity() == null) {
+      return null;
+    }
+    return DatamartObservation.VitalsComponent.builder()
+        .code(coding(component.code()))
+        .valueQuantity(valueQuantity(component.valueQuantity()))
+        .build();
   }
 }

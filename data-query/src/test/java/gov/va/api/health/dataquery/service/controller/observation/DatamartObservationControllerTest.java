@@ -360,6 +360,19 @@ public class DatamartObservationControllerTest {
                         .entry())
                 .resource())
         .isEqualTo(DatamartObservationSamples.Fhir.create().observation());
+    assertThat(
+            Iterables.getOnlyElement(
+                    controller
+                        .searchByPatientAndCategory(
+                            "",
+                            "1002003004V666666",
+                            "laboratory,vital-signs",
+                            new String[] {"gt2012-12-23", "lt2012-12-25"},
+                            1,
+                            1)
+                        .entry())
+                .resource())
+        .isEqualTo(DatamartObservationSamples.Fhir.create().observation());
   }
 
   @Test

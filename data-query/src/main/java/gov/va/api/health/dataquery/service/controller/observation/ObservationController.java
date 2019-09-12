@@ -193,18 +193,18 @@ public class ObservationController {
   public Observation.Bundle searchByPatientAndCategory(
       @RequestHeader(value = "Datamart", defaultValue = "") String datamartHeader,
       @RequestParam("patient") String patient,
-      @RequestParam("category") String category,
+      @RequestParam("category") String categoryCsv,
       @RequestParam(value = "date", required = false) @Valid @DateTimeParameter @Size(max = 2)
           String[] date,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
     if (datamart.isDatamartRequest(datamartHeader)) {
-      return datamart.searchByPatientAndCategoryAndDate(patient, category, date, page, count);
+      return datamart.searchByPatientAndCategoryAndDate(patient, categoryCsv, date, page, count);
     }
     return mrAndersonBundle(
         Parameters.builder()
             .add("patient", patient)
-            .add("category", category)
+            .add("category", categoryCsv)
             .addAll("date", date)
             .add("page", page)
             .add("_count", count)
@@ -356,13 +356,13 @@ public class ObservationController {
     }
 
     Observation.Bundle searchByPatientAndCategoryAndDate(
-        String publicPatient, String category, String[] date, int page, int count) {
+        String publicPatient, String categoryCsv, String[] date, int page, int count) {
       String cdwPatient = witnessProtection.toCdwId(publicPatient);
 
       ObservationRepository.PatientAndCategoryAndDateSpecification spec =
           ObservationRepository.PatientAndCategoryAndDateSpecification.builder()
               .patient(cdwPatient)
-              .category(category)
+              .categories(Splitter.on(",").trimResults().splitToList(categoryCsv))
               .dates(date)
               .build();
       Page<ObservationEntity> entitiesPage = repository.findAll(spec, page(page, count));
@@ -370,7 +370,7 @@ public class ObservationController {
       return bundle(
           Parameters.builder()
               .add("patient", publicPatient)
-              .add("category", category)
+              .add("category", categoryCsv)
               .addAll("date", date)
               .add("page", page)
               .add("_count", count)
