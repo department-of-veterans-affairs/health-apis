@@ -400,7 +400,7 @@ public class ProcedureController {
       String icn = witnessProtection.toCdwId(patient);
 
       PatientAndDateSpecification spec =
-          PatientAndDateSpecification.builder().patient(patient).dates(date).build();
+          PatientAndDateSpecification.builder().patient(icn).dates(date).build();
       log.info("Looking for {} ({}) {}", patient, icn, spec);
       Page<ProcedureEntity> pageOfProcedures = repository.findAll(spec, page(page, count));
 

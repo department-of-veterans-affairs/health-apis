@@ -50,7 +50,9 @@ public class MitreMinimartMaker {
           DiagnosticReportsEntity.class,
           DiagnosticReportCrossEntity.class,
           ImmunizationEntity.class,
-          MedicationEntity.class
+          MedicationEntity.class,
+          MedicationStatementEntity.class,
+          ProcedureEntity.class
           //
           );
 
@@ -287,10 +289,14 @@ public class MitreMinimartMaker {
   @SneakyThrows
   private void insertByProcedure(File file) {
     DatamartProcedure dm = JacksonConfig.createMapper().readValue(file, DatamartProcedure.class);
+    Long performedOnEpoch =
+        dm.performedDateTime().isPresent() ? dm.performedDateTime().get().toEpochMilli() : null;
+
     ProcedureEntity entity =
         ProcedureEntity.builder()
             .cdwId(dm.cdwId())
             .icn(patientIcn(dm.patient()))
+            .performedOnEpochTime(performedOnEpoch)
             .payload(fileToString(file))
             .build();
     save(entity);
