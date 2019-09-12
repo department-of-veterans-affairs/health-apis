@@ -32,6 +32,24 @@ public final class CrawlerProperties {
     return ignores;
   }
 
+  /** Read crawler thread limit from the property crawler.threads */
+  public static int threads() {
+    String property = "crawler.threads";
+    String maybeInteger = System.getProperty(property);
+    if (isNotBlank(maybeInteger)) {
+      try {
+        final int threadLimit = Integer.parseInt(maybeInteger);
+        log.info(
+            "Crawling with thread limit {} (Override with -D{}=<Number>)", threadLimit, property);
+        return threadLimit;
+      } catch (NumberFormatException e) {
+        log.warn("Bad thread limit {}, proceeding with 10.", maybeInteger);
+      }
+    }
+    log.info("Crawling with default thread limit of 10 (Override with -D{}=<Number>)", property);
+    return 10;
+  }
+
   /** Read crawler time limit from the property crawler.timelimit/ */
   public static Duration timeLimit() {
     String property = "crawler.timelimit";
