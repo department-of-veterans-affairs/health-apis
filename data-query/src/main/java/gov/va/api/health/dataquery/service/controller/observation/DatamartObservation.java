@@ -353,7 +353,7 @@ public class DatamartObservation implements HasReplaceableId {
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
-  static final class VitalsComponent {
+  public static final class VitalsComponent {
     private Optional<DatamartCoding> code;
 
     private Optional<Quantity> valueQuantity;

@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 
 public class F2DObservationTransformer {
 
-  private DatamartObservation.AntibioticComponent antibioticObservation(
+  private DatamartObservation.AntibioticComponent antibioticComponent(
       Observation.ObservationComponent component) {
     if (component == null) {
       return null;
@@ -37,16 +37,8 @@ public class F2DObservationTransformer {
         .build();
   }
 
-  private List<DatamartObservation.AntibioticComponent> antibioticObservations(
-      List<Observation.ObservationComponent> component) {
-    return component
-        .stream()
-        .filter(c -> c != null)
-        .map(c -> antibioticObservation(c))
-        .collect(Collectors.toList());
-  }
 
-  public Optional<DatamartObservation.BacteriologyComponent> bacteriologyComponents(
+  public Optional<DatamartObservation.BacteriologyComponent> bacteriologyComponent(
       Observation.ObservationComponent component) {
     if (component == null) {
       return null;
@@ -135,7 +127,6 @@ public class F2DObservationTransformer {
     DatamartObservation.DatamartObservationBuilder obsBuilder = DatamartObservation.builder();
     obsBuilder
         .cdwId(observation.id())
-        .antibioticComponents(antibioticObservations(observation.component()))
         .valueQuantity(valueQuantity(observation.valueQuantity()))
         .issued(instant(observation.issued()))
         .subject(toDatamartReferenceWithCdwId(observation.subject()))
@@ -151,15 +142,42 @@ public class F2DObservationTransformer {
         .effectiveDateTime(instant(observation.effectiveDateTime()))
         .valueCodeableConcept(valueCodeableConcept(observation.valueCodeableConcept()))
         .category(category(observation.category()));
-    int componentSize = observation.component() != null ? observation.component().size() : 0;
-    if (componentSize > 0) {
-      obsBuilder.bacteriologyComponents(bacteriologyComponents(observation.component().get(0)));
-      if (componentSize > 1) {
-        obsBuilder.mycobacteriologyComponents(
-            bacteriologyComponents(observation.component().get(1)));
+
+    return components(obsBuilder,observation.component());
+  }
+
+  private DatamartObservation components(DatamartObservation.DatamartObservationBuilder obsBuilder, List<Observation.ObservationComponent> component) {
+    List<DatamartObservation.AntibioticComponent> ac = component
+            .stream()
+            .filter(c -> c != null && c.id()!=null)
+            .map(c -> antibioticComponent(c))
+            .filter(a -> a != null)
+            .collect(Collectors.toList());
+    List<DatamartObservation.VitalsComponent> vc = component
+            .stream()
+            .filter(c -> c != null && c.valueQuantity()!=null)
+            .map(c -> vitalsComponent(c))
+            .filter(v -> v != null)
+            .collect(Collectors.toList());
+    List<Optional<DatamartObservation.BacteriologyComponent>> bc = component
+            .stream()
+            .filter(c -> c != null && c.valueString() != null)
+            .map(c -> bacteriologyComponent(c))
+            .filter(b -> b != null)
+            .collect(Collectors.toList());
+    return obsBuilder
+            .antibioticComponents(ac)
+            .vitalsComponents(vc)
+            .bacteriologyComponents(bc.isEmpty()?null:bc.get(0))
+            .mycobacteriologyComponents(bc.size()<2?null:(bc.get(1)))
+            .build();
+  }
+
+  private DatamartObservation.VitalsComponent vitalsComponent(Observation.ObservationComponent component) {
+      if (component == null|| component.valueQuantity()==null) {
+        return null;
       }
-    }
-    return obsBuilder.build();
+    return DatamartObservation.VitalsComponent.builder().code(coding(component.code())).valueQuantity(valueQuantity(component.valueQuantity())).build();
   }
 
   private Optional<Instant> instant(String issued) {
