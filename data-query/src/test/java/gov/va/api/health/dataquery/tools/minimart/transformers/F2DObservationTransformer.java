@@ -17,7 +17,9 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import lombok.AllArgsConstructor;
 
+@AllArgsConstructor
 public class F2DObservationTransformer {
 
   FhirToDatamartUtils fauxIds;
@@ -123,6 +125,9 @@ public class F2DObservationTransformer {
   private DatamartObservation components(
       DatamartObservation.DatamartObservationBuilder obsBuilder,
       List<Observation.ObservationComponent> component) {
+    if (component == null) {
+      return obsBuilder.build();
+    }
     List<DatamartObservation.AntibioticComponent> ac =
         component
             .stream()
@@ -159,7 +164,7 @@ public class F2DObservationTransformer {
   public DatamartObservation fhirToDatamart(Observation observation) {
     DatamartObservation.DatamartObservationBuilder obsBuilder = DatamartObservation.builder();
     obsBuilder
-        .cdwId(observation.id())
+        .cdwId(fauxIds.unmask("Observation", observation.id()))
         .valueQuantity(valueQuantity(observation.valueQuantity()))
         .issued(instant(observation.issued()))
         .subject(fauxIds.toDatamartReferenceWithCdwId(observation.subject()))
@@ -242,6 +247,9 @@ public class F2DObservationTransformer {
   }
 
   private Optional<DatamartObservation.Quantity> valueQuantity(Quantity valueQuantity) {
+    if (valueQuantity == null) {
+      return null;
+    }
     return Optional.of(
         DatamartObservation.Quantity.builder()
             .code(valueQuantity.code())
