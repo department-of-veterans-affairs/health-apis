@@ -40,7 +40,7 @@ startApp() {
   echo "Starting $app"
   [ ! -d "$where" ] && echo "$where does not exist" && exit 1
   cd $where/$app
-  local jar=$(find target -maxdepth 1 -name "$app-*.jar" | grep -v 'tests')
+  local jar=$(find target -maxdepth 1 -name "$app-*.jar" | grep -v -E 'tests|library')
   [ -z "$jar" ] && echo "Cannot find $app application jar" && exit 1
   local options="-Dapp.name=$app"
   if [ "$useH2" == "true" ]
