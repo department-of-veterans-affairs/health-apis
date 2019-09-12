@@ -1,7 +1,12 @@
 package gov.va.api.health.dataquery.tools.minimart;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import gov.va.api.health.argonaut.api.resources.*;
+import gov.va.api.health.argonaut.api.resources.AllergyIntolerance;
+import gov.va.api.health.argonaut.api.resources.Condition;
+import gov.va.api.health.argonaut.api.resources.DiagnosticReport;
+import gov.va.api.health.argonaut.api.resources.Immunization;
+import gov.va.api.health.argonaut.api.resources.Medication;
+import gov.va.api.health.argonaut.api.resources.Patient;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.allergyintolerance.DatamartAllergyIntolerance;
 import gov.va.api.health.dataquery.service.controller.condition.DatamartCondition;
@@ -9,12 +14,19 @@ import gov.va.api.health.dataquery.service.controller.diagnosticreport.DatamartD
 import gov.va.api.health.dataquery.service.controller.immunization.DatamartImmunization;
 import gov.va.api.health.dataquery.service.controller.medication.DatamartMedication;
 import gov.va.api.health.dataquery.service.controller.patient.DatamartPatient;
-import gov.va.api.health.dataquery.tools.minimart.transformers.*;
+
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
+
+import gov.va.api.health.dataquery.tools.minimart.transformers.F2DAllergyIntoleranceTransformer;
+import gov.va.api.health.dataquery.tools.minimart.transformers.F2DConditionTransformer;
+import gov.va.api.health.dataquery.tools.minimart.transformers.F2DDiagnosticReportTransformer;
+import gov.va.api.health.dataquery.tools.minimart.transformers.F2DImmunizationTransformer;
+import gov.va.api.health.dataquery.tools.minimart.transformers.F2DMedicationTransformer;
+import gov.va.api.health.dataquery.tools.minimart.transformers.F2DPatientTransformer;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
