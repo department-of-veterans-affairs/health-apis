@@ -1,7 +1,6 @@
 package gov.va.api.health.dataquery.tools.minimart;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import gov.va.api.health.argonaut.api.resources.MedicationStatement;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.allergyintolerance.AllergyIntoleranceEntity;
 import gov.va.api.health.dataquery.service.controller.allergyintolerance.DatamartAllergyIntolerance;
@@ -51,7 +50,7 @@ public class MitreMinimartMaker {
           DiagnosticReportsEntity.class,
           DiagnosticReportCrossEntity.class,
           ImmunizationEntity.class,
-          MedicationStatement.class
+          MedicationStatementEntity.class
           //
           );
 
