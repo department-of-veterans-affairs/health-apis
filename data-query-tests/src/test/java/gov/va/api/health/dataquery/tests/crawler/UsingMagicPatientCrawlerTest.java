@@ -42,11 +42,15 @@ public class UsingMagicPatientCrawlerTest {
                 new FileResultsCollector(new File("target/patient-crawl-" + patient))));
     results.useFilter(CrawlerProperties.optionCrawlerIgnores());
 
-    UrlReplacementRequestQueue rq =
-        UrlReplacementRequestQueue.builder()
-            .replaceUrl(CrawlerProperties.urlReplace())
-            .withUrl(env.dataQuery().urlWithApiPath())
-            .requestQueue(new ConcurrentResourceBalancingRequestQueue())
+    RequestQueue rq =
+        FilteringRequestQueue.builder()
+            .allowQueryUrlPattern(CrawlerProperties.allowQueryUrlPattern())
+            .requestQueue(
+                UrlReplacementRequestQueue.builder()
+                    .replaceUrl(CrawlerProperties.urlReplace())
+                    .withUrl(env.dataQuery().urlWithApiPath())
+                    .requestQueue(new ConcurrentResourceBalancingRequestQueue())
+                    .build())
             .build();
 
     discovery.queries().forEach(rq::add);
