@@ -63,6 +63,10 @@ public final class DatamartDiagnosticReportTest {
             .issuedDateTime("2019-07-01T10:51:06Z")
             .accessionInstitutionSid("999")
             .accessionInstitutionName("ABC-DEF")
+            .institutionSid("SURPRISE")
+            .institutionName("SURPRISE")
+            .verifyingStaffSid("SURPRISE")
+            .verifyingStaffName("SURPRISE")
             .topographySid("777")
             .topographyName("PLASMA")
             .orders(
