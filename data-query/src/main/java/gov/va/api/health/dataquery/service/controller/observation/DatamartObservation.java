@@ -219,6 +219,10 @@ public class DatamartObservation implements HasReplaceableId {
       return code;
     }
 
+    void setText(String text) {
+      codeText(text);
+    }
+
     /** Lazy getter. */
     public Optional<DatamartCoding> valueCodeableConcept() {
       if (valueCodeableConcept == null) {
