@@ -164,6 +164,7 @@ public class F2DObservationTransformer {
   public DatamartObservation fhirToDatamart(Observation observation) {
     DatamartObservation.DatamartObservationBuilder obsBuilder = DatamartObservation.builder();
     obsBuilder
+        .objectType(observation.resourceType())
         .cdwId(fauxIds.unmask("Observation", observation.id()))
         .valueQuantity(valueQuantity(observation.valueQuantity()))
         .issued(instant(observation.issued()))
