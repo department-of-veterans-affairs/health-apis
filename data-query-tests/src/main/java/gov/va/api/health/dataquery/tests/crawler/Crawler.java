@@ -85,6 +85,10 @@ public class Crawler {
     results.init();
     Stack<Future<?>> futures = new Stack<>();
     ScheduledExecutorService monitor = monitorPendingRequests(futures);
+    if (!requestQueue.hasNext()) {
+      log.info("Request queue is empty, aborting");
+      return;
+    }
     while (hasPendingRequests(futures) && !timeLimitReached(watch)) {
       if (!requestQueue.hasNext()) {
         continue;
