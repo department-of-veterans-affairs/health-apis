@@ -39,6 +39,7 @@ public class DatamartProcedureTransformerTest {
     assertThat(tx.status(Status.in_progress)).isEqualTo(Procedure.Status.in_progress);
     assertThat(tx.status(Status.aborted)).isEqualTo(Procedure.Status.aborted);
     assertThat(tx.status(Status.completed)).isEqualTo(Procedure.Status.completed);
+    assertThat(tx.status(Status.cancelled)).isEqualTo(Procedure.Status.entered_in_error);
   }
 
   DatamartProcedureTransformer tx(DatamartProcedure dm) {
