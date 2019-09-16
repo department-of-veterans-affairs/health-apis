@@ -75,6 +75,7 @@ public final class CrawlerProperties {
     String pattern = System.getProperty("crawler.allow-query-url-pattern");
     if (isBlank(pattern)) {
       log.info("URL filtering disabled (Override with -Dcrawler.allow-query-url-pattern=<regex>)");
+      pattern = ".*";
     } else {
       log.info(
           "Only allowing URLs matching {}"
