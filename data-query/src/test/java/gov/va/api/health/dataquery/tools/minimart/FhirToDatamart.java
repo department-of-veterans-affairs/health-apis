@@ -154,6 +154,7 @@ public class FhirToDatamart {
         DatamartMedication datamartMedication =
             medicationTransformer.fhirToDatamart(mapper.readValue(file, Medication.class));
         dmObjectToFile(file.getName(), datamartMedication);
+        break;
       case "MedicationStatement":
         F2DMedicationStatementTransformer medicationStatementTransformer =
             new F2DMedicationStatementTransformer(fauxIds);
