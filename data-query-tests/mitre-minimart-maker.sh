@@ -79,11 +79,12 @@ stopMinimartApp() {
 }
 
 pushToDatabase() {
+  COMPILE=${COMPILE:-true}
   local workingDir="$REPO/health-apis-data-query"
   [ -z "$DIRECTORY" ] && usage "Directory is a Required Param." && exit 1
   [ -z "$RESOURCE_TYPE" ] && usage "Resource Type is a Required Param." && exit 1
-  mvn -f "$workingDir/data-query" test-compile && \
-    mvn -f "$workingDir/data-query" \
+  [ "$COMPILE" == 'true' ] && mvn -f "$workingDir/data-query" test-compile
+  mvn -f "$workingDir/data-query" \
     -P'!standard' \
     -Pmitre-minimart-maker \
     exec:java@pushToDatabase \
@@ -97,6 +98,7 @@ pushToDatabase() {
 }
 
 transformFhirToDatamart() {
+  COMPILE=${COMPILE:-true}
   local workingDir="$REPO/health-apis-data-query"
   [ -z "$DIRECTORY" ] && usage "Directory is a Required Option." && exit 1
   [ -z "$RESOURCE_TYPE" ] && usage "Resource Type is a Required Option." && exit 1
@@ -104,8 +106,8 @@ transformFhirToDatamart() {
     && [ ! -d "$REPO/health-apis-data-query-synthetic-records" ] \
     && usage 'Either `health-apis-data-query-sythetic-records` needs to be cloned in parent directory or config file needs to be defined.' \
     && exit 1
-  mvn -f "$workingDir/data-query" test-compile && \
-    mvn -f "$workingDir/data-query" \
+  [ "$COMPILE" == 'true' ] && mvn -f "$workingDir/data-query" test-compile
+  mvn -f "$workingDir/data-query" \
     -P'!standard' \
     -Pmitre-minimart-maker \
     generate-resources \
@@ -138,6 +140,7 @@ Options:
   -d|--directory) Use to specify the directory files are located in for a transform or dbPush
   -r|--resource) Use to specify the resource to transform or push to db
   -f|--config) Config file used either specify location of properties for different actions
+  -p|--compile) Boolean, Maven will run a test-compile before performing operation
   -o|--open) Open the database from the given command
   -h|--help) I need an adult!!!
 ---
@@ -153,8 +156,8 @@ EOF
 }
 
 ARGS=$(getopt -n $(basename ${0}) \
-    -l "help,start,stop,directory:,resource:,create,open,config:" \
-    -o "hskd:r:cof:" -- "$@")
+    -l "help,start,stop,directory:,resource:,create,open,config:,compile:" \
+    -o "hskd:r:cof:p:" -- "$@")
 [ $? != 0 ] && usage
 eval set -- "$ARGS"
 while true
@@ -167,6 +170,7 @@ do
     -f|--config) CONFIG_FILE="$2";;
     -r|--resource) RESOURCE_TYPE="$2";;
     -o|--open) OPEN_DB=true;;
+    -p|--compile) COMPILE="$2";;
     -h|--help) usage && exit 0;;
     --) shift;break;;
   esac
