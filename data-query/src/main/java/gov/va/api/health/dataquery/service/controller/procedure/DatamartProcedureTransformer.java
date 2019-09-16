@@ -24,6 +24,9 @@ public class DatamartProcedureTransformer {
   }
 
   Status status(DatamartProcedure.Status status) {
+    if (status == DatamartProcedure.Status.cancelled) {
+      return Status.entered_in_error;
+    }
     return EnumSearcher.of(Procedure.Status.class).find(status.toString());
   }
 

@@ -218,6 +218,10 @@ public class DatamartObservation implements HasReplaceableId {
       return code;
     }
 
+    void setText(String text) {
+      codeText(text);
+    }
+
     /** Lazy getter. */
     public Optional<DatamartCoding> valueCodeableConcept() {
       if (valueCodeableConcept == null) {
@@ -274,21 +278,21 @@ public class DatamartObservation implements HasReplaceableId {
       if (coding().isEmpty()) {
         coding(Optional.of(DatamartCoding.builder().build()));
       }
-      coding().get().code(Optional.of(code));
+      coding().get().code(Optional.ofNullable(code));
     }
 
     void setDisplay(String display) {
       if (coding().isEmpty()) {
         coding(Optional.of(DatamartCoding.builder().build()));
       }
-      coding().get().display(Optional.of(display));
+      coding().get().display(Optional.ofNullable(display));
     }
 
     void setSystem(String system) {
       if (coding().isEmpty()) {
         coding(Optional.of(DatamartCoding.builder().build()));
       }
-      coding().get().system(Optional.of(system));
+      coding().get().system(Optional.ofNullable(system));
     }
   }
 

@@ -100,11 +100,11 @@
   "antibioticComponents" : [
     {
       "id" : "800011708199",
-      "codeText" : "CEFAZOLIN-1",
+      "text" : "CEFAZOLIN-1",
       "code" : {
         "text" : "CEFAZOLIN-1",
-        "system" : "http://loinc.org",
-        "code" : "76-0",
+        "code" : null,
+        "system" : null,
         "display" : "CEFAZOLIN"
       },
       "valueCodeableConcept" : {
