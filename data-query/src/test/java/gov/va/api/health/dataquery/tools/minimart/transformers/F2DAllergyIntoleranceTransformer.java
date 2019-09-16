@@ -67,7 +67,6 @@ public class F2DAllergyIntoleranceTransformer {
   /** Transforms a Fhir compliant AllergyIntolerance model to a datamart model of data. */
   public DatamartAllergyIntolerance fhirToDatamart(AllergyIntolerance allergyIntolerance) {
     return DatamartAllergyIntolerance.builder()
-        .objectType(allergyIntolerance.resourceType())
         .cdwId(fauxIds.unmask("AllergyIntolerance", allergyIntolerance.id()))
         .patient(fauxIds.toDatamartReferenceWithCdwId(allergyIntolerance.patient()).get())
         .recordedDate(dateTime(allergyIntolerance.recordedDate()))

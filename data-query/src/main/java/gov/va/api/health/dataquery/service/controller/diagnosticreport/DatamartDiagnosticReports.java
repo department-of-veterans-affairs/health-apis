@@ -50,6 +50,14 @@ public class DatamartDiagnosticReports {
 
     private String accessionInstitutionName;
 
+    private String institutionSid;
+
+    private String institutionName;
+
+    private String verifyingStaffSid;
+
+    private String verifyingStaffName;
+
     private String topographySid;
 
     private String topographyName;

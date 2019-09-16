@@ -19,9 +19,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class DatamartObservation implements HasReplaceableId {
-  private String objectType;
-
-  private int objectVersion;
+  @Builder.Default private String objectType = "Observation";
+  @Builder.Default private int objectVersion = 1;
 
   private String cdwId;
 
@@ -202,7 +201,7 @@ public class DatamartObservation implements HasReplaceableId {
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
-  static final class AntibioticComponent {
+  public static final class AntibioticComponent {
     private String id;
 
     private String codeText;
@@ -219,6 +218,10 @@ public class DatamartObservation implements HasReplaceableId {
       return code;
     }
 
+    void setText(String text) {
+      codeText(text);
+    }
+
     /** Lazy getter. */
     public Optional<DatamartCoding> valueCodeableConcept() {
       if (valueCodeableConcept == null) {
@@ -232,7 +235,7 @@ public class DatamartObservation implements HasReplaceableId {
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
-  static final class BacteriologyComponent {
+  public static final class BacteriologyComponent {
     private Optional<Text> code;
 
     private Optional<Text> valueText;
@@ -258,11 +261,12 @@ public class DatamartObservation implements HasReplaceableId {
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
-  static final class CodeableConcept {
+  public static final class CodeableConcept {
     private Optional<DatamartCoding> coding;
 
     private String text;
 
+    /** Lazy getter. */
     public Optional<DatamartCoding> coding() {
       if (coding == null) {
         coding = Optional.empty();
@@ -296,7 +300,7 @@ public class DatamartObservation implements HasReplaceableId {
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
-  static final class Quantity {
+  public static final class Quantity {
     private Double value;
 
     private String unit;
@@ -318,7 +322,7 @@ public class DatamartObservation implements HasReplaceableId {
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
-  static final class ReferenceRange {
+  public static final class ReferenceRange {
     private Optional<Quantity> low;
 
     private Optional<Quantity> high;
@@ -344,7 +348,7 @@ public class DatamartObservation implements HasReplaceableId {
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
-  static final class Text {
+  public static final class Text {
     private String text;
   }
 
@@ -352,7 +356,7 @@ public class DatamartObservation implements HasReplaceableId {
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
-  static final class VitalsComponent {
+  public static final class VitalsComponent {
     private Optional<DatamartCoding> code;
 
     private Optional<Quantity> valueQuantity;

@@ -81,6 +81,7 @@ public class DatamartProcedure implements HasReplaceableId {
     @JsonProperty("in-progress")
     in_progress,
     aborted,
-    completed
+    completed,
+    cancelled
   }
 }
