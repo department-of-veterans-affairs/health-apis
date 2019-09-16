@@ -106,8 +106,7 @@ public class F2DMedicationOrderTransformer {
     if (dosageInstructions.isEmpty()) {
       return null;
     }
-    return dosageInstructions
-        .stream()
+    return dosageInstructions.stream()
         .map(
             dosageInstruction ->
                 DosageInstruction.builder()
@@ -158,13 +157,8 @@ public class F2DMedicationOrderTransformer {
   private DatamartReference prescriber(Reference prescriber, Extension dar) {
     if (dar == null) {
       return fauxIds.toDatamartReferenceWithCdwId(prescriber).get();
-    } else {
-      return DatamartReference.builder()
-          .display(Optional.empty())
-          .reference(Optional.empty())
-          .type(Optional.empty())
-          .build();
     }
+    return null;
   }
 
   private String routeText(CodeableConcept route) {
