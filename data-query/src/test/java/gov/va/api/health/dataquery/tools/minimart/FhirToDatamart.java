@@ -6,20 +6,29 @@ import gov.va.api.health.argonaut.api.resources.Condition;
 import gov.va.api.health.argonaut.api.resources.DiagnosticReport;
 import gov.va.api.health.argonaut.api.resources.Immunization;
 import gov.va.api.health.argonaut.api.resources.MedicationOrder;
+import gov.va.api.health.argonaut.api.resources.MedicationStatement;
+import gov.va.api.health.argonaut.api.resources.Observation;
 import gov.va.api.health.argonaut.api.resources.Patient;
+import gov.va.api.health.argonaut.api.resources.Procedure;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.allergyintolerance.DatamartAllergyIntolerance;
 import gov.va.api.health.dataquery.service.controller.condition.DatamartCondition;
 import gov.va.api.health.dataquery.service.controller.diagnosticreport.DatamartDiagnosticReports;
 import gov.va.api.health.dataquery.service.controller.immunization.DatamartImmunization;
 import gov.va.api.health.dataquery.service.controller.medicationorder.DatamartMedicationOrder;
+import gov.va.api.health.dataquery.service.controller.medicationstatement.DatamartMedicationStatement;
+import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation;
 import gov.va.api.health.dataquery.service.controller.patient.DatamartPatient;
+import gov.va.api.health.dataquery.service.controller.procedure.DatamartProcedure;
 import gov.va.api.health.dataquery.tools.minimart.transformers.F2DAllergyIntoleranceTransformer;
 import gov.va.api.health.dataquery.tools.minimart.transformers.F2DConditionTransformer;
 import gov.va.api.health.dataquery.tools.minimart.transformers.F2DDiagnosticReportTransformer;
 import gov.va.api.health.dataquery.tools.minimart.transformers.F2DImmunizationTransformer;
 import gov.va.api.health.dataquery.tools.minimart.transformers.F2DMedicationOrderTransformer;
+import gov.va.api.health.dataquery.tools.minimart.transformers.F2DMedicationStatementTransformer;
+import gov.va.api.health.dataquery.tools.minimart.transformers.F2DObservationTransformer;
 import gov.va.api.health.dataquery.tools.minimart.transformers.F2DPatientTransformer;
+import gov.va.api.health.dataquery.tools.minimart.transformers.F2DProcedureTransformer;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -37,7 +46,7 @@ public class FhirToDatamart {
 
   private FhirToDatamartUtils fauxIds;
 
-  public FhirToDatamart(String inputDirectory, String resourceType, String idsFile) {
+  FhirToDatamart(String inputDirectory, String resourceType, String idsFile) {
     this.inputDirectory = inputDirectory;
     this.resourceType = resourceType;
     this.fauxIds = new FhirToDatamartUtils(idsFile);
@@ -151,11 +160,31 @@ public class FhirToDatamart {
                 mapper.readValue(file, MedicationOrder.class));
         dmObjectToFile(file.getName(), datamartMedicationOrder);
         break;
+      case "MedicationStatement":
+        F2DMedicationStatementTransformer medicationStatementTransformer =
+            new F2DMedicationStatementTransformer(fauxIds);
+        DatamartMedicationStatement datamartMedicationStatement =
+            medicationStatementTransformer.fhirToDatamart(
+                mapper.readValue(file, MedicationStatement.class));
+        dmObjectToFile(file.getName(), datamartMedicationStatement);
+        break;
+      case "Observation":
+        F2DObservationTransformer observationTransformer = new F2DObservationTransformer(fauxIds);
+        DatamartObservation datamartObservation =
+            observationTransformer.fhirToDatamart(mapper.readValue(file, Observation.class));
+        dmObjectToFile(file.getName(), datamartObservation);
+        break;
       case "Patient":
         F2DPatientTransformer patientTransformer = new F2DPatientTransformer(fauxIds);
         DatamartPatient datamartPatient =
             patientTransformer.fhirToDatamart(mapper.readValue(file, Patient.class));
         dmObjectToFile(file.getName(), datamartPatient);
+        break;
+      case "Procedure":
+        F2DProcedureTransformer procedureTransformer = new F2DProcedureTransformer(fauxIds);
+        DatamartProcedure datamartProcedure =
+            procedureTransformer.fhirToDatamart(mapper.readValue(file, Procedure.class));
+        dmObjectToFile(file.getName(), datamartProcedure);
         break;
       default:
         throw new IllegalArgumentException("Unsupported Resource : " + resource);

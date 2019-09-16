@@ -207,8 +207,6 @@ public class DatamartObservationTest {
                                 .coding(
                                     Optional.of(
                                         DatamartCoding.builder()
-                                            .system(Optional.of("http://loinc.org"))
-                                            .code(Optional.of("76-0"))
                                             .display(Optional.of("CEFAZOLIN"))
                                             .build()))
                                 .build()))

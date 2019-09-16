@@ -14,6 +14,8 @@ import gov.va.api.health.dstu2.api.datatypes.HumanName;
 import gov.va.api.health.dstu2.api.datatypes.Identifier;
 import gov.va.api.health.dstu2.api.elements.Extension;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
@@ -50,6 +52,13 @@ public class F2DPatientTransformer {
         .build();
   }
 
+  private String birthDate(String birthDate) {
+    if (birthDate == null) {
+      return null;
+    }
+    return LocalDate.parse(birthDate).atStartOfDay().toInstant(ZoneOffset.UTC).toString();
+  }
+
   private DatamartPatient.Contact contact(Patient.Contact contact) {
     if (contact == null) {
       return null;
@@ -70,6 +79,9 @@ public class F2DPatientTransformer {
   }
 
   private List<DatamartPatient.Contact> contacts(List<Patient.Contact> contact) {
+    if (contact == null) {
+      return null;
+    }
     return contact.stream().map(this::contact).collect(Collectors.toList());
   }
 
@@ -95,7 +107,7 @@ public class F2DPatientTransformer {
   }
 
   private DatamartPatient.Ethnicity ethnicity(List<Extension> extensions) {
-    if (extensions == null) {
+    if (extensions == null || extensions.isEmpty()) {
       return null;
     }
     Extension ethnicityExtensions =
@@ -126,7 +138,7 @@ public class F2DPatientTransformer {
         .firstName(firstName(patient.name()))
         .lastName(lastName(patient.name()))
         .name(name(patient.name()))
-        .birthDateTime(patient.birthDate())
+        .birthDateTime(birthDate(patient.birthDate()))
         .deathDateTime(deathDateTime(patient.deceasedDateTime(), patient.deceasedBoolean()))
         .deceased(deceased(patient.deceasedDateTime(), patient.deceasedBoolean()))
         .gender(gender(patient.gender()))
@@ -196,24 +208,34 @@ public class F2DPatientTransformer {
     switch (codingDisplay) {
       case "Annulled":
         code = "A";
+        break;
       case "Divorced":
         code = "D";
+        break;
       case "Interlocutory":
         code = "I";
+        break;
       case "Legally Separated":
         code = "L";
+        break;
       case "Married":
         code = "M";
+        break;
       case "Polygamous":
         code = "P";
+        break;
       case "Never Married":
         code = "S";
+        break;
       case "Domestic partner":
         code = "T";
+        break;
       case "Widowed":
         code = "W";
+        break;
       case "unknown":
         code = "UNK";
+        break;
       default:
         code = null;
     }
@@ -256,7 +278,9 @@ public class F2DPatientTransformer {
     }
     return races
         .stream()
+        .filter(x -> x != null)
         .map(Extension::valueCoding)
+        .filter(x -> x != null)
         .map(Coding::display)
         .map(d -> DatamartPatient.Race.builder().display(d).build())
         .collect(Collectors.toList());
@@ -285,10 +309,13 @@ public class F2DPatientTransformer {
         switch (contactPoint.use()) {
           case mobile:
             type = "Patient Cell Phone";
+            break;
           case temp:
             type = "Temporary";
+            break;
           case home:
             type = "Patient Resident";
+            break;
         }
         phoneNumber = contactPoint.value();
       }

@@ -107,6 +107,7 @@ public class DatamartImmunization implements HasReplaceableId {
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
   public static class VaccinationProtocols {
 
+    /* ETL script seems to look like it could be null. */
     private String series;
 
     @Min(1)
