@@ -83,12 +83,12 @@ public class Crawler {
   public void crawl() {
     Stopwatch watch = Stopwatch.createStarted();
     results.init();
-    Stack<Future<?>> futures = new Stack<>();
-    ScheduledExecutorService monitor = monitorPendingRequests(futures);
     if (!requestQueue.hasNext()) {
       log.info("Request queue is empty, aborting");
       return;
     }
+    Stack<Future<?>> futures = new Stack<>();
+    ScheduledExecutorService monitor = monitorPendingRequests(futures);
     while (hasPendingRequests(futures) && !timeLimitReached(watch)) {
       if (!requestQueue.hasNext()) {
         continue;
