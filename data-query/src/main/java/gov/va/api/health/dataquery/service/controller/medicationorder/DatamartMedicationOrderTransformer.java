@@ -70,7 +70,7 @@ public class DatamartMedicationOrderTransformer {
   private Duration duration(Optional<Integer> maybeValue) {
     if (maybeValue.isPresent()) {
       return Duration.builder()
-          .value(maybeValue.map(Double::valueOf).orElse(null))
+          .value(Double.valueOf(maybeValue.get()))
           .unit("days")
           .system("http://unitsofmeasure.org")
           .code("d")
