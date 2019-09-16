@@ -7,6 +7,7 @@ import gov.va.api.health.argonaut.api.resources.DiagnosticReport;
 import gov.va.api.health.argonaut.api.resources.Immunization;
 import gov.va.api.health.argonaut.api.resources.Medication;
 import gov.va.api.health.argonaut.api.resources.MedicationStatement;
+import gov.va.api.health.argonaut.api.resources.Observation;
 import gov.va.api.health.argonaut.api.resources.Patient;
 import gov.va.api.health.argonaut.api.resources.Procedure;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
@@ -16,6 +17,7 @@ import gov.va.api.health.dataquery.service.controller.diagnosticreport.DatamartD
 import gov.va.api.health.dataquery.service.controller.immunization.DatamartImmunization;
 import gov.va.api.health.dataquery.service.controller.medication.DatamartMedication;
 import gov.va.api.health.dataquery.service.controller.medicationstatement.DatamartMedicationStatement;
+import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation;
 import gov.va.api.health.dataquery.service.controller.patient.DatamartPatient;
 import gov.va.api.health.dataquery.service.controller.procedure.DatamartProcedure;
 import gov.va.api.health.dataquery.tools.minimart.transformers.F2DAllergyIntoleranceTransformer;
@@ -24,6 +26,7 @@ import gov.va.api.health.dataquery.tools.minimart.transformers.F2DDiagnosticRepo
 import gov.va.api.health.dataquery.tools.minimart.transformers.F2DImmunizationTransformer;
 import gov.va.api.health.dataquery.tools.minimart.transformers.F2DMedicationStatementTransformer;
 import gov.va.api.health.dataquery.tools.minimart.transformers.F2DMedicationTransformer;
+import gov.va.api.health.dataquery.tools.minimart.transformers.F2DObservationTransformer;
 import gov.va.api.health.dataquery.tools.minimart.transformers.F2DPatientTransformer;
 import gov.va.api.health.dataquery.tools.minimart.transformers.F2DProcedureTransformer;
 import java.io.File;
@@ -162,6 +165,12 @@ public class FhirToDatamart {
             medicationStatementTransformer.fhirToDatamart(
                 mapper.readValue(file, MedicationStatement.class));
         dmObjectToFile(file.getName(), datamartMedicationStatement);
+        break;
+      case "Observation":
+        F2DObservationTransformer observationTransformer = new F2DObservationTransformer(fauxIds);
+        DatamartObservation datamartObservation =
+            observationTransformer.fhirToDatamart(mapper.readValue(file, Observation.class));
+        dmObjectToFile(file.getName(), datamartObservation);
         break;
       case "Patient":
         F2DPatientTransformer patientTransformer = new F2DPatientTransformer(fauxIds);

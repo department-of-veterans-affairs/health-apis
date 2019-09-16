@@ -52,6 +52,9 @@ public class MitreMinimartMaker {
           ImmunizationEntity.class,
           MedicationEntity.class,
           MedicationStatementEntity.class,
+          ObservationEntity.class,
+          PatientEntity.class,
+          PatientSearchEntity.class,
           ProcedureEntity.class
           //
           );
