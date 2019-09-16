@@ -20,6 +20,17 @@ import org.junit.experimental.categories.Category;
 @Slf4j
 public class UsingOAuthCrawlerTest {
 
+  private RequestQueue baseRequestQueue(SystemDefinition env) {
+    if (isBlank(CrawlerProperties.urlReplace())) {
+      return new ConcurrentResourceBalancingRequestQueue();
+    }
+    return UrlReplacementRequestQueue.builder()
+        .replaceUrl(CrawlerProperties.urlReplace())
+        .withUrl(env.dataQuery().urlWithApiPath())
+        .requestQueue(new ConcurrentResourceBalancingRequestQueue())
+        .build();
+  }
+
   private int crawl(LabBot robot) {
     SystemDefinition env = SystemDefinitions.systemDefinition();
 
@@ -36,7 +47,7 @@ public class UsingOAuthCrawlerTest {
         SummarizingResultCollector.wrap(
             new FileResultsCollector(
                 new File("target/lab-crawl-" + userResult.tokenExchange().patient())));
-    RequestQueue q = requestQueue(env);
+    RequestQueue q = filtered(baseRequestQueue(env));
     discovery.queries().forEach(q::add);
     Crawler crawler =
         Crawler.builder()
@@ -69,14 +80,10 @@ public class UsingOAuthCrawlerTest {
     assertThat(failureCount).withFailMessage("%d Failures", failureCount).isEqualTo(0);
   }
 
-  private RequestQueue requestQueue(SystemDefinition env) {
-    if (isBlank(CrawlerProperties.urlReplace())) {
-      return new ConcurrentResourceBalancingRequestQueue();
-    }
-    return UrlReplacementRequestQueue.builder()
-        .replaceUrl(CrawlerProperties.urlReplace())
-        .withUrl(env.dataQuery().urlWithApiPath())
-        .requestQueue(new ConcurrentResourceBalancingRequestQueue())
+  private RequestQueue filtered(RequestQueue requestQueue) {
+    return FilteringRequestQueue.builder()
+        .allowQueryUrlPattern(CrawlerProperties.allowQueryUrlPattern())
+        .requestQueue(requestQueue)
         .build();
   }
 }

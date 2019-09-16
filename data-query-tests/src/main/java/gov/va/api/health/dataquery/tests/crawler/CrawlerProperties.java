@@ -71,6 +71,21 @@ public final class CrawlerProperties {
   }
 
   /** Read url replacement from system property. */
+  public String allowQueryUrlPattern() {
+    String pattern = System.getProperty("crawler.allow-query-url-pattern");
+    if (isBlank(pattern)) {
+      log.info("URL filtering disabled (Override with -Dcrawler.allow-query-url-pattern=<regex>)");
+      pattern = ".*";
+    } else {
+      log.info(
+          "Only allowing URLs matching {}"
+              + " (Override with --Dcrawler.allow-query-url-pattern=<regex>)",
+          pattern);
+    }
+    return pattern;
+  }
+
+  /** Read url replacement from system property. */
   public String urlReplace() {
     String replace = System.getProperty("crawler.url.replace");
     if (isBlank(replace)) {

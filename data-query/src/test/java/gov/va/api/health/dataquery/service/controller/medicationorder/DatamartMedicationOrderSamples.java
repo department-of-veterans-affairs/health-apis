@@ -134,7 +134,13 @@ public class DatamartMedicationOrderSamples {
       return MedicationOrder.DispenseRequest.builder()
           .numberOfRepeatsAllowed(1)
           .quantity(SimpleQuantity.builder().value(42.0).unit("TAB").build())
-          .expectedSupplyDuration(Duration.builder().value((double) 21).unit("days").build())
+          .expectedSupplyDuration(
+              Duration.builder()
+                  .value((double) 21)
+                  .unit("days")
+                  .code("d")
+                  .system("http://unitsofmeasure.org")
+                  .build())
           .build();
     }
 

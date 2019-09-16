@@ -37,9 +37,7 @@ public class DatamartMedicationOrderTransformer {
     return MedicationOrder.DispenseRequest.builder()
         .numberOfRepeatsAllowed(numberOfRepeatsAllowed < 1 ? null : numberOfRepeatsAllowed)
         .quantity(simpleQuantity(dispenseRequest.quantity(), dispenseRequest.unit()))
-        .expectedSupplyDuration(
-            duration(
-                dispenseRequest.expectedSupplyDuration(), dispenseRequest.supplyDurationUnits()))
+        .expectedSupplyDuration(duration(dispenseRequest.expectedSupplyDuration()))
         .build();
   }
 
@@ -69,10 +67,14 @@ public class DatamartMedicationOrderTransformer {
     return results;
   }
 
-  private Duration duration(Optional<Integer> maybeValue, Optional<String> maybeUnit) {
-    if (maybeValue.isPresent() || maybeUnit.isPresent()) {
-      Double durationValue = maybeValue.isPresent() ? Double.valueOf(maybeValue.get()) : null;
-      return Duration.builder().value(durationValue).unit(maybeUnit.orElse(null)).build();
+  private Duration duration(Optional<Integer> maybeValue) {
+    if (maybeValue.isPresent()) {
+      return Duration.builder()
+          .value(Double.valueOf(maybeValue.get()))
+          .unit("days")
+          .system("http://unitsofmeasure.org")
+          .code("d")
+          .build();
     }
     return null;
   }
