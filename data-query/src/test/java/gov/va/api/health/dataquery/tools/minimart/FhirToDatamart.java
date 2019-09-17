@@ -15,7 +15,6 @@ import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.allergyintolerance.DatamartAllergyIntolerance;
 import gov.va.api.health.dataquery.service.controller.condition.DatamartCondition;
 import gov.va.api.health.dataquery.service.controller.diagnosticreport.DatamartDiagnosticReports;
-import gov.va.api.health.dataquery.service.controller.immunization.DatamartImmunization;
 import gov.va.api.health.dataquery.service.controller.medication.DatamartMedication;
 import gov.va.api.health.dataquery.service.controller.medicationorder.DatamartMedicationOrder;
 import gov.va.api.health.dataquery.service.controller.medicationstatement.DatamartMedicationStatement;
@@ -32,6 +31,7 @@ import gov.va.api.health.dataquery.tools.minimart.transformers.F2DMedicationTran
 import gov.va.api.health.dataquery.tools.minimart.transformers.F2DObservationTransformer;
 import gov.va.api.health.dataquery.tools.minimart.transformers.F2DPatientTransformer;
 import gov.va.api.health.dataquery.tools.minimart.transformers.F2DProcedureTransformer;
+import gov.va.api.health.dstu2.api.bundle.AbstractEntry;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -104,7 +104,7 @@ public class FhirToDatamart {
       case "DiagnosticReport":
         return "^DiaRep(?!P).*json$";
       case "Immunization":
-        return "^Imm(?!P).*json$";
+        return "^ImmP.*json$";
       case "Medication":
         return "^Med(?!P|Sta|Ord).*json$";
       case "MedicationOrder":
@@ -151,9 +151,13 @@ public class FhirToDatamart {
       case "Immunization":
         F2DImmunizationTransformer immunizationTransformer =
             new F2DImmunizationTransformer(fauxIds);
-        DatamartImmunization datamartImmunization =
-            immunizationTransformer.fhirToDatamart(mapper.readValue(file, Immunization.class));
-        dmObjectToFile(file.getName(), datamartImmunization);
+        Immunization.Bundle immunizations = mapper.readValue(file, Immunization.Bundle.class);
+        immunizations
+            .entry()
+            .stream()
+            .map(AbstractEntry::resource)
+            .map(immunizationTransformer::fhirToDatamart)
+            .forEach(i -> dmObjectToFile("Imm" + i.cdwId() + ".json", i));
         break;
       case "Medication":
         F2DMedicationTransformer medicationTransformer = new F2DMedicationTransformer(fauxIds);
