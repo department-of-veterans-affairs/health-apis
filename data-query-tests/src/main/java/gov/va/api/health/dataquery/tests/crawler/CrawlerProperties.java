@@ -3,8 +3,10 @@ package gov.va.api.health.dataquery.tests.crawler;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
+import com.google.common.base.Splitter;
 import java.time.Duration;
 import java.time.format.DateTimeParseException;
+import java.util.List;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
@@ -83,6 +85,18 @@ public final class CrawlerProperties {
           pattern);
     }
     return pattern;
+  }
+
+  /** Read url replacement from system property. */
+  public List<String> seedQueries() {
+    String replace = System.getProperty("crawler.seed");
+    if (isBlank(replace)) {
+      log.info("Additional seed URLs disabled (Override with -Dcrawler.seed=<url>)");
+      return List.of();
+    } else {
+      log.info("Additional seed URLs {} (Override with -Dcrawler.url.replace=<url>)", replace);
+    }
+    return Splitter.on(",").splitToList(replace);
   }
 
   /** Read url replacement from system property. */

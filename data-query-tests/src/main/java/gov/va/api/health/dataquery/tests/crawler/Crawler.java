@@ -53,6 +53,10 @@ public class Crawler {
     return futures.stream().filter(f -> !f.isDone()).count();
   }
 
+  private void addCustomSeedUrls() {
+    CrawlerProperties.seedQueries().forEach(requestQueue::add);
+  }
+
   private void addLinksFromBundle(Object payload) {
     if (!(payload instanceof AbstractBundle<?>)) {
       return;
@@ -81,6 +85,7 @@ public class Crawler {
   @SuppressWarnings("WeakerAccess")
   @SneakyThrows
   public void crawl() {
+    addCustomSeedUrls();
     Stopwatch watch = Stopwatch.createStarted();
     results.init();
     if (!requestQueue.hasNext()) {
