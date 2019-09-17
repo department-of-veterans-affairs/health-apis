@@ -4,10 +4,14 @@ import static gov.va.api.health.dataquery.service.controller.Transformers.asDate
 import static gov.va.api.health.dataquery.service.controller.Transformers.asReference;
 
 import gov.va.api.health.argonaut.api.resources.MedicationOrder;
+import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
+import gov.va.api.health.dstu2.api.DataAbsentReason;
+import gov.va.api.health.dstu2.api.DataAbsentReason.Reason;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Duration;
 import gov.va.api.health.dstu2.api.datatypes.SimpleQuantity;
 import gov.va.api.health.dstu2.api.datatypes.Timing;
+import gov.va.api.health.dstu2.api.elements.Extension;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -79,6 +83,13 @@ public class DatamartMedicationOrderTransformer {
     return null;
   }
 
+  Extension prescriberExtension(DatamartReference prescriber) {
+    if (prescriber != null && prescriber.hasTypeAndReference()) {
+      return null;
+    }
+    return DataAbsentReason.of(Reason.unknown);
+  }
+
   private SimpleQuantity simpleQuantity(Optional<Double> maybeValue, Optional<String> maybeUnit) {
     if (maybeValue.isPresent() || maybeUnit.isPresent()) {
       return SimpleQuantity.builder()
@@ -130,6 +141,7 @@ public class DatamartMedicationOrderTransformer {
         .status(status(datamart.status()))
         .dateEnded(asDateTimeString(datamart.dateEnded()))
         .prescriber(asReference(datamart.prescriber()))
+        ._prescriber(prescriberExtension(datamart.prescriber()))
         .medicationReference(asReference(datamart.medication()))
         .dosageInstruction(dosageInstructions(datamart.dosageInstruction()))
         .dispenseRequest(dispenseRequest(datamart.dispenseRequest()))

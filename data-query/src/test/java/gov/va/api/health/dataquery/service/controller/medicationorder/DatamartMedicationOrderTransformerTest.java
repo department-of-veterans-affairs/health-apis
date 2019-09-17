@@ -5,6 +5,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.argonaut.api.resources.MedicationOrder;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
+import gov.va.api.health.dstu2.api.DataAbsentReason;
+import gov.va.api.health.dstu2.api.DataAbsentReason.Reason;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Duration;
 import gov.va.api.health.dstu2.api.datatypes.SimpleQuantity;
@@ -49,6 +51,18 @@ public class DatamartMedicationOrderTransformerTest {
   @Test
   public void medicationOrder() {
     assertThat(tx(Datamart.create().medicationOrder())).isEqualTo(Fhir.create().medicationOrder());
+  }
+
+  @Test
+  public void prescriberExtension() {
+    DatamartMedicationOrderTransformer tx =
+        DatamartMedicationOrderTransformer.builder()
+            .datamart(Datamart.create().medicationOrder())
+            .build();
+    assertThat(tx.prescriberExtension(Datamart.create().medicationOrderNoPrescriber().prescriber()))
+        .isEqualTo(DataAbsentReason.of(Reason.unknown));
+    assertThat(tx.prescriberExtension(Datamart.create().medicationOrder().prescriber()))
+        .isEqualTo(null);
   }
 
   @Test
@@ -131,6 +145,30 @@ public class DatamartMedicationOrderTransformerTest {
                   .reference("1404497883")
                   .display("HIPPOCRATES,OATH J")
                   .build())
+          .medication(
+              DatamartReference.of()
+                  .type("Medication")
+                  .reference("1400021372")
+                  .display("RIVAROXABAN 15MG TAB")
+                  .build())
+          .dosageInstruction(dosageInstruction())
+          .dispenseRequest(Optional.of(dispenseRequest()))
+          .build();
+    }
+
+    public DatamartMedicationOrder medicationOrderNoPrescriber() {
+      return DatamartMedicationOrder.builder()
+          .cdwId("1400181354458:O")
+          .patient(
+              DatamartReference.of()
+                  .type("Patient")
+                  .reference("1012958529V624991")
+                  .display("VETERAN,FARM ACY")
+                  .build())
+          .dateWritten(Instant.parse("2016-11-17T18:02:04Z"))
+          .status(DatamartMedicationOrder.Status.stopped)
+          .dateEnded(Optional.of(Instant.parse("2017-02-15T05:00:00Z")))
+          .prescriber(null)
           .medication(
               DatamartReference.of()
                   .type("Medication")
