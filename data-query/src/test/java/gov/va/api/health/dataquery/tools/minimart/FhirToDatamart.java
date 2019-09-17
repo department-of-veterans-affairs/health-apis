@@ -12,15 +12,7 @@ import gov.va.api.health.argonaut.api.resources.Observation;
 import gov.va.api.health.argonaut.api.resources.Patient;
 import gov.va.api.health.argonaut.api.resources.Procedure;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
-import gov.va.api.health.dataquery.service.controller.allergyintolerance.DatamartAllergyIntolerance;
-import gov.va.api.health.dataquery.service.controller.condition.DatamartCondition;
-import gov.va.api.health.dataquery.service.controller.diagnosticreport.DatamartDiagnosticReports;
 import gov.va.api.health.dataquery.service.controller.medication.DatamartMedication;
-import gov.va.api.health.dataquery.service.controller.medicationorder.DatamartMedicationOrder;
-import gov.va.api.health.dataquery.service.controller.medicationstatement.DatamartMedicationStatement;
-import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation;
-import gov.va.api.health.dataquery.service.controller.patient.DatamartPatient;
-import gov.va.api.health.dataquery.service.controller.procedure.DatamartProcedure;
 import gov.va.api.health.dataquery.tools.minimart.transformers.F2DAllergyIntoleranceTransformer;
 import gov.va.api.health.dataquery.tools.minimart.transformers.F2DConditionTransformer;
 import gov.va.api.health.dataquery.tools.minimart.transformers.F2DDiagnosticReportTransformer;
@@ -98,25 +90,25 @@ public class FhirToDatamart {
   private String pattern(String resource) {
     switch (resource) {
       case "AllergyIntolerance":
-        return "^AllInt(?!P).*json$";
+        return "^AllIntP.*json$";
       case "Condition":
-        return "^Con(?!P).*json$";
+        return "^ConP.*json$";
       case "DiagnosticReport":
-        return "^DiaRep(?!P).*json$";
+        return "^DiaRepP.*json$";
       case "Immunization":
         return "^ImmP.*json$";
       case "Medication":
         return "^Med(?!P|Sta|Ord).*json$";
       case "MedicationOrder":
-        return "^MedOrd(?!P).*json$";
+        return "^MedOrdP.*json$";
       case "MedicationStatement":
-        return "^MedSta(?!P).*json$";
+        return "^MedStaP.*json$";
       case "Observation":
-        return "^Obs(?!P).*json$";
+        return "^ObsP.*json$";
       case "Patient":
-        return "^Pat(?!i).*json$";
+        return "^Pati.*json$";
       case "Procedure":
-        return "^Pro(?!P).*json$";
+        return "^ProP.*json$";
       default:
         throw new IllegalArgumentException("Unknown Resource : " + resource);
     }
@@ -129,24 +121,36 @@ public class FhirToDatamart {
       case "AllergyIntolerance":
         F2DAllergyIntoleranceTransformer allergyIntoleranceTransformer =
             new F2DAllergyIntoleranceTransformer(fauxIds);
-        DatamartAllergyIntolerance datamartAllergyIntolerance =
-            allergyIntoleranceTransformer.fhirToDatamart(
-                mapper.readValue(file, AllergyIntolerance.class));
-        dmObjectToFile(file.getName(), datamartAllergyIntolerance);
+        AllergyIntolerance.Bundle allergyIntolerances =
+            mapper.readValue(file, AllergyIntolerance.Bundle.class);
+        allergyIntolerances
+            .entry()
+            .stream()
+            .map(AbstractEntry::resource)
+            .map(allergyIntoleranceTransformer::fhirToDatamart)
+            .forEach(a -> dmObjectToFile("AllInt" + a.cdwId() + ".json", a));
         break;
       case "Condition":
         F2DConditionTransformer conditionTransformer = new F2DConditionTransformer(fauxIds);
-        DatamartCondition datamartCondition =
-            conditionTransformer.fhirToDatamart(mapper.readValue(file, Condition.class));
-        dmObjectToFile(file.getName(), datamartCondition);
+        Condition.Bundle conditions = mapper.readValue(file, Condition.Bundle.class);
+        conditions
+            .entry()
+            .stream()
+            .map(AbstractEntry::resource)
+            .map(conditionTransformer::fhirToDatamart)
+            .forEach(c -> dmObjectToFile("Con" + c.cdwId() + ".json", c));
         break;
       case "DiagnosticReport":
         F2DDiagnosticReportTransformer diagnosticReportTransformer =
             new F2DDiagnosticReportTransformer(fauxIds);
-        DatamartDiagnosticReports datamartDiagnosticReports =
-            diagnosticReportTransformer.fhirToDatamart(
-                mapper.readValue(file, DiagnosticReport.class));
-        dmObjectToFile(file.getName(), datamartDiagnosticReports);
+        DiagnosticReport.Bundle diagnosticReports =
+            mapper.readValue(file, DiagnosticReport.Bundle.class);
+        diagnosticReports
+            .entry()
+            .stream()
+            .map(AbstractEntry::resource)
+            .map(diagnosticReportTransformer::fhirToDatamart)
+            .forEach(d -> dmObjectToFile("DiaRep" + d.fullIcn() + ".json", d));
         break;
       case "Immunization":
         F2DImmunizationTransformer immunizationTransformer =
@@ -168,36 +172,56 @@ public class FhirToDatamart {
       case "MedicationOrder":
         F2DMedicationOrderTransformer medicationOrderTransformer =
             new F2DMedicationOrderTransformer(fauxIds);
-        DatamartMedicationOrder datamartMedicationOrder =
-            medicationOrderTransformer.fhirToDatamart(
-                mapper.readValue(file, MedicationOrder.class));
-        dmObjectToFile(file.getName(), datamartMedicationOrder);
+        MedicationOrder.Bundle medicationOrders =
+            mapper.readValue(file, MedicationOrder.Bundle.class);
+        medicationOrders
+            .entry()
+            .stream()
+            .map(AbstractEntry::resource)
+            .map(medicationOrderTransformer::fhirToDatamart)
+            .forEach(mo -> dmObjectToFile("MedOrd" + mo.cdwId() + ".json", mo));
         break;
       case "MedicationStatement":
         F2DMedicationStatementTransformer medicationStatementTransformer =
             new F2DMedicationStatementTransformer(fauxIds);
-        DatamartMedicationStatement datamartMedicationStatement =
-            medicationStatementTransformer.fhirToDatamart(
-                mapper.readValue(file, MedicationStatement.class));
-        dmObjectToFile(file.getName(), datamartMedicationStatement);
+        MedicationStatement.Bundle medicationStatements =
+            mapper.readValue(file, MedicationStatement.Bundle.class);
+        medicationStatements
+            .entry()
+            .stream()
+            .map(AbstractEntry::resource)
+            .map(medicationStatementTransformer::fhirToDatamart)
+            .forEach(ms -> dmObjectToFile("MedSta" + ms.cdwId() + ".json", ms));
         break;
       case "Observation":
         F2DObservationTransformer observationTransformer = new F2DObservationTransformer(fauxIds);
-        DatamartObservation datamartObservation =
-            observationTransformer.fhirToDatamart(mapper.readValue(file, Observation.class));
-        dmObjectToFile(file.getName(), datamartObservation);
+        Observation.Bundle observations = mapper.readValue(file, Observation.Bundle.class);
+        observations
+            .entry()
+            .stream()
+            .map(AbstractEntry::resource)
+            .map(observationTransformer::fhirToDatamart)
+            .forEach(o -> dmObjectToFile("Obs" + o.cdwId() + ".json", o));
         break;
       case "Patient":
         F2DPatientTransformer patientTransformer = new F2DPatientTransformer(fauxIds);
-        DatamartPatient datamartPatient =
-            patientTransformer.fhirToDatamart(mapper.readValue(file, Patient.class));
-        dmObjectToFile(file.getName(), datamartPatient);
+        Patient.Bundle patients = mapper.readValue(file, Patient.Bundle.class);
+        patients
+            .entry()
+            .stream()
+            .map(AbstractEntry::resource)
+            .map(patientTransformer::fhirToDatamart)
+            .forEach(p -> dmObjectToFile("Pat" + p.fullIcn() + ".json", p));
         break;
       case "Procedure":
         F2DProcedureTransformer procedureTransformer = new F2DProcedureTransformer(fauxIds);
-        DatamartProcedure datamartProcedure =
-            procedureTransformer.fhirToDatamart(mapper.readValue(file, Procedure.class));
-        dmObjectToFile(file.getName(), datamartProcedure);
+        Procedure.Bundle procedures = mapper.readValue(file, Procedure.Bundle.class);
+        procedures
+            .entry()
+            .stream()
+            .map(AbstractEntry::resource)
+            .map(procedureTransformer::fhirToDatamart)
+            .forEach(pr -> dmObjectToFile("Pro" + pr.cdwId() + ".json", pr));
         break;
       default:
         throw new IllegalArgumentException("Unsupported Resource : " + resource);
