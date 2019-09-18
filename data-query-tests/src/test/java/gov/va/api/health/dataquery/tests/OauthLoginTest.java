@@ -17,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 
 @Slf4j
-public class OauthLsrc/test/java/gov/va/api/health/dataquery/tests/OauthLoginTest.javaoginTest {
+public class OauthLoginTest {
 
   @Test
   @SneakyThrows
