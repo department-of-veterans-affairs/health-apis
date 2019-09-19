@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.tests;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.sentinel.LabBot;
@@ -23,7 +24,7 @@ public class OauthLoginTest {
   public void RequestTest() {
     List<LabBotUserResult> labBotUserResultList =
         LabBot.builder()
-            .userIds(LabBot.allUsers())
+            .userIds(userIds())
             .scopes(DataQueryScopes.labResources())
             .configFile("config/lab.properties")
             .build()
@@ -40,7 +41,9 @@ public class OauthLoginTest {
         winners.add(
             labBotUserResult.user().id()
                 + " is patient "
-                + labBotUserResult.tokenExchange().patient());
+                + labBotUserResult.tokenExchange().patient()
+                + " - "
+                + labBotUserResult.tokenExchange().accessToken());
       } else {
         log.info(
             "Loser: {} is patient {}.",
@@ -50,11 +53,11 @@ public class OauthLoginTest {
             labBotUserResult.user().id()
                 + " is patient "
                 + labBotUserResult.tokenExchange().patient()
-                + " - Token Exchange Error"
+                + " - Token Exchange Error: "
                 + labBotUserResult.tokenExchange().error()
                 + ": "
                 + labBotUserResult.tokenExchange().errorDescription()
-                + " - Request Error: "
+                + "  "
                 + labBotUserResult.response());
       }
     }
@@ -65,5 +68,13 @@ public class OauthLoginTest {
     Files.write(new File("lab-users.txt").toPath(), report.getBytes(StandardCharsets.UTF_8));
     log.info("Lab Users:\n{}", report);
     assertThat(losers.size()).isZero();
+  }
+
+  public List<String> userIds() {
+    String userSpecified = System.getProperty("lab.user");
+    if (isBlank(userSpecified)) {
+      return LabBot.allUsers();
+    }
+    return List.of(userSpecified);
   }
 }

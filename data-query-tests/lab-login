@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+
+cd $(dirname $(readlink -f $0))
+
+usage() {
+cat <<EOF
+$0 [options] [email]
+
+Performs OAuth login for lab users and prints their login ID and an access token.
+
+Options
+-h, --help   Print this help and exit
+
+$1
+EOF
+exit 1
+}
+
+[ "$1" == "-h" -o "$1" == "--help" ] && usage
+
+#
+# Log in a user and print it's access token
+#
+OUTPUT=$(mktemp -p . oauth-login.XXXX)
+onExit() { rm $OUTPUT; }
+trap onExit EXIT
+
+LAB_USER="$1"
+FILTER=" "
+[ -n "$LAB_USER" ] && LOGIN_ARGS="-Dlab.user=$LAB_USER" && FILTER="$LAB_USER"
+
+
+mvn -q -P'!standard' test \
+  -Dgroups= \
+  -Dtest="*OauthLoginTest*" \
+  $LOGIN_ARGS \
+  > $OUTPUT 2>&1
+
+USERS_FILE=lab-users.txt
+
+[ ! -f $USERS_FILE ] \
+  && echo "Missing $USERS_FILE, something terrible has happened" \
+  && cat $OUTPUT \
+  && exit 1
+
+
+cat $USERS_FILE | cut -d ' ' -f 1,6 | grep -F "$FILTER"
