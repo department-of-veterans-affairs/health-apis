@@ -288,9 +288,9 @@ public class MitreMinimartMaker {
     if (dm.fullIcn().equals("43000199")) {
       log.info(
           "Swapping out cdwId {} with publicId {} before pushing to db",
-          dm.fullIcn(),
+          "43000199",
           "1011537977V693883");
-      payload = payload.replace(dm.fullIcn(), "1011537977V693883");
+      payload = payload.replace("43000199", "1011537977V693883");
     }
 
     PatientEntity patEntity =
