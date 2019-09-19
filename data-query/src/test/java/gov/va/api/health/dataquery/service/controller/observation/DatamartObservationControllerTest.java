@@ -109,7 +109,7 @@ public class DatamartObservationControllerTest {
   public void read() {
     IdentityService ids = mock(IdentityService.class);
     ObservationController controller =
-        new ObservationController(
+        ObservationController.hack(
             true,
             null,
             null,
@@ -127,7 +127,7 @@ public class DatamartObservationControllerTest {
   public void readRaw() {
     IdentityService ids = mock(IdentityService.class);
     ObservationController controller =
-        new ObservationController(
+        ObservationController.hack(
             false,
             null,
             null,
@@ -144,7 +144,7 @@ public class DatamartObservationControllerTest {
   public void readRaw_unknown() {
     IdentityService ids = mock(IdentityService.class);
     ObservationController controller =
-        new ObservationController(
+        ObservationController.hack(
             false,
             null,
             null,
@@ -161,7 +161,7 @@ public class DatamartObservationControllerTest {
   public void read_unknown() {
     IdentityService ids = mock(IdentityService.class);
     ObservationController controller =
-        new ObservationController(
+        ObservationController.hack(
             true,
             null,
             null,
@@ -178,7 +178,7 @@ public class DatamartObservationControllerTest {
   public void searchById() {
     IdentityService ids = mock(IdentityService.class);
     ObservationController controller =
-        new ObservationController(
+        ObservationController.hack(
             false,
             null,
             null,
@@ -205,7 +205,7 @@ public class DatamartObservationControllerTest {
   public void searchById_unknown() {
     IdentityService ids = mock(IdentityService.class);
     ObservationController controller =
-        new ObservationController(
+        ObservationController.hack(
             false,
             null,
             null,
@@ -222,7 +222,7 @@ public class DatamartObservationControllerTest {
   public void searchByIdentifier() {
     IdentityService ids = mock(IdentityService.class);
     ObservationController controller =
-        new ObservationController(
+        ObservationController.hack(
             false,
             null,
             null,
@@ -251,7 +251,7 @@ public class DatamartObservationControllerTest {
   public void searchByIdentifier_unknown() {
     IdentityService ids = mock(IdentityService.class);
     ObservationController controller =
-        new ObservationController(
+        ObservationController.hack(
             false,
             null,
             null,
@@ -268,7 +268,7 @@ public class DatamartObservationControllerTest {
   public void searchByPatient() {
     IdentityService ids = mock(IdentityService.class);
     ObservationController controller =
-        new ObservationController(
+        ObservationController.hack(
             true,
             null,
             null,
@@ -292,7 +292,7 @@ public class DatamartObservationControllerTest {
   public void searchByPatientAndCategory() {
     IdentityService ids = mock(IdentityService.class);
     ObservationController controller =
-        new ObservationController(
+        ObservationController.hack(
             true,
             null,
             null,
@@ -379,7 +379,7 @@ public class DatamartObservationControllerTest {
   public void searchByPatientAndCode() {
     IdentityService ids = mock(IdentityService.class);
     ObservationController controller =
-        new ObservationController(
+        ObservationController.hack(
             true,
             null,
             null,

@@ -45,7 +45,7 @@ public class ObservationControllerTest {
   @Before
   public void _init() {
     MockitoAnnotations.initMocks(this);
-    controller = new ObservationController(false, tx, client, bundler, null, null);
+    controller = ObservationController.hack(false, tx, client, bundler, null, null);
   }
 
   private void assertSearch(Supplier<Bundle> invocation, MultiValueMap<String, String> params) {

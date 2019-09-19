@@ -8,6 +8,8 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import com.google.common.base.Splitter;
 import gov.va.api.health.argonaut.api.resources.Observation;
+import gov.va.api.health.argonaut.api.resources.Observation.Bundle;
+import gov.va.api.health.argonaut.api.resources.Observation.Entry;
 import gov.va.api.health.dataquery.service.controller.Bundler;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.DateTimeParameter;
@@ -18,8 +20,14 @@ import gov.va.api.health.dataquery.service.controller.Validator;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
 import gov.va.api.health.dataquery.service.mranderson.client.Query;
+import gov.va.api.health.dstu2.api.bundle.AbstractBundle;
+import gov.va.api.health.dstu2.api.bundle.AbstractEntry;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
+import gov.va.api.health.dstu2.api.resources.Resource;
 import gov.va.dvp.cdw.xsd.model.CdwObservation104Root;
+import java.time.Instant;
+import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -29,6 +37,8 @@ import java.util.stream.Stream;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
+import lombok.Builder;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -58,6 +68,7 @@ import org.springframework.web.bind.annotation.RestController;
   value = {"Observation", "/api/Observation"},
   produces = {"application/json", "application/json+fhir", "application/fhir+json"}
 )
+@Slf4j
 public class ObservationController {
   private final Datamart datamart = new Datamart();
 
@@ -80,13 +91,55 @@ public class ObservationController {
       @Autowired MrAndersonClient mrAndersonClient,
       @Autowired Bundler bundler,
       @Autowired ObservationRepository repository,
-      @Autowired WitnessProtection witnessProtection) {
+      @Autowired WitnessProtection witnessProtection,
+      @Value("${observation.suppress.days:0}") int suppressDays /* HACK */) {
     this.defaultToDatamart = defaultToDatamart;
     this.transformer = transformer;
     this.mrAndersonClient = mrAndersonClient;
-    this.bundler = bundler;
+    /*
+     * OBSERVATION SUPPRESSION HACK: SEE SUPPRESSOR BELOW. Change the assignment to just use the
+     * given bundler and remove the suppressDays parameter above.
+     */
+    this.bundler =
+        (suppressDays <= 0)
+            ? bundler
+            : Suppressor.builder().days(suppressDays).realBundler(bundler).build(); /* HACK */
     this.repository = repository;
     this.witnessProtection = witnessProtection;
+  }
+
+  /**
+   * OBSERVATION SUPPRESSION HACK: DELETE ME. SEE SUPPRESSOR BELOW. When you delete me, you'll need
+   * to change the tests back to using constructors.
+   */
+  public static ObservationController hack(
+      boolean defaultToDatamart,
+      Transformer transformer,
+      MrAndersonClient mrAndersonClient,
+      Bundler bundler,
+      ObservationRepository repository,
+      WitnessProtection witnessProtection) {
+    return new ObservationController(
+        defaultToDatamart,
+        transformer,
+        mrAndersonClient,
+        bundler,
+        repository,
+        witnessProtection,
+        0);
+  }
+
+  /**
+   * OBSERVATION SUPPRESSION HACK: DELETE ME
+   *
+   * <p>Yikes! This is meant to be a quick hack meant to have minimal impact to the code for a
+   * temporary feature. If the bundler is a Suppressor, then we _might_ suppress it.
+   */
+  private Observation maybeSuppress(Observation observation) {
+    if (bundler instanceof Suppressor) {
+      return ((Suppressor) bundler).suppress(observation);
+    }
+    return observation;
   }
 
   private Observation.Bundle mrAndersonBundle(
@@ -125,13 +178,17 @@ public class ObservationController {
   public Observation read(
       @RequestHeader(value = "Datamart", defaultValue = "") String datamartHeader,
       @PathVariable("publicId") String publicId) {
+    Observation observation;
     if (datamart.isDatamartRequest(datamartHeader)) {
-      return datamart.read(publicId);
+      observation = datamart.read(publicId);
+    } else {
+      observation =
+          transformer.apply(
+              firstPayloadItem(
+                  hasPayload(mrAndersonSearch(Parameters.forIdentity(publicId)).getObservations())
+                      .getObservation()));
     }
-    return transformer.apply(
-        firstPayloadItem(
-            hasPayload(mrAndersonSearch(Parameters.forIdentity(publicId)).getObservations())
-                .getObservation()));
+    return maybeSuppress(observation);
   }
 
   /** Return the raw Datamart document for the given identifier. */
@@ -246,6 +303,87 @@ public class ObservationController {
 
   public interface Transformer
       extends Function<CdwObservation104Root.CdwObservations.CdwObservation, Observation> {}
+
+  /**
+   * OBSERVATION SUPPRESSION HACK: DELETE ME. SEE SUPPRESSOR BELOW. This glorious hack is a quick
+   * fix to emulate the Datamart ETL behavior that suppresses Observation records that are less than
+   * 3 days old to prevent a user from finding out bad news on their phone before a doctor can talk
+   * with them.
+   *
+   * <p>The intention here is to delete this class and related grossness once the ETL machine is
+   * complete.
+   *
+   * <p>See HACK else where in this file.
+   */
+  private static class Suppressor extends Bundler {
+
+    private Bundler realBundler;
+    private int days = 3;
+
+    @Builder
+    public Suppressor(Bundler realBundler, int days) {
+      super(null);
+      this.realBundler = realBundler;
+      this.days = days;
+      log.warn(
+          "OBSERVATION SUPPRESS HACK ENABLED. SUPPRESSING RECORDS LESS THAN {} DAYS OLD", days);
+    }
+
+    @Override
+    public <X, T extends Resource, E extends AbstractEntry<T>, B extends AbstractBundle<E>>
+        B bundle(BundleContext<X, T, E, B> context) {
+      /*
+       * BARF!, we have to do some real ugly cast hackery to get the compiler to accept this. The
+       * Bundler was never meant to be extended, so we are well on our way to Hackinsack NJ.
+       *
+       * We're modifying the bundle in line, so we'll have two flavors: B and what it really
+       * is.
+       */
+      B untypedBundle = realBundler.bundle(context);
+      Observation.Bundle bundle = (Bundle) untypedBundle;
+      List<Entry> allowed =
+          bundle
+              .entry()
+              .stream()
+              .filter(e -> !isSuppressed(e.resource()))
+              .collect(Collectors.toList());
+      log.info("Suppressing {} entries from bundle", bundle.entry().size() - allowed.size());
+      bundle.entry(allowed);
+      return untypedBundle;
+    }
+
+    private boolean isSuppressed(Observation observation) {
+      try {
+        Instant observationTime = Instant.parse(observation.effectiveDateTime());
+        return observationTime.isAfter(threshold());
+      } catch (DateTimeParseException e) {
+        log.warn("Cannot determine effective date time of Observation: {}", observation.id());
+        return true;
+      }
+    }
+
+    private <B, H extends B> B lameCast(H b) {
+      return (B) b;
+    }
+
+    Observation suppress(Observation observation) {
+      if (isSuppressed(observation)) {
+        log.info(
+            "Suppressing {} {} is after {} ({} days)",
+            observation.id(),
+            observation.effectiveDateTime(),
+            threshold(),
+            days);
+        throw new ResourceExceptions.NotFound(
+            "This record is temporarily unavailable: " + observation.id());
+      }
+      return observation;
+    }
+
+    private Instant threshold() {
+      return Instant.now().truncatedTo(ChronoUnit.DAYS).minus(days, ChronoUnit.DAYS);
+    }
+  }
 
   /**
    * This class is being used to help organize the code such that all the datamart logic is
