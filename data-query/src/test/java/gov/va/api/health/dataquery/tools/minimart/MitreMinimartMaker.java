@@ -271,6 +271,7 @@ public class MitreMinimartMaker {
   @SneakyThrows
   private void insertByPatient(File file) {
     DatamartPatient dm = JacksonConfig.createMapper().readValue(file, DatamartPatient.class);
+
     PatientSearchEntity patientSearchEntity =
         PatientSearchEntity.builder()
             .icn(dm.fullIcn())
@@ -281,11 +282,22 @@ public class MitreMinimartMaker {
             .gender(dm.gender())
             .build();
     save(patientSearchEntity);
+
+    String payload = fileToString(file);
+
+    if (dm.fullIcn().equals("43000199")) {
+      log.info(
+          "Swapping out cdwId {} with publicId {} before pushing to db",
+          dm.fullIcn(),
+          "1011537977V693883");
+      payload = payload.replace(dm.fullIcn(), "1011537977V693883");
+    }
+
     PatientEntity patEntity =
         PatientEntity.builder()
             .icn(dm.fullIcn())
             .search(patientSearchEntity)
-            .payload(fileToString(file))
+            .payload(payload)
             .build();
     save(patEntity);
   }
