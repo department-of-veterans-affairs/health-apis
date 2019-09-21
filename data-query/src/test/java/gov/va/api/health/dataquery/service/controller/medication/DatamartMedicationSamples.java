@@ -93,7 +93,7 @@ public class DatamartMedicationSamples {
           .coding(
               List.of(
                   Coding.builder()
-                      .system("https://www.nlm.nih.gov/research/umls/rxnorm/")
+                      .system("https://www.nlm.nih.gov/research/umls/rxnorm")
                       .code("284205")
                       .display("ALMOTRIPTAN MALATE 12.5MG TAB,UD")
                       .build()))

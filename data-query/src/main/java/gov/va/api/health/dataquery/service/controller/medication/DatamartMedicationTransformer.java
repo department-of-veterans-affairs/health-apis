@@ -22,7 +22,7 @@ public class DatamartMedicationTransformer {
                   Coding.builder()
                       .code(datamart.rxnorm().get().code())
                       .display(datamart.rxnorm().get().text())
-                      .system("https://www.nlm.nih.gov/research/umls/rxnorm/")
+                      .system("https://www.nlm.nih.gov/research/umls/rxnorm")
                       .build()))
           .text(datamart.rxnorm().get().text())
           .build();
