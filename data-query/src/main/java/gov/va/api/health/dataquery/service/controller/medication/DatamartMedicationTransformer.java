@@ -27,7 +27,16 @@ public class DatamartMedicationTransformer {
           .text(datamart.rxnorm().get().text())
           .build();
     }
-    return CodeableConcept.builder().text(datamart.localDrugName()).build();
+    return CodeableConcept.builder()
+        .text(datamart.localDrugName())
+        .coding(
+            List.of(
+                Coding.builder()
+                    .display(datamart.localDrugName())
+                    .code(datamart.cdwId())
+                    .system("urn:oid:2.16.840.1.113883.6.233")
+                    .build()))
+        .build();
   }
 
   Narrative bestText() {

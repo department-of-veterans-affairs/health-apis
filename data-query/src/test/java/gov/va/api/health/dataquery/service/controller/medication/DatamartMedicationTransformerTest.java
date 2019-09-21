@@ -33,7 +33,7 @@ public class DatamartMedicationTransformerTest {
     dm.rxnorm(null);
     dm.localDrugName(null);
     assertThat(tx(dm).bestCode())
-        .isEqualTo(DatamartMedicationSamples.Fhir.create().codeLocalDrugName().text("Unknown"));
+        .isEqualTo(DatamartMedicationSamples.Fhir.create().codeLocalDrugName("Unknown"));
   }
 
   @Test
@@ -82,6 +82,7 @@ public class DatamartMedicationTransformerTest {
   @Test
   public void product() {
     DatamartMedicationTransformer tx = tx(DatamartMedicationSamples.Datamart.create().medication());
+    assertThat(tx.product(Optional.empty())).isNull();
     assertThat(tx.product(Datamart.create().medication().product()))
         .isEqualTo(Fhir.create().product());
   }
