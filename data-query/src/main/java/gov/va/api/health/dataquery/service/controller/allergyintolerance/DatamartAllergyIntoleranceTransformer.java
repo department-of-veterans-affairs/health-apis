@@ -10,6 +10,7 @@ import static org.springframework.util.CollectionUtils.isEmpty;
 
 import gov.va.api.health.argonaut.api.resources.AllergyIntolerance;
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
+import gov.va.api.health.dataquery.service.controller.allergyintolerance.DatamartAllergyIntolerance.Status;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
 import gov.va.api.health.dstu2.api.datatypes.Annotation;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
@@ -26,21 +27,21 @@ import lombok.NonNull;
 public final class DatamartAllergyIntoleranceTransformer {
   @NonNull final DatamartAllergyIntolerance datamart;
 
-  private AllergyIntolerance.Category category(DatamartAllergyIntolerance.Category category) {
+  AllergyIntolerance.Category category(DatamartAllergyIntolerance.Category category) {
     if (category == null) {
       return null;
     }
     return EnumSearcher.of(AllergyIntolerance.Category.class).find(category.toString());
   }
 
-  private AllergyIntolerance.Certainty certainty(DatamartAllergyIntolerance.Certainty certainty) {
+  AllergyIntolerance.Certainty certainty(DatamartAllergyIntolerance.Certainty certainty) {
     if (certainty == null) {
       return null;
     }
     return EnumSearcher.of(AllergyIntolerance.Certainty.class).find(certainty.toString());
   }
 
-  private List<CodeableConcept> manifestations(List<DatamartCoding> manifestations) {
+  List<CodeableConcept> manifestations(List<DatamartCoding> manifestations) {
     if (isEmpty(manifestations)) {
       return null;
     }
@@ -57,7 +58,7 @@ public final class DatamartAllergyIntoleranceTransformer {
             .collect(Collectors.toList()));
   }
 
-  private Annotation notes(List<DatamartAllergyIntolerance.Note> notes) {
+  Annotation notes(List<DatamartAllergyIntolerance.Note> notes) {
     if (isEmpty(notes)) {
       return null;
     }
@@ -74,7 +75,7 @@ public final class DatamartAllergyIntoleranceTransformer {
         .build();
   }
 
-  private List<AllergyIntolerance.Reaction> reactions(
+  List<AllergyIntolerance.Reaction> reactions(
       Optional<DatamartAllergyIntolerance.Reaction> maybeReaction) {
     if (maybeReaction == null || !maybeReaction.isPresent()) {
       return null;
@@ -92,14 +93,24 @@ public final class DatamartAllergyIntoleranceTransformer {
             .build());
   }
 
-  private AllergyIntolerance.Status status(DatamartAllergyIntolerance.Status status) {
+  AllergyIntolerance.Status status(DatamartAllergyIntolerance.Status status) {
     if (status == null) {
       return null;
+    }
+    /*
+     * To correct a KBS compliance issue with Datamart data, we will report all 'confirmed' status
+     * values as `active`. From KBS ... "All allergy records should be marked active, excepting
+     * those with entered-in-error-flag set to True, which should be marked entered-in-error."
+     *
+     * Our analysis of the ETL process indicates 'confirmed' values may be returned.
+     */
+    if (status == Status.confirmed) {
+      return AllergyIntolerance.Status.active;
     }
     return EnumSearcher.of(AllergyIntolerance.Status.class).find(status.toString());
   }
 
-  private CodeableConcept substance(Optional<DatamartAllergyIntolerance.Substance> maybeSubstance) {
+  CodeableConcept substance(Optional<DatamartAllergyIntolerance.Substance> maybeSubstance) {
     if (!maybeSubstance.isPresent()) {
       return null;
     }
@@ -130,7 +141,7 @@ public final class DatamartAllergyIntoleranceTransformer {
         .build();
   }
 
-  private AllergyIntolerance.Type type(DatamartAllergyIntolerance.Type type) {
+  AllergyIntolerance.Type type(DatamartAllergyIntolerance.Type type) {
     if (type == null) {
       return null;
     }
