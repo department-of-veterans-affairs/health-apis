@@ -24,16 +24,23 @@ public class DatamartMedicationTransformerTest {
     dm.rxnorm(rxnorm);
     dm.localDrugName(null);
     assertThat(tx(dm).bestCode()).isEqualTo(DatamartMedicationSamples.Fhir.create().codeRxNorm());
-    // rxnorm: no, localDrugName: yes
+    // rxnorm: no, localDrugName: yes, product: yes
     dm.rxnorm(null);
     dm.localDrugName(localDrugName);
     assertThat(tx(dm).bestCode())
-        .isEqualTo(DatamartMedicationSamples.Fhir.create().codeLocalDrugName());
+        .isEqualTo(
+            DatamartMedicationSamples.Fhir.create().codeLocalDrugNameWithProduct(localDrugName));
+    // rxnorm: no, localDrugName: yes, product: no
+    dm.rxnorm(null);
+    dm.product(Optional.empty());
+    dm.localDrugName(localDrugName);
+    assertThat(tx(dm).bestCode())
+        .isEqualTo(DatamartMedicationSamples.Fhir.create().codeLocalDrugNameOnly(localDrugName));
     // rxnorm: no, localDrugName: no
     dm.rxnorm(null);
     dm.localDrugName(null);
     assertThat(tx(dm).bestCode())
-        .isEqualTo(DatamartMedicationSamples.Fhir.create().codeLocalDrugName("Unknown"));
+        .isEqualTo(DatamartMedicationSamples.Fhir.create().codeLocalDrugNameOnly("Unknown"));
   }
 
   @Test

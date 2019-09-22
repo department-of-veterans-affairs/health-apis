@@ -84,17 +84,17 @@ public class DatamartMedicationSamples {
           .build();
     }
 
-    CodeableConcept codeLocalDrugName() {
-      return codeLocalDrugName("Axert");
+    CodeableConcept codeLocalDrugNameOnly(String localDrugName) {
+      return CodeableConcept.builder().text(localDrugName).build();
     }
 
-    CodeableConcept codeLocalDrugName(String localDrugName) {
+    CodeableConcept codeLocalDrugNameWithProduct(String localDrugName) {
       return CodeableConcept.builder()
           .text(localDrugName)
           .coding(
               List.of(
                   Coding.builder()
-                      .code("1000")
+                      .code("4015523") // product.id
                       .display(localDrugName)
                       .system("urn:oid:2.16.840.1.113883.6.233")
                       .build()))

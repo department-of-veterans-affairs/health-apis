@@ -14,6 +14,19 @@ public class DatamartMedicationTransformer {
 
   private final DatamartMedication datamart;
 
+  /**
+   * Per KBS guidelines we want to return the following for code.
+   *
+   * <p>1. If rxnorm information is available, return it as the code.
+   *
+   * <p>2. If rxnorm is not available, but product is, then this is a "local" drug. We will use the
+   * local drug name as the text and the code.coding.display value. The product.id is the VA
+   * specific "VUID" medication ID. We want to use this value as the code.coding.code along with the
+   * VA specific system.
+   *
+   * <p>3. If neither rxnorm or product is available, we'll create a code with no coding, using just
+   * the local drug name as text.
+   */
   CodeableConcept bestCode() {
     if (datamart.rxnorm().isPresent()) {
       return CodeableConcept.builder()
@@ -27,16 +40,19 @@ public class DatamartMedicationTransformer {
           .text(datamart.rxnorm().get().text())
           .build();
     }
-    return CodeableConcept.builder()
-        .text(datamart.localDrugName())
-        .coding(
-            List.of(
-                Coding.builder()
-                    .display(datamart.localDrugName())
-                    .code(datamart.cdwId())
-                    .system("urn:oid:2.16.840.1.113883.6.233")
-                    .build()))
-        .build();
+    if (datamart.product().isPresent()) {
+      return CodeableConcept.builder()
+          .text(datamart.localDrugName())
+          .coding(
+              List.of(
+                  Coding.builder()
+                      .display(datamart.localDrugName())
+                      .code(datamart.product().get().id())
+                      .system("urn:oid:2.16.840.1.113883.6.233")
+                      .build()))
+          .build();
+    }
+    return CodeableConcept.builder().text(datamart.localDrugName()).build();
   }
 
   Narrative bestText() {
