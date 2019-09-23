@@ -1,6 +1,5 @@
 package gov.va.api.health.dataquery.service.controller.medicationorder;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dataquery.service.controller.datamart.HasReplaceableId;
 import java.time.Instant;
@@ -29,7 +28,7 @@ public class DatamartMedicationOrder implements HasReplaceableId {
 
   private Instant dateWritten;
 
-  private Status status;
+  private String status;
 
   private Optional<Instant> dateEnded;
 
@@ -70,15 +69,61 @@ public class DatamartMedicationOrder implements HasReplaceableId {
     /* no op */
   }
 
-  public enum Status {
-    completed,
-    stopped,
-    @JsonProperty(value = "on-hold")
-    on_hold,
-    active,
-    draft,
-    @JsonProperty(value = "entered-in-error")
-    entered_in_error
+  @Data
+  @Builder
+  @AllArgsConstructor(access = AccessLevel.PRIVATE)
+  @NoArgsConstructor(access = AccessLevel.PRIVATE)
+  public static final class DispenseRequest {
+
+    private Optional<Integer> numberOfRepeatsAllowed;
+
+    private Optional<Double> quantity;
+
+    private Optional<String> unit;
+
+    private Optional<Integer> expectedSupplyDuration;
+
+    private Optional<String> supplyDurationUnits;
+
+    /** Lazy initialization with empty. */
+    public Optional<Integer> expectedSupplyDuration() {
+      if (expectedSupplyDuration == null) {
+        return Optional.empty();
+      }
+      return expectedSupplyDuration;
+    }
+
+    /** Lazy initialization with empty. */
+    public Optional<Integer> numberOfRepeatsAllowed() {
+      if (numberOfRepeatsAllowed == null) {
+        return Optional.empty();
+      }
+      return numberOfRepeatsAllowed;
+    }
+
+    /** Lazy initialization with empty. */
+    public Optional<Double> quantity() {
+      if (quantity == null) {
+        return Optional.empty();
+      }
+      return quantity;
+    }
+
+    /** Lazy initialization with empty. */
+    public Optional<String> supplyDurationUnits() {
+      if (supplyDurationUnits == null) {
+        return Optional.empty();
+      }
+      return supplyDurationUnits;
+    }
+
+    /** Lazy initialization with empty. */
+    public Optional<String> unit() {
+      if (unit == null) {
+        return Optional.empty();
+      }
+      return unit;
+    }
   }
 
   @Data
@@ -147,63 +192,6 @@ public class DatamartMedicationOrder implements HasReplaceableId {
         return Optional.empty();
       }
       return timingText;
-    }
-  }
-
-  @Data
-  @Builder
-  @AllArgsConstructor(access = AccessLevel.PRIVATE)
-  @NoArgsConstructor(access = AccessLevel.PRIVATE)
-  public static final class DispenseRequest {
-
-    private Optional<Integer> numberOfRepeatsAllowed;
-
-    private Optional<Double> quantity;
-
-    private Optional<String> unit;
-
-    private Optional<Integer> expectedSupplyDuration;
-
-    private Optional<String> supplyDurationUnits;
-
-    /** Lazy initialization with empty. */
-    public Optional<Integer> expectedSupplyDuration() {
-      if (expectedSupplyDuration == null) {
-        return Optional.empty();
-      }
-      return expectedSupplyDuration;
-    }
-
-    /** Lazy initialization with empty. */
-    public Optional<Integer> numberOfRepeatsAllowed() {
-      if (numberOfRepeatsAllowed == null) {
-        return Optional.empty();
-      }
-      return numberOfRepeatsAllowed;
-    }
-
-    /** Lazy initialization with empty. */
-    public Optional<Double> quantity() {
-      if (quantity == null) {
-        return Optional.empty();
-      }
-      return quantity;
-    }
-
-    /** Lazy initialization with empty. */
-    public Optional<String> supplyDurationUnits() {
-      if (supplyDurationUnits == null) {
-        return Optional.empty();
-      }
-      return supplyDurationUnits;
-    }
-
-    /** Lazy initialization with empty. */
-    public Optional<String> unit() {
-      if (unit == null) {
-        return Optional.empty();
-      }
-      return unit;
     }
   }
 }

@@ -12,11 +12,12 @@ import org.junit.Test;
 
 public class DatamartMedicationOrderTest {
 
-  public void assertReadable(String json) throws java.io.IOException {
+  public void assertReadable(String json, DatamartMedicationOrder expected)
+      throws java.io.IOException {
     DatamartMedicationOrder dm =
         createMapper()
             .readValue(getClass().getResourceAsStream(json), DatamartMedicationOrder.class);
-    assertThat(dm).isEqualTo(sample());
+    assertThat(dm).isEqualTo(expected);
   }
 
   public DatamartMedicationOrder sample() {
@@ -29,7 +30,7 @@ public class DatamartMedicationOrderTest {
                 .display("VETERAN,FARM ACY")
                 .build())
         .dateWritten(Instant.parse("2016-11-17T18:02:04Z"))
-        .status(DatamartMedicationOrder.Status.stopped)
+        .status("DISCONTINUED")
         .dateEnded(Optional.of(Instant.parse("2017-02-15T05:00:00Z")))
         .prescriber(
             DatamartReference.of()
@@ -82,12 +83,12 @@ public class DatamartMedicationOrderTest {
   @Test
   @SneakyThrows
   public void unmarshalSample() {
-    assertReadable("datamart-medication-order.json");
+    assertReadable("datamart-medication-order.json", sample());
   }
 
   @Test
   @SneakyThrows
   public void unmarshalSampleV0() {
-    assertReadable("datamart-medication-order-v0.json");
+    assertReadable("datamart-medication-order-v0.json", sample().status("stopped"));
   }
 }

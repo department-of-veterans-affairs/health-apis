@@ -1,12 +1,10 @@
 package gov.va.api.health.dataquery.tools.minimart.transformers;
 
 import gov.va.api.health.argonaut.api.resources.MedicationOrder;
-import gov.va.api.health.dataquery.service.controller.EnumSearcher;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dataquery.service.controller.medicationorder.DatamartMedicationOrder;
 import gov.va.api.health.dataquery.service.controller.medicationorder.DatamartMedicationOrder.DispenseRequest;
 import gov.va.api.health.dataquery.service.controller.medicationorder.DatamartMedicationOrder.DosageInstruction;
-import gov.va.api.health.dataquery.service.controller.medicationorder.DatamartMedicationOrder.Status;
 import gov.va.api.health.dataquery.tools.minimart.FhirToDatamartUtils;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Duration;
@@ -169,11 +167,11 @@ public class F2DMedicationOrderTransformer {
     return route.text();
   }
 
-  private Status status(MedicationOrder.Status status) {
+  private String status(MedicationOrder.Status status) {
     if (status == null) {
       return null;
     }
-    return EnumSearcher.of(DatamartMedicationOrder.Status.class).find(status.toString());
+    return status.toString();
   }
 
   private String timingText(Timing timing) {

@@ -3,6 +3,7 @@ package gov.va.api.health.dataquery.service.controller.medicationorder;
 import static java.util.Arrays.asList;
 
 import gov.va.api.health.argonaut.api.resources.MedicationOrder;
+import gov.va.api.health.argonaut.api.resources.MedicationOrder.Status;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dstu2.api.bundle.AbstractBundle;
 import gov.va.api.health.dstu2.api.bundle.AbstractEntry;
@@ -76,7 +77,7 @@ public class DatamartMedicationOrderSamples {
                   .display("VETERAN,FARM ACY")
                   .build())
           .dateWritten(Instant.parse("2016-11-17T18:02:04Z"))
-          .status(DatamartMedicationOrder.Status.stopped)
+          .status("DISCONTINUED")
           .dateEnded(Optional.of(Instant.parse("2017-02-15T05:00:00Z")))
           .prescriber(
               DatamartReference.of()
@@ -178,7 +179,7 @@ public class DatamartMedicationOrderSamples {
           .patient(
               Reference.builder().reference("Patient/" + icn).display("VETERAN,FARM ACY").build())
           .dateWritten("2016-11-17T18:02:04Z")
-          .status(MedicationOrder.Status.stopped)
+          .status(Status.completed)
           .dateEnded("2017-02-15T05:00:00Z")
           .prescriber(
               Reference.builder()
