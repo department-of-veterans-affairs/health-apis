@@ -68,6 +68,7 @@ public class F2DPatientTransformer {
         .phone(phone(contact.telecom()))
         .name(contactName(contact.name()))
         .type(type(contact.relationship()))
+        .relationship(type(contact.relationship()))
         .build();
   }
 
