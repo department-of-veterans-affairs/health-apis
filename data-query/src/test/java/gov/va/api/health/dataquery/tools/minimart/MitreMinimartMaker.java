@@ -151,10 +151,7 @@ public class MitreMinimartMaker {
       save(
           DiagnosticReportsEntity.builder()
               .icn(dm.fullIcn())
-              .payload(
-                  JacksonConfig.createMapper()
-                      .writerWithDefaultPrettyPrinter()
-                      .writeValueAsString(dm))
+              .payload(JacksonConfig.createMapper().writeValueAsString(dm))
               .build());
     } else {
       // Patient Icn is the primary key, so there should only ever be one.
@@ -193,10 +190,7 @@ public class MitreMinimartMaker {
                   }
                 }
                 try {
-                  entity.payload(
-                      JacksonConfig.createMapper()
-                          .writerWithDefaultPrettyPrinter()
-                          .writeValueAsString(payload));
+                  entity.payload(JacksonConfig.createMapper().writeValueAsString(payload));
                   save(entity);
                 } catch (JsonProcessingException e) {
                   log.error("Couldnt process to json: {}", payload);
