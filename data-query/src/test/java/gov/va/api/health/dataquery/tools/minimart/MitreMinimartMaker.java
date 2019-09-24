@@ -152,11 +152,9 @@ public class MitreMinimartMaker {
           DiagnosticReportsEntity.builder()
               .icn(dm.fullIcn())
               .payload(
-                  magicPatientIdSwap(
-                      dm.fullIcn(),
-                      JacksonConfig.createMapper()
-                          .writerWithDefaultPrettyPrinter()
-                          .writeValueAsString(dm)))
+                  JacksonConfig.createMapper()
+                      .writerWithDefaultPrettyPrinter()
+                      .writeValueAsString(dm))
               .build());
     } else {
       // Patient Icn is the primary key, so there should only ever be one.
@@ -196,11 +194,9 @@ public class MitreMinimartMaker {
                 }
                 try {
                   entity.payload(
-                      magicPatientIdSwap(
-                          dm.fullIcn(),
-                          JacksonConfig.createMapper()
-                              .writerWithDefaultPrettyPrinter()
-                              .writeValueAsString(payload)));
+                      JacksonConfig.createMapper()
+                          .writerWithDefaultPrettyPrinter()
+                          .writeValueAsString(payload));
                   save(entity);
                 } catch (JsonProcessingException e) {
                   log.error("Couldnt process to json: {}", payload);
@@ -287,7 +283,7 @@ public class MitreMinimartMaker {
         PatientEntity.builder()
             .icn(dm.fullIcn())
             .search(patientSearchEntity)
-            .payload(magicPatientIdSwap(dm.fullIcn(), fileToString(file)))
+            .payload(fileToString(file))
             .build();
     save(patEntity);
   }
@@ -312,17 +308,6 @@ public class MitreMinimartMaker {
         .filter(File::isFile)
         .filter(f -> f.getName().matches(filePattern))
         .collect(Collectors.toList());
-  }
-
-  private String magicPatientIdSwap(String icn, String payload) {
-    if (icn.equals("43000199")) {
-      log.info(
-          "Swapping out cdwId {} with publicId {} before pushing to db",
-          "43000199",
-          "1011537977V693883");
-      return payload.replace("43000199", "1011537977V693883");
-    }
-    return payload;
   }
 
   private String patientIcn(DatamartReference dm) {
