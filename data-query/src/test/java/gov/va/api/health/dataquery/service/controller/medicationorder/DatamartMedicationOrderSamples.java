@@ -179,7 +179,7 @@ public class DatamartMedicationOrderSamples {
           .patient(
               Reference.builder().reference("Patient/" + icn).display("VETERAN,FARM ACY").build())
           .dateWritten("2016-11-17T18:02:04Z")
-          .status(Status.completed)
+          .status(Status.stopped)
           .dateEnded("2017-02-15T05:00:00Z")
           .prescriber(
               Reference.builder()

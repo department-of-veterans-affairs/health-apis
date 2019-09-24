@@ -28,33 +28,54 @@ public class DatamartMedicationOrderTransformer {
 
   private static Map<String, Status> STATUS_VALUES =
       ImmutableMap.<String, Status>builder()
-          /* FHIR Values */
-          .put("active", Status.active)
-          .put("on-hold", Status.on_hold)
-          .put("completed", Status.completed)
-          .put("entered-in-error", Status.entered_in_error)
-          .put("stopped", Status.stopped)
-          .put("draft", Status.draft)
-          /* VistA Values */
-          .put("ACTIVE", Status.active)
-          .put("CANCELLED", Status.stopped)
-          .put("COMPLETE", Status.completed)
-          .put("DELAYED", Status.on_hold)
-          .put("DELETED", Status.entered_in_error)
-          .put("DISCONTINUED (EDIT)", Status.stopped)
-          .put("DISCONTINUED BY PROVIDER", Status.stopped)
-          .put("DISCONTINUED", Status.completed)
-          .put("DISCONTINUED/EDIT", Status.stopped)
-          .put("DRUG INTERACTIONS", Status.stopped)
-          .put("EXPIRED", Status.completed)
-          .put("HOLD", Status.on_hold)
-          .put("LAPSED", Status.on_hold)
-          .put("NON-VERIFIED", Status.draft)
-          .put("PENDING", Status.draft)
-          .put("PROVIDER HOLD", Status.on_hold)
-          .put("RENEWED", Status.active)
-          .put("SUSPENDED", Status.on_hold)
-          .put("UNRELEASED", Status.draft)
+          /*
+           * Values per KBS document VADP_Aggregate_190924.xls (2019 Sept 24)
+           */
+          // .put("DISCONTINUED (RENEWAL)",null) // Explicitly marked as <not-used> by KBS
+          // .put("DONE",null) // Explicitly marked as <not-used> by KBS
+          // .put("REFILL",null) // Explicitly marked as <not-used> by KBS
+          // .put("REINSTATED",null) // Explicitly marked as <not-used> by KBS
+          // .put("purge",null) // Explicitly marked as <not-used> by KBS
+          .put("ACTIVE", MedicationOrder.Status.active)
+          .put("DELETED", MedicationOrder.Status.entered_in_error)
+          .put("DISCONTINUED (EDIT)", MedicationOrder.Status.stopped)
+          .put("DISCONTINUED BY PROVIDER", MedicationOrder.Status.stopped)
+          .put("DISCONTINUED", MedicationOrder.Status.stopped)
+          .put("DRUG INTERACTIONS", MedicationOrder.Status.draft)
+          .put("EXPIRED", MedicationOrder.Status.completed)
+          .put("HOLD", MedicationOrder.Status.on_hold)
+          .put("INCOMPLETE", MedicationOrder.Status.draft)
+          .put("NEW ORDER", MedicationOrder.Status.draft)
+          .put("NON-VERIFIED", MedicationOrder.Status.draft)
+          .put("PENDING", MedicationOrder.Status.draft)
+          .put("PROVIDER HOLD", MedicationOrder.Status.on_hold)
+          .put("REFILL REQUEST", MedicationOrder.Status.active)
+          .put("RENEW", MedicationOrder.Status.active)
+          .put("RENEWED", MedicationOrder.Status.active)
+          .put("SUSPENDED", MedicationOrder.Status.on_hold)
+          .put("UNRELEASED", MedicationOrder.Status.draft)
+          .put("active", MedicationOrder.Status.active)
+          .put("discontinued", MedicationOrder.Status.stopped)
+          .put("expired", MedicationOrder.Status.completed)
+          .put("hold", MedicationOrder.Status.on_hold)
+          .put("nonverified", MedicationOrder.Status.draft)
+          .put("on call", MedicationOrder.Status.active)
+          .put("renewed", MedicationOrder.Status.active)
+          /*
+           * Values provided by James Harris based on CDW queries not in the list provided by KBS
+           */
+          .put("CANCELLED", MedicationOrder.Status.stopped)
+          .put("COMPLETE", MedicationOrder.Status.completed)
+          .put("DELAYED", MedicationOrder.Status.on_hold)
+          .put("DISCONTINUED/EDIT", MedicationOrder.Status.stopped)
+          .put("LAPSED", MedicationOrder.Status.on_hold)
+          /* FHIR values */
+          // .put("active", MedicationOrder.Status.active) // Duplicated in KBS
+          .put("completed", MedicationOrder.Status.completed)
+          .put("draft", MedicationOrder.Status.draft)
+          .put("entered-in-error", MedicationOrder.Status.entered_in_error)
+          .put("on-hold", MedicationOrder.Status.on_hold)
+          .put("stopped", MedicationOrder.Status.stopped)
           .build();
 
   @NonNull private final DatamartMedicationOrder datamart;

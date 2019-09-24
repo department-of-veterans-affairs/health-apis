@@ -78,34 +78,60 @@ public class DatamartMedicationOrderTransformerTest {
     assertThat(tx.status("")).isNull();
     /* VistA values */
     assertThat(tx.status("*Unknown at this time*")).isNull();
-    assertThat(tx.status("NULL")).isNull();
     assertThat(tx.status("*Missing*")).isNull();
     assertThat(tx.status("1234")).isNull();
+    assertThat(tx.status("NULL")).isNull();
+
+    /*
+     * Values per KBS document VADP_Aggregate_190924.xls (2019 Sept 24)
+     */
     assertThat(tx.status("ACTIVE")).isEqualTo(MedicationOrder.Status.active);
-    assertThat(tx.status("CANCELLED")).isEqualTo(MedicationOrder.Status.stopped);
-    assertThat(tx.status("COMPLETE")).isEqualTo(MedicationOrder.Status.completed);
-    assertThat(tx.status("DELAYED")).isEqualTo(MedicationOrder.Status.on_hold);
     assertThat(tx.status("DELETED")).isEqualTo(MedicationOrder.Status.entered_in_error);
     assertThat(tx.status("DISCONTINUED (EDIT)")).isEqualTo(MedicationOrder.Status.stopped);
+    assertThat(tx.status("DISCONTINUED (RENEWAL)")).isNull();
     assertThat(tx.status("DISCONTINUED BY PROVIDER")).isEqualTo(MedicationOrder.Status.stopped);
-    assertThat(tx.status("DISCONTINUED")).isEqualTo(MedicationOrder.Status.completed);
-    assertThat(tx.status("DISCONTINUED/EDIT")).isEqualTo(MedicationOrder.Status.stopped);
-    assertThat(tx.status("DRUG INTERACTIONS")).isEqualTo(MedicationOrder.Status.stopped);
+    assertThat(tx.status("DISCONTINUED")).isEqualTo(MedicationOrder.Status.stopped);
+    assertThat(tx.status("DONE")).isNull();
+    assertThat(tx.status("DRUG INTERACTIONS")).isEqualTo(MedicationOrder.Status.draft);
     assertThat(tx.status("EXPIRED")).isEqualTo(MedicationOrder.Status.completed);
     assertThat(tx.status("HOLD")).isEqualTo(MedicationOrder.Status.on_hold);
-    assertThat(tx.status("LAPSED")).isEqualTo(MedicationOrder.Status.on_hold);
+    assertThat(tx.status("INCOMPLETE")).isEqualTo(MedicationOrder.Status.draft);
+    assertThat(tx.status("NEW ORDER")).isEqualTo(MedicationOrder.Status.draft);
     assertThat(tx.status("NON-VERIFIED")).isEqualTo(MedicationOrder.Status.draft);
     assertThat(tx.status("PENDING")).isEqualTo(MedicationOrder.Status.draft);
     assertThat(tx.status("PROVIDER HOLD")).isEqualTo(MedicationOrder.Status.on_hold);
+    assertThat(tx.status("REFILL REQUEST")).isEqualTo(MedicationOrder.Status.active);
+    assertThat(tx.status("REFILL")).isNull();
+    assertThat(tx.status("REINSTATED")).isNull();
+    assertThat(tx.status("RENEW")).isEqualTo(MedicationOrder.Status.active);
     assertThat(tx.status("RENEWED")).isEqualTo(MedicationOrder.Status.active);
     assertThat(tx.status("SUSPENDED")).isEqualTo(MedicationOrder.Status.on_hold);
     assertThat(tx.status("UNRELEASED")).isEqualTo(MedicationOrder.Status.draft);
+    assertThat(tx.status("active")).isEqualTo(MedicationOrder.Status.active);
+    assertThat(tx.status("discontinued")).isEqualTo(MedicationOrder.Status.stopped);
+    assertThat(tx.status("expired")).isEqualTo(MedicationOrder.Status.completed);
+    assertThat(tx.status("hold")).isEqualTo(MedicationOrder.Status.on_hold);
+    assertThat(tx.status("nonverified")).isEqualTo(MedicationOrder.Status.draft);
+    assertThat(tx.status("on call")).isEqualTo(MedicationOrder.Status.active);
+    assertThat(tx.status("purge")).isNull();
+    assertThat(tx.status("renewed")).isEqualTo(MedicationOrder.Status.active);
+    /*
+     * Values provided by James Harris based on CDW queries not in the list provided by KBS
+     */
+    assertThat(tx.status("CANCELLED")).isEqualTo(MedicationOrder.Status.stopped);
+    assertThat(tx.status("COMPLETE")).isEqualTo(MedicationOrder.Status.completed);
+    assertThat(tx.status("DELAYED")).isEqualTo(MedicationOrder.Status.on_hold);
+    assertThat(tx.status("DISCONTINUED/EDIT")).isEqualTo(MedicationOrder.Status.stopped);
+    assertThat(tx.status("LAPSED")).isEqualTo(MedicationOrder.Status.on_hold);
+    assertThat(tx.status("NON-VERIFIED")).isEqualTo(MedicationOrder.Status.draft);
+
     /* FHIR values */
     assertThat(tx.status("active")).isEqualTo(MedicationOrder.Status.active);
     assertThat(tx.status("completed")).isEqualTo(MedicationOrder.Status.completed);
     assertThat(tx.status("draft")).isEqualTo(MedicationOrder.Status.draft);
     assertThat(tx.status("entered-in-error")).isEqualTo(MedicationOrder.Status.entered_in_error);
     assertThat(tx.status("on-hold")).isEqualTo(MedicationOrder.Status.on_hold);
+    assertThat(tx.status("stopped")).isEqualTo(MedicationOrder.Status.stopped);
   }
 
   MedicationOrder tx(DatamartMedicationOrder datamart) {
