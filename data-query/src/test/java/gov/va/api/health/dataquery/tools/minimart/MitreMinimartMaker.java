@@ -1,6 +1,5 @@
 package gov.va.api.health.dataquery.tools.minimart;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.allergyintolerance.AllergyIntoleranceEntity;
 import gov.va.api.health.dataquery.service.controller.allergyintolerance.DatamartAllergyIntolerance;
@@ -33,6 +32,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -124,80 +124,39 @@ public class MitreMinimartMaker {
   }
 
   @SneakyThrows
-  private void insertByDiagnosticReport(File file) {
+  // For the sake of updates, we'll rebuild it each time, this follows the other resources
+  private void insertByDiagnosticReport(List<File> files) {
+    // Set the icn and other values using the first file, then reset the payload before loading all
+    // the files.
     DatamartDiagnosticReports dm =
-        JacksonConfig.createMapper().readValue(file, DatamartDiagnosticReports.class);
-    // DR Crosswalk Entities
-    dm.reports()
-        .forEach(
-            report -> {
-              save(
-                  DiagnosticReportCrossEntity.builder()
-                      .icn(dm.fullIcn())
-                      .reportId(report.identifier())
-                      .build());
-            });
-    Object queryResult =
-        entityManager
-            .createQuery(
-                "select count(*) from "
-                    + DiagnosticReportsEntity.class.getSimpleName()
-                    + " where PatientFullIcn = :paticn")
-            .setParameter("paticn", dm.fullIcn())
-            .getSingleResult();
-    Integer count = queryResult != null ? Integer.parseInt(queryResult.toString()) : 0;
-    // DR Entity
-    if (count == 0) {
-      save(
-          DiagnosticReportsEntity.builder()
-              .icn(dm.fullIcn())
-              .payload(JacksonConfig.createMapper().writeValueAsString(dm))
-              .build());
-    } else {
-      // Patient Icn is the primary key, so there should only ever be one.
-      entityManager
-          .createQuery(
-              "select e from "
-                  + DiagnosticReportsEntity.class.getSimpleName()
-                  + " e where PatientFullIcn = :paticn")
-          .setParameter("paticn", dm.fullIcn())
-          .getResultStream()
-          .forEach(
-              dr -> {
-                DiagnosticReportsEntity entity =
-                    JacksonConfig.createMapper().convertValue(dr, DiagnosticReportsEntity.class);
-                DatamartDiagnosticReports payload = null;
-                try {
-                  payload =
-                      JacksonConfig.createMapper()
-                          .readValue(entity.payload(), DatamartDiagnosticReports.class);
-                } catch (IOException e) {
-                  log.error("Couldn't process payload for id {} from database", entity.icn());
-                  System.exit(1);
-                }
-                for (DatamartDiagnosticReports.DiagnosticReport report : dm.reports()) {
-                  if (payload
-                          .reports()
-                          .stream()
-                          .filter(r -> r.identifier() == report.identifier())
-                          .collect(Collectors.toList())
-                          .size()
-                      == 0) {
-                    payload.reports().add(report);
-                  } else {
-                    log.info("Report {} already exists in payload", report.identifier());
-                    continue;
-                  }
-                }
-                try {
-                  entity.payload(JacksonConfig.createMapper().writeValueAsString(payload));
-                  save(entity);
-                } catch (JsonProcessingException e) {
-                  log.error("Couldnt process to json: {}", payload);
-                  System.exit(1);
-                }
-              });
+        files.size() > 0
+            ? JacksonConfig.createMapper().readValue(files.get(0), DatamartDiagnosticReports.class)
+            : null;
+    if (dm == null) {
+      throw new RuntimeException("Couldn't find any Diagnostic Reports to push to database.");
     }
+    dm.reports(new ArrayList<>());
+    // Crosswalk Entities are dealt with below
+    files.forEach(
+        file -> {
+          try {
+            DatamartDiagnosticReports tmpDr =
+                JacksonConfig.createMapper().readValue(file, DatamartDiagnosticReports.class);
+            for (DatamartDiagnosticReports.DiagnosticReport report : tmpDr.reports()) {
+              saveDrCrosswalkEntity(dm.fullIcn(), report.identifier());
+              dm.reports().add(report);
+            }
+          } catch (IOException e) {
+            log.error("Couldnt process file {}", file.getName());
+            throw new RuntimeException("Couldnt process file as Diagnostic Report... Quitting...");
+          }
+        });
+    // DR Entity
+    save(
+        DiagnosticReportsEntity.builder()
+            .icn(dm.fullIcn())
+            .payload(JacksonConfig.createMapper().writeValueAsString(dm))
+            .build());
   }
 
   @SneakyThrows
@@ -327,8 +286,7 @@ public class MitreMinimartMaker {
         listByPattern(dmDirectory, "^dmCon.*json$").forEach(file -> insertByCondition(file));
         break;
       case "DiagnosticReport":
-        listByPattern(dmDirectory, "^dmDiaRep.*json$")
-            .forEach(file -> insertByDiagnosticReport(file));
+        insertByDiagnosticReport(listByPattern(dmDirectory, "^dmDiaRep.*json$"));
         break;
       case "Immunization":
         listByPattern(dmDirectory, "^dmImm.*json$").forEach(file -> insertByImmunization(file));
@@ -373,5 +331,9 @@ public class MitreMinimartMaker {
     }
     entityManager.flush();
     entityManager.clear();
+  }
+
+  private void saveDrCrosswalkEntity(String icn, String reportIdentifier) {
+    save(DiagnosticReportCrossEntity.builder().icn(icn).reportId(reportIdentifier).build());
   }
 }
