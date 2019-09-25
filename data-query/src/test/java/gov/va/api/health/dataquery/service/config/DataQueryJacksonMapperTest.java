@@ -41,7 +41,7 @@ public class DataQueryJacksonMapperTest {
             .build();
     String serializedjson =
         new DataQueryJacksonMapper(
-            new MagicReferenceConfig("https://example.com", "api", disableEncounter))
+                new MagicReferenceConfig("https://example.com", "api", disableEncounter))
             .objectMapper()
             .writerWithDefaultPrettyPrinter()
             .writeValueAsString(input);
