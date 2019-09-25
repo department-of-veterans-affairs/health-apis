@@ -21,6 +21,35 @@ import lombok.SneakyThrows;
 import org.junit.Test;
 
 public class DataQueryJacksonMapperTest {
+
+  @Test
+  @SneakyThrows
+  public void preExistingDarsArePreserved() {
+    ReferenceSerializerProperties disableEncounter =
+        ReferenceSerializerProperties.builder().encounter(false).practitioner(true).build();
+    FugaziReferencemajig input =
+        FugaziReferencemajig.builder()
+            .ref(reference("https://example.com/api/Practitioner/1234"))
+            .encounter(null)
+            ._encounter(DataAbsentReason.of(Reason.error))
+            .build();
+    FugaziReferencemajig expected =
+        FugaziReferencemajig.builder()
+            .ref(reference("https://example.com/api/Practitioner/1234"))
+            .encounter(null)
+            ._encounter(DataAbsentReason.of(Reason.error))
+            .build();
+    String serializedjson =
+        new DataQueryJacksonMapper(
+                new MagicReferenceConfig("https://example.com", "api", disableEncounter))
+            .objectMapper()
+            .writerWithDefaultPrettyPrinter()
+            .writeValueAsString(input);
+    FugaziReferencemajig actual =
+        JacksonConfig.createMapper().readValue(serializedjson, FugaziReferencemajig.class);
+    assertThat(actual).isEqualTo(expected);
+  }
+
   private Reference reference(String path) {
     return Reference.builder().display("display-value").reference(path).id("id-value").build();
   }
@@ -36,25 +65,40 @@ public class DataQueryJacksonMapperTest {
             .organization(true)
             .practitioner(true)
             .build();
-
     FugaziReferencemajig input =
         FugaziReferencemajig.builder()
-            .whocares("noone") // kept
-            .me(true) // kept
-            .ref(reference("AllergyIntolerance/1234")) // kept
-            .nope(reference("https://example.com/api/Encounter/1234")) // dar
-            .alsoNo(reference("https://example.com/api/Encounter/1234")) // removed
-            .thing(reference(null)) // kept
-            .thing(reference("")) // kept
-            .thing(reference("http://qualified.is.not/touched")) // kept
-            .thing(reference("no/slash")) // kept
-            .thing(reference("/cool/a/slash")) // kept
-            .thing(reference("Encounter")) // kept
-            .thing(reference("Encounter/1234")) // removed
-            .thing(reference("https://example.com/api/Encounter/1234")) // removed
-            .thing(reference("/Organization")) // kept
-            .thing(reference("Organization/1234")) // kept
-            .thing(reference("https://example.com/api/Organization/1234")) // kept
+            .whocares( // kept
+                "noone")
+            .me( // kept
+                true)
+            .ref( // kept
+                reference("AllergyIntolerance/1234"))
+            .nope( // dar
+                reference("https://example.com/api/Encounter/1234"))
+            .alsoNo( // removed
+                reference("https://example.com/api/Encounter/1234"))
+            .thing( // kept
+                reference(null))
+            .thing( // kept
+                reference(""))
+            .thing( // kept
+                reference("http://qualified.is.not/touched"))
+            .thing( // kept
+                reference("no/slash"))
+            .thing( // kept
+                reference("/cool/a/slash"))
+            .thing( // kept
+                reference("Encounter"))
+            .thing( // removed
+                reference("Encounter/1234"))
+            .thing( // removed
+                reference("https://example.com/api/Encounter/1234"))
+            .thing( // kept
+                reference("/Organization"))
+            .thing( // kept
+                reference("Organization/1234"))
+            .thing( // kept
+                reference("https://example.com/api/Organization/1234"))
             .thing(reference("Practitioner/987"))
             .inner(
                 FugaziReferencemajig.builder()
@@ -63,9 +107,8 @@ public class DataQueryJacksonMapperTest {
                             .reference("Appointment/615f31df-f0c7-5100-ac42-7fb952c630d0")
                             .display(null)
                             .build())
-                    .build()) // kept
+                    .build())
             .build();
-
     FugaziReferencemajig expected =
         FugaziReferencemajig.builder()
             .whocares("noone")
@@ -91,17 +134,14 @@ public class DataQueryJacksonMapperTest {
                             .build())
                     .build())
             .build();
-
     String qualifiedJson =
         new DataQueryJacksonMapper(
                 new MagicReferenceConfig("https://example.com", "api", disableEncounter))
             .objectMapper()
             .writerWithDefaultPrettyPrinter()
             .writeValueAsString(input);
-
     FugaziReferencemajig actual =
         JacksonConfig.createMapper().readValue(qualifiedJson, FugaziReferencemajig.class);
-
     assertThat(actual).isEqualTo(expected);
   }
 
@@ -110,29 +150,25 @@ public class DataQueryJacksonMapperTest {
   public void requiredReferencesEmitDar() {
     ReferenceSerializerProperties disableEncounter =
         ReferenceSerializerProperties.builder().encounter(false).build();
-
     FugaziRequiredReferencemajig input =
         FugaziRequiredReferencemajig.builder()
-            .required(reference("https://example.com/api/Encounter/1234")) // emits DAR
+            .required( // emits DAR
+                reference("https://example.com/api/Encounter/1234"))
             ._required(DataAbsentReason.of(Reason.unknown))
             .build();
-
     FugaziRequiredReferencemajig expected =
         FugaziRequiredReferencemajig.builder()
             .required(null)
             ._required(DataAbsentReason.of(Reason.unknown))
             .build();
-
     String qualifiedJson =
         new DataQueryJacksonMapper(
                 new MagicReferenceConfig("https://example.com", "api", disableEncounter))
             .objectMapper()
             .writerWithDefaultPrettyPrinter()
             .writeValueAsString(input);
-
     FugaziRequiredReferencemajig actual =
         JacksonConfig.createMapper().readValue(qualifiedJson, FugaziRequiredReferencemajig.class);
-
     assertThat(actual).isEqualTo(expected);
   }
 
@@ -145,13 +181,25 @@ public class DataQueryJacksonMapperTest {
     isGetterVisibility = Visibility.NONE
   )
   public static class FugaziReferencemajig {
+
     Reference ref;
+
     Reference nope;
+
     Extension _nope;
+
+    Reference encounter;
+
+    Extension _encounter;
+
     Reference alsoNo;
+
     @Singular List<Reference> things;
+
     FugaziReferencemajig inner;
+
     String whocares;
+
     Boolean me;
   }
 
@@ -165,7 +213,9 @@ public class DataQueryJacksonMapperTest {
     message = "Exactly one required field must be specified"
   )
   public static class FugaziRequiredReferencemajig {
+
     Reference required;
+
     Extension _required;
   }
 }
