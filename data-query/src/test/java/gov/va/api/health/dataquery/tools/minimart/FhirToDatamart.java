@@ -68,8 +68,9 @@ public class FhirToDatamart {
     if (!outputDirectory.exists()) {
       outputDirectory.mkdir();
     }
-    log.info("Outputting to " + outputDirectory + "/dm" + fileName);
-    mapper.writeValue(new File(outputDirectory + "/dm" + fileName), object);
+    String outputPath = outputDirectory + "/dm" + fileName.replaceAll(":", "");
+    log.info("Outputting to " + outputPath);
+    mapper.writeValue(new File(outputPath), object);
   }
 
   @SneakyThrows
