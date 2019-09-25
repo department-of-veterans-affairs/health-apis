@@ -21,6 +21,35 @@ import lombok.SneakyThrows;
 import org.junit.Test;
 
 public class DataQueryJacksonMapperTest {
+
+  @Test
+  @SneakyThrows
+  public void preExistingDarsArePreserved() {
+    ReferenceSerializerProperties disableEncounter =
+        ReferenceSerializerProperties.builder().encounter(false).practitioner(true).build();
+    FugaziReferencemajig input =
+        FugaziReferencemajig.builder()
+            .ref(reference("https://example.com/api/Practitioner/1234"))
+            .nope(null)
+            ._nope(DataAbsentReason.of(Reason.error))
+            .build();
+    FugaziReferencemajig expected =
+        FugaziReferencemajig.builder()
+            .ref(reference("https://example.com/api/Practitioner/1234"))
+            .nope(null)
+            ._nope(DataAbsentReason.of(Reason.error))
+            .build();
+    String serializedjson =
+        new DataQueryJacksonMapper(
+                new MagicReferenceConfig("https://example.com", "api", disableEncounter))
+            .objectMapper()
+            .writerWithDefaultPrettyPrinter()
+            .writeValueAsString(input);
+    FugaziReferencemajig actual =
+        JacksonConfig.createMapper().readValue(serializedjson, FugaziReferencemajig.class);
+    assertThat(actual).isEqualTo(expected);
+  }
+
   private Reference reference(String path) {
     return Reference.builder().display("display-value").reference(path).id("id-value").build();
   }

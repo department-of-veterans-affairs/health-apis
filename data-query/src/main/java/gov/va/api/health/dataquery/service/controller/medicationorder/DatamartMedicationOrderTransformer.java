@@ -3,7 +3,9 @@ package gov.va.api.health.dataquery.service.controller.medicationorder;
 import static gov.va.api.health.dataquery.service.controller.Transformers.asDateTimeString;
 import static gov.va.api.health.dataquery.service.controller.Transformers.asReference;
 
+import com.google.common.collect.ImmutableMap;
 import gov.va.api.health.argonaut.api.resources.MedicationOrder;
+import gov.va.api.health.argonaut.api.resources.MedicationOrder.Status;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dstu2.api.DataAbsentReason;
 import gov.va.api.health.dstu2.api.DataAbsentReason.Reason;
@@ -14,12 +16,67 @@ import gov.va.api.health.dstu2.api.datatypes.Timing;
 import gov.va.api.health.dstu2.api.elements.Extension;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import lombok.Builder;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 
 @Builder
+@Slf4j
 public class DatamartMedicationOrderTransformer {
+
+  private static Map<String, Status> STATUS_VALUES =
+      ImmutableMap.<String, Status>builder()
+          /*
+           * Values per KBS document VADP_Aggregate_190924.xls (2019 Sept 24)
+           */
+          // .put("DISCONTINUED (RENEWAL)",null) // Explicitly marked as <not-used> by KBS
+          // .put("DONE",null) // Explicitly marked as <not-used> by KBS
+          // .put("REFILL",null) // Explicitly marked as <not-used> by KBS
+          // .put("REINSTATED",null) // Explicitly marked as <not-used> by KBS
+          // .put("purge",null) // Explicitly marked as <not-used> by KBS
+          .put("ACTIVE", MedicationOrder.Status.active)
+          .put("DELETED", MedicationOrder.Status.entered_in_error)
+          .put("DISCONTINUED (EDIT)", MedicationOrder.Status.stopped)
+          .put("DISCONTINUED BY PROVIDER", MedicationOrder.Status.stopped)
+          .put("DISCONTINUED", MedicationOrder.Status.stopped)
+          .put("DRUG INTERACTIONS", MedicationOrder.Status.draft)
+          .put("EXPIRED", MedicationOrder.Status.completed)
+          .put("HOLD", MedicationOrder.Status.on_hold)
+          .put("INCOMPLETE", MedicationOrder.Status.draft)
+          .put("NEW ORDER", MedicationOrder.Status.draft)
+          .put("NON-VERIFIED", MedicationOrder.Status.draft)
+          .put("PENDING", MedicationOrder.Status.draft)
+          .put("PROVIDER HOLD", MedicationOrder.Status.on_hold)
+          .put("REFILL REQUEST", MedicationOrder.Status.active)
+          .put("RENEW", MedicationOrder.Status.active)
+          .put("RENEWED", MedicationOrder.Status.active)
+          .put("SUSPENDED", MedicationOrder.Status.on_hold)
+          .put("UNRELEASED", MedicationOrder.Status.draft)
+          .put("active", MedicationOrder.Status.active)
+          .put("discontinued", MedicationOrder.Status.stopped)
+          .put("expired", MedicationOrder.Status.completed)
+          .put("hold", MedicationOrder.Status.on_hold)
+          .put("nonverified", MedicationOrder.Status.draft)
+          .put("on call", MedicationOrder.Status.active)
+          .put("renewed", MedicationOrder.Status.active)
+          /*
+           * Values provided by James Harris based on CDW queries not in the list provided by KBS
+           */
+          .put("CANCELLED", MedicationOrder.Status.stopped)
+          .put("COMPLETE", MedicationOrder.Status.completed)
+          .put("DELAYED", MedicationOrder.Status.on_hold)
+          .put("DISCONTINUED/EDIT", MedicationOrder.Status.stopped)
+          .put("LAPSED", MedicationOrder.Status.on_hold)
+          /* FHIR values */
+          // .put("active", MedicationOrder.Status.active) // Duplicated in KBS
+          .put("completed", MedicationOrder.Status.completed)
+          .put("draft", MedicationOrder.Status.draft)
+          .put("entered-in-error", MedicationOrder.Status.entered_in_error)
+          .put("on-hold", MedicationOrder.Status.on_hold)
+          .put("stopped", MedicationOrder.Status.stopped)
+          .build();
 
   @NonNull private final DatamartMedicationOrder datamart;
 
@@ -101,26 +158,15 @@ public class DatamartMedicationOrderTransformer {
   }
 
   /** Convert from datamart.MedicationOrder.Status to MedicationOrder.Status */
-  MedicationOrder.Status status(DatamartMedicationOrder.Status status) {
+  MedicationOrder.Status status(String status) {
     if (status == null) {
       return null;
     }
-    switch (status) {
-      case completed:
-        return MedicationOrder.Status.completed;
-      case stopped:
-        return MedicationOrder.Status.stopped;
-      case on_hold:
-        return MedicationOrder.Status.on_hold;
-      case active:
-        return MedicationOrder.Status.active;
-      case draft:
-        return MedicationOrder.Status.draft;
-      case entered_in_error:
-        return MedicationOrder.Status.entered_in_error;
-      default:
-        throw new IllegalArgumentException("Unsupported Status: " + status);
+    Status mapped = STATUS_VALUES.get(status.trim());
+    if (mapped == null) {
+      log.warn("Cannot map status value: {}", status);
     }
+    return mapped;
   }
 
   private Timing timing(Optional<String> maybeTimingText) {

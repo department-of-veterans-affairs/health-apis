@@ -4,6 +4,7 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.argonaut.api.resources.MedicationOrder;
+import gov.va.api.health.argonaut.api.resources.MedicationOrder.Status;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dstu2.api.DataAbsentReason;
 import gov.va.api.health.dstu2.api.DataAbsentReason.Reason;
@@ -71,17 +72,66 @@ public class DatamartMedicationOrderTransformerTest {
         DatamartMedicationOrderTransformer.builder()
             .datamart(Datamart.create().medicationOrder())
             .build();
+    /* Unknown values */
     assertThat(tx.status(null)).isNull();
-    assertThat(tx.status(DatamartMedicationOrder.Status.active))
-        .isEqualTo(MedicationOrder.Status.active);
-    assertThat(tx.status(DatamartMedicationOrder.Status.completed))
-        .isEqualTo(MedicationOrder.Status.completed);
-    assertThat(tx.status(DatamartMedicationOrder.Status.draft))
-        .isEqualTo(MedicationOrder.Status.draft);
-    assertThat(tx.status(DatamartMedicationOrder.Status.entered_in_error))
-        .isEqualTo(MedicationOrder.Status.entered_in_error);
-    assertThat(tx.status(DatamartMedicationOrder.Status.on_hold))
-        .isEqualTo(MedicationOrder.Status.on_hold);
+    assertThat(tx.status("whatever")).isNull();
+    assertThat(tx.status("")).isNull();
+    /* VistA values */
+    assertThat(tx.status("*Unknown at this time*")).isNull();
+    assertThat(tx.status("*Missing*")).isNull();
+    assertThat(tx.status("1234")).isNull();
+    assertThat(tx.status("NULL")).isNull();
+
+    /*
+     * Values per KBS document VADP_Aggregate_190924.xls (2019 Sept 24)
+     */
+    assertThat(tx.status("ACTIVE")).isEqualTo(MedicationOrder.Status.active);
+    assertThat(tx.status("DELETED")).isEqualTo(MedicationOrder.Status.entered_in_error);
+    assertThat(tx.status("DISCONTINUED (EDIT)")).isEqualTo(MedicationOrder.Status.stopped);
+    assertThat(tx.status("DISCONTINUED (RENEWAL)")).isNull();
+    assertThat(tx.status("DISCONTINUED BY PROVIDER")).isEqualTo(MedicationOrder.Status.stopped);
+    assertThat(tx.status("DISCONTINUED")).isEqualTo(MedicationOrder.Status.stopped);
+    assertThat(tx.status("DONE")).isNull();
+    assertThat(tx.status("DRUG INTERACTIONS")).isEqualTo(MedicationOrder.Status.draft);
+    assertThat(tx.status("EXPIRED")).isEqualTo(MedicationOrder.Status.completed);
+    assertThat(tx.status("HOLD")).isEqualTo(MedicationOrder.Status.on_hold);
+    assertThat(tx.status("INCOMPLETE")).isEqualTo(MedicationOrder.Status.draft);
+    assertThat(tx.status("NEW ORDER")).isEqualTo(MedicationOrder.Status.draft);
+    assertThat(tx.status("NON-VERIFIED")).isEqualTo(MedicationOrder.Status.draft);
+    assertThat(tx.status("PENDING")).isEqualTo(MedicationOrder.Status.draft);
+    assertThat(tx.status("PROVIDER HOLD")).isEqualTo(MedicationOrder.Status.on_hold);
+    assertThat(tx.status("REFILL REQUEST")).isEqualTo(MedicationOrder.Status.active);
+    assertThat(tx.status("REFILL")).isNull();
+    assertThat(tx.status("REINSTATED")).isNull();
+    assertThat(tx.status("RENEW")).isEqualTo(MedicationOrder.Status.active);
+    assertThat(tx.status("RENEWED")).isEqualTo(MedicationOrder.Status.active);
+    assertThat(tx.status("SUSPENDED")).isEqualTo(MedicationOrder.Status.on_hold);
+    assertThat(tx.status("UNRELEASED")).isEqualTo(MedicationOrder.Status.draft);
+    assertThat(tx.status("active")).isEqualTo(MedicationOrder.Status.active);
+    assertThat(tx.status("discontinued")).isEqualTo(MedicationOrder.Status.stopped);
+    assertThat(tx.status("expired")).isEqualTo(MedicationOrder.Status.completed);
+    assertThat(tx.status("hold")).isEqualTo(MedicationOrder.Status.on_hold);
+    assertThat(tx.status("nonverified")).isEqualTo(MedicationOrder.Status.draft);
+    assertThat(tx.status("on call")).isEqualTo(MedicationOrder.Status.active);
+    assertThat(tx.status("purge")).isNull();
+    assertThat(tx.status("renewed")).isEqualTo(MedicationOrder.Status.active);
+    /*
+     * Values provided by James Harris based on CDW queries not in the list provided by KBS
+     */
+    assertThat(tx.status("CANCELLED")).isEqualTo(MedicationOrder.Status.stopped);
+    assertThat(tx.status("COMPLETE")).isEqualTo(MedicationOrder.Status.completed);
+    assertThat(tx.status("DELAYED")).isEqualTo(MedicationOrder.Status.on_hold);
+    assertThat(tx.status("DISCONTINUED/EDIT")).isEqualTo(MedicationOrder.Status.stopped);
+    assertThat(tx.status("LAPSED")).isEqualTo(MedicationOrder.Status.on_hold);
+    assertThat(tx.status("NON-VERIFIED")).isEqualTo(MedicationOrder.Status.draft);
+
+    /* FHIR values */
+    assertThat(tx.status("active")).isEqualTo(MedicationOrder.Status.active);
+    assertThat(tx.status("completed")).isEqualTo(MedicationOrder.Status.completed);
+    assertThat(tx.status("draft")).isEqualTo(MedicationOrder.Status.draft);
+    assertThat(tx.status("entered-in-error")).isEqualTo(MedicationOrder.Status.entered_in_error);
+    assertThat(tx.status("on-hold")).isEqualTo(MedicationOrder.Status.on_hold);
+    assertThat(tx.status("stopped")).isEqualTo(MedicationOrder.Status.stopped);
   }
 
   MedicationOrder tx(DatamartMedicationOrder datamart) {
@@ -137,7 +187,7 @@ public class DatamartMedicationOrderTransformerTest {
                   .display("VETERAN,FARM ACY")
                   .build())
           .dateWritten(Instant.parse("2016-11-17T18:02:04Z"))
-          .status(DatamartMedicationOrder.Status.stopped)
+          .status("ACTIVE")
           .dateEnded(Optional.of(Instant.parse("2017-02-15T05:00:00Z")))
           .prescriber(
               DatamartReference.of()
@@ -166,7 +216,7 @@ public class DatamartMedicationOrderTransformerTest {
                   .display("VETERAN,FARM ACY")
                   .build())
           .dateWritten(Instant.parse("2016-11-17T18:02:04Z"))
-          .status(DatamartMedicationOrder.Status.stopped)
+          .status("DISCONTINUED")
           .dateEnded(Optional.of(Instant.parse("2017-02-15T05:00:00Z")))
           .prescriber(null)
           .medication(
@@ -231,7 +281,7 @@ public class DatamartMedicationOrderTransformerTest {
                   .display("VETERAN,FARM ACY")
                   .build())
           .dateWritten("2016-11-17T18:02:04Z")
-          .status(MedicationOrder.Status.stopped)
+          .status(Status.active)
           .dateEnded("2017-02-15T05:00:00Z")
           .prescriber(
               Reference.builder()

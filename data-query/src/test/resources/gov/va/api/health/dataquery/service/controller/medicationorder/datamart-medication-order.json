@@ -8,7 +8,7 @@
     "display" : "VETERAN,FARM ACY"
   },
   "dateWritten" : "2016-11-17T18:02:04Z",
-  "status" : "stopped",
+  "status" : "DISCONTINUED",
   "dateEnded" : "2017-02-15T05:00:00Z",
   "prescriber" : {
     "type" : "Practitioner",
