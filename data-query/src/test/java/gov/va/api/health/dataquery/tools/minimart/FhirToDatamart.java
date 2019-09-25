@@ -150,7 +150,7 @@ public class FhirToDatamart {
             .stream()
             .map(AbstractEntry::resource)
             .map(diagnosticReportTransformer::fhirToDatamart)
-            .forEach(d -> dmObjectToFile("DiaRep" + d.fullIcn() + ".json", d));
+            .forEach(d -> dmObjectToFile("DiaRep" + d.reports().get(0).identifier() + ".json", d));
         break;
       case "Immunization":
         F2DImmunizationTransformer immunizationTransformer =
