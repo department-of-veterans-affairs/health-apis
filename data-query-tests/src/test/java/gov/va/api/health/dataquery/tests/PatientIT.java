@@ -84,7 +84,6 @@ public class PatientIT {
    */
   @Test
   @Category({
-    Local.class,
     LabDataQueryPatient.class,
     LabDataQueryClinician.class,
     ProdDataQueryPatient.class,

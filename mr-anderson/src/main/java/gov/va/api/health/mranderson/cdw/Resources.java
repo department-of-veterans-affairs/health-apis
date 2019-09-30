@@ -37,6 +37,10 @@ public interface Resources {
     public UnknownIdentityInSearchParameter(Query query, Exception cause) {
       super(query.toQueryString(), cause);
     }
+
+    public UnknownIdentityInSearchParameter(Query query) {
+      super(query.toQueryString());
+    }
   }
 
   class UnknownResource extends ResourcesException {

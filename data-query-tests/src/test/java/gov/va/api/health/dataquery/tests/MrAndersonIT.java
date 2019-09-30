@@ -52,19 +52,6 @@ public class MrAndersonIT {
 
   @Category(Local.class)
   @Test
-  public void noResultsReturns200WithEmptyResults() {
-    String id = registrar.register("DIAGNOSTIC_REPORT", "5555555555555-mra-it");
-    String records =
-        mrAnderson()
-            .get(apiPath() + "v1/resources/argonaut/DiagnosticReport/1.02?identifier={id}", id)
-            .expect(200)
-            .response()
-            .path("root.recordCount");
-    assertThat(records).isEqualTo("0");
-  }
-
-  @Category(Local.class)
-  @Test
   public void pageAndCountCanBeOmittedAndDefaultToOneAnd15() {
     mrAnderson()
         .get(
