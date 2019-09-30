@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>gov.va.api.health</groupId>
+    <artifactId>api-starter</artifactId>
+    <version>3.1.7</version>
+    <relativePath/>
+  </parent>
+  <artifactId>data-query-ids-mapping</artifactId>
+  <version>2.0.101-SNAPSHOT</version>
+  <packaging>jar</packaging>
+  <properties>
+    <health-apis-ids.version>2.1.0-SNAPSHOT</health-apis-ids.version>
+    <jacoco.coverage>0.94</jacoco.coverage>
+  </properties>
+  <dependencies>
+    <dependency>
+      <groupId>gov.va.api.health</groupId>
+      <artifactId>ids-client</artifactId>
+      <version>${health-apis-ids.version}</version>
+    </dependency>
+  </dependencies>
+</project>

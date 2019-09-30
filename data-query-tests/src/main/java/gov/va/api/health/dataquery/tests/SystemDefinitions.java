@@ -72,7 +72,6 @@ public final class SystemDefinitions {
         .observation("02ef60c8-ab65-5322-9cbb-db01083ec245")
         .observations(observations())
         .patient("1011537977V693883")
-        .procedure("02b9078b-9665-52ff-b360-9d618ac34df0")
         .procedures(localAndLabProcedures())
         .location("unused")
         .appointment("unused")

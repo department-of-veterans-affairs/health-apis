@@ -32,7 +32,8 @@ final class ResourceIdentities {
 
   /** Return true if the given identity belongs to the CDW system. */
   static boolean isCdw(@NonNull ResourceIdentity identity) {
-    return cdw().equals(identity.system());
+    return cdw().equals(identity.system())
+        || ("PATIENT".equals(identity.resource()) && "MVI".equals(identity.system()));
   }
 
   /** Convert the 'resource/identity' reference into a CDW Resource Identity instance. */

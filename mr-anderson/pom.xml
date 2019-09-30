@@ -12,9 +12,14 @@
   <packaging>jar</packaging>
   <properties>
     <mssql-jdbc.version>6.2.1.jre8</mssql-jdbc.version>
-    <ids-client.version>2.0.3</ids-client.version>
+    <health-apis-ids.version>2.1.0-SNAPSHOT</health-apis-ids.version>
   </properties>
   <dependencies>
+    <dependency>
+      <groupId>gov.va.api.health</groupId>
+      <artifactId>data-query-ids-mapping</artifactId>
+      <version>${project.version}</version>
+    </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-jdbc</artifactId>
@@ -35,7 +40,7 @@
     <dependency>
       <groupId>gov.va.api.health</groupId>
       <artifactId>ids-client</artifactId>
-      <version>${ids-client.version}</version>
+      <version>${health-apis-ids.version}</version>
     </dependency>
   </dependencies>
 </project>
