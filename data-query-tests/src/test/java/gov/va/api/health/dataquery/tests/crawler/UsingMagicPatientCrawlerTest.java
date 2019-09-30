@@ -62,7 +62,6 @@ public class UsingMagicPatientCrawlerTest {
             .requestQueue(rq)
             .results(results)
             .authenticationToken(() -> magicAccessToken())
-            .forceJargonaut(Boolean.parseBoolean(System.getProperty("jargonaut", "true")))
             .timeLimit(CrawlerProperties.timeLimit())
             .build();
     crawler.crawl();
