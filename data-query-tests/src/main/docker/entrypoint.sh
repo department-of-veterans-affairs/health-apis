@@ -134,7 +134,7 @@ doCrawlerTest() {
 
 checkVariablesForAutomation() {
   # Check out required deployment variables and data query specific variables.
-  for param in "K8S_LOAD_BALANCER" "K8S_ENVIRONMENT" "SENTINEL_ENV" "TOKEN" "JARGONAUT" \
+  for param in "K8S_LOAD_BALANCER" "K8S_ENVIRONMENT" "SENTINEL_ENV" "TOKEN" \
     "SENTINEL_SMOKE_TEST_CATEGORY" "SENTINEL_REGRESSION_TEST_CATEGORY" \
     "DATA_QUERY_API_PATH" "DATA_QUERY_REPLACE_URL" "USER_PASSWORD" \
     "CLIENT_ID" "CLIENT_SECRET" "PATIENT_ID"; do
@@ -150,7 +150,6 @@ setupForAutomation() {
   SYSTEM_PROPERTIES="$WEB_DRIVER_PROPERTIES \
     -Dsentinel=$SENTINEL_ENV \
     -Daccess-token=$TOKEN \
-    -Djargonaut=$JARGONAUT \
     -Dsentinel.argonaut.url=https://$K8S_LOAD_BALANCER \
     -Dsentinel.argonaut.api-path=$DATA_QUERY_API_PATH \
     -Dcrawler.url.replace=$DATA_QUERY_REPLACE_URL \

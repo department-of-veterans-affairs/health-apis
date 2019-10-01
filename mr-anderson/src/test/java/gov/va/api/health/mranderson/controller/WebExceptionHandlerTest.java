@@ -11,6 +11,7 @@ import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.ids.api.IdentityService.LookupFailed;
 import gov.va.api.health.ids.api.IdentityService.RegistrationFailed;
 import gov.va.api.health.ids.api.IdentityService.UnknownIdentity;
+import gov.va.api.health.ids.client.IdEncoder.BadId;
 import gov.va.api.health.mranderson.cdw.Profile;
 import gov.va.api.health.mranderson.cdw.Query;
 import gov.va.api.health.mranderson.cdw.Resources;
@@ -71,6 +72,7 @@ public class WebExceptionHandlerTest {
     return Arrays.asList(
         test(HttpStatus.NOT_FOUND, new UnknownResource(query)),
         test(HttpStatus.NOT_FOUND, new UnknownIdentityInSearchParameter(query, null)),
+        test(HttpStatus.NOT_FOUND, new BadId("x", null)),
         test(HttpStatus.BAD_REQUEST, new MissingSearchParameters(query)),
         test(HttpStatus.BAD_REQUEST, new ConstraintViolationException(new HashSet<>())),
         test(HttpStatus.INTERNAL_SERVER_ERROR, new SearchFailed(query, "")),

@@ -1,8 +1,11 @@
 package gov.va.api.health.mranderson.cdw.impl;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
+
 import gov.va.api.health.mranderson.cdw.Query;
 import gov.va.api.health.mranderson.cdw.Resources.MissingSearchParameters;
 import gov.va.api.health.mranderson.cdw.Resources.SearchFailed;
+import gov.va.api.health.mranderson.cdw.Resources.UnknownIdentityInSearchParameter;
 import gov.va.api.health.mranderson.cdw.Resources.UnknownResource;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
@@ -42,6 +45,20 @@ class XmlResponseValidator {
     }
   }
 
+  private String extractRecordCountValueOrDie() {
+    XPath xpath = XPathFactory.newInstance().newXPath();
+    try {
+      return xpath.compile("/root/recordCount").evaluate(response);
+    } catch (XPathExpressionException e) {
+      throw new SearchFailed(query, "Do not understand XML response. Error Number: <missing>");
+    }
+  }
+
+  private boolean isSearchById() {
+    return query.parameters().getFirst("_id") != null
+        || query.parameters().getFirst("identifier") != null;
+  }
+
   void validate() {
     int errorNumber = asIntegerOrDie(extractErrorNumberValueOrDie());
     if (errorNumber == ErrorNumbers.UNKNOWN_RESOURCE) {
@@ -52,6 +69,12 @@ class XmlResponseValidator {
     }
     if (errorNumber != ErrorNumbers.NO_ERROR) {
       throw new SearchFailed(query, "Unknown response error: Error Number: " + errorNumber);
+    }
+    if (isSearchById()) {
+      String total = extractRecordCountValueOrDie();
+      if (isBlank(total) || asIntegerOrDie(total) == 0) {
+        throw new UnknownIdentityInSearchParameter(query);
+      }
     }
   }
 
