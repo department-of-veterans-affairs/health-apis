@@ -3,29 +3,44 @@ package gov.va.api.health.dataquery.service.controller.observation;
 import static java.util.Arrays.asList;
 
 import gov.va.api.health.argonaut.api.resources.Observation;
+import gov.va.api.health.argonaut.api.resources.Observation.Bundle;
+import gov.va.api.health.argonaut.api.resources.Observation.Entry;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
+import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation.Category;
+import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation.Status;
+import gov.va.api.health.dstu2.api.bundle.AbstractBundle.BundleType;
+import gov.va.api.health.dstu2.api.bundle.AbstractEntry.Search;
+import gov.va.api.health.dstu2.api.bundle.AbstractEntry.SearchMode;
+import gov.va.api.health.dstu2.api.bundle.BundleLink;
+import gov.va.api.health.dstu2.api.bundle.BundleLink.LinkRelation;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
 import gov.va.api.health.dstu2.api.datatypes.Quantity;
 import gov.va.api.health.dstu2.api.datatypes.SimpleQuantity;
 import gov.va.api.health.dstu2.api.elements.Reference;
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class DatamartObservationSamples {
+
   @AllArgsConstructor(staticName = "create")
   static class Datamart {
     public DatamartObservation observation() {
+      return observation("800001973863:A", "666V666");
+    }
+
+    public DatamartObservation observation(String cdwId, String patientId) {
       return DatamartObservation.builder()
-          .objectType("Observation")
-          .objectVersion(1)
-          .cdwId("800001973863:A")
-          .status(DatamartObservation.Status._final)
-          .category(DatamartObservation.Category.laboratory)
+          .cdwId(cdwId)
+          .status(Status._final)
+          .category(Category.laboratory)
           .code(
               Optional.of(
                   DatamartObservation.CodeableConcept.builder()
@@ -40,31 +55,31 @@ public class DatamartObservationSamples {
                       .build()))
           .subject(
               Optional.of(
-                  DatamartReference.builder()
-                      .type(Optional.of("Patient"))
-                      .reference(Optional.of("1002003004V666666"))
-                      .display(Optional.of("VETERAN,AUDIE OBS"))
+                  DatamartReference.of()
+                      .type("Patient")
+                      .reference(patientId)
+                      .display("VETERAN,AUDIE OBS")
                       .build()))
           .encounter(
               Optional.of(
-                  DatamartReference.builder()
-                      .type(Optional.of("Encounter"))
-                      .reference(Optional.of("123454321"))
-                      .display(Optional.of("Ambulatory"))
+                  DatamartReference.of()
+                      .type("Encounter")
+                      .reference("1000")
+                      .display("Ambulatory")
                       .build()))
           .effectiveDateTime(Optional.of(Instant.parse("2012-12-24T14:12:00Z")))
           .issued(Optional.of(Instant.parse("2012-12-26T19:42:00Z")))
           .performer(
               asList(
-                  DatamartReference.builder()
-                      .type(Optional.of("Practitioner"))
-                      .reference(Optional.of("666000"))
-                      .display(Optional.of("WELBY,MARCUS MCCOY"))
+                  DatamartReference.of()
+                      .type("Practitioner")
+                      .reference("2000")
+                      .display("WELBY,MARCUS MCCOY")
                       .build(),
-                  DatamartReference.builder()
-                      .type(Optional.of("Organization"))
-                      .reference(Optional.of("325832"))
-                      .display(Optional.of("WHITE RIVER JCT VAMROC"))
+                  DatamartReference.of()
+                      .type("Organization")
+                      .reference("3000")
+                      .display("WHITE RIVER JCT VAMROC")
                       .build()))
           .valueQuantity(
               Optional.of(
@@ -91,10 +106,10 @@ public class DatamartObservationSamples {
               "CYTOSPIN:NO ACID-FAST BACILLI SEEN. 01/02/2015 BACILLI ISOLATED AFTER 6 WEEKS BY LABCORP")
           .specimen(
               Optional.of(
-                  DatamartReference.builder()
-                      .type(Optional.of("Specimen"))
-                      .reference(Optional.of("800005563"))
-                      .display(Optional.of("URINE (CLEAN CATCH)"))
+                  DatamartReference.of()
+                      .type("Specimen")
+                      .reference("666666666")
+                      .display("URINE (CLEAN CATCH)")
                       .build()))
           .referenceRange(
               Optional.of(
@@ -299,20 +314,46 @@ public class DatamartObservationSamples {
 
   @AllArgsConstructor(staticName = "create")
   static class Fhir {
-    static final String ID = "2b45ed16-3d77-45b0-b540-928605528ef0";
+    static Observation.Bundle asBundle(
+        String baseUrl, Collection<Observation> observations, BundleLink... links) {
+      return Bundle.builder()
+          .resourceType("Bundle")
+          .type(BundleType.searchset)
+          .total(observations.size())
+          .link(Arrays.asList(links))
+          .entry(
+              observations
+                  .stream()
+                  .map(
+                      c ->
+                          Entry.builder()
+                              .fullUrl(baseUrl + "/Observation/" + c.id())
+                              .resource(c)
+                              .search(Search.builder().mode(SearchMode.match).build())
+                              .build())
+                  .collect(Collectors.toList()))
+          .build();
+    }
 
-    static final String SUBJECT_ID = "a54f0884-e781-47e0-b1b3-59ab9764c019";
-
-    static final String ENCOUNTER_ID = "68dc7dd9-1f4e-43fa-b07f-234766aa3d5d";
-
-    static final String PERFORMER_ID_1 = "f07c0bbc-780f-4dd2-b1f3-4e2158e97273";
-
-    static final String PERFORMER_ID_2 = "a695b2b2-49bc-42c8-99fc-2b405be77f36";
+    public static BundleLink link(LinkRelation rel, String base, int page, int count) {
+      return BundleLink.builder()
+          .relation(rel)
+          .url(base + "&page=" + page + "&_count=" + count)
+          .build();
+    }
 
     public Observation observation() {
+      return observation("800001973863:A", "666V666");
+    }
+
+    public Observation observation(String id) {
+      return observation(id, "666V666");
+    }
+
+    public Observation observation(String id, String patientId) {
       return Observation.builder()
           .resourceType("Observation")
-          .id(ID)
+          .id(id)
           .status(Observation.Status._final)
           .category(
               CodeableConcept.builder()
@@ -337,24 +378,21 @@ public class DatamartObservationSamples {
                   .build())
           .subject(
               Reference.builder()
-                  .reference("Patient/" + SUBJECT_ID)
+                  .reference("Patient/" + patientId)
                   .display("VETERAN,AUDIE OBS")
                   .build())
           .encounter(
-              Reference.builder()
-                  .reference("Encounter/" + ENCOUNTER_ID)
-                  .display("Ambulatory")
-                  .build())
+              Reference.builder().reference("Encounter/" + "1000").display("Ambulatory").build())
           .effectiveDateTime("2012-12-24T14:12:00Z")
           .issued("2012-12-26T19:42:00Z")
           .performer(
               asList(
                   Reference.builder()
-                      .reference("Practitioner/" + PERFORMER_ID_1)
+                      .reference("Practitioner/" + "2000")
                       .display("WELBY,MARCUS MCCOY")
                       .build(),
                   Reference.builder()
-                      .reference("Organization/" + PERFORMER_ID_2)
+                      .reference("Organization/" + "3000")
                       .display("WHITE RIVER JCT VAMROC")
                       .build()))
           .valueQuantity(
