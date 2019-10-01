@@ -200,6 +200,8 @@ public class DatamartObservationControllerTest {
                         "http://fonzy.com/cool/Observation?identifier=x",
                         1,
                         1))));
+    /* searchById and searchByIdentifier are the same */
+    assertThat(controller().searchByIdentifier("true", "x", 1, 1)).isEqualTo(actual);
   }
 
   @Test(expected = ResourceExceptions.NotFound.class)
