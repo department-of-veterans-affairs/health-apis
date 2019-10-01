@@ -118,11 +118,11 @@ public class DatamartMedicationOrderTransformerTest {
     /*
      * Values provided by James Harris based on CDW queries not in the list provided by KBS
      */
-    assertThat(tx.status("CANCELLED")).isEqualTo(MedicationOrder.Status.stopped);
+    assertThat(tx.status("CANCELLED")).isEqualTo(MedicationOrder.Status.entered_in_error);
     assertThat(tx.status("COMPLETE")).isEqualTo(MedicationOrder.Status.completed);
-    assertThat(tx.status("DELAYED")).isEqualTo(MedicationOrder.Status.on_hold);
+    assertThat(tx.status("DELAYED")).isEqualTo(MedicationOrder.Status.draft);
     assertThat(tx.status("DISCONTINUED/EDIT")).isEqualTo(MedicationOrder.Status.stopped);
-    assertThat(tx.status("LAPSED")).isEqualTo(MedicationOrder.Status.on_hold);
+    assertThat(tx.status("LAPSED")).isEqualTo(MedicationOrder.Status.entered_in_error);
     assertThat(tx.status("NON-VERIFIED")).isEqualTo(MedicationOrder.Status.draft);
 
     /* FHIR values */
