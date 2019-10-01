@@ -62,13 +62,16 @@ public class DatamartMedicationOrderTransformer {
           .put("on call", MedicationOrder.Status.active)
           .put("renewed", MedicationOrder.Status.active)
           /*
+           * Values via KBS team as of 09/26/2019. See ADQ-296.
+           */
+          .put("CANCELLED", MedicationOrder.Status.entered_in_error)
+          .put("DELAYED", MedicationOrder.Status.draft)
+          .put("LAPSED", MedicationOrder.Status.entered_in_error)
+          /*
            * Values provided by James Harris based on CDW queries not in the list provided by KBS
            */
-          .put("CANCELLED", MedicationOrder.Status.stopped)
           .put("COMPLETE", MedicationOrder.Status.completed)
-          .put("DELAYED", MedicationOrder.Status.on_hold)
           .put("DISCONTINUED/EDIT", MedicationOrder.Status.stopped)
-          .put("LAPSED", MedicationOrder.Status.on_hold)
           /* FHIR values */
           // .put("active", MedicationOrder.Status.active) // Duplicated in KBS
           .put("completed", MedicationOrder.Status.completed)
