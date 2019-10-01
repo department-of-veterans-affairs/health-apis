@@ -1,5 +1,6 @@
 package gov.va.api.health.mranderson.controller;
 
+import gov.va.api.health.ids.client.IdEncoder.BadId;
 import gov.va.api.health.mranderson.cdw.Resources.MissingSearchParameters;
 import gov.va.api.health.mranderson.cdw.Resources.UnknownIdentityInSearchParameter;
 import gov.va.api.health.mranderson.cdw.Resources.UnknownResource;
@@ -27,7 +28,7 @@ public class WebExceptionHandler {
     return responseFor(e);
   }
 
-  @ExceptionHandler({UnknownResource.class, UnknownIdentityInSearchParameter.class})
+  @ExceptionHandler({UnknownResource.class, UnknownIdentityInSearchParameter.class, BadId.class})
   @ResponseStatus(HttpStatus.NOT_FOUND)
   public ErrorResponse handleNotFound(Exception e) {
     return responseFor(e);

@@ -169,18 +169,20 @@
               <healthcheckUrl>http://localhost:8088/actuator/health</healthcheckUrl>
               <skip>${sentinel.skipLaunch}</skip>
               <waitForInterrupt>false</waitForInterrupt>
+              <processLogFile>${project.build.directory}/mr-anderson.log</processLogFile>
               <arguments>
                 <argument>java</argument>
                 <argument>-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5088</argument>
                 <argument>-cp</argument>
                 <argument>mr-anderson.jar</argument>
-                <argument>-Dlogging.level.root=ERROR</argument>
+                <argument>-Dlogging.level.root=INFO</argument>
                 <argument>-Dloader.path=data-query-tests-${project.version}.jar</argument>
                 <argument>-Dloader=gov.va.api.health.mranderson.Application</argument>
                 <argument>-Dmanagement.health.db.enabled=false</argument>
                 <argument>-Dspring.datasource.driver-class-name=gov.va.api.health.dataquery.tests.mockcdw.MockEntityReturnDriver</argument>
                 <argument>-Dspring.datasource.url=jdbc:mockcdw://cdw/samples/index.yaml,${project.basedir}/src/test/resources/cdw/index.yaml,${project.basedir}/src/test/resources/cdw/datamart-index.yaml</argument>
                 <argument>-Didentityservice.url=http://localhost:8089</argument>
+                <argument>-Didentityservice.encodingKey=data-query</argument>
                 <argument>-Dspring.config.location=classpath:/application.properties,file:${project.basedir}/config/secrets.properties</argument>
                 <argument>org.springframework.boot.loader.PropertiesLauncher</argument>
               </arguments>
@@ -196,16 +198,18 @@
               <name>data-query</name>
               <healthcheckUrl>http://localhost:8090/actuator/health</healthcheckUrl>
               <skip>${sentinel.skipLaunch}</skip>
+              <processLogFile>${project.build.directory}/data-query.log</processLogFile>
               <arguments>
                 <argument>java</argument>
                 <argument>-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5090</argument>
                 <argument>-cp</argument>
                 <argument>data-query.jar${path.separator}h2.jar</argument>
-                <argument>-Dlogging.level.root=ERROR</argument>
+                <argument>-Dlogging.level.root=INFO</argument>
                 <argument>-Dloader.path=data-query-tests-${project.version}.jar</argument>
                 <argument>-Dloader=gov.va.api.health.dataquery.service.Application</argument>
                 <argument>-Dargonaut.url=http://localhost:8090</argument>
                 <argument>-Didentityservice.url=http://localhost:8089</argument>
+                <argument>-Didentityservice.encodingKey=data-query</argument>
                 <argument>-Dmranderson.url=http://localhost:8088</argument>
                 <argument>-Dhealth-check.medication-id=skip</argument>
                 <argument>-Dconformance.statement-type=patient</argument>
