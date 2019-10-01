@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.SneakyThrows;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -102,14 +103,16 @@ public class DatamartObservationControllerTest {
       var publicId = "public" + i;
       var date = "2005-01-1" + i + "T07:57:00Z";
       DatamartObservation dm = datamart.observation(cdwId, patientId);
-      if (i % 2 == 1) {
+      if (i >= 5) {
         dm.category(Category.vital_signs);
+      }
+      if (i % 2 == 1) {
         dm.code().get().coding().get().code(Optional.of("8480-6"));
       }
       dm.effectiveDateTime(Optional.of(Instant.parse(date)));
       repository.save(asEntity(dm));
       Observation observation = fhir.observation(publicId, patientId);
-      if (i % 2 == 1) {
+      if(i >= 5) {
         observation.category(
             CodeableConcept.builder()
                 .coding(
@@ -120,6 +123,8 @@ public class DatamartObservationControllerTest {
                             .display("Vital Signs")
                             .build()))
                 .build());
+      }
+      if (i % 2 == 1) {
         observation.code().coding().get(0).code("8480-6");
       }
       observation.effectiveDateTime(date);
@@ -291,19 +296,19 @@ public class DatamartObservationControllerTest {
     This test exhaustively verifies all of the different date prefixes
     in combination with patient and category.
 
-    Observation dates for p0, (all are laboratory)
-     2005-01-10T07:57:00Z
-     2005-01-12T07:57:00Z
-     2005-01-14T07:57:00Z
-     2005-01-16T07:57:00Z
-     2005-01-18T07:57:00Z
+    Observation dates for p0
+     2005-01-10T07:57:00Z -> laboratory
+     2005-01-12T07:57:00Z -> laboratory
+     2005-01-14T07:57:00Z -> laboratory
+     2005-01-16T07:57:00Z -> vital-signs
+     2005-01-18T07:57:00Z -> vital-signs
 
-    Observation dates for p1, (all are vital-signs)
-     2005-01-11T07:57:00Z
-     2005-01-13T07:57:00Z
-     2005-01-15T07:57:00Z
-     2005-01-17T07:57:00Z
-     2005-01-19T07:57:00Z
+    Observation dates for p1
+     2005-01-11T07:57:00Z -> laboratory
+     2005-01-13T07:57:00Z -> laboratory
+     2005-01-15T07:57:00Z -> vital-signs
+     2005-01-17T07:57:00Z -> vital-signs
+     2005-01-19T07:57:00Z -> vital-signs
     */
 
     Multimap<String, Observation> observationsByPatient = populateData();
@@ -320,17 +325,13 @@ public class DatamartObservationControllerTest {
         List.of(
             "2005-01-10T07:57:00Z",
             "2005-01-12T07:57:00Z",
-            "2005-01-14T07:57:00Z",
-            "2005-01-16T07:57:00Z",
-            "2005-01-18T07:57:00Z"));
+            "2005-01-14T07:57:00Z"));
     testDates.putAll("eq2005-01-14", List.of("2005-01-14T07:57:00Z"));
     testDates.putAll(
         "ne2005-01-14",
         List.of(
             "2005-01-10T07:57:00Z",
-            "2005-01-12T07:57:00Z",
-            "2005-01-16T07:57:00Z",
-            "2005-01-18T07:57:00Z"));
+            "2005-01-12T07:57:00Z"));
     testDates.putAll(
         "le2005-01-14",
         List.of("2005-01-10T07:57:00Z", "2005-01-12T07:57:00Z", "2005-01-14T07:57:00Z"));
@@ -338,9 +339,9 @@ public class DatamartObservationControllerTest {
     testDates.putAll("eb2005-01-14", List.of("2005-01-10T07:57:00Z", "2005-01-12T07:57:00Z"));
     testDates.putAll(
         "ge2005-01-14",
-        List.of("2005-01-14T07:57:00Z", "2005-01-16T07:57:00Z", "2005-01-18T07:57:00Z"));
-    testDates.putAll("gt2005-01-14", List.of("2005-01-16T07:57:00Z", "2005-01-18T07:57:00Z"));
-    testDates.putAll("sa2005-01-14", List.of("2005-01-16T07:57:00Z", "2005-01-18T07:57:00Z"));
+        List.of("2005-01-14T07:57:00Z"));
+    testDates.putAll("gt2005-01-14", List.of());
+    testDates.putAll("sa2005-01-14", List.of());
     for (var date : testDates.keySet()) {
       assertThat(
               json(
@@ -385,19 +386,19 @@ public class DatamartObservationControllerTest {
     /*
     The single date test does exhaustive date-prefix searching. We won't do that here.
 
-    Observation dates for p0, (all are laboratory)
-     2005-01-10T07:57:00Z
-     2005-01-12T07:57:00Z
-     2005-01-14T07:57:00Z
-     2005-01-16T07:57:00Z
-     2005-01-18T07:57:00Z
+    Observation dates for p0
+     2005-01-10T07:57:00Z -> laboratory
+     2005-01-12T07:57:00Z -> laboratory
+     2005-01-14T07:57:00Z -> laboratory
+     2005-01-16T07:57:00Z -> vital-signs
+     2005-01-18T07:57:00Z -> vital-signs
 
-    Observation dates for p1, (all are vital-signs)
-     2005-01-11T07:57:00Z
-     2005-01-13T07:57:00Z
-     2005-01-15T07:57:00Z
-     2005-01-17T07:57:00Z
-     2005-01-19T07:57:00Z
+    Observation dates for p1
+     2005-01-11T07:57:00Z -> laboratory
+     2005-01-13T07:57:00Z -> laboratory
+     2005-01-15T07:57:00Z -> vital-signs
+     2005-01-17T07:57:00Z -> vital-signs
+     2005-01-19T07:57:00Z -> vital-signs
      */
 
     Multimap<String, Observation> observationsByPatient = populateData();
@@ -413,9 +414,7 @@ public class DatamartObservationControllerTest {
         List.of(
             "2005-01-10T07:57:00Z",
             "2005-01-12T07:57:00Z",
-            "2005-01-14T07:57:00Z",
-            "2005-01-16T07:57:00Z",
-            "2005-01-18T07:57:00Z"));
+            "2005-01-14T07:57:00Z"));
     testDates.putAll(Pair.of("gt2005-01-13", "lt2005-01-15"), List.of("2005-01-14T07:57:00Z"));
     for (var date : testDates.keySet()) {
       assertThat(
@@ -465,6 +464,93 @@ public class DatamartObservationControllerTest {
                           1,
                           10))));
     }
+  }
+
+  @Test
+  public void searchByPatientAndTwoCategoriesAndTwoDates() {
+   /*
+    Observation dates for p0
+     2005-01-10T07:57:00Z -> laboratory
+     2005-01-12T07:57:00Z -> laboratory
+     2005-01-14T07:57:00Z -> laboratory
+     2005-01-16T07:57:00Z -> vital-signs
+     2005-01-18T07:57:00Z -> vital-signs
+
+    Observation dates for p1
+     2005-01-11T07:57:00Z -> laboratory
+     2005-01-13T07:57:00Z -> laboratory
+     2005-01-15T07:57:00Z -> vital-signs
+     2005-01-17T07:57:00Z -> vital-signs
+     2005-01-19T07:57:00Z -> vital-signs
+    */
+
+    Multimap<String, Observation> observationsByPatient = populateData();
+
+    /*
+    <criteria, expected dates>
+    key: search criteria (prefix + date)
+    value: expected date responses
+     */
+    Multimap<Pair<String, String>, String> testDates = LinkedHashMultimap.create();
+    testDates.putAll(
+        Pair.of("gt2004", "lt2006"),
+        List.of(
+            "2005-01-10T07:57:00Z",
+            "2005-01-12T07:57:00Z",
+            "2005-01-14T07:57:00Z",
+            "2005-01-16T07:57:00Z",
+            "2005-01-18T07:57:00Z"));
+    testDates.putAll(Pair.of("gt2005-01-13", "lt2005-01-17"), List.of("2005-01-14T07:57:00Z", "2005-01-16T07:57:00Z"));
+    for (var date : testDates.keySet()) {
+      assertThat(
+          json(
+              controller()
+                  .searchByPatientAndCategory(
+                      "true",
+                      "p0",
+                      "laboratory,vital-signs",
+                      new String[] {date.getLeft(), date.getRight()},
+                      1,
+                      10)))
+          .isEqualTo(
+              json(
+                  Fhir.asBundle(
+                      "http://fonzy.com/cool",
+                      observationsByPatient
+                          .get("p0")
+                          .stream()
+                          .filter(o -> testDates.get(date).contains(o.effectiveDateTime()))
+                          .collect(Collectors.toList()),
+                      link(
+                          LinkRelation.first,
+                          "http://fonzy.com/cool/Observation?category=laboratory,vital-signs&date="
+                              + date.getLeft()
+                              + "&date="
+                              + date.getRight()
+                              + "&patient=p0",
+                          1,
+                          10),
+                      link(
+                          LinkRelation.self,
+                          "http://fonzy.com/cool/Observation?category=laboratory,vital-signs&date="
+                              + date.getLeft()
+                              + "&date="
+                              + date.getRight()
+                              + "&patient=p0",
+                          1,
+                          10),
+                      link(
+                          LinkRelation.last,
+                          "http://fonzy.com/cool/Observation?category=laboratory,vital-signs&date="
+                              + date.getLeft()
+                              + "&date="
+                              + date.getRight()
+                              + "&patient=p0",
+                          1,
+                          10))));
+    }
+
+
   }
 
   @Test
