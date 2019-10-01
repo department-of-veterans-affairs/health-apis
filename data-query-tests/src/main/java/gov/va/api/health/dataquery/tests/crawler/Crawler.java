@@ -45,8 +45,6 @@ public class Crawler {
 
   private final ExecutorService executor;
 
-  private final boolean forceJargonaut;
-
   private final Duration timeLimit;
 
   private static long notDoneCount(Collection<Future<?>> futures) {
@@ -149,8 +147,7 @@ public class Crawler {
     RequestSpecification specification =
         RestAssured.given()
             .header("Authorization", "Bearer " + authenticationToken.get())
-            .accept("application/fhir+json")
-            .header("jargonaut", forceJargonaut);
+            .accept("application/fhir+json");
     if (StringUtils.isNotBlank(datamart)) {
       specification.header("Datamart", datamart);
     }

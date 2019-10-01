@@ -55,7 +55,6 @@ public class UsingOAuthCrawlerTest {
             .requestQueue(q)
             .results(results)
             .authenticationToken(() -> userResult.tokenExchange().accessToken())
-            .forceJargonaut(true)
             .timeLimit(CrawlerProperties.timeLimit())
             .build();
     crawler.crawl();
