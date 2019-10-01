@@ -15,6 +15,7 @@ import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient.No
 import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient.SearchFailed;
 import gov.va.api.health.dataquery.service.mranderson.client.Query;
 import gov.va.api.health.dataquery.service.mranderson.client.Query.Profile;
+import gov.va.api.health.ids.client.IdEncoder.BadId;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -66,6 +67,7 @@ public class WebExceptionHandlerTest {
             .build();
     return Arrays.asList(
         test(HttpStatus.NOT_FOUND, new NotFound(query)),
+        test(HttpStatus.NOT_FOUND, new BadId("x", null)),
         test(HttpStatus.BAD_REQUEST, new BadRequest(query)),
         test(HttpStatus.BAD_REQUEST, new ConstraintViolationException(new HashSet<>())),
         test(HttpStatus.INTERNAL_SERVER_ERROR, new SearchFailed(query)),

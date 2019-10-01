@@ -11,6 +11,20 @@ entries:
     query: /Patient:9.99?identifier=185601V825290
     page: 1
     count: 15
+  - file: ./NoResults.xml
+    query: /Patient:1.03?identifier=5555555555555
+    page: 1
+    count: 15
+  # Location aliases
+  - file: ./NoResults.xml
+    query: /Location:1.00?identifier=5555555555555
+    page: 1
+    count: 15
+  # MedicationDispense aliases
+  - file: ./NoResults.xml
+    query: /MedicationDispense:1.00?identifier=5555555555555
+    page: 1
+    count: 15
   # Immunization aliases
   - file: ../../../../target/cdw/samples/Imm103p185601V825290.xml
     query: /Immunization:1.03?patient=185601V825290
@@ -170,7 +184,7 @@ entries:
     count: 20
   - file: ../../../../target/cdw/samples/AllInt103p185601V825290pg2ct2.xml
     query: /AllergyIntolerance:1.04?patient=185601V825290
-   # Medication Aliases
+  # Medication Aliases
   - file: ../../../../target/cdw/samples/Med101i212846.xml
     query: /Medication:1.01?identifier=18
     page: 1

@@ -3,6 +3,7 @@ package gov.va.api.health.dataquery.service.controller;
 import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
 import gov.va.api.health.dstu2.api.elements.Narrative;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
+import gov.va.api.health.ids.client.IdEncoder.BadId;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
@@ -39,12 +40,20 @@ public class WebExceptionHandler {
     return responseFor("structure", e, request);
   }
 
+  @ExceptionHandler({Transformers.MissingPayload.class})
+  @ResponseStatus(HttpStatus.NOT_FOUND)
+  public OperationOutcome handleMissingPayload(Exception e, HttpServletRequest request) {
+    request.getParameter("_id");
+    return responseFor("not-found", e, request);
+  }
+
   @ExceptionHandler({
     HttpClientErrorException.NotFound.class,
     MrAndersonClient.NotFound.class,
     ResourceExceptions.NotFound.class,
     ResourceExceptions.UnknownIdentityInSearchParameter.class,
-    ResourceExceptions.UnknownResource.class
+    ResourceExceptions.UnknownResource.class,
+    BadId.class
   })
   @ResponseStatus(HttpStatus.NOT_FOUND)
   public OperationOutcome handleNotFound(Exception e, HttpServletRequest request) {
