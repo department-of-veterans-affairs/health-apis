@@ -56,6 +56,7 @@ MISSING_SECRETS=false
 [ -z "$DATAQUERY_DB_USER" ] && echo "Missing configuration: DATAQUERY_DB_USER" && MISSING_SECRETS=true
 [ -z "$DATAQUERY_DB_PASSWORD" ] && echo "Missing configuration: DATAQUERY_DB_PASSWORD" && MISSING_SECRETS=true
 [ -z "$IDS_ENCODING_KEY" ] && IDS_ENCODING_KEY=data-query
+[ -z "$IDS_PATIENT_ID_PATTERN" ] && IDS_PATIENT_ID_PATTERN="[0-9]+(V[0-9]{6})?"
 [ $MISSING_SECRETS == true ] && usage "Missing configuration secrets, please update $SECRETS"
 
 makeConfig() {
@@ -116,6 +117,7 @@ configValue mr-anderson $PROFILE spring.datasource.username "$MRANDERSON_DB_USER
 configValue mr-anderson $PROFILE spring.datasource.password "$MRANDERSON_DB_PASSWORD"
 configValue mr-anderson $PROFILE identityservice.url http://localhost:8089
 addValue mr-anderson $PROFILE identityservice.encodingKey "$IDS_ENCODING_KEY"
+addValue mr-anderson $PROFILE identityservice.patientIdPattern "$IDS_PATIENT_ID_PATTERN"
 # The stored procedure in the lab is named differently
 [[ "$MRANDERSON_DB_URL" =~ .*cdw.lab.freedomstream.io.* ]] \
   && addValue mr-anderson $PROFILE cdw.stored-procedure prc_resource_return
@@ -124,6 +126,7 @@ checkForUnsetValues mr-anderson $PROFILE
 makeConfig data-query $PROFILE
 configValue data-query $PROFILE identityservice.url http://localhost:8089
 addValue data-query $PROFILE identityservice.encodingKey "$IDS_ENCODING_KEY"
+addValue data-query $PROFILE identityservice.patientIdPattern "$IDS_PATIENT_ID_PATTERN"
 configValue data-query $PROFILE mranderson.url http://localhost:8088
 configValue data-query $PROFILE argonaut.url http://localhost:8090
 configValue data-query $PROFILE health-check.medication-id 2f773f73-ad7f-56ca-891e-8e364c913fe0
