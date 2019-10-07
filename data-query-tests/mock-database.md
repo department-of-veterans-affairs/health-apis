@@ -7,8 +7,7 @@ that mocks the CDW `prc_Entity_Return` stored procedure.
 * JDBC Url: `jdbc:mockcdw://path/to/index.yaml,path/to/another/index.yaml`
 
 > ⚠ This driver supports just enough functionality for Mr. Anderson to function. It is not a
-> general purpose JDBC driver and is not suitable for any other purpose. For Spring Boot
-> applications, the health check must be disabled: `-Dmanagement.health.db.enabled=false`
+> general purpose JDBC driver and is not suitable for any other purpose. 
 
 #### Index file
 

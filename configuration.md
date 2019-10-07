@@ -73,10 +73,6 @@ ssl.trust-store-password .................. Password for the truststore
 mranderson.url ............................ URL of the Mr. Anderson Service
                                             E.g. https://mr-anderson.example.com:8088
 
-# Healh and Status
-health-check.medication-id ................ Public ID of a medication record used for connectivity
-                                            checks for the whole system
-
 # Public Information
 argonaut.url .............................. The public URL for Argonaut Data Query
                                             E.g. https://api.va.gov/services/argonaut/v0

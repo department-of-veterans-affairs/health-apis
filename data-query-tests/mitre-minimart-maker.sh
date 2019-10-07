@@ -60,7 +60,6 @@ startMinimartApp() {
     options+=" -Dconformance.contact.email=joshua.hulbert@libertyits.com"
     options+=" -Dconformance.security.token-endpoint=http://fake.com/token"
     options+=" -Dconformance.security.authorize-endpoint=http://fake.com/authorize"
-    options+=" -Dhealth-check.medication-id=skip"
   fi
   options+=" -Dspring.jpa.generate-ddl=false"
   options+=" -Dspring.jpa.hibernate.ddl-auto=$DDL_AUTO"

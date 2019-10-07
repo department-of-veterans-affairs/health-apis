@@ -129,8 +129,6 @@ addValue data-query $PROFILE identityservice.encodingKey "$IDS_ENCODING_KEY"
 addValue data-query $PROFILE identityservice.patientIdPattern "$IDS_PATIENT_ID_PATTERN"
 configValue data-query $PROFILE mranderson.url http://localhost:8088
 configValue data-query $PROFILE argonaut.url http://localhost:8090
-configValue data-query $PROFILE health-check.medication-id 2f773f73-ad7f-56ca-891e-8e364c913fe0
-configValue data-query $PROFILE health-check.read-frequency-ms 1200000
 configValue data-query $PROFILE conformance.statement-type patient
 configValue data-query $PROFILE conformance.contact.name "$(whoDis)"
 configValue data-query $PROFILE conformance.contact.email "$(sendMoarSpams)"
