@@ -94,7 +94,7 @@ public class DatamartMedicationOrderTransformerTest {
     assertThat(tx.status("DONE")).isNull();
     assertThat(tx.status("DRUG INTERACTIONS")).isEqualTo(MedicationOrder.Status.draft);
     assertThat(tx.status("EXPIRED")).isEqualTo(MedicationOrder.Status.completed);
-    assertThat(tx.status("HOLD")).isEqualTo(MedicationOrder.Status.active);
+    assertThat(tx.status("HOLD")).isEqualTo(MedicationOrder.Status.on_hold);
     assertThat(tx.status("INCOMPLETE")).isEqualTo(MedicationOrder.Status.draft);
     assertThat(tx.status("NEW ORDER")).isEqualTo(MedicationOrder.Status.draft);
     assertThat(tx.status("NON-VERIFIED")).isEqualTo(MedicationOrder.Status.draft);
@@ -110,7 +110,7 @@ public class DatamartMedicationOrderTransformerTest {
     assertThat(tx.status("active")).isEqualTo(MedicationOrder.Status.active);
     assertThat(tx.status("discontinued")).isEqualTo(MedicationOrder.Status.stopped);
     assertThat(tx.status("expired")).isEqualTo(MedicationOrder.Status.completed);
-    assertThat(tx.status("hold")).isEqualTo(MedicationOrder.Status.active);
+    assertThat(tx.status("hold")).isEqualTo(MedicationOrder.Status.on_hold);
     assertThat(tx.status("nonverified")).isEqualTo(MedicationOrder.Status.draft);
     assertThat(tx.status("on call")).isEqualTo(MedicationOrder.Status.active);
     assertThat(tx.status("purge")).isNull();
