@@ -15,6 +15,17 @@ import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
+/**
+ * This class contains the logic for implementing, on a per-resource basis, a ResponseBodyAdvice as
+ * an @ControllerAdvice.
+ *
+ * <p>The @ControllerAdvice's intercept all responses from Controller @RequestMappings. The advice
+ * then checks the return type of the @RequestMapping's payload. If it is "supported", (see the
+ * supports() method), then beforeBodyWrite() logic fires. It will search the payload using a
+ * supplied ICN extraction function. We then populate an internal header of X-VA-INCLUDES-ICN with
+ * the corresponding ICN(s) in the payload. This header will be used by Kong to do Authorization via
+ * Patient Matching.
+ */
 @AllArgsConstructor
 public abstract class AbstractIncludesIcnMajig<
         T extends Resource, E extends AbstractEntry<T>, B extends AbstractBundle<E>>
@@ -28,10 +39,10 @@ public abstract class AbstractIncludesIcnMajig<
   @Override
   public Object beforeBodyWrite(
       Object o,
-      MethodParameter methodParameter,
-      MediaType mediaType,
-      Class<? extends HttpMessageConverter<?>> thisClass,
-      ServerHttpRequest serverHttpRequest,
+      MethodParameter unused1,
+      MediaType unused2,
+      Class<? extends HttpMessageConverter<?>> unused3,
+      ServerHttpRequest unused4,
       ServerHttpResponse serverHttpResponse) {
 
     String users = "";
@@ -40,20 +51,21 @@ public abstract class AbstractIncludesIcnMajig<
     } else if (bundleType.isInstance(o)) {
       users =
           ((B) o)
-              .entry().stream()
-                  .map(AbstractEntry::resource)
-                  .flatMap(resource -> extractIcns.apply(resource))
-                  .collect(Collectors.joining(","));
+              .entry()
+              .stream()
+              .map(AbstractEntry::resource)
+              .flatMap(resource -> extractIcns.apply(resource))
+              .collect(Collectors.joining(","));
     } else {
       throw new InvalidParameterException("Payload type does not match ControllerAdvice type.");
     }
-    serverHttpResponse.getHeaders().add("X-VA-RECORDS-FOR-USERS", users);
+    serverHttpResponse.getHeaders().add("X-VA-INCLUDES-ICN", users);
     return o;
   }
 
   @Override
   public boolean supports(
-      MethodParameter methodParameter, Class<? extends HttpMessageConverter<?>> thisClass) {
+      MethodParameter methodParameter, Class<? extends HttpMessageConverter<?>> unused) {
     return type.equals(methodParameter.getParameterType())
         || bundleType.equals(methodParameter.getParameterType());
   }

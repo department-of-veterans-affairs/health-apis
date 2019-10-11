@@ -69,7 +69,7 @@ public class Bundler {
     private final List<X> xmlItems;
     /** Invoked for each item in the XML items list to convert it to the final published form. */
     private final Function<X, T> transformer;
-    /** Used to create new instances for entries, one for each item in the XML items list. */
+    /** Used to create new instances for entries, oe for each item in the XML items list. */
     private final Supplier<E> newEntry;
     /** Used to create a new instance of the bundle. Called once. */
     private final Supplier<B> newBundle;

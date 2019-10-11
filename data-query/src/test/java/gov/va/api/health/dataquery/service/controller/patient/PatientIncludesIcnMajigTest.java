@@ -11,7 +11,7 @@ public class PatientIncludesIcnMajigTest {
   public void extractIcns() {
     ExtractIcnValidator.<PatientIncludesIcnMajig, Patient>builder()
         .majig(new PatientIncludesIcnMajig())
-        .body(Patient.builder().build())
+        .body(Patient.builder().id("666V666").build())
         .expectedIcns(List.of("666V666"))
         .build()
         .assertIcn();

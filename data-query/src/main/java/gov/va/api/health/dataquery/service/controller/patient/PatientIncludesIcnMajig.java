@@ -7,6 +7,11 @@ import gov.va.api.health.dataquery.service.controller.AbstractIncludesIcnMajig;
 import java.util.stream.Stream;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 
+/**
+ * Intercept all RequestMapping payloads of Type Patient.class or Bundle.class. Extract ICN(s) from
+ * these payloads with the provided function. This will lead to populating the X-VA-INCLUDES-ICN
+ * header.
+ */
 @ControllerAdvice
 public class PatientIncludesIcnMajig extends AbstractIncludesIcnMajig<Patient, Entry, Bundle> {
 
