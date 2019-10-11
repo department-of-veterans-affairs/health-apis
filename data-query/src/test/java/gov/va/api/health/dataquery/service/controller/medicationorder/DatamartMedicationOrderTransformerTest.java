@@ -99,13 +99,13 @@ public class DatamartMedicationOrderTransformerTest {
     assertThat(tx.status("NEW ORDER")).isEqualTo(MedicationOrder.Status.draft);
     assertThat(tx.status("NON-VERIFIED")).isEqualTo(MedicationOrder.Status.draft);
     assertThat(tx.status("PENDING")).isEqualTo(MedicationOrder.Status.draft);
-    assertThat(tx.status("PROVIDER HOLD")).isEqualTo(MedicationOrder.Status.on_hold);
+    assertThat(tx.status("PROVIDER HOLD")).isEqualTo(MedicationOrder.Status.active);
     assertThat(tx.status("REFILL REQUEST")).isEqualTo(MedicationOrder.Status.active);
     assertThat(tx.status("REFILL")).isNull();
     assertThat(tx.status("REINSTATED")).isNull();
     assertThat(tx.status("RENEW")).isEqualTo(MedicationOrder.Status.active);
     assertThat(tx.status("RENEWED")).isEqualTo(MedicationOrder.Status.active);
-    assertThat(tx.status("SUSPENDED")).isEqualTo(MedicationOrder.Status.on_hold);
+    assertThat(tx.status("SUSPENDED")).isEqualTo(MedicationOrder.Status.active);
     assertThat(tx.status("UNRELEASED")).isEqualTo(MedicationOrder.Status.draft);
     assertThat(tx.status("active")).isEqualTo(MedicationOrder.Status.active);
     assertThat(tx.status("discontinued")).isEqualTo(MedicationOrder.Status.stopped);
