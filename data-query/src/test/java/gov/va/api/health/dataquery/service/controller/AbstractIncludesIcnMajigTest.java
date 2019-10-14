@@ -26,6 +26,11 @@ import org.springframework.http.server.ServerHttpResponse;
 
 public class AbstractIncludesIcnMajigTest {
 
+  @Test(expected = InvalidParameterException.class)
+  public void beforeBodyWriteThrowsExceptionForUnsupportedType() {
+    new FakeMajg().beforeBodyWrite(null, null, null, null, null, null);
+  }
+
   @Test
   public void icnHeaderIsPresentForResource() {
     ServerHttpResponse mockResponse = mock(ServerHttpResponse.class);
@@ -73,11 +78,6 @@ public class AbstractIncludesIcnMajigTest {
     MethodParameter unsupportedResource = mock(MethodParameter.class);
     doReturn(String.class).when(unsupportedResource).getParameterType();
     assertThat(new FakeMajg().supports(unsupportedResource, null)).isFalse();
-  }
-
-  @Test(expected = InvalidParameterException.class)
-  public void unknown() {
-    new FakeMajg().beforeBodyWrite(null, null, null, null, null, null);
   }
 
   /**

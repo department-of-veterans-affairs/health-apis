@@ -31,14 +31,14 @@ public abstract class AbstractIncludesIcnMajig<
         T extends Resource, E extends AbstractEntry<T>, B extends AbstractBundle<E>>
     implements ResponseBodyAdvice<Object> {
 
-  private Class<T> type;
-  private Class<B> bundleType;
-  private Function<T, Stream<String>> extractIcns;
+  private final Class<T> type;
+  private final Class<B> bundleType;
+  private final Function<T, Stream<String>> extractIcns;
 
   @SuppressWarnings("unchecked")
   @Override
   public Object beforeBodyWrite(
-      Object o,
+      Object payload,
       MethodParameter unused1,
       MediaType unused2,
       Class<? extends HttpMessageConverter<?>> unused3,
@@ -46,11 +46,11 @@ public abstract class AbstractIncludesIcnMajig<
       ServerHttpResponse serverHttpResponse) {
 
     String users = "";
-    if (type.isInstance(o)) {
-      users = extractIcns.apply((T) o).collect(Collectors.joining());
-    } else if (bundleType.isInstance(o)) {
+    if (type.isInstance(payload)) {
+      users = extractIcns.apply((T) payload).collect(Collectors.joining());
+    } else if (bundleType.isInstance(payload)) {
       users =
-          ((B) o)
+          ((B) payload)
               .entry()
               .stream()
               .map(AbstractEntry::resource)
@@ -60,7 +60,7 @@ public abstract class AbstractIncludesIcnMajig<
       throw new InvalidParameterException("Payload type does not match ControllerAdvice type.");
     }
     serverHttpResponse.getHeaders().add("X-VA-INCLUDES-ICN", users);
-    return o;
+    return payload;
   }
 
   @Override
