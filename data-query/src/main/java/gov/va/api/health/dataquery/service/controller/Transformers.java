@@ -80,6 +80,33 @@ public final class Transformers {
         .build();
   }
 
+  /** Convert the reference (if specified) to a Datamart reference. */
+  public static DatamartReference asDatamartReference(Reference maybeReference) {
+    if (maybeReference == null || StringUtils.isBlank(maybeReference.reference())) {
+      return null;
+    }
+    String[] splitReference = maybeReference.reference().split("/");
+    if (splitReference.length <= 1) {
+      return null;
+    }
+    String resourceName = splitReference[splitReference.length - 2];
+    if (StringUtils.isBlank(resourceName)) {
+      return null;
+    }
+    if (!StringUtils.isAllUpperCase(resourceName.substring(0, 1))) {
+      return null;
+    }
+    String resourceId = splitReference[splitReference.length - 1];
+    if (StringUtils.isBlank(resourceId)) {
+      return null;
+    }
+    return DatamartReference.builder()
+        .display(Optional.ofNullable(maybeReference.display()))
+        .reference(Optional.of(resourceId))
+        .type(Optional.of(resourceName))
+        .build();
+  }
+
   /** Return null if the date is null, otherwise return ands ISO-8601 date. */
   public static String asDateString(XMLGregorianCalendar maybeDate) {
     if (maybeDate == null) {
@@ -160,6 +187,15 @@ public final class Transformers {
         .display(maybeReference.display().orElse(null))
         .reference(path.orElse(null))
         .build();
+  }
+
+  /** Get the reference id from the given reference. */
+  public static String asReferenceId(Reference maybeReference) {
+    DatamartReference maybeDatamart = asDatamartReference(maybeReference);
+    if (maybeDatamart == null) {
+      return null;
+    }
+    return maybeDatamart.reference().get();
   }
 
   /** Return null if the given object is null, otherwise return the converted value. */

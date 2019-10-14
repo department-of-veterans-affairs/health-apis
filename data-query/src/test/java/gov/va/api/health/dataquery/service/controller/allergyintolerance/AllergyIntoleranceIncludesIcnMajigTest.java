@@ -15,7 +15,7 @@ public class AllergyIntoleranceIncludesIcnMajigTest {
         .body(
             AllergyIntolerance.builder()
                 .id("123")
-                .patient(Reference.builder().id("666V666").build())
+                .patient(Reference.builder().reference("Patient/666V666").build())
                 .build())
         .expectedIcns(List.of("666V666"))
         .build()
