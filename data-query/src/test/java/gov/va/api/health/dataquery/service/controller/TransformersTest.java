@@ -1,18 +1,6 @@
 package gov.va.api.health.dataquery.service.controller;
 
-import static gov.va.api.health.dataquery.service.controller.Transformers.asCodeableConceptWrapping;
-import static gov.va.api.health.dataquery.service.controller.Transformers.asCoding;
-import static gov.va.api.health.dataquery.service.controller.Transformers.asDateString;
-import static gov.va.api.health.dataquery.service.controller.Transformers.asDateTimeString;
-import static gov.va.api.health.dataquery.service.controller.Transformers.asInteger;
-import static gov.va.api.health.dataquery.service.controller.Transformers.asReference;
-import static gov.va.api.health.dataquery.service.controller.Transformers.convert;
-import static gov.va.api.health.dataquery.service.controller.Transformers.convertAll;
-import static gov.va.api.health.dataquery.service.controller.Transformers.emptyToNull;
-import static gov.va.api.health.dataquery.service.controller.Transformers.firstPayloadItem;
-import static gov.va.api.health.dataquery.service.controller.Transformers.hasPayload;
-import static gov.va.api.health.dataquery.service.controller.Transformers.ifPresent;
-import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
+import static gov.va.api.health.dataquery.service.controller.Transformers.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.dataquery.service.controller.Transformers.MissingPayload;
@@ -36,6 +24,7 @@ import lombok.SneakyThrows;
 import org.junit.Test;
 
 public class TransformersTest {
+
   @Test
   public void allBlank() {
     assertThat(Transformers.allBlank()).isTrue();
@@ -86,6 +75,21 @@ public class TransformersTest {
     assertThat(
             asCoding(Optional.of(DatamartCoding.of().system("s").code("c").display("d").build())))
         .isEqualTo(Coding.builder().system("s").code("c").display("d").build());
+  }
+
+  @Test
+  public void asDatamartReferenceReturnsNullWhenRefIsEmpty() {
+    Reference ref = Reference.builder().build();
+    assertThat(asDatamartReference(ref)).isNull();
+  }
+
+  @Test
+  public void asDatamartReferenceReturnsRef() {
+    Reference ref = Reference.builder().display("WAT").reference("Patient/123V456").build();
+    DatamartReference dataRef = asDatamartReference(ref);
+    assertThat(dataRef.type().get()).isEqualTo("Patient");
+    assertThat(dataRef.reference().get()).isEqualTo("123V456");
+    assertThat(dataRef.display().get()).isEqualTo("WAT");
   }
 
   @Test
@@ -176,6 +180,18 @@ public class TransformersTest {
   @Test
   public void asIntegerReturnsValueWhenBigIntIsNull() {
     assertThat(asInteger(BigInteger.TEN)).isEqualTo(10);
+  }
+
+  @Test
+  public void asReferenceIdReturnsNullWhenRefIsEmpty() {
+    Reference ref = Reference.builder().build();
+    assertThat(asReferenceId(ref)).isNull();
+  }
+
+  @Test
+  public void asReferenceIdReturnsRefId() {
+    Reference ref = Reference.builder().display("WAT").reference("Patient/123V456").build();
+    assertThat(asReferenceId(ref)).isEqualTo("123V456");
   }
 
   @Test
