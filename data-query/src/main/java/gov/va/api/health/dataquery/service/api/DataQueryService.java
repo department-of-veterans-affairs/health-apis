@@ -13,11 +13,36 @@ import gov.va.api.health.argonaut.api.ProcedureApi;
 import gov.va.api.health.dstu2.api.MetadataApi;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.security.OAuthFlow;
+import io.swagger.v3.oas.annotations.security.OAuthFlows;
+import io.swagger.v3.oas.annotations.security.OAuthScope;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.servers.Server;
 import javax.ws.rs.Path;
 
 @OpenAPIDefinition(
+  security =
+      @SecurityRequirement(
+        name = "OauthFlow",
+        scopes = {
+          "patient/AllergyIntolerance.read",
+          "patient/Condition.read",
+          "patient/DiagnosticReport.read",
+          "patient/Immunization.read",
+          "patient/Medication.read",
+          "patient/MedicationOrder.read",
+          "patient/MedicationStatement.read",
+          "patient/Observation.read",
+          "patient/Patient.read",
+          "patient/Procedure.read",
+          "offline_access",
+          "launch/patient"
+        }
+      ),
   info =
       @Info(
         title = "Argonaut Data Query",
@@ -38,6 +63,45 @@ import javax.ws.rs.Path;
       @ExternalDocumentation(
         description = "Argonaut Data Query Implementation Guide",
         url = "http://www.fhir.org/guides/argonaut/r2/index.html"
+      )
+)
+@SecurityScheme(
+  name = "OauthFlow",
+  type = SecuritySchemeType.OAUTH2,
+  in = SecuritySchemeIn.HEADER,
+  flows =
+      @OAuthFlows(
+        implicit =
+            @OAuthFlow(
+              authorizationUrl = "https://dev-api.va.gov/oauth2/authorization",
+              tokenUrl = "https://dev-api.va.gov/services/fhir/v0/dstu2/token",
+              scopes = {
+                @OAuthScope(
+                  name = "patient/AllergyIntolerance.read",
+                  description = "read allergy intolerances"
+                ),
+                @OAuthScope(name = "patient/Condition.read", description = "read conditions"),
+                @OAuthScope(
+                  name = "patient/DiagnosticReport.read",
+                  description = "read diagnostic reports"
+                ),
+                @OAuthScope(name = "patient/Immunization.read", description = "read immunizations"),
+                @OAuthScope(name = "patient/Medication.read", description = "read medications"),
+                @OAuthScope(
+                  name = "patient/MedicationOrder.read",
+                  description = "read medication orders"
+                ),
+                @OAuthScope(
+                  name = "patient/MedicationStatement.read",
+                  description = "read medication statements"
+                ),
+                @OAuthScope(name = "patient/Observation.read", description = "read observations"),
+                @OAuthScope(name = "patient/Patient.read", description = "read patient"),
+                @OAuthScope(name = "patient/Procedure.read", description = "read procedures"),
+                @OAuthScope(name = "offline_access", description = "offline access"),
+                @OAuthScope(name = "launch/patient", description = "patient launch"),
+              }
+            )
       )
 )
 @Path("/")
