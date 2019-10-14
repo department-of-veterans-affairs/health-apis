@@ -2,11 +2,11 @@ package gov.va.api.health.dataquery.tests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.collect.ImmutableMap;
 import gov.va.api.health.dataquery.tests.categories.LabDataQueryPatient;
 import gov.va.api.health.dataquery.tests.categories.ProdDataQueryPatient;
 import gov.va.api.health.sentinel.ExpectedResponse;
 import gov.va.api.health.sentinel.categories.Local;
-import java.util.Map;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
@@ -99,7 +99,7 @@ public class RawIT {
     String rawToken = System.getProperty("raw-token", "true");
     log.info("Verify raw response for /{}, with [{}]", path, publicId);
     ExpectedResponse response =
-        TestClients.dataQuery().get(Map.of("raw", rawToken), path, publicId);
+        TestClients.dataQuery().get(ImmutableMap.of("raw", rawToken), path, publicId);
     response.expect(200);
     return response;
   }
