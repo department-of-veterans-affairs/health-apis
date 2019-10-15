@@ -20,6 +20,6 @@ public class ObservationIncludesIcnMajig
     super(
         Observation.class,
         Observation.Bundle.class,
-        (body) -> Stream.of(Transformers.asReferenceId(body.subject())).filter(Objects::nonNull));
+        (body) -> Stream.ofNullable(Transformers.asReferenceId(body.subject())));
   }
 }
