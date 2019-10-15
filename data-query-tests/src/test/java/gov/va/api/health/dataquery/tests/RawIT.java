@@ -13,8 +13,10 @@ import org.json.JSONObject;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-// This class is only meant to test the "raw" functionality of data-query
-// Regular reads and searches are performed in each individual resource's IT tests
+/** 
+ *  This class is only meant to test the "raw" functionality of data-query
+ *  Regular reads and searches are performed in each individual resource's IT tests
+ */
 @Slf4j
 public class RawIT {
 
