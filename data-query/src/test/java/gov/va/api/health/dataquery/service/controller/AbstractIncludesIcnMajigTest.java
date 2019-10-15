@@ -44,6 +44,36 @@ public class AbstractIncludesIcnMajigTest {
   }
 
   @Test
+  public void icnHeadersAreDistictValuesForResourceBundle() {
+    ServerHttpResponse mockResponse = mock(ServerHttpResponse.class);
+    HttpHeaders mockHeaders = mock(HttpHeaders.class);
+    when(mockResponse.getHeaders()).thenReturn(mockHeaders);
+    var payload =
+        FakeBundle.builder()
+            .entry(
+                List.of(
+                    FakeEntry.builder()
+                        .resource(FakeResource.builder().id("666V666").build())
+                        .build(),
+                    FakeEntry.builder()
+                        .resource(FakeResource.builder().id("777V777").build())
+                        .build(),
+                    FakeEntry.builder()
+                        .resource(FakeResource.builder().id("888V888").build())
+                        .build(),
+                    FakeEntry.builder()
+                        .resource(FakeResource.builder().id("666V666").build())
+                        .build(),
+                    FakeEntry.builder()
+                        .resource(FakeResource.builder().id("777V777").build())
+                        .build()))
+            .build();
+    new FakeMajg().beforeBodyWrite(payload, null, null, null, null, mockResponse);
+    verify(mockHeaders).add("X-VA-INCLUDES-ICN", "666V666,777V777,888V888");
+    verifyNoMoreInteractions(mockHeaders);
+  }
+
+  @Test
   public void icnHeadersArePresentForResourceBundle() {
     ServerHttpResponse mockResponse = mock(ServerHttpResponse.class);
     HttpHeaders mockHeaders = mock(HttpHeaders.class);
