@@ -22,6 +22,6 @@ public class AllergyIntoleranceIncludesIcnMajig
     super(
         AllergyIntolerance.class,
         Bundle.class,
-        (body) -> Stream.of(Transformers.asReferenceId(body.patient())));
+        (body) -> Stream.ofNullable(Transformers.asReferenceId(body.patient())));
   }
 }
