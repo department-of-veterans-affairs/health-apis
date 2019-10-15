@@ -19,6 +19,6 @@ public class MedicationOrderIncludesIcnMajig
         super(
                 MedicationOrder.class,
                 MedicationOrder.Bundle.class,
-                body -> Stream.of(Transformers.asReferenceId(body.patient())));
+                body -> Stream.ofNullable(Transformers.asReferenceId(body.patient())));
     }
 }
