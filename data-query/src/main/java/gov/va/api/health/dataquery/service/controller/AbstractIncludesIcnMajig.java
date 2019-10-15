@@ -45,6 +45,11 @@ public abstract class AbstractIncludesIcnMajig<
       ServerHttpRequest unused4,
       ServerHttpResponse serverHttpResponse) {
 
+    // In the case where extractIcns is null, let Kong deal with it
+    if (extractIcns == null) {
+      return payload;
+    }
+
     String users = "";
     if (type.isInstance(payload)) {
       users = extractIcns.apply((T) payload).collect(Collectors.joining());
