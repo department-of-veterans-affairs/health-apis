@@ -20,6 +20,6 @@ public class ConditionIncludesIcnMajig
     super(
         Condition.class,
         Condition.Bundle.class,
-        body -> Stream.of(Transformers.asReferenceId(body.patient())).filter(Objects::nonNull));
+        body -> Stream.ofNullable(Transformers.asReferenceId(body.patient())));
   }
 }
