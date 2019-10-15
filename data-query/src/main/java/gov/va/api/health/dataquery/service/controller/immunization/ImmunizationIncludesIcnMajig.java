@@ -20,6 +20,6 @@ public class ImmunizationIncludesIcnMajig extends AbstractIncludesIcnMajig<Immun
         super(
                 Immunization.class,
                 Immunization.Bundle.class,
-                body -> Stream.of(Transformers.asReferenceId(body.patient())));
+                body -> Stream.ofNullable(Transformers.asReferenceId(body.patient())));
     }
 }
