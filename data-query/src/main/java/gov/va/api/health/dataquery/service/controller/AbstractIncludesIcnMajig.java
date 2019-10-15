@@ -55,6 +55,7 @@ public abstract class AbstractIncludesIcnMajig<
               .stream()
               .map(AbstractEntry::resource)
               .flatMap(resource -> extractIcns.apply(resource))
+              .distinct()
               .collect(Collectors.joining(","));
     } else {
       throw new InvalidParameterException("Payload type does not match ControllerAdvice type.");
