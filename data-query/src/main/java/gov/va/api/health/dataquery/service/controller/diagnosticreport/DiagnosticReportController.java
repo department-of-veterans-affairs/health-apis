@@ -316,7 +316,10 @@ public class DiagnosticReportController {
   }
 
   /** Return the raw Datamart document for the given identifier. */
-  @GetMapping(value = {"/{publicId}/raw"})
+  @GetMapping(
+    value = {"/{publicId}"},
+    headers = {"raw=true"}
+  )
   public DatamartDiagnosticReports.DiagnosticReport readRaw(
       @PathVariable("publicId") String publicId) {
     return datamartReadRaw(publicId).getSecond();
