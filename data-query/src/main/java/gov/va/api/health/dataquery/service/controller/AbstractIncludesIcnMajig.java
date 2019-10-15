@@ -67,7 +67,7 @@ public abstract class AbstractIncludesIcnMajig<
     }
 
     if (users.isBlank()) {
-      users = "EMPTY";
+      users = "NONE";
     }
 
     serverHttpResponse.getHeaders().add("X-VA-INCLUDES-ICN", users);
