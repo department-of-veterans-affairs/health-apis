@@ -65,7 +65,13 @@ public abstract class AbstractIncludesIcnMajig<
     } else {
       throw new InvalidParameterException("Payload type does not match ControllerAdvice type.");
     }
+
+    if (users.isBlank()) {
+      users = "EMPTY";
+    }
+
     serverHttpResponse.getHeaders().add("X-VA-INCLUDES-ICN", users);
+
     return payload;
   }
 
