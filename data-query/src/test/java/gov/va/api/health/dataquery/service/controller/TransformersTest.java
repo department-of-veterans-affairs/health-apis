@@ -1,6 +1,20 @@
 package gov.va.api.health.dataquery.service.controller;
 
-import static gov.va.api.health.dataquery.service.controller.Transformers.*;
+import static gov.va.api.health.dataquery.service.controller.Transformers.asCodeableConceptWrapping;
+import static gov.va.api.health.dataquery.service.controller.Transformers.asCoding;
+import static gov.va.api.health.dataquery.service.controller.Transformers.asDatamartReference;
+import static gov.va.api.health.dataquery.service.controller.Transformers.asDateString;
+import static gov.va.api.health.dataquery.service.controller.Transformers.asDateTimeString;
+import static gov.va.api.health.dataquery.service.controller.Transformers.asInteger;
+import static gov.va.api.health.dataquery.service.controller.Transformers.asReference;
+import static gov.va.api.health.dataquery.service.controller.Transformers.asReferenceId;
+import static gov.va.api.health.dataquery.service.controller.Transformers.convert;
+import static gov.va.api.health.dataquery.service.controller.Transformers.convertAll;
+import static gov.va.api.health.dataquery.service.controller.Transformers.emptyToNull;
+import static gov.va.api.health.dataquery.service.controller.Transformers.firstPayloadItem;
+import static gov.va.api.health.dataquery.service.controller.Transformers.hasPayload;
+import static gov.va.api.health.dataquery.service.controller.Transformers.ifPresent;
+import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.dataquery.service.controller.Transformers.MissingPayload;
