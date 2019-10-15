@@ -3,6 +3,7 @@ package gov.va.api.health.dataquery.service.controller.condition;
 import gov.va.api.health.argonaut.api.resources.Condition;
 import gov.va.api.health.dataquery.service.controller.AbstractIncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.Transformers;
+import java.util.Objects;
 import java.util.stream.Stream;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 
@@ -19,6 +20,6 @@ public class ConditionIncludesIcnMajig
     super(
         Condition.class,
         Condition.Bundle.class,
-        body -> Stream.of(Transformers.asReferenceId(body.patient())));
+        body -> Stream.of(Transformers.asReferenceId(body.patient())).filter(Objects::nonNull));
   }
 }
