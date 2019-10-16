@@ -2,8 +2,6 @@ package gov.va.api.health.dataquery.tests;
 
 import static gov.va.api.health.dataquery.tests.ResourceVerifier.test;
 
-import gov.va.api.health.dataquery.tests.categories.ProdDataQueryClinician;
-import gov.va.api.health.dataquery.tests.categories.ProdDataQueryPatient;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import gov.va.api.health.dstu2.api.resources.Organization;
 import gov.va.api.health.sentinel.categories.Local;
@@ -13,7 +11,9 @@ import org.junit.experimental.categories.Category;
 public class OrganizationIT {
   ResourceVerifier verifier = ResourceVerifier.get();
 
-  @Category({Local.class, ProdDataQueryClinician.class})
+  @Category({Local.class
+    // , ProdDataQueryClinician.class
+  })
   @Test
   public void advanced() {
     verifier.verifyAll(
@@ -27,7 +27,9 @@ public class OrganizationIT {
             verifier.ids().organization()));
   }
 
-  @Category({Local.class, ProdDataQueryPatient.class, ProdDataQueryClinician.class})
+  @Category({Local.class
+    // , ProdDataQueryPatient.class, ProdDataQueryClinician.class
+  })
   @Test
   public void basic() {
     verifier.verifyAll(
