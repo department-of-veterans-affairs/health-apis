@@ -126,7 +126,10 @@ public class ConditionController {
   }
 
   /** Read by id. */
-  @GetMapping(value = {"/{publicId}/raw"})
+  @GetMapping(
+    value = {"/{publicId}"},
+    headers = {"raw=true"}
+  )
   public String readRaw(@PathVariable("publicId") String publicId) {
     return datamart.readRaw(publicId);
   }
