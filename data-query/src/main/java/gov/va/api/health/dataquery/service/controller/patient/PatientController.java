@@ -247,7 +247,10 @@ public class PatientController {
   }
 
   /** Return the raw Datamart document for the given identifier. */
-  @GetMapping(value = "/{publicId}/raw")
+  @GetMapping(
+    value = "/{publicId}",
+    headers = {"raw=true"}
+  )
   public String readRaw(@PathVariable("publicId") String publicId) {
     return datamartReadRaw(publicId).payload();
   }
