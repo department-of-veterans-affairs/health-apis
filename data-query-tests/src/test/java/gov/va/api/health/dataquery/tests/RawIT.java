@@ -7,9 +7,9 @@ import gov.va.api.health.dataquery.tests.categories.LabDataQueryPatient;
 import gov.va.api.health.dataquery.tests.categories.ProdDataQueryPatient;
 import gov.va.api.health.sentinel.ExpectedResponse;
 import gov.va.api.health.sentinel.categories.Local;
+import io.restassured.path.json.config.JsonPathConfig;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.json.JSONObject;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -31,9 +31,14 @@ public class RawIT {
   @SneakyThrows
   public void assertFhirObject(String resourceName, String publicId) {
     // Verify it is a raw response from the correct resource
-    JSONObject fhirObjectType =
-        new JSONObject(readRaw(resourceName, publicId).response().body().asString());
-    assertThat(fhirObjectType.getString("objectType")).isEqualTo(resourceName);
+    String fhirObjectType =
+        readRaw(resourceName, publicId)
+            .response()
+            .jsonPath()
+            .using(JsonPathConfig.jsonPathConfig().charset("UTF-8"))
+            .get("objectType")
+            .toString();
+    assertThat(fhirObjectType).isEqualTo(resourceName);
   }
 
   @Test
@@ -49,8 +54,14 @@ public class RawIT {
     // objectType is not returned in a raw diagnosticReport read, so we'll make sure it has an
     // identifier instead
     ExpectedResponse response = readRaw("DiagnosticReport", verifier.ids().diagnosticReport());
-    JSONObject resourceIdentifier = new JSONObject(response.response().body().asString());
-    assertThat(resourceIdentifier.getString("identifier")).isNotBlank();
+    String resourceIdentifier =
+        response
+            .response()
+            .jsonPath()
+            .using(JsonPathConfig.jsonPathConfig().charset("UTF-8"))
+            .get("identifier")
+            .toString();
+    assertThat(resourceIdentifier).isNotBlank();
   }
 
   @Test
