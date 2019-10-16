@@ -159,7 +159,7 @@ setupForAutomation() {
     -D${K8S_ENVIRONMENT}.user-password=$USER_PASSWORD \
     -D${K8S_ENVIRONMENT}.client-id=$CLIENT_ID \
     -D${K8S_ENVIRONMENT}.client-secret=$CLIENT_SECRET \
-    -Dcrawler.allow-query-url-pattern=${ALLOW_URLS:-.*} \
+    -Dcrawler.allow-query-url-pattern=$ALLOW_URLS \
     -Dpatient-id=$PATIENT_ID"
 
   # This is an optional, and discouraged flag.
