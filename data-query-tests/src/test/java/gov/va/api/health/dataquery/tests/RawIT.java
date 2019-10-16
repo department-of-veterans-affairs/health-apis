@@ -97,9 +97,9 @@ public class RawIT {
 
   @SneakyThrows
   public ExpectedResponse readRaw(String resourceName, String publicId) {
-    String path = resourceName + "/{id}";
+    String path = verifier.dataQuery().service().apiPath() + resourceName + "/{id}";
     String rawToken = System.getProperty("raw-token", "true");
-    log.info("Verify raw response for /{}, with [{}]", path, publicId);
+    log.info("Verify raw response for {}, with [{}]", path, publicId);
     ExpectedResponse response =
         TestClients.dataQuery().get(ImmutableMap.of("raw", rawToken), path, publicId);
     response.expect(200);
