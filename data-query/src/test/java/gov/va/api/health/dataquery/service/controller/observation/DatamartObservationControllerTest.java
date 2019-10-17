@@ -3,6 +3,7 @@ package gov.va.api.health.dataquery.service.controller.observation;
 import static gov.va.api.health.dataquery.service.controller.observation.DatamartObservationSamples.Fhir.link;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.LinkedHashMultimap;
@@ -30,17 +31,24 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.tuple.Pair;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @DataJpaTest
 @RunWith(SpringRunner.class)
 public class DatamartObservationControllerTest {
+
+  HttpHeaders headers;
+
+  ServerHttpResponse response;
 
   private IdentityService ids = mock(IdentityService.class);
 
@@ -64,6 +72,13 @@ public class DatamartObservationControllerTest {
   @SneakyThrows
   private static DatamartObservation toObject(String payload) {
     return JacksonConfig.createMapper().readValue(payload, DatamartObservation.class);
+  }
+
+  @Before
+  public void _init() {
+    headers = mock(HttpHeaders.class);
+    response = mock(ServerHttpResponse.class);
+    when(response.getHeaders()).thenReturn(headers);
   }
 
   ObservationController controller() {
@@ -155,21 +170,23 @@ public class DatamartObservationControllerTest {
   @Test
   public void readRaw() {
     DatamartObservation dm = Datamart.create().observation();
-    repository.save(asEntity(dm));
+    ObservationEntity entity = asEntity(dm);
+    repository.save(entity);
     mockObservationIdentity("x", dm.cdwId());
-    String json = controller().readRaw("x");
+    String json = controller().readRaw("x", response);
     assertThat(toObject(json)).isEqualTo(dm);
+    verify(headers).add("X-VA-INCLUDES-ICN", entity.icn());
   }
 
   @Test(expected = ResourceExceptions.NotFound.class)
   public void readRawThrowsNotFoundWhenDataIsMissing() {
     mockObservationIdentity("x", "x");
-    controller().readRaw("x");
+    controller().readRaw("x", response);
   }
 
   @Test(expected = ResourceExceptions.NotFound.class)
   public void readRawThrowsNotFoundWhenIdIsUnknown() {
-    controller().readRaw("x");
+    controller().readRaw("x", response);
   }
 
   @Test(expected = ResourceExceptions.NotFound.class)
@@ -180,7 +197,7 @@ public class DatamartObservationControllerTest {
 
   @Test(expected = ResourceExceptions.NotFound.class)
   public void readThrowsNotFoundWhenIdIsUnknown() {
-    controller().readRaw("x");
+    controller().readRaw("x", response);
   }
 
   @Test

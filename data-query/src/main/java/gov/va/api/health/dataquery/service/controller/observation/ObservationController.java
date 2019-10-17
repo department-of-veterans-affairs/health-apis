@@ -8,6 +8,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import com.google.common.base.Splitter;
 import gov.va.api.health.argonaut.api.resources.Observation;
+import gov.va.api.health.dataquery.service.controller.AbstractIncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.Bundler;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.DateTimeParameter;
@@ -35,6 +36,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -139,8 +141,10 @@ public class ObservationController {
     value = "/{publicId}",
     headers = {"raw=true"}
   )
-  public String readRaw(@PathVariable("publicId") String publicId) {
-    return datamart.readRaw(publicId);
+  public String readRaw(@PathVariable("publicId") String publicId, ServerHttpResponse response) {
+    ObservationEntity entity = datamart.readRaw(publicId);
+    AbstractIncludesIcnMajig.addHeader(response, entity.icn());
+    return entity.payload();
   }
 
   /** Search by _id. */
@@ -320,8 +324,8 @@ public class ObservationController {
       return DatamartObservationTransformer.builder().datamart(dm).build().toFhir();
     }
 
-    String readRaw(@PathVariable("publicId") String publicId) {
-      return findById(publicId).payload();
+    ObservationEntity readRaw(@PathVariable("publicId") String publicId) {
+      return findById(publicId);
     }
 
     void replaceReferences(Collection<DatamartObservation> resources) {
