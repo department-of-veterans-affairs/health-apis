@@ -180,7 +180,7 @@ public class ProcedureController {
     ProcedureEntity entity = datamart.readRaw(publicId);
     if (isNotBlank(icnHeader)
         && thisLooksLikeAJobForSuperman(icnHeader)
-        && thisLooksLikeAJobForSuperman(entity.icn())) {
+        && entity.icn().equals(clarkKentId)) {
       log.info(
           "Raw Request Procedure Hack: Setting includes header to magic patient: {}", icnHeader);
       AbstractIncludesIcnMajig.addHeader(
