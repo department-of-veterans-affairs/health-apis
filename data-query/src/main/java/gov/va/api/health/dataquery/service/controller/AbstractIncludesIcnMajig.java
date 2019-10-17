@@ -41,6 +41,9 @@ public abstract class AbstractIncludesIcnMajig<
   private final Class<B> bundleType;
   private final Function<T, Stream<String>> extractIcns;
 
+  /**
+  *  Add the X-VA-INCLUDES-ICN header if it does not already exist.
+  */
   public static void addHeader(ServerHttpResponse serverHttpResponse, String usersCsv) {
     HttpHeaders headers = serverHttpResponse != null ? serverHttpResponse.getHeaders() : null;
     if (headers == null || headers.get(INCLUDES_ICN_HEADER) == null || headers.get(INCLUDES_ICN_HEADER).isEmpty() ) {
@@ -48,6 +51,9 @@ public abstract class AbstractIncludesIcnMajig<
     }
   }
 
+  /**
+   *  Add the X-VA-INCLUDES-ICN header if it does not already exist.
+   */
   public static void addHeader(HttpServletResponse serverHttpResponse, String usersCsv) {
     if(StringUtils.isBlank(serverHttpResponse.getHeader(INCLUDES_ICN_HEADER))) {
       serverHttpResponse.addHeader(INCLUDES_ICN_HEADER, usersCsv);

@@ -169,9 +169,16 @@ public class ProcedureController {
     value = {"/{publicId}"},
     headers = {"raw=true"}
   )
-  public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
+  public String readRaw(@PathVariable("publicId") String publicId,
+    @RequestHeader(value = "X-VA-ICN", required = false) String icnHeader,
+    HttpServletResponse response) {
+
     ProcedureEntity entity = datamart.readRaw(publicId);
-    AbstractIncludesIcnMajig.addHeader(response, entity.icn());
+    if(isNotBlank(icnHeader) && thisLooksLikeAJobForSuperman(icnHeader) && thisLooksLikeAJobForSuperman(entity.icn())) {
+      AbstractIncludesIcnMajig.addHeader(response, icnHeader);
+    } else {
+      AbstractIncludesIcnMajig.addHeader(response, entity.icn());
+    }
     return entity.payload();
   }
 
