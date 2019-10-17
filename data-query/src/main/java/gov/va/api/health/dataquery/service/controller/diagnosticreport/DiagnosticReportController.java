@@ -41,6 +41,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
@@ -51,7 +52,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.util.Pair;
-import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -320,7 +320,7 @@ public class DiagnosticReportController {
     headers = {"raw=true"}
   )
   public DatamartDiagnosticReports.DiagnosticReport readRaw(
-      @PathVariable("publicId") String publicId, ServerHttpResponse response) {
+      @PathVariable("publicId") String publicId, HttpServletResponse response) {
     var pair = datamartReadRaw(publicId);
     AbstractIncludesIcnMajig.addHeader(response, pair.getFirst().fullIcn());
     return pair.getSecond();
@@ -487,7 +487,7 @@ public class DiagnosticReportController {
     params = {"patient"}
   )
   public String searchByPatientRaw(
-      @RequestParam("patient") String patient, ServerHttpResponse response) {
+      @RequestParam("patient") String patient, HttpServletResponse response) {
     MultiValueMap<String, String> publicParameters =
         Parameters.builder().add("patient", patient).build();
     MultiValueMap<String, String> cdwParameters =

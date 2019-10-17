@@ -6,7 +6,6 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Iterables;
 import gov.va.api.health.argonaut.api.resources.DiagnosticReport;
@@ -23,35 +22,24 @@ import gov.va.api.health.dstu2.api.elements.Reference;
 import gov.va.api.health.ids.api.IdentityService;
 import java.util.Arrays;
 import java.util.stream.Collectors;
+import javax.servlet.http.HttpServletResponse;
 import lombok.Builder;
 import lombok.SneakyThrows;
 import lombok.Value;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @DataJpaTest
 @RunWith(SpringRunner.class)
 public final class DatamartDiagnosticReportTest {
 
-  HttpHeaders headers;
-
-  ServerHttpResponse response;
+  HttpServletResponse response = mock(HttpServletResponse.class);
 
   @Autowired private TestEntityManager entityManager;
-
-  @Before
-  public void _init() {
-    headers = mock(HttpHeaders.class);
-    response = mock(ServerHttpResponse.class);
-    when(response.getHeaders()).thenReturn(headers);
-  }
 
   public void assertReadable(String json) throws java.io.IOException {
     DatamartDiagnosticReports dmDr =
@@ -160,7 +148,7 @@ public final class DatamartDiagnosticReportTest {
     DatamartDiagnosticReports.DiagnosticReport report =
         controller().readRaw(dm.reportId(), response);
     assertThat(report).isEqualTo(dm.report());
-    verify(headers).add("X-VA-INCLUDES-ICN", dm.entity().icn());
+    verify(response).addHeader("X-VA-INCLUDES-ICN", dm.entity().icn());
   }
 
   @Test(expected = ResourceExceptions.NotFound.class)
@@ -419,7 +407,7 @@ public final class DatamartDiagnosticReportTest {
     assertThat(
             DiagnosticReportsEntity.builder().payload(json).build().asDatamartDiagnosticReports())
         .isEqualTo(dm.reports());
-    verify(headers).add("X-VA-INCLUDES-ICN", dm.entity().icn());
+    verify(response).addHeader("X-VA-INCLUDES-ICN", dm.entity().icn());
   }
 
   @Test

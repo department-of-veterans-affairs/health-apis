@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -37,18 +36,13 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 public class DatamartAllergyIntoleranceControllerTest {
 
-  HttpServletResponse response;
+  HttpServletResponse response = mock(HttpServletResponse.class);
 
   private IdentityService ids = mock(IdentityService.class);
 
   @Autowired private TestEntityManager entityManager;
 
   @Autowired private AllergyIntoleranceRepository repository;
-
-  @Before
-  public void _init() {
-    response = mock(HttpServletResponse.class);
-  }
 
   @SneakyThrows
   private AllergyIntoleranceEntity asEntity(DatamartAllergyIntolerance dm) {
