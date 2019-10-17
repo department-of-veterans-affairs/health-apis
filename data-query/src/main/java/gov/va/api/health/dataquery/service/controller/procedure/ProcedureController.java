@@ -174,13 +174,18 @@ public class ProcedureController {
       @RequestHeader(value = "X-VA-ICN", required = false) String icnHeader,
       HttpServletResponse response) {
 
+    log.info("Public Id ({}) : ICN Header ({})", publicId, icnHeader);
+    log.info("Superman (id, display): {}, {}",supermanId, supermanDisplay);
+    log.info("Clark Kent (id, display): {}, {}", clarkKentId, clarkKentDisplay);
     ProcedureEntity entity = datamart.readRaw(publicId);
     if (isNotBlank(icnHeader)
         && thisLooksLikeAJobForSuperman(icnHeader)
         && thisLooksLikeAJobForSuperman(entity.icn())) {
+      log.info("Raw Request Procedure Hack: Setting includes header to magic patient: {}", icnHeader);
       AbstractIncludesIcnMajig.addHeader(
           response, AbstractIncludesIcnMajig.encodeHeaderValue(icnHeader));
     } else {
+      log.info("Default raw response: returning header with patient: {}", entity.icn());
       AbstractIncludesIcnMajig.addHeader(
           response, AbstractIncludesIcnMajig.encodeHeaderValue(entity.icn()));
     }
