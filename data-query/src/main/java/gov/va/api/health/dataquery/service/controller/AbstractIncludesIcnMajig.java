@@ -4,12 +4,15 @@ import gov.va.api.health.dstu2.api.bundle.AbstractBundle;
 import gov.va.api.health.dstu2.api.bundle.AbstractEntry;
 import gov.va.api.health.dstu2.api.resources.Resource;
 import java.security.InvalidParameterException;
+import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.MethodParameter;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.server.ServerHttpRequest;
@@ -39,11 +42,16 @@ public abstract class AbstractIncludesIcnMajig<
   private final Function<T, Stream<String>> extractIcns;
 
   public static void addHeader(ServerHttpResponse serverHttpResponse, String usersCsv) {
-    serverHttpResponse.getHeaders().add(INCLUDES_ICN_HEADER, usersCsv);
+    HttpHeaders headers = serverHttpResponse != null ? serverHttpResponse.getHeaders() : null;
+    if (headers == null || headers.get(INCLUDES_ICN_HEADER) == null || headers.get(INCLUDES_ICN_HEADER).isEmpty() ) {
+      serverHttpResponse.getHeaders().add(INCLUDES_ICN_HEADER, usersCsv);
+    }
   }
 
   public static void addHeader(HttpServletResponse serverHttpResponse, String usersCsv) {
-    serverHttpResponse.addHeader(INCLUDES_ICN_HEADER, usersCsv);
+    if(StringUtils.isBlank(serverHttpResponse.getHeader(INCLUDES_ICN_HEADER))) {
+      serverHttpResponse.addHeader(INCLUDES_ICN_HEADER, usersCsv);
+    }
   }
 
   public static void addHeaderForNoPatients(HttpServletResponse serverHttpResponse) {
