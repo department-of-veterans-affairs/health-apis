@@ -139,7 +139,7 @@ public class DatamartProcedureControllerTest {
     ProcedureEntity entity = asEntity(dm);
     repository.save(entity);
     mockProcedureIdentity("1", dm.cdwId());
-    String json = controller().readRaw("1", response);
+    String json = controller().readRaw("1", "1", response);
     assertThat(toObject(json)).isEqualTo(dm);
     verify(response).addHeader("X-VA-INCLUDES-ICN", entity.icn());
   }
@@ -147,12 +147,12 @@ public class DatamartProcedureControllerTest {
   @Test(expected = ResourceExceptions.NotFound.class)
   public void readRawThrowsNotFoundWhenDataIsMissing() {
     mockProcedureIdentity("1", "1");
-    controller().readRaw("1", response);
+    controller().readRaw("1", "1", response);
   }
 
   @Test(expected = ResourceExceptions.NotFound.class)
   public void readRawThrowsNotFoundWhenIdIsUnknown() {
-    controller().readRaw("1", response);
+    controller().readRaw("1", "1", response);
   }
 
   @Test
