@@ -35,6 +35,10 @@ public abstract class AbstractIncludesIcnMajig<
   private final Class<B> bundleType;
   private final Function<T, Stream<String>> extractIcns;
 
+  public static void addHeader(ServerHttpResponse serverHttpResponse, String usersCsv) {
+    serverHttpResponse.getHeaders().add("X-VA-INCLUDES-ICN", usersCsv);
+  }
+
   @SuppressWarnings("unchecked")
   @Override
   public Object beforeBodyWrite(
@@ -56,12 +60,11 @@ public abstract class AbstractIncludesIcnMajig<
     } else if (bundleType.isInstance(payload)) {
       users =
           ((B) payload)
-              .entry()
-              .stream()
-              .map(AbstractEntry::resource)
-              .flatMap(resource -> extractIcns.apply(resource))
-              .distinct()
-              .collect(Collectors.joining(","));
+              .entry().stream()
+                  .map(AbstractEntry::resource)
+                  .flatMap(resource -> extractIcns.apply(resource))
+                  .distinct()
+                  .collect(Collectors.joining(","));
     } else {
       throw new InvalidParameterException("Payload type does not match ControllerAdvice type.");
     }
@@ -70,7 +73,7 @@ public abstract class AbstractIncludesIcnMajig<
       users = "NONE";
     }
 
-    serverHttpResponse.getHeaders().add("X-VA-INCLUDES-ICN", users);
+    addHeader(serverHttpResponse, users);
 
     return payload;
   }

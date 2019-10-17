@@ -7,6 +7,7 @@ import static java.util.Collections.emptyList;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import gov.va.api.health.argonaut.api.resources.AllergyIntolerance;
+import gov.va.api.health.dataquery.service.controller.AbstractIncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.Bundler;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
@@ -31,6 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -51,9 +53,8 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 @RestController
 @RequestMapping(
-  value = {"AllergyIntolerance", "/api/AllergyIntolerance"},
-  produces = {"application/json", "application/json+fhir", "application/fhir+json"}
-)
+    value = {"AllergyIntolerance", "/api/AllergyIntolerance"},
+    produces = {"application/json", "application/json+fhir", "application/fhir+json"})
 public class AllergyIntoleranceController {
 
   private final Datamart datamart = new Datamart();
@@ -155,11 +156,12 @@ public class AllergyIntoleranceController {
 
   /** Return the raw Datamart document for the given identifier. */
   @GetMapping(
-    value = "/{publicId}",
-    headers = {"raw=true"}
-  )
-  public String readRaw(@PathVariable("publicId") String publicId) {
-    return datamart.readRaw(publicId);
+      value = "/{publicId}",
+      headers = {"raw=true"})
+  public String readRaw(@PathVariable("publicId") String publicId, ServerHttpResponse response) {
+    AllergyIntoleranceEntity entity = datamart.readRaw(publicId);
+    AbstractIncludesIcnMajig.addHeader(response, entity.icn());
+    return entity.payload();
   }
 
   /** Search by _id. */
@@ -220,9 +222,8 @@ public class AllergyIntoleranceController {
 
   /** Hey, this is a validate endpoint. It validates. */
   @PostMapping(
-    value = "/$validate",
-    consumes = {"application/json", "application/json+fhir", "application/fhir+json"}
-  )
+      value = "/$validate",
+      consumes = {"application/json", "application/json+fhir", "application/fhir+json"})
   public OperationOutcome validate(@RequestBody AllergyIntolerance.Bundle bundle) {
     return Validator.create().validate(bundle);
   }
@@ -266,8 +267,8 @@ public class AllergyIntoleranceController {
       return DatamartAllergyIntoleranceTransformer.builder().datamart(dm).build().toFhir();
     }
 
-    String readRaw(@PathVariable("publicId") String publicId) {
-      return findById(publicId).payload();
+    AllergyIntoleranceEntity readRaw(@PathVariable("publicId") String publicId) {
+      return findById(publicId);
     }
 
     void replaceReferences(Collection<DatamartAllergyIntolerance> resources) {
@@ -289,14 +290,12 @@ public class AllergyIntoleranceController {
         return bundle(publicParameters, emptyList(), (int) entitiesPage.getTotalElements());
       }
       List<DatamartAllergyIntolerance> datamarts =
-          entitiesPage
-              .stream()
+          entitiesPage.stream()
               .map(e -> e.asDatamartAllergyIntolerance())
               .collect(Collectors.toList());
       replaceReferences(datamarts);
       List<AllergyIntolerance> fhir =
-          datamarts
-              .stream()
+          datamarts.stream()
               .map(
                   dm ->
                       DatamartAllergyIntoleranceTransformer.builder().datamart(dm).build().toFhir())
