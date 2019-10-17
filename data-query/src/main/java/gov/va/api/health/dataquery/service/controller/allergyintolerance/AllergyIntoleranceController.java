@@ -53,8 +53,9 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 @RestController
 @RequestMapping(
-    value = {"AllergyIntolerance", "/api/AllergyIntolerance"},
-    produces = {"application/json", "application/json+fhir", "application/fhir+json"})
+  value = {"AllergyIntolerance", "/api/AllergyIntolerance"},
+  produces = {"application/json", "application/json+fhir", "application/fhir+json"}
+)
 public class AllergyIntoleranceController {
 
   private final Datamart datamart = new Datamart();
@@ -156,8 +157,9 @@ public class AllergyIntoleranceController {
 
   /** Return the raw Datamart document for the given identifier. */
   @GetMapping(
-      value = "/{publicId}",
-      headers = {"raw=true"})
+    value = "/{publicId}",
+    headers = {"raw=true"}
+  )
   public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
     AllergyIntoleranceEntity entity = datamart.readRaw(publicId);
     AbstractIncludesIcnMajig.addHeader(response, entity.icn());
@@ -222,8 +224,9 @@ public class AllergyIntoleranceController {
 
   /** Hey, this is a validate endpoint. It validates. */
   @PostMapping(
-      value = "/$validate",
-      consumes = {"application/json", "application/json+fhir", "application/fhir+json"})
+    value = "/$validate",
+    consumes = {"application/json", "application/json+fhir", "application/fhir+json"}
+  )
   public OperationOutcome validate(@RequestBody AllergyIntolerance.Bundle bundle) {
     return Validator.create().validate(bundle);
   }
@@ -290,12 +293,14 @@ public class AllergyIntoleranceController {
         return bundle(publicParameters, emptyList(), (int) entitiesPage.getTotalElements());
       }
       List<DatamartAllergyIntolerance> datamarts =
-          entitiesPage.stream()
+          entitiesPage
+              .stream()
               .map(e -> e.asDatamartAllergyIntolerance())
               .collect(Collectors.toList());
       replaceReferences(datamarts);
       List<AllergyIntolerance> fhir =
-          datamarts.stream()
+          datamarts
+              .stream()
               .map(
                   dm ->
                       DatamartAllergyIntoleranceTransformer.builder().datamart(dm).build().toFhir())

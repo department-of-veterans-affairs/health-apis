@@ -27,6 +27,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.Min;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
@@ -35,7 +36,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -127,7 +127,7 @@ public class ImmunizationController {
     value = {"/{publicId}"},
     headers = {"raw=true"}
   )
-  public String readRaw(@PathVariable("publicId") String publicId, ServerHttpResponse response) {
+  public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
     ImmunizationEntity entity = datamart.readRaw(publicId);
     AbstractIncludesIcnMajig.addHeader(response, entity.icn());
     return entity.payload();

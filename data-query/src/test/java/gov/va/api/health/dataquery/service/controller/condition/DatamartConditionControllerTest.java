@@ -27,38 +27,27 @@ import gov.va.api.health.ids.api.ResourceIdentity;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @DataJpaTest
 @RunWith(SpringRunner.class)
 public class DatamartConditionControllerTest {
 
-  HttpHeaders headers;
-
-  ServerHttpResponse response;
+  HttpServletResponse response = mock(HttpServletResponse.class);
 
   private IdentityService ids = mock(IdentityService.class);
 
   @Autowired private ConditionRepository repository;
 
   @Autowired private TestEntityManager entityManager;
-
-  @Before
-  public void _init() {
-    headers = mock(HttpHeaders.class);
-    response = mock(ServerHttpResponse.class);
-    when(response.getHeaders()).thenReturn(headers);
-  }
 
   @SneakyThrows
   private ConditionEntity asEntity(DatamartCondition dm) {
@@ -146,7 +135,7 @@ public class DatamartConditionControllerTest {
     mockConditionIdentity("x", dm.cdwId());
     String json = controller().readRaw("x", response);
     assertThat(toObject(json)).isEqualTo(dm);
-    verify(headers).add("X-VA-INCLUDES-ICN", entity.icn());
+    verify(response).addHeader("X-VA-INCLUDES-ICN", entity.icn());
   }
 
   @Test(expected = ResourceExceptions.NotFound.class)
