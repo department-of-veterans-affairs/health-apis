@@ -54,12 +54,14 @@ trustServer() {
   curl -sk https://$host > /dev/null 2>&1
   [ $? == 6 ] && return
   echo "Trusting $host"
+  local cacertsDir="$JAVA_HOME/jre/lib/security/cacerts"
+  [ -f "$JAVA_HOME/lib/security/cacerts" ] && cacertsDir="$JAVA_HOME/lib/security/cacerts"
   keytool -printcert -rfc -sslserver $host > $host.pem
   keytool \
     -importcert \
     -file $host.pem \
     -alias $host \
-    -keystore $JAVA_HOME/jre/lib/security/cacerts \
+    -keystore $cacertsDir \
     -storepass changeit \
     -noprompt
 }
@@ -150,12 +152,14 @@ setupForAutomation() {
   SYSTEM_PROPERTIES="$WEB_DRIVER_PROPERTIES \
     -Dsentinel=$SENTINEL_ENV \
     -Daccess-token=$TOKEN \
+    -Draw-token=$RAW_TOKEN \
     -Dsentinel.argonaut.url=https://$K8S_LOAD_BALANCER \
     -Dsentinel.argonaut.api-path=$DATA_QUERY_API_PATH \
     -Dcrawler.url.replace=$DATA_QUERY_REPLACE_URL \
     -D${K8S_ENVIRONMENT}.user-password=$USER_PASSWORD \
     -D${K8S_ENVIRONMENT}.client-id=$CLIENT_ID \
     -D${K8S_ENVIRONMENT}.client-secret=$CLIENT_SECRET \
+    -Dcrawler.allow-query-url-pattern=$ALLOW_URLS \
     -Dpatient-id=$PATIENT_ID"
 
   # This is an optional, and discouraged flag.
