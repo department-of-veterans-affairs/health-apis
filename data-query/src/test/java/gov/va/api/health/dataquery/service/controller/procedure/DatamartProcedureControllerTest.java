@@ -3,6 +3,7 @@ package gov.va.api.health.dataquery.service.controller.procedure;
 import static gov.va.api.health.dataquery.service.controller.procedure.DatamartProcedureSamples.Fhir.link;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.LinkedHashMultimap;
@@ -25,12 +26,15 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.tuple.Pair;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @DataJpaTest
@@ -39,9 +43,20 @@ public class DatamartProcedureControllerTest {
 
   private IdentityService ids = mock(IdentityService.class);
 
+  HttpHeaders headers;
+
+  ServerHttpResponse response;
+
   @Autowired private ProcedureRepository repository;
 
   @Autowired private TestEntityManager entityManager;
+
+  @Before
+  public void _init() {
+    headers = mock(HttpHeaders.class);
+    response = mock(ServerHttpResponse.class);
+    when(response.getHeaders()).thenReturn(headers);
+  }
 
   @SneakyThrows
   private ProcedureEntity asEntity(DatamartProcedure dm) {
@@ -126,21 +141,23 @@ public class DatamartProcedureControllerTest {
   @Test
   public void readRaw() {
     DatamartProcedure dm = Datamart.create().procedure();
-    repository.save(asEntity(dm));
+    ProcedureEntity entity = asEntity(dm);
+    repository.save(entity);
     mockProcedureIdentity("1", dm.cdwId());
-    String json = controller().readRaw("1");
+    String json = controller().readRaw("1", response);
     assertThat(toObject(json)).isEqualTo(dm);
+    verify(headers).add("X-VA-INCLUDES-ICN", entity.icn());
   }
 
   @Test(expected = ResourceExceptions.NotFound.class)
   public void readRawThrowsNotFoundWhenDataIsMissing() {
     mockProcedureIdentity("1", "1");
-    controller().readRaw("1");
+    controller().readRaw("1", response);
   }
 
   @Test(expected = ResourceExceptions.NotFound.class)
   public void readRawThrowsNotFoundWhenIdIsUnknown() {
-    controller().readRaw("1");
+    controller().readRaw("1", response);
   }
 
   @Test
