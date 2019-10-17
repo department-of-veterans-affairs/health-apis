@@ -65,4 +65,10 @@
     </Or>
     <Bug pattern="EI_EXPOSE_REP2"/>
   </Match>
+
+  <!-- Remove logs in procedure controller!!!-->
+  <Match>
+    <Bug pattern="CRLF_INJECTION_LOGS" />
+
+  </Match>
 </FindBugsFilter>
