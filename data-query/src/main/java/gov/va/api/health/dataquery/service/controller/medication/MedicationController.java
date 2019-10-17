@@ -7,6 +7,7 @@ import static java.util.Collections.emptyList;
 import gov.va.api.health.argonaut.api.resources.Medication;
 import gov.va.api.health.argonaut.api.resources.Medication.Bundle;
 import gov.va.api.health.argonaut.api.resources.Medication.Entry;
+import gov.va.api.health.dataquery.service.controller.AbstractIncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.Bundler;
 import gov.va.api.health.dataquery.service.controller.Bundler.BundleContext;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
@@ -25,6 +26,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.Min;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -50,9 +52,8 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 @RestController
 @RequestMapping(
-  value = {"Medication", "/api/Medication"},
-  produces = {"application/json", "application/json+fhir", "application/fhir+json"}
-)
+    value = {"Medication", "/api/Medication"},
+    produces = {"application/json", "application/json+fhir", "application/fhir+json"})
 public class MedicationController {
   private final MedicationController.Datamart datamart = new MedicationController.Datamart();
   private Transformer transformer;
@@ -115,10 +116,10 @@ public class MedicationController {
 
   /** Read by id, raw data. */
   @GetMapping(
-    value = {"/{publicId}"},
-    headers = {"raw=true"}
-  )
-  public String readRaw(@PathVariable("publicId") String publicId) {
+      value = {"/{publicId}"},
+      headers = {"raw=true"})
+  public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
+    AbstractIncludesIcnMajig.addHeaderForNoPatients(response);
     return datamart.readRaw(publicId);
   }
 
@@ -161,9 +162,8 @@ public class MedicationController {
 
   /** Hey, this is a validate endpoint. It validates. */
   @PostMapping(
-    value = "/$validate",
-    consumes = {"application/json", "application/json+fhir", "application/fhir+json"}
-  )
+      value = "/$validate",
+      consumes = {"application/json", "application/json+fhir", "application/fhir+json"})
   public OperationOutcome validate(@RequestBody Bundle bundle) {
     return Validator.create().validate(bundle);
   }
