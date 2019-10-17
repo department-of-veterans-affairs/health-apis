@@ -27,6 +27,7 @@ public class ExtractIcnValidator<M extends AbstractIncludesIcnMajig, R extends R
     HttpHeaders mockHeaders = mock(HttpHeaders.class);
     Mockito.when(mockResponse.getHeaders()).thenReturn(mockHeaders);
     majig.beforeBodyWrite(body, null, null, null, null, mockResponse);
+    verify(mockHeaders, Mockito.atLeastOnce()).get("X-VA-INCLUDES-ICN");
     verify(mockHeaders).add("X-VA-INCLUDES-ICN", String.join(",", expectedIcns));
     verifyNoMoreInteractions(mockHeaders);
   }

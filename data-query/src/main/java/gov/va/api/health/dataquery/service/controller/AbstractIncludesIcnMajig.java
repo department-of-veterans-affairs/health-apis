@@ -3,8 +3,9 @@ package gov.va.api.health.dataquery.service.controller;
 import gov.va.api.health.dstu2.api.bundle.AbstractBundle;
 import gov.va.api.health.dstu2.api.bundle.AbstractEntry;
 import gov.va.api.health.dstu2.api.resources.Resource;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidParameterException;
-import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -41,27 +42,29 @@ public abstract class AbstractIncludesIcnMajig<
   private final Class<B> bundleType;
   private final Function<T, Stream<String>> extractIcns;
 
-  /**
-  *  Add the X-VA-INCLUDES-ICN header if it does not already exist.
-  */
+  /** Add the X-VA-INCLUDES-ICN header if it does not already exist. */
   public static void addHeader(ServerHttpResponse serverHttpResponse, String usersCsv) {
     HttpHeaders headers = serverHttpResponse != null ? serverHttpResponse.getHeaders() : null;
-    if (headers == null || headers.get(INCLUDES_ICN_HEADER) == null || headers.get(INCLUDES_ICN_HEADER).isEmpty() ) {
+    if (headers == null
+        || headers.get(INCLUDES_ICN_HEADER) == null
+        || headers.get(INCLUDES_ICN_HEADER).isEmpty()) {
       serverHttpResponse.getHeaders().add(INCLUDES_ICN_HEADER, usersCsv);
     }
   }
 
-  /**
-   *  Add the X-VA-INCLUDES-ICN header if it does not already exist.
-   */
+  /** Add the X-VA-INCLUDES-ICN header if it does not already exist. */
   public static void addHeader(HttpServletResponse serverHttpResponse, String usersCsv) {
-    if(StringUtils.isBlank(serverHttpResponse.getHeader(INCLUDES_ICN_HEADER))) {
+    if (StringUtils.isBlank(serverHttpResponse.getHeader(INCLUDES_ICN_HEADER))) {
       serverHttpResponse.addHeader(INCLUDES_ICN_HEADER, usersCsv);
     }
   }
 
   public static void addHeaderForNoPatients(HttpServletResponse serverHttpResponse) {
     addHeader(serverHttpResponse, "NONE");
+  }
+
+  public static String encodeHeaderValue(String value) {
+    return URLEncoder.encode(value, StandardCharsets.UTF_8);
   }
 
   @SuppressWarnings("unchecked")

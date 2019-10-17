@@ -20,6 +20,7 @@ import java.util.stream.Stream;
 import lombok.Builder;
 import lombok.Data;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.ServerHttpResponse;
@@ -39,6 +40,7 @@ public class AbstractIncludesIcnMajigTest {
     new FakeMajg()
         .beforeBodyWrite(
             FakeResource.builder().id("666V666").build(), null, null, null, null, mockResponse);
+    verify(mockHeaders, Mockito.atLeastOnce()).get("X-VA-INCLUDES-ICN");
     verify(mockHeaders).add("X-VA-INCLUDES-ICN", "666V666");
     verifyNoMoreInteractions(mockHeaders);
   }
@@ -69,6 +71,7 @@ public class AbstractIncludesIcnMajigTest {
                         .build()))
             .build();
     new FakeMajg().beforeBodyWrite(payload, null, null, null, null, mockResponse);
+    verify(mockHeaders, Mockito.atLeastOnce()).get("X-VA-INCLUDES-ICN");
     verify(mockHeaders).add("X-VA-INCLUDES-ICN", "666V666,777V777,888V888");
     verifyNoMoreInteractions(mockHeaders);
   }
@@ -93,6 +96,7 @@ public class AbstractIncludesIcnMajigTest {
                         .build()))
             .build();
     new FakeMajg().beforeBodyWrite(payload, null, null, null, null, mockResponse);
+    verify(mockHeaders, Mockito.atLeastOnce()).get("X-VA-INCLUDES-ICN");
     verify(mockHeaders).add("X-VA-INCLUDES-ICN", "666V666,777V777,888V888");
     verifyNoMoreInteractions(mockHeaders);
   }
