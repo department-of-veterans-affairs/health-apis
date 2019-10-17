@@ -6,6 +6,7 @@ import static java.util.Collections.emptyList;
 
 import gov.va.api.health.argonaut.api.resources.Immunization;
 import gov.va.api.health.argonaut.api.resources.Immunization.Bundle;
+import gov.va.api.health.dataquery.service.controller.AbstractIncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.Bundler;
 import gov.va.api.health.dataquery.service.controller.Bundler.BundleContext;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
@@ -34,6 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -125,8 +127,10 @@ public class ImmunizationController {
     value = {"/{publicId}"},
     headers = {"raw=true"}
   )
-  public String readRaw(@PathVariable("publicId") String publicId) {
-    return datamart.readRaw(publicId);
+  public String readRaw(@PathVariable("publicId") String publicId, ServerHttpResponse response) {
+    ImmunizationEntity entity = datamart.readRaw(publicId);
+    AbstractIncludesIcnMajig.addHeader(response, entity.icn());
+    return entity.payload();
   }
 
   private CdwImmunization103Root search(MultiValueMap<String, String> params) {
@@ -268,8 +272,8 @@ public class ImmunizationController {
       return transform(immunization);
     }
 
-    String readRaw(String publicId) {
-      return findById(publicId).payload();
+    ImmunizationEntity readRaw(String publicId) {
+      return findById(publicId);
     }
 
     Collection<DatamartImmunization> replaceReferences(Collection<DatamartImmunization> resources) {
