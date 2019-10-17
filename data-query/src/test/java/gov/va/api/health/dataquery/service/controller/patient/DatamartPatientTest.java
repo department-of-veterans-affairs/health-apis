@@ -6,7 +6,6 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import gov.va.api.health.argonaut.api.resources.Patient;
 import gov.va.api.health.argonaut.api.resources.Patient.Gender;
@@ -23,6 +22,7 @@ import gov.va.api.health.dstu2.api.elements.Extension;
 import gov.va.api.health.dstu2.api.elements.Reference;
 import gov.va.api.health.ids.api.IdentityService;
 import java.util.Optional;
+import javax.servlet.http.HttpServletResponse;
 import lombok.Builder;
 import lombok.SneakyThrows;
 import lombok.Value;
@@ -32,25 +32,19 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @DataJpaTest
 @RunWith(SpringRunner.class)
 public final class DatamartPatientTest {
 
-  HttpHeaders headers;
-
-  ServerHttpResponse response;
+  HttpServletResponse response;
 
   @Autowired private TestEntityManager entityManager;
 
   @Before
   public void _init() {
-    headers = mock(HttpHeaders.class);
-    response = mock(ServerHttpResponse.class);
-    when(response.getHeaders()).thenReturn(headers);
+    response = mock(HttpServletResponse.class);
   }
 
   @Test
@@ -370,7 +364,7 @@ public final class DatamartPatientTest {
     String json = controller().readRaw(dm.icn(), response);
     assertThat(PatientEntity.builder().payload(json).build().asDatamartPatient())
         .isEqualTo(dm.patient());
-    verify(headers).add("X-VA-INCLUDES-ICN", entity.icn());
+    verify(response).addHeader("X-VA-INCLUDES-ICN", entity.icn());
   }
 
   @Test
