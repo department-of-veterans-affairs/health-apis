@@ -2,6 +2,7 @@ package gov.va.api.health.dataquery.service.controller.medicationstatement;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.LinkedHashMultimap;
@@ -21,7 +22,9 @@ import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
 import java.util.ArrayList;
 import java.util.List;
+import javax.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -34,11 +37,18 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 public class DatamartMedicationStatementControllerTest {
 
+  HttpServletResponse response;
+
   @Autowired private TestEntityManager entityManager;
 
   @Autowired private MedicationStatementRepository repository;
 
   private IdentityService ids = mock(IdentityService.class);
+
+  @Before
+  public void _init() {
+    response = mock(HttpServletResponse.class);
+  }
 
   @SneakyThrows
   private MedicationStatementEntity asEntity(DatamartMedicationStatement dm) {
@@ -120,21 +130,23 @@ public class DatamartMedicationStatementControllerTest {
   public void readRaw() {
     DatamartMedicationStatement dm =
         DatamartMedicationStatementSamples.Datamart.create().medicationStatement();
-    repository.save(asEntity(dm));
+    MedicationStatementEntity entity = asEntity(dm);
+    repository.save(entity);
     mockMedicationStatementIdentity("1", dm.cdwId());
-    String json = controller().readRaw("1");
+    String json = controller().readRaw("1", response);
     assertThat(toObject(json)).isEqualTo(dm);
+    verify(response).addHeader("X-VA-INCLUDES-ICN", entity.icn());
   }
 
   @Test(expected = ResourceExceptions.NotFound.class)
   public void readRawThrowsNotFoundWhenDataIsMissing() {
     mockMedicationStatementIdentity("1", "1");
-    controller().readRaw("1");
+    controller().readRaw("1", response);
   }
 
   @Test(expected = ResourceExceptions.NotFound.class)
   public void readRawThrowsNotFoundWhenIdIsUnknown() {
-    controller().readRaw("1");
+    controller().readRaw("1", response);
   }
 
   @Test(expected = ResourceExceptions.NotFound.class)

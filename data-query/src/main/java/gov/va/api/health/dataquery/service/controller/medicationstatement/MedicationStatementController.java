@@ -6,6 +6,7 @@ import static java.util.Collections.emptyList;
 
 import gov.va.api.health.argonaut.api.resources.MedicationStatement;
 import gov.va.api.health.argonaut.api.resources.MedicationStatement.Bundle;
+import gov.va.api.health.dataquery.service.controller.AbstractIncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.Bundler;
 import gov.va.api.health.dataquery.service.controller.Bundler.BundleContext;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
@@ -25,6 +26,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.Min;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
@@ -131,8 +133,10 @@ public class MedicationStatementController {
     value = {"/{publicId}"},
     headers = {"raw=true"}
   )
-  public String readRaw(@PathVariable("publicId") String publicId) {
-    return datamart.readRaw(publicId);
+  public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
+    MedicationStatementEntity entity = datamart.readRaw(publicId);
+    AbstractIncludesIcnMajig.addHeader(response, entity.icn());
+    return entity.payload();
   }
 
   private CdwMedicationStatement102Root search(MultiValueMap<String, String> params) {
@@ -280,8 +284,8 @@ public class MedicationStatementController {
       return transform(medicationStatement);
     }
 
-    String readRaw(String publicId) {
-      return findById(publicId).payload();
+    MedicationStatementEntity readRaw(String publicId) {
+      return findById(publicId);
     }
 
     Collection<DatamartMedicationStatement> replaceReferences(

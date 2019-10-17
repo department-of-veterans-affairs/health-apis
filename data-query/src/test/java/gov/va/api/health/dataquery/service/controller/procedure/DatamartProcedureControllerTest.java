@@ -24,6 +24,7 @@ import gov.va.api.health.ids.api.ResourceIdentity;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Before;
@@ -33,17 +34,13 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @DataJpaTest
 @RunWith(SpringRunner.class)
 public class DatamartProcedureControllerTest {
 
-  HttpHeaders headers;
-
-  ServerHttpResponse response;
+  HttpServletResponse response;
 
   private IdentityService ids = mock(IdentityService.class);
 
@@ -53,9 +50,7 @@ public class DatamartProcedureControllerTest {
 
   @Before
   public void _init() {
-    headers = mock(HttpHeaders.class);
-    response = mock(ServerHttpResponse.class);
-    when(response.getHeaders()).thenReturn(headers);
+    response = mock(HttpServletResponse.class);
   }
 
   @SneakyThrows
@@ -146,7 +141,7 @@ public class DatamartProcedureControllerTest {
     mockProcedureIdentity("1", dm.cdwId());
     String json = controller().readRaw("1", response);
     assertThat(toObject(json)).isEqualTo(dm);
-    verify(headers).add("X-VA-INCLUDES-ICN", entity.icn());
+    verify(response).addHeader("X-VA-INCLUDES-ICN", entity.icn());
   }
 
   @Test(expected = ResourceExceptions.NotFound.class)
