@@ -5,6 +5,7 @@ import static gov.va.api.health.dataquery.service.controller.Transformers.hasPay
 import static java.util.Arrays.asList;
 
 import gov.va.api.health.argonaut.api.resources.Patient;
+import gov.va.api.health.dataquery.service.controller.AbstractIncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.Bundler;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.JpaDateTimeParameter;
@@ -29,6 +30,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
@@ -251,8 +253,10 @@ public class PatientController {
     value = "/{publicId}",
     headers = {"raw=true"}
   )
-  public String readRaw(@PathVariable("publicId") String publicId) {
-    return datamartReadRaw(publicId).payload();
+  public String readRaw(@PathVariable("publicId") String publicId, ServerHttpResponse response) {
+    PatientEntity entity = datamartReadRaw(publicId);
+    AbstractIncludesIcnMajig.addHeader(response, entity.icn());
+    return entity.payload();
   }
 
   private Patient.Bundle search(
