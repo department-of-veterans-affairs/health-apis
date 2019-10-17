@@ -6,6 +6,7 @@ import static java.util.Collections.emptyList;
 
 import gov.va.api.health.argonaut.api.resources.Condition;
 import gov.va.api.health.argonaut.api.resources.Condition.Bundle;
+import gov.va.api.health.dataquery.service.controller.AbstractIncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.Bundler;
 import gov.va.api.health.dataquery.service.controller.Bundler.BundleContext;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
@@ -35,6 +36,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -130,8 +132,10 @@ public class ConditionController {
     value = {"/{publicId}"},
     headers = {"raw=true"}
   )
-  public String readRaw(@PathVariable("publicId") String publicId) {
-    return datamart.readRaw(publicId);
+  public String readRaw(@PathVariable("publicId") String publicId, ServerHttpResponse response) {
+    ConditionEntity entity = datamart.readRaw(publicId);
+    AbstractIncludesIcnMajig.addHeader(response, entity.icn());
+    return entity.payload();
   }
 
   private CdwCondition103Root search(MultiValueMap<String, String> params) {
@@ -315,8 +319,8 @@ public class ConditionController {
       return transform(condition);
     }
 
-    String readRaw(String publicId) {
-      return findById(publicId).payload();
+    ConditionEntity readRaw(String publicId) {
+      return findById(publicId);
     }
 
     Collection<DatamartCondition> replaceReferences(Collection<DatamartCondition> resources) {
