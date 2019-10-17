@@ -14,6 +14,7 @@ import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Table;
 import gov.va.api.health.argonaut.api.resources.DiagnosticReport;
+import gov.va.api.health.dataquery.service.controller.AbstractIncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.Bundler;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.DateTimeParameter;
@@ -50,6 +51,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.util.Pair;
+import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -125,10 +127,7 @@ public class DiagnosticReportController {
       return datamartReports;
     }
     List<DateTimeParameters> parameters =
-        dateParameters
-            .stream()
-            .map(date -> new DateTimeParameters(date))
-            .collect(Collectors.toList());
+        dateParameters.stream().map(DateTimeParameters::new).collect(Collectors.toList());
     return datamartReports
         .stream()
         .filter(r -> parameters.stream().allMatch(p -> dateParameterIsSatisfied(r, p)))
@@ -321,8 +320,10 @@ public class DiagnosticReportController {
     headers = {"raw=true"}
   )
   public DatamartDiagnosticReports.DiagnosticReport readRaw(
-      @PathVariable("publicId") String publicId) {
-    return datamartReadRaw(publicId).getSecond();
+      @PathVariable("publicId") String publicId, ServerHttpResponse response) {
+    var pair = datamartReadRaw(publicId);
+    AbstractIncludesIcnMajig.addHeader(response, pair.getFirst().fullIcn());
+    return pair.getSecond();
   }
 
   private void replaceCdwIdsWithPublicIds(
@@ -485,7 +486,8 @@ public class DiagnosticReportController {
     value = "/raw",
     params = {"patient"}
   )
-  public String searchByPatientRaw(@RequestParam("patient") String patient) {
+  public String searchByPatientRaw(
+      @RequestParam("patient") String patient, ServerHttpResponse response) {
     MultiValueMap<String, String> publicParameters =
         Parameters.builder().add("patient", patient).build();
     MultiValueMap<String, String> cdwParameters =
@@ -495,6 +497,7 @@ public class DiagnosticReportController {
     if (entity == null) {
       throw new NotFound(publicParameters);
     }
+    AbstractIncludesIcnMajig.addHeader(response, entity.icn());
     return entity.payload();
   }
 

@@ -3,6 +3,7 @@ package gov.va.api.health.dataquery.service.controller.immunization;
 import static gov.va.api.health.dataquery.service.controller.immunization.DatamartImmunizationSamples.Fhir.link;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.LinkedHashMultimap;
@@ -23,23 +24,37 @@ import gov.va.api.health.ids.api.ResourceIdentity;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.SneakyThrows;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @DataJpaTest
 @RunWith(SpringRunner.class)
 public class DatamartImmunizationControllerTest {
 
+  HttpHeaders headers;
+
+  ServerHttpResponse response;
+
   private IdentityService ids = mock(IdentityService.class);
 
   @Autowired private ImmunizationRepository repository;
 
   @Autowired private TestEntityManager entityManager;
+
+  @Before
+  public void _init() {
+    headers = mock(HttpHeaders.class);
+    response = mock(ServerHttpResponse.class);
+    when(response.getHeaders()).thenReturn(headers);
+  }
 
   @SneakyThrows
   private ImmunizationEntity asEntity(DatamartImmunization dm) {
@@ -116,21 +131,23 @@ public class DatamartImmunizationControllerTest {
   @Test
   public void readRaw() {
     DatamartImmunization dm = Datamart.create().immunization();
-    repository.save(asEntity(dm));
+    ImmunizationEntity entity = asEntity(dm);
+    repository.save(entity);
     mockImmunizationIdentity("1", dm.cdwId());
-    String json = controller().readRaw("1");
+    String json = controller().readRaw("1", response);
     assertThat(toObject(json)).isEqualTo(dm);
+    verify(headers).add("X-VA-INCLUDES-ICN", entity.icn());
   }
 
   @Test(expected = ResourceExceptions.NotFound.class)
   public void readRawThrowsNotFoundWhenDataIsMissing() {
     mockImmunizationIdentity("1", "1");
-    controller().readRaw("1");
+    controller().readRaw("1", response);
   }
 
   @Test(expected = ResourceExceptions.NotFound.class)
   public void readRawThrowsNotFoundWhenIdIsUnknown() {
-    controller().readRaw("1");
+    controller().readRaw("1", response);
   }
 
   @Test(expected = ResourceExceptions.NotFound.class)

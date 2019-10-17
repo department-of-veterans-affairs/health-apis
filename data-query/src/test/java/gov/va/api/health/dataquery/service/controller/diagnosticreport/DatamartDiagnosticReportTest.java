@@ -5,6 +5,8 @@ import static gov.va.api.health.dataquery.service.controller.Transformers.parseI
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Iterables;
 import gov.va.api.health.argonaut.api.resources.DiagnosticReport;
@@ -24,18 +26,32 @@ import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.SneakyThrows;
 import lombok.Value;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @DataJpaTest
 @RunWith(SpringRunner.class)
 public final class DatamartDiagnosticReportTest {
 
+  HttpHeaders headers;
+
+  ServerHttpResponse response;
+
   @Autowired private TestEntityManager entityManager;
+
+  @Before
+  public void _init() {
+    headers = mock(HttpHeaders.class);
+    response = mock(ServerHttpResponse.class);
+    when(response.getHeaders()).thenReturn(headers);
+  }
 
   public void assertReadable(String json) throws java.io.IOException {
     DatamartDiagnosticReports dmDr =
@@ -141,20 +157,22 @@ public final class DatamartDiagnosticReportTest {
     DatamartData dm = DatamartData.create();
     entityManager.persistAndFlush(dm.entity());
     entityManager.persistAndFlush(dm.crossEntity());
-    DatamartDiagnosticReports.DiagnosticReport report = controller().readRaw(dm.reportId());
+    DatamartDiagnosticReports.DiagnosticReport report =
+        controller().readRaw(dm.reportId(), response);
     assertThat(report).isEqualTo(dm.report());
+    verify(headers).add("X-VA-INCLUDES-ICN", dm.entity().icn());
   }
 
   @Test(expected = ResourceExceptions.NotFound.class)
   public void readRaw_empty() {
     DiagnosticReportController controller = controller();
-    controller.readRaw("800260864479:L");
+    controller.readRaw("800260864479:L", response);
   }
 
   @Test(expected = ResourceExceptions.NotFound.class)
   public void readRaw_unknown() {
     DiagnosticReportController controller = controller();
-    controller.readRaw("123456:X");
+    controller.readRaw("123456:X", response);
   }
 
   @Test(expected = ResourceExceptions.NotFound.class)
@@ -397,10 +415,11 @@ public final class DatamartDiagnosticReportTest {
   public void searchByPatientRaw() {
     DatamartData dm = DatamartData.create();
     entityManager.persistAndFlush(dm.entity());
-    String json = controller().searchByPatientRaw(dm.icn());
+    String json = controller().searchByPatientRaw(dm.icn(), response);
     assertThat(
             DiagnosticReportsEntity.builder().payload(json).build().asDatamartDiagnosticReports())
         .isEqualTo(dm.reports());
+    verify(headers).add("X-VA-INCLUDES-ICN", dm.entity().icn());
   }
 
   @Test

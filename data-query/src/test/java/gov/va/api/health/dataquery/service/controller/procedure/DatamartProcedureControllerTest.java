@@ -41,11 +41,11 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 public class DatamartProcedureControllerTest {
 
-  private IdentityService ids = mock(IdentityService.class);
-
   HttpHeaders headers;
 
   ServerHttpResponse response;
+
+  private IdentityService ids = mock(IdentityService.class);
 
   @Autowired private ProcedureRepository repository;
 
