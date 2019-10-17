@@ -52,8 +52,9 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 @RestController
 @RequestMapping(
-    value = {"Medication", "/api/Medication"},
-    produces = {"application/json", "application/json+fhir", "application/fhir+json"})
+  value = {"Medication", "/api/Medication"},
+  produces = {"application/json", "application/json+fhir", "application/fhir+json"}
+)
 public class MedicationController {
   private final MedicationController.Datamart datamart = new MedicationController.Datamart();
   private Transformer transformer;
@@ -116,8 +117,9 @@ public class MedicationController {
 
   /** Read by id, raw data. */
   @GetMapping(
-      value = {"/{publicId}"},
-      headers = {"raw=true"})
+    value = {"/{publicId}"},
+    headers = {"raw=true"}
+  )
   public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
     AbstractIncludesIcnMajig.addHeaderForNoPatients(response);
     return datamart.readRaw(publicId);
@@ -162,8 +164,9 @@ public class MedicationController {
 
   /** Hey, this is a validate endpoint. It validates. */
   @PostMapping(
-      value = "/$validate",
-      consumes = {"application/json", "application/json+fhir", "application/fhir+json"})
+    value = "/$validate",
+    consumes = {"application/json", "application/json+fhir", "application/fhir+json"}
+  )
   public OperationOutcome validate(@RequestBody Bundle bundle) {
     return Validator.create().validate(bundle);
   }
