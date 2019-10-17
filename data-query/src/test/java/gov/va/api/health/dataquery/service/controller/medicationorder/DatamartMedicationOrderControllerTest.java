@@ -3,6 +3,7 @@ package gov.va.api.health.dataquery.service.controller.medicationorder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.LinkedHashMultimap;
@@ -19,7 +20,9 @@ import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
 import java.util.ArrayList;
 import java.util.List;
+import javax.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,11 +34,18 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 public class DatamartMedicationOrderControllerTest {
 
+  HttpServletResponse response;
+
   @Autowired private TestEntityManager entity;
 
   @Autowired private MedicationOrderRepository repository;
 
   private IdentityService ids = mock(IdentityService.class);
+
+  @Before
+  public void _init() {
+    response = mock(HttpServletResponse.class);
+  }
 
   @SneakyThrows
   private MedicationOrderEntity asEntity(DatamartMedicationOrder dm) {
@@ -116,21 +126,23 @@ public class DatamartMedicationOrderControllerTest {
   @Test
   public void readRaw() {
     DatamartMedicationOrder dm = DatamartMedicationOrderSamples.Datamart.create().medicationOrder();
-    repository.save(asEntity(dm));
+    MedicationOrderEntity entity = asEntity(dm);
+    repository.save(entity);
     mockMedicationOrderIdentity("1", dm.cdwId());
-    String actual = controller().readRaw("1");
+    String actual = controller().readRaw("1", response);
     assertThat(toObject(actual)).isEqualTo(dm);
+    verify(response).addHeader("X-VA-INCLUDES-ICN", entity.icn());
   }
 
   @Test(expected = ResourceExceptions.NotFound.class)
   public void readRawThrowsNotFoundWhenDataIsMissing() {
     mockMedicationOrderIdentity("1", "1");
-    controller().readRaw("1");
+    controller().readRaw("1", response);
   }
 
   @Test(expected = ResourceExceptions.NotFound.class)
   public void readRawThrowsNotFoundWhenIdIsUnknown() {
-    controller().readRaw("1");
+    controller().readRaw("1", response);
   }
 
   @Test
