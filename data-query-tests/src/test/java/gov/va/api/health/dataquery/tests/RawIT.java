@@ -5,9 +5,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.collect.ImmutableMap;
 import gov.va.api.health.dataquery.tests.categories.LabDataQueryPatient;
 import gov.va.api.health.dataquery.tests.categories.ProdDataQueryPatient;
-import gov.va.api.health.sentinel.ExpectedResponse;
 import gov.va.api.health.sentinel.categories.Local;
+import io.restassured.RestAssured;
 import io.restassured.path.json.config.JsonPathConfig;
+import io.restassured.response.Response;
+import io.restassured.specification.RequestSpecification;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
@@ -22,6 +24,11 @@ public class RawIT {
 
   ResourceVerifier verifier = ResourceVerifier.get();
 
+  RequestSpecification raw =
+      RestAssured.given()
+          .spec(verifier.dataQuery().service().requestSpecification())
+          .headers(ImmutableMap.of("raw", System.getProperty("raw-token", "true")));
+
   @Test
   @Category({Local.class, LabDataQueryPatient.class, ProdDataQueryPatient.class})
   public void allergyIntoleranceRaw() {
@@ -33,7 +40,6 @@ public class RawIT {
     // Verify it is a raw response from the correct resource
     String fhirObjectType =
         readRaw(resourceName, publicId)
-            .response()
             .jsonPath()
             .using(JsonPathConfig.jsonPathConfig().charset("UTF-8"))
             .get("objectType")
@@ -53,10 +59,9 @@ public class RawIT {
   public void diagnosticReportRaw() {
     // objectType is not returned in a raw diagnosticReport read, so we'll make sure it has an
     // identifier instead
-    ExpectedResponse response = readRaw("DiagnosticReport", verifier.ids().diagnosticReport());
+    Response response = readRaw("DiagnosticReport", verifier.ids().diagnosticReport());
     String resourceIdentifier =
         response
-            .response()
             .jsonPath()
             .using(JsonPathConfig.jsonPathConfig().charset("UTF-8"))
             .get("identifier")
@@ -107,13 +112,11 @@ public class RawIT {
   }
 
   @SneakyThrows
-  public ExpectedResponse readRaw(String resourceName, String publicId) {
-    String path = verifier.dataQuery().service().apiPath() + resourceName + "/{id}";
-    String rawToken = System.getProperty("raw-token", "true");
+  public Response readRaw(String resourceName, String publicId) {
+    String path = verifier.dataQuery().service().apiPath() + resourceName + "/" + publicId;
     log.info("Verify raw response for {}, with [{}]", path, publicId);
-    ExpectedResponse response =
-        TestClients.dataQuery().get(ImmutableMap.of("raw", rawToken), path, publicId);
-    response.expect(200);
+    Response response = raw.get(path);
+    assertThat(response.getStatusCode()).isEqualTo(200);
     return response;
   }
 }
