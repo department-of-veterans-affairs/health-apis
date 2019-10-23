@@ -1,7 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.patient;
 
-import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
+import gov.va.api.health.dataquery.service.controller.BulkFhirCount;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,30 +12,27 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @SuppressWarnings("WeakerAccess")
 @RequestMapping(
-  value = {"/internal/bulk/Patient/count"},
-  produces = {"application/json"}
+  value = {"/internal/bulk/Patient"},
+  produces = {"application/json", "application/fhir+json", "application/json+fhir"}
 )
 public class PatientBulkFhirController {
-  private EntityManager entityManager;
+  private PatientRepository repository;
   private int maxPageSize;
 
   /** All args constructor. */
   public PatientBulkFhirController(
       @Value("${bulk.patient.maxPageSize}") int maxPageSize,
-      @Autowired EntityManager entityManager) {
+      @Autowired PatientRepository repository) {
     this.maxPageSize = maxPageSize;
-    this.entityManager = entityManager;
+    this.repository = repository;
   }
 
   /** Count by icn. */
-  @GetMapping
+  @GetMapping("/count")
   public BulkFhirCount patientCount() {
-    TypedQuery<Long> query =
-        entityManager.createQuery("Select count(p.icn) from PatientEntity p", Long.class);
-    int count = query.getSingleResult().intValue();
     return BulkFhirCount.builder()
         .resourceType("Patient")
-        .count(count)
+        .count(repository.count())
         .maxPageSize(maxPageSize)
         .build();
   }

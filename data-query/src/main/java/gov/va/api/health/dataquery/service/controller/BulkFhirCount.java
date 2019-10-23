@@ -1,4 +1,4 @@
-package gov.va.api.health.dataquery.service.controller.patient;
+package gov.va.api.health.dataquery.service.controller;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -10,6 +10,6 @@ import lombok.Data;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class BulkFhirCount {
   String resourceType;
-  int count;
+  long count;
   int maxPageSize;
 }
