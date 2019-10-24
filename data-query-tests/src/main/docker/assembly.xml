@@ -11,6 +11,7 @@
       <outputDirectory/>
       <includes>
         <include>**/data-query-tests-*.jar</include>
+        <include>**/data-query-library.jar</include>
       </includes>
       <useDefaultExcludes>true</useDefaultExcludes>
     </fileSet>
