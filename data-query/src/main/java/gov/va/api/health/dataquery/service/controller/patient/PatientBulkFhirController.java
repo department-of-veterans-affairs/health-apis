@@ -63,11 +63,11 @@ public class PatientBulkFhirController {
   }
 
   /** Export patient records via Page/Count. */
-  @GetMapping("/$export")
+  @GetMapping()
   public List<Patient> patientExport(
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @RequestParam(value = "_count", defaultValue = "15") @Min(0) int count) {
-    PageAndCountValidator.validateCountBounds(count, repository.count());
+    PageAndCountValidator.validateCountBounds(count, maxRecordsPerPage);
     return export(page, count);
   }
 }

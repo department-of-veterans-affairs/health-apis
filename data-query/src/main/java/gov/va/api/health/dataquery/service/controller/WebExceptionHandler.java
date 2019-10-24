@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.controller;
 
+import gov.va.api.health.dataquery.service.controller.ResourceExceptions.BadSearchParameter;
 import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
 import gov.va.api.health.dstu2.api.elements.Narrative;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
@@ -33,7 +34,8 @@ public class WebExceptionHandler {
     BindException.class,
     MrAndersonClient.BadRequest.class,
     ResourceExceptions.MissingSearchParameters.class,
-    UnsatisfiedServletRequestParameterException.class
+    UnsatisfiedServletRequestParameterException.class,
+    BadSearchParameter.class
   })
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   public OperationOutcome handleBadRequest(Exception e, HttpServletRequest request) {

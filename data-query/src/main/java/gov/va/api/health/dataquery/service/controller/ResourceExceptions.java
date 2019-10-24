@@ -55,6 +55,16 @@ public final class ResourceExceptions {
     }
   }
 
+  public static final class BadSearchParameter extends ResourcesException {
+    public BadSearchParameter(MultiValueMap<String, String> parameters) {
+      this(toParametersString(parameters));
+    }
+
+    public BadSearchParameter(String message) {
+      super(message);
+    }
+  }
+
   static class ResourcesException extends RuntimeException {
     ResourcesException(String message, Throwable cause) {
       super(message, cause);
