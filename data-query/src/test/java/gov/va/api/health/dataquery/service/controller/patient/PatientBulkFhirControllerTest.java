@@ -26,6 +26,7 @@ public class PatientBulkFhirControllerTest {
     repository.save(PatientEntity.builder().icn("3").build());
     repository.save(PatientEntity.builder().icn("4").build());
     assertThat(controller().patientCount())
-        .isEqualTo(BulkFhirCount.builder().resourceType("Patient").count(4).maxPageSize(2).build());
+        .isEqualTo(
+            BulkFhirCount.builder().resourceType("Patient").count(4).maxRecordsPerPage(2).build());
   }
 }

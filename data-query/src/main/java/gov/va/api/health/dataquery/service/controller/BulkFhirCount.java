@@ -11,5 +11,5 @@ import lombok.Data;
 public class BulkFhirCount {
   String resourceType;
   long count;
-  int maxPageSize;
+  int maxRecordsPerPage;
 }
