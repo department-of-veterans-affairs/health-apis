@@ -22,7 +22,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 @Slf4j
-public class BulkFhirIT {
+public class PatientBulkFhirIT {
 
   private final ResourceVerifier verifier = ResourceVerifier.get();
 
@@ -45,7 +45,7 @@ public class BulkFhirIT {
       ProdDataQueryClinician.class
     }
   )
-  public void bulkFhirPatientExport() {
+  public void bulkFhirPatientSearch() {
     ExpectedResponse responseAll =
         TestClients.dataQuery().get(apiPath() + "internal/bulk/Patient?page=1&_count=6");
     responseAll.expect(200);
@@ -62,7 +62,7 @@ public class BulkFhirIT {
     combined.addAll(firstHalfPatients);
     combined.addAll(secondHalfPatients);
     assertThat(allPatients)
-        .withFailMessage("frick off... you are forbidden to look at this data.")
+        .withFailMessage("We can't look at production data on failures.")
         .isEqualTo(combined);
   }
 

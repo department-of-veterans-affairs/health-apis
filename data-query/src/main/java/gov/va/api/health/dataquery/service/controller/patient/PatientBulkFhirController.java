@@ -38,22 +38,9 @@ public class PatientBulkFhirController {
     this.repository = repository;
   }
 
-  private List<Patient> export(int page, int count) {
-    return repository
-        .findAll(page(page, count))
-        .stream()
-        .map(PatientEntity::asDatamartPatient)
-        .map(dm -> DatamartPatientTransformer.builder().datamart(dm).build().toFhir())
-        .collect(Collectors.toList());
-  }
-
-  private PageRequest page(int page, int count) {
-    return PageRequest.of(page - 1, count == 0 ? 1 : count);
-  }
-
   /** Count by icn. */
   @GetMapping("/count")
-  public BulkFhirCount patientCount() {
+  public BulkFhirCount count() {
     return BulkFhirCount.builder()
         .resourceType("Patient")
         .count(repository.count())
@@ -61,12 +48,21 @@ public class PatientBulkFhirController {
         .build();
   }
 
+  private PageRequest page(int page, int count) {
+    return PageRequest.of(page - 1, count == 0 ? 1 : count);
+  }
+
   /** Get patients by page/count. */
   @GetMapping()
-  public List<Patient> patientExport(
+  public List<Patient> search(
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @RequestParam(value = "_count", defaultValue = "15") @Min(0) int count) {
     PageAndCountValidator.validateCountBounds(count, maxRecordsPerPage);
-    return export(page, count);
+    return repository
+        .findAll(page(page, count))
+        .stream()
+        .map(PatientEntity::asDatamartPatient)
+        .map(dm -> DatamartPatientTransformer.builder().datamart(dm).build().toFhir())
+        .collect(Collectors.toList());
   }
 }

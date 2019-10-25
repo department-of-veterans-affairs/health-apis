@@ -8,6 +8,7 @@ import gov.va.api.health.dataquery.service.controller.BulkFhirCount;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions.BadSearchParameter;
 import java.util.ArrayList;
 import lombok.SneakyThrows;
+import org.assertj.core.util.Lists;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +36,7 @@ public class PatientBulkFhirControllerTest {
   @Test
   public void count() {
     populateData();
-    assertThat(controller().patientCount())
+    assertThat(controller().count())
         .isEqualTo(
             BulkFhirCount.builder()
                 .resourceType("Patient")
@@ -47,22 +48,6 @@ public class PatientBulkFhirControllerTest {
   @SneakyThrows
   String json(Object o) {
     return JacksonConfig.createMapper().writerWithDefaultPrettyPrinter().writeValueAsString(o);
-  }
-
-  @Test
-  public void patientExport() {
-    ArrayList<Patient> patients = populateData();
-    assertThat(json(controller().patientExport(1, 10))).isEqualTo(json(patients));
-  }
-
-  @Test(expected = BadSearchParameter.class)
-  public void patientExportBadCountThrowsUnsatisfiedServletRequestParameterException() {
-    controller().patientExport(1, -1);
-  }
-
-  @Test(expected = BadSearchParameter.class)
-  public void patientExportBadPageThrowsUnsatisfiedServletRequestParameterException() {
-    controller().patientExport(0, 15);
   }
 
   private ArrayList<Patient> populateData() {
@@ -77,5 +62,37 @@ public class PatientBulkFhirControllerTest {
       patients.add(patient);
     }
     return patients;
+  }
+
+  @Test
+  public void search() {
+    ArrayList<Patient> patients = populateData();
+    assertThat(json(controller().search(1, 10))).isEqualTo(json(patients));
+  }
+
+  @Test(expected = BadSearchParameter.class)
+  public void searchBadCountThrowsUnsatisfiedServletRequestParameterException() {
+    controller().search(1, -1);
+  }
+
+  @Test(expected = BadSearchParameter.class)
+  public void searchBadPageThrowsUnsatisfiedServletRequestParameterException() {
+    controller().search(0, 15);
+  }
+
+  @Test
+  public void searchForEmptyPage() {
+    populateData();
+    assertThat(json(controller().search(2, 10))).isEqualTo(json(Lists.emptyList()));
+  }
+
+  @Test
+  public void searchForSmallPagesSumsToLargerPage() {
+    ArrayList<Patient> patients = populateData();
+    ArrayList<Patient> sumPatients = new ArrayList<>();
+    for (int i = 1; i <= 10; i++) {
+      sumPatients.add(controller().search(i, 1).get(0));
+    }
+    assertThat(json(patients)).isEqualTo(json(sumPatients));
   }
 }
