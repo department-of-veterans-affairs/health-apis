@@ -9,7 +9,6 @@ import javax.validation.constraints.Min;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -40,8 +39,8 @@ public class PatientBulkFhirController {
   }
 
   private List<Patient> export(int page, int count) {
-    Page<PatientEntity> entities = repository.findAll(page(page, count));
-    return entities
+    return repository
+        .findAll(page(page, count))
         .stream()
         .map(PatientEntity::asDatamartPatient)
         .map(dm -> DatamartPatientTransformer.builder().datamart(dm).build().toFhir())
@@ -62,7 +61,7 @@ public class PatientBulkFhirController {
         .build();
   }
 
-  /** Export patient records via Page/Count. */
+  /** Get patients by page/count. */
   @GetMapping()
   public List<Patient> patientExport(
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
