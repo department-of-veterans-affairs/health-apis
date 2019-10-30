@@ -76,19 +76,19 @@ public class ProcedureController {
 
   /**
    * Optional ID for a patient with procedure data that can secretly service requests for {@link
-   * #supermanId}.
+   * #withoutRecordsId}.
    */
-  private final String clarkKentId;
+  private final String withRecordsId;
 
   /**
    * Optional ID for a patient with no procedure data, whose requests can be secretly serviced by
-   * {@link #clarkKentId}.
+   * {@link #withRecordsId}.
    */
-  private final String supermanId;
+  private final String withoutRecordsId;
 
-  private final String clarkKentDisplay;
+  private final String withRecordsDisplay;
 
-  private final String supermanDisplay;
+  private final String withoutRecordsDisplay;
 
   private Transformer transformer;
 
@@ -104,21 +104,22 @@ public class ProcedureController {
   @Autowired
   public ProcedureController(
       @Value("${datamart.procedure}") boolean defaultToDatamart,
-      @Value("${procedure.test-patient-workaround.id-with-records:}") String clarkKentId,
-      @Value("${procedure.test-patient-workaround.id-without-records:}") String supermanId,
-      @Value("${procedure.test-patient-workaround.display-with-records:}") String clarkKentDisplay,
+      @Value("${procedure.test-patient-workaround.id-with-records:}") String withRecordsId,
+      @Value("${procedure.test-patient-workaround.id-without-records:}") String withoutRecordsId,
+      @Value("${procedure.test-patient-workaround.display-with-records:}")
+          String withRecordsDisplay,
       @Value("${procedure.test-patient-workaround.display-without-records:}")
-          String supermanDisplay,
+          String withoutRecordsDisplay,
       Transformer transformer,
       MrAndersonClient mrAndersonClient,
       Bundler bundler,
       ProcedureRepository repository,
       WitnessProtection witnessProtection) {
     this.defaultToDatamart = defaultToDatamart;
-    this.clarkKentId = clarkKentId;
-    this.supermanId = supermanId;
-    this.clarkKentDisplay = clarkKentDisplay;
-    this.supermanDisplay = supermanDisplay;
+    this.withRecordsId = withRecordsId;
+    this.withoutRecordsId = withoutRecordsId;
+    this.withRecordsDisplay = withRecordsDisplay;
+    this.withoutRecordsDisplay = withoutRecordsDisplay;
     this.transformer = transformer;
     this.mrAndersonClient = mrAndersonClient;
     this.bundler = bundler;
@@ -147,6 +148,44 @@ public class ProcedureController {
             Procedure.Bundle::new));
   }
 
+  /**
+   * Disguise procedure data for patient-with-records as data for patient-without-records. {@link
+   * #withRecordsId} is replaced with {@link #withoutRecordsId} and {@link #withRecordsDisplay} is
+   * replaced with {@link #withoutRecordsDisplay}.
+   */
+  @SneakyThrows
+  private <T> T disguiseAsPatientWithoutRecords(T withRecords, Class<T> clazz) {
+    log.info(
+        "Disguising procedure for patient {} ({}) as patient {} ({}).",
+        withRecordsId,
+        withRecordsDisplay,
+        withoutRecordsId,
+        withoutRecordsDisplay);
+    ObjectMapper mapper = JacksonConfig.createMapper();
+    String withRecordsString = mapper.writeValueAsString(withRecords);
+    String withoutRecordsString =
+        withRecordsString
+            .replaceAll(withRecordsId, withoutRecordsId)
+            .replaceAll(withRecordsDisplay, withoutRecordsDisplay);
+    return mapper.readValue(withoutRecordsString, clazz);
+  }
+
+  /**
+   * In some environments, it is necessary to use procedure data for patient {@link #withRecordsId}
+   * to service requests for patient {@link #withoutRecordsId}, that has none of its own. Similarly,
+   * the displayed name of the patient-with-records, {@link #withRecordsDisplay}, is replaced by the
+   * displayed name of the patient-without-records, {@link #withoutRecordsDisplay}. This method
+   * returns {@code true} if patient {@link #withoutRecordsId} data is requested when all four of
+   * these values are configured.
+   */
+  private boolean isPatientWithoutRecords(String patient) {
+    return patient.equals(withoutRecordsId)
+        && isNotBlank(withRecordsId)
+        && isNotBlank(withoutRecordsId)
+        && isNotBlank(withRecordsDisplay)
+        && isNotBlank(withoutRecordsDisplay);
+  }
+
   /** Read by id. */
   @GetMapping(value = {"/{publicId}"})
   public Procedure read(
@@ -156,8 +195,9 @@ public class ProcedureController {
     if (datamart.isDatamartRequest(datamartHeader)) {
       return datamart.read(publicId, icnHeader);
     }
-    if (isNotBlank(icnHeader) && thisLooksLikeAJobForSuperman(icnHeader)) {
-      return usePhoneBooth(read("false", publicId, clarkKentId), Procedure.class);
+    if (isNotBlank(icnHeader) && isPatientWithoutRecords(icnHeader)) {
+      return disguiseAsPatientWithoutRecords(
+          read("false", publicId, withRecordsId), Procedure.class);
     }
     return transformer.apply(
         firstPayloadItem(
@@ -173,11 +213,10 @@ public class ProcedureController {
       @PathVariable("publicId") String publicId,
       @RequestHeader(value = "X-VA-ICN", required = false) String icnHeader,
       HttpServletResponse response) {
-
     ProcedureEntity entity = datamart.readRaw(publicId);
     if (isNotBlank(icnHeader)
-        && thisLooksLikeAJobForSuperman(icnHeader)
-        && entity.icn().equals(clarkKentId)) {
+        && isPatientWithoutRecords(icnHeader)
+        && entity.icn().equals(withRecordsId)) {
       log.info(
           "Procedure Hack: Setting includes header to magic patient: {}",
           icnHeader.replaceAll("[\r\n]", ""));
@@ -245,9 +284,10 @@ public class ProcedureController {
     if (datamart.isDatamartRequest(datamartHeader)) {
       return datamart.searchByPatient(patient, date, page, count);
     }
-    if (thisLooksLikeAJobForSuperman(patient)) {
-      return usePhoneBooth(
-          searchByPatientAndDate("false", clarkKentId, date, page, count), Procedure.Bundle.class);
+    if (isPatientWithoutRecords(patient)) {
+      return disguiseAsPatientWithoutRecords(
+          searchByPatientAndDate("false", withRecordsId, date, page, count),
+          Procedure.Bundle.class);
     }
     return bundle(
         Parameters.builder()
@@ -258,46 +298,6 @@ public class ProcedureController {
             .build(),
         page,
         count);
-  }
-
-  /**
-   * In some environments, it is necessary to use one test patient's procedure data to service
-   * requests for a different test patient that has none. These patient IDs are {@link #clarkKentId}
-   * and {@link #supermanId} respectively. Similarly, the displayed names of these patients are
-   * {@link #clarkKentDisplay} and {@link #supermanDisplay}.
-   *
-   * <p>This method returns {@code true} if superman's procedure bundle is requested when all four
-   * of these values are configured.
-   */
-  private boolean thisLooksLikeAJobForSuperman(String patient) {
-    return patient.equals(supermanId)
-        && isNotBlank(clarkKentId)
-        && isNotBlank(supermanId)
-        && isNotBlank(clarkKentDisplay)
-        && isNotBlank(supermanDisplay);
-  }
-
-  /**
-   * Change a clark-kent procedure into a superman procedure. {@link #clarkKentId} is replaced with
-   * {@link #supermanId} and {@link #clarkKentDisplay} is replaced with {@link #supermanDisplay}
-   *
-   * @see #thisLooksLikeAJobForSuperman(String)
-   */
-  @SneakyThrows
-  private <T> T usePhoneBooth(T clarkKentObj, Class<T> genericTClass) {
-    log.info(
-        "Disguising procedure for patient {} ({}) as patient {} ({}).",
-        clarkKentId,
-        clarkKentDisplay,
-        supermanId,
-        supermanDisplay);
-    ObjectMapper mapper = JacksonConfig.createMapper();
-    String clarkKentString = mapper.writeValueAsString(clarkKentObj);
-    String supermanString =
-        clarkKentString
-            .replaceAll(clarkKentId, supermanId)
-            .replaceAll(clarkKentDisplay, supermanDisplay);
-    return mapper.readValue(supermanString, genericTClass);
   }
 
   /** Hey, this is a validate endpoint. It validates. */
@@ -340,7 +340,6 @@ public class ProcedureController {
 
     private Bundle bundle(
         MultiValueMap<String, String> parameters, int count, Page<ProcedureEntity> entities) {
-
       log.info("Search {} found {} results", parameters, entities.getTotalElements());
       if (count == 0) {
         return bundle(parameters, emptyList(), (int) entities.getTotalElements());
@@ -379,8 +378,8 @@ public class ProcedureController {
       DatamartProcedure procedure = findById(publicId).asDatamartProcedure();
       replaceReferences(List.of(procedure));
       Procedure fhir = transform(procedure);
-      if (isNotBlank(icnHeader) && thisLooksLikeAJobForSuperman(icnHeader)) {
-        fhir = usePhoneBooth(fhir, Procedure.class);
+      if (isNotBlank(icnHeader) && isPatientWithoutRecords(icnHeader)) {
+        fhir = disguiseAsPatientWithoutRecords(fhir, Procedure.class);
       }
       return fhir;
     }
@@ -396,9 +395,7 @@ public class ProcedureController {
               Stream.of(
                   resource.patient(),
                   resource.encounter().orElse(null),
-                  resource.location().orElse(null)
-                  //
-                  ));
+                  resource.location().orElse(null)));
       return resources;
     }
 
@@ -415,17 +412,15 @@ public class ProcedureController {
     }
 
     Bundle searchByPatient(String patient, String[] date, int page, int count) {
-      final boolean aJobForSuperman = thisLooksLikeAJobForSuperman(patient);
-      if (aJobForSuperman) {
-        patient = clarkKentId;
+      final boolean isPatientWithoutRecords = isPatientWithoutRecords(patient);
+      if (isPatientWithoutRecords) {
+        patient = withRecordsId;
       }
       String icn = witnessProtection.toCdwId(patient);
-
       PatientAndDateSpecification spec =
           PatientAndDateSpecification.builder().patient(icn).dates(date).build();
       log.info("Looking for {} ({}) {}", patient, icn, spec);
       Page<ProcedureEntity> pageOfProcedures = repository.findAll(spec, page(page, count));
-
       Bundle bundle =
           bundle(
               Parameters.builder()
@@ -436,8 +431,8 @@ public class ProcedureController {
                   .build(),
               count,
               pageOfProcedures);
-      if (aJobForSuperman) {
-        bundle = usePhoneBooth(bundle, Bundle.class);
+      if (isPatientWithoutRecords) {
+        bundle = disguiseAsPatientWithoutRecords(bundle, Bundle.class);
       }
       return bundle;
     }

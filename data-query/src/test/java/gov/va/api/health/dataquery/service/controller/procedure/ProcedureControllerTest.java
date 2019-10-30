@@ -194,36 +194,36 @@ public class ProcedureControllerTest {
   @Test
   @SuppressWarnings("unchecked")
   public void readHack() {
-    String clarkKentId = "1938V0618";
-    String clarkKentDisplay = "KENT,CLARK JOSEPH";
-    String supermanId = "1938V0610";
-    String supermanDisplay = "EL,KAL";
+    String withRecordsId = "1938V0618";
+    String withRecordsDisplay = "KENT,CLARK JOSEPH";
+    String withoutRecordsId = "1938V0610";
+    String withoutRecordsDisplay = "EL,KAL";
     controller =
         ProcedureController.builder()
             .transformer(tx)
             .mrAndersonClient(client)
             .bundler(bundler)
-            .clarkKentId(clarkKentId)
-            .clarkKentDisplay(clarkKentDisplay)
-            .supermanId(supermanId)
-            .supermanDisplay(supermanDisplay)
+            .withRecordsId(withRecordsId)
+            .withRecordsDisplay(withRecordsDisplay)
+            .withoutRecordsId(withoutRecordsId)
+            .withoutRecordsDisplay(withoutRecordsDisplay)
             .build();
     CdwProcedure101Root root = new CdwProcedure101Root();
     root.setProcedures(new CdwProcedures());
     CdwProcedure xmlProcedure = new CdwProcedure();
     root.getProcedures().getProcedure().add(xmlProcedure);
     when(client.search(any())).thenReturn(root);
-    Procedure birdPlane =
+    Procedure withRecordsProc =
         Procedure.builder()
             .subject(Reference.builder().id("1938V0618").display("KENT,CLARK JOSEPH").build())
             .build();
-    Procedure superman =
+    Procedure withoutRecordsProc =
         Procedure.builder()
             .subject(Reference.builder().id("1938V0610").display("EL,KAL").build())
             .build();
-    when(tx.apply(xmlProcedure)).thenReturn(birdPlane);
+    when(tx.apply(xmlProcedure)).thenReturn(withRecordsProc);
     Procedure actual = controller.read("false", "hello", "1938V0610");
-    assertThat(actual).isEqualTo(superman);
+    assertThat(actual).isEqualTo(withoutRecordsProc);
   }
 
   @Test
@@ -243,26 +243,26 @@ public class ProcedureControllerTest {
   @Test
   @SneakyThrows
   public void searchByPatientAndDateHack() {
-    String clarkKentId = "1938V0618";
-    String clarkKentDisplay = "KENT,CLARK JOSEPH";
-    String supermanId = "1938V0610";
-    String supermanDisplay = "EL,KAL";
+    String withRecordsId = "1938V0618";
+    String withRecordsDisplay = "KENT,CLARK JOSEPH";
+    String withoutRecordsId = "1938V0610";
+    String withoutRecordsDisplay = "EL,KAL";
     controller =
         ProcedureController.builder()
             .transformer(tx)
             .mrAndersonClient(client)
             .bundler(bundler)
-            .clarkKentId(clarkKentId)
-            .clarkKentDisplay(clarkKentDisplay)
-            .supermanId(supermanId)
-            .supermanDisplay(supermanDisplay)
+            .withRecordsId(withRecordsId)
+            .withRecordsDisplay(withRecordsDisplay)
+            .withoutRecordsId(withoutRecordsId)
+            .withoutRecordsDisplay(withoutRecordsDisplay)
             .build();
     when(client.search(any())).thenReturn(new CdwProcedure101Root());
-    when(bundler.bundle(any())).thenReturn(bundleForPatient(clarkKentId, clarkKentDisplay));
+    when(bundler.bundle(any())).thenReturn(bundleForPatient(withRecordsId, withRecordsDisplay));
     assertThat(
             controller.searchByPatientAndDate(
-                "false", supermanId, new String[] {"2005", "2006"}, 1, 10))
-        .isEqualTo(bundleForPatient(supermanId, supermanDisplay));
+                "false", withoutRecordsId, new String[] {"2005", "2006"}, 1, 10))
+        .isEqualTo(bundleForPatient(withoutRecordsId, withoutRecordsDisplay));
   }
 
   @Test
@@ -281,24 +281,24 @@ public class ProcedureControllerTest {
   @Test
   @SneakyThrows
   public void searchByPatientHack() {
-    String clarkKentId = "1938V0618";
-    String clarkKentDisplay = "KENT,CLARK JOSEPH";
-    String supermanId = "1938V0610";
-    String supermanDisplay = "EL,KAL";
+    String withRecordsId = "1938V0618";
+    String withRecordsDisplay = "KENT,CLARK JOSEPH";
+    String withotRecordsId = "1938V0610";
+    String withoutRecordsDisplay = "EL,KAL";
     controller =
         ProcedureController.builder()
             .transformer(tx)
             .mrAndersonClient(client)
             .bundler(bundler)
-            .clarkKentId(clarkKentId)
-            .clarkKentDisplay(clarkKentDisplay)
-            .supermanId(supermanId)
-            .supermanDisplay(supermanDisplay)
+            .withRecordsId(withRecordsId)
+            .withRecordsDisplay(withRecordsDisplay)
+            .withoutRecordsId(withotRecordsId)
+            .withoutRecordsDisplay(withoutRecordsDisplay)
             .build();
     when(client.search(any())).thenReturn(new CdwProcedure101Root());
-    when(bundler.bundle(any())).thenReturn(bundleForPatient(clarkKentId, clarkKentDisplay));
-    assertThat(controller.searchByPatientAndDate("false", supermanId, null, 1, 10))
-        .isEqualTo(bundleForPatient(supermanId, supermanDisplay));
+    when(bundler.bundle(any())).thenReturn(bundleForPatient(withRecordsId, withRecordsDisplay));
+    assertThat(controller.searchByPatientAndDate("false", withotRecordsId, null, 1, 10))
+        .isEqualTo(bundleForPatient(withotRecordsId, withoutRecordsDisplay));
   }
 
   @Test
