@@ -171,12 +171,12 @@ public class ProcedureController {
   }
 
   /**
-   * In some environments, it is necessary to use procedure data for patient {@link #withRecordsId}
-   * to service requests for patient {@link #withoutRecordsId}, that has none of its own. Similarly,
-   * the displayed name of the patient-with-records, {@link #withRecordsDisplay}, is replaced by the
-   * displayed name of the patient-without-records, {@link #withoutRecordsDisplay}. This method
-   * returns {@code true} if patient {@link #withoutRecordsId} data is requested when all four of
-   * these values are configured.
+   * In some environments, it is necessary to use procedure data for one patient, {@link
+   * #withRecordsId}, to service requests for another patient, {@link #withoutRecordsId}, that has
+   * none of its own. The displayed name of the patient-with-records, {@link #withRecordsDisplay},
+   * is also replaced by the displayed name of the patient-without-records, {@link
+   * #withoutRecordsDisplay}. This method returns {@code true} if patient {@link #withoutRecordsId}
+   * is requested when all four of these values are configured.
    */
   private boolean isPatientWithoutRecords(String patient) {
     return patient.equals(withoutRecordsId)
