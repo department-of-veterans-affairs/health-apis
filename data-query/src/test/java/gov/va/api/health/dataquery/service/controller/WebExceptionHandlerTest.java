@@ -43,6 +43,9 @@ import org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHan
 @SuppressWarnings("DefaultAnnotationParam")
 @RunWith(Parameterized.class)
 public class WebExceptionHandlerTest {
+
+  private final String basePath = "/dstu2";
+
   @Parameter(0)
   public HttpStatus status;
 
@@ -110,7 +113,7 @@ public class WebExceptionHandlerTest {
   @SneakyThrows
   public void expectStatus() {
     when(mrAnderson.search(Mockito.any())).thenThrow(exception);
-    when(request.getRequestURI()).thenReturn("/api/Patient/123");
+    when(request.getRequestURI()).thenReturn(basePath + "/Patient/123");
 
     MockMvc mvc =
         MockMvcBuilders.standaloneSetup(controller)
@@ -138,9 +141,9 @@ public class WebExceptionHandlerTest {
      * }
      * </pre>
      */
-    mvc.perform(get("/api/Patient/123"))
+    mvc.perform(get(basePath + "/Patient/123"))
         .andExpect(status().is(status.value()))
-        .andExpect(jsonPath("text.div", containsString("/api/Patient/123")))
+        .andExpect(jsonPath("text.div", containsString(basePath + "/Patient/123")))
         .andExpect(
             jsonPath("issue[0].diagnostics", containsString(exception.getClass().getSimpleName())));
   }
