@@ -66,7 +66,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 @RestController
 @RequestMapping(
-  value = {"Procedure", "/api/Procedure"},
+  value = {"/dstu2/Procedure", "/argonaut/data-query/Procedure"},
   produces = {"application/json", "application/json+fhir", "application/fhir+json"}
 )
 public class ProcedureController {

@@ -57,7 +57,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 @RestController
 @RequestMapping(
-  value = {"Observation", "/api/Observation"},
+  value = {"/dstu2/Observation", "/argonaut/data-query/Observation"},
   produces = {"application/json", "application/json+fhir", "application/fhir+json"}
 )
 public class ObservationController {
