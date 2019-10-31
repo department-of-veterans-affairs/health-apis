@@ -12,6 +12,7 @@ import lombok.experimental.UtilityClass;
  */
 @UtilityClass
 public final class TestClients {
+
   static TestClient dataQuery() {
     return FhirTestClient.builder()
         .service(SystemDefinitions.systemDefinition().dataQuery())
@@ -25,6 +26,14 @@ public final class TestClients {
         .service(SystemDefinitions.systemDefinition().ids())
         .contentType("application/json")
         .mapper(JacksonConfig::createMapper)
+        .build();
+  }
+
+  static TestClient internalDataQuery() {
+    return FhirTestClient.builder()
+        .service(SystemDefinitions.systemDefinition().internalDataQuery())
+        .mapper(JacksonConfig::createMapper)
+        .errorResponseEqualityCheck(new OperationOutcomesAreFunctionallyEqual())
         .build();
   }
 

@@ -14,5 +14,7 @@ public final class SystemDefinition {
 
   @NonNull ServiceDefinition dataQuery;
 
+  @NonNull ServiceDefinition internalDataQuery;
+
   @NonNull TestIds cdwIds;
 }
