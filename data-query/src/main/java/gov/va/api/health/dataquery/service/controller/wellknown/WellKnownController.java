@@ -11,8 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(
   value = {
-    "/dstu2/.well-known/smart-configuration",
-    "/argonaut/data-query/.well-known/smart-configuration"
+    "/.well-known/smart-configuration"
   },
   produces = {"application/json", "application/fhir+json", "application/json+fhir"}
 )
