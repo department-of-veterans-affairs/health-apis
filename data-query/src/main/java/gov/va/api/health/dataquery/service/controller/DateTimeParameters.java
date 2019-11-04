@@ -60,6 +60,7 @@ public final class DateTimeParameters implements Serializable {
     checkArgument(lower <= upper);
     long lowerBound = lowerBound().toEpochMilli();
     long upperBound = upperBound().toEpochMilli();
+
     switch (prefix()) {
       case EQ:
         // the range of the search value fully contains the range of the target value
