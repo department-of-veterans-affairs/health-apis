@@ -7,9 +7,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+import com.google.common.collect.Iterables;
 import gov.va.api.health.argonaut.api.resources.Patient;
 import gov.va.api.health.argonaut.api.resources.Patient.Gender;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
+import gov.va.api.health.dataquery.service.controller.Bundler;
+import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dstu2.api.datatypes.Address;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
@@ -37,6 +40,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @DataJpaTest
 @RunWith(SpringRunner.class)
 public final class DatamartPatientTest {
+
   HttpServletResponse response;
 
   @Autowired private TestEntityManager entityManager;
@@ -139,7 +143,7 @@ public final class DatamartPatientTest {
         true,
         null,
         null,
-        null,
+        new Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool")),
         repository,
         WitnessProtection.builder().identityService(mock(IdentityService.class)).build());
   }
@@ -148,10 +152,8 @@ public final class DatamartPatientTest {
   public void deceased() {
     DatamartPatient unparseable = DatamartPatient.builder().deathDateTime("unparseable").build();
     assertThat(tx(unparseable).deceasedDateTime()).isNull();
-
     DatamartPatient deceasedBool = DatamartPatient.builder().deceased("Y").build();
     assertThat(tx(deceasedBool).deceasedBoolean()).isTrue();
-
     DatamartPatient deceasedDt =
         DatamartPatient.builder().deathDateTime("2013-11-16T02:33:33").build();
     assertThat(tx(deceasedDt).deceasedDateTime()).isEqualTo("2013-11-16T02:33:33Z");
@@ -171,7 +173,6 @@ public final class DatamartPatientTest {
     entityManager.persistAndFlush(entity);
     PatientSearchEntity search = PatientSearchEntity.builder().icn(icn).patient(entity).build();
     entityManager.persistAndFlush(search);
-
     PatientController controller = controller();
     Patient patient = controller.read("true", icn);
     assertThat(patient)
@@ -401,6 +402,20 @@ public final class DatamartPatientTest {
   }
 
   @Test
+  public void searchByNameAndBirthdate() {
+    DatamartData dm = DatamartData.create();
+    FhirData fhir = FhirData.from(dm);
+    entityManager.persistAndFlush(dm.entity());
+    entityManager.persistAndFlush(dm.search());
+    PatientController controller = controller();
+    Patient.Bundle patient =
+        controller.searchByNameAndBirthdate(
+            "true", "TEST,PATIENT ONE", new String[] {"ge1924-12-31"}, 1, 1);
+    assertThat(json(Iterables.getOnlyElement(patient.entry()).resource()))
+        .isEqualTo(json(fhir.patient()));
+  }
+
+  @Test
   public void sortNum() {
     DatamartPatient dm =
         DatamartPatient.builder()
@@ -417,7 +432,6 @@ public final class DatamartPatientTest {
                         .type("PATIENT CELL PHONE")
                         .build()))
             .build();
-
     Patient pat = tx(dm);
     assertThat(pat.telecom().get(0).value()).isEqualTo("1111111111");
     assertThat(pat.telecom().get(1).value()).isEqualTo("2222222222");
@@ -571,6 +585,7 @@ public final class DatamartPatientTest {
   @Builder
   @Value
   private static class FhirData {
+
     @Builder.Default String icn = "1011537977V693883";
 
     @Builder.Default String name = "TEST,PATIENT ONE";

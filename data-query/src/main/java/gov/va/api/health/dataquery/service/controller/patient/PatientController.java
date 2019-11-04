@@ -56,7 +56,6 @@ import org.springframework.web.bind.annotation.RestController;
   produces = {"application/json", "application/json+fhir", "application/fhir+json"}
 )
 public class PatientController {
-
   private final Datamart datamart = new Datamart();
 
   private Transformer transformer;

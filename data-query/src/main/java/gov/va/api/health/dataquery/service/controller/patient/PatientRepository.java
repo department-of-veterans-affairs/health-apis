@@ -46,10 +46,10 @@ public interface PatientRepository
       var predicates = new ArrayList<>(3);
       predicates.add(criteriaBuilder.equal(root.get("name"), name()));
       if (date1() != null) {
-        predicates.add(date1().toPredicate2(root.get("birthDateTime"), criteriaBuilder));
+        predicates.add(date1().toInstantPredicate(root.get("birthDateTime"), criteriaBuilder));
       }
       if (date2() != null) {
-        predicates.add(date2().toPredicate2(root.get("birthDateTime"), criteriaBuilder));
+        predicates.add(date2().toInstantPredicate(root.get("birthDateTime"), criteriaBuilder));
       }
       return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
     }
