@@ -7,12 +7,8 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
-
-import org.springframework.data.domain.Sort;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -39,14 +35,6 @@ public class PatientEntity implements DatamartEntity {
   @Basic(fetch = FetchType.EAGER)
   @Column(name = "PatientReport")
   private String payload;
-
-  @OneToOne
-  @JoinColumn(name = "PatientFullIcn", referencedColumnName = "fullIcn")
-  private PatientSearchEntity search;
-
-  static Sort naturalOrder() {
-    return Sort.by("icn").ascending();
-  }
 
   @SneakyThrows
   DatamartPatient asDatamartPatient() {

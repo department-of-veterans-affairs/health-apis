@@ -5,13 +5,19 @@ import java.time.Instant;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
+
+import org.springframework.data.domain.Sort;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.SneakyThrows;
 
 @Data
 @Entity
@@ -27,10 +33,10 @@ public class PatientSearchEntity implements DatamartEntity {
   private String icn;
 
   @Column(name = "firstName")
-  private String firstName;
+  private String given;
 
   @Column(name = "lastName")
-  private String lastName;
+  private String family;
 
   @Column(name = "name")
   private String name;
@@ -40,6 +46,19 @@ public class PatientSearchEntity implements DatamartEntity {
 
   @Column(name = "birthDateTime")
   private Instant birthDateTime;
+
+  @OneToOne
+  @JoinColumn(name = "fullIcn", referencedColumnName = "PatientFullIcn")
+  private PatientEntity patient;
+
+  static Sort naturalOrder() {
+    return Sort.by("icn").ascending();
+  }
+
+  @SneakyThrows
+  DatamartPatient asDatamartPatient() {
+    return patient.asDatamartPatient();
+  }
 
   @Override
   public String cdwId() {

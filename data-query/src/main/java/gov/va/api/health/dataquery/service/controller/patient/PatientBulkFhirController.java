@@ -6,7 +6,6 @@ import gov.va.api.health.dataquery.service.controller.PageAndCountValidator;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.validation.constraints.Min;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
@@ -17,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Validated
-@Slf4j
 @RestController
 @SuppressWarnings("WeakerAccess")
 @RequestMapping(
@@ -61,7 +59,7 @@ public class PatientBulkFhirController {
     return repository
         .findAll(page(page, count))
         .stream()
-        .map(PatientEntity::asDatamartPatient)
+        .map(PatientSearchEntity::asDatamartPatient)
         .map(dm -> DatamartPatientTransformer.builder().datamart(dm).build().toFhir())
         .collect(Collectors.toList());
   }
