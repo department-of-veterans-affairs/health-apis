@@ -48,10 +48,12 @@ import javax.ws.rs.Path;
         title = "Argonaut Data Query",
         version = "v1",
         description =
-            "FHIR (Fast Healthcare Interoperability Resources) specification defines a set of"
-                + " \"Resources\" that represent granular clinical concepts."
-                + " This service is compliant with the FHIR Argonaut Data Query Implementation"
-                + " Guide."
+            " This service is compliant with the FHIR Argonaut Data Query Implementation"
+                + " Guide. This service does not provide or replace the consultation,"
+                + " guidance, or care of a health care professional or other qualified provider."
+                + " This service provides a supplement for informational and educational"
+                + " purposes only. Health care professionals and other qualified providers"
+                + " should continue to consult authoritative records when making decisions."
       ),
   servers = {
     @Server(
