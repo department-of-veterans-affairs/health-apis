@@ -64,29 +64,38 @@ public final class DateTimeParameters implements Serializable {
       case EQ:
         // the range of the search value fully contains the range of the target value
         return lowerBound <= lower && upper <= upperBound;
+
       case NE:
         // the range of the search value does not fully contain the range of the target value
         return lower < lowerBound || upperBound < upper;
+
       case GT:
         // the range above the search value intersects the range of the target value
         return upperBound < upper;
+
       case LT:
         // the range below the search value intersects the range of the target value
         return lower < lowerBound;
+
       case GE:
         // or the range of the search value fully contains the range of the target value
         return lowerBound <= lower || upperBound < upper;
+
       case LE:
         // or the range of the search value fully contains the range of the target value
         return lower < lowerBound || upper <= upperBound;
+
       case SA:
         // and the range above the search value contains the range of the target value
         return upperBound < lower;
+
       case EB:
         // and the range below the search value contains the range of the target value
         return upper < lowerBound;
+
       case AP:
         throw apException();
+
       default:
         throw new IllegalArgumentException("Unknown search prefix: " + prefix());
     }
@@ -98,14 +107,19 @@ public final class DateTimeParameters implements Serializable {
       case YEAR:
         return OffsetDateTime.parse(String.format("%s-01-01T00:00:00%s", date(), offset))
             .toInstant();
+
       case YEAR_MONTH:
         return OffsetDateTime.parse(String.format("%s-01T00:00:00%s", date(), offset)).toInstant();
+
       case YEAR_MONTH_DAY:
         return OffsetDateTime.parse(String.format("%sT00:00:00%s", date(), offset)).toInstant();
+
       case TIME_ZONE:
         return Instant.parse(date());
+
       case TIME_ZONE_OFFSET:
         return OffsetDateTime.parse(date()).toInstant();
+
       default:
         throw new IllegalArgumentException("Cannot compute lower bound for date " + date());
     }
@@ -161,12 +175,10 @@ public final class DateTimeParameters implements Serializable {
       case NE:
         return criteriaBuilder.or(
             criteriaBuilder.lt(field, lowerBound), criteriaBuilder.gt(field, upperBound));
-        // fall-through
-      case GT:
+      case GT: // fall-through
       case SA:
         return criteriaBuilder.gt(field, upperBound);
-        // fall-through
-      case LT:
+      case LT: // fall-through
       case EB:
         return criteriaBuilder.lt(field, lowerBound);
       case GE:
@@ -186,14 +198,18 @@ public final class DateTimeParameters implements Serializable {
     switch (date().length()) {
       case YEAR:
         return lowerBound.plusYears(1).minus(1, ChronoUnit.MILLIS).toInstant();
+
       case YEAR_MONTH:
         return lowerBound.plusMonths(1).minus(1, ChronoUnit.MILLIS).toInstant();
+
       case YEAR_MONTH_DAY:
         return lowerBound.plusDays(1).minus(1, ChronoUnit.MILLIS).toInstant();
+
       case TIME_ZONE:
         // falls through
       case TIME_ZONE_OFFSET:
         return lowerBound.plusSeconds(1).minus(1, ChronoUnit.MILLIS).toInstant();
+
       default:
         throw new IllegalArgumentException("Cannot compute upper bound for date " + date());
     }
