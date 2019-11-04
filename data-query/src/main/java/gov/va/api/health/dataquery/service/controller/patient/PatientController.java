@@ -4,6 +4,9 @@ import static gov.va.api.health.dataquery.service.controller.Transformers.firstP
 import static gov.va.api.health.dataquery.service.controller.Transformers.hasPayload;
 import static java.util.Arrays.asList;
 
+import java.util.Collection;
+
+import gov.va.api.health.argonaut.api.resources.Condition;
 import gov.va.api.health.argonaut.api.resources.Patient;
 import gov.va.api.health.dataquery.service.controller.AbstractIncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.Bundler;
@@ -14,14 +17,21 @@ import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.Validator;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
+import gov.va.api.health.dataquery.service.controller.ResourceExceptions.NotFound;
+import gov.va.api.health.dataquery.service.controller.condition.ConditionEntity;
+import gov.va.api.health.dataquery.service.controller.condition.DatamartCondition;
+import gov.va.api.health.dataquery.service.controller.condition.DatamartConditionTransformer;
 import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
 import gov.va.api.health.dataquery.service.mranderson.client.Query;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import gov.va.dvp.cdw.xsd.model.CdwPatient103Root;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.servlet.http.HttpServletResponse;
@@ -48,7 +58,6 @@ import org.springframework.web.bind.annotation.RestController;
  * https://www.fhir.org/guides/argonaut/r2/StructureDefinition-argo-patient.html for implementation
  * details.
  */
-@Slf4j
 @Validated
 @RestController
 @SuppressWarnings("WeakerAccess")
@@ -57,6 +66,7 @@ import org.springframework.web.bind.annotation.RestController;
   produces = {"application/json", "application/json+fhir", "application/fhir+json"}
 )
 public class PatientController {
+  private final Datamart datamart = new Datamart();
 
   private Transformer transformer;
 
@@ -64,144 +74,26 @@ public class PatientController {
 
   private Bundler bundler;
 
-  private WitnessProtection witnessProtection;
+  private PatientRepository repository;
 
-  private EntityManager entityManager;
+  private WitnessProtection witnessProtection;
 
   private boolean defaultToDatamart;
 
-  /** All args constructor. */
+  /** Autowired constructor. */
   public PatientController(
       @Value("${datamart.patient}") boolean defaultToDatamart,
       @Autowired Transformer transformer,
       @Autowired MrAndersonClient mrAndersonClient,
       @Autowired Bundler bundler,
-      @Autowired WitnessProtection witnessProtection,
-      @Autowired EntityManager entityManager) {
+      @Autowired PatientRepository repository,
+      @Autowired WitnessProtection witnessProtection) {
     this.defaultToDatamart = defaultToDatamart;
     this.transformer = transformer;
     this.mrAndersonClient = mrAndersonClient;
     this.bundler = bundler;
+    this.repository = repository;
     this.witnessProtection = witnessProtection;
-    this.entityManager = entityManager;
-  }
-
-  private static void jpaAddQueryParameters(
-      TypedQuery<?> query, MultiValueMap<String, String> parameters) {
-    if (parameters.containsKey("family")) {
-      query.setParameter("family", "%" + parameters.getFirst("family") + "%");
-    }
-    if (parameters.containsKey("gender")) {
-      query.setParameter("gender", parameters.getFirst("gender"));
-    }
-    if (parameters.containsKey("given")) {
-      query.setParameter("given", "%" + parameters.getFirst("given") + "%");
-    }
-    if (parameters.containsKey("identifier")) {
-      query.setParameter("identifier", parameters.getFirst("identifier"));
-    }
-    if (parameters.containsKey("name")) {
-      query.setParameter("name", "%" + parameters.getFirst("name") + "%");
-    }
-    if (parameters.containsKey("birthdate")) {
-      JpaDateTimeParameter.addQueryParametersForEach(query, parameters.get("birthdate"));
-    }
-  }
-
-  private static MultiValueMap<String, String> mapFhirGenderToCdw(
-      MultiValueMap<String, String> cdwParameters) {
-    String fhirGender = cdwParameters.getFirst("gender");
-    if (fhirGender == null) {
-      return cdwParameters;
-    }
-    String cdw = GenderMapping.toCdw(fhirGender);
-    if (cdw == null) {
-      throw new IllegalArgumentException("unknown gender: " + fhirGender);
-    }
-    MultiValueMap<String, String> newParameters = new LinkedMultiValueMap<>(cdwParameters);
-    newParameters.put("gender", asList(cdw));
-    return newParameters;
-  }
-
-  private Patient.Bundle datamartBundle(
-      String query, String totalRecordsQuery, MultiValueMap<String, String> publicParameters) {
-    MultiValueMap<String, String> cdwParameters =
-        witnessProtection.replacePublicIdsWithCdwIds(publicParameters);
-    cdwParameters = mapFhirGenderToCdw(cdwParameters);
-    List<PatientEntity> entities = jpaQueryForEntities(query, cdwParameters);
-    List<Patient> fhir =
-        entities
-            .stream()
-            .map(entity -> entity.asDatamartPatient())
-            .map(dm -> DatamartPatientTransformer.builder().datamart(dm).build().toFhir())
-            .collect(Collectors.toList());
-    PageLinks.LinkConfig linkConfig =
-        PageLinks.LinkConfig.builder()
-            .path("Patient")
-            .queryParams(publicParameters)
-            .page(Parameters.pageOf(publicParameters))
-            .recordsPerPage(Parameters.countOf(publicParameters))
-            .totalRecords(jpaQueryForTotalRecords(totalRecordsQuery, cdwParameters))
-            .build();
-    return bundler.bundle(
-        Bundler.BundleContext.of(
-            linkConfig, fhir, Function.identity(), Patient.Entry::new, Patient.Bundle::new));
-  }
-
-  private Patient datamartRead(String publicId) {
-    return DatamartPatientTransformer.builder()
-        .datamart(datamartReadRaw(publicId).asDatamartPatient())
-        .build()
-        .toFhir();
-  }
-
-  private PatientEntity datamartReadRaw(String publicId) {
-    MultiValueMap<String, String> publicParameters = Parameters.forIdentity(publicId);
-    MultiValueMap<String, String> cdwParameters =
-        witnessProtection.replacePublicIdsWithCdwIds(publicParameters);
-    PatientEntity entity =
-        entityManager.find(PatientEntity.class, Parameters.identiferOf(cdwParameters));
-    if (entity == null) {
-      throw new ResourceExceptions.NotFound(publicParameters);
-    }
-    return entity;
-  }
-
-  boolean isDatamartRequest(String datamartHeader) {
-    if (StringUtils.isBlank(datamartHeader)) {
-      return defaultToDatamart;
-    }
-    return BooleanUtils.isTrue(BooleanUtils.toBooleanObject(datamartHeader));
-  }
-
-  private List<PatientEntity> jpaQueryForEntities(
-      String queryString, MultiValueMap<String, String> cdwParameters) {
-    TypedQuery<PatientEntity> query = entityManager.createQuery(queryString, PatientEntity.class);
-    jpaAddQueryParameters(query, cdwParameters);
-    int page = Parameters.pageOf(cdwParameters);
-    int count = Parameters.countOf(cdwParameters);
-    query.setFirstResult((page - 1) * count);
-    query.setMaxResults(count);
-    List<PatientEntity> results = query.getResultList();
-    log.info(
-        "For parameters {} and query '{}', found entities with IDs {}.",
-        cdwParameters,
-        queryString,
-        results.stream().map(entity -> entity.icn()).collect(Collectors.toList()));
-    return results;
-  }
-
-  private int jpaQueryForTotalRecords(
-      String queryString, MultiValueMap<String, String> cdwParameters) {
-    TypedQuery<Long> query = entityManager.createQuery(queryString, Long.class);
-    jpaAddQueryParameters(query, cdwParameters);
-    int totalRecords = query.getSingleResult().intValue();
-    log.info(
-        "For parameters {} and query '{}', found {} total records.",
-        cdwParameters,
-        queryString,
-        totalRecords);
-    return totalRecords;
   }
 
   private Patient.Bundle mrAndersonBundle(MultiValueMap<String, String> parameters) {
@@ -237,10 +129,10 @@ public class PatientController {
   /** Read by id. */
   @GetMapping(value = {"/{publicId}"})
   public Patient read(
-      @RequestHeader(value = "Datamart", defaultValue = "") String datamart,
+      @RequestHeader(value = "Datamart", defaultValue = "") String datamartHeader,
       @PathVariable("publicId") String publicId) {
-    if (isDatamartRequest(datamart)) {
-      return datamartRead(publicId);
+    if (datamart.isDatamartRequest(datamartHeader)) {
+      return datamart.read(publicId);
     }
     return transformer.apply(
         firstPayloadItem(
@@ -254,20 +146,10 @@ public class PatientController {
     headers = {"raw=true"}
   )
   public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
+    // PETERTODO
     PatientEntity entity = datamartReadRaw(publicId);
     AbstractIncludesIcnMajig.addHeader(response, entity.icn());
     return entity.payload();
-  }
-
-  private Patient.Bundle search(
-      String datamart,
-      String query,
-      String totalRecordsQuery,
-      MultiValueMap<String, String> parameters) {
-    if (isDatamartRequest(datamart)) {
-      return datamartBundle(query, totalRecordsQuery, parameters);
-    }
-    return mrAndersonBundle(parameters);
   }
 
   /** Search by Family+Gender. */
@@ -278,6 +160,7 @@ public class PatientController {
       @RequestParam("gender") String gender,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
+    // PETERTODO
     return search(
         datamart,
         "Select p from PatientEntity p"
@@ -300,6 +183,7 @@ public class PatientController {
       @RequestParam("gender") String gender,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
+    // PETERTODO
     return search(
         datamart,
         "Select p from PatientEntity p where"
@@ -321,20 +205,22 @@ public class PatientController {
       @RequestParam("_id") String id,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
+    // PETERTODO
     return searchByIdentifier(datamart, id, page, count);
   }
 
   /** Search by Identifier. */
   @GetMapping(params = {"identifier"})
   public Patient.Bundle searchByIdentifier(
-      @RequestHeader(value = "Datamart", defaultValue = "") String datamart,
+      @RequestHeader(value = "Datamart", defaultValue = "") String datamartHeader,
       @RequestParam("identifier") String id,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
-    return search(
-        datamart,
-        "Select p from PatientEntity p where p.icn is :identifier",
-        "Select count(p.icn) from PatientEntity p where p.icn is :identifier",
+    // PETERTODO
+    if (datamart.isDatamartRequest(datamartHeader)) {
+      return datamart.searchByIdentifier(datamartHeader, id, page, count);
+    }
+    return mrAndersonBundle(
         Parameters.builder().add("identifier", id).add("page", page).add("_count", count).build());
   }
 
@@ -395,4 +281,33 @@ public class PatientController {
 
   public interface Transformer
       extends Function<CdwPatient103Root.CdwPatients.CdwPatient, Patient> {}
+
+  /**
+   * This class is being used to help organize the code such that all the datamart logic is
+   * contained together. In the future when Mr. Anderson support is dropped, this class can be
+   * eliminated.
+   */
+  private class Datamart {
+    PatientEntity findById(String publicId) {
+      Optional<PatientEntity> entity = repository.findById(witnessProtection.toCdwId(publicId));
+      return entity.orElseThrow(() -> new NotFound(publicId));
+    }
+
+    boolean isDatamartRequest(String datamartHeader) {
+      if (StringUtils.isBlank(datamartHeader)) {
+        return defaultToDatamart;
+      }
+      return BooleanUtils.isTrue(BooleanUtils.toBooleanObject(datamartHeader));
+    }
+
+    Patient read(String publicId) {
+      DatamartPatient patient = findById(publicId).asDatamartPatient();
+      // replaceReferences(List.of(patient));
+      return transform(patient);
+    }
+
+    Patient transform(DatamartPatient dm) {
+      return DatamartPatientTransformer.builder().datamart(dm).build().toFhir();
+    }
+  }
 }
