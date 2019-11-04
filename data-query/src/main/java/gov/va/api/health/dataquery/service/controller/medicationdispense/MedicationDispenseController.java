@@ -77,12 +77,16 @@ public class MedicationDispenseController {
                     .getMedicationDispense())));
   }
 
+  /**
+   * The XML should remain the same, but the version of the resource needs to be incremented for
+   * SQL52.
+   */
   private CdwMedicationDispense100Root search(MultiValueMap<String, String> params) {
     Query<CdwMedicationDispense100Root> query =
         Query.forType(CdwMedicationDispense100Root.class)
             .profile(Query.Profile.DSTU2)
             .resource("MedicationDispense")
-            .version("1.00")
+            .version("1.02")
             .parameters(params)
             .build();
     return mrAndersonClient.search(query);

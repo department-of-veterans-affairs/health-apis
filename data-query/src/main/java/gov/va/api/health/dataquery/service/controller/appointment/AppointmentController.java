@@ -78,12 +78,16 @@ public class AppointmentController {
                 .getAppointment()));
   }
 
+  /**
+   * The XML should remain the same, but the version of the resource needs to be incremented for
+   * SQL52.
+   */
   private CdwAppointment101Root search(MultiValueMap<String, String> params) {
     Query<CdwAppointment101Root> query =
         Query.forType(CdwAppointment101Root.class)
             .profile(Profile.DSTU2)
             .resource("Appointment")
-            .version("1.01")
+            .version("1.02")
             .parameters(params)
             .build();
     return hasPayload(mrAndersonClient.search(query));

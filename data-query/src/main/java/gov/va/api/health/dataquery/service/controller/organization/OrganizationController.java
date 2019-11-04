@@ -78,12 +78,16 @@ public class OrganizationController {
                 .getOrganization()));
   }
 
+  /**
+   * The XML should remain the same, but the version of the resource needs to be incremented for
+   * SQL52.
+   */
   private CdwOrganization100Root search(MultiValueMap<String, String> params) {
     Query<CdwOrganization100Root> query =
         Query.forType(CdwOrganization100Root.class)
             .profile(Profile.DSTU2)
             .resource("Organization")
-            .version("1.00")
+            .version("1.02")
             .parameters(params)
             .build();
     return hasPayload(mrAndersonClient.search(query));

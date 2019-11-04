@@ -75,12 +75,16 @@ public class EncounterController {
             hasPayload(search(Parameters.forIdentity(publicId)).getEncounters()).getEncounter()));
   }
 
+  /**
+   * The XML should remain the same, but the version of the resource needs to be incremented for
+   * SQL52.
+   */
   private CdwEncounter101Root search(MultiValueMap<String, String> params) {
     Query<CdwEncounter101Root> query =
         Query.forType(CdwEncounter101Root.class)
             .profile(Query.Profile.DSTU2)
             .resource("Encounter")
-            .version("1.01")
+            .version("1.02")
             .parameters(params)
             .build();
     return hasPayload(mrAndersonClient.search(query));
