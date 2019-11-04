@@ -91,11 +91,6 @@ public class MitreMinimartMaker {
     return new String(Files.readAllBytes(Paths.get(file.getPath())));
   }
 
-  //  private void flushAndClear() {
-  //    entityManager.flush();
-  //    entityManager.clear();
-  //  }
-
   @SneakyThrows
   private void insertByAllergyIntolerance(File file) {
     DatamartAllergyIntolerance dm =
