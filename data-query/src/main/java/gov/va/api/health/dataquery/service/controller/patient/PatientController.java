@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.Min;
 import lombok.extern.slf4j.Slf4j;
@@ -57,6 +56,7 @@ import org.springframework.web.bind.annotation.RestController;
   produces = {"application/json", "application/json+fhir", "application/fhir+json"}
 )
 public class PatientController {
+
   private final Datamart datamart = new Datamart();
 
   private Transformer transformer;
@@ -264,6 +264,7 @@ public class PatientController {
    * eliminated.
    */
   private class Datamart {
+
     Patient.Bundle bundle(
         MultiValueMap<String, String> parameters, List<Patient> reports, int totalRecords) {
       PageLinks.LinkConfig linkConfig =
@@ -285,7 +286,6 @@ public class PatientController {
       if (Parameters.countOf(parameters) == 0) {
         return bundle(parameters, emptyList(), (int) entities.getTotalElements());
       }
-
       return bundle(
           parameters,
           entities
@@ -321,18 +321,6 @@ public class PatientController {
       return PageRequest.of(page - 1, count == 0 ? 1 : count, PatientSearchEntity.naturalOrder());
     }
 
-    Patient.Bundle searchById(String publicId, int page, int count) {
-      Patient resource = read(publicId);
-      return bundle(
-          Parameters.builder()
-              .add("identifier", publicId)
-              .add("page", page)
-              .add("_count", count)
-              .build(),
-          resource == null || count == 0 ? emptyList() : List.of(resource),
-          resource == null ? 0 : 1);
-    }
-
     Patient read(String publicId) {
       return transform(findById(publicId).asDatamartPatient());
     }
@@ -363,6 +351,18 @@ public class PatientController {
           repository.findByGivenAndGender(given, cdwGender(gender), page(page, count)));
     }
 
+    Patient.Bundle searchById(String publicId, int page, int count) {
+      Patient resource = read(publicId);
+      return bundle(
+          Parameters.builder()
+              .add("identifier", publicId)
+              .add("page", page)
+              .add("_count", count)
+              .build(),
+          resource == null || count == 0 ? emptyList() : List.of(resource),
+          resource == null ? 0 : 1);
+    }
+
     Patient.Bundle searchByNameAndBirthdate(String name, String[] birthdate, int page, int count) {
       PatientRepository.NameAndBirthdateSpecification spec =
           PatientRepository.NameAndBirthdateSpecification.builder()
@@ -371,7 +371,6 @@ public class PatientController {
               .build();
       log.info("Looking for {} {}", name, spec);
       Page<PatientSearchEntity> entities = repository.findAll(spec, page(page, count));
-
       return bundle(
           Parameters.builder()
               .add("name", name)

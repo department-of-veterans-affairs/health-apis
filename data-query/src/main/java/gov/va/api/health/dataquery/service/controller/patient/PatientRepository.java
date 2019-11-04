@@ -1,13 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.patient;
 
 import gov.va.api.health.autoconfig.logging.Loggable;
-import lombok.Value;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.data.repository.PagingAndSortingRepository;
 import gov.va.api.health.dataquery.service.controller.DateTimeParameters;
 import java.util.ArrayList;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -15,6 +8,12 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import lombok.Builder;
+import lombok.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.repository.PagingAndSortingRepository;
 
 @Loggable
 public interface PatientRepository

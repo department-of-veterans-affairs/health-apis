@@ -8,7 +8,6 @@ import gov.va.api.health.dataquery.service.controller.BulkFhirCount;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions.BadSearchParameter;
 import java.util.ArrayList;
 import java.util.List;
-
 import lombok.SneakyThrows;
 import org.assertj.core.util.Lists;
 import org.junit.Test;
