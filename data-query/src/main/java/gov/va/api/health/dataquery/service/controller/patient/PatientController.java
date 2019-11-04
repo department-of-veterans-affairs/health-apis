@@ -4,7 +4,6 @@ import static gov.va.api.health.dataquery.service.controller.Transformers.firstP
 import static gov.va.api.health.dataquery.service.controller.Transformers.hasPayload;
 import static java.util.Collections.emptyList;
 
-import com.google.common.collect.Iterables;
 import gov.va.api.health.argonaut.api.resources.Patient;
 import gov.va.api.health.dataquery.service.controller.AbstractIncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.Bundler;
