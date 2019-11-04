@@ -3,10 +3,10 @@ package gov.va.api.health.dataquery.service.controller.patient;
 import static gov.va.api.health.dataquery.service.controller.Transformers.firstPayloadItem;
 import static gov.va.api.health.dataquery.service.controller.Transformers.hasPayload;
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 
 import java.util.Collection;
 
-import gov.va.api.health.argonaut.api.resources.Condition;
 import gov.va.api.health.argonaut.api.resources.Patient;
 import gov.va.api.health.dataquery.service.controller.AbstractIncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.Bundler;
@@ -19,8 +19,6 @@ import gov.va.api.health.dataquery.service.controller.Validator;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions.NotFound;
 import gov.va.api.health.dataquery.service.controller.condition.ConditionEntity;
-import gov.va.api.health.dataquery.service.controller.condition.DatamartCondition;
-import gov.va.api.health.dataquery.service.controller.condition.DatamartConditionTransformer;
 import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
 import gov.va.api.health.dataquery.service.mranderson.client.Query;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
@@ -146,8 +144,7 @@ public class PatientController {
     headers = {"raw=true"}
   )
   public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
-    // PETERTODO
-    PatientEntity entity = datamartReadRaw(publicId);
+    PatientEntity entity = datamart.readRaw(publicId);
     AbstractIncludesIcnMajig.addHeader(response, entity.icn());
     return entity.payload();
   }
@@ -201,12 +198,15 @@ public class PatientController {
   /** Search by _id. */
   @GetMapping(params = {"_id"})
   public Patient.Bundle searchById(
-      @RequestHeader(value = "Datamart", defaultValue = "") String datamart,
+      @RequestHeader(value = "Datamart", defaultValue = "") String datamartHeader,
       @RequestParam("_id") String id,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
-    // PETERTODO
-    return searchByIdentifier(datamart, id, page, count);
+    if (datamart.isDatamartRequest(datamartHeader)) {
+      return datamart.searchById(id, page, count);
+    }
+    return mrAndersonBundle(
+        Parameters.builder().add("identifier", id).add("page", page).add("_count", count).build());
   }
 
   /** Search by Identifier. */
@@ -216,12 +216,7 @@ public class PatientController {
       @RequestParam("identifier") String id,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
-    // PETERTODO
-    if (datamart.isDatamartRequest(datamartHeader)) {
-      return datamart.searchByIdentifier(datamartHeader, id, page, count);
-    }
-    return mrAndersonBundle(
-        Parameters.builder().add("identifier", id).add("page", page).add("_count", count).build());
+    return searchById(datamartHeader, id, page, count);
   }
 
   /** Search by Name+Birthdate. */
@@ -288,6 +283,21 @@ public class PatientController {
    * eliminated.
    */
   private class Datamart {
+    private Patient.Bundle bundle(
+        MultiValueMap<String, String> parameters, List<Patient> reports, int totalRecords) {
+      PageLinks.LinkConfig linkConfig =
+          PageLinks.LinkConfig.builder()
+              .path("Patient")
+              .queryParams(parameters)
+              .page(Parameters.pageOf(parameters))
+              .recordsPerPage(Parameters.countOf(parameters))
+              .totalRecords(totalRecords)
+              .build();
+      return bundler.bundle(
+          Bundler.BundleContext.of(
+              linkConfig, reports, Function.identity(), Patient.Entry::new, Patient.Bundle::new));
+    }
+
     PatientEntity findById(String publicId) {
       Optional<PatientEntity> entity = repository.findById(witnessProtection.toCdwId(publicId));
       return entity.orElseThrow(() -> new NotFound(publicId));
@@ -300,10 +310,26 @@ public class PatientController {
       return BooleanUtils.isTrue(BooleanUtils.toBooleanObject(datamartHeader));
     }
 
+    Patient.Bundle searchById(String publicId, int page, int count) {
+      Patient resource = read(publicId);
+      return bundle(
+          Parameters.builder()
+              .add("identifier", publicId)
+              .add("page", page)
+              .add("_count", count)
+              .build(),
+          resource == null || count == 0 ? emptyList() : List.of(resource),
+          resource == null ? 0 : 1);
+    }
+
     Patient read(String publicId) {
       DatamartPatient patient = findById(publicId).asDatamartPatient();
       // replaceReferences(List.of(patient));
       return transform(patient);
+    }
+
+    PatientEntity readRaw(String publicId) {
+      return findById(publicId);
     }
 
     Patient transform(DatamartPatient dm) {
