@@ -14,7 +14,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.SneakyThrows;
 import org.springframework.data.domain.Sort;
 
 @Data
@@ -53,7 +52,6 @@ public class PatientSearchEntity implements DatamartEntity {
     return Sort.by("icn").ascending();
   }
 
-  @SneakyThrows
   DatamartPatient asDatamartPatient() {
     return patient.asDatamartPatient();
   }
