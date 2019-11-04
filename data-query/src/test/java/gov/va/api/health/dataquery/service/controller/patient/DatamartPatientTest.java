@@ -37,10 +37,11 @@ import org.springframework.test.context.junit4.SpringRunner;
 @DataJpaTest
 @RunWith(SpringRunner.class)
 public final class DatamartPatientTest {
-
   HttpServletResponse response;
 
   @Autowired private TestEntityManager entityManager;
+
+  @Autowired private PatientRepository repository;
 
   @Before
   public void _init() {
@@ -59,8 +60,8 @@ public final class DatamartPatientTest {
   public void basic() {
     DatamartData dm = DatamartData.create();
     FhirData fhir = FhirData.from(dm);
-    entityManager.persistAndFlush(dm.search());
     entityManager.persistAndFlush(dm.entity());
+    entityManager.persistAndFlush(dm.search());
     PatientController controller = controller();
     Patient patient = controller.read("true", dm.icn());
     assertThat(json(patient)).isEqualTo(json(fhir.patient()));
@@ -139,8 +140,8 @@ public final class DatamartPatientTest {
         null,
         null,
         null,
-        WitnessProtection.builder().identityService(mock(IdentityService.class)).build(),
-        entityManager.getEntityManager());
+        repository,
+        WitnessProtection.builder().identityService(mock(IdentityService.class)).build());
   }
 
   @Test
@@ -160,17 +161,17 @@ public final class DatamartPatientTest {
   @SneakyThrows
   public void empty() {
     String icn = "1011537977V693883";
-    PatientSearchEntity search = PatientSearchEntity.builder().icn(icn).build();
-    entityManager.persistAndFlush(search);
     PatientEntity entity =
         PatientEntity.builder()
             .icn(icn)
             .payload(
                 JacksonConfig.createMapper()
                     .writeValueAsString(DatamartPatient.builder().fullIcn(icn).build()))
-            .search(search)
             .build();
     entityManager.persistAndFlush(entity);
+    PatientSearchEntity search = PatientSearchEntity.builder().icn(icn).patient(entity).build();
+    entityManager.persistAndFlush(search);
+
     PatientController controller = controller();
     Patient patient = controller.read("true", icn);
     assertThat(patient)
@@ -359,8 +360,8 @@ public final class DatamartPatientTest {
   public void readRaw() {
     DatamartData dm = DatamartData.create();
     PatientEntity entity = dm.entity();
-    entityManager.persistAndFlush(dm.search());
     entityManager.persistAndFlush(entity);
+    entityManager.persistAndFlush(dm.search());
     String json = controller().readRaw(dm.icn(), response);
     assertThat(PatientEntity.builder().payload(json).build().asDatamartPatient())
         .isEqualTo(dm.patient());
@@ -463,7 +464,6 @@ public final class DatamartPatientTest {
       return PatientEntity.builder()
           .icn(icn)
           .payload(JacksonConfig.createMapper().writeValueAsString(patient()))
-          .search(search())
           .build();
     }
 
@@ -559,10 +559,11 @@ public final class DatamartPatientTest {
       return PatientSearchEntity.builder()
           .icn(icn)
           .name(name)
-          .firstName(firstName)
-          .lastName(lastName)
+          .given(firstName)
+          .family(lastName)
           .gender("M")
           .birthDateTime(parseInstant(birthDateTime))
+          .patient(entity())
           .build();
     }
   }
@@ -570,7 +571,6 @@ public final class DatamartPatientTest {
   @Builder
   @Value
   private static class FhirData {
-
     @Builder.Default String icn = "1011537977V693883";
 
     @Builder.Default String name = "TEST,PATIENT ONE";
