@@ -11,6 +11,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+
+import org.springframework.data.domain.Sort;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -40,6 +43,10 @@ public class PatientEntity implements DatamartEntity {
   @OneToOne
   @JoinColumn(name = "PatientFullIcn", referencedColumnName = "fullIcn")
   private PatientSearchEntity search;
+
+  static Sort naturalOrder() {
+    return Sort.by("icn").ascending();
+  }
 
   @SneakyThrows
   DatamartPatient asDatamartPatient() {

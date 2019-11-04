@@ -8,6 +8,7 @@ import static java.util.Collections.emptyList;
 import java.util.Collection;
 
 import gov.va.api.health.argonaut.api.resources.Patient;
+import gov.va.api.health.argonaut.api.resources.Condition.Bundle;
 import gov.va.api.health.dataquery.service.controller.AbstractIncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.Bundler;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
@@ -39,6 +40,8 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
@@ -56,6 +59,7 @@ import org.springframework.web.bind.annotation.RestController;
  * https://www.fhir.org/guides/argonaut/r2/StructureDefinition-argo-patient.html for implementation
  * details.
  */
+@Slf4j
 @Validated
 @RestController
 @SuppressWarnings("WeakerAccess")
@@ -152,18 +156,15 @@ public class PatientController {
   /** Search by Family+Gender. */
   @GetMapping(params = {"family", "gender"})
   public Patient.Bundle searchByFamilyAndGender(
-      @RequestHeader(value = "Datamart", defaultValue = "") String datamart,
+      @RequestHeader(value = "Datamart", defaultValue = "") String datamartHeader,
       @RequestParam("family") String family,
       @RequestParam("gender") String gender,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
-    // PETERTODO
-    return search(
-        datamart,
-        "Select p from PatientEntity p"
-            + " where p.search.lastName like :family and p.search.gender is :gender",
-        "Select count(p.icn) from PatientEntity p"
-            + " where p.search.lastName like :family and p.search.gender is :gender",
+    if (datamart.isDatamartRequest(datamartHeader)) {
+      return datamart.searchByFamilyAndGender(family, gender, page, count);
+    }
+    return mrAndersonBundle(
         Parameters.builder()
             .add("family", family)
             .add("gender", gender)
@@ -175,7 +176,7 @@ public class PatientController {
   /** Search by Given+Gender. */
   @GetMapping(params = {"given", "gender"})
   public Patient.Bundle searchByGivenAndGender(
-      @RequestHeader(value = "Datamart", defaultValue = "") String datamart,
+      @RequestHeader(value = "Datamart", defaultValue = "") String datamartHeader,
       @RequestParam("given") String given,
       @RequestParam("gender") String gender,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
@@ -222,7 +223,7 @@ public class PatientController {
   /** Search by Name+Birthdate. */
   @GetMapping(params = {"name", "birthdate"})
   public Patient.Bundle searchByNameAndBirthdate(
-      @RequestHeader(value = "Datamart", defaultValue = "") String datamart,
+      @RequestHeader(value = "Datamart", defaultValue = "") String datamartHeader,
       @RequestParam("name") String name,
       @RequestParam("birthdate") String[] birthdate,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
@@ -246,7 +247,7 @@ public class PatientController {
   /** Search by Name+Gender. */
   @GetMapping(params = {"name", "gender"})
   public Patient.Bundle searchByNameAndGender(
-      @RequestHeader(value = "Datamart", defaultValue = "") String datamart,
+      @RequestHeader(value = "Datamart", defaultValue = "") String datamartHeader,
       @RequestParam("name") String name,
       @RequestParam("gender") String gender,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
@@ -283,7 +284,7 @@ public class PatientController {
    * eliminated.
    */
   private class Datamart {
-    private Patient.Bundle bundle(
+    Patient.Bundle bundle(
         MultiValueMap<String, String> parameters, List<Patient> reports, int totalRecords) {
       PageLinks.LinkConfig linkConfig =
           PageLinks.LinkConfig.builder()
@@ -298,6 +299,30 @@ public class PatientController {
               linkConfig, reports, Function.identity(), Patient.Entry::new, Patient.Bundle::new));
     }
 
+    Patient.Bundle bundle(MultiValueMap<String, String> parameters, Page<PatientEntity> entities) {
+      log.info("Search {} found {} results", parameters, entities.getTotalElements());
+      if (Parameters.countOf(parameters) == 0) {
+        return bundle(parameters, emptyList(), (int) entities.getTotalElements());
+      }
+
+      return bundle(
+          parameters,
+          entities
+              .get()
+              .map(PatientEntity::asDatamartPatient)
+              .map(this::transform)
+              .collect(Collectors.toList()),
+          (int) entities.getTotalElements());
+    }
+
+    String cdwGender(String fhirGender) {
+      String cdw = GenderMapping.toCdw(fhirGender);
+      if (cdw == null) {
+        throw new IllegalArgumentException("unknown gender: " + fhirGender);
+      }
+      return cdw;
+    }
+
     PatientEntity findById(String publicId) {
       Optional<PatientEntity> entity = repository.findById(witnessProtection.toCdwId(publicId));
       return entity.orElseThrow(() -> new NotFound(publicId));
@@ -308,6 +333,10 @@ public class PatientController {
         return defaultToDatamart;
       }
       return BooleanUtils.isTrue(BooleanUtils.toBooleanObject(datamartHeader));
+    }
+
+    PageRequest page(int page, int count) {
+      return PageRequest.of(page - 1, count == 0 ? 1 : count, PatientEntity.naturalOrder());
     }
 
     Patient.Bundle searchById(String publicId, int page, int count) {
@@ -323,13 +352,22 @@ public class PatientController {
     }
 
     Patient read(String publicId) {
-      DatamartPatient patient = findById(publicId).asDatamartPatient();
-      // replaceReferences(List.of(patient));
-      return transform(patient);
+      return transform(findById(publicId).asDatamartPatient());
     }
 
     PatientEntity readRaw(String publicId) {
       return findById(publicId);
+    }
+
+    Patient.Bundle searchByFamilyAndGender(String family, String gender, int page, int count) {
+      return bundle(
+          Parameters.builder()
+              .add("family", family)
+              .add("gender", gender)
+              .add("page", page)
+              .add("_count", count)
+              .build(),
+          repository.findByFamilyAndGender(family, cdwGender(gender), page(page, count)));
     }
 
     Patient transform(DatamartPatient dm) {
