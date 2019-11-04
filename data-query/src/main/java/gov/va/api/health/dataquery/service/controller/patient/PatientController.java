@@ -263,7 +263,6 @@ public class PatientController {
    * eliminated.
    */
   private class Datamart {
-
     Patient.Bundle bundle(
         MultiValueMap<String, String> parameters, List<Patient> reports, int totalRecords) {
       PageLinks.LinkConfig linkConfig =
