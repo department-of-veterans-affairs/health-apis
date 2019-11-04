@@ -2,24 +2,17 @@ package gov.va.api.health.dataquery.service.controller.patient;
 
 import static gov.va.api.health.dataquery.service.controller.Transformers.firstPayloadItem;
 import static gov.va.api.health.dataquery.service.controller.Transformers.hasPayload;
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 
-import java.util.Collection;
-
 import gov.va.api.health.argonaut.api.resources.Patient;
-import gov.va.api.health.argonaut.api.resources.Condition.Bundle;
 import gov.va.api.health.dataquery.service.controller.AbstractIncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.Bundler;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
-import gov.va.api.health.dataquery.service.controller.JpaDateTimeParameter;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.Validator;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
-import gov.va.api.health.dataquery.service.controller.ResourceExceptions.NotFound;
-import gov.va.api.health.dataquery.service.controller.condition.ConditionEntity;
 import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
 import gov.va.api.health.dataquery.service.mranderson.client.Query;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
@@ -29,10 +22,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.Min;
 import lombok.extern.slf4j.Slf4j;
@@ -42,7 +32,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -225,14 +214,10 @@ public class PatientController {
       @RequestParam("birthdate") String[] birthdate,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
-    return search(
-        datamart,
-        "Select p from PatientEntity p where p.search.name like :name"
-            + JpaDateTimeParameter.querySnippet(
-                birthdate, "p.search.birthDateTime", "p.search.birthDateTime"),
-        "Select count(p.icn) from PatientEntity p where p.search.name like :name"
-            + JpaDateTimeParameter.querySnippet(
-                birthdate, "p.search.birthDateTime", "p.search.birthDateTime"),
+    if (datamart.isDatamartRequest(datamartHeader)) {
+      return datamart.searchByNameAndBirthdate(name, birthdate, page, count);
+    }
+    return mrAndersonBundle(
         Parameters.builder()
             .add("name", name)
             .addAll("birthdate", birthdate)
@@ -249,12 +234,10 @@ public class PatientController {
       @RequestParam("gender") String gender,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
-    return search(
-        datamart,
-        "Select p from PatientEntity p where"
-            + " p.search.name like :name and p.search.gender is :gender",
-        "Select count(p.icn) from PatientEntity p where"
-            + " p.search.name like :name and p.search.gender is :gender",
+    if (datamart.isDatamartRequest(datamartHeader)) {
+      return datamart.searchByNameAndGender(name, gender, page, count);
+    }
+    return mrAndersonBundle(
         Parameters.builder()
             .add("name", name)
             .add("gender", gender)
@@ -324,7 +307,7 @@ public class PatientController {
     PatientSearchEntity findById(String publicId) {
       Optional<PatientSearchEntity> entity =
           repository.findById(witnessProtection.toCdwId(publicId));
-      return entity.orElseThrow(() -> new NotFound(publicId));
+      return entity.orElseThrow(() -> new ResourceExceptions.NotFound(publicId));
     }
 
     boolean isDatamartRequest(String datamartHeader) {
@@ -369,7 +352,7 @@ public class PatientController {
           repository.findByFamilyAndGender(family, cdwGender(gender), page(page, count)));
     }
 
-    public Patient.Bundle searchByGivenAndGender(String given, String gender, int page, int count) {
+    Patient.Bundle searchByGivenAndGender(String given, String gender, int page, int count) {
       return bundle(
           Parameters.builder()
               .add("given", given)
@@ -378,6 +361,36 @@ public class PatientController {
               .add("_count", count)
               .build(),
           repository.findByGivenAndGender(given, cdwGender(gender), page(page, count)));
+    }
+
+    Patient.Bundle searchByNameAndBirthdate(String name, String[] birthdate, int page, int count) {
+      PatientRepository.NameAndBirthdateSpecification spec =
+          PatientRepository.NameAndBirthdateSpecification.builder()
+              .name(name)
+              .dates(birthdate)
+              .build();
+      log.info("Looking for {} {}", name, spec);
+      Page<PatientSearchEntity> entities = repository.findAll(spec, page(page, count));
+
+      return bundle(
+          Parameters.builder()
+              .add("name", name)
+              .addAll("birthdate", birthdate)
+              .add("page", page)
+              .add("_count", count)
+              .build(),
+          entities);
+    }
+
+    Patient.Bundle searchByNameAndGender(String name, String gender, int page, int count) {
+      return bundle(
+          Parameters.builder()
+              .add("name", name)
+              .add("gender", gender)
+              .add("page", page)
+              .add("_count", count)
+              .build(),
+          repository.findByNameAndGender(name, cdwGender(gender), page(page, count)));
     }
 
     Patient transform(DatamartPatient dm) {
