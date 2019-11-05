@@ -32,7 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 @SuppressWarnings("WeakerAccess")
 @RestController
 @RequestMapping(
-  value = {"/dstu2/MedicationDispense", "/argonaut/data-query/MedicationDispense"},
+  value = {"/dstu2/MedicationDispense"},
   produces = {"application/json", "application/json+fhir", "application/fhir+json"}
 )
 @AllArgsConstructor(onConstructor = @__({@Autowired}))

@@ -56,7 +56,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 @RestController
 @RequestMapping(
-  value = {"/dstu2/Immunization", "/argonaut/data-query/Immunization"},
+  value = {"/dstu2/Immunization"},
   produces = {"application/json", "application/json+fhir", "application/fhir+json"}
 )
 @Slf4j

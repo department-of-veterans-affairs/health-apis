@@ -56,7 +56,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
 @RequestMapping(
-  value = {"/dstu2/MedicationOrder", "/argonaut/data-query/MedicationOrder"},
+  value = {"/dstu2/MedicationOrder"},
   produces = {"application/json", "application/json+fhir", "application/fhir+json"}
 )
 public class MedicationOrderController {

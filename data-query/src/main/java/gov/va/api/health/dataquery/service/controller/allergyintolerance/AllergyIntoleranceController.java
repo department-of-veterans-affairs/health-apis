@@ -53,7 +53,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 @RestController
 @RequestMapping(
-  value = {"/dstu2/AllergyIntolerance", "/argonaut/data-query/AllergyIntolerance"},
+  value = {"/dstu2/AllergyIntolerance"},
   produces = {"application/json", "application/json+fhir", "application/fhir+json"}
 )
 public class AllergyIntoleranceController {

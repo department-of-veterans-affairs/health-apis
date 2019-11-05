@@ -30,10 +30,10 @@ public final class TestClients {
   }
 
   static TestClient internalDataQuery() {
-    return FhirTestClient.builder()
+    return BasicTestClient.builder()
         .service(SystemDefinitions.systemDefinition().internalDataQuery())
+        .contentType("application/json")
         .mapper(JacksonConfig::createMapper)
-        .errorResponseEqualityCheck(new OperationOutcomesAreFunctionallyEqual())
         .build();
   }
 
