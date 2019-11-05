@@ -17,12 +17,12 @@ entries:
     count: 15
   # Location aliases
   - file: ./NoResults.xml
-    query: /Location:1.00?identifier=5555555555555
+    query: /Location:1.02?identifier=5555555555555
     page: 1
     count: 15
   # MedicationDispense aliases
   - file: ./NoResults.xml
-    query: /MedicationDispense:1.00?identifier=5555555555555
+    query: /MedicationDispense:1.02?identifier=5555555555555
     page: 1
     count: 15
   # Immunization aliases
@@ -111,15 +111,15 @@ entries:
     count: 15
   # Encounter alias
   - file: ../../../../target/cdw/samples/Enc101p185601V825290.xml
-    query: /Encounter:1.01?identifier=1200753214085
+    query: /Encounter:1.02?identifier=1200753214085
     page: 1
     count: 1
   - file: ../../../../target/cdw/samples/Enc101p185601V825290.xml
-    query: /Encounter:1.01?patient=185601V825290
+    query: /Encounter:1.02?patient=185601V825290
     page: 1
     count: 1
   - file: ../../../../target/cdw/samples/Enc101p185601V825290.xml
-    query: /Encounter:1.01?_id=1200753214085
+    query: /Encounter:1.02?_id=1200753214085
     page: 1
     count: 1
   # MedicationStatement aliases
