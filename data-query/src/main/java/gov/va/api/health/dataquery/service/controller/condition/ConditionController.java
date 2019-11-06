@@ -58,7 +58,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 @RestController
 @RequestMapping(
-  value = {"Condition", "/api/Condition"},
+  value = {"/dstu2/Condition"},
   produces = {"application/json", "application/json+fhir", "application/fhir+json"}
 )
 public class ConditionController {

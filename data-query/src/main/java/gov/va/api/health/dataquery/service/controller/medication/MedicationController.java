@@ -52,7 +52,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 @RestController
 @RequestMapping(
-  value = {"Medication", "/api/Medication"},
+  value = {"/dstu2/Medication"},
   produces = {"application/json", "application/json+fhir", "application/fhir+json"}
 )
 public class MedicationController {

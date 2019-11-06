@@ -53,7 +53,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 @RestController
 @RequestMapping(
-  value = {"AllergyIntolerance", "/api/AllergyIntolerance"},
+  value = {"/dstu2/AllergyIntolerance"},
   produces = {"application/json", "application/json+fhir", "application/fhir+json"}
 )
 public class AllergyIntoleranceController {
@@ -176,7 +176,6 @@ public class AllergyIntoleranceController {
     if (datamart.isDatamartRequest(datamartHeader)) {
       return searchByIdentifier(datamartHeader, id, page, count);
     }
-
     return mrAndersonBundle(
         Parameters.builder().add("identifier", id).add("page", page).add("_count", count).build());
   }
@@ -194,7 +193,6 @@ public class AllergyIntoleranceController {
             .add("page", page)
             .add("_count", count)
             .build();
-
     if (datamart.isDatamartRequest(datamartHeader)) {
       AllergyIntolerance resource = datamart.read(identifier);
       int totalRecords = resource == null ? 0 : 1;
@@ -203,7 +201,6 @@ public class AllergyIntoleranceController {
       }
       return bundle(parameters, asList(resource), totalRecords);
     }
-
     return mrAndersonBundle(parameters);
   }
 

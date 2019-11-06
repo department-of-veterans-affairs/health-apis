@@ -73,7 +73,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @SuppressWarnings("WeakerAccess")
 @RequestMapping(
-  value = {"DiagnosticReport", "/api/DiagnosticReport"},
+  value = {"/dstu2/DiagnosticReport"},
   produces = {"application/json", "application/json+fhir", "application/fhir+json"}
 )
 public class DiagnosticReportController {

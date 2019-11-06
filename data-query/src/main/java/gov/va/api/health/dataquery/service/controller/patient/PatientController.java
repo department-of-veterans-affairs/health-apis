@@ -52,7 +52,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @SuppressWarnings("WeakerAccess")
 @RequestMapping(
-  value = {"Patient", "/api/Patient"},
+  value = {"/dstu2/Patient"},
   produces = {"application/json", "application/json+fhir", "application/fhir+json"}
 )
 public class PatientController {

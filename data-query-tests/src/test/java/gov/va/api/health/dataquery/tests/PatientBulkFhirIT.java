@@ -20,7 +20,7 @@ import org.junit.experimental.categories.Category;
 public class PatientBulkFhirIT {
 
   private final String apiPath() {
-    return ResourceVerifier.get().dataQuery().service().apiPath();
+    return TestClients.internalDataQuery().service().apiPath();
   }
 
   @Test
@@ -33,21 +33,21 @@ public class PatientBulkFhirIT {
   )
   public void bulkFhirPatientSearch() {
     ExpectedResponse responseAll =
-        TestClients.dataQuery()
+        TestClients.internalDataQuery()
             .get(
                 ImmutableMap.of("bulk", System.getProperty("bulk-token", "some-token")),
                 apiPath() + "internal/bulk/Patient?page=1&_count=6");
     responseAll.expect(200);
     List<Patient> allPatients = responseAll.expectListOf(Patient.class);
     ExpectedResponse responseFirstHalf =
-        TestClients.dataQuery()
+        TestClients.internalDataQuery()
             .get(
                 ImmutableMap.of("bulk", System.getProperty("bulk-token", "some-token")),
                 apiPath() + "internal/bulk/Patient?page=1&_count=3");
     responseFirstHalf.expect(200);
     List<Patient> firstHalfPatients = responseFirstHalf.expectListOf(Patient.class);
     ExpectedResponse responseSecondHalf =
-        TestClients.dataQuery()
+        TestClients.internalDataQuery()
             .get(
                 ImmutableMap.of("bulk", System.getProperty("bulk-token", "some-token")),
                 apiPath() + "internal/bulk/Patient?page=2&_count=3");
@@ -66,7 +66,7 @@ public class PatientBulkFhirIT {
   @SneakyThrows
   public void bulkPatientCount() {
     ExpectedResponse response =
-        TestClients.dataQuery()
+        TestClients.internalDataQuery()
             .get(
                 ImmutableMap.of("bulk", System.getProperty("bulk-token", "some-token")),
                 apiPath() + "internal/bulk/Patient/count");
