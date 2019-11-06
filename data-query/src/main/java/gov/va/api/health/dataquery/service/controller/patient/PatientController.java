@@ -335,7 +335,7 @@ public class PatientController {
               .add("page", page)
               .add("_count", count)
               .build(),
-          repository.findByFamilyAndGender(family, cdwGender(gender), page(page, count)));
+          repository.findByLastNameAndGender(family, cdwGender(gender), page(page, count)));
     }
 
     Patient.Bundle searchByGivenAndGender(String given, String gender, int page, int count) {
@@ -346,7 +346,7 @@ public class PatientController {
               .add("page", page)
               .add("_count", count)
               .build(),
-          repository.findByGivenAndGender(given, cdwGender(gender), page(page, count)));
+          repository.findByFirstNameAndGender(given, cdwGender(gender), page(page, count)));
     }
 
     Patient.Bundle searchById(String publicId, int page, int count) {

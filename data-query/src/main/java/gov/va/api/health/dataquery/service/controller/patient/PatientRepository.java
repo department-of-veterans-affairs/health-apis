@@ -19,16 +19,22 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 public interface PatientRepository
     extends PagingAndSortingRepository<PatientSearchEntity, String>,
         JpaSpecificationExecutor<PatientSearchEntity> {
-  Page<PatientSearchEntity> findByFamilyAndGender(String family, String gender, Pageable pageable);
 
-  Page<PatientSearchEntity> findByGivenAndGender(String given, String gender, Pageable pageable);
+  Page<PatientSearchEntity> findByFirstNameAndGender(
+      String firstName, String gender, Pageable pageable);
+
+  Page<PatientSearchEntity> findByLastNameAndGender(
+      String lastName, String gender, Pageable pageable);
 
   Page<PatientSearchEntity> findByNameAndGender(String name, String gender, Pageable pageable);
 
   @Value
   class NameAndBirthdateSpecification implements Specification<PatientSearchEntity> {
+
     String name;
+
     DateTimeParameters date1;
+
     DateTimeParameters date2;
 
     @Builder

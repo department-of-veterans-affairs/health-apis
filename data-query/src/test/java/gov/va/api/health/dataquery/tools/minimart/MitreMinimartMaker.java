@@ -225,8 +225,8 @@ public class MitreMinimartMaker {
     PatientSearchEntity patientSearchEntity =
         PatientSearchEntity.builder()
             .icn(dm.fullIcn())
-            .family(dm.firstName())
-            .given(dm.lastName())
+            .firstName(dm.firstName())
+            .lastName(dm.lastName())
             .name(dm.name())
             .birthDateTime(Instant.parse(dm.birthDateTime()))
             .gender(dm.gender())

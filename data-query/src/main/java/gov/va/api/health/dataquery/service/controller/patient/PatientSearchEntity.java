@@ -30,10 +30,10 @@ public class PatientSearchEntity implements DatamartEntity {
   private String icn;
 
   @Column(name = "firstName")
-  private String given;
+  private String firstName;
 
   @Column(name = "lastName")
-  private String family;
+  private String lastName;
 
   @Column(name = "name")
   private String name;
