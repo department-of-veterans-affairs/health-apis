@@ -12,24 +12,39 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 public class WellKnownIT {
+
   private final String apiPath() {
     return TestClients.dataQuery().service().apiPath();
   }
 
+  /**
+   * She's not the prettiest, but local tests dont remove the dstu2 from the apiPath (done by the
+   * ingress otherwise).
+   */
+  @Test
+  @Category({Local.class})
+  public void localWellKnownIsValid() {
+    requestWellKnown("/");
+  }
+
+  public void requestWellKnown(String apiPath) {
+    ExpectedResponse response =
+        TestClients.dataQuery().get(apiPath + ".well-known/smart-configuration");
+    response.expect(200);
+    String rawJson = response.response().asString();
+    assertThat(rawJson)
+        .withFailMessage("Tabs and newlines break our customer.")
+        .doesNotContain("\n", "\t");
+  }
+
   @Test
   @Category({
-    Local.class,
     LabDataQueryPatient.class,
     LabDataQueryClinician.class,
     ProdDataQueryPatient.class,
     ProdDataQueryClinician.class
   })
   public void wellKnownIsValid() {
-    ExpectedResponse response = TestClients.dataQuery().get(".well-known/smart-configuration");
-    response.expect(200);
-    String rawJson = response.response().asString();
-    assertThat(rawJson)
-        .withFailMessage("Tabs and newlines break our customer.")
-        .doesNotContain("\n", "\t");
+    requestWellKnown(apiPath());
   }
 }

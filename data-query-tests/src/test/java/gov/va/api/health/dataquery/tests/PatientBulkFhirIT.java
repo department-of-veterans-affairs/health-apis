@@ -32,6 +32,8 @@ public class PatientBulkFhirIT {
     }
   )
   public void bulkFhirPatientSearch() {
+    log.info(
+        "Using: " + TestClients.internalDataQuery().service().urlWithApiPath() + "internal/bulk");
     ExpectedResponse responseAll =
         TestClients.internalDataQuery()
             .get(
@@ -65,6 +67,8 @@ public class PatientBulkFhirIT {
   @Category({Local.class, LabDataQueryPatient.class, ProdDataQueryPatient.class})
   @SneakyThrows
   public void bulkPatientCount() {
+    log.info(
+        "Using: " + TestClients.internalDataQuery().service().urlWithApiPath() + "internal/bulk");
     ExpectedResponse response =
         TestClients.internalDataQuery()
             .get(
