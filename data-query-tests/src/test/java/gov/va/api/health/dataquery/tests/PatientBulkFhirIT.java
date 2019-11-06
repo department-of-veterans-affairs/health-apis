@@ -9,7 +9,6 @@ import gov.va.api.health.dataquery.tests.categories.LabDataQueryPatient;
 import gov.va.api.health.dataquery.tests.categories.ProdDataQueryPatient;
 import gov.va.api.health.sentinel.ExpectedResponse;
 import gov.va.api.health.sentinel.categories.Local;
-import io.restassured.http.Method;
 import java.util.LinkedList;
 import java.util.List;
 import lombok.SneakyThrows;
@@ -70,20 +69,8 @@ public class PatientBulkFhirIT {
     String path = apiPath() + "internal/bulk/Patient/count";
     log.info("Verify bulk-fhir count [{}]", path);
     ExpectedResponse response =
-        ExpectedResponse.of(
-            TestClients.internalDataQuery()
-                .service()
-                .requestSpecification()
-                .contentType("application/json")
-                .headers(ImmutableMap.of("bulk", System.getProperty("bulk-token", "some-token")))
-                .request()
-                .log()
-                .everything()
-                .request(Method.GET, path));
-    /*        TestClients.internalDataQuery()
-    .get(
-        ImmutableMap.of("bulk", System.getProperty("bulk-token", "some-token")),
-        path);*/
+        TestClients.internalDataQuery()
+            .get(ImmutableMap.of("bulk", System.getProperty("bulk-token", "some-token")), path);
     response.expect(200);
     var bulkFhirCount = response.expectValid(BulkFhirCount.class);
     assertThat(bulkFhirCount.count()).isGreaterThan(3);
