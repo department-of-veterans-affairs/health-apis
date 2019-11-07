@@ -32,6 +32,7 @@ public class PatientBulkFhirIT {
     }
   )
   public void bulkFhirPatientSearch() {
+    log.info("Verify Patient Bulk Search internal/bulk/Patient?page=x&_count=y");
     ExpectedResponse responseAll =
         TestClients.internalDataQuery()
             .get(
@@ -65,11 +66,11 @@ public class PatientBulkFhirIT {
   @Category({Local.class, LabDataQueryPatient.class, ProdDataQueryPatient.class})
   @SneakyThrows
   public void bulkPatientCount() {
+    String path = apiPath() + "internal/bulk/Patient/count";
+    log.info("Verify bulk-fhir count [{}]", path);
     ExpectedResponse response =
         TestClients.internalDataQuery()
-            .get(
-                ImmutableMap.of("bulk", System.getProperty("bulk-token", "some-token")),
-                apiPath() + "internal/bulk/Patient/count");
+            .get(ImmutableMap.of("bulk", System.getProperty("bulk-token", "some-token")), path);
     response.expect(200);
     var bulkFhirCount = response.expectValid(BulkFhirCount.class);
     assertThat(bulkFhirCount.count()).isGreaterThan(3);

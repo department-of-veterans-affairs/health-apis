@@ -54,7 +54,7 @@ public final class SystemDefinitions {
         .mrAnderson(serviceDefinition("mr-anderson", url, 443, null, "/not-available/"))
         .dataQuery(
             serviceDefinition("argonaut", url, 443, magicAccessToken(), "/services/argonaut/v0/"))
-        .internalDataQuery(serviceDefinition("internal", url, 8090, null, "/not-available/"))
+        .internalDataQuery(serviceDefinition("internal", url, 443, null, "/not-available/"))
         .cdwIds(labMitreIds())
         .build();
   }
@@ -157,7 +157,7 @@ public final class SystemDefinitions {
         .mrAnderson(serviceDefinition("mr-anderson", url, 443, null, "/not-available/"))
         .dataQuery(
             serviceDefinition("argonaut", url, 443, magicAccessToken(), "/services/argonaut/v0/"))
-        .internalDataQuery(serviceDefinition("internal", url, 8090, null, "/not-available/"))
+        .internalDataQuery(serviceDefinition("internal", url, 443, null, "/not-available/"))
         .cdwIds(productionCdwIds())
         .build();
   }
@@ -200,7 +200,7 @@ public final class SystemDefinitions {
         .ids(serviceDefinition("ids", url, 443, null, "/not-available/"))
         .mrAnderson(serviceDefinition("mr-anderson", url, 443, null, "/not-available/"))
         .dataQuery(serviceDefinition("argonaut", url, 443, magicAccessToken(), "/"))
-        .internalDataQuery(serviceDefinition("internal", url, 8090, null, "/data-query/"))
+        .internalDataQuery(serviceDefinition("internal", url, 443, null, "/data-query/"))
         .cdwIds(productionCdwIds())
         .build();
   }
@@ -223,7 +223,7 @@ public final class SystemDefinitions {
         .ids(serviceDefinition("ids", url, 443, null, "/not-available/"))
         .mrAnderson(serviceDefinition("mr-anderson", url, 443, null, "/not-available/"))
         .dataQuery(serviceDefinition("argonaut", url, 443, magicAccessToken(), "/"))
-        .internalDataQuery(serviceDefinition("internal", url, 8090, null, "/data-query/"))
+        .internalDataQuery(serviceDefinition("internal", url, 443, null, "/data-query/"))
         .cdwIds(productionCdwIds())
         .build();
   }
@@ -236,7 +236,7 @@ public final class SystemDefinitions {
         .mrAnderson(serviceDefinition("mr-anderson", url, 443, null, "/not-available/"))
         .dataQuery(
             serviceDefinition("argonaut", url, 443, magicAccessToken(), "/services/argonaut/v0/"))
-        .internalDataQuery(serviceDefinition("internal", url, 8090, null, "/data-query/"))
+        .internalDataQuery(serviceDefinition("internal", url, 443, null, "/data-query/"))
         .cdwIds(labMitreIds())
         .build();
   }
