@@ -19,15 +19,18 @@ import org.springframework.util.StreamUtils;
 @RunWith(SpringRunner.class)
 @WebMvcTest(controllers = {DataQueryHomeController.class})
 public class DataQueryHomeControllerTest {
+
+  private final String basePath = "/dstu2";
+
   @Autowired private MockMvc mvc;
 
   @Test
   @SneakyThrows
   public void openapiJson() {
-    mvc.perform(get("/openapi.json"))
+    mvc.perform(get(basePath + "/openapi.json"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.openapi", equalTo("3.0.1")));
-    mvc.perform(get("/api/openapi.json"))
+    mvc.perform(get(basePath + "/openapi.json"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.openapi", equalTo("3.0.1")));
   }
@@ -38,10 +41,7 @@ public class DataQueryHomeControllerTest {
     String expected =
         StreamUtils.copyToString(
             getClass().getResourceAsStream("/openapi.yaml"), StandardCharsets.UTF_8);
-    mvc.perform(get("/openapi.yaml"))
-        .andExpect(status().isOk())
-        .andExpect(content().string(equalTo(expected)));
-    mvc.perform(get("/api/openapi.yaml"))
+    mvc.perform(get(basePath + "/openapi.yaml"))
         .andExpect(status().isOk())
         .andExpect(content().string(equalTo(expected)));
   }
@@ -49,7 +49,7 @@ public class DataQueryHomeControllerTest {
   @Test
   @SneakyThrows
   public void openapiYamlFromIndex() {
-    mvc.perform(get("/"))
+    mvc.perform(get(basePath + "/"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.openapi", equalTo("3.0.1")));
   }
