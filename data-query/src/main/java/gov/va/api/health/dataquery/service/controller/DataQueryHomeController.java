@@ -39,7 +39,7 @@ public class DataQueryHomeController {
    * redirect.
    */
   @GetMapping(
-    value = {"/", "/openapi.json", "/api/openapi.json"},
+    value = {"dstu2/", "dstu2/openapi.json"},
     produces = "application/json"
   )
   @ResponseBody
@@ -49,7 +49,7 @@ public class DataQueryHomeController {
 
   /** Provide access to the OpenAPI yaml via RESTful interface. */
   @GetMapping(
-    value = {"/openapi.yaml", "/api/openapi.yaml"},
+    value = {"/dstu2/openapi.yaml"},
     produces = "application/vnd.oai.openapi"
   )
   @ResponseBody
