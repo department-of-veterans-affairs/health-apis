@@ -58,6 +58,7 @@ public class MitreMinimartMaker {
           ObservationEntity.class,
           PatientEntity.class,
           PatientSearchEntity.class,
+          PractitionerEntity.class,
           ProcedureEntity.class);
 
   private String resourceToSync;
