@@ -16,9 +16,9 @@ public class DatamartPractitioner implements HasReplaceableId {
   @Builder.Default private int objectVersion = 1;
 
   private String cdwId;
-  
+
   private String npi;
-  
+
   private Boolean active;
 }
 
