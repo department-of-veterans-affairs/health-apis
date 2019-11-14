@@ -36,7 +36,7 @@ public class DatamartPractitioner implements HasReplaceableId {
 
   private Gender gender;
 
-  private LocalDate birthDate;
+  private Optional<LocalDate> birthDate;
 
   private Optional<PractitionerRole> practitionerRole;
 
@@ -46,6 +46,14 @@ public class DatamartPractitioner implements HasReplaceableId {
       address = new ArrayList<>();
     }
     return address;
+  }
+
+  /** Lazy initialization. */
+  public Optional<String> birthDate() {
+    if (birthDate == null) {
+      birthDate = Optional.empty();
+    }
+    return birthDate;
   }
 
   /** Lazy initialization. */

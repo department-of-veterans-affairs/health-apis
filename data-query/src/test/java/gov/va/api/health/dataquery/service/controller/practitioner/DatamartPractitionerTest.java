@@ -3,11 +3,11 @@ package gov.va.api.health.dataquery.service.controller.practitioner;
 import static gov.va.api.health.autoconfig.configuration.JacksonConfig.createMapper;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
-import java.time.Instant;
 import java.util.Optional;
 import lombok.SneakyThrows;
 import org.junit.Test;
+
+import gov.va.api.health.dataquery.service.controller.practitioner.DatamartPractitioner.Name;
 
 public class DatamartPractitionerTest {
   @SneakyThrows
@@ -20,18 +20,18 @@ public class DatamartPractitionerTest {
   private DatamartPractitioner sample() {
     return DatamartPractitioner.builder()
         .cdwId("416704")
-        .status(DatamartPractitioner.Status.completed)
+        .npi(Optional.of("1932127842"))
+        .active(true)
+        .name(
+            Name.builder()
+                .family("LASTNAME")
+                .given("FIRSTNAME A.")
+                .prefix(Optional.of("DR."))
+                .suffix(Optional.of("PHD"))
+                .build())
         .build();
   }
 
-  //	  "npi": "1932127842",
-  //	  "active": true,
-  //	  "name": {
-  //	    "family": "LASTNAME",
-  //	    "given": "FIRSTNAME A.",
-  //	    "prefix": "DR.",
-  //	    "suffix": "PHD"
-  //	  },
   //	  "telecom": [{
   //	      "system": "phone",
   //	      "value": "555-555-1137",
@@ -112,8 +112,6 @@ public class DatamartPractitionerTest {
   //	    "healthCareService": "MEDICAL SERVICE"
   //	  }
   //	}
-  //
-  //
 
   @Test
   @SneakyThrows
