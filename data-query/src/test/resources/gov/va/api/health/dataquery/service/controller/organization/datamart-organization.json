@@ -1,0 +1,42 @@
+{
+  "objectType" : "Organization",
+  "objectVersion" : "1",
+  "cdwId" : "561596:I",
+  "stationIdentifier" : "442",
+  "npi" : "1205983228",
+  "providerId" : "0040000000000",
+  "ediId" : "36273",
+  "agencyId" : "other",
+  "active" : true,
+  "type" : {
+    "system" : "institution",
+    "code" : "CBOC",
+    "display" : "COMMUNITY BASED OUTPATIENT CLINIC"
+  },
+  "name" : "NEW AMSTERDAM CBOC",
+  "telecom" : [
+    {
+      "system" : "phone",
+      "value" : "800 555-7710"
+    },
+    {
+      "system" : "phone",
+      "value" : "800 555-7720"
+    },
+    {
+      "system" : "phone",
+      "value" : "800-555-7730"
+    }
+  ],
+  "address" : {
+    "line1" : "10 MONROE AVE, SUITE 6B",
+    "lne2" : "PO BOX 4160",
+    "city" : "NEW AMSTERDAM",
+    "state" : "OH",
+    "postalCode" : "44444-4160"
+  },
+  "partOf" : {
+    "reference" : "568060:I",
+    "display" : "NEW AMSTERDAM VAMC"
+  }
+}

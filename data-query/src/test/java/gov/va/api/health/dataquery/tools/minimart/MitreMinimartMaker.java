@@ -20,6 +20,8 @@ import gov.va.api.health.dataquery.service.controller.medicationstatement.Datama
 import gov.va.api.health.dataquery.service.controller.medicationstatement.MedicationStatementEntity;
 import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation;
 import gov.va.api.health.dataquery.service.controller.observation.ObservationEntity;
+import gov.va.api.health.dataquery.service.controller.organization.DatamartOrganization;
+import gov.va.api.health.dataquery.service.controller.organization.OrganizationEntity;
 import gov.va.api.health.dataquery.service.controller.patient.DatamartPatient;
 import gov.va.api.health.dataquery.service.controller.patient.PatientEntity;
 import gov.va.api.health.dataquery.service.controller.patient.PatientSearchEntity;
@@ -54,6 +56,7 @@ public class MitreMinimartMaker {
           MedicationEntity.class,
           MedicationStatementEntity.class,
           ObservationEntity.class,
+          OrganizationEntity.class,
           PatientEntity.class,
           PatientSearchEntity.class,
           ProcedureEntity.class);
@@ -89,11 +92,6 @@ public class MitreMinimartMaker {
   @SneakyThrows
   private String fileToString(File file) {
     return new String(Files.readAllBytes(Paths.get(file.getPath())));
-  }
-
-  private void flushAndClear() {
-    entityManager.flush();
-    entityManager.clear();
   }
 
   @SneakyThrows
@@ -219,6 +217,18 @@ public class MitreMinimartMaker {
     save(entity);
   }
 
+  private void insertByOrganization(File file) {
+    DatamartOrganization dm =
+        JacksonConfig.createMapper().readValue(file, DatamartOrganization.class);
+    OrganizationEntity entity =
+        OrganizationEntity.builder()
+            .cdwId(dm.cdwId())
+            // .icn(dm.subject().isPresent() ? patientIcn(dm.subject().get()) : null)
+            .payload(fileToString(file))
+            .build();
+    save(entity);
+  }
+
   @SneakyThrows
   private void insertByPatient(File file) {
     DatamartPatient dm = JacksonConfig.createMapper().readValue(file, DatamartPatient.class);
@@ -305,6 +315,9 @@ public class MitreMinimartMaker {
         break;
       case "Observation":
         listByPattern(dmDirectory, "^dmObs.*json$").forEach(file -> insertByObservation(file));
+        break;
+      case "Organization":
+        listByPattern(dmDirectory, "^dmOrg.*json$").forEach(file -> insertByOrganization(file));
         break;
       case "Patient":
         listByPattern(dmDirectory, "^dmPat.*json$").forEach(file -> insertByPatient(file));
