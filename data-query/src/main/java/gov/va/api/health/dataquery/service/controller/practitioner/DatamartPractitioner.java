@@ -49,7 +49,7 @@ public class DatamartPractitioner implements HasReplaceableId {
   }
 
   /** Lazy initialization. */
-  public Optional<String> birthDate() {
+  public Optional<LocalDate> birthDate() {
     if (birthDate == null) {
       birthDate = Optional.empty();
     }
@@ -151,7 +151,15 @@ public class DatamartPractitioner implements HasReplaceableId {
 
     private List<DatamartReference> location;
 
-    private String healthCareService;
+    private Optional<String> healthCareService;
+
+    /** Lazy initialization. */
+    public Optional<String> healthCareService() {
+      if (healthCareService == null) {
+        healthCareService = Optional.empty();
+      }
+      return healthCareService;
+    }
 
     /** Lazy initialization. */
     public List<DatamartReference> location() {
@@ -224,15 +232,39 @@ public class DatamartPractitioner implements HasReplaceableId {
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static final class Specialty {
-      private String providerType;
+      private Optional<String> providerType;
 
-      private String classification;
+      private Optional<String> classification;
 
-      private String areaOfSpecialization;
+      private Optional<String> areaOfSpecialization;
 
       private Optional<String> vaCode;
 
       private Optional<String> x12Code;
+
+      /** Lazy initialization. */
+      public Optional<String> areaOfSpecialization() {
+        if (areaOfSpecialization == null) {
+          areaOfSpecialization = Optional.empty();
+        }
+        return areaOfSpecialization;
+      }
+
+      /** Lazy initialization. */
+      public Optional<String> classification() {
+        if (classification == null) {
+          classification = Optional.empty();
+        }
+        return classification;
+      }
+
+      /** Lazy initialization. */
+      public Optional<String> providerType() {
+        if (providerType == null) {
+          providerType = Optional.empty();
+        }
+        return providerType;
+      }
 
       /** Lazy initialization. */
       public Optional<String> vaCode() {
