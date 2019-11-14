@@ -1,10 +1,13 @@
 package gov.va.api.health.dataquery.service.controller.practitioner;
 
+import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
+import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
+import gov.va.api.health.dataquery.service.controller.datamart.HasReplaceableId;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,29 +27,19 @@ public class DatamartPractitioner implements HasReplaceableId {
 
   private Optional<String> npi;
 
-  /** Lazy initialization. */
-  public Optional<String> npi() {
-    if (npi == null) {
-      npi = Optional.empty();
-    }
-    return npi;
-  }
-
   private Boolean active;
 
   private Name name;
 
   private List<Telecom> telecom;
 
-  /** Lazy initialization. */
-  public List<Telecom> telecom() {
-    if (telecom == null) {
-      telecom = new ArrayList<>();
-    }
-    return telecom;
-  }
-
   private List<Address> address;
+
+  private Gender gender;
+
+  private LocalDate birthDate;
+
+  private Optional<PractitionerRole> practitionerRole;
 
   /** Lazy initialization. */
   public List<Address> address() {
@@ -56,17 +49,35 @@ public class DatamartPractitioner implements HasReplaceableId {
     return address;
   }
 
-  private Gender gender;
+  /** Lazy initialization. */
+  public Optional<String> npi() {
+    if (npi == null) {
+      npi = Optional.empty();
+    }
+    return npi;
+  }
+
+  /** Lazy initialization. */
+  public Optional<PractitionerRole> practitionerRole() {
+    if (practitionerRole == null) {
+      practitionerRole = Optional.empty();
+    }
+    return practitionerRole;
+  }
+
+  /** Lazy initialization. */
+  public List<Telecom> telecom() {
+    if (telecom == null) {
+      telecom = new ArrayList<>();
+    }
+    return telecom;
+  }
 
   public enum Gender {
     male,
     female,
     unknown
   }
-
-  private LocalDate birthDate;
-
-  private PractitionerRole practitionerRole;
 
   @Data
   @Builder
@@ -123,57 +134,115 @@ public class DatamartPractitioner implements HasReplaceableId {
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
   public static final class PractitionerRole {
-    //	  "managingOrganization": {
-    //      "reference": "561596:I",
-    //      "display": "CHEYENNE VA MEDICAL"
-    //    },
-    //    "role": {
-    //      "system": "rpcmm",
-    //      "code": "37",
-    //      "display": "PSYCHOLOGIST"
-    //    },
-    //    "specialty": [{
-    //        "providerType": "Physicians (M.D. and D.O.)",
-    //        "classification": "Physician\/Osteopath",
-    //        "areaOfSpecialization": "Internal Medicine",
-    //        "vaCode": "V111500",
-    //        "x12Code": null
-    //      }, {
-    //        "providerType": "Physicians (M.D. and D.O.)",
-    //        "classification": "Physician\/Osteopath",
-    //        "areaOfSpecialization": "General Practice",
-    //        "vaCode": "V111000",
-    //        "x12Code": null
-    //      }, {
-    //        "providerType": "Physicians (M.D. and D.O.)",
-    //        "classification": "Physician\/Osteopath",
-    //        "areaOfSpecialization": "Family Practice",
-    //        "vaCode": "V110900",
-    //        "x12Code": null
-    //      }, {
-    //        "providerType": "Allopathic & Osteopathic Physicians",
-    //        "classification": "Family Medicine",
-    //        "areaOfSpecialization": null,
-    //        "vaCode": "V180700",
-    //        "x12Code": "207Q00000X"
-    //      }
-    //    ],
-    //    "period": {
-    //      "start": "1988-08-19",
-    //      "end": null
-    //    },
-    //    "location": [{
-    //        "reference": "43817:L",
-    //        "display": "CHEY MEDICAL"
-    //      }, {
-    //        "reference": "43829:L",
-    //        "display": "ZZCHY LASTNAME MEDICAL"
-    //      }, {
-    //        "reference": "43841:L",
-    //        "display": "ZZCHY WID BACK"
-    //      }
-    //    ],
-    //    "healthCareService": "MEDICAL SERVICE"
+    private Optional<DatamartReference> managingOrganization;
+
+    private Optional<DatamartCoding> role;
+
+    private List<Specialty> specialty;
+
+    private Optional<Period> period;
+
+    private List<DatamartReference> location;
+
+    private String healthCareService;
+
+    /** Lazy initialization. */
+    public List<DatamartReference> location() {
+      if (location == null) {
+        location = new ArrayList<>();
+      }
+      return location;
+    }
+
+    /** Lazy initialization. */
+    public Optional<DatamartReference> managingOrganization() {
+      if (managingOrganization == null) {
+        managingOrganization = Optional.empty();
+      }
+      return managingOrganization;
+    }
+
+    /** Lazy initialization. */
+    public Optional<Period> period() {
+      if (period == null) {
+        period = Optional.empty();
+      }
+      return period;
+    }
+
+    /** Lazy initialization. */
+    public Optional<DatamartCoding> role() {
+      if (role == null) {
+        role = Optional.empty();
+      }
+      return role;
+    }
+
+    /** Lazy initialization. */
+    public List<Specialty> specialty() {
+      if (specialty == null) {
+        specialty = new ArrayList<>();
+      }
+      return specialty;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    public static final class Period {
+      private Optional<LocalDate> start;
+
+      private Optional<LocalDate> end;
+
+      /** Lazy initialization. */
+      public Optional<LocalDate> end() {
+        if (end == null) {
+          end = Optional.empty();
+        }
+        return end;
+      }
+
+      /** Lazy initialization. */
+      public Optional<LocalDate> start() {
+        if (start == null) {
+          start = Optional.empty();
+        }
+        return start;
+      }
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    public static final class Specialty {
+      private String providerType;
+
+      private String classification;
+
+      private String areaOfSpecialization;
+
+      private Optional<String> vaCode;
+
+      private Optional<String> x12Code;
+
+      /** Lazy initialization. */
+      public Optional<String> vaCode() {
+        if (vaCode == null) {
+          vaCode = Optional.empty();
+        }
+        return vaCode;
+      }
+
+      /** Lazy initialization. */
+      public Optional<String> x12Code() {
+        if (x12Code == null) {
+          x12Code = Optional.empty();
+        }
+        return x12Code;
+      }
+    }
   }
 
   @Data

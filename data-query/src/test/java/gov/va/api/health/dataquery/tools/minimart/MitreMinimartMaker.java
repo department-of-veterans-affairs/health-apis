@@ -94,11 +94,6 @@ public class MitreMinimartMaker {
     return new String(Files.readAllBytes(Paths.get(file.getPath())));
   }
 
-  private void flushAndClear() {
-    entityManager.flush();
-    entityManager.clear();
-  }
-
   @SneakyThrows
   private void insertByAllergyIntolerance(File file) {
     DatamartAllergyIntolerance dm =
@@ -251,9 +246,9 @@ public class MitreMinimartMaker {
     PractitionerEntity entity =
         PractitionerEntity.builder()
             .cdwId(dm.cdwId())
-            .npi(dm.npi())
-            .familyName(dm.familyName())
-            .givenName(dm.givenName())
+            .npi(dm.npi().orElse(null))
+            .familyName(dm.name().family())
+            .givenName(dm.name().given())
             .payload(fileToString(file))
             .build();
     save(entity);
