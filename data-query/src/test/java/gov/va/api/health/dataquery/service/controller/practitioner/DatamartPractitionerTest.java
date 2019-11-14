@@ -1,8 +1,8 @@
 package gov.va.api.health.dataquery.service.controller.practitioner;
 
-import static java.util.Optional.empty;
 import static gov.va.api.health.autoconfig.configuration.JacksonConfig.createMapper;
 import static java.util.Arrays.asList;
+import static java.util.Optional.empty;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
@@ -11,21 +11,13 @@ import gov.va.api.health.dataquery.service.controller.practitioner.DatamartPract
 import gov.va.api.health.dataquery.service.controller.practitioner.DatamartPractitioner.PractitionerRole;
 import gov.va.api.health.dataquery.service.controller.practitioner.DatamartPractitioner.PractitionerRole.Period;
 import gov.va.api.health.dataquery.service.controller.practitioner.DatamartPractitioner.PractitionerRole.Specialty;
-
 import java.time.LocalDate;
 import java.util.Optional;
 import lombok.SneakyThrows;
 import org.junit.Test;
 
 public class DatamartPractitionerTest {
-  @SneakyThrows
-  public void assertReadable(String json) {
-    DatamartPractitioner dm =
-        createMapper().readValue(getClass().getResourceAsStream(json), DatamartPractitioner.class);
-    assertThat(dm).isEqualTo(sample());
-  }
-
-  private DatamartPractitioner sample() {
+  private static DatamartPractitioner sample() {
     return DatamartPractitioner.builder()
         .cdwId("416704")
         .npi(Optional.of("1932127842"))
@@ -130,6 +122,13 @@ public class DatamartPractitionerTest {
                     .healthCareService(Optional.of("MEDICAL SERVICE"))
                     .build()))
         .build();
+  }
+
+  @SneakyThrows
+  private void assertReadable(String json) {
+    DatamartPractitioner dm =
+        createMapper().readValue(getClass().getResourceAsStream(json), DatamartPractitioner.class);
+    assertThat(dm).isEqualTo(sample());
   }
 
   @Test
