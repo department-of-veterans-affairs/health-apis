@@ -7,10 +7,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
-import gov.va.api.health.dataquery.service.controller.practitioner.DatamartPractitioner.Name;
-import gov.va.api.health.dataquery.service.controller.practitioner.DatamartPractitioner.PractitionerRole;
-import gov.va.api.health.dataquery.service.controller.practitioner.DatamartPractitioner.PractitionerRole.Period;
-import gov.va.api.health.dataquery.service.controller.practitioner.DatamartPractitioner.PractitionerRole.Specialty;
 import java.time.LocalDate;
 import java.util.Optional;
 import lombok.SneakyThrows;
@@ -23,7 +19,7 @@ public class DatamartPractitionerTest {
         .npi(Optional.of("1932127842"))
         .active(true)
         .name(
-            Name.builder()
+            DatamartPractitioner.Name.builder()
                 .family("LASTNAME")
                 .given("FIRSTNAME A.")
                 .prefix(Optional.of("DR."))
@@ -140,11 +136,12 @@ public class DatamartPractitionerTest {
     assertThat(dm.practitionerRole()).isEqualTo(empty());
     assertThat(dm.telecom()).isEmpty();
 
-    Name name = DatamartPractitioner.Name.builder().build();
+    DatamartPractitioner.Name name = DatamartPractitioner.Name.builder().build();
     assertThat(name.prefix()).isEqualTo(empty());
     assertThat(name.suffix()).isEqualTo(empty());
 
-    PractitionerRole role = DatamartPractitioner.PractitionerRole.builder().build();
+    DatamartPractitioner.PractitionerRole role =
+        DatamartPractitioner.PractitionerRole.builder().build();
     assertThat(role.healthCareService()).isEqualTo(empty());
     assertThat(role.location()).isEmpty();
     assertThat(role.managingOrganization()).isEqualTo(empty());
@@ -152,11 +149,13 @@ public class DatamartPractitionerTest {
     assertThat(role.role()).isEqualTo(empty());
     assertThat(role.specialty()).isEmpty();
 
-    Period period = PractitionerRole.Period.builder().build();
+    DatamartPractitioner.PractitionerRole.Period period =
+        DatamartPractitioner.PractitionerRole.Period.builder().build();
     assertThat(period.end()).isEqualTo(empty());
     assertThat(period.start()).isEqualTo(empty());
 
-    Specialty specialty = PractitionerRole.Specialty.builder().build();
+    DatamartPractitioner.PractitionerRole.Specialty specialty =
+        DatamartPractitioner.PractitionerRole.Specialty.builder().build();
     assertThat(specialty.areaOfSpecialization()).isEqualTo(empty());
     assertThat(specialty.classification()).isEqualTo(empty());
     assertThat(specialty.providerType()).isEqualTo(empty());
