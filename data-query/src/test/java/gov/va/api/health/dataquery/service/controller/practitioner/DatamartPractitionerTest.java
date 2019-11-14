@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.practitioner;
 
+import static java.util.Optional.empty;
 import static gov.va.api.health.autoconfig.configuration.JacksonConfig.createMapper;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -7,6 +8,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dataquery.service.controller.practitioner.DatamartPractitioner.Name;
+import gov.va.api.health.dataquery.service.controller.practitioner.DatamartPractitioner.PractitionerRole;
+import gov.va.api.health.dataquery.service.controller.practitioner.DatamartPractitioner.PractitionerRole.Period;
+import gov.va.api.health.dataquery.service.controller.practitioner.DatamartPractitioner.PractitionerRole.Specialty;
+
 import java.time.LocalDate;
 import java.util.Optional;
 import lombok.SneakyThrows;
@@ -128,7 +133,39 @@ public class DatamartPractitionerTest {
   }
 
   @Test
-  @SneakyThrows
+  public void lazy() {
+    DatamartPractitioner dm = DatamartPractitioner.builder().build();
+    assertThat(dm.address()).isEmpty();
+    assertThat(dm.birthDate()).isEqualTo(empty());
+    assertThat(dm.npi()).isEqualTo(empty());
+    assertThat(dm.practitionerRole()).isEqualTo(empty());
+    assertThat(dm.telecom()).isEmpty();
+
+    Name name = DatamartPractitioner.Name.builder().build();
+    assertThat(name.prefix()).isEqualTo(empty());
+    assertThat(name.suffix()).isEqualTo(empty());
+
+    PractitionerRole role = DatamartPractitioner.PractitionerRole.builder().build();
+    assertThat(role.healthCareService()).isEqualTo(empty());
+    assertThat(role.location()).isEmpty();
+    assertThat(role.managingOrganization()).isEqualTo(empty());
+    assertThat(role.period()).isEqualTo(empty());
+    assertThat(role.role()).isEqualTo(empty());
+    assertThat(role.specialty()).isEmpty();
+
+    Period period = PractitionerRole.Period.builder().build();
+    assertThat(period.end()).isEqualTo(empty());
+    assertThat(period.start()).isEqualTo(empty());
+
+    Specialty specialty = PractitionerRole.Specialty.builder().build();
+    assertThat(specialty.areaOfSpecialization()).isEqualTo(empty());
+    assertThat(specialty.classification()).isEqualTo(empty());
+    assertThat(specialty.providerType()).isEqualTo(empty());
+    assertThat(specialty.vaCode()).isEqualTo(empty());
+    assertThat(specialty.x12Code()).isEqualTo(empty());
+  }
+
+  @Test
   public void unmarshalSample() {
     assertReadable("datamart-practitioner.json");
   }
