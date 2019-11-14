@@ -38,7 +38,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import javax.persistence.Basic;
+import javax.persistence.Column;
 import javax.persistence.EntityManager;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.Lob;
+
+import lombok.EqualsAndHashCode;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
@@ -217,15 +225,27 @@ public class MitreMinimartMaker {
     save(entity);
   }
 
+  @SneakyThrows
   private void insertByOrganization(File file) {
     DatamartOrganization dm =
         JacksonConfig.createMapper().readValue(file, DatamartOrganization.class);
     OrganizationEntity entity =
         OrganizationEntity.builder()
             .cdwId(dm.cdwId())
-            // .icn(dm.subject().isPresent() ? patientIcn(dm.subject().get()) : null)
+            .npi(dm.npi().orElse(null))
+            .providerId(dm.providerId().orElse(null))
+            .ediId(dm.ediId().orElse(null))
+            .agencyId(dm.agencyId().orElse(null))
             .payload(fileToString(file))
             .build();
+
+    // PETERTODO
+    //    private String address;
+    //    private String name;
+    //    private String city;
+    //    private String state;
+    //    private String postalCode;
+
     save(entity);
   }
 
