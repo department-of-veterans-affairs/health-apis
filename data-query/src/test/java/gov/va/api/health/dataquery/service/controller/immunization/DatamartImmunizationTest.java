@@ -81,7 +81,7 @@ public class DatamartImmunizationTest {
   @Test
   @SneakyThrows
   public void unmarshalSample() {
-    assertReadable("datamart-immunization.json");
+    assertReadable("datamart-practitioner.json");
   }
 
   @Test

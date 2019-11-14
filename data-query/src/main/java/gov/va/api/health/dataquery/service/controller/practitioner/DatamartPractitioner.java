@@ -3,7 +3,6 @@ package gov.va.api.health.dataquery.service.controller.practitioner;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dataquery.service.controller.datamart.HasReplaceableId;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
