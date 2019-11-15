@@ -39,14 +39,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.persistence.Basic;
-import javax.persistence.Column;
 import javax.persistence.EntityManager;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.Lob;
 
-import lombok.EqualsAndHashCode;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
