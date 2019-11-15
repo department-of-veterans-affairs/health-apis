@@ -3,16 +3,23 @@ package gov.va.api.health.dataquery.service.controller;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import javax.validation.ConstraintValidatorContext;
+import org.assertj.core.util.Lists;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 public class DateTimeParameterValidatorTest {
+
+  @Test(expected = IllegalArgumentException.class)
+  public void isValidThrowsIllegalArguementExceptionWhenNotGivenAString() {
+    var v = new DateTimeParameterValidator();
+    var notUsed = Mockito.mock(ConstraintValidatorContext.class);
+    v.isValid(Lists.emptyList(), notUsed);
+  }
+
   @Test
   public void validates() {
     DateTimeParameterValidator v = new DateTimeParameterValidator();
-
     ConstraintValidatorContext notUsed = Mockito.mock(ConstraintValidatorContext.class);
-
     assertThat(v.isValid(null, notUsed)).isTrue();
     assertThat(v.isValid(new String[] {}, notUsed)).isTrue();
     assertThat(v.isValid(new String[] {"nope"}, notUsed)).isFalse();

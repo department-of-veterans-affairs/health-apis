@@ -7,6 +7,13 @@ import lombok.SneakyThrows;
 import org.junit.Test;
 
 public class EnumSearcherTest {
+
+  @Test(expected = IllegalArgumentException.class)
+  public void findThrowsIllegalArguementExceptionWhenNoEnumConstant() {
+    EnumSearcher<?> e = EnumSearcher.of(sample.class);
+    e.find("GARBAGE");
+  }
+
   @Test
   public void searcherFindsAnnotationIfHyphens() {
     EnumSearcher<?> e = EnumSearcher.of(sample.class);
