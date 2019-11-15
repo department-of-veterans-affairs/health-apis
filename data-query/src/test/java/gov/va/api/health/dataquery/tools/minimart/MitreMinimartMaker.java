@@ -38,11 +38,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import javax.persistence.EntityManager;
-
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 @Slf4j
 public class MitreMinimartMaker {
@@ -231,15 +230,16 @@ public class MitreMinimartMaker {
             .ediId(dm.ediId().orElse(null))
             .agencyId(dm.agencyId().orElse(null))
             .payload(fileToString(file))
+            .address(
+                StringUtils.trimToNull(
+                    StringUtils.trimToEmpty(dm.address().line1())
+                        + " "
+                        + StringUtils.trimToEmpty(dm.address().line2())))
+            .name(dm.name())
+            .city(dm.address().city())
+            .state(dm.address().state())
+            .postalCode(dm.address().postalCode())
             .build();
-
-    // PETERTODO
-    //    private String address;
-    //    private String name;
-    //    private String city;
-    //    private String state;
-    //    private String postalCode;
-
     save(entity);
   }
 

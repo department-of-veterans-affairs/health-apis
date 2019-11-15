@@ -1,26 +1,18 @@
 package gov.va.api.health.dataquery.service.controller.organization;
 
-import static java.util.Arrays.asList;
 import static gov.va.api.health.autoconfig.configuration.JacksonConfig.createMapper;
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-
-import java.util.Optional;
-
-import org.junit.Test;
 
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
-import gov.va.api.health.dataquery.service.controller.organization.DatamartOrganization.Telecom;
 import gov.va.api.health.dataquery.service.controller.organization.DatamartOrganization.Address;
+import gov.va.api.health.dataquery.service.controller.organization.DatamartOrganization.Telecom;
+import java.util.Optional;
 import lombok.SneakyThrows;
+import org.junit.Test;
 
 public class DatamartOrganizationTest {
-  @SneakyThrows
-  private void assertReadable(String json) {
-    DatamartOrganization dm =
-        createMapper().readValue(getClass().getResourceAsStream(json), DatamartOrganization.class);
-    assertThat(dm).isEqualTo(sample());
-  }
 
   private static DatamartOrganization sample() {
     return DatamartOrganization.builder()
@@ -59,6 +51,13 @@ public class DatamartOrganizationTest {
                     .display(Optional.of("NEW AMSTERDAM VAMC"))
                     .build()))
         .build();
+  }
+
+  @SneakyThrows
+  private void assertReadable(String json) {
+    DatamartOrganization dm =
+        createMapper().readValue(getClass().getResourceAsStream(json), DatamartOrganization.class);
+    assertThat(dm).isEqualTo(sample());
   }
 
   @Test
