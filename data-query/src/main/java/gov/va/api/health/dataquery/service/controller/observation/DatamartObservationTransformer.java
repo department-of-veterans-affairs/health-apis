@@ -33,7 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 final class DatamartObservationTransformer {
   @NonNull final DatamartObservation datamart;
 
-  private static CodeableConcept category(DatamartObservation.Category category) {
+  static CodeableConcept category(DatamartObservation.Category category) {
     Coding coding = categoryCoding(category);
     if (coding == null) {
       return null;
@@ -69,8 +69,7 @@ final class DatamartObservationTransformer {
     }
   }
 
-  private static CodeableConcept codeableConcept(
-      Optional<DatamartObservation.CodeableConcept> maybeCode) {
+  static CodeableConcept codeableConcept(Optional<DatamartObservation.CodeableConcept> maybeCode) {
     if (maybeCode == null || maybeCode.isEmpty()) {
       return null;
     }
@@ -84,8 +83,7 @@ final class DatamartObservationTransformer {
     return CodeableConcept.builder().coding(asList(coding)).text(dmCode.text()).build();
   }
 
-  private static Observation.ObservationComponent component(
-      DatamartObservation.VitalsComponent component) {
+  static Observation.ObservationComponent component(DatamartObservation.VitalsComponent component) {
     if (component == null) {
       return null;
     }
@@ -102,7 +100,7 @@ final class DatamartObservationTransformer {
         .build();
   }
 
-  private static Observation.ObservationComponent component(
+  static Observation.ObservationComponent component(
       DatamartObservation.AntibioticComponent component) {
     if (component == null) {
       return null;
@@ -120,7 +118,7 @@ final class DatamartObservationTransformer {
         .build();
   }
 
-  private static Observation.ObservationComponent component(
+  static Observation.ObservationComponent component(
       DatamartObservation.BacteriologyComponent component) {
     if (component == null) {
       return null;
@@ -139,7 +137,7 @@ final class DatamartObservationTransformer {
         .build();
   }
 
-  private static CodeableConcept interpretation(String interpretation) {
+  static CodeableConcept interpretation(String interpretation) {
     if (isBlank(interpretation)) {
       return null;
     }
@@ -230,7 +228,7 @@ final class DatamartObservationTransformer {
     }
   }
 
-  private static List<Reference> performers(List<DatamartReference> performers) {
+  static List<Reference> performers(List<DatamartReference> performers) {
     if (isEmpty(performers)) {
       return null;
     }
@@ -239,7 +237,7 @@ final class DatamartObservationTransformer {
     return emptyToNull(results);
   }
 
-  private static Quantity quantity(Optional<DatamartObservation.Quantity> maybeQuantity) {
+  static Quantity quantity(Optional<DatamartObservation.Quantity> maybeQuantity) {
     if (maybeQuantity == null || maybeQuantity.isEmpty()) {
       return null;
     }
@@ -257,7 +255,7 @@ final class DatamartObservationTransformer {
         .build();
   }
 
-  private static List<Observation.ObservationReferenceRange> referenceRanges(
+  static List<Observation.ObservationReferenceRange> referenceRanges(
       Optional<DatamartObservation.ReferenceRange> maybeRange) {
     if (maybeRange == null || maybeRange.isEmpty()) {
       return null;
@@ -285,7 +283,7 @@ final class DatamartObservationTransformer {
         .build();
   }
 
-  private static Observation.Status status(DatamartObservation.Status status) {
+  static Observation.Status status(DatamartObservation.Status status) {
     if (status == null) {
       return null;
     }

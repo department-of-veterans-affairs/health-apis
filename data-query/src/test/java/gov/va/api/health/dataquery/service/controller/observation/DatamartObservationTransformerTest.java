@@ -2,7 +2,15 @@ package gov.va.api.health.dataquery.service.controller.observation;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation.AntibioticComponent;
+import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation.BacteriologyComponent;
+import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation.CodeableConcept;
+import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation.Quantity;
+import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation.ReferenceRange;
+import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation.VitalsComponent;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
+import java.util.Optional;
+import org.assertj.core.util.Lists;
 import org.junit.Test;
 
 public class DatamartObservationTransformerTest {
@@ -124,5 +132,34 @@ public class DatamartObservationTransformerTest {
     assertThat(DatamartObservationTransformer.interpretationDisplay("W")).isEqualTo("Worse");
     assertThat(DatamartObservationTransformer.interpretationDisplay("WR"))
         .isEqualTo("Weakly reactive");
+  }
+
+  @Test
+  public void transformerIsNullSafe() {
+    assertThat(DatamartObservationTransformer.category(null)).isNull();
+    assertThat(DatamartObservationTransformer.codeableConcept(java.util.Optional.empty())).isNull();
+    assertThat(
+            DatamartObservationTransformer.codeableConcept(
+                Optional.of(CodeableConcept.builder().build())))
+        .isNull();
+    assertThat(DatamartObservationTransformer.component((VitalsComponent) null)).isNull();
+    assertThat(DatamartObservationTransformer.component(VitalsComponent.builder().build()))
+        .isNull();
+    assertThat(DatamartObservationTransformer.component((AntibioticComponent) null)).isNull();
+    assertThat(DatamartObservationTransformer.component(AntibioticComponent.builder().build()))
+        .isNull();
+    assertThat(DatamartObservationTransformer.component((BacteriologyComponent) null)).isNull();
+    assertThat(DatamartObservationTransformer.component(BacteriologyComponent.builder().build()))
+        .isNull();
+    assertThat(DatamartObservationTransformer.interpretation(null)).isNull();
+    assertThat(DatamartObservationTransformer.performers(Lists.emptyList())).isNull();
+    assertThat(DatamartObservationTransformer.quantity(Optional.of(Quantity.builder().build())))
+        .isNull();
+    assertThat(DatamartObservationTransformer.referenceRanges(Optional.empty())).isNull();
+    assertThat(
+            DatamartObservationTransformer.referenceRanges(
+                Optional.of(ReferenceRange.builder().build())))
+        .isNull();
+    assertThat(DatamartObservationTransformer.status(null)).isNull();
   }
 }
