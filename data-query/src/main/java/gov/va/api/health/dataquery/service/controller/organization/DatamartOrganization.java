@@ -1,8 +1,11 @@
 package gov.va.api.health.dataquery.service.controller.organization;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
+import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dataquery.service.controller.datamart.HasReplaceableId;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -78,32 +81,55 @@ public final class DatamartOrganization implements HasReplaceableId {
   }
 
   private String name;
+
+  private List<Telecom> telecom;
+  /** Lazy initialization. */
+  public List<Telecom> telecom() {
+    if (telecom == null) {
+      telecom = new ArrayList<>();
+    }
+    return telecom;
+  }
+
+  private Address address;
+
+  private Optional<DatamartReference> partOf;
+  /** Lazy initialization. */
+  public Optional<DatamartReference> partOf() {
+    if (partOf == null) {
+      partOf = Optional.empty();
+    }
+    return partOf;
+  }
+
+  @Data
+  @Builder
+  @NoArgsConstructor(access = AccessLevel.PRIVATE)
+  @AllArgsConstructor(access = AccessLevel.PRIVATE)
+  public static final class Address {
+    private String line1;
+
+    private String lne2;
+
+    private String city;
+
+    private String state;
+
+    private String postalCode;
+  }
+
+  @Data
+  @Builder
+  @NoArgsConstructor(access = AccessLevel.PRIVATE)
+  @AllArgsConstructor(access = AccessLevel.PRIVATE)
+  public static final class Telecom {
+    private System system;
+
+    private String value;
+
+    public enum System {
+      phone,
+      fax
+    }
+  }
 }
-
-//	  "telecom" : [
-//	    {
-//	      "system" : "phone",
-//	      "value" : "800 555-7710"
-//	    },
-//	    {
-//	      "system" : "phone",
-//	      "value" : "800 555-7720"
-//	    },
-//	    {
-//	      "system" : "phone",
-//	      "value" : "800-555-7730"
-//	    }
-//	  ],
-
-//	  "address" : {
-//	    "line1" : "10 MONROE AVE, SUITE 6B",
-//	    "lne2" : "PO BOX 4160",
-//	    "city" : "NEW AMSTERDAM",
-//	    "state" : "OH",
-//	    "postalCode" : "44444-4160"
-//	  },
-
-//	  "partOf" : {
-//	    "reference" : "568060:I",
-//	    "display" : "NEW AMSTERDAM VAMC"
-//	  }
