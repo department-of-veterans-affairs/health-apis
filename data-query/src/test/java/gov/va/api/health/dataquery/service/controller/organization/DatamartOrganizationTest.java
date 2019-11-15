@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.organization;
 
+import static java.util.Arrays.asList;
 import static gov.va.api.health.autoconfig.configuration.JacksonConfig.createMapper;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -8,6 +9,9 @@ import java.util.Optional;
 import org.junit.Test;
 
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
+import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
+import gov.va.api.health.dataquery.service.controller.organization.DatamartOrganization.Telecom;
+import gov.va.api.health.dataquery.service.controller.organization.DatamartOrganization.Address;
 import lombok.SneakyThrows;
 
 public class DatamartOrganizationTest {
@@ -35,36 +39,26 @@ public class DatamartOrganizationTest {
                     .display(Optional.of("COMMUNITY BASED OUTPATIENT CLINIC"))
                     .build()))
         .name("NEW AMSTERDAM CBOC")
+        .telecom(
+            asList(
+                Telecom.builder().system(Telecom.System.phone).value("800 555-7710").build(),
+                Telecom.builder().system(Telecom.System.phone).value("800 555-7720").build(),
+                Telecom.builder().system(Telecom.System.phone).value("800-555-7730").build()))
+        .address(
+            Address.builder()
+                .line1("10 MONROE AVE, SUITE 6B")
+                .line2("PO BOX 4160")
+                .city("NEW AMSTERDAM")
+                .state("OH")
+                .postalCode("44444-4160")
+                .build())
+        .partOf(
+            Optional.of(
+                DatamartReference.builder()
+                    .reference(Optional.of("568060:I"))
+                    .display(Optional.of("NEW AMSTERDAM VAMC"))
+                    .build()))
         .build();
-
-    // PETERTODO
-
-    //	  "telecom" : [
-    //	    {
-    //	      "system" : "phone",
-    //	      "value" : "800 555-7710"
-    //	    },
-    //	    {
-    //	      "system" : "phone",
-    //	      "value" : "800 555-7720"
-    //	    },
-    //	    {
-    //	      "system" : "phone",
-    //	      "value" : "800-555-7730"
-    //	    }
-    //	  ],
-    //	  "address" : {
-    //	    "line1" : "10 MONROE AVE, SUITE 6B",
-    //	    "lne2" : "PO BOX 4160",
-    //	    "city" : "NEW AMSTERDAM",
-    //	    "state" : "OH",
-    //	    "postalCode" : "44444-4160"
-    //	  },
-    //	  "partOf" : {
-    //	    "reference" : "568060:I",
-    //	    "display" : "NEW AMSTERDAM VAMC"
-    //	  }
-    //	}
   }
 
   @Test

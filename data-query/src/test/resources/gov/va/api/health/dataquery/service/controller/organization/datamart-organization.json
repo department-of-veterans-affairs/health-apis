@@ -30,7 +30,7 @@
   ],
   "address" : {
     "line1" : "10 MONROE AVE, SUITE 6B",
-    "lne2" : "PO BOX 4160",
+    "line2" : "PO BOX 4160",
     "city" : "NEW AMSTERDAM",
     "state" : "OH",
     "postalCode" : "44444-4160"
