@@ -13,7 +13,6 @@ import lombok.SneakyThrows;
 import org.junit.Test;
 
 public class DatamartOrganizationTest {
-
   private static DatamartOrganization sample() {
     return DatamartOrganization.builder()
         .cdwId("561596:I")
