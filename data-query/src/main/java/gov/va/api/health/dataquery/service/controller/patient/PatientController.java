@@ -64,7 +64,7 @@ public class PatientController {
 
   private Bundler bundler;
 
-  private PatientRepository repository;
+  private PatientSearchRepository repository;
 
   private WitnessProtection witnessProtection;
 
@@ -76,7 +76,7 @@ public class PatientController {
       @Autowired Transformer transformer,
       @Autowired MrAndersonClient mrAndersonClient,
       @Autowired Bundler bundler,
-      @Autowired PatientRepository repository,
+      @Autowired PatientSearchRepository repository,
       @Autowired WitnessProtection witnessProtection) {
     this.defaultToDatamart = defaultToDatamart;
     this.transformer = transformer;
@@ -362,8 +362,8 @@ public class PatientController {
     }
 
     Patient.Bundle searchByNameAndBirthdate(String name, String[] birthdate, int page, int count) {
-      PatientRepository.NameAndBirthdateSpecification spec =
-          PatientRepository.NameAndBirthdateSpecification.builder()
+      PatientSearchRepository.NameAndBirthdateSpecification spec =
+          PatientSearchRepository.NameAndBirthdateSpecification.builder()
               .name(name)
               .dates(birthdate)
               .build();

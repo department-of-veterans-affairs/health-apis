@@ -40,12 +40,11 @@ import org.springframework.test.context.junit4.SpringRunner;
 @DataJpaTest
 @RunWith(SpringRunner.class)
 public final class DatamartPatientTest {
-
   HttpServletResponse response;
 
   @Autowired private TestEntityManager entityManager;
 
-  @Autowired private PatientRepository repository;
+  @Autowired private PatientSearchRepository repository;
 
   @Before
   public void _init() {

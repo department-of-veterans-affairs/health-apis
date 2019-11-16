@@ -66,7 +66,7 @@ public class PatientBulkFhirControllerTest {
       var dm = datamart.patient(id);
       PatientSearchEntity entity = asEntity(dm);
       entityManager.persistAndFlush(entity.patient());
-      repository.save(entity);
+      entityManager.persistAndFlush(entity);
       var patient = fhir.patient(id);
       patients.add(patient);
     }
