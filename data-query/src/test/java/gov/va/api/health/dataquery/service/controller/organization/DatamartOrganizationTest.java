@@ -2,6 +2,7 @@ package gov.va.api.health.dataquery.service.controller.organization;
 
 import static gov.va.api.health.autoconfig.configuration.JacksonConfig.createMapper;
 import static java.util.Arrays.asList;
+import static java.util.Optional.empty;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
@@ -57,6 +58,19 @@ public class DatamartOrganizationTest {
     DatamartOrganization dm =
         createMapper().readValue(getClass().getResourceAsStream(json), DatamartOrganization.class);
     assertThat(dm).isEqualTo(sample());
+  }
+
+  @Test
+  public void lazy() {
+    DatamartOrganization dm = DatamartOrganization.builder().build();
+    assertThat(dm.agencyId()).isEqualTo(empty());
+    assertThat(dm.ediId()).isEqualTo(empty());
+    assertThat(dm.npi()).isEqualTo(empty());
+    assertThat(dm.partOf()).isEqualTo(empty());
+    assertThat(dm.providerId()).isEqualTo(empty());
+    assertThat(dm.stationIdentifier()).isEqualTo(empty());
+    assertThat(dm.telecom()).isEmpty();
+    assertThat(dm.type()).isEqualTo(empty());
   }
 
   @Test
