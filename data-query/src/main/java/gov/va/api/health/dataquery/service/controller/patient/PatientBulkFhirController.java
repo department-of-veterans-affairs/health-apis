@@ -57,9 +57,9 @@ public class PatientBulkFhirController {
       @RequestParam(value = "_count", defaultValue = "15") @Min(0) int count) {
     PageAndCountValidator.validateCountBounds(count, maxRecordsPerPage);
     return repository
-        .findAllProjectedBy(page(page, count))
+        .findAll(page(page, count))
         .stream()
-        .map(PatientPayloadDto::asDatamartPatient)
+        .map(PatientEntity::asDatamartPatient)
         .map(dm -> DatamartPatientTransformer.builder().datamart(dm).build().toFhir())
         .collect(Collectors.toList());
   }
