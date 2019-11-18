@@ -1,0 +1,21 @@
+{
+  "objectType": "Location",
+  "objectVersion": "1",
+  "cdwId": "1000200441:L",
+  "status": "active",
+  "name": "TEM MH PSO TRS IND93EH",
+  "description": "BLDG 146, RM W02",
+  "type": "PSYCHIATRY CLINIC",
+  "telecom": "254-743-2867",
+  "address": {
+    "line1": "1901 VETERANS MEMORIAL DRIVE",
+    "city": "TEMPLE",
+    "state": "TEXAS",
+    "postalCode": 76504
+  },
+  "physicalType": "BLDG 146, RM W02",
+  "managingOrganization": {
+    "reference": "390026:I",
+    "display": "OLIN E. TEAGUE VET CENTER"
+  }
+}
