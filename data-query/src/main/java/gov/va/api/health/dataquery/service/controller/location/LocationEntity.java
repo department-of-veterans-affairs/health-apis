@@ -31,47 +31,20 @@ public class LocationEntity implements DatamartEntity {
   @EqualsAndHashCode.Include
   private String cdwId;
 
-  //  @Column(name = "NPI", nullable = true)
-  //  private String npi;
-  //
-  //  @Column(name = "ProviderID", nullable = true)
-  //  private String providerId;
-  //
-  //  @Column(name = "EDIID", nullable = true)
-  //  private String ediId;
-  //
-  //  @Column(name = "AgencyID", nullable = true)
-  //  private String agencyId;
-  //
-  //  @Column(name = "Address", nullable = true)
-  //  private String address;
-  //
-  //  @Column(name = "Name", nullable = true)
-  //  private String name;
-  //
-  //  @Column(name = "City", nullable = true)
-  //  private String city;
-  //
-  //  @Column(name = "State", nullable = true)
-  //  private String state;
-  //
-  //  @Column(name = "PostalCode", nullable = true)
-  //  private String postalCode;
+  @Column(name = "Name", nullable = true)
+  private String name;
 
-  //  Create table [App].[Location]
-  //		  (
-  //		    [CDWID] varchar(15) not null,
-  //		    [Name] varchar(50) null,
-  //		    [Street] varchar(90) null,
-  //		    [City] varchar(40) null,
-  //		    [State] varchar(5) null,
-  //		    [PostalCode] varchar(10) null,
-  //		    [Location] varchar(max) null,
-  //		    [ETLBatchId] int null,
-  //		    [ETLChunkNum int null,
-  //		    [ETLCreateDate] datetime2(0) null,
-  //		    constraint PK_Location primary key clustered (CDWID)
-  //		  )
+  @Column(name = "Street", nullable = true)
+  private String street;
+
+  @Column(name = "City", nullable = true)
+  private String city;
+
+  @Column(name = "State", nullable = true)
+  private String state;
+
+  @Column(name = "PostalCode", nullable = true)
+  private String postalCode;
 
   @Lob
   @Column(name = "Location")

@@ -176,7 +176,11 @@ public class MitreMinimartMaker {
     LocationEntity entity =
         LocationEntity.builder()
             .cdwId(dm.cdwId())
-            // .icn(patientIcn(dm.patient()))
+            .name(dm.name())
+            .street(dm.address().line1())
+            .city(dm.address().city())
+            .state(dm.address().state())
+            .postalCode(dm.address().postalCode())
             .payload(fileToString(file))
             .build();
     save(entity);
