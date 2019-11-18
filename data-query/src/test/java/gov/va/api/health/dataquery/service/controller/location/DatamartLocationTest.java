@@ -16,11 +16,32 @@ public class DatamartLocationTest {
     DatamartLocation dm =
         createMapper().readValue(getClass().getResourceAsStream(json), DatamartLocation.class);
     assertThat(dm).isEqualTo(sample());
+
+    //	  "objectType" : "Location",
+    //	  "objectVersion" : "1",
+    //	  "cdwId" : "1000200441:L",
+    //	  "status" : "active",
+    //	  "name" : "TEM MH PSO TRS IND93EH",
+    //	  "description" : "BLDG 146, RM W02",
+    //	  "type" : "PSYCHIATRY CLINIC",
+    //	  "telecom" : "254-743-2867",
+    //	  "address" : {
+    //	    "line1" : "1901 VETERANS MEMORIAL DRIVE",
+    //	    "city" : "TEMPLE",
+    //	    "state" : "TEXAS",
+    //	    "postalCode" : 76504
+    //	  },
+    //	  "physicalType" : "BLDG 146, RM W02",
+    //	  "managingOrganization" : {
+    //	    "reference" : "390026:I",
+    //	    "display" : "OLIN E. TEAGUE VET CENTER"
+    //	  }
+
   }
 
   @Test
   public void lazy() {
-    //	  DatamartLocation dm = DatamartOrganization.builder().build();
+    DatamartLocation dm = DatamartLocation.builder().build();
     //    assertThat(dm.agencyId()).isEqualTo(empty());
     //    assertThat(dm.ediId()).isEqualTo(empty());
     //    assertThat(dm.npi()).isEqualTo(empty());
