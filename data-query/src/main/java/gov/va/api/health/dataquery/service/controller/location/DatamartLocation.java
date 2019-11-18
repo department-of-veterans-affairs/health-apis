@@ -14,7 +14,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class DatamartLocation implements HasReplaceableId {
-
   @Builder.Default private String objectType = "Location";
 
   @Builder.Default private String objectVersion = "1";
@@ -71,7 +70,6 @@ public final class DatamartLocation implements HasReplaceableId {
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
   public static class Address {
-
     private String line1;
 
     private String city;
