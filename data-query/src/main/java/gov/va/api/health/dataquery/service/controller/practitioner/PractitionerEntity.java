@@ -1,4 +1,4 @@
-package gov.va.api.health.dataquery.service.controller.patient;
+package gov.va.api.health.dataquery.service.controller.practitioner;
 
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartEntity;
@@ -16,32 +16,41 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
+import org.springframework.data.domain.Sort;
 
 @Data
 @Entity
 @Builder
-@Table(name = "PatientReport", schema = "app")
+@Table(name = "Practitioner", schema = "app")
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class PatientEntity implements DatamartEntity {
+public class PractitionerEntity implements DatamartEntity {
   @Id
-  @Column(name = "PatientFullIcn")
+  @Column(name = "CDWID")
   @EqualsAndHashCode.Include
-  private String icn;
+  private String cdwId;
+
+  @Column(name = "NPI", nullable = true)
+  private String npi;
+
+  @Column(name = "FamilyName", nullable = true)
+  private String familyName;
+
+  @Column(name = "GivenName", nullable = true)
+  private String givenName;
 
   @Lob
   @Basic(fetch = FetchType.EAGER)
-  @Column(name = "PatientReport")
+  @Column(name = "Practitioner")
   private String payload;
 
-  @SneakyThrows
-  DatamartPatient asDatamartPatient() {
-    return JacksonConfig.createMapper().readValue(payload, DatamartPatient.class);
+  static Sort naturalOrder() {
+    return Sort.by("cdwId").ascending();
   }
 
-  @Override
-  public String cdwId() {
-    return icn();
+  @SneakyThrows
+  DatamartPractitioner asDatamartPractitioner() {
+    return JacksonConfig.createMapper().readValue(payload, DatamartPractitioner.class);
   }
 }

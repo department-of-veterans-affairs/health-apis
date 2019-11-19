@@ -25,6 +25,8 @@ import gov.va.api.health.dataquery.service.controller.observation.ObservationEnt
 import gov.va.api.health.dataquery.service.controller.patient.DatamartPatient;
 import gov.va.api.health.dataquery.service.controller.patient.PatientEntity;
 import gov.va.api.health.dataquery.service.controller.patient.PatientSearchEntity;
+import gov.va.api.health.dataquery.service.controller.practitioner.DatamartPractitioner;
+import gov.va.api.health.dataquery.service.controller.practitioner.PractitionerEntity;
 import gov.va.api.health.dataquery.service.controller.procedure.DatamartProcedure;
 import gov.va.api.health.dataquery.service.controller.procedure.ProcedureEntity;
 import gov.va.api.health.dataquery.tools.ExternalDb;
@@ -59,6 +61,7 @@ public class MitreMinimartMaker {
           ObservationEntity.class,
           PatientEntity.class,
           PatientSearchEntity.class,
+          PractitionerEntity.class,
           ProcedureEntity.class);
 
   private String resourceToSync;
@@ -236,6 +239,11 @@ public class MitreMinimartMaker {
   @SneakyThrows
   private void insertByPatient(File file) {
     DatamartPatient dm = JacksonConfig.createMapper().readValue(file, DatamartPatient.class);
+
+    PatientEntity patEntity =
+        PatientEntity.builder().icn(dm.fullIcn()).payload(fileToString(file)).build();
+    save(patEntity);
+
     PatientSearchEntity patientSearchEntity =
         PatientSearchEntity.builder()
             .icn(dm.fullIcn())
@@ -244,15 +252,24 @@ public class MitreMinimartMaker {
             .name(dm.name())
             .birthDateTime(Instant.parse(dm.birthDateTime()))
             .gender(dm.gender())
+            .patient(patEntity)
             .build();
     save(patientSearchEntity);
-    PatientEntity patEntity =
-        PatientEntity.builder()
-            .icn(dm.fullIcn())
-            .search(patientSearchEntity)
+  }
+
+  @SneakyThrows
+  private void insertByPractitioner(File file) {
+    DatamartPractitioner dm =
+        JacksonConfig.createMapper().readValue(file, DatamartPractitioner.class);
+    PractitionerEntity entity =
+        PractitionerEntity.builder()
+            .cdwId(dm.cdwId())
+            .npi(dm.npi().orElse(null))
+            .familyName(dm.name().family())
+            .givenName(dm.name().given())
             .payload(fileToString(file))
             .build();
-    save(patEntity);
+    save(entity);
   }
 
   @SneakyThrows
@@ -325,6 +342,9 @@ public class MitreMinimartMaker {
         break;
       case "Patient":
         listByPattern(dmDirectory, "^dmPat.*json$").forEach(file -> insertByPatient(file));
+        break;
+      case "Practitioner":
+        listByPattern(dmDirectory, "^dmPra.*json$").forEach(file -> insertByPractitioner(file));
         break;
       case "Procedure":
         listByPattern(dmDirectory, "^dmPro.*json$").forEach(file -> insertByProcedure(file));
