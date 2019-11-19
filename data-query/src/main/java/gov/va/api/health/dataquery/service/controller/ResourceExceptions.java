@@ -65,6 +65,12 @@ public final class ResourceExceptions {
     }
   }
 
+  public static final class InvalidDatamartPayload extends ResourcesException {
+    public InvalidDatamartPayload(String message) {
+      super(message);
+    }
+  }
+
   static class ResourcesException extends RuntimeException {
     ResourcesException(String message, Throwable cause) {
       super(message, cause);
