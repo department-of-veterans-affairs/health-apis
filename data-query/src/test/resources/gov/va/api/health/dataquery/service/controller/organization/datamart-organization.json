@@ -17,11 +17,11 @@
   "telecom" : [
     {
       "system" : "phone",
-      "value" : "800 555-7710"
+      "value" : "(800) 555-7710"
     },
     {
-      "system" : "phone",
-      "value" : "800 555-7720"
+      "system" : "fax",
+      "value" : "800-555-7720"
     },
     {
       "system" : "phone",

@@ -33,8 +33,8 @@ public class DatamartOrganizationTest {
         .name("NEW AMSTERDAM CBOC")
         .telecom(
             asList(
-                Telecom.builder().system(Telecom.System.phone).value("800 555-7710").build(),
-                Telecom.builder().system(Telecom.System.phone).value("800 555-7720").build(),
+                Telecom.builder().system(Telecom.System.phone).value("(800) 555-7710").build(),
+                Telecom.builder().system(Telecom.System.fax).value("800-555-7720").build(),
                 Telecom.builder().system(Telecom.System.phone).value("800-555-7730").build()))
         .address(
             Address.builder()
