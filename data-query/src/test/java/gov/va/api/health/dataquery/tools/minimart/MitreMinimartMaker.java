@@ -12,6 +12,8 @@ import gov.va.api.health.dataquery.service.controller.diagnosticreport.Diagnosti
 import gov.va.api.health.dataquery.service.controller.diagnosticreport.DiagnosticReportsEntity;
 import gov.va.api.health.dataquery.service.controller.immunization.DatamartImmunization;
 import gov.va.api.health.dataquery.service.controller.immunization.ImmunizationEntity;
+import gov.va.api.health.dataquery.service.controller.location.DatamartLocation;
+import gov.va.api.health.dataquery.service.controller.location.LocationEntity;
 import gov.va.api.health.dataquery.service.controller.medication.DatamartMedication;
 import gov.va.api.health.dataquery.service.controller.medication.MedicationEntity;
 import gov.va.api.health.dataquery.service.controller.medicationorder.DatamartMedicationOrder;
@@ -55,6 +57,7 @@ public class MitreMinimartMaker {
           DiagnosticReportsEntity.class,
           DiagnosticReportCrossEntity.class,
           ImmunizationEntity.class,
+          LocationEntity.class,
           MedicationOrderEntity.class,
           MedicationEntity.class,
           MedicationStatementEntity.class,
@@ -169,6 +172,22 @@ public class MitreMinimartMaker {
         ImmunizationEntity.builder()
             .cdwId(dm.cdwId())
             .icn(patientIcn(dm.patient()))
+            .payload(fileToString(file))
+            .build();
+    save(entity);
+  }
+
+  @SneakyThrows
+  private void insertByLocation(File file) {
+    DatamartLocation dm = JacksonConfig.createMapper().readValue(file, DatamartLocation.class);
+    LocationEntity entity =
+        LocationEntity.builder()
+            .cdwId(dm.cdwId())
+            .name(dm.name())
+            .street(dm.address().line1())
+            .city(dm.address().city())
+            .state(dm.address().state())
+            .postalCode(dm.address().postalCode())
             .payload(fileToString(file))
             .build();
     save(entity);
@@ -331,6 +350,9 @@ public class MitreMinimartMaker {
         break;
       case "Immunization":
         listByPattern(dmDirectory, "^dmImm.*json$").forEach(file -> insertByImmunization(file));
+        break;
+      case "Location":
+        listByPattern(dmDirectory, "^dmLoc.*json$").forEach(file -> insertByLocation(file));
         break;
       case "Medication":
         listByPattern(dmDirectory, "^dmMed(?!Sta|Ord).*json$")
