@@ -7,9 +7,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+import com.google.common.collect.Iterables;
 import gov.va.api.health.argonaut.api.resources.Patient;
 import gov.va.api.health.argonaut.api.resources.Patient.Gender;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
+import gov.va.api.health.dataquery.service.controller.Bundler;
+import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dstu2.api.datatypes.Address;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
@@ -37,10 +40,11 @@ import org.springframework.test.context.junit4.SpringRunner;
 @DataJpaTest
 @RunWith(SpringRunner.class)
 public final class DatamartPatientTest {
-
   HttpServletResponse response;
 
   @Autowired private TestEntityManager entityManager;
+
+  @Autowired private PatientSearchRepository repository;
 
   @Before
   public void _init() {
@@ -59,8 +63,8 @@ public final class DatamartPatientTest {
   public void basic() {
     DatamartData dm = DatamartData.create();
     FhirData fhir = FhirData.from(dm);
-    entityManager.persistAndFlush(dm.search());
     entityManager.persistAndFlush(dm.entity());
+    entityManager.persistAndFlush(dm.search());
     PatientController controller = controller();
     Patient patient = controller.read("true", dm.icn());
     assertThat(json(patient)).isEqualTo(json(fhir.patient()));
@@ -138,19 +142,17 @@ public final class DatamartPatientTest {
         true,
         null,
         null,
-        null,
-        WitnessProtection.builder().identityService(mock(IdentityService.class)).build(),
-        entityManager.getEntityManager());
+        new Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool")),
+        repository,
+        WitnessProtection.builder().identityService(mock(IdentityService.class)).build());
   }
 
   @Test
   public void deceased() {
     DatamartPatient unparseable = DatamartPatient.builder().deathDateTime("unparseable").build();
     assertThat(tx(unparseable).deceasedDateTime()).isNull();
-
     DatamartPatient deceasedBool = DatamartPatient.builder().deceased("Y").build();
     assertThat(tx(deceasedBool).deceasedBoolean()).isTrue();
-
     DatamartPatient deceasedDt =
         DatamartPatient.builder().deathDateTime("2013-11-16T02:33:33").build();
     assertThat(tx(deceasedDt).deceasedDateTime()).isEqualTo("2013-11-16T02:33:33Z");
@@ -160,17 +162,16 @@ public final class DatamartPatientTest {
   @SneakyThrows
   public void empty() {
     String icn = "1011537977V693883";
-    PatientSearchEntity search = PatientSearchEntity.builder().icn(icn).build();
-    entityManager.persistAndFlush(search);
     PatientEntity entity =
         PatientEntity.builder()
             .icn(icn)
             .payload(
                 JacksonConfig.createMapper()
                     .writeValueAsString(DatamartPatient.builder().fullIcn(icn).build()))
-            .search(search)
             .build();
     entityManager.persistAndFlush(entity);
+    PatientSearchEntity search = PatientSearchEntity.builder().icn(icn).patient(entity).build();
+    entityManager.persistAndFlush(search);
     PatientController controller = controller();
     Patient patient = controller.read("true", icn);
     assertThat(patient)
@@ -359,8 +360,8 @@ public final class DatamartPatientTest {
   public void readRaw() {
     DatamartData dm = DatamartData.create();
     PatientEntity entity = dm.entity();
-    entityManager.persistAndFlush(dm.search());
     entityManager.persistAndFlush(entity);
+    entityManager.persistAndFlush(dm.search());
     String json = controller().readRaw(dm.icn(), response);
     assertThat(PatientEntity.builder().payload(json).build().asDatamartPatient())
         .isEqualTo(dm.patient());
@@ -400,6 +401,77 @@ public final class DatamartPatientTest {
   }
 
   @Test
+  public void searchByFamilyAndGender() {
+    DatamartData dm = DatamartData.create();
+    FhirData fhir = FhirData.from(dm);
+    entityManager.persistAndFlush(dm.entity());
+    entityManager.persistAndFlush(dm.search());
+    Patient.Bundle patient = controller().searchByFamilyAndGender("true", "TEST", "male", 1, 1);
+    assertThat(json(Iterables.getOnlyElement(patient.entry()).resource()))
+        .isEqualTo(json(fhir.patient()));
+  }
+
+  @Test
+  public void searchByGivenAndGender() {
+    DatamartData dm = DatamartData.create();
+    FhirData fhir = FhirData.from(dm);
+    entityManager.persistAndFlush(dm.entity());
+    entityManager.persistAndFlush(dm.search());
+    Patient.Bundle patient =
+        controller().searchByGivenAndGender("true", "PATIENT ONE", "male", 1, 1);
+    assertThat(json(Iterables.getOnlyElement(patient.entry()).resource()))
+        .isEqualTo(json(fhir.patient()));
+  }
+
+  @Test
+  public void searchById() {
+    DatamartData dm = DatamartData.create();
+    FhirData fhir = FhirData.from(dm);
+    entityManager.persistAndFlush(dm.entity());
+    entityManager.persistAndFlush(dm.search());
+    Patient.Bundle patient = controller().searchById("true", "1011537977V693883", 1, 1);
+    assertThat(json(Iterables.getOnlyElement(patient.entry()).resource()))
+        .isEqualTo(json(fhir.patient()));
+  }
+
+  @Test
+  public void searchByIdentifier() {
+    DatamartData dm = DatamartData.create();
+    FhirData fhir = FhirData.from(dm);
+    entityManager.persistAndFlush(dm.entity());
+    entityManager.persistAndFlush(dm.search());
+    Patient.Bundle patient = controller().searchByIdentifier("true", "1011537977V693883", 1, 1);
+    assertThat(json(Iterables.getOnlyElement(patient.entry()).resource()))
+        .isEqualTo(json(fhir.patient()));
+  }
+
+  @Test
+  public void searchByNameAndBirthdate() {
+    DatamartData dm = DatamartData.create();
+    FhirData fhir = FhirData.from(dm);
+    entityManager.persistAndFlush(dm.entity());
+    entityManager.persistAndFlush(dm.search());
+    Patient.Bundle patient =
+        controller()
+            .searchByNameAndBirthdate(
+                "true", "TEST,PATIENT ONE", new String[] {"ge1924-12-31"}, 1, 1);
+    assertThat(json(Iterables.getOnlyElement(patient.entry()).resource()))
+        .isEqualTo(json(fhir.patient()));
+  }
+
+  @Test
+  public void searchByNameAndGender() {
+    DatamartData dm = DatamartData.create();
+    FhirData fhir = FhirData.from(dm);
+    entityManager.persistAndFlush(dm.entity());
+    entityManager.persistAndFlush(dm.search());
+    Patient.Bundle patient =
+        controller().searchByNameAndGender("true", "TEST,PATIENT ONE", "male", 1, 1);
+    assertThat(json(Iterables.getOnlyElement(patient.entry()).resource()))
+        .isEqualTo(json(fhir.patient()));
+  }
+
+  @Test
   public void sortNum() {
     DatamartPatient dm =
         DatamartPatient.builder()
@@ -416,7 +488,6 @@ public final class DatamartPatientTest {
                         .type("PATIENT CELL PHONE")
                         .build()))
             .build();
-
     Patient pat = tx(dm);
     assertThat(pat.telecom().get(0).value()).isEqualTo("1111111111");
     assertThat(pat.telecom().get(1).value()).isEqualTo("2222222222");
@@ -463,7 +534,6 @@ public final class DatamartPatientTest {
       return PatientEntity.builder()
           .icn(icn)
           .payload(JacksonConfig.createMapper().writeValueAsString(patient()))
-          .search(search())
           .build();
     }
 
@@ -563,6 +633,7 @@ public final class DatamartPatientTest {
           .lastName(lastName)
           .gender("M")
           .birthDateTime(parseInstant(birthDateTime))
+          .patient(entity())
           .build();
     }
   }
