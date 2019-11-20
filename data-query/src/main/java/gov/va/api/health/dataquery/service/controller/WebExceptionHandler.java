@@ -1,10 +1,14 @@
 package gov.va.api.health.dataquery.service.controller;
 
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions.BadSearchParameter;
 import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
 import gov.va.api.health.dstu2.api.elements.Narrative;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import gov.va.api.health.ids.client.IdEncoder.BadId;
+
+import java.io.IOException;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
@@ -62,9 +66,13 @@ public class WebExceptionHandler {
     return responseFor("not-found", e, request);
   }
 
-  @ExceptionHandler({Exception.class})
+  @ExceptionHandler({Exception.class, UndeclaredThrowableException.class})
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
   public OperationOutcome handleSnafu(Exception e, HttpServletRequest request) {
+    if (e.getCause().getClass().equals(InvalidFormatException.class)) {
+      e.addSuppressed(e.getCause());
+      return responseFor("database", e, request,false);
+    }
     return responseFor("exception", e, request);
   }
 
@@ -83,15 +91,19 @@ public class WebExceptionHandler {
             .map(v -> v.getPropertyPath() + " " + v.getMessage())
             .collect(Collectors.toList());
 
-    return responseFor("structure", e, request, problems);
+    return responseFor("structure", e, request, problems, true);
   }
 
   private OperationOutcome responseFor(String code, Exception e, HttpServletRequest request) {
-    return responseFor(code, e, request, Collections.emptyList());
+    return responseFor(code, e, request, Collections.emptyList(), true);
+  }
+
+  private OperationOutcome responseFor(String code, Exception e, HttpServletRequest request, Boolean printException) {
+    return responseFor(code, e, request, Collections.emptyList(), printException);
   }
 
   private OperationOutcome responseFor(
-      String code, Exception e, HttpServletRequest request, List<String> problems) {
+      String code, Exception e, HttpServletRequest request, List<String> problems, Boolean printException) {
     StringBuilder diagnostics = new StringBuilder();
     diagnostics
         .append("Error: ")
@@ -117,7 +129,11 @@ public class WebExceptionHandler {
                         .diagnostics(diagnostics.toString())
                         .build()))
             .build();
-    log.error("Response {}", response, e);
+    if(!printException) {
+      log.error("Response {}", response);
+    } else {
+      log.error("Response {}", response, e);
+    }
     return response;
   }
 }

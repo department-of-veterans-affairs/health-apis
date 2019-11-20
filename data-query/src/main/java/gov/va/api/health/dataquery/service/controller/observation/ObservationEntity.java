@@ -57,10 +57,6 @@ public class ObservationEntity implements DatamartEntity {
 
   @SneakyThrows
   DatamartObservation asDatamartObservation() {
-    try {
       return JacksonConfig.createMapper().readValue(payload, DatamartObservation.class);
-    } catch (JsonParseException | JsonMappingException e) {
-      throw new ResourceExceptions.InvalidDatamartPayload("Unable to parse json from Datamart.");
-    }
   }
 }
