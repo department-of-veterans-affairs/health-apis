@@ -1,7 +1,5 @@
 package gov.va.api.health.dataquery.service.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions.BadSearchParameter;
 import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
@@ -74,14 +72,12 @@ public class WebExceptionHandler {
   @ExceptionHandler({Exception.class, UndeclaredThrowableException.class})
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
   public OperationOutcome handleSnafu(Exception e, HttpServletRequest request) {
-    if (e.getCause() != null && e.getCause().getClass().isAssignableFrom(InvalidFormatException.class)) {
-            //.equals(InvalidFormatException.class)) {
-      String requestPath = request.getRequestURI() + (request.getQueryString() == null
-              ? ""
-              : "?" + request.getQueryString());
-      log.error(
-          "Requested Resource: {}",
-          requestPath.replaceAll("[\r\n]", ""));
+    if (e.getCause() != null
+        && e.getCause().getClass().isAssignableFrom(InvalidFormatException.class)) {
+      String requestPath =
+          request.getRequestURI()
+              + (request.getQueryString() == null ? "" : "?" + request.getQueryString());
+      log.error("Requested Resource: {}", requestPath.replaceAll("[\r\n]", ""));
       return responseFor("database", e, request, false);
     }
     return responseFor("exception", e, request);
