@@ -77,7 +77,10 @@ public class WebExceptionHandler {
       String requestPath =
           request.getRequestURI()
               + (request.getQueryString() == null ? "" : "?" + request.getQueryString());
-      log.error("Requested Resource: {}", requestPath.replaceAll("[\r\n]", ""));
+      log.error(
+          "Fail -- Request: {} Caused By: {}",
+          requestPath.replaceAll("[\r\n]", ""),
+          e.getCause().getClass());
       return responseFor("database", e, request, false);
     }
     return responseFor("exception", e, request);
