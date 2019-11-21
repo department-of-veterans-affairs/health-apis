@@ -1,13 +1,13 @@
 package gov.va.api.health.dataquery.service.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions.BadSearchParameter;
 import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
 import gov.va.api.health.dstu2.api.elements.Narrative;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import gov.va.api.health.ids.client.IdEncoder.BadId;
-
-import java.io.IOException;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.time.Instant;
 import java.util.Collections;
@@ -66,12 +66,23 @@ public class WebExceptionHandler {
     return responseFor("not-found", e, request);
   }
 
+  /**
+   * For exceptions relating to unmarshalling json, we want to make sure no PII is being logged.
+   * Therefore, when we encounter these exceptions, we will not print the stacktrace in an effort to
+   * decrease the likelihood PII shows up in our logs.
+   */
   @ExceptionHandler({Exception.class, UndeclaredThrowableException.class})
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
   public OperationOutcome handleSnafu(Exception e, HttpServletRequest request) {
-    if (e.getCause().getClass().equals(InvalidFormatException.class)) {
-      e.addSuppressed(e.getCause());
-      return responseFor("database", e, request,false);
+    if (e.getCause() != null && e.getCause().getClass().isAssignableFrom(InvalidFormatException.class)) {
+            //.equals(InvalidFormatException.class)) {
+      String requestPath = request.getRequestURI() + (request.getQueryString() == null
+              ? ""
+              : "?" + request.getQueryString());
+      log.error(
+          "Requested Resource: {}",
+          requestPath.replaceAll("[\r\n]", ""));
+      return responseFor("database", e, request, false);
     }
     return responseFor("exception", e, request);
   }
@@ -98,12 +109,17 @@ public class WebExceptionHandler {
     return responseFor(code, e, request, Collections.emptyList(), true);
   }
 
-  private OperationOutcome responseFor(String code, Exception e, HttpServletRequest request, Boolean printException) {
+  private OperationOutcome responseFor(
+      String code, Exception e, HttpServletRequest request, Boolean printException) {
     return responseFor(code, e, request, Collections.emptyList(), printException);
   }
 
   private OperationOutcome responseFor(
-      String code, Exception e, HttpServletRequest request, List<String> problems, Boolean printException) {
+      String code,
+      Exception e,
+      HttpServletRequest request,
+      List<String> problems,
+      Boolean printException) {
     StringBuilder diagnostics = new StringBuilder();
     diagnostics
         .append("Error: ")
@@ -129,7 +145,7 @@ public class WebExceptionHandler {
                         .diagnostics(diagnostics.toString())
                         .build()))
             .build();
-    if(!printException) {
+    if (!printException) {
       log.error("Response {}", response);
     } else {
       log.error("Response {}", response, e);

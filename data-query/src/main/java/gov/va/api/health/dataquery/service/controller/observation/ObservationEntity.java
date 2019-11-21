@@ -1,9 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.observation;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
-import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartEntity;
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -57,6 +54,6 @@ public class ObservationEntity implements DatamartEntity {
 
   @SneakyThrows
   DatamartObservation asDatamartObservation() {
-      return JacksonConfig.createMapper().readValue(payload, DatamartObservation.class);
+    return JacksonConfig.createMapper().readValue(payload, DatamartObservation.class);
   }
 }
