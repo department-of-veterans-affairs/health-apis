@@ -7,25 +7,32 @@ import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.BulkFhirCount;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions.BadSearchParameter;
 import java.util.ArrayList;
+import java.util.List;
 import lombok.SneakyThrows;
 import org.assertj.core.util.Lists;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @DataJpaTest
 @RunWith(SpringRunner.class)
 public class PatientBulkFhirControllerTest {
+  @Autowired private TestEntityManager entityManager;
 
   @Autowired private PatientRepository repository;
 
   @SneakyThrows
-  private PatientEntity asEntity(DatamartPatient patient) {
-    return PatientEntity.builder()
+  private PatientSearchEntity asEntity(DatamartPatient patient) {
+    return PatientSearchEntity.builder()
         .icn(patient.fullIcn())
-        .payload(JacksonConfig.createMapper().writeValueAsString(patient))
+        .patient(
+            PatientEntity.builder()
+                .icn(patient.fullIcn())
+                .payload(JacksonConfig.createMapper().writeValueAsString(patient))
+                .build())
         .build();
   }
 
@@ -50,14 +57,16 @@ public class PatientBulkFhirControllerTest {
     return JacksonConfig.createMapper().writerWithDefaultPrettyPrinter().writeValueAsString(o);
   }
 
-  private ArrayList<Patient> populateData() {
+  private List<Patient> populateData() {
     var fhir = DatamartPatientSamples.Fhir.create();
     var datamart = DatamartPatientSamples.Datamart.create();
     var patients = new ArrayList<Patient>();
     for (int i = 0; i < 10; i++) {
       var id = String.valueOf(i);
       var dm = datamart.patient(id);
-      repository.save(asEntity(dm));
+      PatientSearchEntity entity = asEntity(dm);
+      entityManager.persistAndFlush(entity.patient());
+      entityManager.persistAndFlush(entity);
       var patient = fhir.patient(id);
       patients.add(patient);
     }
@@ -66,7 +75,7 @@ public class PatientBulkFhirControllerTest {
 
   @Test
   public void search() {
-    ArrayList<Patient> patients = populateData();
+    List<Patient> patients = populateData();
     assertThat(json(controller().search(1, 10))).isEqualTo(json(patients));
   }
 
@@ -88,7 +97,7 @@ public class PatientBulkFhirControllerTest {
 
   @Test
   public void searchForSmallPagesSumsToLargerPage() {
-    ArrayList<Patient> patients = populateData();
+    List<Patient> patients = populateData();
     ArrayList<Patient> sumPatients = new ArrayList<>();
     for (int i = 1; i <= 10; i++) {
       sumPatients.add(controller().search(i, 1).get(0));

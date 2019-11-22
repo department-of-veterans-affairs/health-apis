@@ -1,4 +1,4 @@
-package gov.va.api.health.dataquery.service.controller.patient;
+package gov.va.api.health.dataquery.service.controller.location;
 
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartEntity;
@@ -16,32 +16,47 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
+import org.springframework.data.domain.Sort;
 
 @Data
 @Entity
 @Builder
-@Table(name = "PatientReport", schema = "app")
+@Table(name = "Location", schema = "app")
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class PatientEntity implements DatamartEntity {
+public class LocationEntity implements DatamartEntity {
   @Id
-  @Column(name = "PatientFullIcn")
+  @Column(name = "CDWID")
   @EqualsAndHashCode.Include
-  private String icn;
+  private String cdwId;
+
+  @Column(name = "Name", nullable = true)
+  private String name;
+
+  @Column(name = "Street", nullable = true)
+  private String street;
+
+  @Column(name = "City", nullable = true)
+  private String city;
+
+  @Column(name = "State", nullable = true)
+  private String state;
+
+  @Column(name = "PostalCode", nullable = true)
+  private String postalCode;
 
   @Lob
+  @Column(name = "Location")
   @Basic(fetch = FetchType.EAGER)
-  @Column(name = "PatientReport")
   private String payload;
 
-  @SneakyThrows
-  DatamartPatient asDatamartPatient() {
-    return JacksonConfig.createMapper().readValue(payload, DatamartPatient.class);
+  static Sort naturalOrder() {
+    return Sort.by("cdwId").ascending();
   }
 
-  @Override
-  public String cdwId() {
-    return icn();
+  @SneakyThrows
+  DatamartLocation asDatamartLocation() {
+    return JacksonConfig.createMapper().readValue(payload, DatamartLocation.class);
   }
 }

@@ -130,6 +130,41 @@ public final class DateTimeParameters implements Serializable {
    * Convert this time parameter into a Criteria API predicate. The 'field' is represents the value
    * of the JPA entity property/column. The criteria builder will be used to create the predicates.
    */
+  public Predicate toInstantPredicate(Expression<Instant> field, CriteriaBuilder criteriaBuilder) {
+    Instant lowerBound = lowerBound();
+    Instant upperBound = upperBound();
+    switch (prefix()) {
+      case EQ:
+        return criteriaBuilder.and(
+            criteriaBuilder.greaterThanOrEqualTo(field, lowerBound),
+            criteriaBuilder.lessThanOrEqualTo(field, upperBound));
+      case NE:
+        return criteriaBuilder.or(
+            criteriaBuilder.lessThan(field, lowerBound),
+            criteriaBuilder.greaterThan(field, upperBound));
+      case GT:
+        // fall-through
+      case SA:
+        return criteriaBuilder.greaterThan(field, upperBound);
+      case LT:
+        // fall-through
+      case EB:
+        return criteriaBuilder.lessThan(field, lowerBound);
+      case GE:
+        return criteriaBuilder.greaterThanOrEqualTo(field, lowerBound);
+      case LE:
+        return criteriaBuilder.lessThanOrEqualTo(field, upperBound);
+      case AP:
+        throw apException();
+      default:
+        throw new IllegalArgumentException("Unknown search prefix: " + prefix());
+    }
+  }
+
+  /**
+   * Convert this time parameter into a Criteria API predicate. The 'field' is represents the value
+   * of the JPA entity property/column. The criteria builder will be used to create the predicates.
+   */
   public Predicate toPredicate(
       Expression<? extends Number> field, CriteriaBuilder criteriaBuilder) {
     long lowerBound = lowerBound().toEpochMilli();
