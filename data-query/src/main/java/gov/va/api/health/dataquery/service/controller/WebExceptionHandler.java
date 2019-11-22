@@ -170,6 +170,8 @@ public class WebExceptionHandler {
       MismatchedInputException mie = (MismatchedInputException) jsonError;
       safe.append(" path:").append(mie.getPathReference());
     }
+    // TODO Support other PropertyBindExceptions
+    // TODO Support InvalidFormatException
     return safe.toString();
   }
 }
