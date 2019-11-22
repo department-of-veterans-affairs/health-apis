@@ -66,8 +66,8 @@ public class WebExceptionHandler {
 
   /**
    * For exceptions relating to unmarshalling json, we want to make sure no PII is being logged.
-   * Therefore, when we encounter these exceptions, we will not print the stacktrace in an effort to
-   * decrease the likelihood PII shows up in our logs.
+   * Therefore, when we encounter these exceptions, we will not print the stacktrace to prevent PII showing
+   * up in our logs.
    */
   @ExceptionHandler({Exception.class, UndeclaredThrowableException.class})
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -78,7 +78,7 @@ public class WebExceptionHandler {
           request.getRequestURI()
               + (request.getQueryString() == null ? "" : "?" + request.getQueryString());
       log.error(
-          "Fail -- Request: {} Caused By: {}",
+          "Status 500 -- Request: {} Caused By: {}",
           requestPath.replaceAll("[\r\n]", ""),
           e.getCause().getClass());
       return responseFor("database", e, request, false);
