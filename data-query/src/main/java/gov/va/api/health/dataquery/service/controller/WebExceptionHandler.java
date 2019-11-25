@@ -1,6 +1,9 @@
 package gov.va.api.health.dataquery.service.controller;
 
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.io.JsonEOFException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions.BadSearchParameter;
 import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
@@ -139,7 +142,8 @@ public class WebExceptionHandler {
   public OperationOutcome handleValidationException(
       ConstraintViolationException e, HttpServletRequest request) {
     List<String> problems =
-        e.getConstraintViolations().stream()
+        e.getConstraintViolations()
+            .stream()
             .map(v -> v.getPropertyPath() + " " + v.getMessage())
             .collect(Collectors.toList());
 
@@ -166,12 +170,30 @@ public class WebExceptionHandler {
 
   String sanitize(JsonProcessingException jsonError) {
     StringBuilder safe = new StringBuilder(jsonError.getClass().getSimpleName());
+
     if (jsonError instanceof MismatchedInputException) {
       MismatchedInputException mie = (MismatchedInputException) jsonError;
-      safe.append(" path:").append(mie.getPathReference());
+      safe.append(" path: ").append(mie.getPathReference());
+    } else if (jsonError instanceof JsonEOFException) {
+      JsonEOFException eofe = (JsonEOFException) jsonError;
+      if (eofe.getLocation() != null) {
+        safe.append(" line: ")
+            .append(eofe.getLocation().getLineNr())
+            .append(", column: ")
+            .append(eofe.getLocation().getColumnNr());
+      }
+    } else if (jsonError instanceof JsonMappingException) {
+      JsonMappingException jme = (JsonMappingException) jsonError;
+      safe.append(" path: ").append(jme.getPathReference());
+    } else if (jsonError instanceof JsonParseException) {
+      JsonParseException jpe = (JsonParseException) jsonError;
+      if (jpe.getLocation() != null) {
+        safe.append(" line: ")
+            .append(jpe.getLocation().getLineNr())
+            .append(", column: ")
+            .append(jpe.getLocation().getColumnNr());
+      }
     }
-    // TODO Support other PropertyBindExceptions
-    // TODO Support InvalidFormatException
     return safe.toString();
   }
 }
