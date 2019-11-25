@@ -11,7 +11,7 @@
   <version>2.0.161-SNAPSHOT</version>
   <packaging>jar</packaging>
   <properties>
-    <argonaut-dstu2.version>2.0.18</argonaut-dstu2.version>
+    <argonaut-dstu2.version>2.0.20-SNAPSHOT</argonaut-dstu2.version>
     <cdw-schemas.version>1.0.42</cdw-schemas.version>
     <guava.version>20.0</guava.version>
     <health-apis-ids.version>2.1.3</health-apis-ids.version>
@@ -148,6 +148,34 @@
             </configuration>
             <goals>
               <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>gov.va.plugin.maven</groupId>
+        <artifactId>swagger-examples-maven-plugin</artifactId>
+        <version>1.0.1</version>
+        <dependencies>
+          <dependency>
+            <groupId>gov.va.api.health</groupId>
+            <artifactId>dstu2-examples</artifactId>
+            <version>${argonaut-dstu2.version}</version>
+            <scope>runtime</scope>
+          </dependency>
+          <dependency>
+            <groupId>gov.va.api.health</groupId>
+            <artifactId>argonaut-examples</artifactId>
+            <version>${argonaut-dstu2.version}</version>
+            <scope>runtime</scope>
+          </dependency>
+        </dependencies>
+        <executions>
+          <execution>
+            <id>inject-examples</id>
+            <phase>compile</phase>
+            <goals>
+              <goal>inject</goal>
             </goals>
           </execution>
         </executions>
