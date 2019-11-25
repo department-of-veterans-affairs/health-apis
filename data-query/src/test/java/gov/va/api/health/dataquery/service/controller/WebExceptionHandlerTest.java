@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.fasterxml.jackson.databind.JsonMappingException;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.patient.PatientController;
 import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
@@ -17,6 +18,7 @@ import gov.va.api.health.dataquery.service.mranderson.client.Query;
 import gov.va.api.health.dataquery.service.mranderson.client.Query.Profile;
 import gov.va.api.health.ids.client.IdEncoder.BadId;
 import java.lang.reflect.Method;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -74,7 +76,11 @@ public class WebExceptionHandlerTest {
         test(HttpStatus.BAD_REQUEST, new BadRequest(query)),
         test(HttpStatus.BAD_REQUEST, new ConstraintViolationException(new HashSet<>())),
         test(HttpStatus.INTERNAL_SERVER_ERROR, new SearchFailed(query)),
-        test(HttpStatus.INTERNAL_SERVER_ERROR, new RuntimeException())
+        test(HttpStatus.INTERNAL_SERVER_ERROR, new RuntimeException()),
+        test(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            new UndeclaredThrowableException(
+                new JsonMappingException("Failed to convert string '.' to double.")))
         //
         );
   }
@@ -114,7 +120,6 @@ public class WebExceptionHandlerTest {
   public void expectStatus() {
     when(mrAnderson.search(Mockito.any())).thenThrow(exception);
     when(request.getRequestURI()).thenReturn(basePath + "/Patient/123");
-
     MockMvc mvc =
         MockMvcBuilders.standaloneSetup(controller)
             .setHandlerExceptionResolvers(createExceptionResolver())

@@ -1,13 +1,20 @@
 package gov.va.api.health.dataquery.service.controller;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.io.JsonEOFException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions.BadSearchParameter;
 import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
 import gov.va.api.health.dstu2.api.elements.Narrative;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import gov.va.api.health.ids.client.IdEncoder.BadId;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
@@ -30,6 +37,46 @@ import org.springframework.web.client.HttpClientErrorException;
 @RestControllerAdvice
 @RequestMapping(produces = {"application/json"})
 public class WebExceptionHandler {
+
+  private Optional<JsonProcessingException> asJsonError(Exception e) {
+    Throwable cause = e.getCause();
+    while (cause != null) {
+      if (JsonProcessingException.class.isAssignableFrom(cause.getClass())) {
+        return Optional.of((JsonProcessingException) cause);
+      }
+      cause = cause.getCause();
+    }
+    return Optional.empty();
+  }
+
+  private OperationOutcome asOperationOutcome(
+      String code, Exception e, HttpServletRequest request, List<String> problems) {
+    StringBuilder diagnostics = new StringBuilder();
+    diagnostics
+        .append("Error: ")
+        .append(e.getClass().getSimpleName())
+        .append(" Timestamp:")
+        .append(Instant.now());
+    problems.forEach(p -> diagnostics.append('\n').append(p));
+
+    return OperationOutcome.builder()
+        .id(UUID.randomUUID().toString())
+        .resourceType("OperationOutcome")
+        .text(
+            Narrative.builder()
+                .status(Narrative.NarrativeStatus.additional)
+                .div("<div>Failure: " + request.getRequestURI() + "</div>")
+                .build())
+        .issue(
+            Collections.singletonList(
+                OperationOutcome.Issue.builder()
+                    .severity(OperationOutcome.Issue.IssueSeverity.fatal)
+                    .code(code)
+                    .diagnostics(diagnostics.toString())
+                    .build()))
+        .build();
+  }
+
   @ExceptionHandler({
     BindException.class,
     MrAndersonClient.BadRequest.class,
@@ -62,10 +109,27 @@ public class WebExceptionHandler {
     return responseFor("not-found", e, request);
   }
 
-  @ExceptionHandler({Exception.class})
+  /**
+   * For exceptions relating to unmarshalling json, we want to make sure no PII is being logged.
+   * Therefore, when we encounter these exceptions, we will not print the stacktrace to prevent PII
+   * showing up in our logs.
+   */
+  @ExceptionHandler({Exception.class, UndeclaredThrowableException.class})
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
   public OperationOutcome handleSnafu(Exception e, HttpServletRequest request) {
-    return responseFor("exception", e, request);
+    Optional<JsonProcessingException> jsonError = asJsonError(e);
+    if (jsonError.isEmpty()) {
+      return responseFor("exception", e, request);
+    }
+
+    String requestPath = reconstructUrl(request);
+    String useful = sanitize(jsonError.get());
+    List<String> problems = List.of(requestPath, useful);
+    log.error("FAILED TO PROCESS JSON FOR REQUEST: {}", requestPath);
+    log.error("BECAUSE: {}", useful);
+    OperationOutcome response = asOperationOutcome("database", e, request, problems);
+    log.error("Status 500 -- Request: {} Caused By: {}", requestPath, e.getCause().getClass());
+    return response;
   }
 
   /**
@@ -86,38 +150,50 @@ public class WebExceptionHandler {
     return responseFor("structure", e, request, problems);
   }
 
+  /** Reconstruct a sanitized URL basedon the request. */
+  private String reconstructUrl(HttpServletRequest request) {
+    return request.getRequestURI()
+        + (request.getQueryString() == null ? "" : "?" + request.getQueryString())
+            .replaceAll("[\r\n]", "");
+  }
+
   private OperationOutcome responseFor(String code, Exception e, HttpServletRequest request) {
     return responseFor(code, e, request, Collections.emptyList());
   }
 
   private OperationOutcome responseFor(
       String code, Exception e, HttpServletRequest request, List<String> problems) {
-    StringBuilder diagnostics = new StringBuilder();
-    diagnostics
-        .append("Error: ")
-        .append(e.getClass().getSimpleName())
-        .append(" Timestamp:")
-        .append(Instant.now());
-    problems.forEach(p -> diagnostics.append('\n').append(p));
-
-    OperationOutcome response =
-        OperationOutcome.builder()
-            .id(UUID.randomUUID().toString())
-            .resourceType("OperationOutcome")
-            .text(
-                Narrative.builder()
-                    .status(Narrative.NarrativeStatus.additional)
-                    .div("<div>Failure: " + request.getRequestURI() + "</div>")
-                    .build())
-            .issue(
-                Collections.singletonList(
-                    OperationOutcome.Issue.builder()
-                        .severity(OperationOutcome.Issue.IssueSeverity.fatal)
-                        .code(code)
-                        .diagnostics(diagnostics.toString())
-                        .build()))
-            .build();
+    OperationOutcome response = asOperationOutcome(code, e, request, problems);
     log.error("Response {}", response, e);
     return response;
+  }
+
+  String sanitize(JsonProcessingException jsonError) {
+    StringBuilder safe = new StringBuilder(jsonError.getClass().getSimpleName());
+
+    if (jsonError instanceof MismatchedInputException) {
+      MismatchedInputException mie = (MismatchedInputException) jsonError;
+      safe.append(" path: ").append(mie.getPathReference());
+    } else if (jsonError instanceof JsonEOFException) {
+      JsonEOFException eofe = (JsonEOFException) jsonError;
+      if (eofe.getLocation() != null) {
+        safe.append(" line: ")
+            .append(eofe.getLocation().getLineNr())
+            .append(", column: ")
+            .append(eofe.getLocation().getColumnNr());
+      }
+    } else if (jsonError instanceof JsonMappingException) {
+      JsonMappingException jme = (JsonMappingException) jsonError;
+      safe.append(" path: ").append(jme.getPathReference());
+    } else if (jsonError instanceof JsonParseException) {
+      JsonParseException jpe = (JsonParseException) jsonError;
+      if (jpe.getLocation() != null) {
+        safe.append(" line: ")
+            .append(jpe.getLocation().getLineNr())
+            .append(", column: ")
+            .append(jpe.getLocation().getColumnNr());
+      }
+    }
+    return safe.toString();
   }
 }
