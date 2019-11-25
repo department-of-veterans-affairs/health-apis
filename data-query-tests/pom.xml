@@ -11,7 +11,7 @@
   <version>2.0.162-SNAPSHOT</version>
   <packaging>jar</packaging>
   <properties>
-    <argonaut-dstu2.version>2.0.20-SNAPSHOT</argonaut-dstu2.version>
+    <argonaut-dstu2.version>2.0.20</argonaut-dstu2.version>
     <cdw-schemas.version>1.0.42</cdw-schemas.version>
     <groups>gov.va.api.health.sentinel.categories.Local</groups>
     <health-apis-ids.version>2.1.4</health-apis-ids.version>
