@@ -45,7 +45,7 @@ public class PractitionerControllerTest {
   @Before
   public void _init() {
     MockitoAnnotations.initMocks(this);
-    controller = new PractitionerController(tx, client, bundler);
+    controller = new PractitionerController(false, tx, client, bundler, null, null);
   }
 
   private void assertSearch(Supplier<Bundle> invocation, MultiValueMap<String, String> params) {
@@ -116,7 +116,7 @@ public class PractitionerControllerTest {
     Practitioner item = Practitioner.builder().build();
     when(client.search(Mockito.any())).thenReturn(root);
     when(tx.apply(xmlPractitioner)).thenReturn(item);
-    Practitioner actual = controller.read("hello");
+    Practitioner actual = controller.read("false", "hello");
     assertThat(actual).isSameAs(item);
     ArgumentCaptor<Query<CdwPractitioner100Root>> captor = ArgumentCaptor.forClass(Query.class);
     verify(client).search(captor.capture());
@@ -126,14 +126,14 @@ public class PractitionerControllerTest {
   @Test
   public void searchById() {
     assertSearch(
-        () -> controller.searchById("me", 1, 10),
+        () -> controller.searchById("false", "me", 1, 10),
         Parameters.builder().add("identifier", "me").add("page", 1).add("_count", 10).build());
   }
 
   @Test
   public void searchByIdentifier() {
     assertSearch(
-        () -> controller.searchByIdentifier("me", 1, 10),
+        () -> controller.searchByIdentifier("false", "me", 1, 10),
         Parameters.builder().add("identifier", "me").add("page", 1).add("_count", 10).build());
   }
 
