@@ -20,11 +20,13 @@ import gov.va.api.health.dataquery.service.mranderson.client.Query.Profile;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import gov.va.api.health.dstu2.api.resources.Practitioner;
 import gov.va.dvp.cdw.xsd.model.CdwPractitioner100Root;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.Min;
 import lombok.extern.slf4j.Slf4j;
@@ -195,6 +197,7 @@ public class PractitionerController {
    * eliminated.
    */
   private class Datamart {
+
     Practitioner.Bundle bundle(
         MultiValueMap<String, String> parameters, List<Practitioner> reports, int totalRecords) {
       PageLinks.LinkConfig linkConfig =
@@ -222,9 +225,12 @@ public class PractitionerController {
       }
       return bundle(
           parameters,
-          entities
-              .get()
-              .map(PractitionerEntity::asDatamartPractitioner)
+          replaceReferences(
+                  entities
+                      .get()
+                      .map(PractitionerEntity::asDatamartPractitioner)
+                      .collect(Collectors.toList()))
+              .stream()
               .map(this::transform)
               .collect(Collectors.toList()),
           (int) entities.getTotalElements());
@@ -253,6 +259,17 @@ public class PractitionerController {
 
     PractitionerEntity readRaw(String publicId) {
       return findById(publicId);
+    }
+
+    private Collection<DatamartPractitioner> replaceReferences(
+        Collection<DatamartPractitioner> resources) {
+      witnessProtection.registerAndUpdateReferences(
+          resources,
+          resource ->
+              Stream.concat(
+                  Stream.of(resource.practitionerRole().get().managingOrganization().orElse(null)),
+                  resource.practitionerRole().get().location().stream()));
+      return resources;
     }
 
     Practitioner.Bundle searchById(String publicId, int page, int count) {

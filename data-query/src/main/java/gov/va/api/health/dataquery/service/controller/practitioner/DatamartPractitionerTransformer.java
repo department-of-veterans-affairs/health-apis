@@ -1,6 +1,7 @@
 package gov.va.api.health.dataquery.service.controller.practitioner;
 
 import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
+import static gov.va.api.health.dataquery.service.controller.Transformers.asReference;
 import static gov.va.api.health.dataquery.service.controller.Transformers.convert;
 import static gov.va.api.health.dataquery.service.controller.Transformers.emptyToNull;
 import static gov.va.api.health.dataquery.service.controller.Transformers.ifPresent;
@@ -81,10 +82,7 @@ public class DatamartPractitionerTransformer {
     if (source == null) {
       return null;
     }
-    return Reference.builder()
-        .display(source.display().get())
-        .reference("Practitioner/" + source.reference().get())
-        .build();
+    return asReference(source.type(Optional.of("Location")));
   }
 
   private List<Reference> locations(List<DatamartReference> results) {
@@ -98,13 +96,7 @@ public class DatamartPractitionerTransformer {
     if (source == null || allBlank(source.get().display(), source.get().reference())) {
       return null;
     }
-    return convert(
-        source,
-        dm ->
-            Reference.builder()
-                .reference(dm.get().reference().get())
-                .display(dm.get().display().get())
-                .build());
+    return convert(source, dm -> asReference(dm.get().type(Optional.of("Organization"))));
   }
 
   HumanName name(DatamartPractitioner.Name source) {
