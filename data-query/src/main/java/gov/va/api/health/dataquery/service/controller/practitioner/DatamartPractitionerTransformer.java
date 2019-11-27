@@ -20,6 +20,7 @@ import gov.va.api.health.dstu2.api.resources.Practitioner;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.Builder;
@@ -112,10 +113,18 @@ public class DatamartPractitionerTransformer {
       return null;
     }
     return Practitioner.PractitionerRole.builder()
+//        .specialty(specialties(source.specialty()))
         .role(role(source.role()))
         .managingOrganization(managingOrganization(source.managingOrganization()))
         .build();
   }
+
+//  private List<CodeableConcept> specialties(List<DatamartPractitioner.PractitionerRole.Specialty> source) {
+//    if (source == null) {
+//      return null;
+//    }
+//    return ifPresent(source);
+//  }
 
   List<Practitioner.PractitionerRole> practitionerRoles() {
     return emptyToNull(
