@@ -20,7 +20,6 @@ import gov.va.api.health.dstu2.api.resources.Practitioner;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.Builder;
@@ -65,6 +64,34 @@ public class DatamartPractitionerTransformer {
   Practitioner.Gender gender(DatamartPractitioner.Gender source) {
     return convert(
         source, gender -> EnumSearcher.of(Practitioner.Gender.class).find(gender.toString()));
+  }
+
+  private Reference healthCareService(String s) {
+    return Reference.builder().display(s).build();
+  }
+
+  private List<Reference> healthcareServices(Optional<String> results) {
+    if (results.isEmpty()) {
+      return null;
+    }
+    return results.stream().map(s -> healthCareService(s)).collect(Collectors.toList());
+  }
+
+  private Reference location(DatamartReference source) {
+    if (source == null) {
+      return null;
+    }
+    return Reference.builder()
+        .display(source.display().get())
+        .reference("Practitioner/" + source.reference().get())
+        .build();
+  }
+
+  private List<Reference> locations(List<DatamartReference> results) {
+    if (results.isEmpty()) {
+      return null;
+    }
+    return results.stream().map(s -> location(s)).collect(Collectors.toList());
   }
 
   private Reference managingOrganization(Optional<DatamartReference> source) {
@@ -113,18 +140,12 @@ public class DatamartPractitionerTransformer {
       return null;
     }
     return Practitioner.PractitionerRole.builder()
-//        .specialty(specialties(source.specialty()))
+        .location(locations(source.location()))
         .role(role(source.role()))
         .managingOrganization(managingOrganization(source.managingOrganization()))
+        .healthcareService(healthcareServices(source.healthCareService()))
         .build();
   }
-
-//  private List<CodeableConcept> specialties(List<DatamartPractitioner.PractitionerRole.Specialty> source) {
-//    if (source == null) {
-//      return null;
-//    }
-//    return ifPresent(source);
-//  }
 
   List<Practitioner.PractitionerRole> practitionerRoles() {
     return emptyToNull(
@@ -134,18 +155,6 @@ public class DatamartPractitionerTransformer {
             .map(rol -> practitionerRole(rol))
             .collect(Collectors.toList()));
   }
-
-  // private List<Reference> locations(List<DatamartReference> source) {
-  // return convertAll(
-  // ifPresent(source, D),
-  // cdw -> Reference.builder().display(cdw.getDisplay()).reference(cdw.getReference()).build());
-  // }
-  //
-  // List<Reference> healthcareService(Optional<String>  source) {
-  // return convertAll(
-  // ifPresent(source, Objects::nonNull),
-  // cdw -> Reference.builder().display(source.get()).reference(cdw.getReference()).build());
-  // }
 
   private CodeableConcept role(Optional<DatamartCoding> source) {
     if (source == null || source.get().code().get() == null) {
