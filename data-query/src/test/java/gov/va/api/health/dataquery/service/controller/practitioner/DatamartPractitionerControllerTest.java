@@ -76,43 +76,7 @@ public class DatamartPractitionerControllerTest {
             List.of(
                 Registration.builder().uuid(publicId).resourceIdentity(resourceIdentity).build()));
   }
-
-  //  private Multimap<String, Practitioner> populateData() {
-  //    var fhir = Fhir.create();
-  //    var datamart = Datamart.create();
-  //
-  //
-  //    var registrations = new ArrayList<Registration>(10);
-  //    for (int i = 0; i < 10; i++) {
-  //      String dateRecorded = "2005-01-1" + i;
-  //      String patientId = "p" + i % 2;
-  //      String cdwId = "cdw-" + i;
-  //      String publicId = "public" + i;
-  //      DatamartCondition dm = datamart.condition(cdwId, patientId, dateRecorded);
-  //      dm.category(Category.values()[i % 2]);
-  //      dm.clinicalStatus(ClinicalStatus.values()[i % 2]);
-  //      repository.save(asEntity(dm));
-  //      Condition condition = fhir.condition(publicId, patientId, dateRecorded);
-  //      condition.clinicalStatus(
-  //          dm.clinicalStatus() == ClinicalStatus.active
-  //              ? ClinicalStatusCode.active
-  //              : ClinicalStatusCode.resolved);
-  //      condition.category(
-  //          dm.category() == Category.problem ? fhir.problemCategory() :
-  // fhir.diagnosisCategory());
-  //      conditionsByPatient.put(patientId, condition);
-  //      ResourceIdentity resourceIdentity =
-  //
-  // ResourceIdentity.builder().system("CDW").resource("CONDITION").identifier(cdwId).build();
-  //      Registration registration =
-  //          Registration.builder().uuid(publicId).resourceIdentity(resourceIdentity).build();
-  //      registrations.add(registration);
-  //      when(ids.lookup(publicId)).thenReturn(List.of(resourceIdentity));
-  //    }
-  //    when(ids.register(Mockito.any())).thenReturn(registrations);
-  //    return conditionsByPatient;
-  //  }
-
+  
   @Test
   public void read() {
     DatamartPractitioner dm = Datamart.create().practitioner();
