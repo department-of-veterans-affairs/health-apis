@@ -4,14 +4,14 @@
   <parent>
     <groupId>gov.va.api.health</groupId>
     <artifactId>test-starter</artifactId>
-    <version>3.1.12</version>
+    <version>4.0.1</version>
     <relativePath/>
   </parent>
   <artifactId>data-query-tests</artifactId>
-  <version>2.0.163-SNAPSHOT</version>
+  <version>2.0.164-SNAPSHOT</version>
   <packaging>jar</packaging>
   <properties>
-    <argonaut-dstu2.version>2.0.20</argonaut-dstu2.version>
+    <argonaut-dstu2.version>2.0.21</argonaut-dstu2.version>
     <cdw-schemas.version>1.0.42</cdw-schemas.version>
     <groups>gov.va.api.health.sentinel.categories.Local</groups>
     <health-apis-ids.version>2.1.4</health-apis-ids.version>
@@ -183,7 +183,7 @@
                 <argument>-cp</argument>
                 <argument>mr-anderson.jar</argument>
                 <argument>-Dlogging.level.root=INFO</argument>
-                <argument>-Dloader.path=data-query-tests-${project.version}.jar</argument>
+                <argument>-Dloader.path=classes</argument>
                 <argument>-Dloader=gov.va.api.health.mranderson.Application</argument>
                 <argument>-Dmanagement.health.db.enabled=false</argument>
                 <argument>-Dspring.datasource.driver-class-name=gov.va.api.health.dataquery.tests.mockcdw.MockEntityReturnDriver</argument>
@@ -213,7 +213,6 @@
                 <argument>-cp</argument>
                 <argument>data-query.jar${path.separator}h2.jar</argument>
                 <argument>-Dlogging.level.root=INFO</argument>
-                <argument>-Dloader.path=data-query-tests-${project.version}.jar</argument>
                 <argument>-Dloader=gov.va.api.health.dataquery.service.Application</argument>
                 <argument>-Dargonaut.url=http://localhost:8090</argument>
                 <argument>-Didentityservice.url=http://localhost:8089</argument>
