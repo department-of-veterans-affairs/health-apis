@@ -1,1042 +1,1042 @@
 # GENERATED USING rebuild-datamart-index.sh
 entries:
-- file: ../../../../target/cdw/samples/AllInt103i1000001782544.xml
-  query: /AllergyIntolerance:1.03?identifier=10000020531
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/AllInt103i5555555555555.xml
-  query: /AllergyIntolerance:1.03?identifier=5555555555555
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/AllInt103p185601V825290.xml
-  query: /AllergyIntolerance:1.03?patient=111222333V000999
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/AllInt103p185601V825290pg0.xml
-  query: /AllergyIntolerance:1.03?patient=111222333V000999
-  page: 0
-  count: 15
-- file: ../../../../target/cdw/samples/AllInt103p185601V825290pg10000ct20.xml
-  query: /AllergyIntolerance:1.03?patient=111222333V000999
-  page: 10000
-  count: 20
-- file: ../../../../target/cdw/samples/AllInt103p185601V825290pg1ct0.xml
-  query: /AllergyIntolerance:1.03?patient=111222333V000999
-  page: 1
-  count: 0
-- file: ../../../../target/cdw/samples/AllInt103p185601V825290pg1ct2.xml
-  query: /AllergyIntolerance:1.03?patient=111222333V000999
-  page: 1
-  count: 2
-- file: ../../../../target/cdw/samples/AllInt103p185601V825290pg1ct21.xml
-  query: /AllergyIntolerance:1.03?patient=111222333V000999
-  page: 1
-  count: 21
-- file: ../../../../target/cdw/samples/AllInt103p185601V825290pg2ct2.xml
-  query: /AllergyIntolerance:1.03?patient=111222333V000999
-  page: 2
-  count: 2
-- file: ../../../../target/cdw/samples/App101i1200438317388.xml
-  query: /Appointment:1.02?identifier=1200438317388
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/App101i1400112078342.xml
-  query: /Appointment:1.02?identifier=1400112078342
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/App101i5555555555555.xml
-  query: /Appointment:1.02?identifier=5555555555555
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/App101p185601V825290.xml
-  query: /Appointment:1.02?patient=111222333V000999
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/App101p185601V825290pg0.xml
-  query: /Appointment:1.02?patient=111222333V000999
-  page: 0
-  count: 15
-- file: ../../../../target/cdw/samples/App101p185601V825290pg10000ct20.xml
-  query: /Appointment:1.02?patient=111222333V000999
-  page: 10000
-  count: 20
-- file: ../../../../target/cdw/samples/App101p185601V825290pg1ct0.xml
-  query: /Appointment:1.02?patient=111222333V000999
-  page: 1
-  count: 0
-- file: ../../../../target/cdw/samples/App101p185601V825290pg1ct2.xml
-  query: /Appointment:1.02?patient=111222333V000999
-  page: 1
-  count: 2
-- file: ../../../../target/cdw/samples/App101p185601V825290pg1ct21.xml
-  query: /Appointment:1.02?patient=111222333V000999
-  page: 1
-  count: 21
-- file: ../../../../target/cdw/samples/App101p185601V825290pg2ct2.xml
-  query: /Appointment:1.02?patient=111222333V000999
-  page: 2
-  count: 2
-- file: ../../../../target/cdw/samples/Con103i1000000289918P.xml
-  query: /Condition:1.03?identifier=1000000289918:P
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Con103i1400007575530P.xml
-  query: /Condition:1.03?identifier=1234567:D
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Con103i5555555555555P.xml
-  query: /Condition:1.03?identifier=5555555555555:P
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Con103p185601V825290.xml
-  query: /Condition:1.03?patient=111222333V000999
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Con103p185601V825290cathealthconcern.xml
-  query: /Condition:1.03?patient=111222333V000999&category=health-concern
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Con103p185601V825290catproblem.xml
-  query: /Condition:1.03?patient=111222333V000999&category=problem
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Con103p185601V825290clinicalstatusactive.xml
-  query: /Condition:1.03?patient=111222333V000999&clinicalstatus=active
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Con103p185601V825290pg0.xml
-  query: /Condition:1.03?patient=111222333V000999
-  page: 0
-  count: 15
-- file: ../../../../target/cdw/samples/Con103p185601V825290pg10000ct20.xml
-  query: /Condition:1.03?patient=111222333V000999
-  page: 10000
-  count: 20
-- file: ../../../../target/cdw/samples/Con103p185601V825290pg1ct0.xml
-  query: /Condition:1.03?patient=111222333V000999
-  page: 1
-  count: 0
-- file: ../../../../target/cdw/samples/Con103p185601V825290pg1ct2.xml
-  query: /Condition:1.03?patient=111222333V000999
-  page: 1
-  count: 2
-- file: ../../../../target/cdw/samples/Con103p185601V825290pg1ct21.xml
-  query: /Condition:1.03?patient=111222333V000999
-  page: 1
-  count: 21
-- file: ../../../../target/cdw/samples/Con103p185601V825290pg2ct2.xml
-  query: /Condition:1.03?patient=111222333V000999
-  page: 2
-  count: 2
-- file: ../../../../target/cdw/samples/DiaRep102i1000000031384L.xml
-  query: /DiagnosticReport:1.02?identifier=1400096309217:L
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/DiaRep102i5555555555555L.xml
-  query: /DiagnosticReport:1.02?identifier=5555555555555:L
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/DiaRep102p185601V825290.xml
-  query: /DiagnosticReport:1.02?patient=111222333V000999
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/DiaRep102p185601V825290catLAB.xml
-  query: /DiagnosticReport:1.02?patient=111222333V000999&category=LAB
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/DiaRep102p185601V825290catLABd19700101.xml
-  query: /DiagnosticReport:1.02?patient=111222333V000999&category=LAB&date=1970-01-01
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/DiaRep102p185601V825290catLABdeq19700101.xml
-  query: /DiagnosticReport:1.02?patient=111222333V000999&category=LAB&date=eq2013-03-21
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/DiaRep102p185601V825290catLABdge1970.xml
-  query: /DiagnosticReport:1.02?patient=111222333V000999&category=LAB&date=ge1970
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/DiaRep102p185601V825290catLABdge197001.xml
-  query: /DiagnosticReport:1.02?patient=111222333V000999&category=LAB&date=ge1970-01
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/DiaRep102p185601V825290catLABdge19700101.xml
-  query: /DiagnosticReport:1.02?patient=111222333V000999&category=LAB&date=ge1970-01-01
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/DiaRep102p185601V825290catLABdge19700101T07.xml
-  query: /DiagnosticReport:1.02?patient=111222333V000999&category=LAB&date=ge1970-01-01T07
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/DiaRep102p185601V825290catLABdge19700101T0700.xml
-  query: /DiagnosticReport:1.02?patient=111222333V000999&category=LAB&date=ge1970-01-01T07:00
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/DiaRep102p185601V825290catLABdge19700101T070000.xml
-  query: /DiagnosticReport:1.02?patient=111222333V000999&category=LAB&date=ge1970-01-01T07:00:00
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/DiaRep102p185601V825290catLABdge19700101T0700000500.xml
-  query: /DiagnosticReport:1.02?patient=111222333V000999&category=LAB&date=ge1970-01-01T07:00:00+05:00
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/DiaRep102p185601V825290catLABdge19700101T070000Z.xml
-  query: /DiagnosticReport:1.02?patient=111222333V000999&category=LAB&date=ge1970-01-01T07:00:00Z
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/DiaRep102p185601V825290catLABdgt19700101.xml
-  query: /DiagnosticReport:1.02?patient=111222333V000999&category=LAB&date=gt1970-01-01
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/DiaRep102p185601V825290catLABdgt19700101dlt20380101.xml
-  query: /DiagnosticReport:1.02?patient=111222333V000999&category=LAB&date=gt1970-01-01&date=lt2038-01-01
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/DiaRep102p185601V825290catLABdle20380119.xml
-  query: /DiagnosticReport:1.02?patient=111222333V000999&category=LAB&date=le2038-01-19
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/DiaRep102p185601V825290catLABdlt20380119.xml
-  query: /DiagnosticReport:1.02?patient=111222333V000999&category=LAB&date=lt2038-01-19
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/DiaRep102p185601V825290catLABdne19700101.xml
-  query: /DiagnosticReport:1.02?patient=111222333V000999&category=LAB&date=ne1970-01-01
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/DiaRep102p185601V825290catLABdsa19700101.xml
-  query: /DiagnosticReport:1.02?patient=111222333V000999&category=LAB&date=sa1970-01-01
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/DiaRep102p185601V825290code100008.xml
-  query: /DiagnosticReport:1.02?patient=111222333V000999&code=10000-8
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/DiaRep102p185601V825290code100008999999.xml
-  query: /DiagnosticReport:1.02?patient=111222333V000999&code=10000-8,99999-9
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/DiaRep102p185601V825290code100008diagnosticreportloinc2.xml
-  query: /DiagnosticReport:1.02?patient=111222333V000999&code=10000-8{diagnostic_report_loinc_2}
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/DiaRep102p185601V825290pg0.xml
-  query: /DiagnosticReport:1.02?patient=111222333V000999
-  page: 0
-  count: 15
-- file: ../../../../target/cdw/samples/DiaRep102p185601V825290pg10000ct20.xml
-  query: /DiagnosticReport:1.02?patient=111222333V000999
-  page: 10000
-  count: 20
-- file: ../../../../target/cdw/samples/DiaRep102p185601V825290pg1ct0.xml
-  query: /DiagnosticReport:1.02?patient=111222333V000999
-  page: 1
-  count: 0
-- file: ../../../../target/cdw/samples/DiaRep102p185601V825290pg1ct2.xml
-  query: /DiagnosticReport:1.02?patient=111222333V000999
-  page: 1
-  count: 2
-- file: ../../../../target/cdw/samples/DiaRep102p185601V825290pg1ct21.xml
-  query: /DiagnosticReport:1.02?patient=111222333V000999
-  page: 1
-  count: 21
-- file: ../../../../target/cdw/samples/DiaRep102p185601V825290pg2ct2.xml
-  query: /DiagnosticReport:1.02?patient=111222333V000999
-  page: 2
-  count: 2
-- file: ../../../../target/cdw/samples/Enc100i1200753214085.xml
-  query: /Encounter:1.00?identifier=1200753214085
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Enc100i1400065292107.xml
-  query: /Encounter:1.00?identifier=1400065292107
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Enc100i5555555555555.xml
-  query: /Encounter:1.00?identifier=5555555555555
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Enc100p185601V825290.xml
-  query: /Encounter:1.00?patient=111222333V000999
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Enc101i1200753214085.xml
-  query: /Encounter:1.02?identifier=1200753214085
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Enc101i1400065292107.xml
-  query: /Encounter:1.02?identifier=1400065292107
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Enc101i5555555555555.xml
-  query: /Encounter:1.02?identifier=5555555555555
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Enc101p185601V825290.xml
-  query: /Encounter:1.02?patient=111222333V000999
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Imm103i1000000043979.xml
-  query: /Immunization:1.03?identifier=12345678
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Imm103i5555555555555.xml
-  query: /Immunization:1.03?identifier=5555555555555
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Imm103p185601V825290.xml
-  query: /Immunization:1.03?patient=111222333V000999
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Imm103p185601V825290pg0.xml
-  query: /Immunization:1.03?patient=111222333V000999
-  page: 0
-  count: 15
-- file: ../../../../target/cdw/samples/Imm103p185601V825290pg10000ct20.xml
-  query: /Immunization:1.03?patient=111222333V000999
-  page: 10000
-  count: 20
-- file: ../../../../target/cdw/samples/Imm103p185601V825290pg1ct0.xml
-  query: /Immunization:1.03?patient=111222333V000999
-  page: 1
-  count: 0
-- file: ../../../../target/cdw/samples/Imm103p185601V825290pg1ct2.xml
-  query: /Immunization:1.03?patient=111222333V000999
-  page: 1
-  count: 2
-- file: ../../../../target/cdw/samples/Imm103p185601V825290pg1ct21.xml
-  query: /Immunization:1.03?patient=111222333V000999
-  page: 1
-  count: 21
-- file: ../../../../target/cdw/samples/Imm103p185601V825290pg2ct2.xml
-  query: /Immunization:1.03?patient=111222333V000999
-  page: 2
-  count: 2
-- file: ../../../../target/cdw/samples/Loc100i1400004093.xml
-  query: /Location:1.02?identifier=1400004093
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Loc100i166365L.xml
-  query: /Location:1.02?identifier=166365:L
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Loc100i5555555555.xml
-  query: /Location:1.02?identifier=5555555555
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Med101i212846.xml
-  query: /Medication:1.01?identifier=18
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Med101i555555.xml
-  query: /Medication:1.01?identifier=555555
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/MedDis100i1200738474343R.xml
-  query: /MedicationDispense:1.02?identifier=1200738474343:R
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/MedDis100p185601V825290.xml
-  query: /MedicationDispense:1.02?patient=111222333V000999
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/MedDis100p185601V825290pg0.xml
-  query: /MedicationDispense:1.02?patient=111222333V000999
-  page: 0
-  count: 15
-- file: ../../../../target/cdw/samples/MedDis100p185601V825290pg10000ct20.xml
-  query: /MedicationDispense:1.02?patient=111222333V000999
-  page: 10000
-  count: 20
-- file: ../../../../target/cdw/samples/MedDis100p185601V825290pg1ct0.xml
-  query: /MedicationDispense:1.02?patient=111222333V000999
-  page: 1
-  count: 0
-- file: ../../../../target/cdw/samples/MedDis100p185601V825290pg1ct21.xml
-  query: /MedicationDispense:1.02?patient=111222333V000999
-  page: 1
-  count: 21
-- file: ../../../../target/cdw/samples/MedDis100p185601V825290statusstoppedcompleted.xml
-  query: /MedicationDispense:1.02?patient=111222333V000999&status=stopped,completed
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/MedDis100p185601V825290typeFFUD.xml
-  query: /MedicationDispense:1.02?patient=111222333V000999&type=FF,UD
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/MedOrd103i1200389904206O.xml
-  query: /MedicationOrder:1.03?identifier=1400162277477:O
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/MedOrd103i5555555555555O.xml
-  query: /MedicationOrder:1.03?identifier=5555555555555:O
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/MedOrd103p185601V825290.xml
-  query: /MedicationOrder:1.03?patient=111222333V000999
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/MedOrd103p185601V825290pg0.xml
-  query: /MedicationOrder:1.03?patient=111222333V000999
-  page: 0
-  count: 15
-- file: ../../../../target/cdw/samples/MedOrd103p185601V825290pg10000ct20.xml
-  query: /MedicationOrder:1.03?patient=111222333V000999
-  page: 10000
-  count: 20
-- file: ../../../../target/cdw/samples/MedOrd103p185601V825290pg1ct0.xml
-  query: /MedicationOrder:1.03?patient=111222333V000999
-  page: 1
-  count: 0
-- file: ../../../../target/cdw/samples/MedOrd103p185601V825290pg1ct2.xml
-  query: /MedicationOrder:1.03?patient=111222333V000999
-  page: 1
-  count: 2
-- file: ../../../../target/cdw/samples/MedOrd103p185601V825290pg1ct21.xml
-  query: /MedicationOrder:1.03?patient=111222333V000999
-  page: 1
-  count: 21
-- file: ../../../../target/cdw/samples/MedOrd103p185601V825290pg2ct2.xml
-  query: /MedicationOrder:1.03?patient=111222333V000999
-  page: 2
-  count: 2
-- file: ../../../../target/cdw/samples/MedSta102i1000000398707.xml
-  query: /MedicationStatement:1.02?identifier=1000000398707
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/MedSta102i1400000182116.xml
-  query: /MedicationStatement:1.02?identifier=800000000707
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/MedSta102i5555555555555.xml
-  query: /MedicationStatement:1.02?identifier=5555555555555
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/MedSta102p185601V825290.xml
-  query: /MedicationStatement:1.02?patient=111222333V000999
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/MedSta102p185601V825290pg0.xml
-  query: /MedicationStatement:1.02?patient=111222333V000999
-  page: 0
-  count: 15
-- file: ../../../../target/cdw/samples/MedSta102p185601V825290pg10000ct20.xml
-  query: /MedicationStatement:1.02?patient=111222333V000999
-  page: 10000
-  count: 20
-- file: ../../../../target/cdw/samples/MedSta102p185601V825290pg1ct0.xml
-  query: /MedicationStatement:1.02?patient=111222333V000999
-  page: 1
-  count: 0
-- file: ../../../../target/cdw/samples/MedSta102p185601V825290pg1ct2.xml
-  query: /MedicationStatement:1.02?patient=111222333V000999
-  page: 1
-  count: 2
-- file: ../../../../target/cdw/samples/MedSta102p185601V825290pg1ct21.xml
-  query: /MedicationStatement:1.02?patient=111222333V000999
-  page: 1
-  count: 21
-- file: ../../../../target/cdw/samples/MedSta102p185601V825290pg2ct2.xml
-  query: /MedicationStatement:1.02?patient=111222333V000999
-  page: 2
-  count: 2
-- file: ../../../../target/cdw/samples/Obs102catlaboratoryd20150415p185601V825290.xml
-  query: /Observation:1.02?category=laboratory&date=2015-04-15&patient=111222333V000999
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Obs102catlaboratorydgt19700101dlt20380119p185601V825290.xml
-  query: /Observation:1.02?category=laboratory&date=gt1970-01-01&date=lt2038-01-19&patient=111222333V000999
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Obs102code7773p185601V825290.xml
-  query: /Observation:1.02?code=777-3&patient=111222333V000999
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Obs102i1201051417263V.xml
-  query: /Observation:1.02?identifier=1201472002950:V
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Obs102i1201051417263V.xml
-  query: /Observation:1.02?identifier=1201472002950:V
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Obs102i5555555555555V.xml
-  query: /Observation:1.02?identifier=5555555555555:V
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Obs102p185601V825290.xml
-  query: /Observation:1.02?patient=111222333V000999
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Obs102p185601V825290catlaboratory.xml
-  query: /Observation:1.02?patient=111222333V000999&category=laboratory
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Obs102p185601V825290catlaboratoryvitalsigns.xml
-  query: /Observation:1.02?patient=111222333V000999&category=laboratory,vital-signs
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Obs102p185601V825290catvitalsigns.xml
-  query: /Observation:1.02?patient=111222333V000999&category=vital-signs
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Obs102p185601V825290pg0.xml
-  query: /Observation:1.02?patient=111222333V000999
-  page: 0
-  count: 15
-- file: ../../../../target/cdw/samples/Obs102p185601V825290pg10000ct20.xml
-  query: /Observation:1.02?patient=111222333V000999
-  page: 10000
-  count: 20
-- file: ../../../../target/cdw/samples/Obs102p185601V825290pg1ct0.xml
-  query: /Observation:1.02?patient=111222333V000999
-  page: 1
-  count: 0
-- file: ../../../../target/cdw/samples/Obs102p185601V825290pg1ct2.xml
-  query: /Observation:1.02?patient=111222333V000999
-  page: 1
-  count: 2
-- file: ../../../../target/cdw/samples/Obs102p185601V825290pg1ct21.xml
-  query: /Observation:1.02?patient=111222333V000999
-  page: 1
-  count: 21
-- file: ../../../../target/cdw/samples/Obs102p185601V825290pg2ct2.xml
-  query: /Observation:1.02?patient=111222333V000999
-  page: 2
-  count: 2
-- file: ../../../../target/cdw/samples/Obs103catlaboratoryd20150415p185601V825290.xml
-  query: /Observation:1.03?category=laboratory&date=2015-04-15&patient=111222333V000999
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Obs103catlaboratorydgt19700101dlt20380119p185601V825290.xml
-  query: /Observation:1.03?category=laboratory&date=gt1970-01-01&date=lt2038-01-19&patient=111222333V000999
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Obs103code7773p185601V825290.xml
-  query: /Observation:1.03?code=777-3&patient=111222333V000999
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Obs103i1201051417263V.xml
-  query: /Observation:1.03?identifier=1201472002950:V
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Obs103i1201051417263V.xml
-  query: /Observation:1.03?identifier=1201472002950:V
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Obs103i5555555555555V.xml
-  query: /Observation:1.03?identifier=5555555555555:V
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Obs103p185601V825290.xml
-  query: /Observation:1.03?patient=111222333V000999
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Obs103p185601V825290catlaboratory.xml
-  query: /Observation:1.03?patient=111222333V000999&category=laboratory
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Obs103p185601V825290catlaboratoryvitalsigns.xml
-  query: /Observation:1.03?patient=111222333V000999&category=laboratory,vital-signs
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Obs103p185601V825290catvitalsigns.xml
-  query: /Observation:1.03?patient=111222333V000999&category=vital-signs
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Obs103p185601V825290pg0.xml
-  query: /Observation:1.03?patient=111222333V000999
-  page: 0
-  count: 15
-- file: ../../../../target/cdw/samples/Obs103p185601V825290pg10000ct20.xml
-  query: /Observation:1.03?patient=111222333V000999
-  page: 10000
-  count: 20
-- file: ../../../../target/cdw/samples/Obs103p185601V825290pg1ct0.xml
-  query: /Observation:1.03?patient=111222333V000999
-  page: 1
-  count: 0
-- file: ../../../../target/cdw/samples/Obs103p185601V825290pg1ct2.xml
-  query: /Observation:1.03?patient=111222333V000999
-  page: 1
-  count: 2
-- file: ../../../../target/cdw/samples/Obs103p185601V825290pg1ct21.xml
-  query: /Observation:1.03?patient=111222333V000999
-  page: 1
-  count: 21
-- file: ../../../../target/cdw/samples/Obs103p185601V825290pg2ct2.xml
-  query: /Observation:1.03?patient=111222333V000999
-  page: 2
-  count: 2
-- file: ../../../../target/cdw/samples/Obs104catlaboratoryd20150415p185601V825290.xml
-  query: /Observation:1.04?category=laboratory&date=2015-04-15&patient=111222333V000999
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Obs104catlaboratorydgt19700101dlt20380119p185601V825290.xml
-  query: /Observation:1.04?category=laboratory&date=gt1970-01-01&date=lt2038-01-19&patient=111222333V000999
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Obs104code7773p185601V825290.xml
-  query: /Observation:1.04?code=777-3&patient=111222333V000999
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Obs104i1201051417263V.xml
-  query: /Observation:1.04?identifier=1201472002950:V
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Obs104i1201051417263V.xml
-  query: /Observation:1.04?identifier=1201472002950:V
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Obs104i5555555555555V.xml
-  query: /Observation:1.04?identifier=5555555555555:V
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Obs104p185601V825290.xml
-  query: /Observation:1.04?patient=111222333V000999
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Obs104p185601V825290catlaboratory.xml
-  query: /Observation:1.04?patient=111222333V000999&category=laboratory
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Obs104p185601V825290catlaboratoryvitalsigns.xml
-  query: /Observation:1.04?patient=111222333V000999&category=laboratory,vital-signs
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Obs104p185601V825290catvitalsigns.xml
-  query: /Observation:1.04?patient=111222333V000999&category=vital-signs
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Obs104p185601V825290pg0.xml
-  query: /Observation:1.04?patient=111222333V000999
-  page: 0
-  count: 15
-- file: ../../../../target/cdw/samples/Obs104p185601V825290pg10000ct20.xml
-  query: /Observation:1.04?patient=111222333V000999
-  page: 10000
-  count: 20
-- file: ../../../../target/cdw/samples/Obs104p185601V825290pg1ct0.xml
-  query: /Observation:1.04?patient=111222333V000999
-  page: 1
-  count: 0
-- file: ../../../../target/cdw/samples/Obs104p185601V825290pg1ct2.xml
-  query: /Observation:1.04?patient=111222333V000999
-  page: 1
-  count: 2
-- file: ../../../../target/cdw/samples/Obs104p185601V825290pg1ct21.xml
-  query: /Observation:1.04?patient=111222333V000999
-  page: 1
-  count: 21
-- file: ../../../../target/cdw/samples/Obs104p185601V825290pg2ct2.xml
-  query: /Observation:1.04?patient=111222333V000999
-  page: 2
-  count: 2
-- file: ../../../../target/cdw/samples/Org100addressstatetx.xml
-  query: /Organization:1.02?address-state=tx
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Org100citygalveston.xml
-  query: /Organization:1.02?city=galveston
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Org100i1000025431C.xml
-  query: /Organization:1.02?identifier=1000025431:C
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Org100i5555555555555.xml
-  query: /Organization:1.02?identifier=5555555555555
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Org100nametexas.xml
-  query: /Organization:1.02?name=texas
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Org100typeins.xml
-  query: /Organization:1.02?type=ins
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Org100typeinspg0.xml
-  query: /Organization:1.02?type=ins
-  page: 0
-  count: 15
-- file: ../../../../target/cdw/samples/Org100typeinspg1ct0.xml
-  query: /Organization:1.02?type=ins
-  page: 1
-  count: 0
-- file: ../../../../target/cdw/samples/Org100typeinspg1ct21.xml
-  query: /Organization:1.02?type=ins
-  page: 1
-  count: 21
-- file: ../../../../target/cdw/samples/Org100typeinspg999999ct20.xml
-  query: /Organization:1.02?type=ins&count=20
-  page: 999999
-  count: 15
-- file: ../../../../target/cdw/samples/Org100typeprov.xml
-  query: /Organization:1.02?type=prov
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Org100typeprovaddresscitytexascity.xml
-  query: /Organization:1.02?type=prov&address-city=texas city
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Org100typeprovaddresspostalCode775912134.xml
-  query: /Organization:1.02?type=prov&address-postalCode=77591-2134
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Pat103familyVETERANgendermale.xml
-  query: /Patient:1.03?family=Olson653&gender=male
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Pat103givenJOHNQgendermale.xml
-  query: /Patient:1.03?given=Conrad619&gender=male
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Pat103i185601V825290.xml
-  query: /Patient:1.03?identifier=111222333V000999
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Pat103ihttphl7orgfhirsidusssn000000131.xml
-  query: /Patient:1.03?identifier=http://hl7.org/fhir/sid/us-ssn|000000131
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Pat103nameVETERANJOHNbirthd19700101.xml
-  query: /Patient:1.03?name=Olson653, Conrad619&birthdate=1948-06-28
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Pat103nameVETERANJOHNgendermale.xml
-  query: /Patient:1.03?name=Olson653, Conrad619&gender=male
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Pat103nameVETERANbirthd19700101.xml
-  query: /Patient:1.03?name=VETERAN&birthdate=1948-06-28
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Pra100i10092125.xml
-  query: /Practitioner:1.02?identifier=10092125
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Pra100i5555555555555.xml
-  query: /Practitioner:1.02?identifier=5555555555555
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Pra100p185601V825290.xml
-  query: /Practitioner:1.02?patient=111222333V000999
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Pra100p185601V825290pg0.xml
-  query: /Practitioner:1.02?patient=111222333V000999
-  page: 0
-  count: 15
-- file: ../../../../target/cdw/samples/Pra100p185601V825290pg10000ct20.xml
-  query: /Practitioner:1.02?patient=111222333V000999
-  page: 10000
-  count: 20
-- file: ../../../../target/cdw/samples/Pra100p185601V825290pg1ct0.xml
-  query: /Practitioner:1.02?patient=111222333V000999
-  page: 1
-  count: 0
-- file: ../../../../target/cdw/samples/Pra100p185601V825290pg1ct21.xml
-  query: /Practitioner:1.02?patient=111222333V000999
-  page: 1
-  count: 21
-- file: ../../../../target/cdw/samples/Pro101i1400000140034.xml
-  query: /Procedure:1.01?identifier=1000001259996
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Pro101i5555555555555.xml
-  query: /Procedure:1.01?identifier=5555555555555
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Pro101p185601V825290.xml
-  query: /Procedure:1.01?patient=111222333V000999
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Pro101p185601V825290dge2009.xml
-  query: /Procedure:1.01?patient=111222333V000999&date=ge2009
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Pro101p185601V825290dge2009dle2010.xml
-  query: /Procedure:1.01?patient=111222333V000999&date=ge2009&date=le2010
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Pro101p185601V825290pg0.xml
-  query: /Procedure:1.01?patient=111222333V000999
-  page: 0
-  count: 15
-- file: ../../../../target/cdw/samples/Pro101p185601V825290pg10000ct20.xml
-  query: /Procedure:1.01?patient=111222333V000999
-  page: 10000
-  count: 20
-- file: ../../../../target/cdw/samples/Pro101p185601V825290pg1ct0.xml
-  query: /Procedure:1.01?patient=111222333V000999
-  page: 1
-  count: 0
-- file: ../../../../target/cdw/samples/Pro101p185601V825290pg1ct2.xml
-  query: /Procedure:1.01?patient=111222333V000999
-  page: 1
-  count: 2
-- file: ../../../../target/cdw/samples/Pro101p185601V825290pg1ct21.xml
-  query: /Procedure:1.01?patient=111222333V000999
-  page: 1
-  count: 21
-- file: ../../../../target/cdw/samples/Pro101p185601V825290pg2ct2.xml
-  query: /Procedure:1.01?patient=111222333V000999
-  page: 2
-  count: 2
-- file: ./NoResults.xml
-  query: /DiagnosticReport:1.02?identifier=5555555555555-mra-it
-  page: 1
-  count: 15
-- file: ./InvalidQueryParams.xml
-  query: /Patient:1.03?stuff=missing
-  page: 1
-  count: 15
-- file: ./UnknownResource.xml
-  query: /Patient:9.99?identifier=111222333V000999
-  page: 1
-  count: 15
-  # Immunization aliases
-- file: ../../../../target/cdw/samples/Imm103p185601V825290.xml
-  query: /Immunization:1.03?patient=111222333V000999
-  page: 1
-  count: 20
-  # Patient aliases
-- file: ../../../../target/cdw/samples/Pat103nameVETERANbirthd19700101.xml
-  query: /Patient:1.03?name=Olson653, Conrad619&birthdate=1948-06-28
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Pat103nameVETERANbirthd19700101.xml
-  query: /Patient:1.03?name=Olson653, Conrad619&birthdate=1948-06-28
-  page: 1
-  count: 0
-- file: ../../../../target/cdw/samples/Pat103nameVETERANbirthd19700101.xml
-  query: /Patient:1.03?name=Olson653, Conrad619&birthdate=1948-06-28
-  page: 1
-  count: 20
-- file: ../../../../target/cdw/samples/Pat103nameVETERANbirthd19700101.xml
-  query: /Patient:1.03?family=Olson653&gender=male
-  page: 1
-  count: 0
-- file: ../../../../target/cdw/samples/Pat103nameVETERANbirthd19700101.xml
-  query: /Patient:1.03?family=Olson653&gender=male
-  page: 1
-  count: 20
-- file: ../../../../target/cdw/samples/Pat103nameVETERANbirthd19700101.xml
-  query: /Patient:1.03?given=Conrad619&gender=male
-  page: 1
-  count: 0
-- file: ../../../../target/cdw/samples/Pat103nameVETERANbirthd19700101.xml
-  query: /Patient:1.03?given=Conrad619&gender=male
-  page: 1
-  count: 20
-- file: ../../../../target/cdw/samples/Pat103nameVETERANbirthd19700101.xml
-  query: /Patient:1.03?name=Olson653, Conrad619&gender=male
-  page: 1
-  count: 0
-- file: ../../../../target/cdw/samples/Pat103nameVETERANbirthd19700101.xml
-  query: /Patient:1.03?name=Olson653, Conrad619&gender=male
-  page: 1
-  count: 20
-  # Observation aliases
-- file: ../../../../target/cdw/samples/Obs104p185601V825290catlaboratory.xml
-  query: /Observation:1.04?code=72166-2&patient=111222333V000999
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Obs104p185601V825290catlaboratory.xml
-  query: /Observation:1.04?code=72166-2,777-3&patient=111222333V000999
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Obs104p185601V825290catlaboratory.xml
-  query: /Observation:1.04?code=72166-2,99999-9&patient=111222333V000999
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Obs104p185601V825290catlaboratory.xml
-  query: /Observation:1.04?category=laboratory&date=gt1970-01-01&date=lt2038-01-19&patient=111222333V000999
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Obs104p185601V825290catlaboratory.xml
-  query: /Observation:1.04?category=laboratory&date=2015-04-15&patient=111222333V000999
-  page: 1
-  count: 15
-  # Condition alias
-- file: ../../../../target/cdw/samples/Con103p185601V825290pg2ct2.xml
-  query: /Condition:1.03?identifier=1234567:D
-  page: 1
-  count: 1
-- file: ../../../../target/cdw/samples/Con103p185601V825290pg2ct2.xml
-  query: /Condition:1.03?patient=111222333V000999&category=problem
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Con103p185601V825290pg2ct2.xml
-  query: /Condition:1.03?patient=111222333V000999&category=health-concern
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Con103p185601V825290pg2ct2.xml
-  query: /Condition:1.03?patient=111222333V000999&clinicalstatus=active
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Con103p185601V825290pg2ct2.xml
-  query: /Condition:1.03?patient=111222333V000999&clinicalstatus=active,resolved
-  page: 1
-  count: 15
-  # Encounter alias
-- file: ../../../../target/cdw/samples/Enc101p185601V825290.xml
-  query: /Encounter:1.02?identifier=1200753214085
-  page: 1
-  count: 1
-- file: ../../../../target/cdw/samples/Enc101p185601V825290.xml
-  query: /Encounter:1.02?patient=111222333V000999
-  page: 1
-  count: 1
-- file: ../../../../target/cdw/samples/Enc101p185601V825290.xml
-  query: /Encounter:1.02?_id=1200753214085
-  page: 1
-  count: 1
-  # MedicationStatement aliases
-- file: ../../../../target/cdw/samples/MedSta102p185601V825290.xml
-  query: /MedicationStatement:1.02?identifier=800000000707
-  page: 1
-  count: 1
-- file: ../../../../target/cdw/samples/MedSta102p185601V825290.xml
-  query: /MedicationStatement:1.02?_id=800000000707
-  page: 1
-  count: 1
-- file: ../../../../target/cdw/samples/MedSta102p185601V825290.xml
-  query: /MedicationStatement:1.02?patient=111222333V000999&_include=MedicationStatement:medication
-  page: 1
-  count: 1
-  # DiagnosticReport aliases
-- file: ../../../../target/cdw/samples/DiaRep102p185601V825290catLABdgt19700101dlt20380101.xml
-  query: /DiagnosticReport:1.02?code=10000-8,10001-6&patient=111222333V000999
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/DiaRep102p185601V825290catLABdgt19700101dlt20380101.xml
-  query: /DiagnosticReport:1.02?patient=111222333V000999&category=LAB
-  page: 1
-  count: 21
-- file: ../../../../target/cdw/samples/DiaRep102p185601V825290catLABdgt19700101dlt20380101.xml
-  query: /DiagnosticReport:1.02?patient=111222333V000999&category=LAB
-  page: 1
-  count: 20
-  # Alias the 1.03 Allergy Intolerance samples as 1.04 to make sure they are tested.
-  # The schema was unchanged from 1.03 and new schemas and new samples were not generated.
-- file: ../../../../target/cdw/samples/AllInt103i1000001782544.xml
-  query: /AllergyIntolerance:1.04?identifier=10000020531
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/AllInt103i5555555555555.xml
-  query: /AllergyIntolerance:1.04?identifier=5555555555555
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/AllInt103p185601V825290.xml
-  query: /AllergyIntolerance:1.04?patient=111222333V000999
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/AllInt103p185601V825290pg0.xml
-  query: /AllergyIntolerance:1.04?patient=111222333V000999
-  page: 0
-  count: 15
-- file: ../../../../target/cdw/samples/AllInt103p185601V825290pg10000ct20.xml
-  query: /AllergyIntolerance:1.04?patient=111222333V000999
-  page: 10000
-  count: 20
-- file: ../../../../target/cdw/samples/AllInt103p185601V825290pg1ct0.xml
-  query: /AllergyIntolerance:1.04?patient=111222333V000999
-  page: 1
-  count: 0
-- file: ../../../../target/cdw/samples/AllInt103p185601V825290pg1ct2.xml
-  query: /AllergyIntolerance:1.04?patient=111222333V000999
-  page: 1
-  count: 2
-- file: ../../../../target/cdw/samples/AllInt103p185601V825290pg1ct21.xml
-  query: /AllergyIntolerance:1.04?patient=111222333V000999
-  page: 1
-  count: 20
-- file: ../../../../target/cdw/samples/AllInt103p185601V825290pg2ct2.xml
-  query: /AllergyIntolerance:1.04?patient=111222333V000999
-   # Medication Aliases
-- file: ../../../../target/cdw/samples/Med101i212846.xml
-  query: /Medication:1.01?identifier=18
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/Med101i555555.xml
-  query: /Medication:1.01?identifier=555555
-  page: 1
-  count: 15
-  # Alias the 1.03 MedicationOrder samples as 1.04 to make sure they are tested.
-  # The schema was unchanged from 1.03 and new schemas and new samples were not generated.
-- file: ../../../../target/cdw/samples/MedOrd103i1200389904206O.xml
-  query: /MedicationOrder:1.04?identifier=1400162277477:O
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/MedOrd103i5555555555555O.xml
-  query: /MedicationOrder:1.04?identifier=5555555555555:O
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/MedOrd103p185601V825290.xml
-  query: /MedicationOrder:1.04?patient=111222333V000999
-  page: 1
-  count: 15
-- file: ../../../../target/cdw/samples/MedOrd103p185601V825290pg0.xml
-  query: /MedicationOrder:1.04?patient=111222333V000999
-  page: 0
-  count: 15
-- file: ../../../../target/cdw/samples/MedOrd103p185601V825290pg10000ct20.xml
-  query: /MedicationOrder:1.04?patient=111222333V000999
-  page: 10000
-  count: 20
-- file: ../../../../target/cdw/samples/MedOrd103p185601V825290pg1ct0.xml
-  query: /MedicationOrder:1.04?patient=111222333V000999
-  page: 1
-  count: 0
-- file: ../../../../target/cdw/samples/MedOrd103p185601V825290pg1ct2.xml
-  query: /MedicationOrder:1.04?patient=111222333V000999
-  page: 1
-  count: 2
-- file: ../../../../target/cdw/samples/MedOrd103p185601V825290pg1ct21.xml
-  query: /MedicationOrder:1.04?patient=111222333V000999
-  page: 1
-  count: 20
-- file: ../../../../target/cdw/samples/MedOrd103p185601V825290pg2ct2.xml
-  query: /MedicationOrder:1.04?patient=111222333V000999
-  page: 2
-  count: 2
-  # AllergyIntolerance 1.05 needs sample data, but the sandbox database is hosed...
-  # We are doing some sad-magic hackery to provide samples for data-query-tests
-- file: AllergyIntoleranceV1.05/AllInt105p1000001782544.xml
-  query: /AllergyIntolerance:1.05?identifier=10000020531
-  page: 1
-  count: 15
-- file:  AllergyIntoleranceV1.05/AllInt105p5555555555555.xml
-  query: /AllergyIntolerance:1.05?identifier=5555555555555
-  page: 1
-  count: 15
-- file: AllergyIntoleranceV1.05/AllInt105p185601V825290pg1ct0.xml
-  query: /AllergyIntolerance:1.05?patient=111222333V000999
-  page: 1
-  count: 0
-- file: AllergyIntoleranceV1.05/AllInt105p185601V825290pg1ct21.xml
-  query: /AllergyIntolerance:1.05?patient=111222333V000999
-  page: 1
-  count: 20
-- file: AllergyIntoleranceV1.05/AllInt105p185601V825290pg0.xml
-  query: /AllergyIntolerance:1.05?patient=111222333V000999
-  page: 0
-  count: 15
-- file: AllergyIntoleranceV1.05/AllInt105p185601V825290.xml
-  query: /AllergyIntolerance:1.05?patient=111222333V000999
-  page: 1
-  count: 15
-- file: AllergyIntoleranceV1.05/AllInt105p185601V825290pg1ct2.xml
-  query: /AllergyIntolerance:1.05?patient=111222333V000999
-  page: 1
-  count: 2
-- file: AllergyIntoleranceV1.05/AllInt105p185601V825290pg10000ct20.xml
-  query: /AllergyIntolerance:1.05?patient=111222333V000999
-  page: 10000
-  count: 20
-- file: AllergyIntoleranceV1.05/AllInt105p185601V825290pg2ct2.xml
-  query: /AllergyIntolerance:1.05?patient=111222333V000999
-  page: 2
-  count: 2
+  - file: ../../../../target/cdw/samples/AllInt103i1000001782544.xml
+    query: /AllergyIntolerance:1.03?identifier=10000020531
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/AllInt103i5555555555555.xml
+    query: /AllergyIntolerance:1.03?identifier=5555555555555
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/AllInt103p185601V825290.xml
+    query: /AllergyIntolerance:1.03?patient=43000199
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/AllInt103p185601V825290pg0.xml
+    query: /AllergyIntolerance:1.03?patient=43000199
+    page: 0
+    count: 15
+  - file: ../../../../target/cdw/samples/AllInt103p185601V825290pg10000ct20.xml
+    query: /AllergyIntolerance:1.03?patient=43000199
+    page: 10000
+    count: 20
+  - file: ../../../../target/cdw/samples/AllInt103p185601V825290pg1ct0.xml
+    query: /AllergyIntolerance:1.03?patient=43000199
+    page: 1
+    count: 0
+  - file: ../../../../target/cdw/samples/AllInt103p185601V825290pg1ct2.xml
+    query: /AllergyIntolerance:1.03?patient=43000199
+    page: 1
+    count: 2
+  - file: ../../../../target/cdw/samples/AllInt103p185601V825290pg1ct21.xml
+    query: /AllergyIntolerance:1.03?patient=43000199
+    page: 1
+    count: 21
+  - file: ../../../../target/cdw/samples/AllInt103p185601V825290pg2ct2.xml
+    query: /AllergyIntolerance:1.03?patient=43000199
+    page: 2
+    count: 2
+  - file: ../../../../target/cdw/samples/App101i1200438317388.xml
+    query: /Appointment:1.02?identifier=1200438317388
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/App101i1400112078342.xml
+    query: /Appointment:1.02?identifier=1400112078342
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/App101i5555555555555.xml
+    query: /Appointment:1.02?identifier=5555555555555
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/App101p185601V825290.xml
+    query: /Appointment:1.02?patient=43000199
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/App101p185601V825290pg0.xml
+    query: /Appointment:1.02?patient=43000199
+    page: 0
+    count: 15
+  - file: ../../../../target/cdw/samples/App101p185601V825290pg10000ct20.xml
+    query: /Appointment:1.02?patient=43000199
+    page: 10000
+    count: 20
+  - file: ../../../../target/cdw/samples/App101p185601V825290pg1ct0.xml
+    query: /Appointment:1.02?patient=43000199
+    page: 1
+    count: 0
+  - file: ../../../../target/cdw/samples/App101p185601V825290pg1ct2.xml
+    query: /Appointment:1.02?patient=43000199
+    page: 1
+    count: 2
+  - file: ../../../../target/cdw/samples/App101p185601V825290pg1ct21.xml
+    query: /Appointment:1.02?patient=43000199
+    page: 1
+    count: 21
+  - file: ../../../../target/cdw/samples/App101p185601V825290pg2ct2.xml
+    query: /Appointment:1.02?patient=43000199
+    page: 2
+    count: 2
+  - file: ../../../../target/cdw/samples/Con103i1000000289918P.xml
+    query: /Condition:1.03?identifier=1000000289918:P
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Con103i1400007575530P.xml
+    query: /Condition:1.03?identifier=1234567:D
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Con103i5555555555555P.xml
+    query: /Condition:1.03?identifier=5555555555555:P
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Con103p185601V825290.xml
+    query: /Condition:1.03?patient=43000199
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Con103p185601V825290cathealthconcern.xml
+    query: /Condition:1.03?patient=43000199&category=health-concern
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Con103p185601V825290catproblem.xml
+    query: /Condition:1.03?patient=43000199&category=problem
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Con103p185601V825290clinicalstatusactive.xml
+    query: /Condition:1.03?patient=43000199&clinicalstatus=active
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Con103p185601V825290pg0.xml
+    query: /Condition:1.03?patient=43000199
+    page: 0
+    count: 15
+  - file: ../../../../target/cdw/samples/Con103p185601V825290pg10000ct20.xml
+    query: /Condition:1.03?patient=43000199
+    page: 10000
+    count: 20
+  - file: ../../../../target/cdw/samples/Con103p185601V825290pg1ct0.xml
+    query: /Condition:1.03?patient=43000199
+    page: 1
+    count: 0
+  - file: ../../../../target/cdw/samples/Con103p185601V825290pg1ct2.xml
+    query: /Condition:1.03?patient=43000199
+    page: 1
+    count: 2
+  - file: ../../../../target/cdw/samples/Con103p185601V825290pg1ct21.xml
+    query: /Condition:1.03?patient=43000199
+    page: 1
+    count: 21
+  - file: ../../../../target/cdw/samples/Con103p185601V825290pg2ct2.xml
+    query: /Condition:1.03?patient=43000199
+    page: 2
+    count: 2
+  - file: ../../../../target/cdw/samples/DiaRep102i1000000031384L.xml
+    query: /DiagnosticReport:1.02?identifier=1400096309217:L
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/DiaRep102i5555555555555L.xml
+    query: /DiagnosticReport:1.02?identifier=5555555555555:L
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/DiaRep102p185601V825290.xml
+    query: /DiagnosticReport:1.02?patient=43000199
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/DiaRep102p185601V825290catLAB.xml
+    query: /DiagnosticReport:1.02?patient=43000199&category=LAB
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/DiaRep102p185601V825290catLABd19700101.xml
+    query: /DiagnosticReport:1.02?patient=43000199&category=LAB&date=1970-01-01
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/DiaRep102p185601V825290catLABdeq19700101.xml
+    query: /DiagnosticReport:1.02?patient=43000199&category=LAB&date=eq2013-03-21
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/DiaRep102p185601V825290catLABdge1970.xml
+    query: /DiagnosticReport:1.02?patient=43000199&category=LAB&date=ge1970
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/DiaRep102p185601V825290catLABdge197001.xml
+    query: /DiagnosticReport:1.02?patient=43000199&category=LAB&date=ge1970-01
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/DiaRep102p185601V825290catLABdge19700101.xml
+    query: /DiagnosticReport:1.02?patient=43000199&category=LAB&date=ge1970-01-01
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/DiaRep102p185601V825290catLABdge19700101T07.xml
+    query: /DiagnosticReport:1.02?patient=43000199&category=LAB&date=ge1970-01-01T07
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/DiaRep102p185601V825290catLABdge19700101T0700.xml
+    query: /DiagnosticReport:1.02?patient=43000199&category=LAB&date=ge1970-01-01T07:00
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/DiaRep102p185601V825290catLABdge19700101T070000.xml
+    query: /DiagnosticReport:1.02?patient=43000199&category=LAB&date=ge1970-01-01T07:00:00
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/DiaRep102p185601V825290catLABdge19700101T0700000500.xml
+    query: /DiagnosticReport:1.02?patient=43000199&category=LAB&date=ge1970-01-01T07:00:00+05:00
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/DiaRep102p185601V825290catLABdge19700101T070000Z.xml
+    query: /DiagnosticReport:1.02?patient=43000199&category=LAB&date=ge1970-01-01T07:00:00Z
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/DiaRep102p185601V825290catLABdgt19700101.xml
+    query: /DiagnosticReport:1.02?patient=43000199&category=LAB&date=gt1970-01-01
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/DiaRep102p185601V825290catLABdgt19700101dlt20380101.xml
+    query: /DiagnosticReport:1.02?patient=43000199&category=LAB&date=gt1970-01-01&date=lt2038-01-01
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/DiaRep102p185601V825290catLABdle20380119.xml
+    query: /DiagnosticReport:1.02?patient=43000199&category=LAB&date=le2038-01-19
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/DiaRep102p185601V825290catLABdlt20380119.xml
+    query: /DiagnosticReport:1.02?patient=43000199&category=LAB&date=lt2038-01-19
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/DiaRep102p185601V825290catLABdne19700101.xml
+    query: /DiagnosticReport:1.02?patient=43000199&category=LAB&date=ne1970-01-01
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/DiaRep102p185601V825290catLABdsa19700101.xml
+    query: /DiagnosticReport:1.02?patient=43000199&category=LAB&date=sa1970-01-01
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/DiaRep102p185601V825290code100008.xml
+    query: /DiagnosticReport:1.02?patient=43000199&code=10000-8
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/DiaRep102p185601V825290code100008999999.xml
+    query: /DiagnosticReport:1.02?patient=43000199&code=10000-8,99999-9
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/DiaRep102p185601V825290code100008diagnosticreportloinc2.xml
+    query: /DiagnosticReport:1.02?patient=43000199&code=10000-8{diagnostic_report_loinc_2}
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/DiaRep102p185601V825290pg0.xml
+    query: /DiagnosticReport:1.02?patient=43000199
+    page: 0
+    count: 15
+  - file: ../../../../target/cdw/samples/DiaRep102p185601V825290pg10000ct20.xml
+    query: /DiagnosticReport:1.02?patient=43000199
+    page: 10000
+    count: 20
+  - file: ../../../../target/cdw/samples/DiaRep102p185601V825290pg1ct0.xml
+    query: /DiagnosticReport:1.02?patient=43000199
+    page: 1
+    count: 0
+  - file: ../../../../target/cdw/samples/DiaRep102p185601V825290pg1ct2.xml
+    query: /DiagnosticReport:1.02?patient=43000199
+    page: 1
+    count: 2
+  - file: ../../../../target/cdw/samples/DiaRep102p185601V825290pg1ct21.xml
+    query: /DiagnosticReport:1.02?patient=43000199
+    page: 1
+    count: 21
+  - file: ../../../../target/cdw/samples/DiaRep102p185601V825290pg2ct2.xml
+    query: /DiagnosticReport:1.02?patient=43000199
+    page: 2
+    count: 2
+  - file: ../../../../target/cdw/samples/Enc100i1200753214085.xml
+    query: /Encounter:1.00?identifier=1200753214085
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Enc100i1400065292107.xml
+    query: /Encounter:1.00?identifier=1400065292107
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Enc100i5555555555555.xml
+    query: /Encounter:1.00?identifier=5555555555555
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Enc100p185601V825290.xml
+    query: /Encounter:1.00?patient=43000199
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Enc101i1200753214085.xml
+    query: /Encounter:1.02?identifier=1200753214085
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Enc101i1400065292107.xml
+    query: /Encounter:1.02?identifier=1400065292107
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Enc101i5555555555555.xml
+    query: /Encounter:1.02?identifier=5555555555555
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Enc101p185601V825290.xml
+    query: /Encounter:1.02?patient=43000199
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Imm103i1000000043979.xml
+    query: /Immunization:1.03?identifier=12345678
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Imm103i5555555555555.xml
+    query: /Immunization:1.03?identifier=5555555555555
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Imm103p185601V825290.xml
+    query: /Immunization:1.03?patient=43000199
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Imm103p185601V825290pg0.xml
+    query: /Immunization:1.03?patient=43000199
+    page: 0
+    count: 15
+  - file: ../../../../target/cdw/samples/Imm103p185601V825290pg10000ct20.xml
+    query: /Immunization:1.03?patient=43000199
+    page: 10000
+    count: 20
+  - file: ../../../../target/cdw/samples/Imm103p185601V825290pg1ct0.xml
+    query: /Immunization:1.03?patient=43000199
+    page: 1
+    count: 0
+  - file: ../../../../target/cdw/samples/Imm103p185601V825290pg1ct2.xml
+    query: /Immunization:1.03?patient=43000199
+    page: 1
+    count: 2
+  - file: ../../../../target/cdw/samples/Imm103p185601V825290pg1ct21.xml
+    query: /Immunization:1.03?patient=43000199
+    page: 1
+    count: 21
+  - file: ../../../../target/cdw/samples/Imm103p185601V825290pg2ct2.xml
+    query: /Immunization:1.03?patient=43000199
+    page: 2
+    count: 2
+  - file: ../../../../target/cdw/samples/Loc100i1400004093.xml
+    query: /Location:1.02?identifier=1400004093
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Loc100i166365L.xml
+    query: /Location:1.02?identifier=166365:L
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Loc100i5555555555.xml
+    query: /Location:1.02?identifier=5555555555
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Med101i212846.xml
+    query: /Medication:1.01?identifier=18
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Med101i555555.xml
+    query: /Medication:1.01?identifier=555555
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/MedDis100i1200738474343R.xml
+    query: /MedicationDispense:1.02?identifier=1200738474343:R
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/MedDis100p185601V825290.xml
+    query: /MedicationDispense:1.02?patient=43000199
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/MedDis100p185601V825290pg0.xml
+    query: /MedicationDispense:1.02?patient=43000199
+    page: 0
+    count: 15
+  - file: ../../../../target/cdw/samples/MedDis100p185601V825290pg10000ct20.xml
+    query: /MedicationDispense:1.02?patient=43000199
+    page: 10000
+    count: 20
+  - file: ../../../../target/cdw/samples/MedDis100p185601V825290pg1ct0.xml
+    query: /MedicationDispense:1.02?patient=43000199
+    page: 1
+    count: 0
+  - file: ../../../../target/cdw/samples/MedDis100p185601V825290pg1ct21.xml
+    query: /MedicationDispense:1.02?patient=43000199
+    page: 1
+    count: 21
+  - file: ../../../../target/cdw/samples/MedDis100p185601V825290statusstoppedcompleted.xml
+    query: /MedicationDispense:1.02?patient=43000199&status=stopped,completed
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/MedDis100p185601V825290typeFFUD.xml
+    query: /MedicationDispense:1.02?patient=43000199&type=FF,UD
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/MedOrd103i1200389904206O.xml
+    query: /MedicationOrder:1.03?identifier=1400162277477:O
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/MedOrd103i5555555555555O.xml
+    query: /MedicationOrder:1.03?identifier=5555555555555:O
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/MedOrd103p185601V825290.xml
+    query: /MedicationOrder:1.03?patient=43000199
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/MedOrd103p185601V825290pg0.xml
+    query: /MedicationOrder:1.03?patient=43000199
+    page: 0
+    count: 15
+  - file: ../../../../target/cdw/samples/MedOrd103p185601V825290pg10000ct20.xml
+    query: /MedicationOrder:1.03?patient=43000199
+    page: 10000
+    count: 20
+  - file: ../../../../target/cdw/samples/MedOrd103p185601V825290pg1ct0.xml
+    query: /MedicationOrder:1.03?patient=43000199
+    page: 1
+    count: 0
+  - file: ../../../../target/cdw/samples/MedOrd103p185601V825290pg1ct2.xml
+    query: /MedicationOrder:1.03?patient=43000199
+    page: 1
+    count: 2
+  - file: ../../../../target/cdw/samples/MedOrd103p185601V825290pg1ct21.xml
+    query: /MedicationOrder:1.03?patient=43000199
+    page: 1
+    count: 21
+  - file: ../../../../target/cdw/samples/MedOrd103p185601V825290pg2ct2.xml
+    query: /MedicationOrder:1.03?patient=43000199
+    page: 2
+    count: 2
+  - file: ../../../../target/cdw/samples/MedSta102i1000000398707.xml
+    query: /MedicationStatement:1.02?identifier=1000000398707
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/MedSta102i1400000182116.xml
+    query: /MedicationStatement:1.02?identifier=800000000707
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/MedSta102i5555555555555.xml
+    query: /MedicationStatement:1.02?identifier=5555555555555
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/MedSta102p185601V825290.xml
+    query: /MedicationStatement:1.02?patient=43000199
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/MedSta102p185601V825290pg0.xml
+    query: /MedicationStatement:1.02?patient=43000199
+    page: 0
+    count: 15
+  - file: ../../../../target/cdw/samples/MedSta102p185601V825290pg10000ct20.xml
+    query: /MedicationStatement:1.02?patient=43000199
+    page: 10000
+    count: 20
+  - file: ../../../../target/cdw/samples/MedSta102p185601V825290pg1ct0.xml
+    query: /MedicationStatement:1.02?patient=43000199
+    page: 1
+    count: 0
+  - file: ../../../../target/cdw/samples/MedSta102p185601V825290pg1ct2.xml
+    query: /MedicationStatement:1.02?patient=43000199
+    page: 1
+    count: 2
+  - file: ../../../../target/cdw/samples/MedSta102p185601V825290pg1ct21.xml
+    query: /MedicationStatement:1.02?patient=43000199
+    page: 1
+    count: 21
+  - file: ../../../../target/cdw/samples/MedSta102p185601V825290pg2ct2.xml
+    query: /MedicationStatement:1.02?patient=43000199
+    page: 2
+    count: 2
+  - file: ../../../../target/cdw/samples/Obs102catlaboratoryd20150415p185601V825290.xml
+    query: /Observation:1.02?category=laboratory&date=2015-04-15&patient=43000199
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Obs102catlaboratorydgt19700101dlt20380119p185601V825290.xml
+    query: /Observation:1.02?category=laboratory&date=gt1970-01-01&date=lt2038-01-19&patient=43000199
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Obs102code7773p185601V825290.xml
+    query: /Observation:1.02?code=777-3&patient=43000199
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Obs102i1201051417263V.xml
+    query: /Observation:1.02?identifier=1201472002950:V
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Obs102i1201051417263V.xml
+    query: /Observation:1.02?identifier=1201472002950:V
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Obs102i5555555555555V.xml
+    query: /Observation:1.02?identifier=5555555555555:V
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Obs102p185601V825290.xml
+    query: /Observation:1.02?patient=43000199
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Obs102p185601V825290catlaboratory.xml
+    query: /Observation:1.02?patient=43000199&category=laboratory
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Obs102p185601V825290catlaboratoryvitalsigns.xml
+    query: /Observation:1.02?patient=43000199&category=laboratory,vital-signs
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Obs102p185601V825290catvitalsigns.xml
+    query: /Observation:1.02?patient=43000199&category=vital-signs
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Obs102p185601V825290pg0.xml
+    query: /Observation:1.02?patient=43000199
+    page: 0
+    count: 15
+  - file: ../../../../target/cdw/samples/Obs102p185601V825290pg10000ct20.xml
+    query: /Observation:1.02?patient=43000199
+    page: 10000
+    count: 20
+  - file: ../../../../target/cdw/samples/Obs102p185601V825290pg1ct0.xml
+    query: /Observation:1.02?patient=43000199
+    page: 1
+    count: 0
+  - file: ../../../../target/cdw/samples/Obs102p185601V825290pg1ct2.xml
+    query: /Observation:1.02?patient=43000199
+    page: 1
+    count: 2
+  - file: ../../../../target/cdw/samples/Obs102p185601V825290pg1ct21.xml
+    query: /Observation:1.02?patient=43000199
+    page: 1
+    count: 21
+  - file: ../../../../target/cdw/samples/Obs102p185601V825290pg2ct2.xml
+    query: /Observation:1.02?patient=43000199
+    page: 2
+    count: 2
+  - file: ../../../../target/cdw/samples/Obs103catlaboratoryd20150415p185601V825290.xml
+    query: /Observation:1.03?category=laboratory&date=2015-04-15&patient=43000199
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Obs103catlaboratorydgt19700101dlt20380119p185601V825290.xml
+    query: /Observation:1.03?category=laboratory&date=gt1970-01-01&date=lt2038-01-19&patient=43000199
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Obs103code7773p185601V825290.xml
+    query: /Observation:1.03?code=777-3&patient=43000199
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Obs103i1201051417263V.xml
+    query: /Observation:1.03?identifier=1201472002950:V
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Obs103i1201051417263V.xml
+    query: /Observation:1.03?identifier=1201472002950:V
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Obs103i5555555555555V.xml
+    query: /Observation:1.03?identifier=5555555555555:V
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Obs103p185601V825290.xml
+    query: /Observation:1.03?patient=43000199
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Obs103p185601V825290catlaboratory.xml
+    query: /Observation:1.03?patient=43000199&category=laboratory
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Obs103p185601V825290catlaboratoryvitalsigns.xml
+    query: /Observation:1.03?patient=43000199&category=laboratory,vital-signs
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Obs103p185601V825290catvitalsigns.xml
+    query: /Observation:1.03?patient=43000199&category=vital-signs
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Obs103p185601V825290pg0.xml
+    query: /Observation:1.03?patient=43000199
+    page: 0
+    count: 15
+  - file: ../../../../target/cdw/samples/Obs103p185601V825290pg10000ct20.xml
+    query: /Observation:1.03?patient=43000199
+    page: 10000
+    count: 20
+  - file: ../../../../target/cdw/samples/Obs103p185601V825290pg1ct0.xml
+    query: /Observation:1.03?patient=43000199
+    page: 1
+    count: 0
+  - file: ../../../../target/cdw/samples/Obs103p185601V825290pg1ct2.xml
+    query: /Observation:1.03?patient=43000199
+    page: 1
+    count: 2
+  - file: ../../../../target/cdw/samples/Obs103p185601V825290pg1ct21.xml
+    query: /Observation:1.03?patient=43000199
+    page: 1
+    count: 21
+  - file: ../../../../target/cdw/samples/Obs103p185601V825290pg2ct2.xml
+    query: /Observation:1.03?patient=43000199
+    page: 2
+    count: 2
+  - file: ../../../../target/cdw/samples/Obs104catlaboratoryd20150415p185601V825290.xml
+    query: /Observation:1.04?category=laboratory&date=2015-04-15&patient=43000199
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Obs104catlaboratorydgt19700101dlt20380119p185601V825290.xml
+    query: /Observation:1.04?category=laboratory&date=gt1970-01-01&date=lt2038-01-19&patient=43000199
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Obs104code7773p185601V825290.xml
+    query: /Observation:1.04?code=777-3&patient=43000199
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Obs104i1201051417263V.xml
+    query: /Observation:1.04?identifier=1201472002950:V
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Obs104i1201051417263V.xml
+    query: /Observation:1.04?identifier=1201472002950:V
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Obs104i5555555555555V.xml
+    query: /Observation:1.04?identifier=5555555555555:V
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Obs104p185601V825290.xml
+    query: /Observation:1.04?patient=43000199
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Obs104p185601V825290catlaboratory.xml
+    query: /Observation:1.04?patient=43000199&category=laboratory
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Obs104p185601V825290catlaboratoryvitalsigns.xml
+    query: /Observation:1.04?patient=43000199&category=laboratory,vital-signs
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Obs104p185601V825290catvitalsigns.xml
+    query: /Observation:1.04?patient=43000199&category=vital-signs
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Obs104p185601V825290pg0.xml
+    query: /Observation:1.04?patient=43000199
+    page: 0
+    count: 15
+  - file: ../../../../target/cdw/samples/Obs104p185601V825290pg10000ct20.xml
+    query: /Observation:1.04?patient=43000199
+    page: 10000
+    count: 20
+  - file: ../../../../target/cdw/samples/Obs104p185601V825290pg1ct0.xml
+    query: /Observation:1.04?patient=43000199
+    page: 1
+    count: 0
+  - file: ../../../../target/cdw/samples/Obs104p185601V825290pg1ct2.xml
+    query: /Observation:1.04?patient=43000199
+    page: 1
+    count: 2
+  - file: ../../../../target/cdw/samples/Obs104p185601V825290pg1ct21.xml
+    query: /Observation:1.04?patient=43000199
+    page: 1
+    count: 21
+  - file: ../../../../target/cdw/samples/Obs104p185601V825290pg2ct2.xml
+    query: /Observation:1.04?patient=43000199
+    page: 2
+    count: 2
+  - file: ../../../../target/cdw/samples/Org100addressstatetx.xml
+    query: /Organization:1.02?address-state=tx
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Org100citygalveston.xml
+    query: /Organization:1.02?city=galveston
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Org100i1000025431C.xml
+    query: /Organization:1.02?identifier=1000025431:C
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Org100i5555555555555.xml
+    query: /Organization:1.02?identifier=5555555555555
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Org100nametexas.xml
+    query: /Organization:1.02?name=texas
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Org100typeins.xml
+    query: /Organization:1.02?type=ins
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Org100typeinspg0.xml
+    query: /Organization:1.02?type=ins
+    page: 0
+    count: 15
+  - file: ../../../../target/cdw/samples/Org100typeinspg1ct0.xml
+    query: /Organization:1.02?type=ins
+    page: 1
+    count: 0
+  - file: ../../../../target/cdw/samples/Org100typeinspg1ct21.xml
+    query: /Organization:1.02?type=ins
+    page: 1
+    count: 21
+  - file: ../../../../target/cdw/samples/Org100typeinspg999999ct20.xml
+    query: /Organization:1.02?type=ins&count=20
+    page: 999999
+    count: 15
+  - file: ../../../../target/cdw/samples/Org100typeprov.xml
+    query: /Organization:1.02?type=prov
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Org100typeprovaddresscitytexascity.xml
+    query: /Organization:1.02?type=prov&address-city=texas city
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Org100typeprovaddresspostalCode775912134.xml
+    query: /Organization:1.02?type=prov&address-postalCode=77591-2134
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Pat103familyVETERANgendermale.xml
+    query: /Patient:1.03?family=Olson653&gender=male
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Pat103givenJOHNQgendermale.xml
+    query: /Patient:1.03?given=Conrad619&gender=male
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Pat103i185601V825290.xml
+    query: /Patient:1.03?identifier=43000199
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Pat103ihttphl7orgfhirsidusssn000000131.xml
+    query: /Patient:1.03?identifier=http://hl7.org/fhir/sid/us-ssn|000000131
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Pat103nameVETERANJOHNbirthd19700101.xml
+    query: /Patient:1.03?name=Olson653, Conrad619&birthdate=1948-06-28
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Pat103nameVETERANJOHNgendermale.xml
+    query: /Patient:1.03?name=Olson653, Conrad619&gender=male
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Pat103nameVETERANbirthd19700101.xml
+    query: /Patient:1.03?name=VETERAN&birthdate=1948-06-28
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Pra100i10092125.xml
+    query: /Practitioner:1.02?identifier=10092125
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Pra100i5555555555555.xml
+    query: /Practitioner:1.02?identifier=5555555555555
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Pra100p185601V825290.xml
+    query: /Practitioner:1.02?patient=43000199
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Pra100p185601V825290pg0.xml
+    query: /Practitioner:1.02?patient=43000199
+    page: 0
+    count: 15
+  - file: ../../../../target/cdw/samples/Pra100p185601V825290pg10000ct20.xml
+    query: /Practitioner:1.02?patient=43000199
+    page: 10000
+    count: 20
+  - file: ../../../../target/cdw/samples/Pra100p185601V825290pg1ct0.xml
+    query: /Practitioner:1.02?patient=43000199
+    page: 1
+    count: 0
+  - file: ../../../../target/cdw/samples/Pra100p185601V825290pg1ct21.xml
+    query: /Practitioner:1.02?patient=43000199
+    page: 1
+    count: 21
+  - file: ../../../../target/cdw/samples/Pro101i1400000140034.xml
+    query: /Procedure:1.01?identifier=1000001259996
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Pro101i5555555555555.xml
+    query: /Procedure:1.01?identifier=5555555555555
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Pro101p185601V825290.xml
+    query: /Procedure:1.01?patient=43000199
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Pro101p185601V825290dge2009.xml
+    query: /Procedure:1.01?patient=43000199&date=ge2009
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Pro101p185601V825290dge2009dle2010.xml
+    query: /Procedure:1.01?patient=43000199&date=ge2009&date=le2010
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Pro101p185601V825290pg0.xml
+    query: /Procedure:1.01?patient=43000199
+    page: 0
+    count: 15
+  - file: ../../../../target/cdw/samples/Pro101p185601V825290pg10000ct20.xml
+    query: /Procedure:1.01?patient=43000199
+    page: 10000
+    count: 20
+  - file: ../../../../target/cdw/samples/Pro101p185601V825290pg1ct0.xml
+    query: /Procedure:1.01?patient=43000199
+    page: 1
+    count: 0
+  - file: ../../../../target/cdw/samples/Pro101p185601V825290pg1ct2.xml
+    query: /Procedure:1.01?patient=43000199
+    page: 1
+    count: 2
+  - file: ../../../../target/cdw/samples/Pro101p185601V825290pg1ct21.xml
+    query: /Procedure:1.01?patient=43000199
+    page: 1
+    count: 21
+  - file: ../../../../target/cdw/samples/Pro101p185601V825290pg2ct2.xml
+    query: /Procedure:1.01?patient=43000199
+    page: 2
+    count: 2
+  - file: ./NoResults.xml
+    query: /DiagnosticReport:1.02?identifier=5555555555555-mra-it
+    page: 1
+    count: 15
+  - file: ./InvalidQueryParams.xml
+    query: /Patient:1.03?stuff=missing
+    page: 1
+    count: 15
+  - file: ./UnknownResource.xml
+    query: /Patient:9.99?identifier=43000199
+    page: 1
+    count: 15
+    # Immunization aliases
+  - file: ../../../../target/cdw/samples/Imm103p185601V825290.xml
+    query: /Immunization:1.03?patient=43000199
+    page: 1
+    count: 20
+    # Patient aliases
+  - file: ../../../../target/cdw/samples/Pat103nameVETERANbirthd19700101.xml
+    query: /Patient:1.03?name=Olson653, Conrad619&birthdate=1948-06-28
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Pat103nameVETERANbirthd19700101.xml
+    query: /Patient:1.03?name=Olson653, Conrad619&birthdate=1948-06-28
+    page: 1
+    count: 0
+  - file: ../../../../target/cdw/samples/Pat103nameVETERANbirthd19700101.xml
+    query: /Patient:1.03?name=Olson653, Conrad619&birthdate=1948-06-28
+    page: 1
+    count: 20
+  - file: ../../../../target/cdw/samples/Pat103nameVETERANbirthd19700101.xml
+    query: /Patient:1.03?family=Olson653&gender=male
+    page: 1
+    count: 0
+  - file: ../../../../target/cdw/samples/Pat103nameVETERANbirthd19700101.xml
+    query: /Patient:1.03?family=Olson653&gender=male
+    page: 1
+    count: 20
+  - file: ../../../../target/cdw/samples/Pat103nameVETERANbirthd19700101.xml
+    query: /Patient:1.03?given=Conrad619&gender=male
+    page: 1
+    count: 0
+  - file: ../../../../target/cdw/samples/Pat103nameVETERANbirthd19700101.xml
+    query: /Patient:1.03?given=Conrad619&gender=male
+    page: 1
+    count: 20
+  - file: ../../../../target/cdw/samples/Pat103nameVETERANbirthd19700101.xml
+    query: /Patient:1.03?name=Olson653, Conrad619&gender=male
+    page: 1
+    count: 0
+  - file: ../../../../target/cdw/samples/Pat103nameVETERANbirthd19700101.xml
+    query: /Patient:1.03?name=Olson653, Conrad619&gender=male
+    page: 1
+    count: 20
+    # Observation aliases
+  - file: ../../../../target/cdw/samples/Obs104p185601V825290catlaboratory.xml
+    query: /Observation:1.04?code=72166-2&patient=43000199
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Obs104p185601V825290catlaboratory.xml
+    query: /Observation:1.04?code=72166-2,777-3&patient=43000199
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Obs104p185601V825290catlaboratory.xml
+    query: /Observation:1.04?code=72166-2,99999-9&patient=43000199
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Obs104p185601V825290catlaboratory.xml
+    query: /Observation:1.04?category=laboratory&date=gt1970-01-01&date=lt2038-01-19&patient=43000199
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Obs104p185601V825290catlaboratory.xml
+    query: /Observation:1.04?category=laboratory&date=2015-04-15&patient=43000199
+    page: 1
+    count: 15
+    # Condition alias
+  - file: ../../../../target/cdw/samples/Con103p185601V825290pg2ct2.xml
+    query: /Condition:1.03?identifier=1234567:D
+    page: 1
+    count: 1
+  - file: ../../../../target/cdw/samples/Con103p185601V825290pg2ct2.xml
+    query: /Condition:1.03?patient=43000199&category=problem
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Con103p185601V825290pg2ct2.xml
+    query: /Condition:1.03?patient=43000199&category=health-concern
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Con103p185601V825290pg2ct2.xml
+    query: /Condition:1.03?patient=43000199&clinicalstatus=active
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Con103p185601V825290pg2ct2.xml
+    query: /Condition:1.03?patient=43000199&clinicalstatus=active,resolved
+    page: 1
+    count: 15
+    # Encounter alias
+  - file: ../../../../target/cdw/samples/Enc101p185601V825290.xml
+    query: /Encounter:1.02?identifier=1200753214085
+    page: 1
+    count: 1
+  - file: ../../../../target/cdw/samples/Enc101p185601V825290.xml
+    query: /Encounter:1.02?patient=43000199
+    page: 1
+    count: 1
+  - file: ../../../../target/cdw/samples/Enc101p185601V825290.xml
+    query: /Encounter:1.02?_id=1200753214085
+    page: 1
+    count: 1
+    # MedicationStatement aliases
+  - file: ../../../../target/cdw/samples/MedSta102p185601V825290.xml
+    query: /MedicationStatement:1.02?identifier=800000000707
+    page: 1
+    count: 1
+  - file: ../../../../target/cdw/samples/MedSta102p185601V825290.xml
+    query: /MedicationStatement:1.02?_id=800000000707
+    page: 1
+    count: 1
+  - file: ../../../../target/cdw/samples/MedSta102p185601V825290.xml
+    query: /MedicationStatement:1.02?patient=43000199&_include=MedicationStatement:medication
+    page: 1
+    count: 1
+    # DiagnosticReport aliases
+  - file: ../../../../target/cdw/samples/DiaRep102p185601V825290catLABdgt19700101dlt20380101.xml
+    query: /DiagnosticReport:1.02?code=10000-8,10001-6&patient=43000199
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/DiaRep102p185601V825290catLABdgt19700101dlt20380101.xml
+    query: /DiagnosticReport:1.02?patient=43000199&category=LAB
+    page: 1
+    count: 21
+  - file: ../../../../target/cdw/samples/DiaRep102p185601V825290catLABdgt19700101dlt20380101.xml
+    query: /DiagnosticReport:1.02?patient=43000199&category=LAB
+    page: 1
+    count: 20
+    # Alias the 1.03 Allergy Intolerance samples as 1.04 to make sure they are tested.
+    # The schema was unchanged from 1.03 and new schemas and new samples were not generated.
+  - file: ../../../../target/cdw/samples/AllInt103i1000001782544.xml
+    query: /AllergyIntolerance:1.04?identifier=10000020531
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/AllInt103i5555555555555.xml
+    query: /AllergyIntolerance:1.04?identifier=5555555555555
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/AllInt103p185601V825290.xml
+    query: /AllergyIntolerance:1.04?patient=43000199
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/AllInt103p185601V825290pg0.xml
+    query: /AllergyIntolerance:1.04?patient=43000199
+    page: 0
+    count: 15
+  - file: ../../../../target/cdw/samples/AllInt103p185601V825290pg10000ct20.xml
+    query: /AllergyIntolerance:1.04?patient=43000199
+    page: 10000
+    count: 20
+  - file: ../../../../target/cdw/samples/AllInt103p185601V825290pg1ct0.xml
+    query: /AllergyIntolerance:1.04?patient=43000199
+    page: 1
+    count: 0
+  - file: ../../../../target/cdw/samples/AllInt103p185601V825290pg1ct2.xml
+    query: /AllergyIntolerance:1.04?patient=43000199
+    page: 1
+    count: 2
+  - file: ../../../../target/cdw/samples/AllInt103p185601V825290pg1ct21.xml
+    query: /AllergyIntolerance:1.04?patient=43000199
+    page: 1
+    count: 20
+  - file: ../../../../target/cdw/samples/AllInt103p185601V825290pg2ct2.xml
+    query: /AllergyIntolerance:1.04?patient=43000199
+    # Medication Aliases
+  - file: ../../../../target/cdw/samples/Med101i212846.xml
+    query: /Medication:1.01?identifier=18
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/Med101i555555.xml
+    query: /Medication:1.01?identifier=555555
+    page: 1
+    count: 15
+    # Alias the 1.03 MedicationOrder samples as 1.04 to make sure they are tested.
+    # The schema was unchanged from 1.03 and new schemas and new samples were not generated.
+  - file: ../../../../target/cdw/samples/MedOrd103i1200389904206O.xml
+    query: /MedicationOrder:1.04?identifier=1400162277477:O
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/MedOrd103i5555555555555O.xml
+    query: /MedicationOrder:1.04?identifier=5555555555555:O
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/MedOrd103p185601V825290.xml
+    query: /MedicationOrder:1.04?patient=43000199
+    page: 1
+    count: 15
+  - file: ../../../../target/cdw/samples/MedOrd103p185601V825290pg0.xml
+    query: /MedicationOrder:1.04?patient=43000199
+    page: 0
+    count: 15
+  - file: ../../../../target/cdw/samples/MedOrd103p185601V825290pg10000ct20.xml
+    query: /MedicationOrder:1.04?patient=43000199
+    page: 10000
+    count: 20
+  - file: ../../../../target/cdw/samples/MedOrd103p185601V825290pg1ct0.xml
+    query: /MedicationOrder:1.04?patient=43000199
+    page: 1
+    count: 0
+  - file: ../../../../target/cdw/samples/MedOrd103p185601V825290pg1ct2.xml
+    query: /MedicationOrder:1.04?patient=43000199
+    page: 1
+    count: 2
+  - file: ../../../../target/cdw/samples/MedOrd103p185601V825290pg1ct21.xml
+    query: /MedicationOrder:1.04?patient=43000199
+    page: 1
+    count: 20
+  - file: ../../../../target/cdw/samples/MedOrd103p185601V825290pg2ct2.xml
+    query: /MedicationOrder:1.04?patient=43000199
+    page: 2
+    count: 2
+    # AllergyIntolerance 1.05 needs sample data, but the sandbox database is hosed...
+    # We are doing some sad-magic hackery to provide samples for data-query-tests
+  - file: AllergyIntoleranceV1.05/AllInt105p1000001782544.xml
+    query: /AllergyIntolerance:1.05?identifier=10000020531
+    page: 1
+    count: 15
+  - file:  AllergyIntoleranceV1.05/AllInt105p5555555555555.xml
+    query: /AllergyIntolerance:1.05?identifier=5555555555555
+    page: 1
+    count: 15
+  - file: AllergyIntoleranceV1.05/AllInt105p185601V825290pg1ct0.xml
+    query: /AllergyIntolerance:1.05?patient=43000199
+    page: 1
+    count: 0
+  - file: AllergyIntoleranceV1.05/AllInt105p185601V825290pg1ct21.xml
+    query: /AllergyIntolerance:1.05?patient=43000199
+    page: 1
+    count: 20
+  - file: AllergyIntoleranceV1.05/AllInt105p185601V825290pg0.xml
+    query: /AllergyIntolerance:1.05?patient=43000199
+    page: 0
+    count: 15
+  - file: AllergyIntoleranceV1.05/AllInt105p185601V825290.xml
+    query: /AllergyIntolerance:1.05?patient=43000199
+    page: 1
+    count: 15
+  - file: AllergyIntoleranceV1.05/AllInt105p185601V825290pg1ct2.xml
+    query: /AllergyIntolerance:1.05?patient=43000199
+    page: 1
+    count: 2
+  - file: AllergyIntoleranceV1.05/AllInt105p185601V825290pg10000ct20.xml
+    query: /AllergyIntolerance:1.05?patient=43000199
+    page: 10000
+    count: 20
+  - file: AllergyIntoleranceV1.05/AllInt105p185601V825290pg2ct2.xml
+    query: /AllergyIntolerance:1.05?patient=43000199
+    page: 2
+    count: 2

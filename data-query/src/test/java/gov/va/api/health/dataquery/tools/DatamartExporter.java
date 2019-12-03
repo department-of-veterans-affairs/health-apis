@@ -1,5 +1,7 @@
 package gov.va.api.health.dataquery.tools;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import gov.va.api.health.dataquery.service.controller.allergyintolerance.AllergyIntoleranceEntity;
 import gov.va.api.health.dataquery.service.controller.condition.ConditionEntity;
 import gov.va.api.health.dataquery.service.controller.diagnosticreport.DiagnosticReportCrossEntity;
@@ -14,7 +16,11 @@ import gov.va.api.health.dataquery.service.controller.patient.PatientSearchEntit
 import gov.va.api.health.dataquery.service.controller.procedure.ProcedureEntity;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.persistence.EntityManager;
+import lombok.AllArgsConstructor;
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -29,29 +35,28 @@ import lombok.extern.slf4j.Slf4j;
 public class DatamartExporter {
 
   /** Add classes to this list to copy them from Mitre to H2 */
-  private static final List<Class<?>> MANAGED_CLASSES =
+  private static final List<ExportCriteria> EXPORT_CRITERIA =
       Arrays.asList(
-          AllergyIntoleranceEntity.class,
-          ConditionEntity.class,
-          DiagnosticReportCrossEntity.class,
-          DiagnosticReportsEntity.class,
-          ImmunizationEntity.class,
-          MedicationOrderEntity.class,
-          MedicationEntity.class,
-          MedicationStatementEntity.class,
-          ObservationEntity.class,
-          PatientEntity.class,
-          PatientSearchEntity.class,
-          ProcedureEntity.class
-          //
-          );
+          ExportForPatientCriteria.of(AllergyIntoleranceEntity.class),
+          ExportForPatientCriteria.of(ConditionEntity.class),
+          ExportForPatientCriteria.of(DiagnosticReportCrossEntity.class),
+          ExportForPatientCriteria.of(DiagnosticReportsEntity.class),
+          ExportForPatientCriteria.of(ImmunizationEntity.class),
+          ExportForPatientCriteria.of(MedicationOrderEntity.class),
+          ExportAllCriteria.of(MedicationEntity.class),
+          ExportForPatientCriteria.of(MedicationStatementEntity.class),
+          ExportForPatientCriteria.of(ObservationEntity.class),
+          ExportForPatientCriteria.of(PatientEntity.class),
+          ExportForPatientCriteria.of(PatientSearchEntity.class),
+          ExportForPatientCriteria.of(ProcedureEntity.class));
 
   EntityManager h2;
+
   EntityManager mitre;
 
   public DatamartExporter(String configFile, String outputFile) {
-    mitre = new ExternalDb(configFile, MANAGED_CLASSES).get();
-    h2 = new LocalH2(outputFile, MANAGED_CLASSES).get();
+    mitre = new ExternalDb(configFile, managedClasses()).get();
+    h2 = new LocalH2(outputFile, managedClasses()).get();
   }
 
   public static void main(String[] args) {
@@ -66,24 +71,69 @@ public class DatamartExporter {
     System.exit(0);
   }
 
+  private static List<Class<?>> managedClasses() {
+    return EXPORT_CRITERIA.stream().map(ExportCriteria::type).collect(Collectors.toList());
+  }
+
   public void export() {
-    h2.getTransaction().begin();
-    MANAGED_CLASSES.stream().forEach(this::steal);
-    h2.getTransaction().commit();
+    EXPORT_CRITERIA.stream().forEach(this::steal);
     mitre.close();
     h2.close();
   }
 
-  private <T> void steal(Class<T> type) {
-    log.info("Stealing {}", type);
-    mitre
-        .createQuery("select e from " + type.getSimpleName() + " e", type)
-        .getResultStream()
+  private <T> void steal(ExportCriteria criteria) {
+    log.info("Stealing {}", criteria.type());
+    h2.getTransaction().begin();
+    criteria
+        .queries()
         .forEach(
-            e -> {
-              mitre.detach(e);
-              log.info("{}", e);
-              h2.persist(e);
+            query -> {
+              mitre
+                  .createQuery(query, criteria.type())
+                  .getResultStream()
+                  .forEach(
+                      e -> {
+                        mitre.detach(e);
+                        log.info("{}", e);
+                        h2.persist(e);
+                      });
             });
+    h2.getTransaction().commit();
+  }
+
+  private interface ExportCriteria {
+
+    Stream<String> queries();
+
+    Class<?> type();
+  }
+
+  @Value
+  @AllArgsConstructor(staticName = "of")
+  private static class ExportAllCriteria implements ExportCriteria {
+
+    Class<?> type;
+
+    @Override
+    public Stream<String> queries() {
+      return Stream.of("select e from " + type.getSimpleName() + " e");
+    }
+  }
+
+  @Value
+  @AllArgsConstructor(staticName = "of")
+  private static class ExportForPatientCriteria implements ExportCriteria {
+
+    Class<?> type;
+
+    @Override
+    public Stream<String> queries() {
+      String patientsCsv = System.getProperty("exportPatients");
+      assertThat(patientsCsv)
+          .withFailMessage("System property %s must be specified.", "exportPatients")
+          .isNotBlank();
+      return Stream.of(patientsCsv.split(" *, *"))
+          .map(icn -> "select e from " + type.getSimpleName() + " e where e.icn = '" + icn + "'");
+    }
   }
 }

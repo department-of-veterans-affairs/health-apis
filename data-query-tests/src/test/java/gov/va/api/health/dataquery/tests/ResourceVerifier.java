@@ -6,16 +6,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import gov.va.api.health.argonaut.api.resources.AllergyIntolerance;
-import gov.va.api.health.argonaut.api.resources.Condition;
-import gov.va.api.health.argonaut.api.resources.DiagnosticReport;
-import gov.va.api.health.argonaut.api.resources.Immunization;
-import gov.va.api.health.argonaut.api.resources.Medication;
-import gov.va.api.health.argonaut.api.resources.MedicationOrder;
-import gov.va.api.health.argonaut.api.resources.MedicationStatement;
-import gov.va.api.health.argonaut.api.resources.Observation;
-import gov.va.api.health.argonaut.api.resources.Patient;
-import gov.va.api.health.argonaut.api.resources.Procedure;
 import gov.va.api.health.dstu2.api.bundle.AbstractBundle;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import gov.va.api.health.sentinel.Environment;
@@ -56,19 +46,12 @@ public class ResourceVerifier {
   private final Set<Class<?>> verifiedPageBoundsClasses =
       Collections.newSetFromMap(new ConcurrentHashMap<>());
 
-  private ImmutableList<Class<?>> DATAMART_RESOURCES =
+  private ImmutableList<Class<?>> DATAMART_AND_CDW_RESOURCES =
       ImmutableList.of(
-          AllergyIntolerance.class,
-          Condition.class,
-          DiagnosticReport.class,
-          Immunization.class,
-          MedicationOrder.class,
-          Medication.class,
-          MedicationStatement.class,
-          Observation.class,
-          Patient.class,
-          Procedure.class
-          //
+          /*
+           * As remaining resources are migrated, they may support both CDW and Datamart at the same
+           * time. Once resources are fully migrated over, they can be removed from this list.
+           */
           );
 
   public static ResourceVerifier get() {
@@ -123,7 +106,7 @@ public class ResourceVerifier {
   }
 
   private <T> T assertRequest(TestCase<T> tc) {
-    if (isDatamart(tc)) {
+    if (isDatamartAndCdwResource(tc)) {
       log.info(
           "Verify Datamart {} is {} ({})", tc.label(), tc.response().getSimpleName(), tc.status());
       try {
@@ -167,7 +150,7 @@ public class ResourceVerifier {
     return ImmutableMap.of("Datamart", "true");
   }
 
-  private <T> boolean isDatamart(TestCase<T> tc) {
+  private <T> boolean isDatamartAndCdwResource(TestCase<T> tc) {
     /*
      * If this is a bundle, we want the declaring resource type instead.
      */
@@ -175,7 +158,7 @@ public class ResourceVerifier {
         AbstractBundle.class.isAssignableFrom(tc.response())
             ? tc.response().getDeclaringClass()
             : tc.response();
-    return DATAMART_RESOURCES.contains(resource);
+    return DATAMART_AND_CDW_RESOURCES.contains(resource);
   }
 
   public <T> T verify(TestCase<T> tc) {
