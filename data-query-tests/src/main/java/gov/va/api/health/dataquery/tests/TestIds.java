@@ -1,6 +1,5 @@
 package gov.va.api.health.dataquery.tests;
 
-import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NonNull;
@@ -37,29 +36,29 @@ public final class TestIds {
   @Value
   @Builder
   public static class DiagnosticReports {
-    @NotNull String loinc1;
-    @NotNull String loinc2;
-    @NotNull String badLoinc;
-    @NotNull String onDate;
-    @NotNull String fromDate;
-    @NotNull String toDate;
-    @NotNull String dateYear;
-    @NotNull String dateYearMonth;
-    @NotNull String dateYearMonthDay;
+    @NonNull String loinc1;
+    @NonNull String loinc2;
+    @NonNull String badLoinc;
+    @NonNull String onDate;
+    @NonNull String fromDate;
+    @NonNull String toDate;
+    @NonNull String dateYear;
+    @NonNull String dateYearMonth;
+    @NonNull String dateYearMonthDay;
     // Invalid Dates
-    @NotNull String dateYearMonthDayHour;
-    @NotNull String dateYearMonthDayHourMinute;
-    @NotNull String dateYearMonthDayHourMinuteSecond;
+    @NonNull String dateYearMonthDayHour;
+    @NonNull String dateYearMonthDayHourMinute;
+    @NonNull String dateYearMonthDayHourMinuteSecond;
     //
-    @NotNull String dateYearMonthDayHourMinuteSecondTimezone;
-    @NotNull String dateYearMonthDayHourMinuteSecondZulu;
-    @NotNull String dateGreaterThan;
-    @NotNull String dateNotEqual;
-    @NotNull String dateStartsWith;
-    @NotNull String dateNoPrefix;
-    @NotNull String dateEqual;
-    @NotNull String dateLessOrEqual;
-    @NotNull String dateLessThan;
+    @NonNull String dateYearMonthDayHourMinuteSecondTimezone;
+    @NonNull String dateYearMonthDayHourMinuteSecondZulu;
+    @NonNull String dateGreaterThan;
+    @NonNull String dateNotEqual;
+    @NonNull String dateStartsWith;
+    @NonNull String dateNoPrefix;
+    @NonNull String dateEqual;
+    @NonNull String dateLessOrEqual;
+    @NonNull String dateLessThan;
   }
 
   @Value
@@ -94,8 +93,8 @@ public final class TestIds {
   @Builder
   @AllArgsConstructor(staticName = "of")
   public static class Range {
-    @NotNull String from;
-    @NotNull String to;
+    @NonNull String from;
+    @NonNull String to;
 
     public static final Range allTime() {
       return Range.of("gt1970-01-01", "lt2038-01-19");
