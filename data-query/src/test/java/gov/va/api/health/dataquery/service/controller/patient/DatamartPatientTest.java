@@ -24,6 +24,7 @@ import gov.va.api.health.dstu2.api.datatypes.Identifier;
 import gov.va.api.health.dstu2.api.elements.Extension;
 import gov.va.api.health.dstu2.api.elements.Reference;
 import gov.va.api.health.ids.api.IdentityService;
+import java.util.Collections;
 import java.util.Optional;
 import javax.servlet.http.HttpServletResponse;
 import lombok.Builder;
@@ -40,6 +41,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @DataJpaTest
 @RunWith(SpringRunner.class)
 public final class DatamartPatientTest {
+
   HttpServletResponse response;
 
   @Autowired private TestEntityManager entityManager;
@@ -409,6 +411,23 @@ public final class DatamartPatientTest {
     Patient.Bundle patient = controller().searchByFamilyAndGender("true", "TEST", "male", 1, 1);
     assertThat(json(Iterables.getOnlyElement(patient.entry()).resource()))
         .isEqualTo(json(fhir.patient()));
+  }
+
+  @Test
+  public void searchByFamilyAndGenderWithCountZero() {
+    DatamartData dm = DatamartData.create();
+    entityManager.persistAndFlush(dm.entity());
+    entityManager.persistAndFlush(dm.search());
+    Patient.Bundle patient = controller().searchByFamilyAndGender("true", "TEST", "male", 1, 0);
+    assertThat(patient.entry()).isEqualTo(Collections.emptyList());
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void searchByFamilyAndGenderWithNullCdw() {
+    DatamartData dm = DatamartData.create();
+    entityManager.persistAndFlush(dm.entity());
+    entityManager.persistAndFlush(dm.search());
+    Patient.Bundle patient = controller().searchByFamilyAndGender("true", "TEST", "null", 1, 0);
   }
 
   @Test
