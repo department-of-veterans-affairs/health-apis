@@ -17,6 +17,7 @@ import gov.va.api.health.argonaut.api.resources.Observation;
 import gov.va.api.health.argonaut.api.resources.Patient;
 import gov.va.api.health.argonaut.api.resources.Procedure;
 import gov.va.api.health.dstu2.api.bundle.AbstractBundle;
+import gov.va.api.health.dstu2.api.resources.Location;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import gov.va.api.health.sentinel.Environment;
 import gov.va.api.health.sentinel.TestClient;
