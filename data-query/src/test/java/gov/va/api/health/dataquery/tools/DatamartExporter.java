@@ -36,6 +36,7 @@ public class DatamartExporter {
           DiagnosticReportCrossEntity.class,
           DiagnosticReportsEntity.class,
           ImmunizationEntity.class,
+          LocationEntity.class,
           MedicationOrderEntity.class,
           MedicationEntity.class,
           MedicationStatementEntity.class,

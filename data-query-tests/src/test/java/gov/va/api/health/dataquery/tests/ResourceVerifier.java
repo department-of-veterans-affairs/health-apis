@@ -62,6 +62,7 @@ public class ResourceVerifier {
           Condition.class,
           DiagnosticReport.class,
           Immunization.class,
+          Location.class,
           MedicationOrder.class,
           Medication.class,
           MedicationStatement.class,
