@@ -15,7 +15,7 @@
     <cdw-schemas.version>1.0.42</cdw-schemas.version>
     <guava.version>20.0</guava.version>
     <health-apis-ids.version>2.1.4</health-apis-ids.version>
-    <jacoco.coverage>0.95</jacoco.coverage>
+    <jacoco.coverage>0.80</jacoco.coverage>
     <swagger-maven-plugin.version>2.0.8</swagger-maven-plugin.version>
   </properties>
   <dependencies>

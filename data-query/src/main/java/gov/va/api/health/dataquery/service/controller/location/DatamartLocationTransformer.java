@@ -5,6 +5,8 @@ import lombok.Builder;
 
 @Builder
 final class DatamartLocationTransformer {
+  private final DatamartLocation datamart;
+
   /** Convert the datamart structure to FHIR compliant structure. */
   public Location toFhir() {
     //     return Condition.builder()
