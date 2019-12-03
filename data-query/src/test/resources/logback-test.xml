@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <include resource="org/springframework/boot/logging/logback/base.xml"/>
+  <statusListener class="ch.qos.logback.core.status.NopStatusListener"/>
+  <root level="${LOGBACK_ROOT_LEVEL:-INFO}"/>
+  <logger level="INFO" name="org.apache.http.wire"/>
+  <logger level="OFF" name="org.apache.http"/>
+  <logger level="OFF" name="org.hibernate.validator.internal"/>
+</configuration>
