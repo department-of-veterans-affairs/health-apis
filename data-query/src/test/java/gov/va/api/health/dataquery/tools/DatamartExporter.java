@@ -5,6 +5,7 @@ import gov.va.api.health.dataquery.service.controller.condition.ConditionEntity;
 import gov.va.api.health.dataquery.service.controller.diagnosticreport.DiagnosticReportCrossEntity;
 import gov.va.api.health.dataquery.service.controller.diagnosticreport.DiagnosticReportsEntity;
 import gov.va.api.health.dataquery.service.controller.immunization.ImmunizationEntity;
+import gov.va.api.health.dataquery.service.controller.location.LocationEntity;
 import gov.va.api.health.dataquery.service.controller.medication.MedicationEntity;
 import gov.va.api.health.dataquery.service.controller.medicationorder.MedicationOrderEntity;
 import gov.va.api.health.dataquery.service.controller.medicationstatement.MedicationStatementEntity;

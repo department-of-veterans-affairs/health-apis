@@ -9,6 +9,7 @@ import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.PageLinks.LinkConfig;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.Validator;
+import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
 import gov.va.api.health.dataquery.service.mranderson.client.Query;
 import gov.va.api.health.dataquery.service.mranderson.client.Query.Profile;
@@ -18,8 +19,8 @@ import gov.va.dvp.cdw.xsd.model.CdwLocation100Root;
 import java.util.Collections;
 import java.util.function.Function;
 import javax.validation.constraints.Min;
-import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,11 +42,36 @@ import org.springframework.web.bind.annotation.RestController;
   value = {"/dstu2/Location"},
   produces = {"application/json", "application/json+fhir", "application/fhir+json"}
 )
-@AllArgsConstructor(onConstructor = @__({@Autowired}))
 public class LocationController {
+  private final Datamart datamart = new Datamart();
+
   private Transformer transformer;
+
   private MrAndersonClient mrAndersonClient;
+
   private Bundler bundler;
+
+  private LocationRepository repository;
+
+  private WitnessProtection witnessProtection;
+
+  private boolean defaultToDatamart;
+
+  /** Spring constructor. */
+  public LocationController(
+      @Value("${datamart.location}") boolean defaultToDatamart,
+      @Autowired Transformer transformer,
+      @Autowired MrAndersonClient mrAndersonClient,
+      @Autowired Bundler bundler,
+      @Autowired LocationRepository repository,
+      @Autowired WitnessProtection witnessProtection) {
+    this.defaultToDatamart = defaultToDatamart;
+    this.transformer = transformer;
+    this.mrAndersonClient = mrAndersonClient;
+    this.bundler = bundler;
+    this.repository = repository;
+    this.witnessProtection = witnessProtection;
+  }
 
   private Location.Bundle bundle(MultiValueMap<String, String> parameters, int page, int count) {
     CdwLocation100Root root = search(parameters);
@@ -126,4 +152,11 @@ public class LocationController {
 
   public interface Transformer
       extends Function<CdwLocation100Root.CdwLocations.CdwLocation, Location> {}
+
+  /**
+   * This class is being used to help organize the code such that all the datamart logic is
+   * contained together. In the future when Mr. Anderson support is dropped, this class can be
+   * eliminated.
+   */
+  private class Datamart {}
 }
