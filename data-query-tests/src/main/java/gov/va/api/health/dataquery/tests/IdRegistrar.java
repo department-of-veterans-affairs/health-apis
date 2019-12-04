@@ -4,18 +4,21 @@ import static java.util.Collections.singletonList;
 
 import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
+import gov.va.api.health.sentinel.ReducedSpamLogger;
 import java.util.Arrays;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Value;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.LoggerFactory;
 
 /** ID Registrar will register CDW IDs with the Identity Service then publish the public UUIDs. */
 @Value
 @AllArgsConstructor(staticName = "of")
-@Slf4j
 final class IdRegistrar {
+  private static final ReducedSpamLogger log =
+      ReducedSpamLogger.builder().logger(LoggerFactory.getLogger(IdRegistrar.class)).build();
+
   SystemDefinition system;
 
   @Getter(lazy = true)
@@ -50,7 +53,7 @@ final class IdRegistrar {
   private TestIds registerCdwIds() {
     TestIds cdwIds = system().cdwIds();
     if (cdwIds.publicIds()) {
-      log.info("Registration not necessary");
+      log.infoOnce("Registration not necessary");
       return cdwIds;
     }
 

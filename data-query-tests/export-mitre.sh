@@ -26,5 +26,6 @@ mvn -f ../data-query \
   generate-resources \
   -DconfigFile=config/lab.properties \
   -DoutputFile=./src/test/resources/mitre \
+  -DexportPatients=32000225,43000199,17,23 \
   -Dorg.jboss.logging.provider=jdk \
   -Djava.util.logging.config.file=nope
