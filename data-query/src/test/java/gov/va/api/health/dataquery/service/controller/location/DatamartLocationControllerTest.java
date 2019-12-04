@@ -20,6 +20,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.Bundler;
 import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
+import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.location.LocationEntity;
 import gov.va.api.health.dataquery.service.controller.location.DatamartLocation;
@@ -80,11 +81,6 @@ public class DatamartLocationControllerTest {
                 Registration.builder().uuid(publicId).resourceIdentity(resourceIdentity).build()));
   }
 
-  //  readRawThrowsNotFoundWhenDataIsMissing()
-  //  readRawThrowsNotFoundWhenIdIsUnknown()
-  //  readThrowsNotFoundWhenDataIsMissing()
-  //  readThrowsNotFoundWhenIdIsUnknown()
-
   @Test
   public void read() {
     DatamartLocation dm = DatamartLocationSamples.Datamart.create().location("x");
@@ -104,6 +100,28 @@ public class DatamartLocationControllerTest {
     String json = controller().readRaw("x", servletResponse);
     assertThat(object(json)).isEqualTo(dm);
     verify(servletResponse).addHeader("X-VA-INCLUDES-ICN", "NONE");
+  }
+
+  @Test(expected = ResourceExceptions.NotFound.class)
+  public void readRawThrowsNotFoundWhenDataIsMissing() {
+    mockLocationIdentity("x", "x");
+    controller().readRaw("x", mock(HttpServletResponse.class));
+  }
+
+  @Test(expected = ResourceExceptions.NotFound.class)
+  public void readRawThrowsNotFoundWhenIdIsUnknown() {
+    controller().readRaw("x", mock(HttpServletResponse.class));
+  }
+
+  @Test(expected = ResourceExceptions.NotFound.class)
+  public void readThrowsNotFoundWhenDataIsMissing() {
+    mockLocationIdentity("x", "x");
+    controller().read("true", "x");
+  }
+
+  @Test(expected = ResourceExceptions.NotFound.class)
+  public void readThrowsNotFoundWhenIdIsUnknown() {
+    controller().read("true", "x");
   }
 
   @Test

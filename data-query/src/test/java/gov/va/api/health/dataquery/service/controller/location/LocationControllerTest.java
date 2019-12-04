@@ -116,7 +116,7 @@ public class LocationControllerTest {
     Location location = Location.builder().build();
     when(client.search(Mockito.any())).thenReturn(root);
     when(tx.apply(xmlLocation)).thenReturn(location);
-    Location actual = controller.read("hello");
+    Location actual = controller.read("", "hello");
     assertThat(actual).isSameAs(location);
     ArgumentCaptor<Query<CdwLocation100Root>> captor = ArgumentCaptor.forClass(Query.class);
     verify(client).search(captor.capture());
