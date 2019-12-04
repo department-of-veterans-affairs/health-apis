@@ -317,7 +317,7 @@ entries:
     page: 1
     count: 15
   - file: ../../../../target/cdw/samples/Loc100i166365L.xml
-    query: /Location:1.02?identifier=166365:L
+    query: /Location:1.02?identifier=43817:L
     page: 1
     count: 15
   - file: ../../../../target/cdw/samples/Loc100i5555555555.xml
