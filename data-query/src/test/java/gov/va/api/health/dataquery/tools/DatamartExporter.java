@@ -12,8 +12,10 @@ import gov.va.api.health.dataquery.service.controller.medication.MedicationEntit
 import gov.va.api.health.dataquery.service.controller.medicationorder.MedicationOrderEntity;
 import gov.va.api.health.dataquery.service.controller.medicationstatement.MedicationStatementEntity;
 import gov.va.api.health.dataquery.service.controller.observation.ObservationEntity;
+import gov.va.api.health.dataquery.service.controller.organization.OrganizationEntity;
 import gov.va.api.health.dataquery.service.controller.patient.PatientEntity;
 import gov.va.api.health.dataquery.service.controller.patient.PatientSearchEntity;
+import gov.va.api.health.dataquery.service.controller.practitioner.PractitionerEntity;
 import gov.va.api.health.dataquery.service.controller.procedure.ProcedureEntity;
 import java.util.Arrays;
 import java.util.List;
@@ -48,8 +50,10 @@ public class DatamartExporter {
           ExportAllCriteria.of(MedicationEntity.class),
           ExportForPatientCriteria.of(MedicationStatementEntity.class),
           ExportForPatientCriteria.of(ObservationEntity.class),
+          ExportAllCriteria.of(OrganizationEntity.class),
           ExportForPatientCriteria.of(PatientEntity.class),
           ExportForPatientCriteria.of(PatientSearchEntity.class),
+          ExportAllCriteria.of(PractitionerEntity.class),
           ExportForPatientCriteria.of(ProcedureEntity.class));
 
   EntityManager h2;
