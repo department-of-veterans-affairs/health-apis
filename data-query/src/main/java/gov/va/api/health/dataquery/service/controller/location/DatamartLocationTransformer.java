@@ -89,7 +89,7 @@ final class DatamartLocationTransformer {
         .id(datamart.cdwId())
         .address(address(datamart.address()))
         .description(datamart.description().orElse(null))
-        .managingOrganization(asReference(datamart.managingOrganization()))
+        .managingOrganization(asReference(datamart.managingOrganization().type(Optional.of("Organization"))))
         .mode(Location.Mode.instance)
         .name(datamart.name())
         .physicalType(physicalType(datamart.physicalType()))
