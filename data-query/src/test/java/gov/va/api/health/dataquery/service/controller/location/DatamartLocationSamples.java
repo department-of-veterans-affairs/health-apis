@@ -1,9 +1,11 @@
 package gov.va.api.health.dataquery.service.controller.location;
 
+import static java.util.Arrays.asList;
+
+import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dstu2.api.bundle.AbstractBundle.BundleType;
 import gov.va.api.health.dstu2.api.bundle.AbstractEntry.Search;
 import gov.va.api.health.dstu2.api.bundle.AbstractEntry.SearchMode;
-import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dstu2.api.bundle.BundleLink;
 import gov.va.api.health.dstu2.api.bundle.BundleLink.LinkRelation;
 import gov.va.api.health.dstu2.api.datatypes.Address;
@@ -12,9 +14,6 @@ import gov.va.api.health.dstu2.api.datatypes.Coding;
 import gov.va.api.health.dstu2.api.datatypes.ContactPoint;
 import gov.va.api.health.dstu2.api.elements.Reference;
 import gov.va.api.health.dstu2.api.resources.Location;
-
-import static java.util.Arrays.asList;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
@@ -26,7 +25,7 @@ import lombok.experimental.UtilityClass;
 final class DatamartLocationSamples {
   @AllArgsConstructor(staticName = "create")
   static class Datamart {
-    DatamartLocation location(String id) {
+    DatamartLocation location(String id, String organizationId) {
       return DatamartLocation.builder()
           .cdwId(id)
           .status(DatamartLocation.Status.active)
@@ -44,7 +43,7 @@ final class DatamartLocationSamples {
           .physicalType(Optional.of("BLDG 146, RM W02"))
           .managingOrganization(
               DatamartReference.builder()
-                  .reference(Optional.of("390026:I"))
+                  .reference(Optional.of(organizationId))
                   .display(Optional.of("OLIN E. TEAGUE VET CENTER"))
                   .build())
           .build();
@@ -81,7 +80,7 @@ final class DatamartLocationSamples {
           .build();
     }
 
-    Location location(String id) {
+    Location location(String id, String organizationId) {
       return Location.builder()
           .resourceType("Location")
           .id(id)
@@ -95,7 +94,7 @@ final class DatamartLocationSamples {
           .description("BLDG 146, RM W02")
           .managingOrganization(
               Reference.builder()
-                  .reference("Organization/390026:I")
+                  .reference("Organization/" + organizationId)
                   .display("OLIN E. TEAGUE VET CENTER")
                   .build())
           .mode(Location.Mode.instance)
