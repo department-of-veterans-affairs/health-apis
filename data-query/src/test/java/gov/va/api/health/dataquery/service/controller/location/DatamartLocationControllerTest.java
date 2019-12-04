@@ -52,12 +52,12 @@ public class DatamartLocationControllerTest {
   }
 
   @SneakyThrows
-  private static String json(Object o) {
+  private static String asJson(Object o) {
     return JacksonConfig.createMapper().writerWithDefaultPrettyPrinter().writeValueAsString(o);
   }
 
   @SneakyThrows
-  private DatamartLocation object(String json) {
+  private DatamartLocation asObject(String json) {
     return JacksonConfig.createMapper().readValue(json, DatamartLocation.class);
   }
 
@@ -92,13 +92,15 @@ public class DatamartLocationControllerTest {
 
   @Test
   public void readRaw() {
+    String publicId = "abc";
+    String cdwId = "123";
     HttpServletResponse servletResponse = mock(HttpServletResponse.class);
-    DatamartLocation dm = DatamartLocationSamples.Datamart.create().location("x");
-    LocationEntity entity = asEntity(dm);
-    repository.save(entity);
-    mockLocationIdentity("x", dm.cdwId());
-    String json = controller().readRaw("x", servletResponse);
-    assertThat(object(json)).isEqualTo(dm);
+
+    DatamartLocation dm = DatamartLocationSamples.Datamart.create().location(cdwId);
+    repository.save(asEntity(dm));
+    mockLocationIdentity(publicId, cdwId);
+    String json = controller().readRaw(publicId, servletResponse);
+    assertThat(asObject(json)).isEqualTo(dm);
     verify(servletResponse).addHeader("X-VA-INCLUDES-ICN", "NONE");
   }
 
@@ -126,22 +128,32 @@ public class DatamartLocationControllerTest {
 
   @Test
   public void searchById() {
-    DatamartLocation dm = DatamartLocationSamples.Datamart.create().location("x");
+    String publicId = "abc";
+    String cdwId = "123";
+    DatamartLocation dm = DatamartLocationSamples.Datamart.create().location(cdwId);
     repository.save(asEntity(dm));
-    mockLocationIdentity("x", dm.cdwId());
-    Location.Bundle actual = controller().searchById("true", "x", 1, 1);
-    Location location = DatamartLocationSamples.Fhir.create().location("x");
-    assertThat(json(actual))
+    mockLocationIdentity(publicId, cdwId);
+    Location.Bundle actual = controller().searchById("true", publicId, 1, 1);
+    assertThat(asJson(actual))
         .isEqualTo(
-            json(
+            asJson(
                 DatamartLocationSamples.Fhir.asBundle(
                     "http://fonzy.com/cool",
-                    List.of(location),
+                    List.of(DatamartLocationSamples.Fhir.create().location(publicId)),
                     DatamartLocationSamples.Fhir.link(
-                        LinkRelation.first, "http://fonzy.com/cool/Location?identifier=x", 1, 1),
+                        LinkRelation.first,
+                        "http://fonzy.com/cool/Location?identifier=" + publicId,
+                        1,
+                        1),
                     DatamartLocationSamples.Fhir.link(
-                        LinkRelation.self, "http://fonzy.com/cool/Location?identifier=x", 1, 1),
+                        LinkRelation.self,
+                        "http://fonzy.com/cool/Location?identifier=" + publicId,
+                        1,
+                        1),
                     DatamartLocationSamples.Fhir.link(
-                        LinkRelation.last, "http://fonzy.com/cool/Location?identifier=x", 1, 1))));
+                        LinkRelation.last,
+                        "http://fonzy.com/cool/Location?identifier=" + publicId,
+                        1,
+                        1))));
   }
 }
