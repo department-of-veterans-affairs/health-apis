@@ -49,7 +49,7 @@ public class ResourceVerifier {
 
   private ImmutableList<Class<?>> DATAMART_AND_CDW_RESOURCES =
       ImmutableList.of(
-        Location.class,
+        Location.class
           /*
            * As remaining resources are migrated, they may support both CDW and Datamart at the same
            * time. Once resources are fully migrated over, they can be removed from this list.

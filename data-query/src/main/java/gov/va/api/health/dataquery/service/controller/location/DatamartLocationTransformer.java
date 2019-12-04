@@ -14,10 +14,11 @@ import gov.va.api.health.dstu2.api.resources.Location;
 import java.util.List;
 import java.util.Optional;
 import lombok.Builder;
+import lombok.NonNull;
 
 @Builder
 final class DatamartLocationTransformer {
-  private final DatamartLocation datamart;
+  @NonNull private final DatamartLocation datamart;
 
   private static Address address(DatamartLocation.Address address) {
     if (address == null) {
