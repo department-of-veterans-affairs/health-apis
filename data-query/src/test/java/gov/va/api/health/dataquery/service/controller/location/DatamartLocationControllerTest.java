@@ -2,10 +2,13 @@ package gov.va.api.health.dataquery.service.controller.location;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.any;
 
 import java.util.List;
+
+import javax.servlet.http.HttpServletResponse;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,6 +21,8 @@ import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.Bundler;
 import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
+import gov.va.api.health.dataquery.service.controller.location.LocationEntity;
+import gov.va.api.health.dataquery.service.controller.location.DatamartLocation;
 import gov.va.api.health.dstu2.api.bundle.BundleLink.LinkRelation;
 import gov.va.api.health.dstu2.api.resources.Location;
 import gov.va.api.health.ids.api.IdentityService;
@@ -50,6 +55,11 @@ public class DatamartLocationControllerTest {
     return JacksonConfig.createMapper().writerWithDefaultPrettyPrinter().writeValueAsString(o);
   }
 
+  @SneakyThrows
+  private DatamartLocation object(String json) {
+    return JacksonConfig.createMapper().readValue(json, DatamartLocation.class);
+  }
+
   private LocationController controller() {
     return new LocationController(
         true,
@@ -70,7 +80,6 @@ public class DatamartLocationControllerTest {
                 Registration.builder().uuid(publicId).resourceIdentity(resourceIdentity).build()));
   }
 
-  //  readRaw()
   //  readRawThrowsNotFoundWhenDataIsMissing()
   //  readRawThrowsNotFoundWhenIdIsUnknown()
   //  readThrowsNotFoundWhenDataIsMissing()
@@ -83,6 +92,18 @@ public class DatamartLocationControllerTest {
     mockLocationIdentity("x", dm.cdwId());
     Location actual = controller().read("", "x");
     assertThat(actual).isEqualTo(DatamartLocationSamples.Fhir.create().location("x"));
+  }
+
+  @Test
+  public void readRaw() {
+    HttpServletResponse servletResponse = mock(HttpServletResponse.class);
+    DatamartLocation dm = DatamartLocationSamples.Datamart.create().location("x");
+    LocationEntity entity = asEntity(dm);
+    repository.save(entity);
+    mockLocationIdentity("x", dm.cdwId());
+    String json = controller().readRaw("x", servletResponse);
+    assertThat(object(json)).isEqualTo(dm);
+    verify(servletResponse).addHeader("X-VA-INCLUDES-ICN", "NONE");
   }
 
   @Test

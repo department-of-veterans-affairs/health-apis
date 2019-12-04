@@ -4,6 +4,7 @@ import static gov.va.api.health.dataquery.service.controller.Transformers.firstP
 import static gov.va.api.health.dataquery.service.controller.Transformers.hasPayload;
 import static java.util.Collections.emptyList;
 
+import gov.va.api.health.dataquery.service.controller.AbstractIncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.Bundler;
 import gov.va.api.health.dataquery.service.controller.Bundler.BundleContext;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
@@ -124,9 +125,8 @@ public class LocationController {
     headers = {"raw=true"}
   )
   public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
-    LocationEntity entity = datamart.readRaw(publicId);
-    // AbstractIncludesIcnMajig.addHeader(response, entity.icn());
-    return entity.payload();
+    AbstractIncludesIcnMajig.addHeaderForNoPatients(response);
+    return datamart.readRaw(publicId).payload();
   }
 
   /**
