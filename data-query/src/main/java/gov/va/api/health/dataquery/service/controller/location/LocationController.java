@@ -107,7 +107,12 @@ public class LocationController {
 
   /** Read by id. */
   @GetMapping(value = {"/{publicId}"})
-  public Location read(@PathVariable("publicId") String publicId) {
+  public Location read(
+      @RequestHeader(value = "Datamart", defaultValue = "") String datamartHeader,
+      @PathVariable("publicId") String publicId) {
+    if (datamart.isDatamartRequest(datamartHeader)) {
+      return datamart.read(publicId);
+    }
     return transformer.apply(
         firstPayloadItem(
             hasPayload(search(Parameters.forIdentity(publicId)).getLocations()).getLocation()));

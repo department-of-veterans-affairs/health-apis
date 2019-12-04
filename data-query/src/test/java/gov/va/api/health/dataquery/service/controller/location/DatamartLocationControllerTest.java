@@ -70,6 +70,21 @@ public class DatamartLocationControllerTest {
                 Registration.builder().uuid(publicId).resourceIdentity(resourceIdentity).build()));
   }
 
+  //  readRaw()
+  //  readRawThrowsNotFoundWhenDataIsMissing()
+  //  readRawThrowsNotFoundWhenIdIsUnknown()
+  //  readThrowsNotFoundWhenDataIsMissing()
+  //  readThrowsNotFoundWhenIdIsUnknown()
+
+  @Test
+  public void read() {
+    DatamartLocation dm = DatamartLocationSamples.Datamart.create().location("x");
+    repository.save(asEntity(dm));
+    mockLocationIdentity("x", dm.cdwId());
+    Location actual = controller().read("", "x");
+    assertThat(actual).isEqualTo(DatamartLocationSamples.Fhir.create().location("x"));
+  }
+
   @Test
   public void searchById() {
     DatamartLocation dm = DatamartLocationSamples.Datamart.create().location("x");
