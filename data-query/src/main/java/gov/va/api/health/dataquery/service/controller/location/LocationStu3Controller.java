@@ -2,6 +2,7 @@ package gov.va.api.health.dataquery.service.controller.location;
 
 import static java.util.Collections.emptyList;
 
+import com.google.common.collect.Iterables;
 import gov.va.api.health.dataquery.service.controller.AbstractIncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.BundlerStu3;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
@@ -16,11 +17,14 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -51,6 +55,10 @@ public class LocationStu3Controller {
 
   private WitnessProtection witnessProtection;
 
+  private static PageRequest page(int page, int count) {
+    return PageRequest.of(page - 1, count == 0 ? 1 : count, LocationEntity.naturalOrder());
+  }
+
   private Location.Bundle bundle(
       MultiValueMap<String, String> parameters, List<Location> reports, int totalRecords) {
     PageLinksStu3.LinkConfig linkConfig =
@@ -66,7 +74,7 @@ public class LocationStu3Controller {
             linkConfig, reports, Function.identity(), Location.Entry::new, Location.Bundle::new));
   }
 
-  private LocationEntity findById(String publicId) {
+  private LocationEntity entityById(String publicId) {
     Optional<LocationEntity> entity = repository.findById(witnessProtection.toCdwId(publicId));
     return entity.orElseThrow(() -> new ResourceExceptions.NotFound(publicId));
   }
@@ -74,9 +82,8 @@ public class LocationStu3Controller {
   /** Read by id. */
   @GetMapping(value = {"/{publicId}"})
   public Location read(@PathVariable("publicId") String publicId) {
-    DatamartLocation location = findById(publicId).asDatamartLocation();
-    replaceReferences(List.of(location));
-    return LocationStu3Transformer.builder().datamart(location).build().toFhir();
+    LocationEntity entity = entityById(publicId);
+    return Iterables.getOnlyElement(transform(Stream.of(entity)));
   }
 
   /** Read raw. */
@@ -86,13 +93,34 @@ public class LocationStu3Controller {
   )
   public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
     AbstractIncludesIcnMajig.addHeaderForNoPatients(response);
-    return findById(publicId).payload();
+    return entityById(publicId).payload();
   }
 
-  private Collection<DatamartLocation> replaceReferences(Collection<DatamartLocation> resources) {
-    witnessProtection.registerAndUpdateReferences(
-        resources, resource -> Stream.of(resource.managingOrganization()));
-    return resources;
+  /** Search by address. */
+  @GetMapping(params = {"address", "address-city", "address-state", "address-postalcode"})
+  public Location.Bundle searchByAddressStreet(
+      @RequestParam("address") String street,
+      @RequestParam("address-city") String city,
+      @RequestParam("address-state") String state,
+      @RequestParam("address-postalcode") String postalCode,
+      @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
+      @CountParameter @Min(0) int count) {
+    MultiValueMap<String, String> parameters =
+        Parameters.builder()
+            .add("address", street)
+            .add("address-city", city)
+            .add("address-state", state)
+            .add("address-postalcode", postalCode)
+            .add("page", page)
+            .add("_count", count)
+            .build();
+    Page<LocationEntity> entitiesPage =
+        repository.findByStreetAndCityAndStateAndPostalCode(
+            street, city, state, postalCode, page(page, count));
+    if (count == 0) {
+      return bundle(parameters, emptyList(), (int) entitiesPage.getTotalElements());
+    }
+    return bundle(parameters, transform(entitiesPage.get()), (int) entitiesPage.getTotalElements());
   }
 
   /** Search by _id. */
@@ -121,6 +149,32 @@ public class LocationStu3Controller {
     return searchById(publicId, page, count);
   }
 
+  /** Search by name. */
+  @GetMapping(params = {"name"})
+  public Location.Bundle searchByName(
+      @RequestParam("name") String name,
+      @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
+      @CountParameter @Min(0) int count) {
+    MultiValueMap<String, String> parameters =
+        Parameters.builder().add("name", name).add("page", page).add("_count", count).build();
+    Page<LocationEntity> entitiesPage = repository.findByName(name, page(page, count));
+    if (count == 0) {
+      return bundle(parameters, emptyList(), (int) entitiesPage.getTotalElements());
+    }
+    return bundle(parameters, transform(entitiesPage.get()), (int) entitiesPage.getTotalElements());
+  }
+
+  private List<Location> transform(Stream<LocationEntity> entities) {
+    List<DatamartLocation> datamarts =
+        entities.map(LocationEntity::asDatamartLocation).collect(Collectors.toList());
+    witnessProtection.registerAndUpdateReferences(
+        datamarts, resource -> Stream.of(resource.managingOrganization()));
+    return datamarts
+        .stream()
+        .map(dm -> LocationStu3Transformer.builder().datamart(dm).build().toFhir())
+        .collect(Collectors.toList());
+  }
+
   /** Hey, this is a validate endpoint. It validates. */
   @PostMapping(
     value = "/$validate",
@@ -129,18 +183,4 @@ public class LocationStu3Controller {
   public OperationOutcome validate(@RequestBody Location.Bundle bundle) {
     return ValidatorStu3.create().validate(bundle);
   }
-
-  // PETERTODO
-  //  GET [base]/Location?identifier=[system]|[code]
-  //    Example: GET [base]/Location?identifier=http://hospital.smarthealthit.org/Location|123571
-  //
-  //    GET [base]/Location?name=[string]
-  //    Example: GET [base]/Location?name=Health
-  //
-  //    GET [base]/Location?address=[string]
-  //    Example: GET [base]/Location?address=Arbor
-  //    Example: GET [base]/Location?address-city=Melbourne
-  //    Example: GET [base]/Location?address-state=FL
-  //
-  //    Example: GET [base]/Location?address-postalcode=12345
 }
