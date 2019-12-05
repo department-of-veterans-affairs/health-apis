@@ -3,17 +3,16 @@ package gov.va.api.health.dataquery.service.controller.location;
 import static java.util.Arrays.asList;
 
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
-import gov.va.api.health.dstu2.api.bundle.AbstractBundle.BundleType;
-import gov.va.api.health.dstu2.api.bundle.AbstractEntry.Search;
-import gov.va.api.health.dstu2.api.bundle.AbstractEntry.SearchMode;
-import gov.va.api.health.dstu2.api.bundle.BundleLink;
-import gov.va.api.health.dstu2.api.bundle.BundleLink.LinkRelation;
-import gov.va.api.health.dstu2.api.datatypes.Address;
-import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
-import gov.va.api.health.dstu2.api.datatypes.Coding;
-import gov.va.api.health.dstu2.api.datatypes.ContactPoint;
-import gov.va.api.health.dstu2.api.elements.Reference;
-import gov.va.api.health.dstu2.api.resources.Location;
+import gov.va.api.health.stu3.api.bundle.AbstractBundle.BundleType;
+import gov.va.api.health.stu3.api.bundle.AbstractEntry.Search;
+import gov.va.api.health.stu3.api.bundle.AbstractEntry.SearchMode;
+import gov.va.api.health.stu3.api.bundle.BundleLink;
+import gov.va.api.health.stu3.api.bundle.BundleLink.LinkRelation;
+import gov.va.api.health.stu3.api.datatypes.CodeableConcept;
+import gov.va.api.health.stu3.api.datatypes.Coding;
+import gov.va.api.health.stu3.api.datatypes.ContactPoint;
+import gov.va.api.health.stu3.api.elements.Reference;
+import gov.va.api.health.stu3.api.resources.Location;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
@@ -22,7 +21,7 @@ import lombok.AllArgsConstructor;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
-final class LocationSamplesDstu2 {
+final class LocationStu3Samples {
   @AllArgsConstructor(staticName = "create")
   static class Datamart {
     DatamartLocation location(String id, String organizationId) {
@@ -85,11 +84,12 @@ final class LocationSamplesDstu2 {
           .resourceType("Location")
           .id(id)
           .address(
-              Address.builder()
+              Location.LocationAddress.builder()
                   .line(asList("1901 VETERANS MEMORIAL DRIVE"))
                   .city("TEMPLE")
                   .state("TEXAS")
                   .postalCode("76504")
+                  .text("1901 VETERANS MEMORIAL DRIVE TEMPLE TEXAS 76504")
                   .build())
           .description("BLDG 146, RM W02")
           .managingOrganization(

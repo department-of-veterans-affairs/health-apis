@@ -1,17 +1,14 @@
 package gov.va.api.health.dataquery.service.controller.location;
 
 import gov.va.api.health.autoconfig.logging.Loggable;
-import lombok.Builder;
-import lombok.Value;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-
+import lombok.Builder;
+import lombok.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;

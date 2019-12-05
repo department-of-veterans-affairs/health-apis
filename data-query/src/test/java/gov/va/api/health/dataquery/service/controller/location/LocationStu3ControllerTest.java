@@ -16,7 +16,6 @@ import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.health.stu3.api.bundle.BundleLink;
 import gov.va.api.health.stu3.api.resources.Location;
-
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
@@ -88,10 +87,10 @@ public class LocationStu3ControllerTest {
     String orgPubId = "def";
     String orgCdwId = "456";
     addMockIdentities(publicId, cdwId, orgPubId, orgCdwId);
-    DatamartLocation dm = LocationSamplesStu3.Datamart.create().location(cdwId, orgCdwId);
+    DatamartLocation dm = LocationStu3Samples.Datamart.create().location(cdwId, orgCdwId);
     repository.save(asEntity(dm));
     Location actual = controller().read(publicId);
-    assertThat(actual).isEqualTo(LocationSamplesStu3.Fhir.create().location(publicId, orgPubId));
+    assertThat(actual).isEqualTo(LocationStu3Samples.Fhir.create().location(publicId, orgPubId));
   }
 
   @Test
@@ -102,7 +101,7 @@ public class LocationStu3ControllerTest {
     String orgCdwId = "456";
     addMockIdentities(publicId, cdwId, orgPubId, orgCdwId);
     HttpServletResponse servletResponse = mock(HttpServletResponse.class);
-    DatamartLocation dm = LocationSamplesStu3.Datamart.create().location(cdwId, orgCdwId);
+    DatamartLocation dm = LocationStu3Samples.Datamart.create().location(cdwId, orgCdwId);
     repository.save(asEntity(dm));
     String json = controller().readRaw(publicId, servletResponse);
     assertThat(asObject(json)).isEqualTo(dm);
@@ -139,26 +138,26 @@ public class LocationStu3ControllerTest {
     String orgPubId = "def";
     String orgCdwId = "456";
     addMockIdentities(publicId, cdwId, orgPubId, orgCdwId);
-    DatamartLocation dm = LocationSamplesStu3.Datamart.create().location(cdwId, orgCdwId);
+    DatamartLocation dm = LocationStu3Samples.Datamart.create().location(cdwId, orgCdwId);
     repository.save(asEntity(dm));
     Location.Bundle actual = controller().searchByAddress(street, null, null, null, 1, 1);
     assertThat(asJson(actual))
         .isEqualTo(
             asJson(
-                LocationSamplesStu3.Fhir.asBundle(
+                LocationStu3Samples.Fhir.asBundle(
                     "http://fonzy.com/cool",
-                    List.of(LocationSamplesStu3.Fhir.create().location(publicId, orgPubId)),
-                    LocationSamplesStu3.Fhir.link(
+                    List.of(LocationStu3Samples.Fhir.create().location(publicId, orgPubId)),
+                    LocationStu3Samples.Fhir.link(
                         BundleLink.LinkRelation.first,
                         "http://fonzy.com/cool/Location?address=" + street,
                         1,
                         1),
-                    LocationSamplesStu3.Fhir.link(
+                    LocationStu3Samples.Fhir.link(
                         BundleLink.LinkRelation.self,
                         "http://fonzy.com/cool/Location?address=" + street,
                         1,
                         1),
-                    LocationSamplesStu3.Fhir.link(
+                    LocationStu3Samples.Fhir.link(
                         BundleLink.LinkRelation.last,
                         "http://fonzy.com/cool/Location?address=" + street,
                         1,
@@ -172,32 +171,65 @@ public class LocationStu3ControllerTest {
     String orgPubId = "def";
     String orgCdwId = "456";
     addMockIdentities(publicId, cdwId, orgPubId, orgCdwId);
-    DatamartLocation dm = LocationSamplesStu3.Datamart.create().location(cdwId, orgCdwId);
+    DatamartLocation dm = LocationStu3Samples.Datamart.create().location(cdwId, orgCdwId);
     repository.save(asEntity(dm));
     Location.Bundle actual = controller().searchById(publicId, 1, 1);
     assertThat(asJson(actual))
         .isEqualTo(
             asJson(
-                LocationSamplesStu3.Fhir.asBundle(
+                LocationStu3Samples.Fhir.asBundle(
                     "http://fonzy.com/cool",
-                    List.of(LocationSamplesStu3.Fhir.create().location(publicId, orgPubId)),
-                    LocationSamplesStu3.Fhir.link(
+                    List.of(LocationStu3Samples.Fhir.create().location(publicId, orgPubId)),
+                    LocationStu3Samples.Fhir.link(
                         BundleLink.LinkRelation.first,
                         "http://fonzy.com/cool/Location?identifier=" + publicId,
                         1,
                         1),
-                    LocationSamplesStu3.Fhir.link(
+                    LocationStu3Samples.Fhir.link(
                         BundleLink.LinkRelation.self,
                         "http://fonzy.com/cool/Location?identifier=" + publicId,
                         1,
                         1),
-                    LocationSamplesStu3.Fhir.link(
+                    LocationStu3Samples.Fhir.link(
                         BundleLink.LinkRelation.last,
                         "http://fonzy.com/cool/Location?identifier=" + publicId,
                         1,
                         1))));
   }
 
+  @Test
+  public void searchByIdentifier() {
+    String publicId = "abc";
+    String cdwId = "123";
+    String orgPubId = "def";
+    String orgCdwId = "456";
+    addMockIdentities(publicId, cdwId, orgPubId, orgCdwId);
+    DatamartLocation dm = LocationStu3Samples.Datamart.create().location(cdwId, orgCdwId);
+    repository.save(asEntity(dm));
+    Location.Bundle actual = controller().searchByIdentifier(publicId, 1, 1);
+    assertThat(asJson(actual))
+        .isEqualTo(
+            asJson(
+                LocationStu3Samples.Fhir.asBundle(
+                    "http://fonzy.com/cool",
+                    List.of(LocationStu3Samples.Fhir.create().location(publicId, orgPubId)),
+                    LocationStu3Samples.Fhir.link(
+                        BundleLink.LinkRelation.first,
+                        "http://fonzy.com/cool/Location?identifier=" + publicId,
+                        1,
+                        1),
+                    LocationStu3Samples.Fhir.link(
+                        BundleLink.LinkRelation.self,
+                        "http://fonzy.com/cool/Location?identifier=" + publicId,
+                        1,
+                        1),
+                    LocationStu3Samples.Fhir.link(
+                        BundleLink.LinkRelation.last,
+                        "http://fonzy.com/cool/Location?identifier=" + publicId,
+                        1,
+                        1))));
+  }
+  
   @Test
   public void searchByName() {
     String name = "TEM MH PSO TRS IND93EH";
@@ -206,26 +238,26 @@ public class LocationStu3ControllerTest {
     String orgPubId = "def";
     String orgCdwId = "456";
     addMockIdentities(publicId, cdwId, orgPubId, orgCdwId);
-    DatamartLocation dm = LocationSamplesStu3.Datamart.create().location(cdwId, orgCdwId);
+    DatamartLocation dm = LocationStu3Samples.Datamart.create().location(cdwId, orgCdwId);
     repository.save(asEntity(dm));
     Location.Bundle actual = controller().searchByName(name, 1, 1);
     assertThat(asJson(actual))
         .isEqualTo(
             asJson(
-                LocationSamplesStu3.Fhir.asBundle(
+                LocationStu3Samples.Fhir.asBundle(
                     "http://fonzy.com/cool",
-                    List.of(LocationSamplesStu3.Fhir.create().location(publicId, orgPubId)),
-                    LocationSamplesStu3.Fhir.link(
+                    List.of(LocationStu3Samples.Fhir.create().location(publicId, orgPubId)),
+                    LocationStu3Samples.Fhir.link(
                         BundleLink.LinkRelation.first,
                         "http://fonzy.com/cool/Location?name=" + name,
                         1,
                         1),
-                    LocationSamplesStu3.Fhir.link(
+                    LocationStu3Samples.Fhir.link(
                         BundleLink.LinkRelation.self,
                         "http://fonzy.com/cool/Location?name=" + name,
                         1,
                         1),
-                    LocationSamplesStu3.Fhir.link(
+                    LocationStu3Samples.Fhir.link(
                         BundleLink.LinkRelation.last,
                         "http://fonzy.com/cool/Location?name=" + name,
                         1,

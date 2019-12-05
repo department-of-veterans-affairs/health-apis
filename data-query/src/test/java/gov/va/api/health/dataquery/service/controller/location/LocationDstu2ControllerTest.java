@@ -11,7 +11,7 @@ import gov.va.api.health.dataquery.service.controller.Bundler;
 import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
-import gov.va.api.health.dstu2.api.bundle.BundleLink.LinkRelation;
+import gov.va.api.health.dstu2.api.bundle.BundleLink;
 import gov.va.api.health.dstu2.api.resources.Location;
 import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.api.Registration;
@@ -90,10 +90,10 @@ public class LocationDstu2ControllerTest {
     String orgPubId = "def";
     String orgCdwId = "456";
     addMockIdentities(publicId, cdwId, orgPubId, orgCdwId);
-    DatamartLocation dm = LocationSamples.Datamart.create().location(cdwId, orgCdwId);
+    DatamartLocation dm = LocationDstu2Samples.Datamart.create().location(cdwId, orgCdwId);
     repository.save(asEntity(dm));
     Location actual = controller().read("", publicId);
-    assertThat(actual).isEqualTo(LocationSamples.Fhir.create().location(publicId, orgPubId));
+    assertThat(actual).isEqualTo(LocationDstu2Samples.Fhir.create().location(publicId, orgPubId));
   }
 
   @Test
@@ -104,7 +104,7 @@ public class LocationDstu2ControllerTest {
     String orgCdwId = "456";
     addMockIdentities(publicId, cdwId, orgPubId, orgCdwId);
     HttpServletResponse servletResponse = mock(HttpServletResponse.class);
-    DatamartLocation dm = LocationSamples.Datamart.create().location(cdwId, orgCdwId);
+    DatamartLocation dm = LocationDstu2Samples.Datamart.create().location(cdwId, orgCdwId);
     repository.save(asEntity(dm));
     String json = controller().readRaw(publicId, servletResponse);
     assertThat(asObject(json)).isEqualTo(dm);
@@ -140,27 +140,27 @@ public class LocationDstu2ControllerTest {
     String orgPubId = "def";
     String orgCdwId = "456";
     addMockIdentities(publicId, cdwId, orgPubId, orgCdwId);
-    DatamartLocation dm = LocationSamples.Datamart.create().location(cdwId, orgCdwId);
+    DatamartLocation dm = LocationDstu2Samples.Datamart.create().location(cdwId, orgCdwId);
     repository.save(asEntity(dm));
     Location.Bundle actual = controller().searchById("true", publicId, 1, 1);
     assertThat(asJson(actual))
         .isEqualTo(
             asJson(
-                LocationSamples.Fhir.asBundle(
+                LocationDstu2Samples.Fhir.asBundle(
                     "http://fonzy.com/cool",
-                    List.of(LocationSamples.Fhir.create().location(publicId, orgPubId)),
-                    LocationSamples.Fhir.link(
-                        LinkRelation.first,
+                    List.of(LocationDstu2Samples.Fhir.create().location(publicId, orgPubId)),
+                    LocationDstu2Samples.Fhir.link(
+                        BundleLink.LinkRelation.first,
                         "http://fonzy.com/cool/Location?identifier=" + publicId,
                         1,
                         1),
-                    LocationSamples.Fhir.link(
-                        LinkRelation.self,
+                    LocationDstu2Samples.Fhir.link(
+                        BundleLink.LinkRelation.self,
                         "http://fonzy.com/cool/Location?identifier=" + publicId,
                         1,
                         1),
-                    LocationSamples.Fhir.link(
-                        LinkRelation.last,
+                    LocationDstu2Samples.Fhir.link(
+                        BundleLink.LinkRelation.last,
                         "http://fonzy.com/cool/Location?identifier=" + publicId,
                         1,
                         1))));
