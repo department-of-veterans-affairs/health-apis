@@ -90,11 +90,10 @@ public class LocationDstu2ControllerTest {
     String orgPubId = "def";
     String orgCdwId = "456";
     addMockIdentities(publicId, cdwId, orgPubId, orgCdwId);
-    DatamartLocation dm = DatamartLocationSamples.Datamart.create().location(cdwId, orgCdwId);
+    DatamartLocation dm = LocationSamples.Datamart.create().location(cdwId, orgCdwId);
     repository.save(asEntity(dm));
     Location actual = controller().read("", publicId);
-    assertThat(actual)
-        .isEqualTo(DatamartLocationSamples.Fhir.create().location(publicId, orgPubId));
+    assertThat(actual).isEqualTo(LocationSamples.Fhir.create().location(publicId, orgPubId));
   }
 
   @Test
@@ -105,7 +104,7 @@ public class LocationDstu2ControllerTest {
     String orgCdwId = "456";
     addMockIdentities(publicId, cdwId, orgPubId, orgCdwId);
     HttpServletResponse servletResponse = mock(HttpServletResponse.class);
-    DatamartLocation dm = DatamartLocationSamples.Datamart.create().location(cdwId, orgCdwId);
+    DatamartLocation dm = LocationSamples.Datamart.create().location(cdwId, orgCdwId);
     repository.save(asEntity(dm));
     String json = controller().readRaw(publicId, servletResponse);
     assertThat(asObject(json)).isEqualTo(dm);
@@ -141,26 +140,26 @@ public class LocationDstu2ControllerTest {
     String orgPubId = "def";
     String orgCdwId = "456";
     addMockIdentities(publicId, cdwId, orgPubId, orgCdwId);
-    DatamartLocation dm = DatamartLocationSamples.Datamart.create().location(cdwId, orgCdwId);
+    DatamartLocation dm = LocationSamples.Datamart.create().location(cdwId, orgCdwId);
     repository.save(asEntity(dm));
     Location.Bundle actual = controller().searchById("true", publicId, 1, 1);
     assertThat(asJson(actual))
         .isEqualTo(
             asJson(
-                DatamartLocationSamples.Fhir.asBundle(
+                LocationSamples.Fhir.asBundle(
                     "http://fonzy.com/cool",
-                    List.of(DatamartLocationSamples.Fhir.create().location(publicId, orgPubId)),
-                    DatamartLocationSamples.Fhir.link(
+                    List.of(LocationSamples.Fhir.create().location(publicId, orgPubId)),
+                    LocationSamples.Fhir.link(
                         LinkRelation.first,
                         "http://fonzy.com/cool/Location?identifier=" + publicId,
                         1,
                         1),
-                    DatamartLocationSamples.Fhir.link(
+                    LocationSamples.Fhir.link(
                         LinkRelation.self,
                         "http://fonzy.com/cool/Location?identifier=" + publicId,
                         1,
                         1),
-                    DatamartLocationSamples.Fhir.link(
+                    LocationSamples.Fhir.link(
                         LinkRelation.last,
                         "http://fonzy.com/cool/Location?identifier=" + publicId,
                         1,
