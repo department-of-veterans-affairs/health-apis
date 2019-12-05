@@ -13,7 +13,6 @@ import gov.va.api.health.dataquery.service.controller.ValidatorStu3;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.stu3.api.resources.Location;
 import gov.va.api.health.stu3.api.resources.OperationOutcome;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -98,25 +97,37 @@ public class LocationStu3Controller {
 
   /** Search by address. */
   @GetMapping(params = {"address", "address-city", "address-state", "address-postalcode"})
-  public Location.Bundle searchByAddressStreet(
+  public Location.Bundle searchByAddress(
       @RequestParam("address") String street,
       @RequestParam("address-city") String city,
       @RequestParam("address-state") String state,
       @RequestParam("address-postalcode") String postalCode,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
-    MultiValueMap<String, String> parameters =
-        Parameters.builder()
-            .add("address", street)
-            .add("address-city", city)
-            .add("address-state", state)
-            .add("address-postalcode", postalCode)
-            .add("page", page)
-            .add("_count", count)
+    Parameters pb = Parameters.builder().add("page", page).add("_count", count);
+    if (street != null) {
+      pb.add("address", street);
+    }
+    if (city != null) {
+      pb.add("address-city", city);
+    }
+    if (state != null) {
+      pb.add("address-state", state);
+    }
+    if (postalCode != null) {
+      pb.add("address-postalcode", postalCode);
+    }
+    MultiValueMap<String, String> parameters = pb.build();
+
+    LocationRepository.AddressSpecification spec =
+        LocationRepository.AddressSpecification.builder()
+            .street(street)
+            .city(city)
+            .state(state)
+            .postalCode(postalCode)
             .build();
-    Page<LocationEntity> entitiesPage =
-        repository.findByStreetAndCityAndStateAndPostalCode(
-            street, city, state, postalCode, page(page, count));
+    Page<LocationEntity> entitiesPage = repository.findAll(spec, page(page, count));
+
     if (count == 0) {
       return bundle(parameters, emptyList(), (int) entitiesPage.getTotalElements());
     }
