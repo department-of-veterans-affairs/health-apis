@@ -21,11 +21,14 @@ import java.util.stream.Stream;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.Min;
 import lombok.AllArgsConstructor;
+import lombok.SneakyThrows;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -96,14 +99,18 @@ public class LocationStu3Controller {
   }
 
   /** Search by address. */
-  @GetMapping(params = {"address", "address-city", "address-state", "address-postalcode"})
+  @GetMapping
+  @SneakyThrows
   public Location.Bundle searchByAddress(
-      @RequestParam("address") String street,
-      @RequestParam("address-city") String city,
-      @RequestParam("address-state") String state,
-      @RequestParam("address-postalcode") String postalCode,
+      @RequestParam(value = "address", required = false) String street,
+      @RequestParam(value = "address-city", required = false) String city,
+      @RequestParam(value = "address-state", required = false) String state,
+      @RequestParam(value = "address-postalcode", required = false) String postalCode,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
+    if (street == null && city == null && state == null && postalCode == null) {
+      throw new MissingServletRequestParameterException("address", "String");
+    }
     Parameters pb = Parameters.builder().add("page", page).add("_count", count);
     if (street != null) {
       pb.add("address", street);
