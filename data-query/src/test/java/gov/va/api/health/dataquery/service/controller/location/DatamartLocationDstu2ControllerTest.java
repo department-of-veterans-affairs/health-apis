@@ -27,7 +27,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @DataJpaTest
 @RunWith(SpringRunner.class)
-public class DatamartLocationControllerTest {
+public class DatamartLocationDstu2ControllerTest {
 
   @Autowired private LocationRepository repository;
 
@@ -74,8 +74,8 @@ public class DatamartLocationControllerTest {
     return JacksonConfig.createMapper().readValue(json, DatamartLocation.class);
   }
 
-  private LocationController controller() {
-    return new LocationController(
+  private LocationDstu2Controller controller() {
+    return new LocationDstu2Controller(
         true,
         null,
         null,
