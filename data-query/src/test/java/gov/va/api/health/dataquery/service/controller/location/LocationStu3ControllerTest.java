@@ -229,7 +229,7 @@ public class LocationStu3ControllerTest {
                         1,
                         1))));
   }
-  
+
   @Test
   public void searchByName() {
     String name = "TEM MH PSO TRS IND93EH";
