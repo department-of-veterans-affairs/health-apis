@@ -713,7 +713,7 @@ entries:
   page: 1
   count: 15
 - file: ../../../../target/cdw/samples/Pra100i10092125.xml
-  query: /Practitioner:1.02?identifier=10092125
+  query: /Practitioner:1.02?identifier=416704
   page: 1
   count: 15
 - file: ../../../../target/cdw/samples/Pra100i5555555555555.xml
@@ -794,6 +794,20 @@ entries:
   count: 15
 - file: ./UnknownResource.xml
   query: /Patient:9.99?identifier=111222333V000999
+  page: 1
+  count: 15
+- file: ./NoResults.xml
+  query: /Patient:1.03?identifier=5555555555555
+  page: 1
+  count: 15
+  # Location aliases
+- file: ./NoResults.xml
+  query: /Location:1.02?identifier=5555555555555
+  page: 1
+  count: 15
+  # MedicationDispense aliases
+- file: ./NoResults.xml
+  query: /MedicationDispense:1.02?identifier=5555555555555
   page: 1
   count: 15
   # Immunization aliases
@@ -955,7 +969,7 @@ entries:
   count: 20
 - file: ../../../../target/cdw/samples/AllInt103p185601V825290pg2ct2.xml
   query: /AllergyIntolerance:1.04?patient=111222333V000999
-   # Medication Aliases
+  # Medication Aliases
 - file: ../../../../target/cdw/samples/Med101i212846.xml
   query: /Medication:1.01?identifier=18
   page: 1

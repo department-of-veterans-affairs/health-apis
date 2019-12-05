@@ -76,7 +76,7 @@ public class DatamartPractitionerControllerTest {
             List.of(
                 Registration.builder().uuid(publicId).resourceIdentity(resourceIdentity).build()));
   }
-  
+
   @Test
   public void read() {
     DatamartPractitioner dm = Datamart.create().practitioner();

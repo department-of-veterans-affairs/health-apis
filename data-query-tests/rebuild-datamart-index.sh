@@ -34,6 +34,13 @@ do
     -e 's/identifier=1400000140034/identifier=1000001259996/' \
     -e 's/\(MedicationOrder.*\)1200389904206/\11400162277477/' \
     -e 's/1201051417263:V/1201472002950:V/' \
+    -e 's/identifier=10092125/identifier=416704/' \
+    -e 's/Appointment:1.01/Appointment:1.02/' \
+    -e 's/Encounter:1.01/Encounter:1.02/' \
+    -e 's/Location:1.00/Location:1.02/' \
+    -e 's/MedicationDispense:1.00/MedicationDispense:1.02/' \
+    -e 's/Organization:1.00/Organization:1.02/' \
+    -e 's/Practitioner:1.00/Practitioner:1.02/' \
     $SOURCE >> $DESTINATION
 done
 
