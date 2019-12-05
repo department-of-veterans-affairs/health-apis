@@ -20,7 +20,7 @@ import lombok.NonNull;
 final class DatamartLocationTransformer {
   @NonNull private final DatamartLocation datamart;
 
-  private static Address address(DatamartLocation.Address address) {
+  static Address address(DatamartLocation.Address address) {
     if (address == null) {
       return null;
     }
@@ -36,7 +36,7 @@ final class DatamartLocationTransformer {
         .build();
   }
 
-  private static CodeableConcept physicalType(Optional<String> maybePhysType) {
+  static CodeableConcept physicalType(Optional<String> maybePhysType) {
     if (maybePhysType.isEmpty()) {
       return null;
     }
@@ -51,14 +51,14 @@ final class DatamartLocationTransformer {
         .build();
   }
 
-  private static Location.Status status(DatamartLocation.Status status) {
+  static Location.Status status(DatamartLocation.Status status) {
     if (status == null) {
       return null;
     }
     return EnumSearcher.of(Location.Status.class).find(status.toString());
   }
 
-  private static List<ContactPoint> telecoms(String telecom) {
+  static List<ContactPoint> telecoms(String telecom) {
     if (isBlank(telecom)) {
       return null;
     }
@@ -69,7 +69,7 @@ final class DatamartLocationTransformer {
             .build());
   }
 
-  private static CodeableConcept type(Optional<String> maybeType) {
+  static CodeableConcept type(Optional<String> maybeType) {
     if (maybeType.isEmpty()) {
       return null;
     }
