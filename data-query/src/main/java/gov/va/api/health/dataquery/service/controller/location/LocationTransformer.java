@@ -30,7 +30,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 @Service
-public class LocationTransformer implements LocationController.Transformer {
+public class LocationTransformer implements LocationDstu2Controller.Transformer {
   Address address(CdwLocationAddress maybeCdw) {
     if (isUnusableAddress(maybeCdw)) {
       return null;
