@@ -59,7 +59,8 @@ public class LocationEntity implements DatamartEntity {
   @SneakyThrows
   DatamartLocation asDatamartLocation() {
     DatamartLocation dm = JacksonConfig.createMapper().readValue(payload, DatamartLocation.class);
-    if (dm.managingOrganization() != null) {
+    if (dm.managingOrganization() != null && dm.managingOrganization().type().isEmpty()) {
+      // Hack... make sure reference type is populated
       dm.managingOrganization().type(Optional.of("Organization"));
     }
     return dm;
