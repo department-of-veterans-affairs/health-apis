@@ -55,9 +55,6 @@ public class DatamartAllergyIntoleranceControllerTest {
 
   AllergyIntoleranceController controller() {
     return new AllergyIntoleranceController(
-        true,
-        null,
-        null,
         new Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool")),
         repository,
         WitnessProtection.builder().identityService(ids).build());
@@ -116,7 +113,7 @@ public class DatamartAllergyIntoleranceControllerTest {
         DatamartAllergyIntoleranceSamples.Datamart.create().allergyIntolerance();
     repository.save(asEntity(dm));
     mockAllergyIntoleranceIdentity("1", dm.cdwId());
-    AllergyIntolerance actual = controller().read("true", "1");
+    AllergyIntolerance actual = controller().read("1");
     assertThat(json(actual)).isEqualTo(json(Fhir.create().allergyIntolerance("1")));
   }
 
@@ -146,12 +143,12 @@ public class DatamartAllergyIntoleranceControllerTest {
   @Test(expected = ResourceExceptions.NotFound.class)
   public void readThrowsNotFoundWhenDataIsMissing() {
     mockAllergyIntoleranceIdentity("1", "1");
-    controller().read("true", "1");
+    controller().read("1");
   }
 
   @Test(expected = ResourceExceptions.NotFound.class)
   public void readThrowsNotFoundWhenIdIsUnknown() {
-    controller().read("true", "1");
+    controller().read("1");
   }
 
   @Test
@@ -159,7 +156,7 @@ public class DatamartAllergyIntoleranceControllerTest {
     DatamartAllergyIntolerance dm = Datamart.create().allergyIntolerance();
     repository.save(asEntity(dm));
     mockAllergyIntoleranceIdentity("1", dm.cdwId());
-    Bundle actual = controller().searchById("true", "1", 1, 1);
+    Bundle actual = controller().searchById("1", 1, 1);
     AllergyIntolerance allergyIntolerance =
         Fhir.create().allergyIntolerance("1", dm.patient().reference().get());
     assertThat(json(actual))
@@ -188,7 +185,7 @@ public class DatamartAllergyIntoleranceControllerTest {
   @Test
   public void searchByPatient() {
     Multimap<String, AllergyIntolerance> allergyIntoleranceByPatient = populateData();
-    assertThat(json(controller().searchByPatient("true", "p0", 1, 10)))
+    assertThat(json(controller().searchByPatient("p0", 1, 10)))
         .isEqualTo(
             json(
                 Fhir.asBundle(
