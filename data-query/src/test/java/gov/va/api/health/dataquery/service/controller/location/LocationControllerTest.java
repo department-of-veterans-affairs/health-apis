@@ -44,7 +44,7 @@ public class LocationControllerTest {
   @Before
   public void _init() {
     MockitoAnnotations.initMocks(this);
-    controller = new LocationController(tx, client, bundler);
+    controller = new LocationController(false, tx, client, bundler, null, null);
   }
 
   private void assertSearch(
@@ -116,7 +116,7 @@ public class LocationControllerTest {
     Location location = Location.builder().build();
     when(client.search(Mockito.any())).thenReturn(root);
     when(tx.apply(xmlLocation)).thenReturn(location);
-    Location actual = controller.read("hello");
+    Location actual = controller.read("", "hello");
     assertThat(actual).isSameAs(location);
     ArgumentCaptor<Query<CdwLocation100Root>> captor = ArgumentCaptor.forClass(Query.class);
     verify(client).search(captor.capture());
@@ -126,14 +126,14 @@ public class LocationControllerTest {
   @Test
   public void searchById() {
     assertSearch(
-        () -> controller.searchById("me", 1, 10),
+        () -> controller.searchById("", "me", 1, 10),
         Parameters.builder().add("identifier", "me").add("page", 1).add("_count", 10).build());
   }
 
   @Test
   public void searchByIdentifier() {
     assertSearch(
-        () -> controller.searchByIdentifier("me", 1, 10),
+        () -> controller.searchByIdentifier("", "me", 1, 10),
         Parameters.builder().add("identifier", "me").add("page", 1).add("_count", 10).build());
   }
 

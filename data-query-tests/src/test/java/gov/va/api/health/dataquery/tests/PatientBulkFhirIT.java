@@ -8,6 +8,7 @@ import gov.va.api.health.dataquery.service.controller.BulkFhirCount;
 import gov.va.api.health.dataquery.tests.categories.LabDataQueryPatient;
 import gov.va.api.health.dataquery.tests.categories.ProdDataQueryPatient;
 import gov.va.api.health.sentinel.ExpectedResponse;
+import gov.va.api.health.sentinel.categories.InternalApi;
 import gov.va.api.health.sentinel.categories.Local;
 import gov.va.api.health.sentinel.categories.Manual;
 import java.time.Duration;
@@ -22,17 +23,13 @@ import org.junit.experimental.categories.Category;
 @Slf4j
 public class PatientBulkFhirIT {
 
-  private final String apiPath() {
+  private String apiPath() {
     return TestClients.internalDataQuery().service().urlWithApiPath();
   }
 
   @Test
   @Category(
-    value = {
-      Local.class,
-      LabDataQueryPatient.class,
-      ProdDataQueryPatient.class,
-    }
+    value = {Local.class, LabDataQueryPatient.class, ProdDataQueryPatient.class, InternalApi.class}
   )
   public void bulkFhirPatientSearch() {
     log.info("Verify Patient Bulk Search internal/bulk/Patient?page=x&_count=y");
@@ -66,7 +63,7 @@ public class PatientBulkFhirIT {
   }
 
   @Test
-  @Category(Manual.class)
+  @Category({Manual.class, InternalApi.class})
   public void bulkFhirPatientSearchPerformance() {
     /*
      * We will ask for 5000 patients 100 times and log out the time it took to complete
@@ -90,7 +87,7 @@ public class PatientBulkFhirIT {
   }
 
   @Test
-  @Category({Local.class, LabDataQueryPatient.class, ProdDataQueryPatient.class})
+  @Category({Local.class, LabDataQueryPatient.class, ProdDataQueryPatient.class, InternalApi.class})
   @SneakyThrows
   public void bulkPatientCount() {
     String path = apiPath() + "internal/bulk/Patient/count";

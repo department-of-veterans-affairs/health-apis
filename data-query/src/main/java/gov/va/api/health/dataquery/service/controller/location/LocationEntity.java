@@ -2,6 +2,7 @@ package gov.va.api.health.dataquery.service.controller.location;
 
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartEntity;
+import java.util.Optional;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -57,6 +58,11 @@ public class LocationEntity implements DatamartEntity {
 
   @SneakyThrows
   DatamartLocation asDatamartLocation() {
-    return JacksonConfig.createMapper().readValue(payload, DatamartLocation.class);
+    DatamartLocation dm = JacksonConfig.createMapper().readValue(payload, DatamartLocation.class);
+    if (dm.managingOrganization() != null && dm.managingOrganization().type().isEmpty()) {
+      // Hack... make sure reference type is populated
+      dm.managingOrganization().type(Optional.of("Organization"));
+    }
+    return dm;
   }
 }
