@@ -248,7 +248,7 @@ public class LocationDstu2Controller {
     }
 
     Location transform(DatamartLocation dm) {
-      return DatamartLocationDstu2Transformer.builder().datamart(dm).build().toFhir();
+      return LocationDstu2Transformer.builder().datamart(dm).build().toFhir();
     }
   }
 }

@@ -22,7 +22,7 @@ import lombok.AllArgsConstructor;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
-final class DatamartLocationSamples {
+final class LocationSamples {
   @AllArgsConstructor(staticName = "create")
   static class Datamart {
     DatamartLocation location(String id, String organizationId) {
