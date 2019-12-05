@@ -1,7 +1,7 @@
 package gov.va.api.health.dataquery.service.controller.location;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -65,32 +65,19 @@ public class DatamartLocationControllerTest {
         WitnessProtection.builder().identityService(ids).build());
   }
 
-  private void mockIdentities(String locPubId, String locCdwId, String orgPubId, String orgCdwId) {
+  private void addMockIdentities(
+      String locPubId, String locCdwId, String orgPubId, String orgCdwId) {
     ResourceIdentity locResource =
         ResourceIdentity.builder().system("CDW").resource("LOCATION").identifier(locCdwId).build();
-    when(ids.lookup(locPubId)).thenReturn(List.of(locResource));
-
     ResourceIdentity orgResource =
         ResourceIdentity.builder()
             .system("CDW")
             .resource("ORGANIZATION")
             .identifier(orgCdwId)
             .build();
-    when(ids.lookup(orgPubId)).thenReturn(List.of(orgResource));
 
-    when(ids.register(
-            eq(
-                List.of(
-                    ResourceIdentity.builder()
-                        .system("CDW")
-                        .resource("LOCATION")
-                        .identifier(locCdwId)
-                        .build(),
-                    ResourceIdentity.builder()
-                        .system("CDW")
-                        .resource("ORGANIZATION")
-                        .identifier(orgCdwId)
-                        .build()))))
+    when(ids.lookup(locPubId)).thenReturn(List.of(locResource));
+    when(ids.register(any()))
         .thenReturn(
             List.of(
                 Registration.builder().uuid(locPubId).resourceIdentity(locResource).build(),
@@ -103,7 +90,7 @@ public class DatamartLocationControllerTest {
     String cdwId = "123";
     String orgPubId = "def";
     String orgCdwId = "456";
-    mockIdentities(publicId, cdwId, orgPubId, orgCdwId);
+    addMockIdentities(publicId, cdwId, orgPubId, orgCdwId);
 
     DatamartLocation dm = DatamartLocationSamples.Datamart.create().location(cdwId, orgCdwId);
     repository.save(asEntity(dm));
@@ -118,7 +105,7 @@ public class DatamartLocationControllerTest {
     String cdwId = "123";
     String orgPubId = "def";
     String orgCdwId = "456";
-    mockIdentities(publicId, cdwId, orgPubId, orgCdwId);
+    addMockIdentities(publicId, cdwId, orgPubId, orgCdwId);
     HttpServletResponse servletResponse = mock(HttpServletResponse.class);
 
     DatamartLocation dm = DatamartLocationSamples.Datamart.create().location(cdwId, orgCdwId);
@@ -130,7 +117,7 @@ public class DatamartLocationControllerTest {
 
   @Test(expected = ResourceExceptions.NotFound.class)
   public void readRawThrowsNotFoundWhenDataIsMissing() {
-    mockIdentities("x", "x", "y", "y");
+    addMockIdentities("x", "x", "y", "y");
     controller().readRaw("x", mock(HttpServletResponse.class));
   }
 
@@ -141,7 +128,7 @@ public class DatamartLocationControllerTest {
 
   @Test(expected = ResourceExceptions.NotFound.class)
   public void readThrowsNotFoundWhenDataIsMissing() {
-    mockIdentities("x", "x", "y", "y");
+    addMockIdentities("x", "x", "y", "y");
     controller().read("true", "x");
   }
 
@@ -156,7 +143,7 @@ public class DatamartLocationControllerTest {
     String cdwId = "123";
     String orgPubId = "def";
     String orgCdwId = "456";
-    mockIdentities(publicId, cdwId, orgPubId, orgCdwId);
+    addMockIdentities(publicId, cdwId, orgPubId, orgCdwId);
 
     DatamartLocation dm = DatamartLocationSamples.Datamart.create().location(cdwId, orgCdwId);
     repository.save(asEntity(dm));
