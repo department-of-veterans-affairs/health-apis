@@ -11,20 +11,20 @@ import gov.va.api.health.dstu2.api.resources.Location;
 import java.util.Optional;
 import org.junit.Test;
 
-public class DatamartLocationTransformerTest {
+public class DatamartLocationDstu2TransformerTest {
   @Test
   public void address() {
-    assertThat(DatamartLocationTransformer.address(null)).isNull();
+    assertThat(DatamartLocationDstu2Transformer.address(null)).isNull();
     assertThat(
-            DatamartLocationTransformer.address(
+            DatamartLocationDstu2Transformer.address(
                 DatamartLocation.Address.builder().line1(" ").city("x").build()))
         .isNull();
     assertThat(
-            DatamartLocationTransformer.address(
+            DatamartLocationDstu2Transformer.address(
                 DatamartLocation.Address.builder().city(" ").state(" ").postalCode(" ").build()))
         .isNull();
     assertThat(
-            DatamartLocationTransformer.address(
+            DatamartLocationDstu2Transformer.address(
                 DatamartLocation.Address.builder()
                     .line1("w")
                     .city("x")
@@ -37,9 +37,9 @@ public class DatamartLocationTransformerTest {
 
   @Test
   public void phsyicalType() {
-    assertThat(DatamartLocationTransformer.physicalType(Optional.empty())).isNull();
-    assertThat(DatamartLocationTransformer.physicalType(Optional.of(" "))).isNull();
-    assertThat(DatamartLocationTransformer.physicalType(Optional.of("x")))
+    assertThat(DatamartLocationDstu2Transformer.physicalType(Optional.empty())).isNull();
+    assertThat(DatamartLocationDstu2Transformer.physicalType(Optional.of(" "))).isNull();
+    assertThat(DatamartLocationDstu2Transformer.physicalType(Optional.of("x")))
         .isEqualTo(
             CodeableConcept.builder()
                 .coding(asList(Coding.builder().display("x").build()))
@@ -48,17 +48,17 @@ public class DatamartLocationTransformerTest {
 
   @Test
   public void status() {
-    assertThat(DatamartLocationTransformer.status(null)).isNull();
-    assertThat(DatamartLocationTransformer.status(DatamartLocation.Status.active))
+    assertThat(DatamartLocationDstu2Transformer.status(null)).isNull();
+    assertThat(DatamartLocationDstu2Transformer.status(DatamartLocation.Status.active))
         .isEqualTo(Location.Status.active);
-    assertThat(DatamartLocationTransformer.status(DatamartLocation.Status.inactive))
+    assertThat(DatamartLocationDstu2Transformer.status(DatamartLocation.Status.inactive))
         .isEqualTo(Location.Status.inactive);
   }
 
   @Test
   public void telecoms() {
-    assertThat(DatamartLocationTransformer.telecoms(" ")).isNull();
-    assertThat(DatamartLocationTransformer.telecoms("x"))
+    assertThat(DatamartLocationDstu2Transformer.telecoms(" ")).isNull();
+    assertThat(DatamartLocationDstu2Transformer.telecoms("x"))
         .isEqualTo(
             asList(
                 ContactPoint.builder()
@@ -69,9 +69,9 @@ public class DatamartLocationTransformerTest {
 
   @Test
   public void type() {
-    assertThat(DatamartLocationTransformer.type(Optional.empty())).isNull();
-    assertThat(DatamartLocationTransformer.type(Optional.of(" "))).isNull();
-    assertThat(DatamartLocationTransformer.type(Optional.of("x")))
+    assertThat(DatamartLocationDstu2Transformer.type(Optional.empty())).isNull();
+    assertThat(DatamartLocationDstu2Transformer.type(Optional.of(" "))).isNull();
+    assertThat(DatamartLocationDstu2Transformer.type(Optional.of("x")))
         .isEqualTo(
             CodeableConcept.builder()
                 .coding(asList(Coding.builder().display("x").build()))
