@@ -1,7 +1,7 @@
 package gov.va.api.health.dataquery.service.controller.location;
 
-import static gov.va.api.health.dataquery.service.controller.TransformersStu3.allBlank;
-import static gov.va.api.health.dataquery.service.controller.TransformersStu3.asReference;
+import static gov.va.api.health.dataquery.service.controller.Stu3Transformers.allBlank;
+import static gov.va.api.health.dataquery.service.controller.Stu3Transformers.asReference;
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.trimToEmpty;

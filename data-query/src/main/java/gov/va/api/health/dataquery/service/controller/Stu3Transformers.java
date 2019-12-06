@@ -10,7 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 
 /** Utility methods for STU3 transformers. */
 @UtilityClass
-public final class TransformersStu3 {
+public final class Stu3Transformers {
   /**
    * Return false if at least one value in the given list is a non-blank string, or a non-null
    * object.

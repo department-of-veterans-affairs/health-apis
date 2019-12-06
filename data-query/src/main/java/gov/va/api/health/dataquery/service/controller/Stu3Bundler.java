@@ -19,8 +19,8 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @RequiredArgsConstructor(onConstructor = @__({@Autowired}))
-public class BundlerStu3 {
-  private final PageLinksStu3 links;
+public class Stu3Bundler {
+  private final Stu3PageLinks links;
 
   /** Return new bundle, filled with entries created by transforming the XML items. */
   public <X, T extends Resource, E extends AbstractEntry<T>, B extends AbstractBundle<E>> B bundle(
@@ -62,7 +62,7 @@ public class BundlerStu3 {
   @Getter
   public static class BundleContext<
       X, T extends Resource, E extends AbstractEntry<T>, B extends AbstractBundle<E>> {
-    private final PageLinksStu3.LinkConfig linkConfig;
+    private final Stu3PageLinks.LinkConfig linkConfig;
     private final List<X> xmlItems;
     /** Invoked for each item in the XML items list to convert it to the final published form. */
     private final Function<X, T> transformer;
@@ -77,7 +77,7 @@ public class BundlerStu3 {
      * T is now within bounds of type-variable T`. So we need to go old school here.
      */
     private BundleContext(
-        PageLinksStu3.LinkConfig linkConfig,
+        Stu3PageLinks.LinkConfig linkConfig,
         List<X> xmlItems,
         Function<X, T> transformer,
         Supplier<E> newEntry,
@@ -91,7 +91,7 @@ public class BundlerStu3 {
 
     public static <X, T extends Resource, E extends AbstractEntry<T>, B extends AbstractBundle<E>>
         BundleContext<X, T, E, B> of(
-            PageLinksStu3.LinkConfig linkConfig,
+            Stu3PageLinks.LinkConfig linkConfig,
             List<X> xmlItems,
             Function<X, T> transformer,
             Supplier<E> newEntry,

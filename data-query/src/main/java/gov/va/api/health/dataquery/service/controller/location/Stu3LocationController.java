@@ -4,12 +4,12 @@ import static java.util.Collections.emptyList;
 
 import com.google.common.collect.Iterables;
 import gov.va.api.health.dataquery.service.controller.AbstractIncludesIcnMajig;
-import gov.va.api.health.dataquery.service.controller.BundlerStu3;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
-import gov.va.api.health.dataquery.service.controller.PageLinksStu3;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
-import gov.va.api.health.dataquery.service.controller.ValidatorStu3;
+import gov.va.api.health.dataquery.service.controller.Stu3Bundler;
+import gov.va.api.health.dataquery.service.controller.Stu3PageLinks;
+import gov.va.api.health.dataquery.service.controller.Stu3Validator;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.stu3.api.resources.Location;
 import gov.va.api.health.stu3.api.resources.OperationOutcome;
@@ -50,7 +50,7 @@ import org.springframework.web.bind.annotation.RestController;
 @SuppressWarnings("WeakerAccess")
 @AllArgsConstructor(onConstructor = @__({@Autowired}))
 public class Stu3LocationController {
-  private BundlerStu3 bundler;
+  private Stu3Bundler bundler;
 
   private LocationRepository repository;
 
@@ -62,8 +62,8 @@ public class Stu3LocationController {
 
   private Location.Bundle bundle(
       MultiValueMap<String, String> parameters, List<Location> reports, int totalRecords) {
-    PageLinksStu3.LinkConfig linkConfig =
-        PageLinksStu3.LinkConfig.builder()
+    Stu3PageLinks.LinkConfig linkConfig =
+        Stu3PageLinks.LinkConfig.builder()
             .path("Location")
             .queryParams(parameters)
             .page(Parameters.pageOf(parameters))
@@ -71,7 +71,7 @@ public class Stu3LocationController {
             .totalRecords(totalRecords)
             .build();
     return bundler.bundle(
-        BundlerStu3.BundleContext.of(
+        Stu3Bundler.BundleContext.of(
             linkConfig, reports, Function.identity(), Location.Entry::new, Location.Bundle::new));
   }
 
@@ -198,6 +198,6 @@ public class Stu3LocationController {
     consumes = {"application/json", "application/json+fhir", "application/fhir+json"}
   )
   public OperationOutcome validate(@RequestBody Location.Bundle bundle) {
-    return ValidatorStu3.create().validate(bundle);
+    return Stu3Validator.create().validate(bundle);
   }
 }

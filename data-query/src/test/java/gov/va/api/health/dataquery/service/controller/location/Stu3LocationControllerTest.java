@@ -7,9 +7,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
-import gov.va.api.health.dataquery.service.controller.BundlerStu3;
-import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinksStu3;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
+import gov.va.api.health.dataquery.service.controller.Stu3Bundler;
+import gov.va.api.health.dataquery.service.controller.Stu3ConfigurableBaseUrlPageLinks;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.api.Registration;
@@ -75,7 +75,7 @@ public class Stu3LocationControllerTest {
 
   private Stu3LocationController controller() {
     return new Stu3LocationController(
-        new BundlerStu3(new ConfigurableBaseUrlPageLinksStu3("http://fonzy.com", "cool")),
+        new Stu3Bundler(new Stu3ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool")),
         repository,
         WitnessProtection.builder().identityService(ids).build());
   }

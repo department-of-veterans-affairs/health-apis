@@ -10,7 +10,7 @@ import org.springframework.util.MultiValueMap;
  * This provides paging links for bundles. It will create links for first, self, and last always. It
  * will conditionally create previous and next links.
  */
-public interface PageLinksStu3 {
+public interface Stu3PageLinks {
   /** Create a list of parameters that will contain 3 to 5 values. */
   List<BundleLink> create(LinkConfig config);
 
