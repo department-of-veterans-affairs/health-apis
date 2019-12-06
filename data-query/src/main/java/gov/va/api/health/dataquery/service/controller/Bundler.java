@@ -71,12 +71,11 @@ public class Bundler {
     /** Used to create a new instance of the bundle. Called once. */
     private final Supplier<B> newBundle;
 
-    /*
+    /**
      * Normally, I'd let Lombok generate the constructor and factory method, but the generics are a
      * little too much for it and the constructor generated suffers from the dreaded `type argument
      * T is now within bounds of type-variable T`. So we need to go old school here.
      */
-
     private BundleContext(
         PageLinks.LinkConfig linkConfig,
         List<X> xmlItems,
