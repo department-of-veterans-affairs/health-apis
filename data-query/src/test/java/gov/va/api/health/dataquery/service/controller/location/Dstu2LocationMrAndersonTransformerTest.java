@@ -33,8 +33,8 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.junit.Test;
 
-public class MrAndersonLocationDstu2TransformerTest {
-  private final MrAndersonLocationDstu2Transformer tx = new MrAndersonLocationDstu2Transformer();
+public class Dstu2LocationMrAndersonTransformerTest {
+  private final Dstu2LocationMrAndersonTransformer tx = new Dstu2LocationMrAndersonTransformer();
 
   private final CdwSampleData cdw = CdwSampleData.get();
 

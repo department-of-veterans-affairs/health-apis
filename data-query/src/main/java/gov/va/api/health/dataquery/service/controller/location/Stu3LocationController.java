@@ -22,7 +22,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -50,7 +49,7 @@ import org.springframework.web.bind.annotation.RestController;
 )
 @SuppressWarnings("WeakerAccess")
 @AllArgsConstructor(onConstructor = @__({@Autowired}))
-public class LocationStu3Controller {
+public class Stu3LocationController {
   private BundlerStu3 bundler;
 
   private LocationRepository repository;
@@ -189,7 +188,7 @@ public class LocationStu3Controller {
         datamarts, resource -> Stream.of(resource.managingOrganization()));
     return datamarts
         .stream()
-        .map(dm -> LocationStu3Transformer.builder().datamart(dm).build().toFhir())
+        .map(dm -> Stu3LocationTransformer.builder().datamart(dm).build().toFhir())
         .collect(Collectors.toList());
   }
 

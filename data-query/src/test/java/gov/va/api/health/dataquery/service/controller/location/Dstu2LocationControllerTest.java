@@ -27,7 +27,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @DataJpaTest
 @RunWith(SpringRunner.class)
-public class LocationDstu2ControllerTest {
+public class Dstu2LocationControllerTest {
   @Autowired private LocationRepository repository;
 
   private IdentityService ids = mock(IdentityService.class);
@@ -73,8 +73,8 @@ public class LocationDstu2ControllerTest {
     return JacksonConfig.createMapper().readValue(json, DatamartLocation.class);
   }
 
-  private LocationDstu2Controller controller() {
-    return new LocationDstu2Controller(
+  private Dstu2LocationController controller() {
+    return new Dstu2LocationController(
         true,
         null,
         null,
@@ -90,10 +90,10 @@ public class LocationDstu2ControllerTest {
     String orgPubId = "def";
     String orgCdwId = "456";
     addMockIdentities(publicId, cdwId, orgPubId, orgCdwId);
-    DatamartLocation dm = LocationDstu2Samples.Datamart.create().location(cdwId, orgCdwId);
+    DatamartLocation dm = Dstu2LocationSamples.Datamart.create().location(cdwId, orgCdwId);
     repository.save(asEntity(dm));
     Location actual = controller().read("", publicId);
-    assertThat(actual).isEqualTo(LocationDstu2Samples.Fhir.create().location(publicId, orgPubId));
+    assertThat(actual).isEqualTo(Dstu2LocationSamples.Fhir.create().location(publicId, orgPubId));
   }
 
   @Test
@@ -104,7 +104,7 @@ public class LocationDstu2ControllerTest {
     String orgCdwId = "456";
     addMockIdentities(publicId, cdwId, orgPubId, orgCdwId);
     HttpServletResponse servletResponse = mock(HttpServletResponse.class);
-    DatamartLocation dm = LocationDstu2Samples.Datamart.create().location(cdwId, orgCdwId);
+    DatamartLocation dm = Dstu2LocationSamples.Datamart.create().location(cdwId, orgCdwId);
     repository.save(asEntity(dm));
     String json = controller().readRaw(publicId, servletResponse);
     assertThat(asObject(json)).isEqualTo(dm);
@@ -140,26 +140,26 @@ public class LocationDstu2ControllerTest {
     String orgPubId = "def";
     String orgCdwId = "456";
     addMockIdentities(publicId, cdwId, orgPubId, orgCdwId);
-    DatamartLocation dm = LocationDstu2Samples.Datamart.create().location(cdwId, orgCdwId);
+    DatamartLocation dm = Dstu2LocationSamples.Datamart.create().location(cdwId, orgCdwId);
     repository.save(asEntity(dm));
     Location.Bundle actual = controller().searchById("true", publicId, 1, 1);
     assertThat(asJson(actual))
         .isEqualTo(
             asJson(
-                LocationDstu2Samples.Fhir.asBundle(
+                Dstu2LocationSamples.Fhir.asBundle(
                     "http://fonzy.com/cool",
-                    List.of(LocationDstu2Samples.Fhir.create().location(publicId, orgPubId)),
-                    LocationDstu2Samples.Fhir.link(
+                    List.of(Dstu2LocationSamples.Fhir.create().location(publicId, orgPubId)),
+                    Dstu2LocationSamples.Fhir.link(
                         BundleLink.LinkRelation.first,
                         "http://fonzy.com/cool/Location?identifier=" + publicId,
                         1,
                         1),
-                    LocationDstu2Samples.Fhir.link(
+                    Dstu2LocationSamples.Fhir.link(
                         BundleLink.LinkRelation.self,
                         "http://fonzy.com/cool/Location?identifier=" + publicId,
                         1,
                         1),
-                    LocationDstu2Samples.Fhir.link(
+                    Dstu2LocationSamples.Fhir.link(
                         BundleLink.LinkRelation.last,
                         "http://fonzy.com/cool/Location?identifier=" + publicId,
                         1,
