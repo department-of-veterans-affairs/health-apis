@@ -23,6 +23,7 @@ public class ConfigurableBaseUrlPageLinks implements PageLinks {
    * application.
    */
   private final String baseUrl;
+
   /** These base path for resources, e.g. api */
   private String basePath;
 
