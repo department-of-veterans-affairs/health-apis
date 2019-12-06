@@ -14,8 +14,8 @@ import gov.va.api.health.dataquery.service.controller.Bundler;
 import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
-import gov.va.api.health.dataquery.service.controller.allergyintolerance.DatamartAllergyIntoleranceSamples.Datamart;
-import gov.va.api.health.dataquery.service.controller.allergyintolerance.DatamartAllergyIntoleranceSamples.Fhir;
+import gov.va.api.health.dataquery.service.controller.allergyintolerance.AllergyIntoleranceSamples.Datamart;
+import gov.va.api.health.dataquery.service.controller.allergyintolerance.AllergyIntoleranceSamples.Dstu2;
 import gov.va.api.health.dstu2.api.bundle.BundleLink.LinkRelation;
 import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.api.Registration;
@@ -34,7 +34,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @DataJpaTest
 @RunWith(SpringRunner.class)
-public class DatamartAllergyIntoleranceControllerTest {
+public class Dstu2AllergyIntoleranceControllerTest {
 
   HttpServletResponse response = mock(HttpServletResponse.class);
 
@@ -53,11 +53,8 @@ public class DatamartAllergyIntoleranceControllerTest {
         .build();
   }
 
-  AllergyIntoleranceController controller() {
-    return new AllergyIntoleranceController(
-        true,
-        null,
-        null,
+  Dstu2AllergyIntoleranceController controller() {
+    return new Dstu2AllergyIntoleranceController(
         new Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool")),
         repository,
         WitnessProtection.builder().identityService(ids).build());
@@ -83,7 +80,7 @@ public class DatamartAllergyIntoleranceControllerTest {
   }
 
   private Multimap<String, AllergyIntolerance> populateData() {
-    var fhir = Fhir.create();
+    var fhir = Dstu2.create();
     var datamart = Datamart.create();
     var allergyIntoleranceByPatient = LinkedHashMultimap.<String, AllergyIntolerance>create();
     var registrations = new ArrayList<Registration>(10);
@@ -113,17 +110,17 @@ public class DatamartAllergyIntoleranceControllerTest {
   @Test
   public void read() {
     DatamartAllergyIntolerance dm =
-        DatamartAllergyIntoleranceSamples.Datamart.create().allergyIntolerance();
+        AllergyIntoleranceSamples.Datamart.create().allergyIntolerance();
     repository.save(asEntity(dm));
     mockAllergyIntoleranceIdentity("1", dm.cdwId());
-    AllergyIntolerance actual = controller().read("true", "1");
-    assertThat(json(actual)).isEqualTo(json(Fhir.create().allergyIntolerance("1")));
+    AllergyIntolerance actual = controller().read("1");
+    assertThat(json(actual)).isEqualTo(json(Dstu2.create().allergyIntolerance("1")));
   }
 
   @Test
   public void readRaw() {
     DatamartAllergyIntolerance dm =
-        DatamartAllergyIntoleranceSamples.Datamart.create().allergyIntolerance();
+        AllergyIntoleranceSamples.Datamart.create().allergyIntolerance();
     AllergyIntoleranceEntity entity = asEntity(dm);
     repository.save(entity);
     mockAllergyIntoleranceIdentity("1", dm.cdwId());
@@ -146,12 +143,12 @@ public class DatamartAllergyIntoleranceControllerTest {
   @Test(expected = ResourceExceptions.NotFound.class)
   public void readThrowsNotFoundWhenDataIsMissing() {
     mockAllergyIntoleranceIdentity("1", "1");
-    controller().read("true", "1");
+    controller().read("1");
   }
 
   @Test(expected = ResourceExceptions.NotFound.class)
   public void readThrowsNotFoundWhenIdIsUnknown() {
-    controller().read("true", "1");
+    controller().read("1");
   }
 
   @Test
@@ -159,26 +156,26 @@ public class DatamartAllergyIntoleranceControllerTest {
     DatamartAllergyIntolerance dm = Datamart.create().allergyIntolerance();
     repository.save(asEntity(dm));
     mockAllergyIntoleranceIdentity("1", dm.cdwId());
-    Bundle actual = controller().searchById("true", "1", 1, 1);
+    Bundle actual = controller().searchById("1", 1, 1);
     AllergyIntolerance allergyIntolerance =
-        Fhir.create().allergyIntolerance("1", dm.patient().reference().get());
+        Dstu2.create().allergyIntolerance("1", dm.patient().reference().get());
     assertThat(json(actual))
         .isEqualTo(
             json(
-                Fhir.asBundle(
+                Dstu2.asBundle(
                     "http://fonzy.com/cool",
                     List.of(allergyIntolerance),
-                    Fhir.link(
+                    Dstu2.link(
                         LinkRelation.first,
                         "http://fonzy.com/cool/AllergyIntolerance?identifier=1",
                         1,
                         1),
-                    Fhir.link(
+                    Dstu2.link(
                         LinkRelation.self,
                         "http://fonzy.com/cool/AllergyIntolerance?identifier=1",
                         1,
                         1),
-                    Fhir.link(
+                    Dstu2.link(
                         LinkRelation.last,
                         "http://fonzy.com/cool/AllergyIntolerance?identifier=1",
                         1,
@@ -188,23 +185,23 @@ public class DatamartAllergyIntoleranceControllerTest {
   @Test
   public void searchByPatient() {
     Multimap<String, AllergyIntolerance> allergyIntoleranceByPatient = populateData();
-    assertThat(json(controller().searchByPatient("true", "p0", 1, 10)))
+    assertThat(json(controller().searchByPatient("p0", 1, 10)))
         .isEqualTo(
             json(
-                Fhir.asBundle(
+                Dstu2.asBundle(
                     "http://fonzy.com/cool",
                     allergyIntoleranceByPatient.get("p0"),
-                    Fhir.link(
+                    Dstu2.link(
                         LinkRelation.first,
                         "http://fonzy.com/cool/AllergyIntolerance?patient=p0",
                         1,
                         10),
-                    Fhir.link(
+                    Dstu2.link(
                         LinkRelation.self,
                         "http://fonzy.com/cool/AllergyIntolerance?patient=p0",
                         1,
                         10),
-                    Fhir.link(
+                    Dstu2.link(
                         LinkRelation.last,
                         "http://fonzy.com/cool/AllergyIntolerance?patient=p0",
                         1,
