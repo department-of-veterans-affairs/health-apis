@@ -14,11 +14,11 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
  * X-VA-INCLUDES-ICN header.
  */
 @ControllerAdvice
-public class AllergyIntoleranceIncludesIcnMajig
+public class Dstu2AllergyIntoleranceIncludesIcnMajig
     extends AbstractIncludesIcnMajig<AllergyIntolerance, Entry, Bundle> {
 
   /** Converts the reference to a Datamart Reference to pull out the patient id. */
-  public AllergyIntoleranceIncludesIcnMajig() {
+  public Dstu2AllergyIntoleranceIncludesIcnMajig() {
     super(
         AllergyIntolerance.class,
         Bundle.class,
