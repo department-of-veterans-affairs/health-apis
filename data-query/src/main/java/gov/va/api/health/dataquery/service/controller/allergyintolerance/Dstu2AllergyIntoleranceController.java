@@ -95,7 +95,7 @@ public class Dstu2AllergyIntoleranceController {
     }
     DatamartAllergyIntolerance dm = maybeEntity.get().asDatamartAllergyIntolerance();
     replaceReferences(List.of(dm));
-    return Dstu2tAllergyIntoleranceTransformer.builder().datamart(dm).build().toFhir();
+    return Dstu2AllergyIntoleranceTransformer.builder().datamart(dm).build().toFhir();
   }
 
   /** Return the raw Datamart document for the given identifier. */
@@ -185,7 +185,7 @@ public class Dstu2AllergyIntoleranceController {
     List<AllergyIntolerance> fhir =
         datamarts
             .stream()
-            .map(dm -> Dstu2tAllergyIntoleranceTransformer.builder().datamart(dm).build().toFhir())
+            .map(dm -> Dstu2AllergyIntoleranceTransformer.builder().datamart(dm).build().toFhir())
             .collect(Collectors.toList());
     return bundle(publicParameters, fhir, (int) entitiesPage.getTotalElements());
   }
