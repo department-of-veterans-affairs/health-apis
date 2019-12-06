@@ -2,6 +2,22 @@
 
 cd $(dirname $(readlink -f $0))
 
+cat <<EOF
+
+Nah.
+
+What do we say to rebuilding indexes?
+
+Not today, Satan.
+
+If you really want to do this and are, like, 666% ok with manually removing
+Datamart resources from the index by hand later, then you'll need to edit me.
+
+
+EOF
+
+exit 1
+
 #
 # This builds a copy of the datamart index replacing IDs that are available in the local datamary h2 db
 #

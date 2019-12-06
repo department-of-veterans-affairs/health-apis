@@ -24,7 +24,7 @@ import lombok.Builder;
 import lombok.NonNull;
 
 @Builder
-public final class DatamartAllergyIntoleranceTransformer {
+public final class Dstu2tAllergyIntoleranceTransformer {
   @NonNull final DatamartAllergyIntolerance datamart;
 
   AllergyIntolerance.Category category(DatamartAllergyIntolerance.Category category) {
