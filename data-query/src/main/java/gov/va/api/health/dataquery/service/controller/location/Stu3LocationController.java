@@ -5,10 +5,10 @@ import static java.util.Collections.emptyList;
 import com.google.common.collect.Iterables;
 import gov.va.api.health.dataquery.service.controller.AbstractIncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
+import gov.va.api.health.dataquery.service.controller.LinkConfig;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.Stu3Bundler;
-import gov.va.api.health.dataquery.service.controller.Stu3PageLinks;
 import gov.va.api.health.dataquery.service.controller.Stu3Validator;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.stu3.api.resources.Location;
@@ -62,8 +62,8 @@ public class Stu3LocationController {
 
   private Location.Bundle bundle(
       MultiValueMap<String, String> parameters, List<Location> reports, int totalRecords) {
-    Stu3PageLinks.LinkConfig linkConfig =
-        Stu3PageLinks.LinkConfig.builder()
+    LinkConfig linkConfig =
+        LinkConfig.builder()
             .path("Location")
             .queryParams(parameters)
             .page(Parameters.pageOf(parameters))

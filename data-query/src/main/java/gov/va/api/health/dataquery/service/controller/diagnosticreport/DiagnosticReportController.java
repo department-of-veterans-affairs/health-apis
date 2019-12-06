@@ -19,7 +19,7 @@ import gov.va.api.health.dataquery.service.controller.Bundler;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.DateTimeParameter;
 import gov.va.api.health.dataquery.service.controller.DateTimeParameters;
-import gov.va.api.health.dataquery.service.controller.PageLinks;
+import gov.va.api.health.dataquery.service.controller.LinkConfig;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions.NotFound;
@@ -136,8 +136,8 @@ public class DiagnosticReportController {
 
   private DiagnosticReport.Bundle bundle(
       MultiValueMap<String, String> parameters, List<DiagnosticReport> reports, int totalRecords) {
-    PageLinks.LinkConfig linkConfig =
-        PageLinks.LinkConfig.builder()
+    LinkConfig linkConfig =
+        LinkConfig.builder()
             .path("DiagnosticReport")
             .queryParams(parameters)
             .page(Parameters.pageOf(parameters))
@@ -270,8 +270,8 @@ public class DiagnosticReportController {
 
   private DiagnosticReport.Bundle mrAndersonBundle(MultiValueMap<String, String> parameters) {
     CdwDiagnosticReport102Root root = mrAndersonSearch(parameters);
-    PageLinks.LinkConfig linkConfig =
-        PageLinks.LinkConfig.builder()
+    LinkConfig linkConfig =
+        LinkConfig.builder()
             .path("DiagnosticReport")
             .queryParams(parameters)
             .page(Parameters.pageOf(parameters))

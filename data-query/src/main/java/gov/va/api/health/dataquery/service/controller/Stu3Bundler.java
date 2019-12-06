@@ -62,7 +62,7 @@ public class Stu3Bundler {
   @Getter
   public static class BundleContext<
       X, T extends Resource, E extends AbstractEntry<T>, B extends AbstractBundle<E>> {
-    private final Stu3PageLinks.LinkConfig linkConfig;
+    private final LinkConfig linkConfig;
     private final List<X> xmlItems;
     /** Invoked for each item in the XML items list to convert it to the final published form. */
     private final Function<X, T> transformer;
@@ -77,7 +77,7 @@ public class Stu3Bundler {
      * T is now within bounds of type-variable T`. So we need to go old school here.
      */
     private BundleContext(
-        Stu3PageLinks.LinkConfig linkConfig,
+        LinkConfig linkConfig,
         List<X> xmlItems,
         Function<X, T> transformer,
         Supplier<E> newEntry,
@@ -91,7 +91,7 @@ public class Stu3Bundler {
 
     public static <X, T extends Resource, E extends AbstractEntry<T>, B extends AbstractBundle<E>>
         BundleContext<X, T, E, B> of(
-            Stu3PageLinks.LinkConfig linkConfig,
+            LinkConfig linkConfig,
             List<X> xmlItems,
             Function<X, T> transformer,
             Supplier<E> newEntry,

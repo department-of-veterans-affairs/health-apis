@@ -8,8 +8,7 @@ import gov.va.api.health.dataquery.service.controller.AbstractIncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.Bundler;
 import gov.va.api.health.dataquery.service.controller.Bundler.BundleContext;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
-import gov.va.api.health.dataquery.service.controller.PageLinks;
-import gov.va.api.health.dataquery.service.controller.PageLinks.LinkConfig;
+import gov.va.api.health.dataquery.service.controller.LinkConfig;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.Validator;
@@ -194,8 +193,8 @@ public class Dstu2LocationController {
   private class Datamart {
     Location.Bundle bundle(
         MultiValueMap<String, String> parameters, List<Location> reports, int totalRecords) {
-      PageLinks.LinkConfig linkConfig =
-          PageLinks.LinkConfig.builder()
+      LinkConfig linkConfig =
+          LinkConfig.builder()
               .path("Location")
               .queryParams(parameters)
               .page(Parameters.pageOf(parameters))

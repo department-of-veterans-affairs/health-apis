@@ -11,8 +11,7 @@ import gov.va.api.health.dataquery.service.controller.AbstractIncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.Bundler;
 import gov.va.api.health.dataquery.service.controller.Bundler.BundleContext;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
-import gov.va.api.health.dataquery.service.controller.PageLinks;
-import gov.va.api.health.dataquery.service.controller.PageLinks.LinkConfig;
+import gov.va.api.health.dataquery.service.controller.LinkConfig;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.Validator;
@@ -183,8 +182,8 @@ public class MedicationController {
 
     private Bundle bundle(
         MultiValueMap<String, String> parameters, List<Medication> reports, int totalRecords) {
-      PageLinks.LinkConfig linkConfig =
-          PageLinks.LinkConfig.builder()
+      LinkConfig linkConfig =
+          LinkConfig.builder()
               .path("Medication")
               .queryParams(parameters)
               .page(Parameters.pageOf(parameters))
