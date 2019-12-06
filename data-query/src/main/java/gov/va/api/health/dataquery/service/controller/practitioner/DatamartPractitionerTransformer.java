@@ -10,7 +10,6 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
-import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dstu2.api.datatypes.Address;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
@@ -49,17 +48,40 @@ public class DatamartPractitionerTransformer {
         .build();
   }
 
-  private List<Address> addresses() {
-    return emptyToNull(
-        datamart.address().stream().map(adr -> address(adr)).collect(Collectors.toList()));
-  }
-
-  private String birthDate() {
-    LocalDate date = datamart.birthDate().isEmpty() ? null : datamart.birthDate().get();
+  static String birthDate(Optional<LocalDate> source) {
+    LocalDate date = source.isEmpty() ? null : source.get();
     if (date == null) {
       return null;
     }
     return date.toString();
+  }
+
+  static HumanName name(DatamartPractitioner.Name source) {
+    if (source == null
+        || allBlank(source.family(), source.given(), source.prefix(), source.suffix())) {
+      return null;
+    }
+    return convert(
+        source,
+        name ->
+            HumanName.builder()
+                .family(nameList(name.family()))
+                .given(nameList(name.given()))
+                .suffix(nameList(name.prefix().isEmpty() ? null : name.suffix().get()))
+                .prefix(nameList(name.suffix().isEmpty() ? null : name.prefix().get()))
+                .build());
+  }
+
+  static List<String> nameList(String source) {
+    if (isBlank(source)) {
+      return null;
+    }
+    return singletonList(source);
+  }
+
+  private List<Address> addresses() {
+    return emptyToNull(
+        datamart.address().stream().map(adr -> address(adr)).collect(Collectors.toList()));
   }
 
   Practitioner.Gender gender(DatamartPractitioner.Gender source) {
@@ -78,50 +100,6 @@ public class DatamartPractitionerTransformer {
     return results.stream().map(s -> healthCareService(s)).collect(Collectors.toList());
   }
 
-  private Reference location(DatamartReference source) {
-    if (source == null) {
-      return null;
-    }
-    return asReference(source.type(Optional.of("Location")));
-  }
-
-  private List<Reference> locations(List<DatamartReference> results) {
-    if (results.isEmpty()) {
-      return null;
-    }
-    return results.stream().map(s -> location(s)).collect(Collectors.toList());
-  }
-
-  private Reference managingOrganization(Optional<DatamartReference> source) {
-    if (source == null || allBlank(source.get().display(), source.get().reference())) {
-      return null;
-    }
-    return convert(source, dm -> asReference(dm.get().type(Optional.of("Organization"))));
-  }
-
-  HumanName name(DatamartPractitioner.Name source) {
-    if (source == null
-        || allBlank(source.family(), source.given(), source.prefix(), source.suffix())) {
-      return null;
-    }
-    return convert(
-        source,
-        name ->
-            HumanName.builder()
-                .family(nameList(name.family()))
-                .given(nameList(name.given()))
-                .suffix(nameList(name.prefix().isEmpty() ? null : name.prefix().get()))
-                .prefix(nameList(name.suffix().isEmpty() ? null : name.suffix().get()))
-                .build());
-  }
-
-  List<String> nameList(String source) {
-    if (isBlank(source)) {
-      return null;
-    }
-    return singletonList(source);
-  }
-
   Practitioner.PractitionerRole practitionerRole(DatamartPractitioner.PractitionerRole source) {
     if (source == null
         || allBlank(
@@ -132,9 +110,9 @@ public class DatamartPractitionerTransformer {
       return null;
     }
     return Practitioner.PractitionerRole.builder()
-        .location(locations(source.location()))
+        .location(singletonList(asReference(datamart.practitionerRole().get().location().get(0))))
         .role(role(source.role()))
-        .managingOrganization(managingOrganization(source.managingOrganization()))
+        .managingOrganization(asReference(datamart.practitionerRole().get().managingOrganization()))
         .healthcareService(healthcareServices(source.healthCareService()))
         .build();
   }
@@ -209,7 +187,7 @@ public class DatamartPractitionerTransformer {
         .telecom(telecoms())
         .address(addresses())
         .gender(gender(datamart.gender()))
-        .birthDate(birthDate())
+        .birthDate(birthDate(datamart.birthDate()))
         .practitionerRole(practitionerRoles())
         .build();
   }

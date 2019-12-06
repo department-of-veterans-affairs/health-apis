@@ -2,6 +2,7 @@ package gov.va.api.health.dataquery.service.controller.practitioner;
 
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartEntity;
+import java.util.Optional;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -51,6 +52,21 @@ public class PractitionerEntity implements DatamartEntity {
 
   @SneakyThrows
   DatamartPractitioner asDatamartPractitioner() {
-    return JacksonConfig.createMapper().readValue(payload, DatamartPractitioner.class);
+    DatamartPractitioner dm =
+        JacksonConfig.createMapper().readValue(payload, DatamartPractitioner.class);
+
+    if (dm.practitionerRole().get().managingOrganization() != null
+        && dm.practitionerRole().get().managingOrganization().get().type().isEmpty()) {
+      // Hack... make sure reference type is populated
+      dm.practitionerRole().get().managingOrganization().get().type(Optional.of("Organization"));
+    }
+
+    if (dm.practitionerRole().get().location() != null
+        && dm.practitionerRole().get().location().get(0).type().isEmpty()) {
+      // Hack... make sure reference type is populated
+      dm.practitionerRole().get().location().get(0).type(Optional.of("Location"));
+    }
+
+    return dm;
   }
 }

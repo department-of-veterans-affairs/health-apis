@@ -1,6 +1,5 @@
 package gov.va.api.health.dataquery.service.controller.practitioner;
 
-import static gov.va.api.health.dataquery.service.controller.practitioner.DatamartPractitionerSamples.Datamart.Fhir.link;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -88,13 +87,15 @@ public class DatamartPractitionerControllerTest {
 
   @Test
   public void readRaw() {
-    DatamartPractitioner dm = Datamart.create().practitioner();
-    PractitionerEntity entity = asEntity(dm);
-    repository.save(entity);
-    mockPractitionerIdentity("1234567", dm.cdwId());
-    String json = controller().readRaw("1234567", response);
+    String publicId = "abc";
+    String cdwId = "123";
+    mockPractitionerIdentity(publicId, cdwId);
+    HttpServletResponse servletResponse = mock(HttpServletResponse.class);
+    DatamartPractitioner dm = DatamartPractitionerSamples.Datamart.create().practitioner(cdwId);
+    repository.save(asEntity(dm));
+    String json = controller().readRaw(publicId, servletResponse);
     assertThat(toObject(json)).isEqualTo(dm);
-    verify(response).addHeader("X-VA-INCLUDES-ICN", entity.npi());
+    verify(servletResponse).addHeader("X-VA-INCLUDES-ICN", "NONE");
   }
 
   @Test(expected = ResourceExceptions.NotFound.class)
@@ -121,28 +122,29 @@ public class DatamartPractitionerControllerTest {
 
   @Test
   public void searchById() {
-    DatamartPractitioner dm = Datamart.create().practitioner();
+
+    mockPractitionerIdentity("abc", "1234");
+    DatamartPractitioner dm = Datamart.create().practitioner("1234");
     repository.save(asEntity(dm));
-    mockPractitionerIdentity("1234", dm.cdwId());
     Practitioner.Bundle actual = controller().searchById("true", "1234", 1, 1);
-    Practitioner practitioner = Fhir.create().practitioner("1234");
     assertThat(json(actual))
         .isEqualTo(
             json(
-                Fhir.asBundle(
+                DatamartPractitionerSamples.Datamart.Fhir.asBundle(
                     "http://fonzy.com/cool",
-                    List.of(practitioner),
-                    link(
+                    List.of(
+                        DatamartPractitionerSamples.Datamart.Fhir.create().practitioner("1234")),
+                    DatamartPractitionerSamples.Datamart.Fhir.link(
                         LinkRelation.first,
                         "http://fonzy.com/cool/Practitioner?identifier=1234",
                         1,
                         1),
-                    link(
+                    DatamartPractitionerSamples.Datamart.Fhir.link(
                         LinkRelation.self,
                         "http://fonzy.com/cool/Practitioner?identifier=1234",
                         1,
                         1),
-                    link(
+                    DatamartPractitionerSamples.Datamart.Fhir.link(
                         LinkRelation.last,
                         "http://fonzy.com/cool/Practitioner?identifier=1234",
                         1,
@@ -151,28 +153,28 @@ public class DatamartPractitionerControllerTest {
 
   @Test
   public void searchByIdentifier() {
-    DatamartPractitioner dm = Datamart.create().practitioner();
+    DatamartPractitioner dm = DatamartPractitionerSamples.Datamart.create().practitioner("1234");
     repository.save(asEntity(dm));
     mockPractitionerIdentity("1234", dm.cdwId());
     Practitioner.Bundle actual = controller().searchByIdentifier("true", "1234", 1, 1);
-    Practitioner practitioner = Fhir.create().practitioner("1234");
     assertThat(json(actual))
         .isEqualTo(
             json(
-                Fhir.asBundle(
+                DatamartPractitionerSamples.Datamart.Fhir.asBundle(
                     "http://fonzy.com/cool",
-                    List.of(practitioner),
-                    link(
+                    List.of(
+                        DatamartPractitionerSamples.Datamart.Fhir.create().practitioner("1234")),
+                    DatamartPractitionerSamples.Datamart.Fhir.link(
                         LinkRelation.first,
                         "http://fonzy.com/cool/Practitioner?identifier=1234",
                         1,
                         1),
-                    link(
+                    DatamartPractitionerSamples.Datamart.Fhir.link(
                         LinkRelation.self,
                         "http://fonzy.com/cool/Practitioner?identifier=1234",
                         1,
                         1),
-                    link(
+                    DatamartPractitionerSamples.Datamart.Fhir.link(
                         LinkRelation.last,
                         "http://fonzy.com/cool/Practitioner?identifier=1234",
                         1,

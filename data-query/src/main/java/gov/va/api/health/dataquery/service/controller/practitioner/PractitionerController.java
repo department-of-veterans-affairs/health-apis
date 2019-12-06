@@ -134,7 +134,7 @@ public class PractitionerController {
   )
   public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
     PractitionerEntity entity = datamart.readRaw(publicId);
-    AbstractIncludesIcnMajig.addHeader(response, entity.npi());
+    AbstractIncludesIcnMajig.addHeaderForNoPatients(response);
     return entity.payload();
   }
 

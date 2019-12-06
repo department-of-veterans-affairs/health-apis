@@ -37,10 +37,6 @@ do
     -e 's/identifier=10092125/identifier=416704/' \
     -e 's/Appointment:1.01/Appointment:1.02/' \
     -e 's/Encounter:1.01/Encounter:1.02/' \
-    -e 's/Location:1.00/Location:1.02/' \
-    -e 's/MedicationDispense:1.00/MedicationDispense:1.02/' \
-    -e 's/Organization:1.00/Organization:1.02/' \
-    -e 's/Practitioner:1.00/Practitioner:1.02/' \
     $SOURCE >> $DESTINATION
 done
 

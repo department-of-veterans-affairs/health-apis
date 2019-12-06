@@ -50,7 +50,8 @@ public class ResourceVerifier {
 
   private ImmutableList<Class<?>> DATAMART_AND_CDW_RESOURCES =
       ImmutableList.of(
-          Practitioner.class, Location.class
+          Location.class,
+          Practitioner.class
           /*
            * As remaining resources are migrated, they may support both CDW and Datamart at the same
            * time. Once resources are fully migrated over, they can be removed from this list.
