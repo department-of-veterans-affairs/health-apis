@@ -1,7 +1,6 @@
 package gov.va.api.health.dataquery.service.controller;
 
 import gov.va.api.health.dstu2.api.bundle.BundleLink;
-import gov.va.api.health.dstu2.api.bundle.BundleLink.LinkRelation;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
@@ -68,7 +67,7 @@ public class ConfigurableBaseUrlPageLinks implements PageLinks {
     private final LinkConfig config;
 
     BundleLink first() {
-      return BundleLink.builder().relation(LinkRelation.first).url(toUrl(1)).build();
+      return BundleLink.builder().relation(BundleLink.LinkRelation.first).url(toUrl(1)).build();
     }
 
     boolean hasNext() {
@@ -84,7 +83,10 @@ public class ConfigurableBaseUrlPageLinks implements PageLinks {
     }
 
     BundleLink last() {
-      return BundleLink.builder().relation(LinkRelation.last).url(toUrl(lastPage())).build();
+      return BundleLink.builder()
+          .relation(BundleLink.LinkRelation.last)
+          .url(toUrl(lastPage()))
+          .build();
     }
 
     private int lastPage() {
@@ -92,15 +94,24 @@ public class ConfigurableBaseUrlPageLinks implements PageLinks {
     }
 
     BundleLink next() {
-      return BundleLink.builder().relation(LinkRelation.next).url(toUrl(config.page() + 1)).build();
+      return BundleLink.builder()
+          .relation(BundleLink.LinkRelation.next)
+          .url(toUrl(config.page() + 1))
+          .build();
     }
 
     BundleLink previous() {
-      return BundleLink.builder().relation(LinkRelation.prev).url(toUrl(config.page() - 1)).build();
+      return BundleLink.builder()
+          .relation(BundleLink.LinkRelation.prev)
+          .url(toUrl(config.page() - 1))
+          .build();
     }
 
     BundleLink self() {
-      return BundleLink.builder().relation(LinkRelation.self).url(toUrl(config.page())).build();
+      return BundleLink.builder()
+          .relation(BundleLink.LinkRelation.self)
+          .url(toUrl(config.page()))
+          .build();
     }
 
     private Stream<String> toKeyValueString(Map.Entry<String, List<String>> entry) {
