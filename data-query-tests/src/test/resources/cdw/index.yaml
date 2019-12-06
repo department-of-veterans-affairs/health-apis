@@ -25,11 +25,6 @@ entries:
     query: /MedicationDispense:1.02?identifier=5555555555555
     page: 1
     count: 15
-  # Immunization aliases
-  - file: ../../../../target/cdw/samples/Imm103p185601V825290.xml
-    query: /Immunization:1.03?patient=185601V825290
-    page: 1
-    count: 20
   # Patient aliases
   - file: ../../../../target/cdw/samples/Pat103nameVETERANbirthd19700101.xml
     query: /Patient:1.03?name=VETERAN,JOHN&birthdate=1970-01-01

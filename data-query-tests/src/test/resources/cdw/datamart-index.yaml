@@ -240,42 +240,6 @@ entries:
     query: /Encounter:1.02?patient=43000199
     page: 1
     count: 15
-  - file: ../../../../target/cdw/samples/Imm103i1000000043979.xml
-    query: /Immunization:1.03?identifier=12345678
-    page: 1
-    count: 15
-  - file: ../../../../target/cdw/samples/Imm103i5555555555555.xml
-    query: /Immunization:1.03?identifier=5555555555555
-    page: 1
-    count: 15
-  - file: ../../../../target/cdw/samples/Imm103p185601V825290.xml
-    query: /Immunization:1.03?patient=43000199
-    page: 1
-    count: 15
-  - file: ../../../../target/cdw/samples/Imm103p185601V825290pg0.xml
-    query: /Immunization:1.03?patient=43000199
-    page: 0
-    count: 15
-  - file: ../../../../target/cdw/samples/Imm103p185601V825290pg10000ct20.xml
-    query: /Immunization:1.03?patient=43000199
-    page: 10000
-    count: 20
-  - file: ../../../../target/cdw/samples/Imm103p185601V825290pg1ct0.xml
-    query: /Immunization:1.03?patient=43000199
-    page: 1
-    count: 0
-  - file: ../../../../target/cdw/samples/Imm103p185601V825290pg1ct2.xml
-    query: /Immunization:1.03?patient=43000199
-    page: 1
-    count: 2
-  - file: ../../../../target/cdw/samples/Imm103p185601V825290pg1ct21.xml
-    query: /Immunization:1.03?patient=43000199
-    page: 1
-    count: 21
-  - file: ../../../../target/cdw/samples/Imm103p185601V825290pg2ct2.xml
-    query: /Immunization:1.03?patient=43000199
-    page: 2
-    count: 2
   - file: ../../../../target/cdw/samples/Loc100i1400004093.xml
     query: /Location:1.02?identifier=1400004093
     page: 1
@@ -760,11 +724,6 @@ entries:
     query: /Patient:9.99?identifier=43000199
     page: 1
     count: 15
-    # Immunization aliases
-  - file: ../../../../target/cdw/samples/Imm103p185601V825290.xml
-    query: /Immunization:1.03?patient=43000199
-    page: 1
-    count: 20
     # Patient aliases
   - file: ../../../../target/cdw/samples/Pat103nameVETERANbirthd19700101.xml
     query: /Patient:1.03?name=Olson653, Conrad619&birthdate=1948-06-28

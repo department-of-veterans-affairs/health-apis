@@ -82,8 +82,8 @@ public class Dstu2AllergyIntoleranceTransformerTest {
     assertThat(tx().toFhir()).isEqualTo(Dstu2.create().allergyIntolerance());
   }
 
-  private Dstu2tAllergyIntoleranceTransformer tx() {
-    return Dstu2tAllergyIntoleranceTransformer.builder()
+  private Dstu2AllergyIntoleranceTransformer tx() {
+    return Dstu2AllergyIntoleranceTransformer.builder()
         .datamart(AllergyIntoleranceSamples.Datamart.create().allergyIntolerance())
         .build();
   }
