@@ -143,15 +143,6 @@ entries:
     query: /DiagnosticReport:1.02?patient=185601V825290&category=LAB
     page: 1
     count: 20
-  # Medication Aliases
-  - file: ../../../../target/cdw/samples/Med101i212846.xml
-    query: /Medication:1.01?identifier=18
-    page: 1
-    count: 15
-  - file: ../../../../target/cdw/samples/Med101i555555.xml
-    query: /Medication:1.01?identifier=555555
-    page: 1
-    count: 15
   # Alias the 1.03 MedicationOrder samples as 1.04 to make sure they are tested.
   # The schema was unchanged from 1.03 and new schemas and new samples were not generated.
   - file: ../../../../target/cdw/samples/MedOrd103i1200389904206O.xml
