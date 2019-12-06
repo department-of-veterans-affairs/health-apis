@@ -1,11 +1,7 @@
 package gov.va.api.health.dataquery.service.controller;
 
-import gov.va.api.health.dataquery.service.controller.PageLinks.LinkConfig;
 import gov.va.api.health.dstu2.api.bundle.AbstractBundle;
-import gov.va.api.health.dstu2.api.bundle.AbstractBundle.BundleType;
 import gov.va.api.health.dstu2.api.bundle.AbstractEntry;
-import gov.va.api.health.dstu2.api.bundle.AbstractEntry.Search;
-import gov.va.api.health.dstu2.api.bundle.AbstractEntry.SearchMode;
 import gov.va.api.health.dstu2.api.resources.Resource;
 import java.util.List;
 import java.util.function.Function;
@@ -31,7 +27,7 @@ public class Bundler {
       BundleContext<X, T, E, B> context) {
     B bundle = context.newBundle().get();
     bundle.resourceType("Bundle");
-    bundle.type(BundleType.searchset);
+    bundle.type(AbstractBundle.BundleType.searchset);
     bundle.total(context.linkConfig().totalRecords());
     bundle.link(links.create(context.linkConfig()));
     bundle.entry(
@@ -44,7 +40,8 @@ public class Bundler {
                   E entry = context.newEntry().get();
                   entry.resource(t);
                   entry.fullUrl(links.readLink(context.linkConfig().path(), t.id()));
-                  entry.search(Search.builder().mode(SearchMode.match).build());
+                  entry.search(
+                      AbstractEntry.Search.builder().mode(AbstractEntry.SearchMode.match).build());
                   return entry;
                 })
             .collect(Collectors.toList()));
@@ -65,7 +62,7 @@ public class Bundler {
   @Getter
   public static class BundleContext<
       X, T extends Resource, E extends AbstractEntry<T>, B extends AbstractBundle<E>> {
-    private final LinkConfig linkConfig;
+    private final PageLinks.LinkConfig linkConfig;
     private final List<X> xmlItems;
     /** Invoked for each item in the XML items list to convert it to the final published form. */
     private final Function<X, T> transformer;
@@ -81,7 +78,7 @@ public class Bundler {
      */
 
     private BundleContext(
-        LinkConfig linkConfig,
+        PageLinks.LinkConfig linkConfig,
         List<X> xmlItems,
         Function<X, T> transformer,
         Supplier<E> newEntry,
@@ -95,7 +92,7 @@ public class Bundler {
 
     public static <X, T extends Resource, E extends AbstractEntry<T>, B extends AbstractBundle<E>>
         BundleContext<X, T, E, B> of(
-            LinkConfig linkConfig,
+            PageLinks.LinkConfig linkConfig,
             List<X> xmlItems,
             Function<X, T> transformer,
             Supplier<E> newEntry,
