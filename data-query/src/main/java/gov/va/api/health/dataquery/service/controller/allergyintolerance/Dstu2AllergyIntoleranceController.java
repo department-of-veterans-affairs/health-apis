@@ -46,7 +46,7 @@ import org.springframework.web.bind.annotation.RestController;
   value = {"/dstu2/AllergyIntolerance"},
   produces = {"application/json", "application/json+fhir", "application/fhir+json"}
 )
-public class AllergyIntoleranceController {
+public class Dstu2AllergyIntoleranceController {
 
   private Bundler bundler;
 
@@ -55,7 +55,7 @@ public class AllergyIntoleranceController {
   private AllergyIntoleranceRepository repository;
 
   /** Autowired constructor. */
-  public AllergyIntoleranceController(
+  public Dstu2AllergyIntoleranceController(
       @Autowired Bundler bundler,
       @Autowired AllergyIntoleranceRepository repository,
       @Autowired WitnessProtection witnessProtection) {
@@ -95,7 +95,7 @@ public class AllergyIntoleranceController {
     }
     DatamartAllergyIntolerance dm = maybeEntity.get().asDatamartAllergyIntolerance();
     replaceReferences(List.of(dm));
-    return DatamartAllergyIntoleranceTransformer.builder().datamart(dm).build().toFhir();
+    return Dstu2tAllergyIntoleranceTransformer.builder().datamart(dm).build().toFhir();
   }
 
   /** Return the raw Datamart document for the given identifier. */
@@ -185,8 +185,7 @@ public class AllergyIntoleranceController {
     List<AllergyIntolerance> fhir =
         datamarts
             .stream()
-            .map(
-                dm -> DatamartAllergyIntoleranceTransformer.builder().datamart(dm).build().toFhir())
+            .map(dm -> Dstu2tAllergyIntoleranceTransformer.builder().datamart(dm).build().toFhir())
             .collect(Collectors.toList());
     return bundle(publicParameters, fhir, (int) entitiesPage.getTotalElements());
   }

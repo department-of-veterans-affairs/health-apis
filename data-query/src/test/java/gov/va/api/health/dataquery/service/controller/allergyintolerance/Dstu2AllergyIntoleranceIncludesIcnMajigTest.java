@@ -6,12 +6,12 @@ import gov.va.api.health.dstu2.api.elements.Reference;
 import java.util.List;
 import org.junit.Test;
 
-public class AllergyIntoleranceIncludesIcnMajigTest {
+public class Dstu2AllergyIntoleranceIncludesIcnMajigTest {
 
   @Test
   public void extractIcns() {
-    ExtractIcnValidator.<AllergyIntoleranceIncludesIcnMajig, AllergyIntolerance>builder()
-        .majig(new AllergyIntoleranceIncludesIcnMajig())
+    ExtractIcnValidator.<Dstu2AllergyIntoleranceIncludesIcnMajig, AllergyIntolerance>builder()
+        .majig(new Dstu2AllergyIntoleranceIncludesIcnMajig())
         .body(
             AllergyIntolerance.builder()
                 .id("123")

@@ -25,7 +25,7 @@ import lombok.AllArgsConstructor;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
-public class DatamartAllergyIntoleranceSamples {
+public class AllergyIntoleranceSamples {
 
   @AllArgsConstructor(staticName = "create")
   static class Datamart {
@@ -158,7 +158,7 @@ public class DatamartAllergyIntoleranceSamples {
   }
 
   @AllArgsConstructor(staticName = "create")
-  static class Fhir {
+  static class Dstu2 {
 
     static AllergyIntolerance.Bundle asBundle(
         String baseUrl, Collection<AllergyIntolerance> resources, BundleLink... links) {
