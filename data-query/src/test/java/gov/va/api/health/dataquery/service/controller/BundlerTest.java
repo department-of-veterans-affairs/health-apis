@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import gov.va.api.health.dataquery.service.controller.Bundler.BundleContext;
+import gov.va.api.health.dataquery.service.controller.PageLinks.LinkConfig;
 import gov.va.api.health.dstu2.api.bundle.AbstractBundle;
 import gov.va.api.health.dstu2.api.bundle.AbstractBundle.BundleType;
 import gov.va.api.health.dstu2.api.bundle.AbstractEntry;
@@ -44,7 +45,7 @@ public class BundlerTest {
     List<BundleLink> bundleLinks =
         Collections.singletonList(
             BundleLink.builder().relation(LinkRelation.self).url("http://whatever.com").build());
-    when(this.links.create(Mockito.any())).thenReturn(bundleLinks);
+    when(this.links.dstu2Links(Mockito.any())).thenReturn(bundleLinks);
     when(this.links.readLink(Mockito.any(), Mockito.any()))
         .thenReturn("http://one.com")
         .thenReturn("http://two.com")

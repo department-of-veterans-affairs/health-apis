@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor(onConstructor = @__({@Autowired}))
 public class Stu3Bundler {
-  private final Stu3PageLinks links;
+  private final PageLinks links;
 
   /**
    * Return new bundle, filled with entries created from the resources.
@@ -24,12 +24,15 @@ public class Stu3Bundler {
    * @param newBundle Used to create a new instance of the bundle (called once)
    */
   public <R extends Resource, E extends AbstractEntry<R>, B extends AbstractBundle<E>> B bundle(
-      LinkConfig linkConfig, List<R> resources, Supplier<E> newEntry, Supplier<B> newBundle) {
+      PageLinks.LinkConfig linkConfig,
+      List<R> resources,
+      Supplier<E> newEntry,
+      Supplier<B> newBundle) {
     B bundle = newBundle.get();
     bundle.resourceType("Bundle");
     bundle.type(AbstractBundle.BundleType.searchset);
     bundle.total(linkConfig.totalRecords());
-    bundle.link(links.create(linkConfig));
+    bundle.link(links.stu3Links(linkConfig));
     bundle.entry(
         resources
             .stream()

@@ -1,6 +1,5 @@
 package gov.va.api.health.dataquery.service.controller;
 
-import gov.va.api.health.dstu2.api.bundle.BundleLink;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
@@ -8,7 +7,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import lombok.RequiredArgsConstructor;
+import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -35,9 +34,10 @@ public class ConfigurableBaseUrlPageLinks implements PageLinks {
   }
 
   @Override
-  public List<BundleLink> create(LinkConfig config) {
-    LinkContext context = new LinkContext(config);
-    List<BundleLink> links = new LinkedList<>();
+  public List<gov.va.api.health.dstu2.api.bundle.BundleLink> dstu2Links(
+      PageLinks.LinkConfig config) {
+    Dstu2LinkContext context = new Dstu2LinkContext(baseUrl, basePath, config);
+    List<gov.va.api.health.dstu2.api.bundle.BundleLink> links = new LinkedList<>();
     /*
      * If recordsPerPage = 0, then only return the self link.
      */
@@ -62,64 +62,59 @@ public class ConfigurableBaseUrlPageLinks implements PageLinks {
     return baseUrl + "/" + basePath + "/" + resourcePath + "/" + id;
   }
 
+  @Override
+  public List<gov.va.api.health.stu3.api.bundle.BundleLink> stu3Links(PageLinks.LinkConfig config) {
+    Stu3LinkContext context = new Stu3LinkContext(baseUrl, basePath, config);
+    List<gov.va.api.health.stu3.api.bundle.BundleLink> links = new LinkedList<>();
+    /*
+     * If recordsPerPage = 0, then only return the self link.
+     */
+    if (!context.isCountOnly()) {
+      links.add(context.first());
+      if (context.hasPrevious()) {
+        links.add(context.previous());
+      }
+    }
+    links.add(context.self());
+    if (!context.isCountOnly()) {
+      if (context.hasNext()) {
+        links.add(context.next());
+      }
+      links.add(context.last());
+    }
+    return links;
+  }
+
   /** This context wraps the link state to allow link creation to be clearly described. */
-  @RequiredArgsConstructor
-  private class LinkContext {
+  @Data
+  abstract static class AbstractLinkContext {
+    private final String baseUrl;
+
+    private final String basePath;
+
     private final LinkConfig config;
 
-    BundleLink first() {
-      return BundleLink.builder().relation(BundleLink.LinkRelation.first).url(toUrl(1)).build();
-    }
-
-    boolean hasNext() {
+    final boolean hasNext() {
       return config.page() < lastPage();
     }
 
-    boolean hasPrevious() {
+    final boolean hasPrevious() {
       return config.page() > 1 && config.page() <= lastPage();
     }
 
-    boolean isCountOnly() {
+    final boolean isCountOnly() {
       return config.recordsPerPage() == 0;
     }
 
-    BundleLink last() {
-      return BundleLink.builder()
-          .relation(BundleLink.LinkRelation.last)
-          .url(toUrl(lastPage()))
-          .build();
-    }
-
-    private int lastPage() {
+    final int lastPage() {
       return (int) Math.ceil((double) config.totalRecords() / (double) config.recordsPerPage());
     }
 
-    BundleLink next() {
-      return BundleLink.builder()
-          .relation(BundleLink.LinkRelation.next)
-          .url(toUrl(config.page() + 1))
-          .build();
-    }
-
-    BundleLink previous() {
-      return BundleLink.builder()
-          .relation(BundleLink.LinkRelation.prev)
-          .url(toUrl(config.page() - 1))
-          .build();
-    }
-
-    BundleLink self() {
-      return BundleLink.builder()
-          .relation(BundleLink.LinkRelation.self)
-          .url(toUrl(config.page()))
-          .build();
-    }
-
-    private Stream<String> toKeyValueString(Map.Entry<String, List<String>> entry) {
+    final Stream<String> toKeyValueString(Map.Entry<String, List<String>> entry) {
       return entry.getValue().stream().map((value) -> entry.getKey() + '=' + value);
     }
 
-    private String toUrl(int page) {
+    String toUrl(int page) {
       MultiValueMap<String, String> mutableParams = new LinkedMultiValueMap<>(config.queryParams());
       mutableParams.remove("page");
       mutableParams.remove("_count");

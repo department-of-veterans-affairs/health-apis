@@ -29,7 +29,7 @@ public class Bundler {
     bundle.resourceType("Bundle");
     bundle.type(AbstractBundle.BundleType.searchset);
     bundle.total(context.linkConfig().totalRecords());
-    bundle.link(links.create(context.linkConfig()));
+    bundle.link(links.dstu2Links(context.linkConfig()));
     bundle.entry(
         context
             .xmlItems()
@@ -62,7 +62,7 @@ public class Bundler {
   @Value
   public static final class BundleContext<
       X, T extends Resource, E extends AbstractEntry<T>, B extends AbstractBundle<E>> {
-    private final LinkConfig linkConfig;
+    private final PageLinks.LinkConfig linkConfig;
 
     private final List<X> xmlItems;
 
@@ -77,13 +77,16 @@ public class Bundler {
 
     public static <T extends Resource, E extends AbstractEntry<T>, B extends AbstractBundle<E>>
         BundleContext<T, T, E, B> of(
-            LinkConfig linkConfig, List<T> resources, Supplier<E> newEntry, Supplier<B> newBundle) {
+            PageLinks.LinkConfig linkConfig,
+            List<T> resources,
+            Supplier<E> newEntry,
+            Supplier<B> newBundle) {
       return of(linkConfig, resources, Function.identity(), newEntry, newBundle);
     }
 
     public static <X, T extends Resource, E extends AbstractEntry<T>, B extends AbstractBundle<E>>
         BundleContext<X, T, E, B> of(
-            LinkConfig linkConfig,
+            PageLinks.LinkConfig linkConfig,
             List<X> xmlItems,
             Function<X, T> transformer,
             Supplier<E> newEntry,
