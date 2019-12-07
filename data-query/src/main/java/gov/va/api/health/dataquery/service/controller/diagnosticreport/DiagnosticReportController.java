@@ -146,11 +146,7 @@ public class DiagnosticReportController {
             .build();
     return bundler.bundle(
         Bundler.BundleContext.of(
-            linkConfig,
-            reports,
-            Function.identity(),
-            DiagnosticReport.Entry::new,
-            DiagnosticReport.Bundle::new));
+            linkConfig, reports, DiagnosticReport.Entry::new, DiagnosticReport.Bundle::new));
   }
 
   @SneakyThrows

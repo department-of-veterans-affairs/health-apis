@@ -268,11 +268,7 @@ public class ConditionController {
               .build();
       return bundler.bundle(
           Bundler.BundleContext.of(
-              linkConfig,
-              reports,
-              Function.identity(),
-              Condition.Entry::new,
-              Condition.Bundle::new));
+              linkConfig, reports, Condition.Entry::new, Condition.Bundle::new));
     }
 
     private Bundle bundle(

@@ -232,7 +232,6 @@ public class MedicationStatementController {
           Bundler.BundleContext.of(
               linkConfig,
               reports,
-              Function.identity(),
               MedicationStatement.Entry::new,
               MedicationStatement.Bundle::new));
     }

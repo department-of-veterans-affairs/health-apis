@@ -75,6 +75,12 @@ public class Bundler {
     /** Used to create a new instance of the bundle. Called once. */
     private final Supplier<B> newBundle;
 
+    public static <T extends Resource, E extends AbstractEntry<T>, B extends AbstractBundle<E>>
+        BundleContext<T, T, E, B> of(
+            LinkConfig linkConfig, List<T> resources, Supplier<E> newEntry, Supplier<B> newBundle) {
+      return of(linkConfig, resources, Function.identity(), newEntry, newBundle);
+    }
+
     public static <X, T extends Resource, E extends AbstractEntry<T>, B extends AbstractBundle<E>>
         BundleContext<X, T, E, B> of(
             LinkConfig linkConfig,

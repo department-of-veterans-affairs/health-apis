@@ -220,11 +220,7 @@ public class ImmunizationController {
               .build();
       return bundler.bundle(
           Bundler.BundleContext.of(
-              linkConfig,
-              reports,
-              Function.identity(),
-              Immunization.Entry::new,
-              Immunization.Bundle::new));
+              linkConfig, reports, Immunization.Entry::new, Immunization.Bundle::new));
     }
 
     private Bundle bundle(

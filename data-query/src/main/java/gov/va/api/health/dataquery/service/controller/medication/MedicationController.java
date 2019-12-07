@@ -190,9 +190,7 @@ public class MedicationController {
               .recordsPerPage(Parameters.countOf(parameters))
               .totalRecords(totalRecords)
               .build();
-      return bundler.bundle(
-          Bundler.BundleContext.of(
-              linkConfig, reports, Function.identity(), Entry::new, Bundle::new));
+      return bundler.bundle(Bundler.BundleContext.of(linkConfig, reports, Entry::new, Bundle::new));
     }
 
     MedicationEntity findById(String publicId) {

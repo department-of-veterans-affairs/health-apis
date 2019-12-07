@@ -202,8 +202,7 @@ public class Dstu2LocationController {
               .totalRecords(totalRecords)
               .build();
       return bundler.bundle(
-          Bundler.BundleContext.of(
-              linkConfig, reports, Function.identity(), Location.Entry::new, Location.Bundle::new));
+          Bundler.BundleContext.of(linkConfig, reports, Location.Entry::new, Location.Bundle::new));
     }
 
     LocationEntity findById(String publicId) {

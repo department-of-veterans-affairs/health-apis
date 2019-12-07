@@ -274,8 +274,7 @@ public class PatientController {
               .totalRecords(totalRecords)
               .build();
       return bundler.bundle(
-          Bundler.BundleContext.of(
-              linkConfig, reports, Function.identity(), Patient.Entry::new, Patient.Bundle::new));
+          Bundler.BundleContext.of(linkConfig, reports, Patient.Entry::new, Patient.Bundle::new));
     }
 
     Patient.Bundle bundle(

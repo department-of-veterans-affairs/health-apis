@@ -272,11 +272,7 @@ public class ObservationController {
               .build();
       return bundler.bundle(
           Bundler.BundleContext.of(
-              linkConfig,
-              records,
-              Function.identity(),
-              Observation.Entry::new,
-              Observation.Bundle::new));
+              linkConfig, records, Observation.Entry::new, Observation.Bundle::new));
     }
 
     Observation.Bundle bundle(

@@ -330,11 +330,7 @@ public class ProcedureController {
               .build();
       return bundler.bundle(
           Bundler.BundleContext.of(
-              linkConfig,
-              reports,
-              Function.identity(),
-              Procedure.Entry::new,
-              Procedure.Bundle::new));
+              linkConfig, reports, Procedure.Entry::new, Procedure.Bundle::new));
     }
 
     private Bundle bundle(

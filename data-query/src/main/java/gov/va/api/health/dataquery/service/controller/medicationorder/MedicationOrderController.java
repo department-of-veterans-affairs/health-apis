@@ -221,11 +221,7 @@ public class MedicationOrderController {
               .build();
       return bundler.bundle(
           Bundler.BundleContext.of(
-              linkConfig,
-              results,
-              Function.identity(),
-              MedicationOrder.Entry::new,
-              MedicationOrder.Bundle::new));
+              linkConfig, results, MedicationOrder.Entry::new, MedicationOrder.Bundle::new));
     }
 
     private Bundle bundle(

@@ -78,11 +78,7 @@ public class Dstu2AllergyIntoleranceController {
             .build();
     return bundler.bundle(
         Bundler.BundleContext.of(
-            linkConfig,
-            records,
-            Function.identity(),
-            AllergyIntolerance.Entry::new,
-            AllergyIntolerance.Bundle::new));
+            linkConfig, records, AllergyIntolerance.Entry::new, AllergyIntolerance.Bundle::new));
   }
 
   /** Read by id. */
