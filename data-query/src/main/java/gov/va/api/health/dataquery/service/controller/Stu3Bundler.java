@@ -6,8 +6,10 @@ import gov.va.api.health.stu3.api.resources.Resource;
 import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import lombok.Getter;
+
 import lombok.RequiredArgsConstructor;
+import lombok.Value;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +23,7 @@ import org.springframework.stereotype.Service;
 public class Stu3Bundler {
   private final Stu3PageLinks links;
 
-  /** Return new bundle, filled with entries created by transforming the XML items. */
+  /** Return new bundle, filled with entries created from the resources. */
   public <R extends Resource, E extends AbstractEntry<R>, B extends AbstractBundle<E>> B bundle(
       BundleContext<R, E, B> context) {
     B bundle = context.newBundle().get();
@@ -47,41 +49,25 @@ public class Stu3Bundler {
   }
 
   /**
-   * The context provides the two key types of information: 1) The XML types to be converted and
-   * paging data, and 2) The machinery to create type specific bundles, entries, and converted
-   * objects.
+   * The context provides the two key types of information: 1) The resources and paging data, and 2)
+   * The machinery to create type specific bundles, entries, and converted objects.
    *
-   * @param <X> The CDW Xml item type. This should not be the root, but the resource type itself,
-   *     e.g. CdwPatient103Root.CdwPatients.CdwPatient
-   * @param <T> The Data Query type to produce, e.g. Patient
+   * @param <R> The Data Query resource type
    * @param <E> The entry type, e.g. Patient.Entry
    * @param <B> The bundle type, e.g. Patient.Bundle
    */
-  @Getter
-  public static class BundleContext<
+  @Value
+  public static final class BundleContext<
       R extends Resource, E extends AbstractEntry<R>, B extends AbstractBundle<E>> {
     private final LinkConfig linkConfig;
 
     private final List<R> resources;
 
-    /** Used to create new instances for entries, one for each item in the XML items list. */
+    /** Used to create new instances for entries, one for each resource. */
     private final Supplier<E> newEntry;
 
     /** Used to create a new instance of the bundle. Called once. */
     private final Supplier<B> newBundle;
-
-    /**
-     * Normally, I'd let Lombok generate the constructor and factory method, but the generics are a
-     * little too much for it and the constructor generated suffers from the dreaded `type argument
-     * T is now within bounds of type-variable T`. So we need to go old school here.
-     */
-    private BundleContext(
-        LinkConfig linkConfig, List<R> resources, Supplier<E> newEntry, Supplier<B> newBundle) {
-      this.linkConfig = linkConfig;
-      this.resources = resources;
-      this.newEntry = newEntry;
-      this.newBundle = newBundle;
-    }
 
     public static <R extends Resource, E extends AbstractEntry<R>, B extends AbstractBundle<E>>
         BundleContext<R, E, B> of(
