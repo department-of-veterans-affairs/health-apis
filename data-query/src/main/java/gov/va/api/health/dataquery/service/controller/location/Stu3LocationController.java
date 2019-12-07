@@ -69,9 +69,7 @@ public class Stu3LocationController {
             .recordsPerPage(Parameters.countOf(parameters))
             .totalRecords(totalRecords)
             .build();
-    return bundler.bundle(
-        Stu3Bundler.BundleContext.of(
-            linkConfig, reports, Location.Entry::new, Location.Bundle::new));
+    return bundler.bundle(linkConfig, reports, Location.Entry::new, Location.Bundle::new);
   }
 
   private LocationEntity entityById(String publicId) {
