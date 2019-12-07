@@ -16,7 +16,6 @@ import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletResponse;
