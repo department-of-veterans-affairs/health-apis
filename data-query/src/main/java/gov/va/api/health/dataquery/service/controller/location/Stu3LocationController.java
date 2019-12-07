@@ -61,15 +61,17 @@ public class Stu3LocationController {
 
   private Location.Bundle bundle(
       MultiValueMap<String, String> parameters, List<Location> reports, int totalRecords) {
-    LinkConfig linkConfig =
+    return bundler.bundle(
         LinkConfig.builder()
             .path("Location")
             .queryParams(parameters)
             .page(Parameters.pageOf(parameters))
             .recordsPerPage(Parameters.countOf(parameters))
             .totalRecords(totalRecords)
-            .build();
-    return bundler.bundle(linkConfig, reports, Location.Entry::new, Location.Bundle::new);
+            .build(),
+        reports,
+        Location.Entry::new,
+        Location.Bundle::new);
   }
 
   private LocationEntity entityById(String publicId) {

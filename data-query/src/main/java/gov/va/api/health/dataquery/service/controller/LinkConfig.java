@@ -6,7 +6,7 @@ import org.springframework.util.MultiValueMap;
 
 @Value
 @Builder
-public class LinkConfig {
+public final class LinkConfig {
   /** The resource path without the base URL or port. E.g. /api/Patient/1234 */
   private final String path;
 

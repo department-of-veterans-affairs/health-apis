@@ -116,7 +116,7 @@ public class Stu3ConfigurableBaseUrlPageLinks implements Stu3PageLinks {
     }
 
     private Stream<String> toKeyValueString(Map.Entry<String, List<String>> entry) {
-      return entry.getValue().stream().map((value) -> entry.getKey() + '=' + value);
+      return entry.getValue().stream().map(value -> entry.getKey() + '=' + value);
     }
 
     private String toUrl(int page) {
