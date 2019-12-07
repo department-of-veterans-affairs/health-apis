@@ -15,7 +15,6 @@ import gov.va.api.health.stu3.api.resources.Location;
 import gov.va.api.health.stu3.api.resources.OperationOutcome;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletResponse;
@@ -72,7 +71,7 @@ public class Stu3LocationController {
             .build();
     return bundler.bundle(
         Stu3Bundler.BundleContext.of(
-            linkConfig, reports, Function.identity(), Location.Entry::new, Location.Bundle::new));
+            linkConfig, reports, Location.Entry::new, Location.Bundle::new));
   }
 
   private LocationEntity entityById(String publicId) {

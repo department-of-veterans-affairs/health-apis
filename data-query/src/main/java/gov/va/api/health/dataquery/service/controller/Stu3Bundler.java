@@ -4,7 +4,6 @@ import gov.va.api.health.stu3.api.bundle.AbstractBundle;
 import gov.va.api.health.stu3.api.bundle.AbstractEntry;
 import gov.va.api.health.stu3.api.resources.Resource;
 import java.util.List;
-import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import lombok.Getter;
@@ -23,8 +22,8 @@ public class Stu3Bundler {
   private final Stu3PageLinks links;
 
   /** Return new bundle, filled with entries created by transforming the XML items. */
-  public <X, T extends Resource, E extends AbstractEntry<T>, B extends AbstractBundle<E>> B bundle(
-      BundleContext<X, T, E, B> context) {
+  public <R extends Resource, E extends AbstractEntry<R>, B extends AbstractBundle<E>> B bundle(
+      BundleContext<R, E, B> context) {
     B bundle = context.newBundle().get();
     bundle.resourceType("Bundle");
     bundle.type(AbstractBundle.BundleType.searchset);
@@ -32,9 +31,8 @@ public class Stu3Bundler {
     bundle.link(links.create(context.linkConfig()));
     bundle.entry(
         context
-            .xmlItems()
+            .resources()
             .stream()
-            .map(context.transformer())
             .map(
                 t -> {
                   E entry = context.newEntry().get();
@@ -61,13 +59,14 @@ public class Stu3Bundler {
    */
   @Getter
   public static class BundleContext<
-      X, T extends Resource, E extends AbstractEntry<T>, B extends AbstractBundle<E>> {
+      R extends Resource, E extends AbstractEntry<R>, B extends AbstractBundle<E>> {
     private final LinkConfig linkConfig;
-    private final List<X> xmlItems;
-    /** Invoked for each item in the XML items list to convert it to the final published form. */
-    private final Function<X, T> transformer;
+
+    private final List<R> resources;
+
     /** Used to create new instances for entries, one for each item in the XML items list. */
     private final Supplier<E> newEntry;
+
     /** Used to create a new instance of the bundle. Called once. */
     private final Supplier<B> newBundle;
 
@@ -77,26 +76,17 @@ public class Stu3Bundler {
      * T is now within bounds of type-variable T`. So we need to go old school here.
      */
     private BundleContext(
-        LinkConfig linkConfig,
-        List<X> xmlItems,
-        Function<X, T> transformer,
-        Supplier<E> newEntry,
-        Supplier<B> newBundle) {
+        LinkConfig linkConfig, List<R> resources, Supplier<E> newEntry, Supplier<B> newBundle) {
       this.linkConfig = linkConfig;
-      this.xmlItems = xmlItems;
-      this.transformer = transformer;
+      this.resources = resources;
       this.newEntry = newEntry;
       this.newBundle = newBundle;
     }
 
-    public static <X, T extends Resource, E extends AbstractEntry<T>, B extends AbstractBundle<E>>
-        BundleContext<X, T, E, B> of(
-            LinkConfig linkConfig,
-            List<X> xmlItems,
-            Function<X, T> transformer,
-            Supplier<E> newEntry,
-            Supplier<B> newBundle) {
-      return new BundleContext<>(linkConfig, xmlItems, transformer, newEntry, newBundle);
+    public static <R extends Resource, E extends AbstractEntry<R>, B extends AbstractBundle<E>>
+        BundleContext<R, E, B> of(
+            LinkConfig linkConfig, List<R> resources, Supplier<E> newEntry, Supplier<B> newBundle) {
+      return new BundleContext<>(linkConfig, resources, newEntry, newBundle);
     }
   }
 }
