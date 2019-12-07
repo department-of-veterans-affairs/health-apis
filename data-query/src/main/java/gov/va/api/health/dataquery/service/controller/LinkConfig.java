@@ -1,10 +1,10 @@
 package gov.va.api.health.dataquery.service.controller;
 
 import lombok.Builder;
-import lombok.Data;
+import lombok.Value;
 import org.springframework.util.MultiValueMap;
 
-@Data
+@Value
 @Builder
 public class LinkConfig {
   /** The resource path without the base URL or port. E.g. /api/Patient/1234 */
