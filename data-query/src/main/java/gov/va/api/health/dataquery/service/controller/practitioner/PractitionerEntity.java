@@ -61,7 +61,7 @@ public class PractitionerEntity implements DatamartEntity {
       for (int i = 0; i < dm.practitionerRole().get().location().size(); i++){
         if (dm.practitionerRole().get().location().get(i).type().isEmpty()) {
           // Hack... make sure reference type is populated
-          dm.practitionerRole().get().location().get(0).type(Optional.of("Location"));
+          dm.practitionerRole().get().location().get(i).type(Optional.of("Location"));
         }
       }
     }
