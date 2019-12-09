@@ -12,7 +12,7 @@ import lombok.Builder;
 import lombok.NonNull;
 
 @Builder
-public class DatamartMedicationStatementTransformer {
+public class Dstu2MedicationStatementTransformer {
 
   @NonNull final DatamartMedicationStatement datamart;
 

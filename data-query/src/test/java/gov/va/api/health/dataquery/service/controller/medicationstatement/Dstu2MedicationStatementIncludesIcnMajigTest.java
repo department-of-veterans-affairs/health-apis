@@ -6,12 +6,12 @@ import gov.va.api.health.dstu2.api.elements.Reference;
 import java.util.List;
 import org.junit.Test;
 
-public class MedicationStatementIncludesIcnMajigTest {
+public class Dstu2MedicationStatementIncludesIcnMajigTest {
 
   @Test
   public void extractIcn() {
-    ExtractIcnValidator.<MedicationStatementIncludesIcnMajig, MedicationStatement>builder()
-        .majig(new MedicationStatementIncludesIcnMajig())
+    ExtractIcnValidator.<Dstu2MedicationStatementIncludesIcnMajig, MedicationStatement>builder()
+        .majig(new Dstu2MedicationStatementIncludesIcnMajig())
         .body(
             MedicationStatement.builder()
                 .id("123")

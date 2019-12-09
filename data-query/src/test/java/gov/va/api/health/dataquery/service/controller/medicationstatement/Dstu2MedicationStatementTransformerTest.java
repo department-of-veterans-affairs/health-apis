@@ -14,12 +14,12 @@ import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.junit.Test;
 
-public class DatamartMedicationStatementTransformerTest {
+public class Dstu2MedicationStatementTransformerTest {
 
   @Test
   public void codeableConcept() {
-    DatamartMedicationStatementTransformer tx =
-        DatamartMedicationStatementTransformer.builder()
+    Dstu2MedicationStatementTransformer tx =
+        Dstu2MedicationStatementTransformer.builder()
             .datamart(Datamart.create().medicationStatement())
             .build();
     assertThat(tx.codeableConcept(Optional.empty())).isNull();
@@ -29,8 +29,8 @@ public class DatamartMedicationStatementTransformerTest {
 
   @Test
   public void dosage() {
-    DatamartMedicationStatementTransformer tx =
-        DatamartMedicationStatementTransformer.builder()
+    Dstu2MedicationStatementTransformer tx =
+        Dstu2MedicationStatementTransformer.builder()
             .datamart(Datamart.create().medicationStatement())
             .build();
     assertThat(tx.dosage(null)).isNull();
@@ -45,8 +45,8 @@ public class DatamartMedicationStatementTransformerTest {
 
   @Test
   public void status() {
-    DatamartMedicationStatementTransformer tx =
-        DatamartMedicationStatementTransformer.builder()
+    Dstu2MedicationStatementTransformer tx =
+        Dstu2MedicationStatementTransformer.builder()
             .datamart(Datamart.create().medicationStatement())
             .build();
     assertThat(tx.status(null)).isNull();
@@ -56,8 +56,8 @@ public class DatamartMedicationStatementTransformerTest {
 
   @Test
   public void timing() {
-    DatamartMedicationStatementTransformer tx =
-        DatamartMedicationStatementTransformer.builder()
+    Dstu2MedicationStatementTransformer tx =
+        Dstu2MedicationStatementTransformer.builder()
             .datamart(Datamart.create().medicationStatement())
             .build();
     assertThat(tx.timing(Optional.empty())).isNull();
@@ -66,7 +66,7 @@ public class DatamartMedicationStatementTransformerTest {
   }
 
   private MedicationStatement tx(DatamartMedicationStatement dm) {
-    return DatamartMedicationStatementTransformer.builder().datamart(dm).build().toFhir();
+    return Dstu2MedicationStatementTransformer.builder().datamart(dm).build().toFhir();
   }
 
   @AllArgsConstructor(staticName = "create")

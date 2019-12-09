@@ -96,19 +96,6 @@ entries:
     query: /Encounter:1.02?_id=1200753214085
     page: 1
     count: 1
-  # MedicationStatement aliases
-  - file: ../../../../target/cdw/samples/MedSta102p185601V825290.xml
-    query: /MedicationStatement:1.02?identifier=1400000182116
-    page: 1
-    count: 1
-  - file: ../../../../target/cdw/samples/MedSta102p185601V825290.xml
-    query: /MedicationStatement:1.02?_id=1400000182116
-    page: 1
-    count: 1
-  - file: ../../../../target/cdw/samples/MedSta102p185601V825290.xml
-    query: /MedicationStatement:1.02?patient=185601V825290&_include=MedicationStatement:medication
-    page: 1
-    count: 1
   # DiagnosticReport aliases
   - file: ../../../../target/cdw/samples/DiaRep102p185601V825290catLABdgt19700101dlt20380101.xml
     query: /DiagnosticReport:1.02?code=10000-8,10001-6&patient=185601V825290
