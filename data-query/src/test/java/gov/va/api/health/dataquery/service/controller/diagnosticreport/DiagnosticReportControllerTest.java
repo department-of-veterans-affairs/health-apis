@@ -8,11 +8,11 @@ import static org.mockito.Mockito.when;
 import com.google.common.collect.Iterables;
 import gov.va.api.health.argonaut.api.resources.DiagnosticReport;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
-import gov.va.api.health.dataquery.service.controller.Bundler;
 import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
+import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
+import gov.va.api.health.dataquery.service.controller.Dstu2Validator;
 import gov.va.api.health.dataquery.service.controller.PageLinks.LinkConfig;
 import gov.va.api.health.dataquery.service.controller.Parameters;
-import gov.va.api.health.dataquery.service.controller.Validator;
 import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
 import gov.va.api.health.dataquery.service.mranderson.client.Query;
 import gov.va.api.health.dstu2.api.bundle.AbstractBundle.BundleType;
@@ -33,7 +33,7 @@ import org.springframework.util.MultiValueMap;
 public class DiagnosticReportControllerTest {
   @Mock MrAndersonClient mraClient;
   @Mock DiagnosticReportController.Transformer tx;
-  @Mock Bundler bundler;
+  @Mock Dstu2Bundler bundler;
 
   DiagnosticReportController controller;
 
@@ -74,10 +74,10 @@ public class DiagnosticReportControllerTest {
 
     @SuppressWarnings("unchecked")
     ArgumentCaptor<
-            Bundler.BundleContext<
+            Dstu2Bundler.BundleContext<
                 CdwDiagnosticReport102Root.CdwDiagnosticReports.CdwDiagnosticReport,
                 DiagnosticReport, DiagnosticReport.Entry, DiagnosticReport.Bundle>>
-        captor = ArgumentCaptor.forClass(Bundler.BundleContext.class);
+        captor = ArgumentCaptor.forClass(Dstu2Bundler.BundleContext.class);
 
     verify(bundler).bundle(captor.capture());
 
@@ -142,7 +142,7 @@ public class DiagnosticReportControllerTest {
             false,
             tx,
             mraClient,
-            new Bundler(new ConfigurableBaseUrlPageLinks("", "")),
+            new Dstu2Bundler(new ConfigurableBaseUrlPageLinks("", "")),
             null,
             null);
 
@@ -171,7 +171,7 @@ public class DiagnosticReportControllerTest {
             false,
             tx,
             mraClient,
-            new Bundler(new ConfigurableBaseUrlPageLinks("", "")),
+            new Dstu2Bundler(new ConfigurableBaseUrlPageLinks("", "")),
             null,
             null);
 
@@ -278,10 +278,10 @@ public class DiagnosticReportControllerTest {
 
     @SuppressWarnings("unchecked")
     ArgumentCaptor<
-            Bundler.BundleContext<
+            Dstu2Bundler.BundleContext<
                 CdwDiagnosticReport102Root.CdwDiagnosticReports.CdwDiagnosticReport,
                 DiagnosticReport, DiagnosticReport.Entry, DiagnosticReport.Bundle>>
-        captor = ArgumentCaptor.forClass(Bundler.BundleContext.class);
+        captor = ArgumentCaptor.forClass(Dstu2Bundler.BundleContext.class);
 
     verify(bundler).bundle(captor.capture());
     LinkConfig expectedLinkConfig =
@@ -311,7 +311,7 @@ public class DiagnosticReportControllerTest {
                 DiagnosticReport.class);
 
     DiagnosticReport.Bundle bundle = bundleOf(resource);
-    assertThat(controller.validate(bundle)).isEqualTo(Validator.ok());
+    assertThat(controller.validate(bundle)).isEqualTo(Dstu2Validator.ok());
   }
 
   @SneakyThrows

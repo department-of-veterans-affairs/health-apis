@@ -7,8 +7,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
-import gov.va.api.health.dataquery.service.controller.Bundler;
 import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
+import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dstu2.api.bundle.BundleLink.LinkRelation;
@@ -27,7 +27,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @DataJpaTest
 @RunWith(SpringRunner.class)
-public class DatamartLocationControllerTest {
+public class Dstu2LocationControllerTest {
 
   @Autowired private LocationRepository repository;
 
@@ -74,12 +74,12 @@ public class DatamartLocationControllerTest {
     return JacksonConfig.createMapper().readValue(json, DatamartLocation.class);
   }
 
-  private LocationController controller() {
-    return new LocationController(
+  private Dstu2LocationController controller() {
+    return new Dstu2LocationController(
         true,
         null,
         null,
-        new Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool")),
+        new Dstu2Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool")),
         repository,
         WitnessProtection.builder().identityService(ids).build());
   }

@@ -6,6 +6,7 @@
 
 ### STS ###
 .apt_generated
+.checkstyle
 .classpath
 .factorypath
 .project

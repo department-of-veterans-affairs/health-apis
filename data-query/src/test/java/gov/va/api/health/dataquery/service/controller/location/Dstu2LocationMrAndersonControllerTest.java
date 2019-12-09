@@ -5,11 +5,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
-import gov.va.api.health.dataquery.service.controller.Bundler;
-import gov.va.api.health.dataquery.service.controller.Bundler.BundleContext;
+import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
+import gov.va.api.health.dataquery.service.controller.Dstu2Bundler.BundleContext;
+import gov.va.api.health.dataquery.service.controller.Dstu2Validator;
 import gov.va.api.health.dataquery.service.controller.PageLinks.LinkConfig;
 import gov.va.api.health.dataquery.service.controller.Parameters;
-import gov.va.api.health.dataquery.service.controller.Validator;
 import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
 import gov.va.api.health.dataquery.service.mranderson.client.Query;
 import gov.va.api.health.dstu2.api.bundle.AbstractBundle.BundleType;
@@ -33,18 +33,18 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.util.MultiValueMap;
 
 @SuppressWarnings("WeakerAccess")
-public class LocationControllerTest {
+public class Dstu2LocationMrAndersonControllerTest {
   @Mock MrAndersonClient client;
 
-  @Mock LocationController.Transformer tx;
+  @Mock Dstu2LocationController.Transformer tx;
 
-  LocationController controller;
-  @Mock Bundler bundler;
+  Dstu2LocationController controller;
+  @Mock Dstu2Bundler bundler;
 
   @Before
   public void _init() {
     MockitoAnnotations.initMocks(this);
-    controller = new LocationController(false, tx, client, bundler, null, null);
+    controller = new Dstu2LocationController(false, tx, client, bundler, null, null);
   }
 
   private void assertSearch(
@@ -146,7 +146,7 @@ public class LocationControllerTest {
                 getClass().getResourceAsStream("/cdw/old-location-1.00.json"), Location.class);
 
     Bundle bundle = bundleOf(resource);
-    assertThat(controller.validate(bundle)).isEqualTo(Validator.ok());
+    assertThat(controller.validate(bundle)).isEqualTo(Dstu2Validator.ok());
   }
 
   @Test(expected = ConstraintViolationException.class)

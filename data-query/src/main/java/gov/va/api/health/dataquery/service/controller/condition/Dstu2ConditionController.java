@@ -6,12 +6,12 @@ import static java.util.Collections.emptyList;
 import gov.va.api.health.argonaut.api.resources.Condition;
 import gov.va.api.health.argonaut.api.resources.Condition.Bundle;
 import gov.va.api.health.dataquery.service.controller.AbstractIncludesIcnMajig;
-import gov.va.api.health.dataquery.service.controller.Bundler;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
+import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
+import gov.va.api.health.dataquery.service.controller.Dstu2Validator;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions.NotFound;
-import gov.va.api.health.dataquery.service.controller.Validator;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import java.util.Collection;
@@ -52,7 +52,7 @@ import org.springframework.web.bind.annotation.RestController;
 )
 public class Dstu2ConditionController {
 
-  private Bundler bundler;
+  private Dstu2Bundler bundler;
 
   private ConditionRepository repository;
 
@@ -61,7 +61,7 @@ public class Dstu2ConditionController {
   /** Spring constructor. */
   @SuppressWarnings("ParameterHidesMemberVariable")
   public Dstu2ConditionController(
-      @Autowired Bundler bundler,
+      @Autowired Dstu2Bundler bundler,
       @Autowired ConditionRepository repository,
       @Autowired WitnessProtection witnessProtection) {
     this.bundler = bundler;
@@ -80,7 +80,7 @@ public class Dstu2ConditionController {
             .totalRecords(totalRecords)
             .build();
     return bundler.bundle(
-        Bundler.BundleContext.of(
+        Dstu2Bundler.BundleContext.of(
             linkConfig, reports, Function.identity(), Condition.Entry::new, Condition.Bundle::new));
   }
 
@@ -251,6 +251,6 @@ public class Dstu2ConditionController {
     consumes = {"application/json", "application/json+fhir", "application/fhir+json"}
   )
   public OperationOutcome validate(@RequestBody Condition.Bundle bundle) {
-    return Validator.create().validate(bundle);
+    return Dstu2Validator.create().validate(bundle);
   }
 }

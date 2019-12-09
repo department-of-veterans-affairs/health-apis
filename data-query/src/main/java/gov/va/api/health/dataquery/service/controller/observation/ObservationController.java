@@ -1,7 +1,7 @@
 package gov.va.api.health.dataquery.service.controller.observation;
 
-import static gov.va.api.health.dataquery.service.controller.Transformers.firstPayloadItem;
-import static gov.va.api.health.dataquery.service.controller.Transformers.hasPayload;
+import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.firstPayloadItem;
+import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.hasPayload;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -9,13 +9,13 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 import com.google.common.base.Splitter;
 import gov.va.api.health.argonaut.api.resources.Observation;
 import gov.va.api.health.dataquery.service.controller.AbstractIncludesIcnMajig;
-import gov.va.api.health.dataquery.service.controller.Bundler;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.DateTimeParameter;
+import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
+import gov.va.api.health.dataquery.service.controller.Dstu2Validator;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
-import gov.va.api.health.dataquery.service.controller.Validator;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
 import gov.va.api.health.dataquery.service.mranderson.client.Query;
@@ -69,7 +69,7 @@ public class ObservationController {
 
   private MrAndersonClient mrAndersonClient;
 
-  private Bundler bundler;
+  private Dstu2Bundler bundler;
 
   private WitnessProtection witnessProtection;
 
@@ -80,7 +80,7 @@ public class ObservationController {
       @Value("${datamart.observation}") boolean defaultToDatamart,
       @Autowired Transformer transformer,
       @Autowired MrAndersonClient mrAndersonClient,
-      @Autowired Bundler bundler,
+      @Autowired Dstu2Bundler bundler,
       @Autowired ObservationRepository repository,
       @Autowired WitnessProtection witnessProtection) {
     this.defaultToDatamart = defaultToDatamart;
@@ -103,7 +103,7 @@ public class ObservationController {
             .totalRecords(root.getRecordCount().intValue())
             .build();
     return bundler.bundle(
-        Bundler.BundleContext.of(
+        Dstu2Bundler.BundleContext.of(
             linkConfig,
             root.getObservations() == null ? emptyList() : root.getObservations().getObservation(),
             transformer,
@@ -248,7 +248,7 @@ public class ObservationController {
     consumes = {"application/json", "application/json+fhir", "application/fhir+json"}
   )
   public OperationOutcome validate(@RequestBody Observation.Bundle bundle) {
-    return Validator.create().validate(bundle);
+    return Dstu2Validator.create().validate(bundle);
   }
 
   public interface Transformer
@@ -271,7 +271,7 @@ public class ObservationController {
               .totalRecords(totalRecords)
               .build();
       return bundler.bundle(
-          Bundler.BundleContext.of(
+          Dstu2Bundler.BundleContext.of(
               linkConfig,
               records,
               Function.identity(),

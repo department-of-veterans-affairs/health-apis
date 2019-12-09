@@ -1,9 +1,9 @@
 package gov.va.api.health.dataquery.service.controller.location;
 
-import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
-import static gov.va.api.health.dataquery.service.controller.Transformers.convert;
-import static gov.va.api.health.dataquery.service.controller.Transformers.convertAll;
-import static gov.va.api.health.dataquery.service.controller.Transformers.ifPresent;
+import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.allBlank;
+import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.convert;
+import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.convertAll;
+import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.ifPresent;
 
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
 import gov.va.api.health.dstu2.api.datatypes.Address;
@@ -30,7 +30,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 @Service
-public class LocationTransformer implements LocationController.Transformer {
+public class Dstu2LocationMrAndersonTransformer implements Dstu2LocationController.Transformer {
   Address address(CdwLocationAddress maybeCdw) {
     if (isUnusableAddress(maybeCdw)) {
       return null;

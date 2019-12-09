@@ -1,18 +1,18 @@
 package gov.va.api.health.dataquery.service.controller.location;
 
-import static gov.va.api.health.dataquery.service.controller.Transformers.firstPayloadItem;
-import static gov.va.api.health.dataquery.service.controller.Transformers.hasPayload;
+import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.firstPayloadItem;
+import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.hasPayload;
 import static java.util.Collections.emptyList;
 
 import gov.va.api.health.dataquery.service.controller.AbstractIncludesIcnMajig;
-import gov.va.api.health.dataquery.service.controller.Bundler;
-import gov.va.api.health.dataquery.service.controller.Bundler.BundleContext;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
+import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
+import gov.va.api.health.dataquery.service.controller.Dstu2Bundler.BundleContext;
+import gov.va.api.health.dataquery.service.controller.Dstu2Validator;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.PageLinks.LinkConfig;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
-import gov.va.api.health.dataquery.service.controller.Validator;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
 import gov.va.api.health.dataquery.service.mranderson.client.Query;
@@ -54,14 +54,14 @@ import org.springframework.web.bind.annotation.RestController;
   value = {"/dstu2/Location"},
   produces = {"application/json", "application/json+fhir", "application/fhir+json"}
 )
-public class LocationController {
+public class Dstu2LocationController {
   private final Datamart datamart = new Datamart();
 
   private Transformer transformer;
 
   private MrAndersonClient mrAndersonClient;
 
-  private Bundler bundler;
+  private Dstu2Bundler bundler;
 
   private LocationRepository repository;
 
@@ -70,11 +70,11 @@ public class LocationController {
   private boolean defaultToDatamart;
 
   /** Spring constructor. */
-  public LocationController(
+  public Dstu2LocationController(
       @Value("${datamart.location}") boolean defaultToDatamart,
       @Autowired Transformer transformer,
       @Autowired MrAndersonClient mrAndersonClient,
-      @Autowired Bundler bundler,
+      @Autowired Dstu2Bundler bundler,
       @Autowired LocationRepository repository,
       @Autowired WitnessProtection witnessProtection) {
     this.defaultToDatamart = defaultToDatamart;
@@ -180,7 +180,7 @@ public class LocationController {
     consumes = {"application/json", "application/json+fhir", "application/fhir+json"}
   )
   public OperationOutcome validate(@RequestBody Location.Bundle bundle) {
-    return Validator.create().validate(bundle);
+    return Dstu2Validator.create().validate(bundle);
   }
 
   public interface Transformer
@@ -203,7 +203,7 @@ public class LocationController {
               .totalRecords(totalRecords)
               .build();
       return bundler.bundle(
-          Bundler.BundleContext.of(
+          Dstu2Bundler.BundleContext.of(
               linkConfig, reports, Function.identity(), Location.Entry::new, Location.Bundle::new));
     }
 
@@ -248,7 +248,7 @@ public class LocationController {
     }
 
     Location transform(DatamartLocation dm) {
-      return DatamartLocationTransformer.builder().datamart(dm).build().toFhir();
+      return Dstu2LocationTransformer.builder().datamart(dm).build().toFhir();
     }
   }
 }

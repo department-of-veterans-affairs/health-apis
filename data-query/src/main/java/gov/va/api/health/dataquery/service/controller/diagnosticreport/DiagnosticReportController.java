@@ -1,8 +1,8 @@
 package gov.va.api.health.dataquery.service.controller.diagnosticreport;
 
-import static gov.va.api.health.dataquery.service.controller.Transformers.firstPayloadItem;
-import static gov.va.api.health.dataquery.service.controller.Transformers.hasPayload;
-import static gov.va.api.health.dataquery.service.controller.Transformers.parseInstant;
+import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.firstPayloadItem;
+import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.hasPayload;
+import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.parseInstant;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
@@ -15,15 +15,15 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Table;
 import gov.va.api.health.argonaut.api.resources.DiagnosticReport;
 import gov.va.api.health.dataquery.service.controller.AbstractIncludesIcnMajig;
-import gov.va.api.health.dataquery.service.controller.Bundler;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.DateTimeParameter;
 import gov.va.api.health.dataquery.service.controller.DateTimeParameters;
+import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
+import gov.va.api.health.dataquery.service.controller.Dstu2Validator;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions.NotFound;
-import gov.va.api.health.dataquery.service.controller.Validator;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
 import gov.va.api.health.dataquery.service.mranderson.client.Query;
@@ -82,7 +82,7 @@ public class DiagnosticReportController {
 
   private MrAndersonClient mrAndersonClient;
 
-  private Bundler bundler;
+  private Dstu2Bundler bundler;
 
   private WitnessProtection witnessProtection;
 
@@ -95,7 +95,7 @@ public class DiagnosticReportController {
       @Value("${datamart.diagnostic-report}") boolean defaultToDatamart,
       @Autowired Transformer transformer,
       @Autowired MrAndersonClient mrAndersonClient,
-      @Autowired Bundler bundler,
+      @Autowired Dstu2Bundler bundler,
       @Autowired WitnessProtection witnessProtection,
       @Autowired EntityManager entityManager) {
     this.defaultToDatamart = defaultToDatamart;
@@ -145,7 +145,7 @@ public class DiagnosticReportController {
             .totalRecords(totalRecords)
             .build();
     return bundler.bundle(
-        Bundler.BundleContext.of(
+        Dstu2Bundler.BundleContext.of(
             linkConfig,
             reports,
             Function.identity(),
@@ -279,7 +279,7 @@ public class DiagnosticReportController {
             .totalRecords(root.getRecordCount().intValue())
             .build();
     return bundler.bundle(
-        Bundler.BundleContext.of(
+        Dstu2Bundler.BundleContext.of(
             linkConfig,
             root.getDiagnosticReports() == null
                 ? Collections.emptyList()
@@ -507,7 +507,7 @@ public class DiagnosticReportController {
     consumes = {"application/json", "application/json+fhir", "application/fhir+json"}
   )
   public OperationOutcome validate(@RequestBody DiagnosticReport.Bundle bundle) {
-    return Validator.create().validate(bundle);
+    return Dstu2Validator.create().validate(bundle);
   }
 
   public interface Transformer

@@ -5,12 +5,12 @@ import static java.util.Collections.emptyList;
 import gov.va.api.health.argonaut.api.resources.MedicationOrder;
 import gov.va.api.health.argonaut.api.resources.MedicationOrder.Bundle;
 import gov.va.api.health.dataquery.service.controller.AbstractIncludesIcnMajig;
-import gov.va.api.health.dataquery.service.controller.Bundler;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
+import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
+import gov.va.api.health.dataquery.service.controller.Dstu2Validator;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
-import gov.va.api.health.dataquery.service.controller.Validator;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import java.util.Collection;
@@ -50,7 +50,7 @@ import org.springframework.web.bind.annotation.RestController;
 )
 public class Dstu2MedicationOrderController {
 
-  private Bundler bundler;
+  private Dstu2Bundler bundler;
 
   private MedicationOrderRepository repository;
 
@@ -58,7 +58,7 @@ public class Dstu2MedicationOrderController {
 
   /** All args constructor. */
   public Dstu2MedicationOrderController(
-      @Autowired Bundler bundler,
+      @Autowired Dstu2Bundler bundler,
       @Autowired MedicationOrderRepository repository,
       @Autowired WitnessProtection witnessProtection) {
     this.bundler = bundler;
@@ -77,7 +77,7 @@ public class Dstu2MedicationOrderController {
             .totalRecords(totalRecords)
             .build();
     return bundler.bundle(
-        Bundler.BundleContext.of(
+        Dstu2Bundler.BundleContext.of(
             linkConfig,
             results,
             Function.identity(),
@@ -186,6 +186,6 @@ public class Dstu2MedicationOrderController {
     consumes = {"application/json", "application/json+fhir", "application/fhir+json"}
   )
   public OperationOutcome validate(@RequestBody MedicationOrder.Bundle bundle) {
-    return Validator.create().validate(bundle);
+    return Dstu2Validator.create().validate(bundle);
   }
 }
