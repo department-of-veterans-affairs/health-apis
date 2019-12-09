@@ -1,16 +1,19 @@
 package gov.va.api.health.dataquery.service.controller.practitioner;
 
-import static java.util.Collections.emptyList;
-
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.firstPayloadItem;
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.hasPayload;
+import static java.util.Collections.emptyList;
 
+import gov.va.api.health.dataquery.service.controller.AbstractIncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
 import gov.va.api.health.dataquery.service.controller.Dstu2Bundler.BundleContext;
 import gov.va.api.health.dataquery.service.controller.Dstu2Validator;
+import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.PageLinks.LinkConfig;
 import gov.va.api.health.dataquery.service.controller.Parameters;
+import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
+import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
 import gov.va.api.health.dataquery.service.mranderson.client.Query;
 import gov.va.api.health.dataquery.service.mranderson.client.Query.Profile;
@@ -62,7 +65,7 @@ public class PractitionerController {
   private MrAndersonClient mrAndersonClient;
 
   private Dstu2Bundler bundler;
-  
+
   private PractitionerRepository repository;
 
   private WitnessProtection witnessProtection;
@@ -74,7 +77,7 @@ public class PractitionerController {
       @Value("${datamart.practitioner}") boolean defaultToDatamart,
       @Autowired Transformer transformer,
       @Autowired MrAndersonClient mrAndersonClient,
-      @Autowired Bundler bundler,
+      @Autowired Dstu2Bundler bundler,
       @Autowired PractitionerRepository repository,
       @Autowired WitnessProtection witnessProtection) {
     this.defaultToDatamart = defaultToDatamart;
@@ -203,7 +206,7 @@ public class PractitionerController {
               .totalRecords(totalRecords)
               .build();
       return bundler.bundle(
-          Bundler.BundleContext.of(
+          Dstu2Bundler.BundleContext.of(
               linkConfig,
               reports,
               Function.identity(),
