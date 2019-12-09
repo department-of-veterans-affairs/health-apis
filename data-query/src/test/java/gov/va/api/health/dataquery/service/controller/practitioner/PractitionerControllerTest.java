@@ -37,15 +37,15 @@ import org.springframework.util.MultiValueMap;
 public class PractitionerControllerTest {
   @Mock MrAndersonClient client;
 
-  @Mock PractitionerController.Transformer tx;
+  @Mock Dstu2PractitionerController.Transformer tx;
 
-  PractitionerController controller;
+  Dstu2PractitionerController controller;
   @Mock Dstu2Bundler bundler;
 
   @Before
   public void _init() {
     MockitoAnnotations.initMocks(this);
-    controller = new PractitionerController(false, tx, client, bundler, null, null);
+    controller = new Dstu2PractitionerController(false, tx, client, bundler, null, null);
   }
 
   private void assertSearch(Supplier<Bundle> invocation, MultiValueMap<String, String> params) {

@@ -20,15 +20,12 @@ import gov.va.api.health.dataquery.service.mranderson.client.Query.Profile;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import gov.va.api.health.dstu2.api.resources.Practitioner;
 import gov.va.dvp.cdw.xsd.model.CdwPractitioner100Root;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.stream.Stream;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.Min;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +45,6 @@ import org.springframework.web.bind.annotation.RestController;
  * Request Mappings for Practitioner Profile, see http://hl7.org/fhir/DSTU2/practitioner.html for
  * implementation details.
  */
-@Slf4j
 @Validated
 @RestController
 @SuppressWarnings("WeakerAccess")
@@ -56,7 +52,7 @@ import org.springframework.web.bind.annotation.RestController;
   value = {"/dstu2/Practitioner"},
   produces = {"application/json", "application/json+fhir", "application/fhir+json"}
 )
-public class PractitionerController {
+public class Dstu2PractitionerController {
 
   private final Datamart datamart = new Datamart();
 
@@ -73,7 +69,7 @@ public class PractitionerController {
   private boolean defaultToDatamart;
 
   /** Autowired constructor. */
-  public PractitionerController(
+  public Dstu2PractitionerController(
       @Value("${datamart.practitioner}") boolean defaultToDatamart,
       @Autowired Transformer transformer,
       @Autowired MrAndersonClient mrAndersonClient,
@@ -235,17 +231,6 @@ public class PractitionerController {
       return findById(publicId);
     }
 
-    private Collection<Dstu2Practitioner> replaceReferences(
-        Collection<Dstu2Practitioner> resources) {
-      witnessProtection.registerAndUpdateReferences(
-          resources,
-          resource ->
-              Stream.concat(
-                  Stream.of(resource.practitionerRole().get().managingOrganization().orElse(null)),
-                  resource.practitionerRole().get().location().stream()));
-      return resources;
-    }
-
     Practitioner.Bundle searchById(String publicId, int page, int count) {
       Practitioner resource = read(publicId);
       return bundle(
@@ -258,7 +243,7 @@ public class PractitionerController {
           resource == null ? 0 : 1);
     }
 
-    Practitioner transform(Dstu2Practitioner dm) {
+    Practitioner transform(DatamartPractitioner dm) {
       return Dstu2PractitionerTransformer.builder().datamart(dm).build().toFhir();
     }
   }

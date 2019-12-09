@@ -29,29 +29,29 @@ public class Dstu2PractitionerSamples {
 
   @AllArgsConstructor(staticName = "create")
   static class Datamart {
-    public Dstu2Practitioner practitioner() {
+    public DatamartPractitioner practitioner() {
       return practitioner("1234");
     }
 
-    public Dstu2Practitioner practitioner(String cdwId) {
-      return Dstu2Practitioner.builder()
+    public DatamartPractitioner practitioner(String cdwId) {
+      return DatamartPractitioner.builder()
           .cdwId(cdwId)
           .active(true)
           .address(
               List.of(
-                  Dstu2Practitioner.Address.builder()
+                  DatamartPractitioner.Address.builder()
                       .line1("111 MacGyver Viaduct")
                       .city("Anchorage")
                       .state("Alaska")
                       .postalCode("99501")
                       .build()))
-          .name(Dstu2Practitioner.Name.builder().family("Joe").given("Johnson").build())
+          .name(DatamartPractitioner.Name.builder().family("Joe").given("Johnson").build())
           .birthDate(Optional.of(LocalDate.parse("1970-11-14")))
-          .gender(Dstu2Practitioner.Gender.male)
+          .gender(DatamartPractitioner.Gender.male)
           .npi(Optional.of("1234567"))
           .practitionerRole(
               Optional.of(
-                  Dstu2Practitioner.PractitionerRole.builder()
+                  DatamartPractitioner.PractitionerRole.builder()
                       .healthCareService(Optional.of("medical"))
                       .location(
                           Collections.singletonList(
@@ -75,9 +75,9 @@ public class Dstu2PractitionerSamples {
                       .build()))
           .telecom(
               List.of(
-                  Dstu2Practitioner.Telecom.builder()
-                      .use(Dstu2Practitioner.Telecom.Use.mobile)
-                      .system(Dstu2Practitioner.Telecom.System.phone)
+                  DatamartPractitioner.Telecom.builder()
+                      .use(DatamartPractitioner.Telecom.Use.mobile)
+                      .system(DatamartPractitioner.Telecom.System.phone)
                       .value("123-456-1234")
                       .build()))
           .build();

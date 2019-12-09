@@ -47,7 +47,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 @Service
-public class PractitionerTransformer implements PractitionerController.Transformer {
+public class PractitionerTransformer implements Dstu2PractitionerController.Transformer {
   Address address(CdwAddress source) {
     return convert(
         source,

@@ -1,185 +1,166 @@
 package gov.va.api.health.dataquery.service.controller.practitioner;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
-import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
 import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
-import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
-import gov.va.api.health.dataquery.service.controller.WitnessProtection;
-import gov.va.api.health.dataquery.service.controller.practitioner.Dstu2PractitionerSamples.Datamart;
-import gov.va.api.health.dstu2.api.bundle.BundleLink.LinkRelation;
+import gov.va.api.health.dataquery.service.controller.Dstu2Bundler.BundleContext;
+import gov.va.api.health.dataquery.service.controller.Dstu2Validator;
+import gov.va.api.health.dataquery.service.controller.PageLinks.LinkConfig;
+import gov.va.api.health.dataquery.service.controller.Parameters;
+import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
+import gov.va.api.health.dataquery.service.mranderson.client.Query;
+import gov.va.api.health.dstu2.api.bundle.AbstractBundle.BundleType;
 import gov.va.api.health.dstu2.api.resources.Practitioner;
-import gov.va.api.health.ids.api.IdentityService;
-import gov.va.api.health.ids.api.Registration;
-import gov.va.api.health.ids.api.ResourceIdentity;
-import java.util.List;
-import javax.servlet.http.HttpServletResponse;
+import gov.va.api.health.dstu2.api.resources.Practitioner.Bundle;
+import gov.va.api.health.dstu2.api.resources.Practitioner.Entry;
+import gov.va.dvp.cdw.xsd.model.CdwPractitioner100Root;
+import gov.va.dvp.cdw.xsd.model.CdwPractitioner100Root.CdwPractitioners;
+import gov.va.dvp.cdw.xsd.model.CdwPractitioner100Root.CdwPractitioners.CdwPractitioner;
+import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.function.Supplier;
+import javax.validation.ConstraintViolationException;
 import lombok.SneakyThrows;
+import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.mockito.MockitoAnnotations;
+import org.springframework.util.MultiValueMap;
 
-@DataJpaTest
-@RunWith(SpringRunner.class)
+@SuppressWarnings("WeakerAccess")
 public class Dstu2PractitionerControllerTest {
+  @Mock MrAndersonClient client;
 
-  HttpServletResponse response = mock(HttpServletResponse.class);
+  @Mock Dstu2PractitionerController.Transformer tx;
 
-  private IdentityService ids = mock(IdentityService.class);
+  Dstu2PractitionerController controller;
+  @Mock Dstu2Bundler bundler;
 
-  @Autowired private PractitionerRepository repository;
+  @Before
+  public void _init() {
+    MockitoAnnotations.initMocks(this);
+    controller = new Dstu2PractitionerController(false, tx, client, bundler, null, null);
+  }
 
-  @Autowired private TestEntityManager entityManager;
+  private void assertSearch(Supplier<Bundle> invocation, MultiValueMap<String, String> params) {
+    CdwPractitioner100Root root = new CdwPractitioner100Root();
+    root.setPageNumber(BigInteger.valueOf(1));
+    root.setRecordsPerPage(BigInteger.valueOf(10));
+    root.setRecordCount(BigInteger.valueOf(3));
+    root.setPractitioners(new CdwPractitioners());
+    CdwPractitioner cdwItem1 = new CdwPractitioner();
+    CdwPractitioner cdwItem2 = new CdwPractitioner();
+    CdwPractitioner cdwItem3 = new CdwPractitioner();
+    root.getPractitioners().getPractitioner().addAll(Arrays.asList(cdwItem1, cdwItem2, cdwItem3));
+    Practitioner practitioner1 = Practitioner.builder().build();
+    Practitioner practitioner2 = Practitioner.builder().build();
+    Practitioner practitioner3 = Practitioner.builder().build();
+    when(tx.apply(cdwItem1)).thenReturn(practitioner1);
+    when(tx.apply(cdwItem2)).thenReturn(practitioner2);
+    when(tx.apply(cdwItem3)).thenReturn(practitioner3);
+    when(client.search(Mockito.any())).thenReturn(root);
 
-  @SneakyThrows
-  private PractitionerEntity asEntity(Dstu2Practitioner dm) {
-    return PractitionerEntity.builder()
-        .cdwId(dm.cdwId())
-        .familyName("Joe")
-        .givenName("Johnson")
-        .npi("1234567")
-        .payload(JacksonConfig.createMapper().writeValueAsString(dm))
+    Bundle mockBundle = new Bundle();
+    when(bundler.bundle(Mockito.any())).thenReturn(mockBundle);
+
+    Bundle actual = invocation.get();
+
+    assertThat(actual).isSameAs(mockBundle);
+    @SuppressWarnings("unchecked")
+    ArgumentCaptor<BundleContext<CdwPractitioner, Practitioner, Entry, Bundle>> captor =
+        ArgumentCaptor.forClass(BundleContext.class);
+
+    verify(bundler).bundle(captor.capture());
+
+    LinkConfig expectedLinkConfig =
+        LinkConfig.builder()
+            .page(1)
+            .recordsPerPage(10)
+            .totalRecords(3)
+            .path("Practitioner")
+            .queryParams(params)
+            .build();
+    assertThat(captor.getValue().linkConfig()).isEqualTo(expectedLinkConfig);
+    assertThat(captor.getValue().xmlItems()).isEqualTo(root.getPractitioners().getPractitioner());
+    assertThat(captor.getValue().newBundle().get()).isInstanceOf(Bundle.class);
+    assertThat(captor.getValue().newEntry().get()).isInstanceOf(Practitioner.Entry.class);
+    assertThat(captor.getValue().transformer()).isSameAs(tx);
+  }
+
+  private Bundle bundleOf(Practitioner resource) {
+    return Bundle.builder()
+        .type(BundleType.searchset)
+        .resourceType("Bundle")
+        .entry(
+            Collections.singletonList(
+                Practitioner.Entry.builder()
+                    .fullUrl("http://example.com")
+                    .resource(resource)
+                    .build()))
         .build();
   }
 
-  PractitionerController controller() {
-    return new PractitionerController(
-        true,
-        null,
-        null,
-        new Dstu2Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool")),
-        repository,
-        WitnessProtection.builder().identityService(ids).build());
-  }
-
-  @SneakyThrows
-  String json(Object o) {
-    return JacksonConfig.createMapper().writerWithDefaultPrettyPrinter().writeValueAsString(o);
-  }
-
-  public void mockPractitionerIdentity(String publicId, String cdwId) {
-    ResourceIdentity resourceIdentity =
-        ResourceIdentity.builder().system("CDW").resource("PRACTITIONER").identifier(cdwId).build();
-    when(ids.lookup(publicId)).thenReturn(List.of(resourceIdentity));
-    when(ids.register(Mockito.any()))
-        .thenReturn(
-            List.of(
-                Registration.builder().uuid(publicId).resourceIdentity(resourceIdentity).build()));
-  }
-
+  @SuppressWarnings("unchecked")
   @Test
   public void read() {
-    Dstu2Practitioner dm = Datamart.create().practitioner();
-    repository.save(asEntity(dm));
-    mockPractitionerIdentity("1234", dm.cdwId());
-    Practitioner actual = controller().read("true", "1234");
-    assertThat(actual).isEqualTo(Datamart.Dstu2.create().practitioner("1234"));
-  }
-
-  @Test
-  public void readRaw() {
-    String publicId = "abc";
-    String cdwId = "123";
-    mockPractitionerIdentity(publicId, cdwId);
-    HttpServletResponse servletResponse = mock(HttpServletResponse.class);
-    Dstu2Practitioner dm = Dstu2PractitionerSamples.Datamart.create().practitioner(cdwId);
-    repository.save(asEntity(dm));
-    String json = controller().readRaw(publicId, servletResponse);
-    assertThat(toObject(json)).isEqualTo(dm);
-    verify(servletResponse).addHeader("X-VA-INCLUDES-ICN", "NONE");
-  }
-
-  @Test(expected = ResourceExceptions.NotFound.class)
-  public void readRawThrowsNotFoundWhenDataIsMissing() {
-    mockPractitionerIdentity("x", "x");
-    controller().readRaw("x", response);
-  }
-
-  @Test(expected = ResourceExceptions.NotFound.class)
-  public void readRawThrowsNotFoundWhenIdIsUnknown() {
-    controller().readRaw("x", response);
-  }
-
-  @Test(expected = ResourceExceptions.NotFound.class)
-  public void readThrowsNotFoundWhenDataIsMissing() {
-    mockPractitionerIdentity("x", "x");
-    controller().read("true", "x");
-  }
-
-  @Test(expected = ResourceExceptions.NotFound.class)
-  public void readThrowsNotFoundWhenIdIsUnknown() {
-    controller().read("true", "x");
+    CdwPractitioner100Root root = new CdwPractitioner100Root();
+    root.setPractitioners(new CdwPractitioners());
+    CdwPractitioner xmlPractitioner = new CdwPractitioner();
+    root.getPractitioners().getPractitioner().add(xmlPractitioner);
+    Practitioner item = Practitioner.builder().build();
+    when(client.search(Mockito.any())).thenReturn(root);
+    when(tx.apply(xmlPractitioner)).thenReturn(item);
+    Practitioner actual = controller.read("false", "hello");
+    assertThat(actual).isSameAs(item);
+    ArgumentCaptor<Query<CdwPractitioner100Root>> captor = ArgumentCaptor.forClass(Query.class);
+    verify(client).search(captor.capture());
+    assertThat(captor.getValue().parameters()).isEqualTo(Parameters.forIdentity("hello"));
   }
 
   @Test
   public void searchById() {
-
-    mockPractitionerIdentity("abc", "1234");
-    Dstu2Practitioner dm = Datamart.create().practitioner("1234");
-    repository.save(asEntity(dm));
-    Practitioner.Bundle actual = controller().searchById("true", "1234", 1, 1);
-    assertThat(json(actual))
-        .isEqualTo(
-            json(
-                Dstu2PractitionerSamples.Datamart.Dstu2.asBundle(
-                    "http://fonzy.com/cool",
-                    List.of(Dstu2PractitionerSamples.Datamart.Dstu2.create().practitioner("1234")),
-                    Dstu2PractitionerSamples.Datamart.Dstu2.link(
-                        LinkRelation.first,
-                        "http://fonzy.com/cool/Practitioner?identifier=1234",
-                        1,
-                        1),
-                    Dstu2PractitionerSamples.Datamart.Dstu2.link(
-                        LinkRelation.self,
-                        "http://fonzy.com/cool/Practitioner?identifier=1234",
-                        1,
-                        1),
-                    Dstu2PractitionerSamples.Datamart.Dstu2.link(
-                        LinkRelation.last,
-                        "http://fonzy.com/cool/Practitioner?identifier=1234",
-                        1,
-                        1))));
+    assertSearch(
+        () -> controller.searchById("false", "me", 1, 10),
+        Parameters.builder().add("identifier", "me").add("page", 1).add("_count", 10).build());
   }
 
   @Test
   public void searchByIdentifier() {
-    Dstu2Practitioner dm = Dstu2PractitionerSamples.Datamart.create().practitioner("1234");
-    repository.save(asEntity(dm));
-    mockPractitionerIdentity("1234", dm.cdwId());
-    Practitioner.Bundle actual = controller().searchByIdentifier("true", "1234", 1, 1);
-    assertThat(json(actual))
-        .isEqualTo(
-            json(
-                Dstu2PractitionerSamples.Datamart.Dstu2.asBundle(
-                    "http://fonzy.com/cool",
-                    List.of(Dstu2PractitionerSamples.Datamart.Dstu2.create().practitioner("1234")),
-                    Dstu2PractitionerSamples.Datamart.Dstu2.link(
-                        LinkRelation.first,
-                        "http://fonzy.com/cool/Practitioner?identifier=1234",
-                        1,
-                        1),
-                    Dstu2PractitionerSamples.Datamart.Dstu2.link(
-                        LinkRelation.self,
-                        "http://fonzy.com/cool/Practitioner?identifier=1234",
-                        1,
-                        1),
-                    Dstu2PractitionerSamples.Datamart.Dstu2.link(
-                        LinkRelation.last,
-                        "http://fonzy.com/cool/Practitioner?identifier=1234",
-                        1,
-                        1))));
+    assertSearch(
+        () -> controller.searchByIdentifier("false", "me", 1, 10),
+        Parameters.builder().add("identifier", "me").add("page", 1).add("_count", 10).build());
   }
 
+  @Test
   @SneakyThrows
-  private Dstu2Practitioner toObject(String json) {
-    return JacksonConfig.createMapper().readValue(json, Dstu2Practitioner.class);
+  public void validateAcceptsValidBundle() {
+    Practitioner resource =
+        JacksonConfig.createMapper()
+            .readValue(
+                getClass().getResourceAsStream("/cdw/old-practitioner-1.00.json"),
+                Practitioner.class);
+
+    Bundle bundle = bundleOf(resource);
+    assertThat(controller.validate(bundle)).isEqualTo(Dstu2Validator.ok());
+  }
+
+  @Test(expected = ConstraintViolationException.class)
+  @SneakyThrows
+  public void validateThrowsExceptionForInvalidBundle() {
+    Practitioner resource =
+        JacksonConfig.createMapper()
+            .readValue(
+                getClass().getResourceAsStream("/cdw/old-practitioner-1.00.json"),
+                Practitioner.class);
+    resource.resourceType(null);
+
+    Bundle bundle = bundleOf(resource);
+    controller.validate(bundle);
   }
 }

@@ -27,9 +27,9 @@ import lombok.Builder;
 @Builder
 public class Dstu2PractitionerTransformer {
 
-  private final Dstu2Practitioner datamart;
+  private final DatamartPractitioner datamart;
 
-  static Address address(Dstu2Practitioner.Address address) {
+  static Address address(DatamartPractitioner.Address address) {
     if (address == null
         || allBlank(
             address.line1(),
@@ -67,7 +67,7 @@ public class Dstu2PractitionerTransformer {
     return results.stream().map(s -> healthCareService(s)).collect(Collectors.toList());
   }
 
-  static HumanName name(Dstu2Practitioner.Name source) {
+  static HumanName name(DatamartPractitioner.Name source) {
     if (source == null
         || allBlank(source.family(), source.given(), source.prefix(), source.suffix())) {
       return null;
@@ -112,7 +112,7 @@ public class Dstu2PractitionerTransformer {
                     .build()));
   }
 
-  static ContactPoint telecom(Dstu2Practitioner.Telecom telecom) {
+  static ContactPoint telecom(DatamartPractitioner.Telecom telecom) {
     if (telecom == null || allBlank(telecom.system(), telecom.use(), telecom.value())) {
       return null;
     }
@@ -126,12 +126,12 @@ public class Dstu2PractitionerTransformer {
                 .build());
   }
 
-  static ContactPoint.ContactPointSystem telecomSystem(Dstu2Practitioner.Telecom.System tel) {
+  static ContactPoint.ContactPointSystem telecomSystem(DatamartPractitioner.Telecom.System tel) {
     return convert(
         tel, source -> EnumSearcher.of(ContactPoint.ContactPointSystem.class).find(tel.toString()));
   }
 
-  static ContactPoint.ContactPointUse telecomUse(Dstu2Practitioner.Telecom.Use tel) {
+  static ContactPoint.ContactPointUse telecomUse(DatamartPractitioner.Telecom.Use tel) {
     return ifPresent(
         tel, source -> EnumSearcher.of(ContactPoint.ContactPointUse.class).find(source.toString()));
   }
@@ -141,12 +141,12 @@ public class Dstu2PractitionerTransformer {
         datamart.address().stream().map(adr -> address(adr)).collect(Collectors.toList()));
   }
 
-  Practitioner.Gender gender(Dstu2Practitioner.Gender source) {
+  Practitioner.Gender gender(DatamartPractitioner.Gender source) {
     return convert(
         source, gender -> EnumSearcher.of(Practitioner.Gender.class).find(gender.toString()));
   }
 
-  Practitioner.PractitionerRole practitionerRole(Dstu2Practitioner.PractitionerRole source) {
+  Practitioner.PractitionerRole practitionerRole(DatamartPractitioner.PractitionerRole source) {
     if (source == null
         || allBlank(
             source.healthCareService(),

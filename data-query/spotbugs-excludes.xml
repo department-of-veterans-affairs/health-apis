@@ -29,8 +29,8 @@
       <Class name="gov.va.api.health.dataquery.service.controller.observation.DatamartObservation"/>
       <Class name="gov.va.api.health.dataquery.service.controller.organization.DatamartOrganization"/>
       <Class name="gov.va.api.health.dataquery.service.controller.patient.DatamartPatient"/>
-      <Class name="gov.va.api.health.dataquery.service.controller.practitioner.Dstu2Practitioner"/>
-      <Class name="gov.va.api.health.dataquery.service.controller.practitioner.Dstu2Practitioner$PractitionerRole"/>
+      <Class name="gov.va.api.health.dataquery.service.controller.practitioner.DatamartPractitioner"/>
+      <Class name="gov.va.api.health.dataquery.service.controller.practitioner.DatamartPractitioner$PractitionerRole"/>
       <Class name="gov.va.api.health.dataquery.service.controller.medication.DatamartMedication"/>
     </Or>
     <Or>

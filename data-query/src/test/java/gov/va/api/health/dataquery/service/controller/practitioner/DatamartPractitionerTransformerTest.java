@@ -10,18 +10,22 @@ import java.time.LocalDate;
 import java.util.Optional;
 import org.junit.Test;
 
-public class Dstu2PractitionerTransformerTest {
+public class DatamartPractitionerTransformerTest {
 
   @Test
   public void address() {
     assertThat(Dstu2PractitionerTransformer.address(null)).isNull();
     assertThat(
             Dstu2PractitionerTransformer.address(
-                Dstu2Practitioner.Address.builder().city(" ").state(" ").postalCode(" ").build()))
+                DatamartPractitioner.Address.builder()
+                    .city(" ")
+                    .state(" ")
+                    .postalCode(" ")
+                    .build()))
         .isNull();
     assertThat(
             Dstu2PractitionerTransformer.address(
-                Dstu2Practitioner.Address.builder()
+                DatamartPractitioner.Address.builder()
                     .line1("w")
                     .city("x")
                     .state("y")
@@ -42,9 +46,9 @@ public class Dstu2PractitionerTransformerTest {
   public void gender() {
     Dstu2PractitionerTransformer transformer = Dstu2PractitionerTransformer.builder().build();
     assertThat(transformer.gender(null)).isNull();
-    assertThat(transformer.gender(Dstu2Practitioner.Gender.male))
+    assertThat(transformer.gender(DatamartPractitioner.Gender.male))
         .isEqualTo(Practitioner.Gender.male);
-    assertThat(transformer.gender(Dstu2Practitioner.Gender.female))
+    assertThat(transformer.gender(DatamartPractitioner.Gender.female))
         .isEqualTo(Practitioner.Gender.female);
   }
 
@@ -53,7 +57,7 @@ public class Dstu2PractitionerTransformerTest {
     assertThat(Dstu2PractitionerTransformer.name(null)).isNull();
     assertThat(
             Dstu2PractitionerTransformer.name(
-                Dstu2Practitioner.Name.builder()
+                DatamartPractitioner.Name.builder()
                     .family("family")
                     .given("given")
                     .suffix(Optional.of("suffix"))
@@ -83,7 +87,7 @@ public class Dstu2PractitionerTransformerTest {
         .isEqualTo(Dstu2PractitionerSamples.Datamart.Dstu2.create().practitioner());
   }
 
-  Dstu2PractitionerTransformer tx(Dstu2Practitioner dm) {
+  Dstu2PractitionerTransformer tx(DatamartPractitioner dm) {
     return Dstu2PractitionerTransformer.builder().datamart(dm).build();
   }
 }
