@@ -12,7 +12,6 @@ import java.util.Optional;
 import org.junit.Test;
 
 public class Stu3TransformersTest {
-
   @Test
   public void allBlank() {
     assertThat(Stu3Transformers.allBlank()).isTrue();
