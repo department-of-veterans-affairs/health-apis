@@ -88,11 +88,11 @@ public class ConditionSamples {
   static class Dstu2 {
 
     static Condition.Bundle asBundle(
-        String baseUrl, Collection<Condition> conditions, BundleLink... links) {
+        String baseUrl, Collection<Condition> conditions, int totalRecords, BundleLink... links) {
       return Bundle.builder()
           .resourceType("Bundle")
           .type(BundleType.searchset)
-          .total(conditions.size())
+          .total(totalRecords)
           .link(Arrays.asList(links))
           .entry(
               conditions

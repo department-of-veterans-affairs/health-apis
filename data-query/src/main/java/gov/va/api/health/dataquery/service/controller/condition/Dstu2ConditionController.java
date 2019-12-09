@@ -10,7 +10,6 @@ import gov.va.api.health.dataquery.service.controller.Bundler;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.Parameters;
-import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions.NotFound;
 import gov.va.api.health.dataquery.service.controller.Validator;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
@@ -102,6 +101,11 @@ public class Dstu2ConditionController {
             .map(this::transform)
             .collect(Collectors.toList()),
         (int) entities.getTotalElements());
+  }
+
+  ConditionEntity findById(String publicId) {
+    Optional<ConditionEntity> entity = repository.findById(witnessProtection.toCdwId(publicId));
+    return entity.orElseThrow(() -> new NotFound(publicId));
   }
 
   private PageRequest page(int page, int count) {
@@ -235,12 +239,6 @@ public class Dstu2ConditionController {
         count,
         repository.findByIcnAndClinicalStatusIn(
             icn, Set.of(clinicalStatus.split("\\s*,\\s*")), page(page, count)));
-  }
-
-  ConditionEntity findById(String publicId) {
-    Optional<ConditionEntity> entity =
-        repository.findById(witnessProtection.toCdwId(publicId));
-    return entity.orElseThrow(() -> new NotFound(publicId));
   }
 
   Condition transform(DatamartCondition dm) {

@@ -25,6 +25,7 @@ import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletResponse;
@@ -170,6 +171,7 @@ public class Dstu2ConditionControllerTest {
                 Dstu2.asBundle(
                     "http://fonzy.com/cool",
                     List.of(condition),
+                    1,
                     link(LinkRelation.first, "http://fonzy.com/cool/Condition?identifier=x", 1, 1),
                     link(LinkRelation.self, "http://fonzy.com/cool/Condition?identifier=x", 1, 1),
                     link(
@@ -185,6 +187,7 @@ public class Dstu2ConditionControllerTest {
                 Dstu2.asBundle(
                     "http://fonzy.com/cool",
                     conditionsByPatient.get("p0"),
+                    conditionsByPatient.get("p0").size(),
                     link(LinkRelation.first, "http://fonzy.com/cool/Condition?patient=p0", 1, 10),
                     link(LinkRelation.self, "http://fonzy.com/cool/Condition?patient=p0", 1, 10),
                     link(LinkRelation.last, "http://fonzy.com/cool/Condition?patient=p0", 1, 10))));
@@ -203,6 +206,12 @@ public class Dstu2ConditionControllerTest {
                         .stream()
                         .filter(c -> "Diagnosis".equalsIgnoreCase(c.category().text()))
                         .collect(Collectors.toList()),
+                    (int)
+                        conditionsByPatient
+                            .get("p0")
+                            .stream()
+                            .filter(c -> "Diagnosis".equalsIgnoreCase(c.category().text()))
+                            .count(),
                     link(
                         LinkRelation.first,
                         "http://fonzy.com/cool/Condition?category=diagnosis&patient=p0",
@@ -233,6 +242,12 @@ public class Dstu2ConditionControllerTest {
                         .stream()
                         .filter(c -> Condition.ClinicalStatusCode.active == c.clinicalStatus())
                         .collect(Collectors.toList()),
+                    (int)
+                        conditionsByPatient
+                            .get("p0")
+                            .stream()
+                            .filter(c -> Condition.ClinicalStatusCode.active == c.clinicalStatus())
+                            .count(),
                     link(
                         LinkRelation.first,
                         "http://fonzy.com/cool/Condition?clinicalstatus=active&patient=p0",
@@ -259,6 +274,7 @@ public class Dstu2ConditionControllerTest {
                 Dstu2.asBundle(
                     "http://fonzy.com/cool",
                     conditionsByPatient.get("p0"),
+                    conditionsByPatient.get("p0").size(),
                     link(
                         LinkRelation.first,
                         "http://fonzy.com/cool/Condition?clinicalstatus=active,resolved&patient=p0",
@@ -274,6 +290,20 @@ public class Dstu2ConditionControllerTest {
                         "http://fonzy.com/cool/Condition?clinicalstatus=active,resolved&patient=p0",
                         1,
                         10))));
+  }
+
+  @Test
+  public void searchByPatientWithCount0() {
+    Multimap<String, Condition> conditionByPatient = populateData();
+    assertThat(json(controller().searchByPatient("p0", 1, 0)))
+        .isEqualTo(
+            json(
+                Dstu2.asBundle(
+                    "http://fonzy.com/cool",
+                    Collections.emptyList(),
+                    conditionByPatient.get("p0").size(),
+                    Dstu2.link(
+                        LinkRelation.self, "http://fonzy.com/cool/Condition?patient=p0", 1, 0))));
   }
 
   @SneakyThrows
