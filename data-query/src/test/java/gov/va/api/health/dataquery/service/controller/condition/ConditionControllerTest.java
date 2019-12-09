@@ -10,9 +10,9 @@ import gov.va.api.health.argonaut.api.resources.Condition.Entry;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
 import gov.va.api.health.dataquery.service.controller.Dstu2Bundler.BundleContext;
+import gov.va.api.health.dataquery.service.controller.Dstu2Validator;
 import gov.va.api.health.dataquery.service.controller.PageLinks.LinkConfig;
 import gov.va.api.health.dataquery.service.controller.Parameters;
-import gov.va.api.health.dataquery.service.controller.Validator;
 import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
 import gov.va.api.health.dataquery.service.mranderson.client.Query;
 import gov.va.api.health.dstu2.api.bundle.AbstractBundle.BundleType;
@@ -173,7 +173,7 @@ public class ConditionControllerTest {
                 getClass().getResourceAsStream("/cdw/old-condition-1.03.json"), Condition.class);
 
     Bundle bundle = bundleOf(resource);
-    assertThat(controller.validate(bundle)).isEqualTo(Validator.ok());
+    assertThat(controller.validate(bundle)).isEqualTo(Dstu2Validator.ok());
   }
 
   @Test(expected = ConstraintViolationException.class)

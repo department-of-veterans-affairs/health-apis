@@ -1,7 +1,7 @@
 package gov.va.api.health.dataquery.service.controller.appointment;
 
 import gov.va.api.health.dataquery.service.controller.AbstractIncludesIcnMajig;
-import gov.va.api.health.dataquery.service.controller.Transformers;
+import gov.va.api.health.dataquery.service.controller.Dstu2Transformers;
 import gov.va.api.health.dstu2.api.resources.Appointment;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -28,7 +28,7 @@ public class AppointmentIncludesIcnMajig
                         .stream()
                         .map(p -> p.actor())
                         .filter(r -> r.reference().contains("Patient"))
-                        .map(i -> Transformers.asReferenceId(i))
+                        .map(i -> Dstu2Transformers.asReferenceId(i))
                         .collect(Collectors.joining(","))));
   }
 }

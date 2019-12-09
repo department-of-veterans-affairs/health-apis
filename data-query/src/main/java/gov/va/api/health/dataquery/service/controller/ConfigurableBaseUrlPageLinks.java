@@ -70,7 +70,11 @@ public class ConfigurableBaseUrlPageLinks implements PageLinks {
     return links(new Stu3LinkContext(baseUrl, basePath, config));
   }
 
-  /** This context wraps the link state to allow link creation to be clearly described. */
+  /**
+   * This context wraps the link state to allow link creation to be clearly described.
+   *
+   * @param <B> The bundle link class
+   */
   @Data
   abstract static class AbstractLinkContext<B> {
     private final String baseUrl;

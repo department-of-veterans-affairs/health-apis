@@ -1,7 +1,7 @@
 package gov.va.api.health.dataquery.service.controller.medicationstatement;
 
-import static gov.va.api.health.dataquery.service.controller.Transformers.asDateTimeString;
-import static gov.va.api.health.dataquery.service.controller.Transformers.asReference;
+import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asDateTimeString;
+import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asReference;
 
 import gov.va.api.health.argonaut.api.resources.MedicationStatement;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;

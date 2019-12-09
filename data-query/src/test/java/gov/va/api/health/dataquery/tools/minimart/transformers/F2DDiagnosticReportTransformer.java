@@ -3,7 +3,7 @@ package gov.va.api.health.dataquery.tools.minimart.transformers;
 import static org.codehaus.groovy.runtime.InvokerHelper.asList;
 
 import gov.va.api.health.argonaut.api.resources.DiagnosticReport;
-import gov.va.api.health.dataquery.service.controller.Transformers;
+import gov.va.api.health.dataquery.service.controller.Dstu2Transformers;
 import gov.va.api.health.dataquery.service.controller.diagnosticreport.DatamartDiagnosticReports;
 import gov.va.api.health.dataquery.tools.minimart.FhirToDatamartUtils;
 import gov.va.api.health.dstu2.api.elements.Reference;
@@ -30,7 +30,7 @@ public class F2DDiagnosticReportTransformer {
         diagnosticReport.performer() != null && diagnosticReport.performer().reference() != null
             ? fauxIds.unmaskByReference(diagnosticReport.performer().reference())
             : null;
-    return Transformers.emptyToNull(
+    return Dstu2Transformers.emptyToNull(
         asList(
             DatamartDiagnosticReports.DiagnosticReport.builder()
                 .identifier(fauxIds.unmask("DiagnosticReport", diagnosticReport.id()))

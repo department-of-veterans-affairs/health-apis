@@ -9,9 +9,9 @@ import gov.va.api.health.argonaut.api.resources.Observation.Bundle;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
 import gov.va.api.health.dataquery.service.controller.Dstu2Bundler.BundleContext;
+import gov.va.api.health.dataquery.service.controller.Dstu2Validator;
 import gov.va.api.health.dataquery.service.controller.PageLinks.LinkConfig;
 import gov.va.api.health.dataquery.service.controller.Parameters;
-import gov.va.api.health.dataquery.service.controller.Validator;
 import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
 import gov.va.api.health.dataquery.service.mranderson.client.Query;
 import gov.va.api.health.dstu2.api.bundle.AbstractBundle.BundleType;
@@ -209,7 +209,7 @@ public class ObservationControllerTest {
                 Observation.class);
 
     Bundle bundle = bundleOf(resource);
-    assertThat(controller.validate(bundle)).isEqualTo(Validator.ok());
+    assertThat(controller.validate(bundle)).isEqualTo(Dstu2Validator.ok());
   }
 
   @SneakyThrows
