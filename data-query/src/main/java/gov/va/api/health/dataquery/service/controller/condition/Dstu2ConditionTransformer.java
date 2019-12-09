@@ -17,7 +17,7 @@ import java.util.List;
 import lombok.Builder;
 
 @Builder
-public class DatamartConditionTransformer {
+public class Dstu2ConditionTransformer {
 
   private final DatamartCondition datamart;
 

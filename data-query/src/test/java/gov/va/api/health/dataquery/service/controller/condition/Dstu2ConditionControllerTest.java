@@ -1,6 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.condition;
 
-import static gov.va.api.health.dataquery.service.controller.condition.DatamartConditionSamples.Fhir.link;
+import static gov.va.api.health.dataquery.service.controller.condition.ConditionSamples.Dstu2.link;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -16,10 +16,10 @@ import gov.va.api.health.dataquery.service.controller.Bundler;
 import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
+import gov.va.api.health.dataquery.service.controller.condition.ConditionSamples.Datamart;
+import gov.va.api.health.dataquery.service.controller.condition.ConditionSamples.Dstu2;
 import gov.va.api.health.dataquery.service.controller.condition.DatamartCondition.Category;
 import gov.va.api.health.dataquery.service.controller.condition.DatamartCondition.ClinicalStatus;
-import gov.va.api.health.dataquery.service.controller.condition.DatamartConditionSamples.Datamart;
-import gov.va.api.health.dataquery.service.controller.condition.DatamartConditionSamples.Fhir;
 import gov.va.api.health.dstu2.api.bundle.BundleLink.LinkRelation;
 import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.api.Registration;
@@ -39,7 +39,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @DataJpaTest
 @RunWith(SpringRunner.class)
-public class DatamartConditionControllerTest {
+public class Dstu2ConditionControllerTest {
 
   HttpServletResponse response = mock(HttpServletResponse.class);
 
@@ -60,11 +60,8 @@ public class DatamartConditionControllerTest {
         .build();
   }
 
-  ConditionController controller() {
-    return new ConditionController(
-        true,
-        null,
-        null,
+  Dstu2ConditionController controller() {
+    return new Dstu2ConditionController(
         new Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool")),
         repository,
         WitnessProtection.builder().identityService(ids).build());
@@ -86,7 +83,7 @@ public class DatamartConditionControllerTest {
   }
 
   private Multimap<String, Condition> populateData() {
-    var fhir = Fhir.create();
+    var fhir = Dstu2.create();
     var datamart = Datamart.create();
     var conditionsByPatient = LinkedHashMultimap.<String, Condition>create();
     var registrations = new ArrayList<Registration>(10);
@@ -123,8 +120,8 @@ public class DatamartConditionControllerTest {
     DatamartCondition dm = Datamart.create().condition();
     repository.save(asEntity(dm));
     mockConditionIdentity("x", dm.cdwId());
-    Condition actual = controller().read("true", "x");
-    assertThat(actual).isEqualTo(DatamartConditionSamples.Fhir.create().condition("x"));
+    Condition actual = controller().read("x");
+    assertThat(actual).isEqualTo(ConditionSamples.Dstu2.create().condition("x"));
   }
 
   @Test
@@ -152,12 +149,12 @@ public class DatamartConditionControllerTest {
   @Test(expected = ResourceExceptions.NotFound.class)
   public void readThrowsNotFoundWhenDataIsMissing() {
     mockConditionIdentity("x", "x");
-    controller().read("true", "x");
+    controller().read("x");
   }
 
   @Test(expected = ResourceExceptions.NotFound.class)
   public void readThrowsNotFoundWhenIdIsUnknown() {
-    controller().read("true", "x");
+    controller().read("x");
   }
 
   @Test
@@ -165,12 +162,12 @@ public class DatamartConditionControllerTest {
     DatamartCondition dm = Datamart.create().condition();
     repository.save(asEntity(dm));
     mockConditionIdentity("x", dm.cdwId());
-    Bundle actual = controller().searchById("true", "x", 1, 1);
-    Condition condition = Fhir.create().condition("x");
+    Bundle actual = controller().searchById("x", 1, 1);
+    Condition condition = Dstu2.create().condition("x");
     assertThat(json(actual))
         .isEqualTo(
             json(
-                Fhir.asBundle(
+                Dstu2.asBundle(
                     "http://fonzy.com/cool",
                     List.of(condition),
                     link(LinkRelation.first, "http://fonzy.com/cool/Condition?identifier=x", 1, 1),
@@ -182,10 +179,10 @@ public class DatamartConditionControllerTest {
   @Test
   public void searchByPatient() {
     Multimap<String, Condition> conditionsByPatient = populateData();
-    assertThat(json(controller().searchByPatient("true", "p0", 1, 10)))
+    assertThat(json(controller().searchByPatient("p0", 1, 10)))
         .isEqualTo(
             json(
-                Fhir.asBundle(
+                Dstu2.asBundle(
                     "http://fonzy.com/cool",
                     conditionsByPatient.get("p0"),
                     link(LinkRelation.first, "http://fonzy.com/cool/Condition?patient=p0", 1, 10),
@@ -196,10 +193,10 @@ public class DatamartConditionControllerTest {
   @Test
   public void searchByPatientAndCategory() {
     Multimap<String, Condition> conditionsByPatient = populateData();
-    assertThat(json(controller().searchByPatientAndCategory("true", "p0", "diagnosis", 1, 10)))
+    assertThat(json(controller().searchByPatientAndCategory("p0", "diagnosis", 1, 10)))
         .isEqualTo(
             json(
-                Fhir.asBundle(
+                Dstu2.asBundle(
                     "http://fonzy.com/cool",
                     conditionsByPatient
                         .get("p0")
@@ -226,10 +223,10 @@ public class DatamartConditionControllerTest {
   @Test
   public void searchByPatientAndClinicalStatus() {
     Multimap<String, Condition> conditionsByPatient = populateData();
-    assertThat(json(controller().searchByPatientAndClinicalStatus("true", "p0", "active", 1, 10)))
+    assertThat(json(controller().searchByPatientAndClinicalStatus("p0", "active", 1, 10)))
         .isEqualTo(
             json(
-                Fhir.asBundle(
+                Dstu2.asBundle(
                     "http://fonzy.com/cool",
                     conditionsByPatient
                         .get("p0")
@@ -256,13 +253,10 @@ public class DatamartConditionControllerTest {
   @Test
   public void searchByPatientAndMultipleClinicalStatus() {
     Multimap<String, Condition> conditionsByPatient = populateData();
-    assertThat(
-            json(
-                controller()
-                    .searchByPatientAndClinicalStatus("true", "p0", "active,resolved", 1, 10)))
+    assertThat(json(controller().searchByPatientAndClinicalStatus("p0", "active,resolved", 1, 10)))
         .isEqualTo(
             json(
-                Fhir.asBundle(
+                Dstu2.asBundle(
                     "http://fonzy.com/cool",
                     conditionsByPatient.get("p0"),
                     link(

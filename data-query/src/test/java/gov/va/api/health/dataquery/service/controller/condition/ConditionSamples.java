@@ -26,7 +26,7 @@ import lombok.AllArgsConstructor;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
-public class DatamartConditionSamples {
+public class ConditionSamples {
 
   @AllArgsConstructor(staticName = "create")
   static class Datamart {
@@ -85,7 +85,7 @@ public class DatamartConditionSamples {
   }
 
   @AllArgsConstructor(staticName = "create")
-  static class Fhir {
+  static class Dstu2 {
 
     static Condition.Bundle asBundle(
         String baseUrl, Collection<Condition> conditions, BundleLink... links) {
