@@ -1,11 +1,11 @@
 package gov.va.api.health.dataquery.service.controller.condition;
 
-import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.allBlank;
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asDateString;
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asDateTimeString;
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.convert;
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.convertAll;
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.ifPresent;
+import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import gov.va.api.health.argonaut.api.resources.Condition;
