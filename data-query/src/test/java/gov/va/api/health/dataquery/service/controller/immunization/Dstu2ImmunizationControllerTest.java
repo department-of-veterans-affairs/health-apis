@@ -1,6 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.immunization;
 
-import static gov.va.api.health.dataquery.service.controller.immunization.DatamartImmunizationSamples.Fhir.link;
+import static gov.va.api.health.dataquery.service.controller.immunization.ImmunizationSamples.Dstu2.link;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -15,8 +15,8 @@ import gov.va.api.health.dataquery.service.controller.Bundler;
 import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
-import gov.va.api.health.dataquery.service.controller.immunization.DatamartImmunizationSamples.Datamart;
-import gov.va.api.health.dataquery.service.controller.immunization.DatamartImmunizationSamples.Fhir;
+import gov.va.api.health.dataquery.service.controller.immunization.ImmunizationSamples.Datamart;
+import gov.va.api.health.dataquery.service.controller.immunization.ImmunizationSamples.Dstu2;
 import gov.va.api.health.dstu2.api.bundle.BundleLink.LinkRelation;
 import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.api.Registration;
@@ -35,7 +35,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @DataJpaTest
 @RunWith(SpringRunner.class)
-public class DatamartImmunizationControllerTest {
+public class Dstu2ImmunizationControllerTest {
 
   HttpServletResponse response = mock(HttpServletResponse.class);
 
@@ -54,11 +54,8 @@ public class DatamartImmunizationControllerTest {
         .build();
   }
 
-  ImmunizationController controller() {
-    return new ImmunizationController(
-        true,
-        null,
-        null,
+  Dstu2ImmunizationController controller() {
+    return new Dstu2ImmunizationController(
         new Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool")),
         repository,
         WitnessProtection.builder().identityService(ids).build());
@@ -80,7 +77,7 @@ public class DatamartImmunizationControllerTest {
   }
 
   private Multimap<String, Immunization> populateData() {
-    var fhir = Fhir.create();
+    var fhir = Dstu2.create();
     var datamart = Datamart.create();
     var immunizationByPatient = LinkedHashMultimap.<String, Immunization>create();
     var registrations = new ArrayList<Registration>(10);
@@ -112,9 +109,9 @@ public class DatamartImmunizationControllerTest {
     DatamartImmunization dm = Datamart.create().immunization();
     repository.save(asEntity(dm));
     mockImmunizationIdentity("1", dm.cdwId());
-    Immunization actual = controller().read("true", "1");
+    Immunization actual = controller().read("1");
     assertThat(json(actual))
-        .isEqualTo(json(Fhir.create().immunization("1", dm.patient().reference().get())));
+        .isEqualTo(json(Dstu2.create().immunization("1", dm.patient().reference().get())));
   }
 
   @Test
@@ -142,12 +139,12 @@ public class DatamartImmunizationControllerTest {
   @Test(expected = ResourceExceptions.NotFound.class)
   public void readThrowsNotFoundWhenDataIsMissing() {
     mockImmunizationIdentity("1", "1");
-    controller().read("true", "1");
+    controller().read("1");
   }
 
   @Test(expected = ResourceExceptions.NotFound.class)
   public void readThrowsNotFoundWhenIdIsUnknown() {
-    controller().read("true", "1");
+    controller().read("1");
   }
 
   @Test
@@ -155,12 +152,12 @@ public class DatamartImmunizationControllerTest {
     DatamartImmunization dm = Datamart.create().immunization();
     repository.save(asEntity(dm));
     mockImmunizationIdentity("1", dm.cdwId());
-    Bundle actual = controller().searchById("true", "1", 1, 1);
-    Immunization immunization = Fhir.create().immunization("1", dm.patient().reference().get());
+    Bundle actual = controller().searchById("1", 1, 1);
+    Immunization immunization = Dstu2.create().immunization("1", dm.patient().reference().get());
     assertThat(json(actual))
         .isEqualTo(
             json(
-                Fhir.asBundle(
+                Dstu2.asBundle(
                     "http://fonzy.com/cool",
                     List.of(immunization),
                     link(
@@ -180,10 +177,10 @@ public class DatamartImmunizationControllerTest {
   @Test
   public void searchByPatient() {
     Multimap<String, Immunization> immunizationByPatient = populateData();
-    assertThat(json(controller().searchByPatient("true", "p0", 1, 10)))
+    assertThat(json(controller().searchByPatient("p0", 1, 10)))
         .isEqualTo(
             json(
-                Fhir.asBundle(
+                Dstu2.asBundle(
                     "http://fonzy.com/cool",
                     immunizationByPatient.get("p0"),
                     link(

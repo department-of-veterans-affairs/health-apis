@@ -17,7 +17,7 @@ import java.util.Optional;
 import lombok.Builder;
 
 @Builder
-public class DatamartImmunizationTransformer {
+public class Dstu2ImmunizationTransformer {
 
   private final DatamartImmunization datamart;
 

@@ -20,12 +20,12 @@ import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.junit.Test;
 
-public class DatamartMedicationOrderTransformerTest {
+public class Dstu2MedicationOrderTransformerTest {
 
   @Test
   public void dispenseRequest() {
-    DatamartMedicationOrderTransformer tx =
-        DatamartMedicationOrderTransformer.builder()
+    Dstu2MedicationOrderTransformer tx =
+        Dstu2MedicationOrderTransformer.builder()
             .datamart(Datamart.create().medicationOrder())
             .build();
     assertThat(tx.dispenseRequest(Optional.empty())).isNull();
@@ -40,8 +40,8 @@ public class DatamartMedicationOrderTransformerTest {
 
   @Test
   public void dosageInstruction() {
-    DatamartMedicationOrderTransformer tx =
-        DatamartMedicationOrderTransformer.builder()
+    Dstu2MedicationOrderTransformer tx =
+        Dstu2MedicationOrderTransformer.builder()
             .datamart(Datamart.create().medicationOrder())
             .build();
     assertThat(tx.dosageInstructions(new ArrayList<>())).isNull();
@@ -56,8 +56,8 @@ public class DatamartMedicationOrderTransformerTest {
 
   @Test
   public void prescriberExtension() {
-    DatamartMedicationOrderTransformer tx =
-        DatamartMedicationOrderTransformer.builder()
+    Dstu2MedicationOrderTransformer tx =
+        Dstu2MedicationOrderTransformer.builder()
             .datamart(Datamart.create().medicationOrder())
             .build();
     assertThat(tx.prescriberExtension(Datamart.create().medicationOrderNoPrescriber().prescriber()))
@@ -68,8 +68,8 @@ public class DatamartMedicationOrderTransformerTest {
 
   @Test
   public void status() {
-    DatamartMedicationOrderTransformer tx =
-        DatamartMedicationOrderTransformer.builder()
+    Dstu2MedicationOrderTransformer tx =
+        Dstu2MedicationOrderTransformer.builder()
             .datamart(Datamart.create().medicationOrder())
             .build();
     /* Unknown values */
@@ -140,7 +140,7 @@ public class DatamartMedicationOrderTransformerTest {
   }
 
   MedicationOrder tx(DatamartMedicationOrder datamart) {
-    return DatamartMedicationOrderTransformer.builder().datamart(datamart).build().toFhir();
+    return Dstu2MedicationOrderTransformer.builder().datamart(datamart).build().toFhir();
   }
 
   @AllArgsConstructor(staticName = "create")
