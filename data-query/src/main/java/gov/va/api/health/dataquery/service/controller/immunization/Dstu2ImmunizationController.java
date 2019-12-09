@@ -81,7 +81,6 @@ public class Dstu2ImmunizationController {
         Bundler.BundleContext.of(
             linkConfig,
             reports,
-            Function.identity(),
             Immunization.Entry::new,
             Immunization.Bundle::new));
   }
