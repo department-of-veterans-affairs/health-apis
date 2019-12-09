@@ -103,35 +103,6 @@ public class Dstu2ConditionController {
         (int) entities.getTotalElements());
   }
 
-  private Bundle doSearchByPatientAndCategory(
-      String patient, String category, int page, int count) {
-    String icn = witnessProtection.toCdwId(patient);
-    return bundle(
-        Parameters.builder()
-            .add("patient", patient)
-            .add("category", category)
-            .add("page", page)
-            .add("_count", count)
-            .build(),
-        count,
-        repository.findByIcnAndCategory(icn, category, page(page, count)));
-  }
-
-  Bundle doSearchByPatientAndClinicalStatus(
-      String patient, String clinicalStatusCsv, int page, int count) {
-    String icn = witnessProtection.toCdwId(patient);
-    return bundle(
-        Parameters.builder()
-            .add("patient", patient)
-            .add("clinicalstatus", clinicalStatusCsv)
-            .add("page", page)
-            .add("_count", count)
-            .build(),
-        count,
-        repository.findByIcnAndClinicalStatusIn(
-            icn, Set.of(clinicalStatusCsv.split("\\s*,\\s*")), page(page, count)));
-  }
-
   private PageRequest page(int page, int count) {
     return PageRequest.of(page - 1, count == 0 ? 1 : count, ConditionEntity.naturalOrder());
   }
@@ -213,20 +184,16 @@ public class Dstu2ConditionController {
       @CountParameter @Min(0) int count) {
     MultiValueMap<String, String> parameters =
         Parameters.builder().add("patient", patient).add("page", page).add("_count", count).build();
-    return searchByPatient(parameters);
-  }
-
-  Bundle searchByPatient(MultiValueMap<String, String> publicParameters) {
-    String publicIcn = publicParameters.getFirst("patient");
+    String publicIcn = parameters.getFirst("patient");
     String cdwIcn = witnessProtection.toCdwId(publicIcn);
-    int page = Parameters.pageOf(publicParameters);
-    int count = Parameters.countOf(publicParameters);
+    int page1 = Parameters.pageOf(parameters);
+    int count1 = Parameters.countOf(parameters);
     Page<ConditionEntity> entitiesPage =
         repository.findByIcn(
             cdwIcn,
-            PageRequest.of(page - 1, count == 0 ? 1 : count, ConditionEntity.naturalOrder()));
-    if (Parameters.countOf(publicParameters) <= 0) {
-      return bundle(publicParameters, emptyList(), (int) entitiesPage.getTotalElements());
+            PageRequest.of(page1 - 1, count1 == 0 ? 1 : count1, ConditionEntity.naturalOrder()));
+    if (Parameters.countOf(parameters) <= 0) {
+      return bundle(parameters, emptyList(), (int) entitiesPage.getTotalElements());
     }
     List<DatamartCondition> datamarts =
         entitiesPage.stream().map(e -> e.asDatamartCondition()).collect(Collectors.toList());
@@ -236,7 +203,7 @@ public class Dstu2ConditionController {
             .stream()
             .map(dm -> Dstu2ConditionTransformer.builder().datamart(dm).build().toFhir())
             .collect(Collectors.toList());
-    return bundle(publicParameters, fhir, (int) entitiesPage.getTotalElements());
+    return bundle(parameters, fhir, (int) entitiesPage.getTotalElements());
   }
 
   /** Search by patient and category if available. */
@@ -246,7 +213,16 @@ public class Dstu2ConditionController {
       @RequestParam("category") String category,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
-    return doSearchByPatientAndCategory(patient, category, page, count);
+    String icn = witnessProtection.toCdwId(patient);
+    return bundle(
+        Parameters.builder()
+            .add("patient", patient)
+            .add("category", category)
+            .add("page", page)
+            .add("_count", count)
+            .build(),
+        count,
+        repository.findByIcnAndCategory(icn, category, page(page, count)));
   }
 
   /** Search by patient and clinical status if available. */
@@ -256,7 +232,17 @@ public class Dstu2ConditionController {
       @RequestParam("clinicalstatus") String clinicalStatus,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
-    return doSearchByPatientAndClinicalStatus(patient, clinicalStatus, page, count);
+    String icn = witnessProtection.toCdwId(patient);
+    return bundle(
+        Parameters.builder()
+            .add("patient", patient)
+            .add("clinicalstatus", clinicalStatus)
+            .add("page", page)
+            .add("_count", count)
+            .build(),
+        count,
+        repository.findByIcnAndClinicalStatusIn(
+            icn, Set.of(clinicalStatus.split("\\s*,\\s*")), page(page, count)));
   }
 
   Condition transform(DatamartCondition dm) {
