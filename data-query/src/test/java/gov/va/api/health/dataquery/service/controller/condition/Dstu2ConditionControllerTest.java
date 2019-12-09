@@ -179,6 +179,31 @@ public class Dstu2ConditionControllerTest {
   }
 
   @Test
+  public void searchByIdentifier() {
+    DatamartCondition dm = Datamart.create().condition();
+    repository.save(asEntity(dm));
+    mockConditionIdentity("1", dm.cdwId());
+    Bundle actual = controller().searchByIdentifier("1", 1, 1);
+    validateSearchByIdResult(dm, actual);
+  }
+
+  @Test
+  public void searchByIdentifierWithCount0() {
+    DatamartCondition dm = Datamart.create().condition();
+    repository.save(asEntity(dm));
+    mockConditionIdentity("1", dm.cdwId());
+    assertThat(json(controller().searchByIdentifier("1", 1, 0)))
+        .isEqualTo(
+            json(
+                Dstu2.asBundle(
+                    "http://fonzy.com/cool",
+                    Collections.emptyList(),
+                    1,
+                    Dstu2.link(
+                        LinkRelation.self, "http://fonzy.com/cool/Condition?identifier=1", 1, 0))));
+  }
+
+  @Test
   public void searchByPatient() {
     Multimap<String, Condition> conditionsByPatient = populateData();
     assertThat(json(controller().searchByPatient("p0", 1, 10)))
@@ -309,5 +334,23 @@ public class Dstu2ConditionControllerTest {
   @SneakyThrows
   private DatamartCondition toObject(String json) {
     return JacksonConfig.createMapper().readValue(json, DatamartCondition.class);
+  }
+
+  private void validateSearchByIdResult(DatamartCondition dm, Bundle actual) {
+    Condition condition =
+        Dstu2.create().condition("1", dm.patient().reference().get(), "2011-06-27");
+    assertThat(json(actual))
+        .isEqualTo(
+            json(
+                Dstu2.asBundle(
+                    "http://fonzy.com/cool",
+                    List.of(condition),
+                    1,
+                    Dstu2.link(
+                        LinkRelation.first, "http://fonzy.com/cool/Condition?identifier=1", 1, 1),
+                    Dstu2.link(
+                        LinkRelation.self, "http://fonzy.com/cool/Condition?identifier=1", 1, 1),
+                    Dstu2.link(
+                        LinkRelation.last, "http://fonzy.com/cool/Condition?identifier=1", 1, 1))));
   }
 }
