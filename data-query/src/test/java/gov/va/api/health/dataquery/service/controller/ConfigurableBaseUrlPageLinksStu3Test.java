@@ -3,13 +3,13 @@ package gov.va.api.health.dataquery.service.controller;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.dataquery.service.controller.PageLinks.LinkConfig;
-import gov.va.api.health.dstu2.api.bundle.BundleLink;
-import gov.va.api.health.dstu2.api.bundle.BundleLink.LinkRelation;
+import gov.va.api.health.stu3.api.bundle.BundleLink;
+import gov.va.api.health.stu3.api.bundle.BundleLink.LinkRelation;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ConfigurableBaseUrlPageLinksTest {
+public class ConfigurableBaseUrlPageLinksStu3Test {
   private ConfigurableBaseUrlPageLinks links;
 
   @Before
@@ -19,7 +19,7 @@ public class ConfigurableBaseUrlPageLinksTest {
 
   @Test
   public void allLinksPresentWhenInTheMiddle() {
-    List<BundleLink> actual = links.dstu2Links(forCurrentPage(2, 3, 15));
+    List<BundleLink> actual = links.stu3Links(forCurrentPage(2, 3, 15));
     assertThat(actual)
         .containsExactlyInAnyOrder(
             link(LinkRelation.first, 1, 3),
@@ -54,7 +54,7 @@ public class ConfigurableBaseUrlPageLinksTest {
 
   @Test
   public void nextAndPreviousLinksOmittedWhenOnlyOnePage() {
-    List<BundleLink> actual = links.dstu2Links(forCurrentPage(1, 2, 2));
+    List<BundleLink> actual = links.stu3Links(forCurrentPage(1, 2, 2));
     assertThat(actual)
         .containsExactlyInAnyOrder(
             link(LinkRelation.first, 1, 2),
@@ -64,7 +64,7 @@ public class ConfigurableBaseUrlPageLinksTest {
 
   @Test
   public void nextAndPreviousLinksOmittedWhenRequestedPageIsNotKnown() {
-    List<BundleLink> actual = links.dstu2Links(forCurrentPage(99, 2, 4));
+    List<BundleLink> actual = links.stu3Links(forCurrentPage(99, 2, 4));
     assertThat(actual)
         .containsExactlyInAnyOrder(
             link(LinkRelation.first, 1, 2),
@@ -74,7 +74,7 @@ public class ConfigurableBaseUrlPageLinksTest {
 
   @Test
   public void nextLinkOmittedWhenOnLastPage() {
-    List<BundleLink> actual = links.dstu2Links(forCurrentPage(5, 3, 15));
+    List<BundleLink> actual = links.stu3Links(forCurrentPage(5, 3, 15));
     assertThat(actual)
         .containsExactlyInAnyOrder(
             link(LinkRelation.first, 1, 3),
@@ -85,13 +85,13 @@ public class ConfigurableBaseUrlPageLinksTest {
 
   @Test
   public void onlySelfLinkWhenCountIsZero() {
-    List<BundleLink> actual = links.dstu2Links(forCurrentPage(2, 0, 15));
+    List<BundleLink> actual = links.stu3Links(forCurrentPage(2, 0, 15));
     assertThat(actual).containsExactlyInAnyOrder(link(LinkRelation.self, 2, 0));
   }
 
   @Test
   public void previousLinkOmittedWhenOnFirstPage() {
-    List<BundleLink> actual = links.dstu2Links(forCurrentPage(1, 3, 15));
+    List<BundleLink> actual = links.stu3Links(forCurrentPage(1, 3, 15));
     assertThat(actual)
         .containsExactlyInAnyOrder(
             link(LinkRelation.first, 1, 3),
