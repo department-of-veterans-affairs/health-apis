@@ -5,8 +5,8 @@ import static gov.va.api.health.dataquery.service.controller.Transformers.hasPay
 import static java.util.Collections.emptyList;
 
 import gov.va.api.health.dataquery.service.controller.AbstractIncludesIcnMajig;
-import gov.va.api.health.dataquery.service.controller.Bundler;
-import gov.va.api.health.dataquery.service.controller.Bundler.BundleContext;
+import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
+import gov.va.api.health.dataquery.service.controller.Dstu2Bundler.BundleContext;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.PageLinks.LinkConfig;
@@ -61,7 +61,7 @@ public class Dstu2LocationController {
 
   private MrAndersonClient mrAndersonClient;
 
-  private Bundler bundler;
+  private Dstu2Bundler bundler;
 
   private LocationRepository repository;
 
@@ -74,7 +74,7 @@ public class Dstu2LocationController {
       @Value("${datamart.location}") boolean defaultToDatamart,
       @Autowired Transformer transformer,
       @Autowired MrAndersonClient mrAndersonClient,
-      @Autowired Bundler bundler,
+      @Autowired Dstu2Bundler bundler,
       @Autowired LocationRepository repository,
       @Autowired WitnessProtection witnessProtection) {
     this.defaultToDatamart = defaultToDatamart;
@@ -203,7 +203,7 @@ public class Dstu2LocationController {
               .totalRecords(totalRecords)
               .build();
       return bundler.bundle(
-          Bundler.BundleContext.of(linkConfig, reports, Location.Entry::new, Location.Bundle::new));
+          Dstu2Bundler.BundleContext.of(linkConfig, reports, Location.Entry::new, Location.Bundle::new));
     }
 
     LocationEntity findById(String publicId) {

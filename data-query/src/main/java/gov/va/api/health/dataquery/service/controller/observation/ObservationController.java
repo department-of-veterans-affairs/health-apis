@@ -9,7 +9,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 import com.google.common.base.Splitter;
 import gov.va.api.health.argonaut.api.resources.Observation;
 import gov.va.api.health.dataquery.service.controller.AbstractIncludesIcnMajig;
-import gov.va.api.health.dataquery.service.controller.Bundler;
+import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.DateTimeParameter;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
@@ -69,7 +69,7 @@ public class ObservationController {
 
   private MrAndersonClient mrAndersonClient;
 
-  private Bundler bundler;
+  private Dstu2Bundler bundler;
 
   private WitnessProtection witnessProtection;
 
@@ -80,7 +80,7 @@ public class ObservationController {
       @Value("${datamart.observation}") boolean defaultToDatamart,
       @Autowired Transformer transformer,
       @Autowired MrAndersonClient mrAndersonClient,
-      @Autowired Bundler bundler,
+      @Autowired Dstu2Bundler bundler,
       @Autowired ObservationRepository repository,
       @Autowired WitnessProtection witnessProtection) {
     this.defaultToDatamart = defaultToDatamart;
@@ -103,7 +103,7 @@ public class ObservationController {
             .totalRecords(root.getRecordCount().intValue())
             .build();
     return bundler.bundle(
-        Bundler.BundleContext.of(
+        Dstu2Bundler.BundleContext.of(
             linkConfig,
             root.getObservations() == null ? emptyList() : root.getObservations().getObservation(),
             transformer,
@@ -271,7 +271,7 @@ public class ObservationController {
               .totalRecords(totalRecords)
               .build();
       return bundler.bundle(
-          Bundler.BundleContext.of(
+          Dstu2Bundler.BundleContext.of(
               linkConfig, records, Observation.Entry::new, Observation.Bundle::new));
     }
 

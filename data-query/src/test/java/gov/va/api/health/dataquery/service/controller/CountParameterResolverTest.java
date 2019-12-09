@@ -72,6 +72,7 @@ public class CountParameterResolverTest {
     when(nativeWebRequest.getParameter("_count")).thenReturn(count);
   }
 
+  @SuppressWarnings({"rawtypes", "unchecked"})
   private void useParameter(CountParameter annotation, Class type) {
     when(methodParameter.getParameterType()).thenReturn(type);
     when(methodParameter.getParameterAnnotation(CountParameter.class)).thenReturn(annotation);

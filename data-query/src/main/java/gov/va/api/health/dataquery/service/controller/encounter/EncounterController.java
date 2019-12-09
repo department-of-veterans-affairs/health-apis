@@ -3,8 +3,8 @@ package gov.va.api.health.dataquery.service.controller.encounter;
 import static gov.va.api.health.dataquery.service.controller.Transformers.firstPayloadItem;
 import static gov.va.api.health.dataquery.service.controller.Transformers.hasPayload;
 
-import gov.va.api.health.dataquery.service.controller.Bundler;
-import gov.va.api.health.dataquery.service.controller.Bundler.BundleContext;
+import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
+import gov.va.api.health.dataquery.service.controller.Dstu2Bundler.BundleContext;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.PageLinks.LinkConfig;
 import gov.va.api.health.dataquery.service.controller.Parameters;
@@ -44,7 +44,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class EncounterController {
   private Transformer transformer;
   private MrAndersonClient mrAndersonClient;
-  private Bundler bundler;
+  private Dstu2Bundler bundler;
 
   private Encounter.Bundle bundle(MultiValueMap<String, String> parameters, int page, int count) {
     CdwEncounter101Root root = search(parameters);

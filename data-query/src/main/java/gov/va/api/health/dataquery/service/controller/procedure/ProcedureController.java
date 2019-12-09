@@ -10,8 +10,8 @@ import gov.va.api.health.argonaut.api.resources.Procedure;
 import gov.va.api.health.argonaut.api.resources.Procedure.Bundle;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.AbstractIncludesIcnMajig;
-import gov.va.api.health.dataquery.service.controller.Bundler;
-import gov.va.api.health.dataquery.service.controller.Bundler.BundleContext;
+import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
+import gov.va.api.health.dataquery.service.controller.Dstu2Bundler.BundleContext;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.DateTimeParameter;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
@@ -94,7 +94,7 @@ public class ProcedureController {
 
   private MrAndersonClient mrAndersonClient;
 
-  private Bundler bundler;
+  private Dstu2Bundler bundler;
 
   private ProcedureRepository repository;
 
@@ -112,7 +112,7 @@ public class ProcedureController {
           String withoutRecordsDisplay,
       Transformer transformer,
       MrAndersonClient mrAndersonClient,
-      Bundler bundler,
+      Dstu2Bundler bundler,
       ProcedureRepository repository,
       WitnessProtection witnessProtection) {
     this.defaultToDatamart = defaultToDatamart;
@@ -330,7 +330,7 @@ public class ProcedureController {
               .totalRecords(totalRecords)
               .build();
       return bundler.bundle(
-          Bundler.BundleContext.of(
+          Dstu2Bundler.BundleContext.of(
               linkConfig, reports, Procedure.Entry::new, Procedure.Bundle::new));
     }
 

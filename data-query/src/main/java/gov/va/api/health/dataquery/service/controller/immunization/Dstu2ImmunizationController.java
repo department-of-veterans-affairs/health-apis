@@ -5,7 +5,7 @@ import static java.util.Collections.emptyList;
 import gov.va.api.health.argonaut.api.resources.Immunization;
 import gov.va.api.health.argonaut.api.resources.Immunization.Bundle;
 import gov.va.api.health.dataquery.service.controller.AbstractIncludesIcnMajig;
-import gov.va.api.health.dataquery.service.controller.Bundler;
+import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.Parameters;
@@ -50,7 +50,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class Dstu2ImmunizationController {
 
-  private Bundler bundler;
+  private Dstu2Bundler bundler;
 
   private ImmunizationRepository repository;
 
@@ -59,7 +59,7 @@ public class Dstu2ImmunizationController {
   /** Spring constructor. */
   @SuppressWarnings("ParameterHidesMemberVariable")
   public Dstu2ImmunizationController(
-      @Autowired Bundler bundler,
+      @Autowired Dstu2Bundler bundler,
       @Autowired ImmunizationRepository repository,
       @Autowired WitnessProtection witnessProtection) {
     this.bundler = bundler;
@@ -78,7 +78,7 @@ public class Dstu2ImmunizationController {
             .totalRecords(totalRecords)
             .build();
     return bundler.bundle(
-        Bundler.BundleContext.of(
+        Dstu2Bundler.BundleContext.of(
             linkConfig,
             reports,
             Immunization.Entry::new,

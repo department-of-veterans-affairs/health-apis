@@ -6,7 +6,7 @@ import static java.util.Collections.emptyList;
 
 import gov.va.api.health.argonaut.api.resources.Patient;
 import gov.va.api.health.dataquery.service.controller.AbstractIncludesIcnMajig;
-import gov.va.api.health.dataquery.service.controller.Bundler;
+import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.Parameters;
@@ -62,7 +62,7 @@ public class PatientController {
 
   private MrAndersonClient mrAndersonClient;
 
-  private Bundler bundler;
+  private Dstu2Bundler bundler;
 
   private PatientSearchRepository repository;
 
@@ -75,7 +75,7 @@ public class PatientController {
       @Value("${datamart.patient}") boolean defaultToDatamart,
       @Autowired Transformer transformer,
       @Autowired MrAndersonClient mrAndersonClient,
-      @Autowired Bundler bundler,
+      @Autowired Dstu2Bundler bundler,
       @Autowired PatientSearchRepository repository,
       @Autowired WitnessProtection witnessProtection) {
     this.defaultToDatamart = defaultToDatamart;
@@ -97,7 +97,7 @@ public class PatientController {
             .totalRecords(root.getRecordCount())
             .build();
     return bundler.bundle(
-        Bundler.BundleContext.of(
+        Dstu2Bundler.BundleContext.of(
             linkConfig,
             root.getPatients() == null ? Collections.emptyList() : root.getPatients().getPatient(),
             transformer,
@@ -274,7 +274,7 @@ public class PatientController {
               .totalRecords(totalRecords)
               .build();
       return bundler.bundle(
-          Bundler.BundleContext.of(linkConfig, reports, Patient.Entry::new, Patient.Bundle::new));
+          Dstu2Bundler.BundleContext.of(linkConfig, reports, Patient.Entry::new, Patient.Bundle::new));
     }
 
     Patient.Bundle bundle(

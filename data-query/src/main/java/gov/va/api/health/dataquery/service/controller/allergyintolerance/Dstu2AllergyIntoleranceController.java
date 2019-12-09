@@ -5,8 +5,8 @@ import static java.util.Collections.emptyList;
 
 import gov.va.api.health.argonaut.api.resources.AllergyIntolerance;
 import gov.va.api.health.dataquery.service.controller.AbstractIncludesIcnMajig;
-import gov.va.api.health.dataquery.service.controller.Bundler;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
+import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
@@ -47,7 +47,7 @@ import org.springframework.web.bind.annotation.RestController;
 )
 public class Dstu2AllergyIntoleranceController {
 
-  private Bundler bundler;
+  private Dstu2Bundler bundler;
 
   private WitnessProtection witnessProtection;
 
@@ -55,7 +55,7 @@ public class Dstu2AllergyIntoleranceController {
 
   /** Autowired constructor. */
   public Dstu2AllergyIntoleranceController(
-      @Autowired Bundler bundler,
+      @Autowired Dstu2Bundler bundler,
       @Autowired AllergyIntoleranceRepository repository,
       @Autowired WitnessProtection witnessProtection) {
     this.bundler = bundler;
@@ -76,7 +76,7 @@ public class Dstu2AllergyIntoleranceController {
             .totalRecords(totalRecords)
             .build();
     return bundler.bundle(
-        Bundler.BundleContext.of(
+        Dstu2Bundler.BundleContext.of(
             linkConfig, records, AllergyIntolerance.Entry::new, AllergyIntolerance.Bundle::new));
   }
 

@@ -15,7 +15,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Table;
 import gov.va.api.health.argonaut.api.resources.DiagnosticReport;
 import gov.va.api.health.dataquery.service.controller.AbstractIncludesIcnMajig;
-import gov.va.api.health.dataquery.service.controller.Bundler;
+import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.DateTimeParameter;
 import gov.va.api.health.dataquery.service.controller.DateTimeParameters;
@@ -82,7 +82,7 @@ public class DiagnosticReportController {
 
   private MrAndersonClient mrAndersonClient;
 
-  private Bundler bundler;
+  private Dstu2Bundler bundler;
 
   private WitnessProtection witnessProtection;
 
@@ -95,7 +95,7 @@ public class DiagnosticReportController {
       @Value("${datamart.diagnostic-report}") boolean defaultToDatamart,
       @Autowired Transformer transformer,
       @Autowired MrAndersonClient mrAndersonClient,
-      @Autowired Bundler bundler,
+      @Autowired Dstu2Bundler bundler,
       @Autowired WitnessProtection witnessProtection,
       @Autowired EntityManager entityManager) {
     this.defaultToDatamart = defaultToDatamart;
@@ -145,7 +145,7 @@ public class DiagnosticReportController {
             .totalRecords(totalRecords)
             .build();
     return bundler.bundle(
-        Bundler.BundleContext.of(
+        Dstu2Bundler.BundleContext.of(
             linkConfig, reports, DiagnosticReport.Entry::new, DiagnosticReport.Bundle::new));
   }
 
@@ -275,7 +275,7 @@ public class DiagnosticReportController {
             .totalRecords(root.getRecordCount().intValue())
             .build();
     return bundler.bundle(
-        Bundler.BundleContext.of(
+        Dstu2Bundler.BundleContext.of(
             linkConfig,
             root.getDiagnosticReports() == null
                 ? Collections.emptyList()

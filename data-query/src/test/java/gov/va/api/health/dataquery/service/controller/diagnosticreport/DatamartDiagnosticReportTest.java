@@ -10,7 +10,7 @@ import static org.mockito.Mockito.verify;
 import com.google.common.collect.Iterables;
 import gov.va.api.health.argonaut.api.resources.DiagnosticReport;
 import gov.va.api.health.argonaut.api.resources.DiagnosticReport.Bundle;
-import gov.va.api.health.dataquery.service.controller.Bundler;
+import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
 import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
@@ -53,7 +53,7 @@ public final class DatamartDiagnosticReportTest {
         true,
         null,
         null,
-        new Bundler(new ConfigurableBaseUrlPageLinks("", "")),
+        new Dstu2Bundler(new ConfigurableBaseUrlPageLinks("", "")),
         WitnessProtection.builder().identityService(mock(IdentityService.class)).build(),
         entityManager.getEntityManager());
   }

@@ -7,8 +7,8 @@ import static org.mockito.Mockito.when;
 import gov.va.api.health.argonaut.api.resources.Patient;
 import gov.va.api.health.argonaut.api.resources.Patient.Bundle;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
-import gov.va.api.health.dataquery.service.controller.Bundler;
-import gov.va.api.health.dataquery.service.controller.Bundler.BundleContext;
+import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
+import gov.va.api.health.dataquery.service.controller.Dstu2Bundler.BundleContext;
 import gov.va.api.health.dataquery.service.controller.PageLinks.LinkConfig;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.Validator;
@@ -35,7 +35,7 @@ import org.springframework.util.MultiValueMap;
 public class PatientControllerTest {
   @Mock MrAndersonClient client;
   @Mock PatientController.Transformer tx;
-  @Mock Bundler bundler;
+  @Mock Dstu2Bundler bundler;
 
   PatientController controller;
 

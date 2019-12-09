@@ -6,7 +6,7 @@ import gov.va.api.health.argonaut.api.resources.Medication;
 import gov.va.api.health.argonaut.api.resources.Medication.Bundle;
 import gov.va.api.health.argonaut.api.resources.Medication.Entry;
 import gov.va.api.health.dataquery.service.controller.AbstractIncludesIcnMajig;
-import gov.va.api.health.dataquery.service.controller.Bundler;
+import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.Parameters;
@@ -45,7 +45,7 @@ import org.springframework.web.bind.annotation.RestController;
 )
 public class Dstu2MedicationController {
 
-  private Bundler bundler;
+  private Dstu2Bundler bundler;
 
   private MedicationRepository repository;
 
@@ -54,7 +54,7 @@ public class Dstu2MedicationController {
   /** Spring constructor. */
   @SuppressWarnings("ParameterHidesMemberVariable")
   public Dstu2MedicationController(
-      @Autowired Bundler bundler,
+      @Autowired Dstu2Bundler bundler,
       @Autowired MedicationRepository repository,
       @Autowired WitnessProtection witnessProtection) {
     this.bundler = bundler;
@@ -73,7 +73,7 @@ public class Dstu2MedicationController {
             .totalRecords(totalRecords)
             .build();
     return bundler.bundle(
-        Bundler.BundleContext.of(
+        Dstu2Bundler.BundleContext.of(
             linkConfig, reports, Function.identity(), Entry::new, Bundle::new));
   }
 
