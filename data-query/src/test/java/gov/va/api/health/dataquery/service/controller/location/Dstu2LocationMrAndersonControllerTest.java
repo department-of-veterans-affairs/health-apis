@@ -33,18 +33,18 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.util.MultiValueMap;
 
 @SuppressWarnings("WeakerAccess")
-public class LocationControllerTest {
+public class Dstu2LocationMrAndersonControllerTest {
   @Mock MrAndersonClient client;
 
-  @Mock LocationController.Transformer tx;
+  @Mock Dstu2LocationController.Transformer tx;
 
-  LocationController controller;
+  Dstu2LocationController controller;
   @Mock Dstu2Bundler bundler;
 
   @Before
   public void _init() {
     MockitoAnnotations.initMocks(this);
-    controller = new LocationController(false, tx, client, bundler, null, null);
+    controller = new Dstu2LocationController(false, tx, client, bundler, null, null);
   }
 
   private void assertSearch(
