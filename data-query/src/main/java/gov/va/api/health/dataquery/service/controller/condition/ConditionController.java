@@ -95,8 +95,8 @@ public class ConditionController {
 
   private Condition.Bundle bundle(MultiValueMap<String, String> parameters, int page, int count) {
     CdwCondition103Root root = search(parameters);
-    PageLinks.LinkConfig linkConfig =
-        PageLinks.LinkConfig.builder()
+    LinkConfig linkConfig =
+        LinkConfig.builder()
             .path("Condition")
             .queryParams(parameters)
             .page(page)
@@ -259,8 +259,8 @@ public class ConditionController {
   private class Datamart {
     private Condition.Bundle bundle(
         MultiValueMap<String, String> parameters, List<Condition> reports, int totalRecords) {
-      LinkConfig linkConfig =
-          LinkConfig.builder()
+      PageLinks.LinkConfig linkConfig =
+          PageLinks.LinkConfig.builder()
               .path("Condition")
               .queryParams(parameters)
               .page(Parameters.pageOf(parameters))

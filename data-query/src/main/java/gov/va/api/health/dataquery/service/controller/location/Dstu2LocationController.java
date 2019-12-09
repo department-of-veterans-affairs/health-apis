@@ -87,8 +87,8 @@ public class Dstu2LocationController {
 
   private Location.Bundle bundle(MultiValueMap<String, String> parameters, int page, int count) {
     CdwLocation100Root root = search(parameters);
-    PageLinks.LinkConfig linkConfig =
-        PageLinks.LinkConfig.builder()
+    LinkConfig linkConfig =
+        LinkConfig.builder()
             .path("Location")
             .queryParams(parameters)
             .page(page)
@@ -194,8 +194,8 @@ public class Dstu2LocationController {
   private class Datamart {
     Location.Bundle bundle(
         MultiValueMap<String, String> parameters, List<Location> reports, int totalRecords) {
-      LinkConfig linkConfig =
-          LinkConfig.builder()
+      PageLinks.LinkConfig linkConfig =
+          PageLinks.LinkConfig.builder()
               .path("Location")
               .queryParams(parameters)
               .page(Parameters.pageOf(parameters))
