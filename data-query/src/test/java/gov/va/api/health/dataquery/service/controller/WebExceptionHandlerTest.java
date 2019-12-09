@@ -61,6 +61,7 @@ public class WebExceptionHandlerTest {
   private PatientController controller;
   private WebExceptionHandler exceptionHandler;
 
+  @SuppressWarnings("deprecation")
   @Parameterized.Parameters(name = "{index}:{0} - {1}")
   public static List<Object[]> parameters() {
     Query<?> query =

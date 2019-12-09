@@ -10,6 +10,7 @@ import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.Stu3Bundler;
+import gov.va.api.health.dataquery.service.controller.Stu3Validator;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.api.Registration;
@@ -262,5 +263,32 @@ public class Stu3LocationControllerTest {
                         "http://fonzy.com/cool/Location?name=" + name,
                         1,
                         1))));
+  }
+
+  @Test
+  @SneakyThrows
+  public void validate() {
+    assertThat(
+            controller()
+                .validate(
+                    Stu3LocationSamples.asBundle(
+                        "http://fonzy.com/cool",
+                        List.of(Stu3LocationSamples.create().location("x", "y")),
+                        Stu3LocationSamples.link(
+                            BundleLink.LinkRelation.first,
+                            "http://fonzy.com/cool/Location?identifier=x",
+                            1,
+                            1),
+                        Stu3LocationSamples.link(
+                            BundleLink.LinkRelation.self,
+                            "http://fonzy.com/cool/Location?identifier=x",
+                            1,
+                            1),
+                        Stu3LocationSamples.link(
+                            BundleLink.LinkRelation.last,
+                            "http://fonzy.com/cool/Location?identifier=x",
+                            1,
+                            1))))
+        .isEqualTo(Stu3Validator.ok());
   }
 }
