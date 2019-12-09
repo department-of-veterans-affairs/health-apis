@@ -54,7 +54,7 @@ import org.springframework.web.bind.annotation.RestController;
   value = {"/dstu2/Location"},
   produces = {"application/json", "application/json+fhir", "application/fhir+json"}
 )
-public class LocationController {
+public class Dstu2LocationController {
   private final Datamart datamart = new Datamart();
 
   private Transformer transformer;
@@ -70,7 +70,7 @@ public class LocationController {
   private boolean defaultToDatamart;
 
   /** Spring constructor. */
-  public LocationController(
+  public Dstu2LocationController(
       @Value("${datamart.location}") boolean defaultToDatamart,
       @Autowired Transformer transformer,
       @Autowired MrAndersonClient mrAndersonClient,
@@ -248,7 +248,7 @@ public class LocationController {
     }
 
     Location transform(DatamartLocation dm) {
-      return DatamartLocationTransformer.builder().datamart(dm).build().toFhir();
+      return Dstu2LocationTransformer.builder().datamart(dm).build().toFhir();
     }
   }
 }

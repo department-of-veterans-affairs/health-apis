@@ -17,7 +17,7 @@ import lombok.Builder;
 import lombok.NonNull;
 
 @Builder
-final class DatamartLocationTransformer {
+final class Dstu2LocationTransformer {
   @NonNull private final DatamartLocation datamart;
 
   static Address address(DatamartLocation.Address address) {
