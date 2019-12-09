@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 
 /** This support utility provides the mechanism need to for Argonaut `$validate` endpoint. */
 @NoArgsConstructor(staticName = "create")
-public class Validator {
+public class Dstu2Validator {
   /**
    * Return a new "all ok" validation response. This is the payload that indicates the validated
    * bundle is valid.

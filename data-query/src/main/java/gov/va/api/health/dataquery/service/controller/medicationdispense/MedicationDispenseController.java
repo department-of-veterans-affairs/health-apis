@@ -1,14 +1,14 @@
 package gov.va.api.health.dataquery.service.controller.medicationdispense;
 
-import static gov.va.api.health.dataquery.service.controller.Transformers.firstPayloadItem;
-import static gov.va.api.health.dataquery.service.controller.Transformers.hasPayload;
+import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.firstPayloadItem;
+import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.hasPayload;
 
-import gov.va.api.health.dataquery.service.controller.Bundler;
-import gov.va.api.health.dataquery.service.controller.Bundler.BundleContext;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
+import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
+import gov.va.api.health.dataquery.service.controller.Dstu2Bundler.BundleContext;
+import gov.va.api.health.dataquery.service.controller.Dstu2Validator;
 import gov.va.api.health.dataquery.service.controller.PageLinks.LinkConfig;
 import gov.va.api.health.dataquery.service.controller.Parameters;
-import gov.va.api.health.dataquery.service.controller.Validator;
 import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
 import gov.va.api.health.dataquery.service.mranderson.client.Query;
 import gov.va.api.health.dstu2.api.resources.MedicationDispense;
@@ -42,7 +42,7 @@ public class MedicationDispenseController {
 
   private MrAndersonClient mrAndersonClient;
 
-  private Bundler bundler;
+  private Dstu2Bundler bundler;
 
   private MedicationDispense.Bundle bundle(
       MultiValueMap<String, String> parameters, int page, int count) {
@@ -170,7 +170,7 @@ public class MedicationDispenseController {
     consumes = {"application/json", "application/json+fhir", "application/fhir+json"}
   )
   public OperationOutcome validate(@RequestBody MedicationDispense.Bundle bundle) {
-    return Validator.create().validate(bundle);
+    return Dstu2Validator.create().validate(bundle);
   }
 
   public interface Transformer

@@ -1,8 +1,8 @@
 package gov.va.api.health.dataquery.service.controller.procedure;
 
-import static gov.va.api.health.dataquery.service.controller.Transformers.asCodeableConceptWrapping;
-import static gov.va.api.health.dataquery.service.controller.Transformers.asDateTimeString;
-import static gov.va.api.health.dataquery.service.controller.Transformers.asReference;
+import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asCodeableConceptWrapping;
+import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asDateTimeString;
+import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asReference;
 
 import gov.va.api.health.argonaut.api.resources.Procedure;
 import gov.va.api.health.argonaut.api.resources.Procedure.Status;

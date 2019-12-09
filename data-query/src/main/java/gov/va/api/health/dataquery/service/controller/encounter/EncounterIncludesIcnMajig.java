@@ -1,7 +1,7 @@
 package gov.va.api.health.dataquery.service.controller.encounter;
 
 import gov.va.api.health.dataquery.service.controller.AbstractIncludesIcnMajig;
-import gov.va.api.health.dataquery.service.controller.Transformers;
+import gov.va.api.health.dataquery.service.controller.Dstu2Transformers;
 import gov.va.api.health.dstu2.api.resources.Encounter;
 import java.util.stream.Stream;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -19,6 +19,6 @@ public class EncounterIncludesIcnMajig
     super(
         Encounter.class,
         Encounter.Bundle.class,
-        body -> Stream.ofNullable(Transformers.asReferenceId(body.patient())));
+        body -> Stream.ofNullable(Dstu2Transformers.asReferenceId(body.patient())));
   }
 }

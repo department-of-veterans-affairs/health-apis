@@ -3,7 +3,7 @@ package gov.va.api.health.dataquery.service.controller;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import gov.va.api.health.dataquery.service.controller.Bundler.BundleContext;
+import gov.va.api.health.dataquery.service.controller.Dstu2Bundler.BundleContext;
 import gov.va.api.health.dataquery.service.controller.PageLinks.LinkConfig;
 import gov.va.api.health.dstu2.api.bundle.AbstractBundle;
 import gov.va.api.health.dstu2.api.bundle.AbstractBundle.BundleType;
@@ -27,17 +27,17 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 @SuppressWarnings("WeakerAccess")
-public class BundlerTest {
+public class Dstu2BundlerTest {
   private static final Function<FugaziCdwRoot, FugaziArgo> FUGAZIMUS_PRIME =
       x -> FugaziArgo.of(x.id());
 
   @Mock PageLinks links;
-  Bundler bundler;
+  Dstu2Bundler bundler;
 
   @Before
   public void _init() {
     MockitoAnnotations.initMocks(this);
-    bundler = new Bundler(links);
+    bundler = new Dstu2Bundler(links);
   }
 
   @Test

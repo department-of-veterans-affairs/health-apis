@@ -1,20 +1,20 @@
 package gov.va.api.health.dataquery.service.controller.medicationstatement;
 
-import static gov.va.api.health.dataquery.service.controller.Transformers.firstPayloadItem;
-import static gov.va.api.health.dataquery.service.controller.Transformers.hasPayload;
+import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.firstPayloadItem;
+import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.hasPayload;
 import static java.util.Collections.emptyList;
 
 import gov.va.api.health.argonaut.api.resources.MedicationStatement;
 import gov.va.api.health.argonaut.api.resources.MedicationStatement.Bundle;
 import gov.va.api.health.dataquery.service.controller.AbstractIncludesIcnMajig;
-import gov.va.api.health.dataquery.service.controller.Bundler;
-import gov.va.api.health.dataquery.service.controller.Bundler.BundleContext;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
+import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
+import gov.va.api.health.dataquery.service.controller.Dstu2Bundler.BundleContext;
+import gov.va.api.health.dataquery.service.controller.Dstu2Validator;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.PageLinks.LinkConfig;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions.NotFound;
-import gov.va.api.health.dataquery.service.controller.Validator;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
 import gov.va.api.health.dataquery.service.mranderson.client.Query;
@@ -67,7 +67,7 @@ public class MedicationStatementController {
 
   private MrAndersonClient mrAndersonClient;
 
-  private Bundler bundler;
+  private Dstu2Bundler bundler;
 
   private WitnessProtection witnessProtection;
 
@@ -81,7 +81,7 @@ public class MedicationStatementController {
       @Value("${datamart.medication-statement}") boolean defaultToDatamart,
       @Autowired MedicationStatementController.Transformer transformer,
       @Autowired MrAndersonClient mrAndersonClient,
-      @Autowired Bundler bundler,
+      @Autowired Dstu2Bundler bundler,
       @Autowired MedicationStatementRepository repository,
       @Autowired WitnessProtection witnessProtection) {
     this.defaultToDatamart = defaultToDatamart;
@@ -202,7 +202,7 @@ public class MedicationStatementController {
     consumes = {"application/json", "application/json+fhir", "application/fhir+json"}
   )
   public OperationOutcome validate(@RequestBody MedicationStatement.Bundle bundle) {
-    return Validator.create().validate(bundle);
+    return Dstu2Validator.create().validate(bundle);
   }
 
   public interface Transformer
@@ -230,7 +230,7 @@ public class MedicationStatementController {
               .totalRecords(totalRecords)
               .build();
       return bundler.bundle(
-          Bundler.BundleContext.of(
+          Dstu2Bundler.BundleContext.of(
               linkConfig,
               reports,
               Function.identity(),

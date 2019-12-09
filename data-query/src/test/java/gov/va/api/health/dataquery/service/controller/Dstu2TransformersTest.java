@@ -1,23 +1,23 @@
 package gov.va.api.health.dataquery.service.controller;
 
-import static gov.va.api.health.dataquery.service.controller.Transformers.asCodeableConceptWrapping;
-import static gov.va.api.health.dataquery.service.controller.Transformers.asCoding;
-import static gov.va.api.health.dataquery.service.controller.Transformers.asDatamartReference;
-import static gov.va.api.health.dataquery.service.controller.Transformers.asDateString;
-import static gov.va.api.health.dataquery.service.controller.Transformers.asDateTimeString;
-import static gov.va.api.health.dataquery.service.controller.Transformers.asInteger;
-import static gov.va.api.health.dataquery.service.controller.Transformers.asReference;
-import static gov.va.api.health.dataquery.service.controller.Transformers.asReferenceId;
-import static gov.va.api.health.dataquery.service.controller.Transformers.convert;
-import static gov.va.api.health.dataquery.service.controller.Transformers.convertAll;
-import static gov.va.api.health.dataquery.service.controller.Transformers.emptyToNull;
-import static gov.va.api.health.dataquery.service.controller.Transformers.firstPayloadItem;
-import static gov.va.api.health.dataquery.service.controller.Transformers.hasPayload;
-import static gov.va.api.health.dataquery.service.controller.Transformers.ifPresent;
-import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
+import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asCodeableConceptWrapping;
+import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asCoding;
+import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asDatamartReference;
+import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asDateString;
+import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asDateTimeString;
+import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asInteger;
+import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asReference;
+import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asReferenceId;
+import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.convert;
+import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.convertAll;
+import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.emptyToNull;
+import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.firstPayloadItem;
+import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.hasPayload;
+import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.ifPresent;
+import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.isBlank;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import gov.va.api.health.dataquery.service.controller.Transformers.MissingPayload;
+import gov.va.api.health.dataquery.service.controller.Dstu2Transformers.MissingPayload;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
@@ -37,15 +37,15 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import lombok.SneakyThrows;
 import org.junit.Test;
 
-public class TransformersTest {
+public class Dstu2TransformersTest {
 
   @Test
   public void allBlank() {
-    assertThat(Transformers.allBlank()).isTrue();
-    assertThat(Transformers.allBlank(null, null, null, null)).isTrue();
-    assertThat(Transformers.allBlank(null, "", " ")).isTrue();
-    assertThat(Transformers.allBlank(null, 1, null, null)).isFalse();
-    assertThat(Transformers.allBlank(1, "x", "z", 2.0)).isFalse();
+    assertThat(Dstu2Transformers.allBlank()).isTrue();
+    assertThat(Dstu2Transformers.allBlank(null, null, null, null)).isTrue();
+    assertThat(Dstu2Transformers.allBlank(null, "", " ")).isTrue();
+    assertThat(Dstu2Transformers.allBlank(null, 1, null, null)).isFalse();
+    assertThat(Dstu2Transformers.allBlank(1, "x", "z", 2.0)).isFalse();
   }
 
   @Test

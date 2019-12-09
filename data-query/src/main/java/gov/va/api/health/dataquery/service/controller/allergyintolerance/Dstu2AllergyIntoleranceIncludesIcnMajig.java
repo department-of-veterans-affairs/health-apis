@@ -4,7 +4,7 @@ import gov.va.api.health.argonaut.api.resources.AllergyIntolerance;
 import gov.va.api.health.argonaut.api.resources.AllergyIntolerance.Bundle;
 import gov.va.api.health.argonaut.api.resources.AllergyIntolerance.Entry;
 import gov.va.api.health.dataquery.service.controller.AbstractIncludesIcnMajig;
-import gov.va.api.health.dataquery.service.controller.Transformers;
+import gov.va.api.health.dataquery.service.controller.Dstu2Transformers;
 import java.util.stream.Stream;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 
@@ -22,6 +22,6 @@ public class Dstu2AllergyIntoleranceIncludesIcnMajig
     super(
         AllergyIntolerance.class,
         Bundle.class,
-        (body) -> Stream.ofNullable(Transformers.asReferenceId(body.patient())));
+        (body) -> Stream.ofNullable(Dstu2Transformers.asReferenceId(body.patient())));
   }
 }
