@@ -1,14 +1,18 @@
 package gov.va.api.health.dataquery.service.controller;
 
+import gov.va.api.health.dataquery.service.controller.PageLinks.LinkConfig;
 import gov.va.api.health.dstu2.api.bundle.AbstractBundle;
+import gov.va.api.health.dstu2.api.bundle.AbstractBundle.BundleType;
 import gov.va.api.health.dstu2.api.bundle.AbstractEntry;
+import gov.va.api.health.dstu2.api.bundle.AbstractEntry.Search;
+import gov.va.api.health.dstu2.api.bundle.AbstractEntry.SearchMode;
 import gov.va.api.health.dstu2.api.resources.Resource;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,7 +31,7 @@ public class Dstu2Bundler {
       BundleContext<X, T, E, B> context) {
     B bundle = context.newBundle().get();
     bundle.resourceType("Bundle");
-    bundle.type(AbstractBundle.BundleType.searchset);
+    bundle.type(BundleType.searchset);
     bundle.total(context.linkConfig().totalRecords());
     bundle.link(links.dstu2Links(context.linkConfig()));
     bundle.entry(
@@ -40,8 +44,7 @@ public class Dstu2Bundler {
                   E entry = context.newEntry().get();
                   entry.resource(t);
                   entry.fullUrl(links.readLink(context.linkConfig().path(), t.id()));
-                  entry.search(
-                      AbstractEntry.Search.builder().mode(AbstractEntry.SearchMode.match).build());
+                  entry.search(Search.builder().mode(SearchMode.match).build());
                   return entry;
                 })
             .collect(Collectors.toList()));
@@ -59,39 +62,51 @@ public class Dstu2Bundler {
    * @param <E> The entry type, e.g. Patient.Entry
    * @param <B> The bundle type, e.g. Patient.Bundle
    */
-  @Value
-  public static final class BundleContext<
+  @Getter
+  public static class BundleContext<
       X, T extends Resource, E extends AbstractEntry<T>, B extends AbstractBundle<E>> {
-    private final PageLinks.LinkConfig linkConfig;
-
+    private final LinkConfig linkConfig;
     private final List<X> xmlItems;
-
     /** Invoked for each item in the XML items list to convert it to the final published form. */
     private final Function<X, T> transformer;
-
     /** Used to create new instances for entries, one for each item in the XML items list. */
     private final Supplier<E> newEntry;
-
     /** Used to create a new instance of the bundle. Called once. */
     private final Supplier<B> newBundle;
 
-    public static <T extends Resource, E extends AbstractEntry<T>, B extends AbstractBundle<E>>
-        BundleContext<T, T, E, B> of(
-            PageLinks.LinkConfig linkConfig,
-            List<T> resources,
-            Supplier<E> newEntry,
-            Supplier<B> newBundle) {
-      return of(linkConfig, resources, Function.identity(), newEntry, newBundle);
+    /*
+     * Normally, I'd let Lombok generate the constructor and factory method, but the generics are a
+     * little too much for it and the constructor generated suffers from the dreaded `type argument
+     * T is now within bounds of type-variable T`. So we need to go old school here.
+     */
+
+    private BundleContext(
+        LinkConfig linkConfig,
+        List<X> xmlItems,
+        Function<X, T> transformer,
+        Supplier<E> newEntry,
+        Supplier<B> newBundle) {
+      this.linkConfig = linkConfig;
+      this.xmlItems = xmlItems;
+      this.transformer = transformer;
+      this.newEntry = newEntry;
+      this.newBundle = newBundle;
     }
 
     public static <X, T extends Resource, E extends AbstractEntry<T>, B extends AbstractBundle<E>>
         BundleContext<X, T, E, B> of(
-            PageLinks.LinkConfig linkConfig,
+            LinkConfig linkConfig,
             List<X> xmlItems,
             Function<X, T> transformer,
             Supplier<E> newEntry,
             Supplier<B> newBundle) {
       return new BundleContext<>(linkConfig, xmlItems, transformer, newEntry, newBundle);
+    }
+
+    public static <T extends Resource, E extends AbstractEntry<T>, B extends AbstractBundle<E>>
+        BundleContext<T, T, E, B> of(
+            LinkConfig linkConfig, List<T> resources, Supplier<E> newEntry, Supplier<B> newBundle) {
+      return new BundleContext<>(linkConfig, resources, Function.identity(), newEntry, newBundle);
     }
   }
 }
