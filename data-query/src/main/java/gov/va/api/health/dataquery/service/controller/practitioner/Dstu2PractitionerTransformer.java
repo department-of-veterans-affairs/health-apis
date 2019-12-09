@@ -27,9 +27,9 @@ import lombok.Builder;
 @Builder
 public class Dstu2PractitionerTransformer {
 
-  private final DatamartPractitioner datamart;
+  private final Dstu2Practitioner datamart;
 
-  static Address address(DatamartPractitioner.Address address) {
+  static Address address(Dstu2Practitioner.Address address) {
     if (address == null
         || allBlank(
             address.line1(),
@@ -56,7 +56,18 @@ public class Dstu2PractitionerTransformer {
     return date.toString();
   }
 
-  static HumanName name(DatamartPractitioner.Name source) {
+  static Reference healthCareService(String s) {
+    return Reference.builder().display(s).build();
+  }
+
+  static List<Reference> healthcareServices(Optional<String> results) {
+    if (results.isEmpty()) {
+      return null;
+    }
+    return results.stream().map(s -> healthCareService(s)).collect(Collectors.toList());
+  }
+
+  static HumanName name(Dstu2Practitioner.Name source) {
     if (source == null
         || allBlank(source.family(), source.given(), source.prefix(), source.suffix())) {
       return null;
@@ -79,28 +90,63 @@ public class Dstu2PractitionerTransformer {
     return singletonList(source);
   }
 
+  static CodeableConcept role(Optional<DatamartCoding> source) {
+    if (source == null || source.get().code().get() == null) {
+      return null;
+    }
+    return CodeableConcept.builder().coding(roleCoding(source.get())).build();
+  }
+
+  static List<Coding> roleCoding(DatamartCoding source) {
+    if (source == null || allBlank(source.system(), source.display(), source.code())) {
+      return null;
+    }
+    return convert(
+        source,
+        cdw ->
+            List.of(
+                Coding.builder()
+                    .code(cdw.code().get())
+                    .display(cdw.display().get())
+                    .system(cdw.system().get())
+                    .build()));
+  }
+
+  static ContactPoint telecom(Dstu2Practitioner.Telecom telecom) {
+    if (telecom == null || allBlank(telecom.system(), telecom.use(), telecom.value())) {
+      return null;
+    }
+    return convert(
+        telecom,
+        tel ->
+            ContactPoint.builder()
+                .system(telecomSystem(tel.system()))
+                .value(tel.value())
+                .use(telecomUse(tel.use()))
+                .build());
+  }
+
+  static ContactPoint.ContactPointSystem telecomSystem(Dstu2Practitioner.Telecom.System tel) {
+    return convert(
+        tel, source -> EnumSearcher.of(ContactPoint.ContactPointSystem.class).find(tel.toString()));
+  }
+
+  static ContactPoint.ContactPointUse telecomUse(Dstu2Practitioner.Telecom.Use tel) {
+    return ifPresent(
+        tel, source -> EnumSearcher.of(ContactPoint.ContactPointUse.class).find(source.toString()));
+  }
+
   private List<Address> addresses() {
     return emptyToNull(
         datamart.address().stream().map(adr -> address(adr)).collect(Collectors.toList()));
   }
 
-  Practitioner.Gender gender(DatamartPractitioner.Gender source) {
+  Practitioner.Gender gender(Dstu2Practitioner.Gender source) {
     return convert(
         source, gender -> EnumSearcher.of(Practitioner.Gender.class).find(gender.toString()));
   }
 
-  private Reference healthCareService(String s) {
-    return Reference.builder().display(s).build();
-  }
-
-  private List<Reference> healthcareServices(Optional<String> results) {
-    if (results.isEmpty()) {
-      return null;
-    }
-    return results.stream().map(s -> healthCareService(s)).collect(Collectors.toList());
-  }
-
-  Practitioner.PractitionerRole practitionerRole(DatamartPractitioner.PractitionerRole source) {
+  Practitioner.PractitionerRole practitionerRole(Dstu2Practitioner.PractitionerRole source) {
     if (source == null
         || allBlank(
             source.healthCareService(),
@@ -124,52 +170,6 @@ public class Dstu2PractitionerTransformer {
             .stream()
             .map(rol -> practitionerRole(rol))
             .collect(Collectors.toList()));
-  }
-
-  private CodeableConcept role(Optional<DatamartCoding> source) {
-    if (source == null || source.get().code().get() == null) {
-      return null;
-    }
-    return CodeableConcept.builder().coding(roleCoding(source.get())).build();
-  }
-
-  private List<Coding> roleCoding(DatamartCoding source) {
-    if (source == null || allBlank(source.system(), source.display(), source.code())) {
-      return null;
-    }
-    return convert(
-        source,
-        cdw ->
-            List.of(
-                Coding.builder()
-                    .code(cdw.code().get())
-                    .display(cdw.display().get())
-                    .system(cdw.system().get())
-                    .build()));
-  }
-
-  private ContactPoint telecom(DatamartPractitioner.Telecom telecom) {
-    if (telecom == null || allBlank(telecom.system(), telecom.use(), telecom.value())) {
-      return null;
-    }
-    return convert(
-        telecom,
-        tel ->
-            ContactPoint.builder()
-                .system(telecomSystem(tel.system()))
-                .value(tel.value())
-                .use(telecomUse(tel.use()))
-                .build());
-  }
-
-  ContactPoint.ContactPointSystem telecomSystem(DatamartPractitioner.Telecom.System tel) {
-    return convert(
-        tel, source -> EnumSearcher.of(ContactPoint.ContactPointSystem.class).find(tel.toString()));
-  }
-
-  ContactPoint.ContactPointUse telecomUse(DatamartPractitioner.Telecom.Use tel) {
-    return ifPresent(
-        tel, source -> EnumSearcher.of(ContactPoint.ContactPointUse.class).find(source.toString()));
   }
 
   List<ContactPoint> telecoms() {

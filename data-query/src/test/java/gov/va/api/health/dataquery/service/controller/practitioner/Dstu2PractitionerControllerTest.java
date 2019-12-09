@@ -10,7 +10,7 @@ import gov.va.api.health.dataquery.service.controller.Bundler;
 import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
-import gov.va.api.health.dataquery.service.controller.practitioner.DatamartPractitionerSamples.Datamart;
+import gov.va.api.health.dataquery.service.controller.practitioner.Dstu2PractitionerSamples.Datamart;
 import gov.va.api.health.dstu2.api.bundle.BundleLink.LinkRelation;
 import gov.va.api.health.dstu2.api.resources.Practitioner;
 import gov.va.api.health.ids.api.IdentityService;
@@ -29,7 +29,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @DataJpaTest
 @RunWith(SpringRunner.class)
-public class DatamartPractitionerControllerTest {
+public class Dstu2PractitionerControllerTest {
 
   HttpServletResponse response = mock(HttpServletResponse.class);
 
@@ -40,7 +40,7 @@ public class DatamartPractitionerControllerTest {
   @Autowired private TestEntityManager entityManager;
 
   @SneakyThrows
-  private PractitionerEntity asEntity(DatamartPractitioner dm) {
+  private PractitionerEntity asEntity(Dstu2Practitioner dm) {
     return PractitionerEntity.builder()
         .cdwId(dm.cdwId())
         .familyName("Joe")
@@ -77,7 +77,7 @@ public class DatamartPractitionerControllerTest {
 
   @Test
   public void read() {
-    DatamartPractitioner dm = Datamart.create().practitioner();
+    Dstu2Practitioner dm = Datamart.create().practitioner();
     repository.save(asEntity(dm));
     mockPractitionerIdentity("1234", dm.cdwId());
     Practitioner actual = controller().read("true", "1234");
@@ -90,7 +90,7 @@ public class DatamartPractitionerControllerTest {
     String cdwId = "123";
     mockPractitionerIdentity(publicId, cdwId);
     HttpServletResponse servletResponse = mock(HttpServletResponse.class);
-    DatamartPractitioner dm = DatamartPractitionerSamples.Datamart.create().practitioner(cdwId);
+    Dstu2Practitioner dm = Dstu2PractitionerSamples.Datamart.create().practitioner(cdwId);
     repository.save(asEntity(dm));
     String json = controller().readRaw(publicId, servletResponse);
     assertThat(toObject(json)).isEqualTo(dm);
@@ -123,27 +123,26 @@ public class DatamartPractitionerControllerTest {
   public void searchById() {
 
     mockPractitionerIdentity("abc", "1234");
-    DatamartPractitioner dm = Datamart.create().practitioner("1234");
+    Dstu2Practitioner dm = Datamart.create().practitioner("1234");
     repository.save(asEntity(dm));
     Practitioner.Bundle actual = controller().searchById("true", "1234", 1, 1);
     assertThat(json(actual))
         .isEqualTo(
             json(
-                DatamartPractitionerSamples.Datamart.Dstu2.asBundle(
+                Dstu2PractitionerSamples.Datamart.Dstu2.asBundle(
                     "http://fonzy.com/cool",
-                    List.of(
-                        DatamartPractitionerSamples.Datamart.Dstu2.create().practitioner("1234")),
-                    DatamartPractitionerSamples.Datamart.Dstu2.link(
+                    List.of(Dstu2PractitionerSamples.Datamart.Dstu2.create().practitioner("1234")),
+                    Dstu2PractitionerSamples.Datamart.Dstu2.link(
                         LinkRelation.first,
                         "http://fonzy.com/cool/Practitioner?identifier=1234",
                         1,
                         1),
-                    DatamartPractitionerSamples.Datamart.Dstu2.link(
+                    Dstu2PractitionerSamples.Datamart.Dstu2.link(
                         LinkRelation.self,
                         "http://fonzy.com/cool/Practitioner?identifier=1234",
                         1,
                         1),
-                    DatamartPractitionerSamples.Datamart.Dstu2.link(
+                    Dstu2PractitionerSamples.Datamart.Dstu2.link(
                         LinkRelation.last,
                         "http://fonzy.com/cool/Practitioner?identifier=1234",
                         1,
@@ -152,28 +151,27 @@ public class DatamartPractitionerControllerTest {
 
   @Test
   public void searchByIdentifier() {
-    DatamartPractitioner dm = DatamartPractitionerSamples.Datamart.create().practitioner("1234");
+    Dstu2Practitioner dm = Dstu2PractitionerSamples.Datamart.create().practitioner("1234");
     repository.save(asEntity(dm));
     mockPractitionerIdentity("1234", dm.cdwId());
     Practitioner.Bundle actual = controller().searchByIdentifier("true", "1234", 1, 1);
     assertThat(json(actual))
         .isEqualTo(
             json(
-                DatamartPractitionerSamples.Datamart.Dstu2.asBundle(
+                Dstu2PractitionerSamples.Datamart.Dstu2.asBundle(
                     "http://fonzy.com/cool",
-                    List.of(
-                        DatamartPractitionerSamples.Datamart.Dstu2.create().practitioner("1234")),
-                    DatamartPractitionerSamples.Datamart.Dstu2.link(
+                    List.of(Dstu2PractitionerSamples.Datamart.Dstu2.create().practitioner("1234")),
+                    Dstu2PractitionerSamples.Datamart.Dstu2.link(
                         LinkRelation.first,
                         "http://fonzy.com/cool/Practitioner?identifier=1234",
                         1,
                         1),
-                    DatamartPractitionerSamples.Datamart.Dstu2.link(
+                    Dstu2PractitionerSamples.Datamart.Dstu2.link(
                         LinkRelation.self,
                         "http://fonzy.com/cool/Practitioner?identifier=1234",
                         1,
                         1),
-                    DatamartPractitionerSamples.Datamart.Dstu2.link(
+                    Dstu2PractitionerSamples.Datamart.Dstu2.link(
                         LinkRelation.last,
                         "http://fonzy.com/cool/Practitioner?identifier=1234",
                         1,
@@ -181,7 +179,7 @@ public class DatamartPractitionerControllerTest {
   }
 
   @SneakyThrows
-  private DatamartPractitioner toObject(String json) {
-    return JacksonConfig.createMapper().readValue(json, DatamartPractitioner.class);
+  private Dstu2Practitioner toObject(String json) {
+    return JacksonConfig.createMapper().readValue(json, Dstu2Practitioner.class);
   }
 }

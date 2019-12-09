@@ -235,8 +235,8 @@ public class PractitionerController {
       return findById(publicId);
     }
 
-    private Collection<DatamartPractitioner> replaceReferences(
-        Collection<DatamartPractitioner> resources) {
+    private Collection<Dstu2Practitioner> replaceReferences(
+        Collection<Dstu2Practitioner> resources) {
       witnessProtection.registerAndUpdateReferences(
           resources,
           resource ->
@@ -258,7 +258,7 @@ public class PractitionerController {
           resource == null ? 0 : 1);
     }
 
-    Practitioner transform(DatamartPractitioner dm) {
+    Practitioner transform(Dstu2Practitioner dm) {
       return Dstu2PractitionerTransformer.builder().datamart(dm).build().toFhir();
     }
   }

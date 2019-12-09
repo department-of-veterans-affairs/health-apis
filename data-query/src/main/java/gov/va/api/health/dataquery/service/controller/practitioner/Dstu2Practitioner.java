@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class DatamartPractitioner implements HasReplaceableId {
+public class Dstu2Practitioner implements HasReplaceableId {
   @Builder.Default private String objectType = "Practitioner";
 
   @Builder.Default private int objectVersion = 1;

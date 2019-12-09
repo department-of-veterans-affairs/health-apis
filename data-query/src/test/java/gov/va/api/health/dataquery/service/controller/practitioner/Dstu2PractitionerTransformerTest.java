@@ -10,22 +10,18 @@ import java.time.LocalDate;
 import java.util.Optional;
 import org.junit.Test;
 
-public class DatamartPractitionerTransformerTest {
+public class Dstu2PractitionerTransformerTest {
 
   @Test
   public void address() {
     assertThat(Dstu2PractitionerTransformer.address(null)).isNull();
     assertThat(
             Dstu2PractitionerTransformer.address(
-                DatamartPractitioner.Address.builder()
-                    .city(" ")
-                    .state(" ")
-                    .postalCode(" ")
-                    .build()))
+                Dstu2Practitioner.Address.builder().city(" ").state(" ").postalCode(" ").build()))
         .isNull();
     assertThat(
             Dstu2PractitionerTransformer.address(
-                DatamartPractitioner.Address.builder()
+                Dstu2Practitioner.Address.builder()
                     .line1("w")
                     .city("x")
                     .state("y")
@@ -46,19 +42,18 @@ public class DatamartPractitionerTransformerTest {
   public void gender() {
     Dstu2PractitionerTransformer transformer = Dstu2PractitionerTransformer.builder().build();
     assertThat(transformer.gender(null)).isNull();
-    assertThat(transformer.gender(DatamartPractitioner.Gender.male))
+    assertThat(transformer.gender(Dstu2Practitioner.Gender.male))
         .isEqualTo(Practitioner.Gender.male);
-    assertThat(transformer.gender(DatamartPractitioner.Gender.female))
+    assertThat(transformer.gender(Dstu2Practitioner.Gender.female))
         .isEqualTo(Practitioner.Gender.female);
   }
 
   @Test
   public void name() {
     assertThat(Dstu2PractitionerTransformer.name(null)).isNull();
-
     assertThat(
             Dstu2PractitionerTransformer.name(
-                DatamartPractitioner.Name.builder()
+                Dstu2Practitioner.Name.builder()
                     .family("family")
                     .given("given")
                     .suffix(Optional.of("suffix"))
@@ -74,12 +69,21 @@ public class DatamartPractitionerTransformerTest {
   }
 
   @Test
-  public void practitioner() {
-    assertThat(tx(DatamartPractitionerSamples.Datamart.create().practitioner()).toFhir())
-        .isEqualTo(DatamartPractitionerSamples.Datamart.Dstu2.create().practitioner());
+  public void nullChecks() {
+    assertThat(Dstu2PractitionerTransformer.healthcareServices(Optional.empty())).isNull();
+    assertThat(Dstu2PractitionerTransformer.roleCoding(null)).isNull();
+    assertThat(Dstu2PractitionerTransformer.role(null)).isNull();
+    assertThat(Dstu2PractitionerTransformer.telecom(null)).isNull();
+    // .isEqualTo("1990-12-12");
   }
 
-  Dstu2PractitionerTransformer tx(DatamartPractitioner dm) {
+  @Test
+  public void practitioner() {
+    assertThat(tx(Dstu2PractitionerSamples.Datamart.create().practitioner()).toFhir())
+        .isEqualTo(Dstu2PractitionerSamples.Datamart.Dstu2.create().practitioner());
+  }
+
+  Dstu2PractitionerTransformer tx(Dstu2Practitioner dm) {
     return Dstu2PractitionerTransformer.builder().datamart(dm).build();
   }
 }

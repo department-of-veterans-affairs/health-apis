@@ -51,9 +51,8 @@ public class PractitionerEntity implements DatamartEntity {
   }
 
   @SneakyThrows
-  DatamartPractitioner asDatamartPractitioner() {
-    DatamartPractitioner dm =
-        JacksonConfig.createMapper().readValue(payload, DatamartPractitioner.class);
+  Dstu2Practitioner asDatamartPractitioner() {
+    Dstu2Practitioner dm = JacksonConfig.createMapper().readValue(payload, Dstu2Practitioner.class);
 
     if (dm.practitionerRole().get().managingOrganization() != null
         && dm.practitionerRole().get().managingOrganization().get().type().isEmpty()) {

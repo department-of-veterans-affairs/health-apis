@@ -27,7 +27,7 @@ import gov.va.api.health.dataquery.service.controller.organization.OrganizationE
 import gov.va.api.health.dataquery.service.controller.patient.DatamartPatient;
 import gov.va.api.health.dataquery.service.controller.patient.PatientEntity;
 import gov.va.api.health.dataquery.service.controller.patient.PatientSearchEntity;
-import gov.va.api.health.dataquery.service.controller.practitioner.DatamartPractitioner;
+import gov.va.api.health.dataquery.service.controller.practitioner.Dstu2Practitioner;
 import gov.va.api.health.dataquery.service.controller.practitioner.PractitionerEntity;
 import gov.va.api.health.dataquery.service.controller.procedure.DatamartProcedure;
 import gov.va.api.health.dataquery.service.controller.procedure.ProcedureEntity;
@@ -288,8 +288,7 @@ public class MitreMinimartMaker {
 
   @SneakyThrows
   private void insertByPractitioner(File file) {
-    DatamartPractitioner dm =
-        JacksonConfig.createMapper().readValue(file, DatamartPractitioner.class);
+    Dstu2Practitioner dm = JacksonConfig.createMapper().readValue(file, Dstu2Practitioner.class);
     PractitionerEntity entity =
         PractitionerEntity.builder()
             .cdwId(dm.cdwId())
