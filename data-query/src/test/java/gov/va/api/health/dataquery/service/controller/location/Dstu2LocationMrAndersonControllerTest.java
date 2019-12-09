@@ -38,9 +38,8 @@ public class Dstu2LocationMrAndersonControllerTest {
 
   @Mock Dstu2LocationController.Transformer tx;
 
+  LocationController controller;
   @Mock Dstu2Bundler bundler;
-
-  Dstu2LocationController controller;
 
   @Before
   public void _init() {
