@@ -46,25 +46,24 @@ public class PractitionerEntity implements DatamartEntity {
   @Column(name = "Practitioner")
   private String payload;
 
-  static Sort naturalOrder() {
-    return Sort.by("cdwId").ascending();
-  }
-
   @SneakyThrows
   DatamartPractitioner asDatamartPractitioner() {
     DatamartPractitioner dm =
         JacksonConfig.createMapper().readValue(payload, DatamartPractitioner.class);
 
-    if (dm.practitionerRole().get().managingOrganization() != null
-        && dm.practitionerRole().get().managingOrganization().get().type().isEmpty()) {
+    if (dm.practitionerRole().isPresent()
+        && dm.practitionerRole().get().managingOrganization().isPresent() && dm.practitionerRole().get().managingOrganization().get().type().isEmpty()) {
       // Hack... make sure reference type is populated
       dm.practitionerRole().get().managingOrganization().get().type(Optional.of("Organization"));
     }
 
-    if (dm.practitionerRole().get().location() != null
-        && dm.practitionerRole().get().location().get(0).type().isEmpty()) {
-      // Hack... make sure reference type is populated
-      dm.practitionerRole().get().location().get(0).type(Optional.of("Location"));
+    if (dm.practitionerRole().isPresent() && dm.practitionerRole().get().location() != null){
+      for (int i = 0; i < dm.practitionerRole().get().location().size(); i++){
+        if (dm.practitionerRole().get().location().get(i).type().isEmpty()) {
+          // Hack... make sure reference type is populated
+          dm.practitionerRole().get().location().get(0).type(Optional.of("Location"));
+        }
+      }
     }
 
     return dm;
