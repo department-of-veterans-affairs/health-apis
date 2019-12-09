@@ -14,16 +14,20 @@ import gov.va.api.health.dataquery.service.controller.PageLinks.LinkConfig;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
+import gov.va.api.health.dataquery.service.controller.location.DatamartLocation;
 import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
 import gov.va.api.health.dataquery.service.mranderson.client.Query;
 import gov.va.api.health.dataquery.service.mranderson.client.Query.Profile;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import gov.va.api.health.dstu2.api.resources.Practitioner;
 import gov.va.dvp.cdw.xsd.model.CdwPractitioner100Root;
+
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Stream;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.Min;
 import org.apache.commons.lang3.BooleanUtils;
@@ -162,6 +166,7 @@ public class Dstu2PractitionerController {
         count);
   }
 
+
   /** Search by Identifier. */
   @GetMapping(params = {"identifier"})
   public Practitioner.Bundle searchByIdentifier(
@@ -224,9 +229,21 @@ public class Dstu2PractitionerController {
     }
 
     Practitioner read(String publicId) {
-      return transform(findById(publicId).asDatamartPractitioner());
+      DatamartPractitioner location = findById(publicId).asDatamartPractitioner();
+      replaceReferences(List.of(location));
+      return transform(location);
     }
 
+    private Collection<DatamartPractitioner> replaceReferences(
+            Collection<DatamartPractitioner> resources) {
+      witnessProtection.registerAndUpdateReferences(
+              resources,
+              resource ->
+                      Stream.concat(
+                              Stream.of(resource.practitionerRole().get().managingOrganization().orElse(null)),
+                              resource.practitionerRole().get().location().stream()));
+      return resources;
+    }
     PractitionerEntity readRaw(String publicId) {
       return findById(publicId);
     }
