@@ -10,7 +10,7 @@ import java.util.Optional;
 import lombok.Builder;
 
 @Builder
-public class DatamartMedicationTransformer {
+public class Dstu2MedicationTransformer {
 
   private final DatamartMedication datamart;
 
