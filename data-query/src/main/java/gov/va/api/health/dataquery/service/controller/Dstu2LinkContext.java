@@ -2,15 +2,17 @@ package gov.va.api.health.dataquery.service.controller;
 
 import gov.va.api.health.dstu2.api.bundle.BundleLink;
 
-final class Dstu2LinkContext extends ConfigurableBaseUrlPageLinks.AbstractLinkContext {
+final class Dstu2LinkContext extends ConfigurableBaseUrlPageLinks.AbstractLinkContext<BundleLink> {
   public Dstu2LinkContext(String baseUrl, String basePath, PageLinks.LinkConfig config) {
     super(baseUrl, basePath, config);
   }
 
+  @Override
   BundleLink first() {
     return BundleLink.builder().relation(BundleLink.LinkRelation.first).url(toUrl(1)).build();
   }
 
+  @Override
   BundleLink last() {
     return BundleLink.builder()
         .relation(BundleLink.LinkRelation.last)
@@ -18,6 +20,7 @@ final class Dstu2LinkContext extends ConfigurableBaseUrlPageLinks.AbstractLinkCo
         .build();
   }
 
+  @Override
   BundleLink next() {
     return BundleLink.builder()
         .relation(BundleLink.LinkRelation.next)
@@ -25,6 +28,7 @@ final class Dstu2LinkContext extends ConfigurableBaseUrlPageLinks.AbstractLinkCo
         .build();
   }
 
+  @Override
   BundleLink previous() {
     return BundleLink.builder()
         .relation(BundleLink.LinkRelation.prev)
@@ -32,6 +36,7 @@ final class Dstu2LinkContext extends ConfigurableBaseUrlPageLinks.AbstractLinkCo
         .build();
   }
 
+  @Override
   BundleLink self() {
     return BundleLink.builder()
         .relation(BundleLink.LinkRelation.self)

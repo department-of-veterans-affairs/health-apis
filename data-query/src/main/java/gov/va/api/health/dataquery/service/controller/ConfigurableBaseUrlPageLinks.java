@@ -36,8 +36,11 @@ public class ConfigurableBaseUrlPageLinks implements PageLinks {
   @Override
   public List<gov.va.api.health.dstu2.api.bundle.BundleLink> dstu2Links(
       PageLinks.LinkConfig config) {
-    Dstu2LinkContext context = new Dstu2LinkContext(baseUrl, basePath, config);
-    List<gov.va.api.health.dstu2.api.bundle.BundleLink> links = new LinkedList<>();
+    return links(new Dstu2LinkContext(baseUrl, basePath, config));
+  }
+
+  private <B> List<B> links(AbstractLinkContext<B> context) {
+    List<B> links = new LinkedList<>();
     /*
      * If recordsPerPage = 0, then only return the self link.
      */
@@ -64,35 +67,19 @@ public class ConfigurableBaseUrlPageLinks implements PageLinks {
 
   @Override
   public List<gov.va.api.health.stu3.api.bundle.BundleLink> stu3Links(PageLinks.LinkConfig config) {
-    Stu3LinkContext context = new Stu3LinkContext(baseUrl, basePath, config);
-    List<gov.va.api.health.stu3.api.bundle.BundleLink> links = new LinkedList<>();
-    /*
-     * If recordsPerPage = 0, then only return the self link.
-     */
-    if (!context.isCountOnly()) {
-      links.add(context.first());
-      if (context.hasPrevious()) {
-        links.add(context.previous());
-      }
-    }
-    links.add(context.self());
-    if (!context.isCountOnly()) {
-      if (context.hasNext()) {
-        links.add(context.next());
-      }
-      links.add(context.last());
-    }
-    return links;
+    return links(new Stu3LinkContext(baseUrl, basePath, config));
   }
 
   /** This context wraps the link state to allow link creation to be clearly described. */
   @Data
-  abstract static class AbstractLinkContext {
+  abstract static class AbstractLinkContext<B> {
     private final String baseUrl;
 
     private final String basePath;
 
     private final LinkConfig config;
+
+    abstract B first();
 
     final boolean hasNext() {
       return config.page() < lastPage();
@@ -106,15 +93,23 @@ public class ConfigurableBaseUrlPageLinks implements PageLinks {
       return config.recordsPerPage() == 0;
     }
 
+    abstract B last();
+
     final int lastPage() {
       return (int) Math.ceil((double) config.totalRecords() / (double) config.recordsPerPage());
     }
+
+    abstract B next();
+
+    abstract B previous();
+
+    abstract B self();
 
     final Stream<String> toKeyValueString(Map.Entry<String, List<String>> entry) {
       return entry.getValue().stream().map((value) -> entry.getKey() + '=' + value);
     }
 
-    String toUrl(int page) {
+    final String toUrl(int page) {
       MultiValueMap<String, String> mutableParams = new LinkedMultiValueMap<>(config.queryParams());
       mutableParams.remove("page");
       mutableParams.remove("_count");
