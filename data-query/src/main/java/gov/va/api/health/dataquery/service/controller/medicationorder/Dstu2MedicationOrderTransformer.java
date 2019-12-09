@@ -24,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Builder
 @Slf4j
-public class DatamartMedicationOrderTransformer {
+public class Dstu2MedicationOrderTransformer {
 
   private static Map<String, Status> STATUS_VALUES =
       ImmutableMap.<String, Status>builder()

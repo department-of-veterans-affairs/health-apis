@@ -32,7 +32,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @DataJpaTest
 @RunWith(SpringRunner.class)
-public class DatamartMedicationOrderControllerTest {
+public class Dstu2MedicationOrderControllerTest {
 
   HttpServletResponse response;
 
@@ -56,11 +56,8 @@ public class DatamartMedicationOrderControllerTest {
         .build();
   }
 
-  MedicationOrderController controller() {
-    return new MedicationOrderController(
-        true,
-        null,
-        null,
+  Dstu2MedicationOrderController controller() {
+    return new Dstu2MedicationOrderController(
         new Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool")),
         repository,
         WitnessProtection.builder().identityService(ids).build());
@@ -86,8 +83,8 @@ public class DatamartMedicationOrderControllerTest {
   }
 
   private Multimap<String, MedicationOrder> populateData() {
-    var fhir = DatamartMedicationOrderSamples.Fhir.create();
-    var datamart = DatamartMedicationOrderSamples.Datamart.create();
+    var fhir = MedicationOrderSamples.Dstu2.create();
+    var datamart = MedicationOrderSamples.Datamart.create();
     var medicationOrderByPatient = LinkedHashMultimap.<String, MedicationOrder>create();
     var registrations = new ArrayList<Registration>(10);
     for (int i = 0; i < 10; i++) {
@@ -115,17 +112,17 @@ public class DatamartMedicationOrderControllerTest {
 
   @Test
   public void read() {
-    DatamartMedicationOrder dm = DatamartMedicationOrderSamples.Datamart.create().medicationOrder();
+    DatamartMedicationOrder dm = MedicationOrderSamples.Datamart.create().medicationOrder();
     repository.save(asEntity(dm));
     mockMedicationOrderIdentity("1", dm.cdwId());
-    MedicationOrder actual = controller().read("true", "1");
+    MedicationOrder actual = controller().read("1");
     assertThat(json(actual))
-        .isEqualTo(json(DatamartMedicationOrderSamples.Fhir.create().medicationOrder("1")));
+        .isEqualTo(json(MedicationOrderSamples.Dstu2.create().medicationOrder("1")));
   }
 
   @Test
   public void readRaw() {
-    DatamartMedicationOrder dm = DatamartMedicationOrderSamples.Datamart.create().medicationOrder();
+    DatamartMedicationOrder dm = MedicationOrderSamples.Datamart.create().medicationOrder();
     MedicationOrderEntity entity = asEntity(dm);
     repository.save(entity);
     mockMedicationOrderIdentity("1", dm.cdwId());
@@ -147,30 +144,29 @@ public class DatamartMedicationOrderControllerTest {
 
   @Test
   public void searchById() {
-    DatamartMedicationOrder dm = DatamartMedicationOrderSamples.Datamart.create().medicationOrder();
+    DatamartMedicationOrder dm = MedicationOrderSamples.Datamart.create().medicationOrder();
     repository.save(asEntity(dm));
     mockMedicationOrderIdentity("1", dm.cdwId());
-    MedicationOrder.Bundle actual = controller().searchById("true", "1", 1, 1);
+    MedicationOrder.Bundle actual = controller().searchById("1", 1, 1);
     MedicationOrder medicationOrder =
-        DatamartMedicationOrderSamples.Fhir.create()
-            .medicationOrder("1", dm.patient().reference().get());
+        MedicationOrderSamples.Dstu2.create().medicationOrder("1", dm.patient().reference().get());
     assertThat(json(actual))
         .isEqualTo(
             json(
-                DatamartMedicationOrderSamples.Fhir.asBundle(
+                MedicationOrderSamples.Dstu2.asBundle(
                     "http://fonzy.com/cool",
                     List.of(medicationOrder),
-                    DatamartMedicationOrderSamples.Fhir.link(
+                    MedicationOrderSamples.Dstu2.link(
                         BundleLink.LinkRelation.first,
                         "http://fonzy.com/cool/MedicationOrder?identifier=1",
                         1,
                         1),
-                    DatamartMedicationOrderSamples.Fhir.link(
+                    MedicationOrderSamples.Dstu2.link(
                         BundleLink.LinkRelation.self,
                         "http://fonzy.com/cool/MedicationOrder?identifier=1",
                         1,
                         1),
-                    DatamartMedicationOrderSamples.Fhir.link(
+                    MedicationOrderSamples.Dstu2.link(
                         BundleLink.LinkRelation.last,
                         "http://fonzy.com/cool/MedicationOrder?identifier=1",
                         1,
@@ -180,23 +176,23 @@ public class DatamartMedicationOrderControllerTest {
   @Test
   public void searchByPatient() {
     Multimap<String, MedicationOrder> medicationOrderByPatient = populateData();
-    assertThat(json(controller().searchByPatient("true", "p0", 1, 10)))
+    assertThat(json(controller().searchByPatient("p0", 1, 10)))
         .isEqualTo(
             json(
-                DatamartMedicationOrderSamples.Fhir.asBundle(
+                MedicationOrderSamples.Dstu2.asBundle(
                     "http://fonzy.com/cool",
                     medicationOrderByPatient.get("p0"),
-                    DatamartMedicationOrderSamples.Fhir.link(
+                    MedicationOrderSamples.Dstu2.link(
                         BundleLink.LinkRelation.first,
                         "http://fonzy.com/cool/MedicationOrder?patient=p0",
                         1,
                         10),
-                    DatamartMedicationOrderSamples.Fhir.link(
+                    MedicationOrderSamples.Dstu2.link(
                         BundleLink.LinkRelation.self,
                         "http://fonzy.com/cool/MedicationOrder?patient=p0",
                         1,
                         10),
-                    DatamartMedicationOrderSamples.Fhir.link(
+                    MedicationOrderSamples.Dstu2.link(
                         BundleLink.LinkRelation.last,
                         "http://fonzy.com/cool/MedicationOrder?patient=p0",
                         1,

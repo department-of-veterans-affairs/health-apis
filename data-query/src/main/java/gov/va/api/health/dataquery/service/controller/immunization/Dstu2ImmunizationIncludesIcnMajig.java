@@ -12,10 +12,10 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
  * X-VA-INCLUDES-ICN header.
  */
 @ControllerAdvice
-public class ImmunizationIncludesIcnMajig
+public class Dstu2ImmunizationIncludesIcnMajig
     extends AbstractIncludesIcnMajig<Immunization, Immunization.Entry, Immunization.Bundle> {
   /** Converts the reference to a Datamart Reference to pull out the patient id. */
-  public ImmunizationIncludesIcnMajig() {
+  public Dstu2ImmunizationIncludesIcnMajig() {
     super(
         Immunization.class,
         Immunization.Bundle.class,

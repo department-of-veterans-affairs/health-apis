@@ -1,6 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.medication;
 
-import static gov.va.api.health.dataquery.service.controller.medication.DatamartMedicationSamples.Fhir.link;
+import static gov.va.api.health.dataquery.service.controller.medication.MedicationSamples.Dstu2.link;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -13,8 +13,8 @@ import gov.va.api.health.dataquery.service.controller.Bundler;
 import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
-import gov.va.api.health.dataquery.service.controller.medication.DatamartMedicationSamples.Datamart;
-import gov.va.api.health.dataquery.service.controller.medication.DatamartMedicationSamples.Fhir;
+import gov.va.api.health.dataquery.service.controller.medication.MedicationSamples.Datamart;
+import gov.va.api.health.dataquery.service.controller.medication.MedicationSamples.Dstu2;
 import gov.va.api.health.dstu2.api.bundle.BundleLink.LinkRelation;
 import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.api.Registration;
@@ -32,7 +32,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @DataJpaTest
 @RunWith(SpringRunner.class)
-public class DatamartMedicationControllerTest {
+public class Dstu2MedicationControllerTest {
 
   HttpServletResponse response = mock(HttpServletResponse.class);
 
@@ -50,11 +50,8 @@ public class DatamartMedicationControllerTest {
         .build();
   }
 
-  MedicationController controller() {
-    return new MedicationController(
-        true,
-        null,
-        null,
+  Dstu2MedicationController controller() {
+    return new Dstu2MedicationController(
         new Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool")),
         repository,
         WitnessProtection.builder().identityService(ids).build());
@@ -80,8 +77,8 @@ public class DatamartMedicationControllerTest {
     DatamartMedication dm = Datamart.create().medication();
     repository.save(asEntity(dm));
     mockMedicationIdentity("1000", dm.cdwId());
-    Medication actual = controller().read("true", "1000");
-    assertThat(json(actual)).isEqualTo(json(Fhir.create().medication("1000")));
+    Medication actual = controller().read("1000");
+    assertThat(json(actual)).isEqualTo(json(Dstu2.create().medication("1000")));
   }
 
   @Test
@@ -108,12 +105,12 @@ public class DatamartMedicationControllerTest {
   @Test(expected = ResourceExceptions.NotFound.class)
   public void readThrowsNotFoundWhenDataIsMissing() {
     mockMedicationIdentity("1", "1");
-    controller().read("true", "1");
+    controller().read("1");
   }
 
   @Test(expected = ResourceExceptions.NotFound.class)
   public void readThrowsNotFoundWhenIdIsUnknown() {
-    controller().read("true", "1");
+    controller().read("1");
   }
 
   @Test
@@ -121,12 +118,12 @@ public class DatamartMedicationControllerTest {
     DatamartMedication dm = Datamart.create().medication();
     repository.save(asEntity(dm));
     mockMedicationIdentity("1", dm.cdwId());
-    Bundle actual = controller().searchById("true", "1", 1, 1);
-    Medication medication = Fhir.create().medication("1");
+    Bundle actual = controller().searchById("1", 1, 1);
+    Medication medication = Dstu2.create().medication("1");
     assertThat(json(actual))
         .isEqualTo(
             json(
-                Fhir.asBundle(
+                Dstu2.asBundle(
                     "http://fonzy.com/cool",
                     List.of(medication),
                     link(LinkRelation.first, "http://fonzy.com/cool/Medication?identifier=1", 1, 1),
