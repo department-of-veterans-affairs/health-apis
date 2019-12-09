@@ -84,7 +84,7 @@ public class DatamartPractitionerSamples {
     }
 
     @AllArgsConstructor(staticName = "create")
-    static class Fhir {
+    static class Dstu2 {
 
       static Practitioner.Bundle asBundle(
           String baseUrl, Collection<Practitioner> practitioners, BundleLink... links) {

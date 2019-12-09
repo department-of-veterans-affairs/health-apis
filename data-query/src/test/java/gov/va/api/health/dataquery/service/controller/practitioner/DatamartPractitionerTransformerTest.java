@@ -14,9 +14,9 @@ public class DatamartPractitionerTransformerTest {
 
   @Test
   public void address() {
-    assertThat(DatamartPractitionerTransformer.address(null)).isNull();
+    assertThat(Dstu2PractitionerTransformer.address(null)).isNull();
     assertThat(
-            DatamartPractitionerTransformer.address(
+            Dstu2PractitionerTransformer.address(
                 DatamartPractitioner.Address.builder()
                     .city(" ")
                     .state(" ")
@@ -24,7 +24,7 @@ public class DatamartPractitionerTransformerTest {
                     .build()))
         .isNull();
     assertThat(
-            DatamartPractitionerTransformer.address(
+            Dstu2PractitionerTransformer.address(
                 DatamartPractitioner.Address.builder()
                     .line1("w")
                     .city("x")
@@ -37,14 +37,14 @@ public class DatamartPractitionerTransformerTest {
 
   @Test
   public void birthDate() {
-    assertThat(DatamartPractitionerTransformer.birthDate(Optional.empty())).isNull();
-    assertThat(DatamartPractitionerTransformer.birthDate(Optional.of(LocalDate.of(1990, 12, 12))))
+    assertThat(Dstu2PractitionerTransformer.birthDate(Optional.empty())).isNull();
+    assertThat(Dstu2PractitionerTransformer.birthDate(Optional.of(LocalDate.of(1990, 12, 12))))
         .isEqualTo("1990-12-12");
   }
 
   @Test
   public void gender() {
-    DatamartPractitionerTransformer transformer = DatamartPractitionerTransformer.builder().build();
+    Dstu2PractitionerTransformer transformer = Dstu2PractitionerTransformer.builder().build();
     assertThat(transformer.gender(null)).isNull();
     assertThat(transformer.gender(DatamartPractitioner.Gender.male))
         .isEqualTo(Practitioner.Gender.male);
@@ -54,10 +54,10 @@ public class DatamartPractitionerTransformerTest {
 
   @Test
   public void name() {
-    assertThat(DatamartPractitionerTransformer.name(null)).isNull();
+    assertThat(Dstu2PractitionerTransformer.name(null)).isNull();
 
     assertThat(
-            DatamartPractitionerTransformer.name(
+            Dstu2PractitionerTransformer.name(
                 DatamartPractitioner.Name.builder()
                     .family("family")
                     .given("given")
@@ -76,10 +76,10 @@ public class DatamartPractitionerTransformerTest {
   @Test
   public void practitioner() {
     assertThat(tx(DatamartPractitionerSamples.Datamart.create().practitioner()).toFhir())
-        .isEqualTo(DatamartPractitionerSamples.Datamart.Fhir.create().practitioner());
+        .isEqualTo(DatamartPractitionerSamples.Datamart.Dstu2.create().practitioner());
   }
 
-  DatamartPractitionerTransformer tx(DatamartPractitioner dm) {
-    return DatamartPractitionerTransformer.builder().datamart(dm).build();
+  Dstu2PractitionerTransformer tx(DatamartPractitioner dm) {
+    return Dstu2PractitionerTransformer.builder().datamart(dm).build();
   }
 }

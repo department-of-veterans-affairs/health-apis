@@ -11,7 +11,6 @@ import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLin
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.practitioner.DatamartPractitionerSamples.Datamart;
-import gov.va.api.health.dataquery.service.controller.practitioner.DatamartPractitionerSamples.Datamart.Fhir;
 import gov.va.api.health.dstu2.api.bundle.BundleLink.LinkRelation;
 import gov.va.api.health.dstu2.api.resources.Practitioner;
 import gov.va.api.health.ids.api.IdentityService;
@@ -82,7 +81,7 @@ public class DatamartPractitionerControllerTest {
     repository.save(asEntity(dm));
     mockPractitionerIdentity("1234", dm.cdwId());
     Practitioner actual = controller().read("true", "1234");
-    assertThat(actual).isEqualTo(Fhir.create().practitioner("1234"));
+    assertThat(actual).isEqualTo(Datamart.Dstu2.create().practitioner("1234"));
   }
 
   @Test
@@ -130,21 +129,21 @@ public class DatamartPractitionerControllerTest {
     assertThat(json(actual))
         .isEqualTo(
             json(
-                DatamartPractitionerSamples.Datamart.Fhir.asBundle(
+                DatamartPractitionerSamples.Datamart.Dstu2.asBundle(
                     "http://fonzy.com/cool",
                     List.of(
-                        DatamartPractitionerSamples.Datamart.Fhir.create().practitioner("1234")),
-                    DatamartPractitionerSamples.Datamart.Fhir.link(
+                        DatamartPractitionerSamples.Datamart.Dstu2.create().practitioner("1234")),
+                    DatamartPractitionerSamples.Datamart.Dstu2.link(
                         LinkRelation.first,
                         "http://fonzy.com/cool/Practitioner?identifier=1234",
                         1,
                         1),
-                    DatamartPractitionerSamples.Datamart.Fhir.link(
+                    DatamartPractitionerSamples.Datamart.Dstu2.link(
                         LinkRelation.self,
                         "http://fonzy.com/cool/Practitioner?identifier=1234",
                         1,
                         1),
-                    DatamartPractitionerSamples.Datamart.Fhir.link(
+                    DatamartPractitionerSamples.Datamart.Dstu2.link(
                         LinkRelation.last,
                         "http://fonzy.com/cool/Practitioner?identifier=1234",
                         1,
@@ -160,21 +159,21 @@ public class DatamartPractitionerControllerTest {
     assertThat(json(actual))
         .isEqualTo(
             json(
-                DatamartPractitionerSamples.Datamart.Fhir.asBundle(
+                DatamartPractitionerSamples.Datamart.Dstu2.asBundle(
                     "http://fonzy.com/cool",
                     List.of(
-                        DatamartPractitionerSamples.Datamart.Fhir.create().practitioner("1234")),
-                    DatamartPractitionerSamples.Datamart.Fhir.link(
+                        DatamartPractitionerSamples.Datamart.Dstu2.create().practitioner("1234")),
+                    DatamartPractitionerSamples.Datamart.Dstu2.link(
                         LinkRelation.first,
                         "http://fonzy.com/cool/Practitioner?identifier=1234",
                         1,
                         1),
-                    DatamartPractitionerSamples.Datamart.Fhir.link(
+                    DatamartPractitionerSamples.Datamart.Dstu2.link(
                         LinkRelation.self,
                         "http://fonzy.com/cool/Practitioner?identifier=1234",
                         1,
                         1),
-                    DatamartPractitionerSamples.Datamart.Fhir.link(
+                    DatamartPractitionerSamples.Datamart.Dstu2.link(
                         LinkRelation.last,
                         "http://fonzy.com/cool/Practitioner?identifier=1234",
                         1,

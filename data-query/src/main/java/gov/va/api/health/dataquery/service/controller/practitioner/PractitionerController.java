@@ -25,7 +25,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.Min;
@@ -34,8 +33,6 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -217,25 +214,6 @@ public class PractitionerController {
               Practitioner.Bundle::new));
     }
 
-    Practitioner.Bundle bundle(
-        MultiValueMap<String, String> parameters, Page<PractitionerEntity> entities) {
-      log.info("Search {} found {} results", parameters, entities.getTotalElements());
-      if (Parameters.countOf(parameters) == 0) {
-        return bundle(parameters, emptyList(), (int) entities.getTotalElements());
-      }
-      return bundle(
-          parameters,
-          replaceReferences(
-                  entities
-                      .get()
-                      .map(PractitionerEntity::asDatamartPractitioner)
-                      .collect(Collectors.toList()))
-              .stream()
-              .map(this::transform)
-              .collect(Collectors.toList()),
-          (int) entities.getTotalElements());
-    }
-
     PractitionerEntity findById(String publicId) {
       Optional<PractitionerEntity> entity =
           repository.findById(witnessProtection.toCdwId(publicId));
@@ -247,10 +225,6 @@ public class PractitionerController {
         return defaultToDatamart;
       }
       return BooleanUtils.isTrue(BooleanUtils.toBooleanObject(datamartHeader));
-    }
-
-    PageRequest page(int page, int count) {
-      return PageRequest.of(page - 1, count == 0 ? 1 : count, PractitionerEntity.naturalOrder());
     }
 
     Practitioner read(String publicId) {
@@ -285,7 +259,7 @@ public class PractitionerController {
     }
 
     Practitioner transform(DatamartPractitioner dm) {
-      return DatamartPractitionerTransformer.builder().datamart(dm).build().toFhir();
+      return Dstu2PractitionerTransformer.builder().datamart(dm).build().toFhir();
     }
   }
 }

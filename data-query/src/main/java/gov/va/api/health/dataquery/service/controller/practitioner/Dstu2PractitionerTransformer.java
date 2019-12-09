@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 import lombok.Builder;
 
 @Builder
-public class DatamartPractitionerTransformer {
+public class Dstu2PractitionerTransformer {
 
   private final DatamartPractitioner datamart;
 
@@ -192,4 +192,3 @@ public class DatamartPractitionerTransformer {
         .build();
   }
 }
-
