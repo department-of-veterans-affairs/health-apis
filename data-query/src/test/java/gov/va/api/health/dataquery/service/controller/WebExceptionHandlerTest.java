@@ -57,7 +57,7 @@ public class WebExceptionHandlerTest {
   @Mock HttpServletRequest request;
   @Mock MrAndersonClient mrAnderson;
   @Mock PatientController.Transformer tx;
-  @Mock Bundler bundler;
+  @Mock Dstu2Bundler bundler;
   private PatientController controller;
   private WebExceptionHandler exceptionHandler;
 

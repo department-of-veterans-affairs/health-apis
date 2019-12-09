@@ -1,9 +1,9 @@
 package gov.va.api.health.dataquery.service.controller.organization;
 
-import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
-import static gov.va.api.health.dataquery.service.controller.Transformers.convert;
-import static gov.va.api.health.dataquery.service.controller.Transformers.convertAll;
-import static gov.va.api.health.dataquery.service.controller.Transformers.ifPresent;
+import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.allBlank;
+import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.convert;
+import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.convertAll;
+import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.ifPresent;
 import static java.util.Collections.singletonList;
 
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;

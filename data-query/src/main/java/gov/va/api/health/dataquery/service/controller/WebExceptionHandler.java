@@ -89,7 +89,7 @@ public class WebExceptionHandler {
     return responseFor("structure", e, request);
   }
 
-  @ExceptionHandler({Transformers.MissingPayload.class})
+  @ExceptionHandler({Dstu2Transformers.MissingPayload.class})
   @ResponseStatus(HttpStatus.NOT_FOUND)
   public OperationOutcome handleMissingPayload(Exception e, HttpServletRequest request) {
     request.getParameter("_id");

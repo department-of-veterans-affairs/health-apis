@@ -33,7 +33,7 @@ import org.apache.commons.lang3.StringUtils;
 /** Utility methods for transforming CDW results to Argonaut. */
 @Slf4j
 @UtilityClass
-public final class Transformers {
+public final class Dstu2Transformers {
 
   /**
    * Return false if at least one value in the given list is a non-blank string, or a non-null
