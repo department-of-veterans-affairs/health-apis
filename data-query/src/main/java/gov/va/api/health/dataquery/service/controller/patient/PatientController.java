@@ -8,7 +8,7 @@ import gov.va.api.health.argonaut.api.resources.Patient;
 import gov.va.api.health.dataquery.service.controller.AbstractIncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.Bundler;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
-import gov.va.api.health.dataquery.service.controller.PageLinks.LinkConfig;
+import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.Validator;
@@ -88,8 +88,8 @@ public class PatientController {
 
   private Patient.Bundle mrAndersonBundle(MultiValueMap<String, String> parameters) {
     CdwPatient103Root root = mrAndersonSearch(parameters);
-    LinkConfig linkConfig =
-        LinkConfig.builder()
+    PageLinks.LinkConfig linkConfig =
+        PageLinks.LinkConfig.builder()
             .path("Patient")
             .queryParams(parameters)
             .page(Parameters.pageOf(parameters))
@@ -265,8 +265,8 @@ public class PatientController {
   private class Datamart {
     Patient.Bundle bundle(
         MultiValueMap<String, String> parameters, List<Patient> reports, int totalRecords) {
-      LinkConfig linkConfig =
-          LinkConfig.builder()
+      PageLinks.LinkConfig linkConfig =
+          PageLinks.LinkConfig.builder()
               .path("Patient")
               .queryParams(parameters)
               .page(Parameters.pageOf(parameters))

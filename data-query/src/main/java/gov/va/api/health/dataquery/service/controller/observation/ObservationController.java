@@ -12,7 +12,7 @@ import gov.va.api.health.dataquery.service.controller.AbstractIncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.Bundler;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.DateTimeParameter;
-import gov.va.api.health.dataquery.service.controller.PageLinks.LinkConfig;
+import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.Validator;
@@ -94,8 +94,8 @@ public class ObservationController {
   private Observation.Bundle mrAndersonBundle(
       MultiValueMap<String, String> parameters, int page, int count) {
     CdwObservation104Root root = mrAndersonSearch(parameters);
-    LinkConfig linkConfig =
-        LinkConfig.builder()
+    PageLinks.LinkConfig linkConfig =
+        PageLinks.LinkConfig.builder()
             .path("Observation")
             .queryParams(parameters)
             .page(page)
@@ -262,8 +262,8 @@ public class ObservationController {
   private class Datamart {
     Observation.Bundle bundle(
         MultiValueMap<String, String> parameters, List<Observation> records, int totalRecords) {
-      LinkConfig linkConfig =
-          LinkConfig.builder()
+      PageLinks.LinkConfig linkConfig =
+          PageLinks.LinkConfig.builder()
               .path("Observation")
               .queryParams(parameters)
               .page(Parameters.pageOf(parameters))

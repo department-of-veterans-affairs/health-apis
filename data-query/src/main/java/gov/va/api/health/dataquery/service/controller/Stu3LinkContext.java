@@ -2,7 +2,7 @@ package gov.va.api.health.dataquery.service.controller;
 
 import gov.va.api.health.stu3.api.bundle.BundleLink;
 
-public class Stu3LinkContext extends ConfigurableBaseUrlPageLinks.AbstractLinkContext {
+final class Stu3LinkContext extends ConfigurableBaseUrlPageLinks.AbstractLinkContext {
   public Stu3LinkContext(String baseUrl, String basePath, PageLinks.LinkConfig config) {
     super(baseUrl, basePath, config);
   }

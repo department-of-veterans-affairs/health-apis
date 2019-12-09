@@ -90,10 +90,10 @@ public class Dstu2LocationControllerTest {
     String orgPubId = "def";
     String orgCdwId = "456";
     addMockIdentities(publicId, cdwId, orgPubId, orgCdwId);
-    DatamartLocation dm = Dstu2LocationSamples.Datamart.create().location(cdwId, orgCdwId);
+    DatamartLocation dm = DatamartLocationSamples.create().location(cdwId, orgCdwId);
     repository.save(asEntity(dm));
     Location actual = controller().read("", publicId);
-    assertThat(actual).isEqualTo(Dstu2LocationSamples.Fhir.create().location(publicId, orgPubId));
+    assertThat(actual).isEqualTo(Dstu2LocationSamples.create().location(publicId, orgPubId));
   }
 
   @Test
@@ -104,7 +104,7 @@ public class Dstu2LocationControllerTest {
     String orgCdwId = "456";
     addMockIdentities(publicId, cdwId, orgPubId, orgCdwId);
     HttpServletResponse servletResponse = mock(HttpServletResponse.class);
-    DatamartLocation dm = Dstu2LocationSamples.Datamart.create().location(cdwId, orgCdwId);
+    DatamartLocation dm = DatamartLocationSamples.create().location(cdwId, orgCdwId);
     repository.save(asEntity(dm));
     String json = controller().readRaw(publicId, servletResponse);
     assertThat(asObject(json)).isEqualTo(dm);
@@ -140,26 +140,26 @@ public class Dstu2LocationControllerTest {
     String orgPubId = "def";
     String orgCdwId = "456";
     addMockIdentities(publicId, cdwId, orgPubId, orgCdwId);
-    DatamartLocation dm = Dstu2LocationSamples.Datamart.create().location(cdwId, orgCdwId);
+    DatamartLocation dm = DatamartLocationSamples.create().location(cdwId, orgCdwId);
     repository.save(asEntity(dm));
     Location.Bundle actual = controller().searchById("true", publicId, 1, 1);
     assertThat(asJson(actual))
         .isEqualTo(
             asJson(
-                Dstu2LocationSamples.Fhir.asBundle(
+                Dstu2LocationSamples.asBundle(
                     "http://fonzy.com/cool",
-                    List.of(Dstu2LocationSamples.Fhir.create().location(publicId, orgPubId)),
-                    Dstu2LocationSamples.Fhir.link(
+                    List.of(Dstu2LocationSamples.create().location(publicId, orgPubId)),
+                    Dstu2LocationSamples.link(
                         BundleLink.LinkRelation.first,
                         "http://fonzy.com/cool/Location?identifier=" + publicId,
                         1,
                         1),
-                    Dstu2LocationSamples.Fhir.link(
+                    Dstu2LocationSamples.link(
                         BundleLink.LinkRelation.self,
                         "http://fonzy.com/cool/Location?identifier=" + publicId,
                         1,
                         1),
-                    Dstu2LocationSamples.Fhir.link(
+                    Dstu2LocationSamples.link(
                         BundleLink.LinkRelation.last,
                         "http://fonzy.com/cool/Location?identifier=" + publicId,
                         1,

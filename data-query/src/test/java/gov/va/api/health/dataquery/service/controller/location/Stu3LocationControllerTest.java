@@ -87,10 +87,10 @@ public class Stu3LocationControllerTest {
     String orgPubId = "def";
     String orgCdwId = "456";
     addMockIdentities(publicId, cdwId, orgPubId, orgCdwId);
-    DatamartLocation dm = Stu3LocationSamples.Datamart.create().location(cdwId, orgCdwId);
+    DatamartLocation dm = DatamartLocationSamples.create().location(cdwId, orgCdwId);
     repository.save(asEntity(dm));
     Location actual = controller().read(publicId);
-    assertThat(actual).isEqualTo(Stu3LocationSamples.Fhir.create().location(publicId, orgPubId));
+    assertThat(actual).isEqualTo(Stu3LocationSamples.create().location(publicId, orgPubId));
   }
 
   @Test
@@ -101,7 +101,7 @@ public class Stu3LocationControllerTest {
     String orgCdwId = "456";
     addMockIdentities(publicId, cdwId, orgPubId, orgCdwId);
     HttpServletResponse servletResponse = mock(HttpServletResponse.class);
-    DatamartLocation dm = Stu3LocationSamples.Datamart.create().location(cdwId, orgCdwId);
+    DatamartLocation dm = DatamartLocationSamples.create().location(cdwId, orgCdwId);
     repository.save(asEntity(dm));
     String json = controller().readRaw(publicId, servletResponse);
     assertThat(asObject(json)).isEqualTo(dm);
@@ -138,26 +138,26 @@ public class Stu3LocationControllerTest {
     String orgPubId = "def";
     String orgCdwId = "456";
     addMockIdentities(publicId, cdwId, orgPubId, orgCdwId);
-    DatamartLocation dm = Stu3LocationSamples.Datamart.create().location(cdwId, orgCdwId);
+    DatamartLocation dm = DatamartLocationSamples.create().location(cdwId, orgCdwId);
     repository.save(asEntity(dm));
     Location.Bundle actual = controller().searchByAddress(street, null, null, null, 1, 1);
     assertThat(asJson(actual))
         .isEqualTo(
             asJson(
-                Stu3LocationSamples.Fhir.asBundle(
+                Stu3LocationSamples.asBundle(
                     "http://fonzy.com/cool",
-                    List.of(Stu3LocationSamples.Fhir.create().location(publicId, orgPubId)),
-                    Stu3LocationSamples.Fhir.link(
+                    List.of(Stu3LocationSamples.create().location(publicId, orgPubId)),
+                    Stu3LocationSamples.link(
                         BundleLink.LinkRelation.first,
                         "http://fonzy.com/cool/Location?address=" + street,
                         1,
                         1),
-                    Stu3LocationSamples.Fhir.link(
+                    Stu3LocationSamples.link(
                         BundleLink.LinkRelation.self,
                         "http://fonzy.com/cool/Location?address=" + street,
                         1,
                         1),
-                    Stu3LocationSamples.Fhir.link(
+                    Stu3LocationSamples.link(
                         BundleLink.LinkRelation.last,
                         "http://fonzy.com/cool/Location?address=" + street,
                         1,
@@ -171,26 +171,26 @@ public class Stu3LocationControllerTest {
     String orgPubId = "def";
     String orgCdwId = "456";
     addMockIdentities(publicId, cdwId, orgPubId, orgCdwId);
-    DatamartLocation dm = Stu3LocationSamples.Datamart.create().location(cdwId, orgCdwId);
+    DatamartLocation dm = DatamartLocationSamples.create().location(cdwId, orgCdwId);
     repository.save(asEntity(dm));
     Location.Bundle actual = controller().searchById(publicId, 1, 1);
     assertThat(asJson(actual))
         .isEqualTo(
             asJson(
-                Stu3LocationSamples.Fhir.asBundle(
+                Stu3LocationSamples.asBundle(
                     "http://fonzy.com/cool",
-                    List.of(Stu3LocationSamples.Fhir.create().location(publicId, orgPubId)),
-                    Stu3LocationSamples.Fhir.link(
+                    List.of(Stu3LocationSamples.create().location(publicId, orgPubId)),
+                    Stu3LocationSamples.link(
                         BundleLink.LinkRelation.first,
                         "http://fonzy.com/cool/Location?identifier=" + publicId,
                         1,
                         1),
-                    Stu3LocationSamples.Fhir.link(
+                    Stu3LocationSamples.link(
                         BundleLink.LinkRelation.self,
                         "http://fonzy.com/cool/Location?identifier=" + publicId,
                         1,
                         1),
-                    Stu3LocationSamples.Fhir.link(
+                    Stu3LocationSamples.link(
                         BundleLink.LinkRelation.last,
                         "http://fonzy.com/cool/Location?identifier=" + publicId,
                         1,
@@ -204,26 +204,26 @@ public class Stu3LocationControllerTest {
     String orgPubId = "def";
     String orgCdwId = "456";
     addMockIdentities(publicId, cdwId, orgPubId, orgCdwId);
-    DatamartLocation dm = Stu3LocationSamples.Datamart.create().location(cdwId, orgCdwId);
+    DatamartLocation dm = DatamartLocationSamples.create().location(cdwId, orgCdwId);
     repository.save(asEntity(dm));
     Location.Bundle actual = controller().searchByIdentifier(publicId, 1, 1);
     assertThat(asJson(actual))
         .isEqualTo(
             asJson(
-                Stu3LocationSamples.Fhir.asBundle(
+                Stu3LocationSamples.asBundle(
                     "http://fonzy.com/cool",
-                    List.of(Stu3LocationSamples.Fhir.create().location(publicId, orgPubId)),
-                    Stu3LocationSamples.Fhir.link(
+                    List.of(Stu3LocationSamples.create().location(publicId, orgPubId)),
+                    Stu3LocationSamples.link(
                         BundleLink.LinkRelation.first,
                         "http://fonzy.com/cool/Location?identifier=" + publicId,
                         1,
                         1),
-                    Stu3LocationSamples.Fhir.link(
+                    Stu3LocationSamples.link(
                         BundleLink.LinkRelation.self,
                         "http://fonzy.com/cool/Location?identifier=" + publicId,
                         1,
                         1),
-                    Stu3LocationSamples.Fhir.link(
+                    Stu3LocationSamples.link(
                         BundleLink.LinkRelation.last,
                         "http://fonzy.com/cool/Location?identifier=" + publicId,
                         1,
@@ -238,26 +238,26 @@ public class Stu3LocationControllerTest {
     String orgPubId = "def";
     String orgCdwId = "456";
     addMockIdentities(publicId, cdwId, orgPubId, orgCdwId);
-    DatamartLocation dm = Stu3LocationSamples.Datamart.create().location(cdwId, orgCdwId);
+    DatamartLocation dm = DatamartLocationSamples.create().location(cdwId, orgCdwId);
     repository.save(asEntity(dm));
     Location.Bundle actual = controller().searchByName(name, 1, 1);
     assertThat(asJson(actual))
         .isEqualTo(
             asJson(
-                Stu3LocationSamples.Fhir.asBundle(
+                Stu3LocationSamples.asBundle(
                     "http://fonzy.com/cool",
-                    List.of(Stu3LocationSamples.Fhir.create().location(publicId, orgPubId)),
-                    Stu3LocationSamples.Fhir.link(
+                    List.of(Stu3LocationSamples.create().location(publicId, orgPubId)),
+                    Stu3LocationSamples.link(
                         BundleLink.LinkRelation.first,
                         "http://fonzy.com/cool/Location?name=" + name,
                         1,
                         1),
-                    Stu3LocationSamples.Fhir.link(
+                    Stu3LocationSamples.link(
                         BundleLink.LinkRelation.self,
                         "http://fonzy.com/cool/Location?name=" + name,
                         1,
                         1),
-                    Stu3LocationSamples.Fhir.link(
+                    Stu3LocationSamples.link(
                         BundleLink.LinkRelation.last,
                         "http://fonzy.com/cool/Location?name=" + name,
                         1,

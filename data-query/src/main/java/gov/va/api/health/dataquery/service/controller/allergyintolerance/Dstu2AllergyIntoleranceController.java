@@ -7,7 +7,7 @@ import gov.va.api.health.argonaut.api.resources.AllergyIntolerance;
 import gov.va.api.health.dataquery.service.controller.AbstractIncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.Bundler;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
-import gov.va.api.health.dataquery.service.controller.PageLinks.LinkConfig;
+import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.Validator;
@@ -67,8 +67,8 @@ public class Dstu2AllergyIntoleranceController {
       MultiValueMap<String, String> parameters,
       List<AllergyIntolerance> records,
       int totalRecords) {
-    LinkConfig linkConfig =
-        LinkConfig.builder()
+    PageLinks.LinkConfig linkConfig =
+        PageLinks.LinkConfig.builder()
             .path("AllergyIntolerance")
             .queryParams(parameters)
             .page(Parameters.pageOf(parameters))
