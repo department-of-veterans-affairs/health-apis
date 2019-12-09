@@ -6,19 +6,19 @@ import gov.va.api.health.argonaut.api.resources.Immunization;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dataquery.service.controller.immunization.DatamartImmunization.Status;
-import gov.va.api.health.dataquery.service.controller.immunization.DatamartImmunizationSamples.Datamart;
-import gov.va.api.health.dataquery.service.controller.immunization.DatamartImmunizationSamples.Fhir;
+import gov.va.api.health.dataquery.service.controller.immunization.ImmunizationSamples.Datamart;
+import gov.va.api.health.dataquery.service.controller.immunization.ImmunizationSamples.Dstu2;
 import gov.va.api.health.dstu2.api.DataAbsentReason;
 import gov.va.api.health.dstu2.api.DataAbsentReason.Reason;
 import java.util.Optional;
 import lombok.SneakyThrows;
 import org.junit.Test;
 
-public class DatamartImmunizationTransformerTest {
+public class Dstu2ImmunizationTransformerTest {
   @Test
   public void immunization() {
     assertThat(json(tx(Datamart.create().immunization()).toFhir()))
-        .isEqualTo(json(Fhir.create().immunization()));
+        .isEqualTo(json(Dstu2.create().immunization()));
   }
 
   @SneakyThrows
@@ -28,16 +28,14 @@ public class DatamartImmunizationTransformerTest {
 
   @Test
   public void note() {
-    DatamartImmunizationTransformer tx =
-        tx(DatamartImmunizationSamples.Datamart.create().immunization());
+    Dstu2ImmunizationTransformer tx = tx(ImmunizationSamples.Datamart.create().immunization());
     assertThat(tx.note(Optional.empty())).isNull();
-    assertThat(tx.note(Optional.of("hello"))).isEqualTo(Fhir.create().note("hello"));
+    assertThat(tx.note(Optional.of("hello"))).isEqualTo(Dstu2.create().note("hello"));
   }
 
   @Test
   public void reaction() {
-    DatamartImmunizationTransformer tx =
-        tx(DatamartImmunizationSamples.Datamart.create().immunization());
+    Dstu2ImmunizationTransformer tx = tx(ImmunizationSamples.Datamart.create().immunization());
 
     assertThat(tx.reaction(Optional.empty())).isNull();
     assertThat(
@@ -46,13 +44,12 @@ public class DatamartImmunizationTransformerTest {
                     DatamartReference.of().type(null).reference(null).display(null).build())))
         .isNull();
     assertThat(tx.reaction(Optional.of(Datamart.create().reaction())))
-        .isEqualTo(Fhir.create().reactions());
+        .isEqualTo(Dstu2.create().reactions());
   }
 
   @Test
   public void status() {
-    DatamartImmunizationTransformer tx =
-        tx(DatamartImmunizationSamples.Datamart.create().immunization());
+    Dstu2ImmunizationTransformer tx = tx(ImmunizationSamples.Datamart.create().immunization());
     assertThat(tx.status(null)).isNull();
     assertThat(tx.status(DatamartImmunization.Status.completed))
         .isEqualTo(Immunization.Status.completed);
@@ -63,23 +60,21 @@ public class DatamartImmunizationTransformerTest {
 
   @Test
   public void statusExtension() {
-    DatamartImmunizationTransformer tx =
-        tx(DatamartImmunizationSamples.Datamart.create().immunization());
+    Dstu2ImmunizationTransformer tx = tx(ImmunizationSamples.Datamart.create().immunization());
     assertThat(tx.statusExtension(DatamartImmunization.Status.completed)).isNull();
     assertThat(tx.statusExtension(DatamartImmunization.Status.entered_in_error)).isNull();
     assertThat(tx.statusExtension(Status.data_absent_reason_unsupported))
         .isEqualTo(DataAbsentReason.of(Reason.unsupported));
   }
 
-  DatamartImmunizationTransformer tx(DatamartImmunization dm) {
-    return DatamartImmunizationTransformer.builder().datamart(dm).build();
+  Dstu2ImmunizationTransformer tx(DatamartImmunization dm) {
+    return Dstu2ImmunizationTransformer.builder().datamart(dm).build();
   }
 
   @Test
   public void vaccineCode() {
-    DatamartImmunizationTransformer tx =
-        tx(DatamartImmunizationSamples.Datamart.create().immunization());
+    Dstu2ImmunizationTransformer tx = tx(ImmunizationSamples.Datamart.create().immunization());
     assertThat(tx.vaccineCode(Datamart.create().vaccineCode()))
-        .isEqualTo(Fhir.create().vaccineCode());
+        .isEqualTo(Dstu2.create().vaccineCode());
   }
 }

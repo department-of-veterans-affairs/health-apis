@@ -22,7 +22,7 @@ import lombok.AllArgsConstructor;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
-public class DatamartMedicationOrderSamples {
+public class MedicationOrderSamples {
 
   @AllArgsConstructor(staticName = "create")
   static class Datamart {
@@ -98,7 +98,7 @@ public class DatamartMedicationOrderSamples {
   }
 
   @AllArgsConstructor(staticName = "create")
-  static class Fhir {
+  static class Dstu2 {
 
     static MedicationOrder.Bundle asBundle(
         String basePath, Collection<MedicationOrder> records, BundleLink... links) {

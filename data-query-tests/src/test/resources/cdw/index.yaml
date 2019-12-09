@@ -25,11 +25,6 @@ entries:
     query: /MedicationDispense:1.02?identifier=5555555555555
     page: 1
     count: 15
-  # Immunization aliases
-  - file: ../../../../target/cdw/samples/Imm103p185601V825290.xml
-    query: /Immunization:1.03?patient=185601V825290
-    page: 1
-    count: 20
   # Patient aliases
   - file: ../../../../target/cdw/samples/Pat103nameVETERANbirthd19700101.xml
     query: /Patient:1.03?name=VETERAN,JOHN&birthdate=1970-01-01
@@ -127,50 +122,3 @@ entries:
     query: /DiagnosticReport:1.02?patient=185601V825290&category=LAB
     page: 1
     count: 20
-  # Medication Aliases
-  - file: ../../../../target/cdw/samples/Med101i212846.xml
-    query: /Medication:1.01?identifier=18
-    page: 1
-    count: 15
-  - file: ../../../../target/cdw/samples/Med101i555555.xml
-    query: /Medication:1.01?identifier=555555
-    page: 1
-    count: 15
-  # Alias the 1.03 MedicationOrder samples as 1.04 to make sure they are tested.
-  # The schema was unchanged from 1.03 and new schemas and new samples were not generated.
-  - file: ../../../../target/cdw/samples/MedOrd103i1200389904206O.xml
-    query: /MedicationOrder:1.04?identifier=1200389904206:O
-    page: 1
-    count: 15
-  - file: ../../../../target/cdw/samples/MedOrd103i5555555555555O.xml
-    query: /MedicationOrder:1.04?identifier=5555555555555:O
-    page: 1
-    count: 15
-  - file: ../../../../target/cdw/samples/MedOrd103p185601V825290.xml
-    query: /MedicationOrder:1.04?patient=185601V825290
-    page: 1
-    count: 15
-  - file: ../../../../target/cdw/samples/MedOrd103p185601V825290pg0.xml
-    query: /MedicationOrder:1.04?patient=185601V825290
-    page: 0
-    count: 15
-  - file: ../../../../target/cdw/samples/MedOrd103p185601V825290pg10000ct20.xml
-    query: /MedicationOrder:1.04?patient=185601V825290
-    page: 10000
-    count: 20
-  - file: ../../../../target/cdw/samples/MedOrd103p185601V825290pg1ct0.xml
-    query: /MedicationOrder:1.04?patient=185601V825290
-    page: 1
-    count: 0
-  - file: ../../../../target/cdw/samples/MedOrd103p185601V825290pg1ct2.xml
-    query: /MedicationOrder:1.04?patient=185601V825290
-    page: 1
-    count: 2
-  - file: ../../../../target/cdw/samples/MedOrd103p185601V825290pg1ct21.xml
-    query: /MedicationOrder:1.04?patient=185601V825290
-    page: 1
-    count: 20
-  - file: ../../../../target/cdw/samples/MedOrd103p185601V825290pg2ct2.xml
-    query: /MedicationOrder:1.04?patient=185601V825290
-    page: 2
-    count: 2

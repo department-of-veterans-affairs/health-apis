@@ -28,7 +28,7 @@ import lombok.AllArgsConstructor;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
-class DatamartImmunizationSamples {
+class ImmunizationSamples {
 
   @AllArgsConstructor(staticName = "create")
   static class Datamart {
@@ -101,7 +101,7 @@ class DatamartImmunizationSamples {
   }
 
   @AllArgsConstructor(staticName = "create")
-  static class Fhir {
+  static class Dstu2 {
     static Bundle asBundle(
         String baseUrl, Collection<Immunization> immunizations, BundleLink... links) {
       return Bundle.builder()

@@ -13,11 +13,11 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
  * X-VA-INCLUDES-ICN header.
  */
 @ControllerAdvice
-public class MedicationIncludesIcnMajig
+public class Dstu2MedicationIncludesIcnMajig
     extends AbstractIncludesIcnMajig<Medication, Entry, Bundle> {
 
   /** Returns empty to send the value "NONE" back to Kong. */
-  public MedicationIncludesIcnMajig() {
+  public Dstu2MedicationIncludesIcnMajig() {
     super(Medication.class, Bundle.class, (body) -> Stream.empty());
   }
 }
