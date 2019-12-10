@@ -22,6 +22,7 @@ import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
@@ -160,6 +161,7 @@ public class Dstu2ImmunizationControllerTest {
                 Dstu2.asBundle(
                     "http://fonzy.com/cool",
                     List.of(immunization),
+                    1,
                     link(
                         LinkRelation.first,
                         "http://fonzy.com/cool/Immunization?identifier=1",
@@ -175,6 +177,25 @@ public class Dstu2ImmunizationControllerTest {
   }
 
   @Test
+  public void searchByIdentifier() {
+    DatamartImmunization dm = Datamart.create().immunization();
+    repository.save(asEntity(dm));
+    mockImmunizationIdentity("1", dm.cdwId());
+    assertThat(json(controller().searchByIdentifier("1", 1, 0)))
+        .isEqualTo(
+            json(
+                Dstu2.asBundle(
+                    "http://fonzy.com/cool",
+                    Collections.emptyList(),
+                    1,
+                    Dstu2.link(
+                        LinkRelation.self,
+                        "http://fonzy.com/cool/Immunization?identifier=1",
+                        1,
+                        0))));
+  }
+
+  @Test
   public void searchByPatient() {
     Multimap<String, Immunization> immunizationByPatient = populateData();
     assertThat(json(controller().searchByPatient("p0", 1, 10)))
@@ -183,6 +204,7 @@ public class Dstu2ImmunizationControllerTest {
                 Dstu2.asBundle(
                     "http://fonzy.com/cool",
                     immunizationByPatient.get("p0"),
+                    immunizationByPatient.get("p0").size(),
                     link(
                         LinkRelation.first, "http://fonzy.com/cool/Immunization?patient=p0", 1, 10),
                     link(LinkRelation.self, "http://fonzy.com/cool/Immunization?patient=p0", 1, 10),
@@ -191,6 +213,23 @@ public class Dstu2ImmunizationControllerTest {
                         "http://fonzy.com/cool/Immunization?patient=p0",
                         1,
                         10))));
+  }
+
+  @Test
+  public void searchByPatientWithCount0() {
+    Multimap<String, Immunization> immunizationByPatient = populateData();
+    assertThat(json(controller().searchByPatient("p0", 1, 0)))
+        .isEqualTo(
+            json(
+                Dstu2.asBundle(
+                    "http://fonzy.com/cool",
+                    Collections.emptyList(),
+                    immunizationByPatient.get("p0").size(),
+                    Dstu2.link(
+                        LinkRelation.self,
+                        "http://fonzy.com/cool/Immunization?patient=p0",
+                        1,
+                        0))));
   }
 
   @SneakyThrows
