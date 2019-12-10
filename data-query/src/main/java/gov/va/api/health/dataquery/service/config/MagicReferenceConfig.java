@@ -13,7 +13,6 @@ import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
 import com.fasterxml.jackson.databind.ser.PropertyWriter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.List;
 import lombok.SneakyThrows;
@@ -116,11 +115,11 @@ public class MagicReferenceConfig {
      * reference. Otherwise if it is malformed, always use default serialization.
      */
     @Override
+    @SneakyThrows
     public void serialize(
         gov.va.api.health.dstu2.api.elements.Reference value,
         JsonGenerator jgen,
-        SerializerProvider provider)
-        throws IOException {
+        SerializerProvider provider) {
       if (value == null) {
         return;
       }
@@ -323,11 +322,11 @@ public class MagicReferenceConfig {
      * reference. Otherwise if it is malformed, always use default serialization.
      */
     @Override
+    @SneakyThrows
     public void serialize(
         gov.va.api.health.stu3.api.elements.Reference value,
         JsonGenerator jgen,
-        SerializerProvider provider)
-        throws IOException {
+        SerializerProvider provider) {
       if (value == null) {
         return;
       }
