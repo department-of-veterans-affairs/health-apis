@@ -1,14 +1,13 @@
 package gov.va.api.health.dataquery.service.controller.diagnosticreport;
 
-import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.emptyToNull;
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.parseInstant;
+import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
 import gov.va.api.health.argonaut.api.resources.DiagnosticReport;
-import gov.va.api.health.dataquery.service.controller.Dstu2Transformers;
 import gov.va.api.health.dataquery.service.controller.Transformers;
 import gov.va.api.health.dataquery.service.controller.diagnosticreport.DatamartDiagnosticReports.Result;
 import gov.va.api.health.dstu2.api.DataAbsentReason;
@@ -35,7 +34,7 @@ final class DatamartDiagnosticReportTransformer {
     if (r == null) {
       return null;
     }
-    if (Transformers.isBlank(r.display()) ||Transformers.isBlank(r.result())) {
+    if (Transformers.isBlank(r.display()) || Transformers.isBlank(r.result())) {
       return null;
     }
     return Reference.builder().display(r.display()).reference("Observation/" + r.result()).build();
