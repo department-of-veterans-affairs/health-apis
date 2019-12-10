@@ -5,12 +5,12 @@ import static java.util.Collections.emptyList;
 
 import gov.va.api.health.argonaut.api.resources.AllergyIntolerance;
 import gov.va.api.health.dataquery.service.controller.AbstractIncludesIcnMajig;
-import gov.va.api.health.dataquery.service.controller.Bundler;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
+import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
+import gov.va.api.health.dataquery.service.controller.Dstu2Validator;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
-import gov.va.api.health.dataquery.service.controller.Validator;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import java.util.Collection;
@@ -48,7 +48,7 @@ import org.springframework.web.bind.annotation.RestController;
 )
 public class Dstu2AllergyIntoleranceController {
 
-  private Bundler bundler;
+  private Dstu2Bundler bundler;
 
   private WitnessProtection witnessProtection;
 
@@ -56,7 +56,7 @@ public class Dstu2AllergyIntoleranceController {
 
   /** Autowired constructor. */
   public Dstu2AllergyIntoleranceController(
-      @Autowired Bundler bundler,
+      @Autowired Dstu2Bundler bundler,
       @Autowired AllergyIntoleranceRepository repository,
       @Autowired WitnessProtection witnessProtection) {
     this.bundler = bundler;
@@ -77,7 +77,7 @@ public class Dstu2AllergyIntoleranceController {
             .totalRecords(totalRecords)
             .build();
     return bundler.bundle(
-        Bundler.BundleContext.of(
+        Dstu2Bundler.BundleContext.of(
             linkConfig,
             records,
             Function.identity(),
@@ -95,7 +95,7 @@ public class Dstu2AllergyIntoleranceController {
     }
     DatamartAllergyIntolerance dm = maybeEntity.get().asDatamartAllergyIntolerance();
     replaceReferences(List.of(dm));
-    return Dstu2tAllergyIntoleranceTransformer.builder().datamart(dm).build().toFhir();
+    return Dstu2AllergyIntoleranceTransformer.builder().datamart(dm).build().toFhir();
   }
 
   /** Return the raw Datamart document for the given identifier. */
@@ -185,7 +185,7 @@ public class Dstu2AllergyIntoleranceController {
     List<AllergyIntolerance> fhir =
         datamarts
             .stream()
-            .map(dm -> Dstu2tAllergyIntoleranceTransformer.builder().datamart(dm).build().toFhir())
+            .map(dm -> Dstu2AllergyIntoleranceTransformer.builder().datamart(dm).build().toFhir())
             .collect(Collectors.toList());
     return bundle(publicParameters, fhir, (int) entitiesPage.getTotalElements());
   }
@@ -196,6 +196,6 @@ public class Dstu2AllergyIntoleranceController {
     consumes = {"application/json", "application/json+fhir", "application/fhir+json"}
   )
   public OperationOutcome validate(@RequestBody AllergyIntolerance.Bundle bundle) {
-    return Validator.create().validate(bundle);
+    return Dstu2Validator.create().validate(bundle);
   }
 }

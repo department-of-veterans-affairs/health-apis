@@ -1,6 +1,6 @@
 package gov.va.api.health.dataquery.tools.minimart.transformers;
 
-import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
+import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.isBlank;
 
 import gov.va.api.health.argonaut.api.resources.Observation;
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;

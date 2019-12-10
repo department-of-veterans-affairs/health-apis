@@ -5,11 +5,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
-import gov.va.api.health.dataquery.service.controller.Bundler;
-import gov.va.api.health.dataquery.service.controller.Bundler.BundleContext;
+import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
+import gov.va.api.health.dataquery.service.controller.Dstu2Bundler.BundleContext;
+import gov.va.api.health.dataquery.service.controller.Dstu2Validator;
 import gov.va.api.health.dataquery.service.controller.PageLinks.LinkConfig;
 import gov.va.api.health.dataquery.service.controller.Parameters;
-import gov.va.api.health.dataquery.service.controller.Validator;
 import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
 import gov.va.api.health.dataquery.service.mranderson.client.Query;
 import gov.va.api.health.dstu2.api.bundle.AbstractBundle.BundleType;
@@ -39,12 +39,12 @@ public class OrganizationControllerTest {
   @Mock OrganizationController.Transformer tx;
 
   OrganizationController controller;
-  @Mock Bundler bundler;
+  @Mock Dstu2Bundler bundler;
 
   @Before
   public void _init() {
     MockitoAnnotations.initMocks(this);
-    controller = new OrganizationController(tx, client, bundler);
+    controller = new OrganizationController(false, tx, client, bundler, null, null);
   }
 
   private void assertSearch(
@@ -118,7 +118,7 @@ public class OrganizationControllerTest {
     Organization organization = Organization.builder().build();
     when(client.search(Mockito.any())).thenReturn(root);
     when(tx.apply(xmlOrganization)).thenReturn(organization);
-    Organization actual = controller.read("hello");
+    Organization actual = controller.read("", "hello");
     assertThat(actual).isSameAs(organization);
     ArgumentCaptor<Query<CdwOrganization100Root>> captor = ArgumentCaptor.forClass(Query.class);
     verify(client).search(captor.capture());
@@ -128,14 +128,14 @@ public class OrganizationControllerTest {
   @Test
   public void searchById() {
     assertSearch(
-        () -> controller.searchById("me", 1, 10),
+        () -> controller.searchById("", "me", 1, 10),
         Parameters.builder().add("identifier", "me").add("page", 1).add("_count", 10).build());
   }
 
   @Test
   public void searchByIdentifier() {
     assertSearch(
-        () -> controller.searchByIdentifier("me", 1, 10),
+        () -> controller.searchByIdentifier("", "me", 1, 10),
         Parameters.builder().add("identifier", "me").add("page", 1).add("_count", 10).build());
   }
 
@@ -149,7 +149,7 @@ public class OrganizationControllerTest {
                 Organization.class);
 
     Bundle bundle = bundleOf(resource);
-    assertThat(controller.validate(bundle)).isEqualTo(Validator.ok());
+    assertThat(controller.validate(bundle)).isEqualTo(Dstu2Validator.ok());
   }
 
   @Test(expected = ConstraintViolationException.class)
