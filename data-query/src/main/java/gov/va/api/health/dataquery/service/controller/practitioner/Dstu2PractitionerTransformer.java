@@ -94,7 +94,9 @@ public class Dstu2PractitionerTransformer {
   }
 
   static List<Coding> roleCoding(DatamartCoding source) {
-    if (source.code().isEmpty() || source.code().get() == null || allBlank(source.system(), source.display(), source.code())) {
+    if (source.code().isEmpty()
+        || source.code().get() == null
+        || allBlank(source.system(), source.display(), source.code())) {
       return null;
     }
     return convert(

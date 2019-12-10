@@ -3,6 +3,7 @@ package gov.va.api.health.dataquery.service.controller.practitioner;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
 import gov.va.api.health.dstu2.api.datatypes.Address;
 import gov.va.api.health.dstu2.api.datatypes.HumanName;
 import gov.va.api.health.dstu2.api.resources.Practitioner;
@@ -75,8 +76,8 @@ public class DatamartPractitionerTransformerTest {
   @Test
   public void nullChecks() {
     assertThat(Dstu2PractitionerTransformer.healthcareServices(Optional.empty())).isNull();
-    assertThat(Dstu2PractitionerTransformer.roleCoding(null)).isNull();
-    assertThat(Dstu2PractitionerTransformer.role(null)).isNull();
+    assertThat(Dstu2PractitionerTransformer.roleCoding(DatamartCoding.builder().build())).isNull();
+    assertThat(Dstu2PractitionerTransformer.role(Optional.empty())).isNull();
     assertThat(Dstu2PractitionerTransformer.telecom(null)).isNull();
   }
 
