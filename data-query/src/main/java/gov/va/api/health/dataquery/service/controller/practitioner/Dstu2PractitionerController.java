@@ -226,9 +226,9 @@ public class Dstu2PractitionerController {
     }
 
     Practitioner read(String publicId) {
-      DatamartPractitioner location = findById(publicId).asDatamartPractitioner();
-      replaceReferences(List.of(location));
-      return transform(location);
+      DatamartPractitioner practitioner = findById(publicId).asDatamartPractitioner();
+      replaceReferences(List.of(practitioner));
+      return transform(practitioner);
     }
 
     PractitionerEntity readRaw(String publicId) {
