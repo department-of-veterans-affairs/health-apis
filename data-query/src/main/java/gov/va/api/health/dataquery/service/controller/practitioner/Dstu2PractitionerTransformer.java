@@ -156,9 +156,9 @@ public class Dstu2PractitionerTransformer {
       return null;
     }
     return Practitioner.PractitionerRole.builder()
-        .location(singletonList(asReference(datamart.practitionerRole().get().location().get(0))))
+        .location(convert(source, cdw -> List.of(asReference(cdw.location().get(0)))))
         .role(role(source.role()))
-        .managingOrganization(asReference(datamart.practitionerRole().get().managingOrganization()))
+        .managingOrganization(asReference(source.managingOrganization()))
         .healthcareService(healthcareServices(source.healthCareService()))
         .build();
   }

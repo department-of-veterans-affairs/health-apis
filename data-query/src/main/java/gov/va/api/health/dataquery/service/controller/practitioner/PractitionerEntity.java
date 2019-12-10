@@ -2,6 +2,7 @@ package gov.va.api.health.dataquery.service.controller.practitioner;
 
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartEntity;
+import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import java.util.Optional;
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -17,7 +18,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
-import org.springframework.data.domain.Sort;
 
 @Data
 @Entity
@@ -46,10 +46,6 @@ public class PractitionerEntity implements DatamartEntity {
   @Column(name = "Practitioner")
   private String payload;
 
-  static Sort naturalOrder() {
-    return Sort.by("cdwId").ascending();
-  }
-
   @SneakyThrows
   DatamartPractitioner asDatamartPractitioner() {
     DatamartPractitioner dm =
@@ -63,11 +59,10 @@ public class PractitionerEntity implements DatamartEntity {
     }
 
     if (dm.practitionerRole().isPresent()) {
-      for (int i = 0; i < dm.practitionerRole().get().location().size(); i++) {
-        if (dm.practitionerRole().get().location().get(i) != null
-            && dm.practitionerRole().get().location().get(i).type().isEmpty()) {
+      for (DatamartReference location : dm.practitionerRole().get().location()) {
+        if (location != null && location.type().isEmpty()) {
           // Hack... make sure reference type is populated
-          dm.practitionerRole().get().location().get(i).type(Optional.of("Location"));
+          location.type(Optional.of("Location"));
         }
       }
     }
