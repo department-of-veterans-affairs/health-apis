@@ -427,7 +427,7 @@ public final class DatamartPatientTest {
     DatamartData dm = DatamartData.create();
     entityManager.persistAndFlush(dm.entity());
     entityManager.persistAndFlush(dm.search());
-    Patient.Bundle patient = controller().searchByFamilyAndGender("true", "TEST", "null", 1, 0);
+    controller().searchByFamilyAndGender("true", "TEST", "null", 1, 0);
   }
 
   @Test

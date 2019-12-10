@@ -40,8 +40,6 @@ public class Dstu2AllergyIntoleranceControllerTest {
 
   private IdentityService ids = mock(IdentityService.class);
 
-  @Autowired private TestEntityManager entityManager;
-
   @Autowired private AllergyIntoleranceRepository repository;
 
   @SneakyThrows
