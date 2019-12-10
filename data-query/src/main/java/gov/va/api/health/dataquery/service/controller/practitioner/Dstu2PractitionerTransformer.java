@@ -87,14 +87,14 @@ public class Dstu2PractitionerTransformer {
   }
 
   static CodeableConcept role(Optional<DatamartCoding> source) {
-    if (source == null || source.get().code().isEmpty() || source.get().code().get() == null) {
+    if (source.isEmpty() || source.get() == null) {
       return null;
     }
     return CodeableConcept.builder().coding(roleCoding(source.get())).build();
   }
 
   static List<Coding> roleCoding(DatamartCoding source) {
-    if (source == null || allBlank(source.system(), source.display(), source.code())) {
+    if (source.code().isEmpty() || source.code().get() == null || allBlank(source.system(), source.display(), source.code())) {
       return null;
     }
     return convert(
@@ -102,9 +102,9 @@ public class Dstu2PractitionerTransformer {
         cdw ->
             List.of(
                 Coding.builder()
-                    .code(cdw.code().get())
-                    .display(cdw.display().get())
-                    .system(cdw.system().get())
+                    .code(cdw.code().orElse(null))
+                    .display(cdw.display().orElse(null))
+                    .system(cdw.system().orElse(null))
                     .build()));
   }
 
