@@ -14,7 +14,7 @@ public class ConfigurableBaseUrlPageLinksStu3Test {
 
   @Before
   public void _init() {
-    links = new ConfigurableBaseUrlPageLinks("https://awesome.com", "unused", "api");
+    links = new ConfigurableBaseUrlPageLinks("https://awesome.com", "unused", "api/stu3");
   }
 
   @Test
@@ -48,7 +48,11 @@ public class ConfigurableBaseUrlPageLinksStu3Test {
   private BundleLink link(LinkRelation relation, int page, int count) {
     return BundleLink.builder()
         .relation(relation)
-        .url("https://awesome.com/api/Whatever?a=apple&b=banana&page=" + page + "&_count=" + count)
+        .url(
+            "https://awesome.com/api/stu3/Whatever?a=apple&b=banana&page="
+                + page
+                + "&_count="
+                + count)
         .build();
   }
 
@@ -103,6 +107,6 @@ public class ConfigurableBaseUrlPageLinksStu3Test {
   @Test
   public void readLinkCombinesConfiguredUrl() {
     assertThat(links.stu3ReadLink("Whatever", "123"))
-        .isEqualTo("https://awesome.com/api/Whatever/123");
+        .isEqualTo("https://awesome.com/api/stu3/Whatever/123");
   }
 }

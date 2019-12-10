@@ -14,7 +14,7 @@ public class ConfigurableBaseUrlPageLinksDstu2Test {
 
   @Before
   public void _init() {
-    links = new ConfigurableBaseUrlPageLinks("https://awesome.com", "api", "unused");
+    links = new ConfigurableBaseUrlPageLinks("https://awesome.com", "api/dstu2", "unused");
   }
 
   @Test
@@ -48,7 +48,11 @@ public class ConfigurableBaseUrlPageLinksDstu2Test {
   private BundleLink link(LinkRelation relation, int page, int count) {
     return BundleLink.builder()
         .relation(relation)
-        .url("https://awesome.com/api/Whatever?a=apple&b=banana&page=" + page + "&_count=" + count)
+        .url(
+            "https://awesome.com/api/dstu2/Whatever?a=apple&b=banana&page="
+                + page
+                + "&_count="
+                + count)
         .build();
   }
 
@@ -103,6 +107,6 @@ public class ConfigurableBaseUrlPageLinksDstu2Test {
   @Test
   public void readLinkCombinesConfiguredUrl() {
     assertThat(links.dstu2ReadLink("Whatever", "123"))
-        .isEqualTo("https://awesome.com/api/Whatever/123");
+        .isEqualTo("https://awesome.com/api/dstu2/Whatever/123");
   }
 }

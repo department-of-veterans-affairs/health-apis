@@ -1,6 +1,5 @@
 package gov.va.api.health.dataquery.service.config;
 
-import gov.va.api.health.dstu2.api.elements.Reference;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,7 +20,6 @@ import org.springframework.context.annotation.Configuration;
 @AllArgsConstructor
 @Builder
 public class ReferenceSerializerProperties {
-
   private boolean appointment;
 
   private boolean encounter;
@@ -61,7 +59,20 @@ public class ReferenceSerializerProperties {
    * .../AllergyIntolerance/1234 and it is set to true in the properties file. Return true for all
    * malformed references.
    */
-  boolean isEnabled(Reference reference) {
+  boolean isEnabled(gov.va.api.health.dstu2.api.elements.Reference reference) {
+    String resourceName = resourceName(reference);
+    if (resourceName == null) {
+      return true;
+    }
+    return checkForResource(resourceName);
+  }
+
+  /**
+   * Return true if the given reference is well formed, AllergyIntolerance/1234 or
+   * .../AllergyIntolerance/1234 and it is set to true in the properties file. Return true for all
+   * malformed references.
+   */
+  boolean isEnabled(gov.va.api.health.stu3.api.elements.Reference reference) {
     String resourceName = resourceName(reference);
     if (resourceName == null) {
       return true;
@@ -70,11 +81,25 @@ public class ReferenceSerializerProperties {
   }
 
   /** Get the resource name of a reference if it is well formed, else return null. */
-  private String resourceName(Reference reference) {
-    if (reference == null || StringUtils.isBlank(reference.reference())) {
+  private String resourceName(gov.va.api.health.dstu2.api.elements.Reference reference) {
+    if (reference == null) {
       return null;
     }
-    String[] splitReference = reference.reference().split("/");
+    return resourceName(reference.reference());
+  }
+
+  private String resourceName(gov.va.api.health.stu3.api.elements.Reference reference) {
+    if (reference == null) {
+      return null;
+    }
+    return resourceName(reference.reference());
+  }
+
+  private String resourceName(String reference) {
+    if (StringUtils.isBlank(reference)) {
+      return null;
+    }
+    String[] splitReference = reference.split("/");
     if (splitReference.length <= 1) {
       return null;
     }
