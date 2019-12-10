@@ -131,7 +131,7 @@ public class Dstu2PractitionerControllerTest {
             json(
                 Dstu2PractitionerSamples.Datamart.Dstu2.asBundle(
                     "http://fonzy.com/cool",
-                    List.of(Dstu2PractitionerSamples.Datamart.Dstu2.create().practitioner("1234")),
+                    List.of(Dstu2PractitionerSamples.Datamart.Dstu2.create().practitioner("abc")),
                     Dstu2PractitionerSamples.Datamart.Dstu2.link(
                         LinkRelation.first,
                         "http://fonzy.com/cool/Practitioner?identifier=1234",
