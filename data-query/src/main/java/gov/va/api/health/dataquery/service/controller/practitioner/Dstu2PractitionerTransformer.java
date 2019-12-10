@@ -1,10 +1,10 @@
 package gov.va.api.health.dataquery.service.controller.practitioner;
 
-import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.allBlank;
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asReference;
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.convert;
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.emptyToNull;
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.ifPresent;
+import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
 import static java.util.Collections.singletonList;
 
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
