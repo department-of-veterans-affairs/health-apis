@@ -6,7 +6,6 @@ import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.c
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.emptyToNull;
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.ifPresent;
 import static java.util.Collections.singletonList;
-import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
@@ -57,14 +56,18 @@ public class Dstu2PractitionerTransformer {
   }
 
   static Reference healthCareService(String s) {
+    if (s.isBlank()) {
+      return null;
+    }
     return Reference.builder().display(s).build();
   }
 
-  static List<Reference> healthcareServices(Optional<String> results) {
-    if (results.isEmpty()) {
+  static List<Reference> healthcareServices(Optional<String> services) {
+    if (services.isEmpty()) {
       return null;
     }
-    return results.stream().map(s -> healthCareService(s)).collect(Collectors.toList());
+    return emptyToNull(
+        services.stream().map(s -> healthCareService(s)).collect(Collectors.toList()));
   }
 
   static HumanName name(DatamartPractitioner.Name source) {
@@ -72,26 +75,23 @@ public class Dstu2PractitionerTransformer {
         || allBlank(source.family(), source.given(), source.prefix(), source.suffix())) {
       return null;
     }
-    return convert(
-        source,
-        name ->
-            HumanName.builder()
-                .family(nameList(name.family()))
-                .given(nameList(name.given()))
-                .suffix(nameList(name.prefix().isEmpty() ? null : name.suffix().get()))
-                .prefix(nameList(name.suffix().isEmpty() ? null : name.prefix().get()))
-                .build());
+    return HumanName.builder()
+        .family(nameList(Optional.of(source.family())))
+        .given(nameList(Optional.of(source.given())))
+        .suffix(nameList(source.suffix()))
+        .prefix(nameList(source.prefix()))
+        .build();
   }
 
-  static List<String> nameList(String source) {
-    if (isBlank(source)) {
+  static List<String> nameList(Optional<String> source) {
+    if (source.isEmpty() || source.get().isBlank()) {
       return null;
     }
-    return singletonList(source);
+    return singletonList(source.get());
   }
 
   static CodeableConcept role(Optional<DatamartCoding> source) {
-    if (source == null || source.get().code().get() == null) {
+    if (source == null || source.get().code().isEmpty() || source.get().code().get() == null) {
       return null;
     }
     return CodeableConcept.builder().coding(roleCoding(source.get())).build();

@@ -78,7 +78,6 @@ public class DatamartPractitionerTransformerTest {
     assertThat(Dstu2PractitionerTransformer.roleCoding(null)).isNull();
     assertThat(Dstu2PractitionerTransformer.role(null)).isNull();
     assertThat(Dstu2PractitionerTransformer.telecom(null)).isNull();
-    // .isEqualTo("1990-12-12");
   }
 
   @Test

@@ -17,6 +17,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
+import org.springframework.data.domain.Sort;
 
 @Data
 @Entity
@@ -45,6 +46,10 @@ public class PractitionerEntity implements DatamartEntity {
   @Column(name = "Practitioner")
   private String payload;
 
+  static Sort naturalOrder() {
+    return Sort.by("cdwId").ascending();
+  }
+
   @SneakyThrows
   DatamartPractitioner asDatamartPractitioner() {
     DatamartPractitioner dm =
@@ -57,9 +62,10 @@ public class PractitionerEntity implements DatamartEntity {
       dm.practitionerRole().get().managingOrganization().get().type(Optional.of("Organization"));
     }
 
-    if (dm.practitionerRole().isPresent() && dm.practitionerRole().get().location() != null) {
+    if (dm.practitionerRole().isPresent()) {
       for (int i = 0; i < dm.practitionerRole().get().location().size(); i++) {
-        if (dm.practitionerRole().get().location().get(i).type().isEmpty()) {
+        if (dm.practitionerRole().get().location().get(i) != null
+            && dm.practitionerRole().get().location().get(i).type().isEmpty()) {
           // Hack... make sure reference type is populated
           dm.practitionerRole().get().location().get(i).type(Optional.of("Location"));
         }
