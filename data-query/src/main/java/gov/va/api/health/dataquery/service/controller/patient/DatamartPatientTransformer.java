@@ -1,6 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.patient;
 
-import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.allBlank;
+import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.emptyToNull;
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.parseInstant;
 import static java.util.Arrays.asList;
