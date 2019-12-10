@@ -48,18 +48,14 @@ public class Dstu2PractitionerTransformer {
   }
 
   static String birthDate(Optional<LocalDate> source) {
-    LocalDate date = source.isEmpty() ? null : source.get();
-    if (date == null) {
-      return null;
-    }
-    return date.toString();
+    return source.map(LocalDate::toString).orElse(null);
   }
 
-  static Reference healthCareService(String s) {
-    if (s.isBlank()) {
+  static Reference healthCareService(String service) {
+    if (service.isBlank()) {
       return null;
     }
-    return Reference.builder().display(s).build();
+    return Reference.builder().display(service).build();
   }
 
   static List<Reference> healthcareServices(Optional<String> services) {
@@ -76,8 +72,8 @@ public class Dstu2PractitionerTransformer {
       return null;
     }
     return HumanName.builder()
-        .family(nameList(Optional.of(source.family())))
-        .given(nameList(Optional.of(source.given())))
+        .family(nameList(Optional.ofNullable(source.family())))
+        .given(nameList(Optional.ofNullable(source.given())))
         .suffix(nameList(source.suffix()))
         .prefix(nameList(source.prefix()))
         .build();

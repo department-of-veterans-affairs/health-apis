@@ -2,8 +2,6 @@ package gov.va.api.health.dataquery.service.controller.practitioner;
 
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartEntity;
-import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
-import java.util.Optional;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -51,20 +49,12 @@ public class PractitionerEntity implements DatamartEntity {
     DatamartPractitioner dm =
         JacksonConfig.createMapper().readValue(payload, DatamartPractitioner.class);
 
-    if (dm.practitionerRole().isPresent()
-        && dm.practitionerRole().get().managingOrganization().isPresent()
-        && dm.practitionerRole().get().managingOrganization().get().type().isEmpty()) {
-      // Hack... make sure reference type is populated
-      dm.practitionerRole().get().managingOrganization().get().type(Optional.of("Organization"));
-    }
-
     if (dm.practitionerRole().isPresent()) {
-      for (DatamartReference location : dm.practitionerRole().get().location()) {
-        if (location != null && location.type().isEmpty()) {
-          // Hack... make sure reference type is populated
-          location.type(Optional.of("Location"));
-        }
-      }
+      dm.practitionerRole()
+          .get()
+          .managingOrganization()
+          .ifPresent(mo -> mo.typeIfMissing("Organization"));
+      dm.practitionerRole().get().location().forEach(loc -> loc.typeIfMissing("Location"));
     }
 
     return dm;
