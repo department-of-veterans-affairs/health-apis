@@ -12,10 +12,10 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
  * X-VA-INCLUDES-ICN header.
  */
 @ControllerAdvice
-public class ConditionIncludesIcnMajig
+public class Dstu2ConditionIncludesIcnMajig
     extends AbstractIncludesIcnMajig<Condition, Condition.Entry, Condition.Bundle> {
   /** Converts the reference to a Datamart Reference to pull out the patient id. */
-  public ConditionIncludesIcnMajig() {
+  public Dstu2ConditionIncludesIcnMajig() {
     super(
         Condition.class,
         Condition.Bundle.class,

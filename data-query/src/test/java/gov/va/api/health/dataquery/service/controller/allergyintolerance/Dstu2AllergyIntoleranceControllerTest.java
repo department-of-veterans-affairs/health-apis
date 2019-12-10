@@ -21,6 +21,7 @@ import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
@@ -164,6 +165,7 @@ public class Dstu2AllergyIntoleranceControllerTest {
                 Dstu2.asBundle(
                     "http://fonzy.com/cool",
                     List.of(allergyIntolerance),
+                    1,
                     Dstu2.link(
                         LinkRelation.first,
                         "http://fonzy.com/cool/AllergyIntolerance?identifier=1",
@@ -182,6 +184,34 @@ public class Dstu2AllergyIntoleranceControllerTest {
   }
 
   @Test
+  public void searchByIdentifier() {
+    DatamartAllergyIntolerance dm = Datamart.create().allergyIntolerance();
+    repository.save(asEntity(dm));
+    mockAllergyIntoleranceIdentity("1", dm.cdwId());
+    Bundle actual = controller().searchByIdentifier("1", 1, 1);
+    validateSearchByIdResult(dm, actual);
+  }
+
+  @Test
+  public void searchByIdentifierWithCount0() {
+    DatamartAllergyIntolerance dm = Datamart.create().allergyIntolerance();
+    repository.save(asEntity(dm));
+    mockAllergyIntoleranceIdentity("1", dm.cdwId());
+    assertThat(json(controller().searchByIdentifier("1", 1, 0)))
+        .isEqualTo(
+            json(
+                Dstu2.asBundle(
+                    "http://fonzy.com/cool",
+                    Collections.emptyList(),
+                    1,
+                    Dstu2.link(
+                        LinkRelation.self,
+                        "http://fonzy.com/cool/AllergyIntolerance?identifier=1",
+                        1,
+                        0))));
+  }
+
+  @Test
   public void searchByPatient() {
     Multimap<String, AllergyIntolerance> allergyIntoleranceByPatient = populateData();
     assertThat(json(controller().searchByPatient("p0", 1, 10)))
@@ -190,6 +220,7 @@ public class Dstu2AllergyIntoleranceControllerTest {
                 Dstu2.asBundle(
                     "http://fonzy.com/cool",
                     allergyIntoleranceByPatient.get("p0"),
+                    allergyIntoleranceByPatient.get("p0").size(),
                     Dstu2.link(
                         LinkRelation.first,
                         "http://fonzy.com/cool/AllergyIntolerance?patient=p0",
@@ -207,8 +238,52 @@ public class Dstu2AllergyIntoleranceControllerTest {
                         10))));
   }
 
+  @Test
+  public void searchByPatientWithCount0() {
+    Multimap<String, AllergyIntolerance> allergyIntoleranceByPatient = populateData();
+    assertThat(json(controller().searchByPatient("p0", 1, 0)))
+        .isEqualTo(
+            json(
+                Dstu2.asBundle(
+                    "http://fonzy.com/cool",
+                    Collections.emptyList(),
+                    allergyIntoleranceByPatient.get("p0").size(),
+                    Dstu2.link(
+                        LinkRelation.self,
+                        "http://fonzy.com/cool/AllergyIntolerance?patient=p0",
+                        1,
+                        0))));
+  }
+
   @SneakyThrows
   private DatamartAllergyIntolerance toObject(String json) {
     return JacksonConfig.createMapper().readValue(json, DatamartAllergyIntolerance.class);
+  }
+
+  private void validateSearchByIdResult(DatamartAllergyIntolerance dm, Bundle actual) {
+    AllergyIntolerance allergyIntolerance =
+        Dstu2.create().allergyIntolerance("1", dm.patient().reference().get());
+    assertThat(json(actual))
+        .isEqualTo(
+            json(
+                Dstu2.asBundle(
+                    "http://fonzy.com/cool",
+                    List.of(allergyIntolerance),
+                    1,
+                    Dstu2.link(
+                        LinkRelation.first,
+                        "http://fonzy.com/cool/AllergyIntolerance?identifier=1",
+                        1,
+                        1),
+                    Dstu2.link(
+                        LinkRelation.self,
+                        "http://fonzy.com/cool/AllergyIntolerance?identifier=1",
+                        1,
+                        1),
+                    Dstu2.link(
+                        LinkRelation.last,
+                        "http://fonzy.com/cool/AllergyIntolerance?identifier=1",
+                        1,
+                        1))));
   }
 }
