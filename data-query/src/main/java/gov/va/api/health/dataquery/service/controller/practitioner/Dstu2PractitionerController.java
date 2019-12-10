@@ -14,14 +14,12 @@ import gov.va.api.health.dataquery.service.controller.PageLinks.LinkConfig;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
-import gov.va.api.health.dataquery.service.controller.location.DatamartLocation;
 import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
 import gov.va.api.health.dataquery.service.mranderson.client.Query;
 import gov.va.api.health.dataquery.service.mranderson.client.Query.Profile;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import gov.va.api.health.dstu2.api.resources.Practitioner;
 import gov.va.dvp.cdw.xsd.model.CdwPractitioner100Root;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -166,7 +164,6 @@ public class Dstu2PractitionerController {
         count);
   }
 
-
   /** Search by Identifier. */
   @GetMapping(params = {"identifier"})
   public Practitioner.Bundle searchByIdentifier(
@@ -234,18 +231,19 @@ public class Dstu2PractitionerController {
       return transform(location);
     }
 
-    private Collection<DatamartPractitioner> replaceReferences(
-            Collection<DatamartPractitioner> resources) {
-      witnessProtection.registerAndUpdateReferences(
-              resources,
-              resource ->
-                      Stream.concat(
-                              Stream.of(resource.practitionerRole().get().managingOrganization().orElse(null)),
-                              resource.practitionerRole().get().location().stream()));
-      return resources;
-    }
     PractitionerEntity readRaw(String publicId) {
       return findById(publicId);
+    }
+
+    private Collection<DatamartPractitioner> replaceReferences(
+        Collection<DatamartPractitioner> resources) {
+      witnessProtection.registerAndUpdateReferences(
+          resources,
+          resource ->
+              Stream.concat(
+                  Stream.of(resource.practitionerRole().get().managingOrganization().orElse(null)),
+                  resource.practitionerRole().get().location().stream()));
+      return resources;
     }
 
     Practitioner.Bundle searchById(String publicId, int page, int count) {

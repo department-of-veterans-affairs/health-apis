@@ -65,21 +65,47 @@ public class Dstu2PractitionerControllerTest {
     return JacksonConfig.createMapper().writerWithDefaultPrettyPrinter().writeValueAsString(o);
   }
 
-  public void mockPractitionerIdentity(String publicId, String cdwId) {
-    ResourceIdentity resourceIdentity =
-        ResourceIdentity.builder().system("CDW").resource("PRACTITIONER").identifier(cdwId).build();
-    when(ids.lookup(publicId)).thenReturn(List.of(resourceIdentity));
+  public void mockPractitionerIdentity(
+      String practPubID,
+      String practCdwId,
+      String orgPubId,
+      String orgCdwId,
+      String locPubId,
+      String locCdwId) {
+    ResourceIdentity practResource =
+        ResourceIdentity.builder()
+            .system("CDW")
+            .resource("PRACTITIONER")
+            .identifier(practCdwId)
+            .build();
+    ResourceIdentity orgResource =
+        ResourceIdentity.builder()
+            .system("CDW")
+            .resource("ORGANIZATION")
+            .identifier(orgCdwId)
+            .build();
+    ResourceIdentity locResource =
+        ResourceIdentity.builder().system("CDW").resource("LOCATION").identifier(locCdwId).build();
+    when(ids.lookup(practPubID)).thenReturn(List.of(practResource));
     when(ids.register(Mockito.any()))
         .thenReturn(
             List.of(
-                Registration.builder().uuid(publicId).resourceIdentity(resourceIdentity).build()));
+                Registration.builder().uuid(practPubID).resourceIdentity(practResource).build(),
+                Registration.builder().uuid(locPubId).resourceIdentity(locResource).build(),
+                Registration.builder().uuid(orgPubId).resourceIdentity(orgResource).build()));
   }
 
   @Test
   public void read() {
+    String publicId = "abc";
+    String cdwId = "123";
+    String orgPubId = "def";
+    String orgCdwId = "456";
+    String locPubId = "ghi";
+    String locCdwId = "789";
     DatamartPractitioner dm = Datamart.create().practitioner();
     repository.save(asEntity(dm));
-    mockPractitionerIdentity("1234", dm.cdwId());
+    mockPractitionerIdentity(publicId, cdwId, orgPubId, orgCdwId, locPubId, locCdwId);
     Practitioner actual = controller().read("true", "1234");
     assertThat(actual).isEqualTo(Datamart.Dstu2.create().practitioner("1234"));
   }
@@ -88,7 +114,11 @@ public class Dstu2PractitionerControllerTest {
   public void readRaw() {
     String publicId = "abc";
     String cdwId = "123";
-    mockPractitionerIdentity(publicId, cdwId);
+    String orgPubId = "def";
+    String orgCdwId = "456";
+    String locPubId = "ghi";
+    String locCdwId = "789";
+    mockPractitionerIdentity(publicId, cdwId, orgPubId, orgCdwId, locPubId, locCdwId);
     HttpServletResponse servletResponse = mock(HttpServletResponse.class);
     DatamartPractitioner dm = Dstu2PractitionerSamples.Datamart.create().practitioner(cdwId);
     repository.save(asEntity(dm));
@@ -99,7 +129,7 @@ public class Dstu2PractitionerControllerTest {
 
   @Test(expected = ResourceExceptions.NotFound.class)
   public void readRawThrowsNotFoundWhenDataIsMissing() {
-    mockPractitionerIdentity("x", "x");
+    mockPractitionerIdentity("x", "x", "x", "x", "x", "x");
     controller().readRaw("x", response);
   }
 
@@ -110,7 +140,7 @@ public class Dstu2PractitionerControllerTest {
 
   @Test(expected = ResourceExceptions.NotFound.class)
   public void readThrowsNotFoundWhenDataIsMissing() {
-    mockPractitionerIdentity("x", "x");
+    mockPractitionerIdentity("x", "x", "x", "x", "x", "x");
     controller().read("true", "x");
   }
 
@@ -121,59 +151,72 @@ public class Dstu2PractitionerControllerTest {
 
   @Test
   public void searchById() {
-
-    mockPractitionerIdentity("abc", "1234");
-    DatamartPractitioner dm = Datamart.create().practitioner("1234");
+    String publicId = "abc";
+    String cdwId = "123";
+    String orgPubId = "def";
+    String orgCdwId = "456";
+    String locPubId = "ghi";
+    String locCdwId = "789";
+    mockPractitionerIdentity(publicId, cdwId, orgPubId, orgCdwId, locPubId, locCdwId);
+    DatamartPractitioner dm = Datamart.create().practitioner(cdwId);
     repository.save(asEntity(dm));
-    Practitioner.Bundle actual = controller().searchById("true", "1234", 1, 1);
+    Practitioner.Bundle actual = controller().searchById("true", publicId, 1, 1);
     assertThat(json(actual))
         .isEqualTo(
             json(
                 Dstu2PractitionerSamples.Datamart.Dstu2.asBundle(
                     "http://fonzy.com/cool",
-                    List.of(Dstu2PractitionerSamples.Datamart.Dstu2.create().practitioner("abc")),
+                    List.of(
+                        Dstu2PractitionerSamples.Datamart.Dstu2.create().practitioner(publicId)),
                     Dstu2PractitionerSamples.Datamart.Dstu2.link(
                         LinkRelation.first,
-                        "http://fonzy.com/cool/Practitioner?identifier=1234",
+                        "http://fonzy.com/cool/Practitioner?identifier=abc",
                         1,
                         1),
                     Dstu2PractitionerSamples.Datamart.Dstu2.link(
                         LinkRelation.self,
-                        "http://fonzy.com/cool/Practitioner?identifier=1234",
+                        "http://fonzy.com/cool/Practitioner?identifier=abc",
                         1,
                         1),
                     Dstu2PractitionerSamples.Datamart.Dstu2.link(
                         LinkRelation.last,
-                        "http://fonzy.com/cool/Practitioner?identifier=1234",
+                        "http://fonzy.com/cool/Practitioner?identifier=abc",
                         1,
                         1))));
   }
 
   @Test
   public void searchByIdentifier() {
-    DatamartPractitioner dm = Dstu2PractitionerSamples.Datamart.create().practitioner("1234");
+    String publicId = "abc";
+    String cdwId = "123";
+    String orgPubId = "def";
+    String orgCdwId = "456";
+    String locPubId = "ghi";
+    String locCdwId = "789";
+    DatamartPractitioner dm = Dstu2PractitionerSamples.Datamart.create().practitioner(cdwId);
     repository.save(asEntity(dm));
-    mockPractitionerIdentity("1234", dm.cdwId());
-    Practitioner.Bundle actual = controller().searchByIdentifier("true", "1234", 1, 1);
+    mockPractitionerIdentity(publicId, cdwId, orgPubId, orgCdwId, locPubId, locCdwId);
+    Practitioner.Bundle actual = controller().searchByIdentifier("true", publicId, 1, 1);
     assertThat(json(actual))
         .isEqualTo(
             json(
                 Dstu2PractitionerSamples.Datamart.Dstu2.asBundle(
                     "http://fonzy.com/cool",
-                    List.of(Dstu2PractitionerSamples.Datamart.Dstu2.create().practitioner("1234")),
+                    List.of(
+                        Dstu2PractitionerSamples.Datamart.Dstu2.create().practitioner(publicId)),
                     Dstu2PractitionerSamples.Datamart.Dstu2.link(
                         LinkRelation.first,
-                        "http://fonzy.com/cool/Practitioner?identifier=1234",
+                        "http://fonzy.com/cool/Practitioner?identifier=abc",
                         1,
                         1),
                     Dstu2PractitionerSamples.Datamart.Dstu2.link(
                         LinkRelation.self,
-                        "http://fonzy.com/cool/Practitioner?identifier=1234",
+                        "http://fonzy.com/cool/Practitioner?identifier=abc",
                         1,
                         1),
                     Dstu2PractitionerSamples.Datamart.Dstu2.link(
                         LinkRelation.last,
-                        "http://fonzy.com/cool/Practitioner?identifier=1234",
+                        "http://fonzy.com/cool/Practitioner?identifier=abc",
                         1,
                         1))));
   }

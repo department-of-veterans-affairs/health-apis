@@ -17,7 +17,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
-import org.springframework.data.domain.Sort;
 
 @Data
 @Entity
@@ -52,13 +51,14 @@ public class PractitionerEntity implements DatamartEntity {
         JacksonConfig.createMapper().readValue(payload, DatamartPractitioner.class);
 
     if (dm.practitionerRole().isPresent()
-        && dm.practitionerRole().get().managingOrganization().isPresent() && dm.practitionerRole().get().managingOrganization().get().type().isEmpty()) {
+        && dm.practitionerRole().get().managingOrganization().isPresent()
+        && dm.practitionerRole().get().managingOrganization().get().type().isEmpty()) {
       // Hack... make sure reference type is populated
       dm.practitionerRole().get().managingOrganization().get().type(Optional.of("Organization"));
     }
 
-    if (dm.practitionerRole().isPresent() && dm.practitionerRole().get().location() != null){
-      for (int i = 0; i < dm.practitionerRole().get().location().size(); i++){
+    if (dm.practitionerRole().isPresent() && dm.practitionerRole().get().location() != null) {
+      for (int i = 0; i < dm.practitionerRole().get().location().size(); i++) {
         if (dm.practitionerRole().get().location().get(i).type().isEmpty()) {
           // Hack... make sure reference type is populated
           dm.practitionerRole().get().location().get(i).type(Optional.of("Location"));
