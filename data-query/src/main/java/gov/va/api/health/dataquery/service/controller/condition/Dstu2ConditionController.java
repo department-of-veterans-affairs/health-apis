@@ -18,7 +18,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletResponse;
@@ -81,7 +80,7 @@ public class Dstu2ConditionController {
             .build();
     return bundler.bundle(
         Dstu2Bundler.BundleContext.of(
-            linkConfig, reports, Function.identity(), Condition.Entry::new, Condition.Bundle::new));
+            linkConfig, reports, Condition.Entry::new, Condition.Bundle::new));
   }
 
   private Bundle bundle(
