@@ -105,8 +105,7 @@ public class Dstu2AllergyIntoleranceController {
     headers = {"raw=true"}
   )
   public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
-    Optional<AllergyIntoleranceEntity> maybeEntity = Optional.of(findById(publicId));
-    AllergyIntoleranceEntity entity = maybeEntity.get();
+    AllergyIntoleranceEntity entity = findById(publicId);
     AbstractIncludesIcnMajig.addHeader(response, entity.icn());
     return entity.payload();
   }

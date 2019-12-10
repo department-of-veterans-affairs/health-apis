@@ -126,8 +126,7 @@ public class Dstu2ConditionController {
     headers = {"raw=true"}
   )
   public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
-    Optional<ConditionEntity> maybeEntity = Optional.of(findById(publicId));
-    ConditionEntity entity = maybeEntity.get();
+    ConditionEntity entity = findById(publicId);
     AbstractIncludesIcnMajig.addHeader(response, entity.icn());
     return entity.payload();
   }
