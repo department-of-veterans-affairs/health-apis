@@ -161,11 +161,14 @@ public class AllergyIntoleranceSamples {
   static class Dstu2 {
 
     static AllergyIntolerance.Bundle asBundle(
-        String baseUrl, Collection<AllergyIntolerance> resources, BundleLink... links) {
+        String baseUrl,
+        Collection<AllergyIntolerance> resources,
+        int totalRecords,
+        BundleLink... links) {
       return AllergyIntolerance.Bundle.builder()
           .resourceType("Bundle")
           .type(AbstractBundle.BundleType.searchset)
-          .total(resources.size())
+          .total(totalRecords)
           .link(Arrays.asList(links))
           .entry(
               resources

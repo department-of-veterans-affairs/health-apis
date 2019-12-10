@@ -126,6 +126,7 @@ public class Dstu2MedicationControllerTest {
                 Dstu2.asBundle(
                     "http://fonzy.com/cool",
                     List.of(medication),
+                    1,
                     link(LinkRelation.first, "http://fonzy.com/cool/Medication?identifier=1", 1, 1),
                     link(LinkRelation.self, "http://fonzy.com/cool/Medication?identifier=1", 1, 1),
                     link(
@@ -135,8 +136,37 @@ public class Dstu2MedicationControllerTest {
                         1))));
   }
 
+  @Test
+  public void searchByIdentifier() {
+    DatamartMedication dm = Datamart.create().medication();
+    repository.save(asEntity(dm));
+    mockMedicationIdentity("1", dm.cdwId());
+    Bundle actual = controller().searchByIdentifier("1", 1, 1);
+    validationSearchByIdResult(dm, actual);
+  }
+
   @SneakyThrows
   private DatamartMedication toObject(String json) {
     return JacksonConfig.createMapper().readValue(json, DatamartMedication.class);
+  }
+
+  private void validationSearchByIdResult(DatamartMedication dm, Bundle actual) {
+    Medication medication = Dstu2.create().medication("1");
+    assertThat(json(actual))
+        .isEqualTo(
+            json(
+                Dstu2.asBundle(
+                    "http://fonzy.com/cool",
+                    List.of(medication),
+                    1,
+                    Dstu2.link(
+                        LinkRelation.first, "http://fonzy.com/cool/Medication?identifier=1", 1, 1),
+                    Dstu2.link(
+                        LinkRelation.self, "http://fonzy.com/cool/Medication?identifier=1", 1, 1),
+                    Dstu2.link(
+                        LinkRelation.last,
+                        "http://fonzy.com/cool/Medication?identifier=1",
+                        1,
+                        1))));
   }
 }

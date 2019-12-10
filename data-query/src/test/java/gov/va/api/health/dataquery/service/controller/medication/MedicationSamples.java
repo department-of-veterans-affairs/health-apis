@@ -54,11 +54,11 @@ public class MedicationSamples {
   static class Dstu2 {
 
     static Medication.Bundle asBundle(
-        String baseUrl, Collection<Medication> medications, BundleLink... links) {
+        String baseUrl, Collection<Medication> medications, int totalRecords, BundleLink... links) {
       return Medication.Bundle.builder()
           .resourceType("Bundle")
           .type(AbstractBundle.BundleType.searchset)
-          .total(medications.size())
+          .total(totalRecords)
           .link(Arrays.asList(links))
           .entry(
               medications

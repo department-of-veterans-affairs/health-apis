@@ -6,12 +6,12 @@ import gov.va.api.health.dstu2.api.elements.Reference;
 import java.util.List;
 import org.junit.Test;
 
-public class ConditionIncludesIcnMajigTest {
+public class Dstu2ConditionIncludesIcnMajigTest {
 
   @Test
   public void extractIcn() {
-    ExtractIcnValidator.<ConditionIncludesIcnMajig, Condition>builder()
-        .majig(new ConditionIncludesIcnMajig())
+    ExtractIcnValidator.<Dstu2ConditionIncludesIcnMajig, Condition>builder()
+        .majig(new Dstu2ConditionIncludesIcnMajig())
         .body(
             Condition.builder()
                 .id("123")

@@ -103,11 +103,14 @@ class ImmunizationSamples {
   @AllArgsConstructor(staticName = "create")
   static class Dstu2 {
     static Bundle asBundle(
-        String baseUrl, Collection<Immunization> immunizations, BundleLink... links) {
+        String baseUrl,
+        Collection<Immunization> immunizations,
+        int totalRecords,
+        BundleLink... links) {
       return Bundle.builder()
           .resourceType("Bundle")
           .type(BundleType.searchset)
-          .total(immunizations.size())
+          .total(totalRecords)
           .link(Arrays.asList(links))
           .entry(
               immunizations

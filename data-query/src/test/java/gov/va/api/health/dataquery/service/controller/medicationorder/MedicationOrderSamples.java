@@ -101,11 +101,14 @@ public class MedicationOrderSamples {
   static class Dstu2 {
 
     static MedicationOrder.Bundle asBundle(
-        String basePath, Collection<MedicationOrder> records, BundleLink... links) {
+        String basePath,
+        Collection<MedicationOrder> records,
+        int totalRecords,
+        BundleLink... links) {
       return MedicationOrder.Bundle.builder()
           .resourceType("Bundle")
           .type(AbstractBundle.BundleType.searchset)
-          .total(records.size())
+          .total(totalRecords)
           .link(asList(links))
           .entry(
               records
