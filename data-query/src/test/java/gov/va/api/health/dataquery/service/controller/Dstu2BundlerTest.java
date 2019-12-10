@@ -46,7 +46,7 @@ public class Dstu2BundlerTest {
         Collections.singletonList(
             BundleLink.builder().relation(LinkRelation.self).url("http://whatever.com").build());
     when(this.links.dstu2Links(Mockito.any())).thenReturn(bundleLinks);
-    when(this.links.readLink(Mockito.any(), Mockito.any()))
+    when(this.links.dstu2ReadLink(Mockito.any(), Mockito.any()))
         .thenReturn("http://one.com")
         .thenReturn("http://two.com")
         .thenReturn("http://three.com");

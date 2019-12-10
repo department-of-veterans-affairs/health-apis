@@ -23,20 +23,32 @@ public class ConfigurableBaseUrlPageLinks implements PageLinks {
    */
   private final String baseUrl;
 
-  /** These base path for resources, e.g. api */
-  private String basePath;
+  /** Base path for DSTU2 resources, e.g. api/dstu2 */
+  private String dstu2BasePath;
 
+  /** Base path for STU3 esources, e.g. api/stu3 */
+  private String stu3BasePath;
+
+  /** Spring constructor. */
   @Autowired
   public ConfigurableBaseUrlPageLinks(
-      @Value("${argonaut.url}") String baseUrl, @Value("${argonaut.base-path}") String basePath) {
+      @Value("${argonaut.url}") String baseUrl,
+      @Value("${argonaut.dstu2-base-path}") String dstu2BasePath,
+      @Value("${argonaut.stu3-base-path}") String stu3BasePath) {
     this.baseUrl = baseUrl;
-    this.basePath = basePath;
+    this.dstu2BasePath = dstu2BasePath;
+    this.stu3BasePath = stu3BasePath;
   }
 
   @Override
   public List<gov.va.api.health.dstu2.api.bundle.BundleLink> dstu2Links(
       PageLinks.LinkConfig config) {
-    return links(new Dstu2LinkContext(baseUrl, basePath, config));
+    return links(new Dstu2LinkContext(baseUrl, dstu2BasePath, config));
+  }
+
+  @Override
+  public String dstu2ReadLink(String resourcePath, String id) {
+    return baseUrl + "/" + dstu2BasePath + "/" + resourcePath + "/" + id;
   }
 
   private <B> List<B> links(AbstractLinkContext<B> context) {
@@ -61,13 +73,13 @@ public class ConfigurableBaseUrlPageLinks implements PageLinks {
   }
 
   @Override
-  public String readLink(String resourcePath, String id) {
-    return baseUrl + "/" + basePath + "/" + resourcePath + "/" + id;
+  public List<gov.va.api.health.stu3.api.bundle.BundleLink> stu3Links(PageLinks.LinkConfig config) {
+    return links(new Stu3LinkContext(baseUrl, stu3BasePath, config));
   }
 
   @Override
-  public List<gov.va.api.health.stu3.api.bundle.BundleLink> stu3Links(PageLinks.LinkConfig config) {
-    return links(new Stu3LinkContext(baseUrl, basePath, config));
+  public String stu3ReadLink(String resourcePath, String id) {
+    return baseUrl + "/" + stu3BasePath + "/" + resourcePath + "/" + id;
   }
 
   /**

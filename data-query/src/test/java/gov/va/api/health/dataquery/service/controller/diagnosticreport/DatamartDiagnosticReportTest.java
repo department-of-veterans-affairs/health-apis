@@ -36,7 +36,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 @DataJpaTest
 @RunWith(SpringRunner.class)
 public final class DatamartDiagnosticReportTest {
-
   HttpServletResponse response = mock(HttpServletResponse.class);
 
   @Autowired private TestEntityManager entityManager;
@@ -53,7 +52,7 @@ public final class DatamartDiagnosticReportTest {
         true,
         null,
         null,
-        new Dstu2Bundler(new ConfigurableBaseUrlPageLinks("", "")),
+        new Dstu2Bundler(new ConfigurableBaseUrlPageLinks("", "", "")),
         WitnessProtection.builder().identityService(mock(IdentityService.class)).build(),
         entityManager.getEntityManager());
   }

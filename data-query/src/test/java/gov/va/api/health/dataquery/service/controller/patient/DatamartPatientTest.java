@@ -144,7 +144,7 @@ public final class DatamartPatientTest {
         true,
         null,
         null,
-        new Dstu2Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool")),
+        new Dstu2Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool", "cool")),
         repository,
         WitnessProtection.builder().identityService(mock(IdentityService.class)).build());
   }

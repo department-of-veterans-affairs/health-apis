@@ -142,7 +142,7 @@ public class DiagnosticReportControllerTest {
             false,
             tx,
             mraClient,
-            new Dstu2Bundler(new ConfigurableBaseUrlPageLinks("", "")),
+            new Dstu2Bundler(new ConfigurableBaseUrlPageLinks("", "", "")),
             null,
             null);
 
@@ -171,7 +171,7 @@ public class DiagnosticReportControllerTest {
             false,
             tx,
             mraClient,
-            new Dstu2Bundler(new ConfigurableBaseUrlPageLinks("", "")),
+            new Dstu2Bundler(new ConfigurableBaseUrlPageLinks("", "", "")),
             null,
             null);
 

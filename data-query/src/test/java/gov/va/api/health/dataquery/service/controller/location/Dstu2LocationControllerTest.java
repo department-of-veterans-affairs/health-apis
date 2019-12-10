@@ -78,7 +78,7 @@ public class Dstu2LocationControllerTest {
         true,
         null,
         null,
-        new Dstu2Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool")),
+        new Dstu2Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool", "cool")),
         repository,
         WitnessProtection.builder().identityService(ids).build());
   }

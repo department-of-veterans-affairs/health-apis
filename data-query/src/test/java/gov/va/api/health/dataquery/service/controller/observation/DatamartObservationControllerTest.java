@@ -38,20 +38,16 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @DataJpaTest
 @RunWith(SpringRunner.class)
 public class DatamartObservationControllerTest {
-
   HttpServletResponse response;
 
   private IdentityService ids = mock(IdentityService.class);
 
   @Autowired private ObservationRepository repository;
-
-  @Autowired private TestEntityManager entityManager;
 
   @SneakyThrows
   private static ObservationEntity asEntity(DatamartObservation dm) {
@@ -81,7 +77,7 @@ public class DatamartObservationControllerTest {
         true,
         null,
         null,
-        new Dstu2Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool")),
+        new Dstu2Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool", "cool")),
         repository,
         WitnessProtection.builder().identityService(ids).build());
   }

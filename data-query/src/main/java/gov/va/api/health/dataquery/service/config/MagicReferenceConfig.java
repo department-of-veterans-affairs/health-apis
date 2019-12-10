@@ -13,10 +13,6 @@ import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
 import com.fasterxml.jackson.databind.ser.PropertyWriter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
-import gov.va.api.health.dstu2.api.DataAbsentReason;
-import gov.va.api.health.dstu2.api.DataAbsentReason.Reason;
-import gov.va.api.health.dstu2.api.elements.Extension;
-import gov.va.api.health.dstu2.api.elements.Reference;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.List;
@@ -56,8 +52,10 @@ public class MagicReferenceConfig {
    * application.
    */
   private final String baseUrl;
+
   /** These base path for resources, e.g. api */
   private final String basePath;
+
   /** Property defining the references to serialize. */
   private final ReferenceSerializerProperties config;
 
@@ -88,7 +86,7 @@ public class MagicReferenceConfig {
   private boolean hasExtensionField(Object object, String name) {
     try {
       Field field = object.getClass().getDeclaredField(name);
-      return field.getType() == Extension.class;
+      return field.getType() == gov.va.api.health.dstu2.api.elements.Extension.class;
     } catch (NoSuchFieldException e) {
       return false;
     }
@@ -115,9 +113,11 @@ public class MagicReferenceConfig {
     public void serializeAsField(
         Object pojo, JsonGenerator jgen, SerializerProvider provider, PropertyWriter writer) {
       boolean include = true;
-      if (writer.getType().getRawClass() == Reference.class
+      if (writer.getType().getRawClass() == gov.va.api.health.dstu2.api.elements.Reference.class
           && writer instanceof BeanPropertyWriter) {
-        Reference value = (Reference) ((BeanPropertyWriter) writer).get(pojo);
+        gov.va.api.health.dstu2.api.elements.Reference value =
+            (gov.va.api.health.dstu2.api.elements.Reference)
+                ((BeanPropertyWriter) writer).get(pojo);
         include = config.isEnabled(value);
       }
 
@@ -131,7 +131,10 @@ public class MagicReferenceConfig {
          */
         String extensionField = "_" + writer.getName();
         if (hasExtensionField(pojo, extensionField)) {
-          jgen.writeObjectField(extensionField, DataAbsentReason.of(Reason.unsupported));
+          jgen.writeObjectField(
+              extensionField,
+              gov.va.api.health.dstu2.api.DataAbsentReason.of(
+                  gov.va.api.health.dstu2.api.DataAbsentReason.Reason.unsupported));
         } else if (!jgen.canOmitFields()) {
           writer.serializeAsOmittedField(pojo, jgen, provider);
         }
@@ -143,13 +146,15 @@ public class MagicReferenceConfig {
    * This serializer is fired for references _in_ a list. The {@link OptionalReferencesFilter} is
    * responsible for making sure the field references are omitted.
    */
-  private class OptionalReferenceSerializer extends JsonSerializer<Reference> {
+  private class OptionalReferenceSerializer
+      extends JsonSerializer<gov.va.api.health.dstu2.api.elements.Reference> {
     /**
      * This is the default serializer used for references, we will delegate the hard parts to it.
      */
-    private JsonSerializer<Reference> delegate;
+    private JsonSerializer<gov.va.api.health.dstu2.api.elements.Reference> delegate;
 
-    OptionalReferenceSerializer(JsonSerializer<Reference> delegate) {
+    OptionalReferenceSerializer(
+        JsonSerializer<gov.va.api.health.dstu2.api.elements.Reference> delegate) {
       this.delegate = delegate;
     }
 
@@ -158,7 +163,10 @@ public class MagicReferenceConfig {
      * reference. Otherwise if it is malformed, always use default serialization.
      */
     @Override
-    public void serialize(Reference value, JsonGenerator jgen, SerializerProvider provider)
+    public void serialize(
+        gov.va.api.health.dstu2.api.elements.Reference value,
+        JsonGenerator jgen,
+        SerializerProvider provider)
         throws IOException {
       if (value == null) {
         return;
@@ -184,7 +192,7 @@ public class MagicReferenceConfig {
                 SerializationConfig serialConfig,
                 BeanDescription beanDesc,
                 List<BeanPropertyWriter> beanProperties) {
-              if (beanDesc.getBeanClass() == Reference.class) {
+              if (beanDesc.getBeanClass() == gov.va.api.health.dstu2.api.elements.Reference.class) {
                 for (int i = 0; i < beanProperties.size(); i++) {
                   BeanPropertyWriter beanPropertyWriter = beanProperties.get(i);
                   if ("reference".equals(beanPropertyWriter.getName())) {
@@ -202,9 +210,11 @@ public class MagicReferenceConfig {
                 SerializationConfig serialConfig,
                 BeanDescription beanDesc,
                 JsonSerializer<?> serializer) {
-              if (Reference.class.isAssignableFrom(beanDesc.getBeanClass())) {
+              if (gov.va.api.health.dstu2.api.elements.Reference.class.isAssignableFrom(
+                  beanDesc.getBeanClass())) {
                 //noinspection unchecked
-                return new OptionalReferenceSerializer((JsonSerializer<Reference>) serializer);
+                return new OptionalReferenceSerializer(
+                    (JsonSerializer<gov.va.api.health.dstu2.api.elements.Reference>) serializer);
               }
               return super.modifySerializer(serialConfig, beanDesc, serializer);
             }
@@ -235,11 +245,12 @@ public class MagicReferenceConfig {
     @Override
     public void serializeAsField(
         Object shouldBeReference, JsonGenerator gen, SerializerProvider prov) {
-      if (!(shouldBeReference instanceof Reference)) {
+      if (!(shouldBeReference instanceof gov.va.api.health.dstu2.api.elements.Reference)) {
         throw new IllegalArgumentException(
             "Qualified reference writer cannot serialize: " + shouldBeReference);
       }
-      Reference reference = (Reference) shouldBeReference;
+      gov.va.api.health.dstu2.api.elements.Reference reference =
+          (gov.va.api.health.dstu2.api.elements.Reference) shouldBeReference;
       String qualifiedReference = qualify(reference.reference());
       if (qualifiedReference != null) {
         gen.writeStringField(getName(), qualifiedReference);

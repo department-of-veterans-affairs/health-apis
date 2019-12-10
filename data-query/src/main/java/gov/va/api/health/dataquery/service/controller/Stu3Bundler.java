@@ -40,7 +40,7 @@ public class Stu3Bundler {
                 t -> {
                   E entry = newEntry.get();
                   entry.resource(t);
-                  entry.fullUrl(links.readLink(linkConfig.path(), t.id()));
+                  entry.fullUrl(links.stu3ReadLink(linkConfig.path(), t.id()));
                   entry.search(
                       AbstractEntry.Search.builder().mode(AbstractEntry.SearchMode.match).build());
                   return entry;

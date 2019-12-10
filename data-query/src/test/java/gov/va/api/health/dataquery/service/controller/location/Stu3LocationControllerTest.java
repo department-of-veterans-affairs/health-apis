@@ -76,7 +76,7 @@ public class Stu3LocationControllerTest {
 
   private Stu3LocationController controller() {
     return new Stu3LocationController(
-        new Stu3Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool")),
+        new Stu3Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool", "cool")),
         repository,
         WitnessProtection.builder().identityService(ids).build());
   }

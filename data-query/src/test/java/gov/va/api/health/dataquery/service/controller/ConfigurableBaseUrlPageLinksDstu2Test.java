@@ -14,7 +14,7 @@ public class ConfigurableBaseUrlPageLinksDstu2Test {
 
   @Before
   public void _init() {
-    links = new ConfigurableBaseUrlPageLinks("https://awesome.com", "api");
+    links = new ConfigurableBaseUrlPageLinks("https://awesome.com", "api", "unused");
   }
 
   @Test
@@ -102,6 +102,7 @@ public class ConfigurableBaseUrlPageLinksDstu2Test {
 
   @Test
   public void readLinkCombinesConfiguredUrl() {
-    assertThat(links.readLink("Whatever", "123")).isEqualTo("https://awesome.com/api/Whatever/123");
+    assertThat(links.dstu2ReadLink("Whatever", "123"))
+        .isEqualTo("https://awesome.com/api/Whatever/123");
   }
 }

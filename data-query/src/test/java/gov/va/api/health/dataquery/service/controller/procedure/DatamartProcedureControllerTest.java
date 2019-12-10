@@ -33,20 +33,16 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @DataJpaTest
 @RunWith(SpringRunner.class)
 public class DatamartProcedureControllerTest {
-
   HttpServletResponse response;
 
   private IdentityService ids = mock(IdentityService.class);
 
   @Autowired private ProcedureRepository repository;
-
-  @Autowired private TestEntityManager entityManager;
 
   @Before
   public void _init() {
@@ -72,7 +68,7 @@ public class DatamartProcedureControllerTest {
         "Superman",
         null,
         null,
-        new Dstu2Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool")),
+        new Dstu2Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool", "cool")),
         repository,
         WitnessProtection.builder().identityService(ids).build());
   }

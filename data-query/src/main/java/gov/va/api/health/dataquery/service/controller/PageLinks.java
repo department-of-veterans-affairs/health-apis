@@ -13,11 +13,14 @@ public interface PageLinks {
   /** Create a list of parameters that will contain 3 to 5 values. */
   List<gov.va.api.health.dstu2.api.bundle.BundleLink> dstu2Links(LinkConfig config);
 
-  /** Provides direct read link for a given id, e.g. /api/Patient/123. */
-  String readLink(String resourcePath, String id);
+  /** Provides direct read link for a given id, e.g. /api/dstu2/Patient/123. */
+  String dstu2ReadLink(String resourcePath, String id);
 
   /** Create a list of parameters that will contain 3 to 5 values. */
   List<gov.va.api.health.stu3.api.bundle.BundleLink> stu3Links(LinkConfig config);
+
+  /** Provides direct read link for a given id, e.g. /api/stu3/Patient/123. */
+  String stu3ReadLink(String resourcePath, String id);
 
   @Value
   @Builder

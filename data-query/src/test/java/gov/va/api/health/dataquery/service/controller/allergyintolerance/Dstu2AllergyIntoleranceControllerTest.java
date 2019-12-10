@@ -35,7 +35,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 @DataJpaTest
 @RunWith(SpringRunner.class)
 public class Dstu2AllergyIntoleranceControllerTest {
-
   HttpServletResponse response = mock(HttpServletResponse.class);
 
   private IdentityService ids = mock(IdentityService.class);
@@ -55,7 +54,7 @@ public class Dstu2AllergyIntoleranceControllerTest {
 
   Dstu2AllergyIntoleranceController controller() {
     return new Dstu2AllergyIntoleranceController(
-        new Dstu2Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool")),
+        new Dstu2Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool", "cool")),
         repository,
         WitnessProtection.builder().identityService(ids).build());
   }

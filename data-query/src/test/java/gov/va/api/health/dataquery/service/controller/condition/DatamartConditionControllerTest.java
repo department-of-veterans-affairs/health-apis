@@ -34,7 +34,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @DataJpaTest
@@ -46,8 +45,6 @@ public class DatamartConditionControllerTest {
   private IdentityService ids = mock(IdentityService.class);
 
   @Autowired private ConditionRepository repository;
-
-  @Autowired private TestEntityManager entityManager;
 
   @SneakyThrows
   private ConditionEntity asEntity(DatamartCondition dm) {
@@ -65,7 +62,7 @@ public class DatamartConditionControllerTest {
         true,
         null,
         null,
-        new Dstu2Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool")),
+        new Dstu2Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool", "cool")),
         repository,
         WitnessProtection.builder().identityService(ids).build());
   }

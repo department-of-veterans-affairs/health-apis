@@ -43,7 +43,7 @@ public class Dstu2Bundler {
                 t -> {
                   E entry = context.newEntry().get();
                   entry.resource(t);
-                  entry.fullUrl(links.readLink(context.linkConfig().path(), t.id()));
+                  entry.fullUrl(links.dstu2ReadLink(context.linkConfig().path(), t.id()));
                   entry.search(Search.builder().mode(SearchMode.match).build());
                   return entry;
                 })
