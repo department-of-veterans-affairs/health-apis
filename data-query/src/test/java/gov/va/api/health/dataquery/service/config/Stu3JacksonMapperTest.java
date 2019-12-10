@@ -24,14 +24,14 @@ public class Stu3JacksonMapperTest {
   public void preExistingDarsArePreserved() {
     ReferenceSerializerProperties disableEncounter =
         ReferenceSerializerProperties.builder().encounter(false).practitioner(true).build();
-    FugaziReferencemajig input =
-        FugaziReferencemajig.builder()
+    FugaziReferenceMajig input =
+        FugaziReferenceMajig.builder()
             .ref(reference("https://example.com/api/Practitioner/1234"))
             .nope(null)
             ._nope(DataAbsentReason.of(DataAbsentReason.Reason.error))
             .build();
-    FugaziReferencemajig expected =
-        FugaziReferencemajig.builder()
+    FugaziReferenceMajig expected =
+        FugaziReferenceMajig.builder()
             .ref(reference("https://example.com/api/Practitioner/1234"))
             .nope(null)
             ._nope(DataAbsentReason.of(DataAbsentReason.Reason.error))
@@ -42,8 +42,8 @@ public class Stu3JacksonMapperTest {
             .objectMapper()
             .writerWithDefaultPrettyPrinter()
             .writeValueAsString(input);
-    FugaziReferencemajig actual =
-        JacksonConfig.createMapper().readValue(serializedjson, FugaziReferencemajig.class);
+    FugaziReferenceMajig actual =
+        JacksonConfig.createMapper().readValue(serializedjson, FugaziReferenceMajig.class);
     assertThat(actual).isEqualTo(expected);
   }
 
@@ -63,8 +63,8 @@ public class Stu3JacksonMapperTest {
             .practitioner(true)
             .build();
 
-    FugaziReferencemajig input =
-        FugaziReferencemajig.builder()
+    FugaziReferenceMajig input =
+        FugaziReferenceMajig.builder()
             .whocares("noone") // kept
             .me(true) // kept
             .ref(reference("AllergyIntolerance/1234")) // kept
@@ -83,7 +83,7 @@ public class Stu3JacksonMapperTest {
             .thing(reference("https://example.com/api/stu3/Organization/1234")) // kept
             .thing(reference("Practitioner/987"))
             .inner(
-                FugaziReferencemajig.builder()
+                FugaziReferenceMajig.builder()
                     .ref(
                         Reference.builder()
                             .reference("Appointment/615f31df-f0c7-5100-ac42-7fb952c630d0")
@@ -92,8 +92,8 @@ public class Stu3JacksonMapperTest {
                     .build()) // kept
             .build();
 
-    FugaziReferencemajig expected =
-        FugaziReferencemajig.builder()
+    FugaziReferenceMajig expected =
+        FugaziReferenceMajig.builder()
             .whocares("noone")
             .me(true)
             ._nope(DataAbsentReason.of(DataAbsentReason.Reason.unsupported))
@@ -109,7 +109,7 @@ public class Stu3JacksonMapperTest {
             .thing(reference("https://example.com/api/stu3/Organization/1234"))
             .thing(reference("https://example.com/api/stu3/Practitioner/987"))
             .inner(
-                FugaziReferencemajig.builder()
+                FugaziReferenceMajig.builder()
                     .ref(
                         Reference.builder()
                             .reference(
@@ -126,8 +126,8 @@ public class Stu3JacksonMapperTest {
             .writerWithDefaultPrettyPrinter()
             .writeValueAsString(input);
 
-    FugaziReferencemajig actual =
-        JacksonConfig.createMapper().readValue(qualifiedJson, FugaziReferencemajig.class);
+    FugaziReferenceMajig actual =
+        JacksonConfig.createMapper().readValue(qualifiedJson, FugaziReferenceMajig.class);
 
     assertThat(actual).isEqualTo(expected);
   }
@@ -138,14 +138,14 @@ public class Stu3JacksonMapperTest {
     ReferenceSerializerProperties disableEncounter =
         ReferenceSerializerProperties.builder().encounter(false).build();
 
-    FugaziRequiredReferencemajig input =
-        FugaziRequiredReferencemajig.builder()
+    FugaziRequiredReferenceMajig input =
+        FugaziRequiredReferenceMajig.builder()
             .required(reference("https://example.com/api/dstu2/Encounter/1234")) // emits DAR
             ._required(DataAbsentReason.of(DataAbsentReason.Reason.unknown))
             .build();
 
-    FugaziRequiredReferencemajig expected =
-        FugaziRequiredReferencemajig.builder()
+    FugaziRequiredReferenceMajig expected =
+        FugaziRequiredReferenceMajig.builder()
             .required(null)
             ._required(DataAbsentReason.of(DataAbsentReason.Reason.unknown))
             .build();
@@ -158,8 +158,8 @@ public class Stu3JacksonMapperTest {
             .writerWithDefaultPrettyPrinter()
             .writeValueAsString(input);
 
-    FugaziRequiredReferencemajig actual =
-        JacksonConfig.createMapper().readValue(qualifiedJson, FugaziRequiredReferencemajig.class);
+    FugaziRequiredReferenceMajig actual =
+        JacksonConfig.createMapper().readValue(qualifiedJson, FugaziRequiredReferenceMajig.class);
 
     assertThat(actual).isEqualTo(expected);
   }
@@ -172,13 +172,13 @@ public class Stu3JacksonMapperTest {
     fieldVisibility = JsonAutoDetect.Visibility.ANY,
     isGetterVisibility = JsonAutoDetect.Visibility.NONE
   )
-  static final class FugaziReferencemajig {
+  static final class FugaziReferenceMajig {
     Reference ref;
     Reference nope;
     Extension _nope;
     Reference alsoNo;
     @Singular List<Reference> things;
-    FugaziReferencemajig inner;
+    FugaziReferenceMajig inner;
     String whocares;
     Boolean me;
   }
@@ -192,7 +192,7 @@ public class Stu3JacksonMapperTest {
     fields = {"required", "_required"},
     message = "Exactly one required field must be specified"
   )
-  static final class FugaziRequiredReferencemajig {
+  static final class FugaziRequiredReferenceMajig {
     Reference required;
     Extension _required;
   }
