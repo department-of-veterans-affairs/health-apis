@@ -68,7 +68,11 @@ public class Dstu2PractitionerTransformer {
 
   static HumanName name(DatamartPractitioner.Name source) {
     if (source == null
-        || allBlank(source.family(), source.given(), source.prefix(), source.suffix())) {
+        || allBlank(
+            source.family(),
+            source.given(),
+            source.prefix().orElse(null),
+            source.suffix().orElse(null))) {
       return null;
     }
     return HumanName.builder()
@@ -87,26 +91,25 @@ public class Dstu2PractitionerTransformer {
   }
 
   static CodeableConcept role(Optional<DatamartCoding> source) {
-    if (source.isEmpty() || source.get() == null) {
+    if (source.isEmpty()) {
       return null;
     }
+
     return CodeableConcept.builder().coding(roleCoding(source.get())).build();
   }
 
   static List<Coding> roleCoding(DatamartCoding source) {
-    if (source.code().isEmpty()
-        || source.code().get() == null
-        || allBlank(source.system(), source.display(), source.code())) {
+    if (!source.hasAnyValue()) {
       return null;
     }
     return convert(
         source,
-        cdw ->
+        dm ->
             List.of(
                 Coding.builder()
-                    .code(cdw.code().orElse(null))
-                    .display(cdw.display().orElse(null))
-                    .system(cdw.system().orElse(null))
+                    .code(dm.code().orElse(null))
+                    .display(dm.display().orElse(null))
+                    .system(dm.system().orElse(null))
                     .build()));
   }
 
@@ -154,7 +157,13 @@ public class Dstu2PractitionerTransformer {
       return null;
     }
     return Practitioner.PractitionerRole.builder()
-        .location(convert(source, cdw -> List.of(asReference(cdw.location().get(0)))))
+        .location(
+            emptyToNull(
+                convert(
+                    source,
+                    dm ->
+                        List.of(
+                            dm.location().isEmpty() ? null : asReference(dm.location().get(0))))))
         .role(role(source.role()))
         .managingOrganization(asReference(source.managingOrganization()))
         .healthcareService(healthcareServices(source.healthCareService()))
