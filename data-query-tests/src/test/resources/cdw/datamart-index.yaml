@@ -525,7 +525,7 @@ entries:
     page: 1
     count: 15
   - file: ../../../../target/cdw/samples/Org100i1000025431C.xml
-    query: /Organization:1.02?identifier=1000025431:C
+    query: /Organization:1.02?identifier=561596:I
     page: 1
     count: 15
   - file: ../../../../target/cdw/samples/Org100i5555555555555.xml

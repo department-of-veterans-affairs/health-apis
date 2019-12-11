@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableMap;
 import gov.va.api.health.dstu2.api.bundle.AbstractBundle;
 import gov.va.api.health.dstu2.api.resources.Location;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
+import gov.va.api.health.dstu2.api.resources.Organization;
 import gov.va.api.health.sentinel.Environment;
 import gov.va.api.health.sentinel.TestClient;
 import java.util.Arrays;
@@ -49,7 +50,7 @@ public class ResourceVerifier {
 
   private ImmutableList<Class<?>> DATAMART_AND_CDW_RESOURCES =
       ImmutableList.of(
-          Location.class
+          Location.class, Organization.class
           /*
            * As remaining resources are migrated, they may support both CDW and Datamart at the same
            * time. Once resources are fully migrated over, they can be removed from this list.
