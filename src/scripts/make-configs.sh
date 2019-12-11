@@ -128,7 +128,7 @@ configValue data-query $PROFILE identityservice.url http://localhost:8089
 addValue data-query $PROFILE identityservice.encodingKey "$IDS_ENCODING_KEY"
 addValue data-query $PROFILE identityservice.patientIdPattern "$IDS_PATIENT_ID_PATTERN"
 configValue data-query $PROFILE mranderson.url http://localhost:8088
-configValue data-query $PROFILE adata-query.public-url http://localhost:8090
+configValue data-query $PROFILE data-query.public-url http://localhost:8090
 configValue data-query $PROFILE conformance.statement-type patient
 configValue data-query $PROFILE conformance.contact.name "$(whoDis)"
 configValue data-query $PROFILE conformance.contact.email "$(sendMoarSpams)"
