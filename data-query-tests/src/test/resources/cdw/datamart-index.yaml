@@ -224,50 +224,6 @@ entries:
     query: /Practitioner:1.02?patient=43000199
     page: 1
     count: 21
-  - file: ../../../../target/cdw/samples/Pro101i1400000140034.xml
-    query: /Procedure:1.01?identifier=1000001259996
-    page: 1
-    count: 15
-  - file: ../../../../target/cdw/samples/Pro101i5555555555555.xml
-    query: /Procedure:1.01?identifier=5555555555555
-    page: 1
-    count: 15
-  - file: ../../../../target/cdw/samples/Pro101p185601V825290.xml
-    query: /Procedure:1.01?patient=43000199
-    page: 1
-    count: 15
-  - file: ../../../../target/cdw/samples/Pro101p185601V825290dge2009.xml
-    query: /Procedure:1.01?patient=43000199&date=ge2009
-    page: 1
-    count: 15
-  - file: ../../../../target/cdw/samples/Pro101p185601V825290dge2009dle2010.xml
-    query: /Procedure:1.01?patient=43000199&date=ge2009&date=le2010
-    page: 1
-    count: 15
-  - file: ../../../../target/cdw/samples/Pro101p185601V825290pg0.xml
-    query: /Procedure:1.01?patient=43000199
-    page: 0
-    count: 15
-  - file: ../../../../target/cdw/samples/Pro101p185601V825290pg10000ct20.xml
-    query: /Procedure:1.01?patient=43000199
-    page: 10000
-    count: 20
-  - file: ../../../../target/cdw/samples/Pro101p185601V825290pg1ct0.xml
-    query: /Procedure:1.01?patient=43000199
-    page: 1
-    count: 0
-  - file: ../../../../target/cdw/samples/Pro101p185601V825290pg1ct2.xml
-    query: /Procedure:1.01?patient=43000199
-    page: 1
-    count: 2
-  - file: ../../../../target/cdw/samples/Pro101p185601V825290pg1ct21.xml
-    query: /Procedure:1.01?patient=43000199
-    page: 1
-    count: 21
-  - file: ../../../../target/cdw/samples/Pro101p185601V825290pg2ct2.xml
-    query: /Procedure:1.01?patient=43000199
-    page: 2
-    count: 2
   - file: ./NoResults.xml
     query: /DiagnosticReport:1.02?identifier=5555555555555-mra-it
     page: 1

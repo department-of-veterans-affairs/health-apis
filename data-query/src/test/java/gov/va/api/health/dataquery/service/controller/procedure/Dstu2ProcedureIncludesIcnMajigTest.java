@@ -6,7 +6,7 @@ import gov.va.api.health.dstu2.api.elements.Reference;
 import java.util.List;
 import org.junit.Test;
 
-public class ProcedureIncludesIcnMajigTest {
+public class Dstu2ProcedureIncludesIcnMajigTest {
 
   @Test
   public void extractIcn() {
