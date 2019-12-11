@@ -64,9 +64,9 @@ public class MagicReferenceConfig {
   /** Auto-wired constructor. */
   @Autowired
   public MagicReferenceConfig(
-      @Value("${argonaut.url}") String baseUrl,
-      @Value("${dstu2.base-path}") String dstu2BasePath,
-      @Value("${stu3.base-path}") String stu3BasePath,
+      @Value("${data-query.public-url}") String baseUrl,
+      @Value("${data-query.public-dstu2-base-path}") String dstu2BasePath,
+      @Value("${data-query.public-stu3-base-path}") String stu3BasePath,
       ReferenceSerializerProperties config) {
     this.baseUrl = baseUrl;
     this.dstu2BasePath = dstu2BasePath;

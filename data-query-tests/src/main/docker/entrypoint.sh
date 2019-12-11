@@ -154,7 +154,7 @@ setupForAutomation() {
     -Daccess-token=$TOKEN \
     -Draw-token=$RAW_TOKEN \
     -Dbulk-token=$BULK_TOKEN \
-    -Dsentinel.argonaut.url=https://$K8S_LOAD_BALANCER \
+    -Dsentinel.data-query.public-url=https://$K8S_LOAD_BALANCER \
     -Dsentinel.internal.url=https://$K8S_LOAD_BALANCER \
     -Dsentinel.argonaut.api-path=$DATA_QUERY_API_PATH \
     -Dsentinel.internal.api-path=$INTERNAL_API_PATH \

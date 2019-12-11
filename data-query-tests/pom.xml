@@ -219,7 +219,7 @@
                 <argument>data-query.jar${path.separator}h2.jar</argument>
                 <argument>-Dlogging.level.root=INFO</argument>
                 <argument>-Dloader=gov.va.api.health.dataquery.service.Application</argument>
-                <argument>-Dargonaut.url=http://localhost:8090</argument>
+                <argument>-Ddata-query.public-url=http://localhost:8090</argument>
                 <argument>-Didentityservice.url=http://localhost:8089</argument>
                 <argument>-Didentityservice.encodingKey=data-query</argument>
                 <argument>-Didentityservice.patientIdPattern=[0-9]+(V[0-9]{6})?</argument>

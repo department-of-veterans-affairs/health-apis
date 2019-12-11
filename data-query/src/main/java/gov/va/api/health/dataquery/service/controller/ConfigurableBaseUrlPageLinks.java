@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
-/** This implementation uses a configurable base URL (argonaut.url) for the links. */
+/** This implementation uses a configurable base URL (data-query.public-url) for the links. */
 @Service
 public class ConfigurableBaseUrlPageLinks implements PageLinks {
   /**
@@ -32,9 +32,9 @@ public class ConfigurableBaseUrlPageLinks implements PageLinks {
   /** Spring constructor. */
   @Autowired
   public ConfigurableBaseUrlPageLinks(
-      @Value("${argonaut.url}") String baseUrl,
-      @Value("${dstu2.base-path}") String dstu2BasePath,
-      @Value("${stu3.base-path}") String stu3BasePath) {
+      @Value("${data-query.public-url}") String baseUrl,
+      @Value("${data-query.public-dstu2-base-path}") String dstu2BasePath,
+      @Value("${data-query.public-stu3-base-path}") String stu3BasePath) {
     this.baseUrl = baseUrl;
     this.dstu2BasePath = dstu2BasePath;
     this.stu3BasePath = stu3BasePath;
