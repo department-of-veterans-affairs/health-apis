@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.practitioner;
 
+import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asCodeableConceptWrapping;
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asReference;
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.convert;
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.emptyToNull;
@@ -8,12 +9,8 @@ import static gov.va.api.health.dataquery.service.controller.Transformers.allBla
 import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
 import static java.util.Collections.singletonList;
 
-import gov.va.api.health.dataquery.service.controller.Dstu2Transformers;
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
-import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
 import gov.va.api.health.dstu2.api.datatypes.Address;
-import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
-import gov.va.api.health.dstu2.api.datatypes.Coding;
 import gov.va.api.health.dstu2.api.datatypes.ContactPoint;
 import gov.va.api.health.dstu2.api.datatypes.HumanName;
 import gov.va.api.health.dstu2.api.elements.Reference;
@@ -24,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.Builder;
+import org.apache.commons.lang3.BooleanUtils;
 
 @Builder
 public class Dstu2PractitionerTransformer {
@@ -80,7 +78,6 @@ public class Dstu2PractitionerTransformer {
     return singletonList(source.get());
   }
 
-
   static ContactPoint telecom(DatamartPractitioner.Telecom telecom) {
     if (telecom == null || allBlank(telecom.system(), telecom.use(), telecom.value())) {
       return null;
@@ -132,9 +129,7 @@ public class Dstu2PractitionerTransformer {
                     .stream()
                     .map(loc -> asReference(loc))
                     .collect(Collectors.toList())))
-        .role(
-            Dstu2Transformers.asCodeableConceptWrapping(
-                isBlank(source.role()) ? null : source.role().get()))
+        .role(asCodeableConceptWrapping(source.role()))
         .managingOrganization(asReference(source.managingOrganization()))
         .healthcareService(healthcareServices(source.healthCareService()))
         .build();
@@ -159,7 +154,7 @@ public class Dstu2PractitionerTransformer {
     return Practitioner.builder()
         .id(datamart.cdwId())
         .resourceType("Practitioner")
-        .active(datamart.active().booleanValue())
+        .active(BooleanUtils.isTrue(datamart.active()))
         .name(name(datamart.name()))
         .telecom(telecoms())
         .address(addresses())
