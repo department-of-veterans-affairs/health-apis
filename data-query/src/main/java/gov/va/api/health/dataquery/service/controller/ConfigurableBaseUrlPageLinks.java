@@ -33,8 +33,8 @@ public class ConfigurableBaseUrlPageLinks implements PageLinks {
   @Autowired
   public ConfigurableBaseUrlPageLinks(
       @Value("${argonaut.url}") String baseUrl,
-      @Value("${argonaut.dstu2-base-path}") String dstu2BasePath,
-      @Value("${argonaut.stu3-base-path}") String stu3BasePath) {
+      @Value("${dstu2.base-path}") String dstu2BasePath,
+      @Value("${stu3.base-path}") String stu3BasePath) {
     this.baseUrl = baseUrl;
     this.dstu2BasePath = dstu2BasePath;
     this.stu3BasePath = stu3BasePath;
