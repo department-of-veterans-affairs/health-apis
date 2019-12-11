@@ -134,7 +134,7 @@ public class Dstu2DiagnosticReportController {
 
   @SneakyThrows
   private Pair<DatamartDiagnosticReports, DatamartDiagnosticReports.DiagnosticReport>
-      datamartReadRaw(String publicId) {
+  pairPayload(String publicId) {
     MultiValueMap<String, String> publicParameters = Parameters.forIdentity(publicId);
     MultiValueMap<String, String> cdwParameters =
         witnessProtection.replacePublicIdsWithCdwIds(publicParameters);
@@ -172,7 +172,7 @@ public class Dstu2DiagnosticReportController {
   @GetMapping(value = {"/{publicId}"})
   public DiagnosticReport read(@PathVariable("publicId") String publicId) {
     Pair<DatamartDiagnosticReports, DatamartDiagnosticReports.DiagnosticReport> result =
-        datamartReadRaw(publicId);
+        pairPayload(publicId);
     DatamartDiagnosticReports payload = result.getFirst();
     DatamartDiagnosticReports.DiagnosticReport report = result.getSecond();
     replaceCdwIdsWithPublicIds(asList(report));
@@ -191,7 +191,7 @@ public class Dstu2DiagnosticReportController {
   )
   public DatamartDiagnosticReports.DiagnosticReport readRaw(
       @PathVariable("publicId") String publicId, HttpServletResponse response) {
-    var pair = datamartReadRaw(publicId);
+    var pair = pairPayload(publicId);
     AbstractIncludesIcnMajig.addHeader(response, pair.getFirst().fullIcn());
     return pair.getSecond();
   }
