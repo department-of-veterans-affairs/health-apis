@@ -159,7 +159,7 @@ public class Dstu2PractitionerTransformer {
     return Practitioner.builder()
         .id(datamart.cdwId())
         .resourceType("Practitioner")
-        .active(datamart.active())
+        .active(datamart.active().booleanValue())
         .name(name(datamart.name()))
         .telecom(telecoms())
         .address(addresses())
