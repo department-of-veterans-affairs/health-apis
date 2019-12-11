@@ -8,6 +8,7 @@ import static gov.va.api.health.dataquery.service.controller.Transformers.allBla
 import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
 import static java.util.Collections.singletonList;
 
+import gov.va.api.health.dataquery.service.controller.Dstu2Transformers;
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
 import gov.va.api.health.dstu2.api.datatypes.Address;
@@ -153,7 +154,9 @@ public class Dstu2PractitionerTransformer {
                     .stream()
                     .map(loc -> asReference(loc))
                     .collect(Collectors.toList())))
-        .role(role(source.role()))
+        .role(
+            Dstu2Transformers.asCodeableConceptWrapping(
+                isBlank(source.role()) ? null : source.role().get()))
         .managingOrganization(asReference(source.managingOrganization()))
         .healthcareService(healthcareServices(source.healthCareService()))
         .build();
