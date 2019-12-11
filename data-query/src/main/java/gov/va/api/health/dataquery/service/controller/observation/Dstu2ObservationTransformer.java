@@ -30,7 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Builder
-final class DatamartObservationTransformer {
+final class Dstu2ObservationTransformer {
   @NonNull final DatamartObservation datamart;
 
   static CodeableConcept category(DatamartObservation.Category category) {
