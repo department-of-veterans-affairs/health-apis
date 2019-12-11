@@ -301,7 +301,6 @@ public final class DatamartDiagnosticReportTest {
   @Test
   public void searchByPatientAndCategoryAndDate_exactEffective() {
     DatamartData dm = DatamartData.create();
-    FhirData fhir = FhirData.from(dm);
     entityManager.persistAndFlush(dm.entity());
     entityManager.persistAndFlush(dm.crossEntity());
     Bundle bundle =
@@ -314,7 +313,6 @@ public final class DatamartDiagnosticReportTest {
   @Test
   public void searchByPatientAndCategoryAndDate_exactIssued() {
     DatamartData dm = DatamartData.create();
-    FhirData fhir = FhirData.from(dm);
     entityManager.persistAndFlush(dm.entity());
     entityManager.persistAndFlush(dm.crossEntity());
     Bundle bundle =
@@ -331,7 +329,6 @@ public final class DatamartDiagnosticReportTest {
             .issuedDateTime("2009-09-24T00:00:00")
             .effectiveDateTime("2009-09-24T01:00:00")
             .build();
-    FhirData fhir = FhirData.from(dm);
     entityManager.persistAndFlush(dm.entity());
     entityManager.persistAndFlush(dm.crossEntity());
     DiagnosticReportController controller = controller();
@@ -353,7 +350,6 @@ public final class DatamartDiagnosticReportTest {
   @Test
   public void searchByPatientAndCategoryAndDate_noDates() {
     DatamartData dm = DatamartData.builder().issuedDateTime("").effectiveDateTime("").build();
-    FhirData fhir = FhirData.from(dm);
     entityManager.persistAndFlush(dm.entity());
     entityManager.persistAndFlush(dm.crossEntity());
     Bundle bundle =
@@ -366,7 +362,6 @@ public final class DatamartDiagnosticReportTest {
   @Test
   public void searchByPatientAndCategoryAndDate_notLab() {
     DatamartData dm = DatamartData.create();
-    FhirData fhir = FhirData.from(dm);
     entityManager.persistAndFlush(dm.entity());
     entityManager.persistAndFlush(dm.crossEntity());
     Bundle bundle =
@@ -379,7 +374,6 @@ public final class DatamartDiagnosticReportTest {
   @Test
   public void searchByPatientAndCode() {
     DatamartData dm = DatamartData.create();
-    FhirData fhir = FhirData.from(dm);
     entityManager.persistAndFlush(dm.entity());
     entityManager.persistAndFlush(dm.crossEntity());
     DiagnosticReport.Bundle bundle =
