@@ -39,9 +39,13 @@ public final class ResourceExceptions {
     return msg.toString();
   }
 
-  static final class MissingSearchParameters extends ResourcesException {
+  public static final class MissingSearchParameters extends ResourcesException {
     public MissingSearchParameters(MultiValueMap<String, String> parameters) {
       super(toParametersString(parameters));
+    }
+
+    public MissingSearchParameters(String message) {
+      super(message);
     }
   }
 

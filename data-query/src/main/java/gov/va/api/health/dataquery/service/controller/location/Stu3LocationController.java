@@ -26,7 +26,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -107,7 +106,10 @@ public class Stu3LocationController {
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
     if (street == null && city == null && state == null && postalCode == null) {
-      throw new MissingServletRequestParameterException("address", "String");
+      throw new ResourceExceptions.MissingSearchParameters(
+          String.format(
+              "At least one of %s must be specified",
+              List.of("address", "address-city", "address-state", "address-postalcode")));
     }
     MultiValueMap<String, String> parameters =
         Parameters.builder()
