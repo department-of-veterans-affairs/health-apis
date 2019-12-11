@@ -109,21 +109,15 @@ public class Stu3LocationController {
     if (street == null && city == null && state == null && postalCode == null) {
       throw new MissingServletRequestParameterException("address", "String");
     }
-    Parameters pb = Parameters.builder().add("page", page).add("_count", count);
-    if (street != null) {
-      pb.add("address", street);
-    }
-    if (city != null) {
-      pb.add("address-city", city);
-    }
-    if (state != null) {
-      pb.add("address-state", state);
-    }
-    if (postalCode != null) {
-      pb.add("address-postalcode", postalCode);
-    }
-    MultiValueMap<String, String> parameters = pb.build();
-
+    MultiValueMap<String, String> parameters =
+        Parameters.builder()
+            .addIgnoreNull("address", street)
+            .addIgnoreNull("address-city", city)
+            .addIgnoreNull("address-state", state)
+            .addIgnoreNull("address-postalcode", postalCode)
+            .add("page", page)
+            .add("_count", count)
+            .build();
     LocationRepository.AddressSpecification spec =
         LocationRepository.AddressSpecification.builder()
             .street(street)

@@ -75,6 +75,14 @@ public class Parameters {
     return this;
   }
 
+  /** Add a single key/value entry, if the value is non-null. */
+  public Parameters addIgnoreNull(String key, String value) {
+    if (value != null) {
+      params.add(key, value);
+    }
+    return this;
+  }
+
   /** Create an immutable map. */
   public MultiValueMap<String, String> build() {
     return CollectionUtils.unmodifiableMultiValueMap(params);
