@@ -5,6 +5,7 @@ import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.c
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.emptyToNull;
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.ifPresent;
 import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
+import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
 import static java.util.Collections.singletonList;
 
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
@@ -51,28 +52,16 @@ public class Dstu2PractitionerTransformer {
     return source.map(LocalDate::toString).orElse(null);
   }
 
-  static Reference healthCareService(String service) {
-    if (service.isBlank()) {
+  static List<Reference> healthcareServices(Optional<String> service) {
+    if (isBlank(service)) {
       return null;
     }
-    return Reference.builder().display(service).build();
-  }
-
-  static List<Reference> healthcareServices(Optional<String> services) {
-    if (services.isEmpty()) {
-      return null;
-    }
-    return emptyToNull(
-        services.stream().map(s -> healthCareService(s)).collect(Collectors.toList()));
+    return List.of(Reference.builder().display(service.get()).build());
   }
 
   static HumanName name(DatamartPractitioner.Name source) {
     if (source == null
-        || allBlank(
-            source.family(),
-            source.given(),
-            source.prefix(),
-            source.suffix())) {
+        || allBlank(source.family(), source.given(), source.prefix(), source.suffix())) {
       return null;
     }
     return HumanName.builder()
@@ -84,7 +73,7 @@ public class Dstu2PractitionerTransformer {
   }
 
   static List<String> nameList(Optional<String> source) {
-    if (source.isEmpty() || source.get().isBlank()) {
+    if (isBlank(source)) {
       return null;
     }
     return singletonList(source.get());
@@ -159,11 +148,11 @@ public class Dstu2PractitionerTransformer {
     return Practitioner.PractitionerRole.builder()
         .location(
             emptyToNull(
-                convert(
-                    source,
-                    dm ->
-                        List.of(
-                            dm.location().isEmpty() ? null : asReference(dm.location().get(0))))))
+                source
+                    .location()
+                    .stream()
+                    .map(loc -> asReference(loc))
+                    .collect(Collectors.toList())))
         .role(role(source.role()))
         .managingOrganization(asReference(source.managingOrganization()))
         .healthcareService(healthcareServices(source.healthCareService()))
