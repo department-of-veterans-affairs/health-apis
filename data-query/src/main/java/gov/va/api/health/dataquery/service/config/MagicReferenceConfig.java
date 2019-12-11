@@ -180,7 +180,6 @@ public class MagicReferenceConfig {
                 SerializationConfig serialConfig,
                 BeanDescription beanDesc,
                 List<BeanPropertyWriter> beanProperties) {
-
               if (beanDesc.getBeanClass() == gov.va.api.health.dstu2.api.elements.Reference.class) {
                 for (int i = 0; i < beanProperties.size(); i++) {
                   BeanPropertyWriter beanPropertyWriter = beanProperties.get(i);
@@ -208,7 +207,6 @@ public class MagicReferenceConfig {
                 SerializationConfig serialConfig,
                 BeanDescription beanDesc,
                 JsonSerializer<?> serializer) {
-
               if (gov.va.api.health.dstu2.api.elements.Reference.class.isAssignableFrom(
                   beanDesc.getBeanClass())) {
                 return new Dstu2OptionalReferenceSerializer(
@@ -219,7 +217,6 @@ public class MagicReferenceConfig {
                 return new Stu3OptionalReferenceSerializer(
                     (JsonSerializer<gov.va.api.health.stu3.api.elements.Reference>) serializer);
               }
-
               return super.modifySerializer(serialConfig, beanDesc, serializer);
             }
           });
@@ -257,7 +254,6 @@ public class MagicReferenceConfig {
     @SneakyThrows
     public void serializeAsField(
         Object pojo, JsonGenerator jgen, SerializerProvider provider, PropertyWriter writer) {
-
       boolean include = true;
 
       if (writer.getType().getRawClass() == gov.va.api.health.dstu2.api.elements.Reference.class
