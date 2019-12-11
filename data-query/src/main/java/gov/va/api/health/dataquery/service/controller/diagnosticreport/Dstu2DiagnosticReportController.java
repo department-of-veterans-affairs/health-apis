@@ -133,8 +133,8 @@ public class Dstu2DiagnosticReportController {
   }
 
   @SneakyThrows
-  private Pair<DatamartDiagnosticReports, DatamartDiagnosticReports.DiagnosticReport>
-  pairPayload(String publicId) {
+  private Pair<DatamartDiagnosticReports, DatamartDiagnosticReports.DiagnosticReport> pairPayload(
+      String publicId) {
     MultiValueMap<String, String> publicParameters = Parameters.forIdentity(publicId);
     MultiValueMap<String, String> cdwParameters =
         witnessProtection.replacePublicIdsWithCdwIds(publicParameters);
