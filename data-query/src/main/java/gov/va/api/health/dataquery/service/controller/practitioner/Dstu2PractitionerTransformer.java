@@ -80,28 +80,6 @@ public class Dstu2PractitionerTransformer {
     return singletonList(source.get());
   }
 
-  static CodeableConcept role(Optional<DatamartCoding> source) {
-    if (source.isEmpty()) {
-      return null;
-    }
-
-    return CodeableConcept.builder().coding(roleCoding(source.get())).build();
-  }
-
-  static List<Coding> roleCoding(DatamartCoding source) {
-    if (!source.hasAnyValue()) {
-      return null;
-    }
-    return convert(
-        source,
-        dm ->
-            List.of(
-                Coding.builder()
-                    .code(dm.code().orElse(null))
-                    .display(dm.display().orElse(null))
-                    .system(dm.system().orElse(null))
-                    .build()));
-  }
 
   static ContactPoint telecom(DatamartPractitioner.Telecom telecom) {
     if (telecom == null || allBlank(telecom.system(), telecom.use(), telecom.value())) {
