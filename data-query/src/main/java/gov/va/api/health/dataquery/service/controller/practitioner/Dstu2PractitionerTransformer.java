@@ -71,8 +71,8 @@ public class Dstu2PractitionerTransformer {
         || allBlank(
             source.family(),
             source.given(),
-            source.prefix().orElse(null),
-            source.suffix().orElse(null))) {
+            source.prefix(),
+            source.suffix())) {
       return null;
     }
     return HumanName.builder()
