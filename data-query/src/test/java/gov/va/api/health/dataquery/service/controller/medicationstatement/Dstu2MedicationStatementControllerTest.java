@@ -12,6 +12,7 @@ import gov.va.api.health.argonaut.api.resources.MedicationStatement.Bundle;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
 import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
+import gov.va.api.health.dataquery.service.controller.Dstu2Validator;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.medicationstatement.MedicationStatementSamples.Datamart;
@@ -219,6 +220,38 @@ public class Dstu2MedicationStatementControllerTest {
   @SneakyThrows
   private DatamartMedicationStatement toObject(String json) {
     return JacksonConfig.createMapper().readValue(json, DatamartMedicationStatement.class);
+  }
+
+  @Test
+  public void validate() {
+    DatamartMedicationStatement dm =
+        MedicationStatementSamples.Datamart.create().medicationStatement();
+    MedicationStatement medicationStatement =
+        MedicationStatementSamples.Dstu2.create()
+            .medicationStatement("1", dm.patient().reference().get());
+    assertThat(
+            controller()
+                .validate(
+                    MedicationStatementSamples.Dstu2.asBundle(
+                        "http://fonzy.com/cool",
+                        List.of(medicationStatement),
+                        1,
+                        MedicationStatementSamples.Dstu2.link(
+                            LinkRelation.first,
+                            "http://fonzy.com/cool/MedicationStatement?identifier=1",
+                            1,
+                            1),
+                        MedicationStatementSamples.Dstu2.link(
+                            LinkRelation.self,
+                            "http://fonzy.com/cool/MedicationStatement?identifier=1",
+                            1,
+                            1),
+                        MedicationStatementSamples.Dstu2.link(
+                            LinkRelation.last,
+                            "http://fonzy.com/cool/MedicationStatement?identifier=1",
+                            1,
+                            1))))
+        .isEqualTo(Dstu2Validator.ok());
   }
 
   private void validateSearchByIdResult(DatamartMedicationStatement dm, Bundle actual) {

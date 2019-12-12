@@ -28,7 +28,7 @@ import lombok.AllArgsConstructor;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
-public class DatamartObservationSamples {
+public class ObservationSamples {
 
   @AllArgsConstructor(staticName = "create")
   static class Datamart {
@@ -88,18 +88,6 @@ public class DatamartObservationSamples {
                       .unit("ng/mL")
                       .system("http://unitsofmeasure.org")
                       .code("ng/mL")
-                      .build()))
-          .valueCodeableConcept(
-              Optional.of(
-                  DatamartObservation.CodeableConcept.builder()
-                      .coding(
-                          Optional.of(
-                              DatamartCoding.builder()
-                                  .system(Optional.of("http://snomed.info/sct"))
-                                  .code(Optional.of("112283007"))
-                                  .display(Optional.of("ESCHERICHIA COLI"))
-                                  .build()))
-                      .text("ESCHERICHIA COLI")
                       .build()))
           .interpretation("H")
           .comment(
@@ -313,13 +301,16 @@ public class DatamartObservationSamples {
   }
 
   @AllArgsConstructor(staticName = "create")
-  static class Fhir {
+  static class Dstu2 {
     static Observation.Bundle asBundle(
-        String baseUrl, Collection<Observation> observations, BundleLink... links) {
+        String baseUrl,
+        Collection<Observation> observations,
+        int totalRecords,
+        BundleLink... links) {
       return Bundle.builder()
           .resourceType("Bundle")
           .type(BundleType.searchset)
-          .total(observations.size())
+          .total(totalRecords)
           .link(Arrays.asList(links))
           .entry(
               observations
@@ -401,17 +392,6 @@ public class DatamartObservationSamples {
                   .unit("ng/mL")
                   .system("http://unitsofmeasure.org")
                   .code("ng/mL")
-                  .build())
-          .valueCodeableConcept(
-              CodeableConcept.builder()
-                  .coding(
-                      asList(
-                          Coding.builder()
-                              .system("http://snomed.info/sct")
-                              .code("112283007")
-                              .display("ESCHERICHIA COLI")
-                              .build()))
-                  .text("ESCHERICHIA COLI")
                   .build())
           .interpretation(
               CodeableConcept.builder()

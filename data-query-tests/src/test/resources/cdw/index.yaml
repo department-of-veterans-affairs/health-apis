@@ -62,27 +62,6 @@ entries:
     query: /Patient:1.03?name=VETERAN,JOHN&gender=male
     page: 1
     count: 20
-  # Observation aliases
-  - file: ../../../../target/cdw/samples/Obs104p185601V825290catlaboratory.xml
-    query: /Observation:1.04?code=72166-2&patient=185601V825290
-    page: 1
-    count: 15
-  - file: ../../../../target/cdw/samples/Obs104p185601V825290catlaboratory.xml
-    query: /Observation:1.04?code=72166-2,777-3&patient=185601V825290
-    page: 1
-    count: 15
-  - file: ../../../../target/cdw/samples/Obs104p185601V825290catlaboratory.xml
-    query: /Observation:1.04?code=72166-2,99999-9&patient=185601V825290
-    page: 1
-    count: 15
-  - file: ../../../../target/cdw/samples/Obs104p185601V825290catlaboratory.xml
-    query: /Observation:1.04?category=laboratory&date=gt1970-01-01&date=lt2038-01-19&patient=185601V825290
-    page: 1
-    count: 15
-  - file: ../../../../target/cdw/samples/Obs104p185601V825290catlaboratory.xml
-    query: /Observation:1.04?category=laboratory&date=2015-04-15&patient=185601V825290
-    page: 1
-    count: 15
   # Encounter alias
   - file: ../../../../target/cdw/samples/Enc101p185601V825290.xml
     query: /Encounter:1.02?identifier=1200753214085
@@ -96,16 +75,3 @@ entries:
     query: /Encounter:1.02?_id=1200753214085
     page: 1
     count: 1
-  # DiagnosticReport aliases
-  - file: ../../../../target/cdw/samples/DiaRep102p185601V825290catLABdgt19700101dlt20380101.xml
-    query: /DiagnosticReport:1.02?code=10000-8,10001-6&patient=185601V825290
-    page: 1
-    count: 15
-  - file: ../../../../target/cdw/samples/DiaRep102p185601V825290catLABdgt19700101dlt20380101.xml
-    query: /DiagnosticReport:1.02?patient=185601V825290&category=LAB
-    page: 1
-    count: 21
-  - file: ../../../../target/cdw/samples/DiaRep102p185601V825290catLABdgt19700101dlt20380101.xml
-    query: /DiagnosticReport:1.02?patient=185601V825290&category=LAB
-    page: 1
-    count: 20
