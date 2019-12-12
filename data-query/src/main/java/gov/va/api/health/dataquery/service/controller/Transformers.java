@@ -2,6 +2,7 @@ package gov.va.api.health.dataquery.service.controller;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Optional;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.StringUtils;
 
@@ -28,6 +29,9 @@ public final class Transformers {
     }
     if (value instanceof Collection<?>) {
       return ((Collection<?>) value).isEmpty();
+    }
+    if (value instanceof Optional<?>) {
+      return ((Optional<?>) value).isEmpty() || isBlank(((Optional<?>) value).get());
     }
     if (value instanceof Map<?, ?>) {
       return ((Map<?, ?>) value).isEmpty();

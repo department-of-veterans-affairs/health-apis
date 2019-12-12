@@ -317,6 +317,9 @@ public class F2DPatientTransformer {
           case home:
             type = "Patient Resident";
             break;
+          case work:
+          case old:
+          default:
         }
         phoneNumber = contactPoint.value();
       }

@@ -197,7 +197,7 @@ entries:
     page: 1
     count: 15
   - file: ../../../../target/cdw/samples/Pra100i10092125.xml
-    query: /Practitioner:1.02?identifier=10092125
+    query: /Practitioner:1.02?identifier=416704
     page: 1
     count: 15
   - file: ../../../../target/cdw/samples/Pra100i5555555555555.xml

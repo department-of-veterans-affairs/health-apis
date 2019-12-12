@@ -38,7 +38,8 @@ import org.junit.Test;
 public class Dstu2TransformersTest {
   @Test
   public void asCodeableConceptWrappingReturnsNullIfCodingCannotBeConverted() {
-    assertThat(asCodeableConceptWrapping(null)).isNull();
+    assertThat(asCodeableConceptWrapping(DatamartCoding.builder().build())).isNull();
+    assertThat(asCodeableConceptWrapping(Optional.empty())).isNull();
   }
 
   @Test
@@ -46,6 +47,13 @@ public class Dstu2TransformersTest {
     assertThat(
             asCodeableConceptWrapping(
                 DatamartCoding.of().system("s").code("c").display("d").build()))
+        .isEqualTo(
+            CodeableConcept.builder()
+                .coding(List.of(Coding.builder().system("s").code("c").display("d").build()))
+                .build());
+    assertThat(
+            asCodeableConceptWrapping(
+                Optional.of(DatamartCoding.of().system("s").code("c").display("d").build())))
         .isEqualTo(
             CodeableConcept.builder()
                 .coding(List.of(Coding.builder().system("s").code("c").display("d").build()))
