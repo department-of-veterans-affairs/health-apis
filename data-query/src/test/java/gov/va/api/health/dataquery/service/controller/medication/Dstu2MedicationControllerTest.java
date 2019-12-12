@@ -149,7 +149,6 @@ public class Dstu2MedicationControllerTest {
 
   @Test
   public void validate() {
-    DatamartMedication dm = MedicationSamples.Datamart.create().medication();
     Medication medication = MedicationSamples.Dstu2.create().medication("1");
     assertThat(
             controller()

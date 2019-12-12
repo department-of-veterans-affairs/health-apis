@@ -227,7 +227,6 @@ public class Dstu2ObservationControllerTest {
     repository.save(asEntity(dm));
     mockObservationIdentity("x", dm.cdwId());
     Bundle actual = controller().searchById("x", 1, 0);
-    Observation observation = Dstu2.create().observation("x");
     assertThat(json(actual))
         .isEqualTo(
             json(
