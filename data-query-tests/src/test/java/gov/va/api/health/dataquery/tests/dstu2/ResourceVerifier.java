@@ -124,9 +124,8 @@ public class ResourceVerifier {
       } catch (AssertionError | Exception e) {
         if (datamartFailuresEnabled()) {
           throw e;
-        } else {
-          log.error("Suppressing datamart failure: {}: {}", tc.label(), e.getMessage());
         }
+        log.error("Suppressing datamart failure: {}: {}", tc.label(), e.getMessage());
       }
     }
     log.info("Verify {} is {} ({})", tc.label(), tc.response().getSimpleName(), tc.status());

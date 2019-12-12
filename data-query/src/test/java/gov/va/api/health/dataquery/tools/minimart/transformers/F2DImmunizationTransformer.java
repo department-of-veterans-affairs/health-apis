@@ -71,9 +71,8 @@ public class F2DImmunizationTransformer {
     }
     if (status != null) {
       return EnumSearcher.of(DatamartImmunization.Status.class).find(status.toString());
-    } else {
-      return Status.data_absent_reason_unsupported;
     }
+    return Status.data_absent_reason_unsupported;
   }
 
   private Optional<VaccinationProtocols> vaccinationProtocols(
