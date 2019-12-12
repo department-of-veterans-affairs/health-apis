@@ -41,7 +41,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 @DataJpaTest
 @RunWith(SpringRunner.class)
 public final class DatamartPatientTest {
-
   HttpServletResponse response;
 
   @Autowired private TestEntityManager entityManager;
@@ -55,10 +54,9 @@ public final class DatamartPatientTest {
 
   @Test
   public void address() {
-    DatamartPatientTransformer tx =
-        DatamartPatientTransformer.builder().datamart(DatamartData.create().patient()).build();
-    assertThat(tx.address(DatamartPatient.Address.builder().build())).isNull();
-    assertThat(tx.address(null)).isNull();
+    assertThat(DatamartPatientTransformer.address(DatamartPatient.Address.builder().build()))
+        .isNull();
+    assertThat(DatamartPatientTransformer.address(null)).isNull();
   }
 
   @Test
@@ -78,41 +76,49 @@ public final class DatamartPatientTest {
 
   @Test
   public void contact() {
-    DatamartPatientTransformer tx =
-        DatamartPatientTransformer.builder().datamart(DatamartData.create().patient()).build();
     assertThat(DatamartData.create().patient().contact()).isNotEmpty();
     assertThat(
-            tx.contact(DatamartPatient.Contact.builder().relationship("someRelationship").build()))
+            DatamartPatientTransformer.contact(
+                DatamartPatient.Contact.builder().relationship("someRelationship").build()))
         .isNull();
-    assertThat(tx.contact(null)).isNull();
+    assertThat(DatamartPatientTransformer.contact(null)).isNull();
   }
 
   @Test
   public void contactPointUse() {
-    DatamartPatientTransformer tx =
-        DatamartPatientTransformer.builder().datamart(DatamartData.create().patient()).build();
     assertThat(
-            tx.contactPointUse(
+            DatamartPatientTransformer.contactPointUse(
                 DatamartPatient.Telecom.builder().type("PATIENT CELL PHONE").build()))
         .isEqualTo(ContactPoint.ContactPointUse.mobile);
     assertThat(
-            tx.contactPointUse(DatamartPatient.Telecom.builder().type("PATIENT RESIDENCE").build()))
-        .isEqualTo(ContactPoint.ContactPointUse.home);
-    assertThat(tx.contactPointUse(DatamartPatient.Telecom.builder().type("PATIENT EMAIL").build()))
-        .isEqualTo(ContactPoint.ContactPointUse.home);
-    assertThat(tx.contactPointUse(DatamartPatient.Telecom.builder().type("PATIENT PAGER").build()))
+            DatamartPatientTransformer.contactPointUse(
+                DatamartPatient.Telecom.builder().type("PATIENT RESIDENCE").build()))
         .isEqualTo(ContactPoint.ContactPointUse.home);
     assertThat(
-            tx.contactPointUse(DatamartPatient.Telecom.builder().type("PATIENT EMPLOYER").build()))
+            DatamartPatientTransformer.contactPointUse(
+                DatamartPatient.Telecom.builder().type("PATIENT EMAIL").build()))
+        .isEqualTo(ContactPoint.ContactPointUse.home);
+    assertThat(
+            DatamartPatientTransformer.contactPointUse(
+                DatamartPatient.Telecom.builder().type("PATIENT PAGER").build()))
+        .isEqualTo(ContactPoint.ContactPointUse.home);
+    assertThat(
+            DatamartPatientTransformer.contactPointUse(
+                DatamartPatient.Telecom.builder().type("PATIENT EMPLOYER").build()))
         .isEqualTo(ContactPoint.ContactPointUse.work);
     assertThat(
-            tx.contactPointUse(DatamartPatient.Telecom.builder().type("SPOUSE EMPLOYER").build()))
+            DatamartPatientTransformer.contactPointUse(
+                DatamartPatient.Telecom.builder().type("SPOUSE EMPLOYER").build()))
         .isEqualTo(ContactPoint.ContactPointUse.work);
-    assertThat(tx.contactPointUse(DatamartPatient.Telecom.builder().type("TEMPORARY").build()))
+    assertThat(
+            DatamartPatientTransformer.contactPointUse(
+                DatamartPatient.Telecom.builder().type("TEMPORARY").build()))
         .isEqualTo(ContactPoint.ContactPointUse.temp);
-    assertThat(tx.contactPointUse(DatamartPatient.Telecom.builder().type("BATPHONE").build()))
+    assertThat(
+            DatamartPatientTransformer.contactPointUse(
+                DatamartPatient.Telecom.builder().type("BATPHONE").build()))
         .isNull();
-    assertThat(tx.contactPointUse(null)).isNull();
+    assertThat(DatamartPatientTransformer.contactPointUse(null)).isNull();
   }
 
   @Test
@@ -122,21 +128,19 @@ public final class DatamartPatientTest {
             .telecom(asList(DatamartPatient.Telecom.builder().email("sample@example.etc").build()))
             .build();
     assertThat(tx(email).telecom()).isNotEmpty();
-    DatamartPatientTransformer tx =
-        DatamartPatientTransformer.builder().datamart(DatamartData.create().patient()).build();
     assertThat(
-            tx.contactTelecoms(
+            DatamartPatientTransformer.contactTelecoms(
                 DatamartPatient.Contact.Phone.builder().phoneNumber("(555)666-7777").build()))
         .isNotEmpty();
     assertThat(
-            tx.contactTelecoms(
+            DatamartPatientTransformer.contactTelecoms(
                 DatamartPatient.Contact.Phone.builder().workPhoneNumber("(777)666-5555").build()))
         .isNotEmpty();
     assertThat(
-            tx.contactTelecoms(
+            DatamartPatientTransformer.contactTelecoms(
                 DatamartPatient.Contact.Phone.builder().email("sample@example.etc").build()))
         .isNotEmpty();
-    assertThat(tx.contactTelecoms(null)).isNull();
+    assertThat(DatamartPatientTransformer.contactTelecoms(null)).isNull();
   }
 
   public PatientController controller() {
@@ -203,15 +207,17 @@ public final class DatamartPatientTest {
 
   @Test
   public void ethnicityDisplay() {
-    DatamartPatientTransformer tx =
-        DatamartPatientTransformer.builder().datamart(DatamartData.create().patient()).build();
-    assertThat(tx.ethnicityDisplay(null)).isNull();
-    assertThat(tx.ethnicityDisplay(DatamartPatient.Ethnicity.builder().hl7("2135-2").build()))
+    assertThat(DatamartPatientTransformer.ethnicityDisplay(null)).isNull();
+    assertThat(
+            DatamartPatientTransformer.ethnicityDisplay(
+                DatamartPatient.Ethnicity.builder().hl7("2135-2").build()))
         .isEqualTo("Hispanic or Latino");
-    assertThat(tx.ethnicityDisplay(DatamartPatient.Ethnicity.builder().hl7("2186-5").build()))
+    assertThat(
+            DatamartPatientTransformer.ethnicityDisplay(
+                DatamartPatient.Ethnicity.builder().hl7("2186-5").build()))
         .isEqualTo("Non Hispanic or Latino");
     assertThat(
-            tx.ethnicityDisplay(
+            DatamartPatientTransformer.ethnicityDisplay(
                 DatamartPatient.Ethnicity.builder().hl7("else").display("other").build()))
         .isEqualTo("other");
   }
@@ -229,30 +235,36 @@ public final class DatamartPatientTest {
                 DatamartPatient.MaritalStatus.builder().code("nope").abbrev("nada").build())
             .build();
     assertThat(tx(ms).maritalStatus()).isNull();
-    DatamartPatientTransformer tx =
-        DatamartPatientTransformer.builder().datamart(DatamartData.create().patient()).build();
-    assertThat(tx.maritalStatusCoding(null)).isNull();
-    assertThat(tx.maritalStatusCoding("A").display()).isEqualTo("Annulled");
-    assertThat(tx.maritalStatusCoding("D").display()).isEqualTo("Divorced");
-    assertThat(tx.maritalStatusCoding("I").display()).isEqualTo("Interlocutory");
-    assertThat(tx.maritalStatusCoding("L").display()).isEqualTo("Legally Separated");
-    assertThat(tx.maritalStatusCoding("M").display()).isEqualTo("Married");
-    assertThat(tx.maritalStatusCoding("P").display()).isEqualTo("Polygamous");
-    assertThat(tx.maritalStatusCoding("S").display()).isEqualTo("Never Married");
-    assertThat(tx.maritalStatusCoding("T").display()).isEqualTo("Domestic partner");
-    assertThat(tx.maritalStatusCoding("W").display()).isEqualTo("Widowed");
-    assertThat(tx.maritalStatusCoding("UNK").display()).isEqualTo("unknown");
-    assertThat(tx.maritalStatusCoding("uNk").display()).isEqualTo("unknown");
+    assertThat(DatamartPatientTransformer.maritalStatusCoding(null)).isNull();
+    assertThat(DatamartPatientTransformer.maritalStatusCoding("A").display()).isEqualTo("Annulled");
+    assertThat(DatamartPatientTransformer.maritalStatusCoding("D").display()).isEqualTo("Divorced");
+    assertThat(DatamartPatientTransformer.maritalStatusCoding("I").display())
+        .isEqualTo("Interlocutory");
+    assertThat(DatamartPatientTransformer.maritalStatusCoding("L").display())
+        .isEqualTo("Legally Separated");
+    assertThat(DatamartPatientTransformer.maritalStatusCoding("M").display()).isEqualTo("Married");
+    assertThat(DatamartPatientTransformer.maritalStatusCoding("P").display())
+        .isEqualTo("Polygamous");
+    assertThat(DatamartPatientTransformer.maritalStatusCoding("S").display())
+        .isEqualTo("Never Married");
+    assertThat(DatamartPatientTransformer.maritalStatusCoding("T").display())
+        .isEqualTo("Domestic partner");
+    assertThat(DatamartPatientTransformer.maritalStatusCoding("W").display()).isEqualTo("Widowed");
+    assertThat(DatamartPatientTransformer.maritalStatusCoding("UNK").display())
+        .isEqualTo("unknown");
+    assertThat(DatamartPatientTransformer.maritalStatusCoding("uNk").display())
+        .isEqualTo("unknown");
   }
 
   @Test
   public void name() {
-    DatamartPatientTransformer tx =
-        DatamartPatientTransformer.builder().datamart(DatamartData.create().patient()).build();
-    assertThat(tx.name(DatamartPatient.Contact.builder().name("DRAKE,BOBBY").build()))
+    assertThat(
+            DatamartPatientTransformer.name(
+                DatamartPatient.Contact.builder().name("DRAKE,BOBBY").build()))
         .isEqualTo(HumanName.builder().text("DRAKE,BOBBY").build());
-    assertThat(tx.name(DatamartPatient.Contact.builder().name("").build())).isNull();
-    assertThat(tx.name(null)).isNull();
+    assertThat(DatamartPatientTransformer.name(DatamartPatient.Contact.builder().name("").build()))
+        .isNull();
+    assertThat(DatamartPatientTransformer.name(null)).isNull();
   }
 
   private DatamartPatient patientSample() {
@@ -332,29 +344,47 @@ public final class DatamartPatientTest {
 
   @Test
   public void raceCoding() {
-    DatamartPatientTransformer tx =
-        DatamartPatientTransformer.builder().datamart(DatamartData.create().patient()).build();
     String codingSystem = "http://hl7.org/fhir/v3/Race";
-    assertThat(tx.raceCoding(null)).isNull();
-    assertThat(tx.raceCoding(DatamartPatient.Race.builder().display("INDIAN").build()))
+    assertThat(DatamartPatientTransformer.raceCoding(null)).isNull();
+    assertThat(
+            DatamartPatientTransformer.raceCoding(
+                DatamartPatient.Race.builder().display("INDIAN").build()))
         .isEqualTo(coding(codingSystem, "1002-5", "American Indian or Alaska Native"));
-    assertThat(tx.raceCoding(DatamartPatient.Race.builder().display("ALASKA").build()))
+    assertThat(
+            DatamartPatientTransformer.raceCoding(
+                DatamartPatient.Race.builder().display("ALASKA").build()))
         .isEqualTo(coding(codingSystem, "1002-5", "American Indian or Alaska Native"));
-    assertThat(tx.raceCoding(DatamartPatient.Race.builder().display("ASIAN").build()))
+    assertThat(
+            DatamartPatientTransformer.raceCoding(
+                DatamartPatient.Race.builder().display("ASIAN").build()))
         .isEqualTo(coding(codingSystem, "2028-9", "Asian"));
-    assertThat(tx.raceCoding(DatamartPatient.Race.builder().display("BLACK").build()))
+    assertThat(
+            DatamartPatientTransformer.raceCoding(
+                DatamartPatient.Race.builder().display("BLACK").build()))
         .isEqualTo(coding(codingSystem, "2054-5", "Black or African American"));
-    assertThat(tx.raceCoding(DatamartPatient.Race.builder().display("AFRICA").build()))
+    assertThat(
+            DatamartPatientTransformer.raceCoding(
+                DatamartPatient.Race.builder().display("AFRICA").build()))
         .isEqualTo(coding(codingSystem, "2054-5", "Black or African American"));
-    assertThat(tx.raceCoding(DatamartPatient.Race.builder().display("HAWAII").build()))
+    assertThat(
+            DatamartPatientTransformer.raceCoding(
+                DatamartPatient.Race.builder().display("HAWAII").build()))
         .isEqualTo(coding(codingSystem, "2076-8", "Native Hawaiian or Other Pacific Islander"));
-    assertThat(tx.raceCoding(DatamartPatient.Race.builder().display("PACIFIC").build()))
+    assertThat(
+            DatamartPatientTransformer.raceCoding(
+                DatamartPatient.Race.builder().display("PACIFIC").build()))
         .isEqualTo(coding(codingSystem, "2076-8", "Native Hawaiian or Other Pacific Islander"));
-    assertThat(tx.raceCoding(DatamartPatient.Race.builder().display("WHITE").build()))
+    assertThat(
+            DatamartPatientTransformer.raceCoding(
+                DatamartPatient.Race.builder().display("WHITE").build()))
         .isEqualTo(coding(codingSystem, "2106-3", "White"));
-    assertThat(tx.raceCoding(DatamartPatient.Race.builder().display("OTHER").build()))
+    assertThat(
+            DatamartPatientTransformer.raceCoding(
+                DatamartPatient.Race.builder().display("OTHER").build()))
         .isEqualTo(coding("http://hl7.org/fhir/v3/NullFlavor", "UNK", "Unknown"));
-    assertThat(tx.raceCoding(DatamartPatient.Race.builder().display("AsIAn").build()))
+    assertThat(
+            DatamartPatientTransformer.raceCoding(
+                DatamartPatient.Race.builder().display("AsIAn").build()))
         .isEqualTo(coding(codingSystem, "2028-9", "Asian"));
   }
 
@@ -372,34 +402,37 @@ public final class DatamartPatientTest {
 
   @Test
   public void relationshipCoding() {
-    DatamartPatientTransformer tx =
-        DatamartPatientTransformer.builder().datamart(DatamartData.create().patient()).build();
     Coding.CodingBuilder cb =
         Coding.builder().system("http://hl7.org/fhir/patient-contact-relationship");
     assertThat(
-            tx.relationshipCoding(DatamartPatient.Contact.builder().type("CIVIL GUARDIAN").build()))
-        .isEqualTo(cb.code("guardian").display("Guardian").build());
-    assertThat(tx.relationshipCoding(DatamartPatient.Contact.builder().type("VA GUARDIAN").build()))
+            DatamartPatientTransformer.relationshipCoding(
+                DatamartPatient.Contact.builder().type("CIVIL GUARDIAN").build()))
         .isEqualTo(cb.code("guardian").display("Guardian").build());
     assertThat(
-            tx.relationshipCoding(
+            DatamartPatientTransformer.relationshipCoding(
+                DatamartPatient.Contact.builder().type("VA GUARDIAN").build()))
+        .isEqualTo(cb.code("guardian").display("Guardian").build());
+    assertThat(
+            DatamartPatientTransformer.relationshipCoding(
                 DatamartPatient.Contact.builder().type("EMERGENCY CONTACT").build()))
         .isEqualTo(cb.code("emergency").display("Emergency").build());
     assertThat(
-            tx.relationshipCoding(
+            DatamartPatientTransformer.relationshipCoding(
                 DatamartPatient.Contact.builder().type("SECONDARY EMERGENCY CONTACT").build()))
         .isEqualTo(cb.code("emergency").display("Emergency").build());
-    assertThat(tx.relationshipCoding(DatamartPatient.Contact.builder().type("NEXT OF KIN").build()))
+    assertThat(
+            DatamartPatientTransformer.relationshipCoding(
+                DatamartPatient.Contact.builder().type("NEXT OF KIN").build()))
         .isEqualTo(cb.code("family").display("Family").build());
     assertThat(
-            tx.relationshipCoding(
+            DatamartPatientTransformer.relationshipCoding(
                 DatamartPatient.Contact.builder().type("SECONDARY NEXT OF KIN").build()))
         .isEqualTo(cb.code("family").display("Family").build());
     assertThat(
-            tx.relationshipCoding(
+            DatamartPatientTransformer.relationshipCoding(
                 DatamartPatient.Contact.builder().type("SPOUSE EMPLOYER").build()))
         .isEqualTo(cb.code("family").display("Family").build());
-    assertThat(tx.relationshipCoding(null)).isNull();
+    assertThat(DatamartPatientTransformer.relationshipCoding(null)).isNull();
   }
 
   @Test

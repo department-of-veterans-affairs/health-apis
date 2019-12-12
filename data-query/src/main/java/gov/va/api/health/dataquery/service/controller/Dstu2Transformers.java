@@ -44,6 +44,14 @@ public final class Dstu2Transformers {
     return CodeableConcept.builder().coding(List.of(fhirCoding)).build();
   }
 
+  /** Convert the Optional datamart coding to Fhir, otherwise return null. */
+  public static CodeableConcept asCodeableConceptWrapping(Optional<DatamartCoding> coding) {
+    if (coding == null || coding.isEmpty()) {
+      return null;
+    }
+    return CodeableConcept.builder().coding(List.of(asCoding(coding.get()))).build();
+  }
+
   /** Convert the datamart coding to coding if possible, otherwise return null. */
   public static Coding asCoding(Optional<DatamartCoding> maybeCoding) {
     if (maybeCoding == null || maybeCoding.isEmpty()) {

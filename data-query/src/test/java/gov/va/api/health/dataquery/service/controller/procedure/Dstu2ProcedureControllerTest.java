@@ -1,6 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.procedure;
 
-import static gov.va.api.health.dataquery.service.controller.procedure.DatamartProcedureSamples.Fhir.link;
+import static gov.va.api.health.dataquery.service.controller.procedure.ProcedureSamples.Dstu2.link;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -13,15 +13,17 @@ import gov.va.api.health.argonaut.api.resources.Procedure.Bundle;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
 import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
+import gov.va.api.health.dataquery.service.controller.Dstu2Validator;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
-import gov.va.api.health.dataquery.service.controller.procedure.DatamartProcedureSamples.Datamart;
-import gov.va.api.health.dataquery.service.controller.procedure.DatamartProcedureSamples.Fhir;
+import gov.va.api.health.dataquery.service.controller.procedure.ProcedureSamples.Datamart;
+import gov.va.api.health.dataquery.service.controller.procedure.ProcedureSamples.Dstu2;
 import gov.va.api.health.dstu2.api.bundle.BundleLink.LinkRelation;
 import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletResponse;
@@ -37,7 +39,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @DataJpaTest
 @RunWith(SpringRunner.class)
-public class DatamartProcedureControllerTest {
+public class Dstu2ProcedureControllerTest {
   HttpServletResponse response;
 
   private IdentityService ids = mock(IdentityService.class);
@@ -59,15 +61,12 @@ public class DatamartProcedureControllerTest {
         .build();
   }
 
-  ProcedureController controller() {
-    return new ProcedureController(
-        true,
+  Dstu2ProcedureController controller() {
+    return new Dstu2ProcedureController(
         "clark",
         "superman",
         "Clark Kent",
         "Superman",
-        null,
-        null,
         new Dstu2Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool", "cool")),
         repository,
         WitnessProtection.builder().identityService(ids).build());
@@ -89,7 +88,7 @@ public class DatamartProcedureControllerTest {
   }
 
   private Multimap<String, Procedure> populateData() {
-    var fhir = Fhir.create();
+    var fhir = Dstu2.create();
     var datamart = Datamart.create();
     var procedureByPatient = LinkedHashMultimap.<String, Procedure>create();
     var registrations = new ArrayList<Registration>(10);
@@ -118,11 +117,11 @@ public class DatamartProcedureControllerTest {
     DatamartProcedure dm = Datamart.create().procedure();
     repository.save(asEntity(dm));
     mockProcedureIdentity("1", dm.cdwId());
-    Procedure actual = controller().read("true", "1", "1");
+    Procedure actual = controller().read("1", "1");
     assertThat(json(actual))
         .isEqualTo(
             json(
-                Fhir.create()
+                Dstu2.create()
                     .procedure(
                         "1",
                         dm.patient().reference().get(),
@@ -138,6 +137,18 @@ public class DatamartProcedureControllerTest {
     String json = controller().readRaw("1", "1", response);
     assertThat(toObject(json)).isEqualTo(dm);
     verify(response).addHeader("X-VA-INCLUDES-ICN", entity.icn());
+  }
+
+  @Test
+  public void readRawSuperman() {
+    // clark - has procedures
+    // superman - no procedures
+    DatamartProcedure dm =
+        Datamart.create().procedure("clrks-cdw-procedure", "clark", "2005-01-21T07:57:00Z");
+    repository.save(asEntity(dm));
+    mockProcedureIdentity("clrks-procedure", "clrks-cdw-procedure");
+    String json = controller().readRaw("clrks-procedure", "superman", response);
+    assertThat(toObject(json)).isEqualTo(dm);
   }
 
   @Test(expected = ResourceExceptions.NotFound.class)
@@ -159,11 +170,11 @@ public class DatamartProcedureControllerTest {
         Datamart.create().procedure("clrks-cdw-procedure", "clark", "2005-01-21T07:57:00Z");
     repository.save(asEntity(dm));
     mockProcedureIdentity("clrks-procedure", "clrks-cdw-procedure");
-    Procedure actual = controller().read("true", "clrks-procedure", "superman");
+    Procedure actual = controller().read("clrks-procedure", "superman");
     assertThat(json(actual))
         .isEqualTo(
             json(
-                Fhir.create()
+                Dstu2.create()
                     .procedure(
                         "clrks-procedure", "superman", dm.performedDateTime().get().toString())));
   }
@@ -171,12 +182,12 @@ public class DatamartProcedureControllerTest {
   @Test(expected = ResourceExceptions.NotFound.class)
   public void readThrowsNotFoundWhenDataIsMissing() {
     mockProcedureIdentity("1", "1");
-    controller().read("true", "1", "1");
+    controller().read("1", "1");
   }
 
   @Test(expected = ResourceExceptions.NotFound.class)
   public void readThrowsNotFoundWhenIdIsUnknown() {
-    controller().read("true", "1", "1");
+    controller().read("1", "1");
   }
 
   @Test
@@ -184,17 +195,18 @@ public class DatamartProcedureControllerTest {
     DatamartProcedure dm = Datamart.create().procedure();
     repository.save(asEntity(dm));
     mockProcedureIdentity("1", dm.cdwId());
-    Bundle actual = controller().searchById("true", "1", "1", 1, 1);
+    Bundle actual = controller().searchById("1", "1", 1, 1);
     Procedure procedure =
-        Fhir.create()
+        Dstu2.create()
             .procedure(
                 "1", dm.patient().reference().get(), dm.performedDateTime().get().toString());
     assertThat(json(actual))
         .isEqualTo(
             json(
-                Fhir.asBundle(
+                Dstu2.asBundle(
                     "http://fonzy.com/cool",
                     List.of(procedure),
+                    1,
                     link(LinkRelation.first, "http://fonzy.com/cool/Procedure?identifier=1", 1, 1),
                     link(LinkRelation.self, "http://fonzy.com/cool/Procedure?identifier=1", 1, 1),
                     link(
@@ -209,16 +221,17 @@ public class DatamartProcedureControllerTest {
         Datamart.create().procedure("clrks-cdw-procedure", "clark", "2005-01-21T07:57:00Z");
     repository.save(asEntity(dm));
     mockProcedureIdentity("clrks-procedure", "clrks-cdw-procedure");
-    Bundle actual = controller().searchById("true", "superman", "clrks-procedure", 1, 1);
+    Bundle actual = controller().searchById("superman", "clrks-procedure", 1, 1);
     Procedure procedure =
-        Fhir.create()
+        Dstu2.create()
             .procedure("clrks-procedure", "superman", dm.performedDateTime().get().toString());
     assertThat(json(actual))
         .isEqualTo(
             json(
-                Fhir.asBundle(
+                Dstu2.asBundle(
                     "http://fonzy.com/cool",
                     List.of(procedure),
+                    1,
                     link(
                         LinkRelation.first,
                         "http://fonzy.com/cool/Procedure?identifier=clrks-procedure",
@@ -237,14 +250,38 @@ public class DatamartProcedureControllerTest {
   }
 
   @Test
-  public void searchByPatientAndDateNoDates() {
-    Multimap<String, Procedure> procedureByPatient = populateData();
-    assertThat(json(controller().searchByPatientAndDate("true", "p0", null, 1, 10)))
+  public void searchByIdentifier() {
+    DatamartProcedure dm = Datamart.create().procedure();
+    repository.save(asEntity(dm));
+    mockProcedureIdentity("1", dm.cdwId());
+    Bundle actual = controller().searchByIdentifier("1", "1", 1, 1);
+    Procedure procedure =
+        Dstu2.create()
+            .procedure(
+                "1", dm.patient().reference().get(), dm.performedDateTime().get().toString());
+    assertThat(json(actual))
         .isEqualTo(
             json(
-                Fhir.asBundle(
+                Dstu2.asBundle(
+                    "http://fonzy.com/cool",
+                    List.of(procedure),
+                    1,
+                    link(LinkRelation.first, "http://fonzy.com/cool/Procedure?identifier=1", 1, 1),
+                    link(LinkRelation.self, "http://fonzy.com/cool/Procedure?identifier=1", 1, 1),
+                    link(
+                        LinkRelation.last, "http://fonzy.com/cool/Procedure?identifier=1", 1, 1))));
+  }
+
+  @Test
+  public void searchByPatientAndDateNoDates() {
+    Multimap<String, Procedure> procedureByPatient = populateData();
+    assertThat(json(controller().searchByPatientAndDate("p0", null, 1, 10)))
+        .isEqualTo(
+            json(
+                Dstu2.asBundle(
                     "http://fonzy.com/cool",
                     procedureByPatient.get("p0"),
+                    procedureByPatient.get("p0").size(),
                     link(LinkRelation.first, "http://fonzy.com/cool/Procedure?patient=p0", 1, 10),
                     link(LinkRelation.self, "http://fonzy.com/cool/Procedure?patient=p0", 1, 10),
                     link(LinkRelation.last, "http://fonzy.com/cool/Procedure?patient=p0", 1, 10))));
@@ -287,17 +324,19 @@ public class DatamartProcedureControllerTest {
     testDates.putAll("gt2005-01-14", List.of("2005-01-16T07:57:00Z", "2005-01-18T07:57:00Z"));
     testDates.putAll("sa2005-01-14", List.of("2005-01-16T07:57:00Z", "2005-01-18T07:57:00Z"));
     for (var date : testDates.keySet()) {
-      assertThat(
-              json(controller().searchByPatientAndDate("true", "p0", new String[] {date}, 1, 10)))
+      List<Procedure> resources =
+          procedureByPatient
+              .get("p0")
+              .stream()
+              .filter(p -> testDates.get(date).contains(p.performedDateTime()))
+              .collect(Collectors.toList());
+      assertThat(json(controller().searchByPatientAndDate("p0", new String[] {date}, 1, 10)))
           .isEqualTo(
               json(
-                  Fhir.asBundle(
+                  Dstu2.asBundle(
                       "http://fonzy.com/cool",
-                      procedureByPatient
-                          .get("p0")
-                          .stream()
-                          .filter(p -> testDates.get(date).contains(p.performedDateTime()))
-                          .collect(Collectors.toList()),
+                      resources,
+                      resources.size(),
                       link(
                           LinkRelation.first,
                           "http://fonzy.com/cool/Procedure?date=" + date + "&patient=p0",
@@ -340,20 +379,23 @@ public class DatamartProcedureControllerTest {
             "2005-01-18T07:57:00Z"));
     testDates.putAll(Pair.of("gt2005-01-13", "lt2005-01-15"), List.of("2005-01-14T07:57:00Z"));
     for (var date : testDates.keySet()) {
+      List<Procedure> resources =
+          procedureByPatient
+              .get("p0")
+              .stream()
+              .filter(p -> testDates.get(date).contains(p.performedDateTime()))
+              .collect(Collectors.toList());
       assertThat(
               json(
                   controller()
                       .searchByPatientAndDate(
-                          "true", "p0", new String[] {date.getLeft(), date.getRight()}, 1, 10)))
+                          "p0", new String[] {date.getLeft(), date.getRight()}, 1, 10)))
           .isEqualTo(
               json(
-                  Fhir.asBundle(
+                  Dstu2.asBundle(
                       "http://fonzy.com/cool",
-                      procedureByPatient
-                          .get("p0")
-                          .stream()
-                          .filter(p -> testDates.get(date).contains(p.performedDateTime()))
-                          .collect(Collectors.toList()),
+                      resources,
+                      resources.size(),
                       link(
                           LinkRelation.first,
                           "http://fonzy.com/cool/Procedure?date="
@@ -392,16 +434,17 @@ public class DatamartProcedureControllerTest {
         Datamart.create().procedure("clrks-cdw-procedure", "clark", "2005-01-21T07:57:00Z");
     repository.save(asEntity(dm));
     mockProcedureIdentity("clrks-procedure", "clrks-cdw-procedure");
-    Bundle actual = controller().searchByPatientAndDate("true", "superman", null, 1, 1);
+    Bundle actual = controller().searchByPatientAndDate("superman", null, 1, 1);
     Procedure procedure =
-        Fhir.create()
+        Dstu2.create()
             .procedure("clrks-procedure", "superman", dm.performedDateTime().get().toString());
     assertThat(json(actual))
         .isEqualTo(
             json(
-                Fhir.asBundle(
+                Dstu2.asBundle(
                     "http://fonzy.com/cool",
                     List.of(procedure),
+                    1,
                     link(
                         LinkRelation.first,
                         "http://fonzy.com/cool/Procedure?patient=superman",
@@ -419,8 +462,53 @@ public class DatamartProcedureControllerTest {
                         1))));
   }
 
+  @Test
+  public void searchByPatientWithCount0() {
+    Multimap<String, Procedure> procedureByPatient = populateData();
+    assertThat(json(controller().searchByPatientAndDate("p0", null, 1, 0)))
+        .isEqualTo(
+            json(
+                Dstu2.asBundle(
+                    "http://fonzy.com/cool",
+                    Collections.emptyList(),
+                    procedureByPatient.get("p0").size(),
+                    link(LinkRelation.self, "http://fonzy.com/cool/Procedure?patient=p0", 1, 0))));
+  }
+
   @SneakyThrows
   private DatamartProcedure toObject(String json) {
     return JacksonConfig.createMapper().readValue(json, DatamartProcedure.class);
+  }
+
+  @Test
+  public void validate() {
+    DatamartProcedure dm = Datamart.create().procedure();
+    Procedure procedure =
+        Dstu2.create()
+            .procedure(
+                "1", dm.patient().reference().get(), dm.performedDateTime().get().toString());
+    assertThat(
+            controller()
+                .validate(
+                    Dstu2.asBundle(
+                        "http://fonzy.com/cool",
+                        List.of(procedure),
+                        1,
+                        link(
+                            LinkRelation.first,
+                            "http://fonzy.com/cool/Procedure?identifier=1",
+                            1,
+                            1),
+                        link(
+                            LinkRelation.self,
+                            "http://fonzy.com/cool/Procedure?identifier=1",
+                            1,
+                            1),
+                        link(
+                            LinkRelation.last,
+                            "http://fonzy.com/cool/Procedure?identifier=1",
+                            1,
+                            1))))
+        .isEqualTo(Dstu2Validator.ok());
   }
 }

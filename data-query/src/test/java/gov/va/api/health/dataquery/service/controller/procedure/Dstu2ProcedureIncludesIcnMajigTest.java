@@ -1,19 +1,19 @@
-package gov.va.api.health.dataquery.service.controller.observation;
+package gov.va.api.health.dataquery.service.controller.procedure;
 
-import gov.va.api.health.argonaut.api.resources.Observation;
+import gov.va.api.health.argonaut.api.resources.Procedure;
 import gov.va.api.health.dataquery.service.controller.ExtractIcnValidator;
 import gov.va.api.health.dstu2.api.elements.Reference;
 import java.util.List;
 import org.junit.Test;
 
-public class ObservationIncludesIcnMajigTest {
+public class Dstu2ProcedureIncludesIcnMajigTest {
 
   @Test
-  public void extractIcns() {
-    ExtractIcnValidator.<ObservationIncludesIcnMajig, Observation>builder()
-        .majig(new ObservationIncludesIcnMajig())
+  public void extractIcn() {
+    ExtractIcnValidator.<ProcedureIncludesIcnMajig, Procedure>builder()
+        .majig(new ProcedureIncludesIcnMajig())
         .body(
-            Observation.builder()
+            Procedure.builder()
                 .id("123")
                 .subject(Reference.builder().reference("Patient/1010101010V666666").build())
                 .build())

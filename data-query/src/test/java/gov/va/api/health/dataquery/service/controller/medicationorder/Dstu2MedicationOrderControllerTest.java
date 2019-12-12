@@ -13,6 +13,7 @@ import gov.va.api.health.argonaut.api.resources.MedicationOrder.Bundle;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
 import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
+import gov.va.api.health.dataquery.service.controller.Dstu2Validator;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.medicationorder.MedicationOrderSamples.Dstu2;
@@ -212,6 +213,36 @@ public class Dstu2MedicationOrderControllerTest {
   @SneakyThrows
   private DatamartMedicationOrder toObject(String json) {
     return JacksonConfig.createMapper().readValue(json, DatamartMedicationOrder.class);
+  }
+
+  @Test
+  public void validate() {
+    DatamartMedicationOrder dm = MedicationOrderSamples.Datamart.create().medicationOrder();
+    MedicationOrder medicationOrder =
+        MedicationOrderSamples.Dstu2.create().medicationOrder("1", dm.patient().reference().get());
+    assertThat(
+            controller()
+                .validate(
+                    MedicationOrderSamples.Dstu2.asBundle(
+                        "http://fonzy.com/cool",
+                        List.of(medicationOrder),
+                        1,
+                        MedicationOrderSamples.Dstu2.link(
+                            LinkRelation.first,
+                            "http://fonzy.com/cool/MedicationOrder?identifier=1",
+                            1,
+                            1),
+                        MedicationOrderSamples.Dstu2.link(
+                            LinkRelation.self,
+                            "http://fonzy.com/cool/MedicationOrder?identifier=1",
+                            1,
+                            1),
+                        MedicationOrderSamples.Dstu2.link(
+                            LinkRelation.last,
+                            "http://fonzy.com/cool/MedicationOrder?identifier=1",
+                            1,
+                            1))))
+        .isEqualTo(Dstu2Validator.ok());
   }
 
   private void validateSearchByIdResult(DatamartMedicationOrder dm, Bundle actual) {

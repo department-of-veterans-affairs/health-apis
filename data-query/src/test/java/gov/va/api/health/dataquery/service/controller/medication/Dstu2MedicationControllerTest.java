@@ -11,6 +11,7 @@ import gov.va.api.health.argonaut.api.resources.Medication.Bundle;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
 import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
+import gov.va.api.health.dataquery.service.controller.Dstu2Validator;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.medication.MedicationSamples.Datamart;
@@ -144,6 +145,34 @@ public class Dstu2MedicationControllerTest {
   @SneakyThrows
   private DatamartMedication toObject(String json) {
     return JacksonConfig.createMapper().readValue(json, DatamartMedication.class);
+  }
+
+  @Test
+  public void validate() {
+    Medication medication = MedicationSamples.Dstu2.create().medication("1");
+    assertThat(
+            controller()
+                .validate(
+                    MedicationSamples.Dstu2.asBundle(
+                        "http://fonzy.com/cool",
+                        List.of(medication),
+                        1,
+                        MedicationSamples.Dstu2.link(
+                            LinkRelation.first,
+                            "http://fonzy.com/cool/Medication?identifier=1",
+                            1,
+                            1),
+                        MedicationSamples.Dstu2.link(
+                            LinkRelation.self,
+                            "http://fonzy.com/cool/Medication?identifier=1",
+                            1,
+                            1),
+                        MedicationSamples.Dstu2.link(
+                            LinkRelation.last,
+                            "http://fonzy.com/cool/Medication?identifier=1",
+                            1,
+                            1))))
+        .isEqualTo(Dstu2Validator.ok());
   }
 
   private void validationSearchByIdResult(DatamartMedication dm, Bundle actual) {

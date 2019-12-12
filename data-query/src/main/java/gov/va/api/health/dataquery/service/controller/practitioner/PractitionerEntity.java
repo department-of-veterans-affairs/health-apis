@@ -16,7 +16,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
-import org.springframework.data.domain.Sort;
 
 @Data
 @Entity
@@ -45,12 +44,19 @@ public class PractitionerEntity implements DatamartEntity {
   @Column(name = "Practitioner")
   private String payload;
 
-  static Sort naturalOrder() {
-    return Sort.by("cdwId").ascending();
-  }
-
   @SneakyThrows
   DatamartPractitioner asDatamartPractitioner() {
-    return JacksonConfig.createMapper().readValue(payload, DatamartPractitioner.class);
+    DatamartPractitioner dm =
+        JacksonConfig.createMapper().readValue(payload, DatamartPractitioner.class);
+
+    if (dm.practitionerRole().isPresent()) {
+      dm.practitionerRole()
+          .get()
+          .managingOrganization()
+          .ifPresent(mo -> mo.typeIfMissing("Organization"));
+      dm.practitionerRole().get().location().forEach(loc -> loc.typeIfMissing("Location"));
+    }
+
+    return dm;
   }
 }
