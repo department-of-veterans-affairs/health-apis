@@ -1,6 +1,7 @@
-package gov.va.api.health.dataquery.tests;
+package gov.va.api.health.dataquery.tests.dstu2;
 
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
+import gov.va.api.health.dataquery.tests.TestClients;
 import gov.va.api.health.dataquery.tests.categories.LabDataQueryPatient;
 import gov.va.api.health.dataquery.tests.categories.ProdDataQueryPatient;
 import gov.va.api.health.sentinel.ExpectedResponse;

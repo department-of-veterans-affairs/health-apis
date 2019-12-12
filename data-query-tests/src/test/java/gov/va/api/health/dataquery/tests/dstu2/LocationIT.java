@@ -1,6 +1,6 @@
-package gov.va.api.health.dataquery.tests;
+package gov.va.api.health.dataquery.tests.dstu2;
 
-import static gov.va.api.health.dataquery.tests.ResourceVerifier.test;
+import static gov.va.api.health.dataquery.tests.dstu2.ResourceVerifier.test;
 
 import gov.va.api.health.dstu2.api.resources.Location;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;

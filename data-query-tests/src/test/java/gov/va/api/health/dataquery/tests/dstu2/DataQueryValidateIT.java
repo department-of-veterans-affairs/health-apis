@@ -1,4 +1,4 @@
-package gov.va.api.health.dataquery.tests;
+package gov.va.api.health.dataquery.tests.dstu2;
 
 import gov.va.api.health.argonaut.api.resources.AllergyIntolerance;
 import gov.va.api.health.argonaut.api.resources.Condition;
@@ -10,6 +10,10 @@ import gov.va.api.health.argonaut.api.resources.MedicationStatement;
 import gov.va.api.health.argonaut.api.resources.Observation;
 import gov.va.api.health.argonaut.api.resources.Patient;
 import gov.va.api.health.argonaut.api.resources.Procedure;
+import gov.va.api.health.dataquery.tests.IdRegistrar;
+import gov.va.api.health.dataquery.tests.SystemDefinitions;
+import gov.va.api.health.dataquery.tests.TestClients;
+import gov.va.api.health.dataquery.tests.TestIds;
 import gov.va.api.health.dstu2.api.bundle.AbstractBundle;
 import gov.va.api.health.dstu2.api.resources.Appointment;
 import gov.va.api.health.dstu2.api.resources.Encounter;

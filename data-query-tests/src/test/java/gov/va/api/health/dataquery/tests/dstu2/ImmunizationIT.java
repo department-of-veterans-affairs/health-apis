@@ -1,8 +1,8 @@
-package gov.va.api.health.dataquery.tests;
+package gov.va.api.health.dataquery.tests.dstu2;
 
-import static gov.va.api.health.dataquery.tests.ResourceVerifier.test;
+import static gov.va.api.health.dataquery.tests.dstu2.ResourceVerifier.test;
 
-import gov.va.api.health.argonaut.api.resources.MedicationOrder;
+import gov.va.api.health.argonaut.api.resources.Immunization;
 import gov.va.api.health.dataquery.tests.categories.LabDataQueryClinician;
 import gov.va.api.health.dataquery.tests.categories.LabDataQueryPatient;
 import gov.va.api.health.dataquery.tests.categories.ProdDataQueryClinician;
@@ -12,7 +12,7 @@ import gov.va.api.health.sentinel.categories.Local;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-public class MedicationOrderIT {
+public class ImmunizationIT {
   ResourceVerifier verifier = ResourceVerifier.get();
 
   @Test
@@ -20,16 +20,13 @@ public class MedicationOrderIT {
   public void advanced() {
     verifier.verifyAll(
         test(
-            200,
-            MedicationOrder.Bundle.class,
-            "MedicationOrder?_id={id}",
-            verifier.ids().medicationOrder()),
-        test(404, OperationOutcome.class, "MedicationOrder?_id={id}", verifier.ids().unknown()),
+            200, Immunization.Bundle.class, "Immunization?_id={id}", verifier.ids().immunization()),
+        test(404, OperationOutcome.class, "Immunization?_id={id}", verifier.ids().unknown()),
         test(
             200,
-            MedicationOrder.Bundle.class,
-            "MedicationOrder?identifier={id}",
-            verifier.ids().medicationOrder()));
+            Immunization.Bundle.class,
+            "Immunization?identifier={id}",
+            verifier.ids().immunization()));
   }
 
   @Test
@@ -42,12 +39,12 @@ public class MedicationOrderIT {
   })
   public void basic() {
     verifier.verifyAll(
-        test(200, MedicationOrder.class, "MedicationOrder/{id}", verifier.ids().medicationOrder()),
-        test(404, OperationOutcome.class, "MedicationOrder/{id}", verifier.ids().unknown()),
+        test(200, Immunization.class, "Immunization/{id}", verifier.ids().immunization()),
+        test(404, OperationOutcome.class, "Immunization/{id}", verifier.ids().unknown()),
         test(
             200,
-            MedicationOrder.Bundle.class,
-            "MedicationOrder?patient={patient}",
+            Immunization.Bundle.class,
+            "Immunization?patient={patient}",
             verifier.ids().patient()));
   }
 
@@ -63,7 +60,7 @@ public class MedicationOrderIT {
         test(
             403,
             OperationOutcome.class,
-            "MedicationOrder?patient={patient}",
+            "Immunization?patient={patient}",
             verifier.ids().unknown()));
   }
 }

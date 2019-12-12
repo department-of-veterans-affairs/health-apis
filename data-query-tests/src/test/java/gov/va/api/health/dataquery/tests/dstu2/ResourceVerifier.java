@@ -1,4 +1,4 @@
-package gov.va.api.health.dataquery.tests;
+package gov.va.api.health.dataquery.tests.dstu2;
 
 import static org.apache.commons.lang3.BooleanUtils.isTrue;
 import static org.apache.commons.lang3.BooleanUtils.toBoolean;
@@ -6,6 +6,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import gov.va.api.health.dataquery.tests.IdRegistrar;
+import gov.va.api.health.dataquery.tests.SystemDefinitions;
+import gov.va.api.health.dataquery.tests.TestClients;
+import gov.va.api.health.dataquery.tests.TestIds;
 import gov.va.api.health.dstu2.api.bundle.AbstractBundle;
 import gov.va.api.health.dstu2.api.resources.Location;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;

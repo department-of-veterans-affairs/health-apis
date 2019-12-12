@@ -12,16 +12,18 @@ import lombok.experimental.UtilityClass;
  */
 @UtilityClass
 public final class TestClients {
-
-  static TestClient dataQuery() {
+  /** Data Query test client. */
+  public static TestClient dataQuery() {
     return FhirTestClient.builder()
         .service(SystemDefinitions.systemDefinition().dataQuery())
         .mapper(JacksonConfig::createMapper)
-        .errorResponseEqualityCheck(new OperationOutcomesAreFunctionallyEqual())
+        .errorResponseEqualityCheck(
+            new gov.va.api.health.dataquery.tests.dstu2.OperationOutcomesAreFunctionallyEqual())
         .build();
   }
 
-  static TestClient ids() {
+  /** ID service test client. */
+  public static TestClient ids() {
     return BasicTestClient.builder()
         .service(SystemDefinitions.systemDefinition().ids())
         .contentType("application/json")
@@ -29,7 +31,8 @@ public final class TestClients {
         .build();
   }
 
-  static TestClient internalDataQuery() {
+  /** Internal Data Query test client. */
+  public static TestClient internalDataQuery() {
     return BasicTestClient.builder()
         .service(SystemDefinitions.systemDefinition().internalDataQuery())
         .contentType("application/json")
@@ -37,7 +40,8 @@ public final class TestClients {
         .build();
   }
 
-  static TestClient mrAnderson() {
+  /** Mr. Anderson test client. */
+  public static TestClient mrAnderson() {
     return BasicTestClient.builder()
         .service(SystemDefinitions.systemDefinition().mrAnderson())
         .contentType("application/xml")
