@@ -32,6 +32,7 @@ import org.springframework.beans.BeanUtils;
 
 public class DataQueryValidateIT {
   private TestClient dataQuery;
+
   private TestIds ids;
 
   @SneakyThrows
@@ -44,7 +45,7 @@ public class DataQueryValidateIT {
   @Before
   public void _init() {
     ids = IdRegistrar.of(SystemDefinitions.systemDefinition()).registeredIds();
-    dataQuery = TestClients.dataQuery();
+    dataQuery = TestClients.dstu2DataQuery();
   }
 
   private void validate(String resource, String id, Class<? extends AbstractBundle<?>> bundleType) {

@@ -25,7 +25,7 @@ public class UsingOAuthCrawlerTest {
     }
     return UrlReplacementRequestQueue.builder()
         .replaceUrl(CrawlerProperties.urlReplace())
-        .withUrl(env.dataQuery().urlWithApiPath())
+        .withUrl(env.dstu2DataQuery().urlWithApiPath())
         .requestQueue(new ConcurrentResourceBalancingRequestQueue())
         .build();
   }
@@ -40,7 +40,7 @@ public class UsingOAuthCrawlerTest {
     ResourceDiscovery discovery =
         ResourceDiscovery.builder()
             .patientId(userResult.tokenExchange().patient())
-            .url(env.dataQuery().urlWithApiPath())
+            .url(env.dstu2DataQuery().urlWithApiPath())
             .build();
     SummarizingResultCollector results =
         SummarizingResultCollector.wrap(

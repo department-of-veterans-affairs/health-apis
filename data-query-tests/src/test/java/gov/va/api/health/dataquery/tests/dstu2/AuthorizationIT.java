@@ -13,9 +13,8 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 public class AuthorizationIT {
-
   private final String apiPath() {
-    return TestClients.dataQuery().service().apiPath();
+    return TestClients.dstu2DataQuery().service().apiPath();
   }
 
   @Test
@@ -23,7 +22,7 @@ public class AuthorizationIT {
   public void invalidTokenIsUnauthorized() {
     TestClient unauthorizedDqClient =
         FhirTestClient.builder()
-            .service(unauthorizedServiceDefinition(TestClients.dataQuery().service()))
+            .service(unauthorizedServiceDefinition(TestClients.dstu2DataQuery().service()))
             .mapper(JacksonConfig::createMapper)
             .errorResponseEqualityCheck(new OperationOutcomesAreFunctionallyEqual())
             .build();

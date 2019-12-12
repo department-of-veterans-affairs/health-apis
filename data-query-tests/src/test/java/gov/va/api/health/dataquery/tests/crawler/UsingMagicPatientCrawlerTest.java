@@ -32,7 +32,7 @@ public class UsingMagicPatientCrawlerTest {
     ResourceDiscovery discovery =
         ResourceDiscovery.builder()
             .patientId(patient)
-            .url(env.dataQuery().urlWithApiPath())
+            .url(env.dstu2DataQuery().urlWithApiPath())
             .build();
 
     IgnoreFilterResultCollector results =
@@ -47,7 +47,7 @@ public class UsingMagicPatientCrawlerTest {
             .requestQueue(
                 UrlReplacementRequestQueue.builder()
                     .replaceUrl(CrawlerProperties.urlReplace())
-                    .withUrl(env.dataQuery().urlWithApiPath())
+                    .withUrl(env.dstu2DataQuery().urlWithApiPath())
                     .requestQueue(new ConcurrentResourceBalancingRequestQueue())
                     .build())
             .build();
