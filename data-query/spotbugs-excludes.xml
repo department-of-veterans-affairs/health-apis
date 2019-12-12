@@ -64,4 +64,14 @@
     </Or>
     <Bug pattern="EI_EXPOSE_REP2"/>
   </Match>
+
+  <!--
+  These fields are going through parameter validation and will not have CRLF characters.
+-->
+  <Match>
+    <Class name="gov.va.api.health.dataquery.service.controller.procedure.Dstu2ProcedureController"/>
+    <Method name="searchByPatientAndDate"/>
+    <Bug pattern="CRLF_INJECTION_LOGS"/>
+  </Match>
+
 </FindBugsFilter>

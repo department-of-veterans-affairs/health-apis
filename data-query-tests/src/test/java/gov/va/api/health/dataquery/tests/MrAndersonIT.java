@@ -55,7 +55,8 @@ public class MrAndersonIT {
   public void pageAndCountCanBeOmittedAndDefaultToOneAnd15() {
     mrAnderson()
         .get(
-            apiPath() + "v1/resources/argonaut/DiagnosticReport/1.02?patient={id}", ids().patient())
+            apiPath() + "v1/resources/argonaut/MedicationDispense/1.02?patient={id}",
+            ids().patient())
         .expect(200);
   }
 
@@ -80,12 +81,12 @@ public class MrAndersonIT {
                     .request()
                     .request(
                         Method.GET,
-                        apiPath() + "v1/resources/argonaut/DiagnosticReport/1.02?patient={id}",
+                        apiPath() + "v1/resources/argonaut/MedicationDispense/1.02?patient={id}",
                         ids().patient()))
             .expect(200)
             .response()
-            .path("root.diagnosticReports.diagnosticReport[0].encounter.reference");
-    assertThat(reference).isEqualTo("Encounter/1000511190181");
+            .path("root.medicationDispenses.medicationDispense[0].medicationReference.reference");
+    assertThat(reference).isEqualTo("Medication/213813");
   }
 
   @Category(Local.class)
@@ -95,17 +96,17 @@ public class MrAndersonIT {
         mrAnderson()
             .get(
                 apiPath()
-                    + "v1/resources/argonaut/DiagnosticReport/1.02?patient={id}&page=1&_count=15",
+                    + "v1/resources/argonaut/MedicationDispense/1.02?patient={id}&page=1&_count=15",
                 ids().patient())
             .expect(200)
             .response()
-            .path("root.diagnosticReports.diagnosticReport[0].cdwId");
+            .path("root.medicationDispenses.medicationDispense[0].cdwId");
     String id2 =
         mrAnderson()
-            .get(apiPath() + "v1/resources/argonaut/DiagnosticReport/1.02?identifier={id}", id)
+            .get(apiPath() + "v1/resources/argonaut/MedicationDispense/1.02?identifier={id}", id)
             .expect(200)
             .response()
-            .path("root.diagnosticReports.diagnosticReport[0].cdwId");
+            .path("root.medicationDispenses.medicationDispense[0].cdwId");
     assertThat(id2).isEqualTo(id);
   }
 

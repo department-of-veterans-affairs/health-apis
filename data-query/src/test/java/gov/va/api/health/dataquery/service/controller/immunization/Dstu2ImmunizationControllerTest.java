@@ -13,6 +13,7 @@ import gov.va.api.health.argonaut.api.resources.Immunization.Bundle;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
 import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
+import gov.va.api.health.dataquery.service.controller.Dstu2Validator;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.immunization.ImmunizationSamples.Datamart;
@@ -235,5 +236,35 @@ public class Dstu2ImmunizationControllerTest {
   @SneakyThrows
   private DatamartImmunization toObject(String json) {
     return JacksonConfig.createMapper().readValue(json, DatamartImmunization.class);
+  }
+
+  @Test
+  public void validate() {
+    DatamartImmunization dm = ImmunizationSamples.Datamart.create().immunization();
+    Immunization immunization =
+        ImmunizationSamples.Dstu2.create().immunization("1", dm.patient().reference().get());
+    assertThat(
+            controller()
+                .validate(
+                    ImmunizationSamples.Dstu2.asBundle(
+                        "http://fonzy.com/cool",
+                        List.of(immunization),
+                        1,
+                        ImmunizationSamples.Dstu2.link(
+                            LinkRelation.first,
+                            "http://fonzy.com/cool/Immunization?identifier=1",
+                            1,
+                            1),
+                        ImmunizationSamples.Dstu2.link(
+                            LinkRelation.self,
+                            "http://fonzy.com/cool/Immunization?identifier=1",
+                            1,
+                            1),
+                        ImmunizationSamples.Dstu2.link(
+                            LinkRelation.last,
+                            "http://fonzy.com/cool/Immunization?identifier=1",
+                            1,
+                            1))))
+        .isEqualTo(Dstu2Validator.ok());
   }
 }

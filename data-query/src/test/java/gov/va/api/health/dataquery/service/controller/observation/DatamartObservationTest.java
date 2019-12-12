@@ -8,6 +8,7 @@ import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation.AntibioticComponent;
 import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation.BacteriologyComponent;
+import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation.CodeableConcept;
 import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation.ReferenceRange;
 import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation.VitalsComponent;
 import java.time.Instant;
@@ -60,6 +61,11 @@ public class DatamartObservationTest {
     VitalsComponent vc = DatamartObservation.VitalsComponent.builder().build();
     assertThat(vc.code()).isNotNull();
     assertThat(vc.valueQuantity()).isNotNull();
+
+    CodeableConcept cc = CodeableConcept.builder().build();
+    assertThat(cc.coding().isPresent()).isFalse();
+    cc.setDisplay("HALLO");
+    assertThat(cc.coding().get().display().get()).isEqualTo("HALLO");
   }
 
   public DatamartObservation sample() {

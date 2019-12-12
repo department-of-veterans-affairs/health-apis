@@ -1,7 +1,5 @@
 package gov.va.api.health.dataquery.service.controller.diagnosticreport;
 
-import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.firstPayloadItem;
-import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.hasPayload;
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.parseInstant;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -25,12 +23,9 @@ import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions.NotFound;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
-import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
-import gov.va.api.health.dataquery.service.mranderson.client.Query;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
-import gov.va.dvp.cdw.xsd.model.CdwDiagnosticReport102Root;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
@@ -47,10 +42,8 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.util.Pair;
 import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
@@ -58,7 +51,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -76,31 +68,18 @@ import org.springframework.web.bind.annotation.RestController;
   value = {"/dstu2/DiagnosticReport"},
   produces = {"application/json", "application/json+fhir", "application/fhir+json"}
 )
-public class DiagnosticReportController {
-
-  private Transformer transformer;
-
-  private MrAndersonClient mrAndersonClient;
-
+public class Dstu2DiagnosticReportController {
   private Dstu2Bundler bundler;
 
   private WitnessProtection witnessProtection;
 
   private EntityManager entityManager;
 
-  private boolean defaultToDatamart;
-
   /** All args constructor. */
-  public DiagnosticReportController(
-      @Value("${datamart.diagnostic-report}") boolean defaultToDatamart,
-      @Autowired Transformer transformer,
-      @Autowired MrAndersonClient mrAndersonClient,
+  public Dstu2DiagnosticReportController(
       @Autowired Dstu2Bundler bundler,
       @Autowired WitnessProtection witnessProtection,
       @Autowired EntityManager entityManager) {
-    this.defaultToDatamart = defaultToDatamart;
-    this.transformer = transformer;
-    this.mrAndersonClient = mrAndersonClient;
     this.bundler = bundler;
     this.witnessProtection = witnessProtection;
     this.entityManager = entityManager;
@@ -154,80 +133,8 @@ public class DiagnosticReportController {
   }
 
   @SneakyThrows
-  private DiagnosticReport.Bundle datamartBundle(MultiValueMap<String, String> publicParameters) {
-    MultiValueMap<String, String> cdwParameters =
-        witnessProtection.replacePublicIdsWithCdwIds(publicParameters);
-    // Filter category
-    String category = cdwParameters.getFirst("category");
-    if (isNotBlank(category) && !equalsIgnoreCase(category, "LAB")) {
-      // All diagnostic reports are labs
-      return bundle(publicParameters, emptyList(), 0);
-    }
-    // Filter code
-    String code = cdwParameters.getFirst("code");
-    if (isNotBlank(code)) {
-      // LOINC codes are not available in CDW
-      return bundle(publicParameters, emptyList(), 0);
-    }
-    log.info("Starting Diagnostic Report search by patient");
-    DiagnosticReportsEntity entity =
-        entityManager.find(DiagnosticReportsEntity.class, cdwParameters.getFirst("patient"));
-    log.info("Finished Diagnostic Report search by patient");
-    if (entity == null) {
-      return bundle(publicParameters, emptyList(), 0);
-    }
-    DatamartDiagnosticReports payload = entity.asDatamartDiagnosticReports();
-    List<DatamartDiagnosticReports.DiagnosticReport> filtered =
-        filterDates(payload.reports(), cdwParameters.get("date"));
-    // Most recent reports first
-    Collections.sort(
-        filtered,
-        (left, right) -> {
-          int result = StringUtils.compare(right.effectiveDateTime(), left.effectiveDateTime());
-          if (result != 0) {
-            return result;
-          }
-          return StringUtils.compare(right.issuedDateTime(), left.issuedDateTime());
-        });
-    int page = Parameters.pageOf(cdwParameters);
-    int count = Parameters.countOf(cdwParameters);
-    int fromIndex = Math.min((page - 1) * count, filtered.size());
-    int toIndex = Math.min(fromIndex + count, filtered.size());
-    List<DatamartDiagnosticReports.DiagnosticReport> paged = filtered.subList(fromIndex, toIndex);
-    replaceCdwIdsWithPublicIds(paged);
-    List<DiagnosticReport> fhir =
-        paged
-            .stream()
-            .map(
-                dm ->
-                    DatamartDiagnosticReportTransformer.builder()
-                        .datamart(dm)
-                        .icn(payload.fullIcn())
-                        .patientName(payload.patientName())
-                        .build()
-                        .toFhir())
-            .collect(Collectors.toList());
-    return bundle(publicParameters, fhir, filtered.size());
-  }
-
-  @SneakyThrows
-  private DiagnosticReport datamartRead(String publicId) {
-    Pair<DatamartDiagnosticReports, DatamartDiagnosticReports.DiagnosticReport> result =
-        datamartReadRaw(publicId);
-    DatamartDiagnosticReports payload = result.getFirst();
-    DatamartDiagnosticReports.DiagnosticReport report = result.getSecond();
-    replaceCdwIdsWithPublicIds(asList(report));
-    return DatamartDiagnosticReportTransformer.builder()
-        .datamart(report)
-        .icn(payload.fullIcn())
-        .patientName(payload.patientName())
-        .build()
-        .toFhir();
-  }
-
-  @SneakyThrows
-  private Pair<DatamartDiagnosticReports, DatamartDiagnosticReports.DiagnosticReport>
-      datamartReadRaw(String publicId) {
+  private Pair<DatamartDiagnosticReports, DatamartDiagnosticReports.DiagnosticReport> pairPayload(
+      String publicId) {
     MultiValueMap<String, String> publicParameters = Parameters.forIdentity(publicId);
     MultiValueMap<String, String> cdwParameters =
         witnessProtection.replacePublicIdsWithCdwIds(publicParameters);
@@ -261,57 +168,20 @@ public class DiagnosticReportController {
     return Pair.of(payload, maybeReport.get());
   }
 
-  boolean isDatamartRequest(String datamartHeader) {
-    if (StringUtils.isBlank(datamartHeader)) {
-      return defaultToDatamart;
-    }
-    return BooleanUtils.isTrue(BooleanUtils.toBooleanObject(datamartHeader));
-  }
-
-  private DiagnosticReport.Bundle mrAndersonBundle(MultiValueMap<String, String> parameters) {
-    CdwDiagnosticReport102Root root = mrAndersonSearch(parameters);
-    PageLinks.LinkConfig linkConfig =
-        PageLinks.LinkConfig.builder()
-            .path("DiagnosticReport")
-            .queryParams(parameters)
-            .page(Parameters.pageOf(parameters))
-            .recordsPerPage(Parameters.countOf(parameters))
-            .totalRecords(root.getRecordCount().intValue())
-            .build();
-    return bundler.bundle(
-        Dstu2Bundler.BundleContext.of(
-            linkConfig,
-            root.getDiagnosticReports() == null
-                ? Collections.emptyList()
-                : root.getDiagnosticReports().getDiagnosticReport(),
-            transformer,
-            DiagnosticReport.Entry::new,
-            DiagnosticReport.Bundle::new));
-  }
-
-  private CdwDiagnosticReport102Root mrAndersonSearch(MultiValueMap<String, String> params) {
-    Query<CdwDiagnosticReport102Root> query =
-        Query.forType(CdwDiagnosticReport102Root.class)
-            .profile(Query.Profile.ARGONAUT)
-            .resource("DiagnosticReport")
-            .version("1.02")
-            .parameters(params)
-            .build();
-    return hasPayload(mrAndersonClient.search(query));
-  }
-
   /** Read by identifier. */
   @GetMapping(value = {"/{publicId}"})
-  public DiagnosticReport read(
-      @RequestHeader(value = "Datamart", defaultValue = "") String datamart,
-      @PathVariable("publicId") String publicId) {
-    if (isDatamartRequest(datamart)) {
-      return datamartRead(publicId);
-    }
-    return transformer.apply(
-        firstPayloadItem(
-            hasPayload(mrAndersonSearch(Parameters.forIdentity(publicId)).getDiagnosticReports())
-                .getDiagnosticReport()));
+  public DiagnosticReport read(@PathVariable("publicId") String publicId) {
+    Pair<DatamartDiagnosticReports, DatamartDiagnosticReports.DiagnosticReport> result =
+        pairPayload(publicId);
+    DatamartDiagnosticReports payload = result.getFirst();
+    DatamartDiagnosticReports.DiagnosticReport report = result.getSecond();
+    replaceCdwIdsWithPublicIds(asList(report));
+    return Dstu2DiagnosticReportTransformer.builder()
+        .datamart(report)
+        .icn(payload.fullIcn())
+        .patientName(payload.patientName())
+        .build()
+        .toFhir();
   }
 
   /** Return the raw Datamart document for the given identifier. */
@@ -321,7 +191,7 @@ public class DiagnosticReportController {
   )
   public DatamartDiagnosticReports.DiagnosticReport readRaw(
       @PathVariable("publicId") String publicId, HttpServletResponse response) {
-    var pair = datamartReadRaw(publicId);
+    var pair = pairPayload(publicId);
     AbstractIncludesIcnMajig.addHeader(response, pair.getFirst().fullIcn());
     return pair.getSecond();
   }
@@ -387,38 +257,72 @@ public class DiagnosticReportController {
     }
   }
 
-  private DiagnosticReport.Bundle search(
-      String datamart, MultiValueMap<String, String> parameters) {
-    if (isDatamartRequest(datamart)) {
-      return datamartBundle(parameters);
+  @SneakyThrows
+  private DiagnosticReport.Bundle search(MultiValueMap<String, String> publicParameters) {
+    MultiValueMap<String, String> cdwParameters =
+        witnessProtection.replacePublicIdsWithCdwIds(publicParameters);
+    // Filter category
+    String category = cdwParameters.getFirst("category");
+    if (isNotBlank(category) && !equalsIgnoreCase(category, "LAB")) {
+      // All diagnostic reports are labs
+      return bundle(publicParameters, emptyList(), 0);
     }
-    return mrAndersonBundle(parameters);
+    // Filter code
+    String code = cdwParameters.getFirst("code");
+    if (isNotBlank(code)) {
+      // LOINC codes are not available in CDW
+      return bundle(publicParameters, emptyList(), 0);
+    }
+    log.info("Starting Diagnostic Report search by patient");
+    DiagnosticReportsEntity entity =
+        entityManager.find(DiagnosticReportsEntity.class, cdwParameters.getFirst("patient"));
+    log.info("Finished Diagnostic Report search by patient");
+    if (entity == null) {
+      return bundle(publicParameters, emptyList(), 0);
+    }
+    DatamartDiagnosticReports payload = entity.asDatamartDiagnosticReports();
+    List<DatamartDiagnosticReports.DiagnosticReport> filtered =
+        filterDates(payload.reports(), cdwParameters.get("date"));
+    // Most recent reports first
+    Collections.sort(
+        filtered,
+        (left, right) -> {
+          int result = StringUtils.compare(right.effectiveDateTime(), left.effectiveDateTime());
+          if (result != 0) {
+            return result;
+          }
+          return StringUtils.compare(right.issuedDateTime(), left.issuedDateTime());
+        });
+    int page = Parameters.pageOf(cdwParameters);
+    int count = Parameters.countOf(cdwParameters);
+    int fromIndex = Math.min((page - 1) * count, filtered.size());
+    int toIndex = Math.min(fromIndex + count, filtered.size());
+    List<DatamartDiagnosticReports.DiagnosticReport> paged = filtered.subList(fromIndex, toIndex);
+    replaceCdwIdsWithPublicIds(paged);
+    List<DiagnosticReport> fhir =
+        paged
+            .stream()
+            .map(
+                dm ->
+                    Dstu2DiagnosticReportTransformer.builder()
+                        .datamart(dm)
+                        .icn(payload.fullIcn())
+                        .patientName(payload.patientName())
+                        .build()
+                        .toFhir())
+            .collect(Collectors.toList());
+    return bundle(publicParameters, fhir, filtered.size());
   }
 
   /** Search by _id. */
   @GetMapping(params = {"_id"})
   public DiagnosticReport.Bundle searchById(
-      @RequestHeader(value = "Datamart", defaultValue = "") String datamart,
       @RequestParam("_id") String id,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
-    return searchByIdentifier(datamart, id, page, count);
-  }
-
-  /** Search by identifier. */
-  @GetMapping(params = {"identifier"})
-  public DiagnosticReport.Bundle searchByIdentifier(
-      @RequestHeader(value = "Datamart", defaultValue = "") String datamart,
-      @RequestParam("identifier") String identifier,
-      @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
-      @CountParameter @Min(0) int count) {
     MultiValueMap<String, String> parameters =
-        Parameters.builder()
-            .add("identifier", identifier)
-            .add("page", page)
-            .add("_count", count)
-            .build();
-    DiagnosticReport report = read(datamart, identifier);
+        Parameters.builder().add("identifier", id).add("page", page).add("_count", count).build();
+    DiagnosticReport report = read(id);
     int totalRecords = report == null ? 0 : 1;
     if (report == null || page != 1 || count <= 0) {
       return bundle(parameters, emptyList(), totalRecords);
@@ -426,15 +330,22 @@ public class DiagnosticReportController {
     return bundle(parameters, asList(report), totalRecords);
   }
 
+  /** Search by identifier. */
+  @GetMapping(params = {"identifier"})
+  public DiagnosticReport.Bundle searchByIdentifier(
+      @RequestParam("identifier") String identifier,
+      @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
+      @CountParameter @Min(0) int count) {
+    return searchById(identifier, page, count);
+  }
+
   /** Search by patient. */
   @GetMapping(params = {"patient"})
   public DiagnosticReport.Bundle searchByPatient(
-      @RequestHeader(value = "Datamart", defaultValue = "") String datamart,
       @RequestParam("patient") String patient,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
     return search(
-        datamart,
         Parameters.builder()
             .add("patient", patient)
             .add("page", page)
@@ -445,7 +356,6 @@ public class DiagnosticReportController {
   /** Search by Patient+Category + Date if provided. */
   @GetMapping(params = {"patient", "category"})
   public DiagnosticReport.Bundle searchByPatientAndCategoryAndDate(
-      @RequestHeader(value = "Datamart", defaultValue = "") String datamart,
       @RequestParam("patient") String patient,
       @RequestParam("category") String category,
       @RequestParam(value = "date", required = false) @Valid @DateTimeParameter @Size(max = 2)
@@ -453,7 +363,6 @@ public class DiagnosticReportController {
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
     return search(
-        datamart,
         Parameters.builder()
             .add("patient", patient)
             .add("category", category)
@@ -466,13 +375,11 @@ public class DiagnosticReportController {
   /** Search by Patient+Code. */
   @GetMapping(params = {"patient", "code"})
   public DiagnosticReport.Bundle searchByPatientAndCode(
-      @RequestHeader(value = "Datamart", defaultValue = "") String datamart,
       @RequestParam("patient") String patient,
       @RequestParam("code") String code,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
     return search(
-        datamart,
         Parameters.builder()
             .add("patient", patient)
             .add("code", code)
@@ -509,8 +416,4 @@ public class DiagnosticReportController {
   public OperationOutcome validate(@RequestBody DiagnosticReport.Bundle bundle) {
     return Dstu2Validator.create().validate(bundle);
   }
-
-  public interface Transformer
-      extends Function<
-          CdwDiagnosticReport102Root.CdwDiagnosticReports.CdwDiagnosticReport, DiagnosticReport> {}
 }

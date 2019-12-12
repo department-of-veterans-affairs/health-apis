@@ -22,7 +22,7 @@ import lombok.Builder;
 import lombok.NonNull;
 
 @Builder
-final class DatamartDiagnosticReportTransformer {
+final class Dstu2DiagnosticReportTransformer {
 
   @NonNull final DatamartDiagnosticReports.DiagnosticReport datamart;
 

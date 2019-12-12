@@ -14,6 +14,7 @@ import gov.va.api.health.argonaut.api.resources.Condition.ClinicalStatusCode;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
 import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
+import gov.va.api.health.dataquery.service.controller.Dstu2Validator;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.condition.ConditionSamples.Datamart;
@@ -334,6 +335,37 @@ public class Dstu2ConditionControllerTest {
   @SneakyThrows
   private DatamartCondition toObject(String json) {
     return JacksonConfig.createMapper().readValue(json, DatamartCondition.class);
+  }
+
+  @Test
+  public void validate() {
+    DatamartCondition dm = ConditionSamples.Datamart.create().condition();
+    Condition condition =
+        ConditionSamples.Dstu2.create()
+            .condition("1", dm.patient().reference().get(), "2011-06-27");
+    assertThat(
+            controller()
+                .validate(
+                    ConditionSamples.Dstu2.asBundle(
+                        "http://fonzy.com/cool",
+                        List.of(condition),
+                        1,
+                        ConditionSamples.Dstu2.link(
+                            LinkRelation.first,
+                            "http://fonzy.com/cool/Condition?identifier=1",
+                            1,
+                            1),
+                        ConditionSamples.Dstu2.link(
+                            LinkRelation.self,
+                            "http://fonzy.com/cool/Condition?identifier=1",
+                            1,
+                            1),
+                        ConditionSamples.Dstu2.link(
+                            LinkRelation.last,
+                            "http://fonzy.com/cool/Condition?identifier=1",
+                            1,
+                            1))))
+        .isEqualTo(Dstu2Validator.ok());
   }
 
   private void validateSearchByIdResult(DatamartCondition dm, Bundle actual) {
