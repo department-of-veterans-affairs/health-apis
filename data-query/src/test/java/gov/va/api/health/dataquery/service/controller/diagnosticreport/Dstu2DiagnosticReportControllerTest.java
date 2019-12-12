@@ -38,14 +38,13 @@ import org.springframework.test.context.junit4.SpringRunner;
 @DataJpaTest
 @RunWith(SpringRunner.class)
 public class Dstu2DiagnosticReportControllerTest {
-
   HttpServletResponse response = mock(HttpServletResponse.class);
 
   @Autowired private TestEntityManager entityManager;
 
   public Dstu2DiagnosticReportController controller() {
     return new Dstu2DiagnosticReportController(
-        new Dstu2Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool")),
+        new Dstu2Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool", "cool")),
         WitnessProtection.builder().identityService(mock(IdentityService.class)).build(),
         entityManager.getEntityManager());
   }
