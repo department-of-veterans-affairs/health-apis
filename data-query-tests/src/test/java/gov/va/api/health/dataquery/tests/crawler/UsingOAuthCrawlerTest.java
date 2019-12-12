@@ -4,7 +4,6 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.dataquery.tests.DataQueryScopes;
-import gov.va.api.health.dataquery.tests.Swiggity;
 import gov.va.api.health.dataquery.tests.SystemDefinition;
 import gov.va.api.health.dataquery.tests.SystemDefinitions;
 import gov.va.api.health.sentinel.LabBot;

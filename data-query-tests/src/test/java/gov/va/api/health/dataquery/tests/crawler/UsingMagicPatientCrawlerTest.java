@@ -4,7 +4,6 @@ import static gov.va.api.health.sentinel.SentinelProperties.magicAccessToken;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.dataquery.tests.DataQueryProperties;
-import gov.va.api.health.dataquery.tests.Swiggity;
 import gov.va.api.health.dataquery.tests.SystemDefinition;
 import gov.va.api.health.dataquery.tests.SystemDefinitions;
 import gov.va.api.health.sentinel.SentinelProperties;
