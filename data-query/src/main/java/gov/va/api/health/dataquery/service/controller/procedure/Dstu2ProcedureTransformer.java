@@ -13,7 +13,7 @@ import java.util.Optional;
 import lombok.Builder;
 
 @Builder
-public class DatamartProcedureTransformer {
+public class Dstu2ProcedureTransformer {
   private final DatamartProcedure datamart;
 
   List<CodeableConcept> reasonNotPerformed(Optional<String> reasonNotPerformed) {
