@@ -8,7 +8,7 @@ import java.io.FileInputStream;
 import java.util.List;
 import java.util.Properties;
 import java.util.function.Supplier;
-import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 import javax.persistence.spi.PersistenceUnitInfo;
 import javax.sql.DataSource;
 import lombok.SneakyThrows;
@@ -17,7 +17,7 @@ import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.jpa.HibernatePersistenceProvider;
 
 @Slf4j
-public class ExternalDb implements Supplier<EntityManager> {
+public class ExternalDb implements Supplier<EntityManagerFactory> {
 
   private final Properties config;
 
@@ -34,7 +34,7 @@ public class ExternalDb implements Supplier<EntityManager> {
   }
 
   @Override
-  public EntityManager get() {
+  public EntityManagerFactory get() {
 
     PersistenceUnitInfo info =
         PersistenceUnit.builder()
@@ -47,8 +47,7 @@ public class ExternalDb implements Supplier<EntityManager> {
         .createContainerEntityManagerFactory(
             info,
             ImmutableMap.of(
-                AvailableSettings.JPA_JDBC_DRIVER, valueOf("spring.datasource.driver-class-name")))
-        .createEntityManager();
+                AvailableSettings.JPA_JDBC_DRIVER, valueOf("spring.datasource.driver-class-name")));
   }
 
   DataSource sqlServerDataSource() {

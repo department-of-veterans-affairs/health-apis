@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.List;
 import java.util.Properties;
 import java.util.function.Supplier;
-import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 import javax.persistence.spi.PersistenceUnitInfo;
 import javax.sql.DataSource;
 import lombok.AllArgsConstructor;
@@ -16,7 +16,7 @@ import org.hibernate.jpa.HibernatePersistenceProvider;
 
 @Slf4j
 @AllArgsConstructor
-public class LocalH2 implements Supplier<EntityManager> {
+public class LocalH2 implements Supplier<EntityManagerFactory> {
 
   private final String outputFile;
 
@@ -24,7 +24,7 @@ public class LocalH2 implements Supplier<EntityManager> {
 
   @Override
   @SneakyThrows
-  public EntityManager get() {
+  public EntityManagerFactory get() {
     PersistenceUnitInfo info =
         PersistenceUnit.builder()
             .persistenceUnitName("h2")
@@ -38,8 +38,7 @@ public class LocalH2 implements Supplier<EntityManager> {
         .execute("DROP SCHEMA IF EXISTS APP CASCADE; CREATE SCHEMA APP;");
     return new HibernatePersistenceProvider()
         .createContainerEntityManagerFactory(
-            info, ImmutableMap.of(AvailableSettings.JPA_JDBC_DRIVER, "org.h2.Driver"))
-        .createEntityManager();
+            info, ImmutableMap.of(AvailableSettings.JPA_JDBC_DRIVER, "org.h2.Driver"));
   }
 
   DataSource h2DataSource() {
