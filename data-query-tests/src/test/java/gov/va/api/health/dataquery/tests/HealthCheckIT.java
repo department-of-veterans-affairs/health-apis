@@ -10,7 +10,11 @@ public class HealthCheckIT {
   @Category(Local.class)
   @Test
   public void dataQueryIsHealthy() {
-    TestClients.dataQuery().get("/actuator/health").response().then().body("status", equalTo("UP"));
+    TestClients.dstu2DataQuery()
+        .get("/actuator/health")
+        .response()
+        .then()
+        .body("status", equalTo("UP"));
   }
 
   @Category(Local.class)

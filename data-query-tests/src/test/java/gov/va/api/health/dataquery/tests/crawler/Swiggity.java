@@ -1,4 +1,4 @@
-package gov.va.api.health.dataquery.tests;
+package gov.va.api.health.dataquery.tests.crawler;
 
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;

@@ -1,7 +1,8 @@
-package gov.va.api.health.dataquery.tests;
+package gov.va.api.health.dataquery.tests.dstu2;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import gov.va.api.health.dataquery.tests.TestClients;
 import gov.va.api.health.dataquery.tests.categories.LabDataQueryClinician;
 import gov.va.api.health.dataquery.tests.categories.LabDataQueryPatient;
 import gov.va.api.health.dataquery.tests.categories.ProdDataQueryClinician;
@@ -12,9 +13,8 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 public class WellKnownIT {
-
   private final String apiPath() {
-    return TestClients.dataQuery().service().apiPath();
+    return TestClients.dstu2DataQuery().service().apiPath();
   }
 
   /**
@@ -29,7 +29,7 @@ public class WellKnownIT {
 
   public void requestWellKnown(String apiPath) {
     ExpectedResponse response =
-        TestClients.dataQuery().get(apiPath + ".well-known/smart-configuration");
+        TestClients.dstu2DataQuery().get(apiPath + ".well-known/smart-configuration");
     response.expect(200);
     String rawJson = response.response().asString();
     assertThat(rawJson)

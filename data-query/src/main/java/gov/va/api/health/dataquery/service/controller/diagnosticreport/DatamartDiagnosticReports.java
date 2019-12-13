@@ -89,6 +89,7 @@ public class DatamartDiagnosticReports {
     }
 
     /** Backwards compatibility for etlDate. */
+    @SuppressWarnings("unused")
     @JsonProperty("ETLEditDateTime")
     private void setEtlDate(String unused) {
       /* no op */

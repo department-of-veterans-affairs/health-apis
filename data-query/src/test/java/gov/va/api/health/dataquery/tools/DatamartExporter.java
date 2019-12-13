@@ -87,7 +87,7 @@ public class DatamartExporter {
     h2.close();
   }
 
-  private <T> void steal(ExportCriteria criteria) {
+  private void steal(ExportCriteria criteria) {
     log.info("Stealing {}", criteria.type());
     h2.getTransaction().begin();
     criteria

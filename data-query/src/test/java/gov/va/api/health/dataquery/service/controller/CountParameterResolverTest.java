@@ -60,6 +60,7 @@ public class CountParameterResolverTest {
     assertThat(r.supportsParameter(methodParameter)).isFalse();
   }
 
+  @SuppressWarnings("unused")
   public void reflectMe(@CountParameter Void here) {}
 
   @Test(expected = MethodArgumentTypeMismatchException.class)

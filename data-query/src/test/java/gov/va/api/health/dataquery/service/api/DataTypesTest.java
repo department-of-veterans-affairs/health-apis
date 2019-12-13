@@ -5,8 +5,7 @@ import gov.va.api.health.dataquery.service.api.DataQueryService.UnknownResource;
 import org.junit.Test;
 
 public class DataTypesTest {
-
-  @SuppressWarnings("ThrowableNotThrown")
+  @SuppressWarnings({"ThrowableNotThrown", "unused"})
   @Test
   public void exceptionConstructors() {
     new UnknownResource("some id");

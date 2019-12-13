@@ -139,7 +139,7 @@ public class Dstu2MedicationControllerTest {
     repository.save(asEntity(dm));
     mockMedicationIdentity("1", dm.cdwId());
     Bundle actual = controller().searchByIdentifier("1", 1, 1);
-    validationSearchByIdResult(dm, actual);
+    validationSearchByIdResult(actual);
   }
 
   @SneakyThrows
@@ -175,7 +175,7 @@ public class Dstu2MedicationControllerTest {
         .isEqualTo(Dstu2Validator.ok());
   }
 
-  private void validationSearchByIdResult(DatamartMedication dm, Bundle actual) {
+  private void validationSearchByIdResult(Bundle actual) {
     Medication medication = Dstu2.create().medication("1");
     assertThat(json(actual))
         .isEqualTo(

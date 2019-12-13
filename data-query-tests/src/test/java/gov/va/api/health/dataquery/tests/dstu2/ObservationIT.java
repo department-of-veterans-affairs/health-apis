@@ -1,19 +1,19 @@
-package gov.va.api.health.dataquery.tests;
-
-import static gov.va.api.health.dataquery.tests.ResourceVerifier.test;
+package gov.va.api.health.dataquery.tests.dstu2;
 
 import gov.va.api.health.argonaut.api.resources.Observation;
+import gov.va.api.health.dataquery.tests.ResourceVerifier;
 import gov.va.api.health.dataquery.tests.categories.LabDataQueryClinician;
 import gov.va.api.health.dataquery.tests.categories.LabDataQueryPatient;
 import gov.va.api.health.dataquery.tests.categories.ProdDataQueryClinician;
 import gov.va.api.health.dataquery.tests.categories.ProdDataQueryPatient;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import gov.va.api.health.sentinel.categories.Local;
+import lombok.experimental.Delegate;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 public class ObservationIT {
-  ResourceVerifier verifier = ResourceVerifier.get();
+  @Delegate ResourceVerifier verifier = ResourceVerifier.dstu2();
 
   @Test
   @Category({Local.class, LabDataQueryClinician.class, ProdDataQueryClinician.class})
