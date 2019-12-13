@@ -20,6 +20,10 @@ public final class Dstu2ResourceVerifier extends AbstractResourceVerifier {
 
   @Getter private final Class<?> bundleClass = AbstractBundle.class;
 
+  /**
+   * As remaining resources are migrated from CDW to Datamart, they may support both at the same
+   * time. Once resources are fully migrated over, they can be removed from this list.
+   */
   @Getter
   private final Set<Class<?>> datamartAndCdwResources =
       ImmutableSet.of(Location.class, Practitioner.class);

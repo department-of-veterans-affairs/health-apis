@@ -18,6 +18,7 @@ public final class Stu3ResourceVerifier extends AbstractResourceVerifier {
 
   @Getter private final Class<?> bundleClass = AbstractBundle.class;
 
+  /** STU-3 resources are Datamart-only. */
   @Getter private final Set<Class<?>> datamartAndCdwResources = Collections.emptySet();
 
   @Getter private final TestClient dataQuery = TestClients.stu3DataQuery();
