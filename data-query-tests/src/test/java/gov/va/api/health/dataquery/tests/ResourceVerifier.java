@@ -16,7 +16,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.Builder;
-import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +26,6 @@ import org.springframework.util.ReflectionUtils;
 @Value
 @Builder
 public final class ResourceVerifier {
-
   private static final Set<Class<?>> VERIFIED_PAGE_BOUNDS_CLASSES =
       Collections.newSetFromMap(new ConcurrentHashMap<>());
 
@@ -49,7 +47,6 @@ public final class ResourceVerifier {
 
   private final Class<?> operationOutcomeClass;
 
-  @Getter
   private final TestIds ids = IdRegistrar.of(SystemDefinitions.systemDefinition()).registeredIds();
 
   /**
@@ -200,7 +197,6 @@ public final class ResourceVerifier {
   @Value
   @Builder
   public static final class TestCase<T> {
-
     int status;
 
     Class<T> response;
