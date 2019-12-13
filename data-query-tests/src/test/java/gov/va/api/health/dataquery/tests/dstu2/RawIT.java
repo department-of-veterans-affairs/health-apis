@@ -10,6 +10,7 @@ import io.restassured.RestAssured;
 import io.restassured.path.json.config.JsonPathConfig;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
+import lombok.Delegate;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
@@ -21,8 +22,7 @@ import org.junit.experimental.categories.Category;
  */
 @Slf4j
 public class RawIT {
-
-  ResourceVerifier verifier = ResourceVerifier.get();
+  @Delegate Dstu2ResourceVerifier verifier = Dstu2ResourceVerifier.get();
 
   RequestSpecification raw =
       RestAssured.given()
