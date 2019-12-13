@@ -144,33 +144,6 @@
         <version>${process-exec-maven-plugin.version}</version>
         <executions>
           <execution>
-            <id>ids-process</id>
-            <phase>pre-integration-test</phase>
-            <goals>
-              <goal>start</goal>
-            </goals>
-            <configuration>
-              <name>ids</name>
-              <waitForInterrupt>false</waitForInterrupt>
-              <healthcheckUrl>http://localhost:8089/actuator/health</healthcheckUrl>
-              <skip>${sentinel.skipLaunch}</skip>
-              <arguments>
-                <argument>java</argument>
-                <argument>-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5089</argument>
-                <argument>-cp</argument>
-                <argument>ids.jar${path.separator}h2.jar</argument>
-                <argument>-Dloader=gov.va.api.health.ids.service.Application</argument>
-                <argument>-Dlogging.level.root=ERROR</argument>
-                <argument>-Dspring.jpa.generate-ddl=true</argument>
-                <argument>-Dspring.jpa.hibernate.ddl-auto=create-drop</argument>
-                <argument>-Dspring.datasource.driver-class-name=org.h2.Driver</argument>
-                <argument>-Dspring.datasource.url=jdbc:h2:mem:whatever</argument>
-                <argument>-Dspring.config.location=classpath:/application.properties,file:${project.basedir}/config/secrets.properties</argument>
-                <argument>org.springframework.boot.loader.PropertiesLauncher</argument>
-              </arguments>
-            </configuration>
-          </execution>
-          <execution>
             <id>mr-anderson-process</id>
             <phase>pre-integration-test</phase>
             <goals>
