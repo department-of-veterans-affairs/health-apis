@@ -4,7 +4,6 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.dataquery.tests.DataQueryScopes;
-import gov.va.api.health.dataquery.tests.Swiggity;
 import gov.va.api.health.dataquery.tests.SystemDefinition;
 import gov.va.api.health.dataquery.tests.SystemDefinitions;
 import gov.va.api.health.sentinel.LabBot;
@@ -26,7 +25,7 @@ public class UsingOAuthCrawlerTest {
     }
     return UrlReplacementRequestQueue.builder()
         .replaceUrl(CrawlerProperties.urlReplace())
-        .withUrl(env.dataQuery().urlWithApiPath())
+        .withUrl(env.dstu2DataQuery().urlWithApiPath())
         .requestQueue(new ConcurrentResourceBalancingRequestQueue())
         .build();
   }
@@ -41,7 +40,7 @@ public class UsingOAuthCrawlerTest {
     ResourceDiscovery discovery =
         ResourceDiscovery.builder()
             .patientId(userResult.tokenExchange().patient())
-            .url(env.dataQuery().urlWithApiPath())
+            .url(env.dstu2DataQuery().urlWithApiPath())
             .build();
     SummarizingResultCollector results =
         SummarizingResultCollector.wrap(

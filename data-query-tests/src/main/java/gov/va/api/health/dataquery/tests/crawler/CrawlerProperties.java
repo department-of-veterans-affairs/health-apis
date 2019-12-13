@@ -93,9 +93,8 @@ public final class CrawlerProperties {
     if (isBlank(replace)) {
       log.info("Additional seed URLs disabled (Override with -Dcrawler.seed=<url>)");
       return List.of();
-    } else {
-      log.info("Additional seed URLs {} (Override with -Dcrawler.url.replace=<url>)", replace);
     }
+    log.info("Additional seed URLs {} (Override with -Dcrawler.url.replace=<url>)", replace);
     return Splitter.on(",").splitToList(replace);
   }
 

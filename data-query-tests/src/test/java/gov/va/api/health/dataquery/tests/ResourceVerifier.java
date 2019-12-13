@@ -4,139 +4,56 @@ import static org.apache.commons.lang3.BooleanUtils.isTrue;
 import static org.apache.commons.lang3.BooleanUtils.toBoolean;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import gov.va.api.health.dstu2.api.bundle.AbstractBundle;
-import gov.va.api.health.dstu2.api.resources.Location;
-import gov.va.api.health.dstu2.api.resources.OperationOutcome;
-import gov.va.api.health.dstu2.api.resources.Practitioner;
+import com.google.common.collect.ImmutableSet;
 import gov.va.api.health.sentinel.Environment;
 import gov.va.api.health.sentinel.TestClient;
+import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import lombok.AccessLevel;
 import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.ReflectionUtils;
 
 /** This support class can be used to test standard resource queries, such as reads and searches. */
 @Slf4j
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class ResourceVerifier {
-
-  private static final ResourceVerifier INSTANCE = new ResourceVerifier();
-
-  private static final String API_PATH = SystemDefinitions.systemDefinition().dataQuery().apiPath();
+@Value
+@Builder
+public final class ResourceVerifier {
+  private static final Set<Class<?>> VERIFIED_PAGE_BOUNDS_CLASSES =
+      Collections.newSetFromMap(new ConcurrentHashMap<>());
 
   static {
     log.info(
         "Datamart failures enabled: {} "
             + "(Override using -Ddatamart.failures.enabled=<true|false> "
             + "or environment variable DATAMART_FAILURES_ENABLED=<true|false>)",
-        get().datamartFailuresEnabled());
+        datamartFailuresEnabled());
   }
 
-  @Getter private final TestClient dataQuery = TestClients.dataQuery();
+  private final String apiPath;
 
-  @Getter
+  private final Class<?> bundleClass;
+
+  private final Set<Class<?>> datamartAndCdwResources;
+
+  private final TestClient dataQuery;
+
+  private final Class<?> operationOutcomeClass;
+
   private final TestIds ids = IdRegistrar.of(SystemDefinitions.systemDefinition()).registeredIds();
-
-  private final Set<Class<?>> verifiedPageBoundsClasses =
-      Collections.newSetFromMap(new ConcurrentHashMap<>());
-
-  private ImmutableList<Class<?>> DATAMART_AND_CDW_RESOURCES =
-      ImmutableList.of(
-          Location.class, Practitioner.class
-          /*
-           * As remaining resources are migrated, they may support both CDW and Datamart at the same
-           * time. Once resources are fully migrated over, they can be removed from this list.
-           */
-          );
-
-  public static ResourceVerifier get() {
-    return INSTANCE;
-  }
-
-  public static <T> TestCase<T> test(
-      int status, Class<T> response, String path, String... parameters) {
-    return TestCase.<T>builder()
-        .path(API_PATH + path)
-        .parameters(parameters)
-        .response(response)
-        .status(status)
-        .build();
-  }
-
-  /**
-   * If the response is a bundle, then the query is a search. We want to verify paging parameters
-   * restrict page >= 1, _count >=1, and _count <= 20
-   */
-  private <T> void assertPagingParameterBounds(TestCase<T> tc) {
-    if (!AbstractBundle.class.isAssignableFrom(tc.response())) {
-      return;
-    }
-
-    if (verifiedPageBoundsClasses.contains(tc.response())) {
-      log.info("Verify {} page bounds, skipping repeat {}.", tc.label(), tc.response.getName());
-      return;
-    }
-
-    log.info("Verify {} page bounds", tc.label());
-    verifiedPageBoundsClasses.add(tc.response());
-    dataQuery()
-        .get(tc.path() + "&page=0", tc.parameters())
-        .expect(400)
-        .expectValid(OperationOutcome.class);
-    dataQuery()
-        .get(tc.path() + "&_count=-1", tc.parameters())
-        .expect(400)
-        .expectValid(OperationOutcome.class);
-    dataQuery()
-        .get(tc.path() + "&_count=0", tc.parameters())
-        .expect(200)
-        .expectValid(tc.response());
-    AbstractBundle<?> bundle =
-        (AbstractBundle<?>)
-            dataQuery()
-                .get(tc.path() + "&_count=21", tc.parameters())
-                .expect(200)
-                .expectValid(tc.response());
-    assertThat(bundle.entry().size()).isLessThan(21);
-  }
-
-  private <T> T assertRequest(TestCase<T> tc) {
-    if (isDatamartAndCdwResource(tc)) {
-      log.info(
-          "Verify Datamart {} is {} ({})", tc.label(), tc.response().getSimpleName(), tc.status());
-      try {
-        dataQuery()
-            .get(datamartHeader(), tc.path(), tc.parameters())
-            .expect(tc.status())
-            .expectValid(tc.response());
-      } catch (AssertionError | Exception e) {
-        if (datamartFailuresEnabled()) {
-          throw e;
-        } else {
-          log.error("Suppressing datamart failure: {}: {}", tc.label(), e.getMessage());
-        }
-      }
-    }
-    log.info("Verify {} is {} ({})", tc.label(), tc.response().getSimpleName(), tc.status());
-    return dataQuery()
-        .get(tc.path(), tc.parameters())
-        .expect(tc.status())
-        .expectValid(tc.response());
-  }
 
   /**
    * Datamart is not quite stable enough to prohibit builds from passing. Since this feature is
    * toggled off, we'll allow Datamart failures anywhere but locally.
    */
-  private boolean datamartFailuresEnabled() {
+  private static boolean datamartFailuresEnabled() {
     if (Environment.get() == Environment.LOCAL) {
       return true;
     }
@@ -149,27 +66,120 @@ public class ResourceVerifier {
     return false;
   }
 
-  private ImmutableMap<String, String> datamartHeader() {
-    return ImmutableMap.of("Datamart", "true");
+  public static ResourceVerifier dstu2() {
+    /*
+     * As remaining resources are migrated from CDW to Datamart, they may support both at the same
+     * time. Once resources are fully migrated over, they can be removed from datamartAndCdwResources.
+     */
+    return ResourceVerifier.builder()
+        .apiPath(SystemDefinitions.systemDefinition().dstu2DataQuery().apiPath())
+        .bundleClass(gov.va.api.health.dstu2.api.bundle.AbstractBundle.class)
+        .datamartAndCdwResources(
+            ImmutableSet.of(
+                gov.va.api.health.dstu2.api.resources.Location.class,
+                gov.va.api.health.dstu2.api.resources.Practitioner.class))
+        .dataQuery(TestClients.dstu2DataQuery())
+        .operationOutcomeClass(gov.va.api.health.dstu2.api.resources.OperationOutcome.class)
+        .build();
+  }
+
+  public static ResourceVerifier stu3() {
+    return ResourceVerifier.builder()
+        .apiPath(SystemDefinitions.systemDefinition().stu3DataQuery().apiPath())
+        .bundleClass(gov.va.api.health.stu3.api.bundle.AbstractBundle.class)
+        .datamartAndCdwResources(Collections.emptySet())
+        .dataQuery(TestClients.stu3DataQuery())
+        .operationOutcomeClass(gov.va.api.health.stu3.api.resources.OperationOutcome.class)
+        .build();
+  }
+
+  /**
+   * If the response is a bundle, then the query is a search. We want to verify paging parameters
+   * restrict page >= 1, _count >=1, and _count <= 20
+   */
+  @SneakyThrows
+  protected final <T> void assertPagingParameterBounds(TestCase<T> tc) {
+    if (!bundleClass().isAssignableFrom(tc.response())) {
+      return;
+    }
+    if (VERIFIED_PAGE_BOUNDS_CLASSES.contains(tc.response())) {
+      log.info("Verify {} page bounds, skipping repeat {}.", tc.label(), tc.response.getName());
+      return;
+    }
+    log.info("Verify {} page bounds", tc.label());
+    VERIFIED_PAGE_BOUNDS_CLASSES.add(tc.response());
+    dataQuery()
+        .get(tc.path() + "&page=0", tc.parameters())
+        .expect(400)
+        .expectValid(operationOutcomeClass());
+    dataQuery()
+        .get(tc.path() + "&_count=-1", tc.parameters())
+        .expect(400)
+        .expectValid(operationOutcomeClass());
+    dataQuery()
+        .get(tc.path() + "&_count=0", tc.parameters())
+        .expect(200)
+        .expectValid(tc.response());
+    T bundle =
+        dataQuery()
+            .get(tc.path() + "&_count=21", tc.parameters())
+            .expect(200)
+            .expectValid(tc.response());
+    Method bundleEntryMethod = bundleClass().getMethod("entry");
+    ReflectionUtils.makeAccessible(bundleEntryMethod);
+    Collection<?> entries = (Collection<?>) bundleEntryMethod.invoke(bundle);
+    assertThat(entries.size()).isLessThan(21);
+  }
+
+  private <T> T assertRequest(TestCase<T> tc) {
+    if (isDatamartAndCdwResource(tc)) {
+      log.info(
+          "Verify Datamart {} is {} ({})", tc.label(), tc.response().getSimpleName(), tc.status());
+      try {
+        Map<String, String> datamartHeader = ImmutableMap.of("Datamart", "true");
+        dataQuery()
+            .get(datamartHeader, tc.path(), tc.parameters())
+            .expect(tc.status())
+            .expectValid(tc.response());
+      } catch (AssertionError | Exception e) {
+        if (datamartFailuresEnabled()) {
+          throw e;
+        }
+        log.error("Suppressing datamart failure: {}: {}", tc.label(), e.getMessage());
+      }
+    }
+    log.info("Verify {} is {} ({})", tc.label(), tc.response().getSimpleName(), tc.status());
+    return dataQuery()
+        .get(tc.path(), tc.parameters())
+        .expect(tc.status())
+        .expectValid(tc.response());
   }
 
   private <T> boolean isDatamartAndCdwResource(TestCase<T> tc) {
-    /*
-     * If this is a bundle, we want the declaring resource type instead.
-     */
+    // If this is a bundle, we want the declaring resource type instead.
     Class<?> resource =
-        AbstractBundle.class.isAssignableFrom(tc.response())
+        bundleClass().isAssignableFrom(tc.response())
             ? tc.response().getDeclaringClass()
             : tc.response();
-    return DATAMART_AND_CDW_RESOURCES.contains(resource);
+    return datamartAndCdwResources().contains(resource);
   }
 
-  public <T> T verify(TestCase<T> tc) {
+  public final <T> TestCase<T> test(
+      int status, Class<T> response, String path, String... parameters) {
+    return TestCase.<T>builder()
+        .path(apiPath() + path)
+        .parameters(parameters)
+        .response(response)
+        .status(status)
+        .build();
+  }
+
+  public final <T> T verify(TestCase<T> tc) {
     assertPagingParameterBounds(tc);
     return assertRequest(tc);
   }
 
-  public void verifyAll(TestCase<?>... testCases) {
+  public final void verifyAll(TestCase<?>... testCases) {
     for (TestCase<?> tc : testCases) {
       try {
         verify(tc);
@@ -186,7 +196,7 @@ public class ResourceVerifier {
 
   @Value
   @Builder
-  public static class TestCase<T> {
+  public static final class TestCase<T> {
     int status;
 
     Class<T> response;

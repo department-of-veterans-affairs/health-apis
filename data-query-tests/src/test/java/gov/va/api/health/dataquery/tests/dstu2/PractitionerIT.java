@@ -1,15 +1,15 @@
-package gov.va.api.health.dataquery.tests;
+package gov.va.api.health.dataquery.tests.dstu2;
 
-import static gov.va.api.health.dataquery.tests.ResourceVerifier.test;
-
+import gov.va.api.health.dataquery.tests.ResourceVerifier;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import gov.va.api.health.dstu2.api.resources.Practitioner;
 import gov.va.api.health.sentinel.categories.Local;
+import lombok.experimental.Delegate;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 public class PractitionerIT {
-  ResourceVerifier verifier = ResourceVerifier.get();
+  @Delegate ResourceVerifier verifier = ResourceVerifier.dstu2();
 
   @Category({Local.class
     // , ProdDataQueryClinician.class
