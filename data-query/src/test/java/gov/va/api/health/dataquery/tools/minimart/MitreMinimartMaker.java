@@ -58,7 +58,7 @@ import org.apache.commons.lang3.StringUtils;
 @Slf4j
 public class MitreMinimartMaker {
 
-  private static ThreadLocal<EntityManager> localEntityManager = new ThreadLocal<>();
+  private static final ThreadLocal<EntityManager> LOCAL_ENTITY_MANAGER = new ThreadLocal<>();
 
   private final List<Class<?>> MANAGED_CLASSES =
       Arrays.asList(
@@ -456,12 +456,12 @@ public class MitreMinimartMaker {
   }
 
   private <T extends DatamartEntity> void save(T entity) {
-    if (localEntityManager.get() == null) {
-      localEntityManager.set(entityManagerFactory.createEntityManager());
-      localEntityManager.get().getTransaction().begin();
-      entityManagers.add(localEntityManager.get());
+    if (LOCAL_ENTITY_MANAGER.get() == null) {
+      LOCAL_ENTITY_MANAGER.set(entityManagerFactory.createEntityManager());
+      LOCAL_ENTITY_MANAGER.get().getTransaction().begin();
+      entityManagers.add(LOCAL_ENTITY_MANAGER.get());
     }
-    EntityManager entityManager = localEntityManager.get();
+    EntityManager entityManager = LOCAL_ENTITY_MANAGER.get();
     DatamartEntity existing = entityManager.find(entity.getClass(), entity.cdwId());
     if (existing == null) {
       entityManager.persist(entity);
