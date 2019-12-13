@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.tests.stu3;
 
+import gov.va.api.health.dataquery.tests.ResourceVerifier;
 import gov.va.api.health.sentinel.categories.Local;
 import gov.va.api.health.stu3.api.resources.Location;
 import gov.va.api.health.stu3.api.resources.OperationOutcome;
@@ -8,7 +9,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 public class LocationIT {
-  @Delegate private final Stu3ResourceVerifier verifier = Stu3ResourceVerifier.get();
+  @Delegate private final ResourceVerifier verifier = ResourceVerifier.stu3();
 
   @Category({Local.class
     // , ProdDataQueryClinician.class

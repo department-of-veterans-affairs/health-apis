@@ -5,6 +5,7 @@ import static org.apache.commons.lang3.BooleanUtils.toBoolean;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import gov.va.api.health.sentinel.Environment;
 import gov.va.api.health.sentinel.TestClient;
 import java.lang.reflect.Method;
@@ -14,10 +15,8 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
@@ -25,8 +24,10 @@ import org.springframework.util.ReflectionUtils;
 
 /** This support class can be used to test standard resource queries, such as reads and searches. */
 @Slf4j
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-public abstract class AbstractResourceVerifier {
+@Value
+@Builder
+public final class ResourceVerifier {
+
   private static final Set<Class<?>> VERIFIED_PAGE_BOUNDS_CLASSES =
       Collections.newSetFromMap(new ConcurrentHashMap<>());
 
@@ -37,6 +38,16 @@ public abstract class AbstractResourceVerifier {
             + "or environment variable DATAMART_FAILURES_ENABLED=<true|false>)",
         datamartFailuresEnabled());
   }
+
+  private final String apiPath;
+
+  private final Class<?> bundleClass;
+
+  private final Set<Class<?>> datamartAndCdwResources;
+
+  private final TestClient dataQuery;
+
+  private final Class<?> operationOutcomeClass;
 
   @Getter
   private final TestIds ids = IdRegistrar.of(SystemDefinitions.systemDefinition()).registeredIds();
@@ -58,7 +69,32 @@ public abstract class AbstractResourceVerifier {
     return false;
   }
 
-  protected abstract String apiPath();
+  public static ResourceVerifier dstu2() {
+    /*
+     * As remaining resources are migrated from CDW to Datamart, they may support both at the same
+     * time. Once resources are fully migrated over, they can be removed from datamartAndCdwResources.
+     */
+    return ResourceVerifier.builder()
+        .apiPath(SystemDefinitions.systemDefinition().dstu2DataQuery().apiPath())
+        .bundleClass(gov.va.api.health.dstu2.api.bundle.AbstractBundle.class)
+        .datamartAndCdwResources(
+            ImmutableSet.of(
+                gov.va.api.health.dstu2.api.resources.Location.class,
+                gov.va.api.health.dstu2.api.resources.Practitioner.class))
+        .dataQuery(TestClients.dstu2DataQuery())
+        .operationOutcomeClass(gov.va.api.health.dstu2.api.resources.OperationOutcome.class)
+        .build();
+  }
+
+  public static ResourceVerifier stu3() {
+    return ResourceVerifier.builder()
+        .apiPath(SystemDefinitions.systemDefinition().stu3DataQuery().apiPath())
+        .bundleClass(gov.va.api.health.stu3.api.bundle.AbstractBundle.class)
+        .datamartAndCdwResources(Collections.emptySet())
+        .dataQuery(TestClients.stu3DataQuery())
+        .operationOutcomeClass(gov.va.api.health.stu3.api.resources.OperationOutcome.class)
+        .build();
+  }
 
   /**
    * If the response is a bundle, then the query is a search. We want to verify paging parameters
@@ -122,12 +158,6 @@ public abstract class AbstractResourceVerifier {
         .expectValid(tc.response());
   }
 
-  protected abstract Class<?> bundleClass();
-
-  protected abstract TestClient dataQuery();
-
-  protected abstract Set<Class<?>> datamartAndCdwResources();
-
   private <T> boolean isDatamartAndCdwResource(TestCase<T> tc) {
     // If this is a bundle, we want the declaring resource type instead.
     Class<?> resource =
@@ -136,8 +166,6 @@ public abstract class AbstractResourceVerifier {
             : tc.response();
     return datamartAndCdwResources().contains(resource);
   }
-
-  protected abstract Class<?> operationOutcomeClass();
 
   public final <T> TestCase<T> test(
       int status, Class<T> response, String path, String... parameters) {
@@ -172,6 +200,7 @@ public abstract class AbstractResourceVerifier {
   @Value
   @Builder
   public static final class TestCase<T> {
+
     int status;
 
     Class<T> response;

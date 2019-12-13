@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.tests.dstu2;
 
+import gov.va.api.health.dataquery.tests.ResourceVerifier;
 import gov.va.api.health.dstu2.api.resources.Encounter;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import gov.va.api.health.sentinel.categories.Local;
@@ -8,7 +9,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 public class EncounterIT {
-  @Delegate Dstu2ResourceVerifier verifier = Dstu2ResourceVerifier.get();
+  @Delegate ResourceVerifier verifier = ResourceVerifier.dstu2();
 
   @Category({Local.class
     // , ProdDataQueryClinician.class

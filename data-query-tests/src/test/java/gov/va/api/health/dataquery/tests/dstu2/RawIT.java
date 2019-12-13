@@ -3,6 +3,7 @@ package gov.va.api.health.dataquery.tests.dstu2;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
+import gov.va.api.health.dataquery.tests.ResourceVerifier;
 import gov.va.api.health.dataquery.tests.categories.LabDataQueryPatient;
 import gov.va.api.health.dataquery.tests.categories.ProdDataQueryPatient;
 import gov.va.api.health.sentinel.categories.Local;
@@ -10,8 +11,8 @@ import io.restassured.RestAssured;
 import io.restassured.path.json.config.JsonPathConfig;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
-import lombok.Delegate;
 import lombok.SneakyThrows;
+import lombok.experimental.Delegate;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -22,7 +23,7 @@ import org.junit.experimental.categories.Category;
  */
 @Slf4j
 public class RawIT {
-  @Delegate Dstu2ResourceVerifier verifier = Dstu2ResourceVerifier.get();
+  @Delegate ResourceVerifier verifier = ResourceVerifier.dstu2();
 
   RequestSpecification raw =
       RestAssured.given()

@@ -1,6 +1,7 @@
 package gov.va.api.health.dataquery.tests.dstu2;
 
 import gov.va.api.health.argonaut.api.resources.Procedure;
+import gov.va.api.health.dataquery.tests.ResourceVerifier;
 import gov.va.api.health.dataquery.tests.categories.LabDataQueryClinician;
 import gov.va.api.health.dataquery.tests.categories.LabDataQueryPatient;
 import gov.va.api.health.dataquery.tests.categories.ProdDataQueryClinician;
@@ -12,7 +13,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 public class ProcedureIT {
-  @Delegate Dstu2ResourceVerifier verifier = Dstu2ResourceVerifier.get();
+  @Delegate ResourceVerifier verifier = ResourceVerifier.dstu2();
 
   @Test
   @Category(Local.class)
