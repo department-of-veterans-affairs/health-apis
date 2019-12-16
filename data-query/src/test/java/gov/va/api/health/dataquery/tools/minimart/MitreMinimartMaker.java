@@ -296,6 +296,11 @@ public class MitreMinimartMaker {
             .cdwId(dm.cdwId())
             .icn(dm.subject().isPresent() ? patientIcn(dm.subject().get()) : null)
             .payload(fileToString(file))
+            .category(dm.category().name())
+            .code(
+                dm.code().isPresent() && dm.code().get().coding().isPresent()
+                    ? dm.code().get().coding().get().code().orElse(null)
+                    : null)
             .build();
     save(entity);
   }
