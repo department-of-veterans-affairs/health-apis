@@ -12,16 +12,18 @@ import lombok.experimental.UtilityClass;
  */
 @UtilityClass
 public final class TestClients {
-
-  static TestClient dataQuery() {
+  /** DSTU2 Data Query test client. */
+  public static TestClient dstu2DataQuery() {
     return FhirTestClient.builder()
-        .service(SystemDefinitions.systemDefinition().dataQuery())
+        .service(SystemDefinitions.systemDefinition().dstu2DataQuery())
         .mapper(JacksonConfig::createMapper)
-        .errorResponseEqualityCheck(new OperationOutcomesAreFunctionallyEqual())
+        .errorResponseEqualityCheck(
+            new gov.va.api.health.dataquery.tests.dstu2.OperationOutcomesAreFunctionallyEqual())
         .build();
   }
 
-  static TestClient ids() {
+  /** ID service test client. */
+  public static TestClient ids() {
     return BasicTestClient.builder()
         .service(SystemDefinitions.systemDefinition().ids())
         .contentType("application/json")
@@ -29,7 +31,8 @@ public final class TestClients {
         .build();
   }
 
-  static TestClient internalDataQuery() {
+  /** Internal Data Query test client. */
+  public static TestClient internalDataQuery() {
     return BasicTestClient.builder()
         .service(SystemDefinitions.systemDefinition().internalDataQuery())
         .contentType("application/json")
@@ -37,11 +40,22 @@ public final class TestClients {
         .build();
   }
 
-  static TestClient mrAnderson() {
+  /** Mr. Anderson test client. */
+  public static TestClient mrAnderson() {
     return BasicTestClient.builder()
         .service(SystemDefinitions.systemDefinition().mrAnderson())
         .contentType("application/xml")
         .mapper(JacksonConfig::createMapper)
+        .build();
+  }
+
+  /** STU3 Data Query test client. */
+  public static TestClient stu3DataQuery() {
+    return FhirTestClient.builder()
+        .service(SystemDefinitions.systemDefinition().stu3DataQuery())
+        .mapper(JacksonConfig::createMapper)
+        .errorResponseEqualityCheck(
+            new gov.va.api.health.dataquery.tests.stu3.OperationOutcomesAreFunctionallyEqual())
         .build();
   }
 }
