@@ -20,7 +20,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @DataJpaTest
 @RunWith(SpringRunner.class)
-public class PatientBulkDstu2ControllerTest {
+public class PatientBulkFhirControllerTest {
   @Autowired private TestEntityManager entityManager;
 
   @Autowired private PatientRepository repository;
