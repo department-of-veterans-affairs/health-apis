@@ -6,7 +6,6 @@ import gov.va.api.health.argonaut.api.resources.Patient;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.BulkFhirCount;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions.BadSearchParameter;
-import gov.va.api.health.dataquery.service.controller.patient.PatientSamples.Dstu2;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.SneakyThrows;
@@ -59,7 +58,7 @@ public class PatientBulkFhirControllerTest {
   }
 
   private List<Patient> populateData() {
-    var fhir = Dstu2.create();
+    var fhir = PatientSamples.Dstu2.create();
     var datamart = PatientSamples.Datamart.create();
     var patients = new ArrayList<Patient>();
     for (int i = 0; i < 10; i++) {
