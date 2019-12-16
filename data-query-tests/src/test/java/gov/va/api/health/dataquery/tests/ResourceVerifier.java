@@ -122,13 +122,13 @@ public final class ResourceVerifier {
         .expectValid(tc.response());
     T bundle =
         dataQuery()
-            .get(tc.path() + "&_count=21", tc.parameters())
+            .get(tc.path() + "&_count=101", tc.parameters())
             .expect(200)
             .expectValid(tc.response());
     Method bundleEntryMethod = bundleClass().getMethod("entry");
     ReflectionUtils.makeAccessible(bundleEntryMethod);
     Collection<?> entries = (Collection<?>) bundleEntryMethod.invoke(bundle);
-    assertThat(entries.size()).isLessThan(21);
+    assertThat(entries.size()).isLessThan(101);
   }
 
   private <T> T assertRequest(TestCase<T> tc) {
