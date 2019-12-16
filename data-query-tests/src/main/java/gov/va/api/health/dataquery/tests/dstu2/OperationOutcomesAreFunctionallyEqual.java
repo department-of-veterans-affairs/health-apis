@@ -1,4 +1,4 @@
-package gov.va.api.health.dataquery.tests;
+package gov.va.api.health.dataquery.tests.dstu2;
 
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import gov.va.api.health.sentinel.ErrorsAreFunctionallyEqual;

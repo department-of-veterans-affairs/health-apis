@@ -52,8 +52,12 @@ public final class SystemDefinitions {
     return SystemDefinition.builder()
         .ids(serviceDefinition("ids", url, 443, null, "/not-available/"))
         .mrAnderson(serviceDefinition("mr-anderson", url, 443, null, "/not-available/"))
-        .dataQuery(
-            serviceDefinition("argonaut", url, 443, magicAccessToken(), "/services/argonaut/v0/"))
+        .dstu2DataQuery(
+            serviceDefinition(
+                "argonaut", url, 443, magicAccessToken(), "/services/argonaut/v0/dstu2/"))
+        .stu3DataQuery(
+            serviceDefinition(
+                "argonaut", url, 443, magicAccessToken(), "/services/argonaut/v0/stu3/"))
         .internalDataQuery(serviceDefinition("internal", url, 443, null, "/not-available/"))
         .cdwIds(labMitreIds())
         .build();
@@ -93,7 +97,8 @@ public final class SystemDefinitions {
     return SystemDefinition.builder()
         .ids(serviceDefinition("ids", url, 8089, null, "/api/"))
         .mrAnderson(serviceDefinition("mr-anderson", url, 8088, null, "/api/"))
-        .dataQuery(serviceDefinition("argonaut", url, 8090, null, "/dstu2/"))
+        .dstu2DataQuery(serviceDefinition("argonaut", url, 8090, null, "/dstu2/"))
+        .stu3DataQuery(serviceDefinition("argonaut", url, 8090, null, "/stu3/"))
         .internalDataQuery(serviceDefinition("internal", url, 8090, null, "/"))
         .cdwIds(localIds())
         .build();
@@ -155,8 +160,12 @@ public final class SystemDefinitions {
     return SystemDefinition.builder()
         .ids(serviceDefinition("ids", url, 443, null, "/not-available/"))
         .mrAnderson(serviceDefinition("mr-anderson", url, 443, null, "/not-available/"))
-        .dataQuery(
-            serviceDefinition("argonaut", url, 443, magicAccessToken(), "/services/argonaut/v0/"))
+        .dstu2DataQuery(
+            serviceDefinition(
+                "argonaut", url, 443, magicAccessToken(), "/services/argonaut/v0/dstu2/"))
+        .stu3DataQuery(
+            serviceDefinition(
+                "argonaut", url, 443, magicAccessToken(), "/services/argonaut/v0/stu3/"))
         .internalDataQuery(serviceDefinition("internal", url, 443, null, "/not-available/"))
         .cdwIds(productionCdwIds())
         .build();
@@ -199,7 +208,8 @@ public final class SystemDefinitions {
     return SystemDefinition.builder()
         .ids(serviceDefinition("ids", url, 443, null, "/not-available/"))
         .mrAnderson(serviceDefinition("mr-anderson", url, 443, null, "/not-available/"))
-        .dataQuery(serviceDefinition("argonaut", url, 443, magicAccessToken(), "/"))
+        .dstu2DataQuery(serviceDefinition("argonaut", url, 443, magicAccessToken(), "/dstu2/"))
+        .stu3DataQuery(serviceDefinition("argonaut", url, 443, magicAccessToken(), "/stu3/"))
         .internalDataQuery(serviceDefinition("internal", url, 443, null, "/data-query/"))
         .cdwIds(productionCdwIds())
         .build();
@@ -222,7 +232,8 @@ public final class SystemDefinitions {
     return SystemDefinition.builder()
         .ids(serviceDefinition("ids", url, 443, null, "/not-available/"))
         .mrAnderson(serviceDefinition("mr-anderson", url, 443, null, "/not-available/"))
-        .dataQuery(serviceDefinition("argonaut", url, 443, magicAccessToken(), "/"))
+        .dstu2DataQuery(serviceDefinition("argonaut", url, 443, magicAccessToken(), "/dstu2/"))
+        .stu3DataQuery(serviceDefinition("argonaut", url, 443, magicAccessToken(), "/stu3/"))
         .internalDataQuery(serviceDefinition("internal", url, 443, null, "/data-query/"))
         .cdwIds(productionCdwIds())
         .build();
@@ -234,8 +245,12 @@ public final class SystemDefinitions {
     return SystemDefinition.builder()
         .ids(serviceDefinition("ids", url, 443, null, "/not-available/"))
         .mrAnderson(serviceDefinition("mr-anderson", url, 443, null, "/not-available/"))
-        .dataQuery(
-            serviceDefinition("argonaut", url, 443, magicAccessToken(), "/services/argonaut/v0/"))
+        .dstu2DataQuery(
+            serviceDefinition(
+                "argonaut", url, 443, magicAccessToken(), "/services/argonaut/v0/dstu2/"))
+        .stu3DataQuery(
+            serviceDefinition(
+                "argonaut", url, 443, magicAccessToken(), "/services/argonaut/v0/stu3/"))
         .internalDataQuery(serviceDefinition("internal", url, 443, null, "/data-query/"))
         .cdwIds(labMitreIds())
         .build();

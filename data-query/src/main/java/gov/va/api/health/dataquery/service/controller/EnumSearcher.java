@@ -12,7 +12,7 @@ public class EnumSearcher<T extends Enum<T>> {
 
   /** Start a builder chain to query for a given type. */
   public static <T extends Enum<T>> EnumSearcher<T> of(Class<T> type) {
-    return new EnumSearcher<T>(type);
+    return new EnumSearcher<>(type);
   }
 
   /**

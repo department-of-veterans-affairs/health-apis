@@ -124,13 +124,9 @@ public class Dstu2PatientController {
     headers = {"raw=true"}
   )
   public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
-    PatientSearchEntity entity = readRaw(publicId);
+    PatientSearchEntity entity = findById(publicId);
     AbstractIncludesIcnMajig.addHeader(response, entity.icn());
     return entity.patient().payload();
-  }
-
-  PatientSearchEntity readRaw(String publicId) {
-    return findById(publicId);
   }
 
   /** Search by Family+Gender. */

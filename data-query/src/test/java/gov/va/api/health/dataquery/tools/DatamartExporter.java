@@ -61,8 +61,8 @@ public class DatamartExporter {
   EntityManager mitre;
 
   public DatamartExporter(String configFile, String outputFile) {
-    mitre = new ExternalDb(configFile, managedClasses()).get();
-    h2 = new LocalH2(outputFile, managedClasses()).get();
+    mitre = new ExternalDb(configFile, managedClasses()).get().createEntityManager();
+    h2 = new LocalH2(outputFile, managedClasses()).get().createEntityManager();
   }
 
   public static void main(String[] args) {
@@ -87,7 +87,7 @@ public class DatamartExporter {
     h2.close();
   }
 
-  private <T> void steal(ExportCriteria criteria) {
+  private void steal(ExportCriteria criteria) {
     log.info("Stealing {}", criteria.type());
     h2.getTransaction().begin();
     criteria

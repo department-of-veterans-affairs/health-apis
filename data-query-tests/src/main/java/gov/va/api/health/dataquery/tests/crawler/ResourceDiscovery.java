@@ -65,6 +65,7 @@ public class ResourceDiscovery {
     if (lastSlashIndex == -1) {
       throw new IllegalArgumentException("Missing / in url: " + url);
     }
+
     if (isSearch(url)) {
       int questionIndex = url.indexOf("?", lastSlashIndex);
       if (lastSlashIndex + 1 > questionIndex) {
@@ -72,14 +73,14 @@ public class ResourceDiscovery {
         return url;
       }
       return url.substring(lastSlashIndex + 1, questionIndex);
-    } else {
-      int secondLastSlashIndex = url.substring(0, lastSlashIndex).lastIndexOf("/");
-      if (secondLastSlashIndex + 1 > lastSlashIndex) {
-        log.warn("Failed to extract resource from url '{}'.", url);
-        return url;
-      }
-      return url.substring(secondLastSlashIndex + 1, lastSlashIndex);
     }
+
+    int secondLastSlashIndex = url.substring(0, lastSlashIndex).lastIndexOf("/");
+    if (secondLastSlashIndex + 1 > lastSlashIndex) {
+      log.warn("Failed to extract resource from url '{}'.", url);
+      return url;
+    }
+    return url.substring(secondLastSlashIndex + 1, lastSlashIndex);
   }
 
   /**

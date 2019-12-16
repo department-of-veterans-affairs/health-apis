@@ -12,7 +12,9 @@ public final class SystemDefinition {
 
   @NonNull ServiceDefinition mrAnderson;
 
-  @NonNull ServiceDefinition dataQuery;
+  @NonNull ServiceDefinition dstu2DataQuery;
+
+  @NonNull ServiceDefinition stu3DataQuery;
 
   @NonNull ServiceDefinition internalDataQuery;
 

@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 /** ID Registrar will register CDW IDs with the Identity Service then publish the public UUIDs. */
 @Value
 @AllArgsConstructor(staticName = "of")
-final class IdRegistrar {
+public final class IdRegistrar {
   private static final ReducedSpamLogger log =
       ReducedSpamLogger.builder().logger(LoggerFactory.getLogger(IdRegistrar.class)).build();
 

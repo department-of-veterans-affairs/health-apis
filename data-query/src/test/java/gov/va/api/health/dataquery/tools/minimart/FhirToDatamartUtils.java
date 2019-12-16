@@ -38,7 +38,6 @@ public class FhirToDatamartUtils {
     if (reference.reference() == null && reference.display() == null) {
       return null;
     }
-
     if (reference.reference() != null) {
       String[] fhirUrl = reference.reference().split("/");
       String referenceType = fhirUrl[fhirUrl.length - 2];
@@ -50,10 +49,9 @@ public class FhirToDatamartUtils {
               .display(Optional.ofNullable(reference.display()))
               .reference(Optional.ofNullable(realId))
               .build());
-    } else {
-      return Optional.of(
-          DatamartReference.builder().display(Optional.of(reference.display())).build());
     }
+    return Optional.of(
+        DatamartReference.builder().display(Optional.of(reference.display())).build());
   }
 
   public String unmask(String resourceName, String publicId) {
