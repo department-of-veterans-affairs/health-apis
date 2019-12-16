@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
  * header.
  */
 @ControllerAdvice
-public class PatientIncludesIcnMajig extends AbstractIncludesIcnMajig<Patient, Entry, Bundle> {
+public class Dstu2PatientIncludesIcnMajig extends AbstractIncludesIcnMajig<Patient, Entry, Bundle> {
 
-  public PatientIncludesIcnMajig() {
+  public Dstu2PatientIncludesIcnMajig() {
     super(Patient.class, Bundle.class, (body) -> Stream.of(body.id()));
   }
 }

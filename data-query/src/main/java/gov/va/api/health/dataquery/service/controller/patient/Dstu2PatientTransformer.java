@@ -38,7 +38,7 @@ import lombok.Builder;
 import lombok.NonNull;
 
 @Builder
-final class DatamartPatientTransformer {
+final class Dstu2PatientTransformer {
 
   @NonNull final DatamartPatient datamart;
 

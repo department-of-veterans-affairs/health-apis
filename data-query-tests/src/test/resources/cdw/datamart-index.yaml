@@ -168,34 +168,6 @@ entries:
     query: /Organization:1.02?type=prov&address-postalCode=77591-2134
     page: 1
     count: 15
-  - file: ../../../../target/cdw/samples/Pat103familyVETERANgendermale.xml
-    query: /Patient:1.03?family=Olson653&gender=male
-    page: 1
-    count: 15
-  - file: ../../../../target/cdw/samples/Pat103givenJOHNQgendermale.xml
-    query: /Patient:1.03?given=Conrad619&gender=male
-    page: 1
-    count: 15
-  - file: ../../../../target/cdw/samples/Pat103i185601V825290.xml
-    query: /Patient:1.03?identifier=43000199
-    page: 1
-    count: 15
-  - file: ../../../../target/cdw/samples/Pat103ihttphl7orgfhirsidusssn000000131.xml
-    query: /Patient:1.03?identifier=http://hl7.org/fhir/sid/us-ssn|000000131
-    page: 1
-    count: 15
-  - file: ../../../../target/cdw/samples/Pat103nameVETERANJOHNbirthd19700101.xml
-    query: /Patient:1.03?name=Olson653, Conrad619&birthdate=1948-06-28
-    page: 1
-    count: 15
-  - file: ../../../../target/cdw/samples/Pat103nameVETERANJOHNgendermale.xml
-    query: /Patient:1.03?name=Olson653, Conrad619&gender=male
-    page: 1
-    count: 15
-  - file: ../../../../target/cdw/samples/Pat103nameVETERANbirthd19700101.xml
-    query: /Patient:1.03?name=VETERAN&birthdate=1948-06-28
-    page: 1
-    count: 15
   - file: ../../../../target/cdw/samples/Pra100i10092125.xml
     query: /Practitioner:1.02?identifier=416704
     page: 1
@@ -236,43 +208,6 @@ entries:
     query: /Patient:9.99?identifier=43000199
     page: 1
     count: 15
-    # Patient aliases
-  - file: ../../../../target/cdw/samples/Pat103nameVETERANbirthd19700101.xml
-    query: /Patient:1.03?name=Olson653, Conrad619&birthdate=1948-06-28
-    page: 1
-    count: 15
-  - file: ../../../../target/cdw/samples/Pat103nameVETERANbirthd19700101.xml
-    query: /Patient:1.03?name=Olson653, Conrad619&birthdate=1948-06-28
-    page: 1
-    count: 0
-  - file: ../../../../target/cdw/samples/Pat103nameVETERANbirthd19700101.xml
-    query: /Patient:1.03?name=Olson653, Conrad619&birthdate=1948-06-28
-    page: 1
-    count: 20
-  - file: ../../../../target/cdw/samples/Pat103nameVETERANbirthd19700101.xml
-    query: /Patient:1.03?family=Olson653&gender=male
-    page: 1
-    count: 0
-  - file: ../../../../target/cdw/samples/Pat103nameVETERANbirthd19700101.xml
-    query: /Patient:1.03?family=Olson653&gender=male
-    page: 1
-    count: 20
-  - file: ../../../../target/cdw/samples/Pat103nameVETERANbirthd19700101.xml
-    query: /Patient:1.03?given=Conrad619&gender=male
-    page: 1
-    count: 0
-  - file: ../../../../target/cdw/samples/Pat103nameVETERANbirthd19700101.xml
-    query: /Patient:1.03?given=Conrad619&gender=male
-    page: 1
-    count: 20
-  - file: ../../../../target/cdw/samples/Pat103nameVETERANbirthd19700101.xml
-    query: /Patient:1.03?name=Olson653, Conrad619&gender=male
-    page: 1
-    count: 0
-  - file: ../../../../target/cdw/samples/Pat103nameVETERANbirthd19700101.xml
-    query: /Patient:1.03?name=Olson653, Conrad619&gender=male
-    page: 1
-    count: 20
     # Encounter alias
   - file: ../../../../target/cdw/samples/Enc101p185601V825290.xml
     query: /Encounter:1.02?identifier=1200753214085

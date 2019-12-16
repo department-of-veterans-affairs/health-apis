@@ -9,8 +9,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.JsonMappingException;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
-import gov.va.api.health.dataquery.service.controller.patient.PatientController;
-import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
+import gov.va.api.health.dataquery.service.controller.patient.Dstu2PatientController;
+import gov.va.api.health.dataquery.service.controller.patient.PatientSearchRepository;
 import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient.BadRequest;
 import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient.NotFound;
 import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient.SearchFailed;
@@ -55,10 +55,10 @@ public class WebExceptionHandlerTest {
   public Exception exception;
 
   @Mock HttpServletRequest request;
-  @Mock MrAndersonClient mrAnderson;
-  @Mock PatientController.Transformer tx;
   @Mock Dstu2Bundler bundler;
-  private PatientController controller;
+  @Mock PatientSearchRepository repository;
+  @Mock WitnessProtection witnessProtection;
+  private Dstu2PatientController controller;
   private WebExceptionHandler exceptionHandler;
 
   @SuppressWarnings("deprecation")
@@ -93,7 +93,7 @@ public class WebExceptionHandlerTest {
   @Before
   public void _init() {
     MockitoAnnotations.initMocks(this);
-    controller = new PatientController(false, tx, mrAnderson, bundler, null, null);
+    controller = new Dstu2PatientController(bundler, repository, witnessProtection);
     exceptionHandler = new WebExceptionHandler();
   }
 
@@ -119,7 +119,8 @@ public class WebExceptionHandlerTest {
   @Test
   @SneakyThrows
   public void expectStatus() {
-    when(mrAnderson.search(Mockito.any())).thenThrow(exception);
+    when(repository.findById(Mockito.anyString())).thenThrow(exception);
+    when(witnessProtection.toCdwId(Mockito.anyString())).thenReturn("whatever");
     when(request.getRequestURI()).thenReturn(basePath + "/Patient/123");
     MockMvc mvc =
         MockMvcBuilders.standaloneSetup(controller)

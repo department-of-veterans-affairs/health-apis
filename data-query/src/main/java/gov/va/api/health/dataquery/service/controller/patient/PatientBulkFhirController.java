@@ -60,7 +60,7 @@ public class PatientBulkFhirController {
         .findAllProjectedBy(page(page, count))
         .stream()
         .map(PatientPayloadDto::asDatamartPatient)
-        .map(dm -> DatamartPatientTransformer.builder().datamart(dm).build().toFhir())
+        .map(dm -> Dstu2PatientTransformer.builder().datamart(dm).build().toFhir())
         .collect(Collectors.toList());
   }
 }

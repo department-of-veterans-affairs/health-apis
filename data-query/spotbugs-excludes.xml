@@ -5,7 +5,7 @@
     The transfomer can return an optional boolean matching the objects property per the FHIR specification.
   -->
   <Match>
-    <Class name="gov.va.api.health.dataquery.service.controller.patient.DatamartPatientTransformer"/>
+    <Class name="gov.va.api.health.dataquery.service.controller.patient.Dstu2PatientTransformer"/>
     <Method name="deceased"/>
     <Bug pattern="NP_BOOLEAN_RETURN_NULL"/>
   </Match>
@@ -44,7 +44,7 @@
     injection by escaping the parameters received, preventing malicious code from ever being executed.
   -->
   <Match>
-    <Class name="gov.va.api.health.dataquery.service.controller.patient.PatientController"/>
+    <Class name="gov.va.api.health.dataquery.service.controller.patient.Dstu2PatientController"/>
     <Or>
       <Method name="jpaQueryForEntities"/>
       <Method name="jpaQueryForTotalRecords"/>

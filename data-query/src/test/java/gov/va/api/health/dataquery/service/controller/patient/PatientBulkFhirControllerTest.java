@@ -58,8 +58,8 @@ public class PatientBulkFhirControllerTest {
   }
 
   private List<Patient> populateData() {
-    var fhir = DatamartPatientSamples.Fhir.create();
-    var datamart = DatamartPatientSamples.Datamart.create();
+    var fhir = PatientSamples.Dstu2.create();
+    var datamart = PatientSamples.Datamart.create();
     var patients = new ArrayList<Patient>();
     for (int i = 0; i < 10; i++) {
       var id = String.valueOf(i);

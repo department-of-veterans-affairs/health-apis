@@ -5,12 +5,12 @@ import gov.va.api.health.dataquery.service.controller.ExtractIcnValidator;
 import java.util.List;
 import org.junit.Test;
 
-public class PatientIncludesIcnMajigTest {
+public class Dstu2PatientIncludesIcnMajigTest {
 
   @Test
   public void extractIcns() {
-    ExtractIcnValidator.<PatientIncludesIcnMajig, Patient>builder()
-        .majig(new PatientIncludesIcnMajig())
+    ExtractIcnValidator.<Dstu2PatientIncludesIcnMajig, Patient>builder()
+        .majig(new Dstu2PatientIncludesIcnMajig())
         .body(Patient.builder().id("666V666").build())
         .expectedIcns(List.of("666V666"))
         .build()
