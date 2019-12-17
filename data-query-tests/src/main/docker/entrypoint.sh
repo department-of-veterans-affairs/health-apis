@@ -149,6 +149,11 @@ setupForAutomation() {
 
   trustServer $K8S_LOAD_BALANCER
 
+## ------- HACK -------
+## argonaut.url has been briefly re-added because the public-url refactor did
+## not consider that the test client is hard-coded to look for "argonuat.xxx"
+## currently
+
   SYSTEM_PROPERTIES="$WEB_DRIVER_PROPERTIES \
     -Dsentinel=$SENTINEL_ENV \
     -Daccess-token=$TOKEN \
