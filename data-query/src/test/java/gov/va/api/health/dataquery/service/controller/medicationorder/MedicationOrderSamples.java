@@ -25,7 +25,7 @@ import lombok.experimental.UtilityClass;
 public class MedicationOrderSamples {
 
   @AllArgsConstructor(staticName = "create")
-  static class Datamart {
+  public static class Datamart {
 
     DatamartMedicationOrder.DispenseRequest dispenseRequest() {
       return DatamartMedicationOrder.DispenseRequest.builder()
@@ -63,7 +63,7 @@ public class MedicationOrderSamples {
               .build());
     }
 
-    DatamartMedicationOrder medicationOrder() {
+    public DatamartMedicationOrder medicationOrder() {
       return medicationOrder("1400181354458:O", "666V666");
     }
 
@@ -98,7 +98,7 @@ public class MedicationOrderSamples {
   }
 
   @AllArgsConstructor(staticName = "create")
-  static class Dstu2 {
+  public static class Dstu2 {
 
     static MedicationOrder.Bundle asBundle(
         String basePath,

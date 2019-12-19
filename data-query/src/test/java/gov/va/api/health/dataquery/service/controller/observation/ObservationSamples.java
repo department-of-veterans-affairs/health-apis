@@ -31,7 +31,7 @@ import lombok.experimental.UtilityClass;
 public class ObservationSamples {
 
   @AllArgsConstructor(staticName = "create")
-  static class Datamart {
+  public static class Datamart {
     public DatamartObservation observation() {
       return observation("800001973863:A", "666V666");
     }
@@ -301,7 +301,7 @@ public class ObservationSamples {
   }
 
   @AllArgsConstructor(staticName = "create")
-  static class Dstu2 {
+  public static class Dstu2 {
     static Observation.Bundle asBundle(
         String baseUrl,
         Collection<Observation> observations,

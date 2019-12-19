@@ -1,8 +1,10 @@
-package gov.va.api.health.dataquery.service.controller.validate;
+package gov.va.api.health.dataquery.service.controller.validation;
 
 import static gov.va.api.health.autoconfig.configuration.JacksonConfig.createMapper;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.collect.ImmutableMap;
+import gov.va.api.health.autoconfig.logging.Loggable;
 import gov.va.api.health.dataquery.service.controller.allergyintolerance.DatamartAllergyIntolerance;
 import gov.va.api.health.dataquery.service.controller.condition.DatamartCondition;
 import gov.va.api.health.dataquery.service.controller.diagnosticreport.DatamartDiagnosticReports;
@@ -13,7 +15,7 @@ import gov.va.api.health.dataquery.service.controller.medicationstatement.Datama
 import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation;
 import gov.va.api.health.dataquery.service.controller.patient.DatamartPatient;
 import gov.va.api.health.dataquery.service.controller.procedure.DatamartProcedure;
-import java.util.List;
+import java.util.Map;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Validation;
 import javax.validation.Validator;
@@ -35,41 +37,36 @@ import org.springframework.web.bind.annotation.RestController;
 )
 public class DatamartValidationController {
 
-  private static List<Class<?>> datamartResources =
-      List.of(
-          DatamartAllergyIntolerance.class,
-          DatamartCondition.class,
-          DatamartDiagnosticReports.class,
-          DatamartImmunization.class,
-          DatamartMedication.class,
-          DatamartMedicationOrder.class,
-          DatamartMedicationStatement.class,
-          DatamartObservation.class,
-          DatamartPatient.class,
-          DatamartProcedure.class);
+  private static Map<String, Class<?>> datamartResources =
+      ImmutableMap.<String, Class<?>>builder()
+          .put("AllergyIntolerance", DatamartAllergyIntolerance.class)
+          .put("Condition", DatamartCondition.class)
+          .put("DiagnosticReport", DatamartDiagnosticReports.class)
+          .put("Immunization", DatamartImmunization.class)
+          .put("Medication", DatamartMedication.class)
+          .put("MedicationOrder", DatamartMedicationOrder.class)
+          .put("MedicationStatement", DatamartMedicationStatement.class)
+          .put("Observation", DatamartObservation.class)
+          .put("Patient", DatamartPatient.class)
+          .put("Procedure", DatamartProcedure.class)
+          .build();
+
+  private static Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
   /** Validation endpoint. Hey... it validates! */
-  @PostMapping("/")
+  @Loggable(arguments = false)
+  @PostMapping()
   @SneakyThrows
   public Object validation(@RequestBody String payload) {
 
-    Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
-
-    Object datamartObject = null;
-
-    for (Class<?> resourceType : datamartResources) {
-      try {
-        datamartObject = createMapper().readValue(payload, resourceType);
-        var violations = validator.validate(datamartObject);
-        if (!violations.isEmpty()) {
-          throw new ConstraintViolationException("Payload is not valid,", violations);
-        }
-        log.info("Unmarshalling payload as {}", resourceType.toString());
-      } catch (JsonProcessingException e) {
-        log.info("Cannot unmarshall payload as {}", resourceType.toString());
-      }
+    JsonNode jsonNode = createMapper().readTree(payload);
+    String objectType = jsonNode.get("objectType").asText();
+    Object datamartObject =
+        createMapper().convertValue(jsonNode, datamartResources.get(objectType));
+    var violations = validator.validate(datamartObject);
+    if (!violations.isEmpty()) {
+      throw new ConstraintViolationException("Payload is not valid,", violations);
     }
-
     return datamartObject;
   }
 }

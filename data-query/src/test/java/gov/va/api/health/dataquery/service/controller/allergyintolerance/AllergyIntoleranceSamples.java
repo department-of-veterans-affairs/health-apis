@@ -28,7 +28,7 @@ import lombok.experimental.UtilityClass;
 public class AllergyIntoleranceSamples {
 
   @AllArgsConstructor(staticName = "create")
-  static class Datamart {
+  public static class Datamart {
 
     public DatamartAllergyIntolerance allergyIntolerance() {
       return allergyIntolerance("800001608621", "666V666");
@@ -158,7 +158,7 @@ public class AllergyIntoleranceSamples {
   }
 
   @AllArgsConstructor(staticName = "create")
-  static class Dstu2 {
+  public static class Dstu2 {
 
     static AllergyIntolerance.Bundle asBundle(
         String baseUrl,
