@@ -27,8 +27,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/** POST validation endpoint for datamart records. This will verify that we can serialize and deserialize a give record.
- * Currently supports the base 10 resources in datamart.
+/**
+ * POST validation endpoint for datamart records. This will verify that we can serialize and
+ * deserialize a given record. Currently supports the base 10 resources in datamart.
  */
 @Slf4j
 @Validated
