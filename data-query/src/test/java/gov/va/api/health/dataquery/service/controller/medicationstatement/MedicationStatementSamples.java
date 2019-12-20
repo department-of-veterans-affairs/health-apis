@@ -27,7 +27,7 @@ import lombok.experimental.UtilityClass;
 public class MedicationStatementSamples {
 
   @AllArgsConstructor(staticName = "create")
-  static class Datamart {
+  public static class Datamart {
 
     public DatamartMedicationStatement medicationStatement() {
       return medicationStatement("800008482786", "666V666");
@@ -63,7 +63,7 @@ public class MedicationStatementSamples {
   }
 
   @AllArgsConstructor(staticName = "create")
-  static class Dstu2 {
+  public static class Dstu2 {
 
     static Bundle asBundle(
         String baseUrl,

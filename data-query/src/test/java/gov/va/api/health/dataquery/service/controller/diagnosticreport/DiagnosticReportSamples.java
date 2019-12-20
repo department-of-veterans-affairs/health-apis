@@ -25,7 +25,7 @@ import lombok.experimental.UtilityClass;
 public class DiagnosticReportSamples {
 
   @Builder
-  static class Datamart {
+  public static class Datamart {
 
     @Builder.Default String icn = "1011537977V693883";
 
@@ -39,7 +39,7 @@ public class DiagnosticReportSamples {
 
     @Builder.Default String performerDisplay = "MANILA-RO";
 
-    static Datamart create() {
+    public static Datamart create() {
       return Datamart.builder().build();
     }
 
@@ -65,7 +65,7 @@ public class DiagnosticReportSamples {
           .build();
     }
 
-    DatamartDiagnosticReports.DiagnosticReport report() {
+    public DatamartDiagnosticReports.DiagnosticReport report() {
       return DatamartDiagnosticReports.DiagnosticReport.builder()
           .identifier(reportId)
           .effectiveDateTime(effectiveDateTime)
@@ -76,13 +76,13 @@ public class DiagnosticReportSamples {
           .build();
     }
 
-    DatamartDiagnosticReports reports() {
+    public DatamartDiagnosticReports reports() {
       return DatamartDiagnosticReports.builder().fullIcn(icn).reports(asList(report())).build();
     }
   }
 
   @Builder
-  static class Dstu2 {
+  public static class Dstu2 {
 
     @Builder.Default String icn = "1011537977V693883";
 

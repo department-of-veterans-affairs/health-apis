@@ -29,7 +29,7 @@ import lombok.experimental.UtilityClass;
 public class ConditionSamples {
 
   @AllArgsConstructor(staticName = "create")
-  static class Datamart {
+  public static class Datamart {
     public DatamartCondition condition() {
       return condition("800274570575:D", "666V666", "2011-06-27");
     }
@@ -85,7 +85,7 @@ public class ConditionSamples {
   }
 
   @AllArgsConstructor(staticName = "create")
-  static class Dstu2 {
+  public static class Dstu2 {
 
     static Condition.Bundle asBundle(
         String baseUrl, Collection<Condition> conditions, int totalRecords, BundleLink... links) {

@@ -24,11 +24,11 @@ import lombok.AllArgsConstructor;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
-class ProcedureSamples {
+public class ProcedureSamples {
   @AllArgsConstructor(staticName = "create")
-  static class Datamart {
+  public static class Datamart {
 
-    DatamartProcedure procedure() {
+    public DatamartProcedure procedure() {
       return procedure("1000000719261", "1004476237V111282", "2008-01-02T06:00:00Z");
     }
 
@@ -70,7 +70,7 @@ class ProcedureSamples {
   }
 
   @AllArgsConstructor(staticName = "create")
-  static class Dstu2 {
+  public static class Dstu2 {
     static Bundle asBundle(
         String baseUrl, Collection<Procedure> resources, int totalRecords, BundleLink... links) {
       return Bundle.builder()
