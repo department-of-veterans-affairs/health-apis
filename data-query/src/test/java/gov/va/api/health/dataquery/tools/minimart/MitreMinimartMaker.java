@@ -194,9 +194,9 @@ public class MitreMinimartMaker {
     }
   }
 
+  /* For the sake of updates, we'll rebuild it each time, this follows the other resources */
   @SneakyThrows
-  private // For the sake of updates, we'll rebuild it each time, this follows the other resources
-  void insertByDiagnosticReport(List<File> files) {
+  private void insertByDiagnosticReport(List<File> files) {
     // Set the icn and other values using the first file, then reset the payload before loading all
     // the files.
     DatamartDiagnosticReports dm =
@@ -476,6 +476,7 @@ public class MitreMinimartMaker {
         break;
       case "Survey":
         insertResourceByPattern(dmDirectory, "^dmSur.*json$", this::insertBySurvey);
+        break;
       default:
         throw new RuntimeException("Couldnt determine resource type for file: " + resourceToSync);
     }
