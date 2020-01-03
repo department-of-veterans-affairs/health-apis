@@ -33,7 +33,7 @@ public class Dstu2Bundler {
     bundle.resourceType("Bundle");
     bundle.type(BundleType.searchset);
     bundle.total(context.linkConfig().totalRecords());
-    bundle.link(links.create(context.linkConfig()));
+    bundle.link(links.dstu2Links(context.linkConfig()));
     bundle.entry(
         context
             .xmlItems()
@@ -43,7 +43,7 @@ public class Dstu2Bundler {
                 t -> {
                   E entry = context.newEntry().get();
                   entry.resource(t);
-                  entry.fullUrl(links.readLink(context.linkConfig().path(), t.id()));
+                  entry.fullUrl(links.dstu2ReadLink(context.linkConfig().path(), t.id()));
                   entry.search(Search.builder().mode(SearchMode.match).build());
                   return entry;
                 })
@@ -101,6 +101,12 @@ public class Dstu2Bundler {
             Supplier<E> newEntry,
             Supplier<B> newBundle) {
       return new BundleContext<>(linkConfig, xmlItems, transformer, newEntry, newBundle);
+    }
+
+    public static <T extends Resource, E extends AbstractEntry<T>, B extends AbstractBundle<E>>
+        BundleContext<T, T, E, B> of(
+            LinkConfig linkConfig, List<T> resources, Supplier<E> newEntry, Supplier<B> newBundle) {
+      return new BundleContext<>(linkConfig, resources, Function.identity(), newEntry, newBundle);
     }
   }
 }

@@ -28,11 +28,11 @@ import lombok.AllArgsConstructor;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
-class ImmunizationSamples {
+public class ImmunizationSamples {
 
   @AllArgsConstructor(staticName = "create")
-  static class Datamart {
-    DatamartImmunization immunization() {
+  public static class Datamart {
+    public DatamartImmunization immunization() {
       return immunization("1000000030337", "1011549983V753765");
     }
 
@@ -101,13 +101,16 @@ class ImmunizationSamples {
   }
 
   @AllArgsConstructor(staticName = "create")
-  static class Dstu2 {
+  public static class Dstu2 {
     static Bundle asBundle(
-        String baseUrl, Collection<Immunization> immunizations, BundleLink... links) {
+        String baseUrl,
+        Collection<Immunization> immunizations,
+        int totalRecords,
+        BundleLink... links) {
       return Bundle.builder()
           .resourceType("Bundle")
           .type(BundleType.searchset)
-          .total(immunizations.size())
+          .total(totalRecords)
           .link(Arrays.asList(links))
           .entry(
               immunizations

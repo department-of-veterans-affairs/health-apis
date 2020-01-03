@@ -89,6 +89,7 @@ public class DatamartImmunization implements HasReplaceableId {
   }
 
   /** Backwards compatibility for etlDate. */
+  @SuppressWarnings("unused")
   private void setEtlDate(String unused) {
     /* no op */
   }

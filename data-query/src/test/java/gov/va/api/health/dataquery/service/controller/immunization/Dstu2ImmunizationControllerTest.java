@@ -13,6 +13,7 @@ import gov.va.api.health.argonaut.api.resources.Immunization.Bundle;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
 import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
+import gov.va.api.health.dataquery.service.controller.Dstu2Validator;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.immunization.ImmunizationSamples.Datamart;
@@ -22,6 +23,7 @@ import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
@@ -30,20 +32,16 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @DataJpaTest
 @RunWith(SpringRunner.class)
 public class Dstu2ImmunizationControllerTest {
-
   HttpServletResponse response = mock(HttpServletResponse.class);
 
   private IdentityService ids = mock(IdentityService.class);
 
   @Autowired private ImmunizationRepository repository;
-
-  @Autowired private TestEntityManager entityManager;
 
   @SneakyThrows
   private ImmunizationEntity asEntity(DatamartImmunization dm) {
@@ -56,7 +54,7 @@ public class Dstu2ImmunizationControllerTest {
 
   Dstu2ImmunizationController controller() {
     return new Dstu2ImmunizationController(
-        new Dstu2Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool")),
+        new Dstu2Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool", "cool")),
         repository,
         WitnessProtection.builder().identityService(ids).build());
   }
@@ -160,6 +158,7 @@ public class Dstu2ImmunizationControllerTest {
                 Dstu2.asBundle(
                     "http://fonzy.com/cool",
                     List.of(immunization),
+                    1,
                     link(
                         LinkRelation.first,
                         "http://fonzy.com/cool/Immunization?identifier=1",
@@ -175,6 +174,25 @@ public class Dstu2ImmunizationControllerTest {
   }
 
   @Test
+  public void searchByIdentifier() {
+    DatamartImmunization dm = Datamart.create().immunization();
+    repository.save(asEntity(dm));
+    mockImmunizationIdentity("1", dm.cdwId());
+    assertThat(json(controller().searchByIdentifier("1", 1, 0)))
+        .isEqualTo(
+            json(
+                Dstu2.asBundle(
+                    "http://fonzy.com/cool",
+                    Collections.emptyList(),
+                    1,
+                    Dstu2.link(
+                        LinkRelation.self,
+                        "http://fonzy.com/cool/Immunization?identifier=1",
+                        1,
+                        0))));
+  }
+
+  @Test
   public void searchByPatient() {
     Multimap<String, Immunization> immunizationByPatient = populateData();
     assertThat(json(controller().searchByPatient("p0", 1, 10)))
@@ -183,6 +201,7 @@ public class Dstu2ImmunizationControllerTest {
                 Dstu2.asBundle(
                     "http://fonzy.com/cool",
                     immunizationByPatient.get("p0"),
+                    immunizationByPatient.get("p0").size(),
                     link(
                         LinkRelation.first, "http://fonzy.com/cool/Immunization?patient=p0", 1, 10),
                     link(LinkRelation.self, "http://fonzy.com/cool/Immunization?patient=p0", 1, 10),
@@ -193,8 +212,55 @@ public class Dstu2ImmunizationControllerTest {
                         10))));
   }
 
+  @Test
+  public void searchByPatientWithCount0() {
+    Multimap<String, Immunization> immunizationByPatient = populateData();
+    assertThat(json(controller().searchByPatient("p0", 1, 0)))
+        .isEqualTo(
+            json(
+                Dstu2.asBundle(
+                    "http://fonzy.com/cool",
+                    Collections.emptyList(),
+                    immunizationByPatient.get("p0").size(),
+                    Dstu2.link(
+                        LinkRelation.self,
+                        "http://fonzy.com/cool/Immunization?patient=p0",
+                        1,
+                        0))));
+  }
+
   @SneakyThrows
   private DatamartImmunization toObject(String json) {
     return JacksonConfig.createMapper().readValue(json, DatamartImmunization.class);
+  }
+
+  @Test
+  public void validate() {
+    DatamartImmunization dm = ImmunizationSamples.Datamart.create().immunization();
+    Immunization immunization =
+        ImmunizationSamples.Dstu2.create().immunization("1", dm.patient().reference().get());
+    assertThat(
+            controller()
+                .validate(
+                    ImmunizationSamples.Dstu2.asBundle(
+                        "http://fonzy.com/cool",
+                        List.of(immunization),
+                        1,
+                        ImmunizationSamples.Dstu2.link(
+                            LinkRelation.first,
+                            "http://fonzy.com/cool/Immunization?identifier=1",
+                            1,
+                            1),
+                        ImmunizationSamples.Dstu2.link(
+                            LinkRelation.self,
+                            "http://fonzy.com/cool/Immunization?identifier=1",
+                            1,
+                            1),
+                        ImmunizationSamples.Dstu2.link(
+                            LinkRelation.last,
+                            "http://fonzy.com/cool/Immunization?identifier=1",
+                            1,
+                            1))))
+        .isEqualTo(Dstu2Validator.ok());
   }
 }

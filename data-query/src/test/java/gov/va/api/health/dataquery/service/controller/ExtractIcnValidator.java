@@ -14,7 +14,7 @@ import org.springframework.http.server.ServerHttpResponse;
 
 @Builder
 @Value
-public class ExtractIcnValidator<M extends AbstractIncludesIcnMajig, R extends Resource> {
+public class ExtractIcnValidator<M extends AbstractIncludesIcnMajig<?, ?, ?>, R extends Resource> {
 
   M majig;
   R body;

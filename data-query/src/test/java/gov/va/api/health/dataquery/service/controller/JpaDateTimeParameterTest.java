@@ -9,7 +9,7 @@ import org.mockito.MockitoAnnotations;
 
 public class JpaDateTimeParameterTest {
 
-  @Mock TypedQuery query;
+  @Mock TypedQuery<?> query;
 
   @Test
   public void addQueryParametersForEach() {

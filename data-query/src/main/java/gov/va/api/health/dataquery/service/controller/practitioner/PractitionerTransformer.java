@@ -1,10 +1,10 @@
 package gov.va.api.health.dataquery.service.controller.practitioner;
 
-import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.allBlank;
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asDateTimeString;
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.convert;
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.convertAll;
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.ifPresent;
+import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -47,7 +47,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 @Service
-public class PractitionerTransformer implements PractitionerController.Transformer {
+public class PractitionerTransformer implements Dstu2PractitionerController.Transformer {
   Address address(CdwAddress source) {
     return convert(
         source,

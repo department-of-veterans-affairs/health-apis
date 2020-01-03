@@ -16,7 +16,6 @@ import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.Min;
@@ -73,8 +72,7 @@ public class Dstu2MedicationController {
             .totalRecords(totalRecords)
             .build();
     return bundler.bundle(
-        Dstu2Bundler.BundleContext.of(
-            linkConfig, reports, Function.identity(), Entry::new, Bundle::new));
+        Dstu2Bundler.BundleContext.of(linkConfig, reports, Entry::new, Bundle::new));
   }
 
   MedicationEntity findById(String publicId) {

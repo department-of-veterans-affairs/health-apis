@@ -19,9 +19,9 @@ import lombok.experimental.UtilityClass;
 public class MedicationSamples {
 
   @AllArgsConstructor(staticName = "create")
-  static class Datamart {
+  public static class Datamart {
 
-    DatamartMedication medication() {
+    public DatamartMedication medication() {
       return medication("1000");
     }
 
@@ -51,14 +51,14 @@ public class MedicationSamples {
   }
 
   @AllArgsConstructor(staticName = "create")
-  static class Dstu2 {
+  public static class Dstu2 {
 
     static Medication.Bundle asBundle(
-        String baseUrl, Collection<Medication> medications, BundleLink... links) {
+        String baseUrl, Collection<Medication> medications, int totalRecords, BundleLink... links) {
       return Medication.Bundle.builder()
           .resourceType("Bundle")
           .type(AbstractBundle.BundleType.searchset)
-          .total(medications.size())
+          .total(totalRecords)
           .link(Arrays.asList(links))
           .entry(
               medications

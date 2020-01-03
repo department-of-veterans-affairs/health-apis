@@ -1,6 +1,6 @@
 package gov.va.api.health.dataquery.tools.minimart.transformers;
 
-import static org.codehaus.groovy.runtime.InvokerHelper.asList;
+import static java.util.Arrays.asList;
 
 import gov.va.api.health.argonaut.api.resources.DiagnosticReport;
 import gov.va.api.health.dataquery.service.controller.Dstu2Transformers;

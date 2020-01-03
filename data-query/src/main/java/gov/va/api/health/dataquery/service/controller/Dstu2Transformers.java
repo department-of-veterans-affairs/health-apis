@@ -16,10 +16,8 @@ import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
@@ -34,20 +32,6 @@ import org.apache.commons.lang3.StringUtils;
 @Slf4j
 @UtilityClass
 public final class Dstu2Transformers {
-
-  /**
-   * Return false if at least one value in the given list is a non-blank string, or a non-null
-   * object.
-   */
-  public static boolean allBlank(Object... values) {
-    for (Object v : values) {
-      if (!isBlank(v)) {
-        return false;
-      }
-    }
-    return true;
-  }
-
   /**
    * Convert the coding to a FHIR coding and wrap it with a codeable concept. Returns null of it
    * cannot be converted.
@@ -58,6 +42,14 @@ public final class Dstu2Transformers {
       return null;
     }
     return CodeableConcept.builder().coding(List.of(fhirCoding)).build();
+  }
+
+  /** Convert the Optional datamart coding to Fhir, otherwise return null. */
+  public static CodeableConcept asCodeableConceptWrapping(Optional<DatamartCoding> coding) {
+    if (coding == null || coding.isEmpty()) {
+      return null;
+    }
+    return CodeableConcept.builder().coding(List.of(asCoding(coding.get()))).build();
   }
 
   /** Convert the datamart coding to coding if possible, otherwise return null. */
@@ -270,20 +262,6 @@ public final class Dstu2Transformers {
       return null;
     }
     return extract.apply(object);
-  }
-
-  /** Return true if the value is a blank string, or any other object that is null. */
-  public static boolean isBlank(Object value) {
-    if (value instanceof CharSequence) {
-      return StringUtils.isBlank((CharSequence) value);
-    }
-    if (value instanceof Collection<?>) {
-      return ((Collection<?>) value).isEmpty();
-    }
-    if (value instanceof Map<?, ?>) {
-      return ((Map<?, ?>) value).isEmpty();
-    }
-    return value == null;
   }
 
   /**

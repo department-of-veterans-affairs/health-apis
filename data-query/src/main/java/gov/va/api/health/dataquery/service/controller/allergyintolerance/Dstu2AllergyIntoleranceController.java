@@ -10,13 +10,12 @@ import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
 import gov.va.api.health.dataquery.service.controller.Dstu2Validator;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.Parameters;
-import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
+import gov.va.api.health.dataquery.service.controller.ResourceExceptions.NotFound;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletResponse;
@@ -78,22 +77,19 @@ public class Dstu2AllergyIntoleranceController {
             .build();
     return bundler.bundle(
         Dstu2Bundler.BundleContext.of(
-            linkConfig,
-            records,
-            Function.identity(),
-            AllergyIntolerance.Entry::new,
-            AllergyIntolerance.Bundle::new));
+            linkConfig, records, AllergyIntolerance.Entry::new, AllergyIntolerance.Bundle::new));
+  }
+
+  AllergyIntoleranceEntity findById(String publicId) {
+    Optional<AllergyIntoleranceEntity> entity =
+        repository.findById(witnessProtection.toCdwId(publicId));
+    return entity.orElseThrow(() -> new NotFound(publicId));
   }
 
   /** Read by id. */
   @GetMapping(value = {"/{publicId}"})
   public AllergyIntolerance read(@PathVariable("publicId") String publicId) {
-    String cdwId = witnessProtection.toCdwId(publicId);
-    Optional<AllergyIntoleranceEntity> maybeEntity = repository.findById(cdwId);
-    if (!maybeEntity.isPresent()) {
-      throw new ResourceExceptions.NotFound(publicId);
-    }
-    DatamartAllergyIntolerance dm = maybeEntity.get().asDatamartAllergyIntolerance();
+    DatamartAllergyIntolerance dm = findById(publicId).asDatamartAllergyIntolerance();
     replaceReferences(List.of(dm));
     return Dstu2AllergyIntoleranceTransformer.builder().datamart(dm).build().toFhir();
   }
@@ -104,12 +100,7 @@ public class Dstu2AllergyIntoleranceController {
     headers = {"raw=true"}
   )
   public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
-    String cdwId = witnessProtection.toCdwId(publicId);
-    Optional<AllergyIntoleranceEntity> maybeEntity = repository.findById(cdwId);
-    if (!maybeEntity.isPresent()) {
-      throw new ResourceExceptions.NotFound(publicId);
-    }
-    AllergyIntoleranceEntity entity = maybeEntity.get();
+    AllergyIntoleranceEntity entity = findById(publicId);
     AbstractIncludesIcnMajig.addHeader(response, entity.icn());
     return entity.payload();
   }

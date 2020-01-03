@@ -20,7 +20,7 @@ public class ReferenceSerializerPropertiesTest {
 
     assertThat(testProperties.isEnabled(Reference.builder().build())).isTrue();
     assertThat(testProperties.isEnabled(Reference.builder().reference("").build())).isTrue();
-    assertThat(testProperties.isEnabled(null)).isTrue();
+    assertThat(testProperties.isEnabled((Reference) null)).isTrue();
 
     assertThat(testProperties.isEnabled(Reference.builder().reference("Appointment/1234").build()))
         .isTrue();

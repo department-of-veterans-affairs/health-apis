@@ -11,6 +11,7 @@ import gov.va.api.health.argonaut.api.resources.Medication.Bundle;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
 import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
+import gov.va.api.health.dataquery.service.controller.Dstu2Validator;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.medication.MedicationSamples.Datamart;
@@ -27,20 +28,16 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @DataJpaTest
 @RunWith(SpringRunner.class)
 public class Dstu2MedicationControllerTest {
-
   HttpServletResponse response = mock(HttpServletResponse.class);
 
   private IdentityService ids = mock(IdentityService.class);
 
   @Autowired private MedicationRepository repository;
-
-  @Autowired private TestEntityManager entityManager;
 
   @SneakyThrows
   private MedicationEntity asEntity(DatamartMedication dm) {
@@ -52,7 +49,7 @@ public class Dstu2MedicationControllerTest {
 
   Dstu2MedicationController controller() {
     return new Dstu2MedicationController(
-        new Dstu2Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool")),
+        new Dstu2Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool", "cool")),
         repository,
         WitnessProtection.builder().identityService(ids).build());
   }
@@ -126,6 +123,7 @@ public class Dstu2MedicationControllerTest {
                 Dstu2.asBundle(
                     "http://fonzy.com/cool",
                     List.of(medication),
+                    1,
                     link(LinkRelation.first, "http://fonzy.com/cool/Medication?identifier=1", 1, 1),
                     link(LinkRelation.self, "http://fonzy.com/cool/Medication?identifier=1", 1, 1),
                     link(
@@ -135,8 +133,65 @@ public class Dstu2MedicationControllerTest {
                         1))));
   }
 
+  @Test
+  public void searchByIdentifier() {
+    DatamartMedication dm = Datamart.create().medication();
+    repository.save(asEntity(dm));
+    mockMedicationIdentity("1", dm.cdwId());
+    Bundle actual = controller().searchByIdentifier("1", 1, 1);
+    validationSearchByIdResult(actual);
+  }
+
   @SneakyThrows
   private DatamartMedication toObject(String json) {
     return JacksonConfig.createMapper().readValue(json, DatamartMedication.class);
+  }
+
+  @Test
+  public void validate() {
+    Medication medication = MedicationSamples.Dstu2.create().medication("1");
+    assertThat(
+            controller()
+                .validate(
+                    MedicationSamples.Dstu2.asBundle(
+                        "http://fonzy.com/cool",
+                        List.of(medication),
+                        1,
+                        MedicationSamples.Dstu2.link(
+                            LinkRelation.first,
+                            "http://fonzy.com/cool/Medication?identifier=1",
+                            1,
+                            1),
+                        MedicationSamples.Dstu2.link(
+                            LinkRelation.self,
+                            "http://fonzy.com/cool/Medication?identifier=1",
+                            1,
+                            1),
+                        MedicationSamples.Dstu2.link(
+                            LinkRelation.last,
+                            "http://fonzy.com/cool/Medication?identifier=1",
+                            1,
+                            1))))
+        .isEqualTo(Dstu2Validator.ok());
+  }
+
+  private void validationSearchByIdResult(Bundle actual) {
+    Medication medication = Dstu2.create().medication("1");
+    assertThat(json(actual))
+        .isEqualTo(
+            json(
+                Dstu2.asBundle(
+                    "http://fonzy.com/cool",
+                    List.of(medication),
+                    1,
+                    Dstu2.link(
+                        LinkRelation.first, "http://fonzy.com/cool/Medication?identifier=1", 1, 1),
+                    Dstu2.link(
+                        LinkRelation.self, "http://fonzy.com/cool/Medication?identifier=1", 1, 1),
+                    Dstu2.link(
+                        LinkRelation.last,
+                        "http://fonzy.com/cool/Medication?identifier=1",
+                        1,
+                        1))));
   }
 }

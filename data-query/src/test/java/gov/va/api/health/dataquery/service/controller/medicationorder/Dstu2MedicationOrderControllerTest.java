@@ -9,12 +9,16 @@ import static org.mockito.Mockito.when;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
 import gov.va.api.health.argonaut.api.resources.MedicationOrder;
+import gov.va.api.health.argonaut.api.resources.MedicationOrder.Bundle;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
 import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
+import gov.va.api.health.dataquery.service.controller.Dstu2Validator;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
+import gov.va.api.health.dataquery.service.controller.medicationorder.MedicationOrderSamples.Dstu2;
 import gov.va.api.health.dstu2.api.bundle.BundleLink;
+import gov.va.api.health.dstu2.api.bundle.BundleLink.LinkRelation;
 import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
@@ -27,16 +31,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @DataJpaTest
 @RunWith(SpringRunner.class)
 public class Dstu2MedicationOrderControllerTest {
-
   HttpServletResponse response;
-
-  @Autowired private TestEntityManager entity;
 
   @Autowired private MedicationOrderRepository repository;
 
@@ -58,7 +58,7 @@ public class Dstu2MedicationOrderControllerTest {
 
   Dstu2MedicationOrderController controller() {
     return new Dstu2MedicationOrderController(
-        new Dstu2Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool")),
+        new Dstu2Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool", "cool")),
         repository,
         WitnessProtection.builder().identityService(ids).build());
   }
@@ -156,6 +156,7 @@ public class Dstu2MedicationOrderControllerTest {
                 MedicationOrderSamples.Dstu2.asBundle(
                     "http://fonzy.com/cool",
                     List.of(medicationOrder),
+                    1,
                     MedicationOrderSamples.Dstu2.link(
                         BundleLink.LinkRelation.first,
                         "http://fonzy.com/cool/MedicationOrder?identifier=1",
@@ -174,6 +175,15 @@ public class Dstu2MedicationOrderControllerTest {
   }
 
   @Test
+  public void searchByIdentifier() {
+    DatamartMedicationOrder dm = MedicationOrderSamples.Datamart.create().medicationOrder();
+    repository.save(asEntity(dm));
+    mockMedicationOrderIdentity("1", dm.cdwId());
+    Bundle actual = controller().searchByIdentifier("1", 1, 1);
+    validateSearchByIdResult(dm, actual);
+  }
+
+  @Test
   public void searchByPatient() {
     Multimap<String, MedicationOrder> medicationOrderByPatient = populateData();
     assertThat(json(controller().searchByPatient("p0", 1, 10)))
@@ -182,6 +192,7 @@ public class Dstu2MedicationOrderControllerTest {
                 MedicationOrderSamples.Dstu2.asBundle(
                     "http://fonzy.com/cool",
                     medicationOrderByPatient.get("p0"),
+                    medicationOrderByPatient.get("p0").size(),
                     MedicationOrderSamples.Dstu2.link(
                         BundleLink.LinkRelation.first,
                         "http://fonzy.com/cool/MedicationOrder?patient=p0",
@@ -202,5 +213,62 @@ public class Dstu2MedicationOrderControllerTest {
   @SneakyThrows
   private DatamartMedicationOrder toObject(String json) {
     return JacksonConfig.createMapper().readValue(json, DatamartMedicationOrder.class);
+  }
+
+  @Test
+  public void validate() {
+    DatamartMedicationOrder dm = MedicationOrderSamples.Datamart.create().medicationOrder();
+    MedicationOrder medicationOrder =
+        MedicationOrderSamples.Dstu2.create().medicationOrder("1", dm.patient().reference().get());
+    assertThat(
+            controller()
+                .validate(
+                    MedicationOrderSamples.Dstu2.asBundle(
+                        "http://fonzy.com/cool",
+                        List.of(medicationOrder),
+                        1,
+                        MedicationOrderSamples.Dstu2.link(
+                            LinkRelation.first,
+                            "http://fonzy.com/cool/MedicationOrder?identifier=1",
+                            1,
+                            1),
+                        MedicationOrderSamples.Dstu2.link(
+                            LinkRelation.self,
+                            "http://fonzy.com/cool/MedicationOrder?identifier=1",
+                            1,
+                            1),
+                        MedicationOrderSamples.Dstu2.link(
+                            LinkRelation.last,
+                            "http://fonzy.com/cool/MedicationOrder?identifier=1",
+                            1,
+                            1))))
+        .isEqualTo(Dstu2Validator.ok());
+  }
+
+  private void validateSearchByIdResult(DatamartMedicationOrder dm, Bundle actual) {
+    MedicationOrder medicationOrder =
+        Dstu2.create().medicationOrder("1", dm.patient().reference().get());
+    assertThat(json(actual))
+        .isEqualTo(
+            json(
+                Dstu2.asBundle(
+                    "http://fonzy.com/cool",
+                    List.of(medicationOrder),
+                    1,
+                    Dstu2.link(
+                        LinkRelation.first,
+                        "http://fonzy.com/cool/MedicationOrder?identifier=1",
+                        1,
+                        1),
+                    Dstu2.link(
+                        LinkRelation.self,
+                        "http://fonzy.com/cool/MedicationOrder?identifier=1",
+                        1,
+                        1),
+                    Dstu2.link(
+                        LinkRelation.last,
+                        "http://fonzy.com/cool/MedicationOrder?identifier=1",
+                        1,
+                        1))));
   }
 }

@@ -74,7 +74,7 @@ mranderson.url ............................ URL of the Mr. Anderson Service
                                             E.g. https://mr-anderson.example.com:8088
 
 # Public Information
-argonaut.url .............................. The public URL for Argonaut Data Query
+data-query.public-url...................... The public URL for Argonaut Data Query
                                             E.g. https://api.va.gov/services/argonaut/v0
 conformance.contact.name .................. The public liaison
 conformance.contact.email ................. Email address of the public liaison

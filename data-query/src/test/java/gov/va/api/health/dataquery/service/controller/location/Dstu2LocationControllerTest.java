@@ -11,7 +11,7 @@ import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLin
 import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
-import gov.va.api.health.dstu2.api.bundle.BundleLink.LinkRelation;
+import gov.va.api.health.dstu2.api.bundle.BundleLink;
 import gov.va.api.health.dstu2.api.resources.Location;
 import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.api.Registration;
@@ -28,7 +28,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 @DataJpaTest
 @RunWith(SpringRunner.class)
 public class Dstu2LocationControllerTest {
-
   @Autowired private LocationRepository repository;
 
   private IdentityService ids = mock(IdentityService.class);
@@ -79,7 +78,7 @@ public class Dstu2LocationControllerTest {
         true,
         null,
         null,
-        new Dstu2Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool")),
+        new Dstu2Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool", "cool")),
         repository,
         WitnessProtection.builder().identityService(ids).build());
   }
@@ -91,11 +90,10 @@ public class Dstu2LocationControllerTest {
     String orgPubId = "def";
     String orgCdwId = "456";
     addMockIdentities(publicId, cdwId, orgPubId, orgCdwId);
-    DatamartLocation dm = DatamartLocationSamples.Datamart.create().location(cdwId, orgCdwId);
+    DatamartLocation dm = DatamartLocationSamples.create().location(cdwId, orgCdwId);
     repository.save(asEntity(dm));
     Location actual = controller().read("", publicId);
-    assertThat(actual)
-        .isEqualTo(DatamartLocationSamples.Fhir.create().location(publicId, orgPubId));
+    assertThat(actual).isEqualTo(Dstu2LocationSamples.create().location(publicId, orgPubId));
   }
 
   @Test
@@ -106,7 +104,7 @@ public class Dstu2LocationControllerTest {
     String orgCdwId = "456";
     addMockIdentities(publicId, cdwId, orgPubId, orgCdwId);
     HttpServletResponse servletResponse = mock(HttpServletResponse.class);
-    DatamartLocation dm = DatamartLocationSamples.Datamart.create().location(cdwId, orgCdwId);
+    DatamartLocation dm = DatamartLocationSamples.create().location(cdwId, orgCdwId);
     repository.save(asEntity(dm));
     String json = controller().readRaw(publicId, servletResponse);
     assertThat(asObject(json)).isEqualTo(dm);
@@ -142,27 +140,27 @@ public class Dstu2LocationControllerTest {
     String orgPubId = "def";
     String orgCdwId = "456";
     addMockIdentities(publicId, cdwId, orgPubId, orgCdwId);
-    DatamartLocation dm = DatamartLocationSamples.Datamart.create().location(cdwId, orgCdwId);
+    DatamartLocation dm = DatamartLocationSamples.create().location(cdwId, orgCdwId);
     repository.save(asEntity(dm));
     Location.Bundle actual = controller().searchById("true", publicId, 1, 1);
     assertThat(asJson(actual))
         .isEqualTo(
             asJson(
-                DatamartLocationSamples.Fhir.asBundle(
+                Dstu2LocationSamples.asBundle(
                     "http://fonzy.com/cool",
-                    List.of(DatamartLocationSamples.Fhir.create().location(publicId, orgPubId)),
-                    DatamartLocationSamples.Fhir.link(
-                        LinkRelation.first,
+                    List.of(Dstu2LocationSamples.create().location(publicId, orgPubId)),
+                    Dstu2LocationSamples.link(
+                        BundleLink.LinkRelation.first,
                         "http://fonzy.com/cool/Location?identifier=" + publicId,
                         1,
                         1),
-                    DatamartLocationSamples.Fhir.link(
-                        LinkRelation.self,
+                    Dstu2LocationSamples.link(
+                        BundleLink.LinkRelation.self,
                         "http://fonzy.com/cool/Location?identifier=" + publicId,
                         1,
                         1),
-                    DatamartLocationSamples.Fhir.link(
-                        LinkRelation.last,
+                    Dstu2LocationSamples.link(
+                        BundleLink.LinkRelation.last,
                         "http://fonzy.com/cool/Location?identifier=" + publicId,
                         1,
                         1))));

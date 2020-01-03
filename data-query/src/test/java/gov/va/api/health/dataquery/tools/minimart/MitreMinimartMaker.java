@@ -33,22 +33,34 @@ import gov.va.api.health.dataquery.service.controller.procedure.DatamartProcedur
 import gov.va.api.health.dataquery.service.controller.procedure.ProcedureEntity;
 import gov.va.api.health.dataquery.tools.ExternalDb;
 import gov.va.api.health.dataquery.tools.LocalH2;
+import gov.va.api.health.fallrisk.service.controller.DatamartSurvey;
+import gov.va.api.health.fallrisk.service.controller.SurveyEntity;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 @Slf4j
 public class MitreMinimartMaker {
+
+  private static final ThreadLocal<EntityManager> LOCAL_ENTITY_MANAGER = new ThreadLocal<>();
 
   private final List<Class<?>> MANAGED_CLASSES =
       Arrays.asList(
@@ -66,20 +78,26 @@ public class MitreMinimartMaker {
           PatientEntity.class,
           PatientSearchEntity.class,
           PractitionerEntity.class,
-          ProcedureEntity.class);
+          ProcedureEntity.class,
+          SurveyEntity.class);
 
   private String resourceToSync;
 
-  private EntityManager entityManager;
+  private EntityManagerFactory entityManagerFactory;
+
+  private List<EntityManager> entityManagers;
+
+  private AtomicInteger addedCount = new AtomicInteger(0);
 
   private MitreMinimartMaker(String resourceToSync, String configFile) {
     this.resourceToSync = resourceToSync;
     if (configFile == null || configFile.isBlank()) {
       log.info("No config file was specified... Defaulting to local h2 database...");
-      this.entityManager = new LocalH2("./target/minimart", MANAGED_CLASSES).get();
+      this.entityManagerFactory = new LocalH2("./target/minimart", MANAGED_CLASSES).get();
     } else {
-      this.entityManager = new ExternalDb(configFile, MANAGED_CLASSES).get();
+      this.entityManagerFactory = new ExternalDb(configFile, MANAGED_CLASSES).get();
     }
+    this.entityManagers = Collections.synchronizedList(new ArrayList<>());
   }
 
   /** Main. */
@@ -99,6 +117,34 @@ public class MitreMinimartMaker {
   @SneakyThrows
   private String fileToString(File file) {
     return new String(Files.readAllBytes(Paths.get(file.getPath())));
+  }
+
+  @SneakyThrows
+  private Stream<File> findUniqueFiles(File dmDirectory, String filePattern) {
+    List<File> files =
+        Files.walk(dmDirectory.toPath())
+            .map(Path::toFile)
+            .filter(File::isFile)
+            .filter(f -> f.getName().matches(filePattern))
+            .collect(Collectors.toList());
+    Set<String> fileNames = new HashSet<>();
+    List<File> uniqueFiles = new ArrayList<>();
+    for (File file : files) {
+      if (fileNames.add(file.getName())) {
+        uniqueFiles.add(file);
+      }
+    }
+    log.info("{} unique files found", uniqueFiles.size());
+    return uniqueFiles.stream();
+  }
+
+  private EntityManager getEntityManager() {
+    if (LOCAL_ENTITY_MANAGER.get() == null) {
+      LOCAL_ENTITY_MANAGER.set(entityManagerFactory.createEntityManager());
+      LOCAL_ENTITY_MANAGER.get().getTransaction().begin();
+      entityManagers.add(LOCAL_ENTITY_MANAGER.get());
+    }
+    return LOCAL_ENTITY_MANAGER.get();
   }
 
   @SneakyThrows
@@ -129,7 +175,27 @@ public class MitreMinimartMaker {
   }
 
   @SneakyThrows
-  // For the sake of updates, we'll rebuild it each time, this follows the other resources
+  private void insertByDiagnosticReport(File dmDirectory) {
+    /*
+     * Diagnostic reports need to be done by patient, so if we were given a
+     * patient directory, continue processing as normal, if not we were probably
+     * given the parent datamart directory for all patients, so try to process
+     * for each directory.
+     */
+    List<File> files = listDiagnosticReportFiles(dmDirectory);
+    if (files.isEmpty()) {
+      Files.walk(dmDirectory.toPath())
+          .map(Path::toFile)
+          .filter(File::isDirectory)
+          .parallel()
+          .forEach(f -> insertByDiagnosticReport(listDiagnosticReportFiles(f)));
+    } else {
+      insertByDiagnosticReport(files);
+    }
+  }
+
+  /* For the sake of updates, we'll rebuild it each time, this follows the other resources */
+  @SneakyThrows
   private void insertByDiagnosticReport(List<File> files) {
     // Set the icn and other values using the first file, then reset the payload before loading all
     // the files.
@@ -138,7 +204,13 @@ public class MitreMinimartMaker {
             ? JacksonConfig.createMapper().readValue(files.get(0), DatamartDiagnosticReports.class)
             : null;
     if (dm == null) {
-      throw new RuntimeException("Couldn't find any Diagnostic Reports to push to database.");
+      /*
+       * NOTHING TO SEE HERE, MOVE ALONG SIR
+       *
+       * Because we are running these in parallel, just return here if no files were given
+       * for this patient.
+       */
+      return;
     }
     dm.reports(new ArrayList<>());
     // Crosswalk Entities are dealt with below
@@ -236,6 +308,11 @@ public class MitreMinimartMaker {
             .cdwId(dm.cdwId())
             .icn(dm.subject().isPresent() ? patientIcn(dm.subject().get()) : null)
             .payload(fileToString(file))
+            .category(dm.category().name())
+            .code(
+                dm.code().isPresent() && dm.code().get().coding().isPresent()
+                    ? dm.code().get().coding().get().code().orElse(null)
+                    : null)
             .build();
     save(entity);
   }
@@ -268,11 +345,9 @@ public class MitreMinimartMaker {
   @SneakyThrows
   private void insertByPatient(File file) {
     DatamartPatient dm = JacksonConfig.createMapper().readValue(file, DatamartPatient.class);
-
     PatientEntity patEntity =
         PatientEntity.builder().icn(dm.fullIcn()).payload(fileToString(file)).build();
     save(patEntity);
-
     PatientSearchEntity patientSearchEntity =
         PatientSearchEntity.builder()
             .icn(dm.fullIcn())
@@ -316,10 +391,33 @@ public class MitreMinimartMaker {
     save(entity);
   }
 
-  private List<File> listByPattern(File dmDirectory, String filePattern) {
+  @SneakyThrows
+  private void insertBySurvey(File file) {
+    DatamartSurvey dm = JacksonConfig.createMapper().readValue(file, DatamartSurvey.class);
+    String cdwId = dm.getCdwId();
+    SurveyEntity entity =
+        SurveyEntity.builder()
+            .cdwId(cdwId)
+            .patientFullIcn(dm.getPatientFullIcn())
+            .surveyName(dm.getSurveyName())
+            .sta3n(dm.getSta3n())
+            .surveySavedDateTime(dm.getSurveySavedDateTime().toEpochMilli())
+            .payload(fileToString(file))
+            .build();
+    save(entity, cdwId);
+  }
+
+  @SneakyThrows
+  private void insertResourceByPattern(
+      File dmDirectory, String filePattern, Consumer<File> fileWriter) {
+    findUniqueFiles(dmDirectory, filePattern).parallel().forEach(fileWriter);
+  }
+
+  @SneakyThrows
+  private List<File> listDiagnosticReportFiles(File dmDirectory) {
     return Arrays.stream(dmDirectory.listFiles())
         .filter(File::isFile)
-        .filter(f -> f.getName().matches(filePattern))
+        .filter(f -> f.getName().matches("^dmDiaRep.*json$"))
         .collect(Collectors.toList());
   }
 
@@ -336,73 +434,87 @@ public class MitreMinimartMaker {
       log.error("No files in directory {}", directory);
       throw new RuntimeException("No files found in directory: " + directory);
     }
-    entityManager.getTransaction().begin();
     switch (resourceToSync) {
       case "AllergyIntolerance":
-        listByPattern(dmDirectory, "^dmAllInt.*json$")
-            .forEach(file -> insertByAllergyIntolerance(file));
+        insertResourceByPattern(dmDirectory, "^dmAllInt.*json$", this::insertByAllergyIntolerance);
         break;
       case "Condition":
-        listByPattern(dmDirectory, "^dmCon.*json$").forEach(file -> insertByCondition(file));
+        insertResourceByPattern(dmDirectory, "^dmCon.*json$", this::insertByCondition);
         break;
       case "DiagnosticReport":
-        insertByDiagnosticReport(listByPattern(dmDirectory, "^dmDiaRep.*json$"));
+        insertByDiagnosticReport(dmDirectory);
         break;
       case "Immunization":
-        listByPattern(dmDirectory, "^dmImm.*json$").forEach(file -> insertByImmunization(file));
+        insertResourceByPattern(dmDirectory, "^dmImm.*json$", this::insertByImmunization);
         break;
       case "Location":
-        listByPattern(dmDirectory, "^dmLoc.*json$").forEach(file -> insertByLocation(file));
+        insertResourceByPattern(dmDirectory, "^dmLoc.*json$", this::insertByLocation);
         break;
       case "Medication":
-        listByPattern(dmDirectory, "^dmMed(?!Sta|Ord).*json$")
-            .forEach(file -> insertByMedication(file));
+        insertResourceByPattern(dmDirectory, "^dmMed(?!Sta|Ord).*json$", this::insertByMedication);
         break;
       case "MedicationOrder":
-        listByPattern(dmDirectory, "^dmMedOrd.*json$")
-            .forEach(file -> insertByMedicationOrder(file));
+        insertResourceByPattern(dmDirectory, "^dmMedOrd.*json$", this::insertByMedicationOrder);
         break;
       case "MedicationStatement":
-        listByPattern(dmDirectory, "^dmMedSta.*json$")
-            .forEach(file -> insertByMedicationStatement(file));
+        insertResourceByPattern(dmDirectory, "^dmMedSta.*json$", this::insertByMedicationStatement);
         break;
       case "Observation":
-        listByPattern(dmDirectory, "^dmObs.*json$").forEach(file -> insertByObservation(file));
+        insertResourceByPattern(dmDirectory, "^dmObs.*json$", this::insertByObservation);
         break;
       case "Organization":
-        listByPattern(dmDirectory, "^dmOrg.*json$").forEach(file -> insertByOrganization(file));
+        insertResourceByPattern(dmDirectory, "^dmOrg.*json$", this::insertByOrganization);
         break;
       case "Patient":
-        listByPattern(dmDirectory, "^dmPat.*json$").forEach(file -> insertByPatient(file));
+        insertResourceByPattern(dmDirectory, "^dmPat.*json$", this::insertByPatient);
         break;
       case "Practitioner":
-        listByPattern(dmDirectory, "^dmPra.*json$").forEach(file -> insertByPractitioner(file));
+        insertResourceByPattern(dmDirectory, "^dmPra.*json$", this::insertByPractitioner);
         break;
       case "Procedure":
-        listByPattern(dmDirectory, "^dmPro.*json$").forEach(file -> insertByProcedure(file));
+        insertResourceByPattern(dmDirectory, "^dmPro.*json$", this::insertByProcedure);
+        break;
+      case "Survey":
+        insertResourceByPattern(dmDirectory, "^dmSur.*json$", this::insertBySurvey);
         break;
       default:
         throw new RuntimeException("Couldnt determine resource type for file: " + resourceToSync);
     }
-    // Commit changes to db
-    entityManager.getTransaction().commit();
-    entityManager.close();
+    /*
+     * Commit and clean up the transactions for the entity managers from
+     * the various threads.
+     */
+    for (EntityManager entityManager : entityManagers) {
+      entityManager.getTransaction().commit();
+      entityManager.close();
+    }
+    log.info("Added {} {} entities", addedCount.get(), resourceToSync);
   }
 
   private <T extends DatamartEntity> void save(T entity) {
-    DatamartEntity existing = entityManager.find(entity.getClass(), entity.cdwId());
-    if (existing == null) {
-      log.info("Adding {} {}", entity.getClass().getSimpleName(), entity.cdwId());
-      entityManager.persist(entity);
-    } else {
-      log.info("Updating {} {}", entity.getClass().getSimpleName(), entity.cdwId());
-      entityManager.merge(entity);
-    }
-    entityManager.flush();
-    entityManager.clear();
+    EntityManager entityManager = getEntityManager();
+    boolean exists = entityManager.find(entity.getClass(), entity.cdwId()) != null;
+    updateOrAddEntity(exists, entityManager, entity);
+  }
+
+  private <T> void save(T entity, String identifier) {
+    EntityManager entityManager = getEntityManager();
+    boolean exists = entityManager.find(entity.getClass(), identifier) != null;
+    updateOrAddEntity(exists, entityManager, entity);
   }
 
   private void saveDrCrosswalkEntity(String icn, String reportIdentifier) {
     save(DiagnosticReportCrossEntity.builder().icn(icn).reportId(reportIdentifier).build());
+  }
+
+  private <T> void updateOrAddEntity(boolean exists, EntityManager entityManager, T entity) {
+    if (!exists) {
+      entityManager.persist(entity);
+    } else {
+      entityManager.merge(entity);
+    }
+    addedCount.incrementAndGet();
+    entityManager.flush();
+    entityManager.clear();
   }
 }

@@ -14,7 +14,6 @@ import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.e
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.firstPayloadItem;
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.hasPayload;
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.ifPresent;
-import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.isBlank;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.dataquery.service.controller.Dstu2Transformers.MissingPayload;
@@ -29,7 +28,6 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import javax.xml.datatype.DatatypeFactory;
@@ -38,19 +36,10 @@ import lombok.SneakyThrows;
 import org.junit.Test;
 
 public class Dstu2TransformersTest {
-
-  @Test
-  public void allBlank() {
-    assertThat(Dstu2Transformers.allBlank()).isTrue();
-    assertThat(Dstu2Transformers.allBlank(null, null, null, null)).isTrue();
-    assertThat(Dstu2Transformers.allBlank(null, "", " ")).isTrue();
-    assertThat(Dstu2Transformers.allBlank(null, 1, null, null)).isFalse();
-    assertThat(Dstu2Transformers.allBlank(1, "x", "z", 2.0)).isFalse();
-  }
-
   @Test
   public void asCodeableConceptWrappingReturnsNullIfCodingCannotBeConverted() {
-    assertThat(asCodeableConceptWrapping(null)).isNull();
+    assertThat(asCodeableConceptWrapping(DatamartCoding.builder().build())).isNull();
+    assertThat(asCodeableConceptWrapping(Optional.empty())).isNull();
   }
 
   @Test
@@ -58,6 +47,13 @@ public class Dstu2TransformersTest {
     assertThat(
             asCodeableConceptWrapping(
                 DatamartCoding.of().system("s").code("c").display("d").build()))
+        .isEqualTo(
+            CodeableConcept.builder()
+                .coding(List.of(Coding.builder().system("s").code("c").display("d").build()))
+                .build());
+    assertThat(
+            asCodeableConceptWrapping(
+                Optional.of(DatamartCoding.of().system("s").code("c").display("d").build())))
         .isEqualTo(
             CodeableConcept.builder()
                 .coding(List.of(Coding.builder().system("s").code("c").display("d").build()))
@@ -328,17 +324,5 @@ public class Dstu2TransformersTest {
   public void ifPresentReturnsNullWhenObjectIsNull() {
     Function<Object, String> extract = (o) -> "x" + o;
     assertThat(ifPresent(null, extract)).isNull();
-  }
-
-  @Test
-  public void isBlankCollection() {
-    assertThat(isBlank(List.of())).isTrue();
-    assertThat(isBlank(List.of("x"))).isFalse();
-  }
-
-  @Test
-  public void isBlankMap() {
-    assertThat(isBlank(Map.of())).isTrue();
-    assertThat(isBlank(Map.of("x", "y"))).isFalse();
   }
 }
