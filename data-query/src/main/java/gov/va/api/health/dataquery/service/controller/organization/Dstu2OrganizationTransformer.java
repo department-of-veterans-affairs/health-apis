@@ -20,7 +20,7 @@ import lombok.Builder;
 import lombok.NonNull;
 
 @Builder
-final class DatamartOrganizationTransformer {
+final class Dstu2OrganizationTransformer {
 
   @NonNull private final DatamartOrganization datamart;
 
@@ -62,7 +62,9 @@ final class DatamartOrganizationTransformer {
     if (source == null || source.get().code().get() == null) {
       return null;
     }
-    return CodeableConcept.builder().coding(typeCoding(source.get())).build();
+    return CodeableConcept.builder()
+            .coding(typeCoding(source.get()))
+            .build();
   }
 
   static List<Coding> typeCoding(DatamartCoding source) {
@@ -96,17 +98,4 @@ final class DatamartOrganizationTransformer {
         .address(address(datamart.address()))
         .build();
   }
-  /* From OrganizationTransformer.java
-  @Override
-  public Organization apply(CdwOrganization source) {
-    return Organization.builder()
-            .resourceType("Organization")
-            .id(source.getCdwId())
-            .active(source.isActive())
-            .type(type(source.getType()))
-            .name(source.getName())
-            .telecom(telecoms(source.getTelecoms()))
-            .address(addresses(source.getAddresses()))
-            .build();
-  }*/
 }

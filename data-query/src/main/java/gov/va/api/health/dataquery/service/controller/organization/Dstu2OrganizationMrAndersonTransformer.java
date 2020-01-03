@@ -29,7 +29,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 @Service
-public class OrganizationTransformer implements OrganizationController.Transformer {
+public class Dstu2OrganizationMrAndersonTransformer
+    implements Dstu2OrganizationController.Transformer {
   List<String> addressLine(CdwOrganizationAddress source) {
     if (source == null || source.getLines() == null || source.getLines().getLine().isEmpty()) {
       return null;

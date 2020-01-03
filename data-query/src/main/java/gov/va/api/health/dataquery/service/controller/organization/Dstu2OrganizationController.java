@@ -54,7 +54,7 @@ import org.springframework.web.bind.annotation.RestController;
   value = {"/dstu2/Organization"},
   produces = {"application/json", "application/json+fhir", "application/fhir+json"}
 )
-public class OrganizationController {
+public class Dstu2OrganizationController {
   private final Datamart datamart = new Datamart();
   private Transformer transformer;
 
@@ -65,7 +65,7 @@ public class OrganizationController {
   private boolean defaultToDatamart;
 
   /** Spring constructor. */
-  public OrganizationController(
+  public Dstu2OrganizationController(
       @Value("${datamart.organization}") boolean defaultToDatamart,
       @Autowired Transformer transformer,
       @Autowired MrAndersonClient mrAndersonClient,
@@ -122,9 +122,8 @@ public class OrganizationController {
     headers = {"raw=true"}
   )
   public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
-    OrganizationEntity entity = datamart.readRaw(publicId);
-    AbstractIncludesIcnMajig.addHeader(response, entity.npi());
-    return entity.payload();
+    AbstractIncludesIcnMajig.addHeaderForNoPatients(response);
+    return datamart.readRaw(publicId).payload();
   }
 
   /**
@@ -248,7 +247,7 @@ public class OrganizationController {
     }
 
     Organization transform(DatamartOrganization dm) {
-      return DatamartOrganizationTransformer.builder().datamart(dm).build().toFhir();
+      return Dstu2OrganizationTransformer.builder().datamart(dm).build().toFhir();
     }
   }
 }

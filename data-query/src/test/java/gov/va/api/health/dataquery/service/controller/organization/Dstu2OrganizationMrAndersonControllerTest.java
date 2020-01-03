@@ -33,18 +33,18 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.util.MultiValueMap;
 
 @SuppressWarnings("WeakerAccess")
-public class OrganizationControllerTest {
+public class Dstu2OrganizationMrAndersonControllerTest {
   @Mock MrAndersonClient client;
 
-  @Mock OrganizationController.Transformer tx;
+  @Mock Dstu2OrganizationController.Transformer tx;
 
-  OrganizationController controller;
+  Dstu2OrganizationController controller;
   @Mock Dstu2Bundler bundler;
 
   @Before
   public void _init() {
     MockitoAnnotations.initMocks(this);
-    controller = new OrganizationController(false, tx, client, bundler, null, null);
+    controller = new Dstu2OrganizationController(false, tx, client, bundler, null, null);
   }
 
   private void assertSearch(

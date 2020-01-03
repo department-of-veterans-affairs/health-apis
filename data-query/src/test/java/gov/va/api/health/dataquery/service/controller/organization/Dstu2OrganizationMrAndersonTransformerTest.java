@@ -25,10 +25,11 @@ import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
 
-public class OrganizationTransformerTest {
+public class Dstu2OrganizationMrAndersonTransformerTest {
   private final XmlSampleData cdw = new XmlSampleData();
   private final Expected expected = new Expected();
-  private final OrganizationTransformer tx = new OrganizationTransformer();
+  private final Dstu2OrganizationMrAndersonTransformer tx =
+      new Dstu2OrganizationMrAndersonTransformer();
 
   @Test
   public void addressLine() {
