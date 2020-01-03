@@ -33,6 +33,8 @@ import gov.va.api.health.dataquery.service.controller.procedure.DatamartProcedur
 import gov.va.api.health.dataquery.service.controller.procedure.ProcedureEntity;
 import gov.va.api.health.dataquery.tools.ExternalDb;
 import gov.va.api.health.dataquery.tools.LocalH2;
+import gov.va.api.health.fallrisk.service.controller.DatamartSurvey;
+import gov.va.api.health.fallrisk.service.controller.SurveyEntity;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -76,7 +78,8 @@ public class MitreMinimartMaker {
           PatientEntity.class,
           PatientSearchEntity.class,
           PractitionerEntity.class,
-          ProcedureEntity.class);
+          ProcedureEntity.class,
+          SurveyEntity.class);
 
   private String resourceToSync;
 
@@ -135,6 +138,15 @@ public class MitreMinimartMaker {
     return uniqueFiles.stream();
   }
 
+  private EntityManager getEntityManager() {
+    if (LOCAL_ENTITY_MANAGER.get() == null) {
+      LOCAL_ENTITY_MANAGER.set(entityManagerFactory.createEntityManager());
+      LOCAL_ENTITY_MANAGER.get().getTransaction().begin();
+      entityManagers.add(LOCAL_ENTITY_MANAGER.get());
+    }
+    return LOCAL_ENTITY_MANAGER.get();
+  }
+
   @SneakyThrows
   private void insertByAllergyIntolerance(File file) {
     DatamartAllergyIntolerance dm =
@@ -183,8 +195,8 @@ public class MitreMinimartMaker {
   }
 
   @SneakyThrows
-  // For the sake of updates, we'll rebuild it each time, this follows the other resources
-  private void insertByDiagnosticReport(List<File> files) {
+  private // For the sake of updates, we'll rebuild it each time, this follows the other resources
+  void insertByDiagnosticReport(List<File> files) {
     // Set the icn and other values using the first file, then reset the payload before loading all
     // the files.
     DatamartDiagnosticReports dm =
@@ -380,6 +392,22 @@ public class MitreMinimartMaker {
   }
 
   @SneakyThrows
+  private void insertBySurvey(File file) {
+    DatamartSurvey dm = JacksonConfig.createMapper().readValue(file, DatamartSurvey.class);
+    String cdwId = dm.getCdwId();
+    SurveyEntity entity =
+        SurveyEntity.builder()
+            .cdwId(cdwId)
+            .patientFullIcn(dm.getPatientFullIcn())
+            .surveyName(dm.getSurveyName())
+            .sta3n(dm.getSta3n())
+            .surveySavedDateTime(dm.getSurveySavedDateTime().toEpochMilli())
+            .payload(fileToString(file))
+            .build();
+    save(entity, cdwId);
+  }
+
+  @SneakyThrows
   private void insertResourceByPattern(
       File dmDirectory, String filePattern, Consumer<File> fileWriter) {
     findUniqueFiles(dmDirectory, filePattern).parallel().forEach(fileWriter);
@@ -446,6 +474,8 @@ public class MitreMinimartMaker {
       case "Procedure":
         insertResourceByPattern(dmDirectory, "^dmPro.*json$", this::insertByProcedure);
         break;
+      case "Survey":
+        insertResourceByPattern(dmDirectory, "^dmSur.*json$", this::insertBySurvey);
       default:
         throw new RuntimeException("Couldnt determine resource type for file: " + resourceToSync);
     }
@@ -461,14 +491,23 @@ public class MitreMinimartMaker {
   }
 
   private <T extends DatamartEntity> void save(T entity) {
-    if (LOCAL_ENTITY_MANAGER.get() == null) {
-      LOCAL_ENTITY_MANAGER.set(entityManagerFactory.createEntityManager());
-      LOCAL_ENTITY_MANAGER.get().getTransaction().begin();
-      entityManagers.add(LOCAL_ENTITY_MANAGER.get());
-    }
-    EntityManager entityManager = LOCAL_ENTITY_MANAGER.get();
-    DatamartEntity existing = entityManager.find(entity.getClass(), entity.cdwId());
-    if (existing == null) {
+    EntityManager entityManager = getEntityManager();
+    boolean exists = entityManager.find(entity.getClass(), entity.cdwId()) != null;
+    updateOrAddEntity(exists, entityManager, entity);
+  }
+
+  private <T> void save(T entity, String identifier) {
+    EntityManager entityManager = getEntityManager();
+    boolean exists = entityManager.find(entity.getClass(), identifier) != null;
+    updateOrAddEntity(exists, entityManager, entity);
+  }
+
+  private void saveDrCrosswalkEntity(String icn, String reportIdentifier) {
+    save(DiagnosticReportCrossEntity.builder().icn(icn).reportId(reportIdentifier).build());
+  }
+
+  private <T> void updateOrAddEntity(boolean exists, EntityManager entityManager, T entity) {
+    if (!exists) {
       entityManager.persist(entity);
     } else {
       entityManager.merge(entity);
@@ -476,9 +515,5 @@ public class MitreMinimartMaker {
     addedCount.incrementAndGet();
     entityManager.flush();
     entityManager.clear();
-  }
-
-  private void saveDrCrosswalkEntity(String icn, String reportIdentifier) {
-    save(DiagnosticReportCrossEntity.builder().icn(icn).reportId(reportIdentifier).build());
   }
 }
