@@ -41,6 +41,13 @@
     </dependency>
     <dependency>
       <groupId>gov.va.api.health</groupId>
+      <artifactId>fall-risk</artifactId>
+      <version>1.0.12</version>
+      <classifier>library</classifier>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>gov.va.api.health</groupId>
       <artifactId>ids-client</artifactId>
       <version>${health-apis-ids.version}</version>
     </dependency>
