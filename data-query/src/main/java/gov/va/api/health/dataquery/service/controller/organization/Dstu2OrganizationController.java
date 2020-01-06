@@ -230,7 +230,6 @@ public class Dstu2OrganizationController {
     Collection<DatamartOrganization> replaceReferences(Collection<DatamartOrganization> resources) {
       witnessProtection.registerAndUpdateReferences(
           resources, resource -> Stream.of(resource.partOf().get()));
-      // Placeholder ^
       return resources;
     }
 
@@ -238,7 +237,7 @@ public class Dstu2OrganizationController {
       Organization resource = read(publicId);
       return bundle(
           Parameters.builder()
-              .add("identifier", publicId)
+              .add("_id", publicId)
               .add("page", page)
               .add("_count", count)
               .build(),
