@@ -33,15 +33,15 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
  */
 @AllArgsConstructor
 public abstract class AbstractIncludesIcnMajig<
-        T extends Resource, E extends AbstractEntry<T>, B extends AbstractBundle<E>>
+        R extends Resource, E extends AbstractEntry<R>, B extends AbstractBundle<E>>
     implements ResponseBodyAdvice<Object> {
   public static final String INCLUDES_ICN_HEADER = "X-VA-INCLUDES-ICN";
 
-  private final Class<T> type;
+  private final Class<R> type;
 
   private final Class<B> bundleType;
 
-  private final Function<T, Stream<String>> extractIcns;
+  private final Function<R, Stream<String>> extractIcns;
 
   /** Add the X-VA-INCLUDES-ICN header if it does not already exist. */
   public static void addHeader(ServerHttpResponse serverHttpResponse, String usersCsv) {
@@ -85,7 +85,7 @@ public abstract class AbstractIncludesIcnMajig<
 
     String users = "";
     if (type.isInstance(payload)) {
-      users = extractIcns.apply((T) payload).collect(Collectors.joining());
+      users = extractIcns.apply((R) payload).collect(Collectors.joining());
     } else if (bundleType.isInstance(payload)) {
       users =
           ((B) payload)
