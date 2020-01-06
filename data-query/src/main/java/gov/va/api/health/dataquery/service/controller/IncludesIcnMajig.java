@@ -29,16 +29,16 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
  * Patient Matching.
  */
 @Builder
-public final class IncludesIcnMajig implements ResponseBodyAdvice<Object> {
+public final class IncludesIcnMajig<T, B> implements ResponseBodyAdvice<Object> {
   public static final String INCLUDES_ICN_HEADER = "X-VA-INCLUDES-ICN";
 
-  private final Class<?> type;
+  private final Class<T> type;
 
-  private final Class<?> bundleType;
+  private final Class<B> bundleType;
 
-  private final Function<Object, Stream<Object>> extractResources;
+  private final Function<B, Stream<T>> extractResources;
 
-  private final Function<Object, Stream<String>> extractIcns;
+  private final Function<T, Stream<String>> extractIcns;
 
   /** Add the X-VA-INCLUDES-ICN header if it does not already exist. */
   public static void addHeader(ServerHttpResponse serverHttpResponse, String usersCsv) {
@@ -82,11 +82,11 @@ public final class IncludesIcnMajig implements ResponseBodyAdvice<Object> {
 
     String users = "";
     if (type.isInstance(payload)) {
-      users = extractIcns.apply(payload).collect(Collectors.joining());
+      users = extractIcns.apply((T) payload).collect(Collectors.joining());
     } else if (bundleType.isInstance(payload)) {
       users =
           extractResources
-              .apply(payload)
+              .apply((B) payload)
               .flatMap(resource -> extractIcns.apply(resource))
               .distinct()
               .collect(Collectors.joining(","));

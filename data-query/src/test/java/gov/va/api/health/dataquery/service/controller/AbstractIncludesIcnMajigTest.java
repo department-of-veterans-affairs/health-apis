@@ -26,7 +26,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.ServerHttpResponse;
 
 public class AbstractIncludesIcnMajigTest {
-
   @Test(expected = InvalidParameterException.class)
   public void beforeBodyWriteThrowsExceptionForUnsupportedType() {
     new FakeMajg().beforeBodyWrite(null, null, null, null, null, null);
@@ -119,7 +118,6 @@ public class AbstractIncludesIcnMajigTest {
    * we also need a a fake Resource, Entry, and Bundle class
    */
   public static class FakeMajg extends IncludesIcnMajig<FakeResource, FakeEntry, FakeBundle> {
-
     FakeMajg() {
       super(FakeResource.class, FakeBundle.class, (body) -> Stream.of(body.id));
     }
@@ -128,7 +126,6 @@ public class AbstractIncludesIcnMajigTest {
   @Builder
   @Data
   static class FakeResource implements Resource {
-
     String id;
 
     String implicitRules;
@@ -139,7 +136,6 @@ public class AbstractIncludesIcnMajigTest {
   }
 
   static class FakeEntry extends AbstractEntry<FakeResource> {
-
     @Builder
     FakeEntry(
         String id,
@@ -156,7 +152,6 @@ public class AbstractIncludesIcnMajigTest {
   }
 
   static class FakeBundle extends AbstractBundle<FakeEntry> {
-
     @Builder
     FakeBundle(
         String resourceType,

@@ -10,12 +10,11 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 @ControllerAdvice
 public class Dstu2LocationIncludesIcnMajig {
   @Delegate
-  private final IncludesIcnMajig delegate =
-      IncludesIcnMajig.builder()
+  private final IncludesIcnMajig<Location, Location.Bundle> delegate =
+      IncludesIcnMajig.<Location, Location.Bundle>builder()
           .type(Location.class)
           .bundleType(Location.Bundle.class)
-          .extractResources(
-              bundle -> ((Location.Bundle) bundle).entry().stream().map(AbstractEntry::resource))
+          .extractResources(bundle -> bundle.entry().stream().map(AbstractEntry::resource))
           .extractIcns(body -> Stream.empty())
           .build();
 }
