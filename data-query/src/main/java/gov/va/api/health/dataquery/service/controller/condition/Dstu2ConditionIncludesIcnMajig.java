@@ -7,6 +7,7 @@ import gov.va.api.health.dstu2.api.bundle.AbstractEntry;
 import java.util.stream.Stream;
 import lombok.experimental.Delegate;
 import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 /**
  * Intercept all RequestMapping payloads of Type Condition.class or Bundle.class. Extract ICN(s)
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
  * X-VA-INCLUDES-ICN header.
  */
 @ControllerAdvice
-public class Dstu2ConditionIncludesIcnMajig {
+public class Dstu2ConditionIncludesIcnMajig implements ResponseBodyAdvice<Object> {
   @Delegate
   private final IncludesIcnMajig<Condition, Condition.Bundle> delegate =
       IncludesIcnMajig.<Condition, Condition.Bundle>builder()

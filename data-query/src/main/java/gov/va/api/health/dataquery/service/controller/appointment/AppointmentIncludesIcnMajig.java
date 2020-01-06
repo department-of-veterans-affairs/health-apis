@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.experimental.Delegate;
 import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 /**
  * Intercept all RequestMapping payloads of Type Appointment.class or Bundle.class. Extract ICN(s)
@@ -15,7 +16,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
  * X-VA-INCLUDES-ICN header.
  */
 @ControllerAdvice
-public class AppointmentIncludesIcnMajig {
+public class AppointmentIncludesIcnMajig implements ResponseBodyAdvice<Object> {
   @Delegate
   private final IncludesIcnMajig<Appointment, Appointment.Bundle> delegate =
       IncludesIcnMajig.<Appointment, Appointment.Bundle>builder()

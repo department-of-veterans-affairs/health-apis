@@ -11,13 +11,15 @@ import lombok.Value;
 import org.mockito.Mockito;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.ServerHttpResponse;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 @Builder
 @Value
-public class ExtractIcnValidator<M extends IncludesIcnMajig<?, ?, ?>, R extends Resource> {
+public class ExtractIcnValidator<R extends Resource> {
+  ResponseBodyAdvice<Object> majig;
 
-  M majig;
   R body;
+
   List<String> expectedIcns;
 
   /** Assert that the ICNs from the Majig's extract function match the payload ICNs */

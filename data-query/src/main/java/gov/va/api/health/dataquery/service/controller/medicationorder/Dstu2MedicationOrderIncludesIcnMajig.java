@@ -7,6 +7,7 @@ import gov.va.api.health.dstu2.api.bundle.AbstractEntry;
 import java.util.stream.Stream;
 import lombok.experimental.Delegate;
 import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 /**
  * Intercept all RequestMapping payloads of Type MedicationOrder.class or Bundle.class. Extract
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
  * X-VA-INCLUDES-ICN header.
  */
 @ControllerAdvice
-public class Dstu2MedicationOrderIncludesIcnMajig {
+public class Dstu2MedicationOrderIncludesIcnMajig implements ResponseBodyAdvice<Object> {
   @Delegate
   private final IncludesIcnMajig<MedicationOrder, MedicationOrder.Bundle> delegate =
       IncludesIcnMajig.<MedicationOrder, MedicationOrder.Bundle>builder()

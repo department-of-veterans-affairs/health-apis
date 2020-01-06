@@ -10,7 +10,7 @@ public class Dstu2AllergyIntoleranceIncludesIcnMajigTest {
 
   @Test
   public void extractIcns() {
-    ExtractIcnValidator.<Dstu2AllergyIntoleranceIncludesIcnMajig, AllergyIntolerance>builder()
+    ExtractIcnValidator.<AllergyIntolerance>builder()
         .majig(new Dstu2AllergyIntoleranceIncludesIcnMajig())
         .body(
             AllergyIntolerance.builder()

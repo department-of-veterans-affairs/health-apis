@@ -6,10 +6,9 @@ import java.util.List;
 import org.junit.Test;
 
 public class OrganizationIncludesIcnMajigTest {
-
   @Test
   public void extractNoIcns() {
-    ExtractIcnValidator.<OrganizationIncludesIcnMajig, Organization>builder()
+    ExtractIcnValidator.<Organization>builder()
         .majig(new OrganizationIncludesIcnMajig())
         .body(Organization.builder().id("123").build())
         .expectedIcns(List.of("NONE"))

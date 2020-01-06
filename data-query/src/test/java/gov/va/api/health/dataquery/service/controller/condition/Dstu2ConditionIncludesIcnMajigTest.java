@@ -10,7 +10,7 @@ public class Dstu2ConditionIncludesIcnMajigTest {
 
   @Test
   public void extractIcn() {
-    ExtractIcnValidator.<Dstu2ConditionIncludesIcnMajig, Condition>builder()
+    ExtractIcnValidator.<Condition>builder()
         .majig(new Dstu2ConditionIncludesIcnMajig())
         .body(
             Condition.builder()
