@@ -15,7 +15,6 @@ import gov.va.api.health.dataquery.tests.SystemDefinitions;
 import gov.va.api.health.dataquery.tests.TestClients;
 import gov.va.api.health.dataquery.tests.TestIds;
 import gov.va.api.health.dstu2.api.bundle.AbstractBundle;
-import gov.va.api.health.dstu2.api.resources.Appointment;
 import gov.va.api.health.dstu2.api.resources.Encounter;
 import gov.va.api.health.dstu2.api.resources.Location;
 import gov.va.api.health.dstu2.api.resources.MedicationDispense;
@@ -66,11 +65,17 @@ public class DataQueryValidateIT {
     validate("AllergyIntolerance", ids.allergyIntolerance(), AllergyIntolerance.Bundle.class);
   }
 
+  /*
+  ----------------------------------------------------------------------------------
+  Disabling Validate tests until the resource becomes available in datamart
+  and the controller/transformer are implemented.
+  ----------------------------------------------------------------------------------
   @Test
   @Category(Local.class)
   public void validateAppointment() {
     validate("Appointment", ids.appointment(), Appointment.Bundle.class);
   }
+  */
 
   @Test
   @Category(Local.class)
