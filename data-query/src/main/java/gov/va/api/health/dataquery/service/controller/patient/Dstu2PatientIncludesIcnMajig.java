@@ -1,11 +1,12 @@
 package gov.va.api.health.dataquery.service.controller.patient;
 
 import gov.va.api.health.argonaut.api.resources.Patient;
-import gov.va.api.health.argonaut.api.resources.Patient.Bundle;
-import gov.va.api.health.argonaut.api.resources.Patient.Entry;
-import gov.va.api.health.dataquery.service.controller.AbstractIncludesIcnMajig;
+import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
+import gov.va.api.health.dstu2.api.bundle.AbstractEntry;
 import java.util.stream.Stream;
+import lombok.experimental.Delegate;
 import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 /**
  * Intercept all RequestMapping payloads of Type Patient.class or Bundle.class. Extract ICN(s) from
@@ -13,9 +14,13 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
  * header.
  */
 @ControllerAdvice
-public class Dstu2PatientIncludesIcnMajig extends AbstractIncludesIcnMajig<Patient, Entry, Bundle> {
-
-  public Dstu2PatientIncludesIcnMajig() {
-    super(Patient.class, Bundle.class, (body) -> Stream.of(body.id()));
-  }
+public class Dstu2PatientIncludesIcnMajig implements ResponseBodyAdvice<Object> {
+  @Delegate
+  private final ResponseBodyAdvice<Object> delegate =
+      IncludesIcnMajig.<Patient, Patient.Bundle>builder()
+          .type(Patient.class)
+          .bundleType(Patient.Bundle.class)
+          .extractResources(bundle -> bundle.entry().stream().map(AbstractEntry::resource))
+          .extractIcns(body -> Stream.of(body.id()))
+          .build();
 }
