@@ -16,7 +16,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 @ControllerAdvice
 public class Dstu2MedicationIncludesIcnMajig implements ResponseBodyAdvice<Object> {
   @Delegate
-  private final IncludesIcnMajig<Medication, Medication.Bundle> delegate =
+  private final ResponseBodyAdvice<Object> delegate =
       IncludesIcnMajig.<Medication, Medication.Bundle>builder()
           .type(Medication.class)
           .bundleType(Medication.Bundle.class)

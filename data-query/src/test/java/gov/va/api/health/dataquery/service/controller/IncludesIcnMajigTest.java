@@ -25,6 +25,7 @@ import org.mockito.Mockito;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.ServerHttpResponse;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 public class IncludesIcnMajigTest {
   @Test(expected = InvalidParameterException.class)
@@ -118,9 +119,9 @@ public class IncludesIcnMajigTest {
    * Silly Test implementation of the AbstractIncludesIcnMajig.java Because we are using Templates,
    * we also need a a fake Resource, Entry, and Bundle class
    */
-  public static final class FakeMajg {
+  public static final class FakeMajg implements ResponseBodyAdvice<Object> {
     @Delegate
-    private final IncludesIcnMajig<FakeResource, FakeBundle> delegate =
+    private final ResponseBodyAdvice<Object> delegate =
         IncludesIcnMajig.<FakeResource, FakeBundle>builder()
             .type(FakeResource.class)
             .bundleType(FakeBundle.class)

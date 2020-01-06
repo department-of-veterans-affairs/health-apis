@@ -17,7 +17,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 @ControllerAdvice
 public class Dstu2ConditionIncludesIcnMajig implements ResponseBodyAdvice<Object> {
   @Delegate
-  private final IncludesIcnMajig<Condition, Condition.Bundle> delegate =
+  private final ResponseBodyAdvice<Object> delegate =
       IncludesIcnMajig.<Condition, Condition.Bundle>builder()
           .type(Condition.class)
           .bundleType(Condition.Bundle.class)
