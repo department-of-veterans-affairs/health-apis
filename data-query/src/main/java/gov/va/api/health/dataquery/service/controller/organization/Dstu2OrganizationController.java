@@ -237,7 +237,7 @@ public class Dstu2OrganizationController {
       Organization resource = read(publicId);
       return bundle(
           Parameters.builder()
-              .add("_id", publicId)
+              .add("identifier", publicId)
               .add("page", page)
               .add("_count", count)
               .build(),
