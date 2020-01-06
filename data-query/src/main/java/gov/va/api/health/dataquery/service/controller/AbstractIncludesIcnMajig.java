@@ -1,16 +1,12 @@
 package gov.va.api.health.dataquery.service.controller;
 
-import gov.va.api.health.dstu2.api.bundle.AbstractBundle;
-import gov.va.api.health.dstu2.api.bundle.AbstractEntry;
-import gov.va.api.health.dstu2.api.resources.Resource;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidParameterException;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
+import lombok.experimental.Delegate;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpHeaders;
@@ -32,16 +28,10 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
  * Patient Matching.
  */
 @AllArgsConstructor
-public abstract class AbstractIncludesIcnMajig<
-        R extends Resource, E extends AbstractEntry<R>, B extends AbstractBundle<E>>
-    implements ResponseBodyAdvice<Object> {
+public abstract class AbstractIncludesIcnMajig implements ResponseBodyAdvice<Object> {
   public static final String INCLUDES_ICN_HEADER = "X-VA-INCLUDES-ICN";
 
-  private final Class<R> type;
-
-  private final Class<B> bundleType;
-
-  private final Function<R, Stream<String>> extractIcns;
+  @Delegate IncludesIcnMajig delegate;
 
   /** Add the X-VA-INCLUDES-ICN header if it does not already exist. */
   public static void addHeader(ServerHttpResponse serverHttpResponse, String usersCsv) {
@@ -79,22 +69,15 @@ public abstract class AbstractIncludesIcnMajig<
       ServerHttpResponse serverHttpResponse) {
 
     // In the case where extractIcns is null, let Kong deal with it
-    if (extractIcns == null) {
+    if (delegate.extractIcns() == null) {
       return payload;
     }
 
     String users = "";
-    if (type.isInstance(payload)) {
-      users = extractIcns.apply((R) payload).collect(Collectors.joining());
-    } else if (bundleType.isInstance(payload)) {
-      users =
-          ((B) payload)
-              .entry()
-              .stream()
-              .map(AbstractEntry::resource)
-              .flatMap(resource -> extractIcns.apply(resource))
-              .distinct()
-              .collect(Collectors.joining(","));
+    if (delegate.type().isInstance(payload)) {
+      users = delegate.extractResourceIcns(payload);
+    } else if (delegate.bundleType().isInstance(payload)) {
+      users = delegate.extractBundleIcns(payload);
     } else {
       throw new InvalidParameterException("Payload type does not match ControllerAdvice type.");
     }
@@ -111,7 +94,7 @@ public abstract class AbstractIncludesIcnMajig<
   @Override
   public boolean supports(
       MethodParameter methodParameter, Class<? extends HttpMessageConverter<?>> unused) {
-    return type.equals(methodParameter.getParameterType())
-        || bundleType.equals(methodParameter.getParameterType());
+    return delegate.type().equals(methodParameter.getParameterType())
+        || delegate.bundleType().equals(methodParameter.getParameterType());
   }
 }
