@@ -8,11 +8,6 @@ import lombok.experimental.Delegate;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
-/**
- * Intercept all RequestMapping payloads of Type Practitioner.class or Bundle.class. Extract ICN(s)
- * from these payloads with the provided function. This will lead to populating the
- * X-VA-INCLUDES-ICN header.
- */
 @ControllerAdvice
 public class Dstu2PractitionerIncludesIcnMajig implements ResponseBodyAdvice<Object> {
   @Delegate
