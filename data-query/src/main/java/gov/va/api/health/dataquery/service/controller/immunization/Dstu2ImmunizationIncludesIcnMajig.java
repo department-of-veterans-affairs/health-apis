@@ -3,7 +3,9 @@ package gov.va.api.health.dataquery.service.controller.immunization;
 import gov.va.api.health.argonaut.api.resources.Immunization;
 import gov.va.api.health.dataquery.service.controller.Dstu2Transformers;
 import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
+import gov.va.api.health.dstu2.api.bundle.AbstractEntry;
 import java.util.stream.Stream;
+import lombok.experimental.Delegate;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 
 /**
@@ -12,13 +14,13 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
  * X-VA-INCLUDES-ICN header.
  */
 @ControllerAdvice
-public class Dstu2ImmunizationIncludesIcnMajig
-    extends IncludesIcnMajig<Immunization, Immunization.Entry, Immunization.Bundle> {
-  /** Converts the reference to a Datamart Reference to pull out the patient id. */
-  public Dstu2ImmunizationIncludesIcnMajig() {
-    super(
-        Immunization.class,
-        Immunization.Bundle.class,
-        body -> Stream.ofNullable(Dstu2Transformers.asReferenceId(body.patient())));
-  }
+public class Dstu2ImmunizationIncludesIcnMajig {
+  @Delegate
+  private final IncludesIcnMajig<Immunization, Immunization.Bundle> delegate =
+      IncludesIcnMajig.<Immunization, Immunization.Bundle>builder()
+          .type(Immunization.class)
+          .bundleType(Immunization.Bundle.class)
+          .extractResources(bundle -> bundle.entry().stream().map(AbstractEntry::resource))
+          .extractIcns(body -> Stream.ofNullable(Dstu2Transformers.asReferenceId(body.patient())))
+          .build();
 }

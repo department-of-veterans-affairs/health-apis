@@ -1,10 +1,10 @@
 package gov.va.api.health.dataquery.service.controller.organization;
 
 import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
+import gov.va.api.health.dstu2.api.bundle.AbstractEntry;
 import gov.va.api.health.dstu2.api.resources.Organization;
-import gov.va.api.health.dstu2.api.resources.Organization.Bundle;
-import gov.va.api.health.dstu2.api.resources.Organization.Entry;
 import java.util.stream.Stream;
+import lombok.experimental.Delegate;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 
 /**
@@ -13,10 +13,13 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
  * X-VA-INCLUDES-ICN header.
  */
 @ControllerAdvice
-public class OrganizationIncludesIcnMajig extends IncludesIcnMajig<Organization, Entry, Bundle> {
-
-  /** Returns empty to send the value "NONE" back to Kong. */
-  public OrganizationIncludesIcnMajig() {
-    super(Organization.class, Bundle.class, (body) -> Stream.empty());
-  }
+public class OrganizationIncludesIcnMajig {
+  @Delegate
+  private final IncludesIcnMajig<Organization, Organization.Bundle> delegate =
+      IncludesIcnMajig.<Organization, Organization.Bundle>builder()
+          .type(Organization.class)
+          .bundleType(Organization.Bundle.class)
+          .extractResources(bundle -> bundle.entry().stream().map(AbstractEntry::resource))
+          .extractIcns(body -> Stream.empty())
+          .build();
 }

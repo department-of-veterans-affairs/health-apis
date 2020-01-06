@@ -1,10 +1,10 @@
 package gov.va.api.health.dataquery.service.controller.practitioner;
 
 import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
+import gov.va.api.health.dstu2.api.bundle.AbstractEntry;
 import gov.va.api.health.dstu2.api.resources.Practitioner;
-import gov.va.api.health.dstu2.api.resources.Practitioner.Bundle;
-import gov.va.api.health.dstu2.api.resources.Practitioner.Entry;
 import java.util.stream.Stream;
+import lombok.experimental.Delegate;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 
 /**
@@ -13,10 +13,13 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
  * X-VA-INCLUDES-ICN header.
  */
 @ControllerAdvice
-public class PractitionerIncludesIcnMajig extends IncludesIcnMajig<Practitioner, Entry, Bundle> {
-
-  /** Returns empty to send the value "NONE" back to Kong. */
-  public PractitionerIncludesIcnMajig() {
-    super(Practitioner.class, Bundle.class, (body) -> Stream.empty());
-  }
+public class PractitionerIncludesIcnMajig {
+  @Delegate
+  private final IncludesIcnMajig<Practitioner, Practitioner.Bundle> delegate =
+      IncludesIcnMajig.<Practitioner, Practitioner.Bundle>builder()
+          .type(Practitioner.class)
+          .bundleType(Practitioner.Bundle.class)
+          .extractResources(bundle -> bundle.entry().stream().map(AbstractEntry::resource))
+          .extractIcns(body -> Stream.empty())
+          .build();
 }
