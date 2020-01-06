@@ -8,7 +8,7 @@ import org.junit.Test;
 public class OrganizationIncludesIcnMajigTest {
   @Test
   public void extractNoIcns() {
-    ExtractIcnValidator.<Organization>builder()
+    ExtractIcnValidator.builder()
         .majig(new OrganizationIncludesIcnMajig())
         .body(Organization.builder().id("123").build())
         .expectedIcns(List.of("NONE"))

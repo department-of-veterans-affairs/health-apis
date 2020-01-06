@@ -9,7 +9,7 @@ import org.junit.Test;
 public class Dstu2ObservationIncludesIcnMajigTest {
   @Test
   public void extractIcns() {
-    ExtractIcnValidator.<Observation>builder()
+    ExtractIcnValidator.builder()
         .majig(new Dstu2ObservationIncludesIcnMajig())
         .body(
             Observation.builder()

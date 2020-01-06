@@ -7,10 +7,9 @@ import java.util.List;
 import org.junit.Test;
 
 public class Dstu2ConditionIncludesIcnMajigTest {
-
   @Test
   public void extractIcn() {
-    ExtractIcnValidator.<Condition>builder()
+    ExtractIcnValidator.builder()
         .majig(new Dstu2ConditionIncludesIcnMajig())
         .body(
             Condition.builder()

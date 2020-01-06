@@ -8,7 +8,7 @@ import org.junit.Test;
 public class Dstu2PatientIncludesIcnMajigTest {
   @Test
   public void extractIcns() {
-    ExtractIcnValidator.<Patient>builder()
+    ExtractIcnValidator.builder()
         .majig(new Dstu2PatientIncludesIcnMajig())
         .body(Patient.builder().id("666V666").build())
         .expectedIcns(List.of("666V666"))
