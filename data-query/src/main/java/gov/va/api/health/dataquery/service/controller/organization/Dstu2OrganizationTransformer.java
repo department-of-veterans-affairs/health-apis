@@ -62,9 +62,7 @@ final class Dstu2OrganizationTransformer {
     if (source == null || source.get().code().get() == null) {
       return null;
     }
-    return CodeableConcept.builder()
-            .coding(typeCoding(source.get()))
-            .build();
+    return CodeableConcept.builder().coding(typeCoding(source.get())).build();
   }
 
   static List<Coding> typeCoding(DatamartCoding source) {
