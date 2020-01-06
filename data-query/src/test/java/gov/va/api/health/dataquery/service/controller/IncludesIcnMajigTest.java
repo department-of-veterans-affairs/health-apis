@@ -26,7 +26,7 @@ import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.ServerHttpResponse;
 
-public class AbstractIncludesIcnMajigTest {
+public class IncludesIcnMajigTest {
   @Test(expected = InvalidParameterException.class)
   public void beforeBodyWriteThrowsExceptionForUnsupportedType() {
     new FakeMajg().beforeBodyWrite(null, null, null, null, null, null);
