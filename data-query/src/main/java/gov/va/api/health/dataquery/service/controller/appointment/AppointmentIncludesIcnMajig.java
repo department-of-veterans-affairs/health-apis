@@ -1,6 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.appointment;
 
-import gov.va.api.health.dataquery.service.controller.AbstractIncludesIcnMajig;
+import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.Dstu2Transformers;
 import gov.va.api.health.dstu2.api.resources.Appointment;
 import java.util.stream.Collectors;
@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
  */
 @ControllerAdvice
 public class AppointmentIncludesIcnMajig
-    extends AbstractIncludesIcnMajig<Appointment, Appointment.Entry, Appointment.Bundle> {
+    extends IncludesIcnMajig<Appointment, Appointment.Entry, Appointment.Bundle> {
   /** Converts the reference to a Datamart Reference to pull out the patient id. */
   public AppointmentIncludesIcnMajig() {
     super(

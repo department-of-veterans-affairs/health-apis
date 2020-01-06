@@ -5,7 +5,7 @@ import static java.util.Collections.emptyList;
 import gov.va.api.health.argonaut.api.resources.Medication;
 import gov.va.api.health.argonaut.api.resources.Medication.Bundle;
 import gov.va.api.health.argonaut.api.resources.Medication.Entry;
-import gov.va.api.health.dataquery.service.controller.AbstractIncludesIcnMajig;
+import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
 import gov.va.api.health.dataquery.service.controller.Dstu2Validator;
@@ -94,7 +94,7 @@ public class Dstu2MedicationController {
     headers = {"raw=true"}
   )
   public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
-    AbstractIncludesIcnMajig.addHeaderForNoPatients(response);
+    IncludesIcnMajig.addHeaderForNoPatients(response);
     return findById(publicId).payload();
   }
 

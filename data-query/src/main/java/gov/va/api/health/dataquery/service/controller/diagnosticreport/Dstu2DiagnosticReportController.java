@@ -12,7 +12,7 @@ import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Table;
 import gov.va.api.health.argonaut.api.resources.DiagnosticReport;
-import gov.va.api.health.dataquery.service.controller.AbstractIncludesIcnMajig;
+import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.DateTimeParameter;
 import gov.va.api.health.dataquery.service.controller.DateTimeParameters;
@@ -187,7 +187,7 @@ public class Dstu2DiagnosticReportController {
   public DatamartDiagnosticReports.DiagnosticReport readRaw(
       @PathVariable("publicId") String publicId, HttpServletResponse response) {
     var pair = pairPayload(publicId);
-    AbstractIncludesIcnMajig.addHeader(response, pair.getFirst().fullIcn());
+    IncludesIcnMajig.addHeader(response, pair.getFirst().fullIcn());
     return pair.getSecond();
   }
 
@@ -399,7 +399,7 @@ public class Dstu2DiagnosticReportController {
     if (entity == null) {
       throw new NotFound(publicParameters);
     }
-    AbstractIncludesIcnMajig.addHeader(response, entity.icn());
+    IncludesIcnMajig.addHeader(response, entity.icn());
     return entity.payload();
   }
 

@@ -1,6 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.practitioner;
 
-import gov.va.api.health.dataquery.service.controller.AbstractIncludesIcnMajig;
+import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
 import gov.va.api.health.dstu2.api.resources.Practitioner;
 import gov.va.api.health.dstu2.api.resources.Practitioner.Bundle;
 import gov.va.api.health.dstu2.api.resources.Practitioner.Entry;
@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
  */
 @ControllerAdvice
 public class PractitionerIncludesIcnMajig
-    extends AbstractIncludesIcnMajig<Practitioner, Entry, Bundle> {
+    extends IncludesIcnMajig<Practitioner, Entry, Bundle> {
 
   /** Returns empty to send the value "NONE" back to Kong. */
   public PractitionerIncludesIcnMajig() {

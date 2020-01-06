@@ -4,7 +4,7 @@ import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.f
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.hasPayload;
 import static java.util.Collections.emptyList;
 
-import gov.va.api.health.dataquery.service.controller.AbstractIncludesIcnMajig;
+import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
 import gov.va.api.health.dataquery.service.controller.Dstu2Bundler.BundleContext;
@@ -125,7 +125,7 @@ public class Dstu2LocationController {
     headers = {"raw=true"}
   )
   public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
-    AbstractIncludesIcnMajig.addHeaderForNoPatients(response);
+    IncludesIcnMajig.addHeaderForNoPatients(response);
     return datamart.readRaw(publicId).payload();
   }
 

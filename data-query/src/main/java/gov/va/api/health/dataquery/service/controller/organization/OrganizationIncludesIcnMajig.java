@@ -1,6 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.organization;
 
-import gov.va.api.health.dataquery.service.controller.AbstractIncludesIcnMajig;
+import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
 import gov.va.api.health.dstu2.api.resources.Organization;
 import gov.va.api.health.dstu2.api.resources.Organization.Bundle;
 import gov.va.api.health.dstu2.api.resources.Organization.Entry;
@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
  */
 @ControllerAdvice
 public class OrganizationIncludesIcnMajig
-    extends AbstractIncludesIcnMajig<Organization, Entry, Bundle> {
+    extends IncludesIcnMajig<Organization, Entry, Bundle> {
 
   /** Returns empty to send the value "NONE" back to Kong. */
   public OrganizationIncludesIcnMajig() {

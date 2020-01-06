@@ -3,7 +3,7 @@ package gov.va.api.health.dataquery.service.controller.medication;
 import gov.va.api.health.argonaut.api.resources.Medication;
 import gov.va.api.health.argonaut.api.resources.Medication.Bundle;
 import gov.va.api.health.argonaut.api.resources.Medication.Entry;
-import gov.va.api.health.dataquery.service.controller.AbstractIncludesIcnMajig;
+import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
 import java.util.stream.Stream;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 
@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
  */
 @ControllerAdvice
 public class Dstu2MedicationIncludesIcnMajig
-    extends AbstractIncludesIcnMajig<Medication, Entry, Bundle> {
+    extends IncludesIcnMajig<Medication, Entry, Bundle> {
 
   /** Returns empty to send the value "NONE" back to Kong. */
   public Dstu2MedicationIncludesIcnMajig() {

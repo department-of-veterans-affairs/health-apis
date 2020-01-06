@@ -1,7 +1,7 @@
 package gov.va.api.health.dataquery.service.controller.medicationorder;
 
 import gov.va.api.health.argonaut.api.resources.MedicationOrder;
-import gov.va.api.health.dataquery.service.controller.AbstractIncludesIcnMajig;
+import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.Dstu2Transformers;
 import java.util.stream.Stream;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
  */
 @ControllerAdvice
 public class Dstu2MedicationOrderIncludesIcnMajig
-    extends AbstractIncludesIcnMajig<
+    extends IncludesIcnMajig<
         MedicationOrder, MedicationOrder.Entry, MedicationOrder.Bundle> {
   /** Converts the reference to a Datamart Reference to pull out the patient id. */
   public Dstu2MedicationOrderIncludesIcnMajig() {

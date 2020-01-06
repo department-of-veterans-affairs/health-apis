@@ -1,7 +1,7 @@
 package gov.va.api.health.dataquery.service.controller.immunization;
 
 import gov.va.api.health.argonaut.api.resources.Immunization;
-import gov.va.api.health.dataquery.service.controller.AbstractIncludesIcnMajig;
+import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.Dstu2Transformers;
 import java.util.stream.Stream;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
  */
 @ControllerAdvice
 public class Dstu2ImmunizationIncludesIcnMajig
-    extends AbstractIncludesIcnMajig<Immunization, Immunization.Entry, Immunization.Bundle> {
+    extends IncludesIcnMajig<Immunization, Immunization.Entry, Immunization.Bundle> {
   /** Converts the reference to a Datamart Reference to pull out the patient id. */
   public Dstu2ImmunizationIncludesIcnMajig() {
     super(

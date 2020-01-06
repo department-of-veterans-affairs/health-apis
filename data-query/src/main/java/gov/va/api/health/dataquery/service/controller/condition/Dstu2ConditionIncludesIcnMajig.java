@@ -1,7 +1,7 @@
 package gov.va.api.health.dataquery.service.controller.condition;
 
 import gov.va.api.health.argonaut.api.resources.Condition;
-import gov.va.api.health.dataquery.service.controller.AbstractIncludesIcnMajig;
+import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.Dstu2Transformers;
 import java.util.stream.Stream;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
  */
 @ControllerAdvice
 public class Dstu2ConditionIncludesIcnMajig
-    extends AbstractIncludesIcnMajig<Condition, Condition.Entry, Condition.Bundle> {
+    extends IncludesIcnMajig<Condition, Condition.Entry, Condition.Bundle> {
   /** Converts the reference to a Datamart Reference to pull out the patient id. */
   public Dstu2ConditionIncludesIcnMajig() {
     super(

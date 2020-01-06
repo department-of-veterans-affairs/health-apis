@@ -119,7 +119,7 @@ public class AbstractIncludesIcnMajigTest {
    * we also need a a fake Resource, Entry, and Bundle class
    */
   public static class FakeMajg
-      extends AbstractIncludesIcnMajig<FakeResource, FakeEntry, FakeBundle> {
+      extends IncludesIcnMajig<FakeResource, FakeEntry, FakeBundle> {
 
     FakeMajg() {
       super(FakeResource.class, FakeBundle.class, (body) -> Stream.of(body.id));
