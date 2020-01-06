@@ -7,10 +7,9 @@ import java.util.List;
 import org.junit.Test;
 
 public class EncounterIncludesIcnMajigTest {
-
   @Test
   public void extractIcn() {
-    ExtractIcnValidator.<EncounterIncludesIcnMajig, Encounter>builder()
+    ExtractIcnValidator.builder()
         .majig(new EncounterIncludesIcnMajig())
         .body(
             Encounter.builder()

@@ -4,10 +4,10 @@ import static java.util.Collections.emptyList;
 
 import gov.va.api.health.argonaut.api.resources.MedicationStatement;
 import gov.va.api.health.argonaut.api.resources.MedicationStatement.Bundle;
-import gov.va.api.health.dataquery.service.controller.AbstractIncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
 import gov.va.api.health.dataquery.service.controller.Dstu2Validator;
+import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions.NotFound;
@@ -126,7 +126,7 @@ public class Dstu2MedicationStatementController {
   )
   public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
     MedicationStatementEntity entity = findById(publicId);
-    AbstractIncludesIcnMajig.addHeader(response, entity.icn());
+    IncludesIcnMajig.addHeader(response, entity.icn());
     return entity.payload();
   }
 

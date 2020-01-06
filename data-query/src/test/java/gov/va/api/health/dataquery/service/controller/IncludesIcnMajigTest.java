@@ -19,14 +19,15 @@ import java.util.List;
 import java.util.stream.Stream;
 import lombok.Builder;
 import lombok.Data;
+import lombok.experimental.Delegate;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.ServerHttpResponse;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
-public class AbstractIncludesIcnMajigTest {
-
+public class IncludesIcnMajigTest {
   @Test(expected = InvalidParameterException.class)
   public void beforeBodyWriteThrowsExceptionForUnsupportedType() {
     new FakeMajg().beforeBodyWrite(null, null, null, null, null, null);
@@ -118,18 +119,20 @@ public class AbstractIncludesIcnMajigTest {
    * Silly Test implementation of the AbstractIncludesIcnMajig.java Because we are using Templates,
    * we also need a a fake Resource, Entry, and Bundle class
    */
-  public static class FakeMajg
-      extends AbstractIncludesIcnMajig<FakeResource, FakeEntry, FakeBundle> {
-
-    FakeMajg() {
-      super(FakeResource.class, FakeBundle.class, (body) -> Stream.of(body.id));
-    }
+  public static final class FakeMajg implements ResponseBodyAdvice<Object> {
+    @Delegate
+    private final ResponseBodyAdvice<Object> delegate =
+        IncludesIcnMajig.<FakeResource, FakeBundle>builder()
+            .type(FakeResource.class)
+            .bundleType(FakeBundle.class)
+            .extractResources(bundle -> bundle.entry().stream().map(AbstractEntry::resource))
+            .extractIcns(body -> Stream.of(body.id))
+            .build();
   }
 
   @Builder
   @Data
-  static class FakeResource implements Resource {
-
+  static final class FakeResource implements Resource {
     String id;
 
     String implicitRules;
@@ -139,8 +142,7 @@ public class AbstractIncludesIcnMajigTest {
     Meta meta;
   }
 
-  static class FakeEntry extends AbstractEntry<FakeResource> {
-
+  static final class FakeEntry extends AbstractEntry<FakeResource> {
     @Builder
     FakeEntry(
         String id,
@@ -156,8 +158,7 @@ public class AbstractIncludesIcnMajigTest {
     }
   }
 
-  static class FakeBundle extends AbstractBundle<FakeEntry> {
-
+  static final class FakeBundle extends AbstractBundle<FakeEntry> {
     @Builder
     FakeBundle(
         String resourceType,
