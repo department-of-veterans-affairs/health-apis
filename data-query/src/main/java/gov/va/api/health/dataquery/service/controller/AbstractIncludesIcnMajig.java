@@ -35,11 +35,12 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 public abstract class AbstractIncludesIcnMajig<
         T extends Resource, E extends AbstractEntry<T>, B extends AbstractBundle<E>>
     implements ResponseBodyAdvice<Object> {
-
   public static final String INCLUDES_ICN_HEADER = "X-VA-INCLUDES-ICN";
 
   private final Class<T> type;
+
   private final Class<B> bundleType;
+
   private final Function<T, Stream<String>> extractIcns;
 
   /** Add the X-VA-INCLUDES-ICN header if it does not already exist. */
