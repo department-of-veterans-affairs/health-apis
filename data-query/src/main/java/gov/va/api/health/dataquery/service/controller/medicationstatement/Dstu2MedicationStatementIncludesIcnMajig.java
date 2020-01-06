@@ -1,10 +1,13 @@
 package gov.va.api.health.dataquery.service.controller.medicationstatement;
 
 import gov.va.api.health.argonaut.api.resources.MedicationStatement;
-import gov.va.api.health.dataquery.service.controller.AbstractIncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.Dstu2Transformers;
+import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
+import gov.va.api.health.dstu2.api.bundle.AbstractEntry;
 import java.util.stream.Stream;
+import lombok.experimental.Delegate;
 import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 /**
  * Intercept all RequestMapping payloads of Type MedicationStatement.class or Bundle.class. Extract
@@ -12,14 +15,13 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
  * X-VA-INCLUDES-ICN header.
  */
 @ControllerAdvice
-public class Dstu2MedicationStatementIncludesIcnMajig
-    extends AbstractIncludesIcnMajig<
-        MedicationStatement, MedicationStatement.Entry, MedicationStatement.Bundle> {
-  /** Converts the reference to a Datamart Reference to pull out the patient id. */
-  public Dstu2MedicationStatementIncludesIcnMajig() {
-    super(
-        MedicationStatement.class,
-        MedicationStatement.Bundle.class,
-        body -> Stream.ofNullable(Dstu2Transformers.asReferenceId(body.patient())));
-  }
+public class Dstu2MedicationStatementIncludesIcnMajig implements ResponseBodyAdvice<Object> {
+  @Delegate
+  private final ResponseBodyAdvice<Object> delegate =
+      IncludesIcnMajig.<MedicationStatement, MedicationStatement.Bundle>builder()
+          .type(MedicationStatement.class)
+          .bundleType(MedicationStatement.Bundle.class)
+          .extractResources(bundle -> bundle.entry().stream().map(AbstractEntry::resource))
+          .extractIcns(body -> Stream.ofNullable(Dstu2Transformers.asReferenceId(body.patient())))
+          .build();
 }
