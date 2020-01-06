@@ -4,20 +4,21 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-import gov.va.api.health.dstu2.api.resources.Resource;
 import java.util.List;
 import lombok.Builder;
 import lombok.Value;
 import org.mockito.Mockito;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.ServerHttpResponse;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
-@Builder
 @Value
-public class ExtractIcnValidator<M extends AbstractIncludesIcnMajig<?, ?, ?>, R extends Resource> {
+@Builder
+public final class ExtractIcnValidator {
+  ResponseBodyAdvice<Object> majig;
 
-  M majig;
-  R body;
+  Object body;
+
   List<String> expectedIcns;
 
   /** Assert that the ICNs from the Majig's extract function match the payload ICNs */
