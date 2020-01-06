@@ -13,8 +13,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
  * X-VA-INCLUDES-ICN header.
  */
 @ControllerAdvice
-public class PractitionerIncludesIcnMajig
-    extends IncludesIcnMajig<Practitioner, Entry, Bundle> {
+public class PractitionerIncludesIcnMajig extends IncludesIcnMajig<Practitioner, Entry, Bundle> {
 
   /** Returns empty to send the value "NONE" back to Kong. */
   public PractitionerIncludesIcnMajig() {

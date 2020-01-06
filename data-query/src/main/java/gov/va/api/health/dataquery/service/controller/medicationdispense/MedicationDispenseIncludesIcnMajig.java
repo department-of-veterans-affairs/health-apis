@@ -1,7 +1,7 @@
 package gov.va.api.health.dataquery.service.controller.medicationdispense;
 
-import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.Dstu2Transformers;
+import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
 import gov.va.api.health.dstu2.api.resources.MedicationDispense;
 import java.util.stream.Stream;
 import org.springframework.web.bind.annotation.ControllerAdvice;

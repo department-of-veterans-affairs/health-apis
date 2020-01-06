@@ -7,11 +7,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import gov.va.api.health.argonaut.api.resources.Procedure;
 import gov.va.api.health.argonaut.api.resources.Procedure.Bundle;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
-import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.DateTimeParameter;
 import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
 import gov.va.api.health.dataquery.service.controller.Dstu2Validator;
+import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions.NotFound;
@@ -191,11 +191,9 @@ public class Dstu2ProcedureController {
       log.info(
           "Procedure Hack: Setting includes header to magic patient: {}",
           icnHeader.replaceAll("[\r\n]", ""));
-      IncludesIcnMajig.addHeader(
-          response, IncludesIcnMajig.encodeHeaderValue(icnHeader));
+      IncludesIcnMajig.addHeader(response, IncludesIcnMajig.encodeHeaderValue(icnHeader));
     } else {
-      IncludesIcnMajig.addHeader(
-          response, IncludesIcnMajig.encodeHeaderValue(entity.icn()));
+      IncludesIcnMajig.addHeader(response, IncludesIcnMajig.encodeHeaderValue(entity.icn()));
     }
     return entity.payload();
   }

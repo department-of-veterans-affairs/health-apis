@@ -118,8 +118,7 @@ public class AbstractIncludesIcnMajigTest {
    * Silly Test implementation of the AbstractIncludesIcnMajig.java Because we are using Templates,
    * we also need a a fake Resource, Entry, and Bundle class
    */
-  public static class FakeMajg
-      extends IncludesIcnMajig<FakeResource, FakeEntry, FakeBundle> {
+  public static class FakeMajg extends IncludesIcnMajig<FakeResource, FakeEntry, FakeBundle> {
 
     FakeMajg() {
       super(FakeResource.class, FakeBundle.class, (body) -> Stream.of(body.id));

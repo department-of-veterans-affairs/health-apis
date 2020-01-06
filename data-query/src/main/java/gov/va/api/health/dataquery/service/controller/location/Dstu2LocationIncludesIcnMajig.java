@@ -1,11 +1,10 @@
 package gov.va.api.health.dataquery.service.controller.location;
 
+import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
 import gov.va.api.health.dstu2.api.bundle.AbstractEntry;
 import gov.va.api.health.dstu2.api.resources.Location;
-import lombok.experimental.Delegate;
-import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
-
 import java.util.stream.Stream;
+import lombok.experimental.Delegate;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 
 @ControllerAdvice

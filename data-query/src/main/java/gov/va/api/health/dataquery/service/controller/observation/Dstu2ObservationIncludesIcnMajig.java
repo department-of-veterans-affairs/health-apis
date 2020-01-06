@@ -1,8 +1,8 @@
 package gov.va.api.health.dataquery.service.controller.observation;
 
 import gov.va.api.health.argonaut.api.resources.Observation;
-import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.Dstu2Transformers;
+import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
 import java.util.stream.Stream;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 
