@@ -17,16 +17,16 @@ public class AppointmentIT {
   @Test
   public void advanced() {
     verifier.verifyAll(
-        test(200, Appointment.Bundle.class, "Appointment?_id={id}", verifier.ids().appointment()),
-        test(404, OperationOutcome.class, "Appointment?_id={id}", verifier.ids().unknown()),
+        test(501, OperationOutcome.class, "Appointment?_id={id}", verifier.ids().appointment()),
+        test(501, OperationOutcome.class, "Appointment?_id={id}", verifier.ids().unknown()),
         test(
-            200,
-            Appointment.Bundle.class,
+            501,
+            OperationOutcome.class,
             "Appointment?identifier={id}",
             verifier.ids().appointment()),
         test(
-            200,
-            Appointment.Bundle.class,
+            501,
+            OperationOutcome.class,
             "Appointment?patient={patient}",
             verifier.ids().patient()));
   }
@@ -37,7 +37,7 @@ public class AppointmentIT {
   @Test
   public void basic() {
     verifier.verifyAll(
-        test(200, Appointment.class, "Appointment/{id}", verifier.ids().appointment()),
-        test(404, OperationOutcome.class, "Appointment/{id}", verifier.ids().unknown()));
+        test(501, OperationOutcome.class, "Appointment/{id}", verifier.ids().appointment()),
+        test(501, OperationOutcome.class, "Appointment/{id}", verifier.ids().unknown()));
   }
 }

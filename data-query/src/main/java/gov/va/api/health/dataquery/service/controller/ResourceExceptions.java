@@ -59,6 +59,16 @@ public final class ResourceExceptions {
     }
   }
 
+  public static final class NotImplemented extends ResourcesException {
+    public NotImplemented(MultiValueMap<String, String> parameters) {
+      this(toParametersString(parameters));
+    }
+
+    public NotImplemented(String message) {
+      super(message);
+    }
+  }
+
   public static final class BadSearchParameter extends ResourcesException {
     public BadSearchParameter(MultiValueMap<String, String> parameters) {
       this(toParametersString(parameters));

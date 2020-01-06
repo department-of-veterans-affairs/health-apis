@@ -6,12 +6,12 @@ import gov.va.api.health.dstu2.api.resources.Appointment;
 import java.util.List;
 import org.junit.Test;
 
-public class AppointmentIncludesIcnMajigTest {
+public class Dstsu2AppointmentIncludesIcnMajigTest {
 
   @Test
   public void extractIcns() {
-    ExtractIcnValidator.<AppointmentIncludesIcnMajig, Appointment>builder()
-        .majig(new AppointmentIncludesIcnMajig())
+    ExtractIcnValidator.<Dstsu2AppointmentIncludesIcnMajig, Appointment>builder()
+        .majig(new Dstsu2AppointmentIncludesIcnMajig())
         .body(
             Appointment.builder()
                 .id("123")
@@ -34,8 +34,8 @@ public class AppointmentIncludesIcnMajigTest {
 
   @Test
   public void noReferences() {
-    ExtractIcnValidator.<AppointmentIncludesIcnMajig, Appointment>builder()
-        .majig(new AppointmentIncludesIcnMajig())
+    ExtractIcnValidator.<Dstsu2AppointmentIncludesIcnMajig, Appointment>builder()
+        .majig(new Dstsu2AppointmentIncludesIcnMajig())
         .body(Appointment.builder().id("123").build())
         .expectedIcns(List.of("NONE"))
         .build()
