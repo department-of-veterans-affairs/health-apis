@@ -10,7 +10,7 @@ public class Dstu2ProcedureIncludesIcnMajigTest {
   @Test
   public void extractIcn() {
     ExtractIcnValidator.builder()
-        .majig(new ProcedureIncludesIcnMajig())
+        .majig(new Dstu2ProcedureIncludesIcnMajig())
         .body(
             Procedure.builder()
                 .id("123")
