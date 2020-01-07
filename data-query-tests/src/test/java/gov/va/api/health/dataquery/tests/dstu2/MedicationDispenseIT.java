@@ -1,7 +1,6 @@
 package gov.va.api.health.dataquery.tests.dstu2;
 
 import gov.va.api.health.dataquery.tests.ResourceVerifier;
-import gov.va.api.health.dstu2.api.resources.MedicationDispense;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import gov.va.api.health.sentinel.categories.Local;
 import lombok.experimental.Delegate;
@@ -56,6 +55,6 @@ public class MedicationDispenseIT {
             OperationOutcome.class,
             "MedicationDispense/{id}",
             verifier.ids().medicationDispense()),
-        test(404, OperationOutcome.class, "MedicationDispense/{id}", verifier.ids().unknown()));
+        test(501, OperationOutcome.class, "MedicationDispense/{id}", verifier.ids().unknown()));
   }
 }
