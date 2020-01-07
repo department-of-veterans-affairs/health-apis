@@ -16,7 +16,6 @@ import gov.va.api.health.dataquery.tests.TestClients;
 import gov.va.api.health.dataquery.tests.TestIds;
 import gov.va.api.health.dstu2.api.bundle.AbstractBundle;
 import gov.va.api.health.dstu2.api.resources.Location;
-import gov.va.api.health.dstu2.api.resources.MedicationDispense;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import gov.va.api.health.dstu2.api.resources.Organization;
 import gov.va.api.health.dstu2.api.resources.Practitioner;
@@ -74,6 +73,12 @@ public class DataQueryValidateIT {
   public void validateAppointment() {
     validate("Appointment", ids.appointment(), Appointment.Bundle.class);
   }
+
+  @Test
+  @Category(Local.class)
+  public void validateMedicationDispense() {
+    validate("MedicationDispense", ids.medicationDispense(), MedicationDispense.Bundle.class);
+  }
   */
 
   @Test
@@ -115,12 +120,6 @@ public class DataQueryValidateIT {
   @Category(Local.class)
   public void validateMedication() {
     validate("Medication", ids.medication(), Medication.Bundle.class);
-  }
-
-  @Test
-  @Category(Local.class)
-  public void validateMedicationDispense() {
-    validate("MedicationDispense", ids.medicationDispense(), MedicationDispense.Bundle.class);
   }
 
   @Test

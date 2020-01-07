@@ -15,7 +15,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
  * X-VA-INCLUDES-ICN header.
  */
 @ControllerAdvice
-public class MedicationDispenseIncludesIcnMajig implements ResponseBodyAdvice<Object> {
+public class Dstu2MedicationDispenseIncludesIcnMajig implements ResponseBodyAdvice<Object> {
   @Delegate
   private final ResponseBodyAdvice<Object> delegate =
       IncludesIcnMajig.<MedicationDispense, MedicationDispense.Bundle>builder()
