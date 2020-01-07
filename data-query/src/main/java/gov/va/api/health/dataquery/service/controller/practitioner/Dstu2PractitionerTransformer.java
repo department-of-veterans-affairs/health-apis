@@ -78,6 +78,30 @@ public class Dstu2PractitionerTransformer {
     return singletonList(source.get());
   }
 
+  static Practitioner.PractitionerRole practitionerRole(
+      DatamartPractitioner.PractitionerRole source) {
+    if (source == null
+        || allBlank(
+            source.healthCareService(),
+            source.location(),
+            source.managingOrganization(),
+            source.role())) {
+      return null;
+    }
+    return Practitioner.PractitionerRole.builder()
+        .location(
+            emptyToNull(
+                source
+                    .location()
+                    .stream()
+                    .map(loc -> asReference(loc))
+                    .collect(Collectors.toList())))
+        .role(asCodeableConceptWrapping(source.role()))
+        .managingOrganization(asReference(source.managingOrganization()))
+        .healthcareService(healthcareServices(source.healthCareService()))
+        .build();
+  }
+
   static ContactPoint telecom(DatamartPractitioner.Telecom telecom) {
     if (telecom == null || allBlank(telecom.system(), telecom.use(), telecom.value())) {
       return null;
@@ -110,29 +134,6 @@ public class Dstu2PractitionerTransformer {
   Practitioner.Gender gender(DatamartPractitioner.Gender source) {
     return convert(
         source, gender -> EnumSearcher.of(Practitioner.Gender.class).find(gender.toString()));
-  }
-
-  Practitioner.PractitionerRole practitionerRole(DatamartPractitioner.PractitionerRole source) {
-    if (source == null
-        || allBlank(
-            source.healthCareService(),
-            source.location(),
-            source.managingOrganization(),
-            source.role())) {
-      return null;
-    }
-    return Practitioner.PractitionerRole.builder()
-        .location(
-            emptyToNull(
-                source
-                    .location()
-                    .stream()
-                    .map(loc -> asReference(loc))
-                    .collect(Collectors.toList())))
-        .role(asCodeableConceptWrapping(source.role()))
-        .managingOrganization(asReference(source.managingOrganization()))
-        .healthcareService(healthcareServices(source.healthCareService()))
-        .build();
   }
 
   List<Practitioner.PractitionerRole> practitionerRoles() {
