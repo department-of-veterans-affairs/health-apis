@@ -75,9 +75,6 @@ public class Dstu2LocationControllerTest {
 
   private Dstu2LocationController controller() {
     return new Dstu2LocationController(
-        true,
-        null,
-        null,
         new Dstu2Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool", "cool")),
         repository,
         WitnessProtection.builder().identityService(ids).build());
@@ -92,7 +89,7 @@ public class Dstu2LocationControllerTest {
     addMockIdentities(publicId, cdwId, orgPubId, orgCdwId);
     DatamartLocation dm = DatamartLocationSamples.create().location(cdwId, orgCdwId);
     repository.save(asEntity(dm));
-    Location actual = controller().read("", publicId);
+    Location actual = controller().read(publicId);
     assertThat(actual).isEqualTo(Dstu2LocationSamples.create().location(publicId, orgPubId));
   }
 
@@ -125,12 +122,12 @@ public class Dstu2LocationControllerTest {
   @Test(expected = ResourceExceptions.NotFound.class)
   public void readThrowsNotFoundWhenDataIsMissing() {
     addMockIdentities("x", "x", "y", "y");
-    controller().read("true", "x");
+    controller().read("x");
   }
 
   @Test(expected = ResourceExceptions.NotFound.class)
   public void readThrowsNotFoundWhenIdIsUnknown() {
-    controller().read("true", "x");
+    controller().read("x");
   }
 
   @Test
@@ -142,7 +139,7 @@ public class Dstu2LocationControllerTest {
     addMockIdentities(publicId, cdwId, orgPubId, orgCdwId);
     DatamartLocation dm = DatamartLocationSamples.create().location(cdwId, orgCdwId);
     repository.save(asEntity(dm));
-    Location.Bundle actual = controller().searchById("true", publicId, 1, 1);
+    Location.Bundle actual = controller().searchById(publicId, 1, 1);
     assertThat(asJson(actual))
         .isEqualTo(
             asJson(
