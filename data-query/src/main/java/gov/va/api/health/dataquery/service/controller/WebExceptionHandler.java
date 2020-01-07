@@ -58,7 +58,6 @@ public class WebExceptionHandler {
         .append(" Timestamp:")
         .append(Instant.now());
     problems.forEach(p -> diagnostics.append('\n').append(p));
-
     return OperationOutcome.builder()
         .id(UUID.randomUUID().toString())
         .resourceType("OperationOutcome")
@@ -109,6 +108,12 @@ public class WebExceptionHandler {
     return responseFor("not-found", e, request);
   }
 
+  @ExceptionHandler({ResourceExceptions.NotImplemented.class})
+  @ResponseStatus(HttpStatus.NOT_IMPLEMENTED)
+  public OperationOutcome handleNotImplemented(Exception e, HttpServletRequest request) {
+    return responseFor("not-implemented", e, request);
+  }
+
   /**
    * For exceptions relating to unmarshalling json, we want to make sure no PII is being logged.
    * Therefore, when we encounter these exceptions, we will not print the stacktrace to prevent PII
@@ -121,7 +126,6 @@ public class WebExceptionHandler {
     if (jsonError.isEmpty()) {
       return responseFor("exception", e, request);
     }
-
     String requestPath = reconstructUrl(request);
     String useful = sanitize(jsonError.get());
     List<String> problems = List.of(requestPath, useful);
@@ -146,7 +150,6 @@ public class WebExceptionHandler {
             .stream()
             .map(v -> v.getPropertyPath() + " " + v.getMessage())
             .collect(Collectors.toList());
-
     return responseFor("structure", e, request, problems);
   }
 
@@ -170,7 +173,6 @@ public class WebExceptionHandler {
 
   String sanitize(JsonProcessingException jsonError) {
     StringBuilder safe = new StringBuilder(jsonError.getClass().getSimpleName());
-
     if (jsonError instanceof MismatchedInputException) {
       MismatchedInputException mie = (MismatchedInputException) jsonError;
       safe.append(" path: ").append(mie.getPathReference());
