@@ -20,8 +20,10 @@ import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 
 public class DatamartOrganizationSamples {
+
   @AllArgsConstructor(staticName = "create")
   static class Datamart {
+
     public DatamartOrganization organization() {
       return organization("1234");
     }
@@ -77,6 +79,7 @@ public class DatamartOrganizationSamples {
 
   @AllArgsConstructor(staticName = "create")
   static class Fhir {
+
     static Organization.Bundle asBundle(
         String baseUrl, Collection<Organization> organizations, BundleLink... links) {
       return Organization.Bundle.builder()
@@ -106,6 +109,10 @@ public class DatamartOrganizationSamples {
           .relation(rel)
           .url(base + "&page=" + page + "&_count=" + count)
           .build();
+    }
+
+    public Organization organization() {
+      return organization("1234");
     }
 
     Organization organization(String id) {
