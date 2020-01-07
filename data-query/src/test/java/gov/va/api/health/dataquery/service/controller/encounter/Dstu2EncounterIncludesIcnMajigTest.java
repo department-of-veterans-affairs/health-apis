@@ -6,11 +6,11 @@ import gov.va.api.health.dstu2.api.resources.Encounter;
 import java.util.List;
 import org.junit.Test;
 
-public class EncounterIncludesIcnMajigTest {
+public class Dstu2EncounterIncludesIcnMajigTest {
   @Test
   public void extractIcn() {
     ExtractIcnValidator.builder()
-        .majig(new EncounterIncludesIcnMajig())
+        .majig(new Dstu2EncounterIncludesIcnMajig())
         .body(
             Encounter.builder()
                 .id("123")
