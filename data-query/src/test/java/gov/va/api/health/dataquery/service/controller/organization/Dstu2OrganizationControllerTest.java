@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
 import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
+import gov.va.api.health.dataquery.service.controller.Dstu2Validator;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dstu2.api.bundle.BundleLink.LinkRelation;
@@ -71,9 +72,6 @@ public class Dstu2OrganizationControllerTest {
 
   private Dstu2OrganizationController controller() {
     return new Dstu2OrganizationController(
-        true,
-        null,
-        null,
         new Dstu2Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool", "cool")),
         repository,
         WitnessProtection.builder().identityService(ids).build());
@@ -86,7 +84,7 @@ public class Dstu2OrganizationControllerTest {
     addMockIdentities(publicId, cdwId);
     DatamartOrganization dm = DatamartOrganizationSamples.Datamart.create().organization();
     repository.save(asEntity(dm));
-    Organization actual = controller().read("", "1234");
+    Organization actual = controller().read("1234");
     assertThat(actual).isEqualTo(DatamartOrganizationSamples.Fhir.create().organization("1234"));
   }
 
@@ -117,12 +115,12 @@ public class Dstu2OrganizationControllerTest {
   @Test(expected = ResourceExceptions.NotFound.class)
   public void readThrowsNotFoundWhenDataIsMissing() {
     addMockIdentities("x", "y");
-    controller().read("true", "x");
+    controller().read("x");
   }
 
   @Test(expected = ResourceExceptions.NotFound.class)
   public void readThrowsNotFoundWhenIdIsUnknown() {
-    controller().read("true", "x");
+    controller().read("x");
   }
 
   @Test
@@ -132,7 +130,7 @@ public class Dstu2OrganizationControllerTest {
     addMockIdentities(publicId, cdwId);
     DatamartOrganization dm = DatamartOrganizationSamples.Datamart.create().organization(cdwId);
     repository.save(asEntity(dm));
-    Organization.Bundle actual = controller().searchById("true", publicId, 1, 1);
+    Organization.Bundle actual = controller().searchById(publicId, 1, 1);
     assertThat(asJson(actual))
         .isEqualTo(
             asJson(
@@ -154,5 +152,34 @@ public class Dstu2OrganizationControllerTest {
                         "http://fonzy.com/cool/Organization?identifier=" + publicId,
                         1,
                         1))));
+  }
+
+  @Test
+  public void validate() {
+    DatamartOrganization dm = DatamartOrganizationSamples.Datamart.create().organization();
+    Organization organization =
+        DatamartOrganizationSamples.Fhir.create().organization(); // .Dstu2.create().practitioner();
+    assertThat(
+            controller()
+                .validate(
+                    DatamartOrganizationSamples.Fhir.asBundle(
+                        "http://fonzy.com/cool",
+                        List.of(organization),
+                        DatamartOrganizationSamples.Fhir.link(
+                            LinkRelation.first,
+                            "http://fonzy.com/cool/AllergyIntolerance?identifier=1",
+                            1,
+                            1),
+                        DatamartOrganizationSamples.Fhir.link(
+                            LinkRelation.self,
+                            "http://fonzy.com/cool/AllergyIntolerance?identifier=1",
+                            1,
+                            1),
+                        DatamartOrganizationSamples.Fhir.link(
+                            LinkRelation.last,
+                            "http://fonzy.com/cool/AllergyIntolerance?identifier=1",
+                            1,
+                            1))))
+        .isEqualTo(Dstu2Validator.ok());
   }
 }
