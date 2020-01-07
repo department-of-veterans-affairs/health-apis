@@ -12,7 +12,6 @@ import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import gov.va.api.health.dstu2.api.resources.Organization;
-import gov.va.dvp.cdw.xsd.model.CdwOrganization100Root;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -140,77 +139,4 @@ public class Dstu2OrganizationController {
   public OperationOutcome validate(@RequestBody Organization.Bundle bundle) {
     return Dstu2Validator.create().validate(bundle);
   }
-
-  public interface Transformer
-      extends Function<CdwOrganization100Root.CdwOrganizations.CdwOrganization, Organization> {}
-  /**
-   * This class is being used to help organize the code such that all the datamart logic is
-   * contained together. In the future when Mr. Anderson support is dropped, this class can be
-   * eliminated.
-   */
-  /*  private class Datamart {
-    Organization.Bundle bundle(
-        MultiValueMap<String, String> parameters, List<Organization> reports, int totalRecords) {
-      PageLinks.LinkConfig linkConfig =
-          PageLinks.LinkConfig.builder()
-              .path("Organization")
-              .queryParams(parameters)
-              .page(Parameters.pageOf(parameters))
-              .recordsPerPage(Parameters.countOf(parameters))
-              .totalRecords(totalRecords)
-              .build();
-      return bundler.bundle(
-          Dstu2Bundler.BundleContext.of(
-              linkConfig,
-              reports,
-              Function.identity(),
-              Organization.Entry::new,
-              Organization.Bundle::new));
-    }
-
-    OrganizationEntity findById(String publicId) {
-      Optional<OrganizationEntity> entity =
-          repository.findById(witnessProtection.toCdwId(publicId));
-      return entity.orElseThrow(() -> new ResourceExceptions.NotFound(publicId));
-    }
-
-    boolean isDatamartRequest(String datamartHeader) {
-      if (StringUtils.isBlank(datamartHeader)) {
-        return defaultToDatamart;
-      }
-      return BooleanUtils.isTrue(BooleanUtils.toBooleanObject(datamartHeader));
-    }
-
-    Organization read(String publicId) {
-      DatamartOrganization organization = findById(publicId).asDatamartOrganization();
-      replaceReferences(List.of(organization));
-      return transform(organization);
-    }
-
-    OrganizationEntity readRaw(String publicId) {
-      return findById(publicId);
-    }
-
-    Collection<DatamartOrganization> replaceReferences(Collection<DatamartOrganization> resources) {
-      witnessProtection.registerAndUpdateReferences(
-          resources, resource -> Stream.of(resource.partOf().get()));
-      return resources;
-    }
-
-    Organization.Bundle searchById(String publicId, int page, int count) {
-      Organization resource = read(publicId);
-      return bundle(
-          Parameters.builder()
-              .add("identifier", publicId)
-              .add("page", page)
-              .add("_count", count)
-              .build(),
-          resource == null || count == 0 ? emptyList() : List.of(resource),
-          resource == null ? 0 : 1);
-    }
-
-    Organization transform(DatamartOrganization dm) {
-      return Dstu2OrganizationTransformer.builder().datamart(dm).build().toFhir();
-    }
-  }*/
 }

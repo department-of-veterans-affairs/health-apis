@@ -155,10 +155,40 @@ public class Dstu2OrganizationControllerTest {
   }
 
   @Test
+  public void searchByIdentifier() {
+    String publicId = "abc";
+    String cdwId = "123";
+    addMockIdentities(publicId, cdwId);
+    DatamartOrganization dm = DatamartOrganizationSamples.Datamart.create().organization(cdwId);
+    repository.save(asEntity(dm));
+    Organization.Bundle actual = controller().searchByIdentifier(publicId, 1, 1);
+    assertThat(asJson(actual))
+        .isEqualTo(
+            asJson(
+                DatamartOrganizationSamples.Fhir.asBundle(
+                    "http://fonzy.com/cool",
+                    List.of(DatamartOrganizationSamples.Fhir.create().organization(publicId)),
+                    DatamartOrganizationSamples.Fhir.link(
+                        LinkRelation.first,
+                        "http://fonzy.com/cool/Organization?identifier=" + publicId,
+                        1,
+                        1),
+                    DatamartOrganizationSamples.Fhir.link(
+                        LinkRelation.self,
+                        "http://fonzy.com/cool/Organization?identifier=" + publicId,
+                        1,
+                        1),
+                    DatamartOrganizationSamples.Fhir.link(
+                        LinkRelation.last,
+                        "http://fonzy.com/cool/Organization?identifier=" + publicId,
+                        1,
+                        1))));
+  }
+
+  @Test
   public void validate() {
     DatamartOrganization dm = DatamartOrganizationSamples.Datamart.create().organization();
-    Organization organization =
-        DatamartOrganizationSamples.Fhir.create().organization(); // .Dstu2.create().practitioner();
+    Organization organization = DatamartOrganizationSamples.Fhir.create().organization();
     assertThat(
             controller()
                 .validate(
