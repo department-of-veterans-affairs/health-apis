@@ -76,7 +76,6 @@ public final class ResourceVerifier {
         .bundleClass(gov.va.api.health.dstu2.api.bundle.AbstractBundle.class)
         .datamartAndCdwResources(
             ImmutableSet.of(
-                gov.va.api.health.dstu2.api.resources.Location.class,
                 gov.va.api.health.dstu2.api.resources.Practitioner.class))
         .dataQuery(TestClients.dstu2DataQuery())
         .operationOutcomeClass(gov.va.api.health.dstu2.api.resources.OperationOutcome.class)
