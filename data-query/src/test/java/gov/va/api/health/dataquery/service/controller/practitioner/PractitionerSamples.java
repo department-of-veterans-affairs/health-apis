@@ -25,7 +25,7 @@ import lombok.AllArgsConstructor;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
-public class Dstu2PractitionerSamples {
+public class PractitionerSamples {
 
   @AllArgsConstructor(staticName = "create")
   static class Datamart {
@@ -82,87 +82,86 @@ public class Dstu2PractitionerSamples {
                       .build()))
           .build();
     }
+  }
 
-    @AllArgsConstructor(staticName = "create")
-    static class Dstu2 {
+  @AllArgsConstructor(staticName = "create")
+  public static class Dstu2 {
 
-      static Practitioner.Bundle asBundle(
-          String baseUrl, Collection<Practitioner> practitioners, BundleLink... links) {
-        return Practitioner.Bundle.builder()
-            .resourceType("Bundle")
-            .type(BundleType.searchset)
-            .total(practitioners.size())
-            .link(Arrays.asList(links))
-            .entry(
-                practitioners
-                    .stream()
-                    .map(
-                        c ->
-                            Practitioner.Entry.builder()
-                                .fullUrl(baseUrl + "/Practitioner/" + c.id())
-                                .resource(c)
-                                .search(Search.builder().mode(SearchMode.match).build())
-                                .build())
-                    .collect(Collectors.toList()))
-            .build();
-      }
+    static Practitioner.Bundle asBundle(
+        String baseUrl, Collection<Practitioner> practitioners, BundleLink... links) {
+      return Practitioner.Bundle.builder()
+          .resourceType("Bundle")
+          .type(BundleType.searchset)
+          .total(practitioners.size())
+          .link(Arrays.asList(links))
+          .entry(
+              practitioners
+                  .stream()
+                  .map(
+                      c ->
+                          Practitioner.Entry.builder()
+                              .fullUrl(baseUrl + "/Practitioner/" + c.id())
+                              .resource(c)
+                              .search(Search.builder().mode(SearchMode.match).build())
+                              .build())
+                  .collect(Collectors.toList()))
+          .build();
+    }
 
-      public static BundleLink link(LinkRelation rel, String base, int page, int count) {
-        return BundleLink.builder()
-            .relation(rel)
-            .url(base + "&page=" + page + "&_count=" + count)
-            .build();
-      }
+    public static BundleLink link(LinkRelation rel, String base, int page, int count) {
+      return BundleLink.builder()
+          .relation(rel)
+          .url(base + "&page=" + page + "&_count=" + count)
+          .build();
+    }
 
-      public Practitioner practitioner() {
-        return practitioner("1234");
-      }
+    public Practitioner practitioner() {
+      return practitioner("1234");
+    }
 
-      public Practitioner practitioner(String id) {
-        return Practitioner.builder()
-            .resourceType("Practitioner")
-            .id(id)
-            .active(true)
-            .name(HumanName.builder().family(List.of("Joe")).given(List.of("Johnson")).build())
-            .gender(Practitioner.Gender.male)
-            .birthDate("1970-11-14")
-            .address(
-                List.of(
-                    Address.builder()
-                        .line(List.of("111 MacGyver Viaduct"))
-                        .city("Anchorage")
-                        .state("Alaska")
-                        .postalCode("99501")
-                        .build()))
-            .telecom(
-                List.of(
-                    ContactPoint.builder()
-                        .use(ContactPoint.ContactPointUse.mobile)
-                        .value("123-456-1234")
-                        .system(ContactPoint.ContactPointSystem.phone)
-                        .build()))
-            .practitionerRole(
-                Collections.singletonList(
-                    Practitioner.PractitionerRole.builder()
-                        .location(
-                            Collections.singletonList(Reference.builder().display("test").build()))
-                        .healthcareService(
-                            Collections.singletonList(
-                                Reference.builder().display("medical").build()))
-                        .managingOrganization(Reference.builder().display("test").build())
-                        .role(
-                            CodeableConcept.builder()
-                                .coding(
-                                    Collections.singletonList(
-                                        Coding.builder()
-                                            .code("test")
-                                            .display("test")
-                                            .system("test")
-                                            .build()))
-                                .build())
-                        .build()))
-            .build();
-      }
+    public Practitioner practitioner(String id) {
+      return Practitioner.builder()
+          .resourceType("Practitioner")
+          .id(id)
+          .active(true)
+          .name(HumanName.builder().family(List.of("Joe")).given(List.of("Johnson")).build())
+          .gender(Practitioner.Gender.male)
+          .birthDate("1970-11-14")
+          .address(
+              List.of(
+                  Address.builder()
+                      .line(List.of("111 MacGyver Viaduct"))
+                      .city("Anchorage")
+                      .state("Alaska")
+                      .postalCode("99501")
+                      .build()))
+          .telecom(
+              List.of(
+                  ContactPoint.builder()
+                      .use(ContactPoint.ContactPointUse.mobile)
+                      .value("123-456-1234")
+                      .system(ContactPoint.ContactPointSystem.phone)
+                      .build()))
+          .practitionerRole(
+              Collections.singletonList(
+                  Practitioner.PractitionerRole.builder()
+                      .location(
+                          Collections.singletonList(Reference.builder().display("test").build()))
+                      .healthcareService(
+                          Collections.singletonList(Reference.builder().display("medical").build()))
+                      .managingOrganization(Reference.builder().display("test").build())
+                      .role(
+                          CodeableConcept.builder()
+                              .coding(
+                                  Collections.singletonList(
+                                      Coding.builder()
+                                          .code("test")
+                                          .display("test")
+                                          .system("test")
+                                          .build()))
+                              .build())
+                      .build()))
+          .build();
     }
   }
 }
