@@ -1,5 +1,7 @@
 package gov.va.api.health.dataquery.service.controller.organization;
 
+import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asCodeableConceptWrapping;
+import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asCoding;
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.convert;
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.emptyToNull;
 import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
@@ -62,22 +64,14 @@ final class Dstu2OrganizationTransformer {
     if (source == null || source.get().code().get() == null) {
       return null;
     }
-    return CodeableConcept.builder().coding(typeCoding(source.get())).build();
+    return asCodeableConceptWrapping(source);
   }
 
   static List<Coding> typeCoding(DatamartCoding source) {
     if (source == null || allBlank(source.system(), source.display(), source.code())) {
       return null;
     }
-    return convert(
-        source,
-        type ->
-            List.of(
-                Coding.builder()
-                    .code(type.code().get())
-                    .display(type.display().get())
-                    .system(type.system().get())
-                    .build()));
+    return convert(source, type -> List.of(asCoding(type)));
   }
 
   List<ContactPoint> telecoms() {

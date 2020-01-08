@@ -14,8 +14,6 @@ import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import gov.va.api.health.dstu2.api.resources.Organization;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Stream;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,11 +68,7 @@ public class Dstu2OrganizationController {
             .build();
     return bundler.bundle(
         Dstu2Bundler.BundleContext.of(
-            linkConfig,
-            reports,
-            Function.identity(),
-            Organization.Entry::new,
-            Organization.Bundle::new));
+            linkConfig, reports, Organization.Entry::new, Organization.Bundle::new));
   }
 
   OrganizationEntity findById(String publicId) {
@@ -87,7 +81,7 @@ public class Dstu2OrganizationController {
   Organization read(@PathVariable("publicId") String publicId) {
     DatamartOrganization organization = findById(publicId).asDatamartOrganization();
     witnessProtection.registerAndUpdateReferences(
-        List.of(organization), resource -> Stream.empty());
+        List.of(organization), resource -> resource.partOf().stream());
     return transform(organization);
   }
 
