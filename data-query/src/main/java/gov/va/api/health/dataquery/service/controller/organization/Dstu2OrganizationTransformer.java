@@ -71,12 +71,12 @@ final class Dstu2OrganizationTransformer {
     }
     return convert(
         source,
-        cdw ->
+        type ->
             List.of(
                 Coding.builder()
-                    .code(cdw.code().get())
-                    .display(cdw.display().get())
-                    .system(cdw.system().get())
+                    .code(type.code().get())
+                    .display(type.display().get())
+                    .system(type.system().get())
                     .build()));
   }
 
