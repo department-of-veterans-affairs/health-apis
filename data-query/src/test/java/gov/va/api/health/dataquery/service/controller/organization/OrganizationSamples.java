@@ -19,7 +19,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 
-public class DatamartOrganizationSamples {
+public class OrganizationSamples {
 
   @AllArgsConstructor(staticName = "create")
   static class Datamart {
@@ -78,7 +78,7 @@ public class DatamartOrganizationSamples {
   }
 
   @AllArgsConstructor(staticName = "create")
-  static class Fhir {
+  static class Dstu2 {
 
     static Organization.Bundle asBundle(
         String baseUrl, Collection<Organization> organizations, BundleLink... links) {

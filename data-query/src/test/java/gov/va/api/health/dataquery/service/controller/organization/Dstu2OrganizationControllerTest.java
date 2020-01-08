@@ -82,10 +82,10 @@ public class Dstu2OrganizationControllerTest {
     String publicId = "abc";
     String cdwId = "123";
     addMockIdentities(publicId, cdwId);
-    DatamartOrganization dm = DatamartOrganizationSamples.Datamart.create().organization();
+    DatamartOrganization dm = OrganizationSamples.Datamart.create().organization();
     repository.save(asEntity(dm));
     Organization actual = controller().read("1234");
-    assertThat(actual).isEqualTo(DatamartOrganizationSamples.Fhir.create().organization("1234"));
+    assertThat(actual).isEqualTo(OrganizationSamples.Dstu2.create().organization("1234"));
   }
 
   @Test
@@ -94,7 +94,7 @@ public class Dstu2OrganizationControllerTest {
     String cdwId = "123";
     addMockIdentities(publicId, cdwId);
     HttpServletResponse servletResponse = mock(HttpServletResponse.class);
-    DatamartOrganization dm = DatamartOrganizationSamples.Datamart.create().organization(cdwId);
+    DatamartOrganization dm = OrganizationSamples.Datamart.create().organization(cdwId);
     repository.save(asEntity(dm));
     String json = controller().readRaw(publicId, servletResponse);
     assertThat(asObject(json)).isEqualTo(dm);
@@ -128,26 +128,26 @@ public class Dstu2OrganizationControllerTest {
     String publicId = "abc";
     String cdwId = "123";
     addMockIdentities(publicId, cdwId);
-    DatamartOrganization dm = DatamartOrganizationSamples.Datamart.create().organization(cdwId);
+    DatamartOrganization dm = OrganizationSamples.Datamart.create().organization(cdwId);
     repository.save(asEntity(dm));
     Organization.Bundle actual = controller().searchById(publicId, 1, 1);
     assertThat(asJson(actual))
         .isEqualTo(
             asJson(
-                DatamartOrganizationSamples.Fhir.asBundle(
+                OrganizationSamples.Dstu2.asBundle(
                     "http://fonzy.com/cool",
-                    List.of(DatamartOrganizationSamples.Fhir.create().organization(publicId)),
-                    DatamartOrganizationSamples.Fhir.link(
+                    List.of(OrganizationSamples.Dstu2.create().organization(publicId)),
+                    OrganizationSamples.Dstu2.link(
                         LinkRelation.first,
                         "http://fonzy.com/cool/Organization?identifier=" + publicId,
                         1,
                         1),
-                    DatamartOrganizationSamples.Fhir.link(
+                    OrganizationSamples.Dstu2.link(
                         LinkRelation.self,
                         "http://fonzy.com/cool/Organization?identifier=" + publicId,
                         1,
                         1),
-                    DatamartOrganizationSamples.Fhir.link(
+                    OrganizationSamples.Dstu2.link(
                         LinkRelation.last,
                         "http://fonzy.com/cool/Organization?identifier=" + publicId,
                         1,
@@ -159,26 +159,26 @@ public class Dstu2OrganizationControllerTest {
     String publicId = "abc";
     String cdwId = "123";
     addMockIdentities(publicId, cdwId);
-    DatamartOrganization dm = DatamartOrganizationSamples.Datamart.create().organization(cdwId);
+    DatamartOrganization dm = OrganizationSamples.Datamart.create().organization(cdwId);
     repository.save(asEntity(dm));
     Organization.Bundle actual = controller().searchByIdentifier(publicId, 1, 1);
     assertThat(asJson(actual))
         .isEqualTo(
             asJson(
-                DatamartOrganizationSamples.Fhir.asBundle(
+                OrganizationSamples.Dstu2.asBundle(
                     "http://fonzy.com/cool",
-                    List.of(DatamartOrganizationSamples.Fhir.create().organization(publicId)),
-                    DatamartOrganizationSamples.Fhir.link(
+                    List.of(OrganizationSamples.Dstu2.create().organization(publicId)),
+                    OrganizationSamples.Dstu2.link(
                         LinkRelation.first,
                         "http://fonzy.com/cool/Organization?identifier=" + publicId,
                         1,
                         1),
-                    DatamartOrganizationSamples.Fhir.link(
+                    OrganizationSamples.Dstu2.link(
                         LinkRelation.self,
                         "http://fonzy.com/cool/Organization?identifier=" + publicId,
                         1,
                         1),
-                    DatamartOrganizationSamples.Fhir.link(
+                    OrganizationSamples.Dstu2.link(
                         LinkRelation.last,
                         "http://fonzy.com/cool/Organization?identifier=" + publicId,
                         1,
@@ -187,25 +187,25 @@ public class Dstu2OrganizationControllerTest {
 
   @Test
   public void validate() {
-    DatamartOrganization dm = DatamartOrganizationSamples.Datamart.create().organization();
-    Organization organization = DatamartOrganizationSamples.Fhir.create().organization();
+    DatamartOrganization dm = OrganizationSamples.Datamart.create().organization();
+    Organization organization = OrganizationSamples.Dstu2.create().organization();
     assertThat(
             controller()
                 .validate(
-                    DatamartOrganizationSamples.Fhir.asBundle(
+                    OrganizationSamples.Dstu2.asBundle(
                         "http://fonzy.com/cool",
                         List.of(organization),
-                        DatamartOrganizationSamples.Fhir.link(
+                        OrganizationSamples.Dstu2.link(
                             LinkRelation.first,
                             "http://fonzy.com/cool/AllergyIntolerance?identifier=1",
                             1,
                             1),
-                        DatamartOrganizationSamples.Fhir.link(
+                        OrganizationSamples.Dstu2.link(
                             LinkRelation.self,
                             "http://fonzy.com/cool/AllergyIntolerance?identifier=1",
                             1,
                             1),
-                        DatamartOrganizationSamples.Fhir.link(
+                        OrganizationSamples.Dstu2.link(
                             LinkRelation.last,
                             "http://fonzy.com/cool/AllergyIntolerance?identifier=1",
                             1,
