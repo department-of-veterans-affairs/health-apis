@@ -87,7 +87,7 @@ public class Dstu2OrganizationController {
   Organization read(@PathVariable("publicId") String publicId) {
     DatamartOrganization organization = findById(publicId).asDatamartOrganization();
     witnessProtection.registerAndUpdateReferences(
-        List.of(organization), resource -> Stream.of(resource.partOf().get()));
+        List.of(organization), resource -> Stream.empty());
     return transform(organization);
   }
 
