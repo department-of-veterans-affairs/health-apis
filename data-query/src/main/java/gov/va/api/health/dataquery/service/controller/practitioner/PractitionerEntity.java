@@ -9,6 +9,9 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.Table;
+
+import org.springframework.data.domain.Sort;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -44,8 +47,12 @@ public class PractitionerEntity implements DatamartEntity {
   @Column(name = "Practitioner")
   private String payload;
 
+  public static Sort naturalOrder() {
+    return Sort.by("cdwId").ascending();
+  }
+
   @SneakyThrows
-  DatamartPractitioner asDatamartPractitioner() {
+  public DatamartPractitioner asDatamartPractitioner() {
     DatamartPractitioner dm =
         JacksonConfig.createMapper().readValue(payload, DatamartPractitioner.class);
 
