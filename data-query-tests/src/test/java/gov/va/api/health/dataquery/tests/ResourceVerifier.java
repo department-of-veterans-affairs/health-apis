@@ -74,8 +74,7 @@ public final class ResourceVerifier {
     return ResourceVerifier.builder()
         .apiPath(SystemDefinitions.systemDefinition().dstu2DataQuery().apiPath())
         .bundleClass(gov.va.api.health.dstu2.api.bundle.AbstractBundle.class)
-        .datamartAndCdwResources(
-            ImmutableSet.of(gov.va.api.health.dstu2.api.resources.Practitioner.class))
+        .datamartAndCdwResources(Collections.emptySet())
         .dataQuery(TestClients.dstu2DataQuery())
         .operationOutcomeClass(gov.va.api.health.dstu2.api.resources.OperationOutcome.class)
         .build();
