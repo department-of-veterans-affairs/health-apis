@@ -1,22 +1,16 @@
 package gov.va.api.health.dataquery.service.controller.organization;
 
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asCodeableConceptWrapping;
-import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asCoding;
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.convert;
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.emptyToNull;
 import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
 import static java.util.Arrays.asList;
 
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
-import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
 import gov.va.api.health.dstu2.api.datatypes.Address;
-import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
-import gov.va.api.health.dstu2.api.datatypes.Coding;
 import gov.va.api.health.dstu2.api.datatypes.ContactPoint;
 import gov.va.api.health.dstu2.api.resources.Organization;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.NonNull;
@@ -38,7 +32,7 @@ final class Dstu2OrganizationTransformer {
     }
     return asList(
         Address.builder()
-            .line(emptyToNull(Arrays.asList(address.line1(), address.line2())))
+            .line(emptyToNull(asList(address.line1(), address.line2())))
             .city(address.city())
             .state(address.state())
             .postalCode(address.postalCode())
@@ -60,20 +54,6 @@ final class Dstu2OrganizationTransformer {
         tel, source -> EnumSearcher.of(ContactPoint.ContactPointSystem.class).find(tel.toString()));
   }
 
-  static CodeableConcept type(Optional<DatamartCoding> source) {
-    if (source == null || source.get().code().get() == null) {
-      return null;
-    }
-    return asCodeableConceptWrapping(source);
-  }
-
-  static List<Coding> typeCoding(DatamartCoding source) {
-    if (source == null || allBlank(source.system(), source.display(), source.code())) {
-      return null;
-    }
-    return convert(source, type -> List.of(asCoding(type)));
-  }
-
   List<ContactPoint> telecoms() {
     return emptyToNull(
         datamart.telecom().stream().map(tel -> telecom(tel)).collect(Collectors.toList()));
@@ -84,7 +64,7 @@ final class Dstu2OrganizationTransformer {
         .resourceType("Organization")
         .id(datamart.cdwId())
         .active(datamart.active())
-        .type(type(datamart.type()))
+        .type(asCodeableConceptWrapping(datamart.type()))
         .name(datamart.name())
         .telecom(telecoms())
         .address(address(datamart.address()))

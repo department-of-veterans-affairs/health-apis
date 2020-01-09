@@ -41,12 +41,6 @@ public class Dstu2OrganizationTransformerTest {
   }
 
   @Test
-  public void nullChecks() {
-    assertThat(Dstu2OrganizationTransformer.type(null)).isNull();
-    assertThat(Dstu2OrganizationTransformer.typeCoding(null)).isNull();
-  }
-
-  @Test
   public void telecom() {
     assertThat(Dstu2OrganizationTransformer.telecom(null)).isNull();
     assertThat(
