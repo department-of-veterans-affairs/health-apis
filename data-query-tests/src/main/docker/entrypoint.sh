@@ -138,7 +138,7 @@ checkVariablesForAutomation() {
   # Check out required deployment variables and data query specific variables.
   for param in "K8S_LOAD_BALANCER" "K8S_ENVIRONMENT" "SENTINEL_ENV" "TOKEN" \
     "SENTINEL_SMOKE_TEST_CATEGORY" "SENTINEL_REGRESSION_TEST_CATEGORY" \
-    "DATA_QUERY_API_PATH" "INTERNAL_API_PATH" "DATA_QUERY_REPLACE_URL" "USER_PASSWORD" \
+    "DSTU2_API_PATH" "STU3_API_PATH" "INTERNAL_API_PATH" "DATA_QUERY_REPLACE_URL" "USER_PASSWORD" \
     "CLIENT_ID" "CLIENT_SECRET" "PATIENT_ID"; do
     [ -z ${!param} ] && usage "Variable $param must be specified."
   done
