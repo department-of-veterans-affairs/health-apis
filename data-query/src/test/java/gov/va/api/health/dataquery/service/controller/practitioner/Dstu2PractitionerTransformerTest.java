@@ -10,7 +10,7 @@ import java.time.LocalDate;
 import java.util.Optional;
 import org.junit.Test;
 
-public class DatamartPractitionerTransformerTest {
+public class Dstu2PractitionerTransformerTest {
 
   @Test
   public void address() {
@@ -76,12 +76,13 @@ public class DatamartPractitionerTransformerTest {
   public void nullChecks() {
     assertThat(Dstu2PractitionerTransformer.healthcareServices(Optional.empty())).isNull();
     assertThat(Dstu2PractitionerTransformer.telecom(null)).isNull();
+    assertThat(Dstu2PractitionerTransformer.practitionerRole(null)).isNull();
   }
 
   @Test
   public void practitioner() {
-    assertThat(tx(Dstu2PractitionerSamples.Datamart.create().practitioner()).toFhir())
-        .isEqualTo(Dstu2PractitionerSamples.Datamart.Dstu2.create().practitioner());
+    assertThat(tx(PractitionerSamples.Datamart.create().practitioner()).toFhir())
+        .isEqualTo(PractitionerSamples.Dstu2.create().practitioner());
   }
 
   Dstu2PractitionerTransformer tx(DatamartPractitioner dm) {

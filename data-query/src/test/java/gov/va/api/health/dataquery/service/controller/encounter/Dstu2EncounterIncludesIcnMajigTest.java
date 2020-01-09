@@ -1,19 +1,18 @@
-package gov.va.api.health.dataquery.service.controller.medicationdispense;
+package gov.va.api.health.dataquery.service.controller.encounter;
 
 import gov.va.api.health.dataquery.service.controller.ExtractIcnValidator;
 import gov.va.api.health.dstu2.api.elements.Reference;
-import gov.va.api.health.dstu2.api.resources.MedicationDispense;
+import gov.va.api.health.dstu2.api.resources.Encounter;
 import java.util.List;
 import org.junit.Test;
 
-public class MedicationDispenseIncludesIcnMajigTest {
-
+public class Dstu2EncounterIncludesIcnMajigTest {
   @Test
   public void extractIcn() {
-    ExtractIcnValidator.<MedicationDispenseIncludesIcnMajig, MedicationDispense>builder()
-        .majig(new MedicationDispenseIncludesIcnMajig())
+    ExtractIcnValidator.builder()
+        .majig(new Dstu2EncounterIncludesIcnMajig())
         .body(
-            MedicationDispense.builder()
+            Encounter.builder()
                 .id("123")
                 .patient(Reference.builder().reference("Patient/1010101010V666666").build())
                 .build())

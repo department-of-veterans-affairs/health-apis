@@ -72,18 +72,6 @@ entries:
     query: /Encounter:1.02?patient=43000199
     page: 1
     count: 15
-  - file: ../../../../target/cdw/samples/Loc100i1400004093.xml
-    query: /Location:1.02?identifier=1400004093
-    page: 1
-    count: 15
-  - file: ../../../../target/cdw/samples/Loc100i166365L.xml
-    query: /Location:1.02?identifier=43817:L
-    page: 1
-    count: 15
-  - file: ../../../../target/cdw/samples/Loc100i5555555555.xml
-    query: /Location:1.02?identifier=5555555555
-    page: 1
-    count: 15
   - file: ../../../../target/cdw/samples/MedDis100i1200738474343R.xml
     query: /MedicationDispense:1.02?identifier=1200738474343:R
     page: 1

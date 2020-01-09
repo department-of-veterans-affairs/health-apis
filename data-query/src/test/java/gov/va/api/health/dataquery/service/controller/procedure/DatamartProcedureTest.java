@@ -12,10 +12,30 @@ import lombok.SneakyThrows;
 import org.junit.Test;
 
 public class DatamartProcedureTest {
-  public void assertReadable(String json) throws java.io.IOException {
+  public void assertReadable(DatamartProcedure sample, String json) throws java.io.IOException {
     DatamartProcedure dm =
         createMapper().readValue(getClass().getResourceAsStream(json), DatamartProcedure.class);
-    assertThat(dm).isEqualTo(sample());
+    assertThat(dm).isEqualTo(sample);
+  }
+
+  private DatamartProcedure notPerformedSample() {
+    return DatamartProcedure.builder()
+        .cdwId("1000000719261")
+        .patient(
+            DatamartReference.of()
+                .type("Patient")
+                .reference("1004476237V111282")
+                .display("VETERAN,GRAY PRO")
+                .build())
+        .status(Status.completed)
+        .coding(
+            DatamartCoding.of()
+                .system("http://www.ama-assn.org/go/cpt")
+                .code("90870")
+                .display("ELECTROCONVULSIVE THERAPY")
+                .build())
+        .notPerformed(true)
+        .build();
   }
 
   private DatamartProcedure sample() {
@@ -57,12 +77,18 @@ public class DatamartProcedureTest {
   @Test
   @SneakyThrows
   public void unmarshalSample() {
-    assertReadable("datamart-procedure.json");
+    assertReadable(sample(), "datamart-procedure.json");
+  }
+
+  @Test
+  @SneakyThrows
+  public void unmarshalSampleNotPerformed() {
+    assertReadable(notPerformedSample(), "datamart-procedure-not-performed.json");
   }
 
   @Test
   @SneakyThrows
   public void unmarshalSampleV0() {
-    assertReadable("datamart-procedure-v0.json");
+    assertReadable(sample(), "datamart-procedure-v0.json");
   }
 }
