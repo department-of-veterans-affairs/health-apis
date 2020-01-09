@@ -104,58 +104,6 @@ entries:
     query: /MedicationDispense:1.02?patient=43000199&type=FF,UD
     page: 1
     count: 15
-  - file: ../../../../target/cdw/samples/Org100addressstatetx.xml
-    query: /Organization:1.02?address-state=tx
-    page: 1
-    count: 15
-  - file: ../../../../target/cdw/samples/Org100citygalveston.xml
-    query: /Organization:1.02?city=galveston
-    page: 1
-    count: 15
-  - file: ../../../../target/cdw/samples/Org100i1000025431C.xml
-    query: /Organization:1.02?identifier=1000025431:C
-    page: 1
-    count: 15
-  - file: ../../../../target/cdw/samples/Org100i5555555555555.xml
-    query: /Organization:1.02?identifier=5555555555555
-    page: 1
-    count: 15
-  - file: ../../../../target/cdw/samples/Org100nametexas.xml
-    query: /Organization:1.02?name=texas
-    page: 1
-    count: 15
-  - file: ../../../../target/cdw/samples/Org100typeins.xml
-    query: /Organization:1.02?type=ins
-    page: 1
-    count: 15
-  - file: ../../../../target/cdw/samples/Org100typeinspg0.xml
-    query: /Organization:1.02?type=ins
-    page: 0
-    count: 15
-  - file: ../../../../target/cdw/samples/Org100typeinspg1ct0.xml
-    query: /Organization:1.02?type=ins
-    page: 1
-    count: 0
-  - file: ../../../../target/cdw/samples/Org100typeinspg1ct21.xml
-    query: /Organization:1.02?type=ins
-    page: 1
-    count: 21
-  - file: ../../../../target/cdw/samples/Org100typeinspg999999ct20.xml
-    query: /Organization:1.02?type=ins&count=20
-    page: 999999
-    count: 15
-  - file: ../../../../target/cdw/samples/Org100typeprov.xml
-    query: /Organization:1.02?type=prov
-    page: 1
-    count: 15
-  - file: ../../../../target/cdw/samples/Org100typeprovaddresscitytexascity.xml
-    query: /Organization:1.02?type=prov&address-city=texas city
-    page: 1
-    count: 15
-  - file: ../../../../target/cdw/samples/Org100typeprovaddresspostalCode775912134.xml
-    query: /Organization:1.02?type=prov&address-postalCode=77591-2134
-    page: 1
-    count: 15
   - file: ../../../../target/cdw/samples/Pra100i10092125.xml
     query: /Practitioner:1.02?identifier=416704
     page: 1

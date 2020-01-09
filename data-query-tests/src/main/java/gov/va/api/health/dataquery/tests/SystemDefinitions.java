@@ -136,7 +136,7 @@ public final class SystemDefinitions {
         .medicationStatement("I2-CRBOB5CEO2YTFDNYTAGAUCREVA000000")
         .observation("I2-2RCKPYB63RBIONGQCHJKHWZCJY000000")
         .observations(observations())
-        .organization("I2-CU32H73D562BVWKWLSRRHBY4WFWYJ7447EZD5HWII6CKS6YQZCTA0000")
+        .organization("I2-WOKLYQ64CJR6Q5P26N2VPSP7NY000000")
         .pii(
             PersonallyIdentifiableInformation.builder()
                 .gender("female")
