@@ -29,6 +29,7 @@ public final class TestIds {
   @NonNull String unknown;
 
   @NonNull DiagnosticReports diagnosticReports;
+  @NonNull Locations locations;
   @NonNull Observations observations;
   PersonallyIdentifiableInformation pii;
   @NonNull Procedures procedures;
@@ -59,6 +60,16 @@ public final class TestIds {
     @NonNull String dateEqual;
     @NonNull String dateLessOrEqual;
     @NonNull String dateLessThan;
+  }
+
+  @Value
+  @Builder
+  public static class Locations {
+    @NonNull String name;
+    @NonNull String addressStreet;
+    @NonNull String addressCity;
+    @NonNull String addressState;
+    @NonNull String addressPostalCode;
   }
 
   @Value

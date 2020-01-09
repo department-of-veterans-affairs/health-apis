@@ -108,8 +108,11 @@ public class Dstu2PractitionerController {
         resources,
         resource ->
             Stream.concat(
-                Stream.of(resource.practitionerRole().get().managingOrganization().orElse(null)),
-                resource.practitionerRole().get().location().stream()));
+                resource
+                    .practitionerRole()
+                    .stream()
+                    .map(role -> role.managingOrganization().orElse(null)),
+                resource.practitionerRole().stream().flatMap(role -> role.location().stream())));
     return resources;
   }
 

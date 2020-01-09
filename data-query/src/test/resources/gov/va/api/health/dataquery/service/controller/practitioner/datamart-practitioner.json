@@ -77,7 +77,8 @@
         "classification" : "Family Medicine",
         "areaOfSpecialization" : null,
         "vaCode" : "V180700",
-        "x12Code" : "207Q00000X"
+        "x12Code" : "207Q00000X",
+        "specialtyCode" : null
       }
     ],
     "period" : {
