@@ -67,24 +67,25 @@ public final class SystemDefinitions {
     return TestIds.builder()
         .publicIds(true)
         .allergyIntolerance("I2-5XYSWFRZ637QKNR6IIRKYHA5RY000000")
+        .appointment("unused")
         .condition("I2-FOBJ7YQOH3RIQ5UZ6TRM32ZSQA000000")
         .diagnosticReport("I2-3ACWF6E3HPG6GLOSVWR2CIQNPI000000")
         .diagnosticReports(diagnosticReports())
+        .encounter("unused")
         .immunization("I2-55SQNNDBJUHYLVNXKTTYZSIVQE000000")
+        .location("I2-2FPCKUIXVR7RJLLG34XVWGZERM000000")
+        .locations(localAndLabLocations())
         .medication("I2-Q6VHYRTPQZ755P7JKKFUU5Q4TM000000")
+        .medicationDispense("unused")
         .medicationOrder("I2-J3UNHOOTERVSTBX4RMTN6MAMQ4000000")
         .medicationStatement("I2-AKEI5ITNUR5DGUNZXC33PYWXKU000000")
         .observation("I2-TSP35ALBRP4GSCBKRIWDO5CA54000000")
         .observations(observations())
+        .organization("unused")
         .patient("1011537977V693883")
+        .practitioner("I2-DBBL6FFRELZQJ64PWDI7FIVXIU000000")
         .procedure("I2-J2OUEVFHKESKUKIALZPTDTJNMQ000000")
         .procedures(localAndLabProcedures())
-        .location("unused")
-        .appointment("unused")
-        .medicationDispense("unused")
-        .encounter("unused")
-        .organization("unused")
-        .practitioner("unused")
         .unknown("5555555555555")
         .build();
   }
@@ -104,6 +105,16 @@ public final class SystemDefinitions {
         .build();
   }
 
+  private static TestIds.Locations localAndLabLocations() {
+    return TestIds.Locations.builder()
+        .name("TEM MH PSO TRS IND93EH 3")
+        .addressCity("TEMPLE")
+        .addressPostalCode("76504")
+        .addressState("TEXAS")
+        .addressStreet("1901 VETERANS MEMORIAL DRIVE")
+        .build();
+  }
+
   private static Procedures localAndLabProcedures() {
     return Procedures.builder().fromDate("ge2009").onDate("ge2009").toDate("le2010").build();
   }
@@ -120,6 +131,7 @@ public final class SystemDefinitions {
         .diagnosticReports(diagnosticReports())
         .immunization("I2-SUIW57VEBLELRLBDYF3LKXB5ZA000000")
         .location("I2-K7WNFKZA3JCXL3CLT6D2HP7RRU000000")
+        .locations(localAndLabLocations())
         .medication("I2-EMFL5CBY25CCZPXLHVMM4JEOX4000000")
         .medicationDispense("I2-22CRMSOEQUG7QIPH4DLC4V5FFH2C5OZRTCGW2QDOCFD5SESUFKUQ0000")
         .medicationOrder("I2-LM6LHSWIRQPLNRO5XUKAQUXWI4000000")
@@ -182,6 +194,7 @@ public final class SystemDefinitions {
         .encounter("I2-KC33Z5CFSUOVTRCIVKQ2JUB2ESFWMFFVGIFOIESBWOITMOPLFP7A0000")
         .immunization("I2-LR6MEWBUXWJGD75WXF5BFXXTTLTYR3S3AHUTW55G25J4UOG3ZQIQ0000")
         .location("I2-WEIZUDRRQFULJACUVBXZO7EFOU000000")
+        .locations(productionLocations())
         .medication("I2-H6VWTWQS5U454XKHOM6ZTUPCHA000000")
         .medicationDispense("I2-UJSIEUXIDQ6PNNMJMNG44VOCWNOUCKZJJ5SWPN2G2XOWVAHIPYEQ0000")
         .medicationOrder("I2-IB456XUS7OJUVJBC5ESLW3IZ2R6773XSYHA7V63BLTV6YSG4QJ6A0000")
@@ -199,6 +212,16 @@ public final class SystemDefinitions {
 
   private static Procedures productionCdwProcedures() {
     return Procedures.builder().fromDate("ge2009").onDate("ge2009").toDate("le2014").build();
+  }
+
+  private static TestIds.Locations productionLocations() {
+    return TestIds.Locations.builder()
+        .name("TPA PCE OR AMB SURGERY      -X")
+        .addressCity("TAMPA")
+        .addressPostalCode("33612-4745")
+        .addressState("FL")
+        .addressStreet("13000 BRUCE B DOWNS BLVD")
+        .build();
   }
 
   /** Return definitions for the qa environment. */
