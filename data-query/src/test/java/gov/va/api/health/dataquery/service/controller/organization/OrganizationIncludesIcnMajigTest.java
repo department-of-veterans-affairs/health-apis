@@ -9,7 +9,7 @@ public class OrganizationIncludesIcnMajigTest {
   @Test
   public void extractNoIcns() {
     ExtractIcnValidator.builder()
-        .majig(new OrganizationIncludesIcnMajig())
+        .majig(new Dstu2OrganizationIncludesIcnMajig())
         .body(Organization.builder().id("123").build())
         .expectedIcns(List.of("NONE"))
         .build()
