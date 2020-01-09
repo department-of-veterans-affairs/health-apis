@@ -1,6 +1,8 @@
 package gov.va.api.health.dataquery.tests.stu3;
 
 import gov.va.api.health.dataquery.tests.ResourceVerifier;
+import gov.va.api.health.dataquery.tests.categories.LabDataQueryPatient;
+import gov.va.api.health.dataquery.tests.categories.ProdDataQueryPatient;
 import gov.va.api.health.sentinel.categories.Local;
 import gov.va.api.health.stu3.api.resources.Location;
 import gov.va.api.health.stu3.api.resources.OperationOutcome;
@@ -11,20 +13,48 @@ import org.junit.experimental.categories.Category;
 public class LocationIT {
   @Delegate private final ResourceVerifier verifier = ResourceVerifier.stu3();
 
-  @Category({Local.class
+  @Category({Local.class, ProdDataQueryPatient.class, LabDataQueryPatient.class
     // , ProdDataQueryClinician.class
   })
   @Test
   public void advanced() {
     verifyAll(
+        // Search By _id
         test(200, Location.Bundle.class, "Location?_id={id}", verifier.ids().location()),
         test(404, OperationOutcome.class, "Location?_id={id}", verifier.ids().unknown()),
+        // Search By identifier
         test(200, Location.Bundle.class, "Location?identifier={id}", verifier.ids().location()),
-        test(404, OperationOutcome.class, "Location?identifier={id}", verifier.ids().unknown()));
+        test(404, OperationOutcome.class, "Location?identifier={id}", verifier.ids().unknown()),
+        // Search By Location Name
+        test(200, Location.Bundle.class, "Location?name={name}", verifier.ids().locations().name()),
+        // Search By Location Street
+        test(
+            200,
+            Location.Bundle.class,
+            "Location?address={street}",
+            verifier.ids().locations().addressStreet()),
+        // Search By City
+        test(
+            200,
+            Location.Bundle.class,
+            "Location?address-city={city}",
+            verifier.ids().locations().addressCity()),
+        // Search By State
+        test(
+            200,
+            Location.Bundle.class,
+            "Location?address-state={state}",
+            verifier.ids().locations().addressState()),
+        // Search By Postal Code
+        test(
+            200,
+            Location.Bundle.class,
+            "Location?address-postalcode={zip}",
+            verifier.ids().locations().addressPostalCode()));
   }
 
-  @Category({Local.class
-    // , ProdDataQueryPatient.class, ProdDataQueryClinician.class
+  @Category({Local.class, ProdDataQueryPatient.class, LabDataQueryPatient.class
+    // , ProdDataQueryClinician.class
   })
   @Test
   public void basic() {
