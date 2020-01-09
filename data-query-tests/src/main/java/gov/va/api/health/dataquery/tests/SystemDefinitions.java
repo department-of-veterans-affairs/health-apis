@@ -182,7 +182,7 @@ public final class SystemDefinitions {
   private static TestIds productionCdwIds() {
     return TestIds.builder()
         .publicIds(true)
-        .allergyIntolerance("I2-VEQLSCH5XMYBN3EIBIQ3LDWDUJMUVKKKUB5Z4E7QCYESQ53FMOJA0000")
+        .allergyIntolerance("I2-A6U4FCERBNSVAFYF6CMUOOHMBPJOJFVSJAWGW5TYE3EOC6TQ2OBQ0000")
         .appointment("I2-XPTA6C5Q7GP6JR25UNTMQGY6P5WYMMLMCP2YVFDGOTPCPHQXDH3A0000")
         .condition("I2-H7TWOL6IPU27YRF3OKZIUJM5D27UCDVBMBWSONEYQ66OTFL4OVYQ0000")
         .diagnosticReport("I2-M2QUOOXL3O73NUZCB7HEOVQ2GAGQFOATAYXW5FMU3I57IYQDE6RQ0000")
@@ -227,8 +227,8 @@ public final class SystemDefinitions {
     return SystemDefinition.builder()
         .ids(serviceDefinition("ids", url, 443, null, "/not-available/"))
         .mrAnderson(serviceDefinition("mr-anderson", url, 443, null, "/not-available/"))
-        .dstu2DataQuery(serviceDefinition("argonaut", url, 443, magicAccessToken(), "/dstu2/"))
-        .stu3DataQuery(serviceDefinition("argonaut", url, 443, magicAccessToken(), "/stu3/"))
+        .dstu2DataQuery(serviceDefinition("dstu2", url, 443, magicAccessToken(), "/dstu2/"))
+        .stu3DataQuery(serviceDefinition("stu3", url, 443, magicAccessToken(), "/stu3/"))
         .internalDataQuery(serviceDefinition("internal", url, 443, null, "/data-query/"))
         .cdwIds(productionCdwIds())
         .build();
@@ -251,8 +251,8 @@ public final class SystemDefinitions {
     return SystemDefinition.builder()
         .ids(serviceDefinition("ids", url, 443, null, "/not-available/"))
         .mrAnderson(serviceDefinition("mr-anderson", url, 443, null, "/not-available/"))
-        .dstu2DataQuery(serviceDefinition("argonaut", url, 443, magicAccessToken(), "/dstu2/"))
-        .stu3DataQuery(serviceDefinition("argonaut", url, 443, magicAccessToken(), "/stu3/"))
+        .dstu2DataQuery(serviceDefinition("dstu2", url, 443, magicAccessToken(), "/dstu2/"))
+        .stu3DataQuery(serviceDefinition("stu3", url, 443, magicAccessToken(), "/stu3/"))
         .internalDataQuery(serviceDefinition("internal", url, 443, null, "/data-query/"))
         .cdwIds(productionCdwIds())
         .build();
@@ -266,10 +266,9 @@ public final class SystemDefinitions {
         .mrAnderson(serviceDefinition("mr-anderson", url, 443, null, "/not-available/"))
         .dstu2DataQuery(
             serviceDefinition(
-                "argonaut", url, 443, magicAccessToken(), "/services/argonaut/v0/dstu2/"))
+                "dstu2", url, 443, magicAccessToken(), "/services/argonaut/v0/dstu2/"))
         .stu3DataQuery(
-            serviceDefinition(
-                "argonaut", url, 443, magicAccessToken(), "/services/argonaut/v0/stu3/"))
+            serviceDefinition("stu3", url, 443, magicAccessToken(), "/services/argonaut/v0/stu3/"))
         .internalDataQuery(serviceDefinition("internal", url, 443, null, "/data-query/"))
         .cdwIds(labMitreIds())
         .build();
