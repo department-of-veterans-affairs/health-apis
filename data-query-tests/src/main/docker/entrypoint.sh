@@ -159,10 +159,12 @@ setupForAutomation() {
     -Daccess-token=$TOKEN \
     -Draw-token=$RAW_TOKEN \
     -Dbulk-token=$BULK_TOKEN \
-    -Dsentinel.argonaut.url=https://$K8S_LOAD_BALANCER \
+    -Dsentinel.dstu2.url=https://$K8S_LOAD_BALANCER \
+    -Dsentinel.stu3.url=https://$K8S_LOAD_BALANCER \
     -Dsentinel.data-query.public-url=https://$K8S_LOAD_BALANCER \
     -Dsentinel.internal.url=https://$K8S_LOAD_BALANCER \
-    -Dsentinel.argonaut.api-path=$DATA_QUERY_API_PATH \
+    -Dsentinel.dstu2.api-path=$DSTU2_API_PATH \
+    -Dsentinel.stu3.api-path=$STU3_API_PATH \
     -Dsentinel.internal.api-path=$INTERNAL_API_PATH \
     -Dcrawler.url.replace=$DATA_QUERY_REPLACE_URL \
     -D${K8S_ENVIRONMENT}.user-password=$USER_PASSWORD \
