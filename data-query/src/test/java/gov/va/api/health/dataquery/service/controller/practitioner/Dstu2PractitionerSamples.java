@@ -25,7 +25,7 @@ import lombok.AllArgsConstructor;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
-public class PractitionerSamples {
+public class Dstu2PractitionerSamples {
 
   @AllArgsConstructor(staticName = "create")
   static class Datamart {

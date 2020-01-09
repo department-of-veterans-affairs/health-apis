@@ -1,7 +1,5 @@
 package gov.va.api.health.dataquery.service.controller.practitioner;
 
-import static gov.va.api.health.dataquery.service.controller.Stu3Transformers.asCodeableConceptWrapping;
-import static gov.va.api.health.dataquery.service.controller.Stu3Transformers.asReference;
 import static gov.va.api.health.dataquery.service.controller.Stu3Transformers.convert;
 import static gov.va.api.health.dataquery.service.controller.Stu3Transformers.emptyToNull;
 import static gov.va.api.health.dataquery.service.controller.Stu3Transformers.ifPresent;
@@ -13,17 +11,13 @@ import static java.util.Collections.singletonList;
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
 import gov.va.api.health.stu3.api.datatypes.Address;
 import gov.va.api.health.stu3.api.datatypes.ContactPoint;
-import gov.va.api.health.stu3.api.elements.Reference;
 import gov.va.api.health.stu3.api.resources.Practitioner;
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.Builder;
 import org.apache.commons.lang3.BooleanUtils;
-
-import javax.swing.text.html.Option;
 
 @Builder
 public class Stu3PractitionerTransformer {
@@ -53,10 +47,15 @@ public class Stu3PractitionerTransformer {
     return source.map(LocalDate::toString).orElse(null);
   }
 
+  static Practitioner.PractitionerIdentifier identifier(Optional<String> npi) {
+    if (isBlank(npi)) {
+      return null;
+    }
+    return Practitioner.PractitionerIdentifier.builder().system("NPI").value(npi.get()).build();
+  }
 
   static Practitioner.PractitionerHumanName name(DatamartPractitioner.Name source) {
-    if (source == null
-        || isBlank(source.family())) {
+    if (source == null || isBlank(source.family())) {
       return null;
     }
     return Practitioner.PractitionerHumanName.builder()
@@ -108,13 +107,6 @@ public class Stu3PractitionerTransformer {
         source, gender -> EnumSearcher.of(Practitioner.Gender.class).find(gender.toString()));
   }
 
-  static Practitioner.PractitionerIdentifier identifier(Optional<String> npi){
-  if(isBlank(npi)){
-    return null;
-  }
-  return Practitioner.PractitionerIdentifier.builder().system("NPI").value(npi.get()).build();
-  }
-
   List<ContactPoint> telecoms() {
     return emptyToNull(
         datamart.telecom().stream().map(tel -> telecom(tel)).collect(Collectors.toList()));
@@ -134,6 +126,4 @@ public class Stu3PractitionerTransformer {
         .identifier(asList(identifier(datamart.npi())))
         .build();
   }
-
 }
-

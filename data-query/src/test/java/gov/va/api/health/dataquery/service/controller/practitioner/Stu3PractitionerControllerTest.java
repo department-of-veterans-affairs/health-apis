@@ -1,22 +1,20 @@
 package gov.va.api.health.dataquery.service.controller.practitioner;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
-import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
-import gov.va.api.health.dataquery.service.controller.Dstu2Validator;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
+import gov.va.api.health.dataquery.service.controller.Stu3Bundler;
+import gov.va.api.health.dataquery.service.controller.Stu3Validator;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
-import gov.va.api.health.dataquery.service.controller.practitioner.Dstu2PractitionerSamples.Datamart;
-import gov.va.api.health.dstu2.api.bundle.BundleLink.LinkRelation;
-import gov.va.api.health.dstu2.api.resources.Practitioner;
+import gov.va.api.health.dataquery.service.controller.practitioner.Stu3PractitionerSamples.Datamart;
 import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
+import gov.va.api.health.stu3.api.bundle.BundleLink;
+import gov.va.api.health.stu3.api.resources.Practitioner;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
@@ -29,7 +27,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @DataJpaTest
 @RunWith(SpringRunner.class)
-public class Dstu2PractitionerControllerTest {
+public class Stu3PractitionerControllerTest {
+
   HttpServletResponse response = mock(HttpServletResponse.class);
 
   private IdentityService ids = mock(IdentityService.class);
@@ -47,9 +46,9 @@ public class Dstu2PractitionerControllerTest {
         .build();
   }
 
-  Dstu2PractitionerController controller() {
-    return new Dstu2PractitionerController(
-        new Dstu2Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool", "cool")),
+  Stu3PractitionerController controller() {
+    return new Stu3PractitionerController(
+        new Stu3Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool", "cool")),
         repository,
         WitnessProtection.builder().identityService(ids).build());
   }
@@ -101,7 +100,7 @@ public class Dstu2PractitionerControllerTest {
     repository.save(asEntity(dm));
     mockPractitionerIdentity(publicId, cdwId, orgPubId, orgCdwId, locPubId, locCdwId);
     Practitioner actual = controller().read("1234");
-    assertThat(actual).isEqualTo(Dstu2PractitionerSamples.Dstu2.create().practitioner("1234"));
+    assertThat(actual).isEqualTo(Stu3PractitionerSamples.Stu3.create().practitioner("1234"));
   }
 
   @Test
@@ -114,7 +113,7 @@ public class Dstu2PractitionerControllerTest {
     String locCdwId = "789";
     mockPractitionerIdentity(publicId, cdwId, orgPubId, orgCdwId, locPubId, locCdwId);
     HttpServletResponse servletResponse = mock(HttpServletResponse.class);
-    DatamartPractitioner dm = Dstu2PractitionerSamples.Datamart.create().practitioner(cdwId);
+    DatamartPractitioner dm = Datamart.create().practitioner(cdwId);
     repository.save(asEntity(dm));
     String json = controller().readRaw(publicId, servletResponse);
     assertThat(toObject(json)).isEqualTo(dm);
@@ -144,6 +143,43 @@ public class Dstu2PractitionerControllerTest {
   }
 
   @Test
+  public void searchByFamilyNameAndGivenName() {
+    String publicId = "abc";
+    String cdwId = "123";
+    String orgPubId = "def";
+    String orgCdwId = "456";
+    String locPubId = "ghi";
+    String locCdwId = "789";
+    String familyName = "Joe";
+    String givenName = "Johnson";
+    DatamartPractitioner dm = Datamart.create().practitioner(cdwId);
+    repository.save(asEntity(dm));
+    mockPractitionerIdentity(publicId, cdwId, orgPubId, orgCdwId, locPubId, locCdwId);
+    Practitioner.Bundle actual = controller().searchByFamilyAndGiven(familyName, givenName, 1, 1);
+    assertThat(json(actual))
+        .isEqualTo(
+            json(
+                Stu3PractitionerSamples.Stu3.asBundle(
+                    "http://fonzy.com/cool",
+                    List.of(Stu3PractitionerSamples.Stu3.create().practitioner(publicId)),
+                    Stu3PractitionerSamples.Stu3.link(
+                        BundleLink.LinkRelation.first,
+                        "http://fonzy.com/cool/Practitioner?family=Joe&given=Johnson",
+                        1,
+                        1),
+                    Stu3PractitionerSamples.Stu3.link(
+                        BundleLink.LinkRelation.self,
+                        "http://fonzy.com/cool/Practitioner?family=Joe&given=Johnson",
+                        1,
+                        1),
+                    Stu3PractitionerSamples.Stu3.link(
+                        BundleLink.LinkRelation.last,
+                        "http://fonzy.com/cool/Practitioner?family=Joe&given=Johnson",
+                        1,
+                        1))));
+  }
+
+  @Test
   public void searchById() {
     String publicId = "abc";
     String cdwId = "123";
@@ -158,21 +194,21 @@ public class Dstu2PractitionerControllerTest {
     assertThat(json(actual))
         .isEqualTo(
             json(
-                Dstu2PractitionerSamples.Dstu2.asBundle(
+                Stu3PractitionerSamples.Stu3.asBundle(
                     "http://fonzy.com/cool",
-                    List.of(Dstu2PractitionerSamples.Dstu2.create().practitioner(publicId)),
-                    Dstu2PractitionerSamples.Dstu2.link(
-                        LinkRelation.first,
+                    List.of(Stu3PractitionerSamples.Stu3.create().practitioner(publicId)),
+                    Stu3PractitionerSamples.Stu3.link(
+                        BundleLink.LinkRelation.first,
                         "http://fonzy.com/cool/Practitioner?identifier=abc",
                         1,
                         1),
-                    Dstu2PractitionerSamples.Dstu2.link(
-                        LinkRelation.self,
+                    Stu3PractitionerSamples.Stu3.link(
+                        BundleLink.LinkRelation.self,
                         "http://fonzy.com/cool/Practitioner?identifier=abc",
                         1,
                         1),
-                    Dstu2PractitionerSamples.Dstu2.link(
-                        LinkRelation.last,
+                    Stu3PractitionerSamples.Stu3.link(
+                        BundleLink.LinkRelation.last,
                         "http://fonzy.com/cool/Practitioner?identifier=abc",
                         1,
                         1))));
@@ -186,28 +222,28 @@ public class Dstu2PractitionerControllerTest {
     String orgCdwId = "456";
     String locPubId = "ghi";
     String locCdwId = "789";
-    DatamartPractitioner dm = Dstu2PractitionerSamples.Datamart.create().practitioner(cdwId);
+    DatamartPractitioner dm = Datamart.create().practitioner(cdwId);
     repository.save(asEntity(dm));
     mockPractitionerIdentity(publicId, cdwId, orgPubId, orgCdwId, locPubId, locCdwId);
     Practitioner.Bundle actual = controller().searchByIdentifier(publicId, 1, 1);
     assertThat(json(actual))
         .isEqualTo(
             json(
-                Dstu2PractitionerSamples.Dstu2.asBundle(
+                Stu3PractitionerSamples.Stu3.asBundle(
                     "http://fonzy.com/cool",
-                    List.of(Dstu2PractitionerSamples.Dstu2.create().practitioner(publicId)),
-                    Dstu2PractitionerSamples.Dstu2.link(
-                        LinkRelation.first,
+                    List.of(Stu3PractitionerSamples.Stu3.create().practitioner(publicId)),
+                    Stu3PractitionerSamples.Stu3.link(
+                        BundleLink.LinkRelation.first,
                         "http://fonzy.com/cool/Practitioner?identifier=abc",
                         1,
                         1),
-                    Dstu2PractitionerSamples.Dstu2.link(
-                        LinkRelation.self,
+                    Stu3PractitionerSamples.Stu3.link(
+                        BundleLink.LinkRelation.self,
                         "http://fonzy.com/cool/Practitioner?identifier=abc",
                         1,
                         1),
-                    Dstu2PractitionerSamples.Dstu2.link(
-                        LinkRelation.last,
+                    Stu3PractitionerSamples.Stu3.link(
+                        BundleLink.LinkRelation.last,
                         "http://fonzy.com/cool/Practitioner?identifier=abc",
                         1,
                         1))));
@@ -220,29 +256,29 @@ public class Dstu2PractitionerControllerTest {
 
   @Test
   public void validate() {
-    DatamartPractitioner dm = Dstu2PractitionerSamples.Datamart.create().practitioner();
-    Practitioner practitioner = Dstu2PractitionerSamples.Dstu2.create().practitioner();
+    DatamartPractitioner dm = Datamart.create().practitioner();
+    Practitioner practitioner = Stu3PractitionerSamples.Stu3.create().practitioner();
     assertThat(
             controller()
                 .validate(
-                    Dstu2PractitionerSamples.Dstu2.asBundle(
+                    Stu3PractitionerSamples.Stu3.asBundle(
                         "http://fonzy.com/cool",
                         List.of(practitioner),
-                        Dstu2PractitionerSamples.Dstu2.link(
-                            LinkRelation.first,
+                        Stu3PractitionerSamples.Stu3.link(
+                            BundleLink.LinkRelation.first,
                             "http://fonzy.com/cool/AllergyIntolerance?identifier=1",
                             1,
                             1),
-                        Dstu2PractitionerSamples.Dstu2.link(
-                            LinkRelation.self,
+                        Stu3PractitionerSamples.Stu3.link(
+                            gov.va.api.health.stu3.api.bundle.BundleLink.LinkRelation.self,
                             "http://fonzy.com/cool/AllergyIntolerance?identifier=1",
                             1,
                             1),
-                        Dstu2PractitionerSamples.Dstu2.link(
-                            LinkRelation.last,
+                        Stu3PractitionerSamples.Stu3.link(
+                            BundleLink.LinkRelation.last,
                             "http://fonzy.com/cool/AllergyIntolerance?identifier=1",
                             1,
                             1))))
-        .isEqualTo(Dstu2Validator.ok());
+        .isEqualTo(Stu3Validator.ok());
   }
 }

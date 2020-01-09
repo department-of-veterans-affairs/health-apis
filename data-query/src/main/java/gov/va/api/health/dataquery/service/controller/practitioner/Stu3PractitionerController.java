@@ -3,8 +3,8 @@ package gov.va.api.health.dataquery.service.controller.practitioner;
 import static java.util.Collections.emptyList;
 
 import com.google.common.collect.Iterables;
-import gov.va.api.health.dataquery.service.controller.AbstractIncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
+import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
@@ -19,9 +19,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.Min;
-
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
@@ -90,8 +90,31 @@ public class Stu3PractitionerController {
     headers = {"raw=true"}
   )
   public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
-    AbstractIncludesIcnMajig.addHeaderForNoPatients(response);
+    IncludesIcnMajig.addHeaderForNoPatients(response);
     return entityById(publicId).payload();
+  }
+
+  /** Search by patient and clinical status if available. */
+  @GetMapping(params = {"family", "given"})
+  public Practitioner.Bundle searchByFamilyAndGiven(
+      @RequestParam("family") String family,
+      @RequestParam("given") String given,
+      @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
+      @CountParameter @Min(0) int count) {
+    MultiValueMap<String, String> parameters =
+        Parameters.builder()
+            .add("family", family)
+            .add("given", given)
+            .add("page", page)
+            .add("_count", count)
+            .build();
+    Page<PractitionerEntity> entitiesPage =
+        repository.findByFamilyNameAndGivenName(family, given, page(page, count));
+    if (count == 0) {
+      return bundle(parameters, emptyList(), (int) entitiesPage.getTotalElements());
+    }
+    return bundle(
+        parameters, transform(entitiesPage.get()), (int) (entitiesPage.getTotalElements()));
   }
 
   /** Search by _id. */
@@ -134,39 +157,6 @@ public class Stu3PractitionerController {
         .map(dm -> Stu3PractitionerTransformer.builder().datamart(dm).build().toFhir())
         .collect(Collectors.toList());
   }
-
-  // /** Search by Family and Given. */
-  // @GetMapping(params = {"family", "given"})
-  // @SneakyThrows
-  // public Practitioner.Bundle searchByFamilyandGiven(
-  // @RequestParam("given") String given,
-  // @RequestParam("family") String family,
-  // @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
-  // @CountParameter @Min(0) int count) {
-  // Page<PractitionerEntity> entitiesPage = repository.findAll(spec, page(page, count));
-  // if (count == 0) {
-  // return bundle(Parameters.builder()
-  // .add("family", family)
-  // .add("given", given)
-  // .add("page", page)
-  // .add("_count", count)
-  // .build(), emptyList(), (int) entitiesPage.getTotalElements());
-  // }
-  // return bundle(parameters, transform(entitiesPage.get()), (int)
-  // entitiesPage.getTotalElements());
-  //
-  // return bundle(
-  // Parameters.builder()
-  // .add("family", family)
-  // .add("given", given)
-  // .add("page", page)
-  // .add("_count", count)
-  // .build(),
-  // resource == null || count == 0 ? emptyList() : List.of(resource),
-  // resource == null ? 0 : 1);
-  // }
-
-
 
   /** Hey, this is a validate endpoint. It validates. */
   @PostMapping(
