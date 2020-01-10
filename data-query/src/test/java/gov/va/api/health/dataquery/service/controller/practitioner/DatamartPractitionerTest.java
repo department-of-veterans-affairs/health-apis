@@ -161,6 +161,7 @@ public class DatamartPractitionerTest {
     assertThat(specialty.providerType()).isEqualTo(empty());
     assertThat(specialty.vaCode()).isEqualTo(empty());
     assertThat(specialty.x12Code()).isEqualTo(empty());
+    assertThat(specialty.specialtyCode()).isEmpty();
   }
 
   @Test

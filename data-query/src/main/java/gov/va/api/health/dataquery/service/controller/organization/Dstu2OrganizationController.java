@@ -1,4 +1,4 @@
-package gov.va.api.health.dataquery.service.controller.practitioner;
+package gov.va.api.health.dataquery.service.controller.organization;
 
 import static java.util.Collections.emptyList;
 
@@ -6,17 +6,14 @@ import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
 import gov.va.api.health.dataquery.service.controller.Dstu2Validator;
 import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
-import gov.va.api.health.dataquery.service.controller.PageLinks;
+import gov.va.api.health.dataquery.service.controller.PageLinks.LinkConfig;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
-import gov.va.api.health.dstu2.api.resources.Practitioner;
-import java.util.Collection;
+import gov.va.api.health.dstu2.api.resources.Organization;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Stream;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,39 +28,39 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Request Mappings for Practitioner Profile, see http://hl7.org/fhir/DSTU2/practitioner.html for
+ * Request Mappings for DSTU Organization, see https://www.hl7.org/fhir/DSTU2/appointment.html for
  * implementation details.
  */
+@SuppressWarnings("WeakerAccess")
 @Validated
 @RestController
-@SuppressWarnings("WeakerAccess")
 @RequestMapping(
-  value = {"/dstu2/Practitioner"},
+  value = "/dstu2/Organization",
   produces = {"application/json", "application/json+fhir", "application/fhir+json"}
 )
-public class Dstu2PractitionerController {
+public class Dstu2OrganizationController {
 
   private Dstu2Bundler bundler;
 
-  private PractitionerRepository repository;
+  private OrganizationRepository repository;
 
   private WitnessProtection witnessProtection;
 
-  /** Autowired constructor. */
-  public Dstu2PractitionerController(
+  /** Spring constructor. */
+  public Dstu2OrganizationController(
       @Autowired Dstu2Bundler bundler,
-      @Autowired PractitionerRepository repository,
+      @Autowired OrganizationRepository repository,
       @Autowired WitnessProtection witnessProtection) {
     this.bundler = bundler;
     this.repository = repository;
     this.witnessProtection = witnessProtection;
   }
 
-  Practitioner.Bundle bundle(
-      MultiValueMap<String, String> parameters, List<Practitioner> reports, int totalRecords) {
-    PageLinks.LinkConfig linkConfig =
-        PageLinks.LinkConfig.builder()
-            .path("Practitioner")
+  Organization.Bundle bundle(
+      MultiValueMap<String, String> parameters, List<Organization> reports, int totalRecords) {
+    LinkConfig linkConfig =
+        LinkConfig.builder()
+            .path("Organization")
             .queryParams(parameters)
             .page(Parameters.pageOf(parameters))
             .recordsPerPage(Parameters.countOf(parameters))
@@ -71,24 +68,21 @@ public class Dstu2PractitionerController {
             .build();
     return bundler.bundle(
         Dstu2Bundler.BundleContext.of(
-            linkConfig,
-            reports,
-            Function.identity(),
-            Practitioner.Entry::new,
-            Practitioner.Bundle::new));
+            linkConfig, reports, Organization.Entry::new, Organization.Bundle::new));
   }
 
-  PractitionerEntity findById(String publicId) {
-    Optional<PractitionerEntity> entity = repository.findById(witnessProtection.toCdwId(publicId));
+  OrganizationEntity findById(String publicId) {
+    Optional<OrganizationEntity> entity = repository.findById(witnessProtection.toCdwId(publicId));
     return entity.orElseThrow(() -> new ResourceExceptions.NotFound(publicId));
   }
 
   /** Read by id. */
   @GetMapping(value = {"/{publicId}"})
-  public Practitioner read(@PathVariable("publicId") String publicId) {
-    DatamartPractitioner practitioner = findById(publicId).asDatamartPractitioner();
-    replaceReferences(List.of(practitioner));
-    return transform(practitioner);
+  Organization read(@PathVariable("publicId") String publicId) {
+    DatamartOrganization organization = findById(publicId).asDatamartOrganization();
+    witnessProtection.registerAndUpdateReferences(
+        List.of(organization), resource -> resource.partOf().stream());
+    return transform(organization);
   }
 
   /** Read by id. */
@@ -97,49 +91,38 @@ public class Dstu2PractitionerController {
     headers = {"raw=true"}
   )
   public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
-    PractitionerEntity entity = findById(publicId);
     IncludesIcnMajig.addHeaderForNoPatients(response);
-    return entity.payload();
-  }
-
-  private Collection<DatamartPractitioner> replaceReferences(
-      Collection<DatamartPractitioner> resources) {
-    witnessProtection.registerAndUpdateReferences(
-        resources,
-        resource ->
-            Stream.concat(
-                resource
-                    .practitionerRole()
-                    .stream()
-                    .map(role -> role.managingOrganization().orElse(null)),
-                resource.practitionerRole().stream().flatMap(role -> role.location().stream())));
-    return resources;
+    return findById(publicId).payload();
   }
 
   /** Search by _id. */
   @GetMapping(params = {"_id"})
-  public Practitioner.Bundle searchById(
-      @RequestParam("_id") String id,
+  Organization.Bundle searchById(
+      @RequestParam("_id") String publicId,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
-    Practitioner resource = read(id);
+    Organization resource = read(publicId);
     return bundle(
-        Parameters.builder().add("identifier", id).add("page", page).add("_count", count).build(),
+        Parameters.builder()
+            .add("identifier", publicId)
+            .add("page", page)
+            .add("_count", count)
+            .build(),
         resource == null || count == 0 ? emptyList() : List.of(resource),
         resource == null ? 0 : 1);
   }
 
   /** Search by Identifier. */
   @GetMapping(params = {"identifier"})
-  public Practitioner.Bundle searchByIdentifier(
+  public Organization.Bundle searchByIdentifier(
       @RequestParam("identifier") String id,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
     return searchById(id, page, count);
   }
 
-  Practitioner transform(DatamartPractitioner dm) {
-    return Dstu2PractitionerTransformer.builder().datamart(dm).build().toFhir();
+  Organization transform(DatamartOrganization dm) {
+    return Dstu2OrganizationTransformer.builder().datamart(dm).build().toFhir();
   }
 
   /** Hey, this is a validate endpoint. It validates. */
@@ -147,7 +130,7 @@ public class Dstu2PractitionerController {
     value = "/$validate",
     consumes = {"application/json", "application/json+fhir", "application/fhir+json"}
   )
-  public OperationOutcome validate(@RequestBody Practitioner.Bundle bundle) {
+  public OperationOutcome validate(@RequestBody Organization.Bundle bundle) {
     return Dstu2Validator.create().validate(bundle);
   }
 }

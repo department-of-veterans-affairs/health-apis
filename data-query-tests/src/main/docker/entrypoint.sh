@@ -138,7 +138,7 @@ checkVariablesForAutomation() {
   # Check out required deployment variables and data query specific variables.
   for param in "K8S_LOAD_BALANCER" "K8S_ENVIRONMENT" "SENTINEL_ENV" "TOKEN" \
     "SENTINEL_SMOKE_TEST_CATEGORY" "SENTINEL_REGRESSION_TEST_CATEGORY" \
-    "DATA_QUERY_API_PATH" "INTERNAL_API_PATH" "DATA_QUERY_REPLACE_URL" "USER_PASSWORD" \
+    "DSTU2_API_PATH" "STU3_API_PATH" "INTERNAL_API_PATH" "DATA_QUERY_REPLACE_URL" "USER_PASSWORD" \
     "CLIENT_ID" "CLIENT_SECRET" "PATIENT_ID"; do
     [ -z ${!param} ] && usage "Variable $param must be specified."
   done
@@ -159,10 +159,12 @@ setupForAutomation() {
     -Daccess-token=$TOKEN \
     -Draw-token=$RAW_TOKEN \
     -Dbulk-token=$BULK_TOKEN \
-    -Dsentinel.argonaut.url=https://$K8S_LOAD_BALANCER \
+    -Dsentinel.dstu2.url=https://$K8S_LOAD_BALANCER \
+    -Dsentinel.stu3.url=https://$K8S_LOAD_BALANCER \
     -Dsentinel.data-query.public-url=https://$K8S_LOAD_BALANCER \
     -Dsentinel.internal.url=https://$K8S_LOAD_BALANCER \
-    -Dsentinel.argonaut.api-path=$DATA_QUERY_API_PATH \
+    -Dsentinel.dstu2.api-path=$DSTU2_API_PATH \
+    -Dsentinel.stu3.api-path=$STU3_API_PATH \
     -Dsentinel.internal.api-path=$INTERNAL_API_PATH \
     -Dcrawler.url.replace=$DATA_QUERY_REPLACE_URL \
     -D${K8S_ENVIRONMENT}.user-password=$USER_PASSWORD \

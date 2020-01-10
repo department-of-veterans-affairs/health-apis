@@ -53,11 +53,9 @@ public final class SystemDefinitions {
         .ids(serviceDefinition("ids", url, 443, null, "/not-available/"))
         .mrAnderson(serviceDefinition("mr-anderson", url, 443, null, "/not-available/"))
         .dstu2DataQuery(
-            serviceDefinition(
-                "argonaut", url, 443, magicAccessToken(), "/services/argonaut/v0/dstu2/"))
+            serviceDefinition("dstu2", url, 443, magicAccessToken(), "/services/fhir/v0/dstu2/"))
         .stu3DataQuery(
-            serviceDefinition(
-                "argonaut", url, 443, magicAccessToken(), "/services/argonaut/v0/stu3/"))
+            serviceDefinition("stu3", url, 443, magicAccessToken(), "/services/fhir/v0/stu3/"))
         .internalDataQuery(serviceDefinition("internal", url, 443, null, "/not-available/"))
         .cdwIds(labMitreIds())
         .build();
@@ -67,24 +65,25 @@ public final class SystemDefinitions {
     return TestIds.builder()
         .publicIds(true)
         .allergyIntolerance("I2-5XYSWFRZ637QKNR6IIRKYHA5RY000000")
+        .appointment("unused")
         .condition("I2-FOBJ7YQOH3RIQ5UZ6TRM32ZSQA000000")
         .diagnosticReport("I2-3ACWF6E3HPG6GLOSVWR2CIQNPI000000")
         .diagnosticReports(diagnosticReports())
+        .encounter("unused")
         .immunization("I2-55SQNNDBJUHYLVNXKTTYZSIVQE000000")
+        .location("I2-2FPCKUIXVR7RJLLG34XVWGZERM000000")
+        .locations(localAndLabLocations())
         .medication("I2-Q6VHYRTPQZ755P7JKKFUU5Q4TM000000")
+        .medicationDispense("unused")
         .medicationOrder("I2-J3UNHOOTERVSTBX4RMTN6MAMQ4000000")
         .medicationStatement("I2-AKEI5ITNUR5DGUNZXC33PYWXKU000000")
         .observation("I2-TSP35ALBRP4GSCBKRIWDO5CA54000000")
         .observations(observations())
+        .organization("unused")
         .patient("1011537977V693883")
+        .practitioner("I2-DBBL6FFRELZQJ64PWDI7FIVXIU000000")
         .procedure("I2-J2OUEVFHKESKUKIALZPTDTJNMQ000000")
         .procedures(localAndLabProcedures())
-        .location("unused")
-        .appointment("unused")
-        .medicationDispense("unused")
-        .encounter("unused")
-        .organization("unused")
-        .practitioner("unused")
         .unknown("5555555555555")
         .build();
   }
@@ -97,10 +96,20 @@ public final class SystemDefinitions {
     return SystemDefinition.builder()
         .ids(serviceDefinition("ids", url, 8089, null, "/api/"))
         .mrAnderson(serviceDefinition("mr-anderson", url, 8088, null, "/api/"))
-        .dstu2DataQuery(serviceDefinition("argonaut", url, 8090, null, "/dstu2/"))
-        .stu3DataQuery(serviceDefinition("argonaut", url, 8090, null, "/stu3/"))
+        .dstu2DataQuery(serviceDefinition("dstu2", url, 8090, null, "/dstu2/"))
+        .stu3DataQuery(serviceDefinition("stu3", url, 8090, null, "/stu3/"))
         .internalDataQuery(serviceDefinition("internal", url, 8090, null, "/"))
         .cdwIds(localIds())
+        .build();
+  }
+
+  private static TestIds.Locations localAndLabLocations() {
+    return TestIds.Locations.builder()
+        .name("TEM MH PSO TRS IND93EH 3")
+        .addressCity("TEMPLE")
+        .addressPostalCode("76504")
+        .addressState("TEXAS")
+        .addressStreet("1901 VETERANS MEMORIAL DRIVE")
         .build();
   }
 
@@ -120,13 +129,14 @@ public final class SystemDefinitions {
         .diagnosticReports(diagnosticReports())
         .immunization("I2-SUIW57VEBLELRLBDYF3LKXB5ZA000000")
         .location("I2-K7WNFKZA3JCXL3CLT6D2HP7RRU000000")
+        .locations(localAndLabLocations())
         .medication("I2-EMFL5CBY25CCZPXLHVMM4JEOX4000000")
         .medicationDispense("I2-22CRMSOEQUG7QIPH4DLC4V5FFH2C5OZRTCGW2QDOCFD5SESUFKUQ0000")
         .medicationOrder("I2-LM6LHSWIRQPLNRO5XUKAQUXWI4000000")
         .medicationStatement("I2-CRBOB5CEO2YTFDNYTAGAUCREVA000000")
         .observation("I2-2RCKPYB63RBIONGQCHJKHWZCJY000000")
         .observations(observations())
-        .organization("I2-CU32H73D562BVWKWLSRRHBY4WFWYJ7447EZD5HWII6CKS6YQZCTA0000")
+        .organization("I2-WOKLYQ64CJR6Q5P26N2VPSP7NY000000")
         .pii(
             PersonallyIdentifiableInformation.builder()
                 .gender("female")
@@ -161,11 +171,9 @@ public final class SystemDefinitions {
         .ids(serviceDefinition("ids", url, 443, null, "/not-available/"))
         .mrAnderson(serviceDefinition("mr-anderson", url, 443, null, "/not-available/"))
         .dstu2DataQuery(
-            serviceDefinition(
-                "argonaut", url, 443, magicAccessToken(), "/services/argonaut/v0/dstu2/"))
+            serviceDefinition("dstu2", url, 443, magicAccessToken(), "/services/fhir/v0/dstu2/"))
         .stu3DataQuery(
-            serviceDefinition(
-                "argonaut", url, 443, magicAccessToken(), "/services/argonaut/v0/stu3/"))
+            serviceDefinition("stu3", url, 443, magicAccessToken(), "/services/fhir/v0/stu3/"))
         .internalDataQuery(serviceDefinition("internal", url, 443, null, "/not-available/"))
         .cdwIds(productionCdwIds())
         .build();
@@ -174,7 +182,7 @@ public final class SystemDefinitions {
   private static TestIds productionCdwIds() {
     return TestIds.builder()
         .publicIds(true)
-        .allergyIntolerance("I2-VEQLSCH5XMYBN3EIBIQ3LDWDUJMUVKKKUB5Z4E7QCYESQ53FMOJA0000")
+        .allergyIntolerance("I2-A6U4FCERBNSVAFYF6CMUOOHMBPJOJFVSJAWGW5TYE3EOC6TQ2OBQ0000")
         .appointment("I2-XPTA6C5Q7GP6JR25UNTMQGY6P5WYMMLMCP2YVFDGOTPCPHQXDH3A0000")
         .condition("I2-H7TWOL6IPU27YRF3OKZIUJM5D27UCDVBMBWSONEYQ66OTFL4OVYQ0000")
         .diagnosticReport("I2-M2QUOOXL3O73NUZCB7HEOVQ2GAGQFOATAYXW5FMU3I57IYQDE6RQ0000")
@@ -182,6 +190,7 @@ public final class SystemDefinitions {
         .encounter("I2-KC33Z5CFSUOVTRCIVKQ2JUB2ESFWMFFVGIFOIESBWOITMOPLFP7A0000")
         .immunization("I2-LR6MEWBUXWJGD75WXF5BFXXTTLTYR3S3AHUTW55G25J4UOG3ZQIQ0000")
         .location("I2-WEIZUDRRQFULJACUVBXZO7EFOU000000")
+        .locations(productionLocations())
         .medication("I2-H6VWTWQS5U454XKHOM6ZTUPCHA000000")
         .medicationDispense("I2-UJSIEUXIDQ6PNNMJMNG44VOCWNOUCKZJJ5SWPN2G2XOWVAHIPYEQ0000")
         .medicationOrder("I2-IB456XUS7OJUVJBC5ESLW3IZ2R6773XSYHA7V63BLTV6YSG4QJ6A0000")
@@ -201,6 +210,16 @@ public final class SystemDefinitions {
     return Procedures.builder().fromDate("ge2009").onDate("ge2009").toDate("le2014").build();
   }
 
+  private static TestIds.Locations productionLocations() {
+    return TestIds.Locations.builder()
+        .name("TPA PCE OR AMB SURGERY      -X")
+        .addressCity("TAMPA")
+        .addressPostalCode("33612-4745")
+        .addressState("FL")
+        .addressStreet("13000 BRUCE B DOWNS BLVD")
+        .build();
+  }
+
   /** Return definitions for the qa environment. */
   private static SystemDefinition qa() {
     // ID service and Mr Anderson not accessible in this environment
@@ -208,8 +227,8 @@ public final class SystemDefinitions {
     return SystemDefinition.builder()
         .ids(serviceDefinition("ids", url, 443, null, "/not-available/"))
         .mrAnderson(serviceDefinition("mr-anderson", url, 443, null, "/not-available/"))
-        .dstu2DataQuery(serviceDefinition("argonaut", url, 443, magicAccessToken(), "/dstu2/"))
-        .stu3DataQuery(serviceDefinition("argonaut", url, 443, magicAccessToken(), "/stu3/"))
+        .dstu2DataQuery(serviceDefinition("dstu2", url, 443, magicAccessToken(), "/dstu2/"))
+        .stu3DataQuery(serviceDefinition("stu3", url, 443, magicAccessToken(), "/stu3/"))
         .internalDataQuery(serviceDefinition("internal", url, 443, null, "/data-query/"))
         .cdwIds(productionCdwIds())
         .build();
@@ -232,8 +251,8 @@ public final class SystemDefinitions {
     return SystemDefinition.builder()
         .ids(serviceDefinition("ids", url, 443, null, "/not-available/"))
         .mrAnderson(serviceDefinition("mr-anderson", url, 443, null, "/not-available/"))
-        .dstu2DataQuery(serviceDefinition("argonaut", url, 443, magicAccessToken(), "/dstu2/"))
-        .stu3DataQuery(serviceDefinition("argonaut", url, 443, magicAccessToken(), "/stu3/"))
+        .dstu2DataQuery(serviceDefinition("dstu2", url, 443, magicAccessToken(), "/dstu2/"))
+        .stu3DataQuery(serviceDefinition("stu3", url, 443, magicAccessToken(), "/stu3/"))
         .internalDataQuery(serviceDefinition("internal", url, 443, null, "/data-query/"))
         .cdwIds(productionCdwIds())
         .build();
@@ -247,10 +266,9 @@ public final class SystemDefinitions {
         .mrAnderson(serviceDefinition("mr-anderson", url, 443, null, "/not-available/"))
         .dstu2DataQuery(
             serviceDefinition(
-                "argonaut", url, 443, magicAccessToken(), "/services/argonaut/v0/dstu2/"))
+                "dstu2", url, 443, magicAccessToken(), "/services/argonaut/v0/dstu2/"))
         .stu3DataQuery(
-            serviceDefinition(
-                "argonaut", url, 443, magicAccessToken(), "/services/argonaut/v0/stu3/"))
+            serviceDefinition("stu3", url, 443, magicAccessToken(), "/services/argonaut/v0/stu3/"))
         .internalDataQuery(serviceDefinition("internal", url, 443, null, "/data-query/"))
         .cdwIds(labMitreIds())
         .build();

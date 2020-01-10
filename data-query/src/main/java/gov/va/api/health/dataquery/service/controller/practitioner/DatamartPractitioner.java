@@ -18,6 +18,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class DatamartPractitioner implements HasReplaceableId {
+
   @Builder.Default private String objectType = "Practitioner";
 
   @Builder.Default private int objectVersion = 1;
@@ -91,6 +92,7 @@ public class DatamartPractitioner implements HasReplaceableId {
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
   public static final class Address {
+
     private Boolean temp;
 
     private String line1;
@@ -111,6 +113,7 @@ public class DatamartPractitioner implements HasReplaceableId {
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
   public static final class Name {
+
     private String family;
 
     private String given;
@@ -141,6 +144,7 @@ public class DatamartPractitioner implements HasReplaceableId {
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
   public static final class PractitionerRole {
+
     private Optional<DatamartReference> managingOrganization;
 
     private Optional<DatamartCoding> role;
@@ -206,6 +210,7 @@ public class DatamartPractitioner implements HasReplaceableId {
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static final class Period {
+
       private Optional<LocalDate> start;
 
       private Optional<LocalDate> end;
@@ -232,6 +237,7 @@ public class DatamartPractitioner implements HasReplaceableId {
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static final class Specialty {
+
       private Optional<String> providerType;
 
       private Optional<String> classification;
@@ -241,6 +247,8 @@ public class DatamartPractitioner implements HasReplaceableId {
       private Optional<String> vaCode;
 
       private Optional<String> x12Code;
+
+      private Optional<String> specialtyCode;
 
       /** Lazy initialization. */
       public Optional<String> areaOfSpecialization() {
@@ -266,6 +274,14 @@ public class DatamartPractitioner implements HasReplaceableId {
         return providerType;
       }
 
+      /** Lazy Initialization. */
+      public Optional<String> specialtyCode() {
+        if (specialtyCode == null) {
+          specialtyCode = Optional.empty();
+        }
+        return specialtyCode;
+      }
+
       /** Lazy initialization. */
       public Optional<String> vaCode() {
         if (vaCode == null) {
@@ -289,6 +305,7 @@ public class DatamartPractitioner implements HasReplaceableId {
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
   public static final class Telecom {
+
     private System system;
 
     private String value;
