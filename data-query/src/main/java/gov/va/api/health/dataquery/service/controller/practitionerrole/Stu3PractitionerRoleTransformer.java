@@ -1,6 +1,20 @@
 package gov.va.api.health.dataquery.service.controller.practitionerrole;
 
+import static gov.va.api.health.dataquery.service.controller.Stu3Transformers.asReference;
+import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
+import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
+import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dataquery.service.controller.practitioner.DatamartPractitioner;
+import gov.va.api.health.stu3.api.elements.Reference;
+import gov.va.api.health.stu3.api.resources.Practitioner;
+import gov.va.api.health.stu3.api.datatypes.Period;
 import gov.va.api.health.stu3.api.resources.PractitionerRole;
 import lombok.Builder;
 import lombok.NonNull;
@@ -83,20 +97,72 @@ final class Stu3PractitionerRoleTransformer {
 
   /** Convert datamart structure to FHIR. */
   public PractitionerRole toFhir() {
-    //    return Location.builder()
-    //        .resourceType("Location")
-    //        .mode(Location.Mode.instance)
-    //        .id(datamart.cdwId())
-    //        .status(status(datamart.status()))
-    //        .name(datamart.name())
-    //        .description(datamart.description().orElse(null))
-    //        .type(type(datamart.type()))
-    //        .telecom(telecoms(datamart.telecom()))
-    //        .address(address(datamart.address()))
-    //        .physicalType(physicalType(datamart.physicalType()))
-    //        .managingOrganization(asReference(datamart.managingOrganization()))
-    //        .build();
+    // available:
+    //	    private Optional<DatamartCoding> role;
+    //	    private List<Specialty> specialty;
+    //	    private Optional<Period> period;
+    //	    private List<DatamartReference> location;
+    //	    private Optional<String> healthCareService;
 
-    return null;
+    return PractitionerRole.builder()
+        .resourceType("PractitionerRole")
+        .id(datamart.cdwId())
+        .period(period(datamart.practitionerRole()))
+        .practitioner(practitioner(datamart.cdwId()))
+        .organization(organization(datamart.practitionerRole()))
+        .code()
+        .specialty()
+        .location(locations)
+        .healthCareService()
+        .build();
+
+    return Practitioner.PractitionerRole.builder()
+        .location(
+            emptyToNull(
+                source
+                    .location()
+                    .stream()
+                    .map(loc -> asReference(loc))
+                    .collect(Collectors.toList())))
+        .role(asCodeableConceptWrapping(source.role()))
+        .managingOrganization(asReference(source.managingOrganization()))
+        .healthcareService(healthcareServices(source.healthCareService()))
+        .build();
+  }
+
+  private Reference organization(Optional<DatamartPractitioner.PractitionerRole> role) {
+    if (role.isEmpty()) {
+      return null;
+    }
+    return asReference(role.get().managingOrganization());
+  }
+
+  private Reference practitioner(String cdwId) {
+    return asReference(
+        DatamartReference.builder()
+            .type(Optional.of("Practitioner"))
+            .reference(Optional.ofNullable(cdwId))
+            .build());
+  }
+
+  private Period period(Optional<DatamartPractitioner.PractitionerRole> role) {
+    if (role.isEmpty()) {
+      return null;
+    }
+    Optional<DatamartPractitioner.PractitionerRole.Period> period = role.get().period();
+    if (period.isEmpty()) {
+      return null;
+    }
+    return Period.builder()
+        .start(period.get().start().map(LocalDate::toString).orElse(null))
+        .end(period.get().end().map(LocalDate::toString).orElse(null))
+        .build();
+  }
+
+  static List<Reference> healthcareServices(Optional<String> service) {
+    if (isBlank(service)) {
+      return null;
+    }
+    return List.of(Reference.builder().display(service.get()).build());
   }
 }
