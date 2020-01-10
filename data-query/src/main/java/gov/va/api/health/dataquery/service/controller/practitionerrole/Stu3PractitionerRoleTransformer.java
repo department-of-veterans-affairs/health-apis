@@ -21,7 +21,6 @@ import lombok.NonNull;
 
 @Builder
 final class Stu3PractitionerRoleTransformer {
-
   @NonNull private final DatamartPractitioner datamart;
 
   private CodeableConcept code(Optional<DatamartPractitioner.PractitionerRole> role) {
