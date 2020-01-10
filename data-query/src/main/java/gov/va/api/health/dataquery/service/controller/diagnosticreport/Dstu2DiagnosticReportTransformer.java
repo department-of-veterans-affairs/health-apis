@@ -1,8 +1,8 @@
 package gov.va.api.health.dataquery.service.controller.diagnosticreport;
 
-import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.emptyToNull;
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.parseInstant;
 import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
+import static gov.va.api.health.dataquery.service.controller.Transformers.emptyToNull;
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.springframework.util.CollectionUtils.isEmpty;
