@@ -1,22 +1,7 @@
 package gov.va.api.health.dataquery.service.controller.practitionerrole;
 
-import static gov.va.api.health.dataquery.service.controller.Stu3Transformers.asReference;
-import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
-import static java.util.Arrays.asList;
-import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.StringUtils.trimToEmpty;
-import static org.apache.commons.lang3.StringUtils.trimToNull;
-
-import gov.va.api.health.dataquery.service.controller.EnumSearcher;
 import gov.va.api.health.dataquery.service.controller.practitioner.DatamartPractitioner;
-import gov.va.api.health.stu3.api.datatypes.CodeableConcept;
-import gov.va.api.health.stu3.api.datatypes.Coding;
-import gov.va.api.health.stu3.api.datatypes.ContactPoint;
-import gov.va.api.health.stu3.api.resources.Location;
 import gov.va.api.health.stu3.api.resources.PractitionerRole;
-
-import java.util.List;
-import java.util.Optional;
 import lombok.Builder;
 import lombok.NonNull;
 

@@ -16,7 +16,6 @@ import gov.va.api.health.dataquery.service.controller.practitioner.PractitionerE
 import gov.va.api.health.dataquery.service.controller.practitioner.PractitionerRepository;
 import gov.va.api.health.stu3.api.resources.OperationOutcome;
 import gov.va.api.health.stu3.api.resources.PractitionerRole;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -24,7 +23,6 @@ import java.util.stream.Stream;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.Min;
 import lombok.AllArgsConstructor;
-import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -101,47 +99,6 @@ public class Stu3PractitionerRoleController {
     return entityById(publicId).payload();
   }
 
-  //  /** Search by address. */
-  //  @GetMapping
-  //  @SneakyThrows
-  //  public PractitionerRole.Bundle searchByAddress(
-  //      @RequestParam(value = "address", required = false) String street,
-  //      @RequestParam(value = "address-city", required = false) String city,
-  //      @RequestParam(value = "address-state", required = false) String state,
-  //      @RequestParam(value = "address-postalcode", required = false) String postalCode,
-  //      @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
-  //      @CountParameter @Min(0) int count) {
-  //    if (street == null && city == null && state == null && postalCode == null) {
-  //      throw new ResourceExceptions.MissingSearchParameters(
-  //          String.format(
-  //              "At least one of %s must be specified",
-  //              List.of("address", "address-city", "address-state", "address-postalcode")));
-  //    }
-  //    MultiValueMap<String, String> parameters =
-  //        Parameters.builder()
-  //            .addIgnoreNull("address", street)
-  //            .addIgnoreNull("address-city", city)
-  //            .addIgnoreNull("address-state", state)
-  //            .addIgnoreNull("address-postalcode", postalCode)
-  //            .add("page", page)
-  //            .add("_count", count)
-  //            .build();
-  //    PractitionerRepository.AddressSpecification spec =
-  //        PractitionerRepository.AddressSpecification.builder()
-  //            .street(street)
-  //            .city(city)
-  //            .state(state)
-  //            .postalCode(postalCode)
-  //            .build();
-  //    Page<PractitionerEntity> entitiesPage = repository.findAll(spec, page(page, count));
-  //
-  //    if (count == 0) {
-  //      return bundle(parameters, emptyList(), (int) entitiesPage.getTotalElements());
-  //    }
-  //    return bundle(parameters, transform(entitiesPage.get()), (int)
-  // entitiesPage.getTotalElements());
-  //  }
-
   /** Search by _id. */
   @GetMapping(params = {"_id"})
   public PractitionerRole.Bundle searchById(
@@ -168,21 +125,53 @@ public class Stu3PractitionerRoleController {
     return searchById(publicId, page, count);
   }
 
-  /** Search by Identifier. */
+  /** Search by name. */
+  @GetMapping(params = {"practitioner.family", "given"})
+  public PractitionerRole.Bundle searchByName(
+      @RequestParam("practitioner.family") String family,
+      @RequestParam("given") String given,
+      @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
+      @CountParameter @Min(0) int count) {
+    MultiValueMap<String, String> parameters =
+        Parameters.builder()
+            .add("practitioner.family", family)
+            .add("given", given)
+            .add("page", page)
+            .add("_count", count)
+            .build();
+
+    Page<PractitionerEntity> entitiesPage =
+        repository.findByFamilyNameAndGivenName(family, given, page(page, count));
+    if (count == 0) {
+      return bundle(parameters, emptyList(), (int) entitiesPage.getTotalElements());
+    }
+    return bundle(parameters, transform(entitiesPage.get()), (int) entitiesPage.getTotalElements());
+  }
+
+  /** Search by NPI. */
   @GetMapping(params = {"practitioner.identifier"})
   public PractitionerRole.Bundle searchByNpi(
       @RequestParam("practitioner.identifier") String systemAndCode,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
-    // http://hl7.org/fhir/sid/us-npi%7C14|97860456
-
     MultiValueMap<String, String> parameters =
         Parameters.builder()
             .add("practitioner.identifier", systemAndCode)
             .add("page", page)
             .add("_count", count)
             .build();
-    // split systemAndCode at the |
+    int delimiterIndex = systemAndCode.lastIndexOf("|");
+    if (delimiterIndex <= -1) {
+      throw new ResourceExceptions.BadSearchParameter("Cannot parse NPI for " + systemAndCode);
+    }
+
+    String system = systemAndCode.substring(0, delimiterIndex);
+    if (!system.equalsIgnoreCase("http://hl7.org/fhir/sid/us-npi")) {
+      throw new ResourceExceptions.BadSearchParameter(
+          String.format("System %s is not supported", system));
+    }
+
+    String npi = systemAndCode.substring(delimiterIndex + 1);
     Page<PractitionerEntity> entitiesPage = repository.findByNpi(npi, page(page, count));
     if (count == 0) {
       return bundle(parameters, emptyList(), (int) entitiesPage.getTotalElements());
@@ -190,40 +179,19 @@ public class Stu3PractitionerRoleController {
     return bundle(parameters, transform(entitiesPage.get()), (int) entitiesPage.getTotalElements());
   }
 
-  /** Search by name. */
-  @GetMapping(params = {"practitioner.name"})
-  public PractitionerRole.Bundle searchByName(
-      @RequestParam("practitioner.name") String name,
-      @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
-      @CountParameter @Min(0) int count) {
-    MultiValueMap<String, String> parameters =
-        Parameters.builder()
-            .add("practitioner.name", name)
-            .add("page", page)
-            .add("_count", count)
-            .build();
-    Page<PractitionerEntity> entitiesPage = repository.findByName(name, page(page, count));
-    if (count == 0) {
-      return bundle(parameters, emptyList(), (int) entitiesPage.getTotalElements());
-    }
-    return bundle(parameters, transform(entitiesPage.get()), (int) entitiesPage.getTotalElements());
-  }
-
+  /** Search by specialty. */
+  @SuppressWarnings("unused")
   @GetMapping(params = {"specialty"})
   public PractitionerRole.Bundle searchBySpecialty(
       @RequestParam("specialty") String specialty,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
-    // Example: GET
-    // [base]/PractitionerRole?specialty=http://hl7.org/fhir/practitioner-specialty%7Ccardio
-    throw new UnsupportedOperationException(
-        "Practitioner role search by specialty not implemented");
+    throw new UnsupportedOperationException("Search by specialty not supported");
   }
 
   private List<PractitionerRole> transform(Stream<PractitionerEntity> entities) {
     List<DatamartPractitioner> datamarts =
         entities.map(PractitionerEntity::asDatamartPractitioner).collect(Collectors.toList());
-
     witnessProtection.registerAndUpdateReferences(
         datamarts,
         resource ->
@@ -233,7 +201,6 @@ public class Stu3PractitionerRoleController {
                     .stream()
                     .map(role -> role.managingOrganization().orElse(null)),
                 resource.practitionerRole().stream().flatMap(role -> role.location().stream())));
-
     return datamarts
         .stream()
         .map(dm -> Stu3PractitionerRoleTransformer.builder().datamart(dm).build().toFhir())

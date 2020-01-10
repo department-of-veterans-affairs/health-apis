@@ -9,9 +9,6 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.Table;
-
-import org.springframework.data.domain.Sort;
-
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,6 +16,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
+import org.springframework.data.domain.Sort;
 
 @Data
 @Entity
@@ -51,6 +49,7 @@ public class PractitionerEntity implements DatamartEntity {
     return Sort.by("cdwId").ascending();
   }
 
+  /** Deserialize payload. */
   @SneakyThrows
   public DatamartPractitioner asDatamartPractitioner() {
     DatamartPractitioner dm =
