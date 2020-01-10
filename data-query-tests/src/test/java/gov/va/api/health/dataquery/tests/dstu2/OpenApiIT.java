@@ -21,15 +21,13 @@ public class OpenApiIT {
   @Test
   @Category({Local.class, LabDataQueryPatient.class, ProdDataQueryPatient.class})
   public void openApiIsValid() {
-    requestOpenApi("json");
-    requestOpenApi("yaml");
+    assertThat(requestOpenApi("json").statusCode()).isEqualTo(200);
+    assertThat(requestOpenApi("yaml").statusCode()).isEqualTo(200);
   }
 
-  public void requestOpenApi(String fileExtension) {
-    Response response =
-        RestAssured.given()
-            .spec(ResourceVerifier.dstu2().dataQuery().service().requestSpecification())
-            .get(apiPath() + "openapi." + fileExtension);
-    assertThat(response.getStatusCode()).isEqualTo(200);
+  public Response requestOpenApi(String fileExtension) {
+    return RestAssured.given()
+        .spec(ResourceVerifier.dstu2().dataQuery().service().requestSpecification())
+        .get(apiPath() + "openapi." + fileExtension);
   }
 }
