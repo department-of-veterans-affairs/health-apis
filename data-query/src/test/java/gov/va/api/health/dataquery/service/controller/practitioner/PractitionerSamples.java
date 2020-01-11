@@ -26,7 +26,6 @@ import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class PractitionerSamples {
-
   @AllArgsConstructor(staticName = "create")
   static class Datamart {
     public DatamartPractitioner practitioner() {
@@ -86,7 +85,6 @@ public class PractitionerSamples {
 
   @AllArgsConstructor(staticName = "create")
   public static class Dstu2 {
-
     static Practitioner.Bundle asBundle(
         String baseUrl, Collection<Practitioner> practitioners, BundleLink... links) {
       return Practitioner.Bundle.builder()
