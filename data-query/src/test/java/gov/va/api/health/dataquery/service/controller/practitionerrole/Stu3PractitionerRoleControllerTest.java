@@ -154,11 +154,6 @@ public class Stu3PractitionerRoleControllerTest {
     controller().read("x");
   }
 
-  //  searchByIdentifier(String, int, int)
-  //  searchByName(String, String, int, int)
-  //  searchByNpi(String, int, int)
-  //  searchBySpecialty(String, int, int)
-
   @Test
   public void searchById() {
     String publicId = "p1";
@@ -234,6 +229,9 @@ public class Stu3PractitionerRoleControllerTest {
                         1,
                         1))));
   }
+
+  //  searchByName(String, String, int, int)
+  //  searchByNpi(String, int, int)
 
   //  @Test
   //  public void searchByAddress() {
