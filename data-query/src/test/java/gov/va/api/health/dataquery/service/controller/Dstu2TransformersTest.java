@@ -8,12 +8,12 @@ import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.a
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asInteger;
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asReference;
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asReferenceId;
-import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.convert;
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.convertAll;
-import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.emptyToNull;
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.firstPayloadItem;
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.hasPayload;
-import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.ifPresent;
+import static gov.va.api.health.dataquery.service.controller.Transformers.convert;
+import static gov.va.api.health.dataquery.service.controller.Transformers.emptyToNull;
+import static gov.va.api.health.dataquery.service.controller.Transformers.ifPresent;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.dataquery.service.controller.Dstu2Transformers.MissingPayload;

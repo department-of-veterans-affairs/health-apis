@@ -1,9 +1,9 @@
 package gov.va.api.health.dataquery.service.controller.practitioner;
 
-import static gov.va.api.health.dataquery.service.controller.Stu3Transformers.convert;
-import static gov.va.api.health.dataquery.service.controller.Stu3Transformers.emptyToNull;
-import static gov.va.api.health.dataquery.service.controller.Stu3Transformers.ifPresent;
 import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
+import static gov.va.api.health.dataquery.service.controller.Transformers.convert;
+import static gov.va.api.health.dataquery.service.controller.Transformers.emptyToNull;
+import static gov.va.api.health.dataquery.service.controller.Transformers.ifPresent;
 import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -51,7 +51,10 @@ public class Stu3PractitionerTransformer {
     if (isBlank(npi)) {
       return null;
     }
-    return Practitioner.PractitionerIdentifier.builder().system("NPI").value(npi.get()).build();
+    return Practitioner.PractitionerIdentifier.builder()
+        .system("http://hl7.org/fhir/sid/us-npi")
+        .value(npi.get())
+        .build();
   }
 
   static Practitioner.PractitionerHumanName name(DatamartPractitioner.Name source) {

@@ -11,7 +11,6 @@ import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
 import gov.va.api.health.dataquery.service.controller.Dstu2Validator;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
-import gov.va.api.health.dataquery.service.controller.practitioner.Dstu2PractitionerSamples.Datamart;
 import gov.va.api.health.dstu2.api.bundle.BundleLink.LinkRelation;
 import gov.va.api.health.dstu2.api.resources.Practitioner;
 import gov.va.api.health.ids.api.IdentityService;
@@ -97,7 +96,7 @@ public class Dstu2PractitionerControllerTest {
     String orgCdwId = "456";
     String locPubId = "ghi";
     String locCdwId = "789";
-    DatamartPractitioner dm = Datamart.create().practitioner();
+    DatamartPractitioner dm = DatamartPractitionerSamples.Datamart.create().practitioner();
     repository.save(asEntity(dm));
     mockPractitionerIdentity(publicId, cdwId, orgPubId, orgCdwId, locPubId, locCdwId);
     Practitioner actual = controller().read("1234");
@@ -114,7 +113,7 @@ public class Dstu2PractitionerControllerTest {
     String locCdwId = "789";
     mockPractitionerIdentity(publicId, cdwId, orgPubId, orgCdwId, locPubId, locCdwId);
     HttpServletResponse servletResponse = mock(HttpServletResponse.class);
-    DatamartPractitioner dm = Dstu2PractitionerSamples.Datamart.create().practitioner(cdwId);
+    DatamartPractitioner dm = DatamartPractitionerSamples.Datamart.create().practitioner(cdwId);
     repository.save(asEntity(dm));
     String json = controller().readRaw(publicId, servletResponse);
     assertThat(toObject(json)).isEqualTo(dm);
@@ -152,7 +151,7 @@ public class Dstu2PractitionerControllerTest {
     String locPubId = "ghi";
     String locCdwId = "789";
     mockPractitionerIdentity(publicId, cdwId, orgPubId, orgCdwId, locPubId, locCdwId);
-    DatamartPractitioner dm = Datamart.create().practitioner(cdwId);
+    DatamartPractitioner dm = DatamartPractitionerSamples.Datamart.create().practitioner(cdwId);
     repository.save(asEntity(dm));
     Practitioner.Bundle actual = controller().searchById(publicId, 1, 1);
     assertThat(json(actual))
@@ -186,7 +185,7 @@ public class Dstu2PractitionerControllerTest {
     String orgCdwId = "456";
     String locPubId = "ghi";
     String locCdwId = "789";
-    DatamartPractitioner dm = Dstu2PractitionerSamples.Datamart.create().practitioner(cdwId);
+    DatamartPractitioner dm = DatamartPractitionerSamples.Datamart.create().practitioner(cdwId);
     repository.save(asEntity(dm));
     mockPractitionerIdentity(publicId, cdwId, orgPubId, orgCdwId, locPubId, locCdwId);
     Practitioner.Bundle actual = controller().searchByIdentifier(publicId, 1, 1);
@@ -220,7 +219,7 @@ public class Dstu2PractitionerControllerTest {
 
   @Test
   public void validate() {
-    DatamartPractitioner dm = Dstu2PractitionerSamples.Datamart.create().practitioner();
+    DatamartPractitioner dm = DatamartPractitionerSamples.Datamart.create().practitioner();
     Practitioner practitioner = Dstu2PractitionerSamples.Dstu2.create().practitioner();
     assertThat(
             controller()

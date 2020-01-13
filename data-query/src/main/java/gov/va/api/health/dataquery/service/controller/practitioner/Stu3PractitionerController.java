@@ -2,7 +2,6 @@ package gov.va.api.health.dataquery.service.controller.practitioner;
 
 import static java.util.Collections.emptyList;
 
-import com.google.common.collect.Iterables;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
@@ -13,6 +12,7 @@ import gov.va.api.health.dataquery.service.controller.Stu3Validator;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.stu3.api.resources.OperationOutcome;
 import gov.va.api.health.stu3.api.resources.Practitioner;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -34,7 +34,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Request Mappings for Practitioner Profile, see http://hl7.org/fhir/DSTU2/practitioner.html for
+ * Request Mappings for Practitioner Profile, see
+ * https://www.fhir.org/guides/argonaut/pd/StructureDefinition-argo-practitioner.html for
  * implementation details.
  */
 @Validated
@@ -72,7 +73,7 @@ public class Stu3PractitionerController {
         Practitioner.Bundle::new);
   }
 
-  private PractitionerEntity entityById(String publicId) {
+  private PractitionerEntity findById(String publicId) {
     Optional<PractitionerEntity> entity = repository.findById(witnessProtection.toCdwId(publicId));
     return entity.orElseThrow(() -> new ResourceExceptions.NotFound(publicId));
   }
@@ -80,8 +81,9 @@ public class Stu3PractitionerController {
   /** Read by id. */
   @GetMapping(value = {"/{publicId}"})
   public Practitioner read(@PathVariable("publicId") String publicId) {
-    PractitionerEntity entity = entityById(publicId);
-    return Iterables.getOnlyElement(transform(Stream.of(entity)));
+    DatamartPractitioner practitioner = findById(publicId).asDatamartPractitioner();
+    replaceReferences(List.of(practitioner));
+    return transform(practitioner);
   }
 
   /** Read raw. */
@@ -90,11 +92,26 @@ public class Stu3PractitionerController {
     headers = {"raw=true"}
   )
   public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
+    PractitionerEntity entity = findById(publicId);
     IncludesIcnMajig.addHeaderForNoPatients(response);
-    return entityById(publicId).payload();
+    return entity.payload();
   }
 
-  /** Search by patient and clinical status if available. */
+  private Collection<DatamartPractitioner> replaceReferences(
+      Collection<DatamartPractitioner> resources) {
+    witnessProtection.registerAndUpdateReferences(
+        resources,
+        resource ->
+            Stream.concat(
+                resource
+                    .practitionerRole()
+                    .stream()
+                    .map(role -> role.managingOrganization().orElse(null)),
+                resource.practitionerRole().stream().flatMap(role -> role.location().stream())));
+    return resources;
+  }
+
+  /** Search by family and given name. */
   @GetMapping(params = {"family", "given"})
   public Practitioner.Bundle searchByFamilyAndGiven(
       @RequestParam("family") String family,
@@ -146,16 +163,15 @@ public class Stu3PractitionerController {
   private List<Practitioner> transform(Stream<PractitionerEntity> entities) {
     List<DatamartPractitioner> datamarts =
         entities.map(PractitionerEntity::asDatamartPractitioner).collect(Collectors.toList());
-    witnessProtection.registerAndUpdateReferences(
-        datamarts,
-        resource ->
-            Stream.concat(
-                Stream.of(resource.practitionerRole().get().managingOrganization().orElse(null)),
-                resource.practitionerRole().get().location().stream()));
+    replaceReferences(datamarts);
     return datamarts
         .stream()
         .map(dm -> Stu3PractitionerTransformer.builder().datamart(dm).build().toFhir())
         .collect(Collectors.toList());
+  }
+
+  gov.va.api.health.stu3.api.resources.Practitioner transform(DatamartPractitioner dm) {
+    return Stu3PractitionerTransformer.builder().datamart(dm).build().toFhir();
   }
 
   /** Hey, this is a validate endpoint. It validates. */

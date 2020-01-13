@@ -9,7 +9,7 @@ import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.Stu3Bundler;
 import gov.va.api.health.dataquery.service.controller.Stu3Validator;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
-import gov.va.api.health.dataquery.service.controller.practitioner.Stu3PractitionerSamples.Datamart;
+import gov.va.api.health.dataquery.service.controller.practitioner.DatamartPractitionerSamples.Datamart;
 import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;

@@ -81,7 +81,7 @@ public class Dstu2PractitionerTransformerTest {
 
   @Test
   public void practitioner() {
-    assertThat(tx(Dstu2PractitionerSamples.Datamart.create().practitioner()).toFhir())
+    assertThat(tx(DatamartPractitionerSamples.Datamart.create().practitioner()).toFhir())
         .isEqualTo(Dstu2PractitionerSamples.Dstu2.create().practitioner());
   }
 

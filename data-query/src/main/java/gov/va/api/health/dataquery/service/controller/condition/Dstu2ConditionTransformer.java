@@ -3,7 +3,7 @@ package gov.va.api.health.dataquery.service.controller.condition;
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asDateString;
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asDateTimeString;
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asReference;
-import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.ifPresent;
+import static gov.va.api.health.dataquery.service.controller.Transformers.ifPresent;
 
 import gov.va.api.health.argonaut.api.resources.Condition;
 import gov.va.api.health.argonaut.api.resources.Condition.VerificationStatusCode;
