@@ -15,7 +15,6 @@ Options
 Secrets Configuration
  This bash file is sourced and expected to set the following variables
  - KEYSTORE_PASSWORD
- - MRANDERSON_DB_URL, MRANDERSON_DB_USER, MRANDERSON_DB_PASSWORD
  - DATAQUERY_DB_URL, DATAQUERY_DB_USER, DATAQUERY_DB_PASSWORD
 
 $1
@@ -49,9 +48,6 @@ echo "Loading secrets: $SECRETS"
 
 MISSING_SECRETS=false
 [ -z "$KEYSTORE_PASSWORD" ] && echo "Missing configuration: KEYSTORE_PASSWORD" && MISSING_SECRETS=true
-[ -z "$MRANDERSON_DB_URL" ] && echo "Missing configuration: MRANDERSON_DB_URL" && MISSING_SECRETS=true
-[ -z "$MRANDERSON_DB_USER" ] && echo "Missing configuration: MRANDERSON_DB_USER" && MISSING_SECRETS=true
-[ -z "$MRANDERSON_DB_PASSWORD" ] && echo "Missing configuration: MRANDERSON_DB_PASSWORD" && MISSING_SECRETS=true
 [ -z "$DATAQUERY_DB_URL" ] && echo "Missing configuration: DATAQUERY_DB_URL" && MISSING_SECRETS=true
 [ -z "$DATAQUERY_DB_USER" ] && echo "Missing configuration: DATAQUERY_DB_USER" && MISSING_SECRETS=true
 [ -z "$DATAQUERY_DB_PASSWORD" ] && echo "Missing configuration: DATAQUERY_DB_PASSWORD" && MISSING_SECRETS=true
@@ -111,23 +107,10 @@ sendMoarSpams() {
   echo $spam
 }
 
-makeConfig mr-anderson $PROFILE
-configValue mr-anderson $PROFILE spring.datasource.url "$MRANDERSON_DB_URL"
-configValue mr-anderson $PROFILE spring.datasource.username "$MRANDERSON_DB_USER"
-configValue mr-anderson $PROFILE spring.datasource.password "$MRANDERSON_DB_PASSWORD"
-configValue mr-anderson $PROFILE identityservice.url http://localhost:8089
-addValue mr-anderson $PROFILE identityservice.encodingKey "$IDS_ENCODING_KEY"
-addValue mr-anderson $PROFILE identityservice.patientIdPattern "$IDS_PATIENT_ID_PATTERN"
-# The stored procedure in the lab is named differently
-[[ "$MRANDERSON_DB_URL" =~ .*cdw.lab.freedomstream.io.* ]] \
-  && addValue mr-anderson $PROFILE cdw.stored-procedure prc_resource_return
-checkForUnsetValues mr-anderson $PROFILE
-
 makeConfig data-query $PROFILE
 configValue data-query $PROFILE identityservice.url http://localhost:8089
 addValue data-query $PROFILE identityservice.encodingKey "$IDS_ENCODING_KEY"
 addValue data-query $PROFILE identityservice.patientIdPattern "$IDS_PATIENT_ID_PATTERN"
-configValue data-query $PROFILE mranderson.url http://localhost:8088
 configValue data-query $PROFILE data-query.public-url http://localhost:8090
 configValue data-query $PROFILE conformance.statement-type patient
 configValue data-query $PROFILE conformance.contact.name "$(whoDis)"

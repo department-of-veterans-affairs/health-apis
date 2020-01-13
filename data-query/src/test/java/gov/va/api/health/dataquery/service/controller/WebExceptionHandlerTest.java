@@ -11,11 +11,6 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.patient.Dstu2PatientController;
 import gov.va.api.health.dataquery.service.controller.patient.PatientSearchRepository;
-import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient.BadRequest;
-import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient.NotFound;
-import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient.SearchFailed;
-import gov.va.api.health.dataquery.service.mranderson.client.Query;
-import gov.va.api.health.dataquery.service.mranderson.client.Query.Profile;
 import gov.va.api.health.ids.client.IdEncoder.BadId;
 import java.lang.reflect.Method;
 import java.lang.reflect.UndeclaredThrowableException;
@@ -64,19 +59,9 @@ public class WebExceptionHandlerTest {
   @SuppressWarnings("deprecation")
   @Parameterized.Parameters(name = "{index}:{0} - {1}")
   public static List<Object[]> parameters() {
-    Query<?> query =
-        Query.builder()
-            .profile(Profile.ARGONAUT)
-            .resource("Patient")
-            .version("1.01")
-            .parameters(Parameters.forIdentity("123"))
-            .build();
     return Arrays.asList(
-        test(HttpStatus.NOT_FOUND, new NotFound(query)),
         test(HttpStatus.NOT_FOUND, new BadId("x", null)),
-        test(HttpStatus.BAD_REQUEST, new BadRequest(query)),
         test(HttpStatus.BAD_REQUEST, new ConstraintViolationException(new HashSet<>())),
-        test(HttpStatus.INTERNAL_SERVER_ERROR, new SearchFailed(query)),
         test(HttpStatus.INTERNAL_SERVER_ERROR, new RuntimeException()),
         test(
             HttpStatus.INTERNAL_SERVER_ERROR,

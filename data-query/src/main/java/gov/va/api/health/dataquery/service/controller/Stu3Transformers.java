@@ -8,6 +8,7 @@ import lombok.experimental.UtilityClass;
 /** Utility methods for STU3 transformers. */
 @UtilityClass
 public final class Stu3Transformers {
+
   /** Convert the datamart reference (if specified) to a FHIR reference. */
   public static Reference asReference(Optional<DatamartReference> maybeReference) {
     if (maybeReference == null || maybeReference.isEmpty()) {

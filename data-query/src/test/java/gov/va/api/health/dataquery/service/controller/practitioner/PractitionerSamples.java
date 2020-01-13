@@ -2,18 +2,20 @@ package gov.va.api.health.dataquery.service.controller.practitioner;
 
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
-import gov.va.api.health.dstu2.api.bundle.AbstractBundle.BundleType;
-import gov.va.api.health.dstu2.api.bundle.AbstractEntry.Search;
-import gov.va.api.health.dstu2.api.bundle.AbstractEntry.SearchMode;
-import gov.va.api.health.dstu2.api.bundle.BundleLink;
-import gov.va.api.health.dstu2.api.bundle.BundleLink.LinkRelation;
-import gov.va.api.health.dstu2.api.datatypes.Address;
+import gov.va.api.health.dstu2.api.bundle.AbstractBundle;
+import gov.va.api.health.dstu2.api.bundle.AbstractEntry;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
-import gov.va.api.health.dstu2.api.datatypes.ContactPoint;
 import gov.va.api.health.dstu2.api.datatypes.HumanName;
 import gov.va.api.health.dstu2.api.elements.Reference;
-import gov.va.api.health.dstu2.api.resources.Practitioner;
+import gov.va.api.health.stu3.api.bundle.AbstractBundle.BundleType;
+import gov.va.api.health.stu3.api.bundle.AbstractEntry.Search;
+import gov.va.api.health.stu3.api.bundle.AbstractEntry.SearchMode;
+import gov.va.api.health.stu3.api.bundle.BundleLink;
+import gov.va.api.health.stu3.api.bundle.BundleLink.LinkRelation;
+import gov.va.api.health.stu3.api.datatypes.Address;
+import gov.va.api.health.stu3.api.datatypes.ContactPoint;
+import gov.va.api.health.stu3.api.resources.Practitioner;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collection;
@@ -87,6 +89,99 @@ public class PractitionerSamples {
   @AllArgsConstructor(staticName = "create")
   public static class Dstu2 {
 
+    static gov.va.api.health.dstu2.api.resources.Practitioner.Bundle asBundle(
+        String baseUrl,
+        Collection<gov.va.api.health.dstu2.api.resources.Practitioner> practitioners,
+        gov.va.api.health.dstu2.api.bundle.BundleLink... links) {
+      return gov.va.api.health.dstu2.api.resources.Practitioner.Bundle.builder()
+          .resourceType("Bundle")
+          .type(AbstractBundle.BundleType.searchset)
+          .total(practitioners.size())
+          .link(Arrays.asList(links))
+          .entry(
+              practitioners
+                  .stream()
+                  .map(
+                      c ->
+                          gov.va.api.health.dstu2.api.resources.Practitioner.Entry.builder()
+                              .fullUrl(baseUrl + "/Practitioner/" + c.id())
+                              .resource(c)
+                              .search(
+                                  AbstractEntry.Search.builder()
+                                      .mode(AbstractEntry.SearchMode.match)
+                                      .build())
+                              .build())
+                  .collect(Collectors.toList()))
+          .build();
+    }
+
+    public static gov.va.api.health.dstu2.api.bundle.BundleLink link(
+        gov.va.api.health.dstu2.api.bundle.BundleLink.LinkRelation rel,
+        String base,
+        int page,
+        int count) {
+      return gov.va.api.health.dstu2.api.bundle.BundleLink.builder()
+          .relation(rel)
+          .url(base + "&page=" + page + "&_count=" + count)
+          .build();
+    }
+
+    public gov.va.api.health.dstu2.api.resources.Practitioner practitioner() {
+      return practitioner("1234");
+    }
+
+    public gov.va.api.health.dstu2.api.resources.Practitioner practitioner(String id) {
+      return gov.va.api.health.dstu2.api.resources.Practitioner.builder()
+          .resourceType("Practitioner")
+          .id(id)
+          .active(true)
+          .name(HumanName.builder().family(List.of("Joe")).given(List.of("Johnson")).build())
+          .gender(gov.va.api.health.dstu2.api.resources.Practitioner.Gender.male)
+          .birthDate("1970-11-14")
+          .address(
+              List.of(
+                  gov.va.api.health.dstu2.api.datatypes.Address.builder()
+                      .line(List.of("111 MacGyver Viaduct"))
+                      .city("Anchorage")
+                      .state("Alaska")
+                      .postalCode("99501")
+                      .build()))
+          .telecom(
+              List.of(
+                  gov.va.api.health.dstu2.api.datatypes.ContactPoint.builder()
+                      .use(
+                          gov.va.api.health.dstu2.api.datatypes.ContactPoint.ContactPointUse.mobile)
+                      .value("123-456-1234")
+                      .system(
+                          gov.va.api.health.dstu2.api.datatypes.ContactPoint.ContactPointSystem
+                              .phone)
+                      .build()))
+          .practitionerRole(
+              Collections.singletonList(
+                  gov.va.api.health.dstu2.api.resources.Practitioner.PractitionerRole.builder()
+                      .location(
+                          Collections.singletonList(Reference.builder().display("test").build()))
+                      .healthcareService(
+                          Collections.singletonList(Reference.builder().display("medical").build()))
+                      .managingOrganization(Reference.builder().display("test").build())
+                      .role(
+                          CodeableConcept.builder()
+                              .coding(
+                                  Collections.singletonList(
+                                      Coding.builder()
+                                          .code("test")
+                                          .display("test")
+                                          .system("test")
+                                          .build()))
+                              .build())
+                      .build()))
+          .build();
+    }
+  }
+
+  @AllArgsConstructor(staticName = "create")
+  public static class Stu3 {
+
     static Practitioner.Bundle asBundle(
         String baseUrl, Collection<Practitioner> practitioners, BundleLink... links) {
       return Practitioner.Bundle.builder()
@@ -115,7 +210,7 @@ public class PractitionerSamples {
           .build();
     }
 
-    public Practitioner practitioner() {
+    public gov.va.api.health.stu3.api.resources.Practitioner practitioner() {
       return practitioner("1234");
     }
 
@@ -123,8 +218,18 @@ public class PractitionerSamples {
       return Practitioner.builder()
           .resourceType("Practitioner")
           .id(id)
+          .identifier(
+              Collections.singletonList(
+                  Practitioner.PractitionerIdentifier.builder()
+                      .system("http://hl7.org/fhir/sid/us-npi")
+                      .value("1234567")
+                      .build()))
           .active(true)
-          .name(HumanName.builder().family(List.of("Joe")).given(List.of("Johnson")).build())
+          .name(
+              Practitioner.PractitionerHumanName.builder()
+                  .family("Joe")
+                  .given(List.of("Johnson"))
+                  .build())
           .gender(Practitioner.Gender.male)
           .birthDate("1970-11-14")
           .address(
@@ -141,25 +246,6 @@ public class PractitionerSamples {
                       .use(ContactPoint.ContactPointUse.mobile)
                       .value("123-456-1234")
                       .system(ContactPoint.ContactPointSystem.phone)
-                      .build()))
-          .practitionerRole(
-              Collections.singletonList(
-                  Practitioner.PractitionerRole.builder()
-                      .location(
-                          Collections.singletonList(Reference.builder().display("test").build()))
-                      .healthcareService(
-                          Collections.singletonList(Reference.builder().display("medical").build()))
-                      .managingOrganization(Reference.builder().display("test").build())
-                      .role(
-                          CodeableConcept.builder()
-                              .coding(
-                                  Collections.singletonList(
-                                      Coding.builder()
-                                          .code("test")
-                                          .display("test")
-                                          .system("test")
-                                          .build()))
-                              .build())
                       .build()))
           .build();
     }

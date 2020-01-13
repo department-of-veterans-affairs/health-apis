@@ -7,7 +7,7 @@ import gov.va.api.health.sentinel.TestClient;
 import lombok.experimental.UtilityClass;
 
 /**
- * Test clients for interacting with different services (ids, mr-anderson, data-query) in a {@link
+ * Test clients for interacting with different services (ids, data-query) in a {@link
  * SystemDefinition}.
  */
 @UtilityClass
@@ -36,15 +36,6 @@ public final class TestClients {
     return BasicTestClient.builder()
         .service(SystemDefinitions.systemDefinition().internalDataQuery())
         .contentType("application/json")
-        .mapper(JacksonConfig::createMapper)
-        .build();
-  }
-
-  /** Mr. Anderson test client. */
-  public static TestClient mrAnderson() {
-    return BasicTestClient.builder()
-        .service(SystemDefinitions.systemDefinition().mrAnderson())
-        .contentType("application/xml")
         .mapper(JacksonConfig::createMapper)
         .build();
   }

@@ -16,6 +16,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
+import org.springframework.data.domain.Sort;
 
 @Data
 @Entity
@@ -43,6 +44,10 @@ public class PractitionerEntity implements DatamartEntity {
   @Basic(fetch = FetchType.EAGER)
   @Column(name = "Practitioner")
   private String payload;
+
+  static Sort naturalOrder() {
+    return Sort.by("cdwId").ascending();
+  }
 
   @SneakyThrows
   DatamartPractitioner asDatamartPractitioner() {
