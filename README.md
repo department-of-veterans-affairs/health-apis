@@ -8,7 +8,6 @@ backed by information from the Corporate Data Warehouse.
 ###### Applications
 ![applications](src/plantuml/apps.png)
 - [data-query](data-query/README.md) - Argonaut Data Query compliant experience API
-- [mr-anderson](mr-anderson/README.md) - Corporate Data Warehouse access system API
 - [data-query-tests](data-query-tests/README.md) - Integration tests
 
 ----

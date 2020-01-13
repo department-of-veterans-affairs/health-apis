@@ -4,7 +4,7 @@ import gov.va.api.health.ids.client.EncryptingIdEncoder.Codebook;
 import gov.va.api.health.ids.client.EncryptingIdEncoder.Codebook.Mapping;
 import gov.va.api.health.ids.client.EncryptingIdEncoder.CodebookSupplier;
 
-/** Shared mapping to be used by both Data Query and Mr. Anderson */
+/** Shared mapping to be used by Data Query */
 public class DataQueryIdsCodebookSupplier implements CodebookSupplier {
 
   @Override

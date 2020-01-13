@@ -163,7 +163,6 @@ public final class SystemDefinitions {
 
   /** Return definitions for the production environment. */
   private static SystemDefinition prod() {
-    // Mr Anderson not accessible in this environment
     String url = "https://api.va.gov";
     return SystemDefinition.builder()
         .ids(serviceDefinition("ids", url, 443, null, "/not-available/"))
@@ -219,7 +218,6 @@ public final class SystemDefinitions {
 
   /** Return definitions for the qa environment. */
   private static SystemDefinition qa() {
-    // ID service and Mr Anderson not accessible in this environment
     String url = "https://blue.qa.lighthouse.va.gov";
     return SystemDefinition.builder()
         .ids(serviceDefinition("ids", url, 443, null, "/not-available/"))
@@ -242,7 +240,6 @@ public final class SystemDefinitions {
 
   /** Return definitions for the staging environment. */
   private static SystemDefinition staging() {
-    // ID service and Mr Anderson not accessible in this environment
     String url = "https://blue.staging.lighthouse.va.gov";
     return SystemDefinition.builder()
         .ids(serviceDefinition("ids", url, 443, null, "/not-available/"))

@@ -7,7 +7,7 @@ import gov.va.api.health.sentinel.TestClient;
 import lombok.experimental.UtilityClass;
 
 /**
- * Test clients for interacting with different services (ids, mr-anderson, data-query) in a {@link
+ * Test clients for interacting with different services (ids, data-query) in a {@link
  * SystemDefinition}.
  */
 @UtilityClass
