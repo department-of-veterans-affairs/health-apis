@@ -23,6 +23,7 @@ import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.health.stu3.api.bundle.AbstractBundle;
 import gov.va.api.health.stu3.api.bundle.BundleLink;
 import gov.va.api.health.stu3.api.resources.PractitionerRole;
+import gov.va.api.health.stu3.api.resources.PractitionerRole.Bundle;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
@@ -53,6 +54,17 @@ public class Stu3PractitionerRoleControllerTest {
   @SneakyThrows
   private static String asJson(Object o) {
     return JacksonConfig.createMapper().writerWithDefaultPrettyPrinter().writeValueAsString(o);
+  }
+
+  private static Bundle emptyBundle(String linkBase) {
+    return PractitionerRole.Bundle.builder()
+        .resourceType("Bundle")
+        .type(AbstractBundle.BundleType.searchset)
+        .total(1)
+        .link(
+            asList(PractitionerRoleSamples.Stu3.link(BundleLink.LinkRelation.self, linkBase, 1, 0)))
+        .entry(emptyList())
+        .build();
   }
 
   private void addMockIdentities(
@@ -168,22 +180,9 @@ public class Stu3PractitionerRoleControllerTest {
         PractitionerRoleSamples.Datamart.create().practitioner(cdwId, locCdwId, orgCdwId);
     repository.save(asEntity(dm));
 
-    assertThat(asJson(controller().searchByIdentifier(publicId, 1, 0)))
+    assertThat(asJson(controller().searchById(publicId, 1, 0)))
         .isEqualTo(
-            asJson(
-                PractitionerRole.Bundle.builder()
-                    .resourceType("Bundle")
-                    .type(AbstractBundle.BundleType.searchset)
-                    .total(1)
-                    .link(
-                        asList(
-                            PractitionerRoleSamples.Stu3.link(
-                                BundleLink.LinkRelation.self,
-                                "http://fonzy.com/cool/PractitionerRole?identifier=" + publicId,
-                                1,
-                                0)))
-                    .entry(emptyList())
-                    .build()));
+            asJson(emptyBundle("http://fonzy.com/cool/PractitionerRole?identifier=" + publicId)));
 
     assertThat(asJson(controller().searchById(publicId, 1, 1)))
         .isEqualTo(
@@ -225,20 +224,7 @@ public class Stu3PractitionerRoleControllerTest {
 
     assertThat(asJson(controller().searchByIdentifier(publicId, 1, 0)))
         .isEqualTo(
-            asJson(
-                PractitionerRole.Bundle.builder()
-                    .resourceType("Bundle")
-                    .type(AbstractBundle.BundleType.searchset)
-                    .total(1)
-                    .link(
-                        asList(
-                            PractitionerRoleSamples.Stu3.link(
-                                BundleLink.LinkRelation.self,
-                                "http://fonzy.com/cool/PractitionerRole?identifier=" + publicId,
-                                1,
-                                0)))
-                    .entry(emptyList())
-                    .build()));
+            asJson(emptyBundle("http://fonzy.com/cool/PractitionerRole?identifier=" + publicId)));
 
     assertThat(asJson(controller().searchByIdentifier(publicId, 1, 1)))
         .isEqualTo(
@@ -283,21 +269,10 @@ public class Stu3PractitionerRoleControllerTest {
     assertThat(asJson(controller().searchByName(family, given, 1, 0)))
         .isEqualTo(
             asJson(
-                PractitionerRole.Bundle.builder()
-                    .resourceType("Bundle")
-                    .type(AbstractBundle.BundleType.searchset)
-                    .total(1)
-                    .link(
-                        asList(
-                            PractitionerRoleSamples.Stu3.link(
-                                BundleLink.LinkRelation.self,
-                                String.format(
-                                    "http://fonzy.com/cool/PractitionerRole?given=%s&practitioner.family=%s",
-                                    given, family),
-                                1,
-                                0)))
-                    .entry(emptyList())
-                    .build()));
+                emptyBundle(
+                    String.format(
+                        "http://fonzy.com/cool/PractitionerRole?given=%s&practitioner.family=%s",
+                        given, family))));
 
     assertThat(asJson(controller().searchByName(family, given, 1, 1)))
         .isEqualTo(
@@ -347,20 +322,9 @@ public class Stu3PractitionerRoleControllerTest {
     assertThat(asJson(controller().searchByNpi(systemAndCode, 1, 0)))
         .isEqualTo(
             asJson(
-                PractitionerRole.Bundle.builder()
-                    .resourceType("Bundle")
-                    .type(AbstractBundle.BundleType.searchset)
-                    .total(1)
-                    .link(
-                        asList(
-                            PractitionerRoleSamples.Stu3.link(
-                                BundleLink.LinkRelation.self,
-                                "http://fonzy.com/cool/PractitionerRole?practitioner.identifier="
-                                    + systemAndCode,
-                                1,
-                                0)))
-                    .entry(emptyList())
-                    .build()));
+                emptyBundle(
+                    "http://fonzy.com/cool/PractitionerRole?practitioner.identifier="
+                        + systemAndCode)));
 
     assertThat(asJson(controller().searchByNpi(systemAndCode, 1, 1)))
         .isEqualTo(
