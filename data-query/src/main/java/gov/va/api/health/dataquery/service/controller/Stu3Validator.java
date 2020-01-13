@@ -45,6 +45,7 @@ public class Stu3Validator {
     Set<ConstraintViolation<B>> violations =
         Validation.buildDefaultValidatorFactory().getValidator().validate(bundle);
     if (!violations.isEmpty()) {
+      System.out.println(violations);
       throw new ConstraintViolationException("Bundle is not valid", violations);
     }
     return ok();

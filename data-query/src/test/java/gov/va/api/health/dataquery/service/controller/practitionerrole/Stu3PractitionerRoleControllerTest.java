@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
 import gov.va.api.health.dataquery.service.controller.Stu3Bundler;
+import gov.va.api.health.dataquery.service.controller.Stu3Validator;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.practitioner.DatamartPractitioner;
 import gov.va.api.health.dataquery.service.controller.practitioner.PractitionerEntity;
@@ -314,30 +315,31 @@ public class Stu3PractitionerRoleControllerTest {
   //                        1))));
   //  }
 
-  //  @Test
-  //  @SneakyThrows
-  //  public void validate() {
-  //    assertThat(
-  //            controller()
-  //                .validate(
-  //                    PractitionerRoleSamples.Stu3.asBundle(
-  //                        "http://fonzy.com/cool",
-  //                        List.of(PractitionerRoleSamples.Stu3.create().location("x", "y")),
-  //                        PractitionerRoleSamples.Stu3.link(
-  //                            BundleLink.LinkRelation.first,
-  //                            "http://fonzy.com/cool/Location?identifier=x",
-  //                            1,
-  //                            1),
-  //                        PractitionerRoleSamples.Stu3.link(
-  //                            BundleLink.LinkRelation.self,
-  //                            "http://fonzy.com/cool/Location?identifier=x",
-  //                            1,
-  //                            1),
-  //                        PractitionerRoleSamples.Stu3.link(
-  //                            BundleLink.LinkRelation.last,
-  //                            "http://fonzy.com/cool/Location?identifier=x",
-  //                            1,
-  //                            1))))
-  //        .isEqualTo(Stu3Validator.ok());
-  //  }
+  @Test
+  @SneakyThrows
+  public void validate() {
+    assertThat(
+            controller()
+                .validate(
+                    PractitionerRoleSamples.Stu3.asBundle(
+                        "http://fonzy.com/cool",
+                        List.of(
+                            PractitionerRoleSamples.Stu3.create().practitionerRole("x", "y", "z")),
+                        PractitionerRoleSamples.Stu3.link(
+                            BundleLink.LinkRelation.first,
+                            "http://fonzy.com/cool/PractitionerRole?identifier=x",
+                            1,
+                            1),
+                        PractitionerRoleSamples.Stu3.link(
+                            BundleLink.LinkRelation.self,
+                            "http://fonzy.com/cool/PractitionerRole?identifier=x",
+                            1,
+                            1),
+                        PractitionerRoleSamples.Stu3.link(
+                            BundleLink.LinkRelation.last,
+                            "http://fonzy.com/cool/PractitionerRole?identifier=x",
+                            1,
+                            1))))
+        .isEqualTo(Stu3Validator.ok());
+  }
 }
