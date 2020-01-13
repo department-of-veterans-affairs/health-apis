@@ -17,6 +17,7 @@
     <jacoco.coverage>0.95</jacoco.coverage>
     <swagger-maven-plugin.version>2.0.8</swagger-maven-plugin.version>
     <fall-risk.version>1.0.17</fall-risk.version>
+    <mssql-jdbc.version>6.2.1.jre8</mssql-jdbc.version>
   </properties>
   <dependencies>
     <dependency>
@@ -54,6 +55,11 @@
     <dependency>
       <groupId>gov.va.api.health</groupId>
       <artifactId>service-auto-config</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.microsoft.sqlserver</groupId>
+      <artifactId>mssql-jdbc</artifactId>
+      <version>${mssql-jdbc.version}</version>
     </dependency>
     <dependency>
       <groupId>io.rest-assured</groupId>
