@@ -19,6 +19,8 @@ import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.health.stu3.api.resources.PractitionerRole;
 import java.util.List;
 
+import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
+
 import javax.servlet.http.HttpServletResponse;
 
 import lombok.SneakyThrows;
@@ -129,34 +131,34 @@ public class Stu3PractitionerRoleControllerTest {
     verify(servletResponse).addHeader("X-VA-INCLUDES-ICN", "NONE");
   }
 
+  @Test(expected = ResourceExceptions.NotFound.class)
+  public void readRawThrowsNotFoundWhenDataIsMissing() {
+    addMockIdentities("x", "x", "y", "y", "z", "z");
+    controller().readRaw("x", mock(HttpServletResponse.class));
+  }
+
+  @Test(expected = ResourceExceptions.NotFound.class)
+  public void readRawThrowsNotFoundWhenIdIsUnknown() {
+    controller().readRaw("x", mock(HttpServletResponse.class));
+  }
+
+  @Test(expected = ResourceExceptions.NotFound.class)
+  public void readThrowsNotFoundWhenDataIsMissing() {
+    addMockIdentities("x", "x", "y", "y", "z", "z");
+    controller().read("x");
+  }
+
+  @Test(expected = ResourceExceptions.NotFound.class)
+  public void readThrowsNotFoundWhenIdIsUnknown() {
+    controller().read("x");
+  }
+
   //  searchById(String, int, int)
   //  searchByIdentifier(String, int, int)
   //  searchByName(String, String, int, int)
   //  searchByNpi(String, int, int)
   //  searchBySpecialty(String, int, int)
 
-  //  @Test(expected = ResourceExceptions.NotFound.class)
-  //  public void readRawThrowsNotFoundWhenDataIsMissing() {
-  //    addMockIdentities("x", "x", "y", "y");
-  //    controller().readRaw("x", mock(HttpServletResponse.class));
-  //  }
-  //
-  //  @Test(expected = ResourceExceptions.NotFound.class)
-  //  public void readRawThrowsNotFoundWhenIdIsUnknown() {
-  //    controller().readRaw("x", mock(HttpServletResponse.class));
-  //  }
-  //
-  //  @Test(expected = ResourceExceptions.NotFound.class)
-  //  public void readThrowsNotFoundWhenDataIsMissing() {
-  //    addMockIdentities("x", "x", "y", "y");
-  //    controller().read("x");
-  //  }
-  //
-  //  @Test(expected = ResourceExceptions.NotFound.class)
-  //  public void readThrowsNotFoundWhenIdIsUnknown() {
-  //    controller().read("x");
-  //  }
-  //
   //  @Test
   //  public void searchByAddress() {
   //    String street = "1901 VETERANS MEMORIAL DRIVE";
