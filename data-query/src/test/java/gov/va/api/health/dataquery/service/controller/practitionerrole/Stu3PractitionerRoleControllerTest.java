@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
+import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.Stu3Bundler;
 import gov.va.api.health.dataquery.service.controller.Stu3Validator;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
@@ -17,14 +18,10 @@ import gov.va.api.health.dataquery.service.controller.practitioner.PractitionerR
 import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
-import gov.va.api.health.stu3.api.resources.PractitionerRole;
 import gov.va.api.health.stu3.api.bundle.BundleLink;
+import gov.va.api.health.stu3.api.resources.PractitionerRole;
 import java.util.List;
-
-import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
-
 import javax.servlet.http.HttpServletResponse;
-
 import lombok.SneakyThrows;
 import org.junit.Test;
 import org.junit.runner.RunWith;
