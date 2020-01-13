@@ -5,12 +5,14 @@ skinparam monochrome true
 left to right direction
 
 actor consumer
-database "cdw"
+database "datamart"
 database "id-store" as iddb
 rectangle "dataquery"
 rectangle "ids"
 
 consumer -(0- dataquery
+dataquery -- datamart
+dataquery -(0- ids
 ids -- iddb
 
 @enduml
