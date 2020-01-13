@@ -51,7 +51,6 @@ public final class SystemDefinitions {
     String url = "https://dev-api.va.gov";
     return SystemDefinition.builder()
         .ids(serviceDefinition("ids", url, 443, null, "/not-available/"))
-        .mrAnderson(serviceDefinition("mr-anderson", url, 443, null, "/not-available/"))
         .dstu2DataQuery(
             serviceDefinition("dstu2", url, 443, magicAccessToken(), "/services/fhir/v0/dstu2/"))
         .stu3DataQuery(
@@ -95,7 +94,6 @@ public final class SystemDefinitions {
     String url = "http://localhost";
     return SystemDefinition.builder()
         .ids(serviceDefinition("ids", url, 8089, null, "/api/"))
-        .mrAnderson(serviceDefinition("mr-anderson", url, 8088, null, "/api/"))
         .dstu2DataQuery(serviceDefinition("dstu2", url, 8090, null, "/dstu2/"))
         .stu3DataQuery(serviceDefinition("stu3", url, 8090, null, "/stu3/"))
         .internalDataQuery(serviceDefinition("internal", url, 8090, null, "/"))
@@ -165,11 +163,9 @@ public final class SystemDefinitions {
 
   /** Return definitions for the production environment. */
   private static SystemDefinition prod() {
-    // Mr Anderson not accessible in this environment
     String url = "https://api.va.gov";
     return SystemDefinition.builder()
         .ids(serviceDefinition("ids", url, 443, null, "/not-available/"))
-        .mrAnderson(serviceDefinition("mr-anderson", url, 443, null, "/not-available/"))
         .dstu2DataQuery(
             serviceDefinition("dstu2", url, 443, magicAccessToken(), "/services/fhir/v0/dstu2/"))
         .stu3DataQuery(
@@ -222,11 +218,9 @@ public final class SystemDefinitions {
 
   /** Return definitions for the qa environment. */
   private static SystemDefinition qa() {
-    // ID service and Mr Anderson not accessible in this environment
     String url = "https://blue.qa.lighthouse.va.gov";
     return SystemDefinition.builder()
         .ids(serviceDefinition("ids", url, 443, null, "/not-available/"))
-        .mrAnderson(serviceDefinition("mr-anderson", url, 443, null, "/not-available/"))
         .dstu2DataQuery(serviceDefinition("dstu2", url, 443, magicAccessToken(), "/dstu2/"))
         .stu3DataQuery(serviceDefinition("stu3", url, 443, magicAccessToken(), "/stu3/"))
         .internalDataQuery(serviceDefinition("internal", url, 443, null, "/data-query/"))
@@ -246,11 +240,9 @@ public final class SystemDefinitions {
 
   /** Return definitions for the staging environment. */
   private static SystemDefinition staging() {
-    // ID service and Mr Anderson not accessible in this environment
     String url = "https://blue.staging.lighthouse.va.gov";
     return SystemDefinition.builder()
         .ids(serviceDefinition("ids", url, 443, null, "/not-available/"))
-        .mrAnderson(serviceDefinition("mr-anderson", url, 443, null, "/not-available/"))
         .dstu2DataQuery(serviceDefinition("dstu2", url, 443, magicAccessToken(), "/dstu2/"))
         .stu3DataQuery(serviceDefinition("stu3", url, 443, magicAccessToken(), "/stu3/"))
         .internalDataQuery(serviceDefinition("internal", url, 443, null, "/data-query/"))
@@ -263,7 +255,6 @@ public final class SystemDefinitions {
     String url = "https://blue.staging-lab.lighthouse.va.gov";
     return SystemDefinition.builder()
         .ids(serviceDefinition("ids", url, 443, null, "/not-available/"))
-        .mrAnderson(serviceDefinition("mr-anderson", url, 443, null, "/not-available/"))
         .dstu2DataQuery(
             serviceDefinition(
                 "dstu2", url, 443, magicAccessToken(), "/services/argonaut/v0/dstu2/"))

@@ -6,7 +6,6 @@ import com.fasterxml.jackson.core.io.JsonEOFException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions.BadSearchParameter;
-import gov.va.api.health.dataquery.service.mranderson.client.MrAndersonClient;
 import gov.va.api.health.dstu2.api.elements.Narrative;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import gov.va.api.health.ids.client.IdEncoder.BadId;
@@ -78,7 +77,6 @@ public class WebExceptionHandler {
 
   @ExceptionHandler({
     BindException.class,
-    MrAndersonClient.BadRequest.class,
     ResourceExceptions.MissingSearchParameters.class,
     UnsatisfiedServletRequestParameterException.class,
     BadSearchParameter.class
@@ -97,7 +95,6 @@ public class WebExceptionHandler {
 
   @ExceptionHandler({
     HttpClientErrorException.NotFound.class,
-    MrAndersonClient.NotFound.class,
     ResourceExceptions.NotFound.class,
     ResourceExceptions.UnknownIdentityInSearchParameter.class,
     ResourceExceptions.UnknownResource.class,
