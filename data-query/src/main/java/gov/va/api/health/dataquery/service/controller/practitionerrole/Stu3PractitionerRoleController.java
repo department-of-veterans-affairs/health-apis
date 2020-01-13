@@ -44,7 +44,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 @RestController
 @RequestMapping(
-  value = {"/stu3/PractitionerRole"},
+  value = "/stu3/PractitionerRole",
   produces = {"application/json", "application/json+fhir", "application/fhir+json"}
 )
 @SuppressWarnings("WeakerAccess")
