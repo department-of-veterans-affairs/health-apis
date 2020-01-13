@@ -12,7 +12,6 @@
   <modules>
     <module>data-query-ids-mapping</module>
     <module>data-query</module>
-    <module>mr-anderson</module>
     <module>data-query-tests</module>
   </modules>
 </project>

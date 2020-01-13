@@ -40,15 +40,6 @@ public final class TestClients {
         .build();
   }
 
-  /** Mr. Anderson test client. */
-  public static TestClient mrAnderson() {
-    return BasicTestClient.builder()
-        .service(SystemDefinitions.systemDefinition().mrAnderson())
-        .contentType("application/xml")
-        .mapper(JacksonConfig::createMapper)
-        .build();
-  }
-
   /** STU3 Data Query test client. */
   public static TestClient stu3DataQuery() {
     return FhirTestClient.builder()

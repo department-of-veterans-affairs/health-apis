@@ -16,14 +16,4 @@ public class HealthCheckIT {
         .then()
         .body("status", equalTo("UP"));
   }
-
-  @Category(Local.class)
-  @Test
-  public void mrAndersonIsHealthy() {
-    TestClients.mrAnderson()
-        .get("/actuator/health")
-        .response()
-        .then()
-        .body("status", equalTo("UP"));
-  }
 }
