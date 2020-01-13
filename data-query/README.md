@@ -7,7 +7,7 @@ as well as supporting resources for [FHIR STU3 resources](http://www.hl7.org/fhi
 
 ## Design
 Data-query is implemented as a series of resource-specific components the follow the template below.
-To make the description more complete, the pattern is shown for _Patient_, but it is replicated
+To make the description more complete, the pattern is shown for _Dstu2Patient_, but it is replicated
 for each resource.
 
 ![resource components](src/plantuml/controller-design.png)
@@ -17,11 +17,11 @@ for each resource.
 - `WebExceptionHandler` - Provides common error handling for resource controllers. It will map
   exceptions, like those thrown from `PatientRepository` to `OperationOutcome` payloads with
   appropriate HTTP status codes.
-- `${Resource}` - The Argonaut Data Query model for a specific resource, e.g. `Patient` or `DiagnosticReport`.
+- `${Specification}{Resource}` - The specification model for a specific resource, e.g. `Dstu2Patient` or `Stu3Location`.
 - `${Resource}Entity` - The Datamart table housing a specific resource, e.g. `Patient` or `DiagnosticReport`
 - `${Resource}Repository` - Interface utilizing Spring Data to access the Datamart database tables.
-- `${Resource}Controller` - Spring Rest Controller responsible for a given resource type. Resource
+- `${Specification}{Resource}Controller` - Spring Rest Controller responsible for a given resource type. Resource
   controllers orchestrate requests to the ResourceRepository and transformation to
   the appropriate specification, e.g. `Dstu2` or `Stu3`
-- `${Resource}Transformer` - A class containing logic to transform a ResourceEntity model type to
+- `${Specification}{Resource}Transformer` - A class containing logic to transform a ResourceEntity model type to
   the appropriate specification type, e.g. `Dstu2Patient` or `Stu3Location`.
