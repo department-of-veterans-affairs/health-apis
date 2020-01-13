@@ -11,7 +11,6 @@
   <version>2.0.212-SNAPSHOT</version>
   <packaging>jar</packaging>
   <properties>
-    <cdw-schemas.version>1.0.42</cdw-schemas.version>
     <fhir-resources.version>2.0.27</fhir-resources.version>
     <guava.version>20.0</guava.version>
     <health-apis-ids.version>2.1.7</health-apis-ids.version>
@@ -55,21 +54,6 @@
     <dependency>
       <groupId>gov.va.api.health</groupId>
       <artifactId>service-auto-config</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>gov.va.dvp</groupId>
-      <artifactId>cdw-schemas</artifactId>
-      <version>${cdw-schemas.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.mule.modules</groupId>
-          <artifactId>mule-module-objectstore</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>com.mulesoft.security</groupId>
-          <artifactId>mule-module-security-property-placeholder</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>io.rest-assured</groupId>
