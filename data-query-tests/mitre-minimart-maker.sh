@@ -50,7 +50,6 @@ startMinimartApp() {
   then
     # application-dev.properties
     options+=" -Didentityservice.url=http://localhost:8089"
-    options+=" -Dmranderson.url=http://localhost:8088"
     options+=" -Ddata-query.public-url=http://localhost:8090"
     options+=" -Dwell-known.capabilities=context-standalone-patient,launch-ehr,permission-offline,permission-patient"
     options+=" -Dwell-known.response-type-supported=code,refresh_token"

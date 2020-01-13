@@ -69,10 +69,6 @@ ssl.use-trust-store ....................... <true|false> If enabled, mutual TLS 
 ssl.trust-store ........................... Path to truststore
 ssl.trust-store-password .................. Password for the truststore
 
-# Services
-mranderson.url ............................ URL of the Mr. Anderson Service
-                                            E.g. https://mr-anderson.example.com:8088
-
 # Public Information
 data-query.public-url...................... The public URL for Argonaut Data Query
                                             E.g. https://api.va.gov/services/argonaut/v0
@@ -88,29 +84,3 @@ included-references.location .............. <true|false> Enable references to Lo
 included-references.organization .......... <true|false> Enable references to Organizations
 included-references.practitioner .......... <true|false> Enable references to Practitioners
 
-
-```
-### Mr. Anderson
-```
-# HTTPS Server
-server.ssl.key-store ...................... Path to keystore, e.g. /opt/va/certs/<any>.jks
-server.ssl.key-store-password ............. Password for the keystore
-server.ssl.key-alias ...................... Key alias in the cert within the keystore to use
-
-# HTTPS Client
-ssl.key-store ............................. Path to keystore to use as a client
-ssl.key-store-password .................... Password for the keystore
-ssl.client-key-password ................... Password for the client key
-ssl.use-trust-store ....................... <true|false> If enabled, mutual TLS is configured 
-ssl.trust-store ........................... Path to truststore
-ssl.trust-store-password .................. Password for the truststore
-
-# Services
-identityservice.url ....................... URL of the Identity Service
-                                            E.g. https://ids.awesome.com:8089
-
-# Database
-spring.datasource.url ..................... JDBC URL to CDW
-spring.datasource.username ................ Database user name
-spring.datasource.password ................ Database password
-```

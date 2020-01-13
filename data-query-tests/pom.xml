@@ -8,10 +8,9 @@
     <relativePath/>
   </parent>
   <artifactId>data-query-tests</artifactId>
-  <version>2.0.212-SNAPSHOT</version>
+  <version>2.0.213-SNAPSHOT</version>
   <packaging>jar</packaging>
   <properties>
-    <cdw-schemas.version>1.0.42</cdw-schemas.version>
     <fhir-resources.version>2.0.27</fhir-resources.version>
     <groups>gov.va.api.health.sentinel.categories.Local</groups>
     <health-apis-ids.version>2.1.7</health-apis-ids.version>
@@ -52,12 +51,6 @@
     </dependency>
     <dependency>
       <groupId>gov.va.api.health</groupId>
-      <artifactId>mr-anderson</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>gov.va.api.health</groupId>
       <artifactId>data-query</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
@@ -81,24 +74,6 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>gov.va.dvp</groupId>
-      <artifactId>cdw-schemas</artifactId>
-      <version>${cdw-schemas.version}</version>
-      <!-- defined in parent -->
-      <classifier>samples</classifier>
-      <type>zip</type>
-      <exclusions>
-        <exclusion>
-          <groupId>org.mule.modules</groupId>
-          <artifactId>mule-module-objectstore</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>com.mulesoft.security</groupId>
-          <artifactId>mule-module-security-property-placeholder</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
       <groupId>org.hibernate.validator</groupId>
       <artifactId>hibernate-validator</artifactId>
       <scope>compile</scope>
@@ -110,18 +85,6 @@
         <artifactId>maven-dependency-plugin</artifactId>
         <executions>
           <execution>
-            <id>unpack-cdw-samples</id>
-            <phase>generate-resources</phase>
-            <goals>
-              <goal>unpack-dependencies</goal>
-            </goals>
-            <configuration>
-              <outputDirectory>${project.build.directory}/cdw</outputDirectory>
-              <includeArtifactIds>cdw-schemas</includeArtifactIds>
-              <stripVersion>true</stripVersion>
-            </configuration>
-          </execution>
-          <execution>
             <id>copy-applications</id>
             <phase>prepare-package</phase>
             <goals>
@@ -129,7 +92,7 @@
             </goals>
             <configuration>
               <outputDirectory>${project.build.directory}</outputDirectory>
-              <includeArtifactIds>h2,ids,mr-anderson,data-query</includeArtifactIds>
+              <includeArtifactIds>h2,ids,data-query</includeArtifactIds>
               <stripVersion>true</stripVersion>
             </configuration>
           </execution>
@@ -143,37 +106,6 @@
         <artifactId>process-exec-maven-plugin</artifactId>
         <version>${process-exec-maven-plugin.version}</version>
         <executions>
-          <execution>
-            <id>mr-anderson-process</id>
-            <phase>pre-integration-test</phase>
-            <goals>
-              <goal>start</goal>
-            </goals>
-            <configuration>
-              <name>mr-anderson</name>
-              <healthcheckUrl>http://localhost:8088/actuator/health</healthcheckUrl>
-              <skip>${sentinel.skipLaunch}</skip>
-              <waitForInterrupt>false</waitForInterrupt>
-              <processLogFile>${project.build.directory}/mr-anderson.log</processLogFile>
-              <arguments>
-                <argument>java</argument>
-                <argument>-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5088</argument>
-                <argument>-cp</argument>
-                <argument>mr-anderson.jar</argument>
-                <argument>-Dlogging.level.root=INFO</argument>
-                <argument>-Dloader.path=classes</argument>
-                <argument>-Dloader=gov.va.api.health.mranderson.Application</argument>
-                <argument>-Dmanagement.health.db.enabled=false</argument>
-                <argument>-Dspring.datasource.driver-class-name=gov.va.api.health.dataquery.tests.mockcdw.MockEntityReturnDriver</argument>
-                <argument>-Dspring.datasource.url=jdbc:mockcdw://cdw/samples/index.yaml,${project.basedir}/src/test/resources/cdw/index.yaml,${project.basedir}/src/test/resources/cdw/datamart-index.yaml</argument>
-                <argument>-Didentityservice.url=http://localhost:8089</argument>
-                <argument>-Didentityservice.encodingKey=data-query</argument>
-                <argument>-Didentityservice.patientIdPattern=[0-9]+(V[0-9]{6})?</argument>
-                <argument>-Dspring.config.location=classpath:/application.properties,file:${project.basedir}/config/secrets.properties</argument>
-                <argument>org.springframework.boot.loader.PropertiesLauncher</argument>
-              </arguments>
-            </configuration>
-          </execution>
           <execution>
             <id>data-query-process</id>
             <phase>pre-integration-test</phase>
@@ -196,7 +128,6 @@
                 <argument>-Didentityservice.url=http://localhost:8089</argument>
                 <argument>-Didentityservice.encodingKey=data-query</argument>
                 <argument>-Didentityservice.patientIdPattern=[0-9]+(V[0-9]{6})?</argument>
-                <argument>-Dmranderson.url=http://localhost:8088</argument>
                 <argument>-Dconformance.statement-type=patient</argument>
                 <argument>-Dconformance.contact.name=Sentinel</argument>
                 <argument>-Dconformance.contact.email=sentinel@matrix.com</argument>

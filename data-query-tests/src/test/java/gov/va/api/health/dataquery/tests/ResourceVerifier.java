@@ -4,15 +4,12 @@ import static org.apache.commons.lang3.BooleanUtils.isTrue;
 import static org.apache.commons.lang3.BooleanUtils.toBoolean;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import gov.va.api.health.sentinel.Environment;
 import gov.va.api.health.sentinel.TestClient;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.Builder;
@@ -40,8 +37,6 @@ public final class ResourceVerifier {
   private final String apiPath;
 
   private final Class<?> bundleClass;
-
-  private final Set<Class<?>> datamartAndCdwResources;
 
   private final TestClient dataQuery;
 
@@ -74,8 +69,6 @@ public final class ResourceVerifier {
     return ResourceVerifier.builder()
         .apiPath(SystemDefinitions.systemDefinition().dstu2DataQuery().apiPath())
         .bundleClass(gov.va.api.health.dstu2.api.bundle.AbstractBundle.class)
-        .datamartAndCdwResources(
-            ImmutableSet.of(gov.va.api.health.dstu2.api.resources.Practitioner.class))
         .dataQuery(TestClients.dstu2DataQuery())
         .operationOutcomeClass(gov.va.api.health.dstu2.api.resources.OperationOutcome.class)
         .build();
@@ -85,7 +78,6 @@ public final class ResourceVerifier {
     return ResourceVerifier.builder()
         .apiPath(SystemDefinitions.systemDefinition().stu3DataQuery().apiPath())
         .bundleClass(gov.va.api.health.stu3.api.bundle.AbstractBundle.class)
-        .datamartAndCdwResources(Collections.emptySet())
         .dataQuery(TestClients.stu3DataQuery())
         .operationOutcomeClass(gov.va.api.health.stu3.api.resources.OperationOutcome.class)
         .build();
@@ -130,36 +122,11 @@ public final class ResourceVerifier {
   }
 
   private <T> T assertRequest(TestCase<T> tc) {
-    if (isDatamartAndCdwResource(tc)) {
-      log.info(
-          "Verify Datamart {} is {} ({})", tc.label(), tc.response().getSimpleName(), tc.status());
-      try {
-        Map<String, String> datamartHeader = ImmutableMap.of("Datamart", "true");
-        dataQuery()
-            .get(datamartHeader, tc.path(), tc.parameters())
-            .expect(tc.status())
-            .expectValid(tc.response());
-      } catch (AssertionError | Exception e) {
-        if (datamartFailuresEnabled()) {
-          throw e;
-        }
-        log.error("Suppressing datamart failure: {}: {}", tc.label(), e.getMessage());
-      }
-    }
     log.info("Verify {} is {} ({})", tc.label(), tc.response().getSimpleName(), tc.status());
     return dataQuery()
         .get(tc.path(), tc.parameters())
         .expect(tc.status())
         .expectValid(tc.response());
-  }
-
-  private <T> boolean isDatamartAndCdwResource(TestCase<T> tc) {
-    // If this is a bundle, we want the declaring resource type instead.
-    Class<?> resource =
-        bundleClass().isAssignableFrom(tc.response())
-            ? tc.response().getDeclaringClass()
-            : tc.response();
-    return datamartAndCdwResources().contains(resource);
   }
 
   public final <T> TestCase<T> test(
