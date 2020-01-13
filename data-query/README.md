@@ -1,11 +1,11 @@
 # data-query - Argonaut Data Query
 
-Spring Boot implementation of the 
-[FHIR Argonaut Data Query specification](http://www.fhir.org/guides/argonaut/r2/profiles.html).
- 
+Spring Boot implementation of the
+[FHIR Argonaut Data Query specification](http://www.fhir.org/guides/argonaut/r2/profiles.html),
+as well as supporting resources for [FHIR STU3 resources](http://www.hl7.org/fhir/STU3/).
+
 
 ## Design
-
 Data-query is implemented as a series of resource-specific components the follow the template below.
 To make the description more complete, the pattern is shown for _Patient_, but it is replicated
 for each resource.
@@ -14,18 +14,14 @@ for each resource.
 
 ##### Components
 
-- `MrAndersonClient` - Abstraction for interacting with the Mr. Anderson service.
-  - `Query` - Type-safe query model for making searches
-  - `RestMrAndersonClient` - Restful implementation of the `MrAndersonClient` interface. 
 - `WebExceptionHandler` - Provides common error handling for resource controllers. It will map
-  exceptions, like those thrown from `MrAndersonClient` to `OperationOutcome` payloads with
+  exceptions, like those thrown from `PatientRepository` to `OperationOutcome` payloads with
   appropriate HTTP status codes.
 - `${Resource}` - The Argonaut Data Query model for a specific resource, e.g. `Patient` or `DiagnosticReport`.
-- `${Resource}${Version}Root` - A versioned CDW schema JAXB model for the XML root element that will
-  be used for XML unmarshalling, e.g `Patient103Root`. This class is generated from CDW schemas.
+- `${Resource}Entity` - The Datamart table housing a specific resource, e.g. `Patient` or `DiagnosticReport`
+- `${Resource}Repository` - Interface utilizing Spring Data to access the Datamart database tables.
 - `${Resource}Controller` - Spring Rest Controller responsible for a given resource type. Resource
-  controllers orchestrate requests to Mr. Anderson and conversion to data query types.
-- `${Resource}Controller.Transformer` - An functional interface to transform a CDW XML model type to
-  a Argonaut data query model type.
-- `${Resource}Transformer` - The implementation of a resource-specific controller's Transformer
-  interface. This class provides the logic for converting the CDW data type into Argonaut models.
+  controllers orchestrate requests to the ResourceRepository and transformation to
+  the appropriate specification, e.g. `Dstu2` or `Stu3`
+- `${Resource}Transformer` - A class containing logic to transform a ResourceEntity model type to
+  the appropriate specification type, e.g. `Dstu2Patient` or `Stu3Location`.
