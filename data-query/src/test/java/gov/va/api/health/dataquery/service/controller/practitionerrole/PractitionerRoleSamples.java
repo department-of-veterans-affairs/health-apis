@@ -51,21 +51,21 @@ public class PractitionerRoleSamples {
                               DatamartReference.builder()
                                   .type(Optional.of("Location"))
                                   .reference(Optional.of(locCdwId))
-                                  .display(Optional.of("test"))
+                                  .display(Optional.of("test location"))
                                   .build()))
                       .managingOrganization(
                           Optional.of(
                               DatamartReference.builder()
                                   .type(Optional.of("Organization"))
                                   .reference(Optional.of(orgCdwId))
-                                  .display(Optional.of("test"))
+                                  .display(Optional.of("test organization"))
                                   .build()))
                       .role(
                           Optional.of(
                               DatamartCoding.builder()
-                                  .system(Optional.of("test"))
-                                  .display(Optional.of("test"))
-                                  .code(Optional.of("test"))
+                                  .system(Optional.of("test system"))
+                                  .display(Optional.of("test role"))
+                                  .code(Optional.of("test code"))
                                   .build()))
                       .build()))
           .telecom(
@@ -87,7 +87,7 @@ public class PractitionerRoleSamples {
           .resourceType("Bundle")
           .type(AbstractBundle.BundleType.searchset)
           .total(roles.size())
-          .link(Arrays.asList(links))
+          .link(asList(links))
           .entry(
               roles
                   .stream()
@@ -118,14 +118,22 @@ public class PractitionerRoleSamples {
           .id(pubId)
           .practitioner(Reference.builder().reference("Practitioner/" + pubId).build())
           .organization(
-              Reference.builder().reference("Organization/" + pubOrgId).display("test").build())
+              Reference.builder()
+                  .reference("Organization/" + pubOrgId)
+                  .display("test organization")
+                  .build())
           .code(
               CodeableConcept.builder()
                   .coding(
-                      asList(Coding.builder().system("test").code("test").display("test").build()))
+                      asList(
+                          Coding.builder()
+                              .system("test system")
+                              .code("test code")
+                              .display("test role")
+                              .build()))
                   .build())
           .location(
-              asList(Reference.builder().reference("Location/" + pubLocId).display("test").build()))
+              asList(Reference.builder().reference("Location/" + pubLocId).display("test location").build()))
           .healthcareService(asList(Reference.builder().display("medical").build()))
           .build();
     }
