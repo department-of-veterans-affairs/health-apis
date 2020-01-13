@@ -17,7 +17,7 @@
     <jacoco.coverage>0.95</jacoco.coverage>
     <swagger-maven-plugin.version>2.0.8</swagger-maven-plugin.version>
     <fall-risk.version>1.0.17</fall-risk.version>
-    <mssql-jdbc.version>6.2.1.jre8</mssql-jdbc.version>
+    <mssql-jdbc.version>7.4.1.jre8</mssql-jdbc.version>
   </properties>
   <dependencies>
     <dependency>
