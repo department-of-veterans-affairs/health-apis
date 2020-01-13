@@ -1,5 +1,7 @@
 package gov.va.api.health.dataquery.service.controller.practitionerrole;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
@@ -18,6 +20,7 @@ import gov.va.api.health.dataquery.service.controller.practitioner.PractitionerR
 import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
+import gov.va.api.health.stu3.api.bundle.AbstractBundle;
 import gov.va.api.health.stu3.api.bundle.BundleLink;
 import gov.va.api.health.stu3.api.resources.PractitionerRole;
 import java.util.List;
@@ -164,8 +167,25 @@ public class Stu3PractitionerRoleControllerTest {
     DatamartPractitioner dm =
         PractitionerRoleSamples.Datamart.create().practitioner(cdwId, locCdwId, orgCdwId);
     repository.save(asEntity(dm));
-    PractitionerRole.Bundle actual = controller().searchById(publicId, 1, 1);
-    assertThat(asJson(actual))
+
+    assertThat(asJson(controller().searchByIdentifier(publicId, 1, 0)))
+        .isEqualTo(
+            asJson(
+                PractitionerRole.Bundle.builder()
+                    .resourceType("Bundle")
+                    .type(AbstractBundle.BundleType.searchset)
+                    .total(1)
+                    .link(
+                        asList(
+                            PractitionerRoleSamples.Stu3.link(
+                                BundleLink.LinkRelation.self,
+                                "http://fonzy.com/cool/PractitionerRole?identifier=" + publicId,
+                                1,
+                                0)))
+                    .entry(emptyList())
+                    .build()));
+
+    assertThat(asJson(controller().searchById(publicId, 1, 1)))
         .isEqualTo(
             asJson(
                 PractitionerRoleSamples.Stu3.asBundle(
@@ -202,8 +222,25 @@ public class Stu3PractitionerRoleControllerTest {
     DatamartPractitioner dm =
         PractitionerRoleSamples.Datamart.create().practitioner(cdwId, locCdwId, orgCdwId);
     repository.save(asEntity(dm));
-    PractitionerRole.Bundle actual = controller().searchByIdentifier(publicId, 1, 1);
-    assertThat(asJson(actual))
+
+    assertThat(asJson(controller().searchByIdentifier(publicId, 1, 0)))
+        .isEqualTo(
+            asJson(
+                PractitionerRole.Bundle.builder()
+                    .resourceType("Bundle")
+                    .type(AbstractBundle.BundleType.searchset)
+                    .total(1)
+                    .link(
+                        asList(
+                            PractitionerRoleSamples.Stu3.link(
+                                BundleLink.LinkRelation.self,
+                                "http://fonzy.com/cool/PractitionerRole?identifier=" + publicId,
+                                1,
+                                0)))
+                    .entry(emptyList())
+                    .build()));
+
+    assertThat(asJson(controller().searchByIdentifier(publicId, 1, 1)))
         .isEqualTo(
             asJson(
                 PractitionerRoleSamples.Stu3.asBundle(
@@ -242,8 +279,27 @@ public class Stu3PractitionerRoleControllerTest {
     DatamartPractitioner dm =
         PractitionerRoleSamples.Datamart.create().practitioner(cdwId, locCdwId, orgCdwId);
     repository.save(asEntity(dm));
-    PractitionerRole.Bundle actual = controller().searchByName(family, given, 1, 1);
-    assertThat(asJson(actual))
+
+    assertThat(asJson(controller().searchByName(family, given, 1, 0)))
+        .isEqualTo(
+            asJson(
+                PractitionerRole.Bundle.builder()
+                    .resourceType("Bundle")
+                    .type(AbstractBundle.BundleType.searchset)
+                    .total(1)
+                    .link(
+                        asList(
+                            PractitionerRoleSamples.Stu3.link(
+                                BundleLink.LinkRelation.self,
+                                String.format(
+                                    "http://fonzy.com/cool/PractitionerRole?given=%s&practitioner.family=%s",
+                                    given, family),
+                                1,
+                                0)))
+                    .entry(emptyList())
+                    .build()));
+
+    assertThat(asJson(controller().searchByName(family, given, 1, 1)))
         .isEqualTo(
             asJson(
                 PractitionerRoleSamples.Stu3.asBundle(
@@ -287,8 +343,26 @@ public class Stu3PractitionerRoleControllerTest {
     DatamartPractitioner dm =
         PractitionerRoleSamples.Datamart.create().practitioner(cdwId, locCdwId, orgCdwId);
     repository.save(asEntity(dm));
-    PractitionerRole.Bundle actual = controller().searchByNpi(systemAndCode, 1, 1);
-    assertThat(asJson(actual))
+
+    assertThat(asJson(controller().searchByNpi(systemAndCode, 1, 0)))
+        .isEqualTo(
+            asJson(
+                PractitionerRole.Bundle.builder()
+                    .resourceType("Bundle")
+                    .type(AbstractBundle.BundleType.searchset)
+                    .total(1)
+                    .link(
+                        asList(
+                            PractitionerRoleSamples.Stu3.link(
+                                BundleLink.LinkRelation.self,
+                                "http://fonzy.com/cool/PractitionerRole?practitioner.identifier="
+                                    + systemAndCode,
+                                1,
+                                0)))
+                    .entry(emptyList())
+                    .build()));
+
+    assertThat(asJson(controller().searchByNpi(systemAndCode, 1, 1)))
         .isEqualTo(
             asJson(
                 PractitionerRoleSamples.Stu3.asBundle(
@@ -314,6 +388,21 @@ public class Stu3PractitionerRoleControllerTest {
                             + systemAndCode,
                         1,
                         1))));
+  }
+
+  @Test(expected = ResourceExceptions.BadSearchParameter.class)
+  public void searchByNpi_badSystem() {
+    controller().searchByNpi("not_npi|12345", 1, 1);
+  }
+
+  @Test(expected = ResourceExceptions.BadSearchParameter.class)
+  public void searchByNpi_noDelimiter() {
+    controller().searchByNpi("http://hl7.org/fhir/sid/us-npi", 1, 1);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void searchBySpecialty() {
+    controller().searchBySpecialty("specialty", 1, 1);
   }
 
   @Test

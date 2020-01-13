@@ -23,14 +23,14 @@ import lombok.NonNull;
 final class Stu3PractitionerRoleTransformer {
   @NonNull private final DatamartPractitioner datamart;
 
-  private CodeableConcept code(Optional<DatamartPractitioner.PractitionerRole> role) {
+  private static CodeableConcept code(Optional<DatamartPractitioner.PractitionerRole> role) {
     if (role.isEmpty()) {
       return null;
     }
     return asCodeableConceptWrapping(role.get().role());
   }
 
-  private List<Reference> healthCareService(Optional<DatamartPractitioner.PractitionerRole> role) {
+  static List<Reference> healthCareService(Optional<DatamartPractitioner.PractitionerRole> role) {
     if (role.isEmpty()) {
       return null;
     }
@@ -41,7 +41,7 @@ final class Stu3PractitionerRoleTransformer {
     return List.of(Reference.builder().display(service.get()).build());
   }
 
-  private List<Reference> locations(Optional<DatamartPractitioner.PractitionerRole> role) {
+  private static List<Reference> locations(Optional<DatamartPractitioner.PractitionerRole> role) {
     if (role.isEmpty()) {
       return null;
     }
@@ -49,14 +49,14 @@ final class Stu3PractitionerRoleTransformer {
         role.get().location().stream().map(loc -> asReference(loc)).collect(Collectors.toList()));
   }
 
-  private Reference organization(Optional<DatamartPractitioner.PractitionerRole> role) {
+  private static Reference organization(Optional<DatamartPractitioner.PractitionerRole> role) {
     if (role.isEmpty()) {
       return null;
     }
     return asReference(role.get().managingOrganization());
   }
 
-  private Period period(Optional<DatamartPractitioner.PractitionerRole> role) {
+  static Period period(Optional<DatamartPractitioner.PractitionerRole> role) {
     if (role.isEmpty()) {
       return null;
     }
@@ -70,7 +70,7 @@ final class Stu3PractitionerRoleTransformer {
         .build();
   }
 
-  private Reference practitioner(String cdwId) {
+  private static Reference practitioner(String cdwId) {
     return asReference(
         DatamartReference.builder()
             .type(Optional.of("Practitioner"))
@@ -78,7 +78,7 @@ final class Stu3PractitionerRoleTransformer {
             .build());
   }
 
-  private CodeableConcept specialty(Optional<DatamartPractitioner.PractitionerRole> role) {
+  static CodeableConcept specialty(Optional<DatamartPractitioner.PractitionerRole> role) {
     if (role.isEmpty()) {
       return null;
     }
@@ -100,7 +100,7 @@ final class Stu3PractitionerRoleTransformer {
     return null;
   }
 
-  private CodeableConcept specialty(String code) {
+  static CodeableConcept specialty(String code) {
     if (isBlank(code)) {
       return null;
     }

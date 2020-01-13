@@ -5,7 +5,6 @@ import static org.apache.commons.lang3.BooleanUtils.toBoolean;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import gov.va.api.health.sentinel.Environment;
 import gov.va.api.health.sentinel.TestClient;
 import java.lang.reflect.Method;
