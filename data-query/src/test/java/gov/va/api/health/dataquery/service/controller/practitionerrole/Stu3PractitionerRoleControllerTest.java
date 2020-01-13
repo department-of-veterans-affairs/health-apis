@@ -3,6 +3,7 @@ package gov.va.api.health.dataquery.service.controller.practitionerrole;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
@@ -17,6 +18,9 @@ import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.health.stu3.api.resources.PractitionerRole;
 import java.util.List;
+
+import javax.servlet.http.HttpServletResponse;
+
 import lombok.SneakyThrows;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -77,10 +81,10 @@ public class Stu3PractitionerRoleControllerTest {
                 Registration.builder().uuid(orgPubId).resourceIdentity(orgResource).build()));
   }
 
-  //  @SneakyThrows
-  //  private DatamartLocation asObject(String json) {
-  //    return JacksonConfig.createMapper().readValue(json, DatamartLocation.class);
-  //  }
+  @SneakyThrows
+  private DatamartPractitioner asObject(String json) {
+    return JacksonConfig.createMapper().readValue(json, DatamartPractitioner.class);
+  }
 
   private Stu3PractitionerRoleController controller() {
     return new Stu3PractitionerRoleController(
@@ -107,21 +111,30 @@ public class Stu3PractitionerRoleControllerTest {
             PractitionerRoleSamples.Stu3.create().practitionerRole(publicId, locPubId, orgPubId));
   }
 
-  //  @Test
-  //  public void readRaw() {
-  //    String publicId = "abc";
-  //    String cdwId = "123";
-  //    String orgPubId = "def";
-  //    String orgCdwId = "456";
-  //    addMockIdentities(publicId, cdwId, orgPubId, orgCdwId);
-  //    HttpServletResponse servletResponse = mock(HttpServletResponse.class);
-  //    DatamartLocation dm = DatamartLocationSamples.create().location(cdwId, orgCdwId);
-  //    repository.save(asEntity(dm));
-  //    String json = controller().readRaw(publicId, servletResponse);
-  //    assertThat(asObject(json)).isEqualTo(dm);
-  //    verify(servletResponse).addHeader("X-VA-INCLUDES-ICN", "NONE");
-  //  }
-  //
+  @Test
+  public void readRaw() {
+    String publicId = "p1";
+    String cdwId = "c1";
+    String locPubId = "p2";
+    String locCdwId = "c2";
+    String orgPubId = "p3";
+    String orgCdwId = "c3";
+    addMockIdentities(publicId, cdwId, locPubId, locCdwId, orgPubId, orgCdwId);
+    HttpServletResponse servletResponse = mock(HttpServletResponse.class);
+    DatamartPractitioner dm =
+        PractitionerRoleSamples.Datamart.create().practitioner(cdwId, locCdwId, orgCdwId);
+    repository.save(asEntity(dm));
+    String json = controller().readRaw(publicId, servletResponse);
+    assertThat(asObject(json)).isEqualTo(dm);
+    verify(servletResponse).addHeader("X-VA-INCLUDES-ICN", "NONE");
+  }
+
+  //  searchById(String, int, int)
+  //  searchByIdentifier(String, int, int)
+  //  searchByName(String, String, int, int)
+  //  searchByNpi(String, int, int)
+  //  searchBySpecialty(String, int, int)
+
   //  @Test(expected = ResourceExceptions.NotFound.class)
   //  public void readRawThrowsNotFoundWhenDataIsMissing() {
   //    addMockIdentities("x", "x", "y", "y");
@@ -152,7 +165,7 @@ public class Stu3PractitionerRoleControllerTest {
   //    String orgPubId = "def";
   //    String orgCdwId = "456";
   //    addMockIdentities(publicId, cdwId, orgPubId, orgCdwId);
-  //    DatamartLocation dm = DatamartLocationSamples.create().location(cdwId, orgCdwId);
+  //    DatamartPractitioner dm = DatamartPractitionerSamples.create().location(cdwId, orgCdwId);
   //    repository.save(asEntity(dm));
   //    Location.Bundle actual = controller().searchByAddress(street, null, null, null, 1, 1);
   //    assertThat(asJson(actual))
@@ -185,7 +198,7 @@ public class Stu3PractitionerRoleControllerTest {
   //    String orgPubId = "def";
   //    String orgCdwId = "456";
   //    addMockIdentities(publicId, cdwId, orgPubId, orgCdwId);
-  //    DatamartLocation dm = DatamartLocationSamples.create().location(cdwId, orgCdwId);
+  //    DatamartPractitioner dm = DatamartPractitionerSamples.create().location(cdwId, orgCdwId);
   //    repository.save(asEntity(dm));
   //    Location.Bundle actual = controller().searchById(publicId, 1, 1);
   //    assertThat(asJson(actual))
@@ -218,7 +231,7 @@ public class Stu3PractitionerRoleControllerTest {
   //    String orgPubId = "def";
   //    String orgCdwId = "456";
   //    addMockIdentities(publicId, cdwId, orgPubId, orgCdwId);
-  //    DatamartLocation dm = DatamartLocationSamples.create().location(cdwId, orgCdwId);
+  //    DatamartPractitioner dm = DatamartPractitionerSamples.create().location(cdwId, orgCdwId);
   //    repository.save(asEntity(dm));
   //    Location.Bundle actual = controller().searchByIdentifier(publicId, 1, 1);
   //    assertThat(asJson(actual))
@@ -252,7 +265,7 @@ public class Stu3PractitionerRoleControllerTest {
   //    String orgPubId = "def";
   //    String orgCdwId = "456";
   //    addMockIdentities(publicId, cdwId, orgPubId, orgCdwId);
-  //    DatamartLocation dm = DatamartLocationSamples.create().location(cdwId, orgCdwId);
+  //    DatamartPractitioner dm = DatamartPractitionerSamples.create().location(cdwId, orgCdwId);
   //    repository.save(asEntity(dm));
   //    Location.Bundle actual = controller().searchByName(name, 1, 1);
   //    assertThat(asJson(actual))
