@@ -1,4 +1,4 @@
-# data-query - Argonaut Data Query
+# Data Query
 
 Spring Boot implementation of the
 [FHIR Argonaut Data Query specification](http://www.fhir.org/guides/argonaut/r2/profiles.html),
