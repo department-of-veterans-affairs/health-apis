@@ -13,7 +13,6 @@ import gov.va.api.health.stu3.api.datatypes.Coding;
 import gov.va.api.health.stu3.api.elements.Reference;
 import gov.va.api.health.stu3.api.resources.PractitionerRole;
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -38,7 +37,7 @@ public class PractitionerRoleSamples {
                       .state("Alaska")
                       .postalCode("99501")
                       .build()))
-          .name(DatamartPractitioner.Name.builder().family("Joe").given("Johnson").build())
+          .name(DatamartPractitioner.Name.builder().family("Nelson").given("Bob").build())
           .birthDate(Optional.of(LocalDate.parse("1970-11-14")))
           .gender(DatamartPractitioner.Gender.male)
           .npi(Optional.of("1234567"))
