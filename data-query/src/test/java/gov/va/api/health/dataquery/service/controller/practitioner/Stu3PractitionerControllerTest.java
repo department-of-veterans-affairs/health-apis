@@ -9,7 +9,6 @@ import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.Stu3Bundler;
 import gov.va.api.health.dataquery.service.controller.Stu3Validator;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
-import gov.va.api.health.dataquery.service.controller.practitioner.DatamartPractitionerSamples.Datamart;
 import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
@@ -96,11 +95,11 @@ public class Stu3PractitionerControllerTest {
     String orgCdwId = "456";
     String locPubId = "ghi";
     String locCdwId = "789";
-    DatamartPractitioner dm = Datamart.create().practitioner();
+    DatamartPractitioner dm = PractitionerSamples.Datamart.create().practitioner();
     repository.save(asEntity(dm));
     mockPractitionerIdentity(publicId, cdwId, orgPubId, orgCdwId, locPubId, locCdwId);
     Practitioner actual = controller().read("1234");
-    assertThat(actual).isEqualTo(Stu3PractitionerSamples.Stu3.create().practitioner("1234"));
+    assertThat(actual).isEqualTo(PractitionerSamples.Stu3.create().practitioner("1234"));
   }
 
   @Test
@@ -113,7 +112,7 @@ public class Stu3PractitionerControllerTest {
     String locCdwId = "789";
     mockPractitionerIdentity(publicId, cdwId, orgPubId, orgCdwId, locPubId, locCdwId);
     HttpServletResponse servletResponse = mock(HttpServletResponse.class);
-    DatamartPractitioner dm = Datamart.create().practitioner(cdwId);
+    DatamartPractitioner dm = PractitionerSamples.Datamart.create().practitioner(cdwId);
     repository.save(asEntity(dm));
     String json = controller().readRaw(publicId, servletResponse);
     assertThat(toObject(json)).isEqualTo(dm);
@@ -152,27 +151,27 @@ public class Stu3PractitionerControllerTest {
     String locCdwId = "789";
     String familyName = "Joe";
     String givenName = "Johnson";
-    DatamartPractitioner dm = Datamart.create().practitioner(cdwId);
+    DatamartPractitioner dm = PractitionerSamples.Datamart.create().practitioner(cdwId);
     repository.save(asEntity(dm));
     mockPractitionerIdentity(publicId, cdwId, orgPubId, orgCdwId, locPubId, locCdwId);
     Practitioner.Bundle actual = controller().searchByFamilyAndGiven(familyName, givenName, 1, 1);
     assertThat(json(actual))
         .isEqualTo(
             json(
-                Stu3PractitionerSamples.Stu3.asBundle(
+                PractitionerSamples.Stu3.asBundle(
                     "http://fonzy.com/cool",
-                    List.of(Stu3PractitionerSamples.Stu3.create().practitioner(publicId)),
-                    Stu3PractitionerSamples.Stu3.link(
+                    List.of(PractitionerSamples.Stu3.create().practitioner(publicId)),
+                    PractitionerSamples.Stu3.link(
                         BundleLink.LinkRelation.first,
                         "http://fonzy.com/cool/Practitioner?family=Joe&given=Johnson",
                         1,
                         1),
-                    Stu3PractitionerSamples.Stu3.link(
+                    PractitionerSamples.Stu3.link(
                         BundleLink.LinkRelation.self,
                         "http://fonzy.com/cool/Practitioner?family=Joe&given=Johnson",
                         1,
                         1),
-                    Stu3PractitionerSamples.Stu3.link(
+                    PractitionerSamples.Stu3.link(
                         BundleLink.LinkRelation.last,
                         "http://fonzy.com/cool/Practitioner?family=Joe&given=Johnson",
                         1,
@@ -188,26 +187,26 @@ public class Stu3PractitionerControllerTest {
     String locPubId = "ghi";
     String locCdwId = "789";
     mockPractitionerIdentity(publicId, cdwId, orgPubId, orgCdwId, locPubId, locCdwId);
-    DatamartPractitioner dm = Datamart.create().practitioner(cdwId);
+    DatamartPractitioner dm = PractitionerSamples.Datamart.create().practitioner(cdwId);
     repository.save(asEntity(dm));
     Practitioner.Bundle actual = controller().searchById(publicId, 1, 1);
     assertThat(json(actual))
         .isEqualTo(
             json(
-                Stu3PractitionerSamples.Stu3.asBundle(
+                PractitionerSamples.Stu3.asBundle(
                     "http://fonzy.com/cool",
-                    List.of(Stu3PractitionerSamples.Stu3.create().practitioner(publicId)),
-                    Stu3PractitionerSamples.Stu3.link(
+                    List.of(PractitionerSamples.Stu3.create().practitioner(publicId)),
+                    PractitionerSamples.Stu3.link(
                         BundleLink.LinkRelation.first,
                         "http://fonzy.com/cool/Practitioner?identifier=abc",
                         1,
                         1),
-                    Stu3PractitionerSamples.Stu3.link(
+                    PractitionerSamples.Stu3.link(
                         BundleLink.LinkRelation.self,
                         "http://fonzy.com/cool/Practitioner?identifier=abc",
                         1,
                         1),
-                    Stu3PractitionerSamples.Stu3.link(
+                    PractitionerSamples.Stu3.link(
                         BundleLink.LinkRelation.last,
                         "http://fonzy.com/cool/Practitioner?identifier=abc",
                         1,
@@ -222,27 +221,27 @@ public class Stu3PractitionerControllerTest {
     String orgCdwId = "456";
     String locPubId = "ghi";
     String locCdwId = "789";
-    DatamartPractitioner dm = Datamart.create().practitioner(cdwId);
+    DatamartPractitioner dm = PractitionerSamples.Datamart.create().practitioner(cdwId);
     repository.save(asEntity(dm));
     mockPractitionerIdentity(publicId, cdwId, orgPubId, orgCdwId, locPubId, locCdwId);
     Practitioner.Bundle actual = controller().searchByIdentifier(publicId, 1, 1);
     assertThat(json(actual))
         .isEqualTo(
             json(
-                Stu3PractitionerSamples.Stu3.asBundle(
+                PractitionerSamples.Stu3.asBundle(
                     "http://fonzy.com/cool",
-                    List.of(Stu3PractitionerSamples.Stu3.create().practitioner(publicId)),
-                    Stu3PractitionerSamples.Stu3.link(
+                    List.of(PractitionerSamples.Stu3.create().practitioner(publicId)),
+                    PractitionerSamples.Stu3.link(
                         BundleLink.LinkRelation.first,
                         "http://fonzy.com/cool/Practitioner?identifier=abc",
                         1,
                         1),
-                    Stu3PractitionerSamples.Stu3.link(
+                    PractitionerSamples.Stu3.link(
                         BundleLink.LinkRelation.self,
                         "http://fonzy.com/cool/Practitioner?identifier=abc",
                         1,
                         1),
-                    Stu3PractitionerSamples.Stu3.link(
+                    PractitionerSamples.Stu3.link(
                         BundleLink.LinkRelation.last,
                         "http://fonzy.com/cool/Practitioner?identifier=abc",
                         1,
@@ -256,25 +255,25 @@ public class Stu3PractitionerControllerTest {
 
   @Test
   public void validate() {
-    DatamartPractitioner dm = Datamart.create().practitioner();
-    Practitioner practitioner = Stu3PractitionerSamples.Stu3.create().practitioner();
+    DatamartPractitioner dm = PractitionerSamples.Datamart.create().practitioner();
+    Practitioner practitioner = PractitionerSamples.Stu3.create().practitioner();
     assertThat(
             controller()
                 .validate(
-                    Stu3PractitionerSamples.Stu3.asBundle(
+                    PractitionerSamples.Stu3.asBundle(
                         "http://fonzy.com/cool",
                         List.of(practitioner),
-                        Stu3PractitionerSamples.Stu3.link(
+                        PractitionerSamples.Stu3.link(
                             BundleLink.LinkRelation.first,
                             "http://fonzy.com/cool/AllergyIntolerance?identifier=1",
                             1,
                             1),
-                        Stu3PractitionerSamples.Stu3.link(
+                        PractitionerSamples.Stu3.link(
                             gov.va.api.health.stu3.api.bundle.BundleLink.LinkRelation.self,
                             "http://fonzy.com/cool/AllergyIntolerance?identifier=1",
                             1,
                             1),
-                        Stu3PractitionerSamples.Stu3.link(
+                        PractitionerSamples.Stu3.link(
                             BundleLink.LinkRelation.last,
                             "http://fonzy.com/cool/AllergyIntolerance?identifier=1",
                             1,

@@ -96,11 +96,11 @@ public class Dstu2PractitionerControllerTest {
     String orgCdwId = "456";
     String locPubId = "ghi";
     String locCdwId = "789";
-    DatamartPractitioner dm = DatamartPractitionerSamples.Datamart.create().practitioner();
+    DatamartPractitioner dm = PractitionerSamples.Datamart.create().practitioner();
     repository.save(asEntity(dm));
     mockPractitionerIdentity(publicId, cdwId, orgPubId, orgCdwId, locPubId, locCdwId);
     Practitioner actual = controller().read("1234");
-    assertThat(actual).isEqualTo(Dstu2PractitionerSamples.Dstu2.create().practitioner("1234"));
+    assertThat(actual).isEqualTo(PractitionerSamples.Dstu2.create().practitioner("1234"));
   }
 
   @Test
@@ -113,7 +113,7 @@ public class Dstu2PractitionerControllerTest {
     String locCdwId = "789";
     mockPractitionerIdentity(publicId, cdwId, orgPubId, orgCdwId, locPubId, locCdwId);
     HttpServletResponse servletResponse = mock(HttpServletResponse.class);
-    DatamartPractitioner dm = DatamartPractitionerSamples.Datamart.create().practitioner(cdwId);
+    DatamartPractitioner dm = PractitionerSamples.Datamart.create().practitioner(cdwId);
     repository.save(asEntity(dm));
     String json = controller().readRaw(publicId, servletResponse);
     assertThat(toObject(json)).isEqualTo(dm);
@@ -151,26 +151,26 @@ public class Dstu2PractitionerControllerTest {
     String locPubId = "ghi";
     String locCdwId = "789";
     mockPractitionerIdentity(publicId, cdwId, orgPubId, orgCdwId, locPubId, locCdwId);
-    DatamartPractitioner dm = DatamartPractitionerSamples.Datamart.create().practitioner(cdwId);
+    DatamartPractitioner dm = PractitionerSamples.Datamart.create().practitioner(cdwId);
     repository.save(asEntity(dm));
     Practitioner.Bundle actual = controller().searchById(publicId, 1, 1);
     assertThat(json(actual))
         .isEqualTo(
             json(
-                Dstu2PractitionerSamples.Dstu2.asBundle(
+                PractitionerSamples.Dstu2.asBundle(
                     "http://fonzy.com/cool",
-                    List.of(Dstu2PractitionerSamples.Dstu2.create().practitioner(publicId)),
-                    Dstu2PractitionerSamples.Dstu2.link(
+                    List.of(PractitionerSamples.Dstu2.create().practitioner(publicId)),
+                    PractitionerSamples.Dstu2.link(
                         LinkRelation.first,
                         "http://fonzy.com/cool/Practitioner?identifier=abc",
                         1,
                         1),
-                    Dstu2PractitionerSamples.Dstu2.link(
+                    PractitionerSamples.Dstu2.link(
                         LinkRelation.self,
                         "http://fonzy.com/cool/Practitioner?identifier=abc",
                         1,
                         1),
-                    Dstu2PractitionerSamples.Dstu2.link(
+                    PractitionerSamples.Dstu2.link(
                         LinkRelation.last,
                         "http://fonzy.com/cool/Practitioner?identifier=abc",
                         1,
@@ -185,27 +185,27 @@ public class Dstu2PractitionerControllerTest {
     String orgCdwId = "456";
     String locPubId = "ghi";
     String locCdwId = "789";
-    DatamartPractitioner dm = DatamartPractitionerSamples.Datamart.create().practitioner(cdwId);
+    DatamartPractitioner dm = PractitionerSamples.Datamart.create().practitioner(cdwId);
     repository.save(asEntity(dm));
     mockPractitionerIdentity(publicId, cdwId, orgPubId, orgCdwId, locPubId, locCdwId);
     Practitioner.Bundle actual = controller().searchByIdentifier(publicId, 1, 1);
     assertThat(json(actual))
         .isEqualTo(
             json(
-                Dstu2PractitionerSamples.Dstu2.asBundle(
+                PractitionerSamples.Dstu2.asBundle(
                     "http://fonzy.com/cool",
-                    List.of(Dstu2PractitionerSamples.Dstu2.create().practitioner(publicId)),
-                    Dstu2PractitionerSamples.Dstu2.link(
+                    List.of(PractitionerSamples.Dstu2.create().practitioner(publicId)),
+                    PractitionerSamples.Dstu2.link(
                         LinkRelation.first,
                         "http://fonzy.com/cool/Practitioner?identifier=abc",
                         1,
                         1),
-                    Dstu2PractitionerSamples.Dstu2.link(
+                    PractitionerSamples.Dstu2.link(
                         LinkRelation.self,
                         "http://fonzy.com/cool/Practitioner?identifier=abc",
                         1,
                         1),
-                    Dstu2PractitionerSamples.Dstu2.link(
+                    PractitionerSamples.Dstu2.link(
                         LinkRelation.last,
                         "http://fonzy.com/cool/Practitioner?identifier=abc",
                         1,
@@ -219,25 +219,25 @@ public class Dstu2PractitionerControllerTest {
 
   @Test
   public void validate() {
-    DatamartPractitioner dm = DatamartPractitionerSamples.Datamart.create().practitioner();
-    Practitioner practitioner = Dstu2PractitionerSamples.Dstu2.create().practitioner();
+    DatamartPractitioner dm = PractitionerSamples.Datamart.create().practitioner();
+    Practitioner practitioner = PractitionerSamples.Dstu2.create().practitioner();
     assertThat(
             controller()
                 .validate(
-                    Dstu2PractitionerSamples.Dstu2.asBundle(
+                    PractitionerSamples.Dstu2.asBundle(
                         "http://fonzy.com/cool",
                         List.of(practitioner),
-                        Dstu2PractitionerSamples.Dstu2.link(
+                        PractitionerSamples.Dstu2.link(
                             LinkRelation.first,
                             "http://fonzy.com/cool/AllergyIntolerance?identifier=1",
                             1,
                             1),
-                        Dstu2PractitionerSamples.Dstu2.link(
+                        PractitionerSamples.Dstu2.link(
                             LinkRelation.self,
                             "http://fonzy.com/cool/AllergyIntolerance?identifier=1",
                             1,
                             1),
-                        Dstu2PractitionerSamples.Dstu2.link(
+                        PractitionerSamples.Dstu2.link(
                             LinkRelation.last,
                             "http://fonzy.com/cool/AllergyIntolerance?identifier=1",
                             1,
