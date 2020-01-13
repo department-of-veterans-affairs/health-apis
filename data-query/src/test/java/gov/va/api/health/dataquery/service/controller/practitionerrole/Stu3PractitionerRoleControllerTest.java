@@ -17,6 +17,7 @@ import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.health.stu3.api.resources.PractitionerRole;
+import gov.va.api.health.stu3.api.bundle.BundleLink;
 import java.util.List;
 
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
@@ -48,10 +49,10 @@ public class Stu3PractitionerRoleControllerTest {
         .build();
   }
 
-  //  @SneakyThrows
-  //  private static String asJson(Object o) {
-  //    return JacksonConfig.createMapper().writerWithDefaultPrettyPrinter().writeValueAsString(o);
-  //  }
+  @SneakyThrows
+  private static String asJson(Object o) {
+    return JacksonConfig.createMapper().writerWithDefaultPrettyPrinter().writeValueAsString(o);
+  }
 
   private void addMockIdentities(
       String pracPubId,
@@ -153,11 +154,86 @@ public class Stu3PractitionerRoleControllerTest {
     controller().read("x");
   }
 
-  //  searchById(String, int, int)
   //  searchByIdentifier(String, int, int)
   //  searchByName(String, String, int, int)
   //  searchByNpi(String, int, int)
   //  searchBySpecialty(String, int, int)
+
+  @Test
+  public void searchById() {
+    String publicId = "p1";
+    String cdwId = "c1";
+    String locPubId = "p2";
+    String locCdwId = "c2";
+    String orgPubId = "p3";
+    String orgCdwId = "c3";
+    addMockIdentities(publicId, cdwId, locPubId, locCdwId, orgPubId, orgCdwId);
+    DatamartPractitioner dm =
+        PractitionerRoleSamples.Datamart.create().practitioner(cdwId, locCdwId, orgCdwId);
+    repository.save(asEntity(dm));
+    PractitionerRole.Bundle actual = controller().searchById(publicId, 1, 1);
+    assertThat(asJson(actual))
+        .isEqualTo(
+            asJson(
+                PractitionerRoleSamples.Stu3.asBundle(
+                    "http://fonzy.com/cool",
+                    List.of(
+                        PractitionerRoleSamples.Stu3.create()
+                            .practitionerRole(publicId, locPubId, orgPubId)),
+                    PractitionerRoleSamples.Stu3.link(
+                        BundleLink.LinkRelation.first,
+                        "http://fonzy.com/cool/PractitionerRole?identifier=" + publicId,
+                        1,
+                        1),
+                    PractitionerRoleSamples.Stu3.link(
+                        BundleLink.LinkRelation.self,
+                        "http://fonzy.com/cool/PractitionerRole?identifier=" + publicId,
+                        1,
+                        1),
+                    PractitionerRoleSamples.Stu3.link(
+                        BundleLink.LinkRelation.last,
+                        "http://fonzy.com/cool/PractitionerRole?identifier=" + publicId,
+                        1,
+                        1))));
+  }
+
+  @Test
+  public void searchByIdentifier() {
+    String publicId = "p1";
+    String cdwId = "c1";
+    String locPubId = "p2";
+    String locCdwId = "c2";
+    String orgPubId = "p3";
+    String orgCdwId = "c3";
+    addMockIdentities(publicId, cdwId, locPubId, locCdwId, orgPubId, orgCdwId);
+    DatamartPractitioner dm =
+        PractitionerRoleSamples.Datamart.create().practitioner(cdwId, locCdwId, orgCdwId);
+    repository.save(asEntity(dm));
+    PractitionerRole.Bundle actual = controller().searchByIdentifier(publicId, 1, 1);
+    assertThat(asJson(actual))
+        .isEqualTo(
+            asJson(
+                PractitionerRoleSamples.Stu3.asBundle(
+                    "http://fonzy.com/cool",
+                    List.of(
+                        PractitionerRoleSamples.Stu3.create()
+                            .practitionerRole(publicId, locPubId, orgPubId)),
+                    PractitionerRoleSamples.Stu3.link(
+                        BundleLink.LinkRelation.first,
+                        "http://fonzy.com/cool/PractitionerRole?identifier=" + publicId,
+                        1,
+                        1),
+                    PractitionerRoleSamples.Stu3.link(
+                        BundleLink.LinkRelation.self,
+                        "http://fonzy.com/cool/PractitionerRole?identifier=" + publicId,
+                        1,
+                        1),
+                    PractitionerRoleSamples.Stu3.link(
+                        BundleLink.LinkRelation.last,
+                        "http://fonzy.com/cool/PractitionerRole?identifier=" + publicId,
+                        1,
+                        1))));
+  }
 
   //  @Test
   //  public void searchByAddress() {
@@ -167,98 +243,34 @@ public class Stu3PractitionerRoleControllerTest {
   //    String orgPubId = "def";
   //    String orgCdwId = "456";
   //    addMockIdentities(publicId, cdwId, orgPubId, orgCdwId);
-  //    DatamartPractitioner dm = DatamartPractitionerSamples.create().location(cdwId, orgCdwId);
+  //    DatamartPractitioner dm = PractitionerRoleSamples.Datamart.create().location(cdwId,
+  // orgCdwId);
   //    repository.save(asEntity(dm));
-  //    Location.Bundle actual = controller().searchByAddress(street, null, null, null, 1, 1);
+  //   PractitionerRole.Bundle actual = controller().searchByAddress(street, null, null, null, 1,
+  // 1);
   //    assertThat(asJson(actual))
   //        .isEqualTo(
   //            asJson(
-  //                Stu3LocationSamples.asBundle(
+  //                PractitionerRoleSamples.Stu3.asBundle(
   //                    "http://fonzy.com/cool",
-  //                    List.of(Stu3LocationSamples.create().location(publicId, orgPubId)),
-  //                    Stu3LocationSamples.link(
+  //                    List.of(PractitionerRoleSamples.Stu3.create().location(publicId, orgPubId)),
+  //                    PractitionerRoleSamples.Stu3.link(
   //                        BundleLink.LinkRelation.first,
   //                        "http://fonzy.com/cool/Location?address=" + street,
   //                        1,
   //                        1),
-  //                    Stu3LocationSamples.link(
+  //                    PractitionerRoleSamples.Stu3.link(
   //                        BundleLink.LinkRelation.self,
   //                        "http://fonzy.com/cool/Location?address=" + street,
   //                        1,
   //                        1),
-  //                    Stu3LocationSamples.link(
+  //                    PractitionerRoleSamples.Stu3.link(
   //                        BundleLink.LinkRelation.last,
   //                        "http://fonzy.com/cool/Location?address=" + street,
   //                        1,
   //                        1))));
   //  }
-  //
-  //  @Test
-  //  public void searchById() {
-  //    String publicId = "abc";
-  //    String cdwId = "123";
-  //    String orgPubId = "def";
-  //    String orgCdwId = "456";
-  //    addMockIdentities(publicId, cdwId, orgPubId, orgCdwId);
-  //    DatamartPractitioner dm = DatamartPractitionerSamples.create().location(cdwId, orgCdwId);
-  //    repository.save(asEntity(dm));
-  //    Location.Bundle actual = controller().searchById(publicId, 1, 1);
-  //    assertThat(asJson(actual))
-  //        .isEqualTo(
-  //            asJson(
-  //                Stu3LocationSamples.asBundle(
-  //                    "http://fonzy.com/cool",
-  //                    List.of(Stu3LocationSamples.create().location(publicId, orgPubId)),
-  //                    Stu3LocationSamples.link(
-  //                        BundleLink.LinkRelation.first,
-  //                        "http://fonzy.com/cool/Location?identifier=" + publicId,
-  //                        1,
-  //                        1),
-  //                    Stu3LocationSamples.link(
-  //                        BundleLink.LinkRelation.self,
-  //                        "http://fonzy.com/cool/Location?identifier=" + publicId,
-  //                        1,
-  //                        1),
-  //                    Stu3LocationSamples.link(
-  //                        BundleLink.LinkRelation.last,
-  //                        "http://fonzy.com/cool/Location?identifier=" + publicId,
-  //                        1,
-  //                        1))));
-  //  }
-  //
-  //  @Test
-  //  public void searchByIdentifier() {
-  //    String publicId = "abc";
-  //    String cdwId = "123";
-  //    String orgPubId = "def";
-  //    String orgCdwId = "456";
-  //    addMockIdentities(publicId, cdwId, orgPubId, orgCdwId);
-  //    DatamartPractitioner dm = DatamartPractitionerSamples.create().location(cdwId, orgCdwId);
-  //    repository.save(asEntity(dm));
-  //    Location.Bundle actual = controller().searchByIdentifier(publicId, 1, 1);
-  //    assertThat(asJson(actual))
-  //        .isEqualTo(
-  //            asJson(
-  //                Stu3LocationSamples.asBundle(
-  //                    "http://fonzy.com/cool",
-  //                    List.of(Stu3LocationSamples.create().location(publicId, orgPubId)),
-  //                    Stu3LocationSamples.link(
-  //                        BundleLink.LinkRelation.first,
-  //                        "http://fonzy.com/cool/Location?identifier=" + publicId,
-  //                        1,
-  //                        1),
-  //                    Stu3LocationSamples.link(
-  //                        BundleLink.LinkRelation.self,
-  //                        "http://fonzy.com/cool/Location?identifier=" + publicId,
-  //                        1,
-  //                        1),
-  //                    Stu3LocationSamples.link(
-  //                        BundleLink.LinkRelation.last,
-  //                        "http://fonzy.com/cool/Location?identifier=" + publicId,
-  //                        1,
-  //                        1))));
-  //  }
-  //
+
   //  @Test
   //  public void searchByName() {
   //    String name = "TEM MH PSO TRS IND93EH";
@@ -267,52 +279,53 @@ public class Stu3PractitionerRoleControllerTest {
   //    String orgPubId = "def";
   //    String orgCdwId = "456";
   //    addMockIdentities(publicId, cdwId, orgPubId, orgCdwId);
-  //    DatamartPractitioner dm = DatamartPractitionerSamples.create().location(cdwId, orgCdwId);
+  //    DatamartPractitioner dm = PractitionerRoleSamples.Datamart.create().location(cdwId,
+  // orgCdwId);
   //    repository.save(asEntity(dm));
-  //    Location.Bundle actual = controller().searchByName(name, 1, 1);
+  //   PractitionerRole.Bundle actual = controller().searchByName(name, 1, 1);
   //    assertThat(asJson(actual))
   //        .isEqualTo(
   //            asJson(
-  //                Stu3LocationSamples.asBundle(
+  //                PractitionerRoleSamples.Stu3.asBundle(
   //                    "http://fonzy.com/cool",
-  //                    List.of(Stu3LocationSamples.create().location(publicId, orgPubId)),
-  //                    Stu3LocationSamples.link(
+  //                    List.of(PractitionerRoleSamples.Stu3.create().location(publicId, orgPubId)),
+  //                    PractitionerRoleSamples.Stu3.link(
   //                        BundleLink.LinkRelation.first,
   //                        "http://fonzy.com/cool/Location?name=" + name,
   //                        1,
   //                        1),
-  //                    Stu3LocationSamples.link(
+  //                    PractitionerRoleSamples.Stu3.link(
   //                        BundleLink.LinkRelation.self,
   //                        "http://fonzy.com/cool/Location?name=" + name,
   //                        1,
   //                        1),
-  //                    Stu3LocationSamples.link(
+  //                    PractitionerRoleSamples.Stu3.link(
   //                        BundleLink.LinkRelation.last,
   //                        "http://fonzy.com/cool/Location?name=" + name,
   //                        1,
   //                        1))));
   //  }
-  //
+
   //  @Test
   //  @SneakyThrows
   //  public void validate() {
   //    assertThat(
   //            controller()
   //                .validate(
-  //                    Stu3LocationSamples.asBundle(
+  //                    PractitionerRoleSamples.Stu3.asBundle(
   //                        "http://fonzy.com/cool",
-  //                        List.of(Stu3LocationSamples.create().location("x", "y")),
-  //                        Stu3LocationSamples.link(
+  //                        List.of(PractitionerRoleSamples.Stu3.create().location("x", "y")),
+  //                        PractitionerRoleSamples.Stu3.link(
   //                            BundleLink.LinkRelation.first,
   //                            "http://fonzy.com/cool/Location?identifier=x",
   //                            1,
   //                            1),
-  //                        Stu3LocationSamples.link(
+  //                        PractitionerRoleSamples.Stu3.link(
   //                            BundleLink.LinkRelation.self,
   //                            "http://fonzy.com/cool/Location?identifier=x",
   //                            1,
   //                            1),
-  //                        Stu3LocationSamples.link(
+  //                        PractitionerRoleSamples.Stu3.link(
   //                            BundleLink.LinkRelation.last,
   //                            "http://fonzy.com/cool/Location?identifier=x",
   //                            1,
