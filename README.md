@@ -2,19 +2,15 @@
 
 Health APIs Data Query application. The system consists of
 [Spring Boot](https://spring.io/projects/spring-boot) microservices that provide
-[Argonaut Data Query](http://www.fhir.org/guides/argonaut/r2/profiles.html) compliant resources
-backed by information from the Corporate Data Warehouse.
+[Argonaut Data Query](http://www.fhir.org/guides/argonaut/r2/profiles.html) and [FHIR STU3](http://www.hl7.org/fhir/STU3/) compliant resources backed by information from the Corporate Data Warehouse.
 
-###### Applications
-![applications](src/plantuml/apps.png)
-- [data-query](data-query/README.md) - Argonaut Data Query compliant experience API
+###### Application
+- [data-query](data-query/README.md) - Data Query experience API providing specification compliant resources
 - [data-query-tests](data-query-tests/README.md) - Integration tests
 
 ----
 
 ## Building
-- [Java Development Kit](https://openjdk.java.net/) 8
-- [Maven](http://maven.apache.org/) 3.5
 - [PlantUml](http://plantuml.com/) for diagrams
 - Recommended [IntelliJ](https://www.jetbrains.com/idea/)
   or [Eclipse](https://www.eclipse.org/downloads/packages/installer)
@@ -22,6 +18,8 @@ backed by information from the Corporate Data Warehouse.
   - [Lombok](https://projectlombok.org/)
   - [Google Java Format](https://github.com/google/google-java-format)
 - [git-secrets](https://github.com/awslabs/git-secrets)
+
+See [health-apis-parent](https://github.com/department-of-veterans-affairs/health-apis-parent) for specifics of the dependency hierarchy.
 
 #### Maven
 - Formats Java, XML, and JSON files
