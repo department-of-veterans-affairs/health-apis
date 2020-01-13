@@ -186,7 +186,7 @@ public class Stu3PractitionerRoleController {
       @RequestParam("specialty") String specialty,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
-    throw new UnsupportedOperationException("Search by specialty not supported");
+    throw new ResourceExceptions.NotImplemented("not-implemented");
   }
 
   private List<PractitionerRole> transform(Stream<PractitionerEntity> entities) {

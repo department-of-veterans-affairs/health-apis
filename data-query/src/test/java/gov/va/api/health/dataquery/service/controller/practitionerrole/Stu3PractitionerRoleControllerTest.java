@@ -364,7 +364,7 @@ public class Stu3PractitionerRoleControllerTest {
     controller().searchByNpi("http://hl7.org/fhir/sid/us-npi", 1, 1);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expected = ResourceExceptions.NotImplemented.class)
   public void searchBySpecialty() {
     controller().searchBySpecialty("specialty", 1, 1);
   }

@@ -33,6 +33,7 @@ public final class TestIds {
   @NonNull Observations observations;
   PersonallyIdentifiableInformation pii;
   @NonNull Procedures procedures;
+  @NonNull Practitioners practitioners;
 
   @Value
   @Builder
@@ -90,6 +91,15 @@ public final class TestIds {
     @NonNull String family;
     @NonNull String birthdate;
     @NonNull String gender;
+  }
+
+  @Value
+  @Builder
+  public static class Practitioners {
+    @NonNull String family;
+    @NonNull String given;
+    @NonNull String npi;
+    @NonNull String specialty;
   }
 
   @Value
