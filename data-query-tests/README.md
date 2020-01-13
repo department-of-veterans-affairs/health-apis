@@ -18,8 +18,7 @@ mvn pre-integration-test -Dsentinel=LOCAL -Dexec.waitForInterrupt=true
 
 ###### Local databases
 
-When ran in `LOCAL` mode, `ids` is started with an empty in-memory H2 database and `mr-anderson`
-is started with a [mock database](mock-database.md).
+When ran in `LOCAL` mode, `ids` is started with an empty in-memory H2 database.
 
 
 ###### Lab

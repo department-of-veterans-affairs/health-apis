@@ -1,5 +1,0 @@
-====
-
-    ${Ansi.BLUE}Health API ${Ansi.BOLD}${Ansi.YELLOW}Mr. Anderson ${Ansi.NORMAL}${Ansi.BLUE}${application.version}${Ansi.NORMAL}
-
-====

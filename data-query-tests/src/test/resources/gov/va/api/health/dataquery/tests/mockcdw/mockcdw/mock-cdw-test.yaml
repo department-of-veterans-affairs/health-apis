@@ -1,9 +1,0 @@
-entries:
-- file: Wha100i123.xml
-  query: /Whatever:1.00?id=123
-  page: 1
-  count: 2
-- file: Wha101stuffneat.xml
-  query: /Whatever:1.01?stuff=neat
-  page: 2
-  count: 3

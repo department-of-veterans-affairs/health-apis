@@ -62,12 +62,11 @@ Now that everything is where it's meant to be, we can do a couple other things:
 ./data-query-tests/mitre-minimart-maker.sh minimartDb --open
 
 # Run the applications to test the fhir data is identical to the stored procedure version
-# With -HDatamart:true, mr-anderson does not need to be running
 # NOTE: The identity-service will also need to be running
 
 # ===== LOCAL H2 =====
 # To run the application using the local h2 database, use the minimart script to start up
-# data-query and the dev-app.sh script to start up mr-anderson and/or the ids
+# data-query and the dev-app.sh script to start up the ids
 ./data-query-tests/mitre-minimart-maker.sh minimartDb --start
 ./src/scripts/dev-app.sh -mi start
 
