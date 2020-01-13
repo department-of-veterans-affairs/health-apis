@@ -10,4 +10,6 @@ public interface PractitionerRepository
     extends PagingAndSortingRepository<PractitionerEntity, String> {
   Page<PractitionerEntity> findByFamilyNameAndGivenName(
       String familyName, String givenName, Pageable pageable);
+
+  Page<PractitionerEntity> findByNpi(String npi, Pageable pageable);
 }

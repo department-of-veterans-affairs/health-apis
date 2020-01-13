@@ -151,13 +151,35 @@ public class Stu3PractitionerController {
         resource == null ? 0 : 1);
   }
 
-  /** Search by Identifier. */
+  /** Search by NPI. */
   @GetMapping(params = {"identifier"})
-  public Practitioner.Bundle searchByIdentifier(
-      @RequestParam("identifier") String publicId,
+  public Practitioner.Bundle searchByNpi(
+      @RequestParam("identifier") String systemAndCode,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
-    return searchById(publicId, page, count);
+    MultiValueMap<String, String> parameters =
+        Parameters.builder()
+            .add("identifier", systemAndCode)
+            .add("page", page)
+            .add("_count", count)
+            .build();
+    int delimiterIndex = systemAndCode.lastIndexOf("|");
+    if (delimiterIndex <= -1) {
+      throw new ResourceExceptions.BadSearchParameter("Cannot parse NPI for " + systemAndCode);
+    }
+
+    String system = systemAndCode.substring(0, delimiterIndex);
+    if (!system.equalsIgnoreCase("http://hl7.org/fhir/sid/us-npi")) {
+      throw new ResourceExceptions.BadSearchParameter(
+          String.format("System %s is not supported", system));
+    }
+
+    String npi = systemAndCode.substring(delimiterIndex + 1);
+    Page<PractitionerEntity> entitiesPage = repository.findByNpi(npi, page(page, count));
+    if (count == 0) {
+      return bundle(parameters, emptyList(), (int) entitiesPage.getTotalElements());
+    }
+    return bundle(parameters, transform(entitiesPage.get()), (int) entitiesPage.getTotalElements());
   }
 
   private List<Practitioner> transform(Stream<PractitionerEntity> entities) {

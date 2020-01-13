@@ -214,7 +214,8 @@ public class Stu3PractitionerControllerTest {
   }
 
   @Test
-  public void searchByIdentifier() {
+  public void searchByNpi() {
+    String systemAndCode = "http://hl7.org/fhir/sid/us-npi|1234567";
     String publicId = "abc";
     String cdwId = "123";
     String orgPubId = "def";
@@ -224,7 +225,7 @@ public class Stu3PractitionerControllerTest {
     DatamartPractitioner dm = PractitionerSamples.Datamart.create().practitioner(cdwId);
     repository.save(asEntity(dm));
     mockPractitionerIdentity(publicId, cdwId, orgPubId, orgCdwId, locPubId, locCdwId);
-    Practitioner.Bundle actual = controller().searchByIdentifier(publicId, 1, 1);
+    Practitioner.Bundle actual = controller().searchByNpi(systemAndCode, 1, 1);
     assertThat(json(actual))
         .isEqualTo(
             json(
@@ -233,17 +234,17 @@ public class Stu3PractitionerControllerTest {
                     List.of(PractitionerSamples.Stu3.create().practitioner(publicId)),
                     PractitionerSamples.Stu3.link(
                         BundleLink.LinkRelation.first,
-                        "http://fonzy.com/cool/Practitioner?identifier=abc",
+                        "http://fonzy.com/cool/Practitioner?identifier=" + systemAndCode,
                         1,
                         1),
                     PractitionerSamples.Stu3.link(
                         BundleLink.LinkRelation.self,
-                        "http://fonzy.com/cool/Practitioner?identifier=abc",
+                        "http://fonzy.com/cool/Practitioner?identifier=" + systemAndCode,
                         1,
                         1),
                     PractitionerSamples.Stu3.link(
                         BundleLink.LinkRelation.last,
-                        "http://fonzy.com/cool/Practitioner?identifier=abc",
+                        "http://fonzy.com/cool/Practitioner?identifier=" + systemAndCode,
                         1,
                         1))));
   }
