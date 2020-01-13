@@ -1,27 +1,16 @@
 @startuml
-
-class PatientController <<RestController>>
-interface MrAndersonClient <<Service>>
-interface PatientController.Transformer
-class PatientTransformer <<Service>>
-interface Function<T,R>
-class Patient103Root <<Generated>>
+class Dstu2PatientController <<RestController>>
+class Dstu2PatientTransformer
 class Patient
-class RestMrAndersonClient <<Service>>
-class Query
+class PatientEntity
 class WebExceptionHandler <<RestControllerAdvice>>
+Interface PatientRepository
 
-PatientController *--> MrAndersonClient
-PatientController *--> PatientController.Transformer
-PatientTransformer --|> PatientController.Transformer
-PatientController.Transformer --|> Function : <Patient103Root,Patient>
-PatientController.Transformer ..> Patient103Root : <<process>>
-PatientController.Transformer ..up..> Patient: <<create>>
-PatientController ..> Patient: <<publish>>
-RestMrAndersonClient --|> MrAndersonClient
-PatientController ..> Query: <<create>>
-MrAndersonClient ..> Query: <<process>>
-MrAndersonClient ..> Patient103Root: <<create>>
-WebExceptionHandler .. PatientController: <<decorates>>
-
+WebExceptionHandler .. Dstu2PatientController: <<decorates>>
+Dstu2PatientController *--> Dstu2PatientTransformer
+Dstu2PatientController *--> PatientRepository
+Dstu2PatientController ..down..> Patient: <<publish>>
+Dstu2PatientTransformer ..up..> Patient: <<create>>
+Dstu2PatientTransformer ..> PatientEntity : <<transform>>
+PatientRepository ..> PatientEntity : <<process>>
 @enduml
