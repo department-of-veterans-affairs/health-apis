@@ -13,8 +13,8 @@ import org.junit.experimental.categories.Category;
 public class PractitionerIT {
   @Delegate private final ResourceVerifier verifier = ResourceVerifier.stu3();
 
-  @Category({Local.class, ProdDataQueryPatient.class, LabDataQueryPatient.class
-    // , ProdDataQueryClinician.class
+  @Category({Local.class,
+  //ProdDataQueryPatient.class, LabDataQueryPatient.class, ProdDataQueryClinician.class
   })
   @Test
   public void advanced() {
