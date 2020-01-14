@@ -192,7 +192,7 @@ public class Stu3PractitionerController {
         .collect(Collectors.toList());
   }
 
-  gov.va.api.health.stu3.api.resources.Practitioner transform(DatamartPractitioner dm) {
+  Practitioner transform(DatamartPractitioner dm) {
     return Stu3PractitionerTransformer.builder().datamart(dm).build().toFhir();
   }
 
