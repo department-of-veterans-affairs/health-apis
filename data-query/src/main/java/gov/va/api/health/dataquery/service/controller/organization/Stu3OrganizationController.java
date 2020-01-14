@@ -48,6 +48,7 @@ import org.springframework.web.bind.annotation.RestController;
 @SuppressWarnings("WeakerAccess")
 @AllArgsConstructor(onConstructor = @__({@Autowired}))
 public class Stu3OrganizationController {
+
   private Stu3Bundler bundler;
 
   private OrganizationRepository repository;
@@ -128,7 +129,6 @@ public class Stu3OrganizationController {
             .postalCode(postalCode)
             .build();
     Page<OrganizationEntity> entitiesPage = repository.findAll(spec, page(page, count));
-
     if (count == 0) {
       return bundle(parameters, emptyList(), (int) entitiesPage.getTotalElements());
     }
@@ -168,30 +168,18 @@ public class Stu3OrganizationController {
     if (delimiterIndex <= -1) {
       throw new ResourceExceptions.BadSearchParameter("Cannot parse NPI for " + systemAndCode);
     }
-
     String system = systemAndCode.substring(0, delimiterIndex);
     if (!system.equalsIgnoreCase("http://hl7.org/fhir/sid/us-npi")) {
       throw new ResourceExceptions.BadSearchParameter(
           String.format("System %s is not supported", system));
     }
-
     String identifier = systemAndCode.substring(delimiterIndex + 1);
-    Page<OrganizationEntity> entitiesPage =
-        repository.findByIdentifier(identifier, page(page, count));
+    Page<OrganizationEntity> entitiesPage = repository.findByName(identifier, page(page, count));
     if (count == 0) {
       return bundle(parameters, emptyList(), (int) entitiesPage.getTotalElements());
     }
     return bundle(parameters, transform(entitiesPage.get()), (int) entitiesPage.getTotalElements());
   }
-
-  //  /** Search by Identifier. */
-  //  @GetMapping(params = {"identifier"})
-  //  public Organization.Bundle searchByIdentifier(
-  //      @RequestParam("identifier") String publicId,
-  //      @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
-  //      @CountParameter @Min(0) int count) {
-  //    return searchById(publicId, page, count);
-  //  }
 
   /** Search by name. */
   @GetMapping(params = {"name"})

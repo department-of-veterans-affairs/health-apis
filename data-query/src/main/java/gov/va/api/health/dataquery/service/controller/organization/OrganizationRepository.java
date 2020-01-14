@@ -20,8 +20,6 @@ public interface OrganizationRepository
     extends PagingAndSortingRepository<OrganizationEntity, String>,
         JpaSpecificationExecutor<OrganizationEntity> {
 
-  Page<OrganizationEntity> findByIdentifier(String identifier, Pageable pageable);
-
   Page<OrganizationEntity> findByName(String name, Pageable pageable);
 
   @Value
