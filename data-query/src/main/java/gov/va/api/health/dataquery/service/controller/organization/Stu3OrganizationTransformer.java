@@ -83,25 +83,19 @@ final class Stu3OrganizationTransformer {
     if (type.isEmpty()) {
       return null;
     }
-      Coding cod = convert(
-            type,
-            ty -> Coding.builder().display(ty.get().code().toString()).build());
     return asList(
         CodeableConcept.builder()
-            .coding(asList(cod))
-            .text(type.get().display().toString())
+            .coding(asList(Coding.builder().display(type.get().code().get()).build()))
+            .text(type.get().display().get())
             .build());
   }
-
-
-  //  Coding cod = convert(
-//            type,
-//            ty -> Coding.builder().display(ty.get().code().toString()).build());
 
   List<ContactPoint> telecoms() {
     return emptyToNull(
         datamart.telecom().stream().map(tel -> telecom(tel)).collect(Collectors.toList()));
   }
+
+
 
   public Organization toFhir() {
     return Organization.builder()
