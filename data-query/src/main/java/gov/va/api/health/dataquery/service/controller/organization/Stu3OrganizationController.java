@@ -152,14 +152,46 @@ public class Stu3OrganizationController {
         resource == null ? 0 : 1);
   }
 
-  /** Search by Identifier. */
+  /** Search by Identifier. System|Code. */
   @GetMapping(params = {"identifier"})
   public Organization.Bundle searchByIdentifier(
-      @RequestParam("identifier") String publicId,
+      @RequestParam("identifier") String systemAndCode,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
-    return searchById(publicId, page, count);
+    MultiValueMap<String, String> parameters =
+        Parameters.builder()
+            .add("identifier", systemAndCode)
+            .add("page", page)
+            .add("_count", count)
+            .build();
+    int delimiterIndex = systemAndCode.lastIndexOf("|");
+    if (delimiterIndex <= -1) {
+      throw new ResourceExceptions.BadSearchParameter("Cannot parse NPI for " + systemAndCode);
+    }
+
+    String system = systemAndCode.substring(0, delimiterIndex);
+    if (!system.equalsIgnoreCase("http://hl7.org/fhir/sid/us-npi")) {
+      throw new ResourceExceptions.BadSearchParameter(
+          String.format("System %s is not supported", system));
+    }
+
+    String identifier = systemAndCode.substring(delimiterIndex + 1);
+    Page<OrganizationEntity> entitiesPage =
+        repository.findByIdentifier(identifier, page(page, count));
+    if (count == 0) {
+      return bundle(parameters, emptyList(), (int) entitiesPage.getTotalElements());
+    }
+    return bundle(parameters, transform(entitiesPage.get()), (int) entitiesPage.getTotalElements());
   }
+
+  //  /** Search by Identifier. */
+  //  @GetMapping(params = {"identifier"})
+  //  public Organization.Bundle searchByIdentifier(
+  //      @RequestParam("identifier") String publicId,
+  //      @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
+  //      @CountParameter @Min(0) int count) {
+  //    return searchById(publicId, page, count);
+  //  }
 
   /** Search by name. */
   @GetMapping(params = {"name"})

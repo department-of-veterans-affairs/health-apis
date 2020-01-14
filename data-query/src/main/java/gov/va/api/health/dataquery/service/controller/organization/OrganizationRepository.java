@@ -19,13 +19,15 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 public interface OrganizationRepository
     extends PagingAndSortingRepository<OrganizationEntity, String>,
         JpaSpecificationExecutor<OrganizationEntity> {
-  // Page<OrganizationEntity> findByName(String name, PageRequest page);
+
+  Page<OrganizationEntity> findByIdentifier(String identifier, Pageable pageable);
 
   Page<OrganizationEntity> findByName(String name, Pageable pageable);
 
   @Value
   @Builder
   class AddressSpecification implements Specification<OrganizationEntity> {
+
     String street;
 
     String city;

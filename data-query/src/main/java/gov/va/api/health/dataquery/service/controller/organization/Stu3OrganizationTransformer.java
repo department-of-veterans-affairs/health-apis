@@ -41,6 +41,8 @@ final class Stu3OrganizationTransformer {
                 trimToNull(
                     trimToEmpty(address.line1())
                         + " "
+                        + trimToEmpty(address.line2())
+                        + " "
                         + trimToEmpty(address.city())
                         + " "
                         + trimToEmpty(address.state())
@@ -94,8 +96,6 @@ final class Stu3OrganizationTransformer {
     return emptyToNull(
         datamart.telecom().stream().map(tel -> telecom(tel)).collect(Collectors.toList()));
   }
-
-
 
   public Organization toFhir() {
     return Organization.builder()
