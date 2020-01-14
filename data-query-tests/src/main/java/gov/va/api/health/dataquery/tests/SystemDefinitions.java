@@ -229,7 +229,12 @@ public final class SystemDefinitions {
   }
 
   private static TestIds.Practitioners productionPractitioners() {
-    return TestIds.Practitioners.builder().build();
+    return TestIds.Practitioners.builder()
+        .family("CATAJAN")
+        .given("NELINDA S.")
+        .npi("http://hl7.org/fhir/sid/us-npi|12345")
+        .specialty("http://hl7.org/fhir/practitioner-specialty|xxx")
+        .build();
   }
 
   /** Return definitions for the qa environment. */
