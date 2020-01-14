@@ -36,8 +36,8 @@ public class PractitionerIT {
   }
 
   @Test
-  @Category({Local.class, ProdDataQueryPatient.class, LabDataQueryPatient.class
-    // , ProdDataQueryClinician.class
+  @Category({Local.class
+  //, ProdDataQueryPatient.class, LabDataQueryPatient.class, ProdDataQueryClinician.class
   })
   public void basic() {
     verifier.verifyAll(
