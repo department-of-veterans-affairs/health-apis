@@ -179,8 +179,8 @@ public class Stu3OrganizationController {
   private List<Organization> transform(Stream<OrganizationEntity> entities) {
     List<DatamartOrganization> datamarts =
         entities.map(OrganizationEntity::asDatamartOrganization).collect(Collectors.toList());
-            witnessProtection.registerAndUpdateReferences(
-                     datamarts, resource -> resource.partOf().stream());
+    witnessProtection.registerAndUpdateReferences(
+        datamarts, resource -> resource.partOf().stream());
     return datamarts
         .stream()
         .map(dm -> Stu3OrganizationTransformer.builder().datamart(dm).build().toFhir())
