@@ -207,6 +207,7 @@ public final class SystemDefinitions {
         .organization("I2-MTZXK35OVTTKNYEEL4MVCPPGJM000000")
         .patient("1011537977V693883")
         .practitioner("I2-NCVNJO4N54ES6ZLYLYKKNFORRY000000")
+        .practitioners(productionPractitioners())
         .procedure("I2-DTO3TGZDH7VWRWL6CVHS4NTMTUBWUNA5D4U2L45RJJ3LG6LY6XXA0000")
         .procedures(productionCdwProcedures())
         .unknown("5555555555555")
@@ -225,6 +226,10 @@ public final class SystemDefinitions {
         .addressState("FL")
         .addressStreet("13000 BRUCE B DOWNS BLVD")
         .build();
+  }
+
+  private static TestIds.Practitioners productionPractitioners() {
+    return TestIds.Practitioners.builder().build();
   }
 
   /** Return definitions for the qa environment. */
