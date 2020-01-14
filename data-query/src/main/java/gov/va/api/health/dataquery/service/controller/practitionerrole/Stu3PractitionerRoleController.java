@@ -1,7 +1,8 @@
-package gov.va.api.health.dataquery.service.controller.practitioner;
+package gov.va.api.health.dataquery.service.controller.practitionerrole;
 
 import static java.util.Collections.emptyList;
 
+import com.google.common.collect.Iterables;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
@@ -10,9 +11,11 @@ import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.Stu3Bundler;
 import gov.va.api.health.dataquery.service.controller.Stu3Validator;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
+import gov.va.api.health.dataquery.service.controller.practitioner.DatamartPractitioner;
+import gov.va.api.health.dataquery.service.controller.practitioner.PractitionerEntity;
+import gov.va.api.health.dataquery.service.controller.practitioner.PractitionerRepository;
 import gov.va.api.health.stu3.api.resources.OperationOutcome;
-import gov.va.api.health.stu3.api.resources.Practitioner;
-import java.util.Collection;
+import gov.va.api.health.stu3.api.resources.PractitionerRole;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -34,20 +37,19 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Request Mappings for Practitioner Profile, see
- * https://www.fhir.org/guides/argonaut/pd/StructureDefinition-argo-practitioner.html for
+ * Request Mappings for Practitioner Role Profile, see
+ * https://www.fhir.org/guides/argonaut/pd/StructureDefinition-argo-practitionerrole.html for
  * implementation details.
  */
 @Validated
 @RestController
-@SuppressWarnings("WeakerAccess")
 @RequestMapping(
-  value = {"/stu3/Practitioner"},
+  value = "/stu3/PractitionerRole",
   produces = {"application/json", "application/json+fhir", "application/fhir+json"}
 )
+@SuppressWarnings("WeakerAccess")
 @AllArgsConstructor(onConstructor = @__({@Autowired}))
-public class Stu3PractitionerController {
-
+public class Stu3PractitionerRoleController {
   private Stu3Bundler bundler;
 
   private PractitionerRepository repository;
@@ -58,32 +60,33 @@ public class Stu3PractitionerController {
     return PageRequest.of(page - 1, count == 0 ? 1 : count, PractitionerEntity.naturalOrder());
   }
 
-  private Practitioner.Bundle bundle(
-      MultiValueMap<String, String> parameters, List<Practitioner> reports, int totalRecords) {
+  private PractitionerRole.Bundle bundle(
+      MultiValueMap<String, String> parameters,
+      List<PractitionerRole> resources,
+      int totalRecords) {
     return bundler.bundle(
         PageLinks.LinkConfig.builder()
-            .path("Practitioner")
+            .path("PractitionerRole")
             .queryParams(parameters)
             .page(Parameters.pageOf(parameters))
             .recordsPerPage(Parameters.countOf(parameters))
             .totalRecords(totalRecords)
             .build(),
-        reports,
-        Practitioner.Entry::new,
-        Practitioner.Bundle::new);
+        resources,
+        PractitionerRole.Entry::new,
+        PractitionerRole.Bundle::new);
   }
 
-  private PractitionerEntity findById(String publicId) {
+  private PractitionerEntity entityById(String publicId) {
     Optional<PractitionerEntity> entity = repository.findById(witnessProtection.toCdwId(publicId));
     return entity.orElseThrow(() -> new ResourceExceptions.NotFound(publicId));
   }
 
   /** Read by id. */
   @GetMapping(value = {"/{publicId}"})
-  public Practitioner read(@PathVariable("publicId") String publicId) {
-    DatamartPractitioner practitioner = findById(publicId).asDatamartPractitioner();
-    replaceReferences(List.of(practitioner));
-    return transform(practitioner);
+  public PractitionerRole read(@PathVariable("publicId") String publicId) {
+    PractitionerEntity entity = entityById(publicId);
+    return Iterables.getOnlyElement(transform(Stream.of(entity)));
   }
 
   /** Read raw. */
@@ -92,55 +95,17 @@ public class Stu3PractitionerController {
     headers = {"raw=true"}
   )
   public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
-    PractitionerEntity entity = findById(publicId);
     IncludesIcnMajig.addHeaderForNoPatients(response);
-    return entity.payload();
-  }
-
-  private Collection<DatamartPractitioner> replaceReferences(
-      Collection<DatamartPractitioner> resources) {
-    witnessProtection.registerAndUpdateReferences(
-        resources,
-        resource ->
-            Stream.concat(
-                resource
-                    .practitionerRole()
-                    .stream()
-                    .map(role -> role.managingOrganization().orElse(null)),
-                resource.practitionerRole().stream().flatMap(role -> role.location().stream())));
-    return resources;
-  }
-
-  /** Search by family and given name. */
-  @GetMapping(params = {"family", "given"})
-  public Practitioner.Bundle searchByFamilyAndGiven(
-      @RequestParam("family") String family,
-      @RequestParam("given") String given,
-      @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
-      @CountParameter @Min(0) int count) {
-    MultiValueMap<String, String> parameters =
-        Parameters.builder()
-            .add("family", family)
-            .add("given", given)
-            .add("page", page)
-            .add("_count", count)
-            .build();
-    Page<PractitionerEntity> entitiesPage =
-        repository.findByFamilyNameAndGivenName(family, given, page(page, count));
-    if (count == 0) {
-      return bundle(parameters, emptyList(), (int) entitiesPage.getTotalElements());
-    }
-    return bundle(
-        parameters, transform(entitiesPage.get()), (int) (entitiesPage.getTotalElements()));
+    return entityById(publicId).payload();
   }
 
   /** Search by _id. */
   @GetMapping(params = {"_id"})
-  public Practitioner.Bundle searchById(
+  public PractitionerRole.Bundle searchById(
       @RequestParam("_id") String publicId,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
-    Practitioner resource = read(publicId);
+    PractitionerRole resource = read(publicId);
     return bundle(
         Parameters.builder()
             .add("identifier", publicId)
@@ -151,15 +116,47 @@ public class Stu3PractitionerController {
         resource == null ? 0 : 1);
   }
 
-  /** Search by NPI. */
+  /** Search by Identifier. */
   @GetMapping(params = {"identifier"})
-  public Practitioner.Bundle searchByNpi(
-      @RequestParam("identifier") String systemAndCode,
+  public PractitionerRole.Bundle searchByIdentifier(
+      @RequestParam("identifier") String publicId,
+      @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
+      @CountParameter @Min(0) int count) {
+    return searchById(publicId, page, count);
+  }
+
+  /** Search by name. */
+  @GetMapping(params = {"practitioner.family", "given"})
+  public PractitionerRole.Bundle searchByName(
+      @RequestParam("practitioner.family") String family,
+      @RequestParam("given") String given,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
     MultiValueMap<String, String> parameters =
         Parameters.builder()
-            .add("identifier", systemAndCode)
+            .add("practitioner.family", family)
+            .add("given", given)
+            .add("page", page)
+            .add("_count", count)
+            .build();
+
+    Page<PractitionerEntity> entitiesPage =
+        repository.findByFamilyNameAndGivenName(family, given, page(page, count));
+    if (count == 0) {
+      return bundle(parameters, emptyList(), (int) entitiesPage.getTotalElements());
+    }
+    return bundle(parameters, transform(entitiesPage.get()), (int) entitiesPage.getTotalElements());
+  }
+
+  /** Search by NPI. */
+  @GetMapping(params = {"practitioner.identifier"})
+  public PractitionerRole.Bundle searchByNpi(
+      @RequestParam("practitioner.identifier") String systemAndCode,
+      @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
+      @CountParameter @Min(0) int count) {
+    MultiValueMap<String, String> parameters =
+        Parameters.builder()
+            .add("practitioner.identifier", systemAndCode)
             .add("page", page)
             .add("_count", count)
             .build();
@@ -182,18 +179,32 @@ public class Stu3PractitionerController {
     return bundle(parameters, transform(entitiesPage.get()), (int) entitiesPage.getTotalElements());
   }
 
-  private List<Practitioner> transform(Stream<PractitionerEntity> entities) {
-    List<DatamartPractitioner> datamarts =
-        entities.map(PractitionerEntity::asDatamartPractitioner).collect(Collectors.toList());
-    replaceReferences(datamarts);
-    return datamarts
-        .stream()
-        .map(dm -> Stu3PractitionerTransformer.builder().datamart(dm).build().toFhir())
-        .collect(Collectors.toList());
+  /** Search by specialty. */
+  @SuppressWarnings("unused")
+  @GetMapping(params = {"specialty"})
+  public PractitionerRole.Bundle searchBySpecialty(
+      @RequestParam("specialty") String specialty,
+      @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
+      @CountParameter @Min(0) int count) {
+    throw new ResourceExceptions.NotImplemented("not-implemented");
   }
 
-  Practitioner transform(DatamartPractitioner dm) {
-    return Stu3PractitionerTransformer.builder().datamart(dm).build().toFhir();
+  private List<PractitionerRole> transform(Stream<PractitionerEntity> entities) {
+    List<DatamartPractitioner> datamarts =
+        entities.map(PractitionerEntity::asDatamartPractitioner).collect(Collectors.toList());
+    witnessProtection.registerAndUpdateReferences(
+        datamarts,
+        resource ->
+            Stream.concat(
+                resource
+                    .practitionerRole()
+                    .stream()
+                    .map(role -> role.managingOrganization().orElse(null)),
+                resource.practitionerRole().stream().flatMap(role -> role.location().stream())));
+    return datamarts
+        .stream()
+        .map(dm -> Stu3PractitionerRoleTransformer.builder().datamart(dm).build().toFhir())
+        .collect(Collectors.toList());
   }
 
   /** Hey, this is a validate endpoint. It validates. */
@@ -201,7 +212,7 @@ public class Stu3PractitionerController {
     value = "/$validate",
     consumes = {"application/json", "application/json+fhir", "application/fhir+json"}
   )
-  public OperationOutcome validate(@RequestBody Practitioner.Bundle bundle) {
+  public OperationOutcome validate(@RequestBody PractitionerRole.Bundle bundle) {
     return Stu3Validator.create().validate(bundle);
   }
 }

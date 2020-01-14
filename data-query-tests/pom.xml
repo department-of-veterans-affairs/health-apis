@@ -8,7 +8,7 @@
     <relativePath/>
   </parent>
   <artifactId>data-query-tests</artifactId>
-  <version>2.0.214-SNAPSHOT</version>
+  <version>2.0.219-SNAPSHOT</version>
   <packaging>jar</packaging>
   <properties>
     <fhir-resources.version>2.0.27</fhir-resources.version>

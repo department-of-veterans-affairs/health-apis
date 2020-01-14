@@ -45,12 +45,13 @@ public class PractitionerEntity implements DatamartEntity {
   @Column(name = "Practitioner")
   private String payload;
 
-  static Sort naturalOrder() {
+  public static Sort naturalOrder() {
     return Sort.by("cdwId").ascending();
   }
 
+  /** Deserialize payload. */
   @SneakyThrows
-  DatamartPractitioner asDatamartPractitioner() {
+  public DatamartPractitioner asDatamartPractitioner() {
     DatamartPractitioner dm =
         JacksonConfig.createMapper().readValue(payload, DatamartPractitioner.class);
 
