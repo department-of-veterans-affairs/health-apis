@@ -28,7 +28,6 @@ import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class PractitionerSamples {
-
   @AllArgsConstructor(staticName = "create")
   static class Datamart {
     public DatamartPractitioner practitioner() {
