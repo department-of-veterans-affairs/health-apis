@@ -15,7 +15,7 @@ import org.junit.experimental.categories.Category;
 
 public class ConformanceStatementIT {
   private final String apiPath() {
-    return TestClients.dstu2DataQuery().service().apiPath();
+    return TestClients.internalDataQuery().service().apiPath();
   }
 
   @Test
@@ -27,7 +27,7 @@ public class ConformanceStatementIT {
     ProdDataQueryClinician.class
   })
   public void conformanceStatementIsValid() {
-    ExpectedResponse response = TestClients.dstu2DataQuery().get(apiPath() + "metadata");
+    ExpectedResponse response = TestClients.internalDataQuery().get(apiPath() + "dstu2/metadata");
     response.expect(200).expectValid(Conformance.class);
     String rawJson = response.response().asString();
     assertThat(rawJson)
