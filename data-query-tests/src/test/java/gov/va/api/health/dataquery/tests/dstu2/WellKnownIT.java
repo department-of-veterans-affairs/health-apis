@@ -14,7 +14,7 @@ import org.junit.experimental.categories.Category;
 
 public class WellKnownIT {
   private final String apiPath() {
-    return TestClients.dstu2DataQuery().service().apiPath();
+    return TestClients.internalDataQuery().service().apiPath();
   }
 
   /**
@@ -29,7 +29,7 @@ public class WellKnownIT {
 
   public void requestWellKnown(String apiPath) {
     ExpectedResponse response =
-        TestClients.dstu2DataQuery().get(apiPath + ".well-known/smart-configuration");
+        TestClients.internalDataQuery().get(apiPath + ".well-known/smart-configuration");
     response.expect(200);
     String rawJson = response.response().asString();
     assertThat(rawJson)
