@@ -29,8 +29,8 @@ public class PractitionerIT {
             verifier.ids().practitioner()));
   }
 
-  @Category({Local.class, ProdDataQueryPatient.class, LabDataQueryPatient.class
-    // , ProdDataQueryClinician.class
+  @Category({Local.class, LabDataQueryPatient.class
+    // ProdDataQueryPatient.class , ProdDataQueryClinician.class
   })
   @Test
   public void basic() {
