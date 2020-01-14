@@ -211,15 +211,6 @@ public final class Dstu2Transformers {
     return probablyItems.isEmpty() ? null : probablyItems;
   }
 
-  /** Filter null items and return null if the result is null or empty. */
-  public static <T> List<T> emptyToNull(List<T> items) {
-    if (isEmpty(items)) {
-      return null;
-    }
-    List<T> filtered = items.stream().filter(Objects::nonNull).collect(Collectors.toList());
-    return filtered.isEmpty() ? null : filtered;
-  }
-
   /** Throw a MissingPayload exception if the list does not have at least 1 item. */
   public static <T> T firstPayloadItem(@NonNull List<T> items) {
     if (items.isEmpty()) {

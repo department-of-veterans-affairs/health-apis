@@ -1,8 +1,13 @@
 package gov.va.api.health.dataquery.service.controller;
 
+import static org.springframework.util.CollectionUtils.isEmpty;
+
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.StringUtils;
 
@@ -20,6 +25,15 @@ public final class Transformers {
       }
     }
     return true;
+  }
+
+  /** Filter null items and return null if the result is null or empty. */
+  public static <T> List<T> emptyToNull(List<T> items) {
+    if (isEmpty(items)) {
+      return null;
+    }
+    List<T> filtered = items.stream().filter(Objects::nonNull).collect(Collectors.toList());
+    return filtered.isEmpty() ? null : filtered;
   }
 
   /** Return true if the value is a blank string, or any other object that is null. */

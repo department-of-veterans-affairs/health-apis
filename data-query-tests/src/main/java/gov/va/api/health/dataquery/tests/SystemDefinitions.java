@@ -81,6 +81,7 @@ public final class SystemDefinitions {
         .organization("unused")
         .patient("1011537977V693883")
         .practitioner("I2-DBBL6FFRELZQJ64PWDI7FIVXIU000000")
+        .practitioners(localAndLabPractitioners())
         .procedure("I2-J2OUEVFHKESKUKIALZPTDTJNMQ000000")
         .procedures(localAndLabProcedures())
         .unknown("5555555555555")
@@ -108,6 +109,15 @@ public final class SystemDefinitions {
         .addressPostalCode("76504")
         .addressState("TEXAS")
         .addressStreet("1901 VETERANS MEMORIAL DRIVE")
+        .build();
+  }
+
+  private static TestIds.Practitioners localAndLabPractitioners() {
+    return TestIds.Practitioners.builder()
+        .family("LASTNAME")
+        .given("FIRSTNAME A.")
+        .npi("http://hl7.org/fhir/sid/us-npi|1932127842")
+        .specialty("http://hl7.org/fhir/practitioner-specialty|207Q00000X")
         .build();
   }
 
@@ -145,6 +155,7 @@ public final class SystemDefinitions {
                 .build())
         .patient("43000199")
         .practitioner("I2-TVUBUQIWCJ6NIPURPDPGIYLLLU000000")
+        .practitioners(localAndLabPractitioners())
         .procedure("I2-JJ3KKRP45LEYYEEMLIWYBE473U000000")
         .procedures(localAndLabProcedures())
         .unknown("5555555555555")
