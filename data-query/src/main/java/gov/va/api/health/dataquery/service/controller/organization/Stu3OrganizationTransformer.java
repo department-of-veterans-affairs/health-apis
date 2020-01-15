@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.organization;
 
+import static gov.va.api.health.dataquery.service.controller.Stu3Transformers.asCodeableConceptWrapping;
 import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
 import static gov.va.api.health.dataquery.service.controller.Transformers.convert;
 import static gov.va.api.health.dataquery.service.controller.Transformers.emptyToNull;
@@ -56,14 +57,14 @@ final class Stu3OrganizationTransformer {
             .build());
   }
 
-  static Organization.OrganizationIdentifier identifier(Optional<String> npi) {
+  static List<Organization.OrganizationIdentifier> identifier(Optional<String> npi) {
     if (isBlank(npi)) {
       return null;
     }
-    return Organization.OrganizationIdentifier.builder()
+    return asList(Organization.OrganizationIdentifier.builder()
         .system("http://hl7.org/fhir/sid/us-npi")
         .value(npi.get())
-        .build();
+        .build());
   }
 
   static ContactPoint telecom(DatamartOrganization.Telecom telecom) {
@@ -81,17 +82,6 @@ final class Stu3OrganizationTransformer {
         tel, source -> EnumSearcher.of(ContactPoint.ContactPointSystem.class).find(tel.toString()));
   }
 
-  static List<CodeableConcept> type(Optional<DatamartCoding> type) {
-    if (type.isEmpty()) {
-      return null;
-    }
-    return asList(
-        CodeableConcept.builder()
-            .coding(asList(Coding.builder().display(type.get().code().get()).build()))
-            .text(type.get().display().get())
-            .build());
-  }
-
   List<ContactPoint> telecoms() {
     return emptyToNull(
         datamart.telecom().stream().map(tel -> telecom(tel)).collect(Collectors.toList()));
@@ -101,9 +91,9 @@ final class Stu3OrganizationTransformer {
     return Organization.builder()
         .resourceType("Organization")
         .id(datamart.cdwId())
-        .identifier(asList(identifier(datamart.npi())))
+        .identifier(identifier(datamart.npi()))
         .active(datamart.active())
-        .type(type(datamart.type()))
+        .type(emptyToNull(asList(asCodeableConceptWrapping(datamart.type()))))
         .name(datamart.name())
         .telecom(telecoms())
         .address(address(datamart.address()))

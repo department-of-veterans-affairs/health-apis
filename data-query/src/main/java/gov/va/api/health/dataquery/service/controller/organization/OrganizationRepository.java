@@ -22,6 +22,8 @@ public interface OrganizationRepository
 
   Page<OrganizationEntity> findByName(String name, Pageable pageable);
 
+  Page<OrganizationEntity> findByNpi(String npi, Pageable pageable);
+
   @Value
   @Builder
   class AddressSpecification implements Specification<OrganizationEntity> {

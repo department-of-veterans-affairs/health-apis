@@ -173,8 +173,8 @@ public class Stu3OrganizationController {
       throw new ResourceExceptions.BadSearchParameter(
           String.format("System %s is not supported", system));
     }
-    String identifier = systemAndCode.substring(delimiterIndex + 1);
-    Page<OrganizationEntity> entitiesPage = repository.findByName(identifier, page(page, count));
+    String npi = systemAndCode.substring(delimiterIndex + 1);
+    Page<OrganizationEntity> entitiesPage = repository.findByNpi(npi, page(page, count));
     if (count == 0) {
       return bundle(parameters, emptyList(), (int) entitiesPage.getTotalElements());
     }
