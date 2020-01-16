@@ -33,8 +33,8 @@ import gov.va.api.health.dataquery.service.controller.procedure.DatamartProcedur
 import gov.va.api.health.dataquery.service.controller.procedure.ProcedureEntity;
 import gov.va.api.health.dataquery.tools.ExternalDb;
 import gov.va.api.health.dataquery.tools.LocalH2;
-import gov.va.api.health.fallrisk.service.controller.DatamartSurvey;
-import gov.va.api.health.fallrisk.service.controller.SurveyEntity;
+import gov.va.api.health.fallrisk.service.controller.DatamartFallRisk;
+import gov.va.api.health.fallrisk.service.controller.FallRiskEntity;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -68,6 +68,7 @@ public class MitreMinimartMaker {
           ConditionEntity.class,
           DiagnosticReportsEntity.class,
           DiagnosticReportCrossEntity.class,
+          FallRiskEntity.class,
           ImmunizationEntity.class,
           LocationEntity.class,
           MedicationOrderEntity.class,
@@ -78,8 +79,7 @@ public class MitreMinimartMaker {
           PatientEntity.class,
           PatientSearchEntity.class,
           PractitionerEntity.class,
-          ProcedureEntity.class,
-          SurveyEntity.class);
+          ProcedureEntity.class);
 
   private String resourceToSync;
 
@@ -234,6 +234,23 @@ public class MitreMinimartMaker {
             .icn(dm.fullIcn())
             .payload(JacksonConfig.createMapper().writeValueAsString(dm))
             .build());
+  }
+
+  @SneakyThrows
+  private void insertByFallRisk(File file) {
+    DatamartFallRisk dm = JacksonConfig.createMapper().readValue(file, DatamartFallRisk.class);
+    String cdwId = dm.cdwId();
+    FallRiskEntity entity =
+        FallRiskEntity.builder()
+            .cdwId(cdwId)
+            .patientFullIcn(dm.patientFullIcn())
+            .surveyGivenDateTime(dm.surveyGivenDateTimeUtc())
+            .station(dm.station())
+            .morseScore(dm.morseScore())
+            .morseCategory(dm.morseCategory())
+            .payload(fileToString(file))
+            .build();
+    save(entity, cdwId);
   }
 
   @SneakyThrows
@@ -392,22 +409,6 @@ public class MitreMinimartMaker {
   }
 
   @SneakyThrows
-  private void insertBySurvey(File file) {
-    DatamartSurvey dm = JacksonConfig.createMapper().readValue(file, DatamartSurvey.class);
-    String cdwId = dm.getCdwId();
-    SurveyEntity entity =
-        SurveyEntity.builder()
-            .cdwId(cdwId)
-            .patientFullIcn(dm.getPatientFullIcn())
-            .surveyName(dm.getSurveyName())
-            .sta3n(dm.getSta3n())
-            .surveySavedDateTime(dm.getSurveySavedDateTime().toEpochMilli())
-            .payload(fileToString(file))
-            .build();
-    save(entity, cdwId);
-  }
-
-  @SneakyThrows
   private void insertResourceByPattern(
       File dmDirectory, String filePattern, Consumer<File> fileWriter) {
     findUniqueFiles(dmDirectory, filePattern).parallel().forEach(fileWriter);
@@ -444,6 +445,9 @@ public class MitreMinimartMaker {
       case "DiagnosticReport":
         insertByDiagnosticReport(dmDirectory);
         break;
+      case "FallRisk":
+        insertResourceByPattern(dmDirectory, "^dmFalRis.*json$", this::insertByFallRisk);
+        break;
       case "Immunization":
         insertResourceByPattern(dmDirectory, "^dmImm.*json$", this::insertByImmunization);
         break;
@@ -473,9 +477,6 @@ public class MitreMinimartMaker {
         break;
       case "Procedure":
         insertResourceByPattern(dmDirectory, "^dmPro.*json$", this::insertByProcedure);
-        break;
-      case "Survey":
-        insertResourceByPattern(dmDirectory, "^dmSur.*json$", this::insertBySurvey);
         break;
       default:
         throw new RuntimeException("Couldnt determine resource type for file: " + resourceToSync);
