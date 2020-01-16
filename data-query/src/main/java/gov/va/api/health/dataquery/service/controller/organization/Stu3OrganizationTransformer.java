@@ -10,9 +10,6 @@ import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 import static org.apache.commons.lang3.StringUtils.trimToNull;
 
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
-import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
-import gov.va.api.health.stu3.api.datatypes.CodeableConcept;
-import gov.va.api.health.stu3.api.datatypes.Coding;
 import gov.va.api.health.stu3.api.datatypes.ContactPoint;
 import gov.va.api.health.stu3.api.resources.Organization;
 import java.util.List;
@@ -61,10 +58,11 @@ final class Stu3OrganizationTransformer {
     if (isBlank(npi)) {
       return null;
     }
-    return asList(Organization.OrganizationIdentifier.builder()
-        .system("http://hl7.org/fhir/sid/us-npi")
-        .value(npi.get())
-        .build());
+    return asList(
+        Organization.OrganizationIdentifier.builder()
+            .system("http://hl7.org/fhir/sid/us-npi")
+            .value(npi.get())
+            .build());
   }
 
   static ContactPoint telecom(DatamartOrganization.Telecom telecom) {
