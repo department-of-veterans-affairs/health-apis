@@ -254,6 +254,7 @@ public class OrganizationSamples {
               asList(
                   gov.va.api.health.stu3.api.resources.Organization.OrganizationAddress.builder()
                       .line(asList("10 MONROE AVE, SUITE 6B", "PO BOX 4160"))
+                      .text("10 MONROE AVE, SUITE 6B PO BOX 4160 NEW AMSTERDAM OH 44444-4160")
                       .city("NEW AMSTERDAM")
                       .state("OH")
                       .postalCode("44444-4160")

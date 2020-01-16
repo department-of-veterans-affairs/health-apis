@@ -114,6 +114,8 @@ public final class DatamartOrganization implements HasReplaceableId {
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
   public static final class Address {
+    private String text;
+
     private String line1;
 
     private String line2;

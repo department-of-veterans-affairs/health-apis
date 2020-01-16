@@ -6,6 +6,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import gov.va.api.health.stu3.api.datatypes.ContactPoint;
 import gov.va.api.health.stu3.api.resources.Organization;
 import java.util.Optional;
+import gov.va.api.health.autoconfig.configuration.JacksonConfig;
+import lombok.SneakyThrows;
 import org.junit.Test;
 
 public class Stu3OrganizationTransformerTest {
@@ -55,6 +57,22 @@ public class Stu3OrganizationTransformerTest {
                     .system("http://hl7.org/fhir/sid/us-npi")
                     .value("abc")
                     .build()));
+    }
+
+  @SneakyThrows
+  String json(Object o) {
+    return JacksonConfig.createMapper().writerWithDefaultPrettyPrinter().writeValueAsString(o);
+  }
+
+  @Test
+  public void organization() {
+    assertThat(
+            json(
+                Stu3OrganizationTransformer.builder()
+                    .datamart(OrganizationSamples.Datamart.create().organization())
+                    .build()
+                    .toFhir()))
+        .isEqualTo(json(OrganizationSamples.Stu3.create().organization()));
   }
 
   @Test
@@ -79,19 +97,5 @@ public class Stu3OrganizationTransformerTest {
     assertThat(Stu3OrganizationTransformer.telecomSystem(DatamartOrganization.Telecom.System.phone))
         .isEqualTo(ContactPoint.ContactPointSystem.phone);
   }
-  // @Test
-  // public void organization() {
-  // assertThat(
-  // json(
-  // Stu3OrganizationTransformer.builder()
-  // .datamart(OrganizationSamples.Datamart.create().organization())
-  // .build()
-  // .toFhir()))
-  // .isEqualTo(json(OrganizationSamples.Stu3.create().organization()));
-  // }
-  //
-  // @SneakyThrows
-  // String json(Object o) {
-  // return JacksonConfig.createMapper().writerWithDefaultPrettyPrinter().writeValueAsString(o);
-  // }
+
 }
