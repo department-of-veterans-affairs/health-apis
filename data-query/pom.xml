@@ -11,6 +11,7 @@
   <version>2.0.220-SNAPSHOT</version>
   <packaging>jar</packaging>
   <properties>
+    <jacoco.skip>true</jacoco.skip>
     <fhir-resources.version>2.0.27</fhir-resources.version>
     <guava.version>20.0</guava.version>
     <health-apis-ids.version>2.1.7</health-apis-ids.version>
