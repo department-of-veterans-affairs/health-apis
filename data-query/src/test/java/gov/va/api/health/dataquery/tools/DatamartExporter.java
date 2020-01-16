@@ -45,7 +45,7 @@ public class DatamartExporter {
           ExportForPatientCriteria.of(ConditionEntity.class),
           ExportForPatientCriteria.of(DiagnosticReportCrossEntity.class),
           ExportForPatientCriteria.of(DiagnosticReportsEntity.class),
-          ExportForPatientCriteria.of(FallRiskEntity.class),
+          ExportAllCriteria.of(FallRiskEntity.class),
           ExportForPatientCriteria.of(ImmunizationEntity.class),
           ExportAllCriteria.of(LocationEntity.class),
           ExportForPatientCriteria.of(MedicationOrderEntity.class),
