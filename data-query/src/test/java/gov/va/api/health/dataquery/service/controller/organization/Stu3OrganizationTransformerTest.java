@@ -3,10 +3,10 @@ package gov.va.api.health.dataquery.service.controller.organization;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.stu3.api.datatypes.ContactPoint;
 import gov.va.api.health.stu3.api.resources.Organization;
 import java.util.Optional;
-import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import lombok.SneakyThrows;
 import org.junit.Test;
 
@@ -54,7 +54,7 @@ public class Stu3OrganizationTransformerTest {
                     .system("http://hl7.org/fhir/sid/us-npi")
                     .value("abc")
                     .build()));
-    }
+  }
 
   @SneakyThrows
   String json(Object o) {
@@ -94,5 +94,4 @@ public class Stu3OrganizationTransformerTest {
     assertThat(Stu3OrganizationTransformer.telecomSystem(DatamartOrganization.Telecom.System.phone))
         .isEqualTo(ContactPoint.ContactPointSystem.phone);
   }
-
 }

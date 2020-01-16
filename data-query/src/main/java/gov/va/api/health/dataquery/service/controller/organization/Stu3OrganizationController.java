@@ -174,7 +174,7 @@ public class Stu3OrganizationController {
           String.format("System %s is not supported", system));
     }
     String npi = systemAndCode.substring(delimiterIndex + 1);
-    Page<OrganizationEntity> entitiesPage = repository.findByNpi(npi, page(page, count));  //AHHHHHHHHHHHHHHHHHHHHHHHHHHH
+    Page<OrganizationEntity> entitiesPage = repository.findByNpi(npi, page(page, count));
     if (count == 0) {
       return bundle(parameters, emptyList(), (int) entitiesPage.getTotalElements());
     }
@@ -189,7 +189,7 @@ public class Stu3OrganizationController {
       @CountParameter @Min(0) int count) {
     MultiValueMap<String, String> parameters =
         Parameters.builder().add("name", name).add("page", page).add("_count", count).build();
-    Page<OrganizationEntity> entitiesPage = repository.findByName(name, page(page, count));  //AHHHHHHHHHHHHHHHHhhhhhhhhhhhh
+    Page<OrganizationEntity> entitiesPage = repository.findByName(name, page(page, count));
     if (count == 0) {
       return bundle(parameters, emptyList(), (int) entitiesPage.getTotalElements());
     }

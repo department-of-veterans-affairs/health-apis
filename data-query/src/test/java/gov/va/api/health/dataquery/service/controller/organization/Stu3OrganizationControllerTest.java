@@ -16,8 +16,6 @@ import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.health.stu3.api.bundle.BundleLink;
 import gov.va.api.health.stu3.api.resources.Organization;
-
-import java.lang.module.ResolutionException;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
@@ -42,7 +40,9 @@ public class Stu3OrganizationControllerTest {
   private static OrganizationEntity asEntity(DatamartOrganization dm) {
     return OrganizationEntity.builder()
         .cdwId(dm.cdwId())
+        .npi("1205983228")
         .name(dm.name())
+        .street(dm.address().line1() + " " + dm.address().line2())
         .city(dm.address().city())
         .state(dm.address().state())
         .postalCode(dm.address().postalCode())
@@ -57,15 +57,15 @@ public class Stu3OrganizationControllerTest {
 
   private void addMockIdentities(String orgPubId, String orgCdwId) {
     ResourceIdentity orgResource =
-            ResourceIdentity.builder()
-                    .system("CDW")
-                    .resource("ORGANIZATION")
-                    .identifier(orgCdwId)
-                    .build();
+        ResourceIdentity.builder()
+            .system("CDW")
+            .resource("ORGANIZATION")
+            .identifier(orgCdwId)
+            .build();
     when(ids.lookup(orgPubId)).thenReturn(List.of(orgResource));
     when(ids.register(Mockito.any()))
-            .thenReturn(
-                    List.of(Registration.builder().uuid(orgPubId).resourceIdentity(orgResource).build()));
+        .thenReturn(
+            List.of(Registration.builder().uuid(orgPubId).resourceIdentity(orgResource).build()));
   }
 
   @SneakyThrows
@@ -127,38 +127,8 @@ public class Stu3OrganizationControllerTest {
   }
 
   @Test(expected = ResourceExceptions.MissingSearchParameters.class)
-  public void searchAddressMissingParameters() { controller().searchByAddress(null, null, null, null, 1, 1);}
-
-  //@Test
-  public void searchByStreet() {
-    String street = " ";
-    String publicId = "abc";
-    String cdwId = "123";
-    addMockIdentities(publicId, cdwId);
-    DatamartOrganization dm = OrganizationSamples.Datamart.create().organization(cdwId);
-    repository.save(asEntity(dm));
-    Organization.Bundle actual = controller().searchByAddress(street, null, null, null, 1, 1);
-    assertThat(asJson(actual))
-            .isEqualTo(
-                    asJson(
-                            OrganizationSamples.Stu3.asBundle(
-                                    "http://fonzy.com/cool",
-                                    List.of(OrganizationSamples.Stu3.create().organization(publicId)),
-                                    OrganizationSamples.Stu3.link(
-                                            BundleLink.LinkRelation.first,
-                                            "http://fonzy.com/cool/Organization?address=" + street,
-                                            1,
-                                            1),
-                                    OrganizationSamples.Stu3.link(
-                                            BundleLink.LinkRelation.self,
-                                            "http://fonzy.com/cool/Organization?address=" + street,
-                                            1,
-                                            1),
-                                    OrganizationSamples.Stu3.link(
-                                            BundleLink.LinkRelation.last,
-                                            "http://fonzy.com/cool/Organization?address=" + street,
-                                            1,
-                                            1))));
+  public void searchAddressMissingParameters() {
+    controller().searchByAddress(null, null, null, null, 1, 1);
   }
 
   @Test
@@ -171,92 +141,27 @@ public class Stu3OrganizationControllerTest {
     repository.save(asEntity(dm));
     Organization.Bundle actual = controller().searchByAddress(null, city, null, null, 1, 1);
     assertThat(asJson(actual))
-            .isEqualTo(
-                    asJson(
-                            OrganizationSamples.Stu3.asBundle(
-                                    "http://fonzy.com/cool",
-                                    List.of(OrganizationSamples.Stu3.create().organization(publicId)),
-                                    OrganizationSamples.Stu3.link(
-                                            BundleLink.LinkRelation.first,
-                                            "http://fonzy.com/cool/Organization?address-city=" + city,
-                                            1,
-                                            1),
-                                    OrganizationSamples.Stu3.link(
-                                            BundleLink.LinkRelation.self,
-                                            "http://fonzy.com/cool/Organization?address-city=" + city,
-                                            1,
-                                            1),
-                                    OrganizationSamples.Stu3.link(
-                                            BundleLink.LinkRelation.last,
-                                            "http://fonzy.com/cool/Organization?address-city=" + city,
-                                            1,
-                                            1))));
+        .isEqualTo(
+            asJson(
+                OrganizationSamples.Stu3.asBundle(
+                    "http://fonzy.com/cool",
+                    List.of(OrganizationSamples.Stu3.create().organization(publicId)),
+                    OrganizationSamples.Stu3.link(
+                        BundleLink.LinkRelation.first,
+                        "http://fonzy.com/cool/Organization?address-city=" + city,
+                        1,
+                        1),
+                    OrganizationSamples.Stu3.link(
+                        BundleLink.LinkRelation.self,
+                        "http://fonzy.com/cool/Organization?address-city=" + city,
+                        1,
+                        1),
+                    OrganizationSamples.Stu3.link(
+                        BundleLink.LinkRelation.last,
+                        "http://fonzy.com/cool/Organization?address-city=" + city,
+                        1,
+                        1))));
   }
-
-  @Test
-  public void searchByState() {
-    String state = "OH";
-    String publicId = "abc";
-    String cdwId = "123";
-    addMockIdentities(publicId, cdwId);
-    DatamartOrganization dm = OrganizationSamples.Datamart.create().organization(cdwId);
-    repository.save(asEntity(dm));
-    Organization.Bundle actual = controller().searchByAddress(null, null, state, null, 1, 1);
-    assertThat(asJson(actual))
-            .isEqualTo(
-                    asJson(
-                            OrganizationSamples.Stu3.asBundle(
-                                    "http://fonzy.com/cool",
-                                    List.of(OrganizationSamples.Stu3.create().organization(publicId)),
-                                    OrganizationSamples.Stu3.link(
-                                            BundleLink.LinkRelation.first,
-                                            "http://fonzy.com/cool/Organization?address-state=" + state,
-                                            1,
-                                            1),
-                                    OrganizationSamples.Stu3.link(
-                                            BundleLink.LinkRelation.self,
-                                            "http://fonzy.com/cool/Organization?address-state=" + state,
-                                            1,
-                                            1),
-                                    OrganizationSamples.Stu3.link(
-                                            BundleLink.LinkRelation.last,
-                                            "http://fonzy.com/cool/Organization?address-state=" + state,
-                                            1,
-                                            1))));
-  }
-
-  @Test
-  public void searchByPostal() {
-    String postal = "44444-4160";
-    String publicId = "abc";
-    String cdwId = "123";
-    addMockIdentities(publicId, cdwId);
-    DatamartOrganization dm = OrganizationSamples.Datamart.create().organization(cdwId);
-    repository.save(asEntity(dm));
-    Organization.Bundle actual = controller().searchByAddress(null, null, null, postal, 1, 1);
-    assertThat(asJson(actual))
-            .isEqualTo(
-                    asJson(
-                            OrganizationSamples.Stu3.asBundle(
-                                    "http://fonzy.com/cool",
-                                    List.of(OrganizationSamples.Stu3.create().organization(publicId)),
-                                    OrganizationSamples.Stu3.link(
-                                            BundleLink.LinkRelation.first,
-                                            "http://fonzy.com/cool/Organization?address-postalcode=" + postal,
-                                            1,
-                                            1),
-                                    OrganizationSamples.Stu3.link(
-                                            BundleLink.LinkRelation.self,
-                                            "http://fonzy.com/cool/Organization?address-postalcode=" + postal,
-                                            1,
-                                            1),
-                                    OrganizationSamples.Stu3.link(
-                                            BundleLink.LinkRelation.last,
-                                            "http://fonzy.com/cool/Organization?address-postalcode=" + postal,
-                                            1,
-                                            1))));
-  }
-
 
   @Test
   public void searchById() {
@@ -289,7 +194,7 @@ public class Stu3OrganizationControllerTest {
                         1))));
   }
 
-  //@Test
+  @Test
   public void searchByIdentifier() {
     String publicId = "abc";
     String cdwId = "123";
@@ -332,26 +237,122 @@ public class Stu3OrganizationControllerTest {
     Organization.Bundle actual = controller().searchByName(name, 1, 1);
     System.out.println(asJson(actual));
     assertThat(asJson(actual))
-            .isEqualTo(
-                    asJson(
-                            OrganizationSamples.Stu3.asBundle(
-                                    "http://fonzy.com/cool",
-                                    List.of(OrganizationSamples.Stu3.create().organization(publicId)),
-                                    OrganizationSamples.Stu3.link(
-                                            BundleLink.LinkRelation.first,
-                                            "http://fonzy.com/cool/Organization?name=" + name,
-                                            1,
-                                            1),
-                                    OrganizationSamples.Stu3.link(
-                                            BundleLink.LinkRelation.self,
-                                            "http://fonzy.com/cool/Organization?name=" + name,
-                                            1,
-                                            1),
-                                    OrganizationSamples.Stu3.link(
-                                            BundleLink.LinkRelation.last,
-                                            "http://fonzy.com/cool/Organization?name=" + name,
-                                            1,
-                                            1))));
+        .isEqualTo(
+            asJson(
+                OrganizationSamples.Stu3.asBundle(
+                    "http://fonzy.com/cool",
+                    List.of(OrganizationSamples.Stu3.create().organization(publicId)),
+                    OrganizationSamples.Stu3.link(
+                        BundleLink.LinkRelation.first,
+                        "http://fonzy.com/cool/Organization?name=" + name,
+                        1,
+                        1),
+                    OrganizationSamples.Stu3.link(
+                        BundleLink.LinkRelation.self,
+                        "http://fonzy.com/cool/Organization?name=" + name,
+                        1,
+                        1),
+                    OrganizationSamples.Stu3.link(
+                        BundleLink.LinkRelation.last,
+                        "http://fonzy.com/cool/Organization?name=" + name,
+                        1,
+                        1))));
+  }
+
+  @Test
+  public void searchByPostal() {
+    String postal = "44444-4160";
+    String publicId = "abc";
+    String cdwId = "123";
+    addMockIdentities(publicId, cdwId);
+    DatamartOrganization dm = OrganizationSamples.Datamart.create().organization(cdwId);
+    repository.save(asEntity(dm));
+    Organization.Bundle actual = controller().searchByAddress(null, null, null, postal, 1, 1);
+    assertThat(asJson(actual))
+        .isEqualTo(
+            asJson(
+                OrganizationSamples.Stu3.asBundle(
+                    "http://fonzy.com/cool",
+                    List.of(OrganizationSamples.Stu3.create().organization(publicId)),
+                    OrganizationSamples.Stu3.link(
+                        BundleLink.LinkRelation.first,
+                        "http://fonzy.com/cool/Organization?address-postalcode=" + postal,
+                        1,
+                        1),
+                    OrganizationSamples.Stu3.link(
+                        BundleLink.LinkRelation.self,
+                        "http://fonzy.com/cool/Organization?address-postalcode=" + postal,
+                        1,
+                        1),
+                    OrganizationSamples.Stu3.link(
+                        BundleLink.LinkRelation.last,
+                        "http://fonzy.com/cool/Organization?address-postalcode=" + postal,
+                        1,
+                        1))));
+  }
+
+  @Test
+  public void searchByState() {
+    String state = "OH";
+    String publicId = "abc";
+    String cdwId = "123";
+    addMockIdentities(publicId, cdwId);
+    DatamartOrganization dm = OrganizationSamples.Datamart.create().organization(cdwId);
+    repository.save(asEntity(dm));
+    Organization.Bundle actual = controller().searchByAddress(null, null, state, null, 1, 1);
+    assertThat(asJson(actual))
+        .isEqualTo(
+            asJson(
+                OrganizationSamples.Stu3.asBundle(
+                    "http://fonzy.com/cool",
+                    List.of(OrganizationSamples.Stu3.create().organization(publicId)),
+                    OrganizationSamples.Stu3.link(
+                        BundleLink.LinkRelation.first,
+                        "http://fonzy.com/cool/Organization?address-state=" + state,
+                        1,
+                        1),
+                    OrganizationSamples.Stu3.link(
+                        BundleLink.LinkRelation.self,
+                        "http://fonzy.com/cool/Organization?address-state=" + state,
+                        1,
+                        1),
+                    OrganizationSamples.Stu3.link(
+                        BundleLink.LinkRelation.last,
+                        "http://fonzy.com/cool/Organization?address-state=" + state,
+                        1,
+                        1))));
+  }
+
+  @Test
+  public void searchByStreet() {
+    String street = "10 MONROE AVE, SUITE 6B PO BOX 4160";
+    String publicId = "abc";
+    String cdwId = "123";
+    addMockIdentities(publicId, cdwId);
+    DatamartOrganization dm = OrganizationSamples.Datamart.create().organization(cdwId);
+    repository.save(asEntity(dm));
+    Organization.Bundle actual = controller().searchByAddress(street, null, null, null, 1, 1);
+    assertThat(asJson(actual))
+        .isEqualTo(
+            asJson(
+                OrganizationSamples.Stu3.asBundle(
+                    "http://fonzy.com/cool",
+                    List.of(OrganizationSamples.Stu3.create().organization(publicId)),
+                    OrganizationSamples.Stu3.link(
+                        BundleLink.LinkRelation.first,
+                        "http://fonzy.com/cool/Organization?address=" + street,
+                        1,
+                        1),
+                    OrganizationSamples.Stu3.link(
+                        BundleLink.LinkRelation.self,
+                        "http://fonzy.com/cool/Organization?address=" + street,
+                        1,
+                        1),
+                    OrganizationSamples.Stu3.link(
+                        BundleLink.LinkRelation.last,
+                        "http://fonzy.com/cool/Organization?address=" + street,
+                        1,
+                        1))));
   }
 
   @Test
