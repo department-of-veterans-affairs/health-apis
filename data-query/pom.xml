@@ -16,7 +16,7 @@
     <health-apis-ids.version>2.1.7</health-apis-ids.version>
     <jacoco.coverage>0.95</jacoco.coverage>
     <swagger-maven-plugin.version>2.0.8</swagger-maven-plugin.version>
-    <fall-risk.version>1.0.19</fall-risk.version>
+    <fall-risk.version>1.0.20</fall-risk.version>
     <mssql-jdbc.version>7.4.1.jre8</mssql-jdbc.version>
   </properties>
   <dependencies>
