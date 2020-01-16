@@ -45,9 +45,6 @@ public class Stu3OrganizationTransformerTest {
   }
 
   @Test
-  public void addresss() {}
-
-  @Test
   public void identifier() {
     assertThat(Stu3OrganizationTransformer.identifier(Optional.empty())).isNull();
     assertThat(Stu3OrganizationTransformer.identifier(Optional.of("abc")))
