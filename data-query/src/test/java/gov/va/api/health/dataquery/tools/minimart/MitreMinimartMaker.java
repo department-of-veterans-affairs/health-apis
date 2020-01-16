@@ -68,6 +68,7 @@ public class MitreMinimartMaker {
           ConditionEntity.class,
           DiagnosticReportsEntity.class,
           DiagnosticReportCrossEntity.class,
+          FallRiskEntity.class,
           ImmunizationEntity.class,
           LocationEntity.class,
           MedicationOrderEntity.class,
@@ -78,8 +79,7 @@ public class MitreMinimartMaker {
           PatientEntity.class,
           PatientSearchEntity.class,
           PractitionerEntity.class,
-          ProcedureEntity.class,
-          FallRiskEntity.class);
+          ProcedureEntity.class);
 
   private String resourceToSync;
 
