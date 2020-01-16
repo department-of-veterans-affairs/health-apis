@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.organization;
 
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -78,6 +79,52 @@ public class Stu3OrganizationControllerTest {
         new Stu3Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool", "cool")),
         repository,
         WitnessProtection.builder().identityService(ids).build());
+  }
+
+  @Test
+  public void emptyChecks() {
+    String emptyness = " ";
+    String publicId = "abc";
+    String cdwId = "123";
+    addMockIdentities(publicId, cdwId);
+    DatamartOrganization dm = OrganizationSamples.Datamart.create().organization(cdwId);
+    repository.save(asEntity(dm));
+    assertThat(asJson(controller().searchByName(emptyness, 1, 0)))
+        .isEqualTo(
+            asJson(
+                OrganizationSamples.Stu3.asBundle(
+                    "http://fonzy.com/cool",
+                    emptyList(),
+                    OrganizationSamples.Stu3.link(
+                        BundleLink.LinkRelation.self,
+                        "http://fonzy.com/cool/Organization?name=" + emptyness,
+                        1,
+                        0))));
+    assertThat(asJson(controller().searchByAddress(emptyness, null, null, null, 1, 0)))
+        .isEqualTo(
+            asJson(
+                OrganizationSamples.Stu3.asBundle(
+                    "http://fonzy.com/cool",
+                    emptyList(),
+                    OrganizationSamples.Stu3.link(
+                        BundleLink.LinkRelation.self,
+                        "http://fonzy.com/cool/Organization?address=" + emptyness,
+                        1,
+                        0))));
+    Organization.Bundle actuallyEmpty =
+        controller().searchByIdentifier("http://hl7.org/fhir/sid/us-npi|" + emptyness, 1, 0);
+    assertThat(asJson(actuallyEmpty))
+        .isEqualTo(
+            asJson(
+                OrganizationSamples.Stu3.asBundle(
+                    "http://fonzy.com/cool",
+                    emptyList(),
+                    OrganizationSamples.Stu3.link(
+                        BundleLink.LinkRelation.self,
+                        "http://fonzy.com/cool/Organization?identifier=http://hl7.org/fhir/sid/us-npi|"
+                            + emptyness,
+                        1,
+                        0))));
   }
 
   @Test
@@ -353,6 +400,11 @@ public class Stu3OrganizationControllerTest {
                         "http://fonzy.com/cool/Organization?address=" + street,
                         1,
                         1))));
+  }
+
+  @Test(expected = ResourceExceptions.BadSearchParameter.class)
+  public void searchIdentifierMissmatchingSystem() {
+    controller().searchByIdentifier("xyz|123", 1, 1);
   }
 
   @Test
