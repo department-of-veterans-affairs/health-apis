@@ -1,6 +1,7 @@
 package gov.va.api.health.dataquery.service.controller.organization;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
@@ -212,6 +213,12 @@ public class OrganizationSamples {
             return gov.va.api.health.stu3.api.resources.Organization.builder()
                     .resourceType("Organization")
                     .id(id)
+                    .identifier(
+                            asList(
+                                    gov.va.api.health.stu3.api.resources.Organization.OrganizationIdentifier.builder()
+                                            .system("http://hl7.org/fhir/sid/us-npi")
+                                            .value("1205983228")
+                                            .build()))
                     .active(true)
                     .type(
                             asList(
