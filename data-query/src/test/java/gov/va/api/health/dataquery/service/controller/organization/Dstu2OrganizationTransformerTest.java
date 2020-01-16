@@ -52,10 +52,10 @@ public class Dstu2OrganizationTransformerTest {
     assertThat(
             json(
                 Dstu2OrganizationTransformer.builder()
-                    .datamart(Dstu2OrganizationSamples.Datamart.create().organization())
+                    .datamart(OrganizationSamples.Datamart.create().organization())
                     .build()
                     .toFhir()))
-        .isEqualTo(json(Dstu2OrganizationSamples.Dstu2.create().organization()));
+        .isEqualTo(json(OrganizationSamples.Dstu2.create().organization()));
   }
 
   @Test
