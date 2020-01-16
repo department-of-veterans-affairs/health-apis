@@ -79,6 +79,7 @@ public final class SystemDefinitions {
         .observation("I2-TSP35ALBRP4GSCBKRIWDO5CA54000000")
         .observations(observations())
         .organization("unused")
+        .organizations(localAndLabOrganizations())
         .patient("1011537977V693883")
         .practitioner("I2-DBBL6FFRELZQJ64PWDI7FIVXIU000000")
         .practitioners(localAndLabPractitioners())
@@ -109,6 +110,17 @@ public final class SystemDefinitions {
         .addressPostalCode("76504")
         .addressState("TEXAS")
         .addressStreet("1901 VETERANS MEMORIAL DRIVE")
+        .build();
+  }
+
+  private static TestIds.Organizations localAndLabOrganizations() {
+    return TestIds.Organizations.builder()
+        .addressStreet("10 MONROE AVE, SUITE 6B PO BOX 4160")
+        .addressCity("NEW AMSTERDAM")
+        .addressState("OH")
+        .addressPostalCode("44444-4160")
+        .name("NEW AMSTERDAM CBOC")
+        .npi("http://hl7.org/fhir/sid/us-npi|1205983228")
         .build();
   }
 
@@ -145,6 +157,7 @@ public final class SystemDefinitions {
         .observation("I2-2RCKPYB63RBIONGQCHJKHWZCJY000000")
         .observations(observations())
         .organization("I2-WOKLYQ64CJR6Q5P26N2VPSP7NY000000")
+        .organizations(localAndLabOrganizations())
         .pii(
             PersonallyIdentifiableInformation.builder()
                 .gender("female")
@@ -205,6 +218,7 @@ public final class SystemDefinitions {
         .observation("I2-QSUC3WVCAOC7PWYON5HMETFYBQWCULOIQWLKHG6OP3DXH7M7MUTQ0000")
         .observations(observations())
         .organization("I2-5R65QGBHXIK5FVLBMFXDK6CDNY000000")
+        .organizations(productionOrganizations())
         .patient("1011537977V693883")
         .practitioner("I2-NCVNJO4N54ES6ZLYLYKKNFORRY000000")
         .practitioners(productionPractitioners())
@@ -225,6 +239,17 @@ public final class SystemDefinitions {
         .addressPostalCode("33612-4745")
         .addressState("FL")
         .addressStreet("13000 BRUCE B DOWNS BLVD")
+        .build();
+  }
+
+  private static TestIds.Organizations productionOrganizations() {
+    return TestIds.Organizations.builder()
+        .addressStreet("xxx")
+        .addressCity("xxx")
+        .addressState("xxx")
+        .addressPostalCode("xxx")
+        .name("xxx")
+        .npi("http://hl7.org/fhir/sid/us-npi|xxx")
         .build();
   }
 
