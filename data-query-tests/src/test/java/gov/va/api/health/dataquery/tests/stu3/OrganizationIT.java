@@ -30,11 +30,11 @@ public class OrganizationIT {
             Organization.Bundle.class,
             "Organization?name={name}",
             verifier.ids().organizations().name()),
-        //        test(
-        //            200,
-        //            Organization.Bundle.class,
-        //            "Organization?address={street}",
-        //            verifier.ids().organizations().addressStreet()),
+        test(
+            200,
+            Organization.Bundle.class,
+            "Organization?address={street}",
+            verifier.ids().organizations().addressStreet()),
         test(
             200,
             Organization.Bundle.class,

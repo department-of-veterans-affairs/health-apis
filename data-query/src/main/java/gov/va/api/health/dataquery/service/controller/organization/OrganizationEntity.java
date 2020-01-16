@@ -44,7 +44,7 @@ public class OrganizationEntity implements DatamartEntity {
   private String agencyId;
 
   @Column(name = "Address", nullable = true)
-  private String address;
+  private String street;
 
   @Column(name = "Name", nullable = true)
   private String name;

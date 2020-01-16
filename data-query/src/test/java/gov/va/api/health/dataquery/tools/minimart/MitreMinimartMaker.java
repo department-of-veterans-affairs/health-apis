@@ -329,7 +329,7 @@ public class MitreMinimartMaker {
             .ediId(dm.ediId().orElse(null))
             .agencyId(dm.agencyId().orElse(null))
             .payload(fileToString(file))
-            .address(
+            .street(
                 StringUtils.trimToNull(
                     StringUtils.trimToEmpty(dm.address().line1())
                         + " "
