@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaBuilder.In;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
@@ -51,12 +52,10 @@ public interface ObservationRepository
         CriteriaBuilder criteriaBuilder) {
       List<Predicate> predicates = new ArrayList<>(4);
       predicates.add(criteriaBuilder.equal(root.get("icn"), patient()));
-      predicates.add(
-          criteriaBuilder.or(
-              categories
-                  .stream()
-                  .map(c -> criteriaBuilder.equal(root.get("category"), c))
-                  .toArray(Predicate[]::new)));
+
+      In<String> categoriesInClause = criteriaBuilder.in(root.get("category"));
+      categories.forEach(c -> categoriesInClause.value(c));
+      predicates.add(categoriesInClause);
 
       if (date1() != null) {
         predicates.add(date1().toPredicate(root.get("epochTime"), criteriaBuilder));
