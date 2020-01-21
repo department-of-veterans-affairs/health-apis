@@ -2,10 +2,9 @@ package gov.va.api.health.dataquery.service.controller.location;
 
 import static gov.va.api.health.dataquery.service.controller.Stu3Transformers.asReference;
 import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
+import static gov.va.api.health.dataquery.service.controller.Transformers.emptyToNull;
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.StringUtils.trimToEmpty;
-import static org.apache.commons.lang3.StringUtils.trimToNull;
 
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
 import gov.va.api.health.stu3.api.datatypes.CodeableConcept;
@@ -13,9 +12,13 @@ import gov.va.api.health.stu3.api.datatypes.Coding;
 import gov.va.api.health.stu3.api.datatypes.ContactPoint;
 import gov.va.api.health.stu3.api.resources.Location;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.Builder;
 import lombok.NonNull;
+import org.apache.commons.lang3.StringUtils;
 
 @Builder
 final class Stu3LocationTransformer {
@@ -29,20 +32,15 @@ final class Stu3LocationTransformer {
       return null;
     }
     return Location.LocationAddress.builder()
-        .line(asList(address.line1()))
+        .line(emptyToNull(asList(address.line1())))
         .city(address.city())
         .state(address.state())
         .postalCode(address.postalCode())
         .text(
-            trimToNull(
-                trimToEmpty(address.line1())
-                    + " "
-                    + trimToEmpty(address.city())
-                    + " "
-                    + trimToEmpty(address.state())
-                    + " "
-                    + trimToEmpty(address.postalCode())
-                    + " "))
+            Stream.of(address.line1(), address.city(), address.state(), address.postalCode())
+                .map(StringUtils::trimToNull)
+                .filter(Objects::nonNull)
+                .collect(Collectors.joining(" ")))
         .build();
   }
 

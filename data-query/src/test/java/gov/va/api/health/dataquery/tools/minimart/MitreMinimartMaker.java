@@ -1,5 +1,8 @@
 package gov.va.api.health.dataquery.tools.minimart;
 
+import static org.apache.commons.lang3.StringUtils.trimToEmpty;
+import static org.apache.commons.lang3.StringUtils.trimToNull;
+
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.allergyintolerance.AllergyIntoleranceEntity;
 import gov.va.api.health.dataquery.service.controller.allergyintolerance.DatamartAllergyIntolerance;
@@ -55,7 +58,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 
 @Slf4j
 public class MitreMinimartMaker {
@@ -347,10 +349,8 @@ public class MitreMinimartMaker {
             .agencyId(dm.agencyId().orElse(null))
             .payload(fileToString(file))
             .street(
-                StringUtils.trimToNull(
-                    StringUtils.trimToEmpty(dm.address().line1())
-                        + " "
-                        + StringUtils.trimToEmpty(dm.address().line2())))
+                trimToNull(
+                    trimToEmpty(dm.address().line1()) + " " + trimToEmpty(dm.address().line2())))
             .name(dm.name())
             .city(dm.address().city())
             .state(dm.address().state())

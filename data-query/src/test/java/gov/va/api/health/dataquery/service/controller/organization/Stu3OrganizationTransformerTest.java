@@ -11,12 +11,11 @@ import lombok.SneakyThrows;
 import org.junit.Test;
 
 public class Stu3OrganizationTransformerTest {
-
   @Test
   public void address() {
-    assertThat(Stu3OrganizationTransformer.address(null)).isNull();
+    assertThat(Stu3OrganizationTransformer.addresses(null)).isNull();
     assertThat(
-            Stu3OrganizationTransformer.address(
+            Stu3OrganizationTransformer.addresses(
                 DatamartOrganization.Address.builder()
                     .line1(" ")
                     .line2(" ")
@@ -25,10 +24,47 @@ public class Stu3OrganizationTransformerTest {
                     .postalCode(" ")
                     .build()))
         .isNull();
+
     assertThat(
-            Stu3OrganizationTransformer.address(
+            Stu3OrganizationTransformer.addresses(
+                DatamartOrganization.Address.builder().line1("v").build()))
+        .isEqualTo(
+            asList(Organization.OrganizationAddress.builder().line(asList("v")).text("v").build()));
+    assertThat(
+            Stu3OrganizationTransformer.addresses(
+                DatamartOrganization.Address.builder().line2("w").build()))
+        .isEqualTo(
+            asList(Organization.OrganizationAddress.builder().line(asList("w")).text("w").build()));
+    assertThat(
+            Stu3OrganizationTransformer.addresses(
+                DatamartOrganization.Address.builder().city("x").build()))
+        .isEqualTo(asList(Organization.OrganizationAddress.builder().city("x").text("x").build()));
+    assertThat(
+            Stu3OrganizationTransformer.addresses(
+                DatamartOrganization.Address.builder().state("y").build()))
+        .isEqualTo(asList(Organization.OrganizationAddress.builder().state("y").text("y").build()));
+    assertThat(
+            Stu3OrganizationTransformer.addresses(
+                DatamartOrganization.Address.builder().postalCode("z").build()))
+        .isEqualTo(
+            asList(Organization.OrganizationAddress.builder().postalCode("z").text("z").build()));
+
+    assertThat(
+            Stu3OrganizationTransformer.addresses(
+                DatamartOrganization.Address.builder().line1("v").postalCode("z").build()))
+        .isEqualTo(
+            asList(
+                Organization.OrganizationAddress.builder()
+                    .line(asList("v"))
+                    .postalCode("z")
+                    .text("v z")
+                    .build()));
+
+    assertThat(
+            Stu3OrganizationTransformer.addresses(
                 DatamartOrganization.Address.builder()
                     .line1("1111 Test Ln")
+                    .line2("Apt 1L")
                     .city("Delta")
                     .state("ZZ")
                     .postalCode("22222")
@@ -36,11 +72,11 @@ public class Stu3OrganizationTransformerTest {
         .isEqualTo(
             asList(
                 Organization.OrganizationAddress.builder()
-                    .text("1111 Test Ln  Delta ZZ 22222")
-                    .line(asList("1111 Test Ln", null))
+                    .line(asList("1111 Test Ln", "Apt 1L"))
                     .city("Delta")
                     .state("ZZ")
                     .postalCode("22222")
+                    .text("1111 Test Ln Apt 1L Delta ZZ 22222")
                     .build()));
   }
 

@@ -6,24 +6,24 @@ import static gov.va.api.health.dataquery.service.controller.Transformers.conver
 import static gov.va.api.health.dataquery.service.controller.Transformers.emptyToNull;
 import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
 import static java.util.Arrays.asList;
-import static org.apache.commons.lang3.StringUtils.trimToEmpty;
-import static org.apache.commons.lang3.StringUtils.trimToNull;
 
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
 import gov.va.api.health.stu3.api.datatypes.ContactPoint;
 import gov.va.api.health.stu3.api.resources.Organization;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.Builder;
 import lombok.NonNull;
+import org.apache.commons.lang3.StringUtils;
 
 @Builder
 final class Stu3OrganizationTransformer {
-
   @NonNull private final DatamartOrganization datamart;
 
-  static List<Organization.OrganizationAddress> address(DatamartOrganization.Address address) {
+  static List<Organization.OrganizationAddress> addresses(DatamartOrganization.Address address) {
     if (address == null
         || allBlank(
             address.line1(),
@@ -35,22 +35,20 @@ final class Stu3OrganizationTransformer {
     }
     return asList(
         Organization.OrganizationAddress.builder()
-            .text(
-                trimToNull(
-                    trimToEmpty(address.line1())
-                        + " "
-                        + trimToEmpty(address.line2())
-                        + " "
-                        + trimToEmpty(address.city())
-                        + " "
-                        + trimToEmpty(address.state())
-                        + " "
-                        + trimToEmpty(address.postalCode())
-                        + " "))
-            .line(asList(address.line1(), address.line2()))
+            .line(emptyToNull(asList(address.line1(), address.line2())))
             .city(address.city())
             .state(address.state())
             .postalCode(address.postalCode())
+            .text(
+                Stream.of(
+                        address.line1(),
+                        address.line2(),
+                        address.city(),
+                        address.state(),
+                        address.postalCode())
+                    .map(StringUtils::trimToNull)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.joining(" ")))
             .build());
   }
 
@@ -94,7 +92,7 @@ final class Stu3OrganizationTransformer {
         .type(emptyToNull(asList(asCodeableConceptWrapping(datamart.type()))))
         .name(datamart.name())
         .telecom(telecoms())
-        .address(address(datamart.address()))
+        .address(addresses(datamart.address()))
         .build();
   }
 }

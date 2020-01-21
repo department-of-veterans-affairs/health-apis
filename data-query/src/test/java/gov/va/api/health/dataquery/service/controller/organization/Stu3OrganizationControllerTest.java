@@ -1,6 +1,8 @@
 package gov.va.api.health.dataquery.service.controller.organization;
 
 import static java.util.Collections.emptyList;
+import static org.apache.commons.lang3.StringUtils.trimToEmpty;
+import static org.apache.commons.lang3.StringUtils.trimToNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -30,7 +32,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 @DataJpaTest
 @RunWith(SpringRunner.class)
 public class Stu3OrganizationControllerTest {
-
   HttpServletResponse response = mock(HttpServletResponse.class);
 
   private IdentityService ids = mock(IdentityService.class);
@@ -41,9 +42,10 @@ public class Stu3OrganizationControllerTest {
   private static OrganizationEntity asEntity(DatamartOrganization dm) {
     return OrganizationEntity.builder()
         .cdwId(dm.cdwId())
-        .npi("1205983228")
+        .npi(dm.npi().orElse(null))
         .name(dm.name())
-        .street(dm.address().line1() + " " + dm.address().line2())
+        .street(
+            trimToNull(trimToEmpty(dm.address().line1()) + " " + trimToEmpty(dm.address().line2())))
         .city(dm.address().city())
         .state(dm.address().state())
         .postalCode(dm.address().postalCode())
