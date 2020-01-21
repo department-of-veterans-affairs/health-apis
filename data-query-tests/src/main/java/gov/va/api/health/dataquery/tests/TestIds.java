@@ -33,6 +33,7 @@ public final class TestIds {
   @NonNull Observations observations;
   PersonallyIdentifiableInformation pii;
   @NonNull Procedures procedures;
+  @NonNull Organizations organizations;
   @NonNull Practitioners practitioners;
 
   @Value
@@ -81,6 +82,17 @@ public final class TestIds {
     @NonNull String loinc1;
     @NonNull String loinc2;
     @NonNull String badLoinc;
+  }
+
+  @Value
+  @Builder
+  public static class Organizations {
+    @NonNull String addressStreet;
+    @NonNull String addressCity;
+    @NonNull String addressState;
+    @NonNull String addressPostalCode;
+    @NonNull String name;
+    @NonNull String npi;
   }
 
   @Value
