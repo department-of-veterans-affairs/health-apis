@@ -21,7 +21,6 @@ import org.apache.commons.lang3.BooleanUtils;
 
 @Builder
 public class Stu3PractitionerTransformer {
-
   private final DatamartPractitioner datamart;
 
   static Address address(DatamartPractitioner.Address address) {
@@ -47,14 +46,20 @@ public class Stu3PractitionerTransformer {
     return source.map(LocalDate::toString).orElse(null);
   }
 
-  static Practitioner.PractitionerIdentifier identifier(Optional<String> npi) {
+  private static Practitioner.Gender gender(DatamartPractitioner.Gender source) {
+    return convert(
+        source, gender -> EnumSearcher.of(Practitioner.Gender.class).find(gender.toString()));
+  }
+
+  private static List<Practitioner.PractitionerIdentifier> identifiers(Optional<String> npi) {
     if (isBlank(npi)) {
       return null;
     }
-    return Practitioner.PractitionerIdentifier.builder()
-        .system("http://hl7.org/fhir/sid/us-npi")
-        .value(npi.get())
-        .build();
+    return asList(
+        Practitioner.PractitionerIdentifier.builder()
+            .system("http://hl7.org/fhir/sid/us-npi")
+            .value(npi.get())
+            .build());
   }
 
   static Practitioner.PractitionerHumanName name(DatamartPractitioner.Name source) {
@@ -105,11 +110,6 @@ public class Stu3PractitionerTransformer {
         datamart.address().stream().map(adr -> address(adr)).collect(Collectors.toList()));
   }
 
-  Practitioner.Gender gender(DatamartPractitioner.Gender source) {
-    return convert(
-        source, gender -> EnumSearcher.of(Practitioner.Gender.class).find(gender.toString()));
-  }
-
   List<ContactPoint> telecoms() {
     return emptyToNull(
         datamart.telecom().stream().map(tel -> telecom(tel)).collect(Collectors.toList()));
@@ -126,7 +126,7 @@ public class Stu3PractitionerTransformer {
         .gender(gender(datamart.gender()))
         .birthDate(birthDate(datamart.birthDate()))
         .name(name(datamart.name()))
-        .identifier(asList(identifier(datamart.npi())))
+        .identifier(identifiers(datamart.npi()))
         .build();
   }
 }
