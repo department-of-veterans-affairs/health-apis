@@ -5,9 +5,11 @@ import gov.va.api.health.stu3.api.bundle.AbstractEntry;
 import gov.va.api.health.stu3.api.resources.Organization;
 import java.util.stream.Stream;
 import lombok.experimental.Delegate;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
-public class Stu3OrganizationIncludesIcnMajig {
+@ControllerAdvice
+public class Stu3OrganizationIncludesIcnMajig implements ResponseBodyAdvice<Object> {
   @Delegate
   private final ResponseBodyAdvice<Object> delegate =
       IncludesIcnMajig.<Organization, Organization.Bundle>builder()
