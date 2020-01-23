@@ -199,6 +199,12 @@ public final class SystemDefinitions {
         .build();
   }
 
+  /*
+   * NOTES:
+   * - Organization: The following Organization is real (Orlando VAMC).
+   * - Practitioner: The following is a real Practitioner working at the Orlando VAMC.
+   *     If test breaks, they may no longer work at the Orlando VAMC and will need to be replaced.
+   */
   private static TestIds productionCdwIds() {
     return TestIds.builder()
         .publicIds(true)
@@ -217,13 +223,9 @@ public final class SystemDefinitions {
         .medicationStatement("I2-EIQB74V2APLMGKQJPRRT7LIPABT43MYPA2TEUW36N6BTEAJC65RA0000")
         .observation("I2-QSUC3WVCAOC7PWYON5HMETFYBQWCULOIQWLKHG6OP3DXH7M7MUTQ0000")
         .observations(observations())
-        // The following Organization is real (Orlando VAMC).
         .organization("I2-U2YS4YSMVOGA4TNVOJB3RXVIQRQR7OXTDMFNC24L4YSKJKXSTCZA0000")
         .organizations(productionOrganizations())
         .patient("1011537977V693883")
-        // The following is a real Practitioner working at the Orlando VAMC. If test breaks, the
-        // practitioner may no longer
-        // work at the Orlando VAMC and will need to be replaced.
         .practitioner("I2-6NVSMKEGQKNB3KRDXBGE7NRIEY000000")
         .practitioners(productionPractitioners())
         .procedure("I2-DTO3TGZDH7VWRWL6CVHS4NTMTUBWUNA5D4U2L45RJJ3LG6LY6XXA0000")
@@ -246,6 +248,11 @@ public final class SystemDefinitions {
         .build();
   }
 
+  /*
+   * These Organization search parameters are based on a real VA organization (Orlando VAMC)
+   * if at any point the IT for Organization fails, it may be due to changes made to the
+   * Organization.
+   */
   private static TestIds.Organizations productionOrganizations() {
     return TestIds.Organizations.builder()
         .addressStreet("13800 VETERANS WAY")
@@ -257,6 +264,10 @@ public final class SystemDefinitions {
         .build();
   }
 
+  /*
+   * These Practitioner search parameters were found on the VAs index for Practitioners. If the ITs
+   * begin to fail, check that the Practitioner is still working at VA.
+   */
   private static TestIds.Practitioners productionPractitioners() {
     return TestIds.Practitioners.builder()
         .family("ACOSTA")
