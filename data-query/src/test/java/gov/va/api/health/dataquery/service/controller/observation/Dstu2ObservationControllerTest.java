@@ -263,68 +263,7 @@ public class Dstu2ObservationControllerTest {
   }
 
   @Test
-  public void searchByPatientAndCategory() {
-    Multimap<String, Observation> observationsByPatient = populateData();
-    List<Observation> observations =
-        observationsByPatient
-            .get("p0")
-            .stream()
-            .filter(c -> "laboratory".equalsIgnoreCase(c.category().coding().get(0).code()))
-            .collect(Collectors.toList());
-    assertThat(json(controller().searchByPatientAndCategory("p0", "laboratory", null, 1, 10)))
-        .isEqualTo(
-            json(
-                Dstu2.asBundle(
-                    "http://fonzy.com/cool",
-                    observations,
-                    observations.size(),
-                    link(
-                        LinkRelation.first,
-                        "http://fonzy.com/cool/Observation?category=laboratory&patient=p0",
-                        1,
-                        10),
-                    link(
-                        LinkRelation.self,
-                        "http://fonzy.com/cool/Observation?category=laboratory&patient=p0",
-                        1,
-                        10),
-                    link(
-                        LinkRelation.last,
-                        "http://fonzy.com/cool/Observation?category=laboratory&patient=p0",
-                        1,
-                        10))));
-    List<Observation> patient1Observations =
-        observationsByPatient
-            .get("p1")
-            .stream()
-            .filter(c -> "vital-signs".equalsIgnoreCase(c.category().coding().get(0).code()))
-            .collect(Collectors.toList());
-    assertThat(json(controller().searchByPatientAndCategory("p1", "vital-signs", null, 1, 10)))
-        .isEqualTo(
-            json(
-                Dstu2.asBundle(
-                    "http://fonzy.com/cool",
-                    patient1Observations,
-                    patient1Observations.size(),
-                    link(
-                        LinkRelation.first,
-                        "http://fonzy.com/cool/Observation?category=vital-signs&patient=p1",
-                        1,
-                        10),
-                    link(
-                        LinkRelation.self,
-                        "http://fonzy.com/cool/Observation?category=vital-signs&patient=p1",
-                        1,
-                        10),
-                    link(
-                        LinkRelation.last,
-                        "http://fonzy.com/cool/Observation?category=vital-signs&patient=p1",
-                        1,
-                        10))));
-  }
-
-  @Test
-  public void searchByPatientAndCategoryAndOneDate() {
+  public void searchByPatientAndCategoryAndOneDateHack() {
     /*
     This test exhaustively verifies all of the different date prefixes
     in combination with patient and category.
@@ -372,7 +311,8 @@ public class Dstu2ObservationControllerTest {
       assertThat(
               json(
                   controller()
-                      .searchByPatientAndCategory("p0", "laboratory", new String[] {date}, 1, 10)))
+                      .searchByPatientAndCategory(
+                          true, "p0", "laboratory", new String[] {date}, 1, 10)))
           .isEqualTo(
               json(
                   Dstu2.asBundle(
@@ -404,7 +344,88 @@ public class Dstu2ObservationControllerTest {
   }
 
   @Test
-  public void searchByPatientAndCategoryAndTwoDates() {
+  public void searchByPatientAndCategoryAndOneDateNoHack() {
+    /*
+    This test exhaustively verifies all of the different date prefixes
+    in combination with patient and category.
+
+    Observation dates for p0
+     2005-01-10T07:57:00Z -> laboratory
+     2005-01-12T07:57:00Z -> laboratory
+     2005-01-14T07:57:00Z -> laboratory
+     2005-01-16T07:57:00Z -> vital-signs
+     2005-01-18T07:57:00Z -> vital-signs
+
+    Observation dates for p1
+     2005-01-11T07:57:00Z -> laboratory
+     2005-01-13T07:57:00Z -> laboratory
+     2005-01-15T07:57:00Z -> vital-signs
+     2005-01-17T07:57:00Z -> vital-signs
+     2005-01-19T07:57:00Z -> vital-signs
+    */
+    Multimap<String, Observation> observationsByPatient = populateData();
+    /*
+    <criteria, expected dates>
+    key: search criteria (prefix + date)
+    value: expected date responses
+     */
+    Multimap<String, String> testDates = LinkedHashMultimap.create();
+    testDates.putAll(
+        "gt2004", List.of("2005-01-10T07:57:00Z", "2005-01-12T07:57:00Z", "2005-01-14T07:57:00Z"));
+    testDates.putAll("eq2005-01-14", List.of("2005-01-14T07:57:00Z"));
+    testDates.putAll("ne2005-01-14", List.of("2005-01-10T07:57:00Z", "2005-01-12T07:57:00Z"));
+    testDates.putAll(
+        "le2005-01-14",
+        List.of("2005-01-10T07:57:00Z", "2005-01-12T07:57:00Z", "2005-01-14T07:57:00Z"));
+    testDates.putAll("lt2005-01-14", List.of("2005-01-10T07:57:00Z", "2005-01-12T07:57:00Z"));
+    testDates.putAll("eb2005-01-14", List.of("2005-01-10T07:57:00Z", "2005-01-12T07:57:00Z"));
+    testDates.putAll("ge2005-01-14", List.of("2005-01-14T07:57:00Z"));
+    testDates.putAll("gt2005-01-14", List.of());
+    testDates.putAll("sa2005-01-14", List.of());
+    for (var date : testDates.keySet()) {
+      List<Observation> observations =
+          observationsByPatient
+              .get("p0")
+              .stream()
+              .filter(o -> testDates.get(date).contains(o.effectiveDateTime()))
+              .collect(Collectors.toList());
+      assertThat(
+              json(
+                  controller()
+                      .searchByPatientAndCategory(
+                          false, "p0", "laboratory", new String[] {date}, 1, 10)))
+          .isEqualTo(
+              json(
+                  Dstu2.asBundle(
+                      "http://fonzy.com/cool",
+                      observations,
+                      observations.size(),
+                      link(
+                          LinkRelation.first,
+                          "http://fonzy.com/cool/Observation?category=laboratory&date="
+                              + date
+                              + "&patient=p0",
+                          1,
+                          10),
+                      link(
+                          LinkRelation.self,
+                          "http://fonzy.com/cool/Observation?category=laboratory&date="
+                              + date
+                              + "&patient=p0",
+                          1,
+                          10),
+                      link(
+                          LinkRelation.last,
+                          "http://fonzy.com/cool/Observation?category=laboratory&date="
+                              + date
+                              + "&patient=p0",
+                          1,
+                          10))));
+    }
+  }
+
+  @Test
+  public void searchByPatientAndCategoryAndTwoDatesHack() {
     /*
     The single date test does exhaustive date-prefix searching. We won't do that here.
 
@@ -444,6 +465,7 @@ public class Dstu2ObservationControllerTest {
               json(
                   controller()
                       .searchByPatientAndCategory(
+                          true,
                           "p0",
                           "laboratory",
                           new String[] {date.getLeft(), date.getRight()},
@@ -483,6 +505,214 @@ public class Dstu2ObservationControllerTest {
                           1,
                           10))));
     }
+  }
+
+  @Test
+  public void searchByPatientAndCategoryAndTwoDatesNoHack() {
+    /*
+    The single date test does exhaustive date-prefix searching. We won't do that here.
+
+    Observation dates for p0
+     2005-01-10T07:57:00Z -> laboratory
+     2005-01-12T07:57:00Z -> laboratory
+     2005-01-14T07:57:00Z -> laboratory
+     2005-01-16T07:57:00Z -> vital-signs
+     2005-01-18T07:57:00Z -> vital-signs
+
+    Observation dates for p1
+     2005-01-11T07:57:00Z -> laboratory
+     2005-01-13T07:57:00Z -> laboratory
+     2005-01-15T07:57:00Z -> vital-signs
+     2005-01-17T07:57:00Z -> vital-signs
+     2005-01-19T07:57:00Z -> vital-signs
+     */
+    Multimap<String, Observation> observationsByPatient = populateData();
+    /*
+    <criteria, expected dates>
+    key: search criteria (prefix + date)
+    value: expected date responses
+     */
+    Multimap<Pair<String, String>, String> testDates = LinkedHashMultimap.create();
+    testDates.putAll(
+        Pair.of("gt2004", "lt2006"),
+        List.of("2005-01-10T07:57:00Z", "2005-01-12T07:57:00Z", "2005-01-14T07:57:00Z"));
+    testDates.putAll(Pair.of("gt2005-01-13", "lt2005-01-15"), List.of("2005-01-14T07:57:00Z"));
+    for (var date : testDates.keySet()) {
+      List<Observation> observations =
+          observationsByPatient
+              .get("p0")
+              .stream()
+              .filter(o -> testDates.get(date).contains(o.effectiveDateTime()))
+              .collect(Collectors.toList());
+      assertThat(
+              json(
+                  controller()
+                      .searchByPatientAndCategory(
+                          false,
+                          "p0",
+                          "laboratory",
+                          new String[] {date.getLeft(), date.getRight()},
+                          1,
+                          10)))
+          .isEqualTo(
+              json(
+                  Dstu2.asBundle(
+                      "http://fonzy.com/cool",
+                      observations,
+                      observations.size(),
+                      link(
+                          LinkRelation.first,
+                          "http://fonzy.com/cool/Observation?category=laboratory&date="
+                              + date.getLeft()
+                              + "&date="
+                              + date.getRight()
+                              + "&patient=p0",
+                          1,
+                          10),
+                      link(
+                          LinkRelation.self,
+                          "http://fonzy.com/cool/Observation?category=laboratory&date="
+                              + date.getLeft()
+                              + "&date="
+                              + date.getRight()
+                              + "&patient=p0",
+                          1,
+                          10),
+                      link(
+                          LinkRelation.last,
+                          "http://fonzy.com/cool/Observation?category=laboratory&date="
+                              + date.getLeft()
+                              + "&date="
+                              + date.getRight()
+                              + "&patient=p0",
+                          1,
+                          10))));
+    }
+  }
+
+  @Test
+  public void searchByPatientAndCategoryHack() {
+    Multimap<String, Observation> observationsByPatient = populateData();
+    List<Observation> observations =
+        observationsByPatient
+            .get("p0")
+            .stream()
+            .filter(c -> "laboratory".equalsIgnoreCase(c.category().coding().get(0).code()))
+            .collect(Collectors.toList());
+    assertThat(json(controller().searchByPatientAndCategory(true, "p0", "laboratory", null, 1, 10)))
+        .isEqualTo(
+            json(
+                Dstu2.asBundle(
+                    "http://fonzy.com/cool",
+                    observations,
+                    observations.size(),
+                    link(
+                        LinkRelation.first,
+                        "http://fonzy.com/cool/Observation?category=laboratory&patient=p0",
+                        1,
+                        10),
+                    link(
+                        LinkRelation.self,
+                        "http://fonzy.com/cool/Observation?category=laboratory&patient=p0",
+                        1,
+                        10),
+                    link(
+                        LinkRelation.last,
+                        "http://fonzy.com/cool/Observation?category=laboratory&patient=p0",
+                        1,
+                        10))));
+    List<Observation> patient1Observations =
+        observationsByPatient
+            .get("p1")
+            .stream()
+            .filter(c -> "vital-signs".equalsIgnoreCase(c.category().coding().get(0).code()))
+            .collect(Collectors.toList());
+    assertThat(
+            json(controller().searchByPatientAndCategory(true, "p1", "vital-signs", null, 1, 10)))
+        .isEqualTo(
+            json(
+                Dstu2.asBundle(
+                    "http://fonzy.com/cool",
+                    patient1Observations,
+                    patient1Observations.size(),
+                    link(
+                        LinkRelation.first,
+                        "http://fonzy.com/cool/Observation?category=vital-signs&patient=p1",
+                        1,
+                        10),
+                    link(
+                        LinkRelation.self,
+                        "http://fonzy.com/cool/Observation?category=vital-signs&patient=p1",
+                        1,
+                        10),
+                    link(
+                        LinkRelation.last,
+                        "http://fonzy.com/cool/Observation?category=vital-signs&patient=p1",
+                        1,
+                        10))));
+  }
+
+  @Test
+  public void searchByPatientAndCategoryNoHack() {
+    Multimap<String, Observation> observationsByPatient = populateData();
+    List<Observation> observations =
+        observationsByPatient
+            .get("p0")
+            .stream()
+            .filter(c -> "laboratory".equalsIgnoreCase(c.category().coding().get(0).code()))
+            .collect(Collectors.toList());
+    assertThat(
+            json(controller().searchByPatientAndCategory(false, "p0", "laboratory", null, 1, 10)))
+        .isEqualTo(
+            json(
+                Dstu2.asBundle(
+                    "http://fonzy.com/cool",
+                    observations,
+                    observations.size(),
+                    link(
+                        LinkRelation.first,
+                        "http://fonzy.com/cool/Observation?category=laboratory&patient=p0",
+                        1,
+                        10),
+                    link(
+                        LinkRelation.self,
+                        "http://fonzy.com/cool/Observation?category=laboratory&patient=p0",
+                        1,
+                        10),
+                    link(
+                        LinkRelation.last,
+                        "http://fonzy.com/cool/Observation?category=laboratory&patient=p0",
+                        1,
+                        10))));
+    List<Observation> patient1Observations =
+        observationsByPatient
+            .get("p1")
+            .stream()
+            .filter(c -> "vital-signs".equalsIgnoreCase(c.category().coding().get(0).code()))
+            .collect(Collectors.toList());
+    assertThat(
+            json(controller().searchByPatientAndCategory(false, "p1", "vital-signs", null, 1, 10)))
+        .isEqualTo(
+            json(
+                Dstu2.asBundle(
+                    "http://fonzy.com/cool",
+                    patient1Observations,
+                    patient1Observations.size(),
+                    link(
+                        LinkRelation.first,
+                        "http://fonzy.com/cool/Observation?category=vital-signs&patient=p1",
+                        1,
+                        10),
+                    link(
+                        LinkRelation.self,
+                        "http://fonzy.com/cool/Observation?category=vital-signs&patient=p1",
+                        1,
+                        10),
+                    link(
+                        LinkRelation.last,
+                        "http://fonzy.com/cool/Observation?category=vital-signs&patient=p1",
+                        1,
+                        10))));
   }
 
   @Test
@@ -547,7 +777,7 @@ public class Dstu2ObservationControllerTest {
   }
 
   @Test
-  public void searchByPatientAndTwoCategoriesAndTwoDates() {
+  public void searchByPatientAndTwoCategoriesAndTwoDatesHack() {
     /*
     Observation dates for p0
      2005-01-10T07:57:00Z -> laboratory
@@ -592,6 +822,95 @@ public class Dstu2ObservationControllerTest {
               json(
                   controller()
                       .searchByPatientAndCategory(
+                          true,
+                          "p0",
+                          "laboratory,vital-signs",
+                          new String[] {date.getLeft(), date.getRight()},
+                          1,
+                          10)))
+          .isEqualTo(
+              json(
+                  Dstu2.asBundle(
+                      "http://fonzy.com/cool",
+                      observations,
+                      observations.size(),
+                      link(
+                          LinkRelation.first,
+                          "http://fonzy.com/cool/Observation?category=laboratory,vital-signs&date="
+                              + date.getLeft()
+                              + "&date="
+                              + date.getRight()
+                              + "&patient=p0",
+                          1,
+                          10),
+                      link(
+                          LinkRelation.self,
+                          "http://fonzy.com/cool/Observation?category=laboratory,vital-signs&date="
+                              + date.getLeft()
+                              + "&date="
+                              + date.getRight()
+                              + "&patient=p0",
+                          1,
+                          10),
+                      link(
+                          LinkRelation.last,
+                          "http://fonzy.com/cool/Observation?category=laboratory,vital-signs&date="
+                              + date.getLeft()
+                              + "&date="
+                              + date.getRight()
+                              + "&patient=p0",
+                          1,
+                          10))));
+    }
+  }
+
+  @Test
+  public void searchByPatientAndTwoCategoriesAndTwoDatesNoHack() {
+    /*
+    Observation dates for p0
+     2005-01-10T07:57:00Z -> laboratory
+     2005-01-12T07:57:00Z -> laboratory
+     2005-01-14T07:57:00Z -> laboratory
+     2005-01-16T07:57:00Z -> vital-signs
+     2005-01-18T07:57:00Z -> vital-signs
+
+    Observation dates for p1
+     2005-01-11T07:57:00Z -> laboratory
+     2005-01-13T07:57:00Z -> laboratory
+     2005-01-15T07:57:00Z -> vital-signs
+     2005-01-17T07:57:00Z -> vital-signs
+     2005-01-19T07:57:00Z -> vital-signs
+    */
+    Multimap<String, Observation> observationsByPatient = populateData();
+    /*
+    <criteria, expected dates>
+    key: search criteria (prefix + date)
+    value: expected date responses
+     */
+    Multimap<Pair<String, String>, String> testDates = LinkedHashMultimap.create();
+    testDates.putAll(
+        Pair.of("gt2004", "lt2006"),
+        List.of(
+            "2005-01-10T07:57:00Z",
+            "2005-01-12T07:57:00Z",
+            "2005-01-14T07:57:00Z",
+            "2005-01-16T07:57:00Z",
+            "2005-01-18T07:57:00Z"));
+    testDates.putAll(
+        Pair.of("gt2005-01-13", "lt2005-01-17"),
+        List.of("2005-01-14T07:57:00Z", "2005-01-16T07:57:00Z"));
+    for (var date : testDates.keySet()) {
+      List<Observation> observations =
+          observationsByPatient
+              .get("p0")
+              .stream()
+              .filter(o -> testDates.get(date).contains(o.effectiveDateTime()))
+              .collect(Collectors.toList());
+      assertThat(
+              json(
+                  controller()
+                      .searchByPatientAndCategory(
+                          false,
                           "p0",
                           "laboratory,vital-signs",
                           new String[] {date.getLeft(), date.getRight()},
