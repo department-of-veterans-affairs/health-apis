@@ -34,6 +34,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -179,6 +180,8 @@ public class Dstu2ObservationController {
   /** Search by patient and category and date if available. */
   @GetMapping(params = {"patient", "category"})
   public Observation.Bundle searchByPatientAndCategory(
+      @RequestHeader(name = "query-hack", required = false, defaultValue = "true")
+          boolean queryHack,
       @RequestParam("patient") String patient,
       @RequestParam("category") String categoryCsv,
       @RequestParam(value = "date", required = false) @Valid @DateTimeParameter @Size(max = 2)
@@ -192,16 +195,34 @@ public class Dstu2ObservationController {
             .categories(Splitter.on(",").trimResults().splitToList(categoryCsv))
             .dates(date)
             .build();
-    Page<ObservationEntity> entitiesPage = repository.findAll(spec, page(page, count));
-    return bundle(
+    MultiValueMap<String, String> parameters =
         Parameters.builder()
             .add("patient", patient)
             .add("category", categoryCsv)
             .addAll("date", date)
             .add("page", page)
             .add("_count", count)
-            .build(),
-        entitiesPage);
+            .build();
+    if (queryHack == true) {
+      List<ObservationEntity> all = repository.findAll(spec);
+      int firstIndex = Math.min((page - 1) * count, all.size());
+      int lastIndex = Math.min(firstIndex + count, all.size());
+      List<DatamartObservation> pageOfEntities =
+          firstIndex >= all.size()
+              ? emptyList()
+              : all.subList(firstIndex, lastIndex).stream()
+                  .map(ObservationEntity::asDatamartObservation)
+                  .collect(Collectors.toList());
+      replaceReferences(pageOfEntities);
+      List<Observation> pageOfResults =
+          pageOfEntities.stream()
+              .map(dm -> Dstu2ObservationTransformer.builder().datamart(dm).build().toFhir())
+              .collect(Collectors.toList());
+      return bundle(parameters, pageOfResults, all.size());
+    }
+
+    Page<ObservationEntity> entitiesPage = repository.findAll(spec, page(page, count));
+    return bundle(parameters, entitiesPage);
   }
 
   /** Search by patient and code. */
