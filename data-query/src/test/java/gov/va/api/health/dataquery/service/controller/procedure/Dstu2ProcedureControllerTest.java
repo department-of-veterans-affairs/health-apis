@@ -325,9 +325,7 @@ public class Dstu2ProcedureControllerTest {
     testDates.putAll("sa2005-01-14", List.of("2005-01-16T07:57:00Z", "2005-01-18T07:57:00Z"));
     for (var date : testDates.keySet()) {
       List<Procedure> resources =
-          procedureByPatient
-              .get("p0")
-              .stream()
+          procedureByPatient.get("p0").stream()
               .filter(p -> testDates.get(date).contains(p.performedDateTime()))
               .collect(Collectors.toList());
       assertThat(json(controller().searchByPatientAndDate("p0", new String[] {date}, 1, 10)))
@@ -380,9 +378,7 @@ public class Dstu2ProcedureControllerTest {
     testDates.putAll(Pair.of("gt2005-01-13", "lt2005-01-15"), List.of("2005-01-14T07:57:00Z"));
     for (var date : testDates.keySet()) {
       List<Procedure> resources =
-          procedureByPatient
-              .get("p0")
-              .stream()
+          procedureByPatient.get("p0").stream()
               .filter(p -> testDates.get(date).contains(p.performedDateTime()))
               .collect(Collectors.toList());
       assertThat(

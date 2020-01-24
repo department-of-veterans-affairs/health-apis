@@ -67,9 +67,8 @@ public class ReferenceInterceptorTest {
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor
   @JsonAutoDetect(
-    fieldVisibility = JsonAutoDetect.Visibility.ANY,
-    isGetterVisibility = Visibility.NONE
-  )
+      fieldVisibility = JsonAutoDetect.Visibility.ANY,
+      isGetterVisibility = Visibility.NONE)
   public static class FugaziReferencemajig {
     Reference ref;
     Reference nope;

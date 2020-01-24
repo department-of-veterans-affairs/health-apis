@@ -47,9 +47,8 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 @RestController
 @RequestMapping(
-  value = {"/dstu2/Observation"},
-  produces = {"application/json", "application/json+fhir", "application/fhir+json"}
-)
+    value = {"/dstu2/Observation"},
+    produces = {"application/json", "application/json+fhir", "application/fhir+json"})
 public class Dstu2ObservationController {
 
   private Dstu2Bundler bundler;
@@ -92,8 +91,7 @@ public class Dstu2ObservationController {
         entitiesPage.stream().map(e -> e.asDatamartObservation()).collect(Collectors.toList());
     replaceReferences(datamarts);
     List<Observation> fhir =
-        datamarts
-            .stream()
+        datamarts.stream()
             .map(dm -> Dstu2ObservationTransformer.builder().datamart(dm).build().toFhir())
             .collect(Collectors.toList());
     return bundle(parameters, fhir, (int) entitiesPage.getTotalElements());
@@ -122,9 +120,8 @@ public class Dstu2ObservationController {
 
   /** Return the raw Datamart document for the given identifier. */
   @GetMapping(
-    value = "/{publicId}",
-    headers = {"raw=true"}
-  )
+      value = "/{publicId}",
+      headers = {"raw=true"})
   public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
     ObservationEntity entity = findById(publicId);
     IncludesIcnMajig.addHeader(response, entity.icn());
@@ -233,9 +230,8 @@ public class Dstu2ObservationController {
 
   /** Hey, this is a validate endpoint. It validates. */
   @PostMapping(
-    value = "/$validate",
-    consumes = {"application/json", "application/json+fhir", "application/fhir+json"}
-  )
+      value = "/$validate",
+      consumes = {"application/json", "application/json+fhir", "application/fhir+json"})
   public OperationOutcome validate(@RequestBody Observation.Bundle bundle) {
     return Dstu2Validator.create().validate(bundle);
   }

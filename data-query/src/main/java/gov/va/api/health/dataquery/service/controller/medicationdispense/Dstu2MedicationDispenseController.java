@@ -19,9 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 @SuppressWarnings("WeakerAccess")
 @RestController
 @RequestMapping(
-  value = {"/dstu2/MedicationDispense"},
-  produces = {"application/json", "application/json+fhir", "application/fhir+json"}
-)
+    value = {"/dstu2/MedicationDispense"},
+    produces = {"application/json", "application/json+fhir", "application/fhir+json"})
 @AllArgsConstructor(onConstructor = @__({@Autowired}))
 public class Dstu2MedicationDispenseController {
 
@@ -80,9 +79,8 @@ public class Dstu2MedicationDispenseController {
 
   /** Validation endpoint. */
   @PostMapping(
-    value = "/$validate",
-    consumes = {"application/json", "application/json+fhir", "application/fhir+json"}
-  )
+      value = "/$validate",
+      consumes = {"application/json", "application/json+fhir", "application/fhir+json"})
   public OperationOutcome validate(@RequestBody MedicationDispense.Bundle bundle) {
     return Dstu2Validator.create().validate(bundle);
   }

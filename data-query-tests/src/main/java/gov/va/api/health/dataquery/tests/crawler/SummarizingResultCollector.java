@@ -120,8 +120,7 @@ public class SummarizingResultCollector implements ResultCollector {
   private Map<String, SummaryStats> summarize(Predicate<Result> include) {
     Map<String, SummaryStats> statsByResource = new HashMap<>();
 
-    summaries
-        .stream()
+    summaries.stream()
         .filter(include)
         .forEach(
             result -> {

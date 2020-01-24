@@ -223,15 +223,11 @@ public class Dstu2ConditionControllerTest {
             json(
                 Dstu2.asBundle(
                     "http://fonzy.com/cool",
-                    conditionsByPatient
-                        .get("p0")
-                        .stream()
+                    conditionsByPatient.get("p0").stream()
                         .filter(c -> "Diagnosis".equalsIgnoreCase(c.category().text()))
                         .collect(Collectors.toList()),
                     (int)
-                        conditionsByPatient
-                            .get("p0")
-                            .stream()
+                        conditionsByPatient.get("p0").stream()
                             .filter(c -> "Diagnosis".equalsIgnoreCase(c.category().text()))
                             .count(),
                     link(
@@ -259,15 +255,11 @@ public class Dstu2ConditionControllerTest {
             json(
                 Dstu2.asBundle(
                     "http://fonzy.com/cool",
-                    conditionsByPatient
-                        .get("p0")
-                        .stream()
+                    conditionsByPatient.get("p0").stream()
                         .filter(c -> Condition.ClinicalStatusCode.active == c.clinicalStatus())
                         .collect(Collectors.toList()),
                     (int)
-                        conditionsByPatient
-                            .get("p0")
-                            .stream()
+                        conditionsByPatient.get("p0").stream()
                             .filter(c -> Condition.ClinicalStatusCode.active == c.clinicalStatus())
                             .count(),
                     link(

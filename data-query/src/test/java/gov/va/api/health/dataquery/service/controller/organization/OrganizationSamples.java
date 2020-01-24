@@ -82,8 +82,7 @@ public class OrganizationSamples {
           .total(organizations.size())
           .link(Arrays.asList(links))
           .entry(
-              organizations
-                  .stream()
+              organizations.stream()
                   .map(
                       c ->
                           gov.va.api.health.dstu2.api.resources.Organization.Entry.builder()
@@ -175,8 +174,7 @@ public class OrganizationSamples {
           .total(organizations.size())
           .link(Arrays.asList(links))
           .entry(
-              organizations
-                  .stream()
+              organizations.stream()
                   .map(
                       c ->
                           gov.va.api.health.stu3.api.resources.Organization.Entry.builder()

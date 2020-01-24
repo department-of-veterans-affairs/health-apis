@@ -46,9 +46,8 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 @RestController
 @RequestMapping(
-  value = {"/dstu2/Condition"},
-  produces = {"application/json", "application/json+fhir", "application/fhir+json"}
-)
+    value = {"/dstu2/Condition"},
+    produces = {"application/json", "application/json+fhir", "application/fhir+json"})
 public class Dstu2ConditionController {
 
   private Dstu2Bundler bundler;
@@ -121,9 +120,8 @@ public class Dstu2ConditionController {
 
   /** Read by id. */
   @GetMapping(
-    value = {"/{publicId}"},
-    headers = {"raw=true"}
-  )
+      value = {"/{publicId}"},
+      headers = {"raw=true"})
   public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
     ConditionEntity entity = findById(publicId);
     IncludesIcnMajig.addHeader(response, entity.icn());
@@ -193,8 +191,7 @@ public class Dstu2ConditionController {
         entitiesPage.stream().map(e -> e.asDatamartCondition()).collect(Collectors.toList());
     replaceReferences(datamarts);
     List<Condition> fhir =
-        datamarts
-            .stream()
+        datamarts.stream()
             .map(dm -> Dstu2ConditionTransformer.builder().datamart(dm).build().toFhir())
             .collect(Collectors.toList());
     return bundle(parameters, fhir, (int) entitiesPage.getTotalElements());
@@ -245,9 +242,8 @@ public class Dstu2ConditionController {
 
   /** Hey, this is a validate endpoint. It validates. */
   @PostMapping(
-    value = "/$validate",
-    consumes = {"application/json", "application/json+fhir", "application/fhir+json"}
-  )
+      value = "/$validate",
+      consumes = {"application/json", "application/json+fhir", "application/fhir+json"})
   public OperationOutcome validate(@RequestBody Condition.Bundle bundle) {
     return Dstu2Validator.create().validate(bundle);
   }

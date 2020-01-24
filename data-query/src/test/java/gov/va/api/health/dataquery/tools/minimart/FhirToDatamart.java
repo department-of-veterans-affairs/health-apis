@@ -124,9 +124,7 @@ public class FhirToDatamart {
             new F2DAllergyIntoleranceTransformer(fauxIds);
         AllergyIntolerance.Bundle allergyIntolerances =
             mapper.readValue(file, AllergyIntolerance.Bundle.class);
-        allergyIntolerances
-            .entry()
-            .stream()
+        allergyIntolerances.entry().stream()
             .map(AbstractEntry::resource)
             .map(allergyIntoleranceTransformer::fhirToDatamart)
             .forEach(a -> dmObjectToFile("AllInt" + a.cdwId() + ".json", a));
@@ -134,9 +132,7 @@ public class FhirToDatamart {
       case "Condition":
         F2DConditionTransformer conditionTransformer = new F2DConditionTransformer(fauxIds);
         Condition.Bundle conditions = mapper.readValue(file, Condition.Bundle.class);
-        conditions
-            .entry()
-            .stream()
+        conditions.entry().stream()
             .map(AbstractEntry::resource)
             .map(conditionTransformer::fhirToDatamart)
             .forEach(c -> dmObjectToFile("Con" + c.cdwId() + ".json", c));
@@ -146,9 +142,7 @@ public class FhirToDatamart {
             new F2DDiagnosticReportTransformer(fauxIds);
         DiagnosticReport.Bundle diagnosticReports =
             mapper.readValue(file, DiagnosticReport.Bundle.class);
-        diagnosticReports
-            .entry()
-            .stream()
+        diagnosticReports.entry().stream()
             .map(AbstractEntry::resource)
             .map(diagnosticReportTransformer::fhirToDatamart)
             .forEach(d -> dmObjectToFile("DiaRep" + d.reports().get(0).identifier() + ".json", d));
@@ -157,9 +151,7 @@ public class FhirToDatamart {
         F2DImmunizationTransformer immunizationTransformer =
             new F2DImmunizationTransformer(fauxIds);
         Immunization.Bundle immunizations = mapper.readValue(file, Immunization.Bundle.class);
-        immunizations
-            .entry()
-            .stream()
+        immunizations.entry().stream()
             .map(AbstractEntry::resource)
             .map(immunizationTransformer::fhirToDatamart)
             .forEach(i -> dmObjectToFile("Imm" + i.cdwId() + ".json", i));
@@ -175,9 +167,7 @@ public class FhirToDatamart {
             new F2DMedicationOrderTransformer(fauxIds);
         MedicationOrder.Bundle medicationOrders =
             mapper.readValue(file, MedicationOrder.Bundle.class);
-        medicationOrders
-            .entry()
-            .stream()
+        medicationOrders.entry().stream()
             .map(AbstractEntry::resource)
             .map(medicationOrderTransformer::fhirToDatamart)
             .forEach(mo -> dmObjectToFile("MedOrd" + mo.cdwId() + ".json", mo));
@@ -187,9 +177,7 @@ public class FhirToDatamart {
             new F2DMedicationStatementTransformer(fauxIds);
         MedicationStatement.Bundle medicationStatements =
             mapper.readValue(file, MedicationStatement.Bundle.class);
-        medicationStatements
-            .entry()
-            .stream()
+        medicationStatements.entry().stream()
             .map(AbstractEntry::resource)
             .map(medicationStatementTransformer::fhirToDatamart)
             .forEach(ms -> dmObjectToFile("MedSta" + ms.cdwId() + ".json", ms));
@@ -197,9 +185,7 @@ public class FhirToDatamart {
       case "Observation":
         F2DObservationTransformer observationTransformer = new F2DObservationTransformer(fauxIds);
         Observation.Bundle observations = mapper.readValue(file, Observation.Bundle.class);
-        observations
-            .entry()
-            .stream()
+        observations.entry().stream()
             .map(AbstractEntry::resource)
             .map(observationTransformer::fhirToDatamart)
             .forEach(o -> dmObjectToFile("Obs" + o.cdwId() + ".json", o));
@@ -207,9 +193,7 @@ public class FhirToDatamart {
       case "Patient":
         F2DPatientTransformer patientTransformer = new F2DPatientTransformer(fauxIds);
         Patient.Bundle patients = mapper.readValue(file, Patient.Bundle.class);
-        patients
-            .entry()
-            .stream()
+        patients.entry().stream()
             .map(AbstractEntry::resource)
             .map(patientTransformer::fhirToDatamart)
             .forEach(p -> dmObjectToFile("Pat" + p.fullIcn() + ".json", p));
@@ -217,9 +201,7 @@ public class FhirToDatamart {
       case "Procedure":
         F2DProcedureTransformer procedureTransformer = new F2DProcedureTransformer(fauxIds);
         Procedure.Bundle procedures = mapper.readValue(file, Procedure.Bundle.class);
-        procedures
-            .entry()
-            .stream()
+        procedures.entry().stream()
             .map(AbstractEntry::resource)
             .map(procedureTransformer::fhirToDatamart)
             .forEach(pr -> dmObjectToFile("Pro" + pr.cdwId() + ".json", pr));

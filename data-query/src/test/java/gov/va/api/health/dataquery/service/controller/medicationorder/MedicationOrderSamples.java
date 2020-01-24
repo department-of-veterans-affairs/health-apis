@@ -111,8 +111,7 @@ public class MedicationOrderSamples {
           .total(totalRecords)
           .link(asList(links))
           .entry(
-              records
-                  .stream()
+              records.stream()
                   .map(
                       c ->
                           MedicationOrder.Entry.builder()

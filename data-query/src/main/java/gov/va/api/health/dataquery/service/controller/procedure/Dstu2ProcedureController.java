@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.procedure;
 
+import static gov.va.api.health.autoconfig.logging.LogSanitizer.sanitize;
 import static java.util.Collections.emptyList;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -55,9 +56,8 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 @RestController
 @RequestMapping(
-  value = {"/dstu2/Procedure"},
-  produces = {"application/json", "application/json+fhir", "application/fhir+json"}
-)
+    value = {"/dstu2/Procedure"},
+    produces = {"application/json", "application/json+fhir", "application/fhir+json"})
 public class Dstu2ProcedureController {
 
   /**
@@ -177,9 +177,8 @@ public class Dstu2ProcedureController {
 
   /** Return the raw Datamart document for the given identifier. */
   @GetMapping(
-    value = {"/{publicId}"},
-    headers = {"raw=true"}
-  )
+      value = {"/{publicId}"},
+      headers = {"raw=true"})
   public String readRaw(
       @PathVariable("publicId") String publicId,
       @RequestHeader(value = "X-VA-ICN", required = false) String icnHeader,
@@ -188,9 +187,7 @@ public class Dstu2ProcedureController {
     if (isNotBlank(icnHeader)
         && isPatientWithoutRecords(icnHeader)
         && entity.icn().equals(withRecordsId)) {
-      log.info(
-          "Procedure Hack: Setting includes header to magic patient: {}",
-          icnHeader.replaceAll("[\r\n]", ""));
+      log.info("Procedure Hack: Setting includes header to magic patient: {}", sanitize(icnHeader));
       IncludesIcnMajig.addHeader(response, IncludesIcnMajig.encodeHeaderValue(icnHeader));
     } else {
       IncludesIcnMajig.addHeader(response, IncludesIcnMajig.encodeHeaderValue(entity.icn()));
@@ -293,9 +290,8 @@ public class Dstu2ProcedureController {
 
   /** Hey, this is a validate endpoint. It validates. */
   @PostMapping(
-    value = "/$validate",
-    consumes = {"application/json", "application/json+fhir", "application/fhir+json"}
-  )
+      value = "/$validate",
+      consumes = {"application/json", "application/json+fhir", "application/fhir+json"})
   public OperationOutcome validate(@RequestBody Procedure.Bundle bundle) {
     return Dstu2Validator.create().validate(bundle);
   }

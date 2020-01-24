@@ -46,14 +46,12 @@ public final class Dstu2AllergyIntoleranceTransformer {
       return null;
     }
     List<Coding> codings =
-        manifestations
-            .stream()
+        manifestations.stream()
             .map(m -> asCoding(m))
             .filter(Objects::nonNull)
             .collect(Collectors.toList());
     return emptyToNull(
-        codings
-            .stream()
+        codings.stream()
             .map(coding -> CodeableConcept.builder().coding(asList(coding)).build())
             .collect(Collectors.toList()));
   }

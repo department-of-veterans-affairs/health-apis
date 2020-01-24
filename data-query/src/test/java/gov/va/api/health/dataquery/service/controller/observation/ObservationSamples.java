@@ -313,8 +313,7 @@ public class ObservationSamples {
           .total(totalRecords)
           .link(Arrays.asList(links))
           .entry(
-              observations
-                  .stream()
+              observations.stream()
                   .map(
                       c ->
                           Entry.builder()

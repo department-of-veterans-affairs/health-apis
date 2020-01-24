@@ -10,9 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(
-  value = {"/.well-known/smart-configuration"},
-  produces = {"application/json", "application/fhir+json", "application/json+fhir"}
-)
+    value = {"/.well-known/smart-configuration"},
+    produces = {"application/json", "application/fhir+json", "application/json+fhir"})
 @AllArgsConstructor(onConstructor = @__({@Autowired}))
 class WellKnownController {
   private final WellKnownProperties wellKnownProperties;

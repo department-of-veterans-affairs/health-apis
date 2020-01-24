@@ -44,9 +44,8 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 @RestController
 @RequestMapping(
-  value = "/stu3/PractitionerRole",
-  produces = {"application/json", "application/json+fhir", "application/fhir+json"}
-)
+    value = "/stu3/PractitionerRole",
+    produces = {"application/json", "application/json+fhir", "application/fhir+json"})
 @SuppressWarnings("WeakerAccess")
 @AllArgsConstructor(onConstructor = @__({@Autowired}))
 public class Stu3PractitionerRoleController {
@@ -91,9 +90,8 @@ public class Stu3PractitionerRoleController {
 
   /** Read raw. */
   @GetMapping(
-    value = {"/{publicId}"},
-    headers = {"raw=true"}
-  )
+      value = {"/{publicId}"},
+      headers = {"raw=true"})
   public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
     IncludesIcnMajig.addHeaderForNoPatients(response);
     return entityById(publicId).payload();
@@ -196,22 +194,18 @@ public class Stu3PractitionerRoleController {
         datamarts,
         resource ->
             Stream.concat(
-                resource
-                    .practitionerRole()
-                    .stream()
+                resource.practitionerRole().stream()
                     .map(role -> role.managingOrganization().orElse(null)),
                 resource.practitionerRole().stream().flatMap(role -> role.location().stream())));
-    return datamarts
-        .stream()
+    return datamarts.stream()
         .map(dm -> Stu3PractitionerRoleTransformer.builder().datamart(dm).build().toFhir())
         .collect(Collectors.toList());
   }
 
   /** Hey, this is a validate endpoint. It validates. */
   @PostMapping(
-    value = "/$validate",
-    consumes = {"application/json", "application/json+fhir", "application/fhir+json"}
-  )
+      value = "/$validate",
+      consumes = {"application/json", "application/json+fhir", "application/fhir+json"})
   public OperationOutcome validate(@RequestBody PractitionerRole.Bundle bundle) {
     return Stu3Validator.create().validate(bundle);
   }

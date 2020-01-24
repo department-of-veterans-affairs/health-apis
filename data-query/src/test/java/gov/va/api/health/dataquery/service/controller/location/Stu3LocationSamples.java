@@ -27,8 +27,7 @@ final class Stu3LocationSamples {
         .total(locations.size())
         .link(Arrays.asList(links))
         .entry(
-            locations
-                .stream()
+            locations.stream()
                 .map(
                     c ->
                         Location.Entry.builder()

@@ -50,8 +50,7 @@ public class F2DDiagnosticReportTransformer {
     if (results == null || results.isEmpty()) {
       return null;
     }
-    return results
-        .stream()
+    return results.stream()
         .map(
             r ->
                 DatamartDiagnosticReports.Result.builder()

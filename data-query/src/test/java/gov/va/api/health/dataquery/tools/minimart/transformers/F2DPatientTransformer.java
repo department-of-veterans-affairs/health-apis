@@ -277,8 +277,7 @@ public class F2DPatientTransformer {
     if (races == null || races.isEmpty()) {
       return null;
     }
-    return races
-        .stream()
+    return races.stream()
         .filter(x -> x != null)
         .map(Extension::valueCoding)
         .filter(x -> x != null)

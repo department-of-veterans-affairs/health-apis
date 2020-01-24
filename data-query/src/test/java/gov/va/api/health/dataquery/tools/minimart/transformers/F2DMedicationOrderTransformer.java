@@ -104,8 +104,7 @@ public class F2DMedicationOrderTransformer {
     if (dosageInstructions.isEmpty()) {
       return null;
     }
-    return dosageInstructions
-        .stream()
+    return dosageInstructions.stream()
         .map(
             dosageInstruction ->
                 DosageInstruction.builder()

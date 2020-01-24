@@ -171,8 +171,7 @@ public class AllergyIntoleranceSamples {
           .total(totalRecords)
           .link(Arrays.asList(links))
           .entry(
-              resources
-                  .stream()
+              resources.stream()
                   .map(
                       a ->
                           AllergyIntolerance.Entry.builder()

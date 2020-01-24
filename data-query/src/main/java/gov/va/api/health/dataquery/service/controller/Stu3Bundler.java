@@ -34,8 +34,7 @@ public class Stu3Bundler {
     bundle.total(linkConfig.totalRecords());
     bundle.link(links.stu3Links(linkConfig));
     bundle.entry(
-        resources
-            .stream()
+        resources.stream()
             .map(
                 t -> {
                   E entry = newEntry.get();

@@ -45,8 +45,7 @@ public class FhirMediaTypesConfig implements WebMvcConfigurer {
      * Augment the standard Jackson mapper to also support application/json+fhir.
      */
     Optional<MappingJackson2HttpMessageConverter> jackson =
-        converters
-            .stream()
+        converters.stream()
             .filter(c -> c instanceof MappingJackson2HttpMessageConverter)
             .map(c -> (MappingJackson2HttpMessageConverter) c)
             .findFirst();

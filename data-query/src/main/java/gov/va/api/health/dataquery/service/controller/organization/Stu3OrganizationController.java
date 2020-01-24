@@ -42,9 +42,8 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 @RestController
 @RequestMapping(
-  value = {"/stu3/Organization"},
-  produces = {"application/json", "application/json+fhir", "application/fhir+json"}
-)
+    value = {"/stu3/Organization"},
+    produces = {"application/json", "application/json+fhir", "application/fhir+json"})
 @SuppressWarnings("WeakerAccess")
 @AllArgsConstructor(onConstructor = @__({@Autowired}))
 public class Stu3OrganizationController {
@@ -88,9 +87,8 @@ public class Stu3OrganizationController {
 
   /** Read raw. */
   @GetMapping(
-    value = {"/{publicId}"},
-    headers = {"raw=true"}
-  )
+      value = {"/{publicId}"},
+      headers = {"raw=true"})
   public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
     IncludesIcnMajig.addHeaderForNoPatients(response);
     return entityById(publicId).payload();
@@ -201,17 +199,15 @@ public class Stu3OrganizationController {
         entities.map(OrganizationEntity::asDatamartOrganization).collect(Collectors.toList());
     witnessProtection.registerAndUpdateReferences(
         datamarts, resource -> resource.partOf().stream());
-    return datamarts
-        .stream()
+    return datamarts.stream()
         .map(dm -> Stu3OrganizationTransformer.builder().datamart(dm).build().toFhir())
         .collect(Collectors.toList());
   }
 
   /** Hey, this is a validate endpoint. It validates. */
   @PostMapping(
-    value = "/$validate",
-    consumes = {"application/json", "application/json+fhir", "application/fhir+json"}
-  )
+      value = "/$validate",
+      consumes = {"application/json", "application/json+fhir", "application/fhir+json"})
   public OperationOutcome validate(@RequestBody Organization.Bundle bundle) {
     return Stu3Validator.create().validate(bundle);
   }

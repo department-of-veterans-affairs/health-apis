@@ -42,9 +42,8 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 @RestController
 @RequestMapping(
-  value = {"/dstu2/AllergyIntolerance"},
-  produces = {"application/json", "application/json+fhir", "application/fhir+json"}
-)
+    value = {"/dstu2/AllergyIntolerance"},
+    produces = {"application/json", "application/json+fhir", "application/fhir+json"})
 public class Dstu2AllergyIntoleranceController {
 
   private Dstu2Bundler bundler;
@@ -96,9 +95,8 @@ public class Dstu2AllergyIntoleranceController {
 
   /** Return the raw Datamart document for the given identifier. */
   @GetMapping(
-    value = "/{publicId}",
-    headers = {"raw=true"}
-  )
+      value = "/{publicId}",
+      headers = {"raw=true"})
   public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
     AllergyIntoleranceEntity entity = findById(publicId);
     IncludesIcnMajig.addHeader(response, entity.icn());
@@ -168,14 +166,12 @@ public class Dstu2AllergyIntoleranceController {
       return bundle(publicParameters, emptyList(), (int) entitiesPage.getTotalElements());
     }
     List<DatamartAllergyIntolerance> datamarts =
-        entitiesPage
-            .stream()
+        entitiesPage.stream()
             .map(e -> e.asDatamartAllergyIntolerance())
             .collect(Collectors.toList());
     replaceReferences(datamarts);
     List<AllergyIntolerance> fhir =
-        datamarts
-            .stream()
+        datamarts.stream()
             .map(dm -> Dstu2AllergyIntoleranceTransformer.builder().datamart(dm).build().toFhir())
             .collect(Collectors.toList());
     return bundle(publicParameters, fhir, (int) entitiesPage.getTotalElements());
@@ -183,9 +179,8 @@ public class Dstu2AllergyIntoleranceController {
 
   /** Hey, this is a validate endpoint. It validates. */
   @PostMapping(
-    value = "/$validate",
-    consumes = {"application/json", "application/json+fhir", "application/fhir+json"}
-  )
+      value = "/$validate",
+      consumes = {"application/json", "application/json+fhir", "application/fhir+json"})
   public OperationOutcome validate(@RequestBody AllergyIntolerance.Bundle bundle) {
     return Dstu2Validator.create().validate(bundle);
   }
