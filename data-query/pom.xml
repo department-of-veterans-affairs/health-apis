@@ -18,7 +18,7 @@
     <swagger-maven-plugin.version>2.1.1</swagger-maven-plugin.version>
     <fall-risk.version>1.0.22</fall-risk.version>
     <mssql-jdbc.version>7.4.1.jre8</mssql-jdbc.version>
-    <reflections.version>0.9.11</reflections.version>
+    <reflections.version>0.9.12</reflections.version>
   </properties>
   <dependencies>
     <dependency>
