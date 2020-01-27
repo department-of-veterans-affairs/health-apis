@@ -1,6 +1,8 @@
 package gov.va.api.health.dataquery.tests.stu3;
 
 import gov.va.api.health.dataquery.tests.ResourceVerifier;
+import gov.va.api.health.dataquery.tests.categories.LabDataQueryPatient;
+import gov.va.api.health.dataquery.tests.categories.ProdDataQueryPatient;
 import gov.va.api.health.sentinel.categories.Local;
 import gov.va.api.health.stu3.api.resources.OperationOutcome;
 import gov.va.api.health.stu3.api.resources.PractitionerRole;
@@ -12,9 +14,7 @@ public class PractitionerRoleIT {
   @Delegate ResourceVerifier verifier = ResourceVerifier.stu3();
 
   @Test
-  @Category({Local.class
-    // , LabDataQueryPatient.class
-    // , ProdDataQueryPatient.class
+  @Category({Local.class, LabDataQueryPatient.class, ProdDataQueryPatient.class
     // , ProdDataQueryClinician.class
   })
   public void advanced() {
@@ -54,9 +54,10 @@ public class PractitionerRoleIT {
   }
 
   @Test
-  @Category({Local.class
-    // , LabDataQueryPatient.class
-    // , ProdDataQueryPatient.class,
+  @Category({
+    Local.class,
+    LabDataQueryPatient.class,
+    ProdDataQueryPatient.class,
     // , ProdDataQueryClinician.class
   })
   public void basic() {

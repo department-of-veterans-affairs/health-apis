@@ -210,12 +210,14 @@ public class Dstu2ObservationController {
       List<DatamartObservation> pageOfEntities =
           firstIndex >= all.size()
               ? emptyList()
-              : all.subList(firstIndex, lastIndex).stream()
+              : all.subList(firstIndex, lastIndex)
+                  .stream()
                   .map(ObservationEntity::asDatamartObservation)
                   .collect(Collectors.toList());
       replaceReferences(pageOfEntities);
       List<Observation> pageOfResults =
-          pageOfEntities.stream()
+          pageOfEntities
+              .stream()
               .map(dm -> Dstu2ObservationTransformer.builder().datamart(dm).build().toFhir())
               .collect(Collectors.toList());
       return bundle(parameters, pageOfResults, all.size());
