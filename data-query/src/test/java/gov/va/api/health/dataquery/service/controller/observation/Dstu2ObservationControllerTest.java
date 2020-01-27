@@ -303,9 +303,7 @@ public class Dstu2ObservationControllerTest {
     testDates.putAll("sa2005-01-14", List.of());
     for (var date : testDates.keySet()) {
       List<Observation> observations =
-          observationsByPatient
-              .get("p0")
-              .stream()
+          observationsByPatient.get("p0").stream()
               .filter(o -> testDates.get(date).contains(o.effectiveDateTime()))
               .collect(Collectors.toList());
       assertThat(
@@ -384,9 +382,7 @@ public class Dstu2ObservationControllerTest {
     testDates.putAll("sa2005-01-14", List.of());
     for (var date : testDates.keySet()) {
       List<Observation> observations =
-          observationsByPatient
-              .get("p0")
-              .stream()
+          observationsByPatient.get("p0").stream()
               .filter(o -> testDates.get(date).contains(o.effectiveDateTime()))
               .collect(Collectors.toList());
       assertThat(
@@ -590,9 +586,7 @@ public class Dstu2ObservationControllerTest {
   public void searchByPatientAndCategoryHack() {
     Multimap<String, Observation> observationsByPatient = populateData();
     List<Observation> observations =
-        observationsByPatient
-            .get("p0")
-            .stream()
+        observationsByPatient.get("p0").stream()
             .filter(c -> "laboratory".equalsIgnoreCase(c.category().coding().get(0).code()))
             .collect(Collectors.toList());
     assertThat(json(controller().searchByPatientAndCategory(true, "p0", "laboratory", null, 1, 10)))
@@ -618,9 +612,7 @@ public class Dstu2ObservationControllerTest {
                         1,
                         10))));
     List<Observation> patient1Observations =
-        observationsByPatient
-            .get("p1")
-            .stream()
+        observationsByPatient.get("p1").stream()
             .filter(c -> "vital-signs".equalsIgnoreCase(c.category().coding().get(0).code()))
             .collect(Collectors.toList());
     assertThat(
@@ -652,9 +644,7 @@ public class Dstu2ObservationControllerTest {
   public void searchByPatientAndCategoryNoHack() {
     Multimap<String, Observation> observationsByPatient = populateData();
     List<Observation> observations =
-        observationsByPatient
-            .get("p0")
-            .stream()
+        observationsByPatient.get("p0").stream()
             .filter(c -> "laboratory".equalsIgnoreCase(c.category().coding().get(0).code()))
             .collect(Collectors.toList());
     assertThat(
@@ -681,9 +671,7 @@ public class Dstu2ObservationControllerTest {
                         1,
                         10))));
     List<Observation> patient1Observations =
-        observationsByPatient
-            .get("p1")
-            .stream()
+        observationsByPatient.get("p1").stream()
             .filter(c -> "vital-signs".equalsIgnoreCase(c.category().coding().get(0).code()))
             .collect(Collectors.toList());
     assertThat(
@@ -715,9 +703,7 @@ public class Dstu2ObservationControllerTest {
   public void searchByPatientAndCode() {
     Multimap<String, Observation> observationsByPatient = populateData();
     List<Observation> patient0Observations =
-        observationsByPatient
-            .get("p0")
-            .stream()
+        observationsByPatient.get("p0").stream()
             .filter(c -> "1989-3".equalsIgnoreCase(c.code().coding().get(0).code()))
             .collect(Collectors.toList());
     assertThat(json(controller().searchByPatientAndCode("p0", "1989-3", 1, 10)))
@@ -893,9 +879,7 @@ public class Dstu2ObservationControllerTest {
         List.of("2005-01-14T07:57:00Z", "2005-01-16T07:57:00Z"));
     for (var date : testDates.keySet()) {
       List<Observation> observations =
-          observationsByPatient
-              .get("p0")
-              .stream()
+          observationsByPatient.get("p0").stream()
               .filter(o -> testDates.get(date).contains(o.effectiveDateTime()))
               .collect(Collectors.toList());
       assertThat(
