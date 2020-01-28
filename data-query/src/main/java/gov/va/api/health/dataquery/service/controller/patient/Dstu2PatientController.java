@@ -205,7 +205,6 @@ public class Dstu2PatientController {
             .name(name)
             .dates(birthdate)
             .build();
-    URLEncoder.encode(name, StandardCharsets.UTF_8);
 
     log.info("Looking for {} {}", sanitize(name), spec);
     Page<PatientSearchEntity> entities = repository.findAll(spec, page(page, count));
