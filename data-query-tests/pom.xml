@@ -172,7 +172,7 @@
                   <goal>java</goal>
                 </goals>
                 <configuration>
-                  <mainClass>gov.va.api.health.dataquery.tests.JoshBot</mainClass>
+                  <mainClass>gov.va.api.health.dataquery.tests.dstu2.JoshBot</mainClass>
                   <classpathScope>test</classpathScope>
                   <systemProperties>
                     <property>
