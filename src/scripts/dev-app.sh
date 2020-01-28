@@ -47,7 +47,7 @@ startApp() {
     local pathSeparator=':'
     [ "$(uname)" != "Darwin" ] && [ "$(uname)" != "Linux" ] && echo "Add support for your operating system" && exit 1
     echo "Using local H2 database"
-    options+=" -cp $(readlink -f $jar)${pathSeparator}$(readlink -f ~/.m2/repository/com/h2database/h2/1.4.197/h2-1.4.197.jar)"
+    options+=" -cp $(readlink -f $jar)${pathSeparator}$(readlink -f ~/.m2/repository/com/h2database/h2/1.4.200/h2-1.4.200.jar)"
     options+=" -Dspring.jpa.generate-ddl=true"
     options+=" -Dspring.jpa.hibernate.ddl-auto=create-drop"
     options+=" -Dspring.jpa.hibernate.globally_quoted_identifiers=true"

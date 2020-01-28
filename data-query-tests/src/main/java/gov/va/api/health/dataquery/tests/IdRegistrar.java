@@ -25,8 +25,7 @@ public final class IdRegistrar {
   TestIds registeredIds = registerCdwIds();
 
   private String findUuid(List<Registration> registrations, ResourceIdentity resource) {
-    return registrations
-        .stream()
+    return registrations.stream()
         .filter(r -> r.resourceIdentities().contains(resource))
         .findFirst()
         .orElseThrow(() -> new AssertionError("Failed to register: " + resource))

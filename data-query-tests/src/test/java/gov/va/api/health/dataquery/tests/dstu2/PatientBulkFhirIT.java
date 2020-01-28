@@ -30,8 +30,12 @@ public class PatientBulkFhirIT {
 
   @Test
   @Category(
-    value = {Local.class, LabDataQueryPatient.class, ProdDataQueryPatient.class, InternalApi.class}
-  )
+      value = {
+        Local.class,
+        LabDataQueryPatient.class,
+        ProdDataQueryPatient.class,
+        InternalApi.class
+      })
   public void bulkFhirPatientSearch() {
     log.info("Verify Patient Bulk Search internal/bulk/Patient?page=x&_count=y");
     ExpectedResponse responseAll =

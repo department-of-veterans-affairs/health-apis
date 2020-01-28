@@ -169,9 +169,8 @@ public class Dstu2JacksonMapperTest {
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor
   @JsonAutoDetect(
-    fieldVisibility = JsonAutoDetect.Visibility.ANY,
-    isGetterVisibility = JsonAutoDetect.Visibility.NONE
-  )
+      fieldVisibility = JsonAutoDetect.Visibility.ANY,
+      isGetterVisibility = JsonAutoDetect.Visibility.NONE)
   static final class FugaziReferenceMajig {
     Reference ref;
     Reference nope;
@@ -189,9 +188,8 @@ public class Dstu2JacksonMapperTest {
   @AllArgsConstructor
   @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
   @ExactlyOneOf(
-    fields = {"required", "_required"},
-    message = "Exactly one required field must be specified"
-  )
+      fields = {"required", "_required"},
+      message = "Exactly one required field must be specified")
   static final class FugaziRequiredReferenceMajig {
     Reference required;
     Extension _required;

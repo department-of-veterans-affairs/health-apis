@@ -49,8 +49,7 @@ public class F2DAllergyIntoleranceTransformer {
     if (codings == null || codings.isEmpty()) {
       return null;
     }
-    return codings
-        .stream()
+    return codings.stream()
         .map(c -> coding(c))
         .filter(Optional::isPresent)
         .map(c -> c.get())
@@ -81,8 +80,7 @@ public class F2DAllergyIntoleranceTransformer {
   }
 
   private List<DatamartCoding> manifestations(List<CodeableConcept> manifestations) {
-    return manifestations
-        .stream()
+    return manifestations.stream()
         .map(CodeableConcept::coding)
         .flatMap(codings -> codings(codings).stream())
         .collect(Collectors.toList());

@@ -32,8 +32,7 @@ final class IdentityParameterReplacer {
     // @Singular Map<String, String> emits a compiler warning from the Lombok code (?)
     // List of pairs is a workaround.
     this.aliases =
-        aliases
-            .stream()
+        aliases.stream()
             .collect(Collectors.toMap(alias -> alias.getKey(), alias -> alias.getValue()));
   }
 
@@ -51,9 +50,7 @@ final class IdentityParameterReplacer {
   }
 
   private String lookupCdwId(String uuid) {
-    return identityService
-        .lookup(uuid)
-        .stream()
+    return identityService.lookup(uuid).stream()
         .filter(IdentityParameterReplacer::isCdw)
         .map(ResourceIdentity::identifier)
         .findFirst()

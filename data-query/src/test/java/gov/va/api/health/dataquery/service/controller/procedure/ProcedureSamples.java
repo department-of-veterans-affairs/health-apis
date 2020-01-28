@@ -79,8 +79,7 @@ public class ProcedureSamples {
           .total(totalRecords)
           .link(Arrays.asList(links))
           .entry(
-              resources
-                  .stream()
+              resources.stream()
                   .map(
                       c ->
                           Entry.builder()

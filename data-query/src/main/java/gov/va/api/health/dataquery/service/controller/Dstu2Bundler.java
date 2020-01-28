@@ -35,9 +35,7 @@ public class Dstu2Bundler {
     bundle.total(context.linkConfig().totalRecords());
     bundle.link(links.dstu2Links(context.linkConfig()));
     bundle.entry(
-        context
-            .xmlItems()
-            .stream()
+        context.xmlItems().stream()
             .map(context.transformer())
             .map(
                 t -> {

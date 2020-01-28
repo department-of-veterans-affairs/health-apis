@@ -76,8 +76,7 @@ public class MedicationStatementSamples {
           .total(totalRecords)
           .link(Arrays.asList(links))
           .entry(
-              medicationStatements
-                  .stream()
+              medicationStatements.stream()
                   .map(
                       c ->
                           Entry.builder()

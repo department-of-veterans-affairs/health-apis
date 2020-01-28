@@ -107,8 +107,7 @@ public class DiagnosticReportSamples {
           .total(totalRecords)
           .link(Arrays.asList(links))
           .entry(
-              reports
-                  .stream()
+              reports.stream()
                   .map(
                       c ->
                           Entry.builder()

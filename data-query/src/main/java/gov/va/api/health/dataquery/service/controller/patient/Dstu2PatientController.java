@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.patient;
 
+import static gov.va.api.health.autoconfig.logging.LogSanitizer.sanitize;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 
@@ -42,9 +43,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @SuppressWarnings("WeakerAccess")
 @RequestMapping(
-  value = {"/dstu2/Patient"},
-  produces = {"application/json", "application/json+fhir", "application/fhir+json"}
-)
+    value = {"/dstu2/Patient"},
+    produces = {"application/json", "application/json+fhir", "application/fhir+json"})
 public class Dstu2PatientController {
 
   private Dstu2Bundler bundler;
@@ -120,9 +120,8 @@ public class Dstu2PatientController {
 
   /** Return the raw Datamart document for the given identifier. */
   @GetMapping(
-    value = "/{publicId}",
-    headers = {"raw=true"}
-  )
+      value = "/{publicId}",
+      headers = {"raw=true"})
   public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
     PatientSearchEntity entity = findById(publicId);
     IncludesIcnMajig.addHeader(response, entity.icn());
@@ -204,7 +203,8 @@ public class Dstu2PatientController {
             .name(name)
             .dates(birthdate)
             .build();
-    log.info("Looking for {} {}", name, spec);
+
+    log.info("Looking for {} {}", sanitize(name), spec);
     Page<PatientSearchEntity> entities = repository.findAll(spec, page(page, count));
     return bundle(
         Parameters.builder()
@@ -239,9 +239,8 @@ public class Dstu2PatientController {
 
   /** Hey, this is a validate endpoint. It validates. */
   @PostMapping(
-    value = "/$validate",
-    consumes = {"application/json", "application/json+fhir", "application/fhir+json"}
-  )
+      value = "/$validate",
+      consumes = {"application/json", "application/json+fhir", "application/fhir+json"})
   public OperationOutcome validate(@RequestBody Patient.Bundle bundle) {
     return Dstu2Validator.create().validate(bundle);
   }

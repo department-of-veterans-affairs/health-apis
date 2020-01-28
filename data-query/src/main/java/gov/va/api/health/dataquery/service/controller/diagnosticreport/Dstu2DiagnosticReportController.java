@@ -64,9 +64,8 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @SuppressWarnings("WeakerAccess")
 @RequestMapping(
-  value = {"/dstu2/DiagnosticReport"},
-  produces = {"application/json", "application/json+fhir", "application/fhir+json"}
-)
+    value = {"/dstu2/DiagnosticReport"},
+    produces = {"application/json", "application/json+fhir", "application/fhir+json"})
 public class Dstu2DiagnosticReportController {
   private Dstu2Bundler bundler;
 
@@ -106,8 +105,7 @@ public class Dstu2DiagnosticReportController {
     }
     List<DateTimeParameters> parameters =
         dateParameters.stream().map(DateTimeParameters::new).collect(Collectors.toList());
-    return datamartReports
-        .stream()
+    return datamartReports.stream()
         .filter(r -> parameters.stream().allMatch(p -> dateParameterIsSatisfied(r, p)))
         .collect(Collectors.toList());
   }
@@ -152,9 +150,7 @@ public class Dstu2DiagnosticReportController {
     DatamartDiagnosticReports payload =
         Iterables.getOnlyElement(entities).asDatamartDiagnosticReports();
     Optional<DatamartDiagnosticReports.DiagnosticReport> maybeReport =
-        payload
-            .reports()
-            .stream()
+        payload.reports().stream()
             .filter(r -> StringUtils.equals(r.identifier(), cdwReportId))
             .findFirst();
     if (!maybeReport.isPresent()) {
@@ -181,9 +177,8 @@ public class Dstu2DiagnosticReportController {
 
   /** Return the raw Datamart document for the given identifier. */
   @GetMapping(
-    value = {"/{publicId}"},
-    headers = {"raw=true"}
-  )
+      value = {"/{publicId}"},
+      headers = {"raw=true"})
   public DatamartDiagnosticReports.DiagnosticReport readRaw(
       @PathVariable("publicId") String publicId, HttpServletResponse response) {
     var pair = pairPayload(publicId);
@@ -194,8 +189,7 @@ public class Dstu2DiagnosticReportController {
   private void replaceCdwIdsWithPublicIds(
       List<DatamartDiagnosticReports.DiagnosticReport> reports) {
     Set<ResourceIdentity> ids =
-        reports
-            .stream()
+        reports.stream()
             .flatMap(
                 report ->
                     Stream.concat(
@@ -212,9 +206,7 @@ public class Dstu2DiagnosticReportController {
                                     .identifier(report.accessionInstitutionSid())
                                     .build()
                                 : null),
-                        report
-                            .results()
-                            .stream()
+                        report.results().stream()
                             .flatMap(
                                 r ->
                                     Stream.of(
@@ -295,8 +287,7 @@ public class Dstu2DiagnosticReportController {
     List<DatamartDiagnosticReports.DiagnosticReport> paged = filtered.subList(fromIndex, toIndex);
     replaceCdwIdsWithPublicIds(paged);
     List<DiagnosticReport> fhir =
-        paged
-            .stream()
+        paged.stream()
             .map(
                 dm ->
                     Dstu2DiagnosticReportTransformer.builder()
@@ -385,9 +376,8 @@ public class Dstu2DiagnosticReportController {
 
   /** Search by patient. */
   @GetMapping(
-    value = "/raw",
-    params = {"patient"}
-  )
+      value = "/raw",
+      params = {"patient"})
   public String searchByPatientRaw(
       @RequestParam("patient") String patient, HttpServletResponse response) {
     MultiValueMap<String, String> publicParameters =
@@ -405,9 +395,8 @@ public class Dstu2DiagnosticReportController {
 
   /** Validate Endpoint. */
   @PostMapping(
-    value = "/$validate",
-    consumes = {"application/json", "application/json+fhir", "application/fhir+json"}
-  )
+      value = "/$validate",
+      consumes = {"application/json", "application/json+fhir", "application/fhir+json"})
   public OperationOutcome validate(@RequestBody DiagnosticReport.Bundle bundle) {
     return Dstu2Validator.create().validate(bundle);
   }

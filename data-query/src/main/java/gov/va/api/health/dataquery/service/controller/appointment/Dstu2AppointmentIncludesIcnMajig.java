@@ -28,8 +28,7 @@ public class Dstu2AppointmentIncludesIcnMajig implements ResponseBodyAdvice<Obje
                   Stream.ofNullable(
                       body.participant() == null || body.participant().isEmpty()
                           ? null
-                          : body.participant()
-                              .stream()
+                          : body.participant().stream()
                               .map(p -> p.actor())
                               .filter(r -> r.reference().contains("Patient"))
                               .map(i -> Dstu2Transformers.asReferenceId(i))

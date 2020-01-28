@@ -129,22 +129,19 @@ public class F2DObservationTransformer {
       return obsBuilder.build();
     }
     List<DatamartObservation.AntibioticComponent> ac =
-        component
-            .stream()
+        component.stream()
             .filter(c -> c != null && c.id() != null)
             .map(c -> antibioticComponent(c))
             .filter(a -> a != null)
             .collect(Collectors.toList());
     List<DatamartObservation.VitalsComponent> vc =
-        component
-            .stream()
+        component.stream()
             .filter(c -> c != null && c.valueQuantity() != null)
             .map(c -> vitalsComponent(c))
             .filter(v -> v != null)
             .collect(Collectors.toList());
     List<Optional<DatamartObservation.BacteriologyComponent>> bc =
-        component
-            .stream()
+        component.stream()
             .filter(c -> c != null && c.valueString() != null)
             .map(c -> bacteriologyComponent(c))
             .filter(b -> b != null)
@@ -195,8 +192,7 @@ public class F2DObservationTransformer {
     if (performer == null || performer.isEmpty()) {
       return null;
     }
-    return performer
-        .stream()
+    return performer.stream()
         .filter(x -> x != null)
         .map(p -> fauxIds.toDatamartReferenceWithCdwId(p))
         .filter(x -> x.isPresent())

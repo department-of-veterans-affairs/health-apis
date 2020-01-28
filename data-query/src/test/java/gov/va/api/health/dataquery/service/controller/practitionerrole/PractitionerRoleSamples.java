@@ -149,8 +149,7 @@ public class PractitionerRoleSamples {
           .total(roles.size())
           .link(asList(links))
           .entry(
-              roles
-                  .stream()
+              roles.stream()
                   .map(
                       c ->
                           PractitionerRole.Entry.builder()

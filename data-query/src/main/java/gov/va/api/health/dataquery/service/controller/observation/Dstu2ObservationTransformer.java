@@ -296,9 +296,7 @@ final class Dstu2ObservationTransformer {
             datamart.vitalsComponents().size() + datamart.antibioticComponents().size() + 2);
     List<Observation.ObservationComponent> vitals =
         emptyToNull(
-            datamart
-                .vitalsComponents()
-                .stream()
+            datamart.vitalsComponents().stream()
                 .map(v -> component(v))
                 .collect(Collectors.toList()));
     if (vitals != null) {
@@ -306,9 +304,7 @@ final class Dstu2ObservationTransformer {
     }
     List<Observation.ObservationComponent> antibiotics =
         emptyToNull(
-            datamart
-                .antibioticComponents()
-                .stream()
+            datamart.antibioticComponents().stream()
                 .map(v -> component(v))
                 .collect(Collectors.toList()));
     if (antibiotics != null) {

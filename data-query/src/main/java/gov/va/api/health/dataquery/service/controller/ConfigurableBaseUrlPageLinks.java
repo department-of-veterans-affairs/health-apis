@@ -132,9 +132,7 @@ public class ConfigurableBaseUrlPageLinks implements PageLinks {
       StringBuilder msg = new StringBuilder(baseUrl).append('/').append(basePath).append('/');
       msg.append(config.path()).append('?');
       String params =
-          mutableParams
-              .entrySet()
-              .stream()
+          mutableParams.entrySet().stream()
               .sorted(Comparator.comparing(Entry::getKey))
               .flatMap(this::toKeyValueString)
               .collect(Collectors.joining("&"));

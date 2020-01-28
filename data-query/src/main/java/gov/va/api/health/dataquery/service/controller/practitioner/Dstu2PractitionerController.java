@@ -38,9 +38,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @SuppressWarnings("WeakerAccess")
 @RequestMapping(
-  value = {"/dstu2/Practitioner"},
-  produces = {"application/json", "application/json+fhir", "application/fhir+json"}
-)
+    value = {"/dstu2/Practitioner"},
+    produces = {"application/json", "application/json+fhir", "application/fhir+json"})
 public class Dstu2PractitionerController {
 
   private Dstu2Bundler bundler;
@@ -93,9 +92,8 @@ public class Dstu2PractitionerController {
 
   /** Read by id. */
   @GetMapping(
-    value = {"/{publicId}"},
-    headers = {"raw=true"}
-  )
+      value = {"/{publicId}"},
+      headers = {"raw=true"})
   public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
     PractitionerEntity entity = findById(publicId);
     IncludesIcnMajig.addHeaderForNoPatients(response);
@@ -108,9 +106,7 @@ public class Dstu2PractitionerController {
         resources,
         resource ->
             Stream.concat(
-                resource
-                    .practitionerRole()
-                    .stream()
+                resource.practitionerRole().stream()
                     .map(role -> role.managingOrganization().orElse(null)),
                 resource.practitionerRole().stream().flatMap(role -> role.location().stream())));
     return resources;
@@ -144,9 +140,8 @@ public class Dstu2PractitionerController {
 
   /** Hey, this is a validate endpoint. It validates. */
   @PostMapping(
-    value = "/$validate",
-    consumes = {"application/json", "application/json+fhir", "application/fhir+json"}
-  )
+      value = "/$validate",
+      consumes = {"application/json", "application/json+fhir", "application/fhir+json"})
   public OperationOutcome validate(@RequestBody Practitioner.Bundle bundle) {
     return Dstu2Validator.create().validate(bundle);
   }

@@ -40,9 +40,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(
-  value = {"/dstu2/metadata"},
-  produces = {"application/json", "application/json+fhir", "application/fhir+json"}
-)
+    value = {"/dstu2/metadata"},
+    produces = {"application/json", "application/json+fhir", "application/fhir+json"})
 @AllArgsConstructor(onConstructor = @__({@Autowired}))
 class MetadataController {
   private static final String ALLERGYINTOLERANCE_HTML =
@@ -384,8 +383,7 @@ class MetadataController {
       if (search.isEmpty()) {
         return null;
       }
-      return search
-          .stream()
+      return search.stream()
           .map(s -> Conformance.SearchParam.builder().name(s.param()).type(s.type()).build())
           .collect(Collectors.toList());
     }

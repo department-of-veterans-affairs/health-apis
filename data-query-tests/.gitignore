@@ -1,2 +1,4 @@
 src/test/resources/mitre.trace.db
 lab-users.txt
+.lab-users
+

@@ -44,9 +44,8 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 @RestController
 @RequestMapping(
-  value = {"/dstu2/MedicationStatement"},
-  produces = {"application/json", "application/json+fhir", "application/fhir+json"}
-)
+    value = {"/dstu2/MedicationStatement"},
+    produces = {"application/json", "application/json+fhir", "application/fhir+json"})
 public class Dstu2MedicationStatementController {
 
   private Dstu2Bundler bundler;
@@ -121,9 +120,8 @@ public class Dstu2MedicationStatementController {
 
   /** Read by id, raw data. */
   @GetMapping(
-    value = {"/{publicId}"},
-    headers = {"raw=true"}
-  )
+      value = {"/{publicId}"},
+      headers = {"raw=true"})
   public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
     MedicationStatementEntity entity = findById(publicId);
     IncludesIcnMajig.addHeader(response, entity.icn());
@@ -186,9 +184,8 @@ public class Dstu2MedicationStatementController {
 
   /** Hey, this is a validate endpoint. It validates. */
   @PostMapping(
-    value = "/$validate",
-    consumes = {"application/json", "application/json+fhir", "application/fhir+json"}
-  )
+      value = "/$validate",
+      consumes = {"application/json", "application/json+fhir", "application/fhir+json"})
   public OperationOutcome validate(@RequestBody MedicationStatement.Bundle bundle) {
     return Dstu2Validator.create().validate(bundle);
   }

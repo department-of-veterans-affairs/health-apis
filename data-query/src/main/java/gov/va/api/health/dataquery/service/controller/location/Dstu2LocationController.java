@@ -36,9 +36,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @SuppressWarnings("WeakerAccess")
 @RequestMapping(
-  value = "/dstu2/Location",
-  produces = {"application/json", "application/json+fhir", "application/fhir+json"}
-)
+    value = "/dstu2/Location",
+    produces = {"application/json", "application/json+fhir", "application/fhir+json"})
 public class Dstu2LocationController {
   private Dstu2Bundler bundler;
 
@@ -87,9 +86,8 @@ public class Dstu2LocationController {
 
   /** Read raw. */
   @GetMapping(
-    value = {"/{publicId}"},
-    headers = {"raw=true"}
-  )
+      value = {"/{publicId}"},
+      headers = {"raw=true"})
   public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
     IncludesIcnMajig.addHeaderForNoPatients(response);
     return entityById(publicId).payload();
@@ -123,9 +121,8 @@ public class Dstu2LocationController {
 
   /** Hey, this is a validate endpoint. It validates. */
   @PostMapping(
-    value = "/$validate",
-    consumes = {"application/json", "application/json+fhir", "application/fhir+json"}
-  )
+      value = "/$validate",
+      consumes = {"application/json", "application/json+fhir", "application/fhir+json"})
   public OperationOutcome validate(@RequestBody Location.Bundle bundle) {
     return Dstu2Validator.create().validate(bundle);
   }

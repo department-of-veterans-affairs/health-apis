@@ -19,9 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @SuppressWarnings("WeakerAccess")
 @RequestMapping(
-  value = {"/internal/bulk/Patient"},
-  produces = {"application/json", "application/fhir+json", "application/json+fhir"}
-)
+    value = {"/internal/bulk/Patient"},
+    produces = {"application/json", "application/fhir+json", "application/json+fhir"})
 public class PatientBulkFhirController {
 
   private PatientRepository repository;
@@ -56,9 +55,7 @@ public class PatientBulkFhirController {
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @RequestParam(value = "_count", defaultValue = "15") @Min(0) int count) {
     PageAndCountValidator.validateCountBounds(count, maxRecordsPerPage);
-    return repository
-        .findAllProjectedBy(page(page, count))
-        .stream()
+    return repository.findAllProjectedBy(page(page, count)).stream()
         .map(PatientPayloadDto::asDatamartPatient)
         .map(dm -> Dstu2PatientTransformer.builder().datamart(dm).build().toFhir())
         .collect(Collectors.toList());

@@ -35,9 +35,8 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 @RestController
 @RequestMapping(
-  value = {"/datamart/validation"},
-  produces = {"application/json"}
-)
+    value = {"/datamart/validation"},
+    produces = {"application/json"})
 public class DatamartValidationController {
 
   private static Map<String, Class<?>> datamartResources =

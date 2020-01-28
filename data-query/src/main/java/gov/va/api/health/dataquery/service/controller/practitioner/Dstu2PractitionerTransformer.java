@@ -91,9 +91,7 @@ public class Dstu2PractitionerTransformer {
     return Practitioner.PractitionerRole.builder()
         .location(
             emptyToNull(
-                source
-                    .location()
-                    .stream()
+                source.location().stream()
                     .map(loc -> asReference(loc))
                     .collect(Collectors.toList())))
         .role(asCodeableConceptWrapping(source.role()))
@@ -138,9 +136,7 @@ public class Dstu2PractitionerTransformer {
 
   List<Practitioner.PractitionerRole> practitionerRoles() {
     return emptyToNull(
-        datamart
-            .practitionerRole()
-            .stream()
+        datamart.practitionerRole().stream()
             .map(rol -> practitionerRole(rol))
             .collect(Collectors.toList()));
   }

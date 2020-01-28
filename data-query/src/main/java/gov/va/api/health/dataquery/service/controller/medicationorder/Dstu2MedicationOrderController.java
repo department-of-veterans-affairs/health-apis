@@ -44,9 +44,8 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
 @RequestMapping(
-  value = {"/dstu2/MedicationOrder"},
-  produces = {"application/json", "application/json+fhir", "application/fhir+json"}
-)
+    value = {"/dstu2/MedicationOrder"},
+    produces = {"application/json", "application/json+fhir", "application/fhir+json"})
 public class Dstu2MedicationOrderController {
 
   private Dstu2Bundler bundler;
@@ -115,9 +114,8 @@ public class Dstu2MedicationOrderController {
 
   /** Read by id, raw data. */
   @GetMapping(
-    value = {"/{publicId}"},
-    headers = {"raw=true"}
-  )
+      value = {"/{publicId}"},
+      headers = {"raw=true"})
   public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
     MedicationOrderEntity entity = findById(publicId);
     IncludesIcnMajig.addHeader(response, entity.icn());
@@ -177,9 +175,8 @@ public class Dstu2MedicationOrderController {
 
   /** Validate Endpoint. */
   @PostMapping(
-    value = "/$validate",
-    consumes = {"application/json", "application/json+fhir", "application/fhir+json"}
-  )
+      value = "/$validate",
+      consumes = {"application/json", "application/json+fhir", "application/fhir+json"})
   public OperationOutcome validate(@RequestBody MedicationOrder.Bundle bundle) {
     return Dstu2Validator.create().validate(bundle);
   }

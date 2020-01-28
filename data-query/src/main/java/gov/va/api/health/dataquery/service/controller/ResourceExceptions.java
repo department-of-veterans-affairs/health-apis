@@ -29,9 +29,7 @@ public final class ResourceExceptions {
     }
     StringBuilder msg = new StringBuilder();
     String params =
-        parameters
-            .entrySet()
-            .stream()
+        parameters.entrySet().stream()
             .sorted(Comparator.comparing(Entry::getKey))
             .flatMap(ResourceExceptions::toKeyValueString)
             .collect(Collectors.joining("&"));

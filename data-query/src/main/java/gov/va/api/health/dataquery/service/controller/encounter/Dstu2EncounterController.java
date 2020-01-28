@@ -27,9 +27,8 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 @RestController
 @RequestMapping(
-  value = {"/dstu2/Encounter"},
-  produces = {"application/json", "application/json+fhir", "application/fhir+json"}
-)
+    value = {"/dstu2/Encounter"},
+    produces = {"application/json", "application/json+fhir", "application/fhir+json"})
 @AllArgsConstructor(onConstructor = @__({@Autowired}))
 public class Dstu2EncounterController {
 
@@ -62,9 +61,8 @@ public class Dstu2EncounterController {
 
   /** Hey, this is a validate endpoint. It validates. */
   @PostMapping(
-    value = "/$validate",
-    consumes = {"application/json", "application/json+fhir", "application/fhir+json"}
-  )
+      value = "/$validate",
+      consumes = {"application/json", "application/json+fhir", "application/fhir+json"})
   public OperationOutcome validate(@RequestBody Encounter.Bundle bundle) {
     return Dstu2Validator.create().validate(bundle);
   }

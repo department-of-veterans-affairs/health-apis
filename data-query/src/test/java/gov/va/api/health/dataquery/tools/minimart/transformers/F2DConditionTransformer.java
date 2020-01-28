@@ -69,8 +69,7 @@ public class F2DConditionTransformer {
     if (code == null) {
       return null;
     }
-    return code.coding()
-        .stream()
+    return code.coding().stream()
         .filter(coding -> whichCode(coding) == CodeSystem.ICD)
         .map(
             coding ->
@@ -86,8 +85,7 @@ public class F2DConditionTransformer {
     if (code == null) {
       return null;
     }
-    return code.coding()
-        .stream()
+    return code.coding().stream()
         .filter(coding -> whichCode(coding) == CodeSystem.SNOMED)
         .map(coding -> SnomedCode.builder().code(coding.code()).display(coding.display()).build())
         .findFirst();

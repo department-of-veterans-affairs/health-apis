@@ -113,8 +113,7 @@ public class ImmunizationSamples {
           .total(totalRecords)
           .link(Arrays.asList(links))
           .entry(
-              immunizations
-                  .stream()
+              immunizations.stream()
                   .map(
                       c ->
                           Entry.builder()

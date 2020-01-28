@@ -94,9 +94,7 @@ public class ResourceDiscovery {
     if (conformanceStatement == null || conformanceStatement.rest() == null) {
       return emptyList();
     }
-    return conformanceStatement
-        .rest()
-        .stream()
+    return conformanceStatement.rest().stream()
         .flatMap(r -> r.resource().stream())
         .collect(Collectors.toList());
   }
@@ -116,10 +114,7 @@ public class ResourceDiscovery {
     }
     List<String> patientQueries = new ArrayList<>();
     boolean isReadable =
-        patientMetadata
-            .get()
-            .interaction()
-            .stream()
+        patientMetadata.get().interaction().stream()
             .anyMatch(p -> ResourceInteractionCode.read.equals(p.code()));
     if (isReadable) {
       patientQueries.add(url + "Patient/" + patientId);
@@ -138,8 +133,7 @@ public class ResourceDiscovery {
    * https://awesome.com/api/Procedure?patient=12345.
    */
   List<String> patientSearchableResourceQueries(@NonNull List<RestResource> restResources) {
-    return restResources
-        .stream()
+    return restResources.stream()
         .filter(this::isSearchableByPatient)
         .map(p -> url + p.type() + "?patient=" + patientId)
         .collect(Collectors.toList());
