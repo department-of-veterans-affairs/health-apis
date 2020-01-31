@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Iterables;
 import gov.va.api.health.sentinel.LabBot;
 import gov.va.api.health.sentinel.LabBot.LabBotUserResult;
+import gov.va.api.health.sentinel.selenium.VaOauthRobot;
 import java.io.File;
 import java.io.FileInputStream;
 import java.nio.charset.StandardCharsets;
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.BooleanUtils;
 
 /**
  * This is intended to stream line testing the Production environment with real Veteran credentials.
@@ -29,20 +31,30 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class JoshBot {
 
+  private static Properties properties;
+
   private static String configurationFile() {
     return System.getProperty("joshbot.properties.file", "config/josh-bot.properties");
   }
 
+  private static boolean doAccessTokenRefresh() {
+    return BooleanUtils.toBoolean(
+        properties.getProperty("va-oauth-robot.refresh-user-token", "true"));
+  }
+
   @SneakyThrows
-  private static String lookupUserId() {
+  private static void loadPropertiesFile() {
     File confFile = new File(configurationFile());
     assertThat(confFile.exists())
         .withFailMessage("Configuration file %s not found", confFile.getAbsolutePath())
         .isTrue();
-    Properties properties = new Properties(System.getProperties());
+    properties = new Properties(System.getProperties());
     try (FileInputStream inputStream = new FileInputStream(confFile)) {
       properties.load(inputStream);
     }
+  }
+
+  private static String lookupUserId() {
     String userId = properties.getProperty("va-oauth-robot.user-id");
     assertThat(userId).withFailMessage("va-oauth-robot.user-id not specified.").isNotBlank();
     return userId;
@@ -50,6 +62,7 @@ public class JoshBot {
 
   @SneakyThrows
   public static void main(String[] args) {
+    loadPropertiesFile();
     LabBot bot =
         LabBot.builder()
             .userIds(Arrays.asList(lookupUserId()))
@@ -131,6 +144,21 @@ public class JoshBot {
         new File("target/production-results.txt").toPath(),
         report.getBytes(StandardCharsets.UTF_8));
     log.info("Prod Users:\n{}", report);
+    // Use the patient from the original request when requesting with the refresh token.
+    if (doAccessTokenRefresh()) {
+      String refreshTestPath = basePath + "Patient?_id=" + patientCall.tokenExchange().patient();
+      VaOauthRobot.TokenExchange refreshedAccessToken =
+          patientCall.vaOauthRobot().refreshUserAccessToken();
+      log.info("Making Patient request using new access token...");
+      request(
+          bot,
+          LabBotUserResult.builder()
+              .user(patientCall.user())
+              .tokenExchange(refreshedAccessToken)
+              .build(),
+          refreshTestPath);
+    }
+    log.info("JoshBot Has Completed All It's Tasks...");
   }
 
   @SneakyThrows
