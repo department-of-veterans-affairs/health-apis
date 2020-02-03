@@ -1,6 +1,7 @@
 package gov.va.api.health.dataquery.service.controller.medicationstatement;
 
-import gov.va.api.health.autoconfig.configuration.JacksonConfig;
+import static gov.va.api.health.dataquery.service.controller.datamart.DatamartEntity.deserializeDatamart;
+
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartEntity;
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -15,7 +16,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.SneakyThrows;
 import org.springframework.data.domain.Sort;
 
 /**
@@ -57,8 +57,7 @@ public class MedicationStatementEntity implements DatamartEntity {
     return Sort.by("cdwId").ascending();
   }
 
-  @SneakyThrows
   DatamartMedicationStatement asDatamartMedicationStatement() {
-    return JacksonConfig.createMapper().readValue(payload, DatamartMedicationStatement.class);
+    return deserializeDatamart(payload, DatamartMedicationStatement.class);
   }
 }

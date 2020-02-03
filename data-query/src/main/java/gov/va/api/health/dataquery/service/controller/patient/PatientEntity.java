@@ -1,6 +1,7 @@
 package gov.va.api.health.dataquery.service.controller.patient;
 
-import gov.va.api.health.autoconfig.configuration.JacksonConfig;
+import static gov.va.api.health.dataquery.service.controller.datamart.DatamartEntity.deserializeDatamart;
+
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartEntity;
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -15,7 +16,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.SneakyThrows;
 
 @Data
 @Entity
@@ -35,9 +35,8 @@ public class PatientEntity implements DatamartEntity {
   @Column(name = "PatientReport")
   private String payload;
 
-  @SneakyThrows
   DatamartPatient asDatamartPatient() {
-    return JacksonConfig.createMapper().readValue(payload, DatamartPatient.class);
+    return deserializeDatamart(payload, DatamartPatient.class);
   }
 
   @Override

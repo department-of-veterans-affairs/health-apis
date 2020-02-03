@@ -1,6 +1,7 @@
 package gov.va.api.health.dataquery.service.controller.location;
 
-import gov.va.api.health.autoconfig.configuration.JacksonConfig;
+import static gov.va.api.health.dataquery.service.controller.datamart.DatamartEntity.deserializeDatamart;
+
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartEntity;
 import java.util.Optional;
 import javax.persistence.Basic;
@@ -16,7 +17,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.SneakyThrows;
 import org.springframework.data.domain.Sort;
 
 @Data
@@ -56,9 +56,8 @@ public class LocationEntity implements DatamartEntity {
     return Sort.by("cdwId").ascending();
   }
 
-  @SneakyThrows
   DatamartLocation asDatamartLocation() {
-    DatamartLocation dm = JacksonConfig.createMapper().readValue(payload, DatamartLocation.class);
+    DatamartLocation dm = deserializeDatamart(payload, DatamartLocation.class);
     if (dm.managingOrganization() != null && dm.managingOrganization().type().isEmpty()) {
       // Hack... make sure reference type is populated
       dm.managingOrganization().type(Optional.of("Organization"));

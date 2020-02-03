@@ -1,6 +1,7 @@
 package gov.va.api.health.dataquery.service.controller.practitioner;
 
-import gov.va.api.health.autoconfig.configuration.JacksonConfig;
+import static gov.va.api.health.dataquery.service.controller.datamart.DatamartEntity.deserializeDatamart;
+
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartEntity;
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -15,7 +16,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.SneakyThrows;
 import org.springframework.data.domain.Sort;
 
 @Data
@@ -50,10 +50,8 @@ public class PractitionerEntity implements DatamartEntity {
   }
 
   /** Deserialize payload. */
-  @SneakyThrows
   public DatamartPractitioner asDatamartPractitioner() {
-    DatamartPractitioner dm =
-        JacksonConfig.createMapper().readValue(payload, DatamartPractitioner.class);
+    DatamartPractitioner dm = deserializeDatamart(payload, DatamartPractitioner.class);
 
     if (dm.practitionerRole().isPresent()) {
       dm.practitionerRole()

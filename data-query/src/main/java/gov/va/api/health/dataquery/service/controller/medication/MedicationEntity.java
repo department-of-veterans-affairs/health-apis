@@ -1,6 +1,7 @@
 package gov.va.api.health.dataquery.service.controller.medication;
 
-import gov.va.api.health.autoconfig.configuration.JacksonConfig;
+import static gov.va.api.health.dataquery.service.controller.datamart.DatamartEntity.deserializeDatamart;
+
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartEntity;
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -15,7 +16,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.SneakyThrows;
 
 /**
  *
@@ -38,7 +38,6 @@ import lombok.SneakyThrows;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class MedicationEntity implements DatamartEntity {
-
   @Id
   @Column(name = "CDWId")
   @EqualsAndHashCode.Include
@@ -49,8 +48,7 @@ public class MedicationEntity implements DatamartEntity {
   @Lob
   private String payload;
 
-  @SneakyThrows
   DatamartMedication asDatamartMedication() {
-    return JacksonConfig.createMapper().readValue(payload, DatamartMedication.class);
+    return deserializeDatamart(payload, DatamartMedication.class);
   }
 }

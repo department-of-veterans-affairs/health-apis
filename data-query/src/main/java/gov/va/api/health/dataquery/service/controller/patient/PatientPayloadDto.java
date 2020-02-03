@@ -1,7 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.patient;
 
-import gov.va.api.health.autoconfig.configuration.JacksonConfig;
-import lombok.SneakyThrows;
+import gov.va.api.health.dataquery.service.controller.datamart.DatamartEntity;
 import lombok.Value;
 
 /**
@@ -12,8 +11,7 @@ import lombok.Value;
 public class PatientPayloadDto {
   String payload;
 
-  @SneakyThrows
   DatamartPatient asDatamartPatient() {
-    return JacksonConfig.createMapper().readValue(payload, DatamartPatient.class);
+    return DatamartEntity.deserializeDatamart(payload, DatamartPatient.class);
   }
 }
