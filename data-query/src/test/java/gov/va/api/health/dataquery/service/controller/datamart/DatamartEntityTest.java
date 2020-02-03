@@ -20,11 +20,8 @@ public final class DatamartEntityTest {
   @Test
   @SneakyThrows
   public void deserializeDatamart() {
-    assertThat(
-            new FooEntity()
-                .deserializeDatamart(
-                    JacksonConfig.createMapper().writeValueAsString(new Foo("x")), Foo.class))
-        .isEqualTo(new Foo("x"));
+    String payload = JacksonConfig.createMapper().writeValueAsString(new Foo("x"));
+    assertThat(new FooEntity().deserializeDatamart(payload, Foo.class)).isEqualTo(new Foo("x"));
   }
 
   @Test(expected = ResourceExceptions.InvalidDatamartPayload.class)
