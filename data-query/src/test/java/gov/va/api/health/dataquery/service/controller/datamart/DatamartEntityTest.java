@@ -2,10 +2,12 @@ package gov.va.api.health.dataquery.service.controller.datamart;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.Value;
 import org.junit.Test;
 
@@ -16,8 +18,12 @@ public final class DatamartEntityTest {
   }
 
   @Test
+  @SneakyThrows
   public void deserializeDatamart() {
-    assertThat(new FooEntity().deserializeDatamart("{\"bar\":\"x\"}", Foo.class))
+    assertThat(
+            new FooEntity()
+                .deserializeDatamart(
+                    JacksonConfig.createMapper().writeValueAsString(new Foo("x")), Foo.class))
         .isEqualTo(new Foo("x"));
   }
 
