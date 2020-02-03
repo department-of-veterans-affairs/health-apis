@@ -90,15 +90,6 @@ public final class Dstu2Transformers {
         .build();
   }
 
-  //  /** Return null if the date is null, otherwise return ands ISO-8601 date. */
-  //  public static String asDateString(XMLGregorianCalendar maybeDate) {
-  //    if (maybeDate == null) {
-  //      return null;
-  //    }
-  //    DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-  //    return formatter.format(maybeDate.toGregorianCalendar().getTime());
-  //  }
-
   /** Return null if the date is null, otherwise return an ISO-8601 date. */
   public static String asDateString(Optional<LocalDate> maybeDateTime) {
     if (maybeDateTime == null) {
@@ -133,22 +124,6 @@ public final class Dstu2Transformers {
     return maybeDateTime.toString();
   }
 
-  //  /** Return null if the date is null, otherwise return an ISO-8601 date time. */
-  //  public static String asDateTimeString(XMLGregorianCalendar maybeDateTime) {
-  //    if (maybeDateTime == null) {
-  //      return null;
-  //    }
-  //    return maybeDateTime.toString();
-  //  }
-
-  //  /** Return null if the big integer is null, otherwise return the value as an integer. */
-  //  public static Integer asInteger(BigInteger maybeBigInt) {
-  //    if (maybeBigInt == null) {
-  //      return null;
-  //    }
-  //    return maybeBigInt.intValue();
-  //  }
-
   /** Convert the datamart reference (if specified) to a FHIR reference. */
   public static Reference asReference(Optional<DatamartReference> maybeReference) {
     if (maybeReference == null || maybeReference.isEmpty()) {
@@ -180,36 +155,6 @@ public final class Dstu2Transformers {
     }
     return maybeDatamart.reference().get();
   }
-
-  //  /**
-  //   * Return null if the source list is null or empty, otherwise convert the items in the list
-  // and
-  //   * return a new one.
-  //   */
-  //  public static <T, R> List<R> convertAll(List<T> source, Function<T, R> mapper) {
-  //    if (isEmpty(source)) {
-  //      return null;
-  //    }
-  //    List<R> probablyItems =
-  //        source.stream().map(mapper).filter(Objects::nonNull).collect(Collectors.toList());
-  //    return probablyItems.isEmpty() ? null : probablyItems;
-  //  }
-
-  //  /** Throw a MissingPayload exception if the list does not have at least 1 item. */
-  //  public static <T> T firstPayloadItem(@NonNull List<T> items) {
-  //    if (items.isEmpty()) {
-  //      throw new MissingPayload();
-  //    }
-  //    return items.get(0);
-  //  }
-  //
-  //  /** Throw a MissingPayload exception if the value is null. */
-  //  public static <T> T hasPayload(T value) {
-  //    if (value == null) {
-  //      throw new MissingPayload();
-  //    }
-  //    return value;
-  //  }
 
   /**
    * Parse an Instant from a string such as '2007-12-03T10:15:30Z', appending 'Z' if it is missing.
