@@ -1,8 +1,8 @@
-package gov.va.api.health.dataquery.service.controller;
+package gov.va.api.health.dataquery.service.controller.datamart;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import gov.va.api.health.dataquery.service.controller.datamart.DatamartEntity;
+import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
