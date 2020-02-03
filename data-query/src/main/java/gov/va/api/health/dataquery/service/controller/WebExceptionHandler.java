@@ -5,7 +5,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.io.JsonEOFException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
-import gov.va.api.health.dataquery.service.controller.ResourceExceptions.BadSearchParameter;
 import gov.va.api.health.dstu2.api.elements.Narrative;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import gov.va.api.health.ids.client.IdEncoder.BadId;
@@ -77,21 +76,21 @@ public class WebExceptionHandler {
 
   @ExceptionHandler({
     BindException.class,
+    ResourceExceptions.BadSearchParameter.class,
     ResourceExceptions.MissingSearchParameters.class,
-    UnsatisfiedServletRequestParameterException.class,
-    BadSearchParameter.class
+    UnsatisfiedServletRequestParameterException.class
   })
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   public OperationOutcome handleBadRequest(Exception e, HttpServletRequest request) {
     return responseFor("structure", e, request);
   }
 
-  @ExceptionHandler({Dstu2Transformers.MissingPayload.class})
-  @ResponseStatus(HttpStatus.NOT_FOUND)
-  public OperationOutcome handleMissingPayload(Exception e, HttpServletRequest request) {
-    request.getParameter("_id");
-    return responseFor("not-found", e, request);
-  }
+  //  @ExceptionHandler({Dstu2Transformers.MissingPayload.class})
+  //  @ResponseStatus(HttpStatus.NOT_FOUND)
+  //  public OperationOutcome handleMissingPayload(Exception e, HttpServletRequest request) {
+  //    request.getParameter("_id");
+  //    return responseFor("not-found", e, request);
+  //  }
 
   @ExceptionHandler({
     HttpClientErrorException.NotFound.class,
@@ -116,7 +115,11 @@ public class WebExceptionHandler {
    * Therefore, when we encounter these exceptions, we will not print the stacktrace to prevent PII
    * showing up in our logs.
    */
-  @ExceptionHandler({Exception.class, UndeclaredThrowableException.class})
+  @ExceptionHandler({
+    Exception.class,
+    ResourceExceptions.InvalidDatamartPayload.class,
+    UndeclaredThrowableException.class
+  })
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
   public OperationOutcome handleSnafu(Exception e, HttpServletRequest request) {
     Optional<JsonProcessingException> jsonError = asJsonError(e);

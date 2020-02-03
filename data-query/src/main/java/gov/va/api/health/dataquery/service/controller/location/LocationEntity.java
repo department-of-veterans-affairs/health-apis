@@ -1,7 +1,5 @@
 package gov.va.api.health.dataquery.service.controller.location;
 
-import static gov.va.api.health.dataquery.service.controller.datamart.DatamartEntity.deserializeDatamart;
-
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartEntity;
 import java.util.Optional;
 import javax.persistence.Basic;

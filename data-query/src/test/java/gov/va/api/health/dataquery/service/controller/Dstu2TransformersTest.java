@@ -5,34 +5,24 @@ import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.a
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asDatamartReference;
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asDateString;
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asDateTimeString;
-import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asInteger;
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asReference;
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asReferenceId;
-import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.convertAll;
-import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.firstPayloadItem;
-import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.hasPayload;
 import static gov.va.api.health.dataquery.service.controller.Transformers.convert;
 import static gov.va.api.health.dataquery.service.controller.Transformers.emptyToNull;
 import static gov.va.api.health.dataquery.service.controller.Transformers.ifPresent;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import gov.va.api.health.dataquery.service.controller.Dstu2Transformers.MissingPayload;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
 import gov.va.api.health.dstu2.api.elements.Reference;
-import java.math.BigInteger;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
-import lombok.SneakyThrows;
 import org.junit.Test;
 
 public class Dstu2TransformersTest {
@@ -102,10 +92,10 @@ public class Dstu2TransformersTest {
     assertThat(dataRef.display().get()).isEqualTo("WAT");
   }
 
-  @Test
-  public void asDateStringReturnsNullWhenCalendarIsNull() {
-    assertThat(asDateString((XMLGregorianCalendar) null)).isNull();
-  }
+  //  @Test
+  //  public void asDateStringReturnsNullWhenCalendarIsNull() {
+  //    assertThat(asDateString((XMLGregorianCalendar) null)).isNull();
+  //  }
 
   @Test
   public void asDateStringReturnsNullWhenInstantIsNull() {
@@ -122,13 +112,13 @@ public class Dstu2TransformersTest {
     assertThat(asDateString((Optional<LocalDate>) null)).isNull();
   }
 
-  @SneakyThrows
-  @Test
-  public void asDateStringReturnsStringWhenCalendarIsNotNull() {
-    XMLGregorianCalendar time =
-        DatatypeFactory.newInstance().newXMLGregorianCalendar(2005, 1, 21, 7, 57, 0, 0, 0);
-    assertThat(asDateString(time)).isEqualTo("2005-01-21");
-  }
+  //  @SneakyThrows
+  //  @Test
+  //  public void asDateStringReturnsStringWhenCalendarIsNotNull() {
+  //    XMLGregorianCalendar time =
+  //        DatatypeFactory.newInstance().newXMLGregorianCalendar(2005, 1, 21, 7, 57, 0, 0, 0);
+  //    assertThat(asDateString(time)).isEqualTo("2005-01-21");
+  //  }
 
   @Test
   public void asDateStringReturnsStringWhenInstantIsNotNull() {
@@ -142,10 +132,10 @@ public class Dstu2TransformersTest {
     assertThat(asDateString(Optional.of(time))).isEqualTo("2005-01-21");
   }
 
-  @Test
-  public void asDateTimeStringReturnsNullWhenCalendarIsNull() {
-    assertThat(asDateTimeString((XMLGregorianCalendar) null)).isNull();
-  }
+  //  @Test
+  //  public void asDateTimeStringReturnsNullWhenCalendarIsNull() {
+  //    assertThat(asDateTimeString((XMLGregorianCalendar) null)).isNull();
+  //  }
 
   @Test
   public void asDateTimeStringReturnsNullWhenInstantIsNull() {
@@ -162,13 +152,13 @@ public class Dstu2TransformersTest {
     assertThat(asDateTimeString((Optional<Instant>) null)).isNull();
   }
 
-  @SneakyThrows
-  @Test
-  public void asDateTimeStringReturnsStringWhenCalendarIsNotNull() {
-    XMLGregorianCalendar time =
-        DatatypeFactory.newInstance().newXMLGregorianCalendar(2005, 1, 21, 7, 57, 0, 0, 0);
-    assertThat(asDateTimeString(time)).isEqualTo("2005-01-21T07:57:00.000Z");
-  }
+  //  @SneakyThrows
+  //  @Test
+  //  public void asDateTimeStringReturnsStringWhenCalendarIsNotNull() {
+  //    XMLGregorianCalendar time =
+  //        DatatypeFactory.newInstance().newXMLGregorianCalendar(2005, 1, 21, 7, 57, 0, 0, 0);
+  //    assertThat(asDateTimeString(time)).isEqualTo("2005-01-21T07:57:00.000Z");
+  //  }
 
   @Test
   public void asDateTimeStringReturnsStringWhenInstantIsNotNull() {
@@ -182,15 +172,15 @@ public class Dstu2TransformersTest {
     assertThat(asDateTimeString(Optional.of(time))).isEqualTo("2005-01-21T07:57:00Z");
   }
 
-  @Test
-  public void asIntegerReturnsNullWhenBigIntIsNull() {
-    assertThat(asInteger(null)).isNull();
-  }
-
-  @Test
-  public void asIntegerReturnsValueWhenBigIntIsNull() {
-    assertThat(asInteger(BigInteger.TEN)).isEqualTo(10);
-  }
+  //  @Test
+  //  public void asIntegerReturnsNullWhenBigIntIsNull() {
+  //    assertThat(asInteger(null)).isNull();
+  //  }
+  //
+  //  @Test
+  //  public void asIntegerReturnsValueWhenBigIntIsNull() {
+  //    assertThat(asInteger(BigInteger.TEN)).isEqualTo(10);
+  //  }
 
   @Test
   public void asReferenceIdReturnsNullWhenRefIsEmpty() {
@@ -246,26 +236,26 @@ public class Dstu2TransformersTest {
     assertThat(asReference((DatamartReference) null)).isNull();
   }
 
-  @Test
-  public void convertAllReturnsConvertedWhenListIsPopulated() {
-    assertThat(convertAll(Arrays.asList(1, 2, 3), o -> "x" + o))
-        .isEqualTo(Arrays.asList("x1", "x2", "x3"));
-  }
-
-  @Test
-  public void convertAllReturnsNullWhenListConvertsToToNull() {
-    assertThat(convertAll(Arrays.asList(1, 2, 3), o -> null)).isNull();
-  }
-
-  @Test
-  public void convertAllReturnsNullWhenListIsEmpty() {
-    assertThat(convertAll(Collections.emptyList(), o -> "x" + o)).isNull();
-  }
-
-  @Test
-  public void convertAllReturnsNullWhenListIsNull() {
-    assertThat(convertAll(null, o -> "x" + o)).isNull();
-  }
+  //  @Test
+  //  public void convertAllReturnsConvertedWhenListIsPopulated() {
+  //    assertThat(convertAll(Arrays.asList(1, 2, 3), o -> "x" + o))
+  //        .isEqualTo(Arrays.asList("x1", "x2", "x3"));
+  //  }
+  //
+  //  @Test
+  //  public void convertAllReturnsNullWhenListConvertsToToNull() {
+  //    assertThat(convertAll(Arrays.asList(1, 2, 3), o -> null)).isNull();
+  //  }
+  //
+  //  @Test
+  //  public void convertAllReturnsNullWhenListIsEmpty() {
+  //    assertThat(convertAll(Collections.emptyList(), o -> "x" + o)).isNull();
+  //  }
+  //
+  //  @Test
+  //  public void convertAllReturnsNullWhenListIsNull() {
+  //    assertThat(convertAll(null, o -> "x" + o)).isNull();
+  //  }
 
   @Test
   public void convertReturnsConvertedWhenItemIsPopulated() {
@@ -294,25 +284,15 @@ public class Dstu2TransformersTest {
     assertThat(emptyToNull(null)).isNull();
   }
 
-  @Test
-  public void firstPayloadItemReturnsFirstItemInListWhenPresent() {
-    assertThat(firstPayloadItem(Arrays.asList("a", "b"))).isEqualTo("a");
-  }
-
-  @Test(expected = MissingPayload.class)
-  public void firstPayloadItemThrowsMissingPayloadExceptionWhenEmpty() {
-    firstPayloadItem(Collections.emptyList());
-  }
-
-  @Test
-  public void hasPayloadReturnsPayloadWhenNotNull() {
-    assertThat(hasPayload("x")).isEqualTo("x");
-  }
-
-  @Test(expected = MissingPayload.class)
-  public void hasPayloadThrowsMissingPayloadExceptionWhenNull() {
-    hasPayload(null);
-  }
+  //  @Test
+  //  public void firstPayloadItemReturnsFirstItemInListWhenPresent() {
+  //    assertThat(firstPayloadItem(Arrays.asList("a", "b"))).isEqualTo("a");
+  //  }
+  //
+  //  @Test
+  //  public void hasPayloadReturnsPayloadWhenNotNull() {
+  //    assertThat(hasPayload("x")).isEqualTo("x");
+  //  }
 
   @Test
   public void ifPresentReturnsExtractWhenObjectIsNull() {

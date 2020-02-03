@@ -1,7 +1,5 @@
 package gov.va.api.health.dataquery.service.controller.diagnosticreport;
 
-import static gov.va.api.health.dataquery.service.controller.datamart.DatamartEntity.deserializeDatamart;
-
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartEntity;
 import javax.persistence.Basic;
 import javax.persistence.Column;
