@@ -92,11 +92,6 @@ public class Dstu2TransformersTest {
     assertThat(dataRef.display().get()).isEqualTo("WAT");
   }
 
-  //  @Test
-  //  public void asDateStringReturnsNullWhenCalendarIsNull() {
-  //    assertThat(asDateString((XMLGregorianCalendar) null)).isNull();
-  //  }
-
   @Test
   public void asDateStringReturnsNullWhenInstantIsNull() {
     assertThat(asDateString((LocalDate) null)).isNull();
@@ -112,14 +107,6 @@ public class Dstu2TransformersTest {
     assertThat(asDateString((Optional<LocalDate>) null)).isNull();
   }
 
-  //  @SneakyThrows
-  //  @Test
-  //  public void asDateStringReturnsStringWhenCalendarIsNotNull() {
-  //    XMLGregorianCalendar time =
-  //        DatatypeFactory.newInstance().newXMLGregorianCalendar(2005, 1, 21, 7, 57, 0, 0, 0);
-  //    assertThat(asDateString(time)).isEqualTo("2005-01-21");
-  //  }
-
   @Test
   public void asDateStringReturnsStringWhenInstantIsNotNull() {
     LocalDate time = LocalDate.parse("2005-01-21");
@@ -131,11 +118,6 @@ public class Dstu2TransformersTest {
     LocalDate time = LocalDate.parse("2005-01-21");
     assertThat(asDateString(Optional.of(time))).isEqualTo("2005-01-21");
   }
-
-  //  @Test
-  //  public void asDateTimeStringReturnsNullWhenCalendarIsNull() {
-  //    assertThat(asDateTimeString((XMLGregorianCalendar) null)).isNull();
-  //  }
 
   @Test
   public void asDateTimeStringReturnsNullWhenInstantIsNull() {
@@ -152,14 +134,6 @@ public class Dstu2TransformersTest {
     assertThat(asDateTimeString((Optional<Instant>) null)).isNull();
   }
 
-  //  @SneakyThrows
-  //  @Test
-  //  public void asDateTimeStringReturnsStringWhenCalendarIsNotNull() {
-  //    XMLGregorianCalendar time =
-  //        DatatypeFactory.newInstance().newXMLGregorianCalendar(2005, 1, 21, 7, 57, 0, 0, 0);
-  //    assertThat(asDateTimeString(time)).isEqualTo("2005-01-21T07:57:00.000Z");
-  //  }
-
   @Test
   public void asDateTimeStringReturnsStringWhenInstantIsNotNull() {
     Instant time = Instant.parse("2005-01-21T07:57:00.000Z");
@@ -171,16 +145,6 @@ public class Dstu2TransformersTest {
     Instant time = Instant.parse("2005-01-21T07:57:00.000Z");
     assertThat(asDateTimeString(Optional.of(time))).isEqualTo("2005-01-21T07:57:00Z");
   }
-
-  //  @Test
-  //  public void asIntegerReturnsNullWhenBigIntIsNull() {
-  //    assertThat(asInteger(null)).isNull();
-  //  }
-  //
-  //  @Test
-  //  public void asIntegerReturnsValueWhenBigIntIsNull() {
-  //    assertThat(asInteger(BigInteger.TEN)).isEqualTo(10);
-  //  }
 
   @Test
   public void asReferenceIdReturnsNullWhenRefIsEmpty() {
@@ -236,27 +200,6 @@ public class Dstu2TransformersTest {
     assertThat(asReference((DatamartReference) null)).isNull();
   }
 
-  //  @Test
-  //  public void convertAllReturnsConvertedWhenListIsPopulated() {
-  //    assertThat(convertAll(Arrays.asList(1, 2, 3), o -> "x" + o))
-  //        .isEqualTo(Arrays.asList("x1", "x2", "x3"));
-  //  }
-  //
-  //  @Test
-  //  public void convertAllReturnsNullWhenListConvertsToToNull() {
-  //    assertThat(convertAll(Arrays.asList(1, 2, 3), o -> null)).isNull();
-  //  }
-  //
-  //  @Test
-  //  public void convertAllReturnsNullWhenListIsEmpty() {
-  //    assertThat(convertAll(Collections.emptyList(), o -> "x" + o)).isNull();
-  //  }
-  //
-  //  @Test
-  //  public void convertAllReturnsNullWhenListIsNull() {
-  //    assertThat(convertAll(null, o -> "x" + o)).isNull();
-  //  }
-
   @Test
   public void convertReturnsConvertedWhenItemIsPopulated() {
     Function<Integer, String> tx = o -> "x" + o;
@@ -283,16 +226,6 @@ public class Dstu2TransformersTest {
   public void emptyToNullReturnsNullIfNull() {
     assertThat(emptyToNull(null)).isNull();
   }
-
-  //  @Test
-  //  public void firstPayloadItemReturnsFirstItemInListWhenPresent() {
-  //    assertThat(firstPayloadItem(Arrays.asList("a", "b"))).isEqualTo("a");
-  //  }
-  //
-  //  @Test
-  //  public void hasPayloadReturnsPayloadWhenNotNull() {
-  //    assertThat(hasPayload("x")).isEqualTo("x");
-  //  }
 
   @Test
   public void ifPresentReturnsExtractWhenObjectIsNull() {
