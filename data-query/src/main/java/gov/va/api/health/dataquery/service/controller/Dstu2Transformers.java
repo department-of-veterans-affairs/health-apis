@@ -1,16 +1,12 @@
 package gov.va.api.health.dataquery.service.controller;
 
 import static org.apache.commons.lang3.StringUtils.endsWithIgnoreCase;
-import static org.springframework.util.CollectionUtils.isEmpty;
 
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
 import gov.va.api.health.dstu2.api.elements.Reference;
-import java.math.BigInteger;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
@@ -18,12 +14,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import javax.xml.datatype.XMLGregorianCalendar;
-import lombok.NonNull;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -99,15 +90,6 @@ public final class Dstu2Transformers {
         .build();
   }
 
-  /** Return null if the date is null, otherwise return ands ISO-8601 date. */
-  public static String asDateString(XMLGregorianCalendar maybeDate) {
-    if (maybeDate == null) {
-      return null;
-    }
-    DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-    return formatter.format(maybeDate.toGregorianCalendar().getTime());
-  }
-
   /** Return null if the date is null, otherwise return an ISO-8601 date. */
   public static String asDateString(Optional<LocalDate> maybeDateTime) {
     if (maybeDateTime == null) {
@@ -140,22 +122,6 @@ public final class Dstu2Transformers {
       return null;
     }
     return maybeDateTime.toString();
-  }
-
-  /** Return null if the date is null, otherwise return an ISO-8601 date time. */
-  public static String asDateTimeString(XMLGregorianCalendar maybeDateTime) {
-    if (maybeDateTime == null) {
-      return null;
-    }
-    return maybeDateTime.toString();
-  }
-
-  /** Return null if the big integer is null, otherwise return the value as an integer. */
-  public static Integer asInteger(BigInteger maybeBigInt) {
-    if (maybeBigInt == null) {
-      return null;
-    }
-    return maybeBigInt.intValue();
   }
 
   /** Convert the datamart reference (if specified) to a FHIR reference. */
@@ -191,35 +157,6 @@ public final class Dstu2Transformers {
   }
 
   /**
-   * Return null if the source list is null or empty, otherwise convert the items in the list and
-   * return a new one.
-   */
-  public static <T, R> List<R> convertAll(List<T> source, Function<T, R> mapper) {
-    if (isEmpty(source)) {
-      return null;
-    }
-    List<R> probablyItems =
-        source.stream().map(mapper).filter(Objects::nonNull).collect(Collectors.toList());
-    return probablyItems.isEmpty() ? null : probablyItems;
-  }
-
-  /** Throw a MissingPayload exception if the list does not have at least 1 item. */
-  public static <T> T firstPayloadItem(@NonNull List<T> items) {
-    if (items.isEmpty()) {
-      throw new MissingPayload();
-    }
-    return items.get(0);
-  }
-
-  /** Throw a MissingPayload exception if the value is null. */
-  public static <T> T hasPayload(T value) {
-    if (value == null) {
-      throw new MissingPayload();
-    }
-    return value;
-  }
-
-  /**
    * Parse an Instant from a string such as '2007-12-03T10:15:30Z', appending 'Z' if it is missing.
    */
   public static Instant parseInstant(String instant) {
@@ -229,29 +166,6 @@ public final class Dstu2Transformers {
     } catch (DateTimeParseException e) {
       log.error("Failed to parse '{}' as instant", instant);
       return null;
-    }
-  }
-
-  /**
-   * Indicates the CDW payload is missing, but no errors were reported. This exception indicates
-   * there is a bug in CDW.
-   */
-  static class MissingPayload extends TransformationException {
-
-    MissingPayload() {
-      super(
-          "Payload is missing, but no errors reported."
-              + " This can occur when the resource is registered with the identity service"
-              + " but the database returns an empty search result.");
-    }
-  }
-
-  /** Base exception for controller errors. */
-  static class TransformationException extends RuntimeException {
-
-    @SuppressWarnings("SameParameterValue")
-    TransformationException(String message) {
-      super(message);
     }
   }
 }

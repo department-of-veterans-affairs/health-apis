@@ -14,7 +14,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class DatamartReference {
-
   private Optional<String> type;
 
   private Optional<String> reference;
@@ -88,9 +87,9 @@ public class DatamartReference {
    * Set the type if it's missing. Several datamart objects have missing types and this can be used
    * to correct the model.
    */
-  public DatamartReference typeIfMissing(String type) {
+  public DatamartReference typeIfMissing(String defaultType) {
     if (type().isEmpty()) {
-      type(Optional.ofNullable(type));
+      type(Optional.ofNullable(defaultType));
     }
     return this;
   }

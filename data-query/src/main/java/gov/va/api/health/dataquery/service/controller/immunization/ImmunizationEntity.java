@@ -1,6 +1,5 @@
 package gov.va.api.health.dataquery.service.controller.immunization;
 
-import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartEntity;
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -15,7 +14,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.SneakyThrows;
 import org.springframework.data.domain.Sort;
 
 @Data
@@ -43,8 +41,7 @@ public class ImmunizationEntity implements DatamartEntity {
     return Sort.by("cdwId").ascending();
   }
 
-  @SneakyThrows
   DatamartImmunization asDatamartImmunization() {
-    return JacksonConfig.createMapper().readValue(payload, DatamartImmunization.class);
+    return deserializeDatamart(payload, DatamartImmunization.class);
   }
 }

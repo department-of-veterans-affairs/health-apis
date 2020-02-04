@@ -37,6 +37,16 @@ public final class ResourceExceptions {
     return msg.toString();
   }
 
+  public static final class InvalidDatamartPayload extends ResourcesException {
+    public InvalidDatamartPayload(String id) {
+      super(String.format("Resource %s has invalid datamart payload", id));
+    }
+
+    public InvalidDatamartPayload(String id, Throwable cause) {
+      super(String.format("Resource %s has invalid datamart payload", id), cause);
+    }
+  }
+
   public static final class MissingSearchParameters extends ResourcesException {
     public MissingSearchParameters(MultiValueMap<String, String> parameters) {
       super(toParametersString(parameters));
