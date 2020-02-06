@@ -1,6 +1,5 @@
 package gov.va.api.health.dataquery.service.controller.medicationorder;
 
-import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartEntity;
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -15,7 +14,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.SneakyThrows;
 import org.springframework.data.domain.Sort;
 
 /**
@@ -40,7 +38,6 @@ import org.springframework.data.domain.Sort;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class MedicationOrderEntity implements DatamartEntity {
-
   @Id
   @EqualsAndHashCode.Include
   @Column(name = "CDWId")
@@ -58,8 +55,7 @@ public class MedicationOrderEntity implements DatamartEntity {
     return Sort.by("cdwId").ascending();
   }
 
-  @SneakyThrows
   DatamartMedicationOrder asDatamartMedicationOrder() {
-    return JacksonConfig.createMapper().readValue(payload, DatamartMedicationOrder.class);
+    return deserializeDatamart(payload, DatamartMedicationOrder.class);
   }
 }
