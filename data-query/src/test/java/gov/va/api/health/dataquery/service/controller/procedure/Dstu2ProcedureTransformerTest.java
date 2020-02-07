@@ -14,6 +14,12 @@ import lombok.SneakyThrows;
 import org.junit.Test;
 
 public class Dstu2ProcedureTransformerTest {
+  @Test
+  public void empty() {
+    assertThat(tx(DatamartProcedure.builder().build()).toFhir())
+        .isEqualTo(Procedure.builder().resourceType("Procedure").notPerformed(false).build());
+  }
+
   @SneakyThrows
   String json(Object o) {
     return JacksonConfig.createMapper().writerWithDefaultPrettyPrinter().writeValueAsString(o);
