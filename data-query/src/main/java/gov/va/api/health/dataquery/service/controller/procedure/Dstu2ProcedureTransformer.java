@@ -24,6 +24,9 @@ public class Dstu2ProcedureTransformer {
   }
 
   Status status(DatamartProcedure.Status status) {
+    if (status == null) {
+      return null;
+    }
     if (status == DatamartProcedure.Status.cancelled) {
       return Status.entered_in_error;
     }
