@@ -24,7 +24,6 @@ public class Stu3OrganizationTransformerTest {
                     .postalCode(" ")
                     .build()))
         .isNull();
-
     assertThat(
             Stu3OrganizationTransformer.addresses(
                 DatamartOrganization.Address.builder().line1("v").build()))
@@ -48,7 +47,6 @@ public class Stu3OrganizationTransformerTest {
                 DatamartOrganization.Address.builder().postalCode("z").build()))
         .isEqualTo(
             asList(Organization.OrganizationAddress.builder().postalCode("z").text("z").build()));
-
     assertThat(
             Stu3OrganizationTransformer.addresses(
                 DatamartOrganization.Address.builder().line1("v").postalCode("z").build()))
@@ -59,7 +57,6 @@ public class Stu3OrganizationTransformerTest {
                     .postalCode("z")
                     .text("v z")
                     .build()));
-
     assertThat(
             Stu3OrganizationTransformer.addresses(
                 DatamartOrganization.Address.builder()
@@ -78,6 +75,16 @@ public class Stu3OrganizationTransformerTest {
                     .postalCode("22222")
                     .text("1111 Test Ln Apt 1L Delta ZZ 22222")
                     .build()));
+  }
+
+  @Test
+  public void empty() {
+    assertThat(
+            Stu3OrganizationTransformer.builder()
+                .datamart(DatamartOrganization.builder().build())
+                .build()
+                .toFhir())
+        .isEqualTo(Organization.builder().resourceType("Organization").build());
   }
 
   @Test

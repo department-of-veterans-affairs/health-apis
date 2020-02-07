@@ -20,7 +20,10 @@ public class Stu3PractitionerRoleTransformerTest {
                 .build()
                 .toFhir())
         .isEqualTo(PractitionerRole.builder().resourceType("PractitionerRole").build());
+  }
 
+  @Test
+  public void otherEmpty() {
     assertThat(
             Stu3PractitionerRoleTransformer.specialty(
                 Optional.of(DatamartPractitioner.PractitionerRole.builder().build())))

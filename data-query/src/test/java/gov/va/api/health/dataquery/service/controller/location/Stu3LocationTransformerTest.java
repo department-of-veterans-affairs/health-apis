@@ -23,7 +23,6 @@ public class Stu3LocationTransformerTest {
                     .postalCode(" ")
                     .build()))
         .isNull();
-
     assertThat(
             Stu3LocationTransformer.address(DatamartLocation.Address.builder().line1("w").build()))
         .isEqualTo(Location.LocationAddress.builder().line(asList("w")).text("w").build());
@@ -37,7 +36,6 @@ public class Stu3LocationTransformerTest {
             Stu3LocationTransformer.address(
                 DatamartLocation.Address.builder().postalCode("z").build()))
         .isEqualTo(Location.LocationAddress.builder().postalCode("z").text("z").build());
-
     assertThat(
             Stu3LocationTransformer.address(
                 DatamartLocation.Address.builder().line1("w").postalCode("z").build()))
@@ -47,7 +45,6 @@ public class Stu3LocationTransformerTest {
                 .postalCode("z")
                 .text("w z")
                 .build());
-
     assertThat(
             Stu3LocationTransformer.address(
                 DatamartLocation.Address.builder()
@@ -64,6 +61,17 @@ public class Stu3LocationTransformerTest {
                 .postalCode("z")
                 .text("w x y z")
                 .build());
+  }
+
+  @Test
+  public void empty() {
+    assertThat(
+            Stu3LocationTransformer.builder()
+                .datamart(DatamartLocation.builder().build())
+                .build()
+                .toFhir())
+        .isEqualTo(
+            Location.builder().resourceType("Location").mode(Location.Mode.instance).build());
   }
 
   @Test

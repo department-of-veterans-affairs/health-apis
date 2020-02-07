@@ -3,6 +3,7 @@ package gov.va.api.health.dataquery.service.controller.condition;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.argonaut.api.resources.Condition;
+import gov.va.api.health.argonaut.api.resources.Condition.VerificationStatusCode;
 import gov.va.api.health.dataquery.service.controller.condition.ConditionSamples.Datamart;
 import gov.va.api.health.dataquery.service.controller.condition.ConditionSamples.Dstu2;
 import gov.va.api.health.dataquery.service.controller.condition.DatamartCondition.IcdCode;
@@ -11,7 +12,6 @@ import java.util.Optional;
 import org.junit.Test;
 
 public class Dstu2ConditionTransformerTest {
-
   @Test
   public void bestCode() {
     Datamart datamart = ConditionSamples.Datamart.create();
@@ -84,6 +84,16 @@ public class Dstu2ConditionTransformerTest {
   public void condition() {
     assertThat(tx(ConditionSamples.Datamart.create().condition()).toFhir())
         .isEqualTo(Dstu2.create().condition());
+  }
+
+  @Test
+  public void empty() {
+    assertThat(tx(DatamartCondition.builder().build()).toFhir())
+        .isEqualTo(
+            Condition.builder()
+                .resourceType("Condition")
+                .verificationStatus(VerificationStatusCode.unknown)
+                .build());
   }
 
   Dstu2ConditionTransformer tx(DatamartCondition dm) {
