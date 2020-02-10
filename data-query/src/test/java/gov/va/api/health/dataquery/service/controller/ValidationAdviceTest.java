@@ -34,6 +34,11 @@ public class ValidationAdviceTest {
                 + "bar must not be null, foo must not be blank, num must be greater than or equal to 1");
   }
 
+  @Test
+  public void noViolations() {
+    assertThat(ValidationAdvice.buildMessage("x", null, null)).isNull();
+  }
+
   private static final class Controller {
     @SuppressWarnings("unused")
     Foo read(String unused) {
