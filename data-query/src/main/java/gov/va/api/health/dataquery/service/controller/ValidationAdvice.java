@@ -31,11 +31,7 @@ public final class ValidationAdvice implements ResponseBodyAdvice<Object> {
       ServletServerHttpRequest servletRequest = (ServletServerHttpRequest) request;
       sb.append("(")
           .append(
-              servletRequest
-                  .getServletRequest()
-                  .getParameterMap()
-                  .entrySet()
-                  .stream()
+              servletRequest.getServletRequest().getParameterMap().entrySet().stream()
                   .map(e -> e.getKey() + "=" + Arrays.toString(e.getValue()))
                   .collect(Collectors.joining(",")))
           .append(")");
@@ -45,8 +41,7 @@ public final class ValidationAdvice implements ResponseBodyAdvice<Object> {
         .append(payload.getClass().getName())
         .append(" failed validation: ")
         .append(
-            violations
-                .stream()
+            violations.stream()
                 .sorted(
                     (left, right) ->
                         left.getPropertyPath()
