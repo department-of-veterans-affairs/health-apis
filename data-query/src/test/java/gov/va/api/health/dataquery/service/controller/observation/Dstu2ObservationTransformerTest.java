@@ -2,6 +2,7 @@ package gov.va.api.health.dataquery.service.controller.observation;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import gov.va.api.health.argonaut.api.resources.Observation;
 import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation.AntibioticComponent;
 import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation.BacteriologyComponent;
 import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation.CodeableConcept;
@@ -73,6 +74,16 @@ public class Dstu2ObservationTransformerTest {
                 .code("vital-signs")
                 .display("Vital Signs")
                 .build());
+  }
+
+  @Test
+  public void empty() {
+    assertThat(
+            Dstu2ObservationTransformer.builder()
+                .datamart(DatamartObservation.builder().build())
+                .build()
+                .toFhir())
+        .isEqualTo(Observation.builder().resourceType("Observation").build());
   }
 
   @Test

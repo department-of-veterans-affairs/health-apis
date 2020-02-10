@@ -21,7 +21,6 @@ import lombok.AllArgsConstructor;
 import org.junit.Test;
 
 public class Dstu2MedicationOrderTransformerTest {
-
   @Test
   public void dispenseRequest() {
     Dstu2MedicationOrderTransformer tx =
@@ -50,8 +49,19 @@ public class Dstu2MedicationOrderTransformerTest {
   }
 
   @Test
+  public void empty() {
+    assertThat(tx(DatamartMedicationOrder.builder().build()).toFhir())
+        .isEqualTo(
+            MedicationOrder.builder()
+                .resourceType("MedicationOrder")
+                ._prescriber(DataAbsentReason.of(Reason.unknown))
+                .build());
+  }
+
+  @Test
   public void medicationOrder() {
-    assertThat(tx(Datamart.create().medicationOrder())).isEqualTo(Fhir.create().medicationOrder());
+    assertThat(tx(Datamart.create().medicationOrder()).toFhir())
+        .isEqualTo(Fhir.create().medicationOrder());
   }
 
   @Test
@@ -81,7 +91,6 @@ public class Dstu2MedicationOrderTransformerTest {
     assertThat(tx.status("*Missing*")).isNull();
     assertThat(tx.status("1234")).isNull();
     assertThat(tx.status("NULL")).isNull();
-
     /*
      * Values per KBS document VADP_Aggregate_190924.xls (2019 Sept 24)
      */
@@ -115,21 +124,18 @@ public class Dstu2MedicationOrderTransformerTest {
     assertThat(tx.status("on call")).isEqualTo(MedicationOrder.Status.active);
     assertThat(tx.status("purge")).isNull();
     assertThat(tx.status("renewed")).isEqualTo(MedicationOrder.Status.active);
-
     /*
      * Values via KBS team as of 09/26/2019. See ADQ-296.
      */
     assertThat(tx.status("DELAYED")).isEqualTo(MedicationOrder.Status.draft);
     assertThat(tx.status("CANCELLED")).isEqualTo(MedicationOrder.Status.entered_in_error);
     assertThat(tx.status("LAPSED")).isEqualTo(MedicationOrder.Status.entered_in_error);
-
     /*
      * Values provided by James Harris based on CDW queries not in the list provided by KBS
      */
     assertThat(tx.status("COMPLETE")).isEqualTo(MedicationOrder.Status.completed);
     assertThat(tx.status("DISCONTINUED/EDIT")).isEqualTo(MedicationOrder.Status.stopped);
     assertThat(tx.status("NON-VERIFIED")).isEqualTo(MedicationOrder.Status.draft);
-
     /* FHIR values */
     assertThat(tx.status("active")).isEqualTo(MedicationOrder.Status.active);
     assertThat(tx.status("completed")).isEqualTo(MedicationOrder.Status.completed);
@@ -139,13 +145,12 @@ public class Dstu2MedicationOrderTransformerTest {
     assertThat(tx.status("stopped")).isEqualTo(MedicationOrder.Status.stopped);
   }
 
-  MedicationOrder tx(DatamartMedicationOrder datamart) {
-    return Dstu2MedicationOrderTransformer.builder().datamart(datamart).build().toFhir();
+  Dstu2MedicationOrderTransformer tx(DatamartMedicationOrder datamart) {
+    return Dstu2MedicationOrderTransformer.builder().datamart(datamart).build();
   }
 
   @AllArgsConstructor(staticName = "create")
   static class Datamart {
-
     public DatamartMedicationOrder.DispenseRequest dispenseRequest() {
       return DatamartMedicationOrder.DispenseRequest.builder()
           .numberOfRepeatsAllowed(Optional.of(1))
@@ -238,7 +243,6 @@ public class Dstu2MedicationOrderTransformerTest {
 
   @AllArgsConstructor(staticName = "create")
   static class Fhir {
-
     public MedicationOrder.DispenseRequest dispenseRequest() {
       return MedicationOrder.DispenseRequest.builder()
           .numberOfRepeatsAllowed(1)

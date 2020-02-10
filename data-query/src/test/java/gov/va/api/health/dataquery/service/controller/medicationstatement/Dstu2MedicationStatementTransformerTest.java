@@ -15,7 +15,6 @@ import lombok.AllArgsConstructor;
 import org.junit.Test;
 
 public class Dstu2MedicationStatementTransformerTest {
-
   @Test
   public void codeableConcept() {
     Dstu2MedicationStatementTransformer tx =
@@ -38,8 +37,14 @@ public class Dstu2MedicationStatementTransformerTest {
   }
 
   @Test
+  public void empty() {
+    assertThat(tx(DatamartMedicationStatement.builder().build()).toFhir())
+        .isEqualTo(MedicationStatement.builder().resourceType("MedicationStatement").build());
+  }
+
+  @Test
   public void medicationStatement() {
-    assertThat(tx(Datamart.create().medicationStatement()))
+    assertThat(tx(Datamart.create().medicationStatement()).toFhir())
         .isEqualTo(Fhir.create().medicationStatement());
   }
 
@@ -65,8 +70,8 @@ public class Dstu2MedicationStatementTransformerTest {
         .isEqualTo(Timing.builder().code(CodeableConcept.builder().text("x").build()).build());
   }
 
-  private MedicationStatement tx(DatamartMedicationStatement dm) {
-    return Dstu2MedicationStatementTransformer.builder().datamart(dm).build().toFhir();
+  private Dstu2MedicationStatementTransformer tx(DatamartMedicationStatement dm) {
+    return Dstu2MedicationStatementTransformer.builder().datamart(dm).build();
   }
 
   @AllArgsConstructor(staticName = "create")

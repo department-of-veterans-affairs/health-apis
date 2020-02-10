@@ -11,7 +11,6 @@ import java.util.Optional;
 import org.junit.Test;
 
 public class Dstu2PractitionerTransformerTest {
-
   @Test
   public void address() {
     assertThat(Dstu2PractitionerTransformer.address(null)).isNull();
@@ -40,6 +39,16 @@ public class Dstu2PractitionerTransformerTest {
     assertThat(Dstu2PractitionerTransformer.birthDate(Optional.empty())).isNull();
     assertThat(Dstu2PractitionerTransformer.birthDate(Optional.of(LocalDate.of(1990, 12, 12))))
         .isEqualTo("1990-12-12");
+  }
+
+  @Test
+  public void empty() {
+    assertThat(
+            Dstu2PractitionerTransformer.builder()
+                .datamart(DatamartPractitioner.builder().build())
+                .build()
+                .toFhir())
+        .isEqualTo(Practitioner.builder().resourceType("Practitioner").build());
   }
 
   @Test

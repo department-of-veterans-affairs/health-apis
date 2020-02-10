@@ -81,6 +81,9 @@ public class Dstu2ImmunizationTransformer {
   }
 
   CodeableConcept vaccineCode(DatamartImmunization.VaccineCode vaccineCode) {
+    if (vaccineCode == null) {
+      return null;
+    }
     return CodeableConcept.builder()
         .text(vaccineCode.text())
         .coding(

@@ -65,6 +65,14 @@ public class DatamartImmunization implements HasReplaceableId {
   }
 
   /** Lazy initialization with empty. */
+  public Optional<String> note() {
+    if (note == null) {
+      note = Optional.empty();
+    }
+    return note;
+  }
+
+  /** Lazy initialization with empty. */
   public Optional<DatamartReference> performer() {
     if (performer == null) {
       performer = Optional.empty();

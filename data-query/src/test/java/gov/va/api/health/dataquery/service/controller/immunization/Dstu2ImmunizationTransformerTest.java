@@ -16,6 +16,17 @@ import org.junit.Test;
 
 public class Dstu2ImmunizationTransformerTest {
   @Test
+  public void empty() {
+    assertThat(tx(DatamartImmunization.builder().build()).toFhir())
+        .isEqualTo(
+            Immunization.builder()
+                .resourceType("Immunization")
+                .wasNotGiven(false)
+                ._reported(DataAbsentReason.of(Reason.unsupported))
+                .build());
+  }
+
+  @Test
   public void immunization() {
     assertThat(json(tx(Datamart.create().immunization()).toFhir()))
         .isEqualTo(json(Dstu2.create().immunization()));
@@ -36,7 +47,6 @@ public class Dstu2ImmunizationTransformerTest {
   @Test
   public void reaction() {
     Dstu2ImmunizationTransformer tx = tx(ImmunizationSamples.Datamart.create().immunization());
-
     assertThat(tx.reaction(Optional.empty())).isNull();
     assertThat(
             tx.reaction(

@@ -36,6 +36,17 @@ public class Dstu2LocationTransformerTest {
   }
 
   @Test
+  public void empty() {
+    assertThat(
+            Dstu2LocationTransformer.builder()
+                .datamart(DatamartLocation.builder().build())
+                .build()
+                .toFhir())
+        .isEqualTo(
+            Location.builder().resourceType("Location").mode(Location.Mode.instance).build());
+  }
+
+  @Test
   public void phsyicalType() {
     assertThat(Dstu2LocationTransformer.physicalType(Optional.empty())).isNull();
     assertThat(Dstu2LocationTransformer.physicalType(Optional.of(" "))).isNull();

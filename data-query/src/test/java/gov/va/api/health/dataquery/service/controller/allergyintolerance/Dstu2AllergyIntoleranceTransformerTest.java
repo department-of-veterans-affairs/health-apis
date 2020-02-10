@@ -14,7 +14,6 @@ import java.util.Optional;
 import org.junit.Test;
 
 public class Dstu2AllergyIntoleranceTransformerTest {
-
   @Test
   public void category() {
     assertThat(tx().category(null)).isNull();
@@ -30,6 +29,16 @@ public class Dstu2AllergyIntoleranceTransformerTest {
     assertThat(tx().certainty(Certainty.likely)).isEqualTo(AllergyIntolerance.Certainty.likely);
     assertThat(tx().certainty(Certainty.confirmed))
         .isEqualTo(AllergyIntolerance.Certainty.confirmed);
+  }
+
+  @Test
+  public void empty() {
+    assertThat(
+            Dstu2AllergyIntoleranceTransformer.builder()
+                .datamart(DatamartAllergyIntolerance.builder().build())
+                .build()
+                .toFhir())
+        .isEqualTo(AllergyIntolerance.builder().resourceType("AllergyIntolerance").build());
   }
 
   @Test
