@@ -18,18 +18,11 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 @Slf4j
 @ControllerAdvice
 public final class ValidationAdvice implements ResponseBodyAdvice<Object> {
-  @Override
-  public Object beforeBodyWrite(
-      Object payload,
-      MethodParameter method,
-      MediaType unused1,
-      Class<? extends HttpMessageConverter<?>> unused2,
-      ServerHttpRequest request,
-      ServerHttpResponse unused3) {
+  static String buildMessage(Object payload, MethodParameter method, ServerHttpRequest request) {
     Set<ConstraintViolation<Object>> violations =
         Validation.buildDefaultValidatorFactory().getValidator().validate(payload);
     if (violations.isEmpty()) {
-      return payload;
+      return null;
     }
 
     StringBuilder sb = new StringBuilder().append(method.getExecutable().getName());
@@ -38,7 +31,11 @@ public final class ValidationAdvice implements ResponseBodyAdvice<Object> {
       ServletServerHttpRequest servletRequest = (ServletServerHttpRequest) request;
       sb.append("(")
           .append(
-              servletRequest.getServletRequest().getParameterMap().entrySet().stream()
+              servletRequest
+                  .getServletRequest()
+                  .getParameterMap()
+                  .entrySet()
+                  .stream()
                   .map(e -> e.getKey() + "=" + Arrays.toString(e.getValue()))
                   .collect(Collectors.joining(",")))
           .append(")");
@@ -48,12 +45,31 @@ public final class ValidationAdvice implements ResponseBodyAdvice<Object> {
         .append(payload.getClass().getName())
         .append(" failed validation: ")
         .append(
-            violations.stream()
+            violations
+                .stream()
+                .sorted(
+                    (left, right) ->
+                        left.getPropertyPath()
+                            .toString()
+                            .compareTo(right.getPropertyPath().toString()))
                 .map(v -> v.getPropertyPath() + " " + v.getMessage())
                 .collect(Collectors.joining(", ")));
 
-    log.warn(sb.toString());
+    return sb.toString();
+  }
 
+  @Override
+  public Object beforeBodyWrite(
+      Object payload,
+      MethodParameter method,
+      MediaType unused1,
+      Class<? extends HttpMessageConverter<?>> unused2,
+      ServerHttpRequest request,
+      ServerHttpResponse unused3) {
+    String message = buildMessage(payload, method, request);
+    if (message != null) {
+      log.warn(message);
+    }
     return payload;
   }
 
