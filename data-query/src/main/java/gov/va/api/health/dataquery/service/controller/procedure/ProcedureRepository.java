@@ -12,8 +12,11 @@ import lombok.Value;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Loggable
+@Transactional(isolation = Isolation.READ_UNCOMMITTED)
 public interface ProcedureRepository
     extends PagingAndSortingRepository<ProcedureEntity, String>,
         JpaSpecificationExecutor<ProcedureEntity> {
