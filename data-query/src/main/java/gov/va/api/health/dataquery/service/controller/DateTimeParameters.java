@@ -36,7 +36,7 @@ public final class DateTimeParameters implements Serializable {
     super();
     if (paramString.length() <= 1) {
       throw new IllegalArgumentException(
-          String.format("'{}' is not a valid date-time parameter", paramString));
+          String.format("'%s' is not a valid date-time parameter", paramString));
     }
     if (Character.isLetter(paramString.charAt(0))) {
       prefix = SearchPrefix.valueOf(paramString.substring(0, 2).toUpperCase(Locale.US));

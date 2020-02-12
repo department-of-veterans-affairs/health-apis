@@ -1,9 +1,12 @@
 package gov.va.api.health.dataquery.service.controller.conformance;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
+import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
+import static org.springframework.util.CollectionUtils.isEmpty;
 
+import com.google.common.collect.ImmutableSet;
 import gov.va.api.health.dataquery.service.config.ReferenceSerializerProperties;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
@@ -23,7 +26,6 @@ import gov.va.api.health.dstu2.api.resources.Conformance.RestResource;
 import gov.va.api.health.dstu2.api.resources.Conformance.RestSecurity;
 import gov.va.api.health.dstu2.api.resources.Conformance.SearchParamType;
 import gov.va.api.health.dstu2.api.resources.Conformance.Software;
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -31,7 +33,6 @@ import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Singular;
 import lombok.Value;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -93,23 +94,24 @@ class MetadataController {
 
   @Autowired ReferenceSerializerProperties referenceSerializerProperties;
 
-  private Collection<SearchParam> appointmentSearchParams() {
+  private Set<SearchParam> appointmentSearchParams() {
     switch (properties.getStatementType()) {
       case PATIENT:
-        return emptyList();
+        return emptySet();
       case CLINICIAN:
-        return singletonList(SearchParam.PATIENT);
+        return singleton(SearchParam.PATIENT);
       default:
         throw noSearchParamsForConformanceStatementTypeException();
     }
   }
 
-  private Collection<SearchParam> conditionSearchParams() {
+  private Set<SearchParam> conditionSearchParams() {
     switch (properties.getStatementType()) {
       case PATIENT:
-        return singletonList(SearchParam.PATIENT);
+        return singleton(SearchParam.PATIENT);
       case CLINICIAN:
-        return asList(SearchParam.CATEGORY, SearchParam.CLINICAL_STATUS, SearchParam.PATIENT);
+        return ImmutableSet.of(
+            SearchParam.CATEGORY, SearchParam.CLINICAL_STATUS, SearchParam.PATIENT);
       default:
         throw noSearchParamsForConformanceStatementTypeException();
     }
@@ -128,24 +130,24 @@ class MetadataController {
             .build());
   }
 
-  private Collection<SearchParam> diagnosticReportSearchParams() {
+  private Set<SearchParam> diagnosticReportSearchParams() {
     switch (properties.getStatementType()) {
       case PATIENT:
-        return singletonList(SearchParam.PATIENT);
+        return singleton(SearchParam.PATIENT);
       case CLINICIAN:
-        return asList(
+        return ImmutableSet.of(
             SearchParam.CATEGORY, SearchParam.CODE, SearchParam.DATE, SearchParam.PATIENT);
       default:
         throw noSearchParamsForConformanceStatementTypeException();
     }
   }
 
-  private Collection<SearchParam> medicationDispenseSearchParams() {
+  private Set<SearchParam> medicationDispenseSearchParams() {
     switch (properties.getStatementType()) {
       case PATIENT:
-        return singletonList(SearchParam.PATIENT);
+        return singleton(SearchParam.PATIENT);
       case CLINICIAN:
-        return asList(SearchParam.PATIENT, SearchParam.STATUS, SearchParam.TYPE);
+        return ImmutableSet.of(SearchParam.PATIENT, SearchParam.STATUS, SearchParam.TYPE);
       default:
         throw noSearchParamsForConformanceStatementTypeException();
     }
@@ -157,24 +159,24 @@ class MetadataController {
             + properties.getStatementType());
   }
 
-  private Collection<SearchParam> observationSearchParams() {
+  private Set<SearchParam> observationSearchParams() {
     switch (properties.getStatementType()) {
       case PATIENT:
-        return asList(SearchParam.PATIENT, SearchParam.CATEGORY);
+        return ImmutableSet.of(SearchParam.PATIENT, SearchParam.CATEGORY);
       case CLINICIAN:
-        return asList(
+        return ImmutableSet.of(
             SearchParam.CATEGORY, SearchParam.CODE, SearchParam.DATE, SearchParam.PATIENT);
       default:
         throw noSearchParamsForConformanceStatementTypeException();
     }
   }
 
-  private Collection<SearchParam> patientSearchParams() {
+  private Set<SearchParam> patientSearchParams() {
     switch (properties.getStatementType()) {
       case PATIENT:
-        return singletonList(SearchParam.ID);
+        return singleton(SearchParam.ID);
       case CLINICIAN:
-        return asList(
+        return ImmutableSet.of(
             SearchParam.BIRTH_DATE,
             SearchParam.FAMILY,
             SearchParam.GENDER,
@@ -186,12 +188,12 @@ class MetadataController {
     }
   }
 
-  private Collection<SearchParam> procedureSearchParams() {
+  private Set<SearchParam> procedureSearchParams() {
     switch (properties.getStatementType()) {
       case PATIENT:
-        return singletonList(SearchParam.PATIENT);
+        return singleton(SearchParam.PATIENT);
       case CLINICIAN:
-        return asList(SearchParam.DATE, SearchParam.PATIENT);
+        return ImmutableSet.of(SearchParam.DATE, SearchParam.PATIENT);
       default:
         throw noSearchParamsForConformanceStatementTypeException();
     }
@@ -221,7 +223,7 @@ class MetadataController {
     return Stream.of(
             support("AllergyIntolerance")
                 .documentation(ALLERGYINTOLERANCE_HTML)
-                .searchBy(SearchParam.PATIENT)
+                .search(ImmutableSet.of(SearchParam.PATIENT))
                 .build(),
             support("Appointment")
                 .documentation(APPOINTMENT_HTML)
@@ -238,7 +240,7 @@ class MetadataController {
             support("Encounter").documentation(ENCOUNTER_HTML).build(),
             support("Immunization")
                 .documentation(IMMUNIZATION_HTML)
-                .searchBy(SearchParam.PATIENT)
+                .search(ImmutableSet.of(SearchParam.PATIENT))
                 .build(),
             support("Location").documentation(LOCATION_HTML).build(),
             support("Medication").documentation(MEDICATION_HTML).build(),
@@ -248,11 +250,11 @@ class MetadataController {
                 .build(),
             support("MedicationOrder")
                 .documentation(MEDICATIONORDER_HTML)
-                .searchBy(SearchParam.PATIENT)
+                .search(ImmutableSet.of(SearchParam.PATIENT))
                 .build(),
             support("MedicationStatement")
                 .documentation(MEDICATIONSTATEMENT_HTML)
-                .searchBy(SearchParam.PATIENT)
+                .search(ImmutableSet.of(SearchParam.PATIENT))
                 .build(),
             support("Observation")
                 .documentation(OBSERVATIONRESULTS_HTML)
@@ -351,7 +353,6 @@ class MetadataController {
 
     String documentation;
 
-    @Singular("searchBy")
     Set<SearchParam> search;
 
     ConformanceStatementProperties properties;
@@ -366,7 +367,7 @@ class MetadataController {
     }
 
     private List<ResourceInteraction> interactions() {
-      if (search.isEmpty()) {
+      if (isEmpty(search)) {
         return singletonList(readable());
       }
       return asList(searchable(), readable());
@@ -380,7 +381,7 @@ class MetadataController {
     }
 
     private List<Conformance.SearchParam> searchParams() {
-      if (search.isEmpty()) {
+      if (isEmpty(search)) {
         return null;
       }
       return search.stream()
