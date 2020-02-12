@@ -4,7 +4,6 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
-import static org.springframework.util.CollectionUtils.isEmpty;
 
 import com.google.common.collect.ImmutableSet;
 import gov.va.api.health.dataquery.service.config.ReferenceSerializerProperties;
@@ -33,6 +32,7 @@ import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Value;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -353,7 +353,7 @@ class MetadataController {
 
     String documentation;
 
-    Set<SearchParam> search;
+    @Builder.Default @NonNull Set<SearchParam> search = emptySet();
 
     ConformanceStatementProperties properties;
 
@@ -367,7 +367,7 @@ class MetadataController {
     }
 
     private List<ResourceInteraction> interactions() {
-      if (isEmpty(search)) {
+      if (search.isEmpty()) {
         return singletonList(readable());
       }
       return asList(searchable(), readable());
@@ -381,7 +381,7 @@ class MetadataController {
     }
 
     private List<Conformance.SearchParam> searchParams() {
-      if (isEmpty(search)) {
+      if (search.isEmpty()) {
         return null;
       }
       return search.stream()
