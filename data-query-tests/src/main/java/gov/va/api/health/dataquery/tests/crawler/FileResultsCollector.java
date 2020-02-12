@@ -3,11 +3,13 @@ package gov.va.api.health.dataquery.tests.crawler;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.base.Splitter;
 import gov.va.api.health.dataquery.tests.crawler.Result.Outcome;
 import java.io.File;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -65,13 +67,13 @@ public class FileResultsCollector implements ResultCollector {
    * searches.
    */
   private String createFilename(String query) {
-    String[] splitQuery = query.split("/");
-    String resourceName = splitQuery[splitQuery.length - 2];
-    String params = splitQuery[splitQuery.length - 1];
+    List<String> splitQuery = Splitter.on('/').splitToList(query);
+    String resourceName = splitQuery.get(splitQuery.size() - 2);
+    String params = splitQuery.get(splitQuery.size() - 1);
     if (params.contains("?")) {
-      String[] searchParts = params.split("\\?");
-      resourceName = searchParts[0];
-      params = searchParts[1].replaceAll("patient", "P");
+      List<String> searchParts = Splitter.on('?').splitToList(params);
+      resourceName = searchParts.get(0);
+      params = searchParts.get(1).replaceAll("patient", "P");
     }
     resourceName = resourceName.replaceAll("([a-z]{2})([a-z]+)", "$1");
     String filename = resourceName + params;

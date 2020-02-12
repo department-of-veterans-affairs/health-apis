@@ -7,7 +7,6 @@ import gov.va.api.health.dstu2.api.resources.Conformance.ResourceInteractionCode
 import gov.va.api.health.dstu2.api.resources.Conformance.RestResource;
 import io.restassured.RestAssured;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -110,9 +109,9 @@ public class ResourceDiscovery {
     Optional<RestResource> patientMetadata =
         restResources.stream().filter(n -> "Patient".equals(n.type())).findFirst();
     if (!patientMetadata.isPresent()) {
-      return emptyList();
+      return new ArrayList<>(0);
     }
-    List<String> patientQueries = new ArrayList<>();
+    List<String> patientQueries = new ArrayList<>(2);
     boolean isReadable =
         patientMetadata.get().interaction().stream()
             .anyMatch(p -> ResourceInteractionCode.read.equals(p.code()));
@@ -152,7 +151,7 @@ public class ResourceDiscovery {
             .get("metadata")
             .as(Conformance.class);
     List<RestResource> restResources = extractRestResources(conformanceStatement);
-    List<String> queries = new LinkedList<>();
+    List<String> queries = new ArrayList<>();
     queries.addAll(patientSearchableResourceQueries(restResources));
     queries.addAll(patientQueries(restResources));
     log.info("Discovered {} queries", queries.size());

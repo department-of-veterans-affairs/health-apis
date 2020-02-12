@@ -14,10 +14,11 @@ import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayDeque;
 import java.util.Collection;
+import java.util.Deque;
 import java.util.Optional;
 import java.util.Set;
-import java.util.Stack;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -90,14 +91,14 @@ public class Crawler {
       log.info("Request queue is empty, aborting");
       return;
     }
-    Stack<Future<?>> futures = new Stack<>();
+    Deque<Future<?>> futures = new ArrayDeque<>();
     ScheduledExecutorService monitor = monitorPendingRequests(futures);
     while (hasPendingRequests(futures) && !timeLimitReached(watch)) {
       if (!requestQueue.hasNext()) {
         continue;
       }
       String url = requestQueue.next();
-      futures.push(
+      futures.addFirst(
           executor.submit(
               () -> {
                 ResultBuilder resultBuilder = Result.builder().timestamp(Instant.now()).query(url);
@@ -132,6 +133,7 @@ public class Crawler {
     return futures.stream().anyMatch(f -> !f.isDone());
   }
 
+  @SuppressWarnings("FutureReturnValueIgnored")
   private ScheduledExecutorService monitorPendingRequests(Collection<Future<?>> futures) {
     ScheduledExecutorService monitor = Executors.newScheduledThreadPool(1);
     monitor.scheduleAtFixedRate(

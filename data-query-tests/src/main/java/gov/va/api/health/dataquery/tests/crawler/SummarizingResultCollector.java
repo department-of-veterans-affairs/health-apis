@@ -135,7 +135,7 @@ public class SummarizingResultCollector implements ResultCollector {
   @Getter
   private static class SummaryStats {
     private int count;
-    private int totalTime;
+    private long totalTime;
     private int failures;
 
     void add(Result result) {
