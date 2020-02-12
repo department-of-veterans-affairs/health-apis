@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
@@ -16,7 +17,6 @@ import lombok.Value;
 
 @Value
 public final class DateTimeParameters implements Serializable {
-
   private static final int YEAR = 4;
 
   private static final int YEAR_MONTH = 7;
@@ -103,7 +103,7 @@ public final class DateTimeParameters implements Serializable {
   }
 
   Instant lowerBound() {
-    ZoneOffset offset = ZonedDateTime.now().getOffset();
+    ZoneOffset offset = ZonedDateTime.now(ZoneId.systemDefault()).getOffset();
     switch (date().length()) {
       case YEAR:
         return OffsetDateTime.parse(String.format("%s-01-01T00:00:00%s", date(), offset))
@@ -195,7 +195,8 @@ public final class DateTimeParameters implements Serializable {
 
   Instant upperBound() {
     OffsetDateTime lowerBound =
-        OffsetDateTime.ofInstant(lowerBound(), ZonedDateTime.now().getOffset());
+        OffsetDateTime.ofInstant(
+            lowerBound(), ZonedDateTime.now(ZoneId.systemDefault()).getOffset());
     switch (date().length()) {
       case YEAR:
         return lowerBound.plusYears(1).minus(1, ChronoUnit.MILLIS).toInstant();

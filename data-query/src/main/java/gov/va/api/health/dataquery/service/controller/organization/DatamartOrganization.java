@@ -134,6 +134,7 @@ public final class DatamartOrganization implements HasReplaceableId {
 
     private String value;
 
+    @SuppressWarnings("JavaLangClash")
     public enum System {
       phone,
       fax
