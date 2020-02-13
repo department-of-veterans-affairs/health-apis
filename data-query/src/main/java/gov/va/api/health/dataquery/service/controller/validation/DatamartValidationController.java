@@ -20,7 +20,6 @@ import javax.validation.ConstraintViolationException;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,7 +30,6 @@ import org.springframework.web.bind.annotation.RestController;
  * POST validation endpoint for datamart records. This will verify that we can serialize and
  * deserialize a given record. Currently supports the base 10 resources in datamart.
  */
-@Slf4j
 @Validated
 @RestController
 @RequestMapping(

@@ -46,7 +46,6 @@ import org.springframework.web.bind.annotation.RestController;
     produces = {"application/json", "application/json+fhir", "application/fhir+json"})
 @AllArgsConstructor(onConstructor = @__({@Autowired}))
 public class Stu3PractitionerController {
-
   private Stu3Bundler bundler;
 
   private PractitionerRepository repository;
@@ -126,8 +125,7 @@ public class Stu3PractitionerController {
     if (count == 0) {
       return bundle(parameters, emptyList(), (int) entitiesPage.getTotalElements());
     }
-    return bundle(
-        parameters, transform(entitiesPage.get()), (int) (entitiesPage.getTotalElements()));
+    return bundle(parameters, transform(entitiesPage.get()), (int) entitiesPage.getTotalElements());
   }
 
   /** Search by _id. */

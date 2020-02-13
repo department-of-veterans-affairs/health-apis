@@ -1,7 +1,7 @@
 package gov.va.api.health.dataquery.service.controller;
 
+import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -52,10 +52,8 @@ public class ConfigurableBaseUrlPageLinks implements PageLinks {
   }
 
   private <B> List<B> links(AbstractLinkContext<B> context) {
-    List<B> links = new LinkedList<>();
-    /*
-     * If recordsPerPage = 0, then only return the self link.
-     */
+    List<B> links = new ArrayList<>(5);
+    // If recordsPerPage = 0, then only return the self link.
     if (!context.isCountOnly()) {
       links.add(context.first());
       if (context.hasPrevious()) {

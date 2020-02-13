@@ -305,6 +305,7 @@ public class DatamartPractitioner implements HasReplaceableId {
 
     private Use use;
 
+    @SuppressWarnings("JavaLangClash")
     public enum System {
       phone,
       fax,

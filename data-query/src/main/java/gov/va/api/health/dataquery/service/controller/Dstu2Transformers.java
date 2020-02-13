@@ -2,6 +2,7 @@ package gov.va.api.health.dataquery.service.controller;
 
 import static org.apache.commons.lang3.StringUtils.endsWithIgnoreCase;
 
+import com.google.common.base.Splitter;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
@@ -68,18 +69,18 @@ public final class Dstu2Transformers {
     if (maybeReference == null || StringUtils.isBlank(maybeReference.reference())) {
       return null;
     }
-    String[] splitReference = maybeReference.reference().split("/");
-    if (splitReference.length <= 1) {
+    List<String> splitReference = Splitter.on('/').splitToList(maybeReference.reference());
+    if (splitReference.size() <= 1) {
       return null;
     }
-    String resourceName = splitReference[splitReference.length - 2];
+    String resourceName = splitReference.get(splitReference.size() - 2);
     if (StringUtils.isBlank(resourceName)) {
       return null;
     }
     if (!StringUtils.isAllUpperCase(resourceName.substring(0, 1))) {
       return null;
     }
-    String resourceId = splitReference[splitReference.length - 1];
+    String resourceId = splitReference.get(splitReference.size() - 1);
     if (StringUtils.isBlank(resourceId)) {
       return null;
     }

@@ -35,7 +35,7 @@ public class EnumSearcher<T extends Enum<T>> {
     if (e.name().equals(s)) {
       return true;
     }
-    JsonProperty jp = e.getClass().getField(e.name()).getAnnotation(JsonProperty.class);
+    JsonProperty jp = e.getDeclaringClass().getField(e.name()).getAnnotation(JsonProperty.class);
     if (jp != null) {
       return jp.value().equals(s);
     }

@@ -1,5 +1,7 @@
 package gov.va.api.health.dataquery.service.config;
 
+import com.google.common.base.Splitter;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -99,11 +101,11 @@ public class ReferenceSerializerProperties {
     if (StringUtils.isBlank(reference)) {
       return null;
     }
-    String[] splitReference = reference.split("/");
-    if (splitReference.length <= 1) {
+    List<String> splitReference = Splitter.on('/').splitToList(reference);
+    if (splitReference.size() <= 1) {
       return null;
     }
-    String resourceName = splitReference[splitReference.length - 2];
+    String resourceName = splitReference.get(splitReference.size() - 2);
     if (StringUtils.isBlank(resourceName)) {
       return null;
     }

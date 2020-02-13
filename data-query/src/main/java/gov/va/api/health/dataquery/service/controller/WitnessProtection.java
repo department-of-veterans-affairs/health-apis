@@ -108,13 +108,15 @@ public class WitnessProtection {
       MultiValueMap<String, String> cdwParameters =
           IdentityParameterReplacer.builder()
               .identityService(identityService)
-              .identityKey("patient")
-              .identityKey("patient_identifier")
-              .identityKey("patient_identifier:exact")
-              .identityKey("identifier")
-              .identityKey("identifier:exact")
-              .identityKey("_id")
-              .alias(Pair.of("_id", "identifier"))
+              .identityKeys(
+                  Set.of(
+                      "patient",
+                      "patient_identifier",
+                      "patient_identifier:exact",
+                      "identifier",
+                      "identifier:exact",
+                      "_id"))
+              .aliases(List.of(Pair.of("_id", "identifier")))
               .build()
               .rebuildWithCdwIdentities(publicParameters);
       log.info(

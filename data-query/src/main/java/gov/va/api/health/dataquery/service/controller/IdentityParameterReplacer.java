@@ -9,7 +9,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.NonNull;
-import lombok.Singular;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.util.MultiValueMap;
@@ -25,12 +24,10 @@ final class IdentityParameterReplacer {
   @Builder
   private IdentityParameterReplacer(
       IdentityService identityService,
-      @Singular Set<String> identityKeys,
-      @Singular List<Pair<String, String>> aliases) {
+      Set<String> identityKeys,
+      List<Pair<String, String>> aliases) {
     this.identityService = identityService;
     this.identityKeys = identityKeys;
-    // @Singular Map<String, String> emits a compiler warning from the Lombok code (?)
-    // List of pairs is a workaround.
     this.aliases =
         aliases.stream()
             .collect(Collectors.toMap(alias -> alias.getKey(), alias -> alias.getValue()));
