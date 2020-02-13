@@ -92,9 +92,18 @@ public class Stu3PractitionerRoleControllerTest {
     when(ids.register(any()))
         .thenReturn(
             List.of(
-                Registration.builder().uuid(pracPubId).resourceIdentity(pracResource).build(),
-                Registration.builder().uuid(locPubId).resourceIdentity(locResource).build(),
-                Registration.builder().uuid(orgPubId).resourceIdentity(orgResource).build()));
+                Registration.builder()
+                    .uuid(pracPubId)
+                    .resourceIdentities(List.of(pracResource))
+                    .build(),
+                Registration.builder()
+                    .uuid(locPubId)
+                    .resourceIdentities(List.of(locResource))
+                    .build(),
+                Registration.builder()
+                    .uuid(orgPubId)
+                    .resourceIdentities(List.of(orgResource))
+                    .build()));
   }
 
   @SneakyThrows
