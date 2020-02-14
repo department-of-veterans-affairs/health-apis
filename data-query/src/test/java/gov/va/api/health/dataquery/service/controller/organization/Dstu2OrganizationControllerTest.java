@@ -62,7 +62,11 @@ public class Dstu2OrganizationControllerTest {
     when(ids.lookup(orgPubId)).thenReturn(List.of(orgResource));
     when(ids.register(Mockito.any()))
         .thenReturn(
-            List.of(Registration.builder().uuid(orgPubId).resourceIdentity(orgResource).build()));
+            List.of(
+                Registration.builder()
+                    .uuid(orgPubId)
+                    .resourceIdentities(List.of(orgResource))
+                    .build()));
   }
 
   @SneakyThrows
