@@ -41,7 +41,7 @@ public class ReferenceInterceptorTest {
                     .ref(
                         Reference.builder()
                             .reference(
-                                "https://example.com/api/Appointment/615f31df-f0c7-5100-ac42-7fb952c630d0")
+                                "https://example.com/api/Location/615f31df-f0c7-5100-ac42-7fb952c630d0")
                             .build())
                     .build())
             .build();
@@ -59,7 +59,7 @@ public class ReferenceInterceptorTest {
             "https://example.com/api/AllergyIntolerance/1234",
             "https://example.com/api/Organization?patient=123",
             "https://example.com/api/Organization/1234",
-            "https://example.com/api/Appointment/615f31df-f0c7-5100-ac42-7fb952c630d0");
+            "https://example.com/api/Location/615f31df-f0c7-5100-ac42-7fb952c630d0");
   }
 
   @Data

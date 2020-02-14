@@ -72,7 +72,6 @@ public class Dstu2ImmunizationTransformer {
         .wasNotGiven(datamart.wasNotGiven())
         .performer(asReference(datamart.performer()))
         .requester(asReference(datamart.requester()))
-        .encounter(asReference(datamart.encounter()))
         .location(asReference(datamart.location()))
         ._reported(DataAbsentReason.of(Reason.unsupported))
         .note(note(datamart.note()))

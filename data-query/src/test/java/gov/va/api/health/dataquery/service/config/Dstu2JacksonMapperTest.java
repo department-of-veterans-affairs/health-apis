@@ -22,7 +22,7 @@ public class Dstu2JacksonMapperTest {
   @Test
   @SneakyThrows
   public void preExistingDarsArePreserved() {
-    ReferenceSerializerProperties disableEncounter =
+    ReferenceSerializerProperties disableLocation =
         ReferenceSerializerProperties.builder().location(false).practitioner(true).build();
     FugaziReferenceMajig input =
         FugaziReferenceMajig.builder()
@@ -38,7 +38,7 @@ public class Dstu2JacksonMapperTest {
             .build();
     String serializedjson =
         new DataQueryJacksonMapper(
-                new MagicReferenceConfig("https://example.com", "dstu2", "stu3", disableEncounter))
+                new MagicReferenceConfig("https://example.com", "dstu2", "stu3", disableLocation))
             .objectMapper()
             .writerWithDefaultPrettyPrinter()
             .writeValueAsString(input);
@@ -54,7 +54,7 @@ public class Dstu2JacksonMapperTest {
   @Test
   @SneakyThrows
   public void referencesAreQualified() {
-    ReferenceSerializerProperties disableEncounter =
+    ReferenceSerializerProperties disableLocation =
         ReferenceSerializerProperties.builder()
             .location(false)
             .organization(true)
@@ -119,7 +119,7 @@ public class Dstu2JacksonMapperTest {
     String qualifiedJson =
         new DataQueryJacksonMapper(
                 new MagicReferenceConfig(
-                    "https://example.com", "api/dstu2", "api/stu3", disableEncounter))
+                    "https://example.com", "api/dstu2", "api/stu3", disableLocation))
             .objectMapper()
             .writerWithDefaultPrettyPrinter()
             .writeValueAsString(input);
@@ -133,7 +133,7 @@ public class Dstu2JacksonMapperTest {
   @Test
   @SneakyThrows
   public void requiredReferencesEmitDar() {
-    ReferenceSerializerProperties disableEncounter =
+    ReferenceSerializerProperties disableLocation =
         ReferenceSerializerProperties.builder().location(false).build();
 
     FugaziRequiredReferenceMajig input =
@@ -151,7 +151,7 @@ public class Dstu2JacksonMapperTest {
     String qualifiedJson =
         new DataQueryJacksonMapper(
                 new MagicReferenceConfig(
-                    "https://example.com", "api/dstu2", "api/stu3", disableEncounter))
+                    "https://example.com", "api/dstu2", "api/stu3", disableLocation))
             .objectMapper()
             .writerWithDefaultPrettyPrinter()
             .writeValueAsString(input);

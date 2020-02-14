@@ -135,7 +135,6 @@ public class Dstu2ImmunizationController {
                 resource.patient(),
                 resource.performer().orElse(null),
                 resource.requester().orElse(null),
-                resource.encounter().orElse(null),
                 resource.location().orElse(null)));
     return resources;
   }

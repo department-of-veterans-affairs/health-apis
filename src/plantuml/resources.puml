@@ -23,33 +23,12 @@ rectangle Observation<<datamart>>
 rectangle Patient<<datamart>>
 rectangle Procedure<<datamart>>
 
-rectangle MedicationDispense<<cdw>>
-rectangle Appointment<<cdw>>
-rectangle Encounter<<cdw>>
 rectangle Practitioner<<cdw>>
 rectangle Location<<cdw>>
 rectangle Organization<<cdw>>
 
-
-
-
-
-
-
-
-Appointment --> Patient <<cdw-to-datamart>>
-Appointment --> Location <<cdw-to-cdw>>
-Encounter --> Appointment <<cdw-to-cdw>>
-Encounter --> Location <<cdw-to-cdw>>
-Encounter --> Practitioner <<cdw-to-cdw>>
-Encounter --> Condition <<cdw-to-datamart>>
-Encounter --> Patient <<cdw-to-datamart>>
-Encounter --> Procedure <<cdw-to-datamart>>
-
-
 AllergyIntolerance --> Patient <<datamart-to-datamart>>
 AllergyIntolerance --> Practitioner <<datamart-to-cdw>>
-Condition --> Encounter <<datamart-to-cdw>>
 Condition --> Patient <<datamart-to-datamart>>
 Condition --> Procedure <<datamart-to-datamart>>
 Condition --> Observation <<datamart-to-datamart>>
@@ -59,37 +38,26 @@ DiagnosticReport --> Organization <<datamart-to-cdw>>
 DiagnosticReport --> Patient <<datamart-to-datamart>>
 DiagnosticReport --> Observation <<datamart-to-datamart>>
 
-
-Immunization --> Encounter <<datamart-to-cdw>>
 Immunization --> Location <<datamart-to-cdw>>
 Immunization --> Patient <<datamart-to-datamart>>
 Immunization --> Observation <<datamart-to-datamart>>
-
-MedicationDispense --> Medication <<cdw-to-datamart>>
-MedicationDispense --> MedicationOrder <<cdw-to-datamart>>
-MedicationDispense --> Patient <<cdw-to-datamart>>
-MedicationDispense --> Practitioner <<cdw-to-cdw>>
 
 MedicationOrder --> Medication <<datamart-to-datamart>>
 MedicationOrder --> Patient <<datamart-to-datamart>>
 MedicationOrder --> Practitioner <<datamart-to-cdw>>
 MedicationOrder --> Condition <<datamart-to-datamart>>
 
-
 MedicationStatement --> Medication <<datamart-to-datamart>>
 MedicationStatement --> Patient <<datamart-to-datamart>>
 MedicationStatement --> Condition <<datamart-to-datamart>>
 
 Observation --> Patient <<datamart-to-datamart>>
-Observation --> Encounter <<datamart-to-cdw>>
 Observation --> Practitioner <<datamart-to-cdw>>
 
-Procedure --> Encounter <<datamart-to-cdw>>
 Procedure --> Location <<datamart-to-cdw>>
 Procedure --> Patient <<datamart-to-datamart>>
 Procedure --> Condition <<datamart-to-datamart>>
 Procedure --> Medication <<datamart-to-datamart>>
-
 
 Practitioner --> Location <<cdw-to-cdw>>
 Practitioner --> Organization <<cdw-to-cdw>>

@@ -27,13 +27,6 @@ public class DatamartConditionTest {
                 .reference("666V666")
                 .display("VETERAN,FIRNM MINAM")
                 .build())
-        .encounter(
-            Optional.of(
-                DatamartReference.of()
-                    .type("Encounter")
-                    .reference("800285390250")
-                    .display("Outpatient Visit")
-                    .build()))
         .asserter(
             Optional.of(
                 DatamartReference.of()

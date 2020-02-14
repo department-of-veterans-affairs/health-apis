@@ -60,13 +60,6 @@ public class ObservationSamples {
                       .reference(patientId)
                       .display("VETERAN,AUDIE OBS")
                       .build()))
-          .encounter(
-              Optional.of(
-                  DatamartReference.of()
-                      .type("Encounter")
-                      .reference("1000")
-                      .display("Ambulatory")
-                      .build()))
           .effectiveDateTime(Optional.of(Instant.parse("2012-12-24T14:12:00Z")))
           .issued(Optional.of(Instant.parse("2012-12-26T19:42:00Z")))
           .performer(
@@ -371,8 +364,6 @@ public class ObservationSamples {
                   .reference("Patient/" + patientId)
                   .display("VETERAN,AUDIE OBS")
                   .build())
-          .encounter(
-              Reference.builder().reference("Encounter/" + "1000").display("Ambulatory").build())
           .effectiveDateTime("2012-12-24T14:12:00Z")
           .issued("2012-12-26T19:42:00Z")
           .performer(

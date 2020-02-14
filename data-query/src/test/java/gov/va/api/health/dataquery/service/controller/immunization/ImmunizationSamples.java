@@ -63,13 +63,6 @@ public class ImmunizationSamples {
                       .reference("1702436")
                       .display("SHINE,DOC RAINER")
                       .build()))
-          .encounter(
-              Optional.of(
-                  DatamartReference.of()
-                      .type("Encounter")
-                      .reference("1000589847194")
-                      .display("1000589847194")
-                      .build()))
           .location(
               Optional.of(
                   DatamartReference.of()
@@ -150,7 +143,6 @@ public class ImmunizationSamples {
           ._reported(DataAbsentReason.of(Reason.unsupported))
           .performer(reference("ZHIVAGO,YURI ANDREYEVICH", "Practitioner/3868169"))
           .requester(reference("SHINE,DOC RAINER", "Practitioner/1702436"))
-          .encounter(reference("1000589847194", "Encounter/1000589847194"))
           .location(reference("ZZGOLD PRIMARY CARE", "Location/358359"))
           .note(note("PATIENT CALM AFTER VACCINATION"))
           .reaction(reactions())
