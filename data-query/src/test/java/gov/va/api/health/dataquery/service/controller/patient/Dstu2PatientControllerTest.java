@@ -81,7 +81,10 @@ public class Dstu2PatientControllerTest {
     when(ids.register(Mockito.any()))
         .thenReturn(
             List.of(
-                Registration.builder().uuid(publicId).resourceIdentity(resourceIdentity).build()));
+                Registration.builder()
+                    .uuid(publicId)
+                    .resourceIdentities(List.of(resourceIdentity))
+                    .build()));
   }
 
   @Test

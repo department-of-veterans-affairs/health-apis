@@ -79,7 +79,10 @@ public class Dstu2MedicationOrderControllerTest {
     when(ids.register(any()))
         .thenReturn(
             List.of(
-                Registration.builder().uuid(publicId).resourceIdentity(resourceIdentity).build()));
+                Registration.builder()
+                    .uuid(publicId)
+                    .resourceIdentities(List.of(resourceIdentity))
+                    .build()));
   }
 
   private Multimap<String, MedicationOrder> populateData() {
@@ -102,7 +105,10 @@ public class Dstu2MedicationOrderControllerTest {
               .system("CDW")
               .build();
       Registration registration =
-          Registration.builder().uuid(publicId).resourceIdentity(resourceIdentity).build();
+          Registration.builder()
+              .uuid(publicId)
+              .resourceIdentities(List.of(resourceIdentity))
+              .build();
       registrations.add(registration);
       when(ids.lookup(publicId)).thenReturn(List.of(resourceIdentity));
     }

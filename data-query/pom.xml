@@ -13,7 +13,7 @@
   <properties>
     <fhir-resources.version>2.0.31</fhir-resources.version>
     <guava.version>20.0</guava.version>
-    <health-apis-ids.version>2.1.10</health-apis-ids.version>
+    <health-apis-ids.version>3.0.0</health-apis-ids.version>
     <jacoco.coverage>0.95</jacoco.coverage>
     <swagger-maven-plugin.version>2.1.1</swagger-maven-plugin.version>
     <fall-risk.version>1.0.27</fall-risk.version>
