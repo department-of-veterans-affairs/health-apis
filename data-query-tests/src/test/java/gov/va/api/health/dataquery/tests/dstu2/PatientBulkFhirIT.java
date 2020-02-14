@@ -1,6 +1,7 @@
 package gov.va.api.health.dataquery.tests.dstu2;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assume.assumeTrue;
 
 import com.google.common.collect.ImmutableMap;
 import gov.va.api.health.argonaut.api.resources.Patient;
@@ -18,12 +19,13 @@ import java.util.LinkedList;
 import java.util.List;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.springframework.beans.factory.annotation.Value;
 
 @Slf4j
 public class PatientBulkFhirIT {
-
   private String apiPath() {
     return TestClients.internalDataQuery().service().urlWithApiPath();
   }
@@ -75,7 +77,6 @@ public class PatientBulkFhirIT {
      */
     log.info("Get a large chunk of patients 100x: internal/bulk/Patient?page=x&_count=y");
     Instant start = Instant.now();
-
     for (int i = 0; i < 100; i++) {
       ExpectedResponse responseAll =
           TestClients.internalDataQuery()
@@ -103,5 +104,10 @@ public class PatientBulkFhirIT {
     response.expect(200);
     var bulkFhirCount = response.expectValid(BulkFhirCount.class);
     assertThat(bulkFhirCount.count()).isGreaterThan(3);
+  }
+
+  @Before()
+  public void isBulkFhirOn(@Value("${bulk.fhir.on}") Boolean bulkFhirOn) {
+    assumeTrue(bulkFhirOn);
   }
 }
