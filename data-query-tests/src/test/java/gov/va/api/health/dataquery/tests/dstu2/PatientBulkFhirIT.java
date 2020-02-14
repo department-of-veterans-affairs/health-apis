@@ -13,16 +13,17 @@ import gov.va.api.health.sentinel.ExpectedResponse;
 import gov.va.api.health.sentinel.categories.InternalApi;
 import gov.va.api.health.sentinel.categories.Local;
 import gov.va.api.health.sentinel.categories.Manual;
+import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Properties;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.springframework.beans.factory.annotation.Value;
 
 @Slf4j
 public class PatientBulkFhirIT {
@@ -107,7 +108,9 @@ public class PatientBulkFhirIT {
   }
 
   @Before()
-  public void isBulkFhirOn(@Value("${bulk.fhir.on}") Boolean bulkFhirOn) {
-    assumeTrue(bulkFhirOn);
+  public void isBulkFhirOn() throws IOException {
+    Properties properties = new Properties();
+    properties.load(getClass().getResourceAsStream("/application.properties"));
+    assumeTrue(properties.getProperty("bulk-fhir.enabled").equalsIgnoreCase("true"));
   }
 }

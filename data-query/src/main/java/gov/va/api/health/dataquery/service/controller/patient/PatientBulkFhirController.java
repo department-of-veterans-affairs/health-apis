@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Validated
-@ConditionalOnProperty("bulk.fhir.on")
+@ConditionalOnProperty("bulk-fhir.enabled")
 @RestController
 @SuppressWarnings("WeakerAccess")
 @RequestMapping(
