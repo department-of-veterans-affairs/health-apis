@@ -23,7 +23,7 @@ public class Stu3JacksonMapperTest {
   @SneakyThrows
   public void preExistingDarsArePreserved() {
     ReferenceSerializerProperties disableEncounter =
-        ReferenceSerializerProperties.builder().encounter(false).practitioner(true).build();
+        ReferenceSerializerProperties.builder().location(false).practitioner(true).build();
     FugaziReferenceMajig input =
         FugaziReferenceMajig.builder()
             .ref(reference("https://example.com/api/Practitioner/1234"))
@@ -56,9 +56,7 @@ public class Stu3JacksonMapperTest {
   public void referencesAreQualified() {
     ReferenceSerializerProperties disableEncounter =
         ReferenceSerializerProperties.builder()
-            .appointment(true)
-            .encounter(false)
-            .location(true)
+            .location(false)
             .organization(true)
             .practitioner(true)
             .build();
@@ -68,16 +66,16 @@ public class Stu3JacksonMapperTest {
             .whocares("noone") // kept
             .me(true) // kept
             .ref(reference("AllergyIntolerance/1234")) // kept
-            .nope(reference("https://example.com/api/stu3/Encounter/1234")) // dar
-            .alsoNo(reference("https://example.com/api/stu3/Encounter/1234")) // removed
+            .nope(reference("https://example.com/api/stu3/Location/1234")) // dar
+            .alsoNo(reference("https://example.com/api/stu3/Location/1234")) // removed
             .thing(reference(null)) // kept
             .thing(reference("")) // kept
             .thing(reference("http://qualified.is.not/touched")) // kept
             .thing(reference("no/slash")) // kept
             .thing(reference("/cool/a/slash")) // kept
-            .thing(reference("Encounter")) // kept
-            .thing(reference("Encounter/1234")) // removed
-            .thing(reference("https://example.com/api/stu3/Encounter/1234")) // removed
+            .thing(reference("Location")) // kept
+            .thing(reference("Location/1234")) // removed
+            .thing(reference("https://example.com/api/stu3/Location/1234")) // removed
             .thing(reference("/Organization")) // kept
             .thing(reference("Organization/1234")) // kept
             .thing(reference("https://example.com/api/stu3/Organization/1234")) // kept
@@ -86,7 +84,7 @@ public class Stu3JacksonMapperTest {
                 FugaziReferenceMajig.builder()
                     .ref(
                         Reference.builder()
-                            .reference("Appointment/615f31df-f0c7-5100-ac42-7fb952c630d0")
+                            .reference("Practitioner/615f31df-f0c7-5100-ac42-7fb952c630d0")
                             .display(null)
                             .build())
                     .build()) // kept
@@ -103,7 +101,7 @@ public class Stu3JacksonMapperTest {
             .thing(reference("http://qualified.is.not/touched"))
             .thing(reference("https://example.com/api/stu3/no/slash"))
             .thing(reference("https://example.com/api/stu3/cool/a/slash"))
-            .thing(reference("https://example.com/api/stu3/Encounter"))
+            .thing(reference("https://example.com/api/stu3/Location"))
             .thing(reference("https://example.com/api/stu3/Organization"))
             .thing(reference("https://example.com/api/stu3/Organization/1234"))
             .thing(reference("https://example.com/api/stu3/Organization/1234"))
@@ -113,7 +111,7 @@ public class Stu3JacksonMapperTest {
                     .ref(
                         Reference.builder()
                             .reference(
-                                "https://example.com/api/stu3/Appointment/615f31df-f0c7-5100-ac42-7fb952c630d0")
+                                "https://example.com/api/stu3/Practitioner/615f31df-f0c7-5100-ac42-7fb952c630d0")
                             .build())
                     .build())
             .build();
@@ -136,11 +134,11 @@ public class Stu3JacksonMapperTest {
   @SneakyThrows
   public void requiredReferencesEmitDar() {
     ReferenceSerializerProperties disableEncounter =
-        ReferenceSerializerProperties.builder().encounter(false).build();
+        ReferenceSerializerProperties.builder().location(false).build();
 
     FugaziRequiredReferenceMajig input =
         FugaziRequiredReferenceMajig.builder()
-            .required(reference("https://example.com/api/dstu2/Encounter/1234")) // emits DAR
+            .required(reference("https://example.com/api/dstu2/Location/1234")) // emits DAR
             ._required(DataAbsentReason.of(DataAbsentReason.Reason.unknown))
             .build();
 

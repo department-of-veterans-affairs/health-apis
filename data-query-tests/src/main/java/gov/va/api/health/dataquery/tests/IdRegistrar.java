@@ -57,14 +57,11 @@ public final class IdRegistrar {
     }
 
     ResourceIdentity allergyIntolerance = id("ALLERGY_INTOLERANCE", cdwIds.allergyIntolerance());
-    ResourceIdentity appointment = id("APPOINTMENT", cdwIds.appointment());
     ResourceIdentity condition = id("CONDITION", cdwIds.condition());
     ResourceIdentity diagnosticReport = id("DIAGNOSTIC_REPORT", cdwIds.diagnosticReport());
-    ResourceIdentity encounter = id("ENCOUNTER", cdwIds.encounter());
     ResourceIdentity immunization = id("IMMUNIZATION", cdwIds.immunization());
     ResourceIdentity location = id("LOCATION", cdwIds.location());
     ResourceIdentity medication = id("MEDICATION", cdwIds.medication());
-    ResourceIdentity medicationDispense = id("MEDICATION_DISPENSE", cdwIds.medicationDispense());
     ResourceIdentity medicationOrder = id("MEDICATION_ORDER", cdwIds.medicationOrder());
     ResourceIdentity medicationStatement = id("MEDICATION_STATEMENT", cdwIds.medicationStatement());
     ResourceIdentity observation = id("OBSERVATION", cdwIds.observation());
@@ -76,15 +73,12 @@ public final class IdRegistrar {
     List<ResourceIdentity> identities =
         Arrays.asList(
             allergyIntolerance,
-            appointment,
             condition,
             diagnosticReport,
-            encounter,
             immunization,
             location,
             patient,
             medication,
-            medicationDispense,
             medicationOrder,
             medicationStatement,
             observation,
@@ -102,14 +96,11 @@ public final class IdRegistrar {
             .toBuilder()
             .publicIds(true)
             .allergyIntolerance(findUuid(registrations, allergyIntolerance))
-            .appointment(findUuid(registrations, appointment))
             .condition(findUuid(registrations, condition))
             .diagnosticReport(findUuid(registrations, diagnosticReport))
-            .encounter(findUuid(registrations, encounter))
             .immunization(findUuid(registrations, immunization))
             .location(findUuid(registrations, location))
             .medication(findUuid(registrations, medication))
-            .medicationDispense(findUuid(registrations, medicationDispense))
             .medicationOrder(findUuid(registrations, medicationOrder))
             .medicationStatement(findUuid(registrations, medicationStatement))
             .observation(findUuid(registrations, observation))

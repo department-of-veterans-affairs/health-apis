@@ -22,9 +22,6 @@ import org.springframework.context.annotation.Configuration;
 @AllArgsConstructor
 @Builder
 public class ReferenceSerializerProperties {
-  private boolean appointment;
-
-  private boolean encounter;
 
   private boolean location;
 
@@ -32,25 +29,17 @@ public class ReferenceSerializerProperties {
 
   private boolean practitioner;
 
-  private boolean medicationDispense;
-
   /**
    * Return boolean property from property file for the listed resources. Return true by default.
    */
   public boolean checkForResource(String resourceName) {
     switch (resourceName) {
-      case "Appointment":
-        return appointment;
-      case "Encounter":
-        return encounter;
       case "Location":
         return location;
       case "Organization":
         return organization;
       case "Practitioner":
         return practitioner;
-      case "MedicationDispense":
-        return medicationDispense;
       default:
         return true;
     }
