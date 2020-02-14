@@ -86,12 +86,13 @@ public class WitnessProtectionTest {
   private Registration registration(String resource, String id) {
     return Registration.builder()
         .uuid(id)
-        .resourceIdentity(
-            ResourceIdentity.builder()
-                .system("CDW")
-                .resource(resource)
-                .identifier(id + "cdw")
-                .build())
+        .resourceIdentities(
+            List.of(
+                ResourceIdentity.builder()
+                    .system("CDW")
+                    .resource(resource)
+                    .identifier(id + "cdw")
+                    .build()))
         .build();
   }
 

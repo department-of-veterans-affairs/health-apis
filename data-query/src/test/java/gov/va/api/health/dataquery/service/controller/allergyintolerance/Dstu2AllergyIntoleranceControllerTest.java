@@ -74,7 +74,10 @@ public class Dstu2AllergyIntoleranceControllerTest {
     when(ids.register(Mockito.any()))
         .thenReturn(
             List.of(
-                Registration.builder().uuid(publicId).resourceIdentity(resourceIdentity).build()));
+                Registration.builder()
+                    .uuid(publicId)
+                    .resourceIdentities(List.of(resourceIdentity))
+                    .build()));
   }
 
   private Multimap<String, AllergyIntolerance> populateData() {
@@ -97,7 +100,10 @@ public class Dstu2AllergyIntoleranceControllerTest {
               .identifier(cdwId)
               .build();
       Registration registration =
-          Registration.builder().uuid(publicId).resourceIdentity(resourceIdentity).build();
+          Registration.builder()
+              .uuid(publicId)
+              .resourceIdentities(List.of(resourceIdentity))
+              .build();
       registrations.add(registration);
       when(ids.lookup(publicId)).thenReturn(List.of(resourceIdentity));
     }

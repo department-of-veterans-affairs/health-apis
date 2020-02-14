@@ -7,10 +7,9 @@ import java.util.List;
 import org.junit.Test;
 
 public class Dstu2AppointmentIncludesIcnMajigTest {
-
   @Test
   public void extractIcns() {
-    ExtractIcnValidator.<Dstu2AppointmentIncludesIcnMajig, Appointment>builder()
+    ExtractIcnValidator.builder()
         .majig(new Dstu2AppointmentIncludesIcnMajig())
         .body(
             Appointment.builder()
@@ -34,7 +33,7 @@ public class Dstu2AppointmentIncludesIcnMajigTest {
 
   @Test
   public void noReferences() {
-    ExtractIcnValidator.<Dstu2AppointmentIncludesIcnMajig, Appointment>builder()
+    ExtractIcnValidator.builder()
         .majig(new Dstu2AppointmentIncludesIcnMajig())
         .body(Appointment.builder().id("123").build())
         .expectedIcns(List.of("NONE"))
