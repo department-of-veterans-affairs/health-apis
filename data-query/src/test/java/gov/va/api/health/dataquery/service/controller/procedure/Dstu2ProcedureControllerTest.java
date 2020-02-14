@@ -84,7 +84,10 @@ public class Dstu2ProcedureControllerTest {
     when(ids.register(Mockito.any()))
         .thenReturn(
             List.of(
-                Registration.builder().uuid(publicId).resourceIdentity(resourceIdentity).build()));
+                Registration.builder()
+                    .uuid(publicId)
+                    .resourceIdentities(List.of(resourceIdentity))
+                    .build()));
   }
 
   private Multimap<String, Procedure> populateData() {
@@ -104,7 +107,10 @@ public class Dstu2ProcedureControllerTest {
       ResourceIdentity resourceIdentity =
           ResourceIdentity.builder().system("CDW").resource("PROCEDURE").identifier(cdwId).build();
       Registration registration =
-          Registration.builder().uuid(publicId).resourceIdentity(resourceIdentity).build();
+          Registration.builder()
+              .uuid(publicId)
+              .resourceIdentities(List.of(resourceIdentity))
+              .build();
       registrations.add(registration);
       when(ids.lookup(publicId)).thenReturn(List.of(resourceIdentity));
     }

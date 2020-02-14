@@ -77,7 +77,10 @@ public class Dstu2ConditionControllerTest {
     when(ids.register(Mockito.any()))
         .thenReturn(
             List.of(
-                Registration.builder().uuid(publicId).resourceIdentity(resourceIdentity).build()));
+                Registration.builder()
+                    .uuid(publicId)
+                    .resourceIdentities(List.of(resourceIdentity))
+                    .build()));
   }
 
   private Multimap<String, Condition> populateData() {
@@ -105,7 +108,10 @@ public class Dstu2ConditionControllerTest {
       ResourceIdentity resourceIdentity =
           ResourceIdentity.builder().system("CDW").resource("CONDITION").identifier(cdwId).build();
       Registration registration =
-          Registration.builder().uuid(publicId).resourceIdentity(resourceIdentity).build();
+          Registration.builder()
+              .uuid(publicId)
+              .resourceIdentities(List.of(resourceIdentity))
+              .build();
       registrations.add(registration);
       when(ids.lookup(publicId)).thenReturn(List.of(resourceIdentity));
     }

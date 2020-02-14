@@ -64,8 +64,14 @@ public class Dstu2LocationControllerTest {
     when(ids.register(any()))
         .thenReturn(
             List.of(
-                Registration.builder().uuid(locPubId).resourceIdentity(locResource).build(),
-                Registration.builder().uuid(orgPubId).resourceIdentity(orgResource).build()));
+                Registration.builder()
+                    .uuid(locPubId)
+                    .resourceIdentities(List.of(locResource))
+                    .build(),
+                Registration.builder()
+                    .uuid(orgPubId)
+                    .resourceIdentities(List.of(orgResource))
+                    .build()));
   }
 
   @SneakyThrows
