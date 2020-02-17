@@ -1,3 +1,3 @@
 package gov.va.api.health.dataquery.tests.categories;
 
-public interface LabBulkFhir {}
+public interface InternalBulkFhir {}
