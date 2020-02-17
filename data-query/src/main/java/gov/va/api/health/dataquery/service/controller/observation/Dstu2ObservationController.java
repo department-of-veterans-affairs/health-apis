@@ -135,8 +135,7 @@ public class Dstu2ObservationController {
         resources,
         resource ->
             Stream.concat(
-                Stream.of(resource.subject().orElse(null), resource.encounter().orElse(null)),
-                resource.performer().stream()));
+                Stream.of(resource.subject().orElse(null)), resource.performer().stream()));
   }
 
   /** Search by _id. */

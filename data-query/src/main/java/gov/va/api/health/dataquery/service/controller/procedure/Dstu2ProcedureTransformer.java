@@ -44,7 +44,6 @@ public class Dstu2ProcedureTransformer {
         .notPerformed(datamart.notPerformed())
         .reasonNotPerformed(reasonNotPerformed(datamart.reasonNotPerformed()))
         .performedDateTime(asDateTimeString(datamart.performedDateTime()))
-        .encounter(asReference(datamart.encounter()))
         .location(asReference(datamart.location()))
         .build();
   }

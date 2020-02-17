@@ -128,7 +128,6 @@ public class Dstu2ConditionTransformer {
         .clinicalStatus(clinicalStatusCode(datamart.clinicalStatus()))
         .code(bestCode())
         .dateRecorded(asDateString(datamart.dateRecorded()))
-        .encounter(asReference(datamart.encounter()))
         .onsetDateTime(asDateTimeString(datamart.onsetDateTime()))
         .patient(asReference(datamart.patient()))
         .verificationStatus(VerificationStatusCode.unknown)

@@ -51,13 +51,6 @@ public class ProcedureSamples {
           .notPerformed(true)
           .reasonNotPerformed(Optional.of("CASE MOVED TO EARLIER DATE"))
           .performedDateTime(Optional.of(Instant.parse(performedOn)))
-          .encounter(
-              Optional.of(
-                  DatamartReference.of()
-                      .type("Encounter")
-                      .reference("1000124525706")
-                      .display("1000124525706")
-                      .build()))
           .location(
               Optional.of(
                   DatamartReference.of()
@@ -122,7 +115,6 @@ public class ProcedureSamples {
           .reasonNotPerformed(
               List.of(CodeableConcept.builder().text("CASE MOVED TO EARLIER DATE").build()))
           .performedDateTime(performedOn)
-          .encounter(reference("1000124525706", "Encounter/1000124525706"))
           .location(reference("ZZPSYCHIATRY", "Location/237281"))
           .build();
     }

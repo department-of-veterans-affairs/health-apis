@@ -8,11 +8,6 @@
     "reference" : "666V666",
     "display" : "VETERAN,FIRNM MINAM"
   },
-  "encounter" : {
-    "type" : "Encounter",
-    "reference" : "800285390250",
-    "display" : "Outpatient Visit"
-  },
   "asserter" : {
     "type" : "Practitioner",
     "reference" : "1294265",

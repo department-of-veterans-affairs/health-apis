@@ -130,12 +130,7 @@ public class Dstu2ConditionController {
 
   Collection<DatamartCondition> replaceReferences(Collection<DatamartCondition> resources) {
     witnessProtection.registerAndUpdateReferences(
-        resources,
-        resource ->
-            Stream.of(
-                resource.patient(),
-                resource.asserter().orElse(null),
-                resource.encounter().orElse(null)));
+        resources, resource -> Stream.of(resource.patient(), resource.asserter().orElse(null)));
     return resources;
   }
 

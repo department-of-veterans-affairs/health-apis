@@ -17,11 +17,6 @@
   "notPerformed" : false,
   "reasonNotPerformed" : "CASE MOVED TO EARLIER DATE",
   "performedDateTime" : "2008-01-02T06:00:00Z",
-  "encounter" : {
-    "type" : "Encounter",
-    "reference" : "1000124525706",
-    "display" : "1000124525706"
-  },
   "location" : {
     "type" : "Location",
     "reference" : "237281",
