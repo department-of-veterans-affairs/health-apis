@@ -33,7 +33,6 @@ public class DatamartObservationTest {
     assertThat(dm.bacteriologyComponents()).isNotNull();
     assertThat(dm.code()).isNotNull();
     assertThat(dm.effectiveDateTime()).isNotNull();
-    assertThat(dm.encounter()).isNotNull();
     assertThat(dm.issued()).isNotNull();
     assertThat(dm.mycobacteriologyComponents()).isNotNull();
     assertThat(dm.performer()).isNotNull();
@@ -93,13 +92,6 @@ public class DatamartObservationTest {
                     .type(Optional.of("Patient"))
                     .reference(Optional.of("1002003004V666666"))
                     .display(Optional.of("VETERAN,AUDIE OBS"))
-                    .build()))
-        .encounter(
-            Optional.of(
-                DatamartReference.builder()
-                    .type(Optional.of("Encounter"))
-                    .reference(Optional.of("123454321"))
-                    .display(Optional.of("Ambulatory"))
                     .build()))
         .effectiveDateTime(Optional.of(Instant.parse("2012-12-24T14:12:00Z")))
         .issued(Optional.of(Instant.parse("2012-12-26T19:42:00Z")))

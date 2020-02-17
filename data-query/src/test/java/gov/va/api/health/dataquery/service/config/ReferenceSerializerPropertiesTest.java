@@ -10,73 +10,65 @@ public class ReferenceSerializerPropertiesTest {
   public void isEnabled() {
     ReferenceSerializerProperties testProperties =
         ReferenceSerializerProperties.builder()
-            .appointment(true)
-            .encounter(false)
             .location(true)
             .organization(false)
             .practitioner(true)
-            .medicationDispense(true)
             .build();
 
     assertThat(testProperties.isEnabled(Reference.builder().build())).isTrue();
     assertThat(testProperties.isEnabled(Reference.builder().reference("").build())).isTrue();
     assertThat(testProperties.isEnabled((Reference) null)).isTrue();
 
-    assertThat(testProperties.isEnabled(Reference.builder().reference("Appointment/1234").build()))
+    assertThat(testProperties.isEnabled(Reference.builder().reference("Location/1234").build()))
+        .isTrue();
+    assertThat(
+            testProperties.isEnabled(
+                Reference.builder().reference("http://localhost:90001/api/Location/1234").build()))
+        .isTrue();
+
+    assertThat(testProperties.isEnabled(Reference.builder().reference("/1234").build())).isTrue();
+    assertThat(testProperties.isEnabled(Reference.builder().reference("location/1234").build()))
+        .isTrue();
+    assertThat(testProperties.isEnabled(Reference.builder().reference("/location/1234").build()))
+        .isTrue();
+    assertThat(testProperties.isEnabled(Reference.builder().reference("/Location/1234").build()))
+        .isTrue();
+    assertThat(
+            testProperties.isEnabled(
+                Reference.builder().reference("http://localhost:90001/api/location/1234").build()))
+        .isTrue();
+
+    assertThat(testProperties.isEnabled(Reference.builder().reference("Organization/1234").build()))
+        .isFalse();
+    assertThat(
+            testProperties.isEnabled(
+                Reference.builder()
+                    .reference("http://localhost:90001/api/Organization/1234")
+                    .build()))
+        .isFalse();
+
+    assertThat(testProperties.isEnabled(Reference.builder().reference("Organization").build()))
+        .isTrue();
+    assertThat(testProperties.isEnabled(Reference.builder().reference("/Organization").build()))
+        .isTrue();
+    assertThat(testProperties.isEnabled(Reference.builder().reference("organization/1234").build()))
+        .isTrue();
+    assertThat(testProperties.isEnabled(Reference.builder().reference("organization/1234").build()))
+        .isTrue();
+    assertThat(testProperties.isEnabled(Reference.builder().reference("organization/1234").build()))
+        .isTrue();
+    assertThat(
+            testProperties.isEnabled(Reference.builder().reference("/organization/1234").build()))
         .isTrue();
     assertThat(
             testProperties.isEnabled(
                 Reference.builder()
-                    .reference("http://localhost:90001/api/Appointment/1234")
+                    .reference("http://localhost:90001/api/organization/1234")
                     .build()))
         .isTrue();
 
-    assertThat(testProperties.isEnabled(Reference.builder().reference("Appointment").build()))
-        .isTrue();
-    assertThat(testProperties.isEnabled(Reference.builder().reference("/Appointment").build()))
-        .isTrue();
-    assertThat(testProperties.isEnabled(Reference.builder().reference("appointment/1234").build()))
-        .isTrue();
-    assertThat(testProperties.isEnabled(Reference.builder().reference("appointment/1234").build()))
-        .isTrue();
-    assertThat(testProperties.isEnabled(Reference.builder().reference("/appointment/1234").build()))
-        .isTrue();
-    assertThat(testProperties.isEnabled(Reference.builder().reference("/Appointment/1234").build()))
-        .isTrue();
     assertThat(
-            testProperties.isEnabled(
-                Reference.builder()
-                    .reference("http://localhost:90001/api/appointment/1234")
-                    .build()))
-        .isTrue();
-
-    assertThat(testProperties.isEnabled(Reference.builder().reference("Encounter/1234").build()))
-        .isFalse();
-    assertThat(
-            testProperties.isEnabled(
-                Reference.builder().reference("http://localhost:90001/api/Encounter/1234").build()))
-        .isFalse();
-
-    assertThat(testProperties.isEnabled(Reference.builder().reference("Encounter").build()))
-        .isTrue();
-    assertThat(testProperties.isEnabled(Reference.builder().reference("/Encounter").build()))
-        .isTrue();
-    assertThat(testProperties.isEnabled(Reference.builder().reference("encounter/1234").build()))
-        .isTrue();
-    assertThat(testProperties.isEnabled(Reference.builder().reference("encounter/1234").build()))
-        .isTrue();
-    assertThat(testProperties.isEnabled(Reference.builder().reference("encounter/1234").build()))
-        .isTrue();
-    assertThat(testProperties.isEnabled(Reference.builder().reference("/encounter/1234").build()))
-        .isTrue();
-    assertThat(
-            testProperties.isEnabled(
-                Reference.builder().reference("http://localhost:90001/api/encounter/1234").build()))
-        .isTrue();
-
-    assertThat(
-            testProperties.isEnabled(
-                Reference.builder().reference("/MedicationDispense/5678").build()))
+            testProperties.isEnabled(Reference.builder().reference("/practitioner/5678").build()))
         .isTrue();
   }
 }

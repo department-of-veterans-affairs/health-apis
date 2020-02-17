@@ -197,12 +197,7 @@ public class Dstu2ProcedureController {
 
   Collection<DatamartProcedure> replaceReferences(Collection<DatamartProcedure> resources) {
     witnessProtection.registerAndUpdateReferences(
-        resources,
-        resource ->
-            Stream.of(
-                resource.patient(),
-                resource.encounter().orElse(null),
-                resource.location().orElse(null)));
+        resources, resource -> Stream.of(resource.patient(), resource.location().orElse(null)));
     return resources;
   }
 

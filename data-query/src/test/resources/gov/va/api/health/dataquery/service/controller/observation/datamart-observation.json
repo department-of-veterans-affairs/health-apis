@@ -15,11 +15,6 @@
     "reference" : "1002003004V666666",
     "display" : "VETERAN,AUDIE OBS"
   },
-  "encounter" : {
-    "type" : "Encounter",
-    "reference" : "123454321",
-    "display" : "Ambulatory"
-  },
   "effectiveDateTime" : "2012-12-24T14:12:00Z",
   "issued" : "2012-12-26T19:42:00Z",
   "performer" : [

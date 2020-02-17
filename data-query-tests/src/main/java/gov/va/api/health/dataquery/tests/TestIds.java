@@ -11,14 +11,11 @@ import lombok.Value;
 public final class TestIds {
   boolean publicIds;
   @NonNull String allergyIntolerance;
-  @NonNull String appointment;
   @NonNull String condition;
   @NonNull String diagnosticReport;
-  @NonNull String encounter;
   @NonNull String immunization;
   @NonNull String location;
   @NonNull String medication;
-  @NonNull String medicationDispense;
   @NonNull String medicationOrder;
   @NonNull String medicationStatement;
   @NonNull String observation;

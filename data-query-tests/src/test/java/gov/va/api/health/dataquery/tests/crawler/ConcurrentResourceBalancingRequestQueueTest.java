@@ -22,9 +22,9 @@ public final class ConcurrentResourceBalancingRequestQueueTest {
             "foo/api/Condition?patient=bobnelson",
             "foo/api/Malformed",
             "foo/api/Location/3",
-            "foo/api/Encounter/2",
+            "foo/api/Organization/2",
             "foo/api/Location/1",
-            "foo/api/Encounter/1",
+            "foo/api/Organization/1",
             "foo/api/Location/2");
     for (String url : urls) {
       q.add(url);
@@ -39,11 +39,11 @@ public final class ConcurrentResourceBalancingRequestQueueTest {
     final List<String> expectedOrder =
         asList(
             "foo/api/AllergyIntolerance/1",
-            "foo/api/Encounter/1",
             "foo/api/Location/1",
             "foo/api/Malformed",
-            "foo/api/Encounter/2",
+            "foo/api/Organization/1",
             "foo/api/Location/2",
+            "foo/api/Organization/2",
             "foo/api/Location/3",
             "foo/api/Condition?patient=bobnelson&page=2",
             "foo/api/Condition/1",
@@ -60,7 +60,7 @@ public final class ConcurrentResourceBalancingRequestQueueTest {
   public void duplicateItemsIgnored() {
     q.add("foo/api/AllergyIntolerance/1");
     q.add("foo/api/Condition/2");
-    q.add("foo/api/Encounter/3");
+    q.add("foo/api/Location/3");
     // ignored
     q.add("foo/api/AllergyIntolerance/1");
     assertThat(q.hasNext()).isTrue();
@@ -70,7 +70,7 @@ public final class ConcurrentResourceBalancingRequestQueueTest {
     assertThat(q.hasNext()).isTrue();
     assertThat(q.next()).isEqualTo("foo/api/Condition/2");
     assertThat(q.hasNext()).isTrue();
-    assertThat(q.next()).isEqualTo("foo/api/Encounter/3");
+    assertThat(q.next()).isEqualTo("foo/api/Location/3");
     assertThat(q.hasNext()).isFalse();
   }
 
