@@ -5,11 +5,15 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.io.JsonEOFException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+
+import gov.va.api.health.autoconfig.logging.MethodExecutionLogger;
+import gov.va.api.health.dstu2.api.elements.Extension;
 import gov.va.api.health.dstu2.api.elements.Narrative;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import gov.va.api.health.ids.client.IdEncoder.BadId;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -17,7 +21,10 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolationException;
+
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.UnsatisfiedServletRequestParameterException;
@@ -35,6 +42,7 @@ import org.springframework.web.client.HttpClientErrorException;
 @RestControllerAdvice
 @RequestMapping(produces = {"application/json"})
 public class WebExceptionHandler {
+  @Autowired MethodExecutionLogger mel;
 
   private Optional<JsonProcessingException> asJsonError(Exception e) {
     Throwable cause = e.getCause();
@@ -49,29 +57,76 @@ public class WebExceptionHandler {
 
   private OperationOutcome asOperationOutcome(
       String code, Exception e, HttpServletRequest request, List<String> problems) {
+    Instant now = Instant.now();
+
     StringBuilder diagnostics = new StringBuilder();
     diagnostics
         .append("Error: ")
         .append(e.getClass().getSimpleName())
         .append(" Timestamp:")
-        .append(Instant.now());
+        .append(now);
     problems.forEach(p -> diagnostics.append('\n').append(p));
-    return OperationOutcome.builder()
-        .id(UUID.randomUUID().toString())
-        .resourceType("OperationOutcome")
-        .text(
-            Narrative.builder()
-                .status(Narrative.NarrativeStatus.additional)
-                .div("<div>Failure: " + request.getRequestURI() + "</div>")
-                .build())
-        .issue(
-            Collections.singletonList(
-                OperationOutcome.Issue.builder()
-                    .severity(OperationOutcome.Issue.IssueSeverity.fatal)
-                    .code(code)
-                    .diagnostics(diagnostics.toString())
-                    .build()))
-        .build();
+
+    //    Log marker
+    //    UUID printed to the log used to easily find statements related to the response
+    //    If @Loggable related transaction ID is available, this is also useful
+
+    System.out.println("MethodExecutionLogger ID is " + mel.getId());
+    OperationOutcome oo =
+        OperationOutcome.builder()
+            .id(UUID.randomUUID().toString())
+            .resourceType("OperationOutcome")
+            .extension(
+                List.of(
+                    Extension.builder().url("timestamp").valueInstant(now.toString()).build(),
+                    Extension.builder()
+                        .url("type")
+                        .valueString(e.getClass().getSimpleName())
+                        .build(),
+                    Extension.builder().url("message").valueString(e.getMessage()).build(),
+                    Extension.builder()
+                        .url("cause")
+                        .valueString(
+                            causes(e)
+                                .stream()
+                                .map(t -> t.getClass().getSimpleName() + " " + t.getMessage())
+                                .collect(Collectors.joining(", ")))
+                        .build(),
+                    Extension.builder().url("request").valueString(reconstructUrl(request)).build(),
+                    Extension.builder().url("marker").valueString(mel.getId()).build()))
+            .text(
+                Narrative.builder()
+                    .status(Narrative.NarrativeStatus.additional)
+                    .div("<div>Failure: " + request.getRequestURI() + "</div>")
+                    .build())
+            .issue(
+                Collections.singletonList(
+                    OperationOutcome.Issue.builder()
+                        .severity(OperationOutcome.Issue.IssueSeverity.fatal)
+                        .code(code)
+                        .diagnostics(diagnostics.toString())
+                        .build()))
+            .build();
+
+    //    Set<ConstraintViolation<OperationOutcome>> violations =
+    //        Validation.buildDefaultValidatorFactory().getValidator().validate(oo);
+    //    if (!violations.isEmpty()) {
+    //      throw new ConstraintViolationException("OPERATION OUTCOME IS NOT VALID", violations);
+    //    }
+
+    return oo;
+  }
+
+  private List<Throwable> causes(Throwable t) {
+    List<Throwable> results = new ArrayList<>();
+    Throwable throwable = t;
+    while (true) {
+      throwable = throwable.getCause();
+      if (throwable == null) {
+        return results;
+      }
+      results.add(throwable);
+    }
   }
 
   @ExceptionHandler({
@@ -139,7 +194,8 @@ public class WebExceptionHandler {
   public OperationOutcome handleValidationException(
       ConstraintViolationException e, HttpServletRequest request) {
     List<String> problems =
-        e.getConstraintViolations().stream()
+        e.getConstraintViolations()
+            .stream()
             .map(v -> v.getPropertyPath() + " " + v.getMessage())
             .collect(Collectors.toList());
     return responseFor("structure", e, request, problems);

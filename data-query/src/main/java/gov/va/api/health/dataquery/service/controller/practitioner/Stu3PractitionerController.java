@@ -42,8 +42,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @SuppressWarnings("WeakerAccess")
 @RequestMapping(
-    value = {"/stu3/Practitioner"},
-    produces = {"application/json", "application/json+fhir", "application/fhir+json"})
+  value = {"/stu3/Practitioner"},
+  produces = {"application/json", "application/json+fhir", "application/fhir+json"}
+)
 @AllArgsConstructor(onConstructor = @__({@Autowired}))
 public class Stu3PractitionerController {
   private Stu3Bundler bundler;
@@ -79,15 +80,16 @@ public class Stu3PractitionerController {
   /** Read by id. */
   @GetMapping(value = {"/{publicId}"})
   public Practitioner read(@PathVariable("publicId") String publicId) {
-    DatamartPractitioner practitioner = findById(publicId).asDatamartPractitioner();
+    DatamartPractitioner practitioner = findById(null).asDatamartPractitioner();
     replaceReferences(List.of(practitioner));
     return transform(practitioner);
   }
 
   /** Read raw. */
   @GetMapping(
-      value = {"/{publicId}"},
-      headers = {"raw=true"})
+    value = {"/{publicId}"},
+    headers = {"raw=true"}
+  )
   public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
     PractitionerEntity entity = findById(publicId);
     IncludesIcnMajig.addHeaderForNoPatients(response);
@@ -100,7 +102,9 @@ public class Stu3PractitionerController {
         resources,
         resource ->
             Stream.concat(
-                resource.practitionerRole().stream()
+                resource
+                    .practitionerRole()
+                    .stream()
                     .map(role -> role.managingOrganization().orElse(null)),
                 resource.practitionerRole().stream().flatMap(role -> role.location().stream())));
     return resources;
@@ -134,7 +138,9 @@ public class Stu3PractitionerController {
       @RequestParam("_id") String publicId,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
-    Practitioner resource = read(publicId);
+    DatamartPractitioner practitioner = findById(publicId).asDatamartPractitioner();
+    replaceReferences(List.of(practitioner));
+    Practitioner resource = transform(practitioner);
     return bundle(
         Parameters.builder()
             .add("identifier", publicId)
@@ -180,7 +186,8 @@ public class Stu3PractitionerController {
     List<DatamartPractitioner> datamarts =
         entities.map(PractitionerEntity::asDatamartPractitioner).collect(Collectors.toList());
     replaceReferences(datamarts);
-    return datamarts.stream()
+    return datamarts
+        .stream()
         .map(dm -> Stu3PractitionerTransformer.builder().datamart(dm).build().toFhir())
         .collect(Collectors.toList());
   }
@@ -191,8 +198,9 @@ public class Stu3PractitionerController {
 
   /** Hey, this is a validate endpoint. It validates. */
   @PostMapping(
-      value = "/$validate",
-      consumes = {"application/json", "application/json+fhir", "application/fhir+json"})
+    value = "/$validate",
+    consumes = {"application/json", "application/json+fhir", "application/fhir+json"}
+  )
   public OperationOutcome validate(@RequestBody Practitioner.Bundle bundle) {
     return Stu3Validator.create().validate(bundle);
   }
