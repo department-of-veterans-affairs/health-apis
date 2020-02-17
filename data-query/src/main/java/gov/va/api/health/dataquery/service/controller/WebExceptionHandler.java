@@ -20,7 +20,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
@@ -51,15 +50,15 @@ import org.springframework.web.client.HttpClientErrorException;
 public class WebExceptionHandler {
   @Autowired MethodExecutionLogger mel;
 
-  private Optional<JsonProcessingException> asJsonError(Exception e) {
+  private boolean isJsonError(Exception e) {
     Throwable cause = e.getCause();
     while (cause != null) {
       if (JsonProcessingException.class.isAssignableFrom(cause.getClass())) {
-        return Optional.of((JsonProcessingException) cause);
+        return true;
       }
       cause = cause.getCause();
     }
-    return Optional.empty();
+    return false;
   }
 
   private OperationOutcome asOperationOutcome(
@@ -167,17 +166,10 @@ public class WebExceptionHandler {
   })
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
   public OperationOutcome handleSnafu(Exception e, HttpServletRequest request) {
-    Optional<JsonProcessingException> jsonError = asJsonError(e);
-    if (jsonError.isEmpty()) {
-      return responseFor("exception", e, request, emptyList(), true);
+    if (isJsonError(e)) {
+      return responseFor("database", e, request, emptyList(), false);
     }
-
-    String requestPath = reconstructUrl(request);
-    String useful = sanitize(jsonError.get());
-    List<String> problems = List.of(requestPath, useful);
-    // log.error("FAILED TO PROCESS JSON FOR REQUEST '{}' BECAUSE: {}", requestPath, useful);
-    OperationOutcome response = responseFor("database", e, request, problems, false);
-    return response;
+    return responseFor("exception", e, request, emptyList(), true);
   }
 
   /**
