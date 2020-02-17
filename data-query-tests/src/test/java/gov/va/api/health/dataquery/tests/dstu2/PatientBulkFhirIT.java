@@ -1,27 +1,21 @@
 package gov.va.api.health.dataquery.tests.dstu2;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assume.assumeTrue;
 
 import com.google.common.collect.ImmutableMap;
 import gov.va.api.health.argonaut.api.resources.Patient;
 import gov.va.api.health.dataquery.service.controller.BulkFhirCount;
 import gov.va.api.health.dataquery.tests.TestClients;
-import gov.va.api.health.dataquery.tests.categories.LabDataQueryPatient;
-import gov.va.api.health.dataquery.tests.categories.ProdDataQueryPatient;
+import gov.va.api.health.dataquery.tests.categories.LabBulkFhir;
 import gov.va.api.health.sentinel.ExpectedResponse;
 import gov.va.api.health.sentinel.categories.InternalApi;
-import gov.va.api.health.sentinel.categories.Local;
 import gov.va.api.health.sentinel.categories.Manual;
-import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Properties;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -32,13 +26,7 @@ public class PatientBulkFhirIT {
   }
 
   @Test
-  @Category(
-      value = {
-        Local.class,
-        LabDataQueryPatient.class,
-        ProdDataQueryPatient.class,
-        InternalApi.class
-      })
+  @Category(value = {LabBulkFhir.class, InternalApi.class})
   public void bulkFhirPatientSearch() {
     log.info("Verify Patient Bulk Search internal/bulk/Patient?page=x&_count=y");
     ExpectedResponse responseAll =
@@ -71,7 +59,7 @@ public class PatientBulkFhirIT {
   }
 
   @Test
-  @Category({Manual.class, InternalApi.class})
+  @Category({Manual.class, LabBulkFhir.class, InternalApi.class})
   public void bulkFhirPatientSearchPerformance() {
     /*
      * We will ask for 5000 patients 100 times and log out the time it took to complete
@@ -84,7 +72,7 @@ public class PatientBulkFhirIT {
               .get(
                   ImmutableMap.of("bulk", System.getProperty("bulk-token", "some-token")),
                   apiPath() + "internal/bulk/Patient?page=1&_count=5000");
-      responseAll.expect(200);
+      responseAll.expect(300);
       responseAll.expectListOf(Patient.class);
     }
     Instant complete = Instant.now();
@@ -94,7 +82,7 @@ public class PatientBulkFhirIT {
   }
 
   @Test
-  @Category({Local.class, LabDataQueryPatient.class, ProdDataQueryPatient.class, InternalApi.class})
+  @Category({LabBulkFhir.class, InternalApi.class})
   @SneakyThrows
   public void bulkPatientCount() {
     String path = apiPath() + "internal/bulk/Patient/count";
@@ -102,15 +90,8 @@ public class PatientBulkFhirIT {
     ExpectedResponse response =
         TestClients.internalDataQuery()
             .get(ImmutableMap.of("bulk", System.getProperty("bulk-token", "some-token")), path);
-    response.expect(200);
+    response.expect(300);
     var bulkFhirCount = response.expectValid(BulkFhirCount.class);
     assertThat(bulkFhirCount.count()).isGreaterThan(3);
-  }
-
-  @Before()
-  public void isBulkFhirOn() throws IOException {
-    Properties properties = new Properties();
-    properties.load(getClass().getResourceAsStream("/application.properties"));
-    assumeTrue(properties.getProperty("bulk-fhir.enabled").equalsIgnoreCase("true"));
   }
 }
