@@ -5,6 +5,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.io.JsonEOFException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 
@@ -16,12 +18,18 @@ import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome.Issue;
 import gov.va.api.health.ids.client.IdEncoder.BadId;
 import java.lang.reflect.UndeclaredThrowableException;
+import java.security.Key;
+import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.ArrayList;
-
+import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolationException;
 
@@ -30,6 +38,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindException;
@@ -49,6 +58,8 @@ import org.springframework.web.client.HttpClientErrorException;
 @RequestMapping(produces = {"application/json"})
 public class WebExceptionHandler {
   @Autowired MethodExecutionLogger mel;
+
+  private static final String CRYPTO_KEY = "yo_dawg_i_herd_u_like_encryption";
 
   private boolean isJsonError(Exception e) {
     Throwable cause = e.getCause();
@@ -95,22 +106,40 @@ public class WebExceptionHandler {
     extensions.add(
         Extension.builder().url("type").valueString(e.getClass().getSimpleName()).build());
 
-    if (isNotBlank(e.getMessage())) {
-      extensions.add(Extension.builder().url("message").valueString(e.getMessage()).build());
+    if (isNotBlank(sanitizedMessage(e))) {
+      extensions.add(
+          Extension.builder().url("message").valueString(encrypt(sanitizedMessage(e))).build());
     }
 
     String cause =
         causes(e)
             .stream()
-            .map(t -> t.getClass().getSimpleName() + " " + t.getMessage())
+            .map(t -> t.getClass().getSimpleName() + " " + sanitizedMessage(t))
             .collect(Collectors.joining(", "));
     if (isNotBlank(cause)) {
-      extensions.add(Extension.builder().url("cause").valueString(cause).build());
+      extensions.add(Extension.builder().url("cause").valueString(encrypt(cause)).build());
     }
 
-    extensions.add(Extension.builder().url("request").valueString(reconstructUrl(request)).build());
+    extensions.add(
+        Extension.builder().url("request").valueString(encrypt(reconstructUrl(request))).build());
 
     return extensions;
+  }
+
+  @SneakyThrows
+  private String encrypt(String plainText) {
+    Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+    Key key = new SecretKeySpec(CRYPTO_KEY.getBytes(), "AES");
+
+    SecureRandom secureRandom = SecureRandom.getInstance("SHA1PRNG");
+    byte[] iv = new byte[cipher.getBlockSize()];
+    secureRandom.nextBytes(iv);
+
+    cipher.init(Cipher.ENCRYPT_MODE, key, new IvParameterSpec(iv));
+    byte[] enBytes = cipher.doFinal(plainText.getBytes(UTF_8));
+
+    byte[] combined = ArrayUtils.addAll(iv, enBytes);
+    return Base64.getEncoder().encodeToString(combined);
   }
 
   private List<Throwable> causes(Throwable t) {
@@ -212,31 +241,41 @@ public class WebExceptionHandler {
     return response;
   }
 
-  String sanitize(JsonProcessingException jsonError) {
-    StringBuilder safe = new StringBuilder(jsonError.getClass().getSimpleName());
-    if (jsonError instanceof MismatchedInputException) {
-      MismatchedInputException mie = (MismatchedInputException) jsonError;
-      safe.append(" path: ").append(mie.getPathReference());
-    } else if (jsonError instanceof JsonEOFException) {
-      JsonEOFException eofe = (JsonEOFException) jsonError;
+  private String sanitizedMessage(Throwable throwable) {
+    if (throwable instanceof MismatchedInputException) {
+      MismatchedInputException mie = (MismatchedInputException) throwable;
+      return new StringBuilder().append(" path: ").append(mie.getPathReference()).toString();
+    }
+
+    if (throwable instanceof JsonEOFException) {
+      JsonEOFException eofe = (JsonEOFException) throwable;
       if (eofe.getLocation() != null) {
-        safe.append(" line: ")
+        return new StringBuilder()
+            .append(" line: ")
             .append(eofe.getLocation().getLineNr())
             .append(", column: ")
-            .append(eofe.getLocation().getColumnNr());
-      }
-    } else if (jsonError instanceof JsonMappingException) {
-      JsonMappingException jme = (JsonMappingException) jsonError;
-      safe.append(" path: ").append(jme.getPathReference());
-    } else if (jsonError instanceof JsonParseException) {
-      JsonParseException jpe = (JsonParseException) jsonError;
-      if (jpe.getLocation() != null) {
-        safe.append(" line: ")
-            .append(jpe.getLocation().getLineNr())
-            .append(", column: ")
-            .append(jpe.getLocation().getColumnNr());
+            .append(eofe.getLocation().getColumnNr())
+            .toString();
       }
     }
-    return safe.toString();
+
+    if (throwable instanceof JsonMappingException) {
+      JsonMappingException jme = (JsonMappingException) throwable;
+      return new StringBuilder().append(" path: ").append(jme.getPathReference()).toString();
+    }
+
+    if (throwable instanceof JsonParseException) {
+      JsonParseException jpe = (JsonParseException) throwable;
+      if (jpe.getLocation() != null) {
+        return new StringBuilder()
+            .append(" line: ")
+            .append(jpe.getLocation().getLineNr())
+            .append(", column: ")
+            .append(jpe.getLocation().getColumnNr())
+            .toString();
+      }
+    }
+
+    return throwable.getMessage();
   }
 }
