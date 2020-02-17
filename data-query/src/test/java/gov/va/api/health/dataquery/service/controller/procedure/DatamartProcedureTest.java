@@ -57,13 +57,6 @@ public class DatamartProcedureTest {
         .notPerformed(false)
         .reasonNotPerformed(Optional.of("CASE MOVED TO EARLIER DATE"))
         .performedDateTime(Optional.of(Instant.parse("2008-01-02T06:00:00Z")))
-        .encounter(
-            Optional.of(
-                DatamartReference.of()
-                    .type("Encounter")
-                    .reference("1000124525706")
-                    .display("1000124525706")
-                    .build()))
         .location(
             Optional.of(
                 DatamartReference.of()

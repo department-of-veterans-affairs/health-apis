@@ -47,13 +47,6 @@ public class DatamartImmunizationTest {
                     .reference("1702436")
                     .display("SHINE,DOC RAINER")
                     .build()))
-        .encounter(
-            Optional.of(
-                DatamartReference.of()
-                    .type("Encounter")
-                    .reference("1000589847194")
-                    .display("1000589847194")
-                    .build()))
         .location(
             Optional.of(
                 DatamartReference.of()

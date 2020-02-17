@@ -48,15 +48,11 @@ class MetadataController {
   private static final String ALLERGYINTOLERANCE_HTML =
       "http://www.fhir.org/guides/argonaut/r2/StructureDefinition-argo-allergyintolerance.html";
 
-  private static final String APPOINTMENT_HTML = "https://www.hl7.org/fhir/DSTU2/appointment.html";
-
   private static final String CONDITION_HTML =
       "http://www.fhir.org/guides/argonaut/r2/StructureDefinition-argo-condition.html";
 
   private static final String DIAGNOSTICREPORT_HTML =
       "http://www.fhir.org/guides/argonaut/r2/StructureDefinition-argo-diagnosticreport.html";
-
-  private static final String ENCOUNTER_HTML = "https://www.hl7.org/fhir/DSTU2/encounter.html";
 
   private static final String IMMUNIZATION_HTML =
       "http://www.fhir.org/guides/argonaut/r2/StructureDefinition-argo-immunization.html";
@@ -65,9 +61,6 @@ class MetadataController {
 
   private static final String MEDICATION_HTML =
       "http://www.fhir.org/guides/argonaut/r2/StructureDefinition-argo-medication.html";
-
-  private static final String MEDICATIONDISPENSE_HTML =
-      "https://www.hl7.org/fhir/DSTU2/medicationdispense.html";
 
   private static final String MEDICATIONORDER_HTML =
       "http://www.fhir.org/guides/argonaut/r2/StructureDefinition-argo-medicationorder.html";
@@ -93,17 +86,6 @@ class MetadataController {
   private final ConformanceStatementProperties properties;
 
   @Autowired ReferenceSerializerProperties referenceSerializerProperties;
-
-  private Set<SearchParam> appointmentSearchParams() {
-    switch (properties.getStatementType()) {
-      case PATIENT:
-        return emptySet();
-      case CLINICIAN:
-        return singleton(SearchParam.PATIENT);
-      default:
-        throw noSearchParamsForConformanceStatementTypeException();
-    }
-  }
 
   private Set<SearchParam> conditionSearchParams() {
     switch (properties.getStatementType()) {
@@ -137,17 +119,6 @@ class MetadataController {
       case CLINICIAN:
         return ImmutableSet.of(
             SearchParam.CATEGORY, SearchParam.CODE, SearchParam.DATE, SearchParam.PATIENT);
-      default:
-        throw noSearchParamsForConformanceStatementTypeException();
-    }
-  }
-
-  private Set<SearchParam> medicationDispenseSearchParams() {
-    switch (properties.getStatementType()) {
-      case PATIENT:
-        return singleton(SearchParam.PATIENT);
-      case CLINICIAN:
-        return ImmutableSet.of(SearchParam.PATIENT, SearchParam.STATUS, SearchParam.TYPE);
       default:
         throw noSearchParamsForConformanceStatementTypeException();
     }
@@ -225,10 +196,6 @@ class MetadataController {
                 .documentation(ALLERGYINTOLERANCE_HTML)
                 .search(ImmutableSet.of(SearchParam.PATIENT))
                 .build(),
-            support("Appointment")
-                .documentation(APPOINTMENT_HTML)
-                .search(appointmentSearchParams())
-                .build(),
             support("Condition")
                 .documentation(CONDITION_HTML)
                 .search(conditionSearchParams())
@@ -237,17 +204,12 @@ class MetadataController {
                 .documentation(DIAGNOSTICREPORT_HTML)
                 .search(diagnosticReportSearchParams())
                 .build(),
-            support("Encounter").documentation(ENCOUNTER_HTML).build(),
             support("Immunization")
                 .documentation(IMMUNIZATION_HTML)
                 .search(ImmutableSet.of(SearchParam.PATIENT))
                 .build(),
             support("Location").documentation(LOCATION_HTML).build(),
             support("Medication").documentation(MEDICATION_HTML).build(),
-            support("MedicationDispense")
-                .documentation(MEDICATIONDISPENSE_HTML)
-                .search(medicationDispenseSearchParams())
-                .build(),
             support("MedicationOrder")
                 .documentation(MEDICATIONORDER_HTML)
                 .search(ImmutableSet.of(SearchParam.PATIENT))

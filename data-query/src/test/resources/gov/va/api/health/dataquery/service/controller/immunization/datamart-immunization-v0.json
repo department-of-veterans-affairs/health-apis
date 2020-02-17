@@ -25,11 +25,6 @@
     "reference" : "1702436",
     "display" : "SHINE,DOC RAINER"
   },
-  "encounter" : {
-    "type" : "Encounter",
-    "reference" : "1000589847194",
-    "display" : "1000589847194"
-  },
   "location" : {
     "type" : "Location",
     "reference" : "358359",

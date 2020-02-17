@@ -78,8 +78,6 @@ conformance.security.token-endpoint ....... Public URL of the OAuth 2.0 token en
 conformance.security.authorize-endpoint ... Public URL of the OAuth 2.0 authorization endpoint
 
 # Options
-included-references.appointment ........... <true|false> Enable references to Appointments
-included-references.encounter ............. <true|false> Enable references to Encounters
 included-references.location .............. <true|false> Enable references to Locations
 included-references.organization .......... <true|false> Enable references to Organizations
 included-references.practitioner .......... <true|false> Enable references to Practitioners

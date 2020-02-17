@@ -43,13 +43,6 @@ public class ConditionSamples {
                   .reference(patientId)
                   .display("VETERAN,FIRNM MINAM")
                   .build())
-          .encounter(
-              Optional.of(
-                  DatamartReference.of()
-                      .type("Encounter")
-                      .reference("800285390250")
-                      .display("Outpatient Visit")
-                      .build()))
           .asserter(
               Optional.of(
                   DatamartReference.of()
@@ -132,7 +125,6 @@ public class ConditionSamples {
           .clinicalStatus(Condition.ClinicalStatusCode.active)
           .code(snomedCode())
           .dateRecorded(dateRecorded)
-          .encounter(reference("Outpatient Visit", "Encounter/800285390250"))
           .onsetDateTime("2011-06-27T05:40:00Z")
           .patient(reference("VETERAN,FIRNM MINAM", "Patient/" + patientId))
           .verificationStatus(VerificationStatusCode.unknown)

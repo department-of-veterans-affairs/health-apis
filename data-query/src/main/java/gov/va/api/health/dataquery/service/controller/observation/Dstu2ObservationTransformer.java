@@ -327,7 +327,6 @@ final class Dstu2ObservationTransformer {
         .category(category(datamart.category()))
         .code(codeableConcept(datamart.code()))
         .subject(asReference(datamart.subject()))
-        .encounter(asReference(datamart.encounter()))
         .effectiveDateTime(asDateTimeString(datamart.effectiveDateTime()))
         .issued(asDateTimeString(datamart.issued()))
         .performer(performers(datamart.performer()))

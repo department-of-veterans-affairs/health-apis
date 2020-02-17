@@ -6,11 +6,8 @@ import com.google.common.collect.ImmutableMap;
 import gov.va.api.health.argonaut.api.resources.Patient;
 import gov.va.api.health.dataquery.service.controller.BulkFhirCount;
 import gov.va.api.health.dataquery.tests.TestClients;
-import gov.va.api.health.dataquery.tests.categories.LabDataQueryPatient;
-import gov.va.api.health.dataquery.tests.categories.ProdDataQueryPatient;
+import gov.va.api.health.dataquery.tests.categories.InternalBulkFhir;
 import gov.va.api.health.sentinel.ExpectedResponse;
-import gov.va.api.health.sentinel.categories.InternalApi;
-import gov.va.api.health.sentinel.categories.Local;
 import gov.va.api.health.sentinel.categories.Manual;
 import java.time.Duration;
 import java.time.Instant;
@@ -23,19 +20,12 @@ import org.junit.experimental.categories.Category;
 
 @Slf4j
 public class PatientBulkFhirIT {
-
   private String apiPath() {
     return TestClients.internalDataQuery().service().urlWithApiPath();
   }
 
   @Test
-  @Category(
-      value = {
-        Local.class,
-        LabDataQueryPatient.class,
-        ProdDataQueryPatient.class,
-        InternalApi.class
-      })
+  @Category(value = {InternalBulkFhir.class})
   public void bulkFhirPatientSearch() {
     log.info("Verify Patient Bulk Search internal/bulk/Patient?page=x&_count=y");
     ExpectedResponse responseAll =
@@ -68,14 +58,13 @@ public class PatientBulkFhirIT {
   }
 
   @Test
-  @Category({Manual.class, InternalApi.class})
+  @Category({Manual.class, InternalBulkFhir.class})
   public void bulkFhirPatientSearchPerformance() {
     /*
      * We will ask for 5000 patients 100 times and log out the time it took to complete
      */
     log.info("Get a large chunk of patients 100x: internal/bulk/Patient?page=x&_count=y");
     Instant start = Instant.now();
-
     for (int i = 0; i < 100; i++) {
       ExpectedResponse responseAll =
           TestClients.internalDataQuery()
@@ -92,7 +81,7 @@ public class PatientBulkFhirIT {
   }
 
   @Test
-  @Category({Local.class, LabDataQueryPatient.class, ProdDataQueryPatient.class, InternalApi.class})
+  @Category({InternalBulkFhir.class})
   @SneakyThrows
   public void bulkPatientCount() {
     String path = apiPath() + "internal/bulk/Patient/count";

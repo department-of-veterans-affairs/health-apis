@@ -28,7 +28,7 @@ import org.springframework.stereotype.Component;
  *
  * <ul>
  *   <li>Automatically fully qualify reference URLs with a configurable base url and path
- *   <li>Automatically filter out references for resources that are optional, such as Appointment
+ *   <li>Automatically filter out references for resources that are optional, such as Location
  * </ul>
  *
  * The goal of this class is to minimize impact of reference logic through out the application code

@@ -115,10 +115,7 @@ public class MetadataControllerTest {
 
   private ReferenceSerializerProperties referenceSerializerProperties(boolean isEnabled) {
     return ReferenceSerializerProperties.builder()
-        .appointment(isEnabled)
-        .encounter(isEnabled)
         .location(isEnabled)
-        .medicationDispense(isEnabled)
         .organization(isEnabled)
         .practitioner(isEnabled)
         .build();
