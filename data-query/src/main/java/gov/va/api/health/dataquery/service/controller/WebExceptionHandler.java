@@ -5,16 +5,20 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.io.JsonEOFException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 
+import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.autoconfig.logging.MethodExecutionLogger;
 import gov.va.api.health.dstu2.api.elements.Extension;
 import gov.va.api.health.dstu2.api.elements.Narrative;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
+import gov.va.api.health.dstu2.api.resources.OperationOutcome.Issue;
 import gov.va.api.health.ids.client.IdEncoder.BadId;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collections;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -22,7 +26,10 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolationException;
 
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -56,65 +63,55 @@ public class WebExceptionHandler {
   }
 
   private OperationOutcome asOperationOutcome(
-      String code, Exception e, HttpServletRequest request, List<String> problems) {
-    Instant now = Instant.now();
-
-    StringBuilder diagnostics = new StringBuilder();
-    diagnostics
-        .append("Error: ")
-        .append(e.getClass().getSimpleName())
-        .append(" Timestamp:")
-        .append(now);
-    problems.forEach(p -> diagnostics.append('\n').append(p));
-
-    //    Log marker
-    //    UUID printed to the log used to easily find statements related to the response
-    //    If @Loggable related transaction ID is available, this is also useful
-
-    System.out.println("MethodExecutionLogger ID is " + mel.getId());
-    OperationOutcome oo =
-        OperationOutcome.builder()
-            .id(UUID.randomUUID().toString())
-            .resourceType("OperationOutcome")
-            .extension(
-                List.of(
-                    Extension.builder().url("timestamp").valueInstant(now.toString()).build(),
-                    Extension.builder()
-                        .url("type")
-                        .valueString(e.getClass().getSimpleName())
-                        .build(),
-                    Extension.builder().url("message").valueString(e.getMessage()).build(),
-                    Extension.builder()
-                        .url("cause")
-                        .valueString(
-                            causes(e)
-                                .stream()
-                                .map(t -> t.getClass().getSimpleName() + " " + t.getMessage())
-                                .collect(Collectors.joining(", ")))
-                        .build(),
-                    Extension.builder().url("request").valueString(reconstructUrl(request)).build(),
-                    Extension.builder().url("marker").valueString(mel.getId()).build()))
-            .text(
-                Narrative.builder()
-                    .status(Narrative.NarrativeStatus.additional)
-                    .div("<div>Failure: " + request.getRequestURI() + "</div>")
-                    .build())
-            .issue(
-                Collections.singletonList(
-                    OperationOutcome.Issue.builder()
-                        .severity(OperationOutcome.Issue.IssueSeverity.fatal)
-                        .code(code)
-                        .diagnostics(diagnostics.toString())
-                        .build()))
+      String code, Exception e, HttpServletRequest request, List<String> diagnostics) {
+    Issue issue =
+        OperationOutcome.Issue.builder()
+            .severity(OperationOutcome.Issue.IssueSeverity.fatal)
+            .code(code)
             .build();
+    String d = diagnostics.stream().collect(Collectors.joining(", "));
+    if (isNotBlank(d)) {
+      issue.diagnostics(d);
+    }
 
-    //    Set<ConstraintViolation<OperationOutcome>> violations =
-    //        Validation.buildDefaultValidatorFactory().getValidator().validate(oo);
-    //    if (!violations.isEmpty()) {
-    //      throw new ConstraintViolationException("OPERATION OUTCOME IS NOT VALID", violations);
-    //    }
+    return OperationOutcome.builder()
+        .id(UUID.randomUUID().toString())
+        .resourceType("OperationOutcome")
+        .extension(extensions(e, request))
+        .text(
+            Narrative.builder()
+                .status(Narrative.NarrativeStatus.additional)
+                .div("<div>Failure: " + request.getRequestURI() + "</div>")
+                .build())
+        .issue(singletonList(issue))
+        .build();
+  }
 
-    return oo;
+  private List<Extension> extensions(Exception e, HttpServletRequest request) {
+    List<Extension> extensions = new ArrayList<>(5);
+
+    extensions.add(
+        Extension.builder().url("timestamp").valueInstant(Instant.now().toString()).build());
+
+    extensions.add(
+        Extension.builder().url("type").valueString(e.getClass().getSimpleName()).build());
+
+    if (isNotBlank(e.getMessage())) {
+      extensions.add(Extension.builder().url("message").valueString(e.getMessage()).build());
+    }
+
+    String cause =
+        causes(e)
+            .stream()
+            .map(t -> t.getClass().getSimpleName() + " " + t.getMessage())
+            .collect(Collectors.joining(", "));
+    if (isNotBlank(cause)) {
+      extensions.add(Extension.builder().url("cause").valueString(cause).build());
+    }
+
+    extensions.add(Extension.builder().url("request").valueString(reconstructUrl(request)).build());
+
+    return extensions;
   }
 
   private List<Throwable> causes(Throwable t) {
@@ -137,7 +134,7 @@ public class WebExceptionHandler {
   })
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   public OperationOutcome handleBadRequest(Exception e, HttpServletRequest request) {
-    return responseFor("structure", e, request);
+    return responseFor("structure", e, request, emptyList(), true);
   }
 
   @ExceptionHandler({
@@ -149,13 +146,13 @@ public class WebExceptionHandler {
   })
   @ResponseStatus(HttpStatus.NOT_FOUND)
   public OperationOutcome handleNotFound(Exception e, HttpServletRequest request) {
-    return responseFor("not-found", e, request);
+    return responseFor("not-found", e, request, emptyList(), true);
   }
 
   @ExceptionHandler({ResourceExceptions.NotImplemented.class})
   @ResponseStatus(HttpStatus.NOT_IMPLEMENTED)
   public OperationOutcome handleNotImplemented(Exception e, HttpServletRequest request) {
-    return responseFor("not-implemented", e, request);
+    return responseFor("not-implemented", e, request, emptyList(), true);
   }
 
   /**
@@ -172,15 +169,14 @@ public class WebExceptionHandler {
   public OperationOutcome handleSnafu(Exception e, HttpServletRequest request) {
     Optional<JsonProcessingException> jsonError = asJsonError(e);
     if (jsonError.isEmpty()) {
-      return responseFor("exception", e, request);
+      return responseFor("exception", e, request, emptyList(), true);
     }
+
     String requestPath = reconstructUrl(request);
     String useful = sanitize(jsonError.get());
     List<String> problems = List.of(requestPath, useful);
-    log.error("FAILED TO PROCESS JSON FOR REQUEST: {}", requestPath);
-    log.error("BECAUSE: {}", useful);
-    OperationOutcome response = asOperationOutcome("database", e, request, problems);
-    log.error("Status 500 -- Request: {} Caused By: {}", requestPath, e.getCause().getClass());
+    // log.error("FAILED TO PROCESS JSON FOR REQUEST '{}' BECAUSE: {}", requestPath, useful);
+    OperationOutcome response = responseFor("database", e, request, problems, false);
     return response;
   }
 
@@ -198,24 +194,29 @@ public class WebExceptionHandler {
             .stream()
             .map(v -> v.getPropertyPath() + " " + v.getMessage())
             .collect(Collectors.toList());
-    return responseFor("structure", e, request, problems);
+    return responseFor("structure", e, request, problems, true);
   }
 
-  /** Reconstruct a sanitized URL basedon the request. */
+  /** Reconstruct a sanitized URL based on the request. */
   private String reconstructUrl(HttpServletRequest request) {
     return request.getRequestURI()
         + (request.getQueryString() == null ? "" : "?" + request.getQueryString())
             .replaceAll("[\r\n]", "");
   }
 
-  private OperationOutcome responseFor(String code, Exception e, HttpServletRequest request) {
-    return responseFor(code, e, request, Collections.emptyList());
-  }
-
+  @SneakyThrows
   private OperationOutcome responseFor(
-      String code, Exception e, HttpServletRequest request, List<String> problems) {
+      String code,
+      Exception e,
+      HttpServletRequest request,
+      List<String> problems,
+      boolean printStackTrace) {
     OperationOutcome response = asOperationOutcome(code, e, request, problems);
-    log.error("Response {}", response, e);
+    if (printStackTrace) {
+      log.error("Response {}", JacksonConfig.createMapper().writeValueAsString(response), e);
+    } else {
+      log.error("Response {}", JacksonConfig.createMapper().writeValueAsString(response));
+    }
     return response;
   }
 

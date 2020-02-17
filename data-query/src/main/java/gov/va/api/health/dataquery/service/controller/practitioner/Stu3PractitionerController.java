@@ -15,9 +15,13 @@ import gov.va.api.health.stu3.api.resources.Practitioner;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+import javax.validation.Validation;
 import javax.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -157,6 +161,14 @@ public class Stu3PractitionerController {
       @RequestParam("identifier") String systemAndCode,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
+    Set<ConstraintViolation<Practitioner>> violations =
+        Validation.buildDefaultValidatorFactory()
+            .getValidator()
+            .validate(Practitioner.builder().build());
+    if (!violations.isEmpty()) {
+      throw new ConstraintViolationException("NOT VALID", violations);
+    }
+
     MultiValueMap<String, String> parameters =
         Parameters.builder()
             .add("identifier", systemAndCode)
