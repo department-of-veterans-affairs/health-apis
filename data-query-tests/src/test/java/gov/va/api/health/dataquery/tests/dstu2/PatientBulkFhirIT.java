@@ -72,7 +72,7 @@ public class PatientBulkFhirIT {
               .get(
                   ImmutableMap.of("bulk", System.getProperty("bulk-token", "some-token")),
                   apiPath() + "internal/bulk/Patient?page=1&_count=5000");
-      responseAll.expect(300);
+      responseAll.expect(200);
       responseAll.expectListOf(Patient.class);
     }
     Instant complete = Instant.now();
@@ -90,7 +90,7 @@ public class PatientBulkFhirIT {
     ExpectedResponse response =
         TestClients.internalDataQuery()
             .get(ImmutableMap.of("bulk", System.getProperty("bulk-token", "some-token")), path);
-    response.expect(300);
+    response.expect(200);
     var bulkFhirCount = response.expectValid(BulkFhirCount.class);
     assertThat(bulkFhirCount.count()).isGreaterThan(3);
   }
