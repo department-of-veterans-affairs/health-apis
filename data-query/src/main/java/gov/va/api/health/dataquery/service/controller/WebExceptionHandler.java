@@ -68,13 +68,13 @@ public class WebExceptionHandler {
     }
   }
 
-  private static boolean isJsonError(Exception e) {
-    Throwable cause = e.getCause();
-    while (cause != null) {
-      if (JsonProcessingException.class.isAssignableFrom(cause.getClass())) {
+  private static boolean isJsonError(Throwable tr) {
+    Throwable current = tr;
+    while (current != null) {
+      if (JsonProcessingException.class.isAssignableFrom(current.getClass())) {
         return true;
       }
-      cause = cause.getCause();
+      current = current.getCause();
     }
     return false;
   }
@@ -176,8 +176,7 @@ public class WebExceptionHandler {
       extensions.add(Extension.builder().url("cause").valueString(encrypt(cause)).build());
     }
 
-    extensions.add(
-        Extension.builder().url("request").valueString(encrypt(reconstructUrl(request))).build());
+    extensions.add(Extension.builder().url("request").valueString(reconstructUrl(request)).build());
 
     return extensions;
   }

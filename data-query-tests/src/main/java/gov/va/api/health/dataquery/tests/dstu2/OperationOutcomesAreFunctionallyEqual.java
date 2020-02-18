@@ -17,7 +17,7 @@ public class OperationOutcomesAreFunctionallyEqual implements ErrorsAreFunctiona
           .filter(e -> e.url().equals("timestamp"))
           .forEach(e -> e.valueInstant("REMOVED-FOR-COMPARISON"));
       oo.extension().stream()
-          .filter(e -> List.of("message", "cause", "request").contains(e.url()))
+          .filter(e -> List.of("message", "cause").contains(e.url()))
           .forEach(e -> e.valueString("REMOVED-FOR-COMPARISON"));
       return oo;
     } catch (Exception e) {
