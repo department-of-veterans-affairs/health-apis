@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.controller;
 
+import static com.google.common.base.Preconditions.checkState;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -53,6 +54,7 @@ public class WebExceptionHandler {
 
   public WebExceptionHandler(
       @Value("${data-query.public-web-exception-key}") String encryptionKey) {
+    checkState(!"unset".equals(encryptionKey), "data-query.public-web-exception-key is unset");
     this.encryptionKey = encryptionKey;
   }
 
