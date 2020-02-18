@@ -143,8 +143,6 @@ public class WebExceptionHandler {
 
   @SneakyThrows
   private String encrypt(String plainText) {
-    // PETERTODO delete
-    System.out.println("Using encryption key " + encryptionKey);
     Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
     Key key = new SecretKeySpec(encryptionKey.getBytes("UTF-8"), "AES");
     SecureRandom secureRandom = SecureRandom.getInstance("SHA1PRNG");

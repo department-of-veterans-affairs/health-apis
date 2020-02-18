@@ -17,6 +17,11 @@ Secrets Configuration
  - KEYSTORE_PASSWORD
  - DATAQUERY_DB_URL, DATAQUERY_DB_USER, DATAQUERY_DB_PASSWORD
 
+ These may optionally be provided
+ - IDS_ENCODING_KEY
+ - IDS_PATIENT_ID_PATTERN
+ - WEB_EXCEPTIONS_KEY
+
 $1
 EOF
   exit 1
@@ -53,6 +58,7 @@ MISSING_SECRETS=false
 [ -z "$DATAQUERY_DB_PASSWORD" ] && echo "Missing configuration: DATAQUERY_DB_PASSWORD" && MISSING_SECRETS=true
 [ -z "$IDS_ENCODING_KEY" ] && IDS_ENCODING_KEY=data-query
 [ -z "$IDS_PATIENT_ID_PATTERN" ] && IDS_PATIENT_ID_PATTERN="[0-9]+(V[0-9]{6})?"
+[ -z "$WEB_EXCEPTIONS_KEY" ] && WEB_EXCEPTIONS_KEY="-shanktopus-for-the-win-"
 [ $MISSING_SECRETS == true ] && usage "Missing configuration secrets, please update $SECRETS"
 
 makeConfig() {
@@ -112,6 +118,7 @@ configValue data-query $PROFILE identityservice.url http://localhost:8089
 addValue data-query $PROFILE identityservice.encodingKey "$IDS_ENCODING_KEY"
 addValue data-query $PROFILE identityservice.patientIdPattern "$IDS_PATIENT_ID_PATTERN"
 configValue data-query $PROFILE data-query.public-url http://localhost:8090
+configValue data-query $PROFILE data-query.public-web-exceptions-key "$WEB_EXCEPTIONS_KEY"
 configValue data-query $PROFILE conformance.statement-type patient
 configValue data-query $PROFILE conformance.contact.name "$(whoDis)"
 configValue data-query $PROFILE conformance.contact.email "$(sendMoarSpams)"
