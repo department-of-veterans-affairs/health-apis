@@ -1,6 +1,5 @@
 package gov.va.api.health.dataquery.service.controller;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -15,7 +14,6 @@ import gov.va.api.health.autoconfig.logging.MethodExecutionLogger;
 import gov.va.api.health.dstu2.api.elements.Extension;
 import gov.va.api.health.dstu2.api.elements.Narrative;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
-import gov.va.api.health.dstu2.api.resources.OperationOutcome.Issue;
 import gov.va.api.health.ids.client.IdEncoder.BadId;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.security.Key;
@@ -58,7 +56,7 @@ public class WebExceptionHandler {
 
   private OperationOutcome asOperationOutcome(
       String code, Exception e, HttpServletRequest request, List<String> diagnostics) {
-    Issue issue =
+    OperationOutcome.Issue issue =
         OperationOutcome.Issue.builder()
             .severity(OperationOutcome.Issue.IssueSeverity.fatal)
             .code(code)
@@ -95,12 +93,12 @@ public class WebExceptionHandler {
   @SneakyThrows
   private String encrypt(String plainText) {
     Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-    Key key = new SecretKeySpec(CRYPTO_KEY.getBytes(), "AES");
+    Key key = new SecretKeySpec(CRYPTO_KEY.getBytes("UTF-8"), "AES");
     SecureRandom secureRandom = SecureRandom.getInstance("SHA1PRNG");
     byte[] iv = new byte[cipher.getBlockSize()];
     secureRandom.nextBytes(iv);
     cipher.init(Cipher.ENCRYPT_MODE, key, new IvParameterSpec(iv));
-    byte[] enBytes = cipher.doFinal(plainText.getBytes(UTF_8));
+    byte[] enBytes = cipher.doFinal(plainText.getBytes("UTF-8"));
     byte[] combined = ArrayUtils.addAll(iv, enBytes);
     return Base64.getEncoder().encodeToString(combined);
   }
