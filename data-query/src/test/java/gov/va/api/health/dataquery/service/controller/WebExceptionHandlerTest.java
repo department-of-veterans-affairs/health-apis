@@ -2,6 +2,7 @@ package gov.va.api.health.dataquery.service.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -40,7 +41,6 @@ import org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHan
 @SuppressWarnings("DefaultAnnotationParam")
 @RunWith(Parameterized.class)
 public class WebExceptionHandlerTest {
-
   private final String basePath = "/dstu2";
 
   @Parameter(0)
@@ -79,7 +79,7 @@ public class WebExceptionHandlerTest {
   public void _init() {
     MockitoAnnotations.initMocks(this);
     controller = new Dstu2PatientController(bundler, repository, witnessProtection);
-    exceptionHandler = new WebExceptionHandler(null);
+    exceptionHandler = new WebExceptionHandler("1234567890123456");
   }
 
   private ExceptionHandlerExceptionResolver createExceptionResolver() {
@@ -136,7 +136,9 @@ public class WebExceptionHandlerTest {
     mvc.perform(get(basePath + "/Patient/123"))
         .andExpect(status().is(status.value()))
         .andExpect(jsonPath("text.div", containsString(basePath + "/Patient/123")))
+        .andExpect(jsonPath("extension[0].url", equalTo("timestamp")))
+        .andExpect(jsonPath("extension[1].url", equalTo("type")))
         .andExpect(
-            jsonPath("issue[0].diagnostics", containsString(exception.getClass().getSimpleName())));
+            jsonPath("extension[1].valueString", equalTo(exception.getClass().getSimpleName())));
   }
 }

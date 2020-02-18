@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.crypto.Cipher;
-import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolationException;
@@ -143,12 +143,12 @@ public class WebExceptionHandler {
 
   @SneakyThrows
   private String encrypt(String plainText) {
-    Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+    Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
     Key key = new SecretKeySpec(encryptionKey.getBytes("UTF-8"), "AES");
     SecureRandom secureRandom = SecureRandom.getInstance("SHA1PRNG");
     byte[] iv = new byte[cipher.getBlockSize()];
     secureRandom.nextBytes(iv);
-    cipher.init(Cipher.ENCRYPT_MODE, key, new IvParameterSpec(iv));
+    cipher.init(Cipher.ENCRYPT_MODE, key, new GCMParameterSpec(128, iv));
     byte[] enBytes = cipher.doFinal(plainText.getBytes("UTF-8"));
     byte[] combined = ArrayUtils.addAll(iv, enBytes);
     return Base64.getEncoder().encodeToString(combined);
