@@ -14,8 +14,7 @@ public interface DatamartEntity {
       throw new ResourceExceptions.InvalidDatamartPayload(cdwId());
     }
     try {
-      return JacksonConfig.createMapper()
-          .readValue(payload.substring(0, payload.length() - 2), clazz);
+      return JacksonConfig.createMapper().readValue(payload, clazz);
     } catch (Exception e) {
       throw new ResourceExceptions.InvalidDatamartPayload(cdwId(), e);
     }
