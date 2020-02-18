@@ -7,11 +7,13 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-/** Tool to decrypt encrypted values in operation outcomes. */
+/**
+ * Tool to decrypt protected values from operation outcomes. See WebExceptionHandler for encryption.
+ */
 public class WebExceptionDecrypter {
   public static void main(String[] args) throws Exception {
     if (args.length != 2) {
-      System.out.println("Example: web-exception-decryptor.sh key cipherText");
+      System.out.println("Example: web-exception-decrypter.sh key cipherText");
       return;
     }
 
