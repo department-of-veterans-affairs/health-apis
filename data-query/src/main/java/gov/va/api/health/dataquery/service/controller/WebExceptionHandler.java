@@ -10,7 +10,6 @@ import com.fasterxml.jackson.core.io.JsonEOFException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
-import gov.va.api.health.autoconfig.logging.MethodExecutionLogger;
 import gov.va.api.health.dstu2.api.elements.Extension;
 import gov.va.api.health.dstu2.api.elements.Narrative;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
@@ -32,7 +31,6 @@ import javax.validation.ConstraintViolationException;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.UnsatisfiedServletRequestParameterException;
@@ -52,23 +50,85 @@ import org.springframework.web.client.HttpClientErrorException;
 public class WebExceptionHandler {
   private static final String CRYPTO_KEY = "yo_dawg_i_herd_u_like_encryption";
 
-  @Autowired MethodExecutionLogger mel;
+  private static List<Throwable> causes(Throwable tr) {
+    List<Throwable> results = new ArrayList<>();
+    Throwable current = tr;
+    while (true) {
+      current = current.getCause();
+      if (current == null) {
+        return results;
+      }
+      results.add(current);
+    }
+  }
+
+  private static boolean isJsonError(Exception e) {
+    Throwable cause = e.getCause();
+    while (cause != null) {
+      if (JsonProcessingException.class.isAssignableFrom(cause.getClass())) {
+        return true;
+      }
+      cause = cause.getCause();
+    }
+    return false;
+  }
+
+  /** Reconstruct a sanitized URL based on the request. */
+  private static String reconstructUrl(HttpServletRequest request) {
+    return request.getRequestURI()
+        + (request.getQueryString() == null ? "" : "?" + request.getQueryString())
+            .replaceAll("[\r\n]", "");
+  }
+
+  private static String sanitizedMessage(Throwable tr) {
+    if (tr instanceof MismatchedInputException) {
+      MismatchedInputException mie = (MismatchedInputException) tr;
+      return new StringBuilder().append(" path: ").append(mie.getPathReference()).toString();
+    }
+    if (tr instanceof JsonEOFException) {
+      JsonEOFException eofe = (JsonEOFException) tr;
+      if (eofe.getLocation() != null) {
+        return new StringBuilder()
+            .append(" line: ")
+            .append(eofe.getLocation().getLineNr())
+            .append(", column: ")
+            .append(eofe.getLocation().getColumnNr())
+            .toString();
+      }
+    }
+    if (tr instanceof JsonMappingException) {
+      JsonMappingException jme = (JsonMappingException) tr;
+      return new StringBuilder().append(" path: ").append(jme.getPathReference()).toString();
+    }
+    if (tr instanceof JsonParseException) {
+      JsonParseException jpe = (JsonParseException) tr;
+      if (jpe.getLocation() != null) {
+        return new StringBuilder()
+            .append(" line: ")
+            .append(jpe.getLocation().getLineNr())
+            .append(", column: ")
+            .append(jpe.getLocation().getColumnNr())
+            .toString();
+      }
+    }
+    return tr.getMessage();
+  }
 
   private OperationOutcome asOperationOutcome(
-      String code, Exception e, HttpServletRequest request, List<String> diagnostics) {
+      String code, Throwable tr, HttpServletRequest request, List<String> diagnostics) {
     OperationOutcome.Issue issue =
         OperationOutcome.Issue.builder()
             .severity(OperationOutcome.Issue.IssueSeverity.fatal)
             .code(code)
             .build();
-    String d = diagnostics.stream().collect(Collectors.joining(", "));
-    if (isNotBlank(d)) {
-      issue.diagnostics(d);
+    String diagnostic = diagnostics.stream().collect(Collectors.joining(", "));
+    if (isNotBlank(diagnostic)) {
+      issue.diagnostics(diagnostic);
     }
     return OperationOutcome.builder()
         .id(UUID.randomUUID().toString())
         .resourceType("OperationOutcome")
-        .extension(extensions(e, request))
+        .extension(extensions(tr, request))
         .text(
             Narrative.builder()
                 .status(Narrative.NarrativeStatus.additional)
@@ -76,18 +136,6 @@ public class WebExceptionHandler {
                 .build())
         .issue(singletonList(issue))
         .build();
-  }
-
-  private List<Throwable> causes(Throwable t) {
-    List<Throwable> results = new ArrayList<>();
-    Throwable throwable = t;
-    while (true) {
-      throwable = throwable.getCause();
-      if (throwable == null) {
-        return results;
-      }
-      results.add(throwable);
-    }
   }
 
   @SneakyThrows
@@ -103,25 +151,32 @@ public class WebExceptionHandler {
     return Base64.getEncoder().encodeToString(combined);
   }
 
-  private List<Extension> extensions(Exception e, HttpServletRequest request) {
+  private List<Extension> extensions(Throwable tr, HttpServletRequest request) {
     List<Extension> extensions = new ArrayList<>(5);
+
     extensions.add(
         Extension.builder().url("timestamp").valueInstant(Instant.now().toString()).build());
+
     extensions.add(
-        Extension.builder().url("type").valueString(e.getClass().getSimpleName()).build());
-    if (isNotBlank(sanitizedMessage(e))) {
+        Extension.builder().url("type").valueString(tr.getClass().getSimpleName()).build());
+
+    if (isNotBlank(sanitizedMessage(tr))) {
       extensions.add(
-          Extension.builder().url("message").valueString(encrypt(sanitizedMessage(e))).build());
+          Extension.builder().url("message").valueString(encrypt(sanitizedMessage(tr))).build());
     }
+
     String cause =
-        causes(e).stream()
+        causes(tr)
+            .stream()
             .map(t -> t.getClass().getSimpleName() + " " + sanitizedMessage(t))
             .collect(Collectors.joining(", "));
     if (isNotBlank(cause)) {
       extensions.add(Extension.builder().url("cause").valueString(encrypt(cause)).build());
     }
+
     extensions.add(
         Extension.builder().url("request").valueString(encrypt(reconstructUrl(request))).build());
+
     return extensions;
   }
 
@@ -181,78 +236,27 @@ public class WebExceptionHandler {
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   public OperationOutcome handleValidationException(
       ConstraintViolationException e, HttpServletRequest request) {
-    List<String> problems =
-        e.getConstraintViolations().stream()
+    List<String> diagnostics =
+        e.getConstraintViolations()
+            .stream()
             .map(v -> v.getPropertyPath() + " " + v.getMessage())
             .collect(Collectors.toList());
-    return responseFor("structure", e, request, problems, true);
-  }
-
-  private boolean isJsonError(Exception e) {
-    Throwable cause = e.getCause();
-    while (cause != null) {
-      if (JsonProcessingException.class.isAssignableFrom(cause.getClass())) {
-        return true;
-      }
-      cause = cause.getCause();
-    }
-    return false;
-  }
-
-  /** Reconstruct a sanitized URL based on the request. */
-  private String reconstructUrl(HttpServletRequest request) {
-    return request.getRequestURI()
-        + (request.getQueryString() == null ? "" : "?" + request.getQueryString())
-            .replaceAll("[\r\n]", "");
+    return responseFor("structure", e, request, diagnostics, true);
   }
 
   @SneakyThrows
   private OperationOutcome responseFor(
       String code,
-      Exception e,
+      Throwable tr,
       HttpServletRequest request,
-      List<String> problems,
+      List<String> diagnostics,
       boolean printStackTrace) {
-    OperationOutcome response = asOperationOutcome(code, e, request, problems);
+    OperationOutcome response = asOperationOutcome(code, tr, request, diagnostics);
     if (printStackTrace) {
-      log.error("Response {}", JacksonConfig.createMapper().writeValueAsString(response), e);
+      log.error("Response {}", JacksonConfig.createMapper().writeValueAsString(response), tr);
     } else {
       log.error("Response {}", JacksonConfig.createMapper().writeValueAsString(response));
     }
     return response;
-  }
-
-  private String sanitizedMessage(Throwable throwable) {
-    if (throwable instanceof MismatchedInputException) {
-      MismatchedInputException mie = (MismatchedInputException) throwable;
-      return new StringBuilder().append(" path: ").append(mie.getPathReference()).toString();
-    }
-    if (throwable instanceof JsonEOFException) {
-      JsonEOFException eofe = (JsonEOFException) throwable;
-      if (eofe.getLocation() != null) {
-        return new StringBuilder()
-            .append(" line: ")
-            .append(eofe.getLocation().getLineNr())
-            .append(", column: ")
-            .append(eofe.getLocation().getColumnNr())
-            .toString();
-      }
-    }
-    if (throwable instanceof JsonMappingException) {
-      JsonMappingException jme = (JsonMappingException) throwable;
-      return new StringBuilder().append(" path: ").append(jme.getPathReference()).toString();
-    }
-    if (throwable instanceof JsonParseException) {
-      JsonParseException jpe = (JsonParseException) throwable;
-      if (jpe.getLocation() != null) {
-        return new StringBuilder()
-            .append(" line: ")
-            .append(jpe.getLocation().getLineNr())
-            .append(", column: ")
-            .append(jpe.getLocation().getColumnNr())
-            .toString();
-      }
-    }
-    return throwable.getMessage();
   }
 }
