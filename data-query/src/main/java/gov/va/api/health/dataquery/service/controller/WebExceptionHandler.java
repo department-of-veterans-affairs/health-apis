@@ -31,6 +31,7 @@ import javax.validation.ConstraintViolationException;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.UnsatisfiedServletRequestParameterException;
@@ -48,7 +49,12 @@ import org.springframework.web.client.HttpClientErrorException;
 @RestControllerAdvice
 @RequestMapping(produces = {"application/json"})
 public class WebExceptionHandler {
-  private static final String CRYPTO_KEY = "yo_dawg_i_herd_u_like_encryption";
+  private final String encryptionKey;
+
+  public WebExceptionHandler(
+      @Value("${data-query.public-web-exceptions-key}") String encryptionKey) {
+    this.encryptionKey = encryptionKey;
+  }
 
   private static List<Throwable> causes(Throwable tr) {
     List<Throwable> results = new ArrayList<>();
@@ -137,8 +143,10 @@ public class WebExceptionHandler {
 
   @SneakyThrows
   private String encrypt(String plainText) {
+    // PETERTODO delete
+    System.out.println("Using encryption key " + encryptionKey);
     Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-    Key key = new SecretKeySpec(CRYPTO_KEY.getBytes("UTF-8"), "AES");
+    Key key = new SecretKeySpec(encryptionKey.getBytes("UTF-8"), "AES");
     SecureRandom secureRandom = SecureRandom.getInstance("SHA1PRNG");
     byte[] iv = new byte[cipher.getBlockSize()];
     secureRandom.nextBytes(iv);

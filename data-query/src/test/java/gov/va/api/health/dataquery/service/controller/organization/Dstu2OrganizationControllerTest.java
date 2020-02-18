@@ -191,7 +191,6 @@ public class Dstu2OrganizationControllerTest {
 
   @Test
   public void validate() {
-    DatamartOrganization dm = OrganizationSamples.Datamart.create().organization();
     Organization organization = OrganizationSamples.Dstu2.create().organization();
     assertThat(
             controller()

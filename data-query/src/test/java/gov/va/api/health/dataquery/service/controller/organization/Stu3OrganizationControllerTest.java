@@ -415,7 +415,6 @@ public class Stu3OrganizationControllerTest {
 
   @Test
   public void validate() {
-    DatamartOrganization dm = OrganizationSamples.Datamart.create().organization();
     Organization organization = OrganizationSamples.Stu3.create().organization();
     assertThat(
             controller()

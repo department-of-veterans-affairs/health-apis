@@ -79,7 +79,7 @@ public class WebExceptionHandlerTest {
   public void _init() {
     MockitoAnnotations.initMocks(this);
     controller = new Dstu2PatientController(bundler, repository, witnessProtection);
-    exceptionHandler = new WebExceptionHandler();
+    exceptionHandler = new WebExceptionHandler(null);
   }
 
   private ExceptionHandlerExceptionResolver createExceptionResolver() {
