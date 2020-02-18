@@ -52,7 +52,7 @@ public class WebExceptionHandler {
   private final String encryptionKey;
 
   public WebExceptionHandler(
-      @Value("${data-query.public-web-exceptions-key}") String encryptionKey) {
+      @Value("${data-query.public-web-exception-key}") String encryptionKey) {
     this.encryptionKey = encryptionKey;
   }
 

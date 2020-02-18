@@ -128,7 +128,7 @@
                 <argument>-Didentityservice.url=http://localhost:8089</argument>
                 <argument>-Didentityservice.encodingKey=data-query</argument>
                 <argument>-Didentityservice.patientIdPattern=[0-9]+(V[0-9]{6})?</argument>
-                <argument>-Ddata-query.public-web-exceptions-key=-shanktopus-for-the-win-</argument>
+                <argument>-Ddata-query.public-web-exception-key=-shanktopus-for-the-win-</argument>
                 <argument>-Dconformance.statement-type=patient</argument>
                 <argument>-Dconformance.contact.name=Sentinel</argument>
                 <argument>-Dconformance.contact.email=sentinel@matrix.com</argument>
