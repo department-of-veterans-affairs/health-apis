@@ -83,34 +83,31 @@ public class WebExceptionHandler {
   private static String sanitizedMessage(Throwable tr) {
     if (tr instanceof MismatchedInputException) {
       MismatchedInputException mie = (MismatchedInputException) tr;
-      return new StringBuilder().append(" path: ").append(mie.getPathReference()).toString();
+      return String.format("path: %s", mie.getPathReference());
     }
+
     if (tr instanceof JsonEOFException) {
       JsonEOFException eofe = (JsonEOFException) tr;
       if (eofe.getLocation() != null) {
-        return new StringBuilder()
-            .append(" line: ")
-            .append(eofe.getLocation().getLineNr())
-            .append(", column: ")
-            .append(eofe.getLocation().getColumnNr())
-            .toString();
+        return String.format(
+            "line: %s, column: %s",
+            eofe.getLocation().getLineNr(), eofe.getLocation().getColumnNr());
       }
     }
+
     if (tr instanceof JsonMappingException) {
       JsonMappingException jme = (JsonMappingException) tr;
-      return new StringBuilder().append(" path: ").append(jme.getPathReference()).toString();
+      return String.format("path: %s", jme.getPathReference());
     }
+
     if (tr instanceof JsonParseException) {
       JsonParseException jpe = (JsonParseException) tr;
       if (jpe.getLocation() != null) {
-        return new StringBuilder()
-            .append(" line: ")
-            .append(jpe.getLocation().getLineNr())
-            .append(", column: ")
-            .append(jpe.getLocation().getColumnNr())
-            .toString();
+        return String.format(
+            "line: %s, column: %s", jpe.getLocation().getLineNr(), jpe.getLocation().getColumnNr());
       }
     }
+
     return tr.getMessage();
   }
 
@@ -166,8 +163,7 @@ public class WebExceptionHandler {
     }
 
     String cause =
-        causes(tr)
-            .stream()
+        causes(tr).stream()
             .map(t -> t.getClass().getSimpleName() + " " + sanitizedMessage(t))
             .collect(Collectors.joining(", "));
     if (isNotBlank(cause)) {
@@ -237,8 +233,7 @@ public class WebExceptionHandler {
   public OperationOutcome handleValidationException(
       ConstraintViolationException e, HttpServletRequest request) {
     List<String> diagnostics =
-        e.getConstraintViolations()
-            .stream()
+        e.getConstraintViolations().stream()
             .map(v -> v.getPropertyPath() + " " + v.getMessage())
             .collect(Collectors.toList());
     return responseFor("structure", e, request, diagnostics, true);
