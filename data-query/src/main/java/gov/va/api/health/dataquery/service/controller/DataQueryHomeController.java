@@ -28,9 +28,8 @@ public class DataQueryHomeController {
    * redirect.
    */
   @GetMapping(
-    value = {"dstu2/", "dstu2/openapi.json"},
-    produces = "application/json"
-  )
+      value = {"dstu2/", "dstu2/openapi.json"},
+      produces = "application/json")
   @ResponseBody
   public Object openapiJson() throws IOException {
     return DataQueryHomeController.MAPPER.readValue(openapiContent(), Object.class);
@@ -38,9 +37,8 @@ public class DataQueryHomeController {
 
   /** Provide access to the OpenAPI yaml via RESTful interface. */
   @GetMapping(
-    value = {"/dstu2/openapi.yaml"},
-    produces = "application/vnd.oai.openapi"
-  )
+      value = {"/dstu2/openapi.yaml"},
+      produces = "application/vnd.oai.openapi")
   @ResponseBody
   public String openapiYaml() throws IOException {
     return openapiContent();

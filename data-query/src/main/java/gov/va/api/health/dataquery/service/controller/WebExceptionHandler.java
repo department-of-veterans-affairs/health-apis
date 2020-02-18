@@ -1,15 +1,15 @@
 package gov.va.api.health.dataquery.service.controller;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.io.JsonEOFException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
-
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.autoconfig.logging.MethodExecutionLogger;
 import gov.va.api.health.dstu2.api.elements.Extension;
@@ -26,18 +26,13 @@ import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolationException;
-
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
-
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -57,20 +52,9 @@ import org.springframework.web.client.HttpClientErrorException;
 @RestControllerAdvice
 @RequestMapping(produces = {"application/json"})
 public class WebExceptionHandler {
-  @Autowired MethodExecutionLogger mel;
-
   private static final String CRYPTO_KEY = "yo_dawg_i_herd_u_like_encryption";
 
-  private boolean isJsonError(Exception e) {
-    Throwable cause = e.getCause();
-    while (cause != null) {
-      if (JsonProcessingException.class.isAssignableFrom(cause.getClass())) {
-        return true;
-      }
-      cause = cause.getCause();
-    }
-    return false;
-  }
+  @Autowired MethodExecutionLogger mel;
 
   private OperationOutcome asOperationOutcome(
       String code, Exception e, HttpServletRequest request, List<String> diagnostics) {
@@ -83,7 +67,6 @@ public class WebExceptionHandler {
     if (isNotBlank(d)) {
       issue.diagnostics(d);
     }
-
     return OperationOutcome.builder()
         .id(UUID.randomUUID().toString())
         .resourceType("OperationOutcome")
@@ -97,51 +80,6 @@ public class WebExceptionHandler {
         .build();
   }
 
-  private List<Extension> extensions(Exception e, HttpServletRequest request) {
-    List<Extension> extensions = new ArrayList<>(5);
-
-    extensions.add(
-        Extension.builder().url("timestamp").valueInstant(Instant.now().toString()).build());
-
-    extensions.add(
-        Extension.builder().url("type").valueString(e.getClass().getSimpleName()).build());
-
-    if (isNotBlank(sanitizedMessage(e))) {
-      extensions.add(
-          Extension.builder().url("message").valueString(encrypt(sanitizedMessage(e))).build());
-    }
-
-    String cause =
-        causes(e)
-            .stream()
-            .map(t -> t.getClass().getSimpleName() + " " + sanitizedMessage(t))
-            .collect(Collectors.joining(", "));
-    if (isNotBlank(cause)) {
-      extensions.add(Extension.builder().url("cause").valueString(encrypt(cause)).build());
-    }
-
-    extensions.add(
-        Extension.builder().url("request").valueString(encrypt(reconstructUrl(request))).build());
-
-    return extensions;
-  }
-
-  @SneakyThrows
-  private String encrypt(String plainText) {
-    Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-    Key key = new SecretKeySpec(CRYPTO_KEY.getBytes(), "AES");
-
-    SecureRandom secureRandom = SecureRandom.getInstance("SHA1PRNG");
-    byte[] iv = new byte[cipher.getBlockSize()];
-    secureRandom.nextBytes(iv);
-
-    cipher.init(Cipher.ENCRYPT_MODE, key, new IvParameterSpec(iv));
-    byte[] enBytes = cipher.doFinal(plainText.getBytes(UTF_8));
-
-    byte[] combined = ArrayUtils.addAll(iv, enBytes);
-    return Base64.getEncoder().encodeToString(combined);
-  }
-
   private List<Throwable> causes(Throwable t) {
     List<Throwable> results = new ArrayList<>();
     Throwable throwable = t;
@@ -152,6 +90,41 @@ public class WebExceptionHandler {
       }
       results.add(throwable);
     }
+  }
+
+  @SneakyThrows
+  private String encrypt(String plainText) {
+    Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+    Key key = new SecretKeySpec(CRYPTO_KEY.getBytes(), "AES");
+    SecureRandom secureRandom = SecureRandom.getInstance("SHA1PRNG");
+    byte[] iv = new byte[cipher.getBlockSize()];
+    secureRandom.nextBytes(iv);
+    cipher.init(Cipher.ENCRYPT_MODE, key, new IvParameterSpec(iv));
+    byte[] enBytes = cipher.doFinal(plainText.getBytes(UTF_8));
+    byte[] combined = ArrayUtils.addAll(iv, enBytes);
+    return Base64.getEncoder().encodeToString(combined);
+  }
+
+  private List<Extension> extensions(Exception e, HttpServletRequest request) {
+    List<Extension> extensions = new ArrayList<>(5);
+    extensions.add(
+        Extension.builder().url("timestamp").valueInstant(Instant.now().toString()).build());
+    extensions.add(
+        Extension.builder().url("type").valueString(e.getClass().getSimpleName()).build());
+    if (isNotBlank(sanitizedMessage(e))) {
+      extensions.add(
+          Extension.builder().url("message").valueString(encrypt(sanitizedMessage(e))).build());
+    }
+    String cause =
+        causes(e).stream()
+            .map(t -> t.getClass().getSimpleName() + " " + sanitizedMessage(t))
+            .collect(Collectors.joining(", "));
+    if (isNotBlank(cause)) {
+      extensions.add(Extension.builder().url("cause").valueString(encrypt(cause)).build());
+    }
+    extensions.add(
+        Extension.builder().url("request").valueString(encrypt(reconstructUrl(request))).build());
+    return extensions;
   }
 
   @ExceptionHandler({
@@ -211,11 +184,21 @@ public class WebExceptionHandler {
   public OperationOutcome handleValidationException(
       ConstraintViolationException e, HttpServletRequest request) {
     List<String> problems =
-        e.getConstraintViolations()
-            .stream()
+        e.getConstraintViolations().stream()
             .map(v -> v.getPropertyPath() + " " + v.getMessage())
             .collect(Collectors.toList());
     return responseFor("structure", e, request, problems, true);
+  }
+
+  private boolean isJsonError(Exception e) {
+    Throwable cause = e.getCause();
+    while (cause != null) {
+      if (JsonProcessingException.class.isAssignableFrom(cause.getClass())) {
+        return true;
+      }
+      cause = cause.getCause();
+    }
+    return false;
   }
 
   /** Reconstruct a sanitized URL based on the request. */
@@ -246,7 +229,6 @@ public class WebExceptionHandler {
       MismatchedInputException mie = (MismatchedInputException) throwable;
       return new StringBuilder().append(" path: ").append(mie.getPathReference()).toString();
     }
-
     if (throwable instanceof JsonEOFException) {
       JsonEOFException eofe = (JsonEOFException) throwable;
       if (eofe.getLocation() != null) {
@@ -258,12 +240,10 @@ public class WebExceptionHandler {
             .toString();
       }
     }
-
     if (throwable instanceof JsonMappingException) {
       JsonMappingException jme = (JsonMappingException) throwable;
       return new StringBuilder().append(" path: ").append(jme.getPathReference()).toString();
     }
-
     if (throwable instanceof JsonParseException) {
       JsonParseException jpe = (JsonParseException) throwable;
       if (jpe.getLocation() != null) {
@@ -275,7 +255,6 @@ public class WebExceptionHandler {
             .toString();
       }
     }
-
     return throwable.getMessage();
   }
 }
