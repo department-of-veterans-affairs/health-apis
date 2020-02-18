@@ -23,7 +23,7 @@ public class WebExceptionDecrypter {
     Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
     byte[] allBytes = Base64.getDecoder().decode(cipherText);
     byte[] iv = Arrays.copyOfRange(allBytes, 0, cipher.getBlockSize());
-    Key key = new SecretKeySpec(encryptionKey.getBytes(), "AES");
+    Key key = new SecretKeySpec(encryptionKey.getBytes("UTF-8"), "AES");
     cipher.init(Cipher.DECRYPT_MODE, key, new GCMParameterSpec(128, iv));
     byte[] enBytes = Arrays.copyOfRange(allBytes, cipher.getBlockSize(), allBytes.length);
     String decrypted = new String(cipher.doFinal(enBytes), "UTF-8");
