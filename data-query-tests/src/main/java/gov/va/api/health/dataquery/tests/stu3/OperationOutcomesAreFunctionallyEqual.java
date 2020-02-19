@@ -13,12 +13,14 @@ public final class OperationOutcomesAreFunctionallyEqual implements ErrorsAreFun
     try {
       OperationOutcome oo = body.as(OperationOutcome.class);
       oo.id("REMOVED-FOR-COMPARISON");
-      oo.extension().stream()
-          .filter(e -> e.url().equals("timestamp"))
-          .forEach(e -> e.valueInstant("REMOVED-FOR-COMPARISON"));
-      oo.extension().stream()
-          .filter(e -> List.of("message", "cause").contains(e.url()))
-          .forEach(e -> e.valueString("REMOVED-FOR-COMPARISON"));
+      if (oo.extension() != null) {
+        oo.extension().stream()
+            .filter(e -> e.url().equals("timestamp"))
+            .forEach(e -> e.valueInstant("REMOVED-FOR-COMPARISON"));
+        oo.extension().stream()
+            .filter(e -> List.of("message", "cause").contains(e.url()))
+            .forEach(e -> e.valueString("REMOVED-FOR-COMPARISON"));
+      }
       return oo;
     } catch (Exception e) {
       log.error("Failed read response as OperationOutcome: {}", body.prettyPrint());
