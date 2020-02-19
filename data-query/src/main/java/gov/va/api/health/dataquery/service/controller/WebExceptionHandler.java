@@ -1,23 +1,38 @@
 package gov.va.api.health.dataquery.service.controller;
 
+import static com.google.common.base.Preconditions.checkState;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.io.JsonEOFException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import gov.va.api.health.autoconfig.configuration.JacksonConfig;
+import gov.va.api.health.dstu2.api.elements.Extension;
 import gov.va.api.health.dstu2.api.elements.Narrative;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import gov.va.api.health.ids.client.IdEncoder.BadId;
 import java.lang.reflect.UndeclaredThrowableException;
+import java.security.Key;
+import java.security.SecureRandom;
 import java.time.Instant;
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import javax.crypto.Cipher;
+import javax.crypto.spec.GCMParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolationException;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ArrayUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.UnsatisfiedServletRequestParameterException;
@@ -35,43 +50,137 @@ import org.springframework.web.client.HttpClientErrorException;
 @RestControllerAdvice
 @RequestMapping(produces = {"application/json"})
 public class WebExceptionHandler {
+  private final String encryptionKey;
 
-  private Optional<JsonProcessingException> asJsonError(Exception e) {
-    Throwable cause = e.getCause();
-    while (cause != null) {
-      if (JsonProcessingException.class.isAssignableFrom(cause.getClass())) {
-        return Optional.of((JsonProcessingException) cause);
+  public WebExceptionHandler(
+      @Value("${data-query.public-web-exception-key}") String encryptionKey) {
+    checkState(!"unset".equals(encryptionKey), "data-query.public-web-exception-key is unset");
+    this.encryptionKey = encryptionKey;
+  }
+
+  private static List<Throwable> causes(Throwable tr) {
+    List<Throwable> results = new ArrayList<>();
+    Throwable current = tr;
+    while (true) {
+      current = current.getCause();
+      if (current == null) {
+        return results;
       }
-      cause = cause.getCause();
+      results.add(current);
     }
-    return Optional.empty();
+  }
+
+  private static boolean isJsonError(Throwable tr) {
+    Throwable current = tr;
+    while (current != null) {
+      if (JsonProcessingException.class.isAssignableFrom(current.getClass())) {
+        return true;
+      }
+      current = current.getCause();
+    }
+    return false;
+  }
+
+  /** Reconstruct a sanitized URL based on the request. */
+  private static String reconstructUrl(HttpServletRequest request) {
+    return request.getRequestURI()
+        + (request.getQueryString() == null ? "" : "?" + request.getQueryString())
+            .replaceAll("[\r\n]", "");
+  }
+
+  private static String sanitizedMessage(Throwable tr) {
+    if (tr instanceof MismatchedInputException) {
+      MismatchedInputException mie = (MismatchedInputException) tr;
+      return String.format("path: %s", mie.getPathReference());
+    }
+
+    if (tr instanceof JsonEOFException) {
+      JsonEOFException eofe = (JsonEOFException) tr;
+      if (eofe.getLocation() != null) {
+        return String.format(
+            "line: %s, column: %s",
+            eofe.getLocation().getLineNr(), eofe.getLocation().getColumnNr());
+      }
+    }
+
+    if (tr instanceof JsonMappingException) {
+      JsonMappingException jme = (JsonMappingException) tr;
+      return String.format("path: %s", jme.getPathReference());
+    }
+
+    if (tr instanceof JsonParseException) {
+      JsonParseException jpe = (JsonParseException) tr;
+      if (jpe.getLocation() != null) {
+        return String.format(
+            "line: %s, column: %s", jpe.getLocation().getLineNr(), jpe.getLocation().getColumnNr());
+      }
+    }
+
+    return tr.getMessage();
   }
 
   private OperationOutcome asOperationOutcome(
-      String code, Exception e, HttpServletRequest request, List<String> problems) {
-    StringBuilder diagnostics = new StringBuilder();
-    diagnostics
-        .append("Error: ")
-        .append(e.getClass().getSimpleName())
-        .append(" Timestamp:")
-        .append(Instant.now());
-    problems.forEach(p -> diagnostics.append('\n').append(p));
+      String code, Throwable tr, HttpServletRequest request, List<String> diagnostics) {
+    OperationOutcome.Issue issue =
+        OperationOutcome.Issue.builder()
+            .severity(OperationOutcome.Issue.IssueSeverity.fatal)
+            .code(code)
+            .build();
+    String diagnostic = diagnostics.stream().collect(Collectors.joining(", "));
+    if (isNotBlank(diagnostic)) {
+      issue.diagnostics(diagnostic);
+    }
     return OperationOutcome.builder()
         .id(UUID.randomUUID().toString())
         .resourceType("OperationOutcome")
+        .extension(extensions(tr, request))
         .text(
             Narrative.builder()
                 .status(Narrative.NarrativeStatus.additional)
                 .div("<div>Failure: " + request.getRequestURI() + "</div>")
                 .build())
-        .issue(
-            Collections.singletonList(
-                OperationOutcome.Issue.builder()
-                    .severity(OperationOutcome.Issue.IssueSeverity.fatal)
-                    .code(code)
-                    .diagnostics(diagnostics.toString())
-                    .build()))
+        .issue(singletonList(issue))
         .build();
+  }
+
+  @SneakyThrows
+  private String encrypt(String plainText) {
+    Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+    Key key = new SecretKeySpec(encryptionKey.getBytes("UTF-8"), "AES");
+    SecureRandom secureRandom = SecureRandom.getInstance("SHA1PRNG");
+    byte[] iv = new byte[cipher.getBlockSize()];
+    secureRandom.nextBytes(iv);
+    cipher.init(Cipher.ENCRYPT_MODE, key, new GCMParameterSpec(128, iv));
+    byte[] enBytes = cipher.doFinal(plainText.getBytes("UTF-8"));
+    byte[] combined = ArrayUtils.addAll(iv, enBytes);
+    return Base64.getEncoder().encodeToString(combined);
+  }
+
+  private List<Extension> extensions(Throwable tr, HttpServletRequest request) {
+    List<Extension> extensions = new ArrayList<>(5);
+
+    extensions.add(
+        Extension.builder().url("timestamp").valueInstant(Instant.now().toString()).build());
+
+    extensions.add(
+        Extension.builder().url("type").valueString(tr.getClass().getSimpleName()).build());
+
+    if (isNotBlank(sanitizedMessage(tr))) {
+      extensions.add(
+          Extension.builder().url("message").valueString(encrypt(sanitizedMessage(tr))).build());
+    }
+
+    String cause =
+        causes(tr).stream()
+            .map(t -> t.getClass().getSimpleName() + " " + sanitizedMessage(t))
+            .collect(Collectors.joining(", "));
+    if (isNotBlank(cause)) {
+      extensions.add(Extension.builder().url("cause").valueString(encrypt(cause)).build());
+    }
+
+    extensions.add(Extension.builder().url("request").valueString(reconstructUrl(request)).build());
+
+    return extensions;
   }
 
   @ExceptionHandler({
@@ -82,7 +191,7 @@ public class WebExceptionHandler {
   })
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   public OperationOutcome handleBadRequest(Exception e, HttpServletRequest request) {
-    return responseFor("structure", e, request);
+    return responseFor("structure", e, request, emptyList(), true);
   }
 
   @ExceptionHandler({
@@ -94,13 +203,13 @@ public class WebExceptionHandler {
   })
   @ResponseStatus(HttpStatus.NOT_FOUND)
   public OperationOutcome handleNotFound(Exception e, HttpServletRequest request) {
-    return responseFor("not-found", e, request);
+    return responseFor("not-found", e, request, emptyList(), true);
   }
 
   @ExceptionHandler({ResourceExceptions.NotImplemented.class})
   @ResponseStatus(HttpStatus.NOT_IMPLEMENTED)
   public OperationOutcome handleNotImplemented(Exception e, HttpServletRequest request) {
-    return responseFor("not-implemented", e, request);
+    return responseFor("not-implemented", e, request, emptyList(), true);
   }
 
   /**
@@ -115,18 +224,10 @@ public class WebExceptionHandler {
   })
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
   public OperationOutcome handleSnafu(Exception e, HttpServletRequest request) {
-    Optional<JsonProcessingException> jsonError = asJsonError(e);
-    if (jsonError.isEmpty()) {
-      return responseFor("exception", e, request);
+    if (isJsonError(e)) {
+      return responseFor("database", e, request, emptyList(), false);
     }
-    String requestPath = reconstructUrl(request);
-    String useful = sanitize(jsonError.get());
-    List<String> problems = List.of(requestPath, useful);
-    log.error("FAILED TO PROCESS JSON FOR REQUEST: {}", requestPath);
-    log.error("BECAUSE: {}", useful);
-    OperationOutcome response = asOperationOutcome("database", e, request, problems);
-    log.error("Status 500 -- Request: {} Caused By: {}", requestPath, e.getCause().getClass());
-    return response;
+    return responseFor("exception", e, request, emptyList(), true);
   }
 
   /**
@@ -138,56 +239,26 @@ public class WebExceptionHandler {
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   public OperationOutcome handleValidationException(
       ConstraintViolationException e, HttpServletRequest request) {
-    List<String> problems =
+    List<String> diagnostics =
         e.getConstraintViolations().stream()
             .map(v -> v.getPropertyPath() + " " + v.getMessage())
             .collect(Collectors.toList());
-    return responseFor("structure", e, request, problems);
+    return responseFor("structure", e, request, diagnostics, true);
   }
 
-  /** Reconstruct a sanitized URL basedon the request. */
-  private String reconstructUrl(HttpServletRequest request) {
-    return request.getRequestURI()
-        + (request.getQueryString() == null ? "" : "?" + request.getQueryString())
-            .replaceAll("[\r\n]", "");
-  }
-
-  private OperationOutcome responseFor(String code, Exception e, HttpServletRequest request) {
-    return responseFor(code, e, request, Collections.emptyList());
-  }
-
+  @SneakyThrows
   private OperationOutcome responseFor(
-      String code, Exception e, HttpServletRequest request, List<String> problems) {
-    OperationOutcome response = asOperationOutcome(code, e, request, problems);
-    log.error("Response {}", response, e);
-    return response;
-  }
-
-  String sanitize(JsonProcessingException jsonError) {
-    StringBuilder safe = new StringBuilder(jsonError.getClass().getSimpleName());
-    if (jsonError instanceof MismatchedInputException) {
-      MismatchedInputException mie = (MismatchedInputException) jsonError;
-      safe.append(" path: ").append(mie.getPathReference());
-    } else if (jsonError instanceof JsonEOFException) {
-      JsonEOFException eofe = (JsonEOFException) jsonError;
-      if (eofe.getLocation() != null) {
-        safe.append(" line: ")
-            .append(eofe.getLocation().getLineNr())
-            .append(", column: ")
-            .append(eofe.getLocation().getColumnNr());
-      }
-    } else if (jsonError instanceof JsonMappingException) {
-      JsonMappingException jme = (JsonMappingException) jsonError;
-      safe.append(" path: ").append(jme.getPathReference());
-    } else if (jsonError instanceof JsonParseException) {
-      JsonParseException jpe = (JsonParseException) jsonError;
-      if (jpe.getLocation() != null) {
-        safe.append(" line: ")
-            .append(jpe.getLocation().getLineNr())
-            .append(", column: ")
-            .append(jpe.getLocation().getColumnNr());
-      }
+      String code,
+      Throwable tr,
+      HttpServletRequest request,
+      List<String> diagnostics,
+      boolean printStackTrace) {
+    OperationOutcome response = asOperationOutcome(code, tr, request, diagnostics);
+    if (printStackTrace) {
+      log.error("Response {}", JacksonConfig.createMapper().writeValueAsString(response), tr);
+    } else {
+      log.error("Response {}", JacksonConfig.createMapper().writeValueAsString(response));
     }
-    return safe.toString();
+    return response;
   }
 }

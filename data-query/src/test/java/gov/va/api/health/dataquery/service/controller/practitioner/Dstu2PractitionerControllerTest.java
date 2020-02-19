@@ -228,7 +228,6 @@ public class Dstu2PractitionerControllerTest {
 
   @Test
   public void validate() {
-    DatamartPractitioner dm = PractitionerSamples.Datamart.create().practitioner();
     Practitioner practitioner = PractitionerSamples.Dstu2.create().practitioner();
     assertThat(
             controller()

@@ -11,7 +11,7 @@
   <version>2.0.244-SNAPSHOT</version>
   <packaging>jar</packaging>
   <properties>
-    <fhir-resources.version>2.0.31</fhir-resources.version>
+    <fhir-resources.version>2.0.32</fhir-resources.version>
     <groups>gov.va.api.health.sentinel.categories.Local</groups>
     <health-apis-ids.version>3.0.0</health-apis-ids.version>
     <selenium.version>3.141.59</selenium.version>
@@ -128,6 +128,7 @@
                 <argument>-Didentityservice.url=http://localhost:8089</argument>
                 <argument>-Didentityservice.encodingKey=data-query</argument>
                 <argument>-Didentityservice.patientIdPattern=[0-9]+(V[0-9]{6})?</argument>
+                <argument>-Ddata-query.public-web-exception-key=-shanktopus-for-the-win-</argument>
                 <argument>-Dconformance.statement-type=patient</argument>
                 <argument>-Dconformance.contact.name=Sentinel</argument>
                 <argument>-Dconformance.contact.email=sentinel@matrix.com</argument>

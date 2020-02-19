@@ -265,7 +265,6 @@ public class Stu3PractitionerControllerTest {
 
   @Test
   public void validate() {
-    DatamartPractitioner dm = PractitionerSamples.Datamart.create().practitioner();
     Practitioner practitioner = PractitionerSamples.Stu3.create().practitioner();
     assertThat(
             controller()
