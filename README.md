@@ -39,7 +39,7 @@ git-secrets must be installed and configured to scan for AWS entries and the pat
 [.gitallowed](.gitallowed).
 The [init-git-secrets.sh](src/scripts/init-git-secrets.sh) script can be used to simply set up.
 
-> ###### !!  Mac users
+> ###### !!?? Mac users
 > If using [Homebrew](https://brew.sh/), use `brew install --HEAD git-secrets` as decribed
 > by [this post](https://github.com/awslabs/git-secrets/issues/65#issuecomment-416382565) to
 > avoid issues committing multiple files.
@@ -64,7 +64,7 @@ See the [configuration guide](configuration.md) for configuring applications in 
 ## Tools
 `src/scripts` provides tools to support development activities.
 
-> !!  Review each script before running to ensure you understand exactly what it does.
+> !!?? Review each script before running to ensure you understand exactly what it does.
 
 - `init-git-secrets.sh`
   Initializes your clone of this repository to work with git secrets.

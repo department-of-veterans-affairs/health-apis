@@ -12,13 +12,13 @@ Buckets are organized as follows:
 
 ```
 S3
- ├ ${app-name}/application.properties
- ├ ...
- ├ krb5/krb5.conf
- └ system_certs/
-   ├ <any>.jks
-   ├ <any>-truststore.jks
-   └ ...
+ ??? ${app-name}/application.properties
+ ??? ...
+ ??? krb5/krb5.conf
+ ??? system_certs/
+   ??? <any>.jks
+   ??? <any>-truststore.jks
+   ??? ...
 ```
 
 - Application names can be anything. This will be configured per container using the `AWS_APP_NAME`
