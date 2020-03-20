@@ -5,6 +5,7 @@ import static java.util.Collections.emptyList;
 
 import com.google.common.base.Splitter;
 import gov.va.api.health.argonaut.api.resources.Observation;
+import gov.va.api.health.argonaut.api.resources.Observation.Bundle;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.DateTimeParameter;
 import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
@@ -14,6 +15,7 @@ import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
+import gov.va.api.health.dstu2.api.bundle.AbstractEntry;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import java.util.Collection;
 import java.util.List;
@@ -166,14 +168,30 @@ public class Dstu2ObservationController {
   /** Search by patient. */
   @GetMapping(params = {"patient"})
   public Observation.Bundle searchByPatient(
+      @RequestHeader(name = "query-hack", required = false, defaultValue = "true")
+          boolean queryHack,
       @RequestParam("patient") String patient,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
+    MultiValueMap<String, String> parameters =
+        Parameters.builder().add("patient", patient).add("page", page).add("_count", count).build();
     String cdwPatient = witnessProtection.toCdwId(patient);
+    if (queryHack) {
+      /*
+       * To reduce the impact of the hack, we'll send this query on over to include category,
+       * with all the categories we currently support.
+       */
+      Bundle bundleWithWrongPageLinks =
+          searchByPatientAndCategory(true, patient, "laboratory,vital-signs", null, page, count);
+      return bundle(
+          parameters,
+          bundleWithWrongPageLinks.entry().stream()
+              .map(AbstractEntry::resource)
+              .collect(Collectors.toList()),
+          bundleWithWrongPageLinks.total());
+    }
     Page<ObservationEntity> entitiesPage = repository.findByIcn(cdwPatient, page(page, count));
-    return bundle(
-        Parameters.builder().add("patient", patient).add("page", page).add("_count", count).build(),
-        entitiesPage);
+    return bundle(parameters, entitiesPage);
   }
 
   /** Search by patient and category and date if available. */

@@ -252,7 +252,7 @@ public class Dstu2ObservationControllerTest {
   @Test
   public void searchByPatient() {
     Multimap<String, Observation> observationsByPatient = populateData();
-    assertThat(json(controller().searchByPatient("p0", 1, 10)))
+    assertThat(json(controller().searchByPatient(false, "p0", 1, 10)))
         .isEqualTo(
             json(
                 Dstu2.asBundle(
@@ -932,6 +932,25 @@ public class Dstu2ObservationControllerTest {
                           1,
                           10))));
     }
+  }
+
+  @Test
+  public void searchByPatientHack() {
+    Multimap<String, Observation> observationsByPatient = populateData();
+    assertThat(json(controller().searchByPatient(true, "p0", 1, 10)))
+        .isEqualTo(
+            json(
+                Dstu2.asBundle(
+                    "http://fonzy.com/cool",
+                    observationsByPatient.get("p0"),
+                    observationsByPatient.get("p0").size(),
+                    link(LinkRelation.first, "http://fonzy.com/cool/Observation?patient=p0", 1, 10),
+                    link(LinkRelation.self, "http://fonzy.com/cool/Observation?patient=p0", 1, 10),
+                    link(
+                        LinkRelation.last,
+                        "http://fonzy.com/cool/Observation?patient=p0",
+                        1,
+                        10))));
   }
 
   @Test
