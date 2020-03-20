@@ -24,7 +24,7 @@ import org.springframework.data.domain.Sort;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class PatientCombinedEntity implements DatamartEntity {
+public class PatientEntityV2 implements DatamartEntity {
   @Id
   @Column(name = "PatientFullICN")
   @EqualsAndHashCode.Include
