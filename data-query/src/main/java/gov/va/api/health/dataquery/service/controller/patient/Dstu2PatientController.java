@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -51,15 +52,19 @@ public class Dstu2PatientController {
 
   private PatientSearchRepository repository;
 
+  private PatientRepositoryV2 repositoryV2;
+
   private WitnessProtection witnessProtection;
 
   /** Autowired constructor. */
   public Dstu2PatientController(
       @Autowired Dstu2Bundler bundler,
       @Autowired PatientSearchRepository repository,
+      @Autowired PatientRepositoryV2 repositoryV2,
       @Autowired WitnessProtection witnessProtection) {
     this.bundler = bundler;
     this.repository = repository;
+    this.repositoryV2 = repositoryV2;
     this.witnessProtection = witnessProtection;
   }
 
@@ -107,13 +112,25 @@ public class Dstu2PatientController {
     return entity.orElseThrow(() -> new ResourceExceptions.NotFound(publicId));
   }
 
+  PatientEntityV2 findByIdV2(String publicId) {
+    Optional<PatientEntityV2> entity = repositoryV2.findById(witnessProtection.toCdwId(publicId));
+    return entity.orElseThrow(() -> new ResourceExceptions.NotFound(publicId));
+  }
+
   PageRequest page(int page, int count) {
     return PageRequest.of(page - 1, count == 0 ? 1 : count, PatientSearchEntity.naturalOrder());
   }
 
   /** Read by id. */
   @GetMapping(value = {"/{publicId}"})
-  public Patient read(@PathVariable("publicId") String publicId) {
+  public Patient read(
+      @RequestHeader(name = "patientV2", required = false, defaultValue = "false")
+          boolean usePatientV2,
+      @PathVariable("publicId") String publicId) {
+    if (usePatientV2) {
+      DatamartPatient dm = findByIdV2(publicId).asDatamartPatient();
+      return Dstu2PatientTransformer.builder().datamart(dm).build().toFhir();
+    }
     DatamartPatient dm = findById(publicId).asDatamartPatient();
     return Dstu2PatientTransformer.builder().datamart(dm).build().toFhir();
   }
@@ -165,15 +182,19 @@ public class Dstu2PatientController {
   /** Search by _id. */
   @GetMapping(params = {"_id"})
   public Patient.Bundle searchById(
+      @RequestHeader(name = "patientV2", required = false, defaultValue = "false")
+          boolean usePatientV2,
       @RequestParam("_id") String id,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
-    return searchByIdentifier(id, page, count);
+    return searchByIdentifier(usePatientV2, id, page, count);
   }
 
   /** Search by Identifier. */
   @GetMapping(params = {"identifier"})
   public Patient.Bundle searchByIdentifier(
+      @RequestHeader(name = "patientV2", required = false, defaultValue = "false")
+          boolean usePatientV2,
       @RequestParam("identifier") String identifier,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
@@ -183,7 +204,7 @@ public class Dstu2PatientController {
             .add("page", page)
             .add("_count", count)
             .build();
-    Patient resource = read(identifier);
+    Patient resource = read(usePatientV2, identifier);
     int totalRecords = resource == null ? 0 : 1;
     if (resource == null || page != 1 || count <= 0) {
       return bundle(parameters, emptyList(), totalRecords);

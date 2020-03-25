@@ -39,12 +39,27 @@ public class Dstu2PatientControllerTest {
 
   @Autowired private PatientSearchRepository repository;
 
+  @Autowired private PatientRepositoryV2 repositoryV2;
+
   @Autowired private TestEntityManager testEntityManager;
 
   @SneakyThrows
   private PatientEntity asPatientEntity(DatamartPatient dm) {
     return PatientEntity.builder()
         .icn(dm.fullIcn())
+        .payload(JacksonConfig.createMapper().writeValueAsString(dm))
+        .build();
+  }
+
+  @SneakyThrows
+  private PatientEntityV2 asPatientEntityV2(DatamartPatient dm) {
+    return PatientEntityV2.builder()
+        .icn(dm.fullIcn())
+        .fullName(dm.name())
+        .lastName(dm.lastName())
+        .firstName(dm.firstName())
+        .gender(dm.gender())
+        .birthDate(parseInstant(dm.birthDateTime()))
         .payload(JacksonConfig.createMapper().writeValueAsString(dm))
         .build();
   }
@@ -66,6 +81,7 @@ public class Dstu2PatientControllerTest {
     return new Dstu2PatientController(
         new Dstu2Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool", "cool")),
         repository,
+        repositoryV2,
         WitnessProtection.builder().identityService(ids).build());
   }
 
@@ -92,8 +108,11 @@ public class Dstu2PatientControllerTest {
     DatamartPatient dm = Datamart.create().patient("x");
     testEntityManager.persistAndFlush(asPatientEntity(dm));
     testEntityManager.persistAndFlush(asPatientSearchEntity(dm));
-    Patient actual = controller().read("x");
+    testEntityManager.persistAndFlush(asPatientEntityV2(dm));
+    Patient actual = controller().read(false, "x");
+    Patient actualV2 = controller().read(true, "x");
     assertThat(actual).isEqualTo(PatientSamples.Dstu2.create().patient("x"));
+    assertThat(actualV2).isEqualTo(PatientSamples.Dstu2.create().patient("x"));
   }
 
   @Test
@@ -148,8 +167,12 @@ public class Dstu2PatientControllerTest {
     DatamartPatient dm = Datamart.create().patient("x");
     testEntityManager.persistAndFlush(asPatientEntity(dm));
     testEntityManager.persistAndFlush(asPatientSearchEntity(dm));
-    Patient.Bundle patient = controller().searchById("x", 1, 1);
+    testEntityManager.persistAndFlush(asPatientEntityV2(dm));
+    Patient.Bundle patient = controller().searchById(false, "x", 1, 1);
+    Patient.Bundle patientV2 = controller().searchById(true, "x", 1, 1);
     assertThat(json(Iterables.getOnlyElement(patient.entry()).resource()))
+        .isEqualTo(json(PatientSamples.Dstu2.create().patient("x")));
+    assertThat(json(Iterables.getOnlyElement(patientV2.entry()).resource()))
         .isEqualTo(json(PatientSamples.Dstu2.create().patient("x")));
   }
 
@@ -158,8 +181,12 @@ public class Dstu2PatientControllerTest {
     DatamartPatient dm = Datamart.create().patient("x");
     testEntityManager.persistAndFlush(asPatientEntity(dm));
     testEntityManager.persistAndFlush(asPatientSearchEntity(dm));
-    Patient.Bundle patient = controller().searchByIdentifier("x", 1, 1);
+    testEntityManager.persistAndFlush(asPatientEntityV2(dm));
+    Patient.Bundle patient = controller().searchByIdentifier(false, "x", 1, 1);
+    Patient.Bundle patientV2 = controller().searchByIdentifier(true, "x", 1, 1);
     assertThat(json(Iterables.getOnlyElement(patient.entry()).resource()))
+        .isEqualTo(json(PatientSamples.Dstu2.create().patient("x")));
+    assertThat(json(Iterables.getOnlyElement(patientV2.entry()).resource()))
         .isEqualTo(json(PatientSamples.Dstu2.create().patient("x")));
   }
 

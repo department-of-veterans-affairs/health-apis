@@ -47,6 +47,8 @@ public final class DatamartPatientTest {
 
   @Autowired private PatientSearchRepository repository;
 
+  @Autowired private PatientRepositoryV2 repositoryV2;
+
   @Before
   public void _init() {
     response = mock(HttpServletResponse.class);
@@ -65,7 +67,7 @@ public final class DatamartPatientTest {
     entityManager.persistAndFlush(dm.entity());
     entityManager.persistAndFlush(dm.search());
     Dstu2PatientController controller = controller();
-    Patient patient = controller.read(dm.icn());
+    Patient patient = controller.read(false, dm.icn());
     assertThat(json(patient)).isEqualTo(json(fhir.patient()));
   }
 
@@ -146,6 +148,7 @@ public final class DatamartPatientTest {
     return new Dstu2PatientController(
         new Dstu2Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool", "cool")),
         repository,
+        repositoryV2,
         WitnessProtection.builder().identityService(mock(IdentityService.class)).build());
   }
 
@@ -175,7 +178,7 @@ public final class DatamartPatientTest {
     PatientSearchEntity search = PatientSearchEntity.builder().icn(icn).patient(entity).build();
     entityManager.persistAndFlush(search);
     Dstu2PatientController controller = controller();
-    Patient patient = controller.read(icn);
+    Patient patient = controller.read(false, icn);
     assertThat(patient)
         .isEqualTo(
             Patient.builder()
@@ -473,7 +476,7 @@ public final class DatamartPatientTest {
     FhirData fhir = FhirData.from(dm);
     entityManager.persistAndFlush(dm.entity());
     entityManager.persistAndFlush(dm.search());
-    Patient.Bundle patient = controller().searchById("1011537977V693883", 1, 1);
+    Patient.Bundle patient = controller().searchById(false, "1011537977V693883", 1, 1);
     assertThat(json(Iterables.getOnlyElement(patient.entry()).resource()))
         .isEqualTo(json(fhir.patient()));
   }
@@ -484,7 +487,7 @@ public final class DatamartPatientTest {
     FhirData fhir = FhirData.from(dm);
     entityManager.persistAndFlush(dm.entity());
     entityManager.persistAndFlush(dm.search());
-    Patient.Bundle patient = controller().searchByIdentifier("1011537977V693883", 1, 1);
+    Patient.Bundle patient = controller().searchByIdentifier(false, "1011537977V693883", 1, 1);
     assertThat(json(Iterables.getOnlyElement(patient.entry()).resource()))
         .isEqualTo(json(fhir.patient()));
   }
