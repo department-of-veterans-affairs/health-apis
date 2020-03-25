@@ -67,7 +67,7 @@ public final class DatamartPatientTest {
     entityManager.persistAndFlush(dm.entity());
     entityManager.persistAndFlush(dm.search());
     Dstu2PatientController controller = controller();
-    Patient patient = controller.read(false, dm.icn());
+    Patient patient = controller.read("false", dm.icn());
     assertThat(json(patient)).isEqualTo(json(fhir.patient()));
   }
 
@@ -146,6 +146,7 @@ public final class DatamartPatientTest {
 
   public Dstu2PatientController controller() {
     return new Dstu2PatientController(
+        false,
         new Dstu2Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool", "cool")),
         repository,
         repositoryV2,
@@ -178,7 +179,7 @@ public final class DatamartPatientTest {
     PatientSearchEntity search = PatientSearchEntity.builder().icn(icn).patient(entity).build();
     entityManager.persistAndFlush(search);
     Dstu2PatientController controller = controller();
-    Patient patient = controller.read(false, icn);
+    Patient patient = controller.read("false", icn);
     assertThat(patient)
         .isEqualTo(
             Patient.builder()
@@ -476,7 +477,7 @@ public final class DatamartPatientTest {
     FhirData fhir = FhirData.from(dm);
     entityManager.persistAndFlush(dm.entity());
     entityManager.persistAndFlush(dm.search());
-    Patient.Bundle patient = controller().searchById(false, "1011537977V693883", 1, 1);
+    Patient.Bundle patient = controller().searchById("false", "1011537977V693883", 1, 1);
     assertThat(json(Iterables.getOnlyElement(patient.entry()).resource()))
         .isEqualTo(json(fhir.patient()));
   }
@@ -487,7 +488,7 @@ public final class DatamartPatientTest {
     FhirData fhir = FhirData.from(dm);
     entityManager.persistAndFlush(dm.entity());
     entityManager.persistAndFlush(dm.search());
-    Patient.Bundle patient = controller().searchByIdentifier(false, "1011537977V693883", 1, 1);
+    Patient.Bundle patient = controller().searchByIdentifier("false", "1011537977V693883", 1, 1);
     assertThat(json(Iterables.getOnlyElement(patient.entry()).resource()))
         .isEqualTo(json(fhir.patient()));
   }

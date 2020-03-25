@@ -20,7 +20,9 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.Min;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.util.MultiValueMap;
@@ -47,6 +49,7 @@ import org.springframework.web.bind.annotation.RestController;
     value = {"/dstu2/Patient"},
     produces = {"application/json", "application/json+fhir", "application/fhir+json"})
 public class Dstu2PatientController {
+  private boolean defaultPatientV2;
 
   private Dstu2Bundler bundler;
 
@@ -58,10 +61,12 @@ public class Dstu2PatientController {
 
   /** Autowired constructor. */
   public Dstu2PatientController(
+      @Value(value = "${default.patientV2}") boolean defaultPatientV2,
       @Autowired Dstu2Bundler bundler,
       @Autowired PatientSearchRepository repository,
       @Autowired PatientRepositoryV2 repositoryV2,
       @Autowired WitnessProtection witnessProtection) {
+    this.defaultPatientV2 = defaultPatientV2;
     this.bundler = bundler;
     this.repository = repository;
     this.repositoryV2 = repositoryV2;
@@ -117,6 +122,13 @@ public class Dstu2PatientController {
     return entity.orElseThrow(() -> new ResourceExceptions.NotFound(publicId));
   }
 
+  private boolean isPatientV2Request(String patientV2Header) {
+    if (patientV2Header.isBlank()) {
+      return defaultPatientV2;
+    }
+    return BooleanUtils.isTrue(BooleanUtils.toBooleanObject(patientV2Header));
+  }
+
   PageRequest page(int page, int count) {
     return PageRequest.of(page - 1, count == 0 ? 1 : count, PatientSearchEntity.naturalOrder());
   }
@@ -124,10 +136,11 @@ public class Dstu2PatientController {
   /** Read by id. */
   @GetMapping(value = {"/{publicId}"})
   public Patient read(
-      @RequestHeader(name = "patientV2", required = false, defaultValue = "false")
-          boolean usePatientV2,
+      @RequestHeader(name = "patientV2", required = false, defaultValue = "")
+          String patientV2Header,
       @PathVariable("publicId") String publicId) {
-    if (usePatientV2) {
+    if (isPatientV2Request(patientV2Header)) {
+      log.info("Using PatientV2");
       DatamartPatient dm = findByIdV2(publicId).asDatamartPatient();
       return Dstu2PatientTransformer.builder().datamart(dm).build().toFhir();
     }
@@ -182,19 +195,19 @@ public class Dstu2PatientController {
   /** Search by _id. */
   @GetMapping(params = {"_id"})
   public Patient.Bundle searchById(
-      @RequestHeader(name = "patientV2", required = false, defaultValue = "false")
-          boolean usePatientV2,
+      @RequestHeader(name = "patientV2", required = false, defaultValue = "")
+          String patientV2Header,
       @RequestParam("_id") String id,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
-    return searchByIdentifier(usePatientV2, id, page, count);
+    return searchByIdentifier(patientV2Header, id, page, count);
   }
 
   /** Search by Identifier. */
   @GetMapping(params = {"identifier"})
   public Patient.Bundle searchByIdentifier(
-      @RequestHeader(name = "patientV2", required = false, defaultValue = "false")
-          boolean usePatientV2,
+      @RequestHeader(name = "patientV2", required = false, defaultValue = "")
+          String patientV2Header,
       @RequestParam("identifier") String identifier,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
@@ -204,7 +217,7 @@ public class Dstu2PatientController {
             .add("page", page)
             .add("_count", count)
             .build();
-    Patient resource = read(usePatientV2, identifier);
+    Patient resource = read(patientV2Header, identifier);
     int totalRecords = resource == null ? 0 : 1;
     if (resource == null || page != 1 || count <= 0) {
       return bundle(parameters, emptyList(), totalRecords);
@@ -224,7 +237,6 @@ public class Dstu2PatientController {
             .name(name)
             .dates(birthdate)
             .build();
-
     log.info("Looking for {} {}", sanitize(name), spec);
     Page<PatientSearchEntity> entities = repository.findAll(spec, page(page, count));
     return bundle(

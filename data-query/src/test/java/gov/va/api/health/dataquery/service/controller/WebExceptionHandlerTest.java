@@ -80,7 +80,8 @@ public class WebExceptionHandlerTest {
   @Before
   public void _init() {
     MockitoAnnotations.initMocks(this);
-    controller = new Dstu2PatientController(bundler, repository, repositoryV2, witnessProtection);
+    controller =
+        new Dstu2PatientController(false, bundler, repository, repositoryV2, witnessProtection);
     exceptionHandler = new WebExceptionHandler("1234567890123456");
   }
 

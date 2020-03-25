@@ -79,6 +79,7 @@ public class Dstu2PatientControllerTest {
 
   Dstu2PatientController controller() {
     return new Dstu2PatientController(
+        false,
         new Dstu2Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool", "cool")),
         repository,
         repositoryV2,
@@ -109,8 +110,8 @@ public class Dstu2PatientControllerTest {
     testEntityManager.persistAndFlush(asPatientEntity(dm));
     testEntityManager.persistAndFlush(asPatientSearchEntity(dm));
     testEntityManager.persistAndFlush(asPatientEntityV2(dm));
-    Patient actual = controller().read(false, "x");
-    Patient actualV2 = controller().read(true, "x");
+    Patient actual = controller().read("false", "x");
+    Patient actualV2 = controller().read("true", "x");
     assertThat(actual).isEqualTo(PatientSamples.Dstu2.create().patient("x"));
     assertThat(actualV2).isEqualTo(PatientSamples.Dstu2.create().patient("x"));
   }
@@ -168,8 +169,8 @@ public class Dstu2PatientControllerTest {
     testEntityManager.persistAndFlush(asPatientEntity(dm));
     testEntityManager.persistAndFlush(asPatientSearchEntity(dm));
     testEntityManager.persistAndFlush(asPatientEntityV2(dm));
-    Patient.Bundle patient = controller().searchById(false, "x", 1, 1);
-    Patient.Bundle patientV2 = controller().searchById(true, "x", 1, 1);
+    Patient.Bundle patient = controller().searchById("false", "x", 1, 1);
+    Patient.Bundle patientV2 = controller().searchById("true", "x", 1, 1);
     assertThat(json(Iterables.getOnlyElement(patient.entry()).resource()))
         .isEqualTo(json(PatientSamples.Dstu2.create().patient("x")));
     assertThat(json(Iterables.getOnlyElement(patientV2.entry()).resource()))
@@ -182,8 +183,8 @@ public class Dstu2PatientControllerTest {
     testEntityManager.persistAndFlush(asPatientEntity(dm));
     testEntityManager.persistAndFlush(asPatientSearchEntity(dm));
     testEntityManager.persistAndFlush(asPatientEntityV2(dm));
-    Patient.Bundle patient = controller().searchByIdentifier(false, "x", 1, 1);
-    Patient.Bundle patientV2 = controller().searchByIdentifier(true, "x", 1, 1);
+    Patient.Bundle patient = controller().searchByIdentifier("false", "x", 1, 1);
+    Patient.Bundle patientV2 = controller().searchByIdentifier("true", "x", 1, 1);
     assertThat(json(Iterables.getOnlyElement(patient.entry()).resource()))
         .isEqualTo(json(PatientSamples.Dstu2.create().patient("x")));
     assertThat(json(Iterables.getOnlyElement(patientV2.entry()).resource()))
