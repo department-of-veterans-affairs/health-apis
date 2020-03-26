@@ -114,7 +114,7 @@ public class PatientIT {
         TestClients.dstu2DataQuery()
             .service()
             .requestSpecification()
-            .header(new Header("patientV2", "true"))
+            .header(new Header("patientV2", "false"))
             .request(
                 Method.GET,
                 TestClients.dstu2DataQuery().service().urlWithApiPath()
@@ -126,7 +126,7 @@ public class PatientIT {
         TestClients.dstu2DataQuery()
             .service()
             .requestSpecification()
-            .header(new Header("patientV2", "false"))
+            .header(new Header("patientV2", "true"))
             .request(
                 Method.GET,
                 TestClients.dstu2DataQuery().service().urlWithApiPath()
@@ -154,7 +154,7 @@ public class PatientIT {
         TestClients.dstu2DataQuery()
             .service()
             .requestSpecification()
-            .header(new Header("patientV2", "true"))
+            .header(new Header("patientV2", "false"))
             .request(
                 Method.GET,
                 TestClients.dstu2DataQuery().service().urlWithApiPath()
@@ -168,7 +168,7 @@ public class PatientIT {
         TestClients.dstu2DataQuery()
             .service()
             .requestSpecification()
-            .header(new Header("patientV2", "false"))
+            .header(new Header("patientV2", "true"))
             .request(
                 Method.GET,
                 TestClients.dstu2DataQuery().service().urlWithApiPath()

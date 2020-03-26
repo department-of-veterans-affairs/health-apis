@@ -49,7 +49,7 @@ import org.springframework.web.bind.annotation.RestController;
     value = {"/dstu2/Patient"},
     produces = {"application/json", "application/json+fhir", "application/fhir+json"})
 public class Dstu2PatientController {
-  PatientV2 patientV2 = new PatientV2();
+  private final PatientV2 patientV2 = new PatientV2();
 
   private boolean defaultPatientV2;
 
