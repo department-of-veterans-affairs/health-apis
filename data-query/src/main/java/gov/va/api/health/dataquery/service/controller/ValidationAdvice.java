@@ -1,6 +1,7 @@
 package gov.va.api.health.dataquery.service.controller;
 
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.validation.ConstraintViolation;
@@ -29,12 +30,15 @@ public final class ValidationAdvice implements ResponseBodyAdvice<Object> {
 
     if (request instanceof ServletServerHttpRequest) {
       ServletServerHttpRequest servletRequest = (ServletServerHttpRequest) request;
-      sb.append("(")
-          .append(
-              servletRequest.getServletRequest().getParameterMap().entrySet().stream()
-                  .map(e -> e.getKey() + "=" + Arrays.toString(e.getValue()))
-                  .collect(Collectors.joining(",")))
-          .append(")");
+      Map<String, String[]> parameterMap = servletRequest.getServletRequest().getParameterMap();
+      if (parameterMap != null) {
+        sb.append("(")
+            .append(
+                parameterMap.entrySet().stream()
+                    .map(e -> e.getKey() + "=" + Arrays.toString(e.getValue()))
+                    .collect(Collectors.joining(",")))
+            .append(")");
+      }
     }
 
     sb.append(" response ")
