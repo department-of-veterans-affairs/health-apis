@@ -187,8 +187,10 @@ public class Dstu2ProcedureController {
     if (isNotBlank(icnHeader)
         && isPatientWithoutRecords(icnHeader)
         && entity.icn().equals(withRecordsId)) {
-      log.info("Procedure Hack: Setting includes header to magic patient: {}", sanitize(icnHeader));
-      IncludesIcnMajig.addHeader(response, IncludesIcnMajig.encodeHeaderValue(icnHeader));
+      log.info(
+          "Procedure Hack: Setting includes header to magic patient: {}",
+          sanitize(withoutRecordsId));
+      IncludesIcnMajig.addHeader(response, IncludesIcnMajig.encodeHeaderValue(withoutRecordsId));
     } else {
       IncludesIcnMajig.addHeader(response, IncludesIcnMajig.encodeHeaderValue(entity.icn()));
     }
