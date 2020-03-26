@@ -43,9 +43,9 @@ public final class IncludesIcnMajig<T, B> implements ResponseBodyAdvice<Object> 
   /** Add the X-VA-INCLUDES-ICN header if it does not already exist. */
   public static void addHeader(ServerHttpResponse serverHttpResponse, String usersCsv) {
     HttpHeaders headers = serverHttpResponse != null ? serverHttpResponse.getHeaders() : null;
-    if (headers == null
-        || headers.get(INCLUDES_ICN_HEADER) == null
-        || headers.get(INCLUDES_ICN_HEADER).isEmpty()) {
+    if (headers != null
+        && (headers.get(INCLUDES_ICN_HEADER) == null
+            || headers.get(INCLUDES_ICN_HEADER).isEmpty())) {
       serverHttpResponse.getHeaders().add(INCLUDES_ICN_HEADER, usersCsv);
     }
   }
