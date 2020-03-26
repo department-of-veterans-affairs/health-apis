@@ -4,16 +4,10 @@ import static gov.va.api.health.autoconfig.configuration.JacksonConfig.createMap
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.parseInstant;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
-import com.google.common.collect.Iterables;
 import gov.va.api.health.argonaut.api.resources.Patient;
 import gov.va.api.health.argonaut.api.resources.Patient.Gender;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
-import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
-import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
-import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dstu2.api.datatypes.Address;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
@@ -23,50 +17,23 @@ import gov.va.api.health.dstu2.api.datatypes.HumanName;
 import gov.va.api.health.dstu2.api.datatypes.Identifier;
 import gov.va.api.health.dstu2.api.elements.Extension;
 import gov.va.api.health.dstu2.api.elements.Reference;
-import gov.va.api.health.ids.api.IdentityService;
-import java.util.Collections;
 import java.util.Optional;
-import javax.servlet.http.HttpServletResponse;
 import lombok.Builder;
 import lombok.SneakyThrows;
 import lombok.Value;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @DataJpaTest
 @RunWith(SpringRunner.class)
 public final class DatamartPatientTest {
-  HttpServletResponse response;
-
-  @Autowired private TestEntityManager entityManager;
-
-  @Autowired private PatientSearchRepository repository;
-
-  @Before
-  public void _init() {
-    response = mock(HttpServletResponse.class);
-  }
 
   @Test
   public void address() {
     assertThat(Dstu2PatientTransformer.address(DatamartPatient.Address.builder().build())).isNull();
     assertThat(Dstu2PatientTransformer.address(null)).isNull();
-  }
-
-  @Test
-  public void basic() {
-    DatamartData dm = DatamartData.create();
-    FhirData fhir = FhirData.from(dm);
-    entityManager.persistAndFlush(dm.entity());
-    entityManager.persistAndFlush(dm.search());
-    Dstu2PatientController controller = controller();
-    Patient patient = controller.read(dm.icn());
-    assertThat(json(patient)).isEqualTo(json(fhir.patient()));
   }
 
   Coding coding(String system, String code, String display) {
@@ -142,13 +109,6 @@ public final class DatamartPatientTest {
     assertThat(Dstu2PatientTransformer.contactTelecoms(null)).isNull();
   }
 
-  public Dstu2PatientController controller() {
-    return new Dstu2PatientController(
-        new Dstu2Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool", "cool")),
-        repository,
-        WitnessProtection.builder().identityService(mock(IdentityService.class)).build());
-  }
-
   @Test
   public void deceased() {
     DatamartPatient unparseable = DatamartPatient.builder().deathDateTime("unparseable").build();
@@ -158,47 +118,6 @@ public final class DatamartPatientTest {
     DatamartPatient deceasedDt =
         DatamartPatient.builder().deathDateTime("2013-11-16T02:33:33").build();
     assertThat(tx(deceasedDt).deceasedDateTime()).isEqualTo("2013-11-16T02:33:33Z");
-  }
-
-  @Test
-  @SneakyThrows
-  public void empty() {
-    String icn = "1011537977V693883";
-    PatientEntity entity =
-        PatientEntity.builder()
-            .icn(icn)
-            .payload(
-                JacksonConfig.createMapper()
-                    .writeValueAsString(DatamartPatient.builder().fullIcn(icn).build()))
-            .build();
-    entityManager.persistAndFlush(entity);
-    PatientSearchEntity search = PatientSearchEntity.builder().icn(icn).patient(entity).build();
-    entityManager.persistAndFlush(search);
-    Dstu2PatientController controller = controller();
-    Patient patient = controller.read(icn);
-    assertThat(patient)
-        .isEqualTo(
-            Patient.builder()
-                .id(icn)
-                .resourceType("Patient")
-                .identifier(
-                    asList(
-                        Identifier.builder()
-                            .use(Identifier.IdentifierUse.usual)
-                            .type(
-                                CodeableConcept.builder()
-                                    .coding(
-                                        asList(
-                                            Coding.builder()
-                                                .system("http://hl7.org/fhir/v2/0203")
-                                                .code("MR")
-                                                .build()))
-                                    .build())
-                            .system("http://va.gov/mvi")
-                            .value(icn)
-                            .assigner(Reference.builder().display("Master Veteran Index").build())
-                            .build()))
-                .build());
   }
 
   @Test
@@ -382,18 +301,6 @@ public final class DatamartPatientTest {
   }
 
   @Test
-  public void readRaw() {
-    DatamartData dm = DatamartData.create();
-    PatientEntity entity = dm.entity();
-    entityManager.persistAndFlush(entity);
-    entityManager.persistAndFlush(dm.search());
-    String json = controller().readRaw(dm.icn(), response);
-    assertThat(PatientEntity.builder().payload(json).build().asDatamartPatient())
-        .isEqualTo(dm.patient());
-    verify(response).addHeader("X-VA-INCLUDES-ICN", entity.icn());
-  }
-
-  @Test
   public void relationshipCoding() {
     Coding.CodingBuilder cb =
         Coding.builder().system("http://hl7.org/fhir/patient-contact-relationship");
@@ -426,91 +333,6 @@ public final class DatamartPatientTest {
                 DatamartPatient.Contact.builder().type("SPOUSE EMPLOYER").build()))
         .isEqualTo(cb.code("family").display("Family").build());
     assertThat(Dstu2PatientTransformer.relationshipCoding(null)).isNull();
-  }
-
-  @Test
-  public void searchByFamilyAndGender() {
-    DatamartData dm = DatamartData.create();
-    FhirData fhir = FhirData.from(dm);
-    entityManager.persistAndFlush(dm.entity());
-    entityManager.persistAndFlush(dm.search());
-    Patient.Bundle patient = controller().searchByFamilyAndGender("TEST", "male", 1, 1);
-    assertThat(json(Iterables.getOnlyElement(patient.entry()).resource()))
-        .isEqualTo(json(fhir.patient()));
-  }
-
-  @Test
-  public void searchByFamilyAndGenderWithCountZero() {
-    DatamartData dm = DatamartData.create();
-    entityManager.persistAndFlush(dm.entity());
-    entityManager.persistAndFlush(dm.search());
-    Patient.Bundle patient = controller().searchByFamilyAndGender("TEST", "male", 1, 0);
-    assertThat(patient.entry()).isEqualTo(Collections.emptyList());
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void searchByFamilyAndGenderWithNullCdw() {
-    DatamartData dm = DatamartData.create();
-    entityManager.persistAndFlush(dm.entity());
-    entityManager.persistAndFlush(dm.search());
-    controller().searchByFamilyAndGender("TEST", "null", 1, 0);
-  }
-
-  @Test
-  public void searchByGivenAndGender() {
-    DatamartData dm = DatamartData.create();
-    FhirData fhir = FhirData.from(dm);
-    entityManager.persistAndFlush(dm.entity());
-    entityManager.persistAndFlush(dm.search());
-    Patient.Bundle patient = controller().searchByGivenAndGender("PATIENT ONE", "male", 1, 1);
-    assertThat(json(Iterables.getOnlyElement(patient.entry()).resource()))
-        .isEqualTo(json(fhir.patient()));
-  }
-
-  @Test
-  public void searchById() {
-    DatamartData dm = DatamartData.create();
-    FhirData fhir = FhirData.from(dm);
-    entityManager.persistAndFlush(dm.entity());
-    entityManager.persistAndFlush(dm.search());
-    Patient.Bundle patient = controller().searchById("1011537977V693883", 1, 1);
-    assertThat(json(Iterables.getOnlyElement(patient.entry()).resource()))
-        .isEqualTo(json(fhir.patient()));
-  }
-
-  @Test
-  public void searchByIdentifier() {
-    DatamartData dm = DatamartData.create();
-    FhirData fhir = FhirData.from(dm);
-    entityManager.persistAndFlush(dm.entity());
-    entityManager.persistAndFlush(dm.search());
-    Patient.Bundle patient = controller().searchByIdentifier("1011537977V693883", 1, 1);
-    assertThat(json(Iterables.getOnlyElement(patient.entry()).resource()))
-        .isEqualTo(json(fhir.patient()));
-  }
-
-  @Test
-  public void searchByNameAndBirthdate() {
-    DatamartData dm = DatamartData.create();
-    FhirData fhir = FhirData.from(dm);
-    entityManager.persistAndFlush(dm.entity());
-    entityManager.persistAndFlush(dm.search());
-    Patient.Bundle patient =
-        controller()
-            .searchByNameAndBirthdate("TEST,PATIENT ONE", new String[] {"ge1924-12-31"}, 1, 1);
-    assertThat(json(Iterables.getOnlyElement(patient.entry()).resource()))
-        .isEqualTo(json(fhir.patient()));
-  }
-
-  @Test
-  public void searchByNameAndGender() {
-    DatamartData dm = DatamartData.create();
-    FhirData fhir = FhirData.from(dm);
-    entityManager.persistAndFlush(dm.entity());
-    entityManager.persistAndFlush(dm.search());
-    Patient.Bundle patient = controller().searchByNameAndGender("TEST,PATIENT ONE", "male", 1, 1);
-    assertThat(json(Iterables.getOnlyElement(patient.entry()).resource()))
-        .isEqualTo(json(fhir.patient()));
   }
 
   @Test
