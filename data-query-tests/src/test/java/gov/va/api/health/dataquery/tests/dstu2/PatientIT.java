@@ -108,15 +108,8 @@ public class PatientIT {
    * Temporary equality validation while we support backwards compatibility of patient v1 and v2.
    */
   @Test
-  @Category({
-    Local.class,
-    Smoke.class,
-    LabDataQueryPatient.class,
-    LabDataQueryClinician.class,
-    ProdDataQueryPatient.class,
-    ProdDataQueryClinician.class
-  })
-  public void patientV1EqualsV2() {
+  @Category({Local.class, LabDataQueryClinician.class, ProdDataQueryClinician.class})
+  public void patientV1EqualsV2Read() {
     var patientV1 =
         TestClients.dstu2DataQuery()
             .service()
@@ -133,12 +126,56 @@ public class PatientIT {
         TestClients.dstu2DataQuery()
             .service()
             .requestSpecification()
-            .header(new Header("patientV2", ""))
+            .header(new Header("patientV2", "false"))
             .request(
                 Method.GET,
                 TestClients.dstu2DataQuery().service().urlWithApiPath()
                     + "Patient/"
                     + verifier.ids().patient())
+            .getBody()
+            .asString();
+    assertThat(patientV1).isEqualTo(patientV2);
+  }
+
+  /**
+   * Temporary equality validation while we support backwards compatibility of patient v1 and v2.
+   */
+  @Test
+  @Category({
+    Local.class,
+    Smoke.class,
+    LabDataQueryPatient.class,
+    LabDataQueryClinician.class,
+    ProdDataQueryPatient.class,
+    ProdDataQueryClinician.class
+  })
+  public void patientV1EqualsV2SearchByNameAndGender() {
+    var patientV1 =
+        TestClients.dstu2DataQuery()
+            .service()
+            .requestSpecification()
+            .header(new Header("patientV2", "true"))
+            .request(
+                Method.GET,
+                TestClients.dstu2DataQuery().service().urlWithApiPath()
+                    + "Patient?given="
+                    + verifier.ids().pii().given()
+                    + "&gender="
+                    + verifier.ids().pii().gender())
+            .getBody()
+            .asString();
+    var patientV2 =
+        TestClients.dstu2DataQuery()
+            .service()
+            .requestSpecification()
+            .header(new Header("patientV2", "false"))
+            .request(
+                Method.GET,
+                TestClients.dstu2DataQuery().service().urlWithApiPath()
+                    + "Patient?given="
+                    + verifier.ids().pii().given()
+                    + "&gender="
+                    + verifier.ids().pii().gender())
             .getBody()
             .asString();
     assertThat(patientV1).isEqualTo(patientV2);

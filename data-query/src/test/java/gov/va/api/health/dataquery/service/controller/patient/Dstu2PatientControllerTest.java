@@ -121,9 +121,12 @@ public class Dstu2PatientControllerTest {
     DatamartPatient dm = Datamart.create().patient("x");
     testEntityManager.persistAndFlush(asPatientEntity(dm));
     testEntityManager.persistAndFlush(asPatientSearchEntity(dm));
-    String json = controller().readRaw("x", response);
+    testEntityManager.persistAndFlush(asPatientEntityV2(dm));
+    String json = controller().readRaw("false", "x", response);
     assertThat(PatientEntity.builder().payload(json).build().asDatamartPatient()).isEqualTo(dm);
-    verify(response).addHeader("X-VA-INCLUDES-ICN", "x");
+    String jsonV2 = controller().readRaw("true", "x", response);
+    assertThat(PatientEntityV2.builder().payload(jsonV2).build().asDatamartPatient()).isEqualTo(dm);
+    verify(response, Mockito.times(2)).addHeader("X-VA-INCLUDES-ICN", "x");
   }
 
   @Test
@@ -131,8 +134,14 @@ public class Dstu2PatientControllerTest {
     DatamartPatient dm = Datamart.create().patient("x");
     testEntityManager.persistAndFlush(asPatientEntity(dm));
     testEntityManager.persistAndFlush(asPatientSearchEntity(dm));
-    Patient.Bundle patient = controller().searchByFamilyAndGender("Wolff180", "male", 1, 1);
+    testEntityManager.persistAndFlush(asPatientEntityV2(dm));
+    Patient.Bundle patient =
+        controller().searchByFamilyAndGender("false", "Wolff180", "male", 1, 1);
+    Patient.Bundle patientV2 =
+        controller().searchByFamilyAndGender("true", "Wolff180", "male", 1, 1);
     assertThat(json(Iterables.getOnlyElement(patient.entry()).resource()))
+        .isEqualTo(json(PatientSamples.Dstu2.create().patient("x")));
+    assertThat(json(Iterables.getOnlyElement(patientV2.entry()).resource()))
         .isEqualTo(json(PatientSamples.Dstu2.create().patient("x")));
   }
 
@@ -141,8 +150,13 @@ public class Dstu2PatientControllerTest {
     DatamartPatient dm = Datamart.create().patient("x");
     testEntityManager.persistAndFlush(asPatientEntity(dm));
     testEntityManager.persistAndFlush(asPatientSearchEntity(dm));
-    Patient.Bundle patient = controller().searchByFamilyAndGender("Wolff180", "male", 1, 0);
+    testEntityManager.persistAndFlush(asPatientEntityV2(dm));
+    Patient.Bundle patient =
+        controller().searchByFamilyAndGender("false", "Wolff180", "male", 1, 0);
+    Patient.Bundle patientV2 =
+        controller().searchByFamilyAndGender("true", "Wolff180", "male", 1, 0);
     assertThat(patient.entry()).isEqualTo(Collections.emptyList());
+    assertThat(patientV2.entry()).isEqualTo(Collections.emptyList());
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -150,7 +164,9 @@ public class Dstu2PatientControllerTest {
     DatamartPatient dm = Datamart.create().patient("x");
     testEntityManager.persistAndFlush(asPatientEntity(dm));
     testEntityManager.persistAndFlush(asPatientSearchEntity(dm));
-    controller().searchByFamilyAndGender("Wolff180", "null", 1, 0);
+    testEntityManager.persistAndFlush(asPatientEntityV2(dm));
+    controller().searchByFamilyAndGender("false", "Wolff180", "null", 1, 0);
+    controller().searchByFamilyAndGender("true", "Wolff180", "null", 1, 0);
   }
 
   @Test
@@ -158,8 +174,14 @@ public class Dstu2PatientControllerTest {
     DatamartPatient dm = Datamart.create().patient("x");
     testEntityManager.persistAndFlush(asPatientEntity(dm));
     testEntityManager.persistAndFlush(asPatientSearchEntity(dm));
-    Patient.Bundle patient = controller().searchByGivenAndGender("Tobias236", "male", 1, 1);
+    testEntityManager.persistAndFlush(asPatientEntityV2(dm));
+    Patient.Bundle patient =
+        controller().searchByGivenAndGender("false", "Tobias236", "male", 1, 1);
+    Patient.Bundle patientV2 =
+        controller().searchByGivenAndGender("false", "Tobias236", "male", 1, 1);
     assertThat(json(Iterables.getOnlyElement(patient.entry()).resource()))
+        .isEqualTo(json(PatientSamples.Dstu2.create().patient("x")));
+    assertThat(json(Iterables.getOnlyElement(patientV2.entry()).resource()))
         .isEqualTo(json(PatientSamples.Dstu2.create().patient("x")));
   }
 
@@ -196,11 +218,16 @@ public class Dstu2PatientControllerTest {
     DatamartPatient dm = Datamart.create().patient("x");
     testEntityManager.persistAndFlush(asPatientEntity(dm));
     testEntityManager.persistAndFlush(asPatientSearchEntity(dm));
+    testEntityManager.persistAndFlush(asPatientEntityV2(dm));
     Patient.Bundle patient =
         controller()
             .searchByNameAndBirthdate(
-                "Mr. Tobias236 Wolff180", new String[] {"ge1924-12-31"}, 1, 1);
-    assertThat(json(Iterables.getOnlyElement(patient.entry()).resource()))
+                "false", "Mr. Tobias236 Wolff180", new String[] {"ge1924-12-31"}, 1, 1);
+    Patient.Bundle patientV2 =
+        controller()
+            .searchByNameAndBirthdate(
+                "true", "Mr. Tobias236 Wolff180", new String[] {"ge1924-12-31"}, 1, 1);
+    assertThat(json(Iterables.getOnlyElement(patientV2.entry()).resource()))
         .isEqualTo(json(PatientSamples.Dstu2.create().patient("x")));
   }
 
@@ -209,9 +236,14 @@ public class Dstu2PatientControllerTest {
     DatamartPatient dm = Datamart.create().patient("x");
     testEntityManager.persistAndFlush(asPatientEntity(dm));
     testEntityManager.persistAndFlush(asPatientSearchEntity(dm));
+    testEntityManager.persistAndFlush(asPatientEntityV2(dm));
     Patient.Bundle patient =
-        controller().searchByNameAndGender("Mr. Tobias236 Wolff180", "male", 1, 1);
+        controller().searchByNameAndGender("false", "Mr. Tobias236 Wolff180", "male", 1, 1);
+    Patient.Bundle patientV2 =
+        controller().searchByNameAndGender("true", "Mr. Tobias236 Wolff180", "male", 1, 1);
     assertThat(json(Iterables.getOnlyElement(patient.entry()).resource()))
+        .isEqualTo(json(PatientSamples.Dstu2.create().patient("x")));
+    assertThat(json(Iterables.getOnlyElement(patientV2.entry()).resource()))
         .isEqualTo(json(PatientSamples.Dstu2.create().patient("x")));
   }
 }

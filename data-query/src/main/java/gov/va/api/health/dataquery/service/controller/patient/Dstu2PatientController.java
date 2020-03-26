@@ -49,6 +49,8 @@ import org.springframework.web.bind.annotation.RestController;
     value = {"/dstu2/Patient"},
     produces = {"application/json", "application/json+fhir", "application/fhir+json"})
 public class Dstu2PatientController {
+  PatientV2 patientV2 = new PatientV2();
+
   private boolean defaultPatientV2;
 
   private Dstu2Bundler bundler;
@@ -117,18 +119,6 @@ public class Dstu2PatientController {
     return entity.orElseThrow(() -> new ResourceExceptions.NotFound(publicId));
   }
 
-  PatientEntityV2 findByIdV2(String publicId) {
-    Optional<PatientEntityV2> entity = repositoryV2.findById(witnessProtection.toCdwId(publicId));
-    return entity.orElseThrow(() -> new ResourceExceptions.NotFound(publicId));
-  }
-
-  private boolean isPatientV2Request(String patientV2Header) {
-    if (patientV2Header.isBlank()) {
-      return defaultPatientV2;
-    }
-    return BooleanUtils.isTrue(BooleanUtils.toBooleanObject(patientV2Header));
-  }
-
   PageRequest page(int page, int count) {
     return PageRequest.of(page - 1, count == 0 ? 1 : count, PatientSearchEntity.naturalOrder());
   }
@@ -139,9 +129,9 @@ public class Dstu2PatientController {
       @RequestHeader(name = "patientV2", required = false, defaultValue = "")
           String patientV2Header,
       @PathVariable("publicId") String publicId) {
-    if (isPatientV2Request(patientV2Header)) {
+    if (patientV2.isPatientV2Request(patientV2Header)) {
       log.info("Using PatientV2");
-      DatamartPatient dm = findByIdV2(publicId).asDatamartPatient();
+      DatamartPatient dm = patientV2.findById(publicId).asDatamartPatient();
       return Dstu2PatientTransformer.builder().datamart(dm).build().toFhir();
     }
     DatamartPatient dm = findById(publicId).asDatamartPatient();
@@ -152,7 +142,17 @@ public class Dstu2PatientController {
   @GetMapping(
       value = "/{publicId}",
       headers = {"raw=true"})
-  public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
+  public String readRaw(
+      @RequestHeader(name = "patientV2", required = false, defaultValue = "")
+          String patientV2Header,
+      @PathVariable("publicId") String publicId,
+      HttpServletResponse response) {
+    if (patientV2.isPatientV2Request(patientV2Header)) {
+      log.info("Using PatientV2");
+      PatientEntityV2 entityV2 = patientV2.findById(publicId);
+      IncludesIcnMajig.addHeader(response, entityV2.icn());
+      return entityV2.payload();
+    }
     PatientSearchEntity entity = findById(publicId);
     IncludesIcnMajig.addHeader(response, entity.icn());
     return entity.patient().payload();
@@ -161,10 +161,23 @@ public class Dstu2PatientController {
   /** Search by Family+Gender. */
   @GetMapping(params = {"family", "gender"})
   public Patient.Bundle searchByFamilyAndGender(
+      @RequestHeader(name = "patientV2", required = false, defaultValue = "")
+          String patientV2Header,
       @RequestParam("family") String family,
       @RequestParam("gender") String gender,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
+    if (patientV2.isPatientV2Request(patientV2Header)) {
+      return patientV2.bundle(
+          Parameters.builder()
+              .add("family", family)
+              .add("gender", gender)
+              .add("page", page)
+              .add("_count", count)
+              .build(),
+          repositoryV2.findByLastNameAndGender(
+              family, cdwGender(gender), patientV2.page(page, count)));
+    }
     return bundle(
         Parameters.builder()
             .add("family", family)
@@ -178,10 +191,23 @@ public class Dstu2PatientController {
   /** Search by Given+Gender. */
   @GetMapping(params = {"given", "gender"})
   public Patient.Bundle searchByGivenAndGender(
+      @RequestHeader(name = "patientV2", required = false, defaultValue = "")
+          String patientV2Header,
       @RequestParam("given") String given,
       @RequestParam("gender") String gender,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
+    if (patientV2.isPatientV2Request(patientV2Header)) {
+      return patientV2.bundle(
+          Parameters.builder()
+              .add("given", given)
+              .add("gender", gender)
+              .add("page", page)
+              .add("_count", count)
+              .build(),
+          repositoryV2.findByFirstNameAndGender(
+              given, cdwGender(gender), patientV2.page(page, count)));
+    }
     return bundle(
         Parameters.builder()
             .add("given", given)
@@ -228,10 +254,29 @@ public class Dstu2PatientController {
   /** Search by Name+Birthdate. */
   @GetMapping(params = {"name", "birthdate"})
   public Patient.Bundle searchByNameAndBirthdate(
+      @RequestHeader(name = "patientV2", required = false, defaultValue = "")
+          String patientV2Header,
       @RequestParam("name") String name,
       @RequestParam("birthdate") String[] birthdate,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
+    if (patientV2.isPatientV2Request(patientV2Header)) {
+      PatientRepositoryV2.NameAndBirthdateSpecification spec =
+          PatientRepositoryV2.NameAndBirthdateSpecification.builder()
+              .name(name)
+              .dates(birthdate)
+              .build();
+      log.info("PatientV2: Looking for {} {}", sanitize(name), spec);
+      Page<PatientEntityV2> entities = repositoryV2.findAll(spec, page(page, count));
+      return patientV2.bundle(
+          Parameters.builder()
+              .add("name", name)
+              .addAll("birthdate", birthdate)
+              .add("page", page)
+              .add("_count", count)
+              .build(),
+          entities);
+    }
     PatientSearchRepository.NameAndBirthdateSpecification spec =
         PatientSearchRepository.NameAndBirthdateSpecification.builder()
             .name(name)
@@ -252,10 +297,23 @@ public class Dstu2PatientController {
   /** Search by Name+Gender. */
   @GetMapping(params = {"name", "gender"})
   public Patient.Bundle searchByNameAndGender(
+      @RequestHeader(name = "patientV2", required = false, defaultValue = "")
+          String patientV2Header,
       @RequestParam("name") String name,
       @RequestParam("gender") String gender,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
+    if (patientV2.isPatientV2Request(patientV2Header)) {
+      return patientV2.bundle(
+          Parameters.builder()
+              .add("name", name)
+              .add("gender", gender)
+              .add("page", page)
+              .add("_count", count)
+              .build(),
+          repositoryV2.findByFullNameAndGender(
+              name, cdwGender(gender), patientV2.page(page, count)));
+    }
     return bundle(
         Parameters.builder()
             .add("name", name)
@@ -276,5 +334,43 @@ public class Dstu2PatientController {
       consumes = {"application/json", "application/json+fhir", "application/fhir+json"})
   public OperationOutcome validate(@RequestBody Patient.Bundle bundle) {
     return Dstu2Validator.create().validate(bundle);
+  }
+
+  /** Container class for organizing patientv2 logic. */
+  private class PatientV2 {
+    Patient.Bundle bundle(
+        MultiValueMap<String, String> parameters, Page<PatientEntityV2> entitiesPage) {
+      log.info("Search {} found {} results", parameters, entitiesPage.getTotalElements());
+      if (Parameters.countOf(parameters) == 0) {
+        return Dstu2PatientController.this.bundle(
+            parameters, emptyList(), (int) entitiesPage.getTotalElements());
+      }
+      List<DatamartPatient> datamarts =
+          entitiesPage.stream()
+              .map(PatientEntityV2::asDatamartPatient)
+              .collect(Collectors.toList());
+      List<Patient> fhir =
+          datamarts.stream()
+              .map(dm -> Dstu2PatientTransformer.builder().datamart(dm).build().toFhir())
+              .collect(Collectors.toList());
+      return Dstu2PatientController.this.bundle(
+          parameters, fhir, (int) entitiesPage.getTotalElements());
+    }
+
+    PatientEntityV2 findById(String publicId) {
+      Optional<PatientEntityV2> entity = repositoryV2.findById(witnessProtection.toCdwId(publicId));
+      return entity.orElseThrow(() -> new ResourceExceptions.NotFound(publicId));
+    }
+
+    boolean isPatientV2Request(String patientV2Header) {
+      if (patientV2Header.isBlank()) {
+        return defaultPatientV2;
+      }
+      return BooleanUtils.isTrue(BooleanUtils.toBooleanObject(patientV2Header));
+    }
+
+    PageRequest page(int page, int count) {
+      return PageRequest.of(page - 1, count == 0 ? 1 : count, PatientEntityV2.naturalOrder());
+    }
   }
 }
