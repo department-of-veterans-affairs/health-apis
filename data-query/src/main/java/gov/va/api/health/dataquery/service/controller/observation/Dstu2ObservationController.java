@@ -220,7 +220,7 @@ public class Dstu2ObservationController {
             .add("page", page)
             .add("_count", count)
             .build();
-    if (queryHack == true) {
+    if (queryHack) {
       List<ObservationEntity> all = repository.findAll(spec);
       int firstIndex = Math.min((page - 1) * count, all.size());
       int lastIndex = Math.min(firstIndex + count, all.size());
