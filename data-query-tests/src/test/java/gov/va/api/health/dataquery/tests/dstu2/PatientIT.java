@@ -107,7 +107,11 @@ public class PatientIT {
    * Temporary equality validation while we support backwards compatibility of patient v1 and v2.
    */
   @Test
-  @Category({Local.class, LabDataQueryClinician.class, ProdDataQueryClinician.class})
+  @Category({
+    Local.class,
+    ProdDataQueryPatient.class,
+    LabDataQueryPatient.class,
+  })
   public void patientV1EqualsV2Read() {
     var patientV1 =
         TestClients.dstu2DataQuery()
@@ -140,15 +144,8 @@ public class PatientIT {
    * Temporary equality validation while we support backwards compatibility of patient v1 and v2.
    */
   @Test
-  @Category({
-    Local.class,
-    Smoke.class,
-    LabDataQueryPatient.class,
-    LabDataQueryClinician.class,
-    ProdDataQueryPatient.class,
-    ProdDataQueryClinician.class
-  })
-  public void patientV1EqualsV2SearchByNameAndGender() {
+  @Category({Local.class})
+  public void patientV1EqualsV2SearchByGivenAndGender() {
     var patientV1 =
         TestClients.dstu2DataQuery()
             .service()
