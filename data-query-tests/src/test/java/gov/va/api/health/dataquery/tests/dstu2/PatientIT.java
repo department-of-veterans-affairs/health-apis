@@ -50,7 +50,7 @@ public class PatientIT {
             "Patient?name={name}&gender={gender}",
             verifier.ids().pii().name(),
             verifier.ids().pii().gender()),
-        /**
+        /*
          * These are tests for the UnsatisfiedServletRequestParameterException mapping to bad
          * request.
          */
