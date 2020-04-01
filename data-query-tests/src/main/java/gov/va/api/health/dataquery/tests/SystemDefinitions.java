@@ -48,7 +48,7 @@ public final class SystemDefinitions {
 
   /** Return definitions for the lab environment. */
   private static SystemDefinition lab() {
-    String url = "https://dev-api.va.gov";
+    String url = "https://sandbox-api.va.gov";
     return SystemDefinition.builder()
         .ids(serviceDefinition("ids", url, 443, null, "/not-available/"))
         .dstu2DataQuery(
