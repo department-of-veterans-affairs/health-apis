@@ -1,10 +1,7 @@
 package gov.va.api.health.dataquery.tests.dstu2;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import gov.va.api.health.argonaut.api.resources.Patient;
 import gov.va.api.health.dataquery.tests.ResourceVerifier;
-import gov.va.api.health.dataquery.tests.TestClients;
 import gov.va.api.health.dataquery.tests.categories.LabDataQueryClinician;
 import gov.va.api.health.dataquery.tests.categories.LabDataQueryPatient;
 import gov.va.api.health.dataquery.tests.categories.ProdDataQueryClinician;
@@ -13,8 +10,6 @@ import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import gov.va.api.health.sentinel.Environment;
 import gov.va.api.health.sentinel.categories.Local;
 import gov.va.api.health.sentinel.categories.Smoke;
-import io.restassured.http.Header;
-import io.restassured.http.Method;
 import lombok.experimental.Delegate;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -101,79 +96,5 @@ public class PatientIT {
     verifier.verifyAll(
         test(status, OperationOutcome.class, "Patient/{id}", verifier.ids().unknown()),
         test(status, OperationOutcome.class, "Patient?_id={id}", verifier.ids().unknown()));
-  }
-
-  /**
-   * Temporary equality validation while we support backwards compatibility of patient v1 and v2.
-   */
-  @Test
-  @Category({
-    Local.class,
-    ProdDataQueryPatient.class,
-    LabDataQueryPatient.class,
-  })
-  public void patientV1EqualsV2Read() {
-    var patientV1 =
-        TestClients.dstu2DataQuery()
-            .service()
-            .requestSpecification()
-            .header(new Header("patientV2", "false"))
-            .request(
-                Method.GET,
-                TestClients.dstu2DataQuery().service().urlWithApiPath()
-                    + "Patient/"
-                    + verifier.ids().patient())
-            .getBody()
-            .asString();
-    var patientV2 =
-        TestClients.dstu2DataQuery()
-            .service()
-            .requestSpecification()
-            .header(new Header("patientV2", "true"))
-            .request(
-                Method.GET,
-                TestClients.dstu2DataQuery().service().urlWithApiPath()
-                    + "Patient/"
-                    + verifier.ids().patient())
-            .getBody()
-            .asString();
-    assertThat(patientV1).isEqualTo(patientV2);
-  }
-
-  /**
-   * Temporary equality validation while we support backwards compatibility of patient v1 and v2.
-   */
-  @Test
-  @Category({Local.class})
-  public void patientV1EqualsV2SearchByGivenAndGender() {
-    var patientV1 =
-        TestClients.dstu2DataQuery()
-            .service()
-            .requestSpecification()
-            .header(new Header("patientV2", "false"))
-            .request(
-                Method.GET,
-                TestClients.dstu2DataQuery().service().urlWithApiPath()
-                    + "Patient?given="
-                    + verifier.ids().pii().given()
-                    + "&gender="
-                    + verifier.ids().pii().gender())
-            .getBody()
-            .asString();
-    var patientV2 =
-        TestClients.dstu2DataQuery()
-            .service()
-            .requestSpecification()
-            .header(new Header("patientV2", "true"))
-            .request(
-                Method.GET,
-                TestClients.dstu2DataQuery().service().urlWithApiPath()
-                    + "Patient?given="
-                    + verifier.ids().pii().given()
-                    + "&gender="
-                    + verifier.ids().pii().gender())
-            .getBody()
-            .asString();
-    assertThat(patientV1).isEqualTo(patientV2);
   }
 }

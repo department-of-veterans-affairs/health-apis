@@ -22,6 +22,14 @@ import org.springframework.transaction.annotation.Transactional;
 public interface PatientRepositoryV2
     extends PagingAndSortingRepository<PatientEntityV2, String>,
         JpaSpecificationExecutor<PatientEntityV2> {
+  /**
+   * A paged search that returns a view of the patients with just the payload column read.
+   *
+   * @param page The page data to find
+   * @return A page of patient payloads
+   */
+  Page<PatientPayloadDto> findAllProjectedBy(Pageable page);
+
   Page<PatientEntityV2> findByFirstNameAndGender(
       String firstName, String gender, Pageable pageable);
 

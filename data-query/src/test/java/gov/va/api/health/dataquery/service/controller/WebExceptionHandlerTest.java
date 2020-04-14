@@ -12,7 +12,6 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.patient.Dstu2PatientController;
 import gov.va.api.health.dataquery.service.controller.patient.PatientRepositoryV2;
-import gov.va.api.health.dataquery.service.controller.patient.PatientSearchRepository;
 import gov.va.api.health.ids.client.IdEncoder.BadId;
 import java.lang.reflect.Method;
 import java.lang.reflect.UndeclaredThrowableException;
@@ -52,8 +51,7 @@ public class WebExceptionHandlerTest {
 
   @Mock HttpServletRequest request;
   @Mock Dstu2Bundler bundler;
-  @Mock PatientSearchRepository repository;
-  @Mock PatientRepositoryV2 repositoryV2;
+  @Mock PatientRepositoryV2 repository;
   @Mock WitnessProtection witnessProtection;
   private Dstu2PatientController controller;
   private WebExceptionHandler exceptionHandler;
@@ -80,8 +78,7 @@ public class WebExceptionHandlerTest {
   @Before
   public void _init() {
     MockitoAnnotations.initMocks(this);
-    controller =
-        new Dstu2PatientController(false, bundler, repository, repositoryV2, witnessProtection);
+    controller = new Dstu2PatientController(bundler, repository, witnessProtection);
     exceptionHandler = new WebExceptionHandler("1234567890123456");
   }
 
