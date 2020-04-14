@@ -15,6 +15,7 @@ import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -109,7 +110,9 @@ public class Dstu2AllergyIntoleranceController {
         resource ->
             Stream.concat(
                 Stream.of(resource.recorder().orElse(null), resource.patient()),
-                resource.notes().stream().map(n -> n.practitioner().orElse(null))));
+                resource.notes().stream()
+                    .map(n -> n.practitioner().orElse(null))
+                    .filter(Objects::nonNull)));
   }
 
   /** Search by _id. */

@@ -29,6 +29,7 @@ import gov.va.api.health.ids.api.ResourceIdentity;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -214,7 +215,8 @@ public class Dstu2DiagnosticReportController {
                                             .system("CDW")
                                             .resource("OBSERVATION")
                                             .identifier(r.result())
-                                            .build()))))
+                                            .build()))
+                            .filter(Objects::nonNull)))
             .filter(r -> r != null)
             .collect(Collectors.toSet());
 
