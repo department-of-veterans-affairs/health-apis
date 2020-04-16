@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.patient;
 
+import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.parseInstant;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.argonaut.api.resources.Patient;
@@ -22,17 +23,18 @@ import org.springframework.test.context.junit4.SpringRunner;
 public class PatientBulkFhirControllerTest {
   @Autowired private TestEntityManager entityManager;
 
-  @Autowired private PatientRepository repository;
+  @Autowired private PatientRepositoryV2 repository;
 
   @SneakyThrows
-  private PatientSearchEntity asEntity(DatamartPatient patient) {
-    return PatientSearchEntity.builder()
-        .icn(patient.fullIcn())
-        .patient(
-            PatientEntity.builder()
-                .icn(patient.fullIcn())
-                .payload(JacksonConfig.createMapper().writeValueAsString(patient))
-                .build())
+  private PatientEntityV2 asEntity(DatamartPatient dm) {
+    return PatientEntityV2.builder()
+        .icn(dm.fullIcn())
+        .fullName(dm.name())
+        .lastName(dm.lastName())
+        .firstName(dm.firstName())
+        .gender(dm.gender())
+        .birthDate(parseInstant(dm.birthDateTime()))
+        .payload(JacksonConfig.createMapper().writeValueAsString(dm))
         .build();
   }
 
@@ -64,8 +66,7 @@ public class PatientBulkFhirControllerTest {
     for (int i = 0; i < 10; i++) {
       var id = String.valueOf(i);
       var dm = datamart.patient(id);
-      PatientSearchEntity entity = asEntity(dm);
-      entityManager.persistAndFlush(entity.patient());
+      var entity = asEntity(dm);
       entityManager.persistAndFlush(entity);
       var patient = fhir.patient(id);
       patients.add(patient);

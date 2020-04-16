@@ -1,7 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.patient;
 
 import static gov.va.api.health.autoconfig.configuration.JacksonConfig.createMapper;
-import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.parseInstant;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -393,14 +392,6 @@ public final class DatamartPatientTest {
       return DatamartData.builder().build();
     }
 
-    @SneakyThrows
-    PatientEntity entity() {
-      return PatientEntity.builder()
-          .icn(icn)
-          .payload(JacksonConfig.createMapper().writeValueAsString(patient()))
-          .build();
-    }
-
     DatamartPatient patient() {
       return DatamartPatient.builder()
           .objectType("Patient")
@@ -489,225 +480,213 @@ public final class DatamartPatientTest {
           .build();
     }
 
-    PatientSearchEntity search() {
-      return PatientSearchEntity.builder()
-          .icn(icn)
-          .name(name)
-          .firstName(firstName)
-          .lastName(lastName)
-          .gender("M")
-          .birthDateTime(parseInstant(birthDateTime))
-          .patient(entity())
-          .build();
-    }
-  }
+    @Builder
+    @Value
+    private static class FhirData {
 
-  @Builder
-  @Value
-  private static class FhirData {
+      @Builder.Default String icn = "1011537977V693883";
 
-    @Builder.Default String icn = "1011537977V693883";
+      @Builder.Default String name = "TEST,PATIENT ONE";
 
-    @Builder.Default String name = "TEST,PATIENT ONE";
+      @Builder.Default String firstName = "PATIENT ONE";
 
-    @Builder.Default String firstName = "PATIENT ONE";
+      @Builder.Default String lastName = "TEST";
 
-    @Builder.Default String lastName = "TEST";
+      static FhirData from(DatamartData dm) {
+        return FhirData.builder()
+            .icn(dm.icn())
+            .name(dm.name())
+            .firstName(dm.firstName())
+            .lastName(dm.lastName())
+            .build();
+      }
 
-    static FhirData from(DatamartData dm) {
-      return FhirData.builder()
-          .icn(dm.icn())
-          .name(dm.name())
-          .firstName(dm.firstName())
-          .lastName(dm.lastName())
-          .build();
-    }
-
-    public Patient patient() {
-      return Patient.builder()
-          .id(icn)
-          .resourceType("Patient")
-          .extension(
-              asList(
-                  Extension.builder()
-                      .url("http://fhir.org/guides/argonaut/StructureDefinition/argo-race")
-                      .extension(
-                          asList(
-                              Extension.builder()
-                                  .url("ombCategory")
-                                  .valueCoding(
-                                      Coding.builder()
-                                          .system("http://hl7.org/fhir/v3/Race")
-                                          .code("2028-9")
-                                          .display("Asian")
-                                          .build())
-                                  .build(),
-                              Extension.builder().url("text").valueString("Asian").build()))
-                      .build(),
-                  Extension.builder()
-                      .url("http://fhir.org/guides/argonaut/StructureDefinition/argo-ethnicity")
-                      .extension(
-                          asList(
-                              Extension.builder()
-                                  .url("ombCategory")
-                                  .valueCoding(
-                                      Coding.builder()
-                                          .system("http://hl7.org/fhir/ValueSet/v3-Ethnicity")
-                                          .code("2135-2")
-                                          .display("Hispanic or Latino")
-                                          .build())
-                                  .build(),
-                              Extension.builder()
-                                  .url("text")
-                                  .valueString("Hispanic or Latino")
-                                  .build()))
-                      .build(),
-                  Extension.builder()
-                      .url("http://fhir.org/guides/argonaut/StructureDefinition/argo-birthsex")
-                      .valueCode("M")
-                      .build()))
-          .identifier(
-              asList(
-                  Identifier.builder()
-                      .use(Identifier.IdentifierUse.usual)
-                      .type(
-                          CodeableConcept.builder()
-                              .coding(
-                                  asList(
-                                      Coding.builder()
-                                          .system("http://hl7.org/fhir/v2/0203")
-                                          .code("MR")
-                                          .build()))
-                              .build())
-                      .system("http://va.gov/mvi")
-                      .value(icn)
-                      .assigner(Reference.builder().display("Master Veteran Index").build())
-                      .build(),
-                  Identifier.builder()
-                      .use(Identifier.IdentifierUse.official)
-                      .type(
-                          CodeableConcept.builder()
-                              .coding(
-                                  asList(
-                                      Coding.builder()
-                                          .system("http://hl7.org/fhir/v2/0203")
-                                          .code("SB")
-                                          .build()))
-                              .build())
-                      .system("http://hl7.org/fhir/sid/us-ssn")
-                      .value("000001234")
-                      .assigner(
-                          Reference.builder()
-                              .display("United States Social Security Number")
-                              .build())
-                      .build()))
-          .name(
-              asList(
-                  HumanName.builder()
-                      .use(HumanName.NameUse.usual)
-                      .text(name)
-                      .family(asList(lastName))
-                      .given(asList(firstName))
-                      .build()))
-          .telecom(
-              asList(
-                  ContactPoint.builder()
-                      .system(ContactPoint.ContactPointSystem.phone)
-                      .value("011 9991234567")
-                      .use(ContactPoint.ContactPointUse.mobile)
-                      .build(),
-                  ContactPoint.builder()
-                      .system(ContactPoint.ContactPointSystem.phone)
-                      .value("09000001234")
-                      .use(ContactPoint.ContactPointUse.home)
-                      .build(),
-                  ContactPoint.builder()
-                      .system(ContactPoint.ContactPointSystem.phone)
-                      .value("027719342")
-                      .use(ContactPoint.ContactPointUse.temp)
-                      .build(),
-                  ContactPoint.builder()
-                      .system(ContactPoint.ContactPointSystem.phone)
-                      .value("09000001234")
-                      .use(ContactPoint.ContactPointUse.work)
-                      .build()))
-          .gender(Gender.male)
-          .birthDate("1925-01-01")
-          .deceasedBoolean(false)
-          .address(
-              asList(
-                  Address.builder()
-                      .line(asList("HOTEL PASAY", "232 KAMAGONG ST"))
-                      .city("PASAY")
-                      .state("*Missing*")
-                      .postalCode("01300")
-                      .country("PHILIPPINES")
-                      .build(),
-                  Address.builder()
-                      .line(asList("1501 ROXAS BLVD"))
-                      .city("PASAY CITY")
-                      .state("*Missing*")
-                      .postalCode("01302")
-                      .country("PHILIPPINES")
-                      .build(),
-                  Address.builder()
-                      .line(asList("55555 ROXAS BOULEVARD"))
-                      .city("PASAY CITY")
-                      .state("*Missing*")
-                      .postalCode("01302")
-                      .country("PHILIPPINES")
-                      .build()))
-          .maritalStatus(
-              CodeableConcept.builder()
-                  .coding(
-                      asList(
-                          Coding.builder()
-                              .system("http://hl7.org/fhir/v3/NullFlavor")
-                              .code("UNK")
-                              .display("unknown")
-                              .build()))
-                  .build())
-          .contact(
-              asList(
-                  Patient.Contact.builder()
-                      .name(HumanName.builder().text("UNK,UNKO").build())
-                      .relationship(
-                          asList(
-                              CodeableConcept.builder()
-                                  .coding(
-                                      asList(
-                                          Coding.builder()
-                                              .system(
-                                                  "http://hl7.org/fhir/patient-contact-relationship")
-                                              .code("emergency")
-                                              .display("Emergency")
-                                              .build()))
-                                  .text("Emergency Contact")
-                                  .build()))
-                      .telecom(
-                          asList(
-                              ContactPoint.builder()
-                                  .system(ContactPoint.ContactPointSystem.phone)
-                                  .use(ContactPointUse.home)
-                                  .value("09090001234")
-                                  .build(),
-                              ContactPoint.builder()
-                                  .system(ContactPoint.ContactPointSystem.phone)
-                                  .use(ContactPointUse.work)
-                                  .value("09990001234")
-                                  .build(),
-                              ContactPoint.builder()
-                                  .system(ContactPoint.ContactPointSystem.email)
-                                  .value("sample@example.com")
-                                  .build()))
-                      .address(
-                          Address.builder()
-                              .line(asList("1501 ROXAS BOULEVARD"))
-                              .city("PASAY CITY, METRO MANILA")
-                              .state("PHILIPPINES")
-                              .build())
-                      .build()))
-          .build();
+      public Patient patient() {
+        return Patient.builder()
+            .id(icn)
+            .resourceType("Patient")
+            .extension(
+                asList(
+                    Extension.builder()
+                        .url("http://fhir.org/guides/argonaut/StructureDefinition/argo-race")
+                        .extension(
+                            asList(
+                                Extension.builder()
+                                    .url("ombCategory")
+                                    .valueCoding(
+                                        Coding.builder()
+                                            .system("http://hl7.org/fhir/v3/Race")
+                                            .code("2028-9")
+                                            .display("Asian")
+                                            .build())
+                                    .build(),
+                                Extension.builder().url("text").valueString("Asian").build()))
+                        .build(),
+                    Extension.builder()
+                        .url("http://fhir.org/guides/argonaut/StructureDefinition/argo-ethnicity")
+                        .extension(
+                            asList(
+                                Extension.builder()
+                                    .url("ombCategory")
+                                    .valueCoding(
+                                        Coding.builder()
+                                            .system("http://hl7.org/fhir/ValueSet/v3-Ethnicity")
+                                            .code("2135-2")
+                                            .display("Hispanic or Latino")
+                                            .build())
+                                    .build(),
+                                Extension.builder()
+                                    .url("text")
+                                    .valueString("Hispanic or Latino")
+                                    .build()))
+                        .build(),
+                    Extension.builder()
+                        .url("http://fhir.org/guides/argonaut/StructureDefinition/argo-birthsex")
+                        .valueCode("M")
+                        .build()))
+            .identifier(
+                asList(
+                    Identifier.builder()
+                        .use(Identifier.IdentifierUse.usual)
+                        .type(
+                            CodeableConcept.builder()
+                                .coding(
+                                    asList(
+                                        Coding.builder()
+                                            .system("http://hl7.org/fhir/v2/0203")
+                                            .code("MR")
+                                            .build()))
+                                .build())
+                        .system("http://va.gov/mvi")
+                        .value(icn)
+                        .assigner(Reference.builder().display("Master Veteran Index").build())
+                        .build(),
+                    Identifier.builder()
+                        .use(Identifier.IdentifierUse.official)
+                        .type(
+                            CodeableConcept.builder()
+                                .coding(
+                                    asList(
+                                        Coding.builder()
+                                            .system("http://hl7.org/fhir/v2/0203")
+                                            .code("SB")
+                                            .build()))
+                                .build())
+                        .system("http://hl7.org/fhir/sid/us-ssn")
+                        .value("000001234")
+                        .assigner(
+                            Reference.builder()
+                                .display("United States Social Security Number")
+                                .build())
+                        .build()))
+            .name(
+                asList(
+                    HumanName.builder()
+                        .use(HumanName.NameUse.usual)
+                        .text(name)
+                        .family(asList(lastName))
+                        .given(asList(firstName))
+                        .build()))
+            .telecom(
+                asList(
+                    ContactPoint.builder()
+                        .system(ContactPoint.ContactPointSystem.phone)
+                        .value("011 9991234567")
+                        .use(ContactPoint.ContactPointUse.mobile)
+                        .build(),
+                    ContactPoint.builder()
+                        .system(ContactPoint.ContactPointSystem.phone)
+                        .value("09000001234")
+                        .use(ContactPoint.ContactPointUse.home)
+                        .build(),
+                    ContactPoint.builder()
+                        .system(ContactPoint.ContactPointSystem.phone)
+                        .value("027719342")
+                        .use(ContactPoint.ContactPointUse.temp)
+                        .build(),
+                    ContactPoint.builder()
+                        .system(ContactPoint.ContactPointSystem.phone)
+                        .value("09000001234")
+                        .use(ContactPoint.ContactPointUse.work)
+                        .build()))
+            .gender(Gender.male)
+            .birthDate("1925-01-01")
+            .deceasedBoolean(false)
+            .address(
+                asList(
+                    Address.builder()
+                        .line(asList("HOTEL PASAY", "232 KAMAGONG ST"))
+                        .city("PASAY")
+                        .state("*Missing*")
+                        .postalCode("01300")
+                        .country("PHILIPPINES")
+                        .build(),
+                    Address.builder()
+                        .line(asList("1501 ROXAS BLVD"))
+                        .city("PASAY CITY")
+                        .state("*Missing*")
+                        .postalCode("01302")
+                        .country("PHILIPPINES")
+                        .build(),
+                    Address.builder()
+                        .line(asList("55555 ROXAS BOULEVARD"))
+                        .city("PASAY CITY")
+                        .state("*Missing*")
+                        .postalCode("01302")
+                        .country("PHILIPPINES")
+                        .build()))
+            .maritalStatus(
+                CodeableConcept.builder()
+                    .coding(
+                        asList(
+                            Coding.builder()
+                                .system("http://hl7.org/fhir/v3/NullFlavor")
+                                .code("UNK")
+                                .display("unknown")
+                                .build()))
+                    .build())
+            .contact(
+                asList(
+                    Patient.Contact.builder()
+                        .name(HumanName.builder().text("UNK,UNKO").build())
+                        .relationship(
+                            asList(
+                                CodeableConcept.builder()
+                                    .coding(
+                                        asList(
+                                            Coding.builder()
+                                                .system(
+                                                    "http://hl7.org/fhir/patient-contact-relationship")
+                                                .code("emergency")
+                                                .display("Emergency")
+                                                .build()))
+                                    .text("Emergency Contact")
+                                    .build()))
+                        .telecom(
+                            asList(
+                                ContactPoint.builder()
+                                    .system(ContactPoint.ContactPointSystem.phone)
+                                    .use(ContactPointUse.home)
+                                    .value("09090001234")
+                                    .build(),
+                                ContactPoint.builder()
+                                    .system(ContactPoint.ContactPointSystem.phone)
+                                    .use(ContactPointUse.work)
+                                    .value("09990001234")
+                                    .build(),
+                                ContactPoint.builder()
+                                    .system(ContactPoint.ContactPointSystem.email)
+                                    .value("sample@example.com")
+                                    .build()))
+                        .address(
+                            Address.builder()
+                                .line(asList("1501 ROXAS BOULEVARD"))
+                                .city("PASAY CITY, METRO MANILA")
+                                .state("PHILIPPINES")
+                                .build())
+                        .build()))
+            .build();
+      }
     }
   }
 }

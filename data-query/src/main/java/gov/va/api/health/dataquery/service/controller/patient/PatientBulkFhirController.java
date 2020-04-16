@@ -25,14 +25,14 @@ import org.springframework.web.bind.annotation.RestController;
     produces = {"application/json", "application/fhir+json", "application/json+fhir"})
 public class PatientBulkFhirController {
 
-  private PatientRepository repository;
+  private PatientRepositoryV2 repository;
 
   private int maxRecordsPerPage;
 
   /** All args constructor. */
   public PatientBulkFhirController(
       @Value("${bulk.patient.maxRecordsPerPage}") int maxRecordsPerPage,
-      @Autowired PatientRepository repository) {
+      @Autowired PatientRepositoryV2 repository) {
     this.maxRecordsPerPage = maxRecordsPerPage;
     this.repository = repository;
   }
