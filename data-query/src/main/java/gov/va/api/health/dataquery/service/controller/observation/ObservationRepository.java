@@ -57,7 +57,9 @@ public interface ObservationRepository
       predicates.add(criteriaBuilder.equal(root.get("icn"), patient()));
 
       In<String> categoriesInClause = criteriaBuilder.in(root.get("category"));
-      categories.forEach(categoriesInClause::value);
+      for (String category : categories) {
+        categoriesInClause.value(category);
+      }
       predicates.add(categoriesInClause);
 
       if (date1() != null) {
@@ -88,7 +90,9 @@ public interface ObservationRepository
         CriteriaQuery<?> criteriaQuery,
         CriteriaBuilder criteriaBuilder) {
       In<String> codesInClause = criteriaBuilder.in(root.get("code"));
-      codes.forEach(codesInClause::value);
+      for (String code : codes) {
+        codesInClause.value(code);
+      }
 
       return criteriaBuilder.and(criteriaBuilder.equal(root.get("icn"), patient()), codesInClause);
     }
