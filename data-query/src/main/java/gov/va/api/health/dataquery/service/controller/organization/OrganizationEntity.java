@@ -32,15 +32,6 @@ public class OrganizationEntity implements DatamartEntity {
   @Column(name = "NPI", nullable = true)
   private String npi;
 
-  @Column(name = "ProviderID", nullable = true)
-  private String providerId;
-
-  @Column(name = "EDIID", nullable = true)
-  private String ediId;
-
-  @Column(name = "AgencyID", nullable = true)
-  private String agencyId;
-
   @Column(name = "Address", nullable = true)
   private String street;
 
