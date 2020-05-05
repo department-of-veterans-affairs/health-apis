@@ -33,6 +33,40 @@ public final class Transformers {
     return true;
   }
 
+  /** Return null if the date is null, otherwise return an ISO-8601 date. */
+  public static String asDateString(Optional<LocalDate> maybeDateTime) {
+    if (maybeDateTime == null) {
+      return null;
+    }
+    return asDateString(maybeDateTime.orElse(null));
+  }
+
+  /** Return null if the date is null, otherwise return an ISO-8601 date. */
+  public static String asDateString(LocalDate maybeDateTime) {
+    if (maybeDateTime == null) {
+      return null;
+    }
+    return DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.US)
+        .withZone(ZoneOffset.UTC)
+        .format(maybeDateTime);
+  }
+
+  /** Return null if the date is null, otherwise return an ISO-8601 date time. */
+  public static String asDateTimeString(Optional<Instant> maybeDateTime) {
+    if (maybeDateTime == null) {
+      return null;
+    }
+    return asDateTimeString(maybeDateTime.orElse(null));
+  }
+
+  /** Return null if the date is null, otherwise return an ISO-8601 date time. */
+  public static String asDateTimeString(Instant maybeDateTime) {
+    if (maybeDateTime == null) {
+      return null;
+    }
+    return maybeDateTime.toString();
+  }
+
   /** Return null if the given object is null, otherwise return the converted value. */
   public static <T, R> R convert(T source, Function<T, R> mapper) {
     if (source == null) {
@@ -76,40 +110,6 @@ public final class Transformers {
       return null;
     }
     return extract.apply(object);
-  }
-
-  /** Return null if the date is null, otherwise return an ISO-8601 date. */
-  public static String asDateString(Optional<LocalDate> maybeDateTime) {
-    if (maybeDateTime == null) {
-      return null;
-    }
-    return asDateString(maybeDateTime.orElse(null));
-  }
-
-  /** Return null if the date is null, otherwise return an ISO-8601 date. */
-  public static String asDateString(LocalDate maybeDateTime) {
-    if (maybeDateTime == null) {
-      return null;
-    }
-    return DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.US)
-            .withZone(ZoneOffset.UTC)
-            .format(maybeDateTime);
-  }
-
-  /** Return null if the date is null, otherwise return an ISO-8601 date time. */
-  public static String asDateTimeString(Optional<Instant> maybeDateTime) {
-    if (maybeDateTime == null) {
-      return null;
-    }
-    return asDateTimeString(maybeDateTime.orElse(null));
-  }
-
-  /** Return null if the date is null, otherwise return an ISO-8601 date time. */
-  public static String asDateTimeString(Instant maybeDateTime) {
-    if (maybeDateTime == null) {
-      return null;
-    }
-    return maybeDateTime.toString();
   }
 
   /** Return true if the value is a blank string, or any other object that is null. */

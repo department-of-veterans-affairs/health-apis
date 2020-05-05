@@ -10,7 +10,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
 import org.junit.Test;
 
 public class TransformersTest {
@@ -21,12 +20,6 @@ public class TransformersTest {
     assertThat(Transformers.allBlank(null, "", " ")).isTrue();
     assertThat(Transformers.allBlank(null, 1, null, null)).isFalse();
     assertThat(Transformers.allBlank(1, "x", "z", 2.0)).isFalse();
-  }
-
-  @Test
-  public void isBlankCollection() {
-    assertThat(isBlank(List.of())).isTrue();
-    assertThat(isBlank(List.of("x"))).isFalse();
   }
 
   @Test
@@ -81,6 +74,12 @@ public class TransformersTest {
   public void asDateTimeStringReturnsStringWhenOptionalInstantIsPresent() {
     Instant time = Instant.parse("2005-01-21T07:57:00.000Z");
     assertThat(asDateTimeString(Optional.of(time))).isEqualTo("2005-01-21T07:57:00Z");
+  }
+
+  @Test
+  public void isBlankCollection() {
+    assertThat(isBlank(List.of())).isTrue();
+    assertThat(isBlank(List.of("x"))).isFalse();
   }
 
   @Test

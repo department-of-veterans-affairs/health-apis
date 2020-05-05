@@ -19,17 +19,29 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class DatamartCondition implements HasReplaceableId {
   @Builder.Default private String objectType = "Condition";
+
   @Builder.Default private String objectVersion = "1";
+
   private String cdwId;
+
   private DatamartReference patient;
+
   private Optional<DatamartReference> encounter;
+
   private Optional<DatamartReference> asserter;
+
   private Optional<LocalDate> dateRecorded;
+
   private Optional<SnomedCode> snomed;
+
   private Optional<IcdCode> icd;
+
   private Category category;
+
   private ClinicalStatus clinicalStatus;
+
   private Optional<Instant> onsetDateTime;
+
   private Optional<Instant> abatementDateTime;
 
   /** Lazy initialization with empty. */
@@ -62,6 +74,18 @@ public class DatamartCondition implements HasReplaceableId {
       encounter = Optional.empty();
     }
     return encounter;
+  }
+
+  /** Determine if there is a valid icd code. */
+  @JsonIgnore
+  public boolean hasIcdCode() {
+    return icd().isPresent() && icd().get().isUsable();
+  }
+
+  /** Determine if there is a valid snomed code. */
+  @JsonIgnore
+  public boolean hasSnomedCode() {
+    return snomed().isPresent() && snomed().get().isUsable();
   }
 
   /** Lazy initialization with empty. */
@@ -104,18 +128,6 @@ public class DatamartCondition implements HasReplaceableId {
     problem
   }
 
-  /** Determine if there is a valid snomed code. */
-  @JsonIgnore
-  public boolean hasSnomedCode() {
-    return snomed().isPresent() && snomed().get().isUsable();
-  }
-
-  /** Determine if there is a valid icd code. */
-  @JsonIgnore
-  public boolean hasIcdCode() {
-    return icd().isPresent() && icd().get().isUsable();
-  }
-
   @Data
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -123,7 +135,9 @@ public class DatamartCondition implements HasReplaceableId {
   @JsonIgnoreProperties({"usable"})
   public static class IcdCode {
     private String code;
+
     private String display;
+
     private String version;
 
     /** Determine if an icd code can be mapped without null values. */
@@ -139,6 +153,7 @@ public class DatamartCondition implements HasReplaceableId {
   @JsonIgnoreProperties({"usable"})
   public static class SnomedCode {
     private String code;
+
     private String display;
 
     /** Determine if a snomed code can be mapped without null values. */
