@@ -1,7 +1,7 @@
 package gov.va.api.health.dataquery.service.controller.medicationorder;
 
-import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asDateTimeString;
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asReference;
+import static gov.va.api.health.dataquery.service.controller.Transformers.asDateTimeString;
 
 import com.google.common.collect.ImmutableMap;
 import gov.va.api.health.argonaut.api.resources.MedicationOrder;

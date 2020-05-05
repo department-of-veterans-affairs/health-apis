@@ -91,40 +91,6 @@ public final class Dstu2Transformers {
         .build();
   }
 
-  /** Return null if the date is null, otherwise return an ISO-8601 date. */
-  public static String asDateString(Optional<LocalDate> maybeDateTime) {
-    if (maybeDateTime == null) {
-      return null;
-    }
-    return asDateString(maybeDateTime.orElse(null));
-  }
-
-  /** Return null if the date is null, otherwise return an ISO-8601 date. */
-  public static String asDateString(LocalDate maybeDateTime) {
-    if (maybeDateTime == null) {
-      return null;
-    }
-    return DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.US)
-        .withZone(ZoneOffset.UTC)
-        .format(maybeDateTime);
-  }
-
-  /** Return null if the date is null, otherwise return an ISO-8601 date time. */
-  public static String asDateTimeString(Optional<Instant> maybeDateTime) {
-    if (maybeDateTime == null) {
-      return null;
-    }
-    return asDateTimeString(maybeDateTime.orElse(null));
-  }
-
-  /** Return null if the date is null, otherwise return an ISO-8601 date time. */
-  public static String asDateTimeString(Instant maybeDateTime) {
-    if (maybeDateTime == null) {
-      return null;
-    }
-    return maybeDateTime.toString();
-  }
-
   /** Convert the datamart reference (if specified) to a FHIR reference. */
   public static Reference asReference(Optional<DatamartReference> maybeReference) {
     if (maybeReference == null || maybeReference.isEmpty()) {
