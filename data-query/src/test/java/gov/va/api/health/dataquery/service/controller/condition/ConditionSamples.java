@@ -201,8 +201,40 @@ public class ConditionSamples {
 
   @AllArgsConstructor(staticName = "create")
   public static class R4 {
-    public static BundleLink link(LinkRelation rel, String base, int page, int count) {
-      return BundleLink.builder()
+    static gov.va.api.health.uscorer4.api.resources.Condition.Bundle asBundle(
+        String baseUrl,
+        Collection<gov.va.api.health.uscorer4.api.resources.Condition> conditions,
+        int totalRecords,
+        gov.va.api.health.r4.api.bundle.BundleLink... links) {
+      return gov.va.api.health.uscorer4.api.resources.Condition.Bundle.builder()
+          .resourceType("Bundle")
+          .type(gov.va.api.health.r4.api.bundle.AbstractBundle.BundleType.searchset)
+          .total(totalRecords)
+          .link(Arrays.asList(links))
+          .entry(
+              conditions.stream()
+                  .map(
+                      c ->
+                          gov.va.api.health.uscorer4.api.resources.Condition.Entry.builder()
+                              .fullUrl(baseUrl + "/Condition/" + c.id())
+                              .resource(c)
+                              .search(
+                                  gov.va.api.health.r4.api.bundle.AbstractEntry.Search.builder()
+                                      .mode(
+                                          gov.va.api.health.r4.api.bundle.AbstractEntry.SearchMode
+                                              .match)
+                                      .build())
+                              .build())
+                  .collect(Collectors.toList()))
+          .build();
+    }
+
+    public static gov.va.api.health.r4.api.bundle.BundleLink link(
+        gov.va.api.health.r4.api.bundle.BundleLink.LinkRelation rel,
+        String base,
+        int page,
+        int count) {
+      return gov.va.api.health.r4.api.bundle.BundleLink.builder()
           .relation(rel)
           .url(base + "&page=" + page + "&_count=" + count)
           .build();
