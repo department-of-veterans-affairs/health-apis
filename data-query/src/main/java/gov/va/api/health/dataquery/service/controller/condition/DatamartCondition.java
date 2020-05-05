@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.condition;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dataquery.service.controller.datamart.HasReplaceableId;
@@ -101,6 +102,18 @@ public class DatamartCondition implements HasReplaceableId {
   public enum Category {
     diagnosis,
     problem
+  }
+
+  /** Determine if there is a valid snomed code. */
+  @JsonIgnore
+  public boolean hasSnomedCode() {
+    return snomed().isPresent() && snomed().get().isUsable();
+  }
+
+  /** Determine if there is a valid icd code. */
+  @JsonIgnore
+  public boolean hasIcdCode() {
+    return icd().isPresent() && icd().get().isUsable();
   }
 
   @Data
