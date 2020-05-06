@@ -14,7 +14,7 @@ public class ConfigurableBaseUrlPageLinksDstu2Test {
 
   @Before
   public void _init() {
-    links = new ConfigurableBaseUrlPageLinks("https://awesome.com", "api/dstu2", "unused");
+    links = new ConfigurableBaseUrlPageLinks("https://awesome.com", "api/dstu2", "unused", "r4");
   }
 
   @Test

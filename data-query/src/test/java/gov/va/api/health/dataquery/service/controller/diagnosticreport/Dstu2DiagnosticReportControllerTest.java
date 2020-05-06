@@ -44,7 +44,8 @@ public class Dstu2DiagnosticReportControllerTest {
 
   public Dstu2DiagnosticReportController controller() {
     return new Dstu2DiagnosticReportController(
-        new Dstu2Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool", "cool")),
+        new Dstu2Bundler(
+            new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool", "cool", "cool")),
         WitnessProtection.builder().identityService(mock(IdentityService.class)).build(),
         entityManager.getEntityManager());
   }
