@@ -9,12 +9,8 @@ import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
 import gov.va.api.health.dstu2.api.elements.Reference;
 import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
@@ -89,40 +85,6 @@ public final class Dstu2Transformers {
         .reference(Optional.of(resourceId))
         .type(Optional.of(resourceName))
         .build();
-  }
-
-  /** Return null if the date is null, otherwise return an ISO-8601 date. */
-  public static String asDateString(Optional<LocalDate> maybeDateTime) {
-    if (maybeDateTime == null) {
-      return null;
-    }
-    return asDateString(maybeDateTime.orElse(null));
-  }
-
-  /** Return null if the date is null, otherwise return an ISO-8601 date. */
-  public static String asDateString(LocalDate maybeDateTime) {
-    if (maybeDateTime == null) {
-      return null;
-    }
-    return DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.US)
-        .withZone(ZoneOffset.UTC)
-        .format(maybeDateTime);
-  }
-
-  /** Return null if the date is null, otherwise return an ISO-8601 date time. */
-  public static String asDateTimeString(Optional<Instant> maybeDateTime) {
-    if (maybeDateTime == null) {
-      return null;
-    }
-    return asDateTimeString(maybeDateTime.orElse(null));
-  }
-
-  /** Return null if the date is null, otherwise return an ISO-8601 date time. */
-  public static String asDateTimeString(Instant maybeDateTime) {
-    if (maybeDateTime == null) {
-      return null;
-    }
-    return maybeDateTime.toString();
   }
 
   /** Convert the datamart reference (if specified) to a FHIR reference. */

@@ -1,8 +1,9 @@
 package gov.va.api.health.dataquery.service.controller.condition;
 
-import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asDateString;
-import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asDateTimeString;
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asReference;
+import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
+import static gov.va.api.health.dataquery.service.controller.Transformers.asDateString;
+import static gov.va.api.health.dataquery.service.controller.Transformers.asDateTimeString;
 import static gov.va.api.health.dataquery.service.controller.Transformers.ifPresent;
 
 import gov.va.api.health.argonaut.api.resources.Condition;
@@ -15,21 +16,22 @@ import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
 import java.util.List;
 import lombok.Builder;
+import lombok.NonNull;
 
 @Builder
 public class Dstu2ConditionTransformer {
 
-  private final DatamartCondition datamart;
+  @NonNull private final DatamartCondition datamart;
 
   /**
    * Return snomed code if available, otherwise icd code if available. However, null will be
    * returned if neither are available.
    */
   CodeableConcept bestCode() {
-    if (datamart.snomed().isPresent() && datamart.snomed().get().isUsable()) {
+    if (datamart.hasSnomedCode()) {
       return code(datamart.snomed().get());
     }
-    if (datamart.icd().isPresent() && datamart.icd().get().isUsable()) {
+    if (datamart.hasIcdCode()) {
       return code(datamart.icd().get());
     }
     return null;
@@ -74,7 +76,7 @@ public class Dstu2ConditionTransformer {
   }
 
   CodeableConcept code(SnomedCode snomedCode) {
-    if (snomedCode == null) {
+    if (snomedCode == null || allBlank(snomedCode.code(), snomedCode.display())) {
       return null;
     }
     return CodeableConcept.builder()
@@ -91,7 +93,7 @@ public class Dstu2ConditionTransformer {
   }
 
   CodeableConcept code(IcdCode icdCode) {
-    if (icdCode == null) {
+    if (icdCode == null || allBlank(icdCode.code(), icdCode.display())) {
       return null;
     }
     return CodeableConcept.builder()
@@ -107,7 +109,7 @@ public class Dstu2ConditionTransformer {
         .build();
   }
 
-  private String systemOf(IcdCode icdCode) {
+  private String systemOf(@NonNull IcdCode icdCode) {
     if ("10".equals(icdCode.version())) {
       return "http://hl7.org/fhir/sid/icd-10";
     }

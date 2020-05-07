@@ -1,9 +1,9 @@
 package gov.va.api.health.dataquery.service.controller.allergyintolerance;
 
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asCoding;
-import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asDateTimeString;
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asReference;
 import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
+import static gov.va.api.health.dataquery.service.controller.Transformers.asDateTimeString;
 import static gov.va.api.health.dataquery.service.controller.Transformers.emptyToNull;
 import static java.util.Arrays.asList;
 import static org.springframework.util.CollectionUtils.isEmpty;
