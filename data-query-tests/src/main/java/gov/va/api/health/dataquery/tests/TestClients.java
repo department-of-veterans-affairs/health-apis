@@ -40,6 +40,16 @@ public final class TestClients {
         .build();
   }
 
+  /** R4 Data Query TestClient. */
+  public static TestClient r4DataQuery() {
+    return FhirTestClient.builder()
+        .service(SystemDefinitions.systemDefinition().r4DataQuery())
+        .mapper(JacksonConfig::createMapper)
+        .errorResponseEqualityCheck(
+            new gov.va.api.health.dataquery.tests.r4.OperationOutcomesAreFunctionallyEqual())
+        .build();
+  }
+
   /** STU3 Data Query test client. */
   public static TestClient stu3DataQuery() {
     return FhirTestClient.builder()

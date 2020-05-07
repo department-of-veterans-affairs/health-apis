@@ -42,7 +42,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(
     value = {"/r4/Condition"},
-    produces = {"application/json", "application/fhir+json"})
+    produces = {"application/json", "application/fhir+json", "application/json+fhir"})
 public class R4ConditionController {
   R4Bundler bundler;
 
