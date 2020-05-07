@@ -3,6 +3,7 @@ package gov.va.api.health.dataquery.service.controller.condition;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 
+import com.google.common.base.Splitter;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
@@ -58,6 +59,31 @@ public class R4ConditionController {
     this.bundler = bundler;
     this.repository = repository;
     this.witnessProtection = witnessProtection;
+  }
+
+  /**
+   * Splits the R4 category received into its code and transforms it from an R4 code to a datamart
+   * code that can be searched in the database.
+   *
+   * <p>Datamart: problem | diagnosis
+   *
+   * <p>R4: problem-list-item | encounter-diagnosis | health-concern
+   *
+   * @param category an r4 category search parameter of the form: {[system]}|[code]
+   * @return a string representation of the code that is understood by CDW
+   * @throws gov.va.api.health.dataquery.service.controller.ResourceExceptions.BadSearchParameter
+   *     when r4 category can not be translated to a datamart category
+   */
+  private String asDatamartCategory(String category) {
+    List<String> categoryCode = Splitter.onPattern("\\s*\\|\\s*").splitToList(category);
+    switch (categoryCode.get(1)) {
+      case "problem-list-item":
+        return DatamartCondition.Category.problem.toString();
+      case "encounter-diagnosis":
+        return DatamartCondition.Category.diagnosis.toString();
+      default:
+        throw new ResourceExceptions.BadSearchParameter("Invalid Category: " + category);
+    }
   }
 
   private Condition.Bundle bundle(
@@ -181,7 +207,11 @@ public class R4ConditionController {
     return bundle(parameters, fhir, (int) entitiesPage.getTotalElements());
   }
 
-  /** Search Condition by patient and category. */
+  /**
+   * Search Condition by patient and category.
+   *
+   * <p>GET [base]/Condition?patient=[reference]&category={[system]}|[code]
+   */
   @GetMapping(params = {"patient", "category"})
   public Condition.Bundle searchByPatientAndCategory(
       @RequestParam("patient") String patient,
@@ -197,21 +227,21 @@ public class R4ConditionController {
             .add("_count", count)
             .build(),
         count,
-        repository.findByIcnAndCategory(icn, category, page(page, count)));
+        repository.findByIcnAndCategory(icn, asDatamartCategory(category), page(page, count)));
   }
 
   /** Search Condition by patient and clinical status. */
-  @GetMapping(params = {"patient", "clinicalstatus"})
+  @GetMapping(params = {"patient", "clinical-status"})
   public Condition.Bundle searchByPatientAndClinicalStatus(
       @RequestParam("patient") String patient,
-      @RequestParam("clinicalstatus") String clinicalStatus,
+      @RequestParam("clinical-status") String clinicalStatus,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
     String icn = witnessProtection.toCdwId(patient);
     return bundle(
         Parameters.builder()
             .add("patient", patient)
-            .add("clinicalstatus", clinicalStatus)
+            .add("clinical-status", clinicalStatus)
             .add("page", page)
             .add("_count", count)
             .build(),
