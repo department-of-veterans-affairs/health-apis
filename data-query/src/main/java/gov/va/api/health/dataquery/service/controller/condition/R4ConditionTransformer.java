@@ -1,6 +1,7 @@
 package gov.va.api.health.dataquery.service.controller.condition;
 
 import static gov.va.api.health.dataquery.service.controller.R4Transformers.asReference;
+import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
 import static gov.va.api.health.dataquery.service.controller.Transformers.asDateString;
 import static gov.va.api.health.dataquery.service.controller.Transformers.asDateTimeString;
 
@@ -9,10 +10,11 @@ import gov.va.api.health.r4.api.datatypes.Coding;
 import gov.va.api.health.uscorer4.api.resources.Condition;
 import java.util.List;
 import lombok.Builder;
+import lombok.NonNull;
 
 @Builder
 public class R4ConditionTransformer {
-  private final DatamartCondition datamart;
+  @NonNull private final DatamartCondition datamart;
 
   /**
    * Return snomed code if available, otherwise icd code if available. However, null will be
@@ -32,10 +34,6 @@ public class R4ConditionTransformer {
     if (category == null) {
       return null;
     }
-    /*
-     * Must be one of:
-     * problem-list-item | encounter-diagnosis | health-concern
-     */
     switch (category) {
       case diagnosis:
         return List.of(
@@ -62,7 +60,7 @@ public class R4ConditionTransformer {
                             .build()))
                 .build());
       default:
-        throw new IllegalArgumentException("Unknown category:" + category);
+        throw new IllegalArgumentException("Unknown category: " + category);
     }
   }
 
@@ -70,9 +68,6 @@ public class R4ConditionTransformer {
     if (clinicalStatus == null) {
       return null;
     }
-    /* Must be one of:
-     * active | recurrence | relapse | inactive | remission | resolved
-     */
     switch (clinicalStatus) {
       case active:
         return CodeableConcept.builder()
@@ -97,12 +92,12 @@ public class R4ConditionTransformer {
                         .build()))
             .build();
       default:
-        return null;
+        throw new IllegalArgumentException("Unknown clinical-status: " + clinicalStatus);
     }
   }
 
   CodeableConcept code(DatamartCondition.SnomedCode snomedCode) {
-    if (snomedCode == null) {
+    if (snomedCode == null || allBlank(snomedCode.code(), snomedCode.display())) {
       return null;
     }
     return CodeableConcept.builder()
@@ -119,7 +114,7 @@ public class R4ConditionTransformer {
   }
 
   CodeableConcept code(DatamartCondition.IcdCode icdCode) {
-    if (icdCode == null) {
+    if (icdCode == null || allBlank(icdCode.code(), icdCode.display())) {
       return null;
     }
     return CodeableConcept.builder()
@@ -135,7 +130,7 @@ public class R4ConditionTransformer {
         .build();
   }
 
-  private String systemOf(DatamartCondition.IcdCode icdCode) {
+  private String systemOf(@NonNull DatamartCondition.IcdCode icdCode) {
     if ("10".equals(icdCode.version())) {
       return "http://hl7.org/fhir/sid/icd-10";
     }
