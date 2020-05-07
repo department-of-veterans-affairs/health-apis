@@ -3,7 +3,6 @@ package gov.va.api.health.dataquery.service.controller.condition;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 
-import com.google.common.base.Splitter;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
@@ -12,6 +11,7 @@ import gov.va.api.health.dataquery.service.controller.R4Bundler;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.uscorer4.api.resources.Condition;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -68,21 +68,17 @@ public class R4ConditionController {
    * <p>Datamart: problem | diagnosis
    *
    * <p>R4: problem-list-item | encounter-diagnosis | health-concern
-   *
-   * @param category an r4 category search parameter of the form: {[system]}|[code]
-   * @return a string representation of the code that is understood by CDW
-   * @throws gov.va.api.health.dataquery.service.controller.ResourceExceptions.BadSearchParameter
-   *     when r4 category can not be translated to a datamart category
    */
   private String asDatamartCategory(String category) {
-    List<String> categoryCode = Splitter.onPattern("\\s*\\|\\s*").splitToList(category);
-    switch (categoryCode.get(1)) {
+    List<String> systemAndCode = splitSystemAndCode(category);
+    String code = systemAndCode.get(1);
+    switch (code) {
       case "problem-list-item":
         return DatamartCondition.Category.problem.toString();
       case "encounter-diagnosis":
         return DatamartCondition.Category.diagnosis.toString();
       default:
-        throw new ResourceExceptions.BadSearchParameter("Invalid Category: " + category);
+        return code;
     }
   }
 
@@ -118,6 +114,21 @@ public class R4ConditionController {
             .map(this::transform)
             .collect(Collectors.toList()),
         (int) entities.getTotalElements());
+  }
+
+  /**
+   * Splits a csv of clinical-status systems and codes and collects the codes into a list for the
+   * database query. There is no need to remap. Datamart and R4 use the same values.
+   *
+   * <p>Datamart: active | resolved
+   *
+   * <p>R4: active | recurrence | relapse | inactive | remission | resolved
+   */
+  private Set<String> clinicalStatusToSet(String clinicalStatusCsv) {
+    return Arrays.stream(clinicalStatusCsv.split("\\s*,\\s*"))
+        .distinct()
+        .map(s -> splitSystemAndCode(s).get(1))
+        .collect(Collectors.toSet());
   }
 
   private ConditionEntity findEntityById(String publicId) {
@@ -247,7 +258,17 @@ public class R4ConditionController {
             .build(),
         count,
         repository.findByIcnAndClinicalStatusIn(
-            icn, Set.of(clinicalStatus.split("\\s*,\\s*")), page(page, count)));
+            icn, clinicalStatusToSet(clinicalStatus), page(page, count)));
+  }
+
+  /** Splits a search parameter of the form {[system]}|[code] into an array. */
+  private List<String> splitSystemAndCode(String systemAndCode) {
+    List<String> split = Arrays.asList(systemAndCode.split("\\s*\\|\\s*"));
+    // The expectation is {[system]}|[code]
+    if (split.size() != 2) {
+      throw new ResourceExceptions.BadSearchParameter("Invalid Parameter: " + systemAndCode);
+    }
+    return split;
   }
 
   Condition transform(DatamartCondition dm) {
