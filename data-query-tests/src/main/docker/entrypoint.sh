@@ -169,10 +169,12 @@ setupForAutomation() {
     -Dcrawler.allow-query-url-pattern=$ALLOW_URLS \
     -Dpatient-id=$PATIENT_ID"
 
+    [ -z "$DQ_URL" ] && DQ_URL=https://$K8S_LOAD_BALANCER
+
     # These all end up being set to the same value
     for property in "sentinel.data-query.public-url" "sentinel.internal.url" \
       "sentinel.dstu2.url" "sentinel.stu3.url" "sentinel.r4.url"; do
-        addToSystemProperties "$property" "https://$K8S_LOAD_BALANCER"
+        addToSystemProperties "$property" "$DQ_URL"
     done
 
     # These are set by SystemDefinitions.java and can _optionally_ be overwritten

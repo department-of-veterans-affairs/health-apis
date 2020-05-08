@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+
+
+
+usage() {
+cat<<EOF
+$0 <build|run> [run-args]
+
+Build or run the integration test docker image.
+
+EOF
+}
+
+build() {
+  mvn clean deploy \
+    -DskipTests \
+    -Dexec.skip=true \
+    -Dsentinel.skipLaunch=true \
+    -P'!standard' \
+    -Prelease \
+    -Ddocker.skip.push=true \
+    -Dmaven.deploy.skip=true \
+    -Ddocker.username=$DOCKER_USERNAME \
+    -Ddocker.password="$DOCKER_PASSWORD"
+}
+
+
+run() {
+  case $(uname) in
+    Darwin) THIS_MACHINE="docker.for.mac.localhost";;
+    Linux) THIS_MACHINE="localhost";;
+    *) echo "Add support for your operating system: $(uname)"; exit 1;;
+  esac
+  docker run \
+    --rm \
+    --network="host" \
+    -e K8S_LOAD_BALANCER=$THIS_MACHINE \
+    -e K8S_ENVIRONMENT=${ENV:-local} \
+    -e SENTINEL_ENV=${ENV:-local} \
+    -e DQ_URL=http://$THIS_MACHINE:8090 \
+    -e TOKEN=nope \
+    -e SENTINEL_SMOKE_TEST_CATEGORY=gov.va.api.health.sentinel.categories.Smoke \
+    -e SENTINEL_REGRESSION_TEST_CATEGORY=gov.va.api.health.sentinel.categories.Local \
+    -e DATA_QUERY_REPLACE_URL=http://$THIS_MACHINE:8090/dstu2 \
+    -e USER_PASSWORD=nope \
+    -e CLIENT_ID=nope \
+    -e CLIENT_SECRET=nope \
+    -e PATIENT_ID=43000199 \
+     vasdvp/health-apis-data-query-tests:latest $@
+}
+
+main() {
+  local cmd=$1
+  shift
+  case "$cmd" in
+    r|run) run $@;;
+    b|build) build;;
+    br) build && run $@;;
+    *) usage "Unknown command $cmd"
+  esac
+}
+
+
+main $@
