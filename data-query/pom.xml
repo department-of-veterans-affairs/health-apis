@@ -223,7 +223,7 @@
         <artifactId>build-helper-maven-plugin</artifactId>
         <executions>
           <execution>
-            <id>conformance-timestamp</id>
+            <id>metadata-timestamp</id>
             <goals>
               <goal>timestamp-property</goal>
             </goals>
