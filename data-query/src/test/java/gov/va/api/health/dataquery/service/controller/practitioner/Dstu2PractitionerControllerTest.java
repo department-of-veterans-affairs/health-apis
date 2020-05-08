@@ -48,7 +48,8 @@ public class Dstu2PractitionerControllerTest {
 
   Dstu2PractitionerController controller() {
     return new Dstu2PractitionerController(
-        new Dstu2Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool", "cool")),
+        new Dstu2Bundler(
+            new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool", "cool", "cool")),
         repository,
         WitnessProtection.builder().identityService(ids).build());
   }
