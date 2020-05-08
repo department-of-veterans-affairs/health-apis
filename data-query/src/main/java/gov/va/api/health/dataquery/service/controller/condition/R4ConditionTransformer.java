@@ -105,7 +105,7 @@ public class R4ConditionTransformer {
         .coding(
             List.of(
                 Coding.builder()
-                    .system("https://snomed.info/sct")
+                    .system("http://snomed.info/sct")
                     .code(snomedCode.code())
                     .display(snomedCode.display())
                     .build()))

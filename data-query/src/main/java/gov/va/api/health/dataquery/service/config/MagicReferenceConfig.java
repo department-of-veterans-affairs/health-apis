@@ -58,7 +58,7 @@ public class MagicReferenceConfig {
   /** These base path for STU3 resources, e.g. api/stu3. */
   private final String stu3BasePath;
 
-  /** These base path for STU3 resources, e.g. r4. */
+  /** These base path for R4 resources, e.g. r4. */
   private final String r4BasePath;
 
   /** Property defining the references to serialize. */
@@ -390,7 +390,7 @@ public class MagicReferenceConfig {
         Object shouldBeReference, JsonGenerator gen, SerializerProvider prov) {
       if (!(shouldBeReference instanceof gov.va.api.health.r4.api.elements.Reference)) {
         throw new IllegalArgumentException(
-            "STU3 Qualified reference writer cannot serialize: " + shouldBeReference);
+            "R4 Qualified reference writer cannot serialize: " + shouldBeReference);
       }
       gov.va.api.health.r4.api.elements.Reference reference =
           (gov.va.api.health.r4.api.elements.Reference) shouldBeReference;

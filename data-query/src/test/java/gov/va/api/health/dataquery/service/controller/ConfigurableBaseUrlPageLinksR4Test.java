@@ -12,7 +12,7 @@ public class ConfigurableBaseUrlPageLinksR4Test {
 
   @BeforeAll
   public static void _init() {
-    links = new ConfigurableBaseUrlPageLinks("https://awesome.com", "unused", "api/stu3", "r4");
+    links = new ConfigurableBaseUrlPageLinks("https://awesome.com", "unused", "unused", "r4");
   }
 
   @Test

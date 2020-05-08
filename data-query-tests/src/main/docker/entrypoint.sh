@@ -169,7 +169,7 @@ setupForAutomation() {
     -Dcrawler.allow-query-url-pattern=$ALLOW_URLS \
     -Dpatient-id=$PATIENT_ID"
 
-    # These all end up being sent to the same value
+    # These all end up being set to the same value
     for property in "sentinel.data-query.public-url" "sentinel.internal.url" \
       "sentinel.dstu2.url" "sentinel.stu3.url" "sentinel.r4.url"; do
         addToSystemProperties "$property" "https://$K8S_LOAD_BALANCER"
