@@ -46,6 +46,7 @@ run() {
     -e CLIENT_ID=nope \
     -e CLIENT_SECRET=nope \
     -e PATIENT_ID=43000199 \
+    -e RAW_TOKEN=true \
      vasdvp/health-apis-data-query-tests:latest $@
 }
 
