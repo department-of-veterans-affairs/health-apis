@@ -12,7 +12,6 @@ import gov.va.api.health.dataquery.service.controller.R4Bundler;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.uscorer4.api.resources.Condition;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -71,7 +70,7 @@ public class R4ConditionController {
    * <p>R4: problem-list-item | encounter-diagnosis | health-concern
    */
   private String asDatamartCategory(String category) {
-    switch (splitSystemAndCode(category)) {
+    switch (splitToCode(category)) {
       case "problem-list-item":
         return DatamartCondition.Category.problem.toString();
       case "encounter-diagnosis":
@@ -126,9 +125,8 @@ public class R4ConditionController {
    * <p>R4: active | recurrence | relapse | inactive | remission | resolved
    */
   private Set<String> clinicalStatusToSet(String clinicalStatusCsv) {
-    return Splitter.on(",").trimResults().splitToList(clinicalStatusCsv)
-        .stream()
-        .map(this::splitSystemAndCode)
+    return Splitter.on(",").trimResults().splitToList(clinicalStatusCsv).stream()
+        .map(this::splitToCode)
         .collect(Collectors.toSet());
   }
 
@@ -263,13 +261,15 @@ public class R4ConditionController {
   }
 
   /** Splits a search parameter of the form system|code into the code only. */
-  private String splitSystemAndCode(String systemAndCode) {
+  private String splitToCode(String systemAndCode) {
     int splitIndex = systemAndCode.lastIndexOf("|");
     // The expectation is system|code
     if (splitIndex <= -1) {
-      throw new ResourceExceptions.BadSearchParameter("Cannot determine system/code from parameter: " + systemAndCode);
+      throw new ResourceExceptions.BadSearchParameter(
+          "Cannot determine code from parameter: " + systemAndCode);
     }
-    return systemAndCode.substring(splitIndex);
+
+    return systemAndCode.substring(splitIndex + 1);
   }
 
   Condition transform(DatamartCondition dm) {
