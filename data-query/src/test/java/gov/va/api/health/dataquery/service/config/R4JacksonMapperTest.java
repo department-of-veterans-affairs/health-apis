@@ -16,7 +16,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.Singular;
 import lombok.SneakyThrows;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 public class R4JacksonMapperTest {
   @Test

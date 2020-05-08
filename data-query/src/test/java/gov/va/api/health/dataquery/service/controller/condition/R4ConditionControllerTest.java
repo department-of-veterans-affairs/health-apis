@@ -24,16 +24,15 @@ import java.util.List;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.junit4.SpringRunner;
 
 @DataJpaTest
-@ExtendWith(SpringExtension.class)
+@RunWith(SpringRunner.class)
 public class R4ConditionControllerTest {
   HttpServletResponse response = mock(HttpServletResponse.class);
 
@@ -130,42 +129,30 @@ public class R4ConditionControllerTest {
     verify(response).addHeader("X-VA-INCLUDES-ICN", entity.icn());
   }
 
-  @Test
+  @Test(expected = ResourceExceptions.NotFound.class)
   public void readRawThrowsNotFoundWhenDataIsMissing() {
-    Assertions.assertThrows(
-        ResourceExceptions.NotFound.class,
-        () -> {
-          mockConditionIdentity("x", "x");
-          controller().readRaw("x", response);
-        });
+
+    mockConditionIdentity("x", "x");
+    controller().readRaw("x", response);
   }
 
-  @Test
+  @Test(expected = ResourceExceptions.NotFound.class)
   public void readRawThrowsNotFoundWhenIdIsUnknown() {
-    Assertions.assertThrows(
-        ResourceExceptions.NotFound.class,
-        () -> {
-          controller().readRaw("x", response);
-        });
+
+    controller().readRaw("x", response);
   }
 
-  @Test
+  @Test(expected = ResourceExceptions.NotFound.class)
   public void readThrowsNotFoundWhenDataIsMissing() {
-    Assertions.assertThrows(
-        ResourceExceptions.NotFound.class,
-        () -> {
-          mockConditionIdentity("x", "x");
-          controller().read("x");
-        });
+
+    mockConditionIdentity("x", "x");
+    controller().read("x");
   }
 
-  @Test
+  @Test(expected = ResourceExceptions.NotFound.class)
   public void readThrowsNotFoundWhenIdIsUnknown() {
-    Assertions.assertThrows(
-        ResourceExceptions.NotFound.class,
-        () -> {
-          controller().read("x");
-        });
+
+    controller().read("x");
   }
 
   @Test
@@ -254,22 +241,16 @@ public class R4ConditionControllerTest {
                         10))));
   }
 
-  @Test
+  @Test(expected = ResourceExceptions.BadSearchParameter.class)
   public void searchByPatientAndBadCategoryThrowsBadSearchParameter() {
-    Assertions.assertThrows(
-        ResourceExceptions.BadSearchParameter.class,
-        () -> {
-          controller().searchByPatientAndCategory("x", "nope", 1, 1);
-        });
+
+    controller().searchByPatientAndCategory("x", "nope", 1, 1);
   }
 
-  @Test
+  @Test(expected = ResourceExceptions.BadSearchParameter.class)
   public void searchByPatientAndBadClinicalStatusThrowsBadSearchParameter() {
-    Assertions.assertThrows(
-        ResourceExceptions.BadSearchParameter.class,
-        () -> {
-          controller().searchByPatientAndClinicalStatus("x", "nope", 1, 1);
-        });
+
+    controller().searchByPatientAndClinicalStatus("x", "nope", 1, 1);
   }
 
   @Test
