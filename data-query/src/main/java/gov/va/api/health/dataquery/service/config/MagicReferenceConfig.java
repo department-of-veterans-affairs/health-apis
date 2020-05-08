@@ -58,6 +58,9 @@ public class MagicReferenceConfig {
   /** These base path for STU3 resources, e.g. api/stu3. */
   private final String stu3BasePath;
 
+  /** These base path for R4 resources, e.g. r4. */
+  private final String r4BasePath;
+
   /** Property defining the references to serialize. */
   private final ReferenceSerializerProperties config;
 
@@ -67,10 +70,12 @@ public class MagicReferenceConfig {
       @Value("${data-query.public-url}") String baseUrl,
       @Value("${data-query.public-dstu2-base-path}") String dstu2BasePath,
       @Value("${data-query.public-stu3-base-path}") String stu3BasePath,
+      @Value("${data-query.public-r4-base-path}") String r4BasePath,
       ReferenceSerializerProperties config) {
     this.baseUrl = baseUrl;
     this.dstu2BasePath = dstu2BasePath;
     this.stu3BasePath = stu3BasePath;
+    this.r4BasePath = r4BasePath;
     this.config = config;
     log.info("{}", config);
   }
@@ -188,7 +193,6 @@ public class MagicReferenceConfig {
                   }
                 }
               }
-
               if (beanDesc.getBeanClass() == gov.va.api.health.stu3.api.elements.Reference.class) {
                 for (int i = 0; i < beanProperties.size(); i++) {
                   BeanPropertyWriter beanPropertyWriter = beanProperties.get(i);
@@ -197,7 +201,14 @@ public class MagicReferenceConfig {
                   }
                 }
               }
-
+              if (beanDesc.getBeanClass() == gov.va.api.health.r4.api.elements.Reference.class) {
+                for (int i = 0; i < beanProperties.size(); i++) {
+                  BeanPropertyWriter beanPropertyWriter = beanProperties.get(i);
+                  if ("reference".equals(beanPropertyWriter.getName())) {
+                    beanProperties.set(i, new R4QualifiedReferenceWriter(beanPropertyWriter));
+                  }
+                }
+              }
               return super.changeProperties(serialConfig, beanDesc, beanProperties);
             }
 
@@ -217,6 +228,11 @@ public class MagicReferenceConfig {
                 return new Stu3OptionalReferenceSerializer(
                     (JsonSerializer<gov.va.api.health.stu3.api.elements.Reference>) serializer);
               }
+              if (gov.va.api.health.r4.api.elements.Reference.class.isAssignableFrom(
+                  beanDesc.getBeanClass())) {
+                return new R4OptionalReferenceSerializer(
+                    (JsonSerializer<gov.va.api.health.r4.api.elements.Reference>) serializer);
+              }
               return super.modifySerializer(serialConfig, beanDesc, serializer);
             }
           });
@@ -232,6 +248,15 @@ public class MagicReferenceConfig {
       try {
         Field field = object.getClass().getDeclaredField(name);
         return field.getType() == gov.va.api.health.dstu2.api.elements.Extension.class;
+      } catch (NoSuchFieldException e) {
+        return false;
+      }
+    }
+
+    private boolean hasR4ExtensionField(Object object, String name) {
+      try {
+        Field field = object.getClass().getDeclaredField(name);
+        return field.getType() == gov.va.api.health.r4.api.elements.Extension.class;
       } catch (NoSuchFieldException e) {
         return false;
       }
@@ -255,7 +280,6 @@ public class MagicReferenceConfig {
     public void serializeAsField(
         Object pojo, JsonGenerator jgen, SerializerProvider provider, PropertyWriter writer) {
       boolean include = true;
-
       if (writer.getType().getRawClass() == gov.va.api.health.dstu2.api.elements.Reference.class
           && writer instanceof BeanPropertyWriter) {
         gov.va.api.health.dstu2.api.elements.Reference dstu2Reference =
@@ -269,12 +293,16 @@ public class MagicReferenceConfig {
             (gov.va.api.health.stu3.api.elements.Reference) ((BeanPropertyWriter) writer).get(pojo);
         include = config.isEnabled(stu3Reference);
       }
-
+      if (writer.getType().getRawClass() == gov.va.api.health.r4.api.elements.Reference.class
+          && writer instanceof BeanPropertyWriter) {
+        gov.va.api.health.r4.api.elements.Reference r4Reference =
+            (gov.va.api.health.r4.api.elements.Reference) ((BeanPropertyWriter) writer).get(pojo);
+        include = config.isEnabled(r4Reference);
+      }
       if (include) {
         writer.serializeAsField(pojo, jgen, provider);
         return;
       }
-
       /*
        * Since the field isn't included, we need to emit a Data Absent Reason if the field is
        * required. Required fields can be detected by finding an underscore prefixed version of
@@ -291,8 +319,84 @@ public class MagicReferenceConfig {
             extensionField,
             gov.va.api.health.stu3.api.DataAbsentReason.of(
                 gov.va.api.health.stu3.api.DataAbsentReason.Reason.unsupported));
+      } else if (hasR4ExtensionField(pojo, extensionField)) {
+        jgen.writeObjectField(
+            extensionField,
+            gov.va.api.health.r4.api.DataAbsentReason.of(
+                gov.va.api.health.r4.api.DataAbsentReason.Reason.unsupported));
       } else if (!jgen.canOmitFields()) {
         writer.serializeAsOmittedField(pojo, jgen, provider);
+      }
+    }
+  }
+
+  /**
+   * This serializer is fired for references _in_ a list. The {@link OptionalReferencesFilter} is
+   * responsible for making sure the field references are omitted.
+   */
+  private final class R4OptionalReferenceSerializer
+      extends JsonSerializer<gov.va.api.health.r4.api.elements.Reference> {
+    /**
+     * This is the default serializer used for references, we will delegate the hard parts to it.
+     */
+    private JsonSerializer<gov.va.api.health.r4.api.elements.Reference> delegate;
+
+    R4OptionalReferenceSerializer(
+        JsonSerializer<gov.va.api.health.r4.api.elements.Reference> delegate) {
+      this.delegate = delegate;
+    }
+
+    /**
+     * If the resource reference is well formed, extract the name, and check if it is an enabled
+     * reference. Otherwise if it is malformed, always use default serialization.
+     */
+    @Override
+    @SneakyThrows
+    public void serialize(
+        gov.va.api.health.r4.api.elements.Reference value,
+        JsonGenerator jgen,
+        SerializerProvider provider) {
+      if (value == null) {
+        return;
+      }
+      if (config.isEnabled(value)) {
+        delegate.serialize(value, jgen, provider);
+      }
+    }
+  }
+
+  /** Provides fully qualified URLs for references. */
+  private final class R4QualifiedReferenceWriter extends BeanPropertyWriter {
+    private R4QualifiedReferenceWriter(BeanPropertyWriter base) {
+      super(base);
+    }
+
+    private String qualify(String reference) {
+      if (StringUtils.isBlank(reference)) {
+        return null;
+      }
+      if (reference.startsWith("http")) {
+        return reference;
+      }
+      if (reference.startsWith("/")) {
+        return baseUrl + "/" + r4BasePath + reference;
+      }
+      return baseUrl + "/" + r4BasePath + "/" + reference;
+    }
+
+    @Override
+    @SneakyThrows
+    public void serializeAsField(
+        Object shouldBeReference, JsonGenerator gen, SerializerProvider prov) {
+      if (!(shouldBeReference instanceof gov.va.api.health.r4.api.elements.Reference)) {
+        throw new IllegalArgumentException(
+            "R4 Qualified reference writer cannot serialize: " + shouldBeReference);
+      }
+      gov.va.api.health.r4.api.elements.Reference reference =
+          (gov.va.api.health.r4.api.elements.Reference) shouldBeReference;
+      String qualifiedReference = qualify(reference.reference());
+      if (qualifiedReference != null) {
+        gen.writeStringField(getName(), qualifiedReference);
       }
     }
   }

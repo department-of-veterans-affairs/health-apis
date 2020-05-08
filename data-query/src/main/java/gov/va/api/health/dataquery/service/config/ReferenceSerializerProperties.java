@@ -71,6 +71,19 @@ public class ReferenceSerializerProperties {
     return checkForResource(resourceName);
   }
 
+  /**
+   * Return true if the given reference is well formed, AllergyIntolerance/1234 or
+   * .../AllergyIntolerance/1234 and it is set to true in the properties file. Return true for all
+   * malformed references.
+   */
+  boolean isEnabled(gov.va.api.health.r4.api.elements.Reference reference) {
+    String resourceName = resourceName(reference);
+    if (resourceName == null) {
+      return true;
+    }
+    return checkForResource(resourceName);
+  }
+
   /** Get the resource name of a reference if it is well formed, else return null. */
   private String resourceName(gov.va.api.health.dstu2.api.elements.Reference reference) {
     if (reference == null) {
@@ -79,7 +92,16 @@ public class ReferenceSerializerProperties {
     return resourceName(reference.reference());
   }
 
+  /** Get the resource name of a reference if it is well formed, else return null. */
   private String resourceName(gov.va.api.health.stu3.api.elements.Reference reference) {
+    if (reference == null) {
+      return null;
+    }
+    return resourceName(reference.reference());
+  }
+
+  /** Get the resource name of a reference if it is well formed, else return null. */
+  private String resourceName(gov.va.api.health.r4.api.elements.Reference reference) {
     if (reference == null) {
       return null;
     }
