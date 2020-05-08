@@ -1,6 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.wellknown;
 
-import gov.va.api.health.dataquery.service.controller.conformance.ConformanceStatementProperties;
+import gov.va.api.health.dataquery.service.controller.metadata.MetadataProperties;
 import gov.va.api.health.dstu2.api.information.WellKnown;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,13 +15,13 @@ import org.springframework.web.bind.annotation.RestController;
 @AllArgsConstructor(onConstructor = @__({@Autowired}))
 class WellKnownController {
   private final WellKnownProperties wellKnownProperties;
-  private final ConformanceStatementProperties conformanceStatementProperties;
+  private final MetadataProperties metadataProperties;
 
   @GetMapping
   WellKnown read() {
     return WellKnown.builder()
-        .authorizationEndpoint(conformanceStatementProperties.getSecurity().getAuthorizeEndpoint())
-        .tokenEndpoint(conformanceStatementProperties.getSecurity().getTokenEndpoint())
+        .authorizationEndpoint(metadataProperties.getSecurity().getAuthorizeEndpoint())
+        .tokenEndpoint(metadataProperties.getSecurity().getTokenEndpoint())
         .capabilities(wellKnownProperties.getCapabilities())
         .responseTypeSupported(wellKnownProperties.getResponseTypeSupported())
         .scopesSupported(wellKnownProperties.getScopesSupported())

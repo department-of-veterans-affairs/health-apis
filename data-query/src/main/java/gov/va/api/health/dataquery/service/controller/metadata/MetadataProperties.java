@@ -1,4 +1,4 @@
-package gov.va.api.health.dataquery.service.controller.conformance;
+package gov.va.api.health.dataquery.service.controller.metadata;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,13 +12,13 @@ import org.springframework.context.annotation.Configuration;
 @SuppressWarnings("DefaultAnnotationParam")
 @Configuration
 @EnableConfigurationProperties
-@ConfigurationProperties("conformance")
+@ConfigurationProperties("metadata")
 @Data
 @Accessors(fluent = false)
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ConformanceStatementProperties {
+public class MetadataProperties {
   private String id;
   private String version;
   private String name;

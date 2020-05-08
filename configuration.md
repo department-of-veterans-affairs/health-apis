@@ -72,10 +72,10 @@ ssl.trust-store-password .................. Password for the truststore
 # Public Information
 data-query.public-url...................... The public URL for Argonaut Data Query
                                             E.g. https://api.va.gov/services/argonaut/v0
-conformance.contact.name .................. The public liaison
-conformance.contact.email ................. Email address of the public liaison
-conformance.security.token-endpoint ....... Public URL of the OAuth 2.0 token endpoint
-conformance.security.authorize-endpoint ... Public URL of the OAuth 2.0 authorization endpoint
+metadata.contact.name .................. The public liaison
+metadata.contact.email ................. Email address of the public liaison
+metadata.security.token-endpoint ....... Public URL of the OAuth 2.0 token endpoint
+metadata.security.authorize-endpoint ... Public URL of the OAuth 2.0 authorization endpoint
 
 # Options
 included-references.location .............. <true|false> Enable references to Locations

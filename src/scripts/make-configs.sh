@@ -119,11 +119,11 @@ addValue data-query $PROFILE identityservice.encodingKey "$IDS_ENCODING_KEY"
 addValue data-query $PROFILE identityservice.patientIdPattern "$IDS_PATIENT_ID_PATTERN"
 configValue data-query $PROFILE data-query.public-url http://localhost:8090
 configValue data-query $PROFILE data-query.public-web-exception-key "$WEB_EXCEPTION_KEY"
-configValue data-query $PROFILE conformance.statement-type patient
-configValue data-query $PROFILE conformance.contact.name "$(whoDis)"
-configValue data-query $PROFILE conformance.contact.email "$(sendMoarSpams)"
-configValue data-query $PROFILE conformance.security.token-endpoint http://fake.com/token
-configValue data-query $PROFILE conformance.security.authorize-endpoint http://fake.com/authorize
+configValue data-query $PROFILE metadata.statement-type patient
+configValue data-query $PROFILE metadata.contact.name "$(whoDis)"
+configValue data-query $PROFILE metadata.contact.email "$(sendMoarSpams)"
+configValue data-query $PROFILE metadata.security.token-endpoint http://fake.com/token
+configValue data-query $PROFILE metadata.security.authorize-endpoint http://fake.com/authorize
 configValue data-query $PROFILE spring.datasource.url "$DATAQUERY_DB_URL"
 configValue data-query $PROFILE spring.datasource.username "$DATAQUERY_DB_USER"
 configValue data-query $PROFILE spring.datasource.password "$DATAQUERY_DB_PASSWORD"
