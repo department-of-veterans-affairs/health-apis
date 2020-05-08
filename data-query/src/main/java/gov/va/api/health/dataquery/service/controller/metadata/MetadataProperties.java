@@ -1,4 +1,4 @@
-package gov.va.api.health.dataquery.service.controller.conformance;
+package gov.va.api.health.dataquery.service.controller.metadata;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

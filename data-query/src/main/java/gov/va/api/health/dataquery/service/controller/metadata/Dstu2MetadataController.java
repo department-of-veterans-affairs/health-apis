@@ -1,4 +1,4 @@
-package gov.va.api.health.dataquery.service.controller.conformance;
+package gov.va.api.health.dataquery.service.controller.metadata;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;

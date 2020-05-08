@@ -1,12 +1,12 @@
-package gov.va.api.health.dataquery.service.controller.conformance;
+package gov.va.api.health.dataquery.service.controller.metadata;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.config.ReferenceSerializerProperties;
-import gov.va.api.health.dataquery.service.controller.conformance.MetadataProperties.ContactProperties;
-import gov.va.api.health.dataquery.service.controller.conformance.MetadataProperties.SecurityProperties;
-import gov.va.api.health.dataquery.service.controller.conformance.MetadataProperties.StatementType;
+import gov.va.api.health.dataquery.service.controller.metadata.MetadataProperties.ContactProperties;
+import gov.va.api.health.dataquery.service.controller.metadata.MetadataProperties.SecurityProperties;
+import gov.va.api.health.dataquery.service.controller.metadata.MetadataProperties.StatementType;
 import gov.va.api.health.dstu2.api.resources.Conformance;
 import lombok.SneakyThrows;
 import org.junit.Test;
