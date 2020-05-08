@@ -3,6 +3,7 @@ package gov.va.api.health.dataquery.service.controller.condition;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 
+import com.google.common.base.Splitter;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
@@ -70,15 +71,15 @@ public class R4ConditionController {
    * <p>R4: problem-list-item | encounter-diagnosis | health-concern
    */
   private String asDatamartCategory(String category) {
-    List<String> systemAndCode = splitSystemAndCode(category);
-    String code = systemAndCode.get(1);
-    switch (code) {
+    switch (splitSystemAndCode(category)) {
       case "problem-list-item":
         return DatamartCondition.Category.problem.toString();
       case "encounter-diagnosis":
         return DatamartCondition.Category.diagnosis.toString();
+      case "health-concern":
+        return "health-concern";
       default:
-        return code;
+        throw new ResourceExceptions.BadSearchParameter("Invalid Category Parameter: " + category);
     }
   }
 
@@ -125,9 +126,9 @@ public class R4ConditionController {
    * <p>R4: active | recurrence | relapse | inactive | remission | resolved
    */
   private Set<String> clinicalStatusToSet(String clinicalStatusCsv) {
-    return Arrays.stream(clinicalStatusCsv.split("\\s*,\\s*"))
-        .distinct()
-        .map(s -> splitSystemAndCode(s).get(1))
+    return Splitter.on(",").trimResults().splitToList(clinicalStatusCsv)
+        .stream()
+        .map(this::splitSystemAndCode)
         .collect(Collectors.toSet());
   }
 
@@ -261,14 +262,14 @@ public class R4ConditionController {
             icn, clinicalStatusToSet(clinicalStatus), page(page, count)));
   }
 
-  /** Splits a search parameter of the form {[system]}|[code] into an array. */
-  private List<String> splitSystemAndCode(String systemAndCode) {
-    List<String> split = Arrays.asList(systemAndCode.split("\\s*\\|\\s*"));
-    // The expectation is {[system]}|[code]
-    if (split.size() != 2) {
-      throw new ResourceExceptions.BadSearchParameter("Invalid Parameter: " + systemAndCode);
+  /** Splits a search parameter of the form system|code into the code only. */
+  private String splitSystemAndCode(String systemAndCode) {
+    int splitIndex = systemAndCode.lastIndexOf("|");
+    // The expectation is system|code
+    if (splitIndex <= -1) {
+      throw new ResourceExceptions.BadSearchParameter("Cannot determine system/code from parameter: " + systemAndCode);
     }
-    return split;
+    return systemAndCode.substring(splitIndex);
   }
 
   Condition transform(DatamartCondition dm) {
