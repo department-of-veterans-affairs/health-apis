@@ -18,7 +18,7 @@ import org.springframework.context.annotation.Configuration;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ConformanceStatementProperties {
+public class MetadataProperties {
   private String id;
   private String version;
   private String name;

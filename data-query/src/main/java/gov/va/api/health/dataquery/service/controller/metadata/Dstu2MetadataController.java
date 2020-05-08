@@ -44,7 +44,7 @@ import org.springframework.web.bind.annotation.RestController;
     value = {"/dstu2/metadata"},
     produces = {"application/json", "application/json+fhir", "application/fhir+json"})
 @AllArgsConstructor(onConstructor = @__({@Autowired}))
-class MetadataController {
+class Dstu2MetadataController {
   private static final String ALLERGYINTOLERANCE_HTML =
       "http://www.fhir.org/guides/argonaut/r2/StructureDefinition-argo-allergyintolerance.html";
 
@@ -83,7 +83,7 @@ class MetadataController {
   private static final String PROCEDURE_HTML =
       "http://www.fhir.org/guides/argonaut/r2/StructureDefinition-argo-procedure.html";
 
-  private final ConformanceStatementProperties properties;
+  private final MetadataProperties properties;
 
   @Autowired ReferenceSerializerProperties referenceSerializerProperties;
 
@@ -317,7 +317,7 @@ class MetadataController {
 
     @Builder.Default @NonNull Set<SearchParam> search = emptySet();
 
-    ConformanceStatementProperties properties;
+    MetadataProperties properties;
 
     RestResource asResource() {
       return RestResource.builder()
