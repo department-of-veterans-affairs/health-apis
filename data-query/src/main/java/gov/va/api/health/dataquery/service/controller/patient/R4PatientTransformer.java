@@ -1,6 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.patient;
 
-import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.parseInstant;
+import static gov.va.api.health.dataquery.service.controller.R4Transformers.parseInstant;
 import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
 import static gov.va.api.health.dataquery.service.controller.Transformers.emptyToNull;
 import static java.util.Arrays.asList;
@@ -12,16 +12,15 @@ import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 import static org.apache.commons.lang3.StringUtils.upperCase;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
-import gov.va.api.health.argonaut.api.resources.Patient;
-import gov.va.api.health.dstu2.api.datatypes.Address;
-import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
-import gov.va.api.health.dstu2.api.datatypes.Coding;
-import gov.va.api.health.dstu2.api.datatypes.ContactPoint;
-import gov.va.api.health.dstu2.api.datatypes.ContactPoint.ContactPointUse;
-import gov.va.api.health.dstu2.api.datatypes.HumanName;
-import gov.va.api.health.dstu2.api.datatypes.Identifier;
-import gov.va.api.health.dstu2.api.elements.Extension;
-import gov.va.api.health.dstu2.api.elements.Reference;
+import gov.va.api.health.r4.api.datatypes.Address;
+import gov.va.api.health.r4.api.datatypes.CodeableConcept;
+import gov.va.api.health.r4.api.datatypes.Coding;
+import gov.va.api.health.r4.api.datatypes.ContactPoint;
+import gov.va.api.health.r4.api.datatypes.HumanName;
+import gov.va.api.health.r4.api.datatypes.Identifier;
+import gov.va.api.health.r4.api.elements.Extension;
+import gov.va.api.health.r4.api.elements.Reference;
+import gov.va.api.health.uscorer4.api.resources.Patient;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -38,7 +37,7 @@ import lombok.Builder;
 import lombok.NonNull;
 
 @Builder
-final class Dstu2PatientTransformer {
+final class R4PatientTransformer {
 
   @NonNull final DatamartPatient datamart;
 
@@ -63,7 +62,7 @@ final class Dstu2PatientTransformer {
         .build();
   }
 
-  static Patient.Contact contact(DatamartPatient.Contact contact) {
+  static Patient.PatientContact contact(DatamartPatient.Contact contact) {
     if (contact == null) {
       return null;
     }
@@ -74,7 +73,7 @@ final class Dstu2PatientTransformer {
     HumanName name = name(contact);
     List<ContactPoint> telecoms = emptyToNull(contactTelecoms(contact.phone()));
     Address address = address(contact.address());
-    return Patient.Contact.builder()
+    return Patient.PatientContact.builder()
         .name(name)
         .relationship(relationships)
         .telecom(telecoms)
@@ -116,7 +115,7 @@ final class Dstu2PatientTransformer {
       results.add(
           ContactPoint.builder()
               .system(ContactPoint.ContactPointSystem.phone)
-              .use(ContactPointUse.home)
+              .use(ContactPoint.ContactPointUse.home)
               .value(phoneNumber)
               .build());
     }
@@ -125,7 +124,7 @@ final class Dstu2PatientTransformer {
       results.add(
           ContactPoint.builder()
               .system(ContactPoint.ContactPointSystem.phone)
-              .use(ContactPointUse.work)
+              .use(ContactPoint.ContactPointUse.work)
               .value(workPhoneNumber)
               .build());
     }
@@ -165,7 +164,7 @@ final class Dstu2PatientTransformer {
               .url("ombCategory")
               .valueCoding(
                   Coding.builder()
-                      .system("http://hl7.org/fhir/ValueSet/v3-Ethnicity")
+                      .system("https://www.hl7.org/fhir/us/core/CodeSystem-cdcrec.html")
                       .code(ethnicity.hl7())
                       .display(display)
                       .build())
@@ -201,7 +200,7 @@ final class Dstu2PatientTransformer {
       case "W":
         return result.display("Widowed").build();
       case "UNK":
-        return result.system("http://hl7.org/fhir/v3/NullFlavor").display("unknown").build();
+        return result.system("http://hl7.org/fhir/R4/v3/NullFlavor").display("unknown").build();
       default:
         return null;
     }
@@ -218,7 +217,8 @@ final class Dstu2PatientTransformer {
     if (race == null || isBlank(race.display())) {
       return null;
     }
-    Coding.CodingBuilder result = Coding.builder().system("http://hl7.org/fhir/v3/Race");
+    Coding.CodingBuilder result =
+        Coding.builder().system("https://www.hl7.org/fhir/us/core/CodeSystem-cdcrec.html");
     if (containsIgnoreCase(race.display(), "INDIAN")
         || containsIgnoreCase(race.display(), "ALASKA")) {
       return result.code("1002-5").display("American Indian or Alaska Native").build();
@@ -234,7 +234,7 @@ final class Dstu2PatientTransformer {
       return result.code("2106-3").display("White").build();
     } else {
       return result
-          .system("http://hl7.org/fhir/v3/NullFlavor")
+          .system("http://hl7.org/fhir/R4/v3/NullFlavor")
           .code("UNK")
           .display("Unknown")
           .build();
@@ -344,20 +344,20 @@ final class Dstu2PatientTransformer {
     return date.toString();
   }
 
-  private List<Patient.Contact> contacts() {
+  private List<Patient.PatientContact> contacts() {
     return emptyToNull(
         datamart.contact().stream().map(con -> contact(con)).collect(Collectors.toList()));
   }
 
-  private Boolean deceased() {
+  private String deceased() {
     if (deceasedDateTime() != null) {
       return null;
     }
     switch (upperCase(trimToEmpty(datamart.deceased()), Locale.US)) {
       case "Y":
-        return true;
+        return "true";
       case "N":
-        return false;
+        return "false";
       default:
         return null;
     }
@@ -380,7 +380,7 @@ final class Dstu2PatientTransformer {
     if (!isEmpty(raceExtensions)) {
       results.add(
           Extension.builder()
-              .url("http://fhir.org/guides/argonaut/StructureDefinition/argo-race")
+              .url("https://www.hl7.org/fhir/us/core/StructureDefinition-us-core-race")
               .extension(raceExtensions)
               .build());
     }
@@ -388,14 +388,14 @@ final class Dstu2PatientTransformer {
     if (!isEmpty(ethnicityExtensions)) {
       results.add(
           Extension.builder()
-              .url("http://fhir.org/guides/argonaut/StructureDefinition/argo-ethnicity")
+              .url("https://www.hl7.org/fhir/us/core/StructureDefinition-us-core-ethnicity")
               .extension(ethnicityExtensions)
               .build());
     }
     if (isNotBlank(datamart.gender())) {
       results.add(
           Extension.builder()
-              .url("http://fhir.org/guides/argonaut/StructureDefinition/argo-birthsex")
+              .url("http://hl7.org/fhir/us/core/StructureDefinition/us-core-birthsex")
               .valueCode(datamart.gender())
               .build());
     }
@@ -406,7 +406,7 @@ final class Dstu2PatientTransformer {
     if (isBlank(datamart.gender())) {
       return null;
     }
-    return Dstu2GenderMapping.toFhir(datamart.gender());
+    return R4GenderMapping.toFhir(datamart.gender());
   }
 
   private List<Identifier> identifiers() {
@@ -475,7 +475,7 @@ final class Dstu2PatientTransformer {
       builder.given(asList(datamart.firstName()));
     }
     if (isNotBlank(datamart.lastName())) {
-      builder.family(asList(datamart.lastName()));
+      builder.family(datamart.lastName());
     }
     return asList(builder.build());
   }

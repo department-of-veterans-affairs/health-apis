@@ -7,7 +7,7 @@ import java.util.Locale;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
-class GenderMapping {
+class Dstu2GenderMapping {
 
   String toCdw(String fhir) {
     switch (upperCase(fhir, Locale.US)) {
