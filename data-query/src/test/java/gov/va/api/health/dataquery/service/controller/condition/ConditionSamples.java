@@ -191,7 +191,7 @@ public class ConditionSamples {
           .coding(
               List.of(
                   Coding.builder()
-                      .system("https://snomed.info/sct")
+                      .system("http://snomed.info/sct")
                       .code("70650003")
                       .display("Urinary bladder stone")
                       .build()))
@@ -358,7 +358,7 @@ public class ConditionSamples {
           .coding(
               List.of(
                   gov.va.api.health.r4.api.datatypes.Coding.builder()
-                      .system("https://snomed.info/sct")
+                      .system("http://snomed.info/sct")
                       .code("70650003")
                       .display("Urinary bladder stone")
                       .build()))
