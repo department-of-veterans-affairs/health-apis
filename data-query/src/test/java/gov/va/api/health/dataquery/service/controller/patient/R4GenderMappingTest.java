@@ -15,9 +15,9 @@ public class R4GenderMappingTest {
     assertThat(R4GenderMapping.toCdw("fEmAlE")).isEqualTo("F");
     assertThat(R4GenderMapping.toCdw("OTHER")).isEqualTo("*Missing*");
     assertThat(R4GenderMapping.toCdw("UNKNOWN")).isEqualTo("*Unknown at this time*");
-    assertThat(R4GenderMapping.toCdw("")).isEqualTo("*Unknown at this time*");
-    assertThat(R4GenderMapping.toCdw("M")).isEqualTo("*Unknown at this time*");
-    assertThat(R4GenderMapping.toCdw("?!")).isEqualTo("*Unknown at this time*");
+    assertThat(R4GenderMapping.toCdw("")).isNull();
+    assertThat(R4GenderMapping.toCdw("M")).isNull();
+    assertThat(R4GenderMapping.toCdw("?!")).isNull();
   }
 
   @Test
@@ -28,8 +28,8 @@ public class R4GenderMappingTest {
     assertThat(R4GenderMapping.toFhir("*MISSING*")).isEqualTo(Patient.Gender.other);
     assertThat(R4GenderMapping.toFhir("*mIssIng*")).isEqualTo(Patient.Gender.other);
     assertThat(R4GenderMapping.toFhir("*UNKNOWN AT THIS TIME*")).isEqualTo(Patient.Gender.unknown);
-    assertThat(R4GenderMapping.toFhir("-UNKNOWN AT THIS TIME-")).isEqualTo(Patient.Gender.unknown);
-    assertThat(R4GenderMapping.toFhir("")).isEqualTo(Patient.Gender.unknown);
-    assertThat(R4GenderMapping.toFhir("male")).isEqualTo(Patient.Gender.unknown);
+    assertThat(R4GenderMapping.toFhir("-UNKNOWN AT THIS TIME-")).isNull();
+    assertThat(R4GenderMapping.toFhir("")).isNull();
+    assertThat(R4GenderMapping.toFhir("male")).isNull();
   }
 }

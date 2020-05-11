@@ -17,8 +17,10 @@ class R4GenderMapping {
         return "F";
       case "OTHER":
         return "*Missing*";
-      default:
+      case "UNKNOWN":
         return "*Unknown at this time*";
+      default:
+        return null;
     }
   }
 
@@ -30,8 +32,10 @@ class R4GenderMapping {
         return Patient.Gender.female;
       case "*MISSING*":
         return Patient.Gender.other;
-      default:
+      case "*UNKNOWN AT THIS TIME*":
         return Patient.Gender.unknown;
+      default:
+        return null;
     }
   }
 }
