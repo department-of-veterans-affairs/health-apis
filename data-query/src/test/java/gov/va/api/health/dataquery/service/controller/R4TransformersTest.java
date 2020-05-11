@@ -1,6 +1,7 @@
 package gov.va.api.health.dataquery.service.controller;
 
 import static gov.va.api.health.dataquery.service.controller.R4Transformers.asReference;
+import static gov.va.api.health.dataquery.service.controller.R4Transformers.asReferenceId;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
@@ -9,6 +10,17 @@ import java.util.Optional;
 import org.junit.Test;
 
 public class R4TransformersTest {
+  @Test
+  public void asReferenceIdReturnsNullWhenRefIsEmpty() {
+    Reference ref = Reference.builder().build();
+    assertThat(asReferenceId(ref)).isNull();
+  }
+
+  @Test
+  public void asReferenceIdReturnsRefId() {
+    Reference ref = Reference.builder().display("WAT").reference("Patient/123V456").build();
+    assertThat(asReferenceId(ref)).isEqualTo("123V456");
+  }
 
   @Test
   public void asReferenceReturnsNullWhenOptionalRefHasDisplayAndTypeAndReference() {
