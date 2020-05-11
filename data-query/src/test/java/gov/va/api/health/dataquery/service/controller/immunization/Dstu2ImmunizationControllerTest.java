@@ -54,7 +54,8 @@ public class Dstu2ImmunizationControllerTest {
 
   Dstu2ImmunizationController controller() {
     return new Dstu2ImmunizationController(
-        new Dstu2Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool", "cool")),
+        new Dstu2Bundler(
+            new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool", "cool", "cool")),
         repository,
         WitnessProtection.builder().identityService(ids).build());
   }

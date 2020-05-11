@@ -4,9 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
-import gov.va.api.health.dstu2.api.DataAbsentReason;
-import gov.va.api.health.dstu2.api.elements.Extension;
-import gov.va.api.health.dstu2.api.elements.Reference;
+import gov.va.api.health.r4.api.DataAbsentReason;
+import gov.va.api.health.r4.api.elements.Extension;
+import gov.va.api.health.r4.api.elements.Reference;
 import gov.va.api.health.validation.api.ExactlyOneOf;
 import java.util.List;
 import lombok.AccessLevel;
@@ -18,7 +18,7 @@ import lombok.Singular;
 import lombok.SneakyThrows;
 import org.junit.Test;
 
-public class Dstu2JacksonMapperTest {
+public class R4JacksonMapperTest {
   @Test
   @SneakyThrows
   public void preExistingDarsArePreserved() {
@@ -61,26 +61,41 @@ public class Dstu2JacksonMapperTest {
             .organization(true)
             .practitioner(true)
             .build();
-
     FugaziReferenceMajig input =
         FugaziReferenceMajig.builder()
-            .whocares("noone") // kept
-            .me(true) // kept
-            .ref(reference("AllergyIntolerance/1234")) // kept
-            .nope(reference("https://example.com/api/dstu2/Location/1234")) // dar
-            .alsoNo(reference("https://example.com/api/dstu2/Location/1234")) // removed
-            .thing(reference(null)) // kept
-            .thing(reference("")) // kept
-            .thing(reference("http://qualified.is.not/touched")) // kept
-            .thing(reference("no/slash")) // kept
-            .thing(reference("/cool/a/slash")) // kept
-            .thing(reference("Location")) // kept
-            .thing(reference("Location/1234")) // removed
-            .thing(reference("https://example.com/api/dstu2/Location/1234")) // removed
-            .thing(reference("/Organization")) // kept
-            .thing(reference("Organization/1234")) // kept
-            .thing(reference("https://example.com/api/dstu2/Organization/1234")) // kept
-            .thing(reference("Practitioner/987")) // kept
+            .whocares( // kept
+                "noone")
+            .me( // kept
+                true)
+            .ref( // kept
+                reference("AllergyIntolerance/1234"))
+            .nope( // dar
+                reference("https://example.com/r4/Location/1234"))
+            .alsoNo( // removed
+                reference("https://example.com/r4/Location/1234"))
+            .thing( // kept
+                reference(null))
+            .thing( // kept
+                reference(""))
+            .thing( // kept
+                reference("http://qualified.is.not/touched"))
+            .thing( // kept
+                reference("no/slash"))
+            .thing( // kept
+                reference("/cool/a/slash"))
+            .thing( // kept
+                reference("Location"))
+            .thing( // removed
+                reference("Location/1234"))
+            .thing( // removed
+                reference("https://example.com/r4/Location/1234"))
+            .thing( // kept
+                reference("/Organization"))
+            .thing( // kept
+                reference("Organization/1234"))
+            .thing( // kept
+                reference("https://example.com/r4/Organization/1234"))
+            .thing(reference("Practitioner/987"))
             .inner(
                 FugaziReferenceMajig.builder()
                     .ref(
@@ -88,46 +103,42 @@ public class Dstu2JacksonMapperTest {
                             .reference("Practitioner/615f31df-f0c7-5100-ac42-7fb952c630d0")
                             .display(null)
                             .build())
-                    .build()) // kept
+                    .build())
             .build();
-
     FugaziReferenceMajig expected =
         FugaziReferenceMajig.builder()
             .whocares("noone")
             .me(true)
             ._nope(DataAbsentReason.of(DataAbsentReason.Reason.unsupported))
-            .ref(reference("https://example.com/api/dstu2/AllergyIntolerance/1234"))
+            .ref(reference("https://example.com/r4/AllergyIntolerance/1234"))
             .thing(reference(null))
             .thing(reference(null))
             .thing(reference("http://qualified.is.not/touched"))
-            .thing(reference("https://example.com/api/dstu2/no/slash"))
-            .thing(reference("https://example.com/api/dstu2/cool/a/slash"))
-            .thing(reference("https://example.com/api/dstu2/Location"))
-            .thing(reference("https://example.com/api/dstu2/Organization"))
-            .thing(reference("https://example.com/api/dstu2/Organization/1234"))
-            .thing(reference("https://example.com/api/dstu2/Organization/1234"))
-            .thing(reference("https://example.com/api/dstu2/Practitioner/987"))
+            .thing(reference("https://example.com/r4/no/slash"))
+            .thing(reference("https://example.com/r4/cool/a/slash"))
+            .thing(reference("https://example.com/r4/Location"))
+            .thing(reference("https://example.com/r4/Organization"))
+            .thing(reference("https://example.com/r4/Organization/1234"))
+            .thing(reference("https://example.com/r4/Organization/1234"))
+            .thing(reference("https://example.com/r4/Practitioner/987"))
             .inner(
                 FugaziReferenceMajig.builder()
                     .ref(
                         Reference.builder()
                             .reference(
-                                "https://example.com/api/dstu2/Practitioner/615f31df-f0c7-5100-ac42-7fb952c630d0")
+                                "https://example.com/r4/Practitioner/615f31df-f0c7-5100-ac42-7fb952c630d0")
                             .build())
                     .build())
             .build();
-
     String qualifiedJson =
         new DataQueryJacksonMapper(
                 new MagicReferenceConfig(
-                    "https://example.com", "api/dstu2", "api/stu3", "api/r4", disableLocation))
+                    "https://example.com", "dstu2", "stu3", "r4", disableLocation))
             .objectMapper()
             .writerWithDefaultPrettyPrinter()
             .writeValueAsString(input);
-
     FugaziReferenceMajig actual =
         JacksonConfig.createMapper().readValue(qualifiedJson, FugaziReferenceMajig.class);
-
     assertThat(actual).isEqualTo(expected);
   }
 
@@ -136,30 +147,26 @@ public class Dstu2JacksonMapperTest {
   public void requiredReferencesEmitDar() {
     ReferenceSerializerProperties disableLocation =
         ReferenceSerializerProperties.builder().location(false).build();
-
     FugaziRequiredReferenceMajig input =
         FugaziRequiredReferenceMajig.builder()
-            .required(reference("https://example.com/api/dstu2/Location/1234")) // emits DAR
+            .required( // emits DAR
+                reference("https://example.com/api/dstu2/Location/1234"))
             ._required(DataAbsentReason.of(DataAbsentReason.Reason.unknown))
             .build();
-
     FugaziRequiredReferenceMajig expected =
         FugaziRequiredReferenceMajig.builder()
             .required(null)
             ._required(DataAbsentReason.of(DataAbsentReason.Reason.unknown))
             .build();
-
     String qualifiedJson =
         new DataQueryJacksonMapper(
                 new MagicReferenceConfig(
-                    "https://example.com", "api/dstu2", "api/stu3", "api/r4", disableLocation))
+                    "https://example.com", "dstu2", "stu3", "r4", disableLocation))
             .objectMapper()
             .writerWithDefaultPrettyPrinter()
             .writeValueAsString(input);
-
     FugaziRequiredReferenceMajig actual =
         JacksonConfig.createMapper().readValue(qualifiedJson, FugaziRequiredReferenceMajig.class);
-
     assertThat(actual).isEqualTo(expected);
   }
 
@@ -172,12 +179,19 @@ public class Dstu2JacksonMapperTest {
       isGetterVisibility = JsonAutoDetect.Visibility.NONE)
   static final class FugaziReferenceMajig {
     Reference ref;
+
     Reference nope;
+
     Extension _nope;
+
     Reference alsoNo;
+
     @Singular List<Reference> things;
-    FugaziReferenceMajig inner;
+
+    R4JacksonMapperTest.FugaziReferenceMajig inner;
+
     String whocares;
+
     Boolean me;
   }
 
@@ -191,6 +205,7 @@ public class Dstu2JacksonMapperTest {
       message = "Exactly one required field must be specified")
   static final class FugaziRequiredReferenceMajig {
     Reference required;
+
     Extension _required;
   }
 }

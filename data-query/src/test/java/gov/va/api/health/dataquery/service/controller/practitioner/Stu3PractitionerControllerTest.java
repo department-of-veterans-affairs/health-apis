@@ -47,7 +47,8 @@ public class Stu3PractitionerControllerTest {
 
   Stu3PractitionerController controller() {
     return new Stu3PractitionerController(
-        new Stu3Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool", "cool")),
+        new Stu3Bundler(
+            new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool", "cool", "cool")),
         repository,
         WitnessProtection.builder().identityService(ids).build());
   }
