@@ -27,7 +27,6 @@ public class R4Transformers {
         .build();
   }
 
-
   /** Convert the datamart reference (if specified) to a FHIR reference. */
   public static Reference asReference(Optional<DatamartReference> maybeReference) {
     if (maybeReference == null || maybeReference.isEmpty()) {
