@@ -1,11 +1,16 @@
 package gov.va.api.health.dataquery.service.controller;
 
+import static org.apache.commons.lang3.StringUtils.endsWithIgnoreCase;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
+import com.google.common.base.Splitter;
+import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
+import gov.va.api.health.fhir.api.IsReference;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
@@ -15,10 +20,12 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.experimental.UtilityClass;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 /** Utility methods for transformers that are not specific to one FHIR version. */
 @UtilityClass
+@Slf4j
 public final class Transformers {
   /**
    * Return false if at least one value in the given list is a non-blank string, or a non-null
@@ -31,6 +38,37 @@ public final class Transformers {
       }
     }
     return true;
+  }
+
+  /**
+   * Convert the reference (if specified) to a Datamart reference. This is looking for any number of
+   * path elements, a resource type in all upper case, followed by an ID, i.e.
+   * `what/ever/RESOURCE/id`. For example, PATIENT/1234567890V123456
+   */
+  public static DatamartReference asDatamartReference(IsReference maybeReference) {
+    if (maybeReference == null || StringUtils.isBlank(maybeReference.reference())) {
+      return null;
+    }
+    List<String> splitReference = Splitter.on('/').splitToList(maybeReference.reference());
+    if (splitReference.size() <= 1) {
+      return null;
+    }
+    String resourceName = splitReference.get(splitReference.size() - 2);
+    if (StringUtils.isBlank(resourceName)) {
+      return null;
+    }
+    if (!StringUtils.isAllUpperCase(resourceName.substring(0, 1))) {
+      return null;
+    }
+    String resourceId = splitReference.get(splitReference.size() - 1);
+    if (StringUtils.isBlank(resourceId)) {
+      return null;
+    }
+    return DatamartReference.builder()
+        .display(Optional.ofNullable(maybeReference.display()))
+        .reference(Optional.of(resourceId))
+        .type(Optional.of(resourceName))
+        .build();
   }
 
   /** Return null if the date is null, otherwise return an ISO-8601 date. */
@@ -65,6 +103,15 @@ public final class Transformers {
       return null;
     }
     return maybeDateTime.toString();
+  }
+
+  /** Get the reference id from the given reference. */
+  public static String asReferenceId(IsReference maybeReference) {
+    DatamartReference maybeDatamart = asDatamartReference(maybeReference);
+    if (maybeDatamart == null) {
+      return null;
+    }
+    return maybeDatamart.reference().get();
   }
 
   /** Return null if the given object is null, otherwise return the converted value. */
@@ -127,5 +174,18 @@ public final class Transformers {
       return ((Map<?, ?>) value).isEmpty();
     }
     return value == null;
+  }
+
+  /**
+   * Parse an Instant from a string such as '2007-12-03T10:15:30Z', appending 'Z' if it is missing.
+   */
+  public static Instant parseInstant(String instant) {
+    try {
+      String zoned = endsWithIgnoreCase(instant, "Z") ? instant : instant + "Z";
+      return Instant.parse(zoned);
+    } catch (DateTimeParseException e) {
+      log.error("Failed to parse '{}' as instant", instant);
+      return null;
+    }
   }
 }
