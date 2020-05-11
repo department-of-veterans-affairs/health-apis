@@ -2,19 +2,8 @@ package gov.va.api.health.dataquery.service.controller.allergyintolerance;
 
 import static java.util.Arrays.asList;
 
-import gov.va.api.health.argonaut.api.resources.AllergyIntolerance;
-import gov.va.api.health.dataquery.service.controller.allergyintolerance.DatamartAllergyIntolerance.Note;
-import gov.va.api.health.dataquery.service.controller.allergyintolerance.DatamartAllergyIntolerance.Reaction;
-import gov.va.api.health.dataquery.service.controller.allergyintolerance.DatamartAllergyIntolerance.Substance;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
-import gov.va.api.health.dstu2.api.bundle.AbstractBundle;
-import gov.va.api.health.dstu2.api.bundle.AbstractEntry;
-import gov.va.api.health.dstu2.api.bundle.BundleLink;
-import gov.va.api.health.dstu2.api.datatypes.Annotation;
-import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
-import gov.va.api.health.dstu2.api.datatypes.Coding;
-import gov.va.api.health.dstu2.api.elements.Reference;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
@@ -26,10 +15,8 @@ import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class AllergyIntoleranceSamples {
-
   @AllArgsConstructor(staticName = "create")
   public static class Datamart {
-
     public DatamartAllergyIntolerance allergyIntolerance() {
       return allergyIntolerance("800001608621", "666V666");
     }
@@ -60,21 +47,21 @@ public class AllergyIntoleranceSamples {
           .build();
     }
 
-    public List<Note> emptyNotes() {
-      return asList(Note.builder().build());
+    public List<DatamartAllergyIntolerance.Note> emptyNotes() {
+      return asList(DatamartAllergyIntolerance.Note.builder().build());
     }
 
-    public Optional<Reaction> emptyReactions() {
-      return Optional.of(Reaction.builder().build());
+    public Optional<DatamartAllergyIntolerance.Reaction> emptyReactions() {
+      return Optional.of(DatamartAllergyIntolerance.Reaction.builder().build());
     }
 
-    public Optional<Substance> emptySubstance() {
-      return Optional.of(Substance.builder().build());
+    public Optional<DatamartAllergyIntolerance.Substance> emptySubstance() {
+      return Optional.of(DatamartAllergyIntolerance.Substance.builder().build());
     }
 
-    public Optional<Substance> fullyPopulatedSubstance() {
+    public Optional<DatamartAllergyIntolerance.Substance> fullyPopulatedSubstance() {
       return Optional.of(
-          Substance.builder()
+          DatamartAllergyIntolerance.Substance.builder()
               .coding(
                   Optional.of(
                       DatamartCoding.of()
@@ -100,9 +87,9 @@ public class AllergyIntoleranceSamples {
               .build());
     }
 
-    public List<Note> notes() {
+    public List<DatamartAllergyIntolerance.Note> notes() {
       return asList(
-          Note.builder()
+          DatamartAllergyIntolerance.Note.builder()
               .text("ADR PER PT.")
               .time(Optional.of(Instant.parse("2012-03-29T01:55:03Z")))
               .practitioner(
@@ -113,7 +100,7 @@ public class AllergyIntoleranceSamples {
                           .display(Optional.of("PROVID,ALLIN DOC"))
                           .build()))
               .build(),
-          Note.builder()
+          DatamartAllergyIntolerance.Note.builder()
               .text("ADR PER PT.")
               .time(Optional.of(Instant.parse("2012-03-29T01:56:59Z")))
               .practitioner(
@@ -124,7 +111,7 @@ public class AllergyIntoleranceSamples {
                           .display(Optional.of("PROVID,ALLIN DOC"))
                           .build()))
               .build(),
-          Note.builder()
+          DatamartAllergyIntolerance.Note.builder()
               .text("ADR PER PT.")
               .time(Optional.of(Instant.parse("2012-03-29T01:57:40Z")))
               .practitioner(
@@ -135,7 +122,7 @@ public class AllergyIntoleranceSamples {
                           .display(Optional.of("PROVID,ALLIN DOC"))
                           .build()))
               .build(),
-          Note.builder()
+          DatamartAllergyIntolerance.Note.builder()
               .text("REDO")
               .time(Optional.of(Instant.parse("2012-03-29T01:58:21Z")))
               .practitioner(
@@ -148,9 +135,9 @@ public class AllergyIntoleranceSamples {
               .build());
     }
 
-    public Optional<Reaction> reactions() {
+    public Optional<DatamartAllergyIntolerance.Reaction> reactions() {
       return Optional.of(
-          Reaction.builder()
+          DatamartAllergyIntolerance.Reaction.builder()
               .certainty(DatamartAllergyIntolerance.Certainty.likely)
               .manifestations(manifestations())
               .build());
@@ -160,76 +147,85 @@ public class AllergyIntoleranceSamples {
   @AllArgsConstructor(staticName = "create")
   public static class Dstu2 {
 
-    static AllergyIntolerance.Bundle asBundle(
+    static gov.va.api.health.argonaut.api.resources.AllergyIntolerance.Bundle asBundle(
         String baseUrl,
-        Collection<AllergyIntolerance> resources,
+        Collection<gov.va.api.health.argonaut.api.resources.AllergyIntolerance> resources,
         int totalRecords,
-        BundleLink... links) {
-      return AllergyIntolerance.Bundle.builder()
+        gov.va.api.health.dstu2.api.bundle.BundleLink... links) {
+      return gov.va.api.health.argonaut.api.resources.AllergyIntolerance.Bundle.builder()
           .resourceType("Bundle")
-          .type(AbstractBundle.BundleType.searchset)
+          .type(gov.va.api.health.dstu2.api.bundle.AbstractBundle.BundleType.searchset)
           .total(totalRecords)
           .link(Arrays.asList(links))
           .entry(
               resources.stream()
                   .map(
                       a ->
-                          AllergyIntolerance.Entry.builder()
+                          gov.va.api.health.argonaut.api.resources.AllergyIntolerance.Entry
+                              .builder()
                               .fullUrl(baseUrl + "/AllergyIntolerance/" + a.id())
                               .resource(a)
                               .search(
-                                  AbstractEntry.Search.builder()
-                                      .mode(AbstractEntry.SearchMode.match)
+                                  gov.va.api.health.dstu2.api.bundle.AbstractEntry.Search.builder()
+                                      .mode(
+                                          gov.va.api.health.dstu2.api.bundle.AbstractEntry
+                                              .SearchMode.match)
                                       .build())
                               .build())
                   .collect(Collectors.toList()))
           .build();
     }
 
-    static BundleLink link(BundleLink.LinkRelation rel, String base, int page, int count) {
-      return BundleLink.builder()
+    static gov.va.api.health.dstu2.api.bundle.BundleLink link(
+        gov.va.api.health.dstu2.api.bundle.BundleLink.LinkRelation rel,
+        String base,
+        int page,
+        int count) {
+      return gov.va.api.health.dstu2.api.bundle.BundleLink.builder()
           .relation(rel)
           .url(base + "&page=" + page + "&_count=" + count)
           .build();
     }
 
-    public AllergyIntolerance allergyIntolerance(String cdwId) {
+    public gov.va.api.health.argonaut.api.resources.AllergyIntolerance allergyIntolerance(
+        String cdwId) {
       return allergyIntolerance(cdwId, "666V666");
     }
 
-    public AllergyIntolerance allergyIntolerance() {
+    public gov.va.api.health.argonaut.api.resources.AllergyIntolerance allergyIntolerance() {
       return allergyIntolerance("800001608621", "666V666");
     }
 
-    public AllergyIntolerance allergyIntolerance(String cdwId, String patientId) {
-      return AllergyIntolerance.builder()
+    public gov.va.api.health.argonaut.api.resources.AllergyIntolerance allergyIntolerance(
+        String cdwId, String patientId) {
+      return gov.va.api.health.argonaut.api.resources.AllergyIntolerance.builder()
           .resourceType("AllergyIntolerance")
           .id(cdwId)
           .recordedDate("2017-07-23T04:27:43Z")
           .recorder(
-              Reference.builder()
+              gov.va.api.health.dstu2.api.elements.Reference.builder()
                   .reference("Practitioner/1234")
                   .display("MONTAGNE,JO BONES")
                   .build())
           .patient(
-              Reference.builder()
+              gov.va.api.health.dstu2.api.elements.Reference.builder()
                   .reference("Patient/" + patientId)
                   .display("VETERAN,HERNAM MINAM")
                   .build())
           .substance(fullyPopulatedSubstance())
-          .status(AllergyIntolerance.Status.active)
-          .type(AllergyIntolerance.Type.allergy)
-          .category(AllergyIntolerance.Category.medication)
+          .status(gov.va.api.health.argonaut.api.resources.AllergyIntolerance.Status.active)
+          .type(gov.va.api.health.argonaut.api.resources.AllergyIntolerance.Type.allergy)
+          .category(gov.va.api.health.argonaut.api.resources.AllergyIntolerance.Category.medication)
           .note(note())
           .reaction(reactions())
           .build();
     }
 
-    public CodeableConcept fullyPopulatedSubstance() {
-      return CodeableConcept.builder()
+    public gov.va.api.health.dstu2.api.datatypes.CodeableConcept fullyPopulatedSubstance() {
+      return gov.va.api.health.dstu2.api.datatypes.CodeableConcept.builder()
           .coding(
               asList(
-                  Coding.builder()
+                  gov.va.api.health.dstu2.api.datatypes.Coding.builder()
                       .system("http://www.nlm.nih.gov/research/umls/rxnorm")
                       .code("70618")
                       .display("Penicillin")
@@ -238,21 +234,21 @@ public class AllergyIntoleranceSamples {
           .build();
     }
 
-    public List<CodeableConcept> manifestations() {
+    public List<gov.va.api.health.dstu2.api.datatypes.CodeableConcept> manifestations() {
       return asList(
-          CodeableConcept.builder()
+          gov.va.api.health.dstu2.api.datatypes.CodeableConcept.builder()
               .coding(
                   asList(
-                      Coding.builder()
+                      gov.va.api.health.dstu2.api.datatypes.Coding.builder()
                           .system("urn:oid:2.16.840.1.113883.6.233")
                           .code("4637183")
                           .display("RESPIRATORY DISTRESS")
                           .build()))
               .build(),
-          CodeableConcept.builder()
+          gov.va.api.health.dstu2.api.datatypes.CodeableConcept.builder()
               .coding(
                   asList(
-                      Coding.builder()
+                      gov.va.api.health.dstu2.api.datatypes.Coding.builder()
                           .system("urn:oid:2.16.840.1.113883.6.233")
                           .code("4538635")
                           .display("RASH")
@@ -260,10 +256,10 @@ public class AllergyIntoleranceSamples {
               .build());
     }
 
-    public Annotation note() {
-      return Annotation.builder()
+    public gov.va.api.health.dstu2.api.datatypes.Annotation note() {
+      return gov.va.api.health.dstu2.api.datatypes.Annotation.builder()
           .authorReference(
-              Reference.builder()
+              gov.va.api.health.dstu2.api.elements.Reference.builder()
                   .reference("Practitioner/12345")
                   .display("PROVID,ALLIN DOC")
                   .build())
@@ -272,12 +268,120 @@ public class AllergyIntoleranceSamples {
           .build();
     }
 
-    public List<AllergyIntolerance.Reaction> reactions() {
+    public List<gov.va.api.health.argonaut.api.resources.AllergyIntolerance.Reaction> reactions() {
       return asList(
-          AllergyIntolerance.Reaction.builder()
-              .certainty(AllergyIntolerance.Certainty.likely)
+          gov.va.api.health.argonaut.api.resources.AllergyIntolerance.Reaction.builder()
+              .certainty(
+                  gov.va.api.health.argonaut.api.resources.AllergyIntolerance.Certainty.likely)
               .manifestation(manifestations())
               .build());
+    }
+  }
+
+  @AllArgsConstructor(staticName = "create")
+  public static class R4 {
+    public gov.va.api.health.uscorer4.api.resources.AllergyIntolerance allergyIntolerance() {
+      return gov.va.api.health.uscorer4.api.resources.AllergyIntolerance.builder()
+          .resourceType("AllergyIntolerance")
+          .id("800001608621")
+          .clinicalStatus(
+              gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()
+                  .coding(
+                      List.of(
+                          gov.va.api.health.r4.api.datatypes.Coding.builder()
+                              .system("http://hl7.org/fhir/ValueSet/allergyintolerance-clinical")
+                              .code("active")
+                              .build()))
+                  .build())
+          .type(gov.va.api.health.uscorer4.api.resources.AllergyIntolerance.Type.allergy)
+          .category(
+              List.of(
+                  gov.va.api.health.uscorer4.api.resources.AllergyIntolerance.Category.medication))
+          .patient(
+              gov.va.api.health.r4.api.elements.Reference.builder()
+                  .reference("Patient/666V666")
+                  .display("VETERAN,HERNAM MINAM")
+                  .build())
+          .recordedDate("2017-07-23T04:27:43Z")
+          .recorder(
+              gov.va.api.health.r4.api.elements.Reference.builder()
+                  .reference("Practitioner/1234")
+                  .display("MONTAGNE,JO BONES")
+                  .build())
+          .note(
+              List.of(
+                  gov.va.api.health.r4.api.datatypes.Annotation.builder()
+                      .authorReference(
+                          gov.va.api.health.r4.api.elements.Reference.builder()
+                              .reference("Practitioner/12345")
+                              .display("PROVID,ALLIN DOC")
+                              .build())
+                      .time("2012-03-29T01:55:03Z")
+                      .text("ADR PER PT.")
+                      .build(),
+                  gov.va.api.health.r4.api.datatypes.Annotation.builder()
+                      .authorReference(
+                          gov.va.api.health.r4.api.elements.Reference.builder()
+                              .reference("Practitioner/12345")
+                              .display("PROVID,ALLIN DOC")
+                              .build())
+                      .time("2012-03-29T01:56:59Z")
+                      .text("ADR PER PT.")
+                      .build(),
+                  gov.va.api.health.r4.api.datatypes.Annotation.builder()
+                      .authorReference(
+                          gov.va.api.health.r4.api.elements.Reference.builder()
+                              .reference("Practitioner/12345")
+                              .display("PROVID,ALLIN DOC")
+                              .build())
+                      .time("2012-03-29T01:57:40Z")
+                      .text("ADR PER PT.")
+                      .build(),
+                  gov.va.api.health.r4.api.datatypes.Annotation.builder()
+                      .authorReference(
+                          gov.va.api.health.r4.api.elements.Reference.builder()
+                              .reference("Practitioner/12345")
+                              .display("PROVID,ALLIN DOC")
+                              .build())
+                      .time("2012-03-29T01:58:21Z")
+                      .text("REDO")
+                      .build()))
+          .reaction(
+              List.of(
+                  gov.va.api.health.uscorer4.api.resources.AllergyIntolerance.Reaction.builder()
+                      .substance(
+                          gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()
+                              .coding(
+                                  List.of(
+                                      gov.va.api.health.r4.api.datatypes.Coding.builder()
+                                          .system("http://www.nlm.nih.gov/research/umls/rxnorm")
+                                          .code("70618")
+                                          .display("Penicillin")
+                                          .build()))
+                              .text("PENICILLIN")
+                              .build())
+                      .manifestation(
+                          List.of(
+                              gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()
+                                  .coding(
+                                      List.of(
+                                          gov.va.api.health.r4.api.datatypes.Coding.builder()
+                                              .system("urn:oid:2.16.840.1.113883.6.233")
+                                              .code("4637183")
+                                              .display("RESPIRATORY DISTRESS")
+                                              .build()))
+                                  .build(),
+                              gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()
+                                  .coding(
+                                      List.of(
+                                          gov.va.api.health.r4.api.datatypes.Coding.builder()
+                                              .system("urn:oid:2.16.840.1.113883.6.233")
+                                              .code("4538635")
+                                              .display("RASH")
+                                              .build()))
+                                  .build()))
+                      .build()))
+          .build();
     }
   }
 }
