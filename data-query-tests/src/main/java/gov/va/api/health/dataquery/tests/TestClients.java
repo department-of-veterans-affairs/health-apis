@@ -4,6 +4,7 @@ import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.sentinel.BasicTestClient;
 import gov.va.api.health.sentinel.FhirTestClient;
 import gov.va.api.health.sentinel.TestClient;
+import java.util.List;
 import lombok.experimental.UtilityClass;
 
 /**
@@ -37,6 +38,17 @@ public final class TestClients {
         .service(SystemDefinitions.systemDefinition().internalDataQuery())
         .contentType("application/json")
         .mapper(JacksonConfig::createMapper)
+        .build();
+  }
+
+  /** R4 Data Query TestClient. */
+  public static TestClient r4DataQuery() {
+    return FhirTestClient.builder()
+        .service(SystemDefinitions.systemDefinition().r4DataQuery())
+        .mapper(JacksonConfig::createMapper)
+        .contentTypes(List.of("application/json", "application/fhir+json"))
+        .errorResponseEqualityCheck(
+            new gov.va.api.health.dataquery.tests.r4.OperationOutcomesAreFunctionallyEqual())
         .build();
   }
 
