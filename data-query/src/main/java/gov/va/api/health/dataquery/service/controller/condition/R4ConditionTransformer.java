@@ -34,10 +34,6 @@ public class R4ConditionTransformer {
     if (category == null) {
       return null;
     }
-    /*
-     * Must be one of:
-     * problem-list-item | encounter-diagnosis | health-concern
-     */
     switch (category) {
       case diagnosis:
         return List.of(
@@ -72,9 +68,6 @@ public class R4ConditionTransformer {
     if (clinicalStatus == null) {
       return null;
     }
-    /* Must be one of:
-     * active | recurrence | relapse | inactive | remission | resolved
-     */
     switch (clinicalStatus) {
       case active:
         return CodeableConcept.builder()
@@ -112,7 +105,7 @@ public class R4ConditionTransformer {
         .coding(
             List.of(
                 Coding.builder()
-                    .system("https://snomed.info/sct")
+                    .system("http://snomed.info/sct")
                     .code(snomedCode.code())
                     .display(snomedCode.display())
                     .build()))
