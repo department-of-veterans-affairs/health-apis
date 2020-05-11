@@ -1,7 +1,7 @@
 package gov.va.api.health.dataquery.service.api;
 
-import gov.va.api.health.dataquery.service.api.DataQueryService.SearchFailed;
-import gov.va.api.health.dataquery.service.api.DataQueryService.UnknownResource;
+import gov.va.api.health.dataquery.service.api.Dstu2DataQueryService.SearchFailed;
+import gov.va.api.health.dataquery.service.api.Dstu2DataQueryService.UnknownResource;
 import org.junit.Test;
 
 public class DataTypesTest {

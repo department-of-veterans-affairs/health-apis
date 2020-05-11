@@ -14,7 +14,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 @Slf4j
-public class OpenApiIT {
+public class Dstu2OpenApiIT {
 
   private final String apiPath() {
     return TestClients.dstu2DataQuery().service().apiPath();
@@ -23,14 +23,9 @@ public class OpenApiIT {
   @Test
   @Category({Local.class, LabDataQueryPatient.class, ProdDataQueryPatient.class})
   public void openApiIsValid() {
-    assertThat(requestOpenApi("json").statusCode()).isEqualTo(200);
-    assertThat(requestOpenApi("yaml").statusCode()).isEqualTo(200);
-  }
-
-  public Response requestOpenApi(String fileExtension) {
-    log.info("Verify {}openapi.{} is valid (200)", apiPath(), fileExtension);
-    return RestAssured.given()
-        .spec(ResourceVerifier.dstu2().dataQuery().service().requestSpecification())
-        .get(apiPath() + "openapi." + fileExtension);
+    log.info("Verify {}openapi.json is valid (200)", apiPath());
+    assertThat(RestAssured.given()
+            .spec(ResourceVerifier.dstu2().dataQuery().service().requestSpecification())
+            .get(apiPath() + "openapi.json").statusCode()).isEqualTo(200);
   }
 }

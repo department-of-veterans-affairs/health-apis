@@ -6,7 +6,6 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StreamUtils;
@@ -18,20 +17,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class DataQueryHomeController {
   private static final YAMLMapper MAPPER = new YAMLMapper();
 
-  private final Resource openapi;
+  private final Resource dstu2Openapi;
 
   @Autowired
-  public DataQueryHomeController(@Value("classpath:/openapi.yaml") Resource openapi) {
-    this.openapi = openapi;
-  }
-
-  /** The OpenAPI specific content in yaml form. */
-  @SuppressWarnings("WeakerAccess")
-  @Bean
-  public String openapiContent() throws IOException {
-    try (InputStream is = openapi.getInputStream()) {
-      return StreamUtils.copyToString(is, Charset.defaultCharset());
-    }
+  public DataQueryHomeController(@Value("classpath:/dstu2-openapi.json") Resource dstu2Openapi) {
+    this.dstu2Openapi = dstu2Openapi;
   }
 
   /**
@@ -39,19 +29,18 @@ public class DataQueryHomeController {
    * redirect.
    */
   @GetMapping(
-      value = {"dstu2/", "dstu2/openapi.json"},
+      value = {"dstu2/", "dstu2/openapi.json", "dstu2-openapi.json"},
       produces = "application/json")
   @ResponseBody
-  public Object openapiJson() throws IOException {
-    return DataQueryHomeController.MAPPER.readValue(openapiContent(), Object.class);
+  public Object dstu2OpenapiJson() throws IOException {
+    return DataQueryHomeController.MAPPER.readValue(openapiContent(dstu2Openapi), Object.class);
   }
 
-  /** Provide access to the OpenAPI yaml via RESTful interface. */
-  @GetMapping(
-      value = {"/dstu2/openapi.yaml"},
-      produces = "application/vnd.oai.openapi")
-  @ResponseBody
-  public String openapiYaml() throws IOException {
-    return openapiContent();
+  /** The OpenAPI specific content. */
+  @SuppressWarnings("WeakerAccess")
+  public String openapiContent(Resource openapi) throws IOException {
+    try (InputStream is = openapi.getInputStream()) {
+      return StreamUtils.copyToString(is, Charset.defaultCharset());
+    }
   }
 }
