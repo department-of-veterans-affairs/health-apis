@@ -185,7 +185,7 @@ public class MagicReferenceConfig {
                 BeanDescription beanDesc,
                 JsonSerializer<?> serializer) {
               if (IsReference.class.isAssignableFrom(beanDesc.getBeanClass())) {
-                return new OptionalReferenceSerializer<IsReference>(
+                return new OptionalReferenceSerializer<>(
                     (JsonSerializer<IsReference>) serializer);
               }
               return super.modifySerializer(serialConfig, beanDesc, serializer);
