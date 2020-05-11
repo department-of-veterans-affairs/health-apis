@@ -289,7 +289,6 @@ public class Stu3OrganizationControllerTest {
     DatamartOrganization dm = OrganizationSamples.Datamart.create().organization(cdwId);
     repository.save(asEntity(dm));
     Organization.Bundle actual = controller().searchByName(name, 1, 1);
-    System.out.println(asJson(actual));
     assertThat(asJson(actual))
         .isEqualTo(
             asJson(
