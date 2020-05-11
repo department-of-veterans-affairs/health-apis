@@ -57,6 +57,7 @@ public final class TestClients {
     return FhirTestClient.builder()
         .service(SystemDefinitions.systemDefinition().stu3DataQuery())
         .mapper(JacksonConfig::createMapper)
+        .contentTypes(List.of("application/json", "application/fhir+json"))
         .errorResponseEqualityCheck(
             new gov.va.api.health.dataquery.tests.stu3.OperationOutcomesAreFunctionallyEqual())
         .build();
