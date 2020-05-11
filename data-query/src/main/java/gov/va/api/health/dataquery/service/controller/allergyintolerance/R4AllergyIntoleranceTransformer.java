@@ -50,7 +50,7 @@ public final class R4AllergyIntoleranceTransformer {
         .build();
   }
 
-  private static String clinicalStatusCode(DatamartAllergyIntolerance.Status status) {
+  static String clinicalStatusCode(DatamartAllergyIntolerance.Status status) {
     // active | inactive | resolved
     if (status == null) {
       return null;
@@ -153,7 +153,7 @@ public final class R4AllergyIntoleranceTransformer {
         .build();
   }
 
-  private static String verificationStatusCode(DatamartAllergyIntolerance.Status status) {
+  static String verificationStatusCode(DatamartAllergyIntolerance.Status status) {
     if (status == null) {
       return null;
     }
