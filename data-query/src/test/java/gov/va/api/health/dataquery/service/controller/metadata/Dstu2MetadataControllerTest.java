@@ -1,20 +1,20 @@
-package gov.va.api.health.dataquery.service.controller.conformance;
+package gov.va.api.health.dataquery.service.controller.metadata;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.config.ReferenceSerializerProperties;
-import gov.va.api.health.dataquery.service.controller.conformance.ConformanceStatementProperties.ContactProperties;
-import gov.va.api.health.dataquery.service.controller.conformance.ConformanceStatementProperties.SecurityProperties;
-import gov.va.api.health.dataquery.service.controller.conformance.ConformanceStatementProperties.StatementType;
+import gov.va.api.health.dataquery.service.controller.metadata.MetadataProperties.ContactProperties;
+import gov.va.api.health.dataquery.service.controller.metadata.MetadataProperties.SecurityProperties;
+import gov.va.api.health.dataquery.service.controller.metadata.MetadataProperties.StatementType;
 import gov.va.api.health.dstu2.api.resources.Conformance;
 import lombok.SneakyThrows;
 import org.junit.Test;
 
-public class MetadataControllerTest {
+public class Dstu2MetadataControllerTest {
 
-  private ConformanceStatementProperties conformanceStatementProperties() {
-    return ConformanceStatementProperties.builder()
+  private MetadataProperties conformanceStatementProperties() {
+    return MetadataProperties.builder()
         .id("lighthouse-va-fhir-conformance")
         .version("1.4.0")
         .name("VA Lighthouse FHIR")
@@ -56,13 +56,12 @@ public class MetadataControllerTest {
   @Test
   @SneakyThrows
   public void readClinician() {
-    ConformanceStatementProperties conformanceStatementProperties =
-        conformanceStatementProperties();
+    MetadataProperties metadataProperties = conformanceStatementProperties();
     ReferenceSerializerProperties referenceSerializerProperties =
         referenceSerializerProperties(true);
-    conformanceStatementProperties.setStatementType(StatementType.CLINICIAN);
-    MetadataController controller =
-        new MetadataController(conformanceStatementProperties, referenceSerializerProperties);
+    metadataProperties.setStatementType(StatementType.CLINICIAN);
+    Dstu2MetadataController controller =
+        new Dstu2MetadataController(metadataProperties, referenceSerializerProperties);
     Conformance old =
         JacksonConfig.createMapper()
             .readValue(
@@ -73,13 +72,12 @@ public class MetadataControllerTest {
   @Test
   @SneakyThrows
   public void readLab() {
-    ConformanceStatementProperties conformanceStatementProperties =
-        conformanceStatementProperties();
+    MetadataProperties metadataProperties = conformanceStatementProperties();
     ReferenceSerializerProperties referenceSerializerProperties =
         referenceSerializerProperties(false);
-    conformanceStatementProperties.setStatementType(StatementType.PATIENT);
-    MetadataController controller =
-        new MetadataController(conformanceStatementProperties, referenceSerializerProperties);
+    metadataProperties.setStatementType(StatementType.PATIENT);
+    Dstu2MetadataController controller =
+        new Dstu2MetadataController(metadataProperties, referenceSerializerProperties);
     Conformance old =
         JacksonConfig.createMapper()
             .readValue(getClass().getResourceAsStream("/lab-conformance.json"), Conformance.class);
@@ -94,13 +92,12 @@ public class MetadataControllerTest {
   @Test
   @SneakyThrows
   public void readPatient() {
-    ConformanceStatementProperties conformanceStatementProperties =
-        conformanceStatementProperties();
+    MetadataProperties metadataProperties = conformanceStatementProperties();
     ReferenceSerializerProperties referenceSerializerProperties =
         referenceSerializerProperties(true);
-    conformanceStatementProperties.setStatementType(StatementType.PATIENT);
-    MetadataController controller =
-        new MetadataController(conformanceStatementProperties, referenceSerializerProperties);
+    metadataProperties.setStatementType(StatementType.PATIENT);
+    Dstu2MetadataController controller =
+        new Dstu2MetadataController(metadataProperties, referenceSerializerProperties);
     Conformance old =
         JacksonConfig.createMapper()
             .readValue(

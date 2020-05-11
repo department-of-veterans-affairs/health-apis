@@ -4,11 +4,11 @@
   <parent>
     <groupId>gov.va.api.health</groupId>
     <artifactId>test-starter</artifactId>
-    <version>6.0.6</version>
+    <version>6.0.7</version>
     <relativePath/>
   </parent>
   <artifactId>data-query-tests</artifactId>
-  <version>2.0.255-SNAPSHOT</version>
+  <version>2.0.257-SNAPSHOT</version>
   <packaging>jar</packaging>
   <properties>
     <fhir-resources.version>2.0.36</fhir-resources.version>
@@ -139,11 +139,11 @@
                 <argument>-Didentityservice.encodingKey=data-query</argument>
                 <argument>-Didentityservice.patientIdPattern=[0-9]+(V[0-9]{6})?</argument>
                 <argument>-Ddata-query.public-web-exception-key=-shanktopus-for-the-win-</argument>
-                <argument>-Dconformance.statement-type=patient</argument>
-                <argument>-Dconformance.contact.name=Sentinel</argument>
-                <argument>-Dconformance.contact.email=sentinel@matrix.com</argument>
-                <argument>-Dconformance.security.token-endpoint=http://example.com/token</argument>
-                <argument>-Dconformance.security.authorize-endpoint=http://example.com/authorize</argument>
+                <argument>-Dmetadata.statement-type=patient</argument>
+                <argument>-Dmetadata.contact.name=Sentinel</argument>
+                <argument>-Dmetadata.contact.email=sentinel@matrix.com</argument>
+                <argument>-Dmetadata.security.token-endpoint=http://example.com/token</argument>
+                <argument>-Dmetadata.security.authorize-endpoint=http://example.com/authorize</argument>
                 <argument>-Dspring.datasource.driver-class-name=org.h2.Driver</argument>
                 <argument>-Dspring.datasource.url=jdbc:h2:${project.basedir}/target/test-classes/mitre</argument>
                 <argument>-Dspring.datasource.username=sa</argument>

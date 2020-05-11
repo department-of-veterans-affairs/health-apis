@@ -4,7 +4,7 @@ import gov.va.api.health.dataquery.service.controller.ExtractIcnValidator;
 import gov.va.api.health.r4.api.elements.Reference;
 import gov.va.api.health.uscorer4.api.resources.Condition;
 import java.util.List;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 public class R4ConditionIncludesIcnMajigTest {
   @Test
