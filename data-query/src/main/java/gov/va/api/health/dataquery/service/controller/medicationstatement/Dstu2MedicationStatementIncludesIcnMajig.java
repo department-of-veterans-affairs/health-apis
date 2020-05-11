@@ -1,7 +1,8 @@
 package gov.va.api.health.dataquery.service.controller.medicationstatement;
 
+import static gov.va.api.health.dataquery.service.controller.Transformers.asReferenceId;
+
 import gov.va.api.health.argonaut.api.resources.MedicationStatement;
-import gov.va.api.health.dataquery.service.controller.Dstu2Transformers;
 import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
 import gov.va.api.health.dstu2.api.bundle.AbstractEntry;
 import java.util.stream.Stream;
@@ -22,6 +23,6 @@ public class Dstu2MedicationStatementIncludesIcnMajig implements ResponseBodyAdv
           .type(MedicationStatement.class)
           .bundleType(MedicationStatement.Bundle.class)
           .extractResources(bundle -> bundle.entry().stream().map(AbstractEntry::resource))
-          .extractIcns(body -> Stream.ofNullable(Dstu2Transformers.asReferenceId(body.patient())))
+          .extractIcns(body -> Stream.ofNullable(asReferenceId(body.patient())))
           .build();
 }

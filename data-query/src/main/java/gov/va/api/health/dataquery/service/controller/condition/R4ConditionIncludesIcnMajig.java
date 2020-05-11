@@ -1,7 +1,8 @@
 package gov.va.api.health.dataquery.service.controller.condition;
 
+import static gov.va.api.health.dataquery.service.controller.Transformers.asReferenceId;
+
 import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
-import gov.va.api.health.dataquery.service.controller.R4Transformers;
 import gov.va.api.health.r4.api.bundle.AbstractEntry;
 import gov.va.api.health.uscorer4.api.resources.Condition;
 import java.util.stream.Stream;
@@ -22,6 +23,6 @@ public class R4ConditionIncludesIcnMajig implements ResponseBodyAdvice<Object> {
           .type(Condition.class)
           .bundleType(Condition.Bundle.class)
           .extractResources(bundle -> bundle.entry().stream().map(AbstractEntry::resource))
-          .extractIcns(body -> Stream.ofNullable(R4Transformers.asReferenceId(body.subject())))
+          .extractIcns(body -> Stream.ofNullable(asReferenceId(body.subject())))
           .build();
 }

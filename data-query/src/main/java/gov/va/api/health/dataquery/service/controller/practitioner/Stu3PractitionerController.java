@@ -43,7 +43,7 @@ import org.springframework.web.bind.annotation.RestController;
 @SuppressWarnings("WeakerAccess")
 @RequestMapping(
     value = {"/stu3/Practitioner"},
-    produces = {"application/json", "application/json+fhir", "application/fhir+json"})
+    produces = {"application/json", "application/fhir+json"})
 @AllArgsConstructor(onConstructor = @__({@Autowired}))
 public class Stu3PractitionerController {
   private Stu3Bundler bundler;
