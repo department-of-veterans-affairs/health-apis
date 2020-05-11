@@ -1,7 +1,7 @@
 package gov.va.api.health.dataquery.service.controller.diagnosticreport;
 
 import static gov.va.api.health.autoconfig.configuration.JacksonConfig.createMapper;
-import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.parseInstant;
+import static gov.va.api.health.dataquery.service.controller.Transformers.parseInstant;
 import static gov.va.api.health.dataquery.service.controller.diagnosticreport.DiagnosticReportSamples.Datamart;
 import static gov.va.api.health.dataquery.service.controller.diagnosticreport.DiagnosticReportSamples.Dstu2;
 import static gov.va.api.health.dataquery.service.controller.diagnosticreport.DiagnosticReportSamples.Dstu2.link;

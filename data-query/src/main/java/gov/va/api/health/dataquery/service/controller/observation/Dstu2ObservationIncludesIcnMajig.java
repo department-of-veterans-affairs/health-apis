@@ -1,7 +1,8 @@
 package gov.va.api.health.dataquery.service.controller.observation;
 
+import static gov.va.api.health.dataquery.service.controller.Transformers.asReferenceId;
+
 import gov.va.api.health.argonaut.api.resources.Observation;
-import gov.va.api.health.dataquery.service.controller.Dstu2Transformers;
 import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
 import gov.va.api.health.dstu2.api.bundle.AbstractEntry;
 import java.util.stream.Stream;
@@ -22,6 +23,6 @@ public class Dstu2ObservationIncludesIcnMajig implements ResponseBodyAdvice<Obje
           .type(Observation.class)
           .bundleType(Observation.Bundle.class)
           .extractResources(bundle -> bundle.entry().stream().map(AbstractEntry::resource))
-          .extractIcns(body -> Stream.ofNullable(Dstu2Transformers.asReferenceId(body.subject())))
+          .extractIcns(body -> Stream.ofNullable(asReferenceId(body.subject())))
           .build();
 }
