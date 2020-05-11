@@ -23,21 +23,26 @@ public class ConfigurableBaseUrlPageLinks implements PageLinks {
    */
   private final String baseUrl;
 
-  /** Base path for DSTU2 resources, e.g. api/dstu2 */
+  /** Base path for DSTU2 resources, e.g. /dstu2 */
   private String dstu2BasePath;
 
-  /** Base path for STU3 esources, e.g. api/stu3 */
+  /** Base path for STU3 resources, e.g. /stu3 */
   private String stu3BasePath;
+
+  /** Base path for R4 resources, e.g. /r4 */
+  private String r4BasePath;
 
   /** Spring constructor. */
   @Autowired
   public ConfigurableBaseUrlPageLinks(
       @Value("${data-query.public-url}") String baseUrl,
       @Value("${data-query.public-dstu2-base-path}") String dstu2BasePath,
-      @Value("${data-query.public-stu3-base-path}") String stu3BasePath) {
+      @Value("${data-query.public-stu3-base-path}") String stu3BasePath,
+      @Value("${data-query.public-r4-base-path}") String r4BasePath) {
     this.baseUrl = baseUrl;
     this.dstu2BasePath = dstu2BasePath;
     this.stu3BasePath = stu3BasePath;
+    this.r4BasePath = r4BasePath;
   }
 
   @Override
@@ -68,6 +73,16 @@ public class ConfigurableBaseUrlPageLinks implements PageLinks {
       links.add(context.last());
     }
     return links;
+  }
+
+  @Override
+  public List<gov.va.api.health.r4.api.bundle.BundleLink> r4Links(PageLinks.LinkConfig config) {
+    return links(new R4LinkContext(baseUrl, r4BasePath, config));
+  }
+
+  @Override
+  public String r4ReadLink(String resourcePath, String id) {
+    return baseUrl + "/" + r4BasePath + "/" + resourcePath + "/" + id;
   }
 
   @Override

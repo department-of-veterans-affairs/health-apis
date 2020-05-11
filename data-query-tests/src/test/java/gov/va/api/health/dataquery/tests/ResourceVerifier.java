@@ -74,6 +74,15 @@ public final class ResourceVerifier {
         .build();
   }
 
+  public static ResourceVerifier r4() {
+    return ResourceVerifier.builder()
+        .apiPath(SystemDefinitions.systemDefinition().r4DataQuery().apiPath())
+        .bundleClass(gov.va.api.health.r4.api.bundle.AbstractBundle.class)
+        .dataQuery(TestClients.r4DataQuery())
+        .operationOutcomeClass(gov.va.api.health.r4.api.resources.OperationOutcome.class)
+        .build();
+  }
+
   public static ResourceVerifier stu3() {
     return ResourceVerifier.builder()
         .apiPath(SystemDefinitions.systemDefinition().stu3DataQuery().apiPath())

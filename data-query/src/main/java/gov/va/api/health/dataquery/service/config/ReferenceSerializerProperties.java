@@ -1,6 +1,7 @@
 package gov.va.api.health.dataquery.service.config;
 
 import com.google.common.base.Splitter;
+import gov.va.api.health.fhir.api.IsReference;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -50,20 +51,7 @@ public class ReferenceSerializerProperties {
    * .../AllergyIntolerance/1234 and it is set to true in the properties file. Return true for all
    * malformed references.
    */
-  boolean isEnabled(gov.va.api.health.dstu2.api.elements.Reference reference) {
-    String resourceName = resourceName(reference);
-    if (resourceName == null) {
-      return true;
-    }
-    return checkForResource(resourceName);
-  }
-
-  /**
-   * Return true if the given reference is well formed, AllergyIntolerance/1234 or
-   * .../AllergyIntolerance/1234 and it is set to true in the properties file. Return true for all
-   * malformed references.
-   */
-  boolean isEnabled(gov.va.api.health.stu3.api.elements.Reference reference) {
+  boolean isEnabled(IsReference reference) {
     String resourceName = resourceName(reference);
     if (resourceName == null) {
       return true;
@@ -72,25 +60,15 @@ public class ReferenceSerializerProperties {
   }
 
   /** Get the resource name of a reference if it is well formed, else return null. */
-  private String resourceName(gov.va.api.health.dstu2.api.elements.Reference reference) {
+  private String resourceName(IsReference reference) {
     if (reference == null) {
       return null;
     }
-    return resourceName(reference.reference());
-  }
-
-  private String resourceName(gov.va.api.health.stu3.api.elements.Reference reference) {
-    if (reference == null) {
+    String referenceValue = reference.reference();
+    if (StringUtils.isBlank(referenceValue)) {
       return null;
     }
-    return resourceName(reference.reference());
-  }
-
-  private String resourceName(String reference) {
-    if (StringUtils.isBlank(reference)) {
-      return null;
-    }
-    List<String> splitReference = Splitter.on('/').splitToList(reference);
+    List<String> splitReference = Splitter.on('/').splitToList(referenceValue);
     if (splitReference.size() <= 1) {
       return null;
     }

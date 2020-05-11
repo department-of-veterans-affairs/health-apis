@@ -38,7 +38,8 @@ public class Stu3JacksonMapperTest {
             .build();
     String serializedjson =
         new DataQueryJacksonMapper(
-                new MagicReferenceConfig("https://example.com", "dstu2", "stu3", disableLocation))
+                new MagicReferenceConfig(
+                    "https://example.com", "dstu2", "stu3", "r4", disableLocation))
             .objectMapper()
             .writerWithDefaultPrettyPrinter()
             .writeValueAsString(input);
@@ -119,7 +120,7 @@ public class Stu3JacksonMapperTest {
     String qualifiedJson =
         new DataQueryJacksonMapper(
                 new MagicReferenceConfig(
-                    "https://example.com", "api/dstu2", "api/stu3", disableLocation))
+                    "https://example.com", "api/dstu2", "api/stu3", "api/r4", disableLocation))
             .objectMapper()
             .writerWithDefaultPrettyPrinter()
             .writeValueAsString(input);
@@ -151,7 +152,7 @@ public class Stu3JacksonMapperTest {
     String qualifiedJson =
         new DataQueryJacksonMapper(
                 new MagicReferenceConfig(
-                    "https://example.com", "api/dstu2", "api/stu3", disableLocation))
+                    "https://example.com", "api/dstu2", "api/stu3", "api/r4", disableLocation))
             .objectMapper()
             .writerWithDefaultPrettyPrinter()
             .writeValueAsString(input);

@@ -76,7 +76,8 @@ public class Dstu2ObservationControllerTest {
 
   Dstu2ObservationController controller() {
     return new Dstu2ObservationController(
-        new Dstu2Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool", "cool")),
+        new Dstu2Bundler(
+            new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool", "cool", "cool")),
         repository,
         WitnessProtection.builder().identityService(ids).build());
   }

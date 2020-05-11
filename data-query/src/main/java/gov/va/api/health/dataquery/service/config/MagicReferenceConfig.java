@@ -13,8 +13,10 @@ import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
 import com.fasterxml.jackson.databind.ser.PropertyWriter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+import gov.va.api.health.fhir.api.IsReference;
 import java.lang.reflect.Field;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -58,6 +60,9 @@ public class MagicReferenceConfig {
   /** These base path for STU3 resources, e.g. api/stu3. */
   private final String stu3BasePath;
 
+  /** These base path for R4 resources, e.g. r4. */
+  private final String r4BasePath;
+
   /** Property defining the references to serialize. */
   private final ReferenceSerializerProperties config;
 
@@ -67,10 +72,12 @@ public class MagicReferenceConfig {
       @Value("${data-query.public-url}") String baseUrl,
       @Value("${data-query.public-dstu2-base-path}") String dstu2BasePath,
       @Value("${data-query.public-stu3-base-path}") String stu3BasePath,
+      @Value("${data-query.public-r4-base-path}") String r4BasePath,
       ReferenceSerializerProperties config) {
     this.baseUrl = baseUrl;
     this.dstu2BasePath = dstu2BasePath;
     this.stu3BasePath = stu3BasePath;
+    this.r4BasePath = r4BasePath;
     this.config = config;
     log.info("{}", config);
   }
@@ -94,45 +101,14 @@ public class MagicReferenceConfig {
   @JsonFilter("magic-references")
   private static class ApplyOptionalReferenceFilter {}
 
-  /**
-   * This serializer is fired for references _in_ a list. The {@link OptionalReferencesFilter} is
-   * responsible for making sure the field references are omitted.
-   */
-  private final class Dstu2OptionalReferenceSerializer
-      extends JsonSerializer<gov.va.api.health.dstu2.api.elements.Reference> {
-    /**
-     * This is the default serializer used for references, we will delegate the hard parts to it.
-     */
-    private JsonSerializer<gov.va.api.health.dstu2.api.elements.Reference> delegate;
-
-    Dstu2OptionalReferenceSerializer(
-        JsonSerializer<gov.va.api.health.dstu2.api.elements.Reference> delegate) {
-      this.delegate = delegate;
-    }
-
-    /**
-     * If the resource reference is well formed, extract the name, and check if it is an enabled
-     * reference. Otherwise if it is malformed, always use default serialization.
-     */
-    @Override
-    @SneakyThrows
-    public void serialize(
-        gov.va.api.health.dstu2.api.elements.Reference value,
-        JsonGenerator jgen,
-        SerializerProvider provider) {
-      if (value == null) {
-        return;
-      }
-      if (config.isEnabled(value)) {
-        delegate.serialize(value, jgen, provider);
-      }
-    }
-  }
-
   /** Provides fully qualified URLs for references. */
-  private final class Dstu2QualifiedReferenceWriter extends BeanPropertyWriter {
-    private Dstu2QualifiedReferenceWriter(BeanPropertyWriter base) {
+  private final class QualifiedReferenceWriter extends BeanPropertyWriter {
+
+    private String basePath;
+
+    private QualifiedReferenceWriter(BeanPropertyWriter base, String basePath) {
       super(base);
+      this.basePath = basePath;
     }
 
     private String qualify(String reference) {
@@ -143,21 +119,20 @@ public class MagicReferenceConfig {
         return reference;
       }
       if (reference.startsWith("/")) {
-        return baseUrl + "/" + dstu2BasePath + reference;
+        return baseUrl + "/" + basePath + reference;
       }
-      return baseUrl + "/" + dstu2BasePath + "/" + reference;
+      return baseUrl + "/" + basePath + "/" + reference;
     }
 
     @Override
     @SneakyThrows
     public void serializeAsField(
         Object shouldBeReference, JsonGenerator gen, SerializerProvider prov) {
-      if (!(shouldBeReference instanceof gov.va.api.health.dstu2.api.elements.Reference)) {
+      if (!(shouldBeReference instanceof IsReference)) {
         throw new IllegalArgumentException(
-            "DSTU2 Qualified reference writer cannot serialize: " + shouldBeReference);
+            "Qualified reference writer cannot serialize: " + shouldBeReference);
       }
-      gov.va.api.health.dstu2.api.elements.Reference reference =
-          (gov.va.api.health.dstu2.api.elements.Reference) shouldBeReference;
+      IsReference reference = (IsReference) shouldBeReference;
       String qualifiedReference = qualify(reference.reference());
       if (qualifiedReference != null) {
         gen.writeStringField(getName(), qualifiedReference);
@@ -175,29 +150,31 @@ public class MagicReferenceConfig {
       super.setupModule(context);
       context.addBeanSerializerModifier(
           new BeanSerializerModifier() {
+
+            private void applyReferenceWriter(
+                List<BeanPropertyWriter> beanProperties, String basePath) {
+              for (int i = 0; i < beanProperties.size(); i++) {
+                BeanPropertyWriter beanPropertyWriter = beanProperties.get(i);
+                if ("reference".equals(beanPropertyWriter.getName())) {
+                  beanProperties.set(i, new QualifiedReferenceWriter(beanPropertyWriter, basePath));
+                }
+              }
+            }
+
             @Override
             public List<BeanPropertyWriter> changeProperties(
                 SerializationConfig serialConfig,
                 BeanDescription beanDesc,
                 List<BeanPropertyWriter> beanProperties) {
               if (beanDesc.getBeanClass() == gov.va.api.health.dstu2.api.elements.Reference.class) {
-                for (int i = 0; i < beanProperties.size(); i++) {
-                  BeanPropertyWriter beanPropertyWriter = beanProperties.get(i);
-                  if ("reference".equals(beanPropertyWriter.getName())) {
-                    beanProperties.set(i, new Dstu2QualifiedReferenceWriter(beanPropertyWriter));
-                  }
-                }
+                applyReferenceWriter(beanProperties, dstu2BasePath);
               }
-
               if (beanDesc.getBeanClass() == gov.va.api.health.stu3.api.elements.Reference.class) {
-                for (int i = 0; i < beanProperties.size(); i++) {
-                  BeanPropertyWriter beanPropertyWriter = beanProperties.get(i);
-                  if ("reference".equals(beanPropertyWriter.getName())) {
-                    beanProperties.set(i, new Stu3QualifiedReferenceWriter(beanPropertyWriter));
-                  }
-                }
+                applyReferenceWriter(beanProperties, stu3BasePath);
               }
-
+              if (beanDesc.getBeanClass() == gov.va.api.health.r4.api.elements.Reference.class) {
+                applyReferenceWriter(beanProperties, r4BasePath);
+              }
               return super.changeProperties(serialConfig, beanDesc, beanProperties);
             }
 
@@ -207,15 +184,8 @@ public class MagicReferenceConfig {
                 SerializationConfig serialConfig,
                 BeanDescription beanDesc,
                 JsonSerializer<?> serializer) {
-              if (gov.va.api.health.dstu2.api.elements.Reference.class.isAssignableFrom(
-                  beanDesc.getBeanClass())) {
-                return new Dstu2OptionalReferenceSerializer(
-                    (JsonSerializer<gov.va.api.health.dstu2.api.elements.Reference>) serializer);
-              }
-              if (gov.va.api.health.stu3.api.elements.Reference.class.isAssignableFrom(
-                  beanDesc.getBeanClass())) {
-                return new Stu3OptionalReferenceSerializer(
-                    (JsonSerializer<gov.va.api.health.stu3.api.elements.Reference>) serializer);
+              if (IsReference.class.isAssignableFrom(beanDesc.getBeanClass())) {
+                return new OptionalReferenceSerializer<>((JsonSerializer<IsReference>) serializer);
               }
               return super.modifySerializer(serialConfig, beanDesc, serializer);
             }
@@ -228,22 +198,32 @@ public class MagicReferenceConfig {
    * the field will be omitted.
    */
   private final class OptionalReferencesFilter extends SimpleBeanPropertyFilter {
-    private boolean hasDstu2ExtensionField(Object object, String name) {
-      try {
-        Field field = object.getClass().getDeclaredField(name);
-        return field.getType() == gov.va.api.health.dstu2.api.elements.Extension.class;
-      } catch (NoSuchFieldException e) {
-        return false;
-      }
-    }
 
-    private boolean hasStu3ExtensionField(Object object, String name) {
+    /**
+     * If the type has the declared field with one of the known extension types, we will return an
+     * unsupported data absent reason extension instance specific to the extension type, e.g. an
+     * dstu2 or r4 extension. If the field is missing or not an extension, then we will emit
+     * nothing.
+     */
+    private Object dataAbsentReasonForExtensionField(Object object, String name) {
       try {
         Field field = object.getClass().getDeclaredField(name);
-        return field.getType() == gov.va.api.health.stu3.api.elements.Extension.class;
+        if (field.getType() == gov.va.api.health.dstu2.api.elements.Extension.class) {
+          return gov.va.api.health.dstu2.api.DataAbsentReason.of(
+              gov.va.api.health.dstu2.api.DataAbsentReason.Reason.unsupported);
+        }
+        if (field.getType() == gov.va.api.health.stu3.api.elements.Extension.class) {
+          return gov.va.api.health.stu3.api.DataAbsentReason.of(
+              gov.va.api.health.stu3.api.DataAbsentReason.Reason.unsupported);
+        }
+        if (field.getType() == gov.va.api.health.r4.api.elements.Extension.class) {
+          return gov.va.api.health.r4.api.DataAbsentReason.of(
+              gov.va.api.health.r4.api.DataAbsentReason.Reason.unsupported);
+        }
       } catch (NoSuchFieldException e) {
-        return false;
+        // Do nothing
       }
+      return null;
     }
 
     /**
@@ -256,41 +236,24 @@ public class MagicReferenceConfig {
         Object pojo, JsonGenerator jgen, SerializerProvider provider, PropertyWriter writer) {
       boolean include = true;
 
-      if (writer.getType().getRawClass() == gov.va.api.health.dstu2.api.elements.Reference.class
-          && writer instanceof BeanPropertyWriter) {
-        gov.va.api.health.dstu2.api.elements.Reference dstu2Reference =
-            (gov.va.api.health.dstu2.api.elements.Reference)
-                ((BeanPropertyWriter) writer).get(pojo);
-        include = config.isEnabled(dstu2Reference);
-      }
-      if (writer.getType().getRawClass() == gov.va.api.health.stu3.api.elements.Reference.class
-          && writer instanceof BeanPropertyWriter) {
-        gov.va.api.health.stu3.api.elements.Reference stu3Reference =
-            (gov.va.api.health.stu3.api.elements.Reference) ((BeanPropertyWriter) writer).get(pojo);
-        include = config.isEnabled(stu3Reference);
+      if (IsReference.class.isAssignableFrom(writer.getType().getRawClass())) {
+        IsReference reference = (IsReference) ((BeanPropertyWriter) writer).get(pojo);
+        include = config.isEnabled(reference);
       }
 
       if (include) {
         writer.serializeAsField(pojo, jgen, provider);
         return;
       }
-
       /*
        * Since the field isn't included, we need to emit a Data Absent Reason if the field is
        * required. Required fields can be detected by finding an underscore prefixed version of
        * type Extension.
        */
       String extensionField = "_" + writer.getName();
-      if (hasDstu2ExtensionField(pojo, extensionField)) {
-        jgen.writeObjectField(
-            extensionField,
-            gov.va.api.health.dstu2.api.DataAbsentReason.of(
-                gov.va.api.health.dstu2.api.DataAbsentReason.Reason.unsupported));
-      } else if (hasStu3ExtensionField(pojo, extensionField)) {
-        jgen.writeObjectField(
-            extensionField,
-            gov.va.api.health.stu3.api.DataAbsentReason.of(
-                gov.va.api.health.stu3.api.DataAbsentReason.Reason.unsupported));
+      Object dar = dataAbsentReasonForExtensionField(pojo, extensionField);
+      if (dar != null) {
+        jgen.writeObjectField(extensionField, dar);
       } else if (!jgen.canOmitFields()) {
         writer.serializeAsOmittedField(pojo, jgen, provider);
       }
@@ -301,17 +264,12 @@ public class MagicReferenceConfig {
    * This serializer is fired for references _in_ a list. The {@link OptionalReferencesFilter} is
    * responsible for making sure the field references are omitted.
    */
-  private final class Stu3OptionalReferenceSerializer
-      extends JsonSerializer<gov.va.api.health.stu3.api.elements.Reference> {
+  @RequiredArgsConstructor
+  private final class OptionalReferenceSerializer<T extends IsReference> extends JsonSerializer<T> {
     /**
      * This is the default serializer used for references, we will delegate the hard parts to it.
      */
-    private JsonSerializer<gov.va.api.health.stu3.api.elements.Reference> delegate;
-
-    Stu3OptionalReferenceSerializer(
-        JsonSerializer<gov.va.api.health.stu3.api.elements.Reference> delegate) {
-      this.delegate = delegate;
-    }
+    private final JsonSerializer<T> delegate;
 
     /**
      * If the resource reference is well formed, extract the name, and check if it is an enabled
@@ -319,51 +277,12 @@ public class MagicReferenceConfig {
      */
     @Override
     @SneakyThrows
-    public void serialize(
-        gov.va.api.health.stu3.api.elements.Reference value,
-        JsonGenerator jgen,
-        SerializerProvider provider) {
+    public void serialize(T value, JsonGenerator jgen, SerializerProvider provider) {
       if (value == null) {
         return;
       }
       if (config.isEnabled(value)) {
         delegate.serialize(value, jgen, provider);
-      }
-    }
-  }
-
-  /** Provides fully qualified URLs for references. */
-  private final class Stu3QualifiedReferenceWriter extends BeanPropertyWriter {
-    private Stu3QualifiedReferenceWriter(BeanPropertyWriter base) {
-      super(base);
-    }
-
-    private String qualify(String reference) {
-      if (StringUtils.isBlank(reference)) {
-        return null;
-      }
-      if (reference.startsWith("http")) {
-        return reference;
-      }
-      if (reference.startsWith("/")) {
-        return baseUrl + "/" + stu3BasePath + reference;
-      }
-      return baseUrl + "/" + stu3BasePath + "/" + reference;
-    }
-
-    @Override
-    @SneakyThrows
-    public void serializeAsField(
-        Object shouldBeReference, JsonGenerator gen, SerializerProvider prov) {
-      if (!(shouldBeReference instanceof gov.va.api.health.stu3.api.elements.Reference)) {
-        throw new IllegalArgumentException(
-            "STU3 Qualified reference writer cannot serialize: " + shouldBeReference);
-      }
-      gov.va.api.health.stu3.api.elements.Reference reference =
-          (gov.va.api.health.stu3.api.elements.Reference) shouldBeReference;
-      String qualifiedReference = qualify(reference.reference());
-      if (qualifiedReference != null) {
-        gen.writeStringField(getName(), qualifiedReference);
       }
     }
   }
