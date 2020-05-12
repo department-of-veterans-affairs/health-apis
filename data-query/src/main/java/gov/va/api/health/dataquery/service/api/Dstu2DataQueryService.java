@@ -101,7 +101,7 @@ import javax.ws.rs.Path;
                       @OAuthScope(name = "launch/patient", description = "patient launch"),
                     })))
 @Path("/")
-public interface DataQueryService
+public interface Dstu2DataQueryService
     extends AllergyIntoleranceApi,
         ConditionApi,
         DiagnosticReportApi,
