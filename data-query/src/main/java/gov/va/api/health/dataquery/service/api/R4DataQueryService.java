@@ -21,7 +21,7 @@ import javax.ws.rs.Path;
             scopes = {"patient/Condition.read", "offline_access", "launch/patient"}),
     info =
         @Info(
-            title = "US Core",
+            title = "US Core R4",
             version = "v1",
             description =
                 " This service is compliant with the FHIR US Core Implementation"

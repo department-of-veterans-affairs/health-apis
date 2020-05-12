@@ -31,9 +31,10 @@ public class DataQueryHomeControllerTest {
   @Test
   public void r4OpenapiJson() {
     final String basePath = "/r4";
-    testOpenapiPath(basePath + "/openapi.json", "US Core");
-    testOpenapiPath("/r4-openapi.json", "US Core");
-    testOpenapiPath(basePath + "/", "US Core");
+    final String expectedInfoTitle = "US Core R4";
+    testOpenapiPath(basePath + "/openapi.json", expectedInfoTitle);
+    testOpenapiPath("/r4-openapi.json", expectedInfoTitle);
+    testOpenapiPath(basePath + "/", expectedInfoTitle);
   }
 
   @SneakyThrows
