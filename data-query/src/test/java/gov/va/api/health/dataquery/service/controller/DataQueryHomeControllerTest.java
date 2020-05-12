@@ -23,19 +23,24 @@ public class DataQueryHomeControllerTest {
   @SneakyThrows
   public void dstu2OpenapiJson() {
     final String basePath = "/dstu2";
-    // Full Url
-    mvc.perform(get(basePath + "/openapi.json"))
+    testOpenapiPath(basePath + "/openapi.json", "Argonaut Data Query");
+    testOpenapiPath("/dstu2-openapi.json", "Argonaut Data Query");
+    testOpenapiPath(basePath + "/", "Argonaut Data Query");
+  }
+
+  @Test
+  public void r4OpenapiJson() {
+    final String basePath = "/r4";
+    testOpenapiPath(basePath + "/openapi.json", "US Core");
+    testOpenapiPath("/r4-openapi.json", "US Core");
+    testOpenapiPath(basePath + "/", "US Core");
+  }
+
+  @SneakyThrows
+  private void testOpenapiPath(String path, String expectedInfoTitle) {
+    mvc.perform(get(path))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.openapi", equalTo("3.0.1")))
-        .andExpect(jsonPath("$.info.title", equalTo("Argonaut Data Query")));
-    mvc.perform(get("/dstu2-openapi.json"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.openapi", equalTo("3.0.1")))
-        .andExpect(jsonPath("$.info.title", equalTo("Argonaut Data Query")));
-    // From index i.e. dstu2/
-    mvc.perform(get(basePath + "/"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.openapi", equalTo("3.0.1")))
-        .andExpect(jsonPath("$.info.title", equalTo("Argonaut Data Query")));
+        .andExpect(jsonPath("$.info.title", equalTo(expectedInfoTitle)));
   }
 }
