@@ -7,7 +7,6 @@ import gov.va.api.health.dataquery.service.controller.metadata.MetadataPropertie
 import lombok.SneakyThrows;
 
 class MetadataSamples {
-
   static MetadataProperties conformanceStatementProperties() {
     return MetadataProperties.builder()
         .id("lighthouse-va-fhir-conformance")
@@ -41,16 +40,16 @@ class MetadataSamples {
         .build();
   }
 
+  @SneakyThrows
+  static String pretty(Object object) {
+    return JacksonConfig.createMapper().writerWithDefaultPrettyPrinter().writeValueAsString(object);
+  }
+
   static ReferenceSerializerProperties referenceSerializerProperties(boolean isEnabled) {
     return ReferenceSerializerProperties.builder()
         .location(isEnabled)
         .organization(isEnabled)
         .practitioner(isEnabled)
         .build();
-  }
-
-  @SneakyThrows
-  static String pretty(Object object) {
-    return JacksonConfig.createMapper().writerWithDefaultPrettyPrinter().writeValueAsString(object);
   }
 }

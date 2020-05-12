@@ -8,7 +8,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.config.ReferenceSerializerProperties;
 import gov.va.api.health.dataquery.service.controller.metadata.MetadataProperties.StatementType;
-import gov.va.api.health.stu3.api.resources.CapabilityStatement;
+import gov.va.api.health.r4.api.resources.CapabilityStatement;
 import lombok.SneakyThrows;
 import org.junit.Test;
 

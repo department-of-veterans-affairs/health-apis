@@ -28,7 +28,12 @@ public class MetadataProperties {
   private String publicationDate;
   private String description;
   private String softwareName;
-  private String fhirVersion;
+  /**
+   * This is specific to DSTU2, STU3, or R4 and not used across versions. It is also specific to the
+   * implementation itself and hard coded.
+   */
+  @Deprecated private String fhirVersion;
+
   private SecurityProperties security;
   private String resourceDocumentation;
 

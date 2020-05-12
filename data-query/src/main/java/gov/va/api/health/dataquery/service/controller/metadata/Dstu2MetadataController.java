@@ -183,7 +183,7 @@ class Dstu2MetadataController {
         .description(properties.getDescription())
         .kind(Kind.capability)
         .software(software())
-        .fhirVersion(properties.getFhirVersion())
+        .fhirVersion("1.0.2")
         .acceptUnknown(AcceptUnknown.no)
         .format(asList("application/json+fhir", "application/json", "application/fhir+json"))
         .rest(rest())

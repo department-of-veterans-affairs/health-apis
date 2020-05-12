@@ -8,9 +8,9 @@ import gov.va.api.health.dataquery.tests.categories.LabDataQueryPatient;
 import gov.va.api.health.dataquery.tests.categories.ProdDataQueryClinician;
 import gov.va.api.health.dataquery.tests.categories.ProdDataQueryPatient;
 import gov.va.api.health.dstu2.api.resources.Conformance;
+import gov.va.api.health.r4.api.resources.CapabilityStatement;
 import gov.va.api.health.sentinel.ExpectedResponse;
 import gov.va.api.health.sentinel.categories.Local;
-import gov.va.api.health.stu3.api.resources.CapabilityStatement;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 

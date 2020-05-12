@@ -1,2 +1,17 @@
 {
+  "resourceType" : "CapabilityStatement",
+  "id" : "lighthouse-va-fhir-conformance",
+  "version" : "1.4.0",
+  "name" : "VA Lighthouse FHIR",
+  "title" : "VA Lighthouse FHIR",
+  "publisher" : "Lighthouse Team",
+  "status" : "active",
+  "date" : "2018-09-27T19:30:00-05:00",
+  "description" : "This is the base conformance statement for FHIR. It represents a server that provides the full set of functionality defined by FHIR. It is provided to use as a template for system designers to build their own conformance statements from.",
+  "fhirVersion" : "4.0.1",
+  "format" : [
+    "application/json",
+    "application/fhir+json"
+  ],
+  "kind" : "capability"
 }
