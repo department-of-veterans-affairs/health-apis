@@ -7,9 +7,11 @@ import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLin
 import gov.va.api.health.r4.api.resources.CapabilityStatement;
 import gov.va.api.health.r4.api.resources.CapabilityStatement.Implementation;
 import gov.va.api.health.r4.api.resources.CapabilityStatement.Kind;
+import gov.va.api.health.r4.api.resources.CapabilityStatement.Software;
 import gov.va.api.health.r4.api.resources.CapabilityStatement.Status;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.info.BuildProperties;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,6 +28,8 @@ class R4MetadataController {
   private final MetadataProperties properties;
 
   private final ReferenceSerializerProperties referenceSerializerProperties;
+
+  private final BuildProperties buildProperties;
 
   private Implementation implementation() {
     return Implementation.builder()
@@ -52,10 +56,18 @@ class R4MetadataController {
         .date(properties.getPublicationDate())
         .description(properties.getDescription())
         .kind(Kind.capability)
-        //  .software(software())
+        .software(software())
         .fhirVersion("4.0.1")
         .format(asList("application/json", "application/fhir+json"))
         // .rest(rest())
+        .build();
+  }
+
+  private Software software() {
+    return Software.builder()
+        .name(buildProperties.getGroup() + ":" + buildProperties.getArtifact())
+        .releaseDate(buildProperties.getTime().toString())
+        .version(buildProperties.getVersion())
         .build();
   }
 }

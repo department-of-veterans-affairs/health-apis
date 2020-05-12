@@ -1,22 +1,27 @@
 {
-  "resourceType" : "CapabilityStatement",
-  "id" : "lighthouse-va-fhir-conformance",
-  "version" : "1.4.0",
-  "name" : "VA Lighthouse FHIR R4",
-  "title" : "VA Lighthouse FHIR R4",
-  "publisher" : "Lighthouse Team",
-  "status" : "active",
-  "date" : "2018-09-27T19:30:00-05:00",
-  "description" : "This is the base conformance statement for FHIR. It represents a server that provides the full set of functionality defined by FHIR. It is provided to use as a template for system designers to build their own conformance statements from.",
-  "fhirVersion" : "4.0.1",
-  "format" : [
+  "resourceType": "CapabilityStatement",
+  "id": "lighthouse-va-fhir-conformance",
+  "version": "1.4.0",
+  "name": "VA Lighthouse FHIR R4",
+  "title": "VA Lighthouse FHIR R4",
+  "publisher": "Lighthouse Team",
+  "status": "active",
+  "date": "2018-09-27T19:30:00-05:00",
+  "description": "This is the base conformance statement for FHIR. It represents a server that provides the full set of functionality defined by FHIR. It is provided to use as a template for system designers to build their own conformance statements from.",
+  "fhirVersion": "4.0.1",
+  "format": [
     "application/json",
     "application/fhir+json"
   ],
-  "kind" : "capability",
-  "implementation" : {
-    "description" : "VA Lighthouse FHIR R4",
-    "url" : "http://awesome.com/r4"
+  "kind": "capability",
+  "implementation": {
+    "description": "VA Lighthouse FHIR R4",
+    "url": "http://awesome.com/r4"
   },
-  "experimental" : "false"
+  "experimental": "false",
+  "software": {
+    "name": "gov.va:data-query",
+    "version": "1.2.3",
+    "releaseDate": "2005-01-21T07:57:00Z"
+  }
 }
