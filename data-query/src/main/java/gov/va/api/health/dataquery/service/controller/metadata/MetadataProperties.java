@@ -21,13 +21,15 @@ import org.springframework.context.annotation.Configuration;
 public class MetadataProperties {
   private String id;
   private String version;
-  private String name;
+  private String dstu2Name;
+  private String r4Name;
   private String publisher;
   private StatementType statementType;
   private ContactProperties contact;
   private String publicationDate;
   private String description;
   private String softwareName;
+  private boolean productionUse;
   /**
    * This is specific to DSTU2, STU3, or R4 and not used across versions. It is also specific to the
    * implementation itself and hard coded.

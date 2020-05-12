@@ -29,7 +29,7 @@ class R4MetadataController {
 
   private Implementation implementation() {
     return Implementation.builder()
-        .description(properties.getName())
+        .description(properties.getR4Name())
         .url(pageLinks.r4Url())
         .build();
   }
@@ -42,12 +42,12 @@ class R4MetadataController {
         .resourceType("CapabilityStatement")
         .id(properties.getId())
         .version(properties.getVersion())
-        .name(properties.getName())
-        .title(properties.getName())
+        .name(properties.getR4Name())
+        .title(properties.getR4Name())
         .publisher(properties.getPublisher())
         .status(Status.active)
         .implementation(implementation())
-        // .experimental()
+        .experimental(String.valueOf(!properties.isProductionUse()))
         // .contact(contact())
         .date(properties.getPublicationDate())
         .description(properties.getDescription())

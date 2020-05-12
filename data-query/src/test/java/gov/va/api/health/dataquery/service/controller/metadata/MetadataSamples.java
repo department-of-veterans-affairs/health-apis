@@ -11,7 +11,9 @@ class MetadataSamples {
     return MetadataProperties.builder()
         .id("lighthouse-va-fhir-conformance")
         .version("1.4.0")
-        .name("VA Lighthouse FHIR")
+        .dstu2Name("VA Lighthouse FHIR")
+        .r4Name("VA Lighthouse FHIR R4")
+        .productionUse(true)
         .publisher("Lighthouse Team")
         .contact(
             ContactProperties.builder()

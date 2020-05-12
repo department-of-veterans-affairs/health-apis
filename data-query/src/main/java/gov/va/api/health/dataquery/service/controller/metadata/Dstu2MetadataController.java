@@ -176,7 +176,7 @@ class Dstu2MetadataController {
         .resourceType("Conformance")
         .id(properties.getId())
         .version(properties.getVersion())
-        .name(properties.getName())
+        .name(properties.getDstu2Name())
         .publisher(properties.getPublisher())
         .contact(contact())
         .date(properties.getPublicationDate())
