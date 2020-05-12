@@ -53,7 +53,8 @@ public class Dstu2AllergyIntoleranceControllerTest {
 
   Dstu2AllergyIntoleranceController controller() {
     return new Dstu2AllergyIntoleranceController(
-        new Dstu2Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool", "cool")),
+        new Dstu2Bundler(
+            new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool", "cool", "cool")),
         repository,
         WitnessProtection.builder().identityService(ids).build());
   }

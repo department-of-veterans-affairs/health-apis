@@ -43,7 +43,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(
     value = {"/stu3/Organization"},
-    produces = {"application/json", "application/json+fhir", "application/fhir+json"})
+    produces = {"application/json", "application/fhir+json"})
 @SuppressWarnings("WeakerAccess")
 @AllArgsConstructor(onConstructor = @__({@Autowired}))
 public class Stu3OrganizationController {

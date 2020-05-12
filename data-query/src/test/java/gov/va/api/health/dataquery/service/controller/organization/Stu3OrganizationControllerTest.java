@@ -82,7 +82,8 @@ public class Stu3OrganizationControllerTest {
 
   private Stu3OrganizationController controller() {
     return new Stu3OrganizationController(
-        new Stu3Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool", "cool")),
+        new Stu3Bundler(
+            new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool", "cool", "cool")),
         repository,
         WitnessProtection.builder().identityService(ids).build());
   }
@@ -288,7 +289,6 @@ public class Stu3OrganizationControllerTest {
     DatamartOrganization dm = OrganizationSamples.Datamart.create().organization(cdwId);
     repository.save(asEntity(dm));
     Organization.Bundle actual = controller().searchByName(name, 1, 1);
-    System.out.println(asJson(actual));
     assertThat(asJson(actual))
         .isEqualTo(
             asJson(

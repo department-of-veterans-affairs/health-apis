@@ -4,15 +4,15 @@
   <parent>
     <groupId>gov.va.api.health</groupId>
     <artifactId>service-starter</artifactId>
-    <version>6.0.5</version>
+    <version>6.0.7</version>
     <relativePath/>
   </parent>
   <artifactId>data-query</artifactId>
-  <version>2.0.254-SNAPSHOT</version>
+  <version>2.0.264-SNAPSHOT</version>
   <packaging>jar</packaging>
   <properties>
     <fall-risk.version>1.0.29</fall-risk.version>
-    <fhir-resources.version>2.0.35</fhir-resources.version>
+    <fhir-resources.version>2.0.37</fhir-resources.version>
     <guava.version>20.0</guava.version>
     <health-apis-ids.version>3.0.0</health-apis-ids.version>
     <jacoco.coverage>0.95</jacoco.coverage>
@@ -104,18 +104,18 @@
         <version>${swagger-maven-plugin.version}</version>
         <executions>
           <execution>
-            <id>data-query-swag</id>
+            <id>dstu2-data-query-swag</id>
             <phase>compile</phase>
             <goals>
               <goal>resolve</goal>
             </goals>
             <configuration>
               <resourceClasses>
-                <resourceClass>gov.va.api.health.dataquery.service.api.DataQueryService</resourceClass>
+                <resourceClass>gov.va.api.health.dataquery.service.api.Dstu2DataQueryService</resourceClass>
               </resourceClasses>
-              <outputFileName>openapi</outputFileName>
+              <outputFileName>dstu2-openapi</outputFileName>
               <outputPath>${project.build.outputDirectory}</outputPath>
-              <outputFormat>JSONANDYAML</outputFormat>
+              <outputFormat>JSON</outputFormat>
               <prettyPrint>true</prettyPrint>
             </configuration>
           </execution>
@@ -132,16 +132,8 @@
                   Sadness here.
                   Swagger is ignore @JsonProperty annotations on enums. This big bit of sadness changes generated swagger _ to - in enums.
                 -->
-                <replaceregexp byline="true" file="${project.build.outputDirectory}/openapi.yaml" flags="g" match="([a-z])_([a-z])" replace="\1-\2"/>
-                <replaceregexp byline="true" file="${project.build.outputDirectory}/openapi.yaml" flags="g" match="- _([a-z])" replace="- \1"/>
-                <replaceregexp byline="true" file="${project.build.outputDirectory}/openapi.json" flags="g" match="([a-z])_([a-z])" replace="\1-\2"/>
-                <replaceregexp byline="true" file="${project.build.outputDirectory}/openapi.json" flags="g" match="(,|\[) &quot;_([a-z])" replace="\1 &quot;\2"/>
-                <!--
-                  This group is because the swagger auto-generated for dates, times, and datetimes examples doesn't play nice with how swagger is actually consumed.
-                  The first regex captures datetimes and times. The second one covers left over dates.
-                -->
-                <replaceregexp byline="true" file="${project.build.outputDirectory}/openapi.yaml" flags="g" match="\b(([0-9]{4}(-(0[1-9]|1[0-2])(-(0[0-9]|[1-2][0-9]|3[0-1]))?)T)?(([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](\.[0-9]+)?)(Z|(\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00))?)\b" replace="'\1'"/>
-                <replaceregexp byline="true" file="${project.build.outputDirectory}/openapi.yaml" flags="g" match="( ([0-9]{4}-(0[1-9]|1[0-2])(-(0[0-9]|[1-2][0-9]|3[0-1]))?))" replace=" '\2'"/>
+                <replaceregexp byline="true" file="${project.build.outputDirectory}/dstu2-openapi.json" flags="g" match="([a-z])_([a-z])" replace="\1-\2"/>
+                <replaceregexp byline="true" file="${project.build.outputDirectory}/dstu2-openapi.json" flags="g" match="(,|\[) &quot;_([a-z])" replace="\1 &quot;\2"/>
               </target>
             </configuration>
             <goals>
@@ -175,6 +167,11 @@
             <goals>
               <goal>inject</goal>
             </goals>
+            <configuration>
+              <files>
+                <file file="${project.build.outputDirectory}/dstu2-openapi.json" format="JSON"/>
+              </files>
+            </configuration>
           </execution>
         </executions>
       </plugin>
@@ -223,12 +220,12 @@
         <artifactId>build-helper-maven-plugin</artifactId>
         <executions>
           <execution>
-            <id>conformance-timestamp</id>
+            <id>metadata-timestamp</id>
             <goals>
               <goal>timestamp-property</goal>
             </goals>
             <configuration>
-              <name>conformance.publication-date</name>
+              <name>metadata.publication-date</name>
               <pattern>yyyy-MM-dd'T'HH:mm:ss'Z'</pattern>
               <timeZone>UTC</timeZone>
               <locale>en_US</locale>

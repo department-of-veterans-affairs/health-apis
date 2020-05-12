@@ -76,7 +76,8 @@ public class Dstu2OrganizationControllerTest {
 
   private Dstu2OrganizationController controller() {
     return new Dstu2OrganizationController(
-        new Dstu2Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool", "cool")),
+        new Dstu2Bundler(
+            new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool", "cool", "cool")),
         repository,
         WitnessProtection.builder().identityService(ids).build());
   }

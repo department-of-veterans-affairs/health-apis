@@ -14,6 +14,8 @@ public final class SystemDefinition {
 
   @NonNull ServiceDefinition stu3DataQuery;
 
+  @NonNull ServiceDefinition r4DataQuery;
+
   @NonNull ServiceDefinition internalDataQuery;
 
   @NonNull TestIds cdwIds;

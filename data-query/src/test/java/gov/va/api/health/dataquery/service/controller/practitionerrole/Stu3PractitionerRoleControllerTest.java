@@ -113,7 +113,8 @@ public class Stu3PractitionerRoleControllerTest {
 
   private Stu3PractitionerRoleController controller() {
     return new Stu3PractitionerRoleController(
-        new Stu3Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool", "cool")),
+        new Stu3Bundler(
+            new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool", "cool", "cool")),
         repository,
         WitnessProtection.builder().identityService(ids).build());
   }

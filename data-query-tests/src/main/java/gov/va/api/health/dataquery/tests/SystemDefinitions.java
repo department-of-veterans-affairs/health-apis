@@ -55,6 +55,7 @@ public final class SystemDefinitions {
             serviceDefinition("dstu2", url, 443, magicAccessToken(), "/services/fhir/v0/dstu2/"))
         .stu3DataQuery(
             serviceDefinition("stu3", url, 443, magicAccessToken(), "/services/fhir/v0/stu3/"))
+        .r4DataQuery(serviceDefinition("r4", url, 443, magicAccessToken(), "/services/fhir/v0/r4/"))
         .internalDataQuery(serviceDefinition("internal", url, 443, null, "/not-available/"))
         .cdwIds(labIds())
         .build();
@@ -95,6 +96,7 @@ public final class SystemDefinitions {
         .ids(serviceDefinition("ids", url, 8089, null, "/api/"))
         .dstu2DataQuery(serviceDefinition("dstu2", url, 8090, null, "/dstu2/"))
         .stu3DataQuery(serviceDefinition("stu3", url, 8090, null, "/stu3/"))
+        .r4DataQuery(serviceDefinition("r4", url, 8090, null, "/r4/"))
         .internalDataQuery(serviceDefinition("internal", url, 8090, null, "/"))
         .cdwIds(localIds())
         .build();
@@ -188,6 +190,7 @@ public final class SystemDefinitions {
             serviceDefinition("dstu2", url, 443, magicAccessToken(), "/services/fhir/v0/dstu2/"))
         .stu3DataQuery(
             serviceDefinition("stu3", url, 443, magicAccessToken(), "/services/fhir/v0/stu3/"))
+        .r4DataQuery(serviceDefinition("r4", url, 443, magicAccessToken(), "/services/fhir/v0/r4/"))
         .internalDataQuery(serviceDefinition("internal", url, 443, null, "/not-available/"))
         .cdwIds(productionCdwIds())
         .build();
@@ -274,8 +277,9 @@ public final class SystemDefinitions {
     String url = "https://blue.qa.lighthouse.va.gov";
     return SystemDefinition.builder()
         .ids(serviceDefinition("ids", url, 443, null, "/not-available/"))
-        .dstu2DataQuery(serviceDefinition("dstu2", url, 443, magicAccessToken(), "/dstu2/"))
-        .stu3DataQuery(serviceDefinition("stu3", url, 443, magicAccessToken(), "/stu3/"))
+        .dstu2DataQuery(serviceDefinition("dstu2", url, 443, magicAccessToken(), "/fhir/v0/dstu2/"))
+        .stu3DataQuery(serviceDefinition("stu3", url, 443, magicAccessToken(), "/fhir/v0/stu3/"))
+        .r4DataQuery(serviceDefinition("r4", url, 443, magicAccessToken(), "/fhir/v0/r4/"))
         .internalDataQuery(serviceDefinition("internal", url, 443, null, "/data-query/"))
         .cdwIds(productionCdwIds())
         .build();
@@ -296,8 +300,9 @@ public final class SystemDefinitions {
     String url = "https://blue.staging.lighthouse.va.gov";
     return SystemDefinition.builder()
         .ids(serviceDefinition("ids", url, 443, null, "/not-available/"))
-        .dstu2DataQuery(serviceDefinition("dstu2", url, 443, magicAccessToken(), "/dstu2/"))
-        .stu3DataQuery(serviceDefinition("stu3", url, 443, magicAccessToken(), "/stu3/"))
+        .dstu2DataQuery(serviceDefinition("dstu2", url, 443, magicAccessToken(), "/fhir/v0/dstu2/"))
+        .stu3DataQuery(serviceDefinition("stu3", url, 443, magicAccessToken(), "/fhir/v0/stu3/"))
+        .r4DataQuery(serviceDefinition("r4", url, 443, magicAccessToken(), "/fhir/v0/r4/"))
         .internalDataQuery(serviceDefinition("internal", url, 443, null, "/data-query/"))
         .cdwIds(productionCdwIds())
         .build();
@@ -308,11 +313,9 @@ public final class SystemDefinitions {
     String url = "https://blue.staging-lab.lighthouse.va.gov";
     return SystemDefinition.builder()
         .ids(serviceDefinition("ids", url, 443, null, "/not-available/"))
-        .dstu2DataQuery(
-            serviceDefinition(
-                "dstu2", url, 443, magicAccessToken(), "/services/argonaut/v0/dstu2/"))
-        .stu3DataQuery(
-            serviceDefinition("stu3", url, 443, magicAccessToken(), "/services/argonaut/v0/stu3/"))
+        .dstu2DataQuery(serviceDefinition("dstu2", url, 443, magicAccessToken(), "/fhir/v0/dstu2/"))
+        .stu3DataQuery(serviceDefinition("stu3", url, 443, magicAccessToken(), "/fhir/v0/stu3/"))
+        .r4DataQuery(serviceDefinition("r4", url, 443, magicAccessToken(), "/fhir/v0/r4/"))
         .internalDataQuery(serviceDefinition("internal", url, 443, null, "/data-query/"))
         .cdwIds(labIds())
         .build();

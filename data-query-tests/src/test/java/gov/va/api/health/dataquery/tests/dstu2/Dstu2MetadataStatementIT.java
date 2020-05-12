@@ -13,8 +13,8 @@ import gov.va.api.health.sentinel.categories.Local;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-public class ConformanceStatementIT {
-  private final String apiPath() {
+public class Dstu2MetadataStatementIT {
+  private String apiPath() {
     return TestClients.internalDataQuery().service().apiPath();
   }
 

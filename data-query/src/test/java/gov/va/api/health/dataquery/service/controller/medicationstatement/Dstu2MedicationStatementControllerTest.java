@@ -59,7 +59,8 @@ public class Dstu2MedicationStatementControllerTest {
 
   Dstu2MedicationStatementController controller() {
     return new Dstu2MedicationStatementController(
-        new Dstu2Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool", "cool")),
+        new Dstu2Bundler(
+            new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool", "cool", "cool")),
         repository,
         WitnessProtection.builder().identityService(ids).build());
   }
