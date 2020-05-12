@@ -23,5 +23,16 @@
     "name": "gov.va:data-query",
     "version": "1.2.3",
     "releaseDate": "2005-01-21T07:57:00Z"
-  }
+  },
+  "contact": [
+    {
+      "name": "Drew Myklegard",
+      "telecom": [
+        {
+          "system": "email",
+          "value": "david.myklegard@va.gov"
+        }
+      ]
+    }
+  ]
 }

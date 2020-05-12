@@ -4,11 +4,15 @@ import static java.util.Arrays.asList;
 
 import gov.va.api.health.dataquery.service.config.ReferenceSerializerProperties;
 import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
+import gov.va.api.health.r4.api.datatypes.ContactDetail;
+import gov.va.api.health.r4.api.datatypes.ContactPoint;
+import gov.va.api.health.r4.api.datatypes.ContactPoint.ContactPointSystem;
 import gov.va.api.health.r4.api.resources.CapabilityStatement;
 import gov.va.api.health.r4.api.resources.CapabilityStatement.Implementation;
 import gov.va.api.health.r4.api.resources.CapabilityStatement.Kind;
 import gov.va.api.health.r4.api.resources.CapabilityStatement.Software;
 import gov.va.api.health.r4.api.resources.CapabilityStatement.Status;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.info.BuildProperties;
@@ -31,6 +35,19 @@ class R4MetadataController {
 
   private final BuildProperties buildProperties;
 
+  private List<ContactDetail> contact() {
+    return List.of(
+        ContactDetail.builder()
+            .name(properties.getContact().getName())
+            .telecom(
+                List.of(
+                    ContactPoint.builder()
+                        .system(ContactPointSystem.email)
+                        .value(properties.getContact().getEmail())
+                        .build()))
+            .build());
+  }
+
   private Implementation implementation() {
     return Implementation.builder()
         .description(properties.getR4Name())
@@ -52,7 +69,7 @@ class R4MetadataController {
         .status(Status.active)
         .implementation(implementation())
         .experimental(String.valueOf(!properties.isProductionUse()))
-        // .contact(contact())
+        .contact(contact())
         .date(properties.getPublicationDate())
         .description(properties.getDescription())
         .kind(Kind.capability)
