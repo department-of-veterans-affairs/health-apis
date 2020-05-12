@@ -406,7 +406,7 @@ final class Dstu2PatientTransformer {
     if (isBlank(datamart.gender())) {
       return null;
     }
-    return Dstu2GenderMapping.toFhir(datamart.gender());
+    return GenderMapping.toDstu2Fhir(datamart.gender());
   }
 
   private List<Identifier> identifiers() {

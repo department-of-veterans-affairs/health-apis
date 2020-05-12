@@ -59,7 +59,7 @@ public class Stu3TransformersTest {
 
   @Test
   public void codableConcept() {
-    assertThat(asCodeableConceptWrapping(Optional.empty())).isEqualTo(null);
+    assertThat(asCodeableConceptWrapping(Optional.empty())).isNull();
     assertThat(
             asCodeableConceptWrapping(
                 Optional.of(
@@ -74,7 +74,7 @@ public class Stu3TransformersTest {
                     List.of(
                         Coding.builder().system("system").code("code").display("display").build()))
                 .build());
-    assertThat(asCodeableConceptWrapping(DatamartCoding.builder().build())).isEqualTo(null);
+    assertThat(asCodeableConceptWrapping(DatamartCoding.builder().build())).isNull();
     assertThat(
             asCodeableConceptWrapping(
                 DatamartCoding.builder()
@@ -92,8 +92,8 @@ public class Stu3TransformersTest {
 
   @Test
   public void coding() {
-    assertThat(asCoding(Optional.empty())).isEqualTo(null);
-    assertThat(asCoding(Optional.of(DatamartCoding.builder().build()))).isEqualTo(null);
+    assertThat(asCoding(Optional.empty())).isNull();
+    assertThat(asCoding(Optional.of(DatamartCoding.builder().build()))).isNull();
     assertThat(
             asCoding(
                 Optional.of(

@@ -95,7 +95,7 @@ public class Dstu2PatientController {
   }
 
   String cdwGender(String fhirGender) {
-    String cdw = Dstu2GenderMapping.toCdw(fhirGender);
+    String cdw = GenderMapping.toCdw(fhirGender);
     if (cdw == null) {
       throw new IllegalArgumentException("unknown gender: " + fhirGender);
     }

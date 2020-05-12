@@ -404,9 +404,9 @@ final class R4PatientTransformer {
 
   private Patient.Gender gender() {
     if (datamart.selfIdentifiedGender() != null && datamart.selfIdentifiedGender().isPresent()) {
-      return R4GenderMapping.toFhir(datamart.selfIdentifiedGender().get());
+      return GenderMapping.toR4Fhir(datamart.selfIdentifiedGender().get());
     } else if (isNotBlank(datamart.gender())) {
-      return R4GenderMapping.toFhir(datamart.gender());
+      return GenderMapping.toR4Fhir(datamart.gender());
     } else {
       return null;
     }

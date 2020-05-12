@@ -57,8 +57,8 @@ public class R4TransformersTest {
 
   @Test
   public void coding() {
-    assertThat(asCoding(Optional.empty())).isEqualTo(null);
-    assertThat(asCoding(Optional.of(DatamartCoding.builder().build()))).isEqualTo(null);
+    assertThat(asCoding(Optional.empty())).isNull();
+    assertThat(asCoding(Optional.of(DatamartCoding.builder().build()))).isNull();
     assertThat(
             asCoding(
                 Optional.of(

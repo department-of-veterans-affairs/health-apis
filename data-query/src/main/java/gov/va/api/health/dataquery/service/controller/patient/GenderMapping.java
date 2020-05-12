@@ -7,7 +7,7 @@ import java.util.Locale;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
-class Dstu2GenderMapping {
+class GenderMapping {
 
   String toCdw(String fhir) {
     switch (upperCase(fhir, Locale.US)) {
@@ -24,7 +24,7 @@ class Dstu2GenderMapping {
     }
   }
 
-  Patient.Gender toFhir(String cdw) {
+  Patient.Gender toDstu2Fhir(String cdw) {
     switch (upperCase(cdw, Locale.US)) {
       case "M":
         return Patient.Gender.male;
@@ -34,6 +34,21 @@ class Dstu2GenderMapping {
         return Patient.Gender.other;
       case "*UNKNOWN AT THIS TIME*":
         return Patient.Gender.unknown;
+      default:
+        return null;
+    }
+  }
+
+  gov.va.api.health.uscorer4.api.resources.Patient.Gender toR4Fhir(String cdw) {
+    switch (upperCase(cdw, Locale.US)) {
+      case "M":
+        return gov.va.api.health.uscorer4.api.resources.Patient.Gender.male;
+      case "F":
+        return gov.va.api.health.uscorer4.api.resources.Patient.Gender.female;
+      case "*MISSING*":
+        return gov.va.api.health.uscorer4.api.resources.Patient.Gender.other;
+      case "*UNKNOWN AT THIS TIME*":
+        return gov.va.api.health.uscorer4.api.resources.Patient.Gender.unknown;
       default:
         return null;
     }
