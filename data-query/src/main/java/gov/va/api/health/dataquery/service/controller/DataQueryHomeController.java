@@ -19,13 +19,18 @@ public class DataQueryHomeController {
 
   private final Resource dstu2Openapi;
 
+  private final Resource r4Openapi;
+
   @Autowired
-  public DataQueryHomeController(@Value("classpath:/dstu2-openapi.json") Resource dstu2Openapi) {
+  public DataQueryHomeController(
+      @Value("classpath:/dstu2-openapi.json") Resource dstu2Openapi,
+      @Value("classpath:/r4-openapi.json") Resource r4Openapi) {
     this.dstu2Openapi = dstu2Openapi;
+    this.r4Openapi = r4Openapi;
   }
 
   /**
-   * Provide access to the OpenAPI as JSON via RESTful interface. This is also used as the /
+   * Provide access to the DSTU2 OpenAPI as JSON via RESTful interface. This is also used as the /
    * redirect.
    */
   @GetMapping(
@@ -42,5 +47,17 @@ public class DataQueryHomeController {
     try (InputStream is = openapi.getInputStream()) {
       return StreamUtils.copyToString(is, Charset.defaultCharset());
     }
+  }
+
+  /**
+   * Provide access to the R4 OpenAPI as JSON via RESTful interface. This is also used as the /
+   * redirect.
+   */
+  @GetMapping(
+      value = {"r4/", "r4/openapi.json", "r4-openapi.json"},
+      produces = "application/json")
+  @ResponseBody
+  public Object r4OpenapiJson() throws IOException {
+    return DataQueryHomeController.MAPPER.readValue(openapiContent(r4Openapi), Object.class);
   }
 }
