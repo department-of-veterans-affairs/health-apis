@@ -12,7 +12,7 @@
   <packaging>jar</packaging>
   <properties>
     <fall-risk.version>1.0.29</fall-risk.version>
-    <fhir-resources.version>2.0.37</fhir-resources.version>
+    <fhir-resources.version>2.0.38</fhir-resources.version>
     <guava.version>20.0</guava.version>
     <health-apis-ids.version>3.0.0</health-apis-ids.version>
     <jacoco.coverage>0.95</jacoco.coverage>
@@ -110,10 +110,28 @@
               <goal>resolve</goal>
             </goals>
             <configuration>
+              <contextId>dstu2-openapi</contextId>
               <resourceClasses>
                 <resourceClass>gov.va.api.health.dataquery.service.api.Dstu2DataQueryService</resourceClass>
               </resourceClasses>
               <outputFileName>dstu2-openapi</outputFileName>
+              <outputPath>${project.build.outputDirectory}</outputPath>
+              <outputFormat>JSON</outputFormat>
+              <prettyPrint>true</prettyPrint>
+            </configuration>
+          </execution>
+          <execution>
+            <id>r4-data-query-swag</id>
+            <phase>compile</phase>
+            <goals>
+              <goal>resolve</goal>
+            </goals>
+            <configuration>
+              <contextId>r4-openapi</contextId>
+              <resourceClasses>
+                <resourceClass>gov.va.api.health.dataquery.service.api.R4DataQueryService</resourceClass>
+              </resourceClasses>
+              <outputFileName>r4-openapi</outputFileName>
               <outputPath>${project.build.outputDirectory}</outputPath>
               <outputFormat>JSON</outputFormat>
               <prettyPrint>true</prettyPrint>
@@ -134,6 +152,8 @@
                 -->
                 <replaceregexp byline="true" file="${project.build.outputDirectory}/dstu2-openapi.json" flags="g" match="([a-z])_([a-z])" replace="\1-\2"/>
                 <replaceregexp byline="true" file="${project.build.outputDirectory}/dstu2-openapi.json" flags="g" match="(,|\[) &quot;_([a-z])" replace="\1 &quot;\2"/>
+                <replaceregexp byline="true" file="${project.build.outputDirectory}/r4-openapi.json" flags="g" match="([a-z])_([a-z])" replace="\1-\2"/>
+                <replaceregexp byline="true" file="${project.build.outputDirectory}/r4-openapi.json" flags="g" match="(,|\[) &quot;_([a-z])" replace="\1 &quot;\2"/>
               </target>
             </configuration>
             <goals>
@@ -159,6 +179,18 @@
             <version>${fhir-resources.version}</version>
             <scope>runtime</scope>
           </dependency>
+          <dependency>
+            <groupId>gov.va.api.health</groupId>
+            <artifactId>us-core-r4-examples</artifactId>
+            <version>${fhir-resources.version}</version>
+            <scope>runtime</scope>
+          </dependency>
+          <dependency>
+            <groupId>gov.va.api.health</groupId>
+            <artifactId>r4-examples</artifactId>
+            <version>${fhir-resources.version}</version>
+            <scope>runtime</scope>
+          </dependency>
         </dependencies>
         <executions>
           <execution>
@@ -170,6 +202,7 @@
             <configuration>
               <files>
                 <file file="${project.build.outputDirectory}/dstu2-openapi.json" format="JSON"/>
+                <file file="${project.build.outputDirectory}/r4-openapi.json" format="JSON"/>
               </files>
             </configuration>
           </execution>
