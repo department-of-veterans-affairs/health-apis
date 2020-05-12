@@ -7,6 +7,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.config.ReferenceSerializerProperties;
+import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
 import gov.va.api.health.dataquery.service.controller.metadata.MetadataProperties.StatementType;
 import gov.va.api.health.r4.api.resources.CapabilityStatement;
 import lombok.SneakyThrows;
@@ -21,8 +22,13 @@ public class R4MetadataControllerTest {
     ReferenceSerializerProperties referenceSerializerProperties =
         referenceSerializerProperties(true);
     metadataProperties.setStatementType(StatementType.PATIENT);
+    ConfigurableBaseUrlPageLinks pageLinks =
+        ConfigurableBaseUrlPageLinks.builder()
+            .baseUrl("http://awesome.com")
+            .r4BasePath("r4")
+            .build();
     R4MetadataController controller =
-        new R4MetadataController(metadataProperties, referenceSerializerProperties);
+        new R4MetadataController(pageLinks, metadataProperties, referenceSerializerProperties);
     CapabilityStatement old =
         JacksonConfig.createMapper()
             .readValue(

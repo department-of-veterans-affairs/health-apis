@@ -3,7 +3,9 @@ package gov.va.api.health.dataquery.service.controller.metadata;
 import static java.util.Arrays.asList;
 
 import gov.va.api.health.dataquery.service.config.ReferenceSerializerProperties;
+import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
 import gov.va.api.health.r4.api.resources.CapabilityStatement;
+import gov.va.api.health.r4.api.resources.CapabilityStatement.Implementation;
 import gov.va.api.health.r4.api.resources.CapabilityStatement.Kind;
 import gov.va.api.health.r4.api.resources.CapabilityStatement.Status;
 import lombok.AllArgsConstructor;
@@ -19,9 +21,18 @@ import org.springframework.web.bind.annotation.RestController;
 @AllArgsConstructor(onConstructor = @__({@Autowired}))
 class R4MetadataController {
 
+  private final ConfigurableBaseUrlPageLinks pageLinks;
+
   private final MetadataProperties properties;
 
   private final ReferenceSerializerProperties referenceSerializerProperties;
+
+  private Implementation implementation() {
+    return Implementation.builder()
+        .description(properties.getName())
+        .url(pageLinks.r4Url())
+        .build();
+  }
 
   @GetMapping
   CapabilityStatement read() {
@@ -35,7 +46,8 @@ class R4MetadataController {
         .title(properties.getName())
         .publisher(properties.getPublisher())
         .status(Status.active)
-        // .implementation(implementation())
+        .implementation(implementation())
+        // .experimental()
         // .contact(contact())
         .date(properties.getPublicationDate())
         .description(properties.getDescription())

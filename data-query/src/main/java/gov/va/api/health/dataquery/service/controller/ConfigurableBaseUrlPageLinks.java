@@ -7,7 +7,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -16,6 +18,7 @@ import org.springframework.util.MultiValueMap;
 
 /** This implementation uses a configurable base URL (data-query.public-url) for the links. */
 @Service
+@Getter
 public class ConfigurableBaseUrlPageLinks implements PageLinks {
   /**
    * The published URL for argonaut, which is likely not the hostname of the machine running this
@@ -33,6 +36,7 @@ public class ConfigurableBaseUrlPageLinks implements PageLinks {
   private String r4BasePath;
 
   /** Spring constructor. */
+  @Builder
   @Autowired
   public ConfigurableBaseUrlPageLinks(
       @Value("${data-query.public-url}") String baseUrl,
@@ -82,7 +86,11 @@ public class ConfigurableBaseUrlPageLinks implements PageLinks {
 
   @Override
   public String r4ReadLink(String resourcePath, String id) {
-    return baseUrl + "/" + r4BasePath + "/" + resourcePath + "/" + id;
+    return r4Url() + "/" + resourcePath + "/" + id;
+  }
+
+  public String r4Url() {
+    return baseUrl + "/" + r4BasePath;
   }
 
   @Override
