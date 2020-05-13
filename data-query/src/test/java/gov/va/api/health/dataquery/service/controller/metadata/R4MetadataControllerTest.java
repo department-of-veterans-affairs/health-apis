@@ -2,11 +2,9 @@ package gov.va.api.health.dataquery.service.controller.metadata;
 
 import static gov.va.api.health.dataquery.service.controller.metadata.MetadataSamples.conformanceStatementProperties;
 import static gov.va.api.health.dataquery.service.controller.metadata.MetadataSamples.pretty;
-import static gov.va.api.health.dataquery.service.controller.metadata.MetadataSamples.referenceSerializerProperties;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
-import gov.va.api.health.dataquery.service.config.ReferenceSerializerProperties;
 import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
 import gov.va.api.health.dataquery.service.controller.metadata.MetadataProperties.StatementType;
 import gov.va.api.health.r4.api.resources.CapabilityStatement;
@@ -21,8 +19,6 @@ public class R4MetadataControllerTest {
   @SneakyThrows
   public void readPatient() {
     MetadataProperties metadataProperties = conformanceStatementProperties();
-    ReferenceSerializerProperties referenceSerializerProperties =
-        referenceSerializerProperties(true);
     metadataProperties.setStatementType(StatementType.PATIENT);
     ConfigurableBaseUrlPageLinks pageLinks =
         ConfigurableBaseUrlPageLinks.builder()
@@ -36,8 +32,7 @@ public class R4MetadataControllerTest {
     properties.setProperty("time", "2005-01-21T07:57:00Z");
     BuildProperties buildProperties = new BuildProperties(properties);
     R4MetadataController controller =
-        new R4MetadataController(
-            pageLinks, metadataProperties, referenceSerializerProperties, buildProperties);
+        new R4MetadataController(pageLinks, metadataProperties, buildProperties);
     CapabilityStatement old =
         JacksonConfig.createMapper()
             .readValue(

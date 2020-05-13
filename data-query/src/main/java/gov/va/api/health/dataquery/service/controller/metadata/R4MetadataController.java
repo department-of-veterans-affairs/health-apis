@@ -1,8 +1,9 @@
 package gov.va.api.health.dataquery.service.controller.metadata;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptySet;
+import static java.util.stream.Collectors.toList;
 
-import gov.va.api.health.dataquery.service.config.ReferenceSerializerProperties;
 import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
 import gov.va.api.health.r4.api.datatypes.CodeableConcept;
 import gov.va.api.health.r4.api.datatypes.Coding;
@@ -11,15 +12,27 @@ import gov.va.api.health.r4.api.datatypes.ContactPoint;
 import gov.va.api.health.r4.api.datatypes.ContactPoint.ContactPointSystem;
 import gov.va.api.health.r4.api.elements.Extension;
 import gov.va.api.health.r4.api.resources.CapabilityStatement;
+import gov.va.api.health.r4.api.resources.CapabilityStatement.CapabilityResource;
 import gov.va.api.health.r4.api.resources.CapabilityStatement.Implementation;
 import gov.va.api.health.r4.api.resources.CapabilityStatement.Kind;
+import gov.va.api.health.r4.api.resources.CapabilityStatement.ReferencePolicy;
+import gov.va.api.health.r4.api.resources.CapabilityStatement.ResourceInteraction;
 import gov.va.api.health.r4.api.resources.CapabilityStatement.Rest;
 import gov.va.api.health.r4.api.resources.CapabilityStatement.RestMode;
+import gov.va.api.health.r4.api.resources.CapabilityStatement.SearchParamType;
 import gov.va.api.health.r4.api.resources.CapabilityStatement.Security;
 import gov.va.api.health.r4.api.resources.CapabilityStatement.Software;
 import gov.va.api.health.r4.api.resources.CapabilityStatement.Status;
+import gov.va.api.health.r4.api.resources.CapabilityStatement.TypeRestfulInteraction;
+import gov.va.api.health.r4.api.resources.CapabilityStatement.Versioning;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.Value;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,8 +49,6 @@ class R4MetadataController {
   private final ConfigurableBaseUrlPageLinks pageLinks;
 
   private final MetadataProperties properties;
-
-  private final ReferenceSerializerProperties referenceSerializerProperties;
 
   private final BuildProperties buildProperties;
 
@@ -63,8 +74,6 @@ class R4MetadataController {
 
   @GetMapping
   CapabilityStatement read() {
-    // TODO REMOVE
-    referenceSerializerProperties.toString();
     return CapabilityStatement.builder()
         .resourceType("CapabilityStatement")
         .id(properties.getId())
@@ -86,8 +95,24 @@ class R4MetadataController {
         .build();
   }
 
+  private List<CapabilityResource> resources() {
+    return Stream.of(
+            support("Condition")
+                .profileUrl("http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition")
+                .search(
+                    Set.of(SearchParam.PATIENT, SearchParam.CATEGORY, SearchParam.CLINICAL_STATUS))
+                .build())
+        .map(SupportedResource::asResource)
+        .collect(toList());
+  }
+
   private List<Rest> rest() {
-    return List.of(Rest.builder().mode(RestMode.server).security(restSecurity()).build());
+    return List.of(
+        Rest.builder()
+            .mode(RestMode.server)
+            .security(restSecurity())
+            .resource(resources())
+            .build());
   }
 
   private Security restSecurity() {
@@ -131,5 +156,86 @@ class R4MetadataController {
         .releaseDate(buildProperties.getTime().toString())
         .version(buildProperties.getVersion())
         .build();
+  }
+
+  private SupportedResource.SupportedResourceBuilder support(String type) {
+    return SupportedResource.builder().properties(properties).type(type);
+  }
+
+  @Getter
+  @AllArgsConstructor
+  enum SearchParam {
+    BIRTH_DATE("birthdate", SearchParamType.date),
+    CATEGORY("category", SearchParamType.string),
+    CLINICAL_STATUS("clinical-status", SearchParamType.token),
+    CODE("code", SearchParamType.token),
+    DATE("date", SearchParamType.date),
+    FAMILY("family", SearchParamType.string),
+    GENDER("gender", SearchParamType.token),
+    GIVEN("given", SearchParamType.string),
+    ID("_id", SearchParamType.string),
+    NAME("name", SearchParamType.string),
+    PATIENT("patient", SearchParamType.reference),
+    STATUS("status", SearchParamType.token),
+    TYPE("type", SearchParamType.token);
+
+    private final String param;
+
+    private final SearchParamType type;
+  }
+
+  @Value
+  @Builder
+  private static class SupportedResource {
+    String type;
+
+    String profileUrl;
+
+    @Builder.Default @NonNull Set<SearchParam> search = emptySet();
+
+    MetadataProperties properties;
+
+    CapabilityResource asResource() {
+      return CapabilityResource.builder()
+          .type(type)
+          .profile(profileUrl)
+          .interaction(interactions())
+          .searchParam(searchParams())
+          .versioning(Versioning.no_version)
+          .referencePolicy(List.of(ReferencePolicy.literal, ReferencePolicy.local))
+          .build();
+    }
+
+    private List<ResourceInteraction> interactions() {
+      if (search.isEmpty()) {
+        return List.of(readable());
+      }
+      return List.of(searchable(), readable());
+    }
+
+    private ResourceInteraction readable() {
+      return ResourceInteraction.builder()
+          .code(TypeRestfulInteraction.read)
+          .documentation(properties.getResourceDocumentation())
+          .build();
+    }
+
+    private List<CapabilityStatement.SearchParam> searchParams() {
+      if (search.isEmpty()) {
+        return null;
+      }
+      return search.stream()
+          .sorted((a, b) -> a.param().compareTo(b.param()))
+          .map(
+              s -> CapabilityStatement.SearchParam.builder().name(s.param()).type(s.type()).build())
+          .collect(toList());
+    }
+
+    private ResourceInteraction searchable() {
+      return ResourceInteraction.builder()
+          .code(TypeRestfulInteraction.search_type)
+          .documentation(properties.getResourceDocumentation())
+          .build();
+    }
   }
 }
