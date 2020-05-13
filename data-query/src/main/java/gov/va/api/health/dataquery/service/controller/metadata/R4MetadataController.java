@@ -4,12 +4,18 @@ import static java.util.Arrays.asList;
 
 import gov.va.api.health.dataquery.service.config.ReferenceSerializerProperties;
 import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
+import gov.va.api.health.r4.api.datatypes.CodeableConcept;
+import gov.va.api.health.r4.api.datatypes.Coding;
 import gov.va.api.health.r4.api.datatypes.ContactDetail;
 import gov.va.api.health.r4.api.datatypes.ContactPoint;
 import gov.va.api.health.r4.api.datatypes.ContactPoint.ContactPointSystem;
+import gov.va.api.health.r4.api.elements.Extension;
 import gov.va.api.health.r4.api.resources.CapabilityStatement;
 import gov.va.api.health.r4.api.resources.CapabilityStatement.Implementation;
 import gov.va.api.health.r4.api.resources.CapabilityStatement.Kind;
+import gov.va.api.health.r4.api.resources.CapabilityStatement.Rest;
+import gov.va.api.health.r4.api.resources.CapabilityStatement.RestMode;
+import gov.va.api.health.r4.api.resources.CapabilityStatement.Security;
 import gov.va.api.health.r4.api.resources.CapabilityStatement.Software;
 import gov.va.api.health.r4.api.resources.CapabilityStatement.Status;
 import java.util.List;
@@ -68,7 +74,7 @@ class R4MetadataController {
         .publisher(properties.getPublisher())
         .status(Status.active)
         .implementation(implementation())
-        .experimental(String.valueOf(!properties.isProductionUse()))
+        .experimental(!properties.isProductionUse())
         .contact(contact())
         .date(properties.getPublicationDate())
         .description(properties.getDescription())
@@ -76,7 +82,46 @@ class R4MetadataController {
         .software(software())
         .fhirVersion("4.0.1")
         .format(asList("application/json", "application/fhir+json"))
-        // .rest(rest())
+        .rest(rest())
+        .build();
+  }
+
+  private List<Rest> rest() {
+    return List.of(Rest.builder().mode(RestMode.server).security(restSecurity()).build());
+  }
+
+  private Security restSecurity() {
+    return Security.builder()
+        .cors(true)
+        .description(properties.getSecurity().getDescription())
+        .service(List.of(smartOnFhirCodeableConcept()))
+        .extension(
+            List.of(
+                Extension.builder()
+                    .url("http://fhir-registry.smarthealthit.org/StructureDefinition/oauth-uris")
+                    .extension(
+                        List.of(
+                            Extension.builder()
+                                .url("token")
+                                .valueUri(properties.getSecurity().getTokenEndpoint())
+                                .build(),
+                            Extension.builder()
+                                .url("authorize")
+                                .valueUri(properties.getSecurity().getAuthorizeEndpoint())
+                                .build()))
+                    .build()))
+        .build();
+  }
+
+  private CodeableConcept smartOnFhirCodeableConcept() {
+    return CodeableConcept.builder()
+        .coding(
+            List.of(
+                Coding.builder()
+                    .system("http://terminology.hl7.org/CodeSystem/restful-security-service")
+                    .code("SMART-on-FHIR")
+                    .display("SMART-on-FHIR")
+                    .build()))
         .build();
   }
 
