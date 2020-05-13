@@ -21,15 +21,35 @@ public class GenderMappingTest {
   }
 
   @Test
-  public void genderMappingToFhirIsValid() {
-    assertThat(GenderMapping.toFhir("M")).isEqualTo(Patient.Gender.male);
-    assertThat(GenderMapping.toFhir("m")).isEqualTo(Patient.Gender.male);
-    assertThat(GenderMapping.toFhir("F")).isEqualTo(Patient.Gender.female);
-    assertThat(GenderMapping.toFhir("*MISSING*")).isEqualTo(Patient.Gender.other);
-    assertThat(GenderMapping.toFhir("*mIssIng*")).isEqualTo(Patient.Gender.other);
-    assertThat(GenderMapping.toFhir("*UNKNOWN AT THIS TIME*")).isEqualTo(Patient.Gender.unknown);
-    assertThat(GenderMapping.toFhir("-UNKNOWN AT THIS TIME-")).isNull();
-    assertThat(GenderMapping.toFhir("")).isNull();
-    assertThat(GenderMapping.toFhir("male")).isNull();
+  public void genderMappingToDstu2FhirIsValid() {
+    assertThat(GenderMapping.toDstu2Fhir("M")).isEqualTo(Patient.Gender.male);
+    assertThat(GenderMapping.toDstu2Fhir("m")).isEqualTo(Patient.Gender.male);
+    assertThat(GenderMapping.toDstu2Fhir("F")).isEqualTo(Patient.Gender.female);
+    assertThat(GenderMapping.toDstu2Fhir("*MISSING*")).isEqualTo(Patient.Gender.other);
+    assertThat(GenderMapping.toDstu2Fhir("*mIssIng*")).isEqualTo(Patient.Gender.other);
+    assertThat(GenderMapping.toDstu2Fhir("*UNKNOWN AT THIS TIME*"))
+        .isEqualTo(Patient.Gender.unknown);
+    assertThat(GenderMapping.toDstu2Fhir("-UNKNOWN AT THIS TIME-")).isNull();
+    assertThat(GenderMapping.toDstu2Fhir("")).isNull();
+    assertThat(GenderMapping.toDstu2Fhir("male")).isNull();
+  }
+
+  @Test
+  public void genderMappingToR4FhirIsValid() {
+    assertThat(GenderMapping.toR4Fhir("M"))
+        .isEqualTo(gov.va.api.health.uscorer4.api.resources.Patient.Gender.male);
+    assertThat(GenderMapping.toR4Fhir("m"))
+        .isEqualTo(gov.va.api.health.uscorer4.api.resources.Patient.Gender.male);
+    assertThat(GenderMapping.toR4Fhir("F"))
+        .isEqualTo(gov.va.api.health.uscorer4.api.resources.Patient.Gender.female);
+    assertThat(GenderMapping.toR4Fhir("*MISSING*"))
+        .isEqualTo(gov.va.api.health.uscorer4.api.resources.Patient.Gender.other);
+    assertThat(GenderMapping.toR4Fhir("*mIssIng*"))
+        .isEqualTo(gov.va.api.health.uscorer4.api.resources.Patient.Gender.other);
+    assertThat(GenderMapping.toR4Fhir("*UNKNOWN AT THIS TIME*"))
+        .isEqualTo(gov.va.api.health.uscorer4.api.resources.Patient.Gender.unknown);
+    assertThat(GenderMapping.toR4Fhir("-UNKNOWN AT THIS TIME-")).isNull();
+    assertThat(GenderMapping.toR4Fhir("")).isNull();
+    assertThat(GenderMapping.toR4Fhir("male")).isNull();
   }
 }

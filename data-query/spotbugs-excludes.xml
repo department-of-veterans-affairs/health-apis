@@ -5,7 +5,10 @@
     The transfomer can return an optional boolean matching the objects property per the FHIR specification.
   -->
   <Match>
+    <Or>
     <Class name="gov.va.api.health.dataquery.service.controller.patient.Dstu2PatientTransformer"/>
+    <Class name="gov.va.api.health.dataquery.service.controller.patient.R4PatientTransformer"/>
+    </Or>
     <Method name="deceased"/>
     <Bug pattern="NP_BOOLEAN_RETURN_NULL"/>
   </Match>
