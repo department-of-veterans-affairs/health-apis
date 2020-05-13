@@ -1,0 +1,108 @@
+{
+  "resourceType" : "CapabilityStatement",
+  "id" : "lighthouse-va-fhir-conformance",
+  "version" : "1.4.0",
+  "name" : "VA Lighthouse FHIR R4",
+  "title" : "VA Lighthouse FHIR R4",
+  "publisher" : "Lighthouse Team",
+  "status" : "active",
+  "date" : "2018-09-27T19:30:00-05:00",
+  "description" : "This is the base conformance statement for FHIR. It represents a server that provides the full set of functionality defined by FHIR. It is provided to use as a template for system designers to build their own conformance statements from.",
+  "fhirVersion" : "4.0.1",
+  "format" : [
+    "application/json",
+    "application/fhir+json"
+  ],
+  "kind" : "capability",
+  "implementation" : {
+    "description" : "VA Lighthouse FHIR R4",
+    "url" : "http://awesome.com/r4"
+  },
+  "experimental" : "false",
+  "software" : {
+    "name" : "gov.va:data-query",
+    "version" : "1.2.3",
+    "releaseDate" : "2005-01-21T07:57:00Z"
+  },
+  "contact" : [
+    {
+      "name" : "Drew Myklegard",
+      "telecom" : [
+        {
+          "system" : "email",
+          "value" : "david.myklegard@va.gov"
+        }
+      ]
+    }
+  ],
+  "rest" : [
+    {
+      "mode" : "server",
+      "security" : {
+        "cors" : true,
+        "service" : [
+          {
+            "coding" : [
+              {
+                "system" : "http://terminology.hl7.org/CodeSystem/restful-security-service",
+                "code" : "SMART-on-FHIR",
+                "display" : "SMART-on-FHIR"
+              }
+            ]
+          }
+        ],
+        "description" : "This is the conformance statement to declare that the server supports SMART-on-FHIR. See the SMART-on-FHIR docs for the extension that would go with such a server.",
+        "extension" : [
+          {
+            "url" : "http://fhir-registry.smarthealthit.org/StructureDefinition/oauth-uris",
+            "extension" : [
+              {
+                "url" : "token",
+                "valueUri" : "https://argonaut.lighthouse.va.gov/token"
+              },
+              {
+                "url" : "authorize",
+                "valueUri" : "https://argonaut.lighthouse.va.gov/authorize"
+              }
+            ]
+          }
+        ]
+      },
+      "resource" : [
+        {
+          "type" : "Condition",
+          "profile" : "http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition",
+          "interaction" : [
+            {
+              "code" : "search-type",
+              "documentation" : "Implemented per the specification"
+            },
+            {
+              "code" : "read",
+              "documentation" : "Implemented per the specification"
+            }
+          ],
+          "versioning" : "no-version",
+          "referencePolicy" : [
+            "literal",
+            "local"
+          ],
+          "searchParam" : [
+            {
+              "name" : "category",
+              "type" : "string"
+            },
+            {
+              "name" : "clinical-status",
+              "type" : "token"
+            },
+            {
+              "name" : "patient",
+              "type" : "reference"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
