@@ -349,15 +349,15 @@ final class R4PatientTransformer {
         datamart.contact().stream().map(con -> contact(con)).collect(Collectors.toList()));
   }
 
-  private String deceased() {
+  private Boolean deceased() {
     if (deceasedDateTime() != null) {
       return null;
     }
     switch (upperCase(trimToEmpty(datamart.deceased()), Locale.US)) {
       case "Y":
-        return "true";
+        return true;
       case "N":
-        return "false";
+        return false;
       default:
         return null;
     }
