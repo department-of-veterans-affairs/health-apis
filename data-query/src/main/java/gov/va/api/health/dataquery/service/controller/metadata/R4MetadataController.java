@@ -101,6 +101,17 @@ class R4MetadataController {
                 .profileUrl("http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition")
                 .search(
                     Set.of(SearchParam.PATIENT, SearchParam.CATEGORY, SearchParam.CLINICAL_STATUS))
+                .build(),
+            support("Patient")
+                .profileUrl("http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient")
+                .search(
+                    Set.of(
+                        SearchParam.ID,
+                        SearchParam.FAMILY,
+                        SearchParam.BIRTH_DATE,
+                        SearchParam.NAME,
+                        SearchParam.GENDER,
+                        SearchParam.GIVEN))
                 .build())
         .map(SupportedResource::asResource)
         .collect(toList());

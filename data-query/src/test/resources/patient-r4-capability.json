@@ -101,6 +101,51 @@
               "type" : "reference"
             }
           ]
+        },
+        {
+          "type" : "Patient",
+          "profile" : "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient",
+          "interaction" : [
+            {
+              "code" : "search-type",
+              "documentation" : "Implemented per the specification"
+            },
+            {
+              "code" : "read",
+              "documentation" : "Implemented per the specification"
+            }
+          ],
+          "versioning" : "no-version",
+          "referencePolicy" : [
+            "literal",
+            "local"
+          ],
+          "searchParam" : [
+            {
+              "name" : "_id",
+              "type" : "string"
+            },
+            {
+              "name" : "birthdate",
+              "type" : "date"
+            },
+            {
+              "name" : "family",
+              "type" : "string"
+            },
+            {
+              "name" : "gender",
+              "type" : "token"
+            },
+            {
+              "name" : "given",
+              "type" : "string"
+            },
+            {
+              "name" : "name",
+              "type" : "string"
+            }
+          ]
         }
       ]
     }
