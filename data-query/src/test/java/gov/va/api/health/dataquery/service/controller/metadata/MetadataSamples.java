@@ -28,7 +28,7 @@ class MetadataSamples {
                 + " It is provided to use as a template for system designers to"
                 + " build their own conformance statements from.")
         .softwareName("VA Lighthouse")
-        .fhirVersion("1.0.2")
+        //  .fhirVersion("1.0.2")
         .security(
             SecurityProperties.builder()
                 .tokenEndpoint("https://argonaut.lighthouse.va.gov/token")
