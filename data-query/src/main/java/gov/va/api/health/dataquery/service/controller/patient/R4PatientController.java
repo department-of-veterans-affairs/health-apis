@@ -125,7 +125,7 @@ public class R4PatientController {
   @GetMapping(params = {"birthdate", "family"})
   public Patient.Bundle searchByBirthdateandFamily(
       @RequestParam("birthdate") String[] birthdate,
-      @RequestParam("name") String family,
+      @RequestParam("family") String family,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
     PatientRepositoryV2.BirthdateAndFamilySpecification spec =

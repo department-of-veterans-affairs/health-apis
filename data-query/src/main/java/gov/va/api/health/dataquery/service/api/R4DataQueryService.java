@@ -19,7 +19,12 @@ import javax.ws.rs.Path;
     security =
         @SecurityRequirement(
             name = "OauthFlow",
-            scopes = {"patient/Condition.read", "patient/Patient.read", "offline_access", "launch/patient"}),
+            scopes = {
+              "patient/Condition.read",
+              "patient/Patient.read",
+              "offline_access",
+              "launch/patient"
+            }),
     info =
         @Info(
             title = "US Core R4",
@@ -52,9 +57,9 @@ import javax.ws.rs.Path;
                     tokenUrl = "https://sandbox-api.va.gov/services/fhir/v0/r4/token",
                     scopes = {
                       @OAuthScope(name = "patient/Condition.read", description = "read conditions"),
-                            @OAuthScope(name = "patient/Patient.read", description = "read patient"),
-                            @OAuthScope(name = "offline_access", description = "offline access"),
+                      @OAuthScope(name = "patient/Patient.read", description = "read patient"),
+                      @OAuthScope(name = "offline_access", description = "offline access"),
                       @OAuthScope(name = "launch/patient", description = "patient launch"),
                     })))
 @Path("/")
-public interface R4DataQueryService extends ConditionApi , PatientApi {}
+public interface R4DataQueryService extends ConditionApi, PatientApi {}
