@@ -7,6 +7,7 @@ import gov.va.api.health.dataquery.service.controller.metadata.MetadataPropertie
 import lombok.SneakyThrows;
 
 class MetadataSamples {
+  @SuppressWarnings("deprecation")
   static MetadataProperties conformanceStatementProperties() {
     return MetadataProperties.builder()
         .id("lighthouse-va-fhir-conformance")
@@ -28,6 +29,7 @@ class MetadataSamples {
                 + " It is provided to use as a template for system designers to"
                 + " build their own conformance statements from.")
         .softwareName("VA Lighthouse")
+        .fhirVersion("1.0.2")
         .security(
             SecurityProperties.builder()
                 .tokenEndpoint("https://argonaut.lighthouse.va.gov/token")
