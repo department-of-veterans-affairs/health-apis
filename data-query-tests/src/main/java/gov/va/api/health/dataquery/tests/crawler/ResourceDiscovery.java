@@ -17,7 +17,7 @@ import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * This class processes a conformance statment and generates a set of queries for resources as
+ * This class processes a conformance statement and generates a set of queries for resources as
  * described below.
  *
  * <p>For Patient resources, a read query (.../Patient/1234) is included if Patient.read is

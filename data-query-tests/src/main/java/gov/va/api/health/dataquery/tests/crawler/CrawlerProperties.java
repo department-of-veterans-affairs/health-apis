@@ -7,18 +7,19 @@ import com.google.common.base.Splitter;
 import java.time.Duration;
 import java.time.format.DateTimeParseException;
 import java.util.List;
+import lombok.NonNull;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @UtilityClass
-public final class CrawlerProperties {
+public class CrawlerProperties {
 
   /**
    * Get crawler ignores from a system property. Ignores are not factored into the crawlers result
    * if they fail.
    */
-  public static String optionCrawlerIgnores() {
+  public String optionCrawlerIgnores() {
     String ignores = System.getProperty("crawler.ignores");
     if (isBlank(ignores)) {
       log.info(
@@ -35,7 +36,7 @@ public final class CrawlerProperties {
   }
 
   /** Read crawler thread limit from the property crawler.threads */
-  public static int threads() {
+  public int threads() {
     String property = "crawler.threads";
     String maybeInteger = System.getProperty(property);
     if (isNotBlank(maybeInteger)) {
@@ -53,7 +54,7 @@ public final class CrawlerProperties {
   }
 
   /** Read crawler time limit from the property crawler.timelimit/ */
-  public static Duration timeLimit() {
+  public Duration timeLimit() {
     String property = "crawler.timelimit";
     String maybeDuration = System.getProperty(property);
     if (isNotBlank(maybeDuration)) {
@@ -107,5 +108,18 @@ public final class CrawlerProperties {
       log.info("URL replacement {} (Override with -Dcrawler.url.replace=<url>)", replace);
     }
     return replace;
+  }
+
+  /** Read the metadata URL from system property. */
+  public String baseUrlOrElse(@NonNull String defaultUrl) {
+    String url = System.getProperty("crawler.base-url");
+    if (isBlank(url)) {
+      log.info(
+          "Base URL not specified, assuming {} (Override with -Dcrawler.base-url=<url>)",
+          defaultUrl);
+      return defaultUrl;
+    }
+    log.info("Base URL {} (Override with -Dcrawler.base-url=<url>)", url);
+    return url;
   }
 }
