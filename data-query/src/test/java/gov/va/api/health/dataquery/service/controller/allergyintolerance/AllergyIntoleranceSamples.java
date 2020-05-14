@@ -18,16 +18,17 @@ public class AllergyIntoleranceSamples {
   @AllArgsConstructor(staticName = "create")
   public static class Datamart {
     public DatamartAllergyIntolerance allergyIntolerance() {
-      return allergyIntolerance("800001608621", "666V666");
+      return allergyIntolerance("800001608621", "666V666", "1234", "12345");
     }
 
-    public DatamartAllergyIntolerance allergyIntolerance(String cdwId, String patientId) {
+    public DatamartAllergyIntolerance allergyIntolerance(
+        String cdwId, String patientCdwId, String recorderCdwId, String authorCdwId) {
       return DatamartAllergyIntolerance.builder()
           .cdwId(cdwId)
           .patient(
               DatamartReference.builder()
                   .type(Optional.of("Patient"))
-                  .reference(Optional.of(patientId))
+                  .reference(Optional.of(patientCdwId))
                   .display(Optional.of("VETERAN,HERNAM MINAM"))
                   .build())
           .recordedDate(Optional.of(Instant.parse("2017-07-23T04:27:43Z")))
@@ -35,14 +36,14 @@ public class AllergyIntoleranceSamples {
               Optional.of(
                   DatamartReference.builder()
                       .type(Optional.of("Practitioner"))
-                      .reference(Optional.of("1234"))
+                      .reference(Optional.of(recorderCdwId))
                       .display(Optional.of("MONTAGNE,JO BONES"))
                       .build()))
           .substance(fullyPopulatedSubstance())
           .status(DatamartAllergyIntolerance.Status.confirmed)
           .type(DatamartAllergyIntolerance.Type.allergy)
           .category(DatamartAllergyIntolerance.Category.medication)
-          .notes(notes())
+          .notes(notes(authorCdwId))
           .reactions(reactions())
           .build();
     }
@@ -87,7 +88,7 @@ public class AllergyIntoleranceSamples {
               .build());
     }
 
-    public List<DatamartAllergyIntolerance.Note> notes() {
+    public List<DatamartAllergyIntolerance.Note> notes(String authorCdwId) {
       return asList(
           DatamartAllergyIntolerance.Note.builder()
               .text("ADR PER PT.")
@@ -96,7 +97,7 @@ public class AllergyIntoleranceSamples {
                   Optional.of(
                       DatamartReference.builder()
                           .type(Optional.of("Practitioner"))
-                          .reference(Optional.of("12345"))
+                          .reference(Optional.of(authorCdwId))
                           .display(Optional.of("PROVID,ALLIN DOC"))
                           .build()))
               .build(),
@@ -107,7 +108,7 @@ public class AllergyIntoleranceSamples {
                   Optional.of(
                       DatamartReference.builder()
                           .type(Optional.of("Practitioner"))
-                          .reference(Optional.of("12345"))
+                          .reference(Optional.of(authorCdwId))
                           .display(Optional.of("PROVID,ALLIN DOC"))
                           .build()))
               .build(),
@@ -118,7 +119,7 @@ public class AllergyIntoleranceSamples {
                   Optional.of(
                       DatamartReference.builder()
                           .type(Optional.of("Practitioner"))
-                          .reference(Optional.of("12345"))
+                          .reference(Optional.of(authorCdwId))
                           .display(Optional.of("PROVID,ALLIN DOC"))
                           .build()))
               .build(),
@@ -129,7 +130,7 @@ public class AllergyIntoleranceSamples {
                   Optional.of(
                       DatamartReference.builder()
                           .type(Optional.of("Practitioner"))
-                          .reference(Optional.of("12345"))
+                          .reference(Optional.of(authorCdwId))
                           .display(Optional.of("PROVID,ALLIN DOC"))
                           .build()))
               .build());
@@ -146,7 +147,6 @@ public class AllergyIntoleranceSamples {
 
   @AllArgsConstructor(staticName = "create")
   public static class Dstu2 {
-
     static gov.va.api.health.argonaut.api.resources.AllergyIntolerance.Bundle asBundle(
         String baseUrl,
         Collection<gov.va.api.health.argonaut.api.resources.AllergyIntolerance> resources,
@@ -280,10 +280,55 @@ public class AllergyIntoleranceSamples {
 
   @AllArgsConstructor(staticName = "create")
   public static class R4 {
+    static gov.va.api.health.uscorer4.api.resources.AllergyIntolerance.Bundle asBundle(
+        String baseUrl,
+        Collection<gov.va.api.health.uscorer4.api.resources.AllergyIntolerance> resources,
+        int totalRecords,
+        gov.va.api.health.r4.api.bundle.BundleLink... links) {
+      return gov.va.api.health.uscorer4.api.resources.AllergyIntolerance.Bundle.builder()
+          .resourceType("Bundle")
+          .type(gov.va.api.health.r4.api.bundle.AbstractBundle.BundleType.searchset)
+          .total(totalRecords)
+          .link(Arrays.asList(links))
+          .entry(
+              resources.stream()
+                  .map(
+                      a ->
+                          gov.va.api.health.uscorer4.api.resources.AllergyIntolerance.Entry
+                              .builder()
+                              .fullUrl(baseUrl + "/AllergyIntolerance/" + a.id())
+                              .resource(a)
+                              .search(
+                                  gov.va.api.health.r4.api.bundle.AbstractEntry.Search.builder()
+                                      .mode(
+                                          gov.va.api.health.r4.api.bundle.AbstractEntry.SearchMode
+                                              .match)
+                                      .build())
+                              .build())
+                  .collect(Collectors.toList()))
+          .build();
+    }
+
+    static gov.va.api.health.r4.api.bundle.BundleLink link(
+        gov.va.api.health.r4.api.bundle.BundleLink.LinkRelation rel,
+        String base,
+        int page,
+        int count) {
+      return gov.va.api.health.r4.api.bundle.BundleLink.builder()
+          .relation(rel)
+          .url(base + "&page=" + page + "&_count=" + count)
+          .build();
+    }
+
     public gov.va.api.health.uscorer4.api.resources.AllergyIntolerance allergyIntolerance() {
+      return allergyIntolerance("800001608621", "666V666", "1234", "12345");
+    }
+
+    public gov.va.api.health.uscorer4.api.resources.AllergyIntolerance allergyIntolerance(
+        String publicId, String patientPublicId, String recorderPublicId, String authorPublicId) {
       return gov.va.api.health.uscorer4.api.resources.AllergyIntolerance.builder()
           .resourceType("AllergyIntolerance")
-          .id("800001608621")
+          .id(publicId)
           .clinicalStatus(
               gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()
                   .coding(
@@ -299,13 +344,13 @@ public class AllergyIntoleranceSamples {
                   gov.va.api.health.uscorer4.api.resources.AllergyIntolerance.Category.medication))
           .patient(
               gov.va.api.health.r4.api.elements.Reference.builder()
-                  .reference("Patient/666V666")
+                  .reference("Patient/" + patientPublicId)
                   .display("VETERAN,HERNAM MINAM")
                   .build())
           .recordedDate("2017-07-23T04:27:43Z")
           .recorder(
               gov.va.api.health.r4.api.elements.Reference.builder()
-                  .reference("Practitioner/1234")
+                  .reference("Practitioner/" + recorderPublicId)
                   .display("MONTAGNE,JO BONES")
                   .build())
           .note(
@@ -313,7 +358,7 @@ public class AllergyIntoleranceSamples {
                   gov.va.api.health.r4.api.datatypes.Annotation.builder()
                       .authorReference(
                           gov.va.api.health.r4.api.elements.Reference.builder()
-                              .reference("Practitioner/12345")
+                              .reference("Practitioner/" + authorPublicId)
                               .display("PROVID,ALLIN DOC")
                               .build())
                       .time("2012-03-29T01:55:03Z")
@@ -322,7 +367,7 @@ public class AllergyIntoleranceSamples {
                   gov.va.api.health.r4.api.datatypes.Annotation.builder()
                       .authorReference(
                           gov.va.api.health.r4.api.elements.Reference.builder()
-                              .reference("Practitioner/12345")
+                              .reference("Practitioner/" + authorPublicId)
                               .display("PROVID,ALLIN DOC")
                               .build())
                       .time("2012-03-29T01:56:59Z")
@@ -331,7 +376,7 @@ public class AllergyIntoleranceSamples {
                   gov.va.api.health.r4.api.datatypes.Annotation.builder()
                       .authorReference(
                           gov.va.api.health.r4.api.elements.Reference.builder()
-                              .reference("Practitioner/12345")
+                              .reference("Practitioner/" + authorPublicId)
                               .display("PROVID,ALLIN DOC")
                               .build())
                       .time("2012-03-29T01:57:40Z")
@@ -340,7 +385,7 @@ public class AllergyIntoleranceSamples {
                   gov.va.api.health.r4.api.datatypes.Annotation.builder()
                       .authorReference(
                           gov.va.api.health.r4.api.elements.Reference.builder()
-                              .reference("Practitioner/12345")
+                              .reference("Practitioner/" + authorPublicId)
                               .display("PROVID,ALLIN DOC")
                               .build())
                       .time("2012-03-29T01:58:21Z")
