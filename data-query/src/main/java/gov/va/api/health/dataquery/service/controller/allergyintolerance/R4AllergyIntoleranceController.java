@@ -2,14 +2,15 @@ package gov.va.api.health.dataquery.service.controller.allergyintolerance;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
-import gov.va.api.health.uscorer4.api.resources.AllergyIntolerance;
+
 import gov.va.api.health.dataquery.service.controller.CountParameter;
-import gov.va.api.health.dataquery.service.controller.R4Bundler;
 import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.Parameters;
+import gov.va.api.health.dataquery.service.controller.R4Bundler;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
+import gov.va.api.health.uscorer4.api.resources.AllergyIntolerance;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -151,14 +152,12 @@ public class R4AllergyIntoleranceController {
       return bundle(parameters, emptyList(), (int) entitiesPage.getTotalElements());
     }
     List<DatamartAllergyIntolerance> datamarts =
-        entitiesPage
-            .stream()
+        entitiesPage.stream()
             .map(e -> e.asDatamartAllergyIntolerance())
             .collect(Collectors.toList());
     replaceReferences(datamarts);
     List<AllergyIntolerance> fhir =
-        datamarts
-            .stream()
+        datamarts.stream()
             .map(dm -> R4AllergyIntoleranceTransformer.builder().datamart(dm).build().toFhir())
             .collect(Collectors.toList());
     return bundle(parameters, fhir, (int) entitiesPage.getTotalElements());

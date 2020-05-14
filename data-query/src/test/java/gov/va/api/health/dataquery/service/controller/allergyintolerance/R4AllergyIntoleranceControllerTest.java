@@ -1,48 +1,47 @@
 package gov.va.api.health.dataquery.service.controller.allergyintolerance;
 
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.any;
+
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
-import gov.va.api.health.uscorer4.api.resources.AllergyIntolerance;
-import gov.va.api.health.uscorer4.api.resources.AllergyIntolerance.Bundle;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
 import gov.va.api.health.dataquery.service.controller.R4Bundler;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
-import gov.va.api.health.dataquery.service.controller.allergyintolerance.AllergyIntoleranceSamples.Datamart;
-import gov.va.api.health.dataquery.service.controller.allergyintolerance.AllergyIntoleranceSamples.R4;
-import gov.va.api.health.r4.api.bundle.BundleLink.LinkRelation;
 import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
+import gov.va.api.health.r4.api.bundle.BundleLink.LinkRelation;
+import gov.va.api.health.uscorer4.api.resources.AllergyIntolerance;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @DataJpaTest
 @RunWith(SpringRunner.class)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class R4AllergyIntoleranceControllerTest {
-  HttpServletResponse response = mock(HttpServletResponse.class);
+  @Autowired private AllergyIntoleranceRepository repository;
+
+  private HttpServletResponse response = mock(HttpServletResponse.class);
 
   private IdentityService ids = mock(IdentityService.class);
 
-  @Autowired private AllergyIntoleranceRepository repository;
-
   @SneakyThrows
-  private AllergyIntoleranceEntity asEntity(DatamartAllergyIntolerance dm) {
+  private static AllergyIntoleranceEntity asEntity(DatamartAllergyIntolerance dm) {
     return AllergyIntoleranceEntity.builder()
         .cdwId(dm.cdwId())
         .icn(dm.patient().reference().get())
@@ -50,19 +49,25 @@ public class R4AllergyIntoleranceControllerTest {
         .build();
   }
 
-  R4AllergyIntoleranceController controller() {
+  @SneakyThrows
+  private static String json(Object obj) {
+    return JacksonConfig.createMapper().writerWithDefaultPrettyPrinter().writeValueAsString(obj);
+  }
+
+  @SneakyThrows
+  private static DatamartAllergyIntolerance toDatamart(String json) {
+    return JacksonConfig.createMapper().readValue(json, DatamartAllergyIntolerance.class);
+  }
+
+  private R4AllergyIntoleranceController _controller() {
     return new R4AllergyIntoleranceController(
-        new R4Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool", "cool", "cool")),
+        new R4Bundler(
+            new ConfigurableBaseUrlPageLinks("http://fhir.com", "unused", "unused", "r4")),
         repository,
         WitnessProtection.builder().identityService(ids).build());
   }
 
-  @SneakyThrows
-  String json(Object o) {
-    return JacksonConfig.createMapper().writerWithDefaultPrettyPrinter().writeValueAsString(o);
-  }
-
-  public void mockAllergyIntoleranceIdentity(
+  private void _mockAllergyIntoleranceIdentity(
       String aiPublicId,
       String aiCdwId,
       String patientPublicId,
@@ -95,7 +100,6 @@ public class R4AllergyIntoleranceControllerTest {
             .resource("PRACTITIONER")
             .identifier(authorCdwId)
             .build();
-
     when(ids.lookup(aiPublicId)).thenReturn(List.of(aiResource));
     when(ids.register(any()))
         .thenReturn(
@@ -118,41 +122,70 @@ public class R4AllergyIntoleranceControllerTest {
                     .build()));
   }
 
-  private Multimap<String, AllergyIntolerance> populateDataForPatients() {
-    var fhir = R4.create();
-    var datamart = Datamart.create();
+  private Multimap<String, AllergyIntolerance> _populateDataForPatients() {
+    var fhir = AllergyIntoleranceSamples.R4.create();
+    var datamart = AllergyIntoleranceSamples.Datamart.create();
     Multimap<String, AllergyIntolerance> allergyIntoleranceByPatient = LinkedHashMultimap.create();
     List<Registration> registrations = new ArrayList<>(10);
     for (int i = 0; i < 10; i++) {
-      String patientId = "p" + i % 2;
-
-      String cdwId = Integer.toString(i);
-      String publicId = "I2-" + i;
-
+      String patientCdwId = "p" + i % 2;
+      String patientPublicId = patientCdwId;
+      String aiCdwId = Integer.toString(i);
+      String aiPublicId = "I2-" + i;
       String recorderCdwId = "10" + i;
-      String publicRecorderId = "I2-" + recorderCdwId;
-
+      String recorderPublicId = "I2-" + recorderCdwId;
       String authorCdwId = "100" + i;
-      String publicAuthorId = "I2-" + authorCdwId;
-
-      var dm = datamart.allergyIntolerance(cdwId, patientId, recorderCdwId, authorCdwId);
+      String authorPublicId = "I2-" + authorCdwId;
+      var dm = datamart.allergyIntolerance(aiCdwId, patientCdwId, recorderCdwId, authorCdwId);
       repository.save(asEntity(dm));
       var allergyIntolerance =
-          fhir.allergyIntolerance(publicId, patientId, publicRecorderId, publicAuthorId);
-      allergyIntoleranceByPatient.put(patientId, allergyIntolerance);
-      ResourceIdentity resourceIdentity =
+          fhir.allergyIntolerance(aiPublicId, patientPublicId, recorderPublicId, authorPublicId);
+      allergyIntoleranceByPatient.put(patientPublicId, allergyIntolerance);
+
+      ResourceIdentity aiResource =
           ResourceIdentity.builder()
               .system("CDW")
               .resource("ALLERGY_INTOLERANCE")
-              .identifier(cdwId)
+              .identifier(aiCdwId)
               .build();
-      Registration registration =
-          Registration.builder()
-              .uuid(publicId)
-              .resourceIdentities(List.of(resourceIdentity))
+      ResourceIdentity patientResource =
+          ResourceIdentity.builder()
+              .system("CDW")
+              .resource("PATIENT")
+              .identifier(patientCdwId)
               .build();
-      registrations.add(registration);
-      when(ids.lookup(publicId)).thenReturn(List.of(resourceIdentity));
+      ResourceIdentity recorderResource =
+          ResourceIdentity.builder()
+              .system("CDW")
+              .resource("PRACTITIONER")
+              .identifier(recorderCdwId)
+              .build();
+      ResourceIdentity authorResource =
+          ResourceIdentity.builder()
+              .system("CDW")
+              .resource("PRACTITIONER")
+              .identifier(authorCdwId)
+              .build();
+      when(ids.lookup(aiPublicId)).thenReturn(List.of(aiResource));
+
+      registrations.addAll(
+          List.of(
+              Registration.builder()
+                  .uuid(aiPublicId)
+                  .resourceIdentities(List.of(aiResource))
+                  .build(),
+              Registration.builder()
+                  .uuid(patientPublicId)
+                  .resourceIdentities(List.of(patientResource))
+                  .build(),
+              Registration.builder()
+                  .uuid(recorderPublicId)
+                  .resourceIdentities(List.of(recorderResource))
+                  .build(),
+              Registration.builder()
+                  .uuid(authorPublicId)
+                  .resourceIdentities(List.of(authorResource))
+                  .build()));
     }
     when(ids.register(any())).thenReturn(registrations);
     return allergyIntoleranceByPatient;
@@ -172,7 +205,7 @@ public class R4AllergyIntoleranceControllerTest {
         AllergyIntoleranceSamples.Datamart.create()
             .allergyIntolerance(cdwId, patientCdwId, recorderCdwId, authorCdwId);
     repository.save(asEntity(dm));
-    mockAllergyIntoleranceIdentity(
+    _mockAllergyIntoleranceIdentity(
         publicId,
         cdwId,
         patientPublicId,
@@ -181,215 +214,249 @@ public class R4AllergyIntoleranceControllerTest {
         recorderCdwId,
         authorPublicId,
         authorCdwId);
-    AllergyIntolerance actual = controller().read(publicId);
+    AllergyIntolerance actual = _controller().read(publicId);
     assertThat(json(actual))
         .isEqualTo(
             json(
-                R4.create()
+                AllergyIntoleranceSamples.R4
+                    .create()
                     .allergyIntolerance(
                         publicId, patientPublicId, recorderPublicId, authorPublicId)));
   }
 
   @Test
   public void readRaw() {
+    String publicId = "I2-AI1";
+    String cdwId = "1";
+    String patientPublicId = "P666";
+    String patientCdwId = "P666";
+    String recorderPublicId = "I2-REC10";
+    String recorderCdwId = "10";
+    String authorPublicId = "I2-AUTH100";
+    String authorCdwId = "100";
     DatamartAllergyIntolerance dm =
-        AllergyIntoleranceSamples.Datamart.create().allergyIntolerance();
+        AllergyIntoleranceSamples.Datamart.create()
+            .allergyIntolerance(cdwId, patientCdwId, recorderCdwId, authorCdwId);
     AllergyIntoleranceEntity entity = asEntity(dm);
     repository.save(entity);
-    mockAllergyIntoleranceIdentity("1", dm.cdwId());
-    String json = controller().readRaw("1", response);
-    assertThat(toObject(json)).isEqualTo(dm);
+    _mockAllergyIntoleranceIdentity(
+        publicId,
+        cdwId,
+        patientPublicId,
+        patientCdwId,
+        recorderPublicId,
+        recorderCdwId,
+        authorPublicId,
+        authorCdwId);
+    String json = _controller().readRaw(publicId, response);
+    assertThat(toDatamart(json)).isEqualTo(dm);
     verify(response).addHeader("X-VA-INCLUDES-ICN", entity.icn());
   }
 
   @Test(expected = ResourceExceptions.NotFound.class)
   public void readRawThrowsNotFoundWhenDataIsMissing() {
-    mockAllergyIntoleranceIdentity("1", "1");
-    controller().readRaw("1", response);
+    _mockAllergyIntoleranceIdentity("1", "1", "1", "1", "1", "1", "1", "1");
+    _controller().readRaw("1", response);
   }
 
   @Test(expected = ResourceExceptions.NotFound.class)
   public void readRawThrowsNotFoundWhenIdIsUnknown() {
-    controller().readRaw("1", response);
+    _controller().readRaw("1", response);
   }
 
   @Test(expected = ResourceExceptions.NotFound.class)
   public void readThrowsNotFoundWhenDataIsMissing() {
-    mockAllergyIntoleranceIdentity("1", "1");
-    controller().read("1");
+    _mockAllergyIntoleranceIdentity("1", "1", "1", "1", "1", "1", "1", "1");
+    _controller().read("1");
   }
 
   @Test(expected = ResourceExceptions.NotFound.class)
   public void readThrowsNotFoundWhenIdIsUnknown() {
-    controller().read("1");
+    _controller().read("1");
   }
 
   @Test
   public void searchById() {
-    DatamartAllergyIntolerance dm = Datamart.create().allergyIntolerance();
+    String publicId = "I2-AI1";
+    String cdwId = "1";
+    String patientPublicId = "P666";
+    String patientCdwId = "P666";
+    String recorderPublicId = "I2-REC10";
+    String recorderCdwId = "10";
+    String authorPublicId = "I2-AUTH100";
+    String authorCdwId = "100";
+    DatamartAllergyIntolerance dm =
+        AllergyIntoleranceSamples.Datamart.create()
+            .allergyIntolerance(cdwId, patientCdwId, recorderCdwId, authorCdwId);
     repository.save(asEntity(dm));
-    mockAllergyIntoleranceIdentity("1", dm.cdwId());
-    Bundle actual = controller().searchById("1", 1, 1);
+    _mockAllergyIntoleranceIdentity(
+        publicId,
+        cdwId,
+        patientPublicId,
+        patientCdwId,
+        recorderPublicId,
+        recorderCdwId,
+        authorPublicId,
+        authorCdwId);
+    AllergyIntolerance.Bundle actual = _controller().searchById(publicId, 1, 1);
     AllergyIntolerance allergyIntolerance =
-        R4.create().allergyIntolerance("1", dm.patient().reference().get());
+        AllergyIntoleranceSamples.R4
+            .create()
+            .allergyIntolerance(publicId, patientPublicId, recorderPublicId, authorPublicId);
     assertThat(json(actual))
         .isEqualTo(
             json(
-                R4.asBundle(
-                    "http://fonzy.com/cool",
+                AllergyIntoleranceSamples.R4.asBundle(
+                    "http://fhir.com/r4",
                     List.of(allergyIntolerance),
                     1,
-                    R4.link(
+                    AllergyIntoleranceSamples.R4.link(
                         LinkRelation.first,
-                        "http://fonzy.com/cool/AllergyIntolerance?identifier=1",
+                        "http://fhir.com/r4/AllergyIntolerance?identifier=I2-AI1",
                         1,
                         1),
-                    R4.link(
+                    AllergyIntoleranceSamples.R4.link(
                         LinkRelation.self,
-                        "http://fonzy.com/cool/AllergyIntolerance?identifier=1",
+                        "http://fhir.com/r4/AllergyIntolerance?identifier=I2-AI1",
                         1,
                         1),
-                    R4.link(
+                    AllergyIntoleranceSamples.R4.link(
                         LinkRelation.last,
-                        "http://fonzy.com/cool/AllergyIntolerance?identifier=1",
+                        "http://fhir.com/r4/AllergyIntolerance?identifier=I2-AI1",
                         1,
                         1))));
   }
 
   @Test
   public void searchByIdentifier() {
-    DatamartAllergyIntolerance dm = Datamart.create().allergyIntolerance();
+    String publicId = "I2-AI1";
+    String cdwId = "1";
+    String patientPublicId = "P666";
+    String patientCdwId = "P666";
+    String recorderPublicId = "I2-REC10";
+    String recorderCdwId = "10";
+    String authorPublicId = "I2-AUTH100";
+    String authorCdwId = "100";
+    DatamartAllergyIntolerance dm =
+        AllergyIntoleranceSamples.Datamart.create()
+            .allergyIntolerance(cdwId, patientCdwId, recorderCdwId, authorCdwId);
     repository.save(asEntity(dm));
-    mockAllergyIntoleranceIdentity("1", dm.cdwId());
-    Bundle actual = controller().searchByIdentifier("1", 1, 1);
-    validateSearchByIdResult(dm, actual);
+    _mockAllergyIntoleranceIdentity(
+        publicId,
+        cdwId,
+        patientPublicId,
+        patientCdwId,
+        recorderPublicId,
+        recorderCdwId,
+        authorPublicId,
+        authorCdwId);
+    AllergyIntolerance.Bundle actual = _controller().searchByIdentifier(publicId, 1, 1);
+    AllergyIntolerance allergyIntolerance =
+        AllergyIntoleranceSamples.R4
+            .create()
+            .allergyIntolerance(publicId, patientPublicId, recorderPublicId, authorPublicId);
+    assertThat(json(actual))
+        .isEqualTo(
+            json(
+                AllergyIntoleranceSamples.R4.asBundle(
+                    "http://fhir.com/r4",
+                    List.of(allergyIntolerance),
+                    1,
+                    AllergyIntoleranceSamples.R4.link(
+                        LinkRelation.first,
+                        "http://fhir.com/r4/AllergyIntolerance?identifier=I2-AI1",
+                        1,
+                        1),
+                    AllergyIntoleranceSamples.R4.link(
+                        LinkRelation.self,
+                        "http://fhir.com/r4/AllergyIntolerance?identifier=I2-AI1",
+                        1,
+                        1),
+                    AllergyIntoleranceSamples.R4.link(
+                        LinkRelation.last,
+                        "http://fhir.com/r4/AllergyIntolerance?identifier=I2-AI1",
+                        1,
+                        1))));
   }
 
   @Test
   public void searchByIdentifierWithCount0() {
-    DatamartAllergyIntolerance dm = Datamart.create().allergyIntolerance();
+    String publicId = "I2-AI1";
+    String cdwId = "1";
+    String patientPublicId = "P666";
+    String patientCdwId = "P666";
+    String recorderPublicId = "I2-REC10";
+    String recorderCdwId = "10";
+    String authorPublicId = "I2-AUTH100";
+    String authorCdwId = "100";
+    DatamartAllergyIntolerance dm =
+        AllergyIntoleranceSamples.Datamart.create()
+            .allergyIntolerance(cdwId, patientCdwId, recorderCdwId, authorCdwId);
     repository.save(asEntity(dm));
-    mockAllergyIntoleranceIdentity("1", dm.cdwId());
-    assertThat(json(controller().searchByIdentifier("1", 1, 0)))
+    _mockAllergyIntoleranceIdentity(
+        publicId,
+        cdwId,
+        patientPublicId,
+        patientCdwId,
+        recorderPublicId,
+        recorderCdwId,
+        authorPublicId,
+        authorCdwId);
+    assertThat(json(_controller().searchByIdentifier(publicId, 1, 0)))
         .isEqualTo(
             json(
-                R4.asBundle(
-                    "http://fonzy.com/cool",
-                    Collections.emptyList(),
+                AllergyIntoleranceSamples.R4.asBundle(
+                    "http://fhir.com/r4",
+                    emptyList(),
                     1,
-                    R4.link(
+                    AllergyIntoleranceSamples.R4.link(
                         LinkRelation.self,
-                        "http://fonzy.com/cool/AllergyIntolerance?identifier=1",
+                        "http://fhir.com/r4/AllergyIntolerance?identifier=I2-AI1",
                         1,
                         0))));
   }
 
   @Test
   public void searchByPatient() {
-    Multimap<String, AllergyIntolerance> allergyIntoleranceByPatient = populateDataForPatients();
-    assertThat(json(controller().searchByPatient("p0", 1, 10)))
+    Multimap<String, AllergyIntolerance> allergyIntoleranceByPatient = _populateDataForPatients();
+    assertThat(json(_controller().searchByPatient("p0", 1, 10)))
         .isEqualTo(
             json(
-                R4.asBundle(
-                    "http://fonzy.com/cool",
+                AllergyIntoleranceSamples.R4.asBundle(
+                    "http://fhir.com/r4",
                     allergyIntoleranceByPatient.get("p0"),
                     allergyIntoleranceByPatient.get("p0").size(),
-                    R4.link(
+                    AllergyIntoleranceSamples.R4.link(
                         LinkRelation.first,
-                        "http://fonzy.com/cool/AllergyIntolerance?patient=p0",
+                        "http://fhir.com/r4/AllergyIntolerance?patient=p0",
                         1,
                         10),
-                    R4.link(
+                    AllergyIntoleranceSamples.R4.link(
                         LinkRelation.self,
-                        "http://fonzy.com/cool/AllergyIntolerance?patient=p0",
+                        "http://fhir.com/r4/AllergyIntolerance?patient=p0",
                         1,
                         10),
-                    R4.link(
+                    AllergyIntoleranceSamples.R4.link(
                         LinkRelation.last,
-                        "http://fonzy.com/cool/AllergyIntolerance?patient=p0",
+                        "http://fhir.com/r4/AllergyIntolerance?patient=p0",
                         1,
                         10))));
   }
 
   @Test
   public void searchByPatientWithCount0() {
-    Multimap<String, AllergyIntolerance> allergyIntoleranceByPatient = populateDataForPatients();
-    assertThat(json(controller().searchByPatient("p0", 1, 0)))
+    Multimap<String, AllergyIntolerance> allergyIntoleranceByPatient = _populateDataForPatients();
+    assertThat(json(_controller().searchByPatient("p0", 1, 0)))
         .isEqualTo(
             json(
-                R4.asBundle(
-                    "http://fonzy.com/cool",
-                    Collections.emptyList(),
+                AllergyIntoleranceSamples.R4.asBundle(
+                    "http://fhir.com/r4",
+                    emptyList(),
                     allergyIntoleranceByPatient.get("p0").size(),
-                    R4.link(
+                    AllergyIntoleranceSamples.R4.link(
                         LinkRelation.self,
-                        "http://fonzy.com/cool/AllergyIntolerance?patient=p0",
+                        "http://fhir.com/r4/AllergyIntolerance?patient=p0",
                         1,
                         0))));
-  }
-
-  @SneakyThrows
-  private DatamartAllergyIntolerance toObject(String json) {
-    return JacksonConfig.createMapper().readValue(json, DatamartAllergyIntolerance.class);
-  }
-
-  // @Test
-  //  public void validate() {
-  //    DatamartAllergyIntolerance dm =
-  //        AllergyIntoleranceSamples.Datamart.create().allergyIntolerance();
-  //    AllergyIntolerance allergyIntolerance =
-  //        AllergyIntoleranceSamples.R4
-  //            .create()
-  //            .allergyIntolerance("1", dm.patient().reference().get());
-  //    assertThat(
-  //            controller()
-  //                .validate(
-  //                    AllergyIntoleranceSamples.Dstu2.asBundle(
-  //                        "http://fonzy.com/cool",
-  //                        List.of(allergyIntolerance),
-  //                        1,
-  //                        R4.link(
-  //                            LinkRelation.first,
-  //                            "http://fonzy.com/cool/AllergyIntolerance?identifier=1",
-  //                            1,
-  //                            1),
-  //                        R4.link(
-  //                            LinkRelation.self,
-  //                            "http://fonzy.com/cool/AllergyIntolerance?identifier=1",
-  //                            1,
-  //                            1),
-  //                        R4.link(
-  //                            LinkRelation.last,
-  //                            "http://fonzy.com/cool/AllergyIntolerance?identifier=1",
-  //                            1,
-  //                            1))))
-  //        .isEqualTo(Dstu2Validator.ok());
-  //  }
-
-  private void validateSearchByIdResult(DatamartAllergyIntolerance dm, Bundle actual) {
-    AllergyIntolerance allergyIntolerance =
-        R4.create().allergyIntolerance("1", dm.patient().reference().get());
-    assertThat(json(actual))
-        .isEqualTo(
-            json(
-                R4.asBundle(
-                    "http://fonzy.com/cool",
-                    List.of(allergyIntolerance),
-                    1,
-                    R4.link(
-                        LinkRelation.first,
-                        "http://fonzy.com/cool/AllergyIntolerance?identifier=1",
-                        1,
-                        1),
-                    R4.link(
-                        LinkRelation.self,
-                        "http://fonzy.com/cool/AllergyIntolerance?identifier=1",
-                        1,
-                        1),
-                    R4.link(
-                        LinkRelation.last,
-                        "http://fonzy.com/cool/AllergyIntolerance?identifier=1",
-                        1,
-                        1))));
   }
 }
