@@ -7,6 +7,7 @@ import gov.va.api.health.dataquery.service.controller.metadata.MetadataPropertie
 import lombok.SneakyThrows;
 
 class MetadataSamples {
+  @SuppressWarnings("deprecation")
   static MetadataProperties conformanceStatementProperties() {
     return MetadataProperties.builder()
         .id("lighthouse-va-fhir-conformance")

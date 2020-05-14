@@ -54,7 +54,7 @@ public class Dstu2AllergyIntoleranceTransformerTest {
     assertThat(tx().notes(null)).isNull();
     assertThat(tx().notes(List.of())).isNull();
     assertThat(tx().notes(Datamart.create().emptyNotes())).isNull();
-    assertThat(tx().notes(Datamart.create().notes())).isEqualTo(Dstu2.create().note());
+    assertThat(tx().notes(Datamart.create().notes("12345"))).isEqualTo(Dstu2.create().note());
   }
 
   @Test

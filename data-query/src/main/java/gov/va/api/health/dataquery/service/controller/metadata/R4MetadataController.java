@@ -45,7 +45,6 @@ import org.springframework.web.bind.annotation.RestController;
     produces = {"application/json", "application/fhir+json"})
 @AllArgsConstructor(onConstructor = @__({@Autowired}))
 class R4MetadataController {
-
   private final ConfigurableBaseUrlPageLinks pageLinks;
 
   private final MetadataProperties properties;
@@ -97,6 +96,11 @@ class R4MetadataController {
 
   private List<CapabilityResource> resources() {
     return Stream.of(
+            support("AllergyIntolerance")
+                .profileUrl(
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-allergyintolerance")
+                .search(Set.of(SearchParam.PATIENT))
+                .build(),
             support("Condition")
                 .profileUrl("http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition")
                 .search(

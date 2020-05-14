@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.api;
 
+import gov.va.api.health.uscorer4.api.AllergyIntoleranceApi;
 import gov.va.api.health.uscorer4.api.ConditionApi;
 import gov.va.api.health.uscorer4.api.PatientApi;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
@@ -20,6 +21,7 @@ import javax.ws.rs.Path;
         @SecurityRequirement(
             name = "OauthFlow",
             scopes = {
+              "patient/AllergyIntolerance.read",
               "patient/Condition.read",
               "patient/Patient.read",
               "offline_access",
@@ -56,10 +58,13 @@ import javax.ws.rs.Path;
                     authorizationUrl = "https://sandbox-api.va.gov/oauth2/authorization",
                     tokenUrl = "https://sandbox-api.va.gov/services/fhir/v0/r4/token",
                     scopes = {
+                      @OAuthScope(
+                          name = "patient/AllergyIntolerance.read",
+                          description = "read allergy intolerances"),
                       @OAuthScope(name = "patient/Condition.read", description = "read conditions"),
                       @OAuthScope(name = "patient/Patient.read", description = "read patient"),
                       @OAuthScope(name = "offline_access", description = "offline access"),
                       @OAuthScope(name = "launch/patient", description = "patient launch"),
                     })))
 @Path("/")
-public interface R4DataQueryService extends ConditionApi, PatientApi {}
+public interface R4DataQueryService extends AllergyIntoleranceApi, ConditionApi, PatientApi {}
