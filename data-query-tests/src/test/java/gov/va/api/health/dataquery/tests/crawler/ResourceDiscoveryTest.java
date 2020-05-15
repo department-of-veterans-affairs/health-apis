@@ -1,37 +1,58 @@
 package gov.va.api.health.dataquery.tests.crawler;
 
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import gov.va.api.health.dataquery.tests.crawler.ResourceDiscovery.UnknownFhirVersion;
 import gov.va.api.health.dstu2.api.resources.Conformance;
-import gov.va.api.health.dstu2.api.resources.Conformance.ResourceInteraction;
-import gov.va.api.health.dstu2.api.resources.Conformance.ResourceInteractionCode;
 import gov.va.api.health.dstu2.api.resources.Conformance.Rest;
 import gov.va.api.health.dstu2.api.resources.Conformance.RestResource;
 import gov.va.api.health.dstu2.api.resources.Conformance.SearchParam;
 import gov.va.api.health.sentinel.categories.Local;
-import java.util.Arrays;
+import io.restassured.response.Response;
 import java.util.List;
+import java.util.stream.Stream;
 import lombok.NoArgsConstructor;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 @Category(Local.class)
 public class ResourceDiscoveryTest {
-  private final ConformanceTestData data = ConformanceTestData.get();
-  ResourceDiscovery resourceDiscovery =
-      ResourceDiscovery.builder()
-          .url("http://localhost:8090/api/")
-          .patientId("185601V825290")
-          .build();
+  ResourceDiscovery rd =
+      ResourceDiscovery.of(
+          ResourceDiscovery.Context.builder()
+              .url("http://localhost:8090/api/")
+              .patientId("185601V825290")
+              .build());
 
-  private String expectedSearchUrl(String resource) {
-    return resourceDiscovery.url() + resource + "?patient=" + resourceDiscovery.patientId();
+  public Dstu2TestData dstu2() {
+    return Dstu2TestData.get();
   }
 
   @Test
-  public void extractResource() {
+  public void dstu2UselessConformanceStatementsReturnNoQueries() {
+    Response response = mock(Response.class);
+
+    when(response.as(Conformance.class)).thenReturn(dstu2().conformanceWithNoRestResourceList);
+    assertThat(rd.queriesFor(response)).isEmpty();
+
+    when(response.as(Conformance.class)).thenReturn(dstu2().conformanceWithEmptyRestResourceList);
+    assertThat(rd.queriesFor(response)).isEmpty();
+
+    when(response.as(Conformance.class)).thenReturn(dstu2().conformanceWithResources);
+    assertThat(rd.queriesFor(response))
+        .containsExactlyInAnyOrder(
+            rd.context().url() + "Patient/" + rd.context().patientId(),
+            rd.context().url() + "Patient?_id=" + rd.context().patientId(),
+            rd.context().url() + "Thing?patient=" + rd.context().patientId()
+            //
+            );
+  }
+
+  @Test
+  public void resourceExtractsTypeFromWellFormedUrls() {
     assertThat(
             ResourceDiscovery.resource("https://dev-api.va.gov/services/argonaut/v0/Patient/12345"))
         .isEqualTo("Patient");
@@ -41,124 +62,59 @@ public class ResourceDiscoveryTest {
         .isEqualTo("AllergyIntolerance");
   }
 
-  @Test
-  public void extractRestResources() {
-    assertThat(resourceDiscovery.extractRestResources(null)).isEmpty();
-    assertThat(resourceDiscovery.extractRestResources(data.noRestListConformanceStatement))
-        .isEmpty();
-    assertThat(resourceDiscovery.extractRestResources(data.emptyRestListConformanceStatement))
-        .isEmpty();
-    assertThat(
-            resourceDiscovery.extractRestResources(
-                data.singleResourceDoubleRestListConformanceStatement))
-        .isEqualTo(Arrays.asList(data.validRestResource, data.validRestResource));
-    assertThat(
-            resourceDiscovery.extractRestResources(
-                data.doubleResourceSingleRestListConformanceStatement))
-        .isEqualTo(Arrays.asList(data.validRestResource, data.validRestResource));
+  @Test(expected = IllegalArgumentException.class)
+  public void resourceThrowsIllegalArgumentExceptionIfNoSlashIsFound() {
+    ResourceDiscovery.resource("garbage");
   }
 
   @Test
-  public void patientQueries() {
-    String read = resourceDiscovery.url() + "Patient/" + resourceDiscovery.patientId();
-    String search = resourceDiscovery.url() + "Patient?_id=" + resourceDiscovery.patientId();
-    assertThat(resourceDiscovery.patientQueries(emptyList())).isEmpty();
+  public void resourceUrlForPoorlyFormedUrls() {
     assertThat(
-            resourceDiscovery.patientSearchableResourceQueries(
-                singletonList(data.emptySearchParamRestResource)))
-        .isEmpty();
-    assertThat(resourceDiscovery.patientQueries(singletonList(data.readableAndSearchablePatient)))
-        .containsExactlyInAnyOrder(read, search);
-    assertThat(
-            resourceDiscovery.patientQueries(singletonList(data.readableAndNotSearchablePatient)))
-        .containsExactly(read);
-    assertThat(
-            resourceDiscovery.patientQueries(singletonList(data.notReadableAndSearchablePatient)))
-        .containsExactly(search);
-    assertThat(
-            resourceDiscovery.patientQueries(
-                singletonList(data.notReadableAndNotSearchablePatient)))
-        .isEmpty();
+            ResourceDiscovery.resource(
+                "https://dev-api.va.gov/AllergyIntolerance?patient/what=12345"))
+        .isEqualTo("https://dev-api.va.gov/AllergyIntolerance?patient/what=12345");
+    assertThat(ResourceDiscovery.resource("https://dev-api.va.gov/Patient//12345"))
+        .isEqualTo("https://dev-api.va.gov/Patient//12345");
   }
 
-  @Test
-  public void patientSearchableResources() {
-    assertThat(resourceDiscovery.patientSearchableResourceQueries(emptyList())).isEmpty();
-    assertThat(resourceDiscovery.patientSearchableResourceQueries(emptyList())).isEmpty();
-    assertThat(resourceDiscovery.patientSearchableResourceQueries(data.noSearchableResources))
-        .isEmpty();
-    assertThat(resourceDiscovery.patientSearchableResourceQueries(data.mixedSearchableResources))
-        .isEqualTo(singletonList(expectedSearchUrl(data.patientSearchableRestResource.type())));
-
-    assertThat(resourceDiscovery.patientSearchableResourceQueries(data.bothSearchableResources))
-        .isEqualTo(
-            Arrays.asList(
-                expectedSearchUrl(data.patientSearchableRestResource.type()),
-                expectedSearchUrl(data.patientSearchableRestResource.type())));
+  @Test(expected = UnknownFhirVersion.class)
+  public void unknownResponseThrowsException() {
+    Response response = mock(Response.class);
+    when(response.as(Conformance.class)).thenThrow(new RuntimeException("fugazi"));
+    rd.queriesFor(response);
   }
 
   @NoArgsConstructor(staticName = "get")
-  public static class ConformanceTestData {
-    List<ResourceInteraction> readable =
-        singletonList(ResourceInteraction.builder().code(ResourceInteractionCode.read).build());
-    List<ResourceInteraction> notReadable = singletonList(ResourceInteraction.builder().build());
-    List<SearchParam> searchable = singletonList(SearchParam.builder().name("_id").build());
-    List<SearchParam> notSearchable = singletonList(SearchParam.builder().build());
-    RestResource readableAndSearchablePatient =
-        RestResource.builder()
-            .type("Patient")
-            .interaction(readable)
-            .searchParam(searchable)
+  public static class Dstu2TestData {
+
+    Conformance conformanceWithNoRestResourceList = Conformance.builder().build();
+
+    Conformance conformanceWithEmptyRestResourceList =
+        Conformance.builder().rest(List.of()).build();
+
+    Conformance conformanceWithResources =
+        Conformance.builder()
+            .rest(
+                List.of(
+                    Rest.builder()
+                        .resource(
+                            List.of(
+                                resource("ThingNotSearchable"),
+                                resource("ThingNotSearchableByPatient", "_id"),
+                                resource("Thing", "_id", "patient"),
+                                resource("Patient", "_id")
+                                //
+                                ))
+                        .build()))
             .build();
-    RestResource readableAndNotSearchablePatient =
-        RestResource.builder()
-            .type("Patient")
-            .interaction(readable)
-            .searchParam(notSearchable)
-            .build();
-    RestResource notReadableAndSearchablePatient =
-        RestResource.builder()
-            .type("Patient")
-            .interaction(notReadable)
-            .searchParam(searchable)
-            .build();
-    RestResource notReadableAndNotSearchablePatient =
-        RestResource.builder()
-            .type("Patient")
-            .interaction(notReadable)
-            .searchParam(notSearchable)
-            .build();
-    RestResource patientSearchableRestResource =
-        RestResource.builder()
-            .type("searchable-by-patient")
-            .searchParam(singletonList(SearchParam.builder().name("patient").build()))
-            .build();
-    RestResource identifierSearchableRestResource =
-        RestResource.builder()
-            .type("not-searchable-by-patient")
-            .searchParam(singletonList(SearchParam.builder().name("_id").build()))
-            .build();
-    RestResource emptySearchParamRestResource =
-        RestResource.builder().type("empty-search-param").searchParam(null).build();
-    List<RestResource> noSearchableResources =
-        Arrays.asList(identifierSearchableRestResource, identifierSearchableRestResource);
-    List<RestResource> mixedSearchableResources =
-        Arrays.asList(identifierSearchableRestResource, patientSearchableRestResource);
-    List<RestResource> bothSearchableResources =
-        Arrays.asList(patientSearchableRestResource, patientSearchableRestResource);
-    RestResource validRestResource = RestResource.builder().type("Patient").build();
-    Rest singleResourceSingleRest =
-        Rest.builder().resource(singletonList(validRestResource)).build();
-    Rest doubleResourceSingleRest =
-        Rest.builder().resource(Arrays.asList(validRestResource, validRestResource)).build();
-    List<Rest> singleResourcePerRestList =
-        Arrays.asList(singleResourceSingleRest, singleResourceSingleRest);
-    List<Rest> doubleResourceSingleRestList = singletonList(doubleResourceSingleRest);
-    Conformance noRestListConformanceStatement = Conformance.builder().build();
-    Conformance emptyRestListConformanceStatement = Conformance.builder().rest(emptyList()).build();
-    Conformance singleResourceDoubleRestListConformanceStatement =
-        Conformance.builder().rest(singleResourcePerRestList).build();
-    Conformance doubleResourceSingleRestListConformanceStatement =
-        Conformance.builder().rest(doubleResourceSingleRestList).build();
+
+    RestResource resource(String type, String... searchParams) {
+      List<SearchParam> params =
+          Stream.of(searchParams).map(n -> SearchParam.builder().name(n).build()).collect(toList());
+      return RestResource.builder()
+          .type(type)
+          .searchParam(params.isEmpty() ? null : params)
+          .build();
+    }
   }
 }

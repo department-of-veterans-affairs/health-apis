@@ -14,6 +14,33 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @UtilityClass
 public class CrawlerProperties {
+  /** Read url replacement from system property. */
+  public String allowQueryUrlPattern() {
+    String pattern = System.getProperty("crawler.allow-query-url-pattern");
+    if (isBlank(pattern)) {
+      log.info("URL filtering disabled (Override with -Dcrawler.allow-query-url-pattern=<regex>)");
+      pattern = ".*";
+    } else {
+      log.info(
+          "Only allowing URLs matching {}"
+              + " (Override with --Dcrawler.allow-query-url-pattern=<regex>)",
+          pattern);
+    }
+    return pattern;
+  }
+
+  /** Read the metadata URL from system property. */
+  public String baseUrlOrElse(@NonNull String defaultUrl) {
+    String url = System.getProperty("crawler.base-url");
+    if (isBlank(url)) {
+      log.info(
+          "Base URL not specified, assuming {} (Override with -Dcrawler.base-url=<url>)",
+          defaultUrl);
+      return defaultUrl;
+    }
+    log.info("Base URL {} (Override with -Dcrawler.base-url=<url>)", url);
+    return url;
+  }
 
   /**
    * Get crawler ignores from a system property. Ignores are not factored into the crawlers result
@@ -33,6 +60,17 @@ public class CrawlerProperties {
           ignores);
     }
     return ignores;
+  }
+
+  /** Read url replacement from system property. */
+  public List<String> seedQueries() {
+    String replace = System.getProperty("crawler.seed");
+    if (isBlank(replace)) {
+      log.info("Additional seed URLs disabled (Override with -Dcrawler.seed=<url>)");
+      return List.of();
+    }
+    log.info("Additional seed URLs {} (Override with -Dcrawler.url.replace=<url>)", replace);
+    return Splitter.on(",").splitToList(replace);
   }
 
   /** Read crawler thread limit from the property crawler.threads */
@@ -74,32 +112,6 @@ public class CrawlerProperties {
   }
 
   /** Read url replacement from system property. */
-  public String allowQueryUrlPattern() {
-    String pattern = System.getProperty("crawler.allow-query-url-pattern");
-    if (isBlank(pattern)) {
-      log.info("URL filtering disabled (Override with -Dcrawler.allow-query-url-pattern=<regex>)");
-      pattern = ".*";
-    } else {
-      log.info(
-          "Only allowing URLs matching {}"
-              + " (Override with --Dcrawler.allow-query-url-pattern=<regex>)",
-          pattern);
-    }
-    return pattern;
-  }
-
-  /** Read url replacement from system property. */
-  public List<String> seedQueries() {
-    String replace = System.getProperty("crawler.seed");
-    if (isBlank(replace)) {
-      log.info("Additional seed URLs disabled (Override with -Dcrawler.seed=<url>)");
-      return List.of();
-    }
-    log.info("Additional seed URLs {} (Override with -Dcrawler.url.replace=<url>)", replace);
-    return Splitter.on(",").splitToList(replace);
-  }
-
-  /** Read url replacement from system property. */
   public String urlReplace() {
     String replace = System.getProperty("crawler.url.replace");
     if (isBlank(replace)) {
@@ -108,18 +120,5 @@ public class CrawlerProperties {
       log.info("URL replacement {} (Override with -Dcrawler.url.replace=<url>)", replace);
     }
     return replace;
-  }
-
-  /** Read the metadata URL from system property. */
-  public String baseUrlOrElse(@NonNull String defaultUrl) {
-    String url = System.getProperty("crawler.base-url");
-    if (isBlank(url)) {
-      log.info(
-          "Base URL not specified, assuming {} (Override with -Dcrawler.base-url=<url>)",
-          defaultUrl);
-      return defaultUrl;
-    }
-    log.info("Base URL {} (Override with -Dcrawler.base-url=<url>)", url);
-    return url;
   }
 }

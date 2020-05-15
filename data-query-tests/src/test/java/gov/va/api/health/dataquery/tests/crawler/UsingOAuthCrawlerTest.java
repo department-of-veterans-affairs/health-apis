@@ -38,10 +38,11 @@ public class UsingOAuthCrawlerTest {
     Swiggity.swooty(userResult.user().id());
 
     ResourceDiscovery discovery =
-        ResourceDiscovery.builder()
-            .patientId(userResult.tokenExchange().patient())
-            .url(CrawlerProperties.baseUrlOrElse(env.dstu2DataQuery().urlWithApiPath()))
-            .build();
+        ResourceDiscovery.of(
+            ResourceDiscovery.Context.builder()
+                .patientId(userResult.tokenExchange().patient())
+                .url(CrawlerProperties.baseUrlOrElse(env.dstu2DataQuery().urlWithApiPath()))
+                .build());
     SummarizingResultCollector results =
         SummarizingResultCollector.wrap(
             new FileResultsCollector(

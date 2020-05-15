@@ -1,18 +1,19 @@
 package gov.va.api.health.dataquery.tests.crawler;
 
-import static java.util.Collections.emptyList;
+import static java.util.stream.Collectors.toList;
 
 import gov.va.api.health.dstu2.api.resources.Conformance;
-import gov.va.api.health.dstu2.api.resources.Conformance.ResourceInteractionCode;
 import gov.va.api.health.dstu2.api.resources.Conformance.RestResource;
+import gov.va.api.health.dstu2.api.resources.Conformance.SearchParam;
 import io.restassured.RestAssured;
-import java.util.ArrayList;
+import io.restassured.response.Response;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 
@@ -26,27 +27,15 @@ import lombok.extern.slf4j.Slf4j;
  * <p>For all other resources, if search by the `patient` query parameter is supported, a
  * search-by-patient (.../Procedure?patient=1234) query is included.
  */
-@Value
 @Slf4j
+@RequiredArgsConstructor(staticName = "of")
 public class ResourceDiscovery {
-  String url;
 
-  String patientId;
-
-  /** The 'url' parameter will be modified if necessary to include a trailing /. */
-  @Builder
-  private ResourceDiscovery(@NonNull String url, @NonNull String patientId) {
-    this.url = url.endsWith("/") ? url : url + "/";
-    this.patientId = patientId;
-  }
+  @Getter private final Context context;
 
   /** Indicates if a URL represents a search query. */
   static boolean isSearch(@NonNull String url) {
     return url.contains("?");
-  }
-
-  private static <T> Stream<T> nullableListToStream(List<T> list) {
-    return list == null ? Stream.empty() : list.stream();
   }
 
   /**
@@ -75,7 +64,7 @@ public class ResourceDiscovery {
     }
 
     int secondLastSlashIndex = url.substring(0, lastSlashIndex).lastIndexOf("/");
-    if (secondLastSlashIndex + 1 > lastSlashIndex) {
+    if (secondLastSlashIndex + 1 >= lastSlashIndex) {
       log.warn("Failed to extract resource from url '{}'.", url);
       return url;
     }
@@ -83,81 +72,130 @@ public class ResourceDiscovery {
   }
 
   /**
-   * Process the conformance statement looking for resources exposed via a FHIR-compliant REST
-   * endpoint.
-   *
-   * <p>This method is made package protected to enable easier unit testing without the need of
-   * mocking live HTTP endpoints.
-   */
-  List<RestResource> extractRestResources(Conformance conformanceStatement) {
-    if (conformanceStatement == null || conformanceStatement.rest() == null) {
-      return emptyList();
-    }
-    return conformanceStatement.rest().stream()
-        .flatMap(r -> r.resource().stream())
-        .collect(Collectors.toList());
-  }
-
-  private boolean isSearchableByPatient(RestResource supportedResources) {
-    if (supportedResources == null || supportedResources.searchParam() == null) {
-      return false;
-    }
-    return supportedResources.searchParam().stream().anyMatch(o -> o.name().equals("patient"));
-  }
-
-  List<String> patientQueries(List<RestResource> restResources) {
-    Optional<RestResource> patientMetadata =
-        restResources.stream().filter(n -> "Patient".equals(n.type())).findFirst();
-    if (!patientMetadata.isPresent()) {
-      return new ArrayList<>(0);
-    }
-    List<String> patientQueries = new ArrayList<>(2);
-    boolean isReadable =
-        patientMetadata.get().interaction().stream()
-            .anyMatch(p -> ResourceInteractionCode.read.equals(p.code()));
-    if (isReadable) {
-      patientQueries.add(url + "Patient/" + patientId);
-    }
-    boolean isSearchable =
-        nullableListToStream(patientMetadata.get().searchParam())
-            .anyMatch(s -> "_id".equals(s.name()));
-    if (isSearchable) {
-      patientQueries.add((url + "Patient?_id=" + patientId));
-    }
-    return patientQueries;
-  }
-
-  /**
-   * Return a list of queries for resources that can be searched by 'patient', e.g.
-   * https://awesome.com/api/Procedure?patient=12345.
-   */
-  List<String> patientSearchableResourceQueries(@NonNull List<RestResource> restResources) {
-    return restResources.stream()
-        .filter(this::isSearchableByPatient)
-        .map(p -> url + p.type() + "?patient=" + patientId)
-        .collect(Collectors.toList());
-  }
-
-  /**
    * Return a list fully qualified queries for resources supported by the conformance statement as
    * described in the class documentation.
    */
   public List<String> queries() {
-    log.info("Discovering {}", url);
-    Conformance conformanceStatement =
-        RestAssured.given()
-            .relaxedHTTPSValidation()
-            .baseUri(url)
-            .get("metadata")
-            .as(Conformance.class);
-    List<RestResource> restResources = extractRestResources(conformanceStatement);
-    List<String> queries = new ArrayList<>();
-    queries.addAll(patientSearchableResourceQueries(restResources));
-    queries.addAll(patientQueries(restResources));
+    return queriesFor(
+        RestAssured.given().relaxedHTTPSValidation().baseUri(context().url()).get("metadata"));
+  }
+
+  /** This is extracted to make testing easier. */
+  List<String> queriesFor(Response metadata) {
+    log.info("Discovering {} (status {})", context().url(), metadata.statusCode());
+    Optional<? extends MetadataSupport> support = Dstu2Support.fromMetadata(metadata);
+    if (support.isEmpty()) {
+      throw new UnknownFhirVersion(context().url());
+    }
+
+    List<String> queries =
+        Stream.concat(
+                support.get().patientSearchableResourceQueries(context()),
+                support.get().patientQueries(context()))
+            .collect(toList());
+
     log.info("Discovered {} queries", queries.size());
     if (log.isInfoEnabled()) {
       queries.forEach(q -> log.info("Found {}", q));
     }
     return queries;
+  }
+
+  interface MetadataSupport {
+    /** Return a list of queries for Patient resources. */
+    default Stream<String> patientQueries(Context context) {
+      Optional<SupportedResource> patientMetadata =
+          resources().filter(n -> "Patient".equals(n.type())).findFirst();
+      if (patientMetadata.isEmpty()) {
+        return Stream.empty();
+      }
+      return Stream.of(
+          context.url() + "Patient/" + context.patientId(),
+          context.url() + "Patient?_id=" + context.patientId());
+    }
+
+    /**
+     * Return a list of queries for resources that can be searched by 'patient', e.g.
+     * https://awesome.com/api/Procedure?patient=12345.
+     */
+    default Stream<String> patientSearchableResourceQueries(Context context) {
+      return resources()
+          .filter(SupportedResource::isSearchableByPatient)
+          .map(r -> context.url() + r.type() + "?patient=" + context.patientId());
+    }
+
+    Stream<SupportedResource> resources();
+  }
+
+  interface SupportedResource {
+    default boolean isSearchableByPatient() {
+      return searchParameters().anyMatch("patient"::equals);
+    }
+
+    Stream<String> searchParameters();
+
+    String type();
+  }
+
+  @Value
+  public static class Context {
+    String url;
+
+    String patientId;
+
+    @Builder
+    private Context(@NonNull String url, @NonNull String patientId) {
+      this.url = url.endsWith("/") ? url : url + "/";
+      this.patientId = patientId;
+    }
+  }
+
+  @RequiredArgsConstructor(staticName = "of")
+  static class Dstu2Support implements MetadataSupport {
+    private final Conformance conformanceStatement;
+
+    static Optional<Dstu2Support> fromMetadata(Response metadata) {
+      try {
+        Conformance conformanceStatement = metadata.as(Conformance.class);
+        return Optional.of(Dstu2Support.of(conformanceStatement));
+      } catch (Exception e) {
+        log.info("DSTU2 support not available: {}", e.getMessage());
+        return Optional.empty();
+      }
+    }
+
+    @Override
+    public Stream<SupportedResource> resources() {
+      if (conformanceStatement == null || conformanceStatement.rest() == null) {
+        return Stream.empty();
+      }
+      return conformanceStatement.rest().stream()
+          .flatMap(r -> r.resource().stream())
+          .map(Dstu2SupportedResource::new);
+    }
+  }
+
+  @RequiredArgsConstructor(staticName = "of")
+  static class Dstu2SupportedResource implements SupportedResource {
+    private final RestResource restResource;
+
+    @Override
+    public Stream<String> searchParameters() {
+      if (restResource == null || restResource.searchParam() == null) {
+        return Stream.empty();
+      }
+      return restResource.searchParam().stream().map(SearchParam::name);
+    }
+
+    @Override
+    public String type() {
+      return restResource.type();
+    }
+  }
+
+  public static class UnknownFhirVersion extends RuntimeException {
+    UnknownFhirVersion(String url) {
+      super("Cannot determine FHIR version of metadata at " + url);
+    }
   }
 }

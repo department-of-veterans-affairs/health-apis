@@ -30,10 +30,11 @@ public class UsingMagicPatientCrawlerTest {
     SystemDefinition env = SystemDefinitions.systemDefinition();
 
     ResourceDiscovery discovery =
-        ResourceDiscovery.builder()
-            .patientId(patient)
-            .url(CrawlerProperties.baseUrlOrElse(env.dstu2DataQuery().urlWithApiPath()))
-            .build();
+        ResourceDiscovery.of(
+            ResourceDiscovery.Context.builder()
+                .patientId(patient)
+                .url(CrawlerProperties.baseUrlOrElse(env.dstu2DataQuery().urlWithApiPath()))
+                .build());
 
     IgnoreFilterResultCollector results =
         IgnoreFilterResultCollector.wrap(
