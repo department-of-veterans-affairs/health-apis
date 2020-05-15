@@ -40,7 +40,7 @@ import org.springframework.web.bind.annotation.RestController;
 @SuppressWarnings("WeakerAccess")
 @RequestMapping(
     value = {"/r4/Patient"},
-    produces = {"application/json", "application/json+fhir", "application/fhir+json"})
+    produces = {"application/json", "application/fhir+json"})
 public class R4PatientController {
   private R4Bundler bundler;
 
@@ -133,7 +133,7 @@ public class R4PatientController {
             .family(family)
             .dates(birthdate)
             .build();
-    log.info("PatientV2: Looking for {} {}", spec, sanitize(family));
+    log.info("Looking for {} {}", spec, sanitize(family));
     Page<PatientEntityV2> entities = repository.findAll(spec, page(page, count));
     return bundle(
         Parameters.builder()
@@ -214,7 +214,7 @@ public class R4PatientController {
             .name(name)
             .dates(birthdate)
             .build();
-    log.info("PatientV2: Looking for {} {}", sanitize(name), spec);
+    log.info("Looking for {} {}", sanitize(name), spec);
     Page<PatientEntityV2> entities = repository.findAll(spec, page(page, count));
     return bundle(
         Parameters.builder()

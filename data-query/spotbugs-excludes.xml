@@ -63,8 +63,8 @@
     <Or>
       <Class name="gov.va.api.health.dataquery.service.controller.observation.ObservationRepository$PatientAndCategoryAndDateSpecification$PatientAndCategoryAndDateSpecificationBuilder"/>
       <Class name="gov.va.api.health.dataquery.service.controller.patient.PatientSearchRepository$NameAndBirthdateSpecification$NameAndBirthdateSpecificationBuilder"/>
-      <Class name="gov.va.api.health.dataquery.service.controller.patient.PatientRepositoryV2$NameAndBirthdateSpecification$NameAndBirthdateSpecificationBuilder"/>
       <Class name="gov.va.api.health.dataquery.service.controller.patient.PatientRepositoryV2$BirthdateAndFamilySpecification$BirthdateAndFamilySpecificationBuilder"/>
+      <Class name="gov.va.api.health.dataquery.service.controller.patient.PatientRepositoryV2$NameAndBirthdateSpecification$NameAndBirthdateSpecificationBuilder"/>
       <Class name="gov.va.api.health.dataquery.service.controller.procedure.ProcedureRepository$PatientAndDateSpecification$PatientAndDateSpecificationBuilder"/>
     </Or>
     <Bug pattern="EI_EXPOSE_REP2"/>
