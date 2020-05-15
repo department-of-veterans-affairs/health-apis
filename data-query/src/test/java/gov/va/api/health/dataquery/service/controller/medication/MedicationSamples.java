@@ -148,4 +148,22 @@ public class MedicationSamples {
           .build();
     }
   }
+
+  @AllArgsConstructor(staticName = "create")
+  public static class R4 {
+    static gov.va.api.health.uscorer4.api.resources.Medication.Bundle asBundle(
+            String baseUrl,
+            Collection<gov.va.api.health.uscorer4.api.resources.Medication> resources,
+            int totalRecords,
+            gov.va.api.health.r4.api.bundle.BundleLink... links) {
+      return gov.va.api.health.uscorer4.api.resources.Medication.Bundle.builder()
+
+
+
+
+
+
+              .build();
+    }
+  }
 }
