@@ -90,7 +90,7 @@ public class Dstu2AllergyIntoleranceControllerTest {
       String patientId = "p" + i % 2;
       String cdwId = "" + i;
       String publicId = "90" + i;
-      var dm = datamart.allergyIntolerance(cdwId, patientId);
+      var dm = datamart.allergyIntolerance(cdwId, patientId, "1234", "12345");
       repository.save(asEntity(dm));
       var medicationStatement = fhir.allergyIntolerance(publicId, patientId);
       allergyIntoleranceByPatient.put(patientId, medicationStatement);
