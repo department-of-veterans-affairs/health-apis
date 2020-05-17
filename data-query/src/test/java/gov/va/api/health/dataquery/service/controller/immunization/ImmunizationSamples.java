@@ -5,6 +5,7 @@ import gov.va.api.health.argonaut.api.resources.Immunization.Bundle;
 import gov.va.api.health.argonaut.api.resources.Immunization.Entry;
 import gov.va.api.health.argonaut.api.resources.Immunization.Reaction;
 import gov.va.api.health.argonaut.api.resources.Immunization.Status;
+import gov.va.api.health.dataquery.service.controller.R4Transformers;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dataquery.service.controller.immunization.DatamartImmunization.VaccineCode;
 import gov.va.api.health.dstu2.api.DataAbsentReason;
@@ -29,7 +30,6 @@ import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class ImmunizationSamples {
-
   @AllArgsConstructor(staticName = "create")
   public static class Datamart {
     public DatamartImmunization immunization() {
@@ -49,13 +49,7 @@ public class ImmunizationSamples {
                   .display("ZZTESTPATIENT,THOMAS THE")
                   .build())
           .wasNotGiven(false)
-          .performer(
-              Optional.of(
-                  DatamartReference.of()
-                      .type("Practitioner")
-                      .reference("3868169")
-                      .display("ZHIVAGO,YURI ANDREYEVICH")
-                      .build()))
+          .performer(performer())
           .requester(
               Optional.of(
                   DatamartReference.of()
@@ -79,6 +73,15 @@ public class ImmunizationSamples {
                       .seriesDoses(1)
                       .build()))
           .build();
+    }
+
+    Optional<DatamartReference> performer() {
+      return Optional.of(
+          DatamartReference.of()
+              .type("Practitioner")
+              .reference("3868169")
+              .display("ZHIVAGO,YURI ANDREYEVICH")
+              .build());
     }
 
     DatamartReference reaction() {
@@ -170,6 +173,76 @@ public class ImmunizationSamples {
           .text("TETANUS TOXOID, UNSPECIFIED FORMULATION")
           .coding(
               List.of(Coding.builder().code("112").system("http://hl7.org/fhir/sid/cvx").build()))
+          .build();
+    }
+  }
+
+  @AllArgsConstructor(staticName = "create")
+  public static class R4 {
+    gov.va.api.health.uscorer4.api.resources.Immunization immunization() {
+      return immunization("1000000030337", "1011549983V753765");
+    }
+
+    gov.va.api.health.uscorer4.api.resources.Immunization immunization(
+        String id, String patientId) {
+      return gov.va.api.health.uscorer4.api.resources.Immunization.builder()
+          .resourceType(Immunization.class.getSimpleName())
+          .id(id)
+          .occurrenceDateTime("1997-05-09T14:21:18Z")
+          .status(gov.va.api.health.uscorer4.api.resources.Immunization.Status.completed)
+          .vaccineCode(vaccineCode())
+          .patient(reference("ZZTESTPATIENT,THOMAS THE", "Patient/" + patientId))
+          .performer(performer())
+          .location(reference("ZZGOLD PRIMARY CARE", "Location/358359"))
+          .note(note("PATIENT CALM AFTER VACCINATION"))
+          .reaction(reactions())
+          .build();
+    }
+
+    List<gov.va.api.health.r4.api.datatypes.Annotation> note(String text) {
+      return List.of(gov.va.api.health.r4.api.datatypes.Annotation.builder().text(text).build());
+    }
+
+    List<gov.va.api.health.uscorer4.api.resources.Immunization.Performer> performer() {
+      return List.of(
+          gov.va.api.health.uscorer4.api.resources.Immunization.Performer.builder()
+              .actor(
+                  R4Transformers.asReference(
+                      Optional.of(
+                          DatamartReference.of()
+                              .display("ZHIVAGO,YURI ANDREYEVICH")
+                              .type("Practitioner")
+                              .reference("3868169")
+                              .build())))
+              .build());
+    }
+
+    gov.va.api.health.uscorer4.api.resources.Immunization.Reaction reaction(String display) {
+      return gov.va.api.health.uscorer4.api.resources.Immunization.Reaction.builder()
+          .detail(gov.va.api.health.r4.api.elements.Reference.builder().display(display).build())
+          .build();
+    }
+
+    List<gov.va.api.health.uscorer4.api.resources.Immunization.Reaction> reactions() {
+      return List.of(reaction("Other"));
+    }
+
+    gov.va.api.health.r4.api.elements.Reference reference(String display, String ref) {
+      return gov.va.api.health.r4.api.elements.Reference.builder()
+          .display(display)
+          .reference(ref)
+          .build();
+    }
+
+    gov.va.api.health.r4.api.datatypes.CodeableConcept vaccineCode() {
+      return gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()
+          .text("TETANUS TOXOID, UNSPECIFIED FORMULATION")
+          .coding(
+              List.of(
+                  gov.va.api.health.r4.api.datatypes.Coding.builder()
+                      .code("112")
+                      .system("http://hl7.org/fhir/sid/cvx")
+                      .build()))
           .build();
     }
   }
