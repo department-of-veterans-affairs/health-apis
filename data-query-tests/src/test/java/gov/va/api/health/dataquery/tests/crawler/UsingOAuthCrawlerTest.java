@@ -25,7 +25,7 @@ public class UsingOAuthCrawlerTest {
     }
     return UrlReplacementRequestQueue.builder()
         .replaceUrl(CrawlerProperties.urlReplace())
-        .withUrl(env.dstu2DataQuery().urlWithApiPath())
+        .withUrl(CrawlerProperties.baseUrlOrElse(env.dstu2DataQuery().urlWithApiPath()))
         .requestQueue(new ConcurrentResourceBalancingRequestQueue())
         .build();
   }
@@ -38,10 +38,11 @@ public class UsingOAuthCrawlerTest {
     Swiggity.swooty(userResult.user().id());
 
     ResourceDiscovery discovery =
-        ResourceDiscovery.builder()
-            .patientId(userResult.tokenExchange().patient())
-            .url(env.dstu2DataQuery().urlWithApiPath())
-            .build();
+        ResourceDiscovery.of(
+            ResourceDiscovery.Context.builder()
+                .patientId(userResult.tokenExchange().patient())
+                .url(CrawlerProperties.baseUrlOrElse(env.dstu2DataQuery().urlWithApiPath()))
+                .build());
     SummarizingResultCollector results =
         SummarizingResultCollector.wrap(
             new FileResultsCollector(

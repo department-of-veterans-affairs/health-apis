@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+dstu2Resources() {
+  # Not supported:
+  # Location
+  # Organization
+  # Practitioner
+  echo -n \
+    AllergyIntolerance\
+    Condition\
+    DiagnosticReport\
+    Immunization\
+    Medication\
+    MedicationOrder\
+    MedicationStatement\
+    Observation\
+    Patient\
+    Procedure
+}
+
+urlPatternFor() {
+  local pattern='.*/(metadata'
+  for resource in $@; do pattern+="|${resource}"; done
+  pattern+=")[?/].*"
+  echo -n "$pattern"
+}
+
+case ${FHIR_VERSION:-dstu2} in
+  dstu2)
+    URL_REPLACE=http://localhost:8090/dstu2
+    ALLOW_QUERY_URL_PATTERN="$(urlPatternFor $(dstu2Resources))"
+    ;;
+  *) echo "Unknown FHIR version: $FHIR_VERSION"; exit 1;;
+esac
+
+mvn \
+  -P'!standard' \
+  -Dgroups=gov.va.api.health.sentinel.categories.Manual \
+  -Dtest="*UsingMagicPatientCrawlerTest*" \
+  -Daccess-token=not-used \
+  -Dsentinel=LOCAL \
+  -Dsentinel.dstu2.url=http://localhost:8090/ \
+  -Dcrawler.url.replace="${URL_REPLACE}" \
+  -Dcrawler.allow-query-url-pattern="${ALLOW_QUERY_URL_PATTERN}" \
+  -Dpatient-id=${PATIENT:-32000225} \
+  -Dcrawler.timelimit=${TIME_LIMIT:-} \
+  test
