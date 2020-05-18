@@ -3,6 +3,7 @@ package gov.va.api.health.dataquery.service.controller.immunization;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
+import gov.va.api.health.r4.api.DataAbsentReason;
 import gov.va.api.health.uscorer4.api.resources.Immunization;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
@@ -55,6 +56,24 @@ public class R4ImmunizationTransformerTest {
         .isEqualTo(Immunization.Status.completed);
     assertThat(R4ImmunizationTransformer.status(DatamartImmunization.Status.entered_in_error))
         .isEqualTo(Immunization.Status.entered_in_error);
+    assertThat(
+            R4ImmunizationTransformer.status(
+                DatamartImmunization.Status.data_absent_reason_unsupported))
+        .isEqualTo(null);
+  }
+
+  @Test
+  void statusExtension() {
+    assertThat(R4ImmunizationTransformer.statusExtension(null)).isNull();
+    assertThat(R4ImmunizationTransformer.statusExtension(DatamartImmunization.Status.completed))
+        .isEqualTo(null);
+    assertThat(
+            R4ImmunizationTransformer.statusExtension(DatamartImmunization.Status.entered_in_error))
+        .isEqualTo(null);
+    assertThat(
+            R4ImmunizationTransformer.statusExtension(
+                DatamartImmunization.Status.data_absent_reason_unsupported))
+        .isEqualTo(DataAbsentReason.of(DataAbsentReason.Reason.unsupported));
   }
 
   @Test

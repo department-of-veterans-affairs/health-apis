@@ -5,9 +5,11 @@ import static gov.va.api.health.dataquery.service.controller.Transformers.allBla
 import static gov.va.api.health.dataquery.service.controller.Transformers.asDateTimeString;
 
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
+import gov.va.api.health.r4.api.DataAbsentReason;
 import gov.va.api.health.r4.api.datatypes.Annotation;
 import gov.va.api.health.r4.api.datatypes.CodeableConcept;
 import gov.va.api.health.r4.api.datatypes.Coding;
+import gov.va.api.health.r4.api.elements.Extension;
 import gov.va.api.health.uscorer4.api.resources.Immunization;
 import java.util.List;
 import java.util.Optional;
@@ -51,6 +53,12 @@ final class R4ImmunizationTransformer {
     }
   }
 
+  static Extension statusExtension(DatamartImmunization.Status status) {
+    return status == DatamartImmunization.Status.data_absent_reason_unsupported
+        ? DataAbsentReason.of(DataAbsentReason.Reason.unsupported)
+        : null;
+  }
+
   static CodeableConcept vaccineCode(DatamartImmunization.VaccineCode vaccineCode) {
     if (vaccineCode == null || allBlank(vaccineCode.text(), vaccineCode.code())) {
       return null;
@@ -71,7 +79,7 @@ final class R4ImmunizationTransformer {
         .resourceType(Immunization.class.getSimpleName())
         .id(datamart.cdwId())
         .status(status(datamart.status()))
-        // ._status() DAR in R4?
+        ._status(statusExtension(datamart.status()))
         .occurrenceDateTime(asDateTimeString(datamart.date()))
         .vaccineCode(vaccineCode(datamart.vaccineCode()))
         .patient(asReference(datamart.patient()))
