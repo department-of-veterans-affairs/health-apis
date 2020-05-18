@@ -52,6 +52,8 @@ public class UsingOAuthCrawlerTest {
     Crawler crawler =
         Crawler.builder()
             .executor(Executors.newFixedThreadPool(CrawlerProperties.threads()))
+            .urlToResourceConverter(UrlToResourceConverter.forFhirVersion(discovery.fhirVersion()))
+            .urlExtractor(UrlExtractor.forFhirVersion(discovery.fhirVersion()))
             .requestQueue(q)
             .results(results)
             .authenticationToken(() -> userResult.tokenExchange().accessToken())

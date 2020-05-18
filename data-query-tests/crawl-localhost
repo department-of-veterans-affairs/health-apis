@@ -29,6 +29,10 @@ r4Resources() {
   echo -n \
     AllergyIntolerance\
     Condition\
+
+  # Move these up as they are supported
+  # And remove the > dev/null
+  echo \
     DiagnosticReport\
     Immunization\
     Medication\
@@ -36,7 +40,8 @@ r4Resources() {
     MedicationStatement\
     Observation\
     Patient\
-    Procedure
+    Procedure\
+    > /dev/null
 }
 
 

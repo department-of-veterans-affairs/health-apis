@@ -1,10 +1,13 @@
 package gov.va.api.health.dataquery.tests.crawler;
 
+import static com.google.common.base.Preconditions.checkState;
 import static java.util.stream.Collectors.toList;
 
 import gov.va.api.health.dstu2.api.resources.Conformance;
 import gov.va.api.health.dstu2.api.resources.Conformance.RestResource;
-import gov.va.api.health.dstu2.api.resources.Conformance.SearchParam;
+import gov.va.api.health.fhir.api.FhirVersion;
+import gov.va.api.health.r4.api.resources.CapabilityStatement;
+import gov.va.api.health.r4.api.resources.CapabilityStatement.CapabilityResource;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import java.util.List;
@@ -32,6 +35,9 @@ import lombok.extern.slf4j.Slf4j;
 public class ResourceDiscovery {
 
   @Getter private final Context context;
+
+  /** Set _after_ queries have been determined. */
+  private transient FhirVersion fhirVersion;
 
   /** Indicates if a URL represents a search query. */
   static boolean isSearch(@NonNull String url) {
@@ -72,6 +78,16 @@ public class ResourceDiscovery {
   }
 
   /**
+   * Return the FHIR version as determined by compiling the queries list. If queries has not been
+   * invoked, this method will fail with an IllegalStateException.
+   */
+  public FhirVersion fhirVersion() {
+    checkState(
+        fhirVersion != null, "queries must be invoked before FHIR version can be determined");
+    return fhirVersion;
+  }
+
+  /**
    * Return a list fully qualified queries for resources supported by the conformance statement as
    * described in the class documentation.
    */
@@ -83,10 +99,16 @@ public class ResourceDiscovery {
   /** This is extracted to make testing easier. */
   List<String> queriesFor(Response metadata) {
     log.info("Discovering {} (status {})", context().url(), metadata.statusCode());
+    /* Attempt to determine what version of endpoint is serving metadata. */
     Optional<? extends MetadataSupport> support = Dstu2Support.fromMetadata(metadata);
+    if (support.isEmpty()) {
+      support = R4Support.fromMetadata(metadata);
+    }
     if (support.isEmpty()) {
       throw new UnknownFhirVersion(context().url());
     }
+    /* Record the FHIR version so that other may determine how to process these queries. */
+    fhirVersion = support.get().fhirVersion();
 
     List<String> queries =
         Stream.concat(
@@ -94,7 +116,7 @@ public class ResourceDiscovery {
                 support.get().patientQueries(context()))
             .collect(toList());
 
-    log.info("Discovered {} queries", queries.size());
+    log.info("Discovered {} {} queries", queries.size(), fhirVersion);
     if (log.isInfoEnabled()) {
       queries.forEach(q -> log.info("Found {}", q));
     }
@@ -102,6 +124,9 @@ public class ResourceDiscovery {
   }
 
   interface MetadataSupport {
+
+    FhirVersion fhirVersion();
+
     /** Return a list of queries for Patient resources. */
     default Stream<String> patientQueries(Context context) {
       Optional<SupportedResource> patientMetadata =
@@ -139,9 +164,9 @@ public class ResourceDiscovery {
 
   @Value
   public static class Context {
-    String url;
+    @NonNull String url;
 
-    String patientId;
+    @NonNull String patientId;
 
     @Builder
     private Context(@NonNull String url, @NonNull String patientId) {
@@ -152,7 +177,7 @@ public class ResourceDiscovery {
 
   @RequiredArgsConstructor(staticName = "of")
   static class Dstu2Support implements MetadataSupport {
-    private final Conformance conformanceStatement;
+    @NonNull private final Conformance conformanceStatement;
 
     static Optional<Dstu2Support> fromMetadata(Response metadata) {
       try {
@@ -162,6 +187,11 @@ public class ResourceDiscovery {
         log.info("DSTU2 support not available: {}", e.getMessage());
         return Optional.empty();
       }
+    }
+
+    @Override
+    public FhirVersion fhirVersion() {
+      return FhirVersion.DSTU2;
     }
 
     @Override
@@ -177,14 +207,62 @@ public class ResourceDiscovery {
 
   @RequiredArgsConstructor(staticName = "of")
   static class Dstu2SupportedResource implements SupportedResource {
-    private final RestResource restResource;
+    @NonNull private final RestResource restResource;
 
     @Override
     public Stream<String> searchParameters() {
       if (restResource == null || restResource.searchParam() == null) {
         return Stream.empty();
       }
-      return restResource.searchParam().stream().map(SearchParam::name);
+      return restResource.searchParam().stream().map(Conformance.SearchParam::name);
+    }
+
+    @Override
+    public String type() {
+      return restResource.type();
+    }
+  }
+
+  @RequiredArgsConstructor(staticName = "of")
+  static class R4Support implements MetadataSupport {
+    @NonNull private final CapabilityStatement capabilityStatement;
+
+    static Optional<R4Support> fromMetadata(Response metadata) {
+      try {
+        CapabilityStatement conformanceStatement = metadata.as(CapabilityStatement.class);
+        return Optional.of(R4Support.of(conformanceStatement));
+      } catch (Exception e) {
+        log.info("R4 support not available: {}", e.getMessage());
+        return Optional.empty();
+      }
+    }
+
+    @Override
+    public FhirVersion fhirVersion() {
+      return FhirVersion.R4;
+    }
+
+    @Override
+    public Stream<SupportedResource> resources() {
+      if (capabilityStatement == null || capabilityStatement.rest() == null) {
+        return Stream.empty();
+      }
+      return capabilityStatement.rest().stream()
+          .flatMap(r -> r.resource().stream())
+          .map(R4SupportedResource::new);
+    }
+  }
+
+  @RequiredArgsConstructor(staticName = "of")
+  static class R4SupportedResource implements SupportedResource {
+    @NonNull private final CapabilityResource restResource;
+
+    @Override
+    public Stream<String> searchParameters() {
+      if (restResource == null || restResource.searchParam() == null) {
+        return Stream.empty();
+      }
+      return restResource.searchParam().stream().map(CapabilityStatement.SearchParam::name);
     }
 
     @Override

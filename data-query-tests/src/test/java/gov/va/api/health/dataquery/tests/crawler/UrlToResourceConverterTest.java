@@ -8,7 +8,9 @@ import gov.va.api.health.argonaut.api.resources.Patient;
 import gov.va.api.health.dataquery.tests.crawler.UrlToResourceConverter.DoNotUnderstandUrl;
 import gov.va.api.health.dstu2.api.bundle.AbstractBundle;
 import gov.va.api.health.dstu2.api.resources.Resource;
+import gov.va.api.health.fhir.api.FhirVersion;
 import gov.va.api.health.sentinel.categories.Local;
+import gov.va.api.health.stu3.api.resources.Location;
 import java.util.List;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -37,6 +39,22 @@ public class UrlToResourceConverterTest {
             converter.apply(
                 "http://something.com/what/ever/MedicationStatement?what=ever&patient=123&who=cares"))
         .isEqualTo(MedicationStatement.Bundle.class);
+  }
+
+  @Test
+  public void forFhirVersion() {
+    assertThat(
+            UrlToResourceConverter.forFhirVersion(FhirVersion.DSTU2)
+                .apply("https://argonaut.com/api/Patient/123"))
+        .isEqualTo(Patient.class);
+    assertThat(
+            UrlToResourceConverter.forFhirVersion(FhirVersion.STU3)
+                .apply("https://argonaut.com/api/Location/123"))
+        .isEqualTo(Location.class);
+    assertThat(
+            UrlToResourceConverter.forFhirVersion(FhirVersion.R4)
+                .apply("https://argonaut.com/api/Patient/123"))
+        .isEqualTo(gov.va.api.health.uscorer4.api.resources.Patient.class);
   }
 
   @Test(expected = DoNotUnderstandUrl.class)
