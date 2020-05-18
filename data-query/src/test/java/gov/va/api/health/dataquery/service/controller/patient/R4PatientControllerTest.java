@@ -125,7 +125,7 @@ public class R4PatientControllerTest {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void searchByFamilyAndGenderWithNullCdw() {
+  public void searchByFamilyAndWithNullGender() {
     DatamartPatient dm = Datamart.create().patient("x");
     testEntityManager.persistAndFlush(asPatientEntityV2(dm));
     controller().searchByFamilyAndGender("Wolff180", "null", 1, 0);
