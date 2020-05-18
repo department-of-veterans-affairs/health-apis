@@ -123,7 +123,7 @@ public class R4PatientController {
 
   /** Search by Birthdate+Family. */
   @GetMapping(params = {"birthdate", "family"})
-  public Patient.Bundle searchByBirthdateandFamily(
+  public Patient.Bundle searchByBirthdateAndFamily(
       @RequestParam("birthdate") String[] birthdate,
       @RequestParam("family") String family,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
@@ -145,7 +145,10 @@ public class R4PatientController {
         entities);
   }
 
-  /** Search by Family+Gender. */
+  /**
+   * Search by Family+Gender. The spec indicates that gender should be system+code: GET
+   * [base]/Patient?gender={[system]}|[code] it is currently only code.
+   */
   @GetMapping(params = {"family", "gender"})
   public Patient.Bundle searchByFamilyAndGender(
       @RequestParam("family") String family,
@@ -171,7 +174,10 @@ public class R4PatientController {
     return searchByIdentifier(id, page, count);
   }
 
-  /** Search by Identifier. */
+  /**
+   * Search by Identifier. The spec indicates that identifier should be system+code: GET
+   * [base]/Patient?identifier={[system]}|[code] it is currently only code.
+   */
   @GetMapping(params = {"identifier"})
   public Patient.Bundle searchByIdentifier(
       @RequestParam("identifier") String identifier,
@@ -226,7 +232,10 @@ public class R4PatientController {
         entities);
   }
 
-  /** Search by Name+Gender. */
+  /**
+   * Search by Name+Gender. The spec indicates that gender should be system+code: GET
+   * [base]/Patient?gender={[system]}|[code] it is currently only code.
+   */
   @GetMapping(params = {"name", "gender"})
   public Patient.Bundle searchByNameAndGender(
       @RequestParam("name") String name,

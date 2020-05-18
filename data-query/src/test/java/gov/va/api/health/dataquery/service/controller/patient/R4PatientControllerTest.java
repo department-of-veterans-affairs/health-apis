@@ -102,7 +102,7 @@ public class R4PatientControllerTest {
     DatamartPatient dm = Datamart.create().patient("x");
     testEntityManager.persistAndFlush(asPatientEntityV2(dm));
     Patient.Bundle patient =
-        controller().searchByBirthdateandFamily(new String[] {"ge1924-12-31"}, "Wolff180", 1, 1);
+        controller().searchByBirthdateAndFamily(new String[] {"ge1924-12-31"}, "Wolff180", 1, 1);
     assertThat(json(Iterables.getOnlyElement(patient.entry()).resource()))
         .isEqualTo(json(PatientSamples.R4.create().patient("x")));
   }
