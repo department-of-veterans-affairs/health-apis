@@ -198,14 +198,84 @@ public class MedicationSamples {
               .build();
     }
 
+    gov.va.api.health.r4.api.datatypes.CodeableConcept codeLocalDrugNameOnly(String localDrugName) {
+      return gov.va.api.health.r4.api.datatypes.CodeableConcept.builder().text(localDrugName).build();
+    }
+
+    gov.va.api.health.r4.api.datatypes.CodeableConcept codeLocalDrugNameWithProduct(String localDrugName) {
+      return gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()
+              .text(localDrugName)
+              .coding(
+                      List.of(
+                              gov.va.api.health.r4.api.datatypes.Coding.builder()
+                              .code("4015523")
+                              .display(localDrugName)
+                              .system("urn:oid:2.16.840.1.113883.6.233")
+                              .build()
+                      )
+              )
+              .build();
+    }
+
+    gov.va.api.health.r4.api.datatypes.CodeableConcept codeRxNorm() {
+      return gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()
+              .coding(
+                      List.of(
+                              gov.va.api.health.r4.api.datatypes.Coding.builder()
+                              .system("https://www.nlm.nih.gov/research/umls/rxnorm")
+                              .code("284205")
+                              .display("ALMOTRIPTAN MALATE 12.5MG TAB,UD")
+                              .build()
+                      )
+              )
+              .text("ALMOTRIPTAN MALATE 12.5MG TAB,UD")
+              .build();
+    }
+
+    gov.va.api.health.r4.api.elements.Narrative textRxNorm() {
+      return gov.va.api.health.r4.api.elements.Narrative.builder()
+              .status(gov.va.api.health.r4.api.elements.Narrative.NarrativeStatus.additional)
+              .div("<div>ALMOTRIPTAN MALATE 12.5MG TAB,UD</div>")
+              .build();
+    }
+
+    List<gov.va.api.health.r4.api.datatypes.Identifier> identifierFromProduct() {
+      return List.of(gov.va.api.health.r4.api.datatypes.Identifier.builder().id("4015523").build());
+    }
+
+    gov.va.api.health.r4.api.datatypes.CodeableConcept formFromProduct() {
+      return gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()
+              .coding(
+                      List.of(
+                              gov.va.api.health.r4.api.datatypes.Coding.builder()
+                              .code("4015523")
+                              .display("TAB")
+                              .build()
+                      )
+              )
+              .build();
+    }
+
+    gov.va.api.health.r4.api.elements.Narrative textLocalDrugName() {
+      return gov.va.api.health.r4.api.elements.Narrative.builder()
+              .status(gov.va.api.health.r4.api.elements.Narrative.NarrativeStatus.additional)
+              .div("<div>Axert</div>")
+              .build();
+    }
+
     public gov.va.api.health.uscorer4.api.resources.Medication medication() {
+      return medication("1000");
+    }
+
+    public gov.va.api.health.uscorer4.api.resources.Medication medication(String id) {
       return gov.va.api.health.uscorer4.api.resources.Medication.builder()
               .resourceType("Medication")
-
-
+              .id(id)
+              .code(codeRxNorm())
+              .text(textRxNorm())
+              .identifier(identifierFromProduct())
+              .form(formFromProduct())
               .build();
     }
   }
-
-
 }
