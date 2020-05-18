@@ -3,12 +3,14 @@ package gov.va.api.health.dataquery.tests.crawler;
 import static java.util.stream.Collectors.joining;
 
 import com.google.common.base.Stopwatch;
+import gov.va.api.health.argonaut.api.resources.Patient;
 import gov.va.api.health.dataquery.tests.crawler.Result.Outcome;
 import gov.va.api.health.dataquery.tests.crawler.Result.ResultBuilder;
 import gov.va.api.health.dstu2.api.bundle.AbstractBundle;
 import gov.va.api.health.dstu2.api.bundle.AbstractEntry;
 import gov.va.api.health.dstu2.api.bundle.BundleLink;
 import gov.va.api.health.dstu2.api.bundle.BundleLink.LinkRelation;
+import gov.va.api.health.dstu2.api.resources.Resource;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
@@ -17,6 +19,7 @@ import java.time.Instant;
 import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Deque;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -143,7 +146,12 @@ public class Crawler {
 
   @SneakyThrows
   private void process(String url, ResultBuilder resultBuilder) {
-    Class<?> type = new UrlToResourceConverter().apply(url);
+    Class<?> type =
+        UrlToResourceConverter.builder()
+            .bundleClass(AbstractBundle.class)
+            .resourcePackages(List.of(Patient.class.getPackage(), Resource.class.getPackage()))
+            .build()
+            .apply(url);
     String datamart = System.getProperty("datamart");
     log.info("Requesting {} as {} (Datamart={})", url, type.getName(), datamart);
     RequestSpecification specification =

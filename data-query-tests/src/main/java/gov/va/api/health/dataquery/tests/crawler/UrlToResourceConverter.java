@@ -1,11 +1,12 @@
 package gov.va.api.health.dataquery.tests.crawler;
 
-import gov.va.api.health.argonaut.api.resources.Patient;
-import gov.va.api.health.dstu2.api.bundle.AbstractBundle;
 import gov.va.api.health.dstu2.api.resources.Resource;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.List;
 import java.util.function.Function;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.NonNull;
 
 /**
@@ -17,7 +18,13 @@ import lombok.NonNull;
  * https://apis.va.gov/services/argonaut/v0/Procedure?patient=123 -> Procedure.Bundle.class
  * </pre>
  */
+@AllArgsConstructor
+@Builder
 public class UrlToResourceConverter implements Function<String, Class<?>> {
+
+  final Class<?> bundleClass;
+  final List<Package> resourcePackages;
+
   @Override
   public Class<?> apply(@NonNull String argonautUrl) {
     URL url = asUrl(argonautUrl);
@@ -63,7 +70,7 @@ public class UrlToResourceConverter implements Function<String, Class<?>> {
    */
   private Class<?> bundleOf(Class<?> resourceClass) {
     for (Class<?> maybeBundle : resourceClass.getDeclaredClasses()) {
-      if (AbstractBundle.class.isAssignableFrom(maybeBundle)) {
+      if (bundleClass.isAssignableFrom(maybeBundle)) {
         return maybeBundle;
       }
     }
@@ -76,11 +83,8 @@ public class UrlToResourceConverter implements Function<String, Class<?>> {
    * next to {@link Resource}.
    */
   private Class<?> findClass(String resourceName) {
-    for (String resourcePackage :
-        new String[] {
-          Patient.class.getPackage().getName(), Resource.class.getPackage().getName()
-        }) {
-      String className = resourcePackage + "." + resourceName;
+    for (Package resourcePackage : resourcePackages) {
+      String className = resourcePackage.getName() + "." + resourceName;
       try {
         return Class.forName(className);
       } catch (ClassNotFoundException e) {

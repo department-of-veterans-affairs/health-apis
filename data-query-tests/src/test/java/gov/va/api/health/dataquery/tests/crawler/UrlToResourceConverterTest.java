@@ -6,13 +6,20 @@ import gov.va.api.health.argonaut.api.resources.Medication;
 import gov.va.api.health.argonaut.api.resources.MedicationStatement;
 import gov.va.api.health.argonaut.api.resources.Patient;
 import gov.va.api.health.dataquery.tests.crawler.UrlToResourceConverter.DoNotUnderstandUrl;
+import gov.va.api.health.dstu2.api.bundle.AbstractBundle;
+import gov.va.api.health.dstu2.api.resources.Resource;
 import gov.va.api.health.sentinel.categories.Local;
+import java.util.List;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 @Category(Local.class)
 public class UrlToResourceConverterTest {
-  UrlToResourceConverter converter = new UrlToResourceConverter();
+  UrlToResourceConverter converter =
+      UrlToResourceConverter.builder()
+          .bundleClass(AbstractBundle.class)
+          .resourcePackages(List.of(Patient.class.getPackage(), Resource.class.getPackage()))
+          .build();
 
   @Test
   public void conversions() {
