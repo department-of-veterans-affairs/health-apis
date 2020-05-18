@@ -78,6 +78,13 @@ final class R4ImmunizationTransformer {
     return Immunization.builder()
         .resourceType(Immunization.class.getSimpleName())
         .id(datamart.cdwId())
+        /*
+        There are 2 types of Immunizations. Those that are administered and those reported
+        from an external source "historical". All the ones we currently expose are administered.
+        The primary source for an administered Immunization is true, as the providing this
+        record is the performer indicated below.
+        */
+        .primarySource(Boolean.TRUE)
         .status(status(datamart.status()))
         ._status(statusExtension(datamart.status()))
         .occurrenceDateTime(asDateTimeString(datamart.date()))

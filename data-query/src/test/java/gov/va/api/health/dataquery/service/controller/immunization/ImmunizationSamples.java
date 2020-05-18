@@ -237,6 +237,7 @@ public class ImmunizationSamples {
       return gov.va.api.health.uscorer4.api.resources.Immunization.builder()
           .resourceType(gov.va.api.health.uscorer4.api.resources.Immunization.class.getSimpleName())
           .id(id)
+          .primarySource(Boolean.TRUE)
           .occurrenceDateTime("1997-05-09T14:21:18Z")
           .status(gov.va.api.health.uscorer4.api.resources.Immunization.Status.completed)
           .vaccineCode(vaccineCode())
