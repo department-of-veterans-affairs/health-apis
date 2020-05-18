@@ -126,6 +126,31 @@
               "type" : "reference"
             }
           ]
+        },
+        {
+          "type" : "Immunization",
+          "profile" : "http://hl7.org/fhir/us/core/StructureDefinition/us-core-immunization",
+          "interaction" : [
+            {
+              "code" : "search-type",
+              "documentation" : "Implemented per the specification"
+            },
+            {
+              "code" : "read",
+              "documentation" : "Implemented per the specification"
+            }
+          ],
+          "versioning" : "no-version",
+          "referencePolicy" : [
+            "literal",
+            "local"
+          ],
+          "searchParam" : [
+            {
+              "name" : "patient",
+              "type" : "reference"
+            }
+          ]
         }
       ]
     }
