@@ -1,6 +1,7 @@
 package gov.va.api.health.dataquery.service.controller.immunization;
 
 import static gov.va.api.health.dataquery.service.controller.R4Transformers.asReference;
+import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
 import static gov.va.api.health.dataquery.service.controller.Transformers.asDateTimeString;
 
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
@@ -22,10 +23,9 @@ final class R4ImmunizationTransformer {
   }
 
   static List<Immunization.Performer> performer(Optional<DatamartReference> maybePerformer) {
-    if (maybePerformer == null || !maybePerformer.isPresent()) {
-      return null;
-    }
-    return List.of(Immunization.Performer.builder().actor(asReference(maybePerformer)).build());
+    return maybePerformer.isPresent()
+        ? List.of(Immunization.Performer.builder().actor(asReference(maybePerformer)).build())
+        : null;
   }
 
   static List<Immunization.Reaction> reaction(Optional<DatamartReference> reaction) {
@@ -43,8 +43,6 @@ final class R4ImmunizationTransformer {
         return Immunization.Status.completed;
       case entered_in_error:
         return Immunization.Status.entered_in_error;
-      case not_done:
-        return Immunization.Status.not_done;
       case data_absent_reason_unsupported:
         /* For unsupported, we'll need to set the _status extension field */
         return null;
@@ -54,7 +52,7 @@ final class R4ImmunizationTransformer {
   }
 
   static CodeableConcept vaccineCode(DatamartImmunization.VaccineCode vaccineCode) {
-    if (vaccineCode == null) {
+    if (vaccineCode == null || allBlank(vaccineCode.text(), vaccineCode.code())) {
       return null;
     }
     return CodeableConcept.builder()

@@ -106,8 +106,6 @@ public class DatamartImmunization implements HasReplaceableId {
     completed,
     @JsonProperty("entered-in-error")
     entered_in_error,
-    @JsonProperty("not-done")
-    not_done,
     @JsonProperty("data-absent-reason:unsupported")
     data_absent_reason_unsupported
   }

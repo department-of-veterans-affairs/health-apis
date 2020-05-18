@@ -22,12 +22,12 @@ public class R4ImmunizationTransformerTest {
   @Test
   void note() {
     assertThat(R4ImmunizationTransformer.note(Optional.empty())).isNull();
-    assertThat(R4ImmunizationTransformer.note(Optional.of("hello")))
-        .isEqualTo(ImmunizationSamples.R4.create().note("hello"));
+    assertThat(R4ImmunizationTransformer.note(ImmunizationSamples.Datamart.create().note()))
+        .isEqualTo(ImmunizationSamples.R4.create().note());
   }
 
   @Test
-  void perfomer() {
+  void performer() {
     assertThat(R4ImmunizationTransformer.performer(Optional.empty())).isNull();
     assertThat(
             R4ImmunizationTransformer.performer(ImmunizationSamples.Datamart.create().performer()))
@@ -55,8 +55,6 @@ public class R4ImmunizationTransformerTest {
         .isEqualTo(Immunization.Status.completed);
     assertThat(R4ImmunizationTransformer.status(DatamartImmunization.Status.entered_in_error))
         .isEqualTo(Immunization.Status.entered_in_error);
-    assertThat(R4ImmunizationTransformer.status(DatamartImmunization.Status.not_done))
-        .isEqualTo(Immunization.Status.not_done);
   }
 
   @Test
