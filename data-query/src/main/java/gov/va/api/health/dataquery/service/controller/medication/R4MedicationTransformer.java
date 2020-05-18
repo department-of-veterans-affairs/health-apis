@@ -14,6 +14,17 @@ import lombok.Builder;
 public class R4MedicationTransformer {
   @NotNull final DatamartMedication datamart;
 
+  static CodeableConcept form(Optional<DatamartMedication.Product> maybeProduct) {
+    if (maybeProduct == null || !maybeProduct.isPresent()) {
+      return null;
+    }
+    DatamartMedication.Product product = maybeProduct.get();
+    return CodeableConcept.builder()
+        .text(product.formText())
+        .coding(List.of(Coding.builder().code(product.id()).display(product.formText()).build()))
+        .build();
+  }
+
   /**
    * Per KBS guidelines we want to return the following for code.
    *
@@ -29,61 +40,41 @@ public class R4MedicationTransformer {
    */
   CodeableConcept bestCode() {
     if (datamart.rxnorm() != null && datamart.rxnorm().isPresent()) {
-
       DatamartMedication.RxNorm rxNorm = datamart.rxnorm().get();
-
       return CodeableConcept.builder()
-              .coding(
-                      List.of(
-                              Coding.builder()
-                                .code(rxNorm.code())
-                                .display(rxNorm.text())
-                                .system("https://www.nlm.nih.gov/research/umls/rxnorm")
-                                .build())
-                      )
-              .text(rxNorm.text())
-              .build();
+          .coding(
+              List.of(
+                  Coding.builder()
+                      .code(rxNorm.code())
+                      .display(rxNorm.text())
+                      .system("https://www.nlm.nih.gov/research/umls/rxnorm")
+                      .build()))
+          .text(rxNorm.text())
+          .build();
     }
-
     if (datamart.product() != null && datamart.product().isPresent()) {
       DatamartMedication.Product product = datamart.product().get();
-
       return CodeableConcept.builder()
-              .coding(
-                      List.of(
-                              Coding.builder()
-                                .code(product.id())
-                                .display(datamart.localDrugName())
-                                .system("urn:oid:2.16.840.1.113883.6.233")
-                                .build())
-                      )
-              .text(datamart.localDrugName())
-              .build();
+          .coding(
+              List.of(
+                  Coding.builder()
+                      .code(product.id())
+                      .display(datamart.localDrugName())
+                      .system("urn:oid:2.16.840.1.113883.6.233")
+                      .build()))
+          .text(datamart.localDrugName())
+          .build();
     }
-
     return CodeableConcept.builder().text(datamart.localDrugName()).build();
-  }
-
-  static CodeableConcept form(Optional<DatamartMedication.Product> maybeProduct) {
-    if (maybeProduct == null || !maybeProduct.isPresent()) {
-      return null;
-    }
-
-    DatamartMedication.Product product = maybeProduct.get();
-
-    return CodeableConcept.builder()
-        .text(product.formText())
-        .coding(List.of(Coding.builder().code(product.id()).display(product.formText()).build()))
-        .build();
   }
 
   Narrative bestText() {
     String text =
-            datamart.rxnorm().isPresent() ? datamart.rxnorm().get().text() : datamart.localDrugName();
+        datamart.rxnorm().isPresent() ? datamart.rxnorm().get().text() : datamart.localDrugName();
     return Narrative.builder()
-            .div("<div>" + text + "</div>")
-            .status(Narrative.NarrativeStatus.additional)
-            .build();
+        .div("<div>" + text + "</div>")
+        .status(Narrative.NarrativeStatus.additional)
+        .build();
   }
 
   List<Identifier> identifierFromProduct() {
