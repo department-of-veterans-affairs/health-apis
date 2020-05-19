@@ -66,7 +66,6 @@ public class R4MedicationTransformerTest {
 
   @Test
   public void form() {
-    R4MedicationTransformer transformer = tx(MedicationSamples.Datamart.create().medication());
     Datamart datamart = Datamart.create();
     Optional<DatamartMedication.Product> product;
 

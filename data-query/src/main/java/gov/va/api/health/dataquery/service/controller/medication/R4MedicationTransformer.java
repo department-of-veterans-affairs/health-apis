@@ -19,10 +19,7 @@ public class R4MedicationTransformer {
       return null;
     }
     DatamartMedication.Product product = maybeProduct.get();
-    return CodeableConcept.builder()
-        .text(product.formText())
-        .coding(List.of(Coding.builder().code(product.id()).display(product.formText()).build()))
-        .build();
+    return CodeableConcept.builder().text(product.formText()).build();
   }
 
   /**

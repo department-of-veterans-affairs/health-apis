@@ -228,15 +228,7 @@ public class MedicationSamples {
     }
 
     gov.va.api.health.r4.api.datatypes.CodeableConcept formFromProduct() {
-      return gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()
-          .text("TAB")
-          .coding(
-              List.of(
-                  gov.va.api.health.r4.api.datatypes.Coding.builder()
-                      .code("4015523")
-                      .display("TAB")
-                      .build()))
-          .build();
+      return gov.va.api.health.r4.api.datatypes.CodeableConcept.builder().text("TAB").build();
     }
 
     List<gov.va.api.health.r4.api.datatypes.Identifier> identifierFromProduct() {
