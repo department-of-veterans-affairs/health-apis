@@ -36,7 +36,7 @@ public class R4MedicationTransformer {
    * the local drug name as text.
    */
   CodeableConcept bestCode() {
-    if (!datamart.rxnorm().isEmpty()) {
+    if (datamart.rxnorm().isPresent()) {
       DatamartMedication.RxNorm rxNorm = datamart.rxnorm().get();
       return CodeableConcept.builder()
           .coding(
@@ -49,7 +49,7 @@ public class R4MedicationTransformer {
           .text(rxNorm.text())
           .build();
     }
-    if (!datamart.product().isEmpty()) {
+    if (datamart.product().isPresent()) {
       DatamartMedication.Product product = datamart.product().get();
       return CodeableConcept.builder()
           .coding(
