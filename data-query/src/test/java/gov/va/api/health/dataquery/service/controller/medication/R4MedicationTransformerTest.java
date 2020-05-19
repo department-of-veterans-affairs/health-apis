@@ -77,14 +77,16 @@ public class R4MedicationTransformerTest {
 
   @Test
   public void identifierFromProduct() {
-    R4MedicationTransformer transformer = tx(MedicationSamples.Datamart.create().medication());
+    R4MedicationTransformer transformer =
+        tx(MedicationSamples.Datamart.create().medication().product(null));
     Datamart datamart = Datamart.create();
     Optional<DatamartMedication.Product> product = datamart.product();
+
     // case: product = null -> result = null identifier
-    transformer.datamart.product(null);
     assertThat(transformer.identifierFromProduct()).isNull();
+
     // case: product = good -> result = product identifier
-    transformer.datamart.product(product);
+    transformer = tx(MedicationSamples.Datamart.create().medication().product(product));
     assertThat(transformer.identifierFromProduct()).isEqualTo(R4.create().identifierFromProduct());
   }
 
@@ -106,11 +108,6 @@ public class R4MedicationTransformerTest {
         .isEqualTo(MedicationSamples.R4.create().medication());
   }
 
-  // @Test
-  // public void code() {
-  //
-  // R4 r4 = R4.create();
-  // }
   R4MedicationTransformer tx(DatamartMedication dm) {
     return R4MedicationTransformer.builder().datamart(dm).build();
   }

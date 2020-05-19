@@ -7,12 +7,12 @@ import gov.va.api.health.r4.api.elements.Narrative;
 import gov.va.api.health.uscorer4.api.resources.Medication;
 import java.util.List;
 import java.util.Optional;
-import javax.validation.constraints.NotNull;
 import lombok.Builder;
+import lombok.NonNull;
 
 @Builder
 public class R4MedicationTransformer {
-  @NotNull final DatamartMedication datamart;
+  @NonNull private final DatamartMedication datamart;
 
   static CodeableConcept form(Optional<DatamartMedication.Product> maybeProduct) {
     if (maybeProduct == null || !maybeProduct.isPresent()) {
