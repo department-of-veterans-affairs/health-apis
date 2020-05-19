@@ -39,7 +39,7 @@ import lombok.NonNull;
 @Builder
 final class R4PatientTransformer {
 
-  @NonNull final DatamartPatient datamart;
+  @NonNull private final DatamartPatient datamart;
 
   static Address address(DatamartPatient.Address address) {
     if (address == null
