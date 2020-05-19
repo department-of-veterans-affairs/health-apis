@@ -8,40 +8,11 @@ dstu2Resources() {
   # Location
   # Organization
   # Practitioner
-  echo -n \
-    AllergyIntolerance\
-    Condition\
-    DiagnosticReport\
-    Immunization\
-    Medication\
-    MedicationOrder\
-    MedicationStatement\
-    Observation\
-    Patient\
-    Procedure
+  curl -s http://localhost:8090/dstu2/metadata | jq .rest[].resource[].type -r | grep -Ev '(Location|Organization|Practitioner)'
 }
 
 r4Resources() {
-  # Not supported:
-  # Location
-  # Organization
-  # Practitioner
-  echo -n \
-    AllergyIntolerance\
-    Condition\
-
-  # Move these up as they are supported
-  # And remove the > dev/null
-  echo \
-    DiagnosticReport\
-    Immunization\
-    Medication\
-    MedicationOrder\
-    MedicationStatement\
-    Observation\
-    Patient\
-    Procedure\
-    > /dev/null
+  curl -s http://localhost:8090/r4/metadata | jq .rest[].resource[].type -r
 }
 
 
