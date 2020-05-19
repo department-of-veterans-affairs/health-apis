@@ -26,6 +26,8 @@ build() {
 
 
 run() {
+
+  ALLOW_URLS='.*/(metadata|AllergyIntolerance|Condition|DiagnosticReport|Immunization|Medication|MedicationOrder|MedicationStatement|Observation|Patient|Procedure)[?/].*'
   case $(uname) in
     Darwin) THIS_MACHINE="docker.for.mac.localhost";;
     Linux) THIS_MACHINE="localhost";;
@@ -41,8 +43,13 @@ run() {
     -e TOKEN=nope \
     -e SENTINEL_SMOKE_TEST_CATEGORY=gov.va.api.health.sentinel.categories.Smoke \
     -e SENTINEL_REGRESSION_TEST_CATEGORY=gov.va.api.health.sentinel.categories.Local \
-    -e DATA_QUERY_REPLACE_URL=http://$THIS_MACHINE:8090/dstu2 \
+    -e SENTINEL_CRAWLER=gov.va.api.health.dataquery.tests.crawler.UsingMagicPatientCrawlerTest \
+    -e DATA_QUERY_REPLACEMENT_URL_PREFIX=http://localhost:8090 \
+    -e DSTU2_API_PATH=/dstu2 \
+    -e STU3_API_PATH=/stu3 \
+    -e R4_API_PATH=/r4 \
     -e USER_PASSWORD=nope \
+    -e ALLOW_URLS="$ALLOW_URLS" \
     -e CLIENT_ID=nope \
     -e CLIENT_SECRET=nope \
     -e PATIENT_ID=43000199 \
