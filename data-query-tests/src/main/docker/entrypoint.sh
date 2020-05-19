@@ -128,6 +128,10 @@ doCrawlerTest() {
   # If crawler test was specified and not explicitly told to skip then it's crawl time.
   if [ "$SKIP_CRAWLER" == "true" -o -z "$SENTINEL_CRAWLER" ]; then return; fi
 
+  # Wipe out any included or excluded categories to make sure we pick up the crawler test class
+  INCLUDE_CATEGORY=
+  EXCLUDE_CATEGORY=
+
   # Crawl DSTU2
   setupForAutomation
   addToSystemProperties "crawler.url.replace" "${DATA_QUERY_REPLACEMENT_URL_PREFIX}${DSTU2_API_PATH}"
