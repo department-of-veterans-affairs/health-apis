@@ -15,6 +15,8 @@ public interface UrlExtractor {
     switch (fhirVersion) {
       case DSTU2:
         return new Dstu2BundleUrlExtractor();
+      case STU3:
+        throw new IllegalArgumentException("STU3 is not supported");
       case R4:
         return new R4BundleUrlExtractor();
       default:
