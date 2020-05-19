@@ -1,11 +1,12 @@
 package gov.va.api.health.dataquery.tests.crawler;
 
-import gov.va.api.health.argonaut.api.resources.Patient;
-import gov.va.api.health.dstu2.api.bundle.AbstractBundle;
-import gov.va.api.health.dstu2.api.resources.Resource;
+import gov.va.api.health.fhir.api.FhirVersion;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.List;
 import java.util.function.Function;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.NonNull;
 
 /**
@@ -17,7 +18,46 @@ import lombok.NonNull;
  * https://apis.va.gov/services/argonaut/v0/Procedure?patient=123 -> Procedure.Bundle.class
  * </pre>
  */
+@AllArgsConstructor
+@Builder
 public class UrlToResourceConverter implements Function<String, Class<?>> {
+
+  final Class<?> bundleClass;
+
+  final List<Package> resourcePackages;
+
+  /** Configure an instance based on the FHIR version. */
+  public static UrlToResourceConverter forFhirVersion(@NonNull FhirVersion fhirVersion) {
+    switch (fhirVersion) {
+      case DSTU2:
+        return UrlToResourceConverter.builder()
+            .bundleClass(gov.va.api.health.dstu2.api.bundle.AbstractBundle.class)
+            .resourcePackages(
+                List.of(
+                    gov.va.api.health.argonaut.api.resources.Patient.class.getPackage(),
+                    gov.va.api.health.dstu2.api.resources.Resource.class.getPackage()))
+            .build();
+      case STU3:
+        return UrlToResourceConverter.builder()
+            .bundleClass(gov.va.api.health.stu3.api.bundle.AbstractBundle.class)
+            .resourcePackages(
+                List.of(
+                    gov.va.api.health.stu3.api.resources.Location.class.getPackage(),
+                    gov.va.api.health.stu3.api.resources.Resource.class.getPackage()))
+            .build();
+      case R4:
+        return UrlToResourceConverter.builder()
+            .bundleClass(gov.va.api.health.r4.api.bundle.AbstractBundle.class)
+            .resourcePackages(
+                List.of(
+                    gov.va.api.health.uscorer4.api.resources.Patient.class.getPackage(),
+                    gov.va.api.health.r4.api.resources.Resource.class.getPackage()))
+            .build();
+      default:
+        throw new IllegalArgumentException("Do not understand FHIR version:" + fhirVersion);
+    }
+  }
+
   @Override
   public Class<?> apply(@NonNull String argonautUrl) {
     URL url = asUrl(argonautUrl);
@@ -63,7 +103,7 @@ public class UrlToResourceConverter implements Function<String, Class<?>> {
    */
   private Class<?> bundleOf(Class<?> resourceClass) {
     for (Class<?> maybeBundle : resourceClass.getDeclaredClasses()) {
-      if (AbstractBundle.class.isAssignableFrom(maybeBundle)) {
+      if (bundleClass.isAssignableFrom(maybeBundle)) {
         return maybeBundle;
       }
     }
@@ -73,14 +113,11 @@ public class UrlToResourceConverter implements Function<String, Class<?>> {
   /**
    * Attempt to find a resource class for the given resource name. This will attempt to use the
    * simple name, e.g. Patient and turn it into a class assuming that all resources are packaged
-   * next to {@link Resource}.
+   * next to Resource.
    */
   private Class<?> findClass(String resourceName) {
-    for (String resourcePackage :
-        new String[] {
-          Patient.class.getPackage().getName(), Resource.class.getPackage().getName()
-        }) {
-      String className = resourcePackage + "." + resourceName;
+    for (Package resourcePackage : resourcePackages) {
+      String className = resourcePackage.getName() + "." + resourceName;
       try {
         return Class.forName(className);
       } catch (ClassNotFoundException e) {
