@@ -15,7 +15,7 @@ public class R4MedicationTransformer {
   @NonNull private final DatamartMedication datamart;
 
   static CodeableConcept form(Optional<DatamartMedication.Product> maybeProduct) {
-    if (maybeProduct == null || !maybeProduct.isPresent()) {
+    if (maybeProduct.isEmpty()) {
       return null;
     }
     DatamartMedication.Product product = maybeProduct.get();
@@ -47,7 +47,7 @@ public class R4MedicationTransformer {
                   Coding.builder()
                       .code(rxNorm.code())
                       .display(rxNorm.text())
-                      .system("https://www.nlm.nih.gov/research/umls/rxnorm")
+                      .system("http://www.nlm.nih.gov/research/umls/rxnorm")
                       .build()))
           .text(rxNorm.text())
           .build();
@@ -78,10 +78,10 @@ public class R4MedicationTransformer {
   }
 
   List<Identifier> identifierFromProduct() {
-    if (datamart.product() != null && datamart.product().isPresent()) {
-      return List.of(Identifier.builder().id(datamart.product().get().id()).build());
-    } else {
+    if (datamart.product().isEmpty()) {
       return null;
+    } else {
+      return List.of(Identifier.builder().id(datamart.product().get().id()).build());
     }
   }
 

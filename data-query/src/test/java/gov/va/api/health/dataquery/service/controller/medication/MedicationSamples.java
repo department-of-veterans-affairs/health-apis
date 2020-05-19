@@ -1,6 +1,5 @@
 package gov.va.api.health.dataquery.service.controller.medication;
 
-import gov.va.api.health.argonaut.api.resources.Medication;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -49,7 +48,7 @@ public class MedicationSamples {
         Collection<gov.va.api.health.argonaut.api.resources.Medication> medications,
         int totalRecords,
         gov.va.api.health.dstu2.api.bundle.BundleLink... links) {
-      return Medication.Bundle.builder()
+      return gov.va.api.health.argonaut.api.resources.Medication.Bundle.builder()
           .resourceType("Bundle")
           .type(gov.va.api.health.dstu2.api.bundle.AbstractBundle.BundleType.searchset)
           .total(totalRecords)
@@ -220,7 +219,7 @@ public class MedicationSamples {
           .coding(
               List.of(
                   gov.va.api.health.r4.api.datatypes.Coding.builder()
-                      .system("https://www.nlm.nih.gov/research/umls/rxnorm")
+                      .system("http://www.nlm.nih.gov/research/umls/rxnorm")
                       .code("284205")
                       .display("ALMOTRIPTAN MALATE 12.5MG TAB,UD")
                       .build()))

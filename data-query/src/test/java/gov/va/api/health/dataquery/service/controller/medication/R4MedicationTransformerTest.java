@@ -68,10 +68,15 @@ public class R4MedicationTransformerTest {
   public void form() {
     R4MedicationTransformer transformer = tx(MedicationSamples.Datamart.create().medication());
     Datamart datamart = Datamart.create();
-    Optional<DatamartMedication.Product> product = datamart.product();
+    Optional<DatamartMedication.Product> product;
+
+    product = Optional.empty();
+
     // case: product = null -> result = null form
-    assertThat(R4MedicationTransformer.form(null)).isNull();
+    assertThat(R4MedicationTransformer.form(product)).isNull();
+
     // case: product = good -> result = product form
+    product = datamart.product();
     assertThat(R4MedicationTransformer.form(product)).isEqualTo(R4.create().formFromProduct());
   }
 
