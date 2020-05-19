@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.deser.BeanDeserializer;
 import com.fasterxml.jackson.databind.deser.BeanDeserializerModifier;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
-import gov.va.api.health.dstu2.api.elements.Reference;
+import gov.va.api.health.fhir.api.IsReference;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
@@ -67,8 +67,8 @@ class ReferenceInterceptor {
     public Object deserialize(JsonParser p, DeserializationContext ctxt)
         throws IOException, JsonProcessingException {
       Object value = super.deserialize(p, ctxt);
-      if (value instanceof Reference) {
-        Reference reference = (Reference) value;
+      if (value instanceof IsReference) {
+        IsReference reference = (IsReference) value;
         if (StringUtils.isNotBlank(reference.reference())) {
           if (references.add(reference.reference())) {
             log.debug("Found reference to '{}' ({})", reference.display(), reference.reference());
@@ -87,7 +87,7 @@ class ReferenceInterceptor {
     @Override
     public JsonDeserializer<?> modifyDeserializer(
         DeserializationConfig config, BeanDescription beanDesc, JsonDeserializer<?> deserializer) {
-      if (Reference.class.isAssignableFrom(beanDesc.getBeanClass())
+      if (IsReference.class.isAssignableFrom(beanDesc.getBeanClass())
           && deserializer instanceof BeanDeserializer) {
         return new ReferenceDeserializer((BeanDeserializer) deserializer);
       }

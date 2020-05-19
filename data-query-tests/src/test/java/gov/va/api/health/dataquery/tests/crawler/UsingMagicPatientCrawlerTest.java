@@ -30,10 +30,11 @@ public class UsingMagicPatientCrawlerTest {
     SystemDefinition env = SystemDefinitions.systemDefinition();
 
     ResourceDiscovery discovery =
-        ResourceDiscovery.builder()
-            .patientId(patient)
-            .url(env.dstu2DataQuery().urlWithApiPath())
-            .build();
+        ResourceDiscovery.of(
+            ResourceDiscovery.Context.builder()
+                .patientId(patient)
+                .url(CrawlerProperties.baseUrlOrElse(env.dstu2DataQuery().urlWithApiPath()))
+                .build());
 
     IgnoreFilterResultCollector results =
         IgnoreFilterResultCollector.wrap(
@@ -47,7 +48,7 @@ public class UsingMagicPatientCrawlerTest {
             .requestQueue(
                 UrlReplacementRequestQueue.builder()
                     .replaceUrl(CrawlerProperties.urlReplace())
-                    .withUrl(env.dstu2DataQuery().urlWithApiPath())
+                    .withUrl(CrawlerProperties.baseUrlOrElse(env.dstu2DataQuery().urlWithApiPath()))
                     .requestQueue(new ConcurrentResourceBalancingRequestQueue())
                     .build())
             .build();
@@ -58,6 +59,8 @@ public class UsingMagicPatientCrawlerTest {
             .executor(
                 Executors.newFixedThreadPool(
                     SentinelProperties.threadCount("sentinel.crawler.threads", 8)))
+            .urlToResourceConverter(UrlToResourceConverter.forFhirVersion(discovery.fhirVersion()))
+            .urlExtractor(UrlExtractor.forFhirVersion(discovery.fhirVersion()))
             .requestQueue(rq)
             .results(results)
             .authenticationToken(() -> magicAccessToken())
