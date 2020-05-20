@@ -109,6 +109,17 @@ class R4MetadataController {
             support("Immunization")
                 .profileUrl("http://hl7.org/fhir/us/core/StructureDefinition/us-core-immunization")
                 .search(Set.of(SearchParam.PATIENT))
+                .build(),
+            support("Patient")
+                .profileUrl("http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient")
+                .search(
+                    Set.of(
+                        SearchParam.ID,
+                        SearchParam.FAMILY,
+                        SearchParam.BIRTH_DATE,
+                        SearchParam.NAME,
+                        SearchParam.GENDER,
+                        SearchParam.GIVEN))
                 .build())
         .map(SupportedResource::asResource)
         .collect(toList());

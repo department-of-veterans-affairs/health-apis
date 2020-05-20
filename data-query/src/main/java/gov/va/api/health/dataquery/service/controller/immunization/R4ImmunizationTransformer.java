@@ -82,7 +82,7 @@ final class R4ImmunizationTransformer {
         There are 2 types of Immunizations. Those that are administered and those reported
         from an external source "historical". All the ones we currently expose are administered.
         The primary source for an administered Immunization is true, as the provider of the
-        record is the performer indicated below.
+        record is the performer indicated below. See Data-Sources team for more info.
         */
         .primarySource(Boolean.TRUE)
         .status(status(datamart.status()))

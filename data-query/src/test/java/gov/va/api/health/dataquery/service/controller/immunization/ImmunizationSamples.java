@@ -188,7 +188,6 @@ public class ImmunizationSamples {
 
   @AllArgsConstructor(staticName = "create")
   public static class R4 {
-
     static gov.va.api.health.uscorer4.api.resources.Immunization.Bundle asBundle(
         String baseUrl,
         Collection<gov.va.api.health.uscorer4.api.resources.Immunization> immunizations,

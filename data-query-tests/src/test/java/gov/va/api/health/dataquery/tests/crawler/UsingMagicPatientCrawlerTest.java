@@ -59,6 +59,8 @@ public class UsingMagicPatientCrawlerTest {
             .executor(
                 Executors.newFixedThreadPool(
                     SentinelProperties.threadCount("sentinel.crawler.threads", 8)))
+            .urlToResourceConverter(UrlToResourceConverter.forFhirVersion(discovery.fhirVersion()))
+            .urlExtractor(UrlExtractor.forFhirVersion(discovery.fhirVersion()))
             .requestQueue(rq)
             .results(results)
             .authenticationToken(() -> magicAccessToken())

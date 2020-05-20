@@ -1,23 +1,20 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+
+
 dstu2Resources() {
   # Not supported:
   # Location
   # Organization
   # Practitioner
-  echo -n \
-    AllergyIntolerance\
-    Condition\
-    DiagnosticReport\
-    Immunization\
-    Medication\
-    MedicationOrder\
-    MedicationStatement\
-    Observation\
-    Patient\
-    Procedure
+  curl -s http://localhost:8090/dstu2/metadata | jq .rest[].resource[].type -r | grep -Ev '(Location|Organization|Practitioner)'
 }
+
+r4Resources() {
+  curl -s http://localhost:8090/r4/metadata | jq .rest[].resource[].type -r
+}
+
 
 urlPatternFor() {
   local pattern='.*/(metadata'
@@ -26,10 +23,18 @@ urlPatternFor() {
   echo -n "$pattern"
 }
 
-case ${FHIR_VERSION:-dstu2} in
+
+if [ -n "${1:-}" ]; then FHIR_VERSION="$1"; fi
+if [ -z "${FHIR_VERSION:-}" ]; then FHIR_VERSION=dstu2; fi
+
+case ${FHIR_VERSION} in
   dstu2)
     URL_REPLACE=http://localhost:8090/dstu2
     ALLOW_QUERY_URL_PATTERN="$(urlPatternFor $(dstu2Resources))"
+    ;;
+  r4)
+    URL_REPLACE=http://localhost:8090/r4
+    ALLOW_QUERY_URL_PATTERN="$(urlPatternFor $(r4Resources))"
     ;;
   *) echo "Unknown FHIR version: $FHIR_VERSION"; exit 1;;
 esac
@@ -40,7 +45,9 @@ mvn \
   -Dtest="*UsingMagicPatientCrawlerTest*" \
   -Daccess-token=not-used \
   -Dsentinel=LOCAL \
+  -Dcrawler.base-url=http://localhost:8090/${FHIR_VERSION} \
   -Dsentinel.dstu2.url=http://localhost:8090/ \
+  -Dsentinel.r4.url=http://localhost:8090/ \
   -Dcrawler.url.replace="${URL_REPLACE}" \
   -Dcrawler.allow-query-url-pattern="${ALLOW_QUERY_URL_PATTERN}" \
   -Dpatient-id=${PATIENT:-32000225} \
