@@ -64,10 +64,13 @@ import javax.ws.rs.Path;
                           name = "patient/AllergyIntolerance.read",
                           description = "read allergy intolerances"),
                       @OAuthScope(name = "patient/Condition.read", description = "read conditions"),
-                      @OAuthScope(name = "patient/Medication.read", description = "read medications"),
+                      @OAuthScope(
+                          name = "patient/Medication.read",
+                          description = "read medications"),
                       @OAuthScope(name = "patient/Patient.read", description = "read patient"),
                       @OAuthScope(name = "offline_access", description = "offline access"),
                       @OAuthScope(name = "launch/patient", description = "patient launch"),
                     })))
 @Path("/")
-public interface R4DataQueryService extends AllergyIntoleranceApi, ConditionApi, MedicationApi, PatientApi {}
+public interface R4DataQueryService
+    extends AllergyIntoleranceApi, ConditionApi, MedicationApi, PatientApi {}

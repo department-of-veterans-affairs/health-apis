@@ -19,10 +19,10 @@ public class MedicationIncludesIcnMajigTest {
   @Test
   public void r42ExtractNoIcns() {
     ExtractIcnValidator.builder()
-            .majig(new R4MedicationIncludesIcnMajig())
-            .body(gov.va.api.health.uscorer4.api.resources.Medication.builder().id("123").build())
-            .expectedIcns(List.of("NONE"))
-            .build()
-            .assertIcn();
+        .majig(new R4MedicationIncludesIcnMajig())
+        .body(gov.va.api.health.uscorer4.api.resources.Medication.builder().id("123").build())
+        .expectedIcns(List.of("NONE"))
+        .build()
+        .assertIcn();
   }
 }
