@@ -16,12 +16,9 @@ public class R4ImmunizationTransformerTest {
             R4ImmunizationTransformer.builder()
                 .datamart(DatamartImmunization.builder().build())
                 .build()
-                .toFhir())
-        .isEqualTo(
-            Immunization.builder()
-                .resourceType("Immunization")
-                .primarySource(Boolean.TRUE)
-                .build());
+                .toFhir()
+                .primarySource(null))
+        .isEqualTo(Immunization.builder().resourceType("Immunization").primarySource(null).build());
   }
 
   @Test

@@ -30,6 +30,10 @@ final class R4ImmunizationTransformer {
         : null;
   }
 
+  static Boolean primarySource(DatamartImmunization datamart) {
+    return datamart == null ? null : Boolean.TRUE;
+  }
+
   static List<Immunization.Reaction> reaction(Optional<DatamartReference> reaction) {
     return (reaction.isPresent() && reaction.get().hasDisplayOrTypeAndReference())
         ? List.of(Immunization.Reaction.builder().detail(asReference(reaction)).build())
@@ -84,7 +88,7 @@ final class R4ImmunizationTransformer {
         The primary source for an administered Immunization is true, as the provider of the
         record is the performer indicated below. See Data-Sources team for more info.
         */
-        .primarySource(Boolean.TRUE)
+        .primarySource(primarySource(datamart))
         .status(status(datamart.status()))
         ._status(statusExtension(datamart.status()))
         .occurrenceDateTime(asDateTimeString(datamart.date()))
