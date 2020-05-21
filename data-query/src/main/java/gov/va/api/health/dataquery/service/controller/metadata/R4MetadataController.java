@@ -110,6 +110,9 @@ class R4MetadataController {
                 .profileUrl("http://hl7.org/fhir/us/core/StructureDefinition/us-core-immunization")
                 .search(Set.of(SearchParam.PATIENT))
                 .build(),
+            support("Medication")
+                .profileUrl("http://hl7.org/fhir/us/core/StructureDefinition/us-core-medication")
+                .build(),
             support("Patient")
                 .profileUrl("http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient")
                 .search(
