@@ -2,6 +2,7 @@ package gov.va.api.health.dataquery.service.api;
 
 import gov.va.api.health.uscorer4.api.AllergyIntoleranceApi;
 import gov.va.api.health.uscorer4.api.ConditionApi;
+import gov.va.api.health.uscorer4.api.ImmunizationApi;
 import gov.va.api.health.uscorer4.api.MedicationApi;
 import gov.va.api.health.uscorer4.api.PatientApi;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
@@ -24,6 +25,7 @@ import javax.ws.rs.Path;
             scopes = {
               "patient/AllergyIntolerance.read",
               "patient/Condition.read",
+              "patient/Immunization.read",
               "patient/Medication.read",
               "patient/Patient.read",
               "offline_access",
@@ -65,6 +67,9 @@ import javax.ws.rs.Path;
                           description = "read allergy intolerances"),
                       @OAuthScope(name = "patient/Condition.read", description = "read conditions"),
                       @OAuthScope(
+                          name = "patient/Immunization.read",
+                          description = "read immunizations"),
+                      @OAuthScope(
                           name = "patient/Medication.read",
                           description = "read medications"),
                       @OAuthScope(name = "patient/Patient.read", description = "read patient"),
@@ -73,4 +78,4 @@ import javax.ws.rs.Path;
                     })))
 @Path("/")
 public interface R4DataQueryService
-    extends AllergyIntoleranceApi, ConditionApi, MedicationApi, PatientApi {}
+    extends AllergyIntoleranceApi, ConditionApi, ImmunizationApi, MedicationApi, PatientApi {}
