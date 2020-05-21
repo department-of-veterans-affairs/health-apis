@@ -134,13 +134,13 @@ doCrawlerTest() {
 
   # Crawl DSTU2
   setupForAutomation
-  addToSystemProperties "crawler.url.replace" "${DATA_QUERY_REPLACEMENT_URL_PREFIX}${DSTU2_API_PATH}"
+  addToSystemProperties "crawler.url.replace" "${DATA_QUERY_REPLACEMENT_URL_PREFIX}/dstu2"
   addToSystemProperties "crawler.base-url" "${DQ_URL}${DSTU2_API_PATH}"
   doTest $SENTINEL_CRAWLER
 
   # Crawl R4
   setupForAutomation
-  addToSystemProperties "crawler.url.replace" "${DATA_QUERY_REPLACEMENT_URL_PREFIX}${R4_API_PATH}"
+  addToSystemProperties "crawler.url.replace" "${DATA_QUERY_REPLACEMENT_URL_PREFIX}/r4"
   addToSystemProperties "crawler.base-url" "${DQ_URL}${R4_API_PATH}"
   doTest $SENTINEL_CRAWLER
 }
@@ -164,9 +164,9 @@ setupForAutomation() {
   trustServer $K8S_LOAD_BALANCER
 
   [ -z "$INTERNAL_API_PATH" ] && INTERNAL_API_PATH=/data-query
-  [ -z "$DSTU2_API_PATH" ] && DSTU2_API_PATH=/fhir/v0/dstu2
-  [ -z "$STU3_API_PATH" ] && STU3_API_PATH=/fhir/v0/stu3
-  [ -z "$R4_API_PATH" ] && R4_API_PATH=/fhir/v0/r4
+  [ -z "$DSTU2_API_PATH" ] && DSTU2_API_PATH=${INTERNAL_API_PATH}/dstu2
+  [ -z "$STU3_API_PATH" ] && STU3_API_PATH=${INTERNAL_API_PATH}/stu3
+  [ -z "$R4_API_PATH" ] && R4_API_PATH=${INTERNAL_API_PATH}/r4
 
   SYSTEM_PROPERTIES="$WEB_DRIVER_PROPERTIES \
     -Dsentinel=$SENTINEL_ENV \
