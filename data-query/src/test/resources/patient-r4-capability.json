@@ -128,6 +128,21 @@
           ]
         },
         {
+          "type" : "Medication",
+          "profile" : "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medication",
+          "interaction" : [
+            {
+              "code" : "read",
+              "documentation" : "Implemented per the specification"
+            }
+          ],
+          "versioning" : "no-version",
+          "referencePolicy" : [
+            "literal",
+            "local"
+          ]
+        },
+        {
           "type" : "Patient",
           "profile" : "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient",
           "interaction" : [
