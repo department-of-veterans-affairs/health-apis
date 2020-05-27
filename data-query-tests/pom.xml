@@ -11,7 +11,7 @@
   <version>2.0.279-SNAPSHOT</version>
   <packaging>jar</packaging>
   <properties>
-    <fhir-resources.version>3.0.5</fhir-resources.version>
+    <fhir-resources.version>3.0.6</fhir-resources.version>
     <groups>gov.va.api.health.sentinel.categories.Local</groups>
     <health-apis-ids.version>3.0.0</health-apis-ids.version>
     <selenium.version>3.141.59</selenium.version>
