@@ -188,6 +188,45 @@ public class ImmunizationSamples {
 
   @AllArgsConstructor(staticName = "create")
   public static class R4 {
+    static gov.va.api.health.uscorer4.api.resources.Immunization.Bundle asBundle(
+        String baseUrl,
+        Collection<gov.va.api.health.uscorer4.api.resources.Immunization> immunizations,
+        int totalRecords,
+        gov.va.api.health.r4.api.bundle.BundleLink... links) {
+      return gov.va.api.health.uscorer4.api.resources.Immunization.Bundle.builder()
+          .resourceType("Bundle")
+          .type(gov.va.api.health.r4.api.bundle.AbstractBundle.BundleType.searchset)
+          .total(totalRecords)
+          .link(Arrays.asList(links))
+          .entry(
+              immunizations.stream()
+                  .map(
+                      c ->
+                          gov.va.api.health.uscorer4.api.resources.Immunization.Entry.builder()
+                              .fullUrl(baseUrl + "/Immunization/" + c.id())
+                              .resource(c)
+                              .search(
+                                  gov.va.api.health.r4.api.bundle.AbstractEntry.Search.builder()
+                                      .mode(
+                                          gov.va.api.health.r4.api.bundle.AbstractEntry.SearchMode
+                                              .match)
+                                      .build())
+                              .build())
+                  .collect(Collectors.toList()))
+          .build();
+    }
+
+    static gov.va.api.health.r4.api.bundle.BundleLink link(
+        gov.va.api.health.r4.api.bundle.BundleLink.LinkRelation rel,
+        String base,
+        int page,
+        int count) {
+      return gov.va.api.health.r4.api.bundle.BundleLink.builder()
+          .relation(rel)
+          .url(base + "&page=" + page + "&_count=" + count)
+          .build();
+    }
+
     gov.va.api.health.uscorer4.api.resources.Immunization immunization() {
       return immunization("1000000030337", "1011549983V753765");
     }
@@ -197,6 +236,7 @@ public class ImmunizationSamples {
       return gov.va.api.health.uscorer4.api.resources.Immunization.builder()
           .resourceType(gov.va.api.health.uscorer4.api.resources.Immunization.class.getSimpleName())
           .id(id)
+          .primarySource(Boolean.TRUE)
           .occurrenceDateTime("1997-05-09T14:21:18Z")
           .status(gov.va.api.health.uscorer4.api.resources.Immunization.Status.completed)
           .vaccineCode(vaccineCode())

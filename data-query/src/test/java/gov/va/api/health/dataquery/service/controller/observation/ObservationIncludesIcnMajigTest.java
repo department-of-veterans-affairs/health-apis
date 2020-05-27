@@ -10,9 +10,12 @@ public class ObservationIncludesIcnMajigTest {
     ExtractIcnValidator.builder()
         .majig(new Dstu2ObservationIncludesIcnMajig())
         .body(
-                gov.va.api.health.argonaut.api.resources.Observation.builder()
+            gov.va.api.health.argonaut.api.resources.Observation.builder()
                 .id("123")
-                .subject(gov.va.api.health.dstu2.api.elements.Reference.builder().reference("Patient/1010101010V666666").build())
+                .subject(
+                    gov.va.api.health.dstu2.api.elements.Reference.builder()
+                        .reference("Patient/1010101010V666666")
+                        .build())
                 .build())
         .expectedIcns(List.of("1010101010V666666"))
         .build()
@@ -22,14 +25,17 @@ public class ObservationIncludesIcnMajigTest {
   @Test
   public void r4() {
     ExtractIcnValidator.builder()
-            .majig(new R4ObservationIncludesIcnMajig())
-            .body(
-                    gov.va.api.health.uscorer4.api.resources.Observation.builder()
-                            .id("123")
-                            .subject(gov.va.api.health.r4.api.elements.Reference.builder().reference("Patient/1010101010V666666").build())
-                            .build())
-            .expectedIcns(List.of("1010101010V666666"))
-            .build()
-            .assertIcn();
+        .majig(new R4ObservationIncludesIcnMajig())
+        .body(
+            gov.va.api.health.uscorer4.api.resources.Observation.builder()
+                .id("123")
+                .subject(
+                    gov.va.api.health.r4.api.elements.Reference.builder()
+                        .reference("Patient/1010101010V666666")
+                        .build())
+                .build())
+        .expectedIcns(List.of("1010101010V666666"))
+        .build()
+        .assertIcn();
   }
 }

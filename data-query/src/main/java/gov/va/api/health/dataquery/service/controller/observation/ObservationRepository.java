@@ -81,7 +81,8 @@ public interface ObservationRepository
     DateTimeParameters date2;
 
     @Builder
-    private PatientAndCodeAndDateSpecification(String patient, Collection<String> codes, String[] dates) {
+    private PatientAndCodeAndDateSpecification(
+        String patient, Collection<String> codes, String[] dates) {
       this.patient = patient;
       this.codes = new HashSet<>(codes);
       date1 = (dates == null || dates.length < 1) ? null : new DateTimeParameters(dates[0]);
