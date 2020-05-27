@@ -250,8 +250,8 @@ public class Dstu2ObservationController {
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
     String cdwPatient = witnessProtection.toCdwId(patient);
-    ObservationRepository.PatientAndCodesSpecification spec =
-        ObservationRepository.PatientAndCodesSpecification.builder()
+    ObservationRepository.PatientAndCodeAndDateSpecification spec =
+        ObservationRepository.PatientAndCodeAndDateSpecification.builder()
             .patient(cdwPatient)
             .codes(Splitter.on(",").trimResults().splitToList(codeCsv))
             .build();
