@@ -2,26 +2,15 @@ package gov.va.api.health.dataquery.service.controller.observation;
 
 import static java.util.Arrays.asList;
 
-import gov.va.api.health.argonaut.api.resources.Observation;
-import gov.va.api.health.argonaut.api.resources.Observation.Bundle;
-import gov.va.api.health.argonaut.api.resources.Observation.Entry;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation.Category;
 import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation.Status;
-import gov.va.api.health.dstu2.api.bundle.AbstractBundle.BundleType;
-import gov.va.api.health.dstu2.api.bundle.AbstractEntry.Search;
-import gov.va.api.health.dstu2.api.bundle.AbstractEntry.SearchMode;
-import gov.va.api.health.dstu2.api.bundle.BundleLink;
-import gov.va.api.health.dstu2.api.bundle.BundleLink.LinkRelation;
-import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
-import gov.va.api.health.dstu2.api.datatypes.Coding;
-import gov.va.api.health.dstu2.api.datatypes.Quantity;
-import gov.va.api.health.dstu2.api.datatypes.SimpleQuantity;
-import gov.va.api.health.dstu2.api.elements.Reference;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
@@ -309,18 +298,25 @@ public class ObservationSamples {
               observations.stream()
                   .map(
                       c ->
-                              gov.va.api.health.argonaut.api.resources.Observation.Entry.builder()
+                          gov.va.api.health.argonaut.api.resources.Observation.Entry.builder()
                               .fullUrl(baseUrl + "/Observation/" + c.id())
                               .resource(c)
                               .search(
-                                      gov.va.api.health.dstu2.api.bundle.AbstractEntry.Search.builder().mode(
-                                              gov.va.api.health.dstu2.api.bundle.AbstractEntry.SearchMode.match).build())
+                                  gov.va.api.health.dstu2.api.bundle.AbstractEntry.Search.builder()
+                                      .mode(
+                                          gov.va.api.health.dstu2.api.bundle.AbstractEntry
+                                              .SearchMode.match)
+                                      .build())
                               .build())
                   .collect(Collectors.toList()))
           .build();
     }
 
-    public static gov.va.api.health.dstu2.api.bundle.BundleLink link(LinkRelation rel, String base, int page, int count) {
+    public static gov.va.api.health.dstu2.api.bundle.BundleLink link(
+        gov.va.api.health.dstu2.api.bundle.BundleLink.LinkRelation rel,
+        String base,
+        int page,
+        int count) {
       return gov.va.api.health.dstu2.api.bundle.BundleLink.builder()
           .relation(rel)
           .url(base + "&page=" + page + "&_count=" + count)
@@ -335,26 +331,27 @@ public class ObservationSamples {
       return observation(id, "666V666");
     }
 
-    public gov.va.api.health.argonaut.api.resources.Observation observation(String id, String patientId) {
+    public gov.va.api.health.argonaut.api.resources.Observation observation(
+        String id, String patientId) {
       return gov.va.api.health.argonaut.api.resources.Observation.builder()
           .resourceType("Observation")
           .id(id)
           .status(gov.va.api.health.argonaut.api.resources.Observation.Status._final)
           .category(
-                  gov.va.api.health.dstu2.api.datatypes.CodeableConcept.builder()
+              gov.va.api.health.dstu2.api.datatypes.CodeableConcept.builder()
                   .coding(
                       asList(
-                              gov.va.api.health.dstu2.api.datatypes.Coding.builder()
+                          gov.va.api.health.dstu2.api.datatypes.Coding.builder()
                               .system("http://hl7.org/fhir/observation-category")
                               .code("laboratory")
                               .display("Laboratory")
                               .build()))
                   .build())
           .code(
-                  gov.va.api.health.dstu2.api.datatypes.CodeableConcept.builder()
+              gov.va.api.health.dstu2.api.datatypes.CodeableConcept.builder()
                   .coding(
                       asList(
-                              gov.va.api.health.dstu2.api.datatypes.Coding.builder()
+                          gov.va.api.health.dstu2.api.datatypes.Coding.builder()
                               .system("http://loinc.org")
                               .code("1989-3")
                               .display("VITAMIN D,25-OH,TOTAL")
@@ -362,7 +359,7 @@ public class ObservationSamples {
                   .text("VITAMIN D,25-OH,TOTAL")
                   .build())
           .subject(
-              Reference.builder()
+              gov.va.api.health.dstu2.api.elements.Reference.builder()
                   .reference("Patient/" + patientId)
                   .display("VETERAN,AUDIE OBS")
                   .build())
@@ -370,26 +367,26 @@ public class ObservationSamples {
           .issued("2012-12-26T19:42:00Z")
           .performer(
               asList(
-                  Reference.builder()
+                  gov.va.api.health.dstu2.api.elements.Reference.builder()
                       .reference("Practitioner/" + "2000")
                       .display("WELBY,MARCUS MCCOY")
                       .build(),
-                  Reference.builder()
+                  gov.va.api.health.dstu2.api.elements.Reference.builder()
                       .reference("Organization/" + "3000")
                       .display("WHITE RIVER JCT VAMROC")
                       .build()))
           .valueQuantity(
-                  gov.va.api.health.dstu2.api.datatypes.Quantity.builder()
+              gov.va.api.health.dstu2.api.datatypes.Quantity.builder()
                   .value(111.82)
                   .unit("ng/mL")
                   .system("http://unitsofmeasure.org")
                   .code("ng/mL")
                   .build())
           .interpretation(
-                  gov.va.api.health.dstu2.api.datatypes.CodeableConcept.builder()
+              gov.va.api.health.dstu2.api.datatypes.CodeableConcept.builder()
                   .coding(
                       asList(
-                              gov.va.api.health.dstu2.api.datatypes.Coding.builder()
+                          gov.va.api.health.dstu2.api.datatypes.Coding.builder()
                               .system("http://hl7.org/fhir/v2/0078")
                               .code("H")
                               .display("High")
@@ -400,16 +397,17 @@ public class ObservationSamples {
               "CYTOSPIN:NO ACID-FAST BACILLI SEEN. 01/02/2015 BACILLI ISOLATED AFTER 6 WEEKS BY LABCORP")
           .referenceRange(
               asList(
-                      gov.va.api.health.argonaut.api.resources.Observation.ObservationReferenceRange.builder()
+                  gov.va.api.health.argonaut.api.resources.Observation.ObservationReferenceRange
+                      .builder()
                       .low(
-                              gov.va.api.health.dstu2.api.datatypes.SimpleQuantity.builder()
+                          gov.va.api.health.dstu2.api.datatypes.SimpleQuantity.builder()
                               .value(30.0)
                               .unit("ng/mL")
                               .system("http://unitsofmeasure.org")
                               .code("ng/mL")
                               .build())
                       .high(
-                              gov.va.api.health.dstu2.api.datatypes.SimpleQuantity.builder()
+                          gov.va.api.health.dstu2.api.datatypes.SimpleQuantity.builder()
                               .value(100.0)
                               .unit("ng/mL")
                               .system("http://unitsofmeasure.org")
@@ -418,50 +416,53 @@ public class ObservationSamples {
                       .build()))
           .component(
               asList(
-                      gov.va.api.health.argonaut.api.resources.Observation.ObservationComponent.builder()
+                  gov.va.api.health.argonaut.api.resources.Observation.ObservationComponent
+                      .builder()
                       .code(
-                              gov.va.api.health.dstu2.api.datatypes.CodeableConcept.builder()
+                          gov.va.api.health.dstu2.api.datatypes.CodeableConcept.builder()
                               .coding(
                                   asList(
-                                          gov.va.api.health.dstu2.api.datatypes.Coding.builder()
+                                      gov.va.api.health.dstu2.api.datatypes.Coding.builder()
                                           .system("http://loinc.org")
                                           .code("8480-6")
                                           .display("Systolic blood pressure")
                                           .build()))
                               .build())
                       .valueQuantity(
-                              gov.va.api.health.dstu2.api.datatypes.Quantity.builder()
+                          gov.va.api.health.dstu2.api.datatypes.Quantity.builder()
                               .value(114.0)
                               .unit("mm[Hg]")
                               .system("http://unitsofmeasure.org")
                               .code("mm[Hg]")
                               .build())
                       .build(),
-                      gov.va.api.health.argonaut.api.resources.Observation.ObservationComponent.builder()
+                  gov.va.api.health.argonaut.api.resources.Observation.ObservationComponent
+                      .builder()
                       .code(
-                              gov.va.api.health.dstu2.api.datatypes.CodeableConcept.builder()
+                          gov.va.api.health.dstu2.api.datatypes.CodeableConcept.builder()
                               .coding(
                                   asList(
-                                          gov.va.api.health.dstu2.api.datatypes.Coding.builder()
+                                      gov.va.api.health.dstu2.api.datatypes.Coding.builder()
                                           .system("http://loinc.org")
                                           .code("8462-4")
                                           .display("Diastolic blood pressure")
                                           .build()))
                               .build())
                       .valueQuantity(
-                              gov.va.api.health.dstu2.api.datatypes.Quantity.builder()
+                          gov.va.api.health.dstu2.api.datatypes.Quantity.builder()
                               .value(62.0)
                               .unit("mm[Hg]")
                               .system("http://unitsofmeasure.org")
                               .code("mm[Hg]")
                               .build())
                       .build(),
-                      gov.va.api.health.argonaut.api.resources.Observation.ObservationComponent.builder()
+                  gov.va.api.health.argonaut.api.resources.Observation.ObservationComponent
+                      .builder()
                       .code(
-                              gov.va.api.health.dstu2.api.datatypes.CodeableConcept.builder()
+                          gov.va.api.health.dstu2.api.datatypes.CodeableConcept.builder()
                               .coding(
                                   asList(
-                                      Coding.builder()
+                                      gov.va.api.health.dstu2.api.datatypes.Coding.builder()
                                           .system("http://loinc.org")
                                           .code("76-0")
                                           .display("CEFAZOLIN")
@@ -469,22 +470,23 @@ public class ObservationSamples {
                               .text("CEFAZOLIN-1")
                               .build())
                       .valueCodeableConcept(
-                              gov.va.api.health.dstu2.api.datatypes.CodeableConcept.builder()
+                          gov.va.api.health.dstu2.api.datatypes.CodeableConcept.builder()
                               .coding(
                                   asList(
-                                      Coding.builder()
+                                      gov.va.api.health.dstu2.api.datatypes.Coding.builder()
                                           .system("http://snomed.info/sct")
                                           .code("S")
                                           .display("Sensitive")
                                           .build()))
                               .build())
                       .build(),
-                      gov.va.api.health.argonaut.api.resources.Observation.ObservationComponent.builder()
+                  gov.va.api.health.argonaut.api.resources.Observation.ObservationComponent
+                      .builder()
                       .code(
-                              gov.va.api.health.dstu2.api.datatypes.CodeableConcept.builder()
+                          gov.va.api.health.dstu2.api.datatypes.CodeableConcept.builder()
                               .coding(
                                   asList(
-                                      Coding.builder()
+                                      gov.va.api.health.dstu2.api.datatypes.Coding.builder()
                                           .system("http://loinc.org")
                                           .code("279-0")
                                           .display("IMIPENEM")
@@ -492,22 +494,23 @@ public class ObservationSamples {
                               .text("IMIPENEM")
                               .build())
                       .valueCodeableConcept(
-                              gov.va.api.health.dstu2.api.datatypes.CodeableConcept.builder()
+                          gov.va.api.health.dstu2.api.datatypes.CodeableConcept.builder()
                               .coding(
                                   asList(
-                                      Coding.builder()
+                                      gov.va.api.health.dstu2.api.datatypes.Coding.builder()
                                           .system("http://snomed.info/sct")
                                           .code("S")
                                           .display("Sensitive")
                                           .build()))
                               .build())
                       .build(),
-                      gov.va.api.health.argonaut.api.resources.Observation.ObservationComponent.builder()
+                  gov.va.api.health.argonaut.api.resources.Observation.ObservationComponent
+                      .builder()
                       .code(
-                              gov.va.api.health.dstu2.api.datatypes.CodeableConcept.builder()
+                          gov.va.api.health.dstu2.api.datatypes.CodeableConcept.builder()
                               .coding(
                                   asList(
-                                      Coding.builder()
+                                      gov.va.api.health.dstu2.api.datatypes.Coding.builder()
                                           .system("http://loinc.org")
                                           .code("185-9")
                                           .display("CIPROFLOXACIN")
@@ -515,22 +518,23 @@ public class ObservationSamples {
                               .text("CIPROFLOXACIN")
                               .build())
                       .valueCodeableConcept(
-                              gov.va.api.health.dstu2.api.datatypes.CodeableConcept.builder()
+                          gov.va.api.health.dstu2.api.datatypes.CodeableConcept.builder()
                               .coding(
                                   asList(
-                                      Coding.builder()
+                                      gov.va.api.health.dstu2.api.datatypes.Coding.builder()
                                           .system("http://snomed.info/sct")
                                           .code("S")
                                           .display("Sensitive")
                                           .build()))
                               .build())
                       .build(),
-                      gov.va.api.health.argonaut.api.resources.Observation.ObservationComponent.builder()
+                  gov.va.api.health.argonaut.api.resources.Observation.ObservationComponent
+                      .builder()
                       .code(
-                              gov.va.api.health.dstu2.api.datatypes.CodeableConcept.builder()
+                          gov.va.api.health.dstu2.api.datatypes.CodeableConcept.builder()
                               .coding(
                                   asList(
-                                      Coding.builder()
+                                      gov.va.api.health.dstu2.api.datatypes.Coding.builder()
                                           .system("http://loinc.org")
                                           .code("141-2")
                                           .display("CEFTRIAXONE")
@@ -538,22 +542,23 @@ public class ObservationSamples {
                               .text("CEFTRIAXONE-3")
                               .build())
                       .valueCodeableConcept(
-                              gov.va.api.health.dstu2.api.datatypes.CodeableConcept.builder()
+                          gov.va.api.health.dstu2.api.datatypes.CodeableConcept.builder()
                               .coding(
                                   asList(
-                                      Coding.builder()
+                                      gov.va.api.health.dstu2.api.datatypes.Coding.builder()
                                           .system("http://snomed.info/sct")
                                           .code("S")
                                           .display("Sensitive")
                                           .build()))
                               .build())
                       .build(),
-                      gov.va.api.health.argonaut.api.resources.Observation.ObservationComponent.builder()
+                  gov.va.api.health.argonaut.api.resources.Observation.ObservationComponent
+                      .builder()
                       .code(
-                              gov.va.api.health.dstu2.api.datatypes.CodeableConcept.builder()
+                          gov.va.api.health.dstu2.api.datatypes.CodeableConcept.builder()
                               .coding(
                                   asList(
-                                      Coding.builder()
+                                      gov.va.api.health.dstu2.api.datatypes.Coding.builder()
                                           .system("http://loinc.org")
                                           .code("516-5")
                                           .display("TRIMETHOPRIM+SULFAMETHOXAZOLE")
@@ -561,35 +566,43 @@ public class ObservationSamples {
                               .text("SXT (BACTRIM)")
                               .build())
                       .valueCodeableConcept(
-                              gov.va.api.health.dstu2.api.datatypes.CodeableConcept.builder()
+                          gov.va.api.health.dstu2.api.datatypes.CodeableConcept.builder()
                               .coding(
                                   asList(
-                                      Coding.builder()
+                                      gov.va.api.health.dstu2.api.datatypes.Coding.builder()
                                           .system("http://snomed.info/sct")
                                           .code("R")
                                           .display("Resistant")
                                           .build()))
                               .build())
                       .build(),
-                    gov.va.api.health.argonaut.api.resources.Observation.ObservationComponent.builder()
-                      .code(gov.va.api.health.dstu2.api.datatypes.CodeableConcept.builder().text("Acid Fast Stain").build())
+                  gov.va.api.health.argonaut.api.resources.Observation.ObservationComponent
+                      .builder()
+                      .code(
+                          gov.va.api.health.dstu2.api.datatypes.CodeableConcept.builder()
+                              .text("Acid Fast Stain")
+                              .build())
                       .valueString("Concentrate Negative")
                       .build(),
-                    gov.va.api.health.argonaut.api.resources.Observation.ObservationComponent.builder()
-                      .code(gov.va.api.health.dstu2.api.datatypes.CodeableConcept.builder().text("Sputum Screen").build())
+                  gov.va.api.health.argonaut.api.resources.Observation.ObservationComponent
+                      .builder()
+                      .code(
+                          gov.va.api.health.dstu2.api.datatypes.CodeableConcept.builder()
+                              .text("Sputum Screen")
+                              .build())
                       .valueString("GOOD QUALITY SPECIMEN BY GRAM STAIN EVALUATION")
                       .build()))
-              .build();
+          .build();
     }
   }
 
   @AllArgsConstructor(staticName = "create")
   public static class R4 {
     static gov.va.api.health.uscorer4.api.resources.Observation.Bundle asBundle(
-            String baseUrl,
-            Collection<gov.va.api.health.uscorer4.api.resources.Observation> observations,
-            int totalRecords,
-            gov.va.api.health.r4.api.bundle.BundleLink... links) {
+        String baseUrl,
+        Collection<gov.va.api.health.uscorer4.api.resources.Observation> observations,
+        int totalRecords,
+        gov.va.api.health.r4.api.bundle.BundleLink... links) {
       return gov.va.api.health.uscorer4.api.resources.Observation.Bundle.builder()
           .resourceType("Bundle")
           .type(gov.va.api.health.r4.api.bundle.AbstractBundle.BundleType.searchset)
@@ -597,29 +610,295 @@ public class ObservationSamples {
           .link(Arrays.asList(links))
           .entry(
               observations.stream()
-                .map(
-                    c ->
+                  .map(
+                      c ->
                           gov.va.api.health.uscorer4.api.resources.Observation.Entry.builder()
-                                .fullUrl(baseUrl + "/Observation/" + c.id())
-                                .resource(c)
-                                .search(
-                                        gov.va.api.health.r4.api.bundle.AbstractEntry.Search.builder().mode(
-                                          gov.va.api.health.r4.api.bundle.AbstractEntry.SearchMode.match).build())
-                                .build())
-                .collect(Collectors.toList()))
+                              .fullUrl(baseUrl + "/Observation/" + c.id())
+                              .resource(c)
+                              .search(
+                                  gov.va.api.health.r4.api.bundle.AbstractEntry.Search.builder()
+                                      .mode(
+                                          gov.va.api.health.r4.api.bundle.AbstractEntry.SearchMode
+                                              .match)
+                                      .build())
+                              .build())
+                  .collect(Collectors.toList()))
           .build();
     }
 
+    public static gov.va.api.health.r4.api.bundle.BundleLink link(
+        gov.va.api.health.r4.api.bundle.BundleLink.LinkRelation rel,
+        String base,
+        int page,
+        int count) {
+      return gov.va.api.health.r4.api.bundle.BundleLink.builder()
+          .relation(rel)
+          .url(base + "&page=" + page + "&_count=" + count)
+          .build();
+    }
 
+    public gov.va.api.health.uscorer4.api.resources.Observation observation() {
+      return observation("800001973863:A", "666V666");
+    }
 
+    public gov.va.api.health.uscorer4.api.resources.Observation observation(String id) {
+      return observation(id, "666V666");
+    }
 
-
-
-
-
-
-
-
-
+    public gov.va.api.health.uscorer4.api.resources.Observation observation(
+        String id, String patientId) {
+      return gov.va.api.health.uscorer4.api.resources.Observation.builder()
+          .resourceType("Observation")
+          .id(id)
+          .status(gov.va.api.health.uscorer4.api.resources.Observation.ObservationStatus._final)
+          .category(
+              List.of(
+                  gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()
+                      .coding(
+                          asList(
+                              gov.va.api.health.r4.api.datatypes.Coding.builder()
+                                  .system(
+                                      "http://hl7.org/fhir/R4/valueset-observation-category.html")
+                                  .code("laboratory")
+                                  .display("Laboratory")
+                                  .build()))
+                      .build()))
+          .code(
+              gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()
+                  .coding(
+                      asList(
+                          gov.va.api.health.r4.api.datatypes.Coding.builder()
+                              .system("http://loinc.org")
+                              .code("1989-3")
+                              .display("VITAMIN D,25-OH,TOTAL")
+                              .build()))
+                  .text("VITAMIN D,25-OH,TOTAL")
+                  .build())
+          .subject(
+              gov.va.api.health.r4.api.elements.Reference.builder()
+                  .reference("Patient/" + patientId)
+                  .display("VETERAN,AUDIE OBS")
+                  .build())
+          .effectiveDateTime("2012-12-24T14:12:00Z")
+          .issued("2012-12-26T19:42:00Z")
+          .performer(
+              asList(
+                  gov.va.api.health.r4.api.elements.Reference.builder()
+                      .reference("Practitioner/" + "2000")
+                      .display("WELBY,MARCUS MCCOY")
+                      .build(),
+                  gov.va.api.health.r4.api.elements.Reference.builder()
+                      .reference("Organization/" + "3000")
+                      .display("WHITE RIVER JCT VAMROC")
+                      .build()))
+          .valueQuantity(
+              gov.va.api.health.r4.api.datatypes.Quantity.builder()
+                  .value(new BigDecimal("111.82"))
+                  .unit("ng/mL")
+                  .system("http://unitsofmeasure.org")
+                  .code("ng/mL")
+                  .build())
+          .interpretation(
+              List.of(
+                  gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()
+                      .coding(
+                          asList(
+                              gov.va.api.health.r4.api.datatypes.Coding.builder()
+                                  .system(
+                                      "http://hl7.org/fhir/R4/v3/ObservationInterpretation/vs.html")
+                                  .code("H")
+                                  .display("High")
+                                  .build()))
+                      .text("H")
+                      .build()))
+          .referenceRange(
+              asList(
+                  gov.va.api.health.uscorer4.api.resources.Observation.ReferenceRange.builder()
+                      .low(
+                          gov.va.api.health.r4.api.datatypes.SimpleQuantity.builder()
+                              .value(new BigDecimal("30.0"))
+                              .unit("ng/mL")
+                              .system("http://unitsofmeasure.org")
+                              .code("ng/mL")
+                              .build())
+                      .high(
+                          gov.va.api.health.r4.api.datatypes.SimpleQuantity.builder()
+                              .value(new BigDecimal("100.0"))
+                              .unit("ng/mL")
+                              .system("http://unitsofmeasure.org")
+                              .code("ng/mL")
+                              .build())
+                      .build()))
+          .component(
+              asList(
+                  gov.va.api.health.uscorer4.api.resources.Observation.Component.builder()
+                      .code(
+                          gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()
+                              .coding(
+                                  asList(
+                                      gov.va.api.health.r4.api.datatypes.Coding.builder()
+                                          .system("http://loinc.org")
+                                          .code("8480-6")
+                                          .display("Systolic blood pressure")
+                                          .build()))
+                              .build())
+                      .valueQuantity(
+                          gov.va.api.health.r4.api.datatypes.Quantity.builder()
+                              .value(new BigDecimal("114.0"))
+                              .unit("mm[Hg]")
+                              .system("http://unitsofmeasure.org")
+                              .code("mm[Hg]")
+                              .build())
+                      .build(),
+                  gov.va.api.health.uscorer4.api.resources.Observation.Component.builder()
+                      .code(
+                          gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()
+                              .coding(
+                                  asList(
+                                      gov.va.api.health.r4.api.datatypes.Coding.builder()
+                                          .system("http://loinc.org")
+                                          .code("8462-4")
+                                          .display("Diastolic blood pressure")
+                                          .build()))
+                              .build())
+                      .valueQuantity(
+                          gov.va.api.health.r4.api.datatypes.Quantity.builder()
+                              .value(new BigDecimal("62.0"))
+                              .unit("mm[Hg]")
+                              .system("http://unitsofmeasure.org")
+                              .code("mm[Hg]")
+                              .build())
+                      .build(),
+                  gov.va.api.health.uscorer4.api.resources.Observation.Component.builder()
+                      .code(
+                          gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()
+                              .coding(
+                                  asList(
+                                      gov.va.api.health.r4.api.datatypes.Coding.builder()
+                                          .system("http://loinc.org")
+                                          .code("76-0")
+                                          .display("CEFAZOLIN")
+                                          .build()))
+                              .text("CEFAZOLIN-1")
+                              .build())
+                      .valueCodeableConcept(
+                          gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()
+                              .coding(
+                                  asList(
+                                      gov.va.api.health.r4.api.datatypes.Coding.builder()
+                                          .system("http://snomed.info/sct")
+                                          .code("S")
+                                          .display("Sensitive")
+                                          .build()))
+                              .build())
+                      .build(),
+                  gov.va.api.health.uscorer4.api.resources.Observation.Component.builder()
+                      .code(
+                          gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()
+                              .coding(
+                                  asList(
+                                      gov.va.api.health.r4.api.datatypes.Coding.builder()
+                                          .system("http://loinc.org")
+                                          .code("279-0")
+                                          .display("IMIPENEM")
+                                          .build()))
+                              .text("IMIPENEM")
+                              .build())
+                      .valueCodeableConcept(
+                          gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()
+                              .coding(
+                                  asList(
+                                      gov.va.api.health.r4.api.datatypes.Coding.builder()
+                                          .system("http://snomed.info/sct")
+                                          .code("S")
+                                          .display("Sensitive")
+                                          .build()))
+                              .build())
+                      .build(),
+                  gov.va.api.health.uscorer4.api.resources.Observation.Component.builder()
+                      .code(
+                          gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()
+                              .coding(
+                                  asList(
+                                      gov.va.api.health.r4.api.datatypes.Coding.builder()
+                                          .system("http://loinc.org")
+                                          .code("185-9")
+                                          .display("CIPROFLOXACIN")
+                                          .build()))
+                              .text("CIPROFLOXACIN")
+                              .build())
+                      .valueCodeableConcept(
+                          gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()
+                              .coding(
+                                  asList(
+                                      gov.va.api.health.r4.api.datatypes.Coding.builder()
+                                          .system("http://snomed.info/sct")
+                                          .code("S")
+                                          .display("Sensitive")
+                                          .build()))
+                              .build())
+                      .build(),
+                  gov.va.api.health.uscorer4.api.resources.Observation.Component.builder()
+                      .code(
+                          gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()
+                              .coding(
+                                  asList(
+                                      gov.va.api.health.r4.api.datatypes.Coding.builder()
+                                          .system("http://loinc.org")
+                                          .code("141-2")
+                                          .display("CEFTRIAXONE")
+                                          .build()))
+                              .text("CEFTRIAXONE-3")
+                              .build())
+                      .valueCodeableConcept(
+                          gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()
+                              .coding(
+                                  asList(
+                                      gov.va.api.health.r4.api.datatypes.Coding.builder()
+                                          .system("http://snomed.info/sct")
+                                          .code("S")
+                                          .display("Sensitive")
+                                          .build()))
+                              .build())
+                      .build(),
+                  gov.va.api.health.uscorer4.api.resources.Observation.Component.builder()
+                      .code(
+                          gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()
+                              .coding(
+                                  asList(
+                                      gov.va.api.health.r4.api.datatypes.Coding.builder()
+                                          .system("http://loinc.org")
+                                          .code("516-5")
+                                          .display("TRIMETHOPRIM+SULFAMETHOXAZOLE")
+                                          .build()))
+                              .text("SXT (BACTRIM)")
+                              .build())
+                      .valueCodeableConcept(
+                          gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()
+                              .coding(
+                                  asList(
+                                      gov.va.api.health.r4.api.datatypes.Coding.builder()
+                                          .system("http://snomed.info/sct")
+                                          .code("R")
+                                          .display("Resistant")
+                                          .build()))
+                              .build())
+                      .build(),
+                  gov.va.api.health.uscorer4.api.resources.Observation.Component.builder()
+                      .code(
+                          gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()
+                              .text("Acid Fast Stain")
+                              .build())
+                      .valueString("Concentrate Negative")
+                      .build(),
+                  gov.va.api.health.uscorer4.api.resources.Observation.Component.builder()
+                      .code(
+                          gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()
+                              .text("Sputum Screen")
+                              .build())
+                      .valueString("GOOD QUALITY SPECIMEN BY GRAM STAIN EVALUATION")
+                      .build()))
+          .build();
+    }
   }
 }
