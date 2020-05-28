@@ -658,7 +658,7 @@ public class ObservationSamples {
                           asList(
                               gov.va.api.health.r4.api.datatypes.Coding.builder()
                                   .system(
-                                      "http://hl7.org/fhir/R4/valueset-observation-category.html")
+                                      "http://terminology.hl7.org/CodeSystem/observation-category")
                                   .code("laboratory")
                                   .display("Laboratory")
                                   .build()))
