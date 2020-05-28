@@ -125,7 +125,8 @@ public class R4ObservationControllerTest {
                     .coding(
                         List.of(
                             Coding.builder()
-                                .system("http://hl7.org/fhir/R4/valueset-observation-category.html")
+                                .system(
+                                    "http://terminology.hl7.org/CodeSystem/observation-category")
                                 .code("vital-signs")
                                 .display("Vital Signs")
                                 .build()))
@@ -775,6 +776,136 @@ public class R4ObservationControllerTest {
                         "http://fonzy.com/cool/Observation?code=8480-6&patient=p1",
                         1,
                         10))));
+  }
+
+  @Test
+  public void searchByPatientAndCodeAndOneDate() {
+    /* Codes end up getting populated on a patient to patient basis,
+     * That is to say p0 is always 1989-3 and p1 is always 8480-6 */
+    Multimap<String, Observation> observationsByPatient = populateData();
+    Multimap<String, String> testDates = LinkedHashMultimap.create();
+    testDates.putAll(
+        "gt2004",
+        List.of(
+            "2005-01-10T07:57:00Z",
+            "2005-01-12T07:57:00Z",
+            "2005-01-14T07:57:00Z",
+            "2005-01-16T07:57:00Z",
+            "2005-01-18T07:57:00Z"));
+    testDates.putAll("eq2005-01-14", List.of("2005-01-14T07:57:00Z"));
+    testDates.putAll(
+        "ne2005-01-14",
+        List.of(
+            "2005-01-10T07:57:00Z",
+            "2005-01-12T07:57:00Z",
+            "2005-01-16T07:57:00Z",
+            "2005-01-18T07:57:00Z"));
+    testDates.putAll(
+        "le2005-01-14",
+        List.of("2005-01-10T07:57:00Z", "2005-01-12T07:57:00Z", "2005-01-14T07:57:00Z"));
+    testDates.putAll("lt2005-01-14", List.of("2005-01-10T07:57:00Z", "2005-01-12T07:57:00Z"));
+    testDates.putAll("eb2005-01-14", List.of("2005-01-10T07:57:00Z", "2005-01-12T07:57:00Z"));
+    testDates.putAll(
+        "ge2005-01-14",
+        List.of("2005-01-14T07:57:00Z", "2005-01-16T07:57:00Z", "2005-01-18T07:57:00Z"));
+    testDates.putAll("gt2005-01-18", List.of());
+    testDates.putAll("sa2005-01-18", List.of());
+    for (var date : testDates.keySet()) {
+      List<Observation> observations =
+          observationsByPatient.get("p0").stream()
+              .filter(o -> testDates.get(date).contains(o.effectiveDateTime()))
+              .collect(Collectors.toList());
+      assertThat(
+              json(controller().searchByPatientAndCode("p0", "1989-3", new String[] {date}, 1, 10)))
+          .isEqualTo(
+              json(
+                  ObservationSamples.R4.asBundle(
+                      "http://fonzy.com/cool",
+                      observations,
+                      observations.size(),
+                      link(
+                          BundleLink.LinkRelation.first,
+                          "http://fonzy.com/cool/Observation?code=1989-3&date="
+                              + date
+                              + "&patient=p0",
+                          1,
+                          10),
+                      link(
+                          BundleLink.LinkRelation.self,
+                          "http://fonzy.com/cool/Observation?code=1989-3&date="
+                              + date
+                              + "&patient=p0",
+                          1,
+                          10),
+                      link(
+                          BundleLink.LinkRelation.last,
+                          "http://fonzy.com/cool/Observation?code=1989-3&date="
+                              + date
+                              + "&patient=p0",
+                          1,
+                          10))));
+    }
+  }
+
+  @Test
+  public void searchByPatientAndCodeAndTwoDates() {
+    Multimap<String, Observation> observationsByPatient = populateData();
+    Multimap<Pair<String, String>, String> testDates = LinkedHashMultimap.create();
+    testDates.putAll(
+        Pair.of("gt2004", "lt2006"),
+        List.of(
+            "2005-01-10T07:57:00Z",
+            "2005-01-12T07:57:00Z",
+            "2005-01-14T07:57:00Z",
+            "2005-01-16T07:57:00Z",
+            "2005-01-18T07:57:00Z"));
+    testDates.putAll(
+        Pair.of("ge2005-01-12", "le2005-01-14"),
+        List.of("2005-01-12T07:57:00Z", "2005-01-14T07:57:00Z"));
+    for (var date : testDates.keySet()) {
+      List<Observation> observations =
+          observationsByPatient.get("p0").stream()
+              .filter(o -> testDates.get(date).contains(o.effectiveDateTime()))
+              .collect(Collectors.toList());
+      assertThat(
+              json(
+                  controller()
+                      .searchByPatientAndCode(
+                          "p0", "1989-3", new String[] {date.getLeft(), date.getRight()}, 1, 10)))
+          .isEqualTo(
+              json(
+                  ObservationSamples.R4.asBundle(
+                      "http://fonzy.com/cool",
+                      observations,
+                      observations.size(),
+                      link(
+                          BundleLink.LinkRelation.first,
+                          "http://fonzy.com/cool/Observation?code=1989-3&date="
+                              + date.getLeft()
+                              + "&date="
+                              + date.getRight()
+                              + "&patient=p0",
+                          1,
+                          10),
+                      link(
+                          BundleLink.LinkRelation.self,
+                          "http://fonzy.com/cool/Observation?code=1989-3&date="
+                              + date.getLeft()
+                              + "&date="
+                              + date.getRight()
+                              + "&patient=p0",
+                          1,
+                          10),
+                      link(
+                          BundleLink.LinkRelation.last,
+                          "http://fonzy.com/cool/Observation?code=1989-3&date="
+                              + date.getLeft()
+                              + "&date="
+                              + date.getRight()
+                              + "&patient=p0",
+                          1,
+                          10))));
+    }
   }
 
   @Test
