@@ -144,7 +144,8 @@ public class R4ObservationTransformer {
             .coding(
                 asList(
                     Coding.builder()
-                        .system("http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation")
+                        .system(
+                            "http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation")
                         .code(interpretation)
                         .display(interpretationDisplay(interpretation))
                         .build()))

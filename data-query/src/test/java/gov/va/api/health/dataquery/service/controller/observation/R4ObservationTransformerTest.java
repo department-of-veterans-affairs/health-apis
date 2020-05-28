@@ -89,10 +89,9 @@ public class R4ObservationTransformerTest {
     assertThat(R4ObservationTransformer.interpretationDisplay("<")).isEqualTo("Off scale low");
     assertThat(R4ObservationTransformer.interpretationDisplay(">")).isEqualTo("Off scale high");
     assertThat(R4ObservationTransformer.interpretationDisplay("A")).isEqualTo("Abnormal");
-    assertThat(R4ObservationTransformer.interpretationDisplay("AA"))
-        .isEqualTo("Critical abnormal");
+    assertThat(R4ObservationTransformer.interpretationDisplay("AA")).isEqualTo("Critical abnormal");
     assertThat(R4ObservationTransformer.interpretationDisplay("AC"))
-            .isEqualTo("Anti-complementary substances present");
+        .isEqualTo("Anti-complementary substances present");
     assertThat(R4ObservationTransformer.interpretationDisplay("B")).isEqualTo("Better");
     assertThat(R4ObservationTransformer.interpretationDisplay("D"))
         .isEqualTo("Significant change down");
@@ -105,9 +104,9 @@ public class R4ObservationTransformerTest {
     assertThat(R4ObservationTransformer.interpretationDisplay("HU"))
         .isEqualTo("Significantly high");
     assertThat(R4ObservationTransformer.interpretationDisplay("H>"))
-            .isEqualTo("Significantly high");
+        .isEqualTo("Significantly high");
     assertThat(R4ObservationTransformer.interpretationDisplay("HM"))
-            .isEqualTo("Hold for Medical Review");
+        .isEqualTo("Hold for Medical Review");
     assertThat(R4ObservationTransformer.interpretationDisplay("HX"))
         .isEqualTo("above high threshold");
     assertThat(R4ObservationTransformer.interpretationDisplay("I")).isEqualTo("Intermediate");
@@ -130,9 +129,10 @@ public class R4ObservationTransformerTest {
     assertThat(R4ObservationTransformer.interpretationDisplay("NR")).isEqualTo("Non-reactive");
     assertThat(R4ObservationTransformer.interpretationDisplay("NS")).isEqualTo("Non-susceptible");
     assertThat(R4ObservationTransformer.interpretationDisplay("OBX"))
-            .isEqualTo("Interpretation qualifiers in separate OBX segments");
+        .isEqualTo("Interpretation qualifiers in separate OBX segments");
     assertThat(R4ObservationTransformer.interpretationDisplay("POS")).isEqualTo("Positive");
-    assertThat(R4ObservationTransformer.interpretationDisplay("QCF")).isEqualTo("Quality control failure");
+    assertThat(R4ObservationTransformer.interpretationDisplay("QCF"))
+        .isEqualTo("Quality control failure");
     assertThat(R4ObservationTransformer.interpretationDisplay("R")).isEqualTo("Resistant");
     assertThat(R4ObservationTransformer.interpretationDisplay("RR")).isEqualTo("Reactive");
     assertThat(R4ObservationTransformer.interpretationDisplay("S")).isEqualTo("Susceptible");
@@ -143,12 +143,11 @@ public class R4ObservationTransformerTest {
     assertThat(R4ObservationTransformer.interpretationDisplay("SYN-S"))
         .isEqualTo("Synergy - susceptible");
     assertThat(R4ObservationTransformer.interpretationDisplay("TOX"))
-            .isEqualTo("Cytotoxic substance present");
+        .isEqualTo("Cytotoxic substance present");
     assertThat(R4ObservationTransformer.interpretationDisplay("U"))
         .isEqualTo("Significant change up");
     assertThat(R4ObservationTransformer.interpretationDisplay("UNE")).isEqualTo("Unexpected");
-    assertThat(R4ObservationTransformer.interpretationDisplay("VS"))
-        .isEqualTo("very susceptible");
+    assertThat(R4ObservationTransformer.interpretationDisplay("VS")).isEqualTo("very susceptible");
     assertThat(R4ObservationTransformer.interpretationDisplay("W")).isEqualTo("Worse");
     assertThat(R4ObservationTransformer.interpretationDisplay("WR")).isEqualTo("Weakly reactive");
     assertThat(R4ObservationTransformer.interpretationDisplay("RANDOM")).isNull();
@@ -209,7 +208,8 @@ public class R4ObservationTransformerTest {
                 .coding(
                     asList(
                         Coding.builder()
-                            .system("http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation")
+                            .system(
+                                "http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation")
                             .code("A")
                             .display("Abnormal")
                             .build()))
