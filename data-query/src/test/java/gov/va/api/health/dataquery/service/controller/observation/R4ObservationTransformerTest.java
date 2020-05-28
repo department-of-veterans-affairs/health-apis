@@ -17,56 +17,56 @@ public class R4ObservationTransformerTest {
     assertThat(R4ObservationTransformer.categoryCoding(DatamartObservation.Category.exam))
         .isEqualTo(
             Coding.builder()
-                .system("http://hl7.org/fhir/R4/valueset-observation-category.html")
+                .system("http://terminology.hl7.org/CodeSystem/observation-category")
                 .code("exam")
                 .display("Exam")
                 .build());
     assertThat(R4ObservationTransformer.categoryCoding(DatamartObservation.Category.imaging))
         .isEqualTo(
             Coding.builder()
-                .system("http://hl7.org/fhir/R4/valueset-observation-category.html")
+                .system("http://terminology.hl7.org/CodeSystem/observation-category")
                 .code("imaging")
                 .display("Imaging")
                 .build());
     assertThat(R4ObservationTransformer.categoryCoding(DatamartObservation.Category.laboratory))
         .isEqualTo(
             Coding.builder()
-                .system("http://hl7.org/fhir/R4/valueset-observation-category.html")
+                .system("http://terminology.hl7.org/CodeSystem/observation-category")
                 .code("laboratory")
                 .display("Laboratory")
                 .build());
     assertThat(R4ObservationTransformer.categoryCoding(DatamartObservation.Category.procedure))
         .isEqualTo(
             Coding.builder()
-                .system("http://hl7.org/fhir/R4/valueset-observation-category.html")
+                .system("http://terminology.hl7.org/CodeSystem/observation-category")
                 .code("procedure")
                 .display("Procedure")
                 .build());
     assertThat(R4ObservationTransformer.categoryCoding(DatamartObservation.Category.social_history))
         .isEqualTo(
             Coding.builder()
-                .system("http://hl7.org/fhir/R4/valueset-observation-category.html")
+                .system("http://terminology.hl7.org/CodeSystem/observation-category")
                 .code("social-history")
                 .display("Social History")
                 .build());
     assertThat(R4ObservationTransformer.categoryCoding(DatamartObservation.Category.survey))
         .isEqualTo(
             Coding.builder()
-                .system("http://hl7.org/fhir/R4/valueset-observation-category.html")
+                .system("http://terminology.hl7.org/CodeSystem/observation-category")
                 .code("survey")
                 .display("Survey")
                 .build());
     assertThat(R4ObservationTransformer.categoryCoding(DatamartObservation.Category.therapy))
         .isEqualTo(
             Coding.builder()
-                .system("http://hl7.org/fhir/R4/valueset-observation-category.html")
+                .system("http://terminology.hl7.org/CodeSystem/observation-category")
                 .code("therapy")
                 .display("Therapy")
                 .build());
     assertThat(R4ObservationTransformer.categoryCoding(DatamartObservation.Category.vital_signs))
         .isEqualTo(
             Coding.builder()
-                .system("http://hl7.org/fhir/R4/valueset-observation-category.html")
+                .system("http://terminology.hl7.org/CodeSystem/observation-category")
                 .code("vital-signs")
                 .display("Vital Signs")
                 .build());

@@ -47,9 +47,14 @@ public class R4ObservationTransformer {
     if (category == null) {
       return null;
     }
+    // Note for R4 a new category "activity" has been added, but is currently not in the datamart
+    // object.
+
     Coding.CodingBuilder coding =
-        Coding.builder().system("http://hl7.org/fhir/R4/valueset-observation-category.html");
+        Coding.builder().system("http://terminology.hl7.org/CodeSystem/observation-category");
+
     switch (category) {
+      // TODO: Add case for activity when added to the datamart object
       case exam:
         return coding.code("exam").display("Exam").build();
       case imaging:
