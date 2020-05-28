@@ -132,8 +132,8 @@ final class Dstu2ObservationTransformer {
     }
 
     return Observation.ObservationComponent.builder()
-        .code(CodeableConcept.builder().text(codeText.get()).build())
-        .valueString(valueText.get())
+        .code(CodeableConcept.builder().text(codeText.orElse(null)).build())
+        .valueString(valueText.orElse(null))
         .build();
   }
 

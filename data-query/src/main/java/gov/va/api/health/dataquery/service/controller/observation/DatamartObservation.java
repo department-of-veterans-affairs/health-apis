@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.observation;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
@@ -250,6 +251,7 @@ public class DatamartObservation implements HasReplaceableId {
     }
 
     /** Allow direct access to the code().text() if it exists. */
+    @JsonIgnore
     Optional<String> codeTextValue() {
       return Optional.ofNullable(code().isPresent() ? code().get().text() : null);
     }
@@ -263,6 +265,7 @@ public class DatamartObservation implements HasReplaceableId {
     }
 
     /** Allow direct access to the valueText().text() if it exists. */
+    @JsonIgnore
     Optional<String> valueTextValue() {
       return Optional.ofNullable(valueText().isPresent() ? valueText().get().text() : null);
     }
