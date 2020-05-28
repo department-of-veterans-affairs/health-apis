@@ -20,6 +20,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class DatamartObservation implements HasReplaceableId {
   @Builder.Default private String objectType = "Observation";
+
   @Builder.Default private int objectVersion = 1;
 
   private String cdwId;
@@ -248,12 +249,22 @@ public class DatamartObservation implements HasReplaceableId {
       return code;
     }
 
+    /** Allow direct access to the code().text() if it exists. */
+    Optional<String> codeTextValue() {
+      return Optional.ofNullable(code().isPresent() ? code().get().text() : null);
+    }
+
     /** Lazy getter. */
     public Optional<Text> valueText() {
       if (valueText == null) {
         valueText = Optional.empty();
       }
       return valueText;
+    }
+
+    /** Allow direct access to the valueText().text() if it exists. */
+    Optional<String> valueTextValue() {
+      return Optional.ofNullable(valueText().isPresent() ? valueText().get().text() : null);
     }
   }
 

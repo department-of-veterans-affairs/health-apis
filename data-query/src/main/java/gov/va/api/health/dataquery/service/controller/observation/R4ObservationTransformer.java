@@ -123,15 +123,16 @@ public class R4ObservationTransformer {
     if (component == null) {
       return null;
     }
-    String codeText = component.code().isPresent() ? component.code().get().text() : null;
-    String valueText =
-        component.valueText().isPresent() ? component.valueText().get().text() : null;
+    var codeText = component.codeTextValue();
+    var valueText = component.valueTextValue();
+
     if (allBlank(codeText, valueText)) {
       return null;
     }
+
     return Observation.Component.builder()
-        .code(CodeableConcept.builder().text(codeText).build())
-        .valueString(valueText)
+        .code(CodeableConcept.builder().text(codeText.get()).build())
+        .valueString(valueText.get())
         .build();
   }
 
