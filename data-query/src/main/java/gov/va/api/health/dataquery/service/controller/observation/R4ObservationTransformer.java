@@ -53,8 +53,8 @@ public class R4ObservationTransformer {
     Coding.CodingBuilder coding =
         Coding.builder().system("http://terminology.hl7.org/CodeSystem/observation-category");
 
+    // TODO: Add case for activity when added to the datamart object
     switch (category) {
-      // TODO: Add case for activity when added to the datamart object
       case exam:
         return coding.code("exam").display("Exam").build();
       case imaging:
