@@ -1,18 +1,46 @@
 package gov.va.api.health.dataquery.service.controller;
 
+import static gov.va.api.health.dataquery.service.controller.R4Transformers.asCodeableConceptWrapping;
 import static gov.va.api.health.dataquery.service.controller.R4Transformers.asCoding;
 import static gov.va.api.health.dataquery.service.controller.R4Transformers.asReference;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
+import gov.va.api.health.r4.api.datatypes.CodeableConcept;
 import gov.va.api.health.r4.api.datatypes.Coding;
 import gov.va.api.health.r4.api.elements.Reference;
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import org.junit.Test;
 
 public class R4TransformersTest {
+
+  @Test
+  public void asCodeableConceptWrappingReturnsNullIfCodingCannotBeConverted() {
+    assertThat(asCodeableConceptWrapping(DatamartCoding.builder().build())).isNull();
+    assertThat(asCodeableConceptWrapping(Optional.empty())).isNull();
+  }
+
+  @Test
+  public void asCodeableConceptWrappingReturnsValueIfCodingCanBeConverted() {
+    assertThat(
+            asCodeableConceptWrapping(
+                DatamartCoding.of().system("s").code("c").display("d").build()))
+        .isEqualTo(
+            CodeableConcept.builder()
+                .coding(List.of(Coding.builder().system("s").code("c").display("d").build()))
+                .build());
+    assertThat(
+            asCodeableConceptWrapping(
+                Optional.of(DatamartCoding.of().system("s").code("c").display("d").build())))
+        .isEqualTo(
+            CodeableConcept.builder()
+                .coding(List.of(Coding.builder().system("s").code("c").display("d").build()))
+                .build());
+  }
+
   @Test
   public void asReferenceReturnsNullWhenOptionalRefHasDisplayAndTypeAndReference() {
     DatamartReference ref = DatamartReference.of().display("d").type("t").reference("r").build();

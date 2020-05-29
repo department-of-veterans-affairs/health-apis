@@ -12,7 +12,7 @@
   <packaging>jar</packaging>
   <properties>
     <fall-risk.version>1.0.29</fall-risk.version>
-    <fhir-resources.version>3.0.5</fhir-resources.version>
+    <fhir-resources.version>3.0.7-SNAPSHOT</fhir-resources.version>
     <guava.version>20.0</guava.version>
     <health-apis-ids.version>3.0.0</health-apis-ids.version>
     <jacoco.coverage>0.95</jacoco.coverage>
