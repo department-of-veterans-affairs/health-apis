@@ -1,7 +1,7 @@
 package gov.va.api.health.dataquery.service.controller.observation;
 
-import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asCoding;
-import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asReference;
+import static gov.va.api.health.dataquery.service.controller.R4Transformers.asCoding;
+import static gov.va.api.health.dataquery.service.controller.R4Transformers.asReference;
 import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
 import static gov.va.api.health.dataquery.service.controller.Transformers.asDateTimeString;
 import static gov.va.api.health.dataquery.service.controller.Transformers.emptyToNull;
@@ -11,14 +11,15 @@ import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 import static org.apache.commons.lang3.StringUtils.upperCase;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
-import gov.va.api.health.argonaut.api.resources.Observation;
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
-import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
-import gov.va.api.health.dstu2.api.datatypes.Coding;
-import gov.va.api.health.dstu2.api.datatypes.Quantity;
-import gov.va.api.health.dstu2.api.datatypes.SimpleQuantity;
-import gov.va.api.health.dstu2.api.elements.Reference;
+import gov.va.api.health.r4.api.datatypes.CodeableConcept;
+import gov.va.api.health.r4.api.datatypes.Coding;
+import gov.va.api.health.r4.api.datatypes.Quantity;
+import gov.va.api.health.r4.api.datatypes.SimpleQuantity;
+import gov.va.api.health.r4.api.elements.Reference;
+import gov.va.api.health.uscorer4.api.resources.Observation;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -30,23 +31,29 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Builder
-final class Dstu2ObservationTransformer {
-  @NonNull final DatamartObservation datamart;
+public class R4ObservationTransformer {
+  @NonNull private final DatamartObservation datamart;
 
-  static CodeableConcept category(DatamartObservation.Category category) {
+  static List<CodeableConcept> category(DatamartObservation.Category category) {
     Coding coding = categoryCoding(category);
     if (coding == null) {
       return null;
+    } else {
+      return List.of(CodeableConcept.builder().coding(asList(coding)).build());
     }
-    return CodeableConcept.builder().coding(asList(coding)).build();
   }
 
   static Coding categoryCoding(DatamartObservation.Category category) {
     if (category == null) {
       return null;
     }
+    // Note for R4 a new category "activity" has been added, but is currently not in the datamart
+    // object.
+
     Coding.CodingBuilder coding =
-        Coding.builder().system("http://hl7.org/fhir/observation-category");
+        Coding.builder().system("http://terminology.hl7.org/CodeSystem/observation-category");
+
+    // TODO: Add case for activity when added to the datamart object
     switch (category) {
       case exam:
         return coding.code("exam").display("Exam").build();
@@ -70,60 +77,52 @@ final class Dstu2ObservationTransformer {
   }
 
   static CodeableConcept codeableConcept(Optional<DatamartObservation.CodeableConcept> maybeCode) {
-    if (maybeCode == null || maybeCode.isEmpty()) {
+    if (maybeCode.isEmpty()) {
       return null;
     }
-
-    DatamartObservation.CodeableConcept dmCode = maybeCode.get();
-    Coding coding = asCoding(dmCode.coding());
-    if (allBlank(coding, dmCode.text())) {
+    DatamartObservation.CodeableConcept code = maybeCode.get();
+    Coding coding = asCoding(code.coding());
+    if (allBlank(coding, code.text())) {
       return null;
+    } else {
+      return CodeableConcept.builder().coding(asList(coding)).text(code.text()).build();
     }
-
-    return CodeableConcept.builder().coding(asList(coding)).text(dmCode.text()).build();
   }
 
-  static Observation.ObservationComponent component(DatamartObservation.VitalsComponent component) {
+  static Observation.Component component(DatamartObservation.VitalsComponent component) {
     if (component == null) {
       return null;
     }
-
     Coding coding = asCoding(component.code());
     Quantity quantity = quantity(component.valueQuantity());
     if (allBlank(coding, quantity)) {
       return null;
     }
-
-    return Observation.ObservationComponent.builder()
+    return Observation.Component.builder()
         .code(CodeableConcept.builder().coding(asList(coding)).build())
         .valueQuantity(quantity)
         .build();
   }
 
-  static Observation.ObservationComponent component(
-      DatamartObservation.AntibioticComponent component) {
+  static Observation.Component component(DatamartObservation.AntibioticComponent component) {
     if (component == null) {
       return null;
     }
-
     CodeableConcept concept = codeableConcept(component.code());
     Coding valueCoding = asCoding(component.valueCodeableConcept());
     if (allBlank(concept, valueCoding)) {
       return null;
     }
-
-    return Observation.ObservationComponent.builder()
+    return Observation.Component.builder()
         .code(concept)
         .valueCodeableConcept(CodeableConcept.builder().coding(asList(valueCoding)).build())
         .build();
   }
 
-  static Observation.ObservationComponent component(
-      DatamartObservation.BacteriologyComponent component) {
+  static Observation.Component component(DatamartObservation.BacteriologyComponent component) {
     if (component == null) {
       return null;
     }
-
     var codeText = component.codeTextValue();
     var valueText = component.valueTextValue();
 
@@ -131,31 +130,35 @@ final class Dstu2ObservationTransformer {
       return null;
     }
 
-    return Observation.ObservationComponent.builder()
+    return Observation.Component.builder()
         .code(CodeableConcept.builder().text(codeText.orElse(null)).build())
         .valueString(valueText.orElse(null))
         .build();
   }
 
-  static CodeableConcept interpretation(String interpretation) {
+  static List<CodeableConcept> interpretation(String interpretation) {
     if (isBlank(interpretation)) {
       return null;
     }
-
-    return CodeableConcept.builder()
-        .coding(
-            asList(
-                Coding.builder()
-                    .system("http://hl7.org/fhir/v2/0078")
-                    .code(interpretation)
-                    .display(interpretationDisplay(interpretation))
-                    .build()))
-        .text(interpretation)
-        .build();
+    return List.of(
+        CodeableConcept.builder()
+            .coding(
+                asList(
+                    Coding.builder()
+                        .system(
+                            "http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation")
+                        .code(interpretation)
+                        .display(interpretationDisplay(interpretation))
+                        .build()))
+            .text(interpretation)
+            .build());
   }
 
   static String interpretationDisplay(String code) {
     switch (upperCase(trimToEmpty(code), Locale.US)) {
+      case "CAR":
+      case "CARRIER":
+        return "Carrier";
       case "<":
         return "Off scale low";
       case ">":
@@ -163,19 +166,32 @@ final class Dstu2ObservationTransformer {
       case "A":
         return "Abnormal";
       case "AA":
-        return "Critically abnormal";
+        return "Critical abnormal";
+      case "AC":
+        return "Anti-complementary substances present";
       case "B":
         return "Better";
       case "D":
         return "Significant change down";
       case "DET":
         return "Detected";
+      case "E":
+        return "Equivocal";
+      case "EX":
+        return "outside threshold";
+      case "EXP":
+        return "Expected";
       case "H":
         return "High";
       case "HH":
-        return "Critically high";
+        return "Critical high";
       case "HU":
-        return "Very high";
+      case "H>":
+        return "Significantly high";
+      case "HM":
+        return "Hold for Medical Review";
+      case "HX":
+        return "above high threshold";
       case "I":
         return "Intermediate";
       case "IE":
@@ -185,23 +201,32 @@ final class Dstu2ObservationTransformer {
       case "L":
         return "Low";
       case "LL":
-        return "Critically low";
+        return "Critical low";
       case "LU":
-        return "Very low";
+      case "L<":
+        return "Significantly low";
+      case "LX":
+        return "below low threshold";
       case "MS":
-        return "Moderately susceptible. Indicates for microbiology susceptibilities only.";
+        return "moderately susceptible";
       case "N":
         return "Normal";
+      case "NCL":
+        return "No CLSI defined breakpoint";
       case "ND":
-        return "Not Detected";
+        return "Not detected";
       case "NEG":
         return "Negative";
       case "NR":
         return "Non-reactive";
       case "NS":
         return "Non-susceptible";
+      case "OBX":
+        return "Interpretation qualifiers in separate OBX segments";
       case "POS":
         return "Positive";
+      case "QCF":
+        return "Quality control failure";
       case "R":
         return "Resistant";
       case "RR":
@@ -214,10 +239,14 @@ final class Dstu2ObservationTransformer {
         return "Synergy - resistant";
       case "SYN-S":
         return "Synergy - susceptible";
+      case "TOX":
+        return "Cytotoxic substance present";
       case "U":
         return "Significant change up";
+      case "UNE":
+        return "Unexpected";
       case "VS":
-        return "Very susceptible. Indicates for microbiology susceptibilities only.";
+        return "very susceptible";
       case "W":
         return "Worse";
       case "WR":
@@ -231,70 +260,69 @@ final class Dstu2ObservationTransformer {
   static List<Reference> performers(List<DatamartReference> performers) {
     if (isEmpty(performers)) {
       return null;
+    } else {
+      List<Reference> results =
+          performers.stream().map(p -> asReference(p)).collect(Collectors.toList());
+      return emptyToNull(results);
     }
-    List<Reference> results =
-        performers.stream().map(p -> asReference(p)).collect(Collectors.toList());
-    return emptyToNull(results);
   }
 
   static Quantity quantity(Optional<DatamartObservation.Quantity> maybeQuantity) {
-    if (maybeQuantity == null || maybeQuantity.isEmpty()) {
+    if (maybeQuantity.isEmpty()) {
       return null;
     }
-
     DatamartObservation.Quantity quantity = maybeQuantity.get();
     if (allBlank(quantity.value(), quantity.unit(), quantity.system(), quantity.code())) {
       return null;
     }
-
     return Quantity.builder()
-        .value(quantity.value())
+        .value(BigDecimal.valueOf(quantity.value()))
         .unit(quantity.unit())
         .system(quantity.system())
         .code(quantity.code())
         .build();
   }
 
-  static List<Observation.ObservationReferenceRange> referenceRanges(
+  static List<Observation.ReferenceRange> referenceRanges(
       Optional<DatamartObservation.ReferenceRange> maybeRange) {
-    if (maybeRange == null || maybeRange.isEmpty()) {
+    if (maybeRange.isEmpty()) {
       return null;
     }
-
-    DatamartObservation.ReferenceRange dm = maybeRange.get();
-    SimpleQuantity low = simpleQuantity(quantity(dm.low()));
-    SimpleQuantity high = simpleQuantity(quantity(dm.high()));
+    DatamartObservation.ReferenceRange referenceRange = maybeRange.get();
+    SimpleQuantity low = simpleQuantity(quantity(referenceRange.low()));
+    SimpleQuantity high = simpleQuantity(quantity(referenceRange.high()));
     if (allBlank(low, high)) {
       return null;
     }
-
-    return asList(Observation.ObservationReferenceRange.builder().low(low).high(high).build());
+    return asList(Observation.ReferenceRange.builder().low(low).high(high).build());
   }
 
   private static SimpleQuantity simpleQuantity(Quantity quantity) {
     if (quantity == null) {
       return null;
+    } else {
+      return SimpleQuantity.builder()
+          .value(quantity.value())
+          .unit(quantity.unit())
+          .system(quantity.system())
+          .code(quantity.code())
+          .build();
     }
-    return SimpleQuantity.builder()
-        .value(quantity.value())
-        .unit(quantity.unit())
-        .system(quantity.system())
-        .code(quantity.code())
-        .build();
   }
 
-  static Observation.Status status(DatamartObservation.Status status) {
+  static Observation.ObservationStatus status(DatamartObservation.Status status) {
     if (status == null) {
       return null;
+    } else {
+      return EnumSearcher.of(Observation.ObservationStatus.class).find(status.toString());
     }
-    return EnumSearcher.of(Observation.Status.class).find(status.toString());
   }
 
-  private List<Observation.ObservationComponent> components() {
-    List<Observation.ObservationComponent> results =
+  private List<Observation.Component> components() {
+    List<Observation.Component> results =
         new ArrayList<>(
             datamart.vitalsComponents().size() + datamart.antibioticComponents().size() + 2);
-    List<Observation.ObservationComponent> vitals =
+    List<Observation.Component> vitals =
         emptyToNull(
             datamart.vitalsComponents().stream()
                 .map(v -> component(v))
@@ -302,7 +330,7 @@ final class Dstu2ObservationTransformer {
     if (vitals != null) {
       results.addAll(vitals);
     }
-    List<Observation.ObservationComponent> antibiotics =
+    List<Observation.Component> antibiotics =
         emptyToNull(
             datamart.antibioticComponents().stream()
                 .map(v -> component(v))
@@ -333,7 +361,6 @@ final class Dstu2ObservationTransformer {
         .valueQuantity(quantity(datamart.valueQuantity()))
         .valueCodeableConcept(codeableConcept(datamart.valueCodeableConcept()))
         .interpretation(interpretation(datamart.interpretation()))
-        .comments(datamart.comment())
         .referenceRange(referenceRanges(datamart.referenceRange()))
         .component(components())
         .build();
