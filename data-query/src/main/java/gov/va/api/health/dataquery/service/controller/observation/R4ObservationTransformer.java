@@ -276,7 +276,7 @@ public class R4ObservationTransformer {
       return null;
     }
     return Quantity.builder()
-        .value(BigDecimal.valueOf(quantity.value()))
+        .value(quantity.value() == null ? null : BigDecimal.valueOf(quantity.value()))
         .unit(quantity.unit())
         .system(quantity.system())
         .code(quantity.code())
