@@ -2,6 +2,9 @@ package gov.va.api.health.dataquery.service.controller.procedure;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import gov.va.api.health.dataquery.service.controller.allergyintolerance.AllergyIntoleranceSamples;
+import gov.va.api.health.dataquery.service.controller.allergyintolerance.DatamartAllergyIntolerance;
+import gov.va.api.health.dataquery.service.controller.allergyintolerance.R4AllergyIntoleranceTransformer;
 import gov.va.api.health.dataquery.service.controller.procedure.DatamartProcedure.Status;
 import gov.va.api.health.r4.api.datatypes.CodeableConcept;
 import gov.va.api.health.uscorer4.api.resources.Procedure;
@@ -37,5 +40,12 @@ public class R4ProcedureTransformerTest {
     assertThat(R4ProcedureTransformer.statusReason(Optional.empty())).isEqualTo(null);
     assertThat(R4ProcedureTransformer.statusReason(Optional.of("reasons")))
         .isEqualTo(CodeableConcept.builder().text("reasons").build());
+  }
+
+  @Test
+  void toFhir() {
+    DatamartProcedure dm = ProcedureSamples.Datamart.create().procedure();
+    assertThat(R4ProcedureTransformer.builder().datamart(dm).build().toFhir())
+        .isEqualTo(ProcedureSamples.R4.create().procedure());
   }
 }

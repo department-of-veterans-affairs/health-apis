@@ -4,6 +4,7 @@ import static gov.va.api.health.dataquery.service.controller.R4Transformers.asCo
 import static gov.va.api.health.dataquery.service.controller.R4Transformers.asReference;
 import static gov.va.api.health.dataquery.service.controller.Transformers.asDateTimeString;
 
+import gov.va.api.health.dataquery.service.controller.Transformers;
 import gov.va.api.health.r4.api.datatypes.CodeableConcept;
 import gov.va.api.health.uscorer4.api.resources.Procedure;
 import gov.va.api.health.uscorer4.api.resources.Procedure.Status;
@@ -39,7 +40,7 @@ public class R4ProcedureTransformer {
   }
 
   static CodeableConcept statusReason(Optional<String> reasonNotPerformed) {
-    if (reasonNotPerformed.isEmpty()) {
+    if (Transformers.isBlank(reasonNotPerformed)) {
       return null;
     }
     return CodeableConcept.builder().text(reasonNotPerformed.get()).build();
