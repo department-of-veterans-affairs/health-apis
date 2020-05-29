@@ -2,9 +2,6 @@ package gov.va.api.health.dataquery.service.controller.procedure;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import gov.va.api.health.dataquery.service.controller.allergyintolerance.AllergyIntoleranceSamples;
-import gov.va.api.health.dataquery.service.controller.allergyintolerance.DatamartAllergyIntolerance;
-import gov.va.api.health.dataquery.service.controller.allergyintolerance.R4AllergyIntoleranceTransformer;
 import gov.va.api.health.dataquery.service.controller.procedure.DatamartProcedure.Status;
 import gov.va.api.health.r4.api.datatypes.CodeableConcept;
 import gov.va.api.health.uscorer4.api.resources.Procedure;
