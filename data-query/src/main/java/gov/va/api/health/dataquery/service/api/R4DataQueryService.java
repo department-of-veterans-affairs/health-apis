@@ -45,9 +45,7 @@ import javax.ws.rs.Path;
                     + " purposes only. Health care professionals and other qualified providers"
                     + " should continue to consult authoritative records when making decisions."),
     servers = {
-      @Server(
-          url = "https://sandbox-api.va.gov/services/fhir/v0/r4/",
-          description = "Development server")
+      @Server(url = "https://sandbox-api.va.gov/services/fhir/v0/r4/", description = "Sandbox")
     },
     externalDocs =
         @ExternalDocumentation(
