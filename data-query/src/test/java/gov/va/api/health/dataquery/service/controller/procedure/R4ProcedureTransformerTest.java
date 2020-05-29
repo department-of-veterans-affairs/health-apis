@@ -33,7 +33,7 @@ public class R4ProcedureTransformerTest {
   }
 
   @Test
-  void statusReasion() {
+  void statusReason() {
     assertThat(R4ProcedureTransformer.statusReason(Optional.empty())).isEqualTo(null);
     assertThat(R4ProcedureTransformer.statusReason(Optional.of("reasons")))
         .isEqualTo(CodeableConcept.builder().text("reasons").build());
