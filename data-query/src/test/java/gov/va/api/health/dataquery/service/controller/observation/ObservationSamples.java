@@ -705,7 +705,7 @@ public class ObservationSamples {
                           asList(
                               gov.va.api.health.r4.api.datatypes.Coding.builder()
                                   .system(
-                                      "http://hl7.org/fhir/R4/v3/ObservationInterpretation/vs.html")
+                                      "http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation")
                                   .code("H")
                                   .display("High")
                                   .build()))

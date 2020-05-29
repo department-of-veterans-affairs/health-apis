@@ -84,31 +84,14 @@ public class R4ObservationTransformerTest {
 
   @Test
   public void interpretationDisplay() {
-    assertThat(R4ObservationTransformer.interpretationDisplay("_GeneticObservationInterpretation"))
-        .isEqualTo("GeneticObservationInterpretation");
     assertThat(R4ObservationTransformer.interpretationDisplay("CAR")).isEqualTo("Carrier");
-    assertThat(R4ObservationTransformer.interpretationDisplay("_ObservationInterpretationChange"))
-        .isEqualTo("ObservationInterpretationChange");
-    assertThat(
-            R4ObservationTransformer.interpretationDisplay("_ObservationInterpretationExceptions"))
-        .isEqualTo("ObservationInterpretationExceptions");
-    assertThat(
-            R4ObservationTransformer.interpretationDisplay(
-                "_ObservationInterpretationSusceptibility"))
-        .isEqualTo("ObservationInterpretationSusceptibility");
-    assertThat(R4ObservationTransformer.interpretationDisplay("ObservationInterpretationDetection"))
-        .isEqualTo("ObservationInterpretationDetection");
-    assertThat(
-            R4ObservationTransformer.interpretationDisplay("ObservationInterpretationExpectation"))
-        .isEqualTo("ObservationInterpretationExpectation");
-    assertThat(
-            R4ObservationTransformer.interpretationDisplay("ReactivityObservationInterpretation"))
-        .isEqualTo("ReactivityObservationInterpretation");
+    assertThat(R4ObservationTransformer.interpretationDisplay("Carrier")).isEqualTo("Carrier");
     assertThat(R4ObservationTransformer.interpretationDisplay("<")).isEqualTo("Off scale low");
     assertThat(R4ObservationTransformer.interpretationDisplay(">")).isEqualTo("Off scale high");
     assertThat(R4ObservationTransformer.interpretationDisplay("A")).isEqualTo("Abnormal");
-    assertThat(R4ObservationTransformer.interpretationDisplay("AA"))
-        .isEqualTo("Critically abnormal");
+    assertThat(R4ObservationTransformer.interpretationDisplay("AA")).isEqualTo("Critical abnormal");
+    assertThat(R4ObservationTransformer.interpretationDisplay("AC"))
+        .isEqualTo("Anti-complementary substances present");
     assertThat(R4ObservationTransformer.interpretationDisplay("B")).isEqualTo("Better");
     assertThat(R4ObservationTransformer.interpretationDisplay("D"))
         .isEqualTo("Significant change down");
@@ -117,9 +100,13 @@ public class R4ObservationTransformerTest {
     assertThat(R4ObservationTransformer.interpretationDisplay("EX")).isEqualTo("outside threshold");
     assertThat(R4ObservationTransformer.interpretationDisplay("EXP")).isEqualTo("Expected");
     assertThat(R4ObservationTransformer.interpretationDisplay("H")).isEqualTo("High");
-    assertThat(R4ObservationTransformer.interpretationDisplay("HH")).isEqualTo("Critically high");
+    assertThat(R4ObservationTransformer.interpretationDisplay("HH")).isEqualTo("Critical high");
     assertThat(R4ObservationTransformer.interpretationDisplay("HU"))
         .isEqualTo("Significantly high");
+    assertThat(R4ObservationTransformer.interpretationDisplay("H>"))
+        .isEqualTo("Significantly high");
+    assertThat(R4ObservationTransformer.interpretationDisplay("HM"))
+        .isEqualTo("Hold for Medical Review");
     assertThat(R4ObservationTransformer.interpretationDisplay("HX"))
         .isEqualTo("above high threshold");
     assertThat(R4ObservationTransformer.interpretationDisplay("I")).isEqualTo("Intermediate");
@@ -127,20 +114,25 @@ public class R4ObservationTransformerTest {
         .isEqualTo("Insufficient evidence");
     assertThat(R4ObservationTransformer.interpretationDisplay("IND")).isEqualTo("Indeterminate");
     assertThat(R4ObservationTransformer.interpretationDisplay("L")).isEqualTo("Low");
-    assertThat(R4ObservationTransformer.interpretationDisplay("LL")).isEqualTo("Critically low");
+    assertThat(R4ObservationTransformer.interpretationDisplay("LL")).isEqualTo("Critical low");
     assertThat(R4ObservationTransformer.interpretationDisplay("LU")).isEqualTo("Significantly low");
+    assertThat(R4ObservationTransformer.interpretationDisplay("L<")).isEqualTo("Significantly low");
     assertThat(R4ObservationTransformer.interpretationDisplay("LX"))
         .isEqualTo("below low threshold");
     assertThat(R4ObservationTransformer.interpretationDisplay("MS"))
-        .isEqualTo("Moderately susceptible. Indicates for microbiology susceptibilities only.");
+        .isEqualTo("moderately susceptible");
     assertThat(R4ObservationTransformer.interpretationDisplay("N")).isEqualTo("Normal");
     assertThat(R4ObservationTransformer.interpretationDisplay("NCL"))
         .isEqualTo("No CLSI defined breakpoint");
-    assertThat(R4ObservationTransformer.interpretationDisplay("ND")).isEqualTo("Not Detected");
+    assertThat(R4ObservationTransformer.interpretationDisplay("ND")).isEqualTo("Not detected");
     assertThat(R4ObservationTransformer.interpretationDisplay("NEG")).isEqualTo("Negative");
     assertThat(R4ObservationTransformer.interpretationDisplay("NR")).isEqualTo("Non-reactive");
     assertThat(R4ObservationTransformer.interpretationDisplay("NS")).isEqualTo("Non-susceptible");
+    assertThat(R4ObservationTransformer.interpretationDisplay("OBX"))
+        .isEqualTo("Interpretation qualifiers in separate OBX segments");
     assertThat(R4ObservationTransformer.interpretationDisplay("POS")).isEqualTo("Positive");
+    assertThat(R4ObservationTransformer.interpretationDisplay("QCF"))
+        .isEqualTo("Quality control failure");
     assertThat(R4ObservationTransformer.interpretationDisplay("R")).isEqualTo("Resistant");
     assertThat(R4ObservationTransformer.interpretationDisplay("RR")).isEqualTo("Reactive");
     assertThat(R4ObservationTransformer.interpretationDisplay("S")).isEqualTo("Susceptible");
@@ -150,11 +142,12 @@ public class R4ObservationTransformerTest {
         .isEqualTo("Synergy - resistant");
     assertThat(R4ObservationTransformer.interpretationDisplay("SYN-S"))
         .isEqualTo("Synergy - susceptible");
+    assertThat(R4ObservationTransformer.interpretationDisplay("TOX"))
+        .isEqualTo("Cytotoxic substance present");
     assertThat(R4ObservationTransformer.interpretationDisplay("U"))
         .isEqualTo("Significant change up");
     assertThat(R4ObservationTransformer.interpretationDisplay("UNE")).isEqualTo("Unexpected");
-    assertThat(R4ObservationTransformer.interpretationDisplay("VS"))
-        .isEqualTo("Very susceptible. Indicates for microbiology susceptibilities only.");
+    assertThat(R4ObservationTransformer.interpretationDisplay("VS")).isEqualTo("very susceptible");
     assertThat(R4ObservationTransformer.interpretationDisplay("W")).isEqualTo("Worse");
     assertThat(R4ObservationTransformer.interpretationDisplay("WR")).isEqualTo("Weakly reactive");
     assertThat(R4ObservationTransformer.interpretationDisplay("RANDOM")).isNull();
@@ -215,7 +208,8 @@ public class R4ObservationTransformerTest {
                 .coding(
                     asList(
                         Coding.builder()
-                            .system("http://hl7.org/fhir/R4/v3/ObservationInterpretation/vs.html")
+                            .system(
+                                "http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation")
                             .code("A")
                             .display("Abnormal")
                             .build()))

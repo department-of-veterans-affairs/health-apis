@@ -123,15 +123,16 @@ public class R4ObservationTransformer {
     if (component == null) {
       return null;
     }
-    String codeText = component.code().isPresent() ? component.code().get().text() : null;
-    String valueText =
-        component.valueText().isPresent() ? component.valueText().get().text() : null;
+    var codeText = component.codeTextValue();
+    var valueText = component.valueTextValue();
+
     if (allBlank(codeText, valueText)) {
       return null;
     }
+
     return Observation.Component.builder()
-        .code(CodeableConcept.builder().text(codeText).build())
-        .valueString(valueText)
+        .code(CodeableConcept.builder().text(codeText.orElse(null)).build())
+        .valueString(valueText.orElse(null))
         .build();
   }
 
@@ -144,7 +145,8 @@ public class R4ObservationTransformer {
             .coding(
                 asList(
                     Coding.builder()
-                        .system("http://hl7.org/fhir/R4/v3/ObservationInterpretation/vs.html")
+                        .system(
+                            "http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation")
                         .code(interpretation)
                         .display(interpretationDisplay(interpretation))
                         .build()))
@@ -154,22 +156,9 @@ public class R4ObservationTransformer {
 
   static String interpretationDisplay(String code) {
     switch (upperCase(trimToEmpty(code), Locale.US)) {
-      case "_GENETICOBSERVATIONINTERPRETATION":
-        return "GeneticObservationInterpretation";
       case "CAR":
+      case "CARRIER":
         return "Carrier";
-      case "_OBSERVATIONINTERPRETATIONCHANGE":
-        return "ObservationInterpretationChange";
-      case "_OBSERVATIONINTERPRETATIONEXCEPTIONS":
-        return "ObservationInterpretationExceptions";
-      case "_OBSERVATIONINTERPRETATIONSUSCEPTIBILITY":
-        return "ObservationInterpretationSusceptibility";
-      case "OBSERVATIONINTERPRETATIONDETECTION":
-        return "ObservationInterpretationDetection";
-      case "OBSERVATIONINTERPRETATIONEXPECTATION":
-        return "ObservationInterpretationExpectation";
-      case "REACTIVITYOBSERVATIONINTERPRETATION":
-        return "ReactivityObservationInterpretation";
       case "<":
         return "Off scale low";
       case ">":
@@ -177,7 +166,9 @@ public class R4ObservationTransformer {
       case "A":
         return "Abnormal";
       case "AA":
-        return "Critically abnormal";
+        return "Critical abnormal";
+      case "AC":
+        return "Anti-complementary substances present";
       case "B":
         return "Better";
       case "D":
@@ -193,9 +184,12 @@ public class R4ObservationTransformer {
       case "H":
         return "High";
       case "HH":
-        return "Critically high";
+        return "Critical high";
       case "HU":
+      case "H>":
         return "Significantly high";
+      case "HM":
+        return "Hold for Medical Review";
       case "HX":
         return "above high threshold";
       case "I":
@@ -207,27 +201,32 @@ public class R4ObservationTransformer {
       case "L":
         return "Low";
       case "LL":
-        return "Critically low";
+        return "Critical low";
       case "LU":
+      case "L<":
         return "Significantly low";
       case "LX":
         return "below low threshold";
       case "MS":
-        return "Moderately susceptible. Indicates for microbiology susceptibilities only.";
+        return "moderately susceptible";
       case "N":
         return "Normal";
       case "NCL":
         return "No CLSI defined breakpoint";
       case "ND":
-        return "Not Detected";
+        return "Not detected";
       case "NEG":
         return "Negative";
       case "NR":
         return "Non-reactive";
       case "NS":
         return "Non-susceptible";
+      case "OBX":
+        return "Interpretation qualifiers in separate OBX segments";
       case "POS":
         return "Positive";
+      case "QCF":
+        return "Quality control failure";
       case "R":
         return "Resistant";
       case "RR":
@@ -240,12 +239,14 @@ public class R4ObservationTransformer {
         return "Synergy - resistant";
       case "SYN-S":
         return "Synergy - susceptible";
+      case "TOX":
+        return "Cytotoxic substance present";
       case "U":
         return "Significant change up";
       case "UNE":
         return "Unexpected";
       case "VS":
-        return "Very susceptible. Indicates for microbiology susceptibilities only.";
+        return "very susceptible";
       case "W":
         return "Worse";
       case "WR":
