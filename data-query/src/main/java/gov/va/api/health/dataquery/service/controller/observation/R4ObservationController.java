@@ -48,9 +48,6 @@ import org.springframework.web.bind.annotation.RestController;
     produces = {"application/json", "application/fhir+json"})
 public class R4ObservationController {
 
-  // ToDo /$validate
-  // ToDo SHOULD patient, category, and status
-
   private R4Bundler bundler;
 
   private ObservationRepository repository;
