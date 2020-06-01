@@ -2,7 +2,6 @@ package gov.va.api.health.dataquery.service.controller.procedure;
 
 import gov.va.api.health.dataquery.service.controller.ExtractIcnValidator;
 import java.util.List;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class ProcedureIncludesIcnMajigTest {
@@ -24,19 +23,19 @@ public class ProcedureIncludesIcnMajigTest {
   }
 
   @Test
-  @Ignore
   public void r4() {
-    // TODO: Uncomment line(s) below once R4 Procedure exists
-    //    ExtractIcnValidator.builder()
-    //            .majig(new R4ProcedureIncludesIcnMajig())
-    //            .body(
-    //                    gov.va.api.health.uscorer4.api.resources.Procedure.builder()
-    //                            .id("123")
-    //
-    // .subject(gov.va.api.health.r4.api.elements.Reference.builder().reference("Patient/1010101010V666666").build())
-    //                            .build())
-    //            .expectedIcns(List.of("1010101010V666666"))
-    //            .build()
-    //            .assertIcn();
+    ExtractIcnValidator.builder()
+        .majig(new R4ProcedureIncludesIcnMajig())
+        .body(
+            gov.va.api.health.uscorer4.api.resources.Procedure.builder()
+                .id("123")
+                .subject(
+                    gov.va.api.health.r4.api.elements.Reference.builder()
+                        .reference("Patient/1010101010V666666")
+                        .build())
+                .build())
+        .expectedIcns(List.of("1010101010V666666"))
+        .build()
+        .assertIcn();
   }
 }

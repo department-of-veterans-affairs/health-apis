@@ -6,6 +6,11 @@ import gov.va.api.health.argonaut.api.resources.Procedure.Entry;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dataquery.service.controller.procedure.DatamartProcedure.Status;
+import gov.va.api.health.r4.api.bundle.AbstractBundle.BundleType;
+import gov.va.api.health.r4.api.bundle.AbstractEntry;
+import gov.va.api.health.r4.api.bundle.AbstractEntry.SearchMode;
+import gov.va.api.health.r4.api.bundle.BundleLink;
+import gov.va.api.health.r4.api.bundle.BundleLink.LinkRelation;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
@@ -136,6 +141,36 @@ public class ProcedureSamples {
 
   @AllArgsConstructor(staticName = "create")
   public static class R4 {
+    static gov.va.api.health.uscorer4.api.resources.Procedure.Bundle asBundle(
+        String baseUrl,
+        Collection<gov.va.api.health.uscorer4.api.resources.Procedure> resources,
+        int totalRecords,
+        BundleLink... links) {
+      return gov.va.api.health.uscorer4.api.resources.Procedure.Bundle.builder()
+          .resourceType("Bundle")
+          .type(BundleType.searchset)
+          .total(totalRecords)
+          .link(Arrays.asList(links))
+          .entry(
+              resources.stream()
+                  .map(
+                      c ->
+                          gov.va.api.health.uscorer4.api.resources.Procedure.Entry.builder()
+                              .fullUrl(baseUrl + "/Procedure/" + c.id())
+                              .resource(c)
+                              .search(AbstractEntry.Search.builder().mode(SearchMode.match).build())
+                              .build())
+                  .collect(Collectors.toList()))
+          .build();
+    }
+
+    static BundleLink link(LinkRelation rel, String base, int page, int count) {
+      return BundleLink.builder()
+          .relation(rel)
+          .url(base + "&page=" + page + "&_count=" + count)
+          .build();
+    }
+
     gov.va.api.health.uscorer4.api.resources.Procedure procedure() {
       return procedure("1000000719261", "1004476237V111282", "2008-01-02T06:00:00Z");
     }

@@ -4,19 +4,17 @@ import static gov.va.api.health.autoconfig.logging.LogSanitizer.sanitize;
 import static java.util.Collections.emptyList;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
-import gov.va.api.health.argonaut.api.resources.Procedure;
-import gov.va.api.health.argonaut.api.resources.Procedure.Bundle;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.DateTimeParameter;
-import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
-import gov.va.api.health.dataquery.service.controller.Dstu2Validator;
 import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.Parameters;
+import gov.va.api.health.dataquery.service.controller.R4Bundler;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions.NotFound;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.procedure.ProcedureRepository.PatientAndDateSpecification;
-import gov.va.api.health.dstu2.api.resources.OperationOutcome;
+import gov.va.api.health.uscorer4.api.resources.Procedure;
+import gov.va.api.health.uscorer4.api.resources.Procedure.Bundle;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -35,8 +33,6 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -44,7 +40,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Request Mappings for Procedure Profile, see
- * https://www.fhir.org/guides/argonaut/r2/StructureDefinition-argo-procedure.html for
+ * https://build.fhir.org/ig/HL7/US-Core-R4/StructureDefinition-us-core-procedure.html for
  * implementation details.
  */
 @Slf4j
@@ -52,23 +48,23 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 @RestController
 @RequestMapping(
-    value = {"/dstu2/Procedure"},
-    produces = {"application/json", "application/json+fhir", "application/fhir+json"})
-public class Dstu2ProcedureController {
+    value = {"/r4/Procedure"},
+    produces = {"application/json", "application/fhir+json"})
+public class R4ProcedureController {
 
-  private ProcedureHack procedureHack;
+  ProcedureHack procedureHack;
 
-  private Dstu2Bundler bundler;
+  private R4Bundler bundler;
 
   private ProcedureRepository repository;
 
   private WitnessProtection witnessProtection;
 
-  /** Let's try something new. */
+  /** Constructor. Note the Procedure hack params. */
   @Autowired
-  public Dstu2ProcedureController(
+  public R4ProcedureController(
       ProcedureHack procedureHack,
-      Dstu2Bundler bundler,
+      R4Bundler bundler,
       ProcedureRepository repository,
       WitnessProtection witnessProtection) {
     this.procedureHack = procedureHack;
@@ -79,17 +75,18 @@ public class Dstu2ProcedureController {
 
   private Bundle bundle(
       MultiValueMap<String, String> parameters, List<Procedure> reports, int totalRecords) {
-    PageLinks.LinkConfig linkConfig =
+    log.info("Search {} found {} results", parameters, totalRecords);
+    return bundler.bundle(
         PageLinks.LinkConfig.builder()
             .path("Procedure")
             .queryParams(parameters)
             .page(Parameters.pageOf(parameters))
             .recordsPerPage(Parameters.countOf(parameters))
             .totalRecords(totalRecords)
-            .build();
-    return bundler.bundle(
-        Dstu2Bundler.BundleContext.of(
-            linkConfig, reports, Procedure.Entry::new, Procedure.Bundle::new));
+            .build(),
+        reports,
+        Procedure.Entry::new,
+        Procedure.Bundle::new);
   }
 
   ProcedureEntity findById(String publicId) {
@@ -210,20 +207,12 @@ public class Dstu2ProcedureController {
               (int) pageOfProcedures.getTotalElements());
     }
     if (isPatientWithoutRecords) {
-      bundle = procedureHack.disguiseAsPatientWithoutRecords(bundle, Bundle.class);
+      bundle = procedureHack.disguiseAsPatientWithoutRecords(bundle, Procedure.Bundle.class);
     }
     return bundle;
   }
 
   Procedure transform(DatamartProcedure dm) {
-    return Dstu2ProcedureTransformer.builder().datamart(dm).build().toFhir();
-  }
-
-  /** Hey, this is a validate endpoint. It validates. */
-  @PostMapping(
-      value = "/$validate",
-      consumes = {"application/json", "application/json+fhir", "application/fhir+json"})
-  public OperationOutcome validate(@RequestBody Procedure.Bundle bundle) {
-    return Dstu2Validator.create().validate(bundle);
+    return R4ProcedureTransformer.builder().datamart(dm).build().toFhir();
   }
 }

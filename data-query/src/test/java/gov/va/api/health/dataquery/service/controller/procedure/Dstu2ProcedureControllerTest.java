@@ -63,10 +63,12 @@ public class Dstu2ProcedureControllerTest {
 
   Dstu2ProcedureController controller() {
     return new Dstu2ProcedureController(
-        "clark",
-        "superman",
-        "Clark Kent",
-        "Superman",
+        ProcedureHack.builder()
+            .withRecordsId("clark")
+            .withoutRecordsId("superman")
+            .withRecordsDisplay("Clark Kent")
+            .withoutRecordsDisplay("Superman")
+            .build(),
         new Dstu2Bundler(
             new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool", "cool", "cool")),
         repository,
