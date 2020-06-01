@@ -4,6 +4,7 @@ import gov.va.api.health.uscorer4.api.AllergyIntoleranceApi;
 import gov.va.api.health.uscorer4.api.ConditionApi;
 import gov.va.api.health.uscorer4.api.ImmunizationApi;
 import gov.va.api.health.uscorer4.api.MedicationApi;
+import gov.va.api.health.uscorer4.api.ObservationApi;
 import gov.va.api.health.uscorer4.api.PatientApi;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
@@ -27,6 +28,7 @@ import javax.ws.rs.Path;
               "patient/Condition.read",
               "patient/Immunization.read",
               "patient/Medication.read",
+              "patient/Observation.read",
               "patient/Patient.read",
               "offline_access",
               "launch/patient"
@@ -43,9 +45,7 @@ import javax.ws.rs.Path;
                     + " purposes only. Health care professionals and other qualified providers"
                     + " should continue to consult authoritative records when making decisions."),
     servers = {
-      @Server(
-          url = "https://sandbox-api.va.gov/services/fhir/v0/r4/",
-          description = "Development server")
+      @Server(url = "https://sandbox-api.va.gov/services/fhir/v0/r4/", description = "Sandbox")
     },
     externalDocs =
         @ExternalDocumentation(
@@ -72,10 +72,18 @@ import javax.ws.rs.Path;
                       @OAuthScope(
                           name = "patient/Medication.read",
                           description = "read medications"),
+                      @OAuthScope(
+                          name = "patient/Observation.read",
+                          description = "read observations"),
                       @OAuthScope(name = "patient/Patient.read", description = "read patient"),
                       @OAuthScope(name = "offline_access", description = "offline access"),
                       @OAuthScope(name = "launch/patient", description = "patient launch"),
                     })))
 @Path("/")
 public interface R4DataQueryService
-    extends AllergyIntoleranceApi, ConditionApi, ImmunizationApi, MedicationApi, PatientApi {}
+    extends AllergyIntoleranceApi,
+        ConditionApi,
+        ImmunizationApi,
+        MedicationApi,
+        ObservationApi,
+        PatientApi {}

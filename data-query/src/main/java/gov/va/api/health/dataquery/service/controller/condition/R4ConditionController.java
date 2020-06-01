@@ -3,7 +3,6 @@ package gov.va.api.health.dataquery.service.controller.condition;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 
-import com.google.common.base.Splitter;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
@@ -62,15 +61,14 @@ public class R4ConditionController {
   }
 
   /**
-   * Splits the R4 category received into its code and transforms it from an R4 code to a datamart
-   * code that can be searched in the database.
+   * Transforms category from an R4 code to a datamart code that can be searched in the database.
    *
    * <p>Datamart: problem | diagnosis
    *
    * <p>R4: problem-list-item | encounter-diagnosis | health-concern
    */
   private String asDatamartCategory(String category) {
-    switch (splitToCode(category)) {
+    switch (category) {
       case "problem-list-item":
         return DatamartCondition.Category.problem.toString();
       case "encounter-diagnosis":
@@ -114,20 +112,6 @@ public class R4ConditionController {
             .map(this::transform)
             .collect(Collectors.toList()),
         (int) entities.getTotalElements());
-  }
-
-  /**
-   * Splits a csv of clinical-status systems and codes and collects the codes into a list for the
-   * database query. There is no need to remap. Datamart and R4 use the same values.
-   *
-   * <p>Datamart: active | resolved
-   *
-   * <p>R4: active | recurrence | relapse | inactive | remission | resolved
-   */
-  private Set<String> clinicalStatusToSet(String clinicalStatusCsv) {
-    return Splitter.on(",").trimResults().splitToList(clinicalStatusCsv).stream()
-        .map(this::splitToCode)
-        .collect(Collectors.toSet());
   }
 
   private ConditionEntity findEntityById(String publicId) {
@@ -257,19 +241,7 @@ public class R4ConditionController {
             .build(),
         count,
         repository.findByIcnAndClinicalStatusIn(
-            icn, clinicalStatusToSet(clinicalStatus), page(page, count)));
-  }
-
-  /** Splits a search parameter of the form system|code into the code only. */
-  private String splitToCode(String systemAndCode) {
-    int splitIndex = systemAndCode.lastIndexOf("|");
-    // The expectation is system|code
-    if (splitIndex <= -1) {
-      throw new ResourceExceptions.BadSearchParameter(
-          "Cannot determine code from parameter: " + systemAndCode);
-    }
-
-    return systemAndCode.substring(splitIndex + 1);
+            icn, Set.of(clinicalStatus.split("\\s*,\\s*")), page(page, count)));
   }
 
   Condition transform(DatamartCondition dm) {
