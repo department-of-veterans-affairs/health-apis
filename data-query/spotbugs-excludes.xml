@@ -79,5 +79,10 @@
     <Method name="searchByPatientAndDate"/>
     <Bug pattern="CRLF_INJECTION_LOGS"/>
   </Match>
+  <Match>
+    <Class name="gov.va.api.health.dataquery.service.controller.procedure.R4ProcedureController"/>
+    <Method name="searchByPatientAndDate"/>
+    <Bug pattern="CRLF_INJECTION_LOGS"/>
+  </Match>
 
 </FindBugsFilter>
