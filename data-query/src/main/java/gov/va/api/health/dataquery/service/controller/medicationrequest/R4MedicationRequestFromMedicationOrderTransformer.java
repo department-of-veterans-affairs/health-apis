@@ -2,12 +2,25 @@ package gov.va.api.health.dataquery.service.controller.medicationrequest;
 
 import com.google.common.collect.ImmutableMap;
 import gov.va.api.health.dataquery.service.controller.medicationorder.DatamartMedicationOrder;
+import gov.va.api.health.dataquery.service.controller.medicationstatement.DatamartMedicationStatement;
+import gov.va.api.health.r4.api.DataAbsentReason;
+import gov.va.api.health.r4.api.datatypes.CodeableConcept;
+import gov.va.api.health.r4.api.datatypes.Duration;
+import gov.va.api.health.r4.api.datatypes.Period;
+import gov.va.api.health.r4.api.datatypes.SimpleQuantity;
+import gov.va.api.health.r4.api.datatypes.Timing;
+import gov.va.api.health.r4.api.elements.Dosage;
 import gov.va.api.health.uscorer4.api.resources.MedicationRequest;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static gov.va.api.health.dataquery.service.controller.R4Transformers.asReference;
 import static gov.va.api.health.dataquery.service.controller.Transformers.asDateTimeString;
@@ -20,7 +33,7 @@ public class R4MedicationRequestFromMedicationOrderTransformer {
     final DatamartMedicationOrder datamart;
 
     // todo these need confirmation from KBS? how do we do this?
-    private static Map<String, MedicationRequest.Status> STATUS_VALUES =
+    private static final Map<String, MedicationRequest.Status> STATUS_VALUES =
         ImmutableMap.<String, MedicationRequest.Status>builder()
             /*
              * Values per KBS document VADP_Aggregate_190924.xls (2019 Sept 24)
@@ -87,29 +100,134 @@ public class R4MedicationRequestFromMedicationOrderTransformer {
         return mapped;
     }
 
+    private CodeableConcept codeableConceptText(Optional<String> maybeText) {
+        if (maybeText.isEmpty()) {
+            return null;
+        }
+
+        return CodeableConcept.builder().text(maybeText.get()).build();
+    }
+
+    private Timing timing(Optional<String> maybeTimingText,
+                                 Instant dateWritten,
+                                 Optional<Instant> dateEnded) {
+
+        if (maybeTimingText.isEmpty()) {
+            return null;
+        }
+
+        CodeableConcept maybeCcText = codeableConceptText(maybeTimingText);
+
+        return Timing.builder()
+                .code(maybeCcText)
+                .repeat(Timing.Repeat.builder()
+                        .boundsPeriod(
+                                Period.builder()
+                                    .start(asDateTimeString(dateWritten))
+                                    .end(asDateTimeString(dateEnded))
+                                    .build())
+                        .build())
+                .build();
+    }
+
+    private List<Dosage.DoseAndRate> doseAndRateConverter(Optional<Double> value, Optional<String> unit) {
+        if (value.isPresent() || unit.isPresent()) {
+            return List.of(
+                    Dosage.DoseAndRate.builder()
+                    .doseQuantity(
+                            SimpleQuantity.builder()
+                                    .value(value.isEmpty() ? null : BigDecimal.valueOf(value.get()))
+                                    .unit(unit.orElse(null))
+                                    .build())
+                    .build());
+        } else {
+            return null;
+        }
+    }
+
+    private List<Dosage> dosageInstructionConverter(
+            List<DatamartMedicationOrder.DosageInstruction> dosageInstructions,
+            Instant dateWritten,
+            Optional<Instant> dateEnded) {
+
+        if (dosageInstructions == null) {
+            return null;
+        }
+
+        List<Dosage> results = new ArrayList<>();
+
+        for (DatamartMedicationOrder.DosageInstruction dosageInstruction : dosageInstructions) {
+
+            results.add(
+                    Dosage.builder()
+                            .text(dosageInstruction.dosageText().orElse(null))
+                            .timing(timing(dosageInstruction.timingText(), dateWritten, dateEnded))
+                            .additionalInstruction(dosageInstruction.additionalInstructions().isEmpty() ? null :
+                                    List.of(codeableConceptText(dosageInstruction.additionalInstructions())))
+                            .asNeededBoolean(dosageInstruction.asNeeded())
+                            .route(codeableConceptText(dosageInstruction.routeText()))
+                            .doseAndRate(doseAndRateConverter(
+                                            dosageInstruction.doseQuantityValue(),
+                                            dosageInstruction.doseQuantityUnit()))
+                            .build());
+        }
+        return results;
+    }
+
+    private SimpleQuantity simpleQuantity(Optional<Double> maybeValue, Optional<String> maybeUnit) {
+
+        if (maybeValue.isPresent() || maybeUnit.isPresent()) {
+            return SimpleQuantity.builder()
+                    .value(maybeValue.isEmpty() ? null : BigDecimal.valueOf(maybeValue.get()))
+                    .unit(maybeUnit.orElse(null))
+                    .build();
+        } else {
+            return null;
+        }
+    }
+
+    private Duration durationConverter(Optional<Integer> maybeSupplyDuration) {
+        return Duration.builder()
+                .value(maybeSupplyDuration.isEmpty() ? null : BigDecimal.valueOf(maybeSupplyDuration.get()))
+                .unit("days")
+                .code("d")
+                .system("http://unitsofmeasure.org")
+                .build();
+    }
+
+    private MedicationRequest.DispenseRequest dispenseRequestConverter(
+            Optional<DatamartMedicationOrder.DispenseRequest> maybeDispenseRequest) {
+
+        if (maybeDispenseRequest.isEmpty()) {
+            return null;
+        }
+
+        DatamartMedicationOrder.DispenseRequest dispenseRequest = maybeDispenseRequest.get();
+
+        // todo: ignoring supply duration units for now?
+        return MedicationRequest.DispenseRequest.builder()
+                .numberOfRepeatsAllowed(dispenseRequest.numberOfRepeatsAllowed().orElse(0))
+                .quantity(simpleQuantity(dispenseRequest.quantity(), dispenseRequest.unit()))
+                .expectedSupplyDuration(durationConverter(dispenseRequest.expectedSupplyDuration()))
+                .build();
+    }
+
       MedicationRequest toFhir() {
           return MedicationRequest.builder()
                   .resourceType("MedicationRequest")
                   .id(datamart.cdwId())
                   .subject(asReference(datamart.patient()))
-                  .authoredOn(asDateTimeString(datamart.dateWritten())) // todo need to use date written again for dosage stuff
+                  .authoredOn(asDateTimeString(datamart.dateWritten()))
                   .status(status(datamart.status()))
-                  // todo dosageInstruction.timing.repeat.boundsPeriod.start = dateWritten
-                  // todo dosageInstruction.timing.repeat.boundsPeriod.end = dateended
                   .requester(asReference(datamart.prescriber()))
-                  .note(note(datamart.note())) // missing note?
+                  ._requester(DataAbsentReason.of(DataAbsentReason.Reason.unknown))
                   .medicationReference(asReference(datamart.medication()))
-                  // todo format dosage instruction information
-                  .dosageInstruction(datamart.dosageInstruction())
-                  // todo format dispense request
-                  .dispenseRequest(datamart.dispenseRequest())
-                  
-
-
-
-
-
-
+                  .dosageInstruction(
+                          dosageInstructionConverter(
+                                  datamart.dosageInstruction(),
+                                  datamart.dateWritten(),
+                                  datamart.dateEnded()))
+                  .dispenseRequest(dispenseRequestConverter(datamart.dispenseRequest()))
                   .build();
       }
 }
