@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.medicationrequest;
 
+import gov.va.api.health.r4.api.DataAbsentReason;
 import gov.va.api.health.r4.api.bundle.BundleLink;
 import gov.va.api.health.r4.api.datatypes.Annotation;
 import gov.va.api.health.r4.api.datatypes.CodeableConcept;
@@ -50,32 +51,7 @@ public class MedicationRequestSamples {
           .build();
     }
 
-    static BundleLink link(
-        gov.va.api.health.r4.api.bundle.BundleLink.LinkRelation rel,
-        String base,
-        int page,
-        int count) {
-      return BundleLink.builder()
-          .relation(rel)
-          .url(base + "&page=" + page + "&_count=" + count)
-          .build();
-    }
-
-    private MedicationRequest.DispenseRequest dispenseRequestFromMedicationOrder() {
-      return MedicationRequest.DispenseRequest.builder()
-          .numberOfRepeatsAllowed(1)
-          .quantity(SimpleQuantity.builder().value(BigDecimal.valueOf(42.0)).unit("TAB").build())
-          .expectedSupplyDuration(
-              Duration.builder()
-                  .value(BigDecimal.valueOf(21))
-                  .unit("days")
-                  .code("d")
-                  .system("http://unitsofmeasure.org")
-                  .build())
-          .build();
-    }
-
-    private List<Dosage> dosageInstructionFromMedicationOrder() {
+    static List<Dosage> dosageInstructionFromMedicationOrder() {
       return List.of(
           Dosage.builder()
               .text("TAKE ONE TABLET BY MOUTH TWICE A DAY FOR 7 DAYS TO PREVENT BLOOD CLOTS")
@@ -109,7 +85,7 @@ public class MedicationRequestSamples {
                           .build()))
               .build(),
           Dosage.builder()
-              .text("TAKE ONE TABLET BY MOUTH TWICE A DAY FOR 7 DAYS TO PREVENT BLOOD CLOTS")
+              .text("THEN TAKE ONE TABLET BY MOUTH ONCE A DAY FOR 7 DAYS TO PREVENT BLOOD CLOTS")
               .timing(
                   Timing.builder()
                       .code(CodeableConcept.builder().text("QDAILY").build())
@@ -141,6 +117,62 @@ public class MedicationRequestSamples {
               .build());
     }
 
+    static List<Dosage> dosageInstructionFromMedicationOrderNoAdditionalInfo() {
+      return List.of(
+          Dosage.builder()
+              .text("TAKE ONE TABLET BY MOUTH TWICE A DAY FOR 7 DAYS TO PREVENT BLOOD CLOTS")
+              .timing(
+                  Timing.builder()
+                      .code(CodeableConcept.builder().text("BID").build())
+                      .repeat(
+                          Timing.Repeat.builder()
+                              .boundsPeriod(
+                                  Period.builder()
+                                      .start("2016-11-17T18:02:04Z")
+                                      .end("2017-02-15T05:00:00Z")
+                                      .build())
+                              .build())
+                      .build())
+              .additionalInstruction(null)
+              .asNeededBoolean(false)
+              .route(CodeableConcept.builder().text("ORAL").build())
+              .doseAndRate(
+                  List.of(
+                      Dosage.DoseAndRate.builder()
+                          .doseQuantity(
+                              SimpleQuantity.builder()
+                                  .value(BigDecimal.valueOf(1.0))
+                                  .unit("TAB")
+                                  .build())
+                          .build()))
+              .build());
+    }
+
+    static BundleLink link(
+        gov.va.api.health.r4.api.bundle.BundleLink.LinkRelation rel,
+        String base,
+        int page,
+        int count) {
+      return BundleLink.builder()
+          .relation(rel)
+          .url(base + "&page=" + page + "&_count=" + count)
+          .build();
+    }
+
+    private MedicationRequest.DispenseRequest dispenseRequestFromMedicationOrder() {
+      return MedicationRequest.DispenseRequest.builder()
+          .numberOfRepeatsAllowed(1)
+          .quantity(SimpleQuantity.builder().value(BigDecimal.valueOf(42.0)).unit("TAB").build())
+          .expectedSupplyDuration(
+              Duration.builder()
+                  .value(BigDecimal.valueOf(21))
+                  .unit("days")
+                  .code("d")
+                  .system("http://unitsofmeasure.org")
+                  .build())
+          .build();
+    }
+
     private List<Dosage> dosageInstructionFromMedicationStatement() {
       return List.of(
           Dosage.builder()
@@ -157,6 +189,10 @@ public class MedicationRequestSamples {
               .build());
     }
 
+    public MedicationRequest medicationRequestFromMedicationOrder() {
+      return medicationRequestFromMedicationOrder("1400181354458:O", "666V666");
+    }
+
     public MedicationRequest medicationRequestFromMedicationOrder(String id) {
       return medicationRequestFromMedicationOrder(id, "666V666");
     }
@@ -169,6 +205,7 @@ public class MedicationRequestSamples {
           .authoredOn("2016-11-17T18:02:04Z")
           .status(MedicationRequest.Status.stopped)
           .requester(reference("Practitioner/1404497883", "HIPPOCRATES,OATH J"))
+          ._requester(DataAbsentReason.of(DataAbsentReason.Reason.unknown))
           .medicationReference(reference("Medication/1400021372", "RIVAROXABAN 15MG TAB"))
           .dosageInstruction(dosageInstructionFromMedicationOrder())
           .dispenseRequest(dispenseRequestFromMedicationOrder())
@@ -190,7 +227,7 @@ public class MedicationRequestSamples {
           .subject(reference("Patient/" + patientId, "BARKER,BOBBIE LEE"))
           .authoredOn("2017-11-03T01:39:21Z")
           .status(MedicationRequest.Status.completed)
-          .note(List.of(Annotation.builder().text("THIS IS THE BEST NOTE EVER").build()))
+          .note(List.of(Annotation.builder().text("NOTES NOTES NOTES").build()))
           .medicationReference(reference("Medication/123456789", "SAW PALMETTO"))
           .dosageInstruction(dosageInstructionFromMedicationStatement())
           .reportedBoolean(true)

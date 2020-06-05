@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class R4MedicationRequestFromMedicationOrderTransformer {
   // todo these need confirmation from KBS? how do we do this?
-  private static final ImmutableMap<String, MedicationRequest.Status> STATUS_VALUES =
+  static final ImmutableMap<String, MedicationRequest.Status> STATUS_VALUES =
       ImmutableMap.<String, MedicationRequest.Status>builder()
           .put("ACTIVE", MedicationRequest.Status.active)
           .put("DELETED", MedicationRequest.Status.entered_in_error)
@@ -67,14 +67,14 @@ public class R4MedicationRequestFromMedicationOrderTransformer {
 
   @NonNull final DatamartMedicationOrder datamart;
 
-  private CodeableConcept codeableConceptText(Optional<String> maybeText) {
+  static CodeableConcept codeableConceptText(Optional<String> maybeText) {
     if (maybeText.isEmpty()) {
       return null;
     }
     return CodeableConcept.builder().text(maybeText.get()).build();
   }
 
-  private MedicationRequest.DispenseRequest dispenseRequestConverter(
+  static MedicationRequest.DispenseRequest dispenseRequestConverter(
       Optional<DatamartMedicationOrder.DispenseRequest> maybeDispenseRequest) {
     if (maybeDispenseRequest.isEmpty()) {
       return null;
@@ -88,7 +88,7 @@ public class R4MedicationRequestFromMedicationOrderTransformer {
         .build();
   }
 
-  private List<Dosage> dosageInstructionConverter(
+  static List<Dosage> dosageInstructionConverter(
       List<DatamartMedicationOrder.DosageInstruction> dosageInstructions,
       Instant dateWritten,
       Optional<Instant> dateEnded) {
@@ -115,7 +115,7 @@ public class R4MedicationRequestFromMedicationOrderTransformer {
     return results;
   }
 
-  private List<Dosage.DoseAndRate> doseAndRateConverter(
+  static List<Dosage.DoseAndRate> doseAndRateConverter(
       Optional<Double> value, Optional<String> unit) {
     if (value.isPresent() || unit.isPresent()) {
       return List.of(
@@ -131,7 +131,7 @@ public class R4MedicationRequestFromMedicationOrderTransformer {
     }
   }
 
-  private Duration durationConverter(Optional<Integer> maybeSupplyDuration) {
+  static Duration durationConverter(Optional<Integer> maybeSupplyDuration) {
     return Duration.builder()
         .value(maybeSupplyDuration.isEmpty() ? null : BigDecimal.valueOf(maybeSupplyDuration.get()))
         .unit("days")
@@ -140,7 +140,7 @@ public class R4MedicationRequestFromMedicationOrderTransformer {
         .build();
   }
 
-  private SimpleQuantity simpleQuantity(Optional<Double> maybeValue, Optional<String> maybeUnit) {
+  static SimpleQuantity simpleQuantity(Optional<Double> maybeValue, Optional<String> maybeUnit) {
     if (maybeValue.isPresent() || maybeUnit.isPresent()) {
       return SimpleQuantity.builder()
           .value(maybeValue.isEmpty() ? null : BigDecimal.valueOf(maybeValue.get()))
@@ -152,7 +152,7 @@ public class R4MedicationRequestFromMedicationOrderTransformer {
   }
 
   /** Convert from datamart.MedicationRequest.Status to MedicationRequest.Status */
-  MedicationRequest.Status status(String status) {
+  static MedicationRequest.Status status(String status) {
     if (status == null) {
       return null;
     }
@@ -163,7 +163,7 @@ public class R4MedicationRequestFromMedicationOrderTransformer {
     return mapped;
   }
 
-  private Timing timing(
+  static Timing timing(
       Optional<String> maybeTimingText, Instant dateWritten, Optional<Instant> dateEnded) {
     if (maybeTimingText.isEmpty()) {
       return null;
