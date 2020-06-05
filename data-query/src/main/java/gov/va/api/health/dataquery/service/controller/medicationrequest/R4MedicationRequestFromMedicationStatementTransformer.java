@@ -60,7 +60,6 @@ public class R4MedicationRequestFromMedicationStatementTransformer {
       default:
         throw new IllegalArgumentException("Cannot convert: " + status);
     }
-    // todo ask about the missing status fields? we just throw exceptions if we get other ones?
   }
 
   // todo missing requester
@@ -75,10 +74,8 @@ public class R4MedicationRequestFromMedicationStatementTransformer {
         .medicationReference(asReference(datamart.medication()))
         .dosageInstruction(
             dosageInstructionConverter(datamart.effectiveDateTime(), datamart.dosage()))
-        .reportedBoolean( // todo why this?
-            true)
-        .intent( // todo why this?
-            MedicationRequest.Intent.plan)
+        .reportedBoolean(true)
+        .intent(MedicationRequest.Intent.plan)
         .build();
   }
 }
