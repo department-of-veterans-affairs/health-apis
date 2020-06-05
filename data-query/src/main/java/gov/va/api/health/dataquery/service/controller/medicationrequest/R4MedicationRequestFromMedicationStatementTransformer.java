@@ -48,7 +48,7 @@ public class R4MedicationRequestFromMedicationStatementTransformer {
     return note.isPresent() ? List.of(Annotation.builder().text(note.get()).build()) : null;
   }
 
-  MedicationRequest.Status status(DatamartMedicationStatement.Status status) {
+  static MedicationRequest.Status status(DatamartMedicationStatement.Status status) {
     if (status == null) {
       return null;
     }
