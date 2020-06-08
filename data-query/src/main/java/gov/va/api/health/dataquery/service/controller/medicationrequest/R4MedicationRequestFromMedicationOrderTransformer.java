@@ -1,6 +1,7 @@
 package gov.va.api.health.dataquery.service.controller.medicationrequest;
 
 import static gov.va.api.health.dataquery.service.controller.R4Transformers.asReference;
+import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
 import static gov.va.api.health.dataquery.service.controller.Transformers.asDateTimeString;
 
 import com.google.common.collect.ImmutableMap;
@@ -74,11 +75,12 @@ public class R4MedicationRequestFromMedicationOrderTransformer {
     return CodeableConcept.builder().text(maybeText.get()).build();
   }
 
-  static MedicationRequest.DispenseRequest dispenseRequestConverter(
+  static MedicationRequest.DispenseRequest dispenseRequest(
       Optional<DatamartMedicationOrder.DispenseRequest> maybeDispenseRequest) {
-    if (maybeDispenseRequest.isEmpty()) {
+    if (allBlank(maybeDispenseRequest)) {
       return null;
     }
+
     DatamartMedicationOrder.DispenseRequest dispenseRequest = maybeDispenseRequest.get();
     // todo: ignoring supply duration units for now?
     return MedicationRequest.DispenseRequest.builder()
@@ -88,11 +90,11 @@ public class R4MedicationRequestFromMedicationOrderTransformer {
         .build();
   }
 
-  static List<Dosage> dosageInstructionConverter(
+  static List<Dosage> dosageInstruction(
       List<DatamartMedicationOrder.DosageInstruction> dosageInstructions,
       Instant dateWritten,
       Optional<Instant> dateEnded) {
-    if (dosageInstructions == null) {
+    if (allBlank(dosageInstructions)) {
       return null;
     }
     List<Dosage> results = new ArrayList<>();
@@ -108,15 +110,14 @@ public class R4MedicationRequestFromMedicationOrderTransformer {
               .asNeededBoolean(dosageInstruction.asNeeded())
               .route(codeableConceptText(dosageInstruction.routeText()))
               .doseAndRate(
-                  doseAndRateConverter(
+                  doseAndRate(
                       dosageInstruction.doseQuantityValue(), dosageInstruction.doseQuantityUnit()))
               .build());
     }
     return results;
   }
 
-  static List<Dosage.DoseAndRate> doseAndRateConverter(
-      Optional<Double> value, Optional<String> unit) {
+  static List<Dosage.DoseAndRate> doseAndRate(Optional<Double> value, Optional<String> unit) {
     if (value.isPresent() || unit.isPresent()) {
       return List.of(
           Dosage.DoseAndRate.builder()
@@ -153,7 +154,7 @@ public class R4MedicationRequestFromMedicationOrderTransformer {
 
   /** Convert from datamart.MedicationRequest.Status to MedicationRequest.Status */
   static MedicationRequest.Status status(String status) {
-    if (status == null) {
+    if (allBlank(status)) {
       return null;
     }
     MedicationRequest.Status mapped = STATUS_VALUES.get(status.trim());
@@ -193,9 +194,9 @@ public class R4MedicationRequestFromMedicationOrderTransformer {
         ._requester(DataAbsentReason.of(DataAbsentReason.Reason.unknown))
         .medicationReference(asReference(datamart.medication()))
         .dosageInstruction(
-            dosageInstructionConverter(
+            dosageInstruction(
                 datamart.dosageInstruction(), datamart.dateWritten(), datamart.dateEnded()))
-        .dispenseRequest(dispenseRequestConverter(datamart.dispenseRequest()))
+        .dispenseRequest(dispenseRequest(datamart.dispenseRequest()))
         .build();
   }
 }

@@ -22,7 +22,7 @@ public class R4MedicationRequestFromMedicationOrderTransformerTest {
     // Null Dispense Request
     Optional<DatamartMedicationOrder.DispenseRequest> optionalDispenseRequest = Optional.empty();
     assertThat(
-            R4MedicationRequestFromMedicationOrderTransformer.dispenseRequestConverter(
+            R4MedicationRequestFromMedicationOrderTransformer.dispenseRequest(
                 optionalDispenseRequest))
         .isNull();
   }
@@ -30,7 +30,7 @@ public class R4MedicationRequestFromMedicationOrderTransformerTest {
   @Test
   public void dosageAndRateConverterNullTest() {
     assertThat(
-            R4MedicationRequestFromMedicationOrderTransformer.doseAndRateConverter(
+            R4MedicationRequestFromMedicationOrderTransformer.doseAndRate(
                 Optional.empty(), Optional.empty()))
         .isNull();
   }
@@ -42,7 +42,7 @@ public class R4MedicationRequestFromMedicationOrderTransformerTest {
     Optional<Instant> emptyOptionalInstant = Optional.empty();
     Optional<Instant> end = Optional.ofNullable(Instant.parse("2017-02-15T05:00:00Z"));
     assertThat(
-            R4MedicationRequestFromMedicationOrderTransformer.dosageInstructionConverter(
+            R4MedicationRequestFromMedicationOrderTransformer.dosageInstruction(
                 null, instant, emptyOptionalInstant))
         .isNull();
     // Null additional information
@@ -59,7 +59,7 @@ public class R4MedicationRequestFromMedicationOrderTransformerTest {
                 .doseQuantityUnit(Optional.of("TAB"))
                 .build());
     assertThat(
-            R4MedicationRequestFromMedicationOrderTransformer.dosageInstructionConverter(
+            R4MedicationRequestFromMedicationOrderTransformer.dosageInstruction(
                 dosageInstruction, instant, end))
         .isEqualTo(
             MedicationRequestSamples.R4.dosageInstructionFromMedicationOrderNoAdditionalInfo());
