@@ -6,6 +6,7 @@ import static org.springframework.util.CollectionUtils.isEmpty;
 import com.google.common.base.Splitter;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.fhir.api.IsReference;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
@@ -38,6 +39,24 @@ public final class Transformers {
       }
     }
     return true;
+  }
+
+  /**
+   * Converts the given object to a BigDecimal. Currently supports Integer, Double, and Long
+   * objects.
+   */
+  public static BigDecimal asBigDecimal(Optional<?> opt) {
+    Object v = opt.orElse(null);
+    if (v instanceof Integer) {
+      return BigDecimal.valueOf((Integer) v);
+    }
+    if (v instanceof Double) {
+      return BigDecimal.valueOf((Double) v);
+    }
+    if (v instanceof Long) {
+      return BigDecimal.valueOf((Long) v);
+    }
+    return null;
   }
 
   /**

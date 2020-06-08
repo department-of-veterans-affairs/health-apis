@@ -2,6 +2,7 @@ package gov.va.api.health.dataquery.service.controller.medicationrequest;
 
 import static gov.va.api.health.dataquery.service.controller.R4Transformers.asReference;
 import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
+import static gov.va.api.health.dataquery.service.controller.Transformers.asBigDecimal;
 import static gov.va.api.health.dataquery.service.controller.Transformers.asDateTimeString;
 
 import com.google.common.collect.ImmutableMap;
@@ -14,7 +15,6 @@ import gov.va.api.health.r4.api.datatypes.SimpleQuantity;
 import gov.va.api.health.r4.api.datatypes.Timing;
 import gov.va.api.health.r4.api.elements.Dosage;
 import gov.va.api.health.uscorer4.api.resources.MedicationRequest;
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -86,7 +86,7 @@ public class R4MedicationRequestFromMedicationOrderTransformer {
     return MedicationRequest.DispenseRequest.builder()
         .numberOfRepeatsAllowed(dispenseRequest.numberOfRepeatsAllowed().orElse(0))
         .quantity(simpleQuantity(dispenseRequest.quantity(), dispenseRequest.unit()))
-        .expectedSupplyDuration(durationConverter(dispenseRequest.expectedSupplyDuration()))
+        .expectedSupplyDuration(duration(dispenseRequest.expectedSupplyDuration()))
         .build();
   }
 
@@ -123,7 +123,7 @@ public class R4MedicationRequestFromMedicationOrderTransformer {
           Dosage.DoseAndRate.builder()
               .doseQuantity(
                   SimpleQuantity.builder()
-                      .value(value.isEmpty() ? null : BigDecimal.valueOf(value.get()))
+                      .value(asBigDecimal(value))
                       .unit(unit.orElse(null))
                       .build())
               .build());
@@ -132,9 +132,9 @@ public class R4MedicationRequestFromMedicationOrderTransformer {
     }
   }
 
-  static Duration durationConverter(Optional<Integer> maybeSupplyDuration) {
+  static Duration duration(Optional<Integer> maybeSupplyDuration) {
     return Duration.builder()
-        .value(maybeSupplyDuration.isEmpty() ? null : BigDecimal.valueOf(maybeSupplyDuration.get()))
+        .value(asBigDecimal(maybeSupplyDuration))
         .unit("days")
         .code("d")
         .system("http://unitsofmeasure.org")
@@ -144,7 +144,7 @@ public class R4MedicationRequestFromMedicationOrderTransformer {
   static SimpleQuantity simpleQuantity(Optional<Double> maybeValue, Optional<String> maybeUnit) {
     if (maybeValue.isPresent() || maybeUnit.isPresent()) {
       return SimpleQuantity.builder()
-          .value(maybeValue.isEmpty() ? null : BigDecimal.valueOf(maybeValue.get()))
+          .value(asBigDecimal(maybeValue))
           .unit(maybeUnit.orElse(null))
           .build();
     } else {
