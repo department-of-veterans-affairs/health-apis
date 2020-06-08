@@ -25,7 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 @Builder
 @Slf4j
 public class R4MedicationRequestFromMedicationOrderTransformer {
-  // todo these need confirmation from KBS? how do we do this?
+  // todo these need confirmation from KBS? Created backlog story API-1117
   static final ImmutableMap<String, MedicationRequest.Status> STATUS_VALUES =
       ImmutableMap.<String, MedicationRequest.Status>builder()
           .put("ACTIVE", MedicationRequest.Status.active)
