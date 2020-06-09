@@ -8,7 +8,6 @@ import static org.mockito.Mockito.when;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
 import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
-import gov.va.api.health.dataquery.service.controller.Dstu2Validator;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dstu2.api.bundle.BundleLink.LinkRelation;
@@ -225,32 +224,5 @@ public class Dstu2PractitionerControllerTest {
   @SneakyThrows
   private DatamartPractitioner toObject(String json) {
     return JacksonConfig.createMapper().readValue(json, DatamartPractitioner.class);
-  }
-
-  @Test
-  public void validate() {
-    Practitioner practitioner = PractitionerSamples.Dstu2.create().practitioner();
-    assertThat(
-            controller()
-                .validate(
-                    PractitionerSamples.Dstu2.asBundle(
-                        "http://fonzy.com/cool",
-                        List.of(practitioner),
-                        PractitionerSamples.Dstu2.link(
-                            LinkRelation.first,
-                            "http://fonzy.com/cool/AllergyIntolerance?identifier=1",
-                            1,
-                            1),
-                        PractitionerSamples.Dstu2.link(
-                            LinkRelation.self,
-                            "http://fonzy.com/cool/AllergyIntolerance?identifier=1",
-                            1,
-                            1),
-                        PractitionerSamples.Dstu2.link(
-                            LinkRelation.last,
-                            "http://fonzy.com/cool/AllergyIntolerance?identifier=1",
-                            1,
-                            1))))
-        .isEqualTo(Dstu2Validator.ok());
   }
 }

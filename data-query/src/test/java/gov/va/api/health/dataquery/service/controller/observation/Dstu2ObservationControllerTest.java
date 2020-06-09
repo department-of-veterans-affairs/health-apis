@@ -13,7 +13,6 @@ import gov.va.api.health.argonaut.api.resources.Observation.Bundle;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
 import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
-import gov.va.api.health.dataquery.service.controller.Dstu2Validator;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation.Category;
@@ -952,33 +951,5 @@ public class Dstu2ObservationControllerTest {
                         "http://fonzy.com/cool/Observation?patient=p0",
                         1,
                         10))));
-  }
-
-  @Test
-  public void validate() {
-    Observation observation = ObservationSamples.Dstu2.create().observation("1", "12345V67890");
-    assertThat(
-            controller()
-                .validate(
-                    ObservationSamples.Dstu2.asBundle(
-                        "http://fonzy.com/cool",
-                        List.of(observation),
-                        1,
-                        Dstu2.link(
-                            LinkRelation.first,
-                            "http://fonzy.com/cool/Observation?identifier=1",
-                            1,
-                            1),
-                        Dstu2.link(
-                            LinkRelation.self,
-                            "http://fonzy.com/cool/Observation?identifier=1",
-                            1,
-                            1),
-                        Dstu2.link(
-                            LinkRelation.last,
-                            "http://fonzy.com/cool/Observation?identifier=1",
-                            1,
-                            1))))
-        .isEqualTo(Dstu2Validator.ok());
   }
 }

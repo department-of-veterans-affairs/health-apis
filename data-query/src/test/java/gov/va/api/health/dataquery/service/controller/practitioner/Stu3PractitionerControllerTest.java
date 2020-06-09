@@ -7,7 +7,6 @@ import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.Stu3Bundler;
-import gov.va.api.health.dataquery.service.controller.Stu3Validator;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.api.Registration;
@@ -262,32 +261,5 @@ public class Stu3PractitionerControllerTest {
   @SneakyThrows
   private DatamartPractitioner toObject(String json) {
     return JacksonConfig.createMapper().readValue(json, DatamartPractitioner.class);
-  }
-
-  @Test
-  public void validate() {
-    Practitioner practitioner = PractitionerSamples.Stu3.create().practitioner();
-    assertThat(
-            controller()
-                .validate(
-                    PractitionerSamples.Stu3.asBundle(
-                        "http://fonzy.com/cool",
-                        List.of(practitioner),
-                        PractitionerSamples.Stu3.link(
-                            BundleLink.LinkRelation.first,
-                            "http://fonzy.com/cool/AllergyIntolerance?identifier=1",
-                            1,
-                            1),
-                        PractitionerSamples.Stu3.link(
-                            gov.va.api.health.stu3.api.bundle.BundleLink.LinkRelation.self,
-                            "http://fonzy.com/cool/AllergyIntolerance?identifier=1",
-                            1,
-                            1),
-                        PractitionerSamples.Stu3.link(
-                            BundleLink.LinkRelation.last,
-                            "http://fonzy.com/cool/AllergyIntolerance?identifier=1",
-                            1,
-                            1))))
-        .isEqualTo(Stu3Validator.ok());
   }
 }

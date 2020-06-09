@@ -12,7 +12,6 @@ import gov.va.api.health.argonaut.api.resources.AllergyIntolerance.Bundle;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
 import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
-import gov.va.api.health.dataquery.service.controller.Dstu2Validator;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.allergyintolerance.AllergyIntoleranceSamples.Datamart;
@@ -263,38 +262,6 @@ public class Dstu2AllergyIntoleranceControllerTest {
   @SneakyThrows
   private DatamartAllergyIntolerance toObject(String json) {
     return JacksonConfig.createMapper().readValue(json, DatamartAllergyIntolerance.class);
-  }
-
-  @Test
-  public void validate() {
-    DatamartAllergyIntolerance dm =
-        AllergyIntoleranceSamples.Datamart.create().allergyIntolerance();
-    AllergyIntolerance allergyIntolerance =
-        AllergyIntoleranceSamples.Dstu2.create()
-            .allergyIntolerance("1", dm.patient().reference().get());
-    assertThat(
-            controller()
-                .validate(
-                    AllergyIntoleranceSamples.Dstu2.asBundle(
-                        "http://fonzy.com/cool",
-                        List.of(allergyIntolerance),
-                        1,
-                        Dstu2.link(
-                            LinkRelation.first,
-                            "http://fonzy.com/cool/AllergyIntolerance?identifier=1",
-                            1,
-                            1),
-                        Dstu2.link(
-                            LinkRelation.self,
-                            "http://fonzy.com/cool/AllergyIntolerance?identifier=1",
-                            1,
-                            1),
-                        Dstu2.link(
-                            LinkRelation.last,
-                            "http://fonzy.com/cool/AllergyIntolerance?identifier=1",
-                            1,
-                            1))))
-        .isEqualTo(Dstu2Validator.ok());
   }
 
   private void validateSearchByIdResult(DatamartAllergyIntolerance dm, Bundle actual) {
