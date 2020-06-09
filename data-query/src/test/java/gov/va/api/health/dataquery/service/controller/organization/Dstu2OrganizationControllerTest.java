@@ -8,7 +8,6 @@ import static org.mockito.Mockito.when;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
 import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
-import gov.va.api.health.dataquery.service.controller.Dstu2Validator;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dstu2.api.bundle.BundleLink.LinkRelation;
@@ -188,32 +187,5 @@ public class Dstu2OrganizationControllerTest {
                         "http://fonzy.com/cool/Organization?identifier=" + publicId,
                         1,
                         1))));
-  }
-
-  @Test
-  public void validate() {
-    Organization organization = OrganizationSamples.Dstu2.create().organization();
-    assertThat(
-            controller()
-                .validate(
-                    OrganizationSamples.Dstu2.asBundle(
-                        "http://fonzy.com/cool",
-                        List.of(organization),
-                        OrganizationSamples.Dstu2.link(
-                            LinkRelation.first,
-                            "http://fonzy.com/cool/AllergyIntolerance?identifier=1",
-                            1,
-                            1),
-                        OrganizationSamples.Dstu2.link(
-                            LinkRelation.self,
-                            "http://fonzy.com/cool/AllergyIntolerance?identifier=1",
-                            1,
-                            1),
-                        OrganizationSamples.Dstu2.link(
-                            LinkRelation.last,
-                            "http://fonzy.com/cool/AllergyIntolerance?identifier=1",
-                            1,
-                            1))))
-        .isEqualTo(Dstu2Validator.ok());
   }
 }

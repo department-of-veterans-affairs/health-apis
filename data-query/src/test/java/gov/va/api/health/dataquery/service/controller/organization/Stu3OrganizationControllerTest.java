@@ -12,7 +12,6 @@ import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.Stu3Bundler;
-import gov.va.api.health.dataquery.service.controller.Stu3Validator;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.api.Registration;
@@ -411,32 +410,5 @@ public class Stu3OrganizationControllerTest {
   @Test(expected = ResourceExceptions.BadSearchParameter.class)
   public void searchIdentifierMissmatchingSystem() {
     controller().searchByIdentifier("xyz|123", 1, 1);
-  }
-
-  @Test
-  public void validate() {
-    Organization organization = OrganizationSamples.Stu3.create().organization();
-    assertThat(
-            controller()
-                .validate(
-                    OrganizationSamples.Stu3.asBundle(
-                        "http://fonzy.com/cool",
-                        List.of(organization),
-                        OrganizationSamples.Stu3.link(
-                            BundleLink.LinkRelation.first,
-                            "http://fonzy.com/cool/AllergyIntolerance?identifier=1",
-                            1,
-                            1),
-                        OrganizationSamples.Stu3.link(
-                            BundleLink.LinkRelation.self,
-                            "http://fonzy.com/cool/AllergyIntolerance?identifier=1",
-                            1,
-                            1),
-                        OrganizationSamples.Stu3.link(
-                            BundleLink.LinkRelation.last,
-                            "http://fonzy.com/cool/AllergyIntolerance?identifier=1",
-                            1,
-                            1))))
-        .isEqualTo(Stu3Validator.ok());
   }
 }
