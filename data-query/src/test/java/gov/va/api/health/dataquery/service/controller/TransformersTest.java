@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.controller;
 
+import static gov.va.api.health.dataquery.service.controller.Transformers.asBigDecimal;
 import static gov.va.api.health.dataquery.service.controller.Transformers.asDatamartReference;
 import static gov.va.api.health.dataquery.service.controller.Transformers.asDateString;
 import static gov.va.api.health.dataquery.service.controller.Transformers.asDateTimeString;
@@ -13,6 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dstu2.api.elements.Reference;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -31,6 +33,25 @@ public class TransformersTest {
     assertThat(Transformers.allBlank(null, "", " ")).isTrue();
     assertThat(Transformers.allBlank(null, 1, null, null)).isFalse();
     assertThat(Transformers.allBlank(1, "x", "z", 2.0)).isFalse();
+  }
+
+  @Test
+  public void asBigDecimalEmptyTest() {
+    Optional<Double> empty = Optional.empty();
+    assertThat(asBigDecimal(empty)).isNull();
+  }
+
+  @Test
+  public void asBigDecimalValuesTest() {
+    Optional<Double> optionalDouble = Optional.of(14.0);
+    Optional<Integer> optionalInteger = Optional.of(23);
+    Optional<Long> optionalLong = Optional.of(Long.MAX_VALUE);
+    Optional<String> optionalString = Optional.of("COOL COOL COOL");
+
+    assertThat(asBigDecimal(optionalDouble)).isEqualTo(BigDecimal.valueOf(14.0));
+    assertThat(asBigDecimal(optionalInteger)).isEqualTo(BigDecimal.valueOf(23));
+    assertThat(asBigDecimal(optionalLong)).isEqualTo(BigDecimal.valueOf(Long.MAX_VALUE));
+    assertThat(asBigDecimal(optionalString)).isNull();
   }
 
   @Test
