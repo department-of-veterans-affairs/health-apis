@@ -13,7 +13,6 @@ import gov.va.api.health.argonaut.api.resources.Procedure.Bundle;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
 import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
-import gov.va.api.health.dataquery.service.controller.Dstu2Validator;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.procedure.ProcedureSamples.Datamart;
@@ -483,37 +482,5 @@ public class Dstu2ProcedureControllerTest {
   @SneakyThrows
   private DatamartProcedure toObject(String json) {
     return JacksonConfig.createMapper().readValue(json, DatamartProcedure.class);
-  }
-
-  @Test
-  public void validate() {
-    DatamartProcedure dm = Datamart.create().procedure();
-    Procedure procedure =
-        Dstu2.create()
-            .procedure(
-                "1", dm.patient().reference().get(), dm.performedDateTime().get().toString());
-    assertThat(
-            controller()
-                .validate(
-                    Dstu2.asBundle(
-                        "http://fonzy.com/cool",
-                        List.of(procedure),
-                        1,
-                        link(
-                            LinkRelation.first,
-                            "http://fonzy.com/cool/Procedure?identifier=1",
-                            1,
-                            1),
-                        link(
-                            LinkRelation.self,
-                            "http://fonzy.com/cool/Procedure?identifier=1",
-                            1,
-                            1),
-                        link(
-                            LinkRelation.last,
-                            "http://fonzy.com/cool/Procedure?identifier=1",
-                            1,
-                            1))))
-        .isEqualTo(Dstu2Validator.ok());
   }
 }
