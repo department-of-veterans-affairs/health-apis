@@ -4,6 +4,7 @@ import gov.va.api.health.uscorer4.api.AllergyIntoleranceApi;
 import gov.va.api.health.uscorer4.api.ConditionApi;
 import gov.va.api.health.uscorer4.api.ImmunizationApi;
 import gov.va.api.health.uscorer4.api.MedicationApi;
+import gov.va.api.health.uscorer4.api.MedicationRequestApi;
 import gov.va.api.health.uscorer4.api.ObservationApi;
 import gov.va.api.health.uscorer4.api.PatientApi;
 import gov.va.api.health.uscorer4.api.ProcedureApi;
@@ -29,6 +30,7 @@ import javax.ws.rs.Path;
               "patient/Condition.read",
               "patient/Immunization.read",
               "patient/Medication.read",
+              "patient/MedicationRequest.read",
               "patient/Observation.read",
               "patient/Patient.read",
               "patient/Procedure.read",
@@ -75,6 +77,9 @@ import javax.ws.rs.Path;
                           name = "patient/Medication.read",
                           description = "read medications"),
                       @OAuthScope(
+                          name = "patient/MedicationRequest.read",
+                          description = "read medication requests"),
+                      @OAuthScope(
                           name = "patient/Observation.read",
                           description = "read observations"),
                       @OAuthScope(name = "patient/Patient.read", description = "read patient"),
@@ -88,6 +93,7 @@ public interface R4DataQueryService
         ConditionApi,
         ImmunizationApi,
         MedicationApi,
+        MedicationRequestApi,
         ObservationApi,
         PatientApi,
         ProcedureApi {}
