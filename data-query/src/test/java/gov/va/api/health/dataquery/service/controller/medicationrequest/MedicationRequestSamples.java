@@ -231,7 +231,7 @@ public class MedicationRequestSamples {
           .medicationReference(reference("Medication/123456789", "SAW PALMETTO"))
           .dosageInstruction(dosageInstructionFromMedicationStatement())
           .reportedBoolean(true)
-          .intent(MedicationRequest.Intent.plan)
+          .intent(MedicationRequest.Intent.order)
           .build();
     }
 

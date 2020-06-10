@@ -5,6 +5,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 
 import gov.va.api.health.dataquery.service.controller.CountParameter;
+import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.R4Bundler;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.Min;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +45,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(
     value = {"/r4/MedicationRequest"},
     produces = {"application/json", "application/fhir+json"})
-public class R4MedicationRequestFromMedicationOrderController {
+public class R4MedicationRequestController {
   private R4Bundler bundler;
 
   private MedicationRequestFromMedicationOrderRepository repository;
@@ -51,7 +53,7 @@ public class R4MedicationRequestFromMedicationOrderController {
   private WitnessProtection witnessProtection;
 
   /** R4 MedicationRequest Constructor. */
-  public R4MedicationRequestFromMedicationOrderController(
+  public R4MedicationRequestController(
       @Autowired R4Bundler bundler,
       @Autowired MedicationRequestFromMedicationOrderRepository repository,
       @Autowired WitnessProtection witnessProtection) {
@@ -112,6 +114,16 @@ public class R4MedicationRequestFromMedicationOrderController {
     return transform(medicationOrder);
   }
 
+  /** Read by id, raw data. */
+  @GetMapping(
+      value = {"/{publicId}"},
+      headers = {"raw=true"})
+  public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
+    MedicationOrderEntity entity = findById(publicId);
+    IncludesIcnMajig.addHeader(response, entity.icn());
+    return entity.payload();
+  }
+
   Collection<DatamartMedicationOrder> replaceReferences(
       Collection<DatamartMedicationOrder> resources) {
     witnessProtection.registerAndUpdateReferences(
@@ -160,18 +172,23 @@ public class R4MedicationRequestFromMedicationOrderController {
         sanitize(icn),
         sanitize(intent));
 
-    return bundle(
-        Parameters.builder()
-            .add("patient", patient)
-            .add("intent", intent)
-            .add("page", page)
-            .add("_count", count)
-            .build(),
-        count,
-        repository.findByIcn(
-            icn,
-            PageRequest.of(
-                page - 1, count == 0 ? 1 : count, MedicationOrderEntity.naturalOrder())));
+    // Only return if the intent is type order. Otherwise return an empty bundle
+    if ("order".equals(intent)) {
+      return bundle(
+          Parameters.builder()
+              .add("patient", patient)
+              .add("intent", intent)
+              .add("page", page)
+              .add("_count", count)
+              .build(),
+          count,
+          repository.findByIcn(
+              icn,
+              PageRequest.of(
+                  page - 1, count == 0 ? 1 : count, MedicationOrderEntity.naturalOrder())));
+    } else {
+      return MedicationRequest.Bundle.builder().build();
+    }
   }
 
   MedicationRequest transform(DatamartMedicationOrder dm) {
