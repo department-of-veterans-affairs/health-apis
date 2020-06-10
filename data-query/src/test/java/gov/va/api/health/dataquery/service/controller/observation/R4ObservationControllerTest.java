@@ -58,7 +58,7 @@ public class R4ObservationControllerTest {
                 ? "vital-signs"
                 : dm.category().toString())
         .code(dm.code().get().coding().get().code().get())
-        .epochTime(dm.effectiveDateTime().get().toEpochMilli())
+        .dateUtc(dm.effectiveDateTime().get())
         .payload(JacksonConfig.createMapper().writeValueAsString(dm))
         .build();
   }
