@@ -1,5 +1,7 @@
 package gov.va.api.health.dataquery.service.controller.medicationrequest;
 
+import static gov.va.api.health.dataquery.service.controller.Transformers.asReferenceId;
+
 import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
 import gov.va.api.health.r4.api.bundle.AbstractEntry;
 import gov.va.api.health.uscorer4.api.resources.MedicationRequest;
@@ -21,6 +23,6 @@ public class R4MedicationRequestIncludesIcnMajig implements ResponseBodyAdvice<O
           .type(MedicationRequest.class)
           .bundleType(MedicationRequest.Bundle.class)
           .extractResources(bundle -> bundle.entry().stream().map(AbstractEntry::resource))
-          .extractIcns(body -> Stream.empty())
+          .extractIcns(body -> Stream.ofNullable(asReferenceId(body.subject())))
           .build();
 }

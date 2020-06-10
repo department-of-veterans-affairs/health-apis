@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.medicationrequest;
 
+import static gov.va.api.health.autoconfig.logging.LogSanitizer.sanitize;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 
@@ -152,7 +153,13 @@ public class R4MedicationRequestFromMedicationOrderController {
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
     String icn = witnessProtection.toCdwId(patient);
-    log.info("Looking for patient: {} ({}), intent: {} ", patient, icn, intent);
+
+    log.info(
+        "Looking for patient: {} ({}), intent: {} ",
+        sanitize(patient),
+        sanitize(icn),
+        sanitize(intent));
+
     return bundle(
         Parameters.builder()
             .add("patient", patient)
