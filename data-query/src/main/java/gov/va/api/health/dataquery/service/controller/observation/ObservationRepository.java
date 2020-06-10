@@ -61,10 +61,10 @@ public interface ObservationRepository
       predicates.add(categoriesInClause);
 
       if (date1() != null) {
-        predicates.add(date1().toPredicate(root.get("epochTime"), criteriaBuilder));
+        predicates.add(date1().toInstantPredicate(root.get("dateUtc"), criteriaBuilder));
       }
       if (date2() != null) {
-        predicates.add(date2().toPredicate(root.get("epochTime"), criteriaBuilder));
+        predicates.add(date2().toInstantPredicate(root.get("dateUtc"), criteriaBuilder));
       }
       return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
     }
@@ -103,10 +103,10 @@ public interface ObservationRepository
       predicates.add(codesInClause);
 
       if (date1() != null) {
-        predicates.add(date1().toPredicate(root.get("epochTime"), criteriaBuilder));
+        predicates.add(date1().toInstantPredicate(root.get("dateUtc"), criteriaBuilder));
       }
       if (date2() != null) {
-        predicates.add(date2().toPredicate(root.get("epochTime"), criteriaBuilder));
+        predicates.add(date2().toInstantPredicate(root.get("dateUtc"), criteriaBuilder));
       }
       return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
     }
