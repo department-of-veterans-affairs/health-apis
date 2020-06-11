@@ -7,6 +7,7 @@ import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.Parameters;
+import gov.va.api.health.dataquery.service.controller.QueryToken;
 import gov.va.api.health.dataquery.service.controller.R4Bundler;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
@@ -22,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -91,6 +93,11 @@ public class R4ImmunizationController {
             .map(this::transform)
             .collect(Collectors.toList()),
         (int) entities.getTotalElements());
+  }
+
+  Specification<ImmunizationEntity> explicitSystemAndExplicitCode(String ignored, String code) {
+    /* only one system, and it isnt needed to find the code stored under status in the database */
+    return ImmunizationRepository.CodeSpecification.builder().code(code).build();
   }
 
   private ImmunizationEntity findEntityById(String publicId) {
@@ -171,6 +178,43 @@ public class R4ImmunizationController {
         repository.findByIcn(
             icn,
             PageRequest.of(page - 1, count == 0 ? 1 : count, ImmunizationEntity.naturalOrder())));
+  }
+
+  /** Search by patient and status. */
+  @GetMapping(params = {"patient", "status"})
+  public Immunization.Bundle searchByPatientAndStatus(
+      @RequestParam("patient") String patient,
+      @RequestParam("status") String status,
+      @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
+      @CountParameter @Min(0) int count) {
+    QueryToken statusToken = QueryToken.parse(status);
+    if (statusToken.hasExplicitSystem()) {
+      if (!statusToken.system.equals("http://hl7.org/fhir/event-status")) {
+        return Immunization.Bundle.builder().build();
+      }
+    }
+    if (statusToken.hasNoSystem()) {
+      return Immunization.Bundle.builder().build();
+    }
+    Specification<ImmunizationEntity> searchSpec =
+        statusToken
+            .behavior()
+            .onExplicitSystemAndExplicitCode(this::explicitSystemAndExplicitCode)
+            .execute();
+    String icn = witnessProtection.toCdwId(patient);
+    log.info("Looking for {} ({})", patient, icn);
+    MultiValueMap<String, String> parameters =
+        Parameters.builder()
+            .add("patient", patient)
+            .add("status", status)
+            .add("page", page)
+            .add("_count", count)
+            .build();
+    Page<ImmunizationEntity> entitiesPage =
+        repository.findAll(
+            searchSpec,
+            PageRequest.of(page - 1, count == 0 ? 1 : count, ImmunizationEntity.naturalOrder()));
+    return bundle(parameters, count, entitiesPage);
   }
 
   Immunization transform(DatamartImmunization dm) {
