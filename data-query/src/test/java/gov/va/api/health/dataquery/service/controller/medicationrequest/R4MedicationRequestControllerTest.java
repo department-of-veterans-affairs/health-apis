@@ -13,6 +13,7 @@ import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.medicationorder.DatamartMedicationOrder;
 import gov.va.api.health.dataquery.service.controller.medicationorder.MedicationOrderEntity;
+import gov.va.api.health.dataquery.service.controller.medicationorder.MedicationOrderRepository;
 import gov.va.api.health.dataquery.service.controller.medicationorder.MedicationOrderSamples;
 import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.api.Registration;
@@ -20,6 +21,7 @@ import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.health.r4.api.bundle.BundleLink;
 import gov.va.api.health.uscorer4.api.resources.MedicationRequest;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
@@ -40,7 +42,7 @@ public class R4MedicationRequestControllerTest {
 
   private IdentityService ids = mock(IdentityService.class);
 
-  @Autowired private MedicationRequestFromMedicationOrderRepository repository;
+  @Autowired private MedicationOrderRepository repository;
 
   @Before
   public void _init() {
@@ -150,6 +152,27 @@ public class R4MedicationRequestControllerTest {
   }
 
   @Test
+  public void zeroCountBundleTest() {
+    DatamartMedicationOrder dm = MedicationOrderSamples.Datamart.create().medicationOrder();
+    repository.save(asEntity(dm));
+    mockMedicationOrderIdentity("1", dm.cdwId());
+
+    MedicationRequest.Bundle actual = controller().searchByPatient("1", 1, 0);
+    assertThat(json(actual))
+            .isEqualTo(
+                    json(
+                            MedicationRequestSamples.R4.asBundle(
+                                    "http://abed.com/cool",
+                                    Collections.emptyList(),
+                                    0,
+                                    MedicationRequestSamples.R4.link(
+                                            BundleLink.LinkRelation.self,
+                                            "http://abed.com/cool/MedicationRequest?patient=1",
+                                            1,
+                                            0))));
+  }
+
+  @Test
   public void searchById() {
     DatamartMedicationOrder dm = MedicationOrderSamples.Datamart.create().medicationOrder();
     repository.save(asEntity(dm));
@@ -189,7 +212,11 @@ public class R4MedicationRequestControllerTest {
     repository.save(asEntity(dm));
     mockMedicationOrderIdentity("1", dm.cdwId());
     MedicationRequest.Bundle actual = controller().searchByIdentifier("1", 1, 1);
-    validateSearchByIdResult(dm, actual);
+    validateSearchByIdResult(dm, actual, true);
+
+    //Invalid search params
+    MedicationRequest.Bundle invalidActual = controller().searchByIdentifier("1", 14, 1);
+    validateSearchByIdResult(dm, invalidActual, false);
   }
 
   @Test
@@ -244,6 +271,30 @@ public class R4MedicationRequestControllerTest {
                         "http://abed.com/cool/MedicationRequest?intent=order&patient=p0",
                         1,
                         10))));
+
+    // Intent != order should return empty
+    assertThat(json(controller().searchByPatientAndIntent("p0", "proposal", 1, 10)))
+            .isEqualTo(
+                    json(
+                            MedicationRequestSamples.R4.asBundle(
+                                    "http://abed.com/cool",
+                                    Collections.emptyList(),
+                                    0,
+                                    MedicationRequestSamples.R4.link(
+                                            BundleLink.LinkRelation.first,
+                                            "http://abed.com/cool/MedicationRequest?intent=proposal&patient=p0",
+                                            1,
+                                            10),
+                                    MedicationRequestSamples.R4.link(
+                                            BundleLink.LinkRelation.self,
+                                            "http://abed.com/cool/MedicationRequest?intent=proposal&patient=p0",
+                                            1,
+                                            10),
+                                    MedicationRequestSamples.R4.link(
+                                            BundleLink.LinkRelation.last,
+                                            "http://abed.com/cool/MedicationRequest?intent=proposal&patient=p0",
+                                            0,
+                                            10))));
   }
 
   @SneakyThrows
@@ -252,7 +303,7 @@ public class R4MedicationRequestControllerTest {
   }
 
   private void validateSearchByIdResult(
-      DatamartMedicationOrder dm, MedicationRequest.Bundle actual) {
+      DatamartMedicationOrder dm, MedicationRequest.Bundle actual, boolean validSearchParams) {
     MedicationRequest medicationOrder =
         MedicationRequestSamples.R4
             .create()
@@ -262,7 +313,7 @@ public class R4MedicationRequestControllerTest {
             json(
                 MedicationRequestSamples.R4.asBundle(
                     "http://abed.com/cool",
-                    List.of(medicationOrder),
+                    validSearchParams ? List.of(medicationOrder) : Collections.emptyList(),
                     1,
                     MedicationRequestSamples.R4.link(
                         BundleLink.LinkRelation.first,
@@ -272,7 +323,7 @@ public class R4MedicationRequestControllerTest {
                     MedicationRequestSamples.R4.link(
                         BundleLink.LinkRelation.self,
                         "http://abed.com/cool/MedicationRequest?identifier=1",
-                        1,
+                        validSearchParams ? 1 : 14,
                         1),
                     MedicationRequestSamples.R4.link(
                         BundleLink.LinkRelation.last,

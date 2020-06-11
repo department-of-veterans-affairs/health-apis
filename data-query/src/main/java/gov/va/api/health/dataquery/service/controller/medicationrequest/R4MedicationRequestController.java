@@ -13,6 +13,7 @@ import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.medicationorder.DatamartMedicationOrder;
 import gov.va.api.health.dataquery.service.controller.medicationorder.MedicationOrderEntity;
+import gov.va.api.health.dataquery.service.controller.medicationorder.MedicationOrderRepository;
 import gov.va.api.health.uscorer4.api.resources.MedicationRequest;
 import java.util.Collection;
 import java.util.List;
@@ -48,14 +49,14 @@ import org.springframework.web.bind.annotation.RestController;
 public class R4MedicationRequestController {
   private R4Bundler bundler;
 
-  private MedicationRequestFromMedicationOrderRepository repository;
+  private MedicationOrderRepository repository;
 
   private WitnessProtection witnessProtection;
 
   /** R4 MedicationRequest Constructor. */
   public R4MedicationRequestController(
       @Autowired R4Bundler bundler,
-      @Autowired MedicationRequestFromMedicationOrderRepository repository,
+      @Autowired MedicationOrderRepository repository,
       @Autowired WitnessProtection witnessProtection) {
     this.bundler = bundler;
     this.repository = repository;
@@ -186,7 +187,7 @@ public class R4MedicationRequestController {
     String icn = witnessProtection.toCdwId(patient);
 
     log.info(
-        "Looking for patient: {} ({}), intent: {} ",
+        "Looking for patient: {} ({}), intent: {} . Only returning intent:order searches.",
         sanitize(patient),
         sanitize(icn),
         sanitize(intent));
@@ -206,7 +207,12 @@ public class R4MedicationRequestController {
               PageRequest.of(
                   page - 1, count == 0 ? 1 : count, MedicationOrderEntity.naturalOrder())));
     } else {
-      return MedicationRequest.Bundle.builder().build();
+      return bundle(Parameters.builder()
+              .add("patient", patient)
+              .add("intent", intent)
+              .add("page", page)
+              .add("_count", count)
+              .build(), emptyList(),0);
     }
   }
 
