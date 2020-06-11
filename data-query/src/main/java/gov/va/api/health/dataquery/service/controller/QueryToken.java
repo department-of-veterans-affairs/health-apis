@@ -1,17 +1,20 @@
 package gov.va.api.health.dataquery.service.controller;
 
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import lombok.Builder;
+import lombok.NonNull;
 import lombok.SneakyThrows;
-import org.springframework.data.jpa.domain.Specification;
+import lombok.Value;
 
 @Builder
+@Value
 public class QueryToken {
-  public String system;
+  String system;
 
-  public String code;
+  String code;
 
-  public Mode mode;
+  @NonNull Mode mode;
 
   /** Create a QueryToken from a token search parameter. */
   @SneakyThrows
@@ -41,33 +44,32 @@ public class QueryToken {
     return QueryToken.builder().code(parameter).mode(Mode.ANY_SYSTEM_EXPLICIT_CODE).build();
   }
 
-  public Behavior behavior() {
-    return new Behavior();
+  public BehaviorStemCell behavior() {
+    return new BehaviorStemCell();
   }
 
   public boolean hasAnySystemAndExplicitCode() {
-    return mode.equals(Mode.ANY_SYSTEM_EXPLICIT_CODE);
+    return mode == Mode.ANY_SYSTEM_EXPLICIT_CODE;
   }
 
   public boolean hasExplicitSystem() {
-    return mode.equals(Mode.EXPLICIT_SYSTEM_ANY_CODE)
-        || mode.equals(Mode.EXPLICIT_SYSTEM_EXPLICIT_CODE);
+    return mode == Mode.EXPLICIT_SYSTEM_ANY_CODE || mode == Mode.EXPLICIT_SYSTEM_EXPLICIT_CODE;
   }
 
   public boolean hasExplicitSystemAndAnyCode() {
-    return mode.equals(Mode.EXPLICIT_SYSTEM_ANY_CODE);
+    return mode == Mode.EXPLICIT_SYSTEM_ANY_CODE;
   }
 
   public boolean hasExplicitSystemAndExplicitCode() {
-    return mode.equals(Mode.EXPLICIT_SYSTEM_EXPLICIT_CODE);
+    return mode == Mode.EXPLICIT_SYSTEM_EXPLICIT_CODE;
   }
 
   public boolean hasNoSystem() {
-    return mode.equals(Mode.NO_SYSTEM_EXPLICIT_CODE);
+    return mode == Mode.NO_SYSTEM_EXPLICIT_CODE;
   }
 
   public boolean hasNoSystemAndExplicitCode() {
-    return mode.equals(Mode.NO_SYSTEM_EXPLICIT_CODE);
+    return mode == Mode.NO_SYSTEM_EXPLICIT_CODE;
   }
 
   private enum Mode {
@@ -77,16 +79,31 @@ public class QueryToken {
     NO_SYSTEM_EXPLICIT_CODE
   }
 
-  public class Behavior {
-    public BiFunction<String, String, Specification> explicitSystemAndExplicitCode;
+  public class BehaviorStemCell {
+    public <T> Behavior<T> onAnySystemAndExplicitCode(Function<String, T> action) {
+      return new Behavior<T>().onAnySystemAndExplicitCode(action);
+    }
 
-    public Specification execute() {
+    public <T> Behavior<T> onExplicitSystemAndExplicitCode(BiFunction<String, String, T> action) {
+      return new Behavior<T>().onExplicitSystemAndExplicitCode(action);
+    }
+  }
+
+  public class Behavior<T> {
+    private BiFunction<String, String, T> explicitSystemAndExplicitCode;
+    private Function<String, T> anySystemAndExplicitCode;
+
+    public T execute() {
       return explicitSystemAndExplicitCode.apply(code, system);
     }
 
-    public Behavior onExplicitSystemAndExplicitCode(
-        BiFunction<String, String, Specification> explicitSystemAndExplicitCode) {
-      this.explicitSystemAndExplicitCode = explicitSystemAndExplicitCode;
+    public Behavior<T> onAnySystemAndExplicitCode(Function<String, T> action) {
+      anySystemAndExplicitCode = action;
+      return this;
+    }
+
+    public Behavior<T> onExplicitSystemAndExplicitCode(BiFunction<String, String, T> action) {
+      explicitSystemAndExplicitCode = action;
       return this;
     }
   }

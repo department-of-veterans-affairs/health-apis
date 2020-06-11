@@ -61,6 +61,10 @@ public class R4ImmunizationController {
     this.witnessProtection = witnessProtection;
   }
 
+  private Specification<ImmunizationEntity> anySystemAndExplicitCode(String code) {
+    return null;
+  }
+
   private Immunization.Bundle bundle(
       MultiValueMap<String, String> parameters, List<Immunization> reports, int totalRecords) {
     log.info("Search {} found {} results", parameters, totalRecords);
@@ -189,7 +193,7 @@ public class R4ImmunizationController {
       @CountParameter @Min(0) int count) {
     QueryToken statusToken = QueryToken.parse(status);
     if (statusToken.hasExplicitSystem()) {
-      if (!statusToken.system.equals("http://hl7.org/fhir/event-status")) {
+      if (!statusToken.system().equals("http://hl7.org/fhir/event-status")) {
         return Immunization.Bundle.builder().build();
       }
     }
@@ -200,6 +204,7 @@ public class R4ImmunizationController {
         statusToken
             .behavior()
             .onExplicitSystemAndExplicitCode(this::explicitSystemAndExplicitCode)
+            .onAnySystemAndExplicitCode(this::anySystemAndExplicitCode)
             .execute();
     String icn = witnessProtection.toCdwId(patient);
     log.info("Looking for {} ({})", patient, icn);
