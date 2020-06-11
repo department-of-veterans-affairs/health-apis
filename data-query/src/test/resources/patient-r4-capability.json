@@ -168,6 +168,39 @@
           ]
         },
         {
+          "type" : "MedicationRequest",
+          "profile" : "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationrequest",
+          "interaction" : [
+            {
+              "code" : "search-type",
+              "documentation" : "Implemented per the specification"
+            },
+            {
+              "code" : "read",
+              "documentation" : "Implemented per the specification"
+            }
+          ],
+          "versioning" : "no-version",
+          "referencePolicy" : [
+            "literal",
+            "local"
+          ],
+          "searchParam" : [
+            {
+              "name" : "_id",
+              "type" : "string"
+            },
+            {
+              "name" : "intent",
+              "type" : "string"
+            },
+            {
+              "name" : "patient",
+              "type" : "reference"
+            }
+          ]
+        },
+        {
           "type" : "Observation",
           "profile" : "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab",
           "interaction" : [
