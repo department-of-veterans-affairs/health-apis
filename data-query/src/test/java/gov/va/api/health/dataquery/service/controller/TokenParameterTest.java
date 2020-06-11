@@ -6,61 +6,60 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import org.junit.Test;
 
-public class QueryTokenTest {
-  QueryToken noSystemExplicitCodeToken =
-      QueryToken.builder()
+public class TokenParameterTest {
+  TokenParameter noSystemExplicitCodeToken =
+      TokenParameter.builder()
           .code("code")
           .system(null)
-          .mode(QueryToken.Mode.NO_SYSTEM_EXPLICIT_CODE)
+          .mode(TokenParameter.Mode.NO_SYSTEM_EXPLICIT_CODE)
           .build();
 
-  QueryToken explicitSystemAnyCodeToken =
-      QueryToken.builder()
+  TokenParameter explicitSystemAnyCodeToken =
+      TokenParameter.builder()
           .code(null)
           .system("system")
-          .mode(QueryToken.Mode.EXPLICIT_SYSTEM_ANY_CODE)
+          .mode(TokenParameter.Mode.EXPLICIT_SYSTEM_ANY_CODE)
           .build();
 
-  QueryToken explicitSystemExplicitCodeToken =
-      QueryToken.builder()
+  TokenParameter explicitSystemExplicitCodeToken =
+      TokenParameter.builder()
           .code("code")
           .system("system")
-          .mode(QueryToken.Mode.EXPLICIT_SYSTEM_EXPLICIT_CODE)
+          .mode(TokenParameter.Mode.EXPLICIT_SYSTEM_EXPLICIT_CODE)
           .build();
 
-  QueryToken anySystemExplicitCodeToken =
-      QueryToken.builder()
+  TokenParameter anySystemExplicitCodeToken =
+      TokenParameter.builder()
           .code("code")
           .system(null)
-          .mode(QueryToken.Mode.ANY_SYSTEM_EXPLICIT_CODE)
+          .mode(TokenParameter.Mode.ANY_SYSTEM_EXPLICIT_CODE)
           .build();
 
   @Test
   public void booleanSupport() {
-    assertThat(noSystemExplicitCodeToken.hasAnySystemAndExplicitCode()).isEqualTo(false);
+    assertThat(noSystemExplicitCodeToken.hasAnySystem()).isEqualTo(false);
     assertThat(noSystemExplicitCodeToken.hasExplicitSystem()).isEqualTo(false);
-    assertThat(noSystemExplicitCodeToken.hasExplicitSystemAndAnyCode()).isEqualTo(false);
-    assertThat(noSystemExplicitCodeToken.hasExplicitSystemAndExplicitCode()).isEqualTo(false);
     assertThat(noSystemExplicitCodeToken.hasNoSystem()).isEqualTo(true);
-    assertThat(noSystemExplicitCodeToken.hasNoSystemAndExplicitCode()).isEqualTo(true);
-    assertThat(explicitSystemExplicitCodeToken.hasAnySystemAndExplicitCode()).isEqualTo(false);
+    assertThat(noSystemExplicitCodeToken.hasAnyCode()).isEqualTo(false);
+    assertThat(noSystemExplicitCodeToken.hasExplicitCode()).isEqualTo(true);
+
+    assertThat(explicitSystemExplicitCodeToken.hasAnySystem()).isEqualTo(false);
     assertThat(explicitSystemExplicitCodeToken.hasExplicitSystem()).isEqualTo(true);
-    assertThat(explicitSystemExplicitCodeToken.hasExplicitSystemAndAnyCode()).isEqualTo(false);
-    assertThat(explicitSystemExplicitCodeToken.hasExplicitSystemAndExplicitCode()).isEqualTo(true);
     assertThat(explicitSystemExplicitCodeToken.hasNoSystem()).isEqualTo(false);
-    assertThat(explicitSystemExplicitCodeToken.hasNoSystemAndExplicitCode()).isEqualTo(false);
-    assertThat(anySystemExplicitCodeToken.hasAnySystemAndExplicitCode()).isEqualTo(true);
+    assertThat(explicitSystemExplicitCodeToken.hasAnyCode()).isEqualTo(false);
+    assertThat(explicitSystemExplicitCodeToken.hasExplicitCode()).isEqualTo(true);
+
+    assertThat(anySystemExplicitCodeToken.hasAnySystem()).isEqualTo(true);
     assertThat(anySystemExplicitCodeToken.hasExplicitSystem()).isEqualTo(false);
-    assertThat(anySystemExplicitCodeToken.hasExplicitSystemAndAnyCode()).isEqualTo(false);
-    assertThat(anySystemExplicitCodeToken.hasExplicitSystemAndExplicitCode()).isEqualTo(false);
     assertThat(anySystemExplicitCodeToken.hasNoSystem()).isEqualTo(false);
-    assertThat(anySystemExplicitCodeToken.hasNoSystemAndExplicitCode()).isEqualTo(false);
-    assertThat(explicitSystemAnyCodeToken.hasAnySystemAndExplicitCode()).isEqualTo(false);
+    assertThat(anySystemExplicitCodeToken.hasAnyCode()).isEqualTo(false);
+    assertThat(anySystemExplicitCodeToken.hasExplicitCode()).isEqualTo(false);
+
+    assertThat(explicitSystemAnyCodeToken.hasAnySystem()).isEqualTo(false);
     assertThat(explicitSystemAnyCodeToken.hasExplicitSystem()).isEqualTo(true);
-    assertThat(explicitSystemAnyCodeToken.hasExplicitSystemAndAnyCode()).isEqualTo(true);
-    assertThat(explicitSystemAnyCodeToken.hasExplicitSystemAndExplicitCode()).isEqualTo(false);
     assertThat(explicitSystemAnyCodeToken.hasNoSystem()).isEqualTo(false);
-    assertThat(explicitSystemAnyCodeToken.hasNoSystemAndExplicitCode()).isEqualTo(false);
+    assertThat(explicitSystemAnyCodeToken.hasAnyCode()).isEqualTo(true);
+    assertThat(explicitSystemAnyCodeToken.hasExplicitCode()).isEqualTo(false);
   }
 
   @Test
@@ -68,7 +67,7 @@ public class QueryTokenTest {
     Function<String, String> anySystemAndExplicitCode = c -> "c is for " + c;
     Function<String, String> explicitSystemAndAnyCode = s -> "s is for " + s;
     BiFunction<String, String, String> explicitSystemAndExplicitCode =
-        (c, s) -> "s is for " + s + ", c is for " + c;
+        (s, c) -> "c is for " + c + ", s is for " + s;
     assertThat(
             anySystemExplicitCodeToken
                 .behavior()
@@ -84,7 +83,7 @@ public class QueryTokenTest {
                 .onAnySystemAndExplicitCode(anySystemAndExplicitCode)
                 .onExplicitSystemAndExplicitCode(explicitSystemAndExplicitCode)
                 .execute())
-        .isEqualTo("s is for system, c is for code");
+        .isEqualTo("c is for code, s is for system");
     assertThat(
             explicitSystemAnyCodeToken
                 .behavior()
@@ -111,24 +110,24 @@ public class QueryTokenTest {
 
   @Test(expected = ResourceExceptions.BadSearchParameter.class)
   public void parseBlank() {
-    QueryToken.parse("");
+    TokenParameter.parse("");
   }
 
   @Test(expected = ResourceExceptions.BadSearchParameter.class)
   public void parseNull() {
-    QueryToken.parse(null);
+    TokenParameter.parse(null);
   }
 
   @Test(expected = ResourceExceptions.BadSearchParameter.class)
   public void parsePipe() {
-    QueryToken.parse("|");
+    TokenParameter.parse("|");
   }
 
   @Test
   public void validParse() {
-    assertThat(QueryToken.parse("|code")).isEqualTo(noSystemExplicitCodeToken);
-    assertThat(QueryToken.parse("system|")).isEqualTo(explicitSystemAnyCodeToken);
-    assertThat(QueryToken.parse("system|code")).isEqualTo(explicitSystemExplicitCodeToken);
-    assertThat(QueryToken.parse("code")).isEqualTo(anySystemExplicitCodeToken);
+    assertThat(TokenParameter.parse("|code")).isEqualTo(noSystemExplicitCodeToken);
+    assertThat(TokenParameter.parse("system|")).isEqualTo(explicitSystemAnyCodeToken);
+    assertThat(TokenParameter.parse("system|code")).isEqualTo(explicitSystemExplicitCodeToken);
+    assertThat(TokenParameter.parse("code")).isEqualTo(anySystemExplicitCodeToken);
   }
 }

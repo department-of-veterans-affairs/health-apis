@@ -7,9 +7,9 @@ import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.Parameters;
-import gov.va.api.health.dataquery.service.controller.QueryToken;
 import gov.va.api.health.dataquery.service.controller.R4Bundler;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
+import gov.va.api.health.dataquery.service.controller.TokenParameter;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.uscorer4.api.resources.Immunization;
 import java.util.Collection;
@@ -101,7 +101,7 @@ public class R4ImmunizationController {
 
   private Specification<ImmunizationEntity> explicitSystemAndAnyCode(String ignored) {
     /* only one system, return where status is not null */
-    return ImmunizationRepository.SystemSpecification.builder().build();
+    return ImmunizationRepository.AnyCodeSpecification.builder().build();
   }
 
   Specification<ImmunizationEntity> explicitSystemAndExplicitCode(String ignored, String code) {
@@ -196,13 +196,10 @@ public class R4ImmunizationController {
       @RequestParam("status") String status,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
-    QueryToken statusToken = QueryToken.parse(status);
-    if (statusToken.hasExplicitSystem()) {
-      if (!statusToken.system().equals("http://hl7.org/fhir/event-status")) {
-        return Immunization.Bundle.builder().build();
-      }
-    }
-    if (statusToken.hasNoSystem()) {
+    TokenParameter statusToken = TokenParameter.parse(status);
+    if ((statusToken.hasExplicitSystem()
+            && !statusToken.system().equals("http://hl7.org/fhir/event-status"))
+        || statusToken.hasNoSystem()) {
       return Immunization.Bundle.builder().build();
     }
     Specification<ImmunizationEntity> searchSpec =

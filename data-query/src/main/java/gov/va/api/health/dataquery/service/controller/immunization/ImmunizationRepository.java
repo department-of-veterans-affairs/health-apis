@@ -43,10 +43,10 @@ public interface ImmunizationRepository
   }
 
   @Value
-  class SystemSpecification implements Specification<ImmunizationEntity> {
+  class AnyCodeSpecification implements Specification<ImmunizationEntity> {
 
     @Builder
-    private SystemSpecification(String ignored) {}
+    private AnyCodeSpecification() {}
 
     @Override
     public Predicate toPredicate(
