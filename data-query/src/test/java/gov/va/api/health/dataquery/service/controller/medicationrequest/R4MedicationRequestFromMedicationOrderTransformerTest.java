@@ -2,8 +2,10 @@ package gov.va.api.health.dataquery.service.controller.medicationrequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dataquery.service.controller.medicationorder.DatamartMedicationOrder;
 import gov.va.api.health.dataquery.service.controller.medicationorder.MedicationOrderSamples;
+import gov.va.api.health.r4.api.DataAbsentReason;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -81,6 +83,21 @@ public class R4MedicationRequestFromMedicationOrderTransformerTest {
             R4MedicationRequestFromMedicationOrderTransformer.timing(
                 Optional.empty(), instant, emptyOptionalInstant))
         .isNull();
+  }
+
+  @Test
+  public void requesterExtensionTest() {
+    // Null result if requester is valid
+    Optional<String> optRef = Optional.of("RandomRef");
+    Optional<String> optType = Optional.of("RandomType");
+    DatamartReference validRequester =
+        DatamartReference.builder().reference(optRef).type(optType).build();
+    assertThat(R4MedicationRequestFromMedicationOrderTransformer.requesterExtension(validRequester))
+        .isNull();
+    // DataAbsentReason.Reason.unknown if invalid
+    DatamartReference badRequester = null;
+    assertThat(R4MedicationRequestFromMedicationOrderTransformer.requesterExtension(badRequester))
+        .isEqualTo(DataAbsentReason.of(DataAbsentReason.Reason.unknown));
   }
 
   @Test

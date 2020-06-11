@@ -152,27 +152,6 @@ public class R4MedicationRequestControllerTest {
   }
 
   @Test
-  public void zeroCountBundleTest() {
-    DatamartMedicationOrder dm = MedicationOrderSamples.Datamart.create().medicationOrder();
-    repository.save(asEntity(dm));
-    mockMedicationOrderIdentity("1", dm.cdwId());
-
-    MedicationRequest.Bundle actual = controller().searchByPatient("1", 1, 0);
-    assertThat(json(actual))
-            .isEqualTo(
-                    json(
-                            MedicationRequestSamples.R4.asBundle(
-                                    "http://abed.com/cool",
-                                    Collections.emptyList(),
-                                    0,
-                                    MedicationRequestSamples.R4.link(
-                                            BundleLink.LinkRelation.self,
-                                            "http://abed.com/cool/MedicationRequest?patient=1",
-                                            1,
-                                            0))));
-  }
-
-  @Test
   public void searchById() {
     DatamartMedicationOrder dm = MedicationOrderSamples.Datamart.create().medicationOrder();
     repository.save(asEntity(dm));
@@ -213,8 +192,7 @@ public class R4MedicationRequestControllerTest {
     mockMedicationOrderIdentity("1", dm.cdwId());
     MedicationRequest.Bundle actual = controller().searchByIdentifier("1", 1, 1);
     validateSearchByIdResult(dm, actual, true);
-
-    //Invalid search params
+    // Invalid search params
     MedicationRequest.Bundle invalidActual = controller().searchByIdentifier("1", 14, 1);
     validateSearchByIdResult(dm, invalidActual, false);
   }
@@ -271,30 +249,29 @@ public class R4MedicationRequestControllerTest {
                         "http://abed.com/cool/MedicationRequest?intent=order&patient=p0",
                         1,
                         10))));
-
     // Intent != order should return empty
     assertThat(json(controller().searchByPatientAndIntent("p0", "proposal", 1, 10)))
-            .isEqualTo(
-                    json(
-                            MedicationRequestSamples.R4.asBundle(
-                                    "http://abed.com/cool",
-                                    Collections.emptyList(),
-                                    0,
-                                    MedicationRequestSamples.R4.link(
-                                            BundleLink.LinkRelation.first,
-                                            "http://abed.com/cool/MedicationRequest?intent=proposal&patient=p0",
-                                            1,
-                                            10),
-                                    MedicationRequestSamples.R4.link(
-                                            BundleLink.LinkRelation.self,
-                                            "http://abed.com/cool/MedicationRequest?intent=proposal&patient=p0",
-                                            1,
-                                            10),
-                                    MedicationRequestSamples.R4.link(
-                                            BundleLink.LinkRelation.last,
-                                            "http://abed.com/cool/MedicationRequest?intent=proposal&patient=p0",
-                                            0,
-                                            10))));
+        .isEqualTo(
+            json(
+                MedicationRequestSamples.R4.asBundle(
+                    "http://abed.com/cool",
+                    Collections.emptyList(),
+                    0,
+                    MedicationRequestSamples.R4.link(
+                        BundleLink.LinkRelation.first,
+                        "http://abed.com/cool/MedicationRequest?intent=proposal&patient=p0",
+                        1,
+                        10),
+                    MedicationRequestSamples.R4.link(
+                        BundleLink.LinkRelation.self,
+                        "http://abed.com/cool/MedicationRequest?intent=proposal&patient=p0",
+                        1,
+                        10),
+                    MedicationRequestSamples.R4.link(
+                        BundleLink.LinkRelation.last,
+                        "http://abed.com/cool/MedicationRequest?intent=proposal&patient=p0",
+                        0,
+                        10))));
   }
 
   @SneakyThrows
@@ -330,5 +307,25 @@ public class R4MedicationRequestControllerTest {
                         "http://abed.com/cool/MedicationRequest?identifier=1",
                         1,
                         1))));
+  }
+
+  @Test
+  public void zeroCountBundleTest() {
+    DatamartMedicationOrder dm = MedicationOrderSamples.Datamart.create().medicationOrder();
+    repository.save(asEntity(dm));
+    mockMedicationOrderIdentity("1", dm.cdwId());
+    MedicationRequest.Bundle actual = controller().searchByPatient("1", 1, 0);
+    assertThat(json(actual))
+        .isEqualTo(
+            json(
+                MedicationRequestSamples.R4.asBundle(
+                    "http://abed.com/cool",
+                    Collections.emptyList(),
+                    0,
+                    MedicationRequestSamples.R4.link(
+                        BundleLink.LinkRelation.self,
+                        "http://abed.com/cool/MedicationRequest?patient=1",
+                        1,
+                        0))));
   }
 }

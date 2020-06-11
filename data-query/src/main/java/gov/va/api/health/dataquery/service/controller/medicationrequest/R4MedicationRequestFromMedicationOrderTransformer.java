@@ -82,7 +82,6 @@ public class R4MedicationRequestFromMedicationOrderTransformer {
     if (allBlank(maybeDispenseRequest)) {
       return null;
     }
-
     DatamartMedicationOrder.DispenseRequest dispenseRequest = maybeDispenseRequest.get();
     // todo: ignoring supply duration units for now?
     return MedicationRequest.DispenseRequest.builder()
@@ -143,6 +142,13 @@ public class R4MedicationRequestFromMedicationOrderTransformer {
         .build();
   }
 
+  static Extension requesterExtension(DatamartReference requester) {
+    if (requester != null && requester.hasTypeAndReference()) {
+      return null;
+    }
+    return DataAbsentReason.of(DataAbsentReason.Reason.unknown);
+  }
+
   static SimpleQuantity simpleQuantity(Optional<Double> maybeValue, Optional<String> maybeUnit) {
     if (maybeValue.isPresent() || maybeUnit.isPresent()) {
       return SimpleQuantity.builder()
@@ -183,14 +189,6 @@ public class R4MedicationRequestFromMedicationOrderTransformer {
                         .build())
                 .build())
         .build();
-  }
-
-  Extension requesterExtension(DatamartReference requester) {
-    if (requester != null && requester.hasTypeAndReference()) {
-      return null;
-    }
-
-    return DataAbsentReason.of(DataAbsentReason.Reason.unknown);
   }
 
   MedicationRequest toFhir() {

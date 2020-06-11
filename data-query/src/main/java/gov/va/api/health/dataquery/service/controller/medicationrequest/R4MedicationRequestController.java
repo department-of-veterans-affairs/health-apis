@@ -207,12 +207,15 @@ public class R4MedicationRequestController {
               PageRequest.of(
                   page - 1, count == 0 ? 1 : count, MedicationOrderEntity.naturalOrder())));
     } else {
-      return bundle(Parameters.builder()
+      return bundle(
+          Parameters.builder()
               .add("patient", patient)
               .add("intent", intent)
               .add("page", page)
               .add("_count", count)
-              .build(), emptyList(),0);
+              .build(),
+          emptyList(),
+          0);
     }
   }
 
