@@ -41,8 +41,12 @@ public class QueryToken {
     return QueryToken.builder().code(parameter).mode(Mode.ANY_SYSTEM_EXPLICIT_CODE).build();
   }
 
-  public <T> Behavior behavior() {
+  public Behavior behavior() {
     return new Behavior();
+  }
+
+  public boolean hasAnySystemAndExplicitCode() {
+    return mode.equals(Mode.ANY_SYSTEM_EXPLICIT_CODE);
   }
 
   public boolean hasExplicitSystem() {
@@ -50,23 +54,19 @@ public class QueryToken {
         || mode.equals(Mode.EXPLICIT_SYSTEM_EXPLICIT_CODE);
   }
 
+  public boolean hasExplicitSystemAndAnyCode() {
+    return mode.equals(Mode.EXPLICIT_SYSTEM_ANY_CODE);
+  }
+
+  public boolean hasExplicitSystemAndExplicitCode() {
+    return mode.equals(Mode.EXPLICIT_SYSTEM_EXPLICIT_CODE);
+  }
+
   public boolean hasNoSystem() {
     return mode.equals(Mode.NO_SYSTEM_EXPLICIT_CODE);
   }
 
-  public boolean isAnySystemAndExplicitCode() {
-    return mode.equals(Mode.ANY_SYSTEM_EXPLICIT_CODE);
-  }
-
-  public boolean isExplicitSystemAndAnyCode() {
-    return mode.equals(Mode.EXPLICIT_SYSTEM_ANY_CODE);
-  }
-
-  public boolean isExplicitSystemAndExplicitCode() {
-    return mode.equals(Mode.EXPLICIT_SYSTEM_EXPLICIT_CODE);
-  }
-
-  public boolean isNoSystemAndExplicitCode() {
+  public boolean hasNoSystemAndExplicitCode() {
     return mode.equals(Mode.NO_SYSTEM_EXPLICIT_CODE);
   }
 

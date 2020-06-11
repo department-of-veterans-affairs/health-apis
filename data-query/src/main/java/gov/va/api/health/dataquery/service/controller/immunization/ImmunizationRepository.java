@@ -26,13 +26,10 @@ public interface ImmunizationRepository
 
   @Value
   class CodeSpecification implements Specification<ImmunizationEntity> {
-    String patient;
-
     String code;
 
     @Builder
-    private CodeSpecification(String patient, String code) {
-      this.patient = patient;
+    private CodeSpecification(String code) {
       this.code = code;
     }
 
@@ -43,8 +40,28 @@ public interface ImmunizationRepository
         CriteriaBuilder criteriaBuilder) {
 
       List<Predicate> predicates = new ArrayList<>(4);
-      predicates.add(criteriaBuilder.equal(root.get("icn"), patient()));
       predicates.add(criteriaBuilder.equal(root.get("status"), code()));
+      return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+    }
+  }
+
+  @Value
+  class PatientSpecification implements Specification<ImmunizationEntity> {
+    String patient;
+
+    @Builder
+    private PatientSpecification(String patient) {
+      this.patient = patient;
+    }
+
+    @Override
+    public Predicate toPredicate(
+        Root<ImmunizationEntity> root,
+        CriteriaQuery<?> criteriaQuery,
+        CriteriaBuilder criteriaBuilder) {
+
+      List<Predicate> predicates = new ArrayList<>(4);
+      predicates.add(criteriaBuilder.equal(root.get("patient"), patient()));
       return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
     }
   }

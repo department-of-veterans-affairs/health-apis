@@ -210,6 +210,7 @@ public class R4ImmunizationController {
             .add("page", page)
             .add("_count", count)
             .build();
+    searchSpec.and(ImmunizationRepository.PatientSpecification.builder().patient(patient).build());
     Page<ImmunizationEntity> entitiesPage =
         repository.findAll(
             searchSpec,
