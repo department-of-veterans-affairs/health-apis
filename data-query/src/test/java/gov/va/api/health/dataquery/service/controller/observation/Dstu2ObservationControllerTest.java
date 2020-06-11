@@ -58,7 +58,7 @@ public class Dstu2ObservationControllerTest {
         .category(
             dm.category().equals(Category.vital_signs) ? "vital-signs" : dm.category().toString())
         .code(dm.code().get().coding().get().code().get())
-        .epochTime(dm.effectiveDateTime().get().toEpochMilli())
+        .dateUtc(dm.effectiveDateTime().get())
         .payload(JacksonConfig.createMapper().writeValueAsString(dm))
         .build();
   }
