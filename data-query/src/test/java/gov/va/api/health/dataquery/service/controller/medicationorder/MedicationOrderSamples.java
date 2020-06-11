@@ -67,7 +67,7 @@ public class MedicationOrderSamples {
       return medicationOrder("1400181354458:O", "666V666");
     }
 
-    DatamartMedicationOrder medicationOrder(String cdwId, String icn) {
+    public DatamartMedicationOrder medicationOrder(String cdwId, String icn) {
       return DatamartMedicationOrder.builder()
           .cdwId(cdwId)
           .patient(

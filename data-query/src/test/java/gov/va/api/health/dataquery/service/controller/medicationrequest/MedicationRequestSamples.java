@@ -1,6 +1,5 @@
 package gov.va.api.health.dataquery.service.controller.medicationrequest;
 
-import gov.va.api.health.r4.api.DataAbsentReason;
 import gov.va.api.health.r4.api.bundle.BundleLink;
 import gov.va.api.health.r4.api.datatypes.Annotation;
 import gov.va.api.health.r4.api.datatypes.CodeableConcept;
@@ -204,8 +203,8 @@ public class MedicationRequestSamples {
           .subject(reference("Patient/" + patientId, "VETERAN,FARM ACY"))
           .authoredOn("2016-11-17T18:02:04Z")
           .status(MedicationRequest.Status.stopped)
+          .intent(MedicationRequest.Intent.order)
           .requester(reference("Practitioner/1404497883", "HIPPOCRATES,OATH J"))
-          ._requester(DataAbsentReason.of(DataAbsentReason.Reason.unknown))
           .medicationReference(reference("Medication/1400021372", "RIVAROXABAN 15MG TAB"))
           .dosageInstruction(dosageInstructionFromMedicationOrder())
           .dispenseRequest(dispenseRequestFromMedicationOrder())
@@ -231,7 +230,7 @@ public class MedicationRequestSamples {
           .medicationReference(reference("Medication/123456789", "SAW PALMETTO"))
           .dosageInstruction(dosageInstructionFromMedicationStatement())
           .reportedBoolean(true)
-          .intent(MedicationRequest.Intent.plan)
+          .intent(MedicationRequest.Intent.order)
           .build();
     }
 

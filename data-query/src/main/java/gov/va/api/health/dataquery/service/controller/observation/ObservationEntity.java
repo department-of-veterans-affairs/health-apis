@@ -1,6 +1,7 @@
 package gov.va.api.health.dataquery.service.controller.observation;
 
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartEntity;
+import java.time.Instant;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -38,8 +39,8 @@ public class ObservationEntity implements DatamartEntity {
   @Column(name = "Code", nullable = true)
   private String code;
 
-  @Column(name = "Date", nullable = true)
-  private Long epochTime;
+  @Column(name = "DateUTC", nullable = true)
+  private Instant dateUtc;
 
   @Lob
   @Basic(fetch = FetchType.EAGER)
