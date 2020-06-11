@@ -51,11 +51,11 @@ public class MedicationOrderEntity implements DatamartEntity {
   @Column(name = "MedicationOrder")
   private String payload;
 
-  static Sort naturalOrder() {
+  public static Sort naturalOrder() {
     return Sort.by("cdwId").ascending();
   }
 
-  DatamartMedicationOrder asDatamartMedicationOrder() {
+  public DatamartMedicationOrder asDatamartMedicationOrder() {
     return deserializeDatamart(payload, DatamartMedicationOrder.class);
   }
 }
