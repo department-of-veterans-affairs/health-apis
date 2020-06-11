@@ -193,6 +193,33 @@ public class R4MedicationRequestControllerTest {
   }
 
   @Test
+  public void searchByPatient() {
+    Multimap<String, MedicationRequest> medicationRequestByPatient = populateData();
+    assertThat(json(controller().searchByPatient("p0", 1, 10)))
+        .isEqualTo(
+            json(
+                MedicationRequestSamples.R4.asBundle(
+                    "http://abed.com/cool",
+                    medicationRequestByPatient.get("p0"),
+                    medicationRequestByPatient.get("p0").size(),
+                    MedicationRequestSamples.R4.link(
+                        BundleLink.LinkRelation.first,
+                        "http://abed.com/cool/MedicationRequest?patient=p0",
+                        1,
+                        10),
+                    MedicationRequestSamples.R4.link(
+                        BundleLink.LinkRelation.self,
+                        "http://abed.com/cool/MedicationRequest?patient=p0",
+                        1,
+                        10),
+                    MedicationRequestSamples.R4.link(
+                        BundleLink.LinkRelation.last,
+                        "http://abed.com/cool/MedicationRequest?patient=p0",
+                        1,
+                        10))));
+  }
+
+  @Test
   public void searchByPatientAndIntent() {
     Multimap<String, MedicationRequest> medicationRequestByPatientAndIntent = populateData();
     assertThat(json(controller().searchByPatientAndIntent("p0", "order", 1, 10)))

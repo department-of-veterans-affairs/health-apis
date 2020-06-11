@@ -157,8 +157,27 @@ public class R4MedicationRequestController {
     return bundle(parameters, asList(resource), totalRecords);
   }
 
-  /** Search by patient and intent. */
+  /** Search by patient. */
   @GetMapping(params = {"patient"})
+  public MedicationRequest.Bundle searchByPatient(
+      @RequestParam("patient") String patient,
+      @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
+      @CountParameter @Min(0) int count) {
+
+    String icn = witnessProtection.toCdwId(patient);
+
+    log.info("Looking for {} ({})", patient, icn);
+    return bundle(
+        Parameters.builder().add("patient", patient).add("page", page).add("_count", count).build(),
+        count,
+        repository.findByIcn(
+            icn,
+            PageRequest.of(
+                page - 1, count == 0 ? 1 : count, MedicationOrderEntity.naturalOrder())));
+  }
+
+  /** Search by patient and intent. */
+  @GetMapping(params = {"patient", "intent"})
   public MedicationRequest.Bundle searchByPatientAndIntent(
       @RequestParam("patient") String patient,
       @RequestParam("intent") String intent,
