@@ -1,8 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.immunization;
 
 import gov.va.api.health.autoconfig.logging.Loggable;
-import java.util.ArrayList;
-import java.util.List;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
@@ -39,9 +37,25 @@ public interface ImmunizationRepository
         CriteriaQuery<?> criteriaQuery,
         CriteriaBuilder criteriaBuilder) {
 
-      List<Predicate> predicates = new ArrayList<>(4);
-      predicates.add(criteriaBuilder.equal(root.get("status"), code()));
-      return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+      Predicate predicate = criteriaBuilder.equal(root.get("status"), code());
+      return criteriaBuilder.and(predicate);
+    }
+  }
+
+  @Value
+  class SystemSpecification implements Specification<ImmunizationEntity> {
+
+    @Builder
+    private SystemSpecification(String ignored) {}
+
+    @Override
+    public Predicate toPredicate(
+        Root<ImmunizationEntity> root,
+        CriteriaQuery<?> criteriaQuery,
+        CriteriaBuilder criteriaBuilder) {
+
+      Predicate predicate = criteriaBuilder.isNotNull(root.get("status"));
+      return criteriaBuilder.and(predicate);
     }
   }
 
@@ -60,9 +74,8 @@ public interface ImmunizationRepository
         CriteriaQuery<?> criteriaQuery,
         CriteriaBuilder criteriaBuilder) {
 
-      List<Predicate> predicates = new ArrayList<>(4);
-      predicates.add(criteriaBuilder.equal(root.get("patient"), patient()));
-      return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+      Predicate predicate = criteriaBuilder.equal(root.get("patient"), patient());
+      return criteriaBuilder.and(predicate);
     }
   }
 }

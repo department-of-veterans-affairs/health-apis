@@ -36,7 +36,7 @@ public class QueryToken {
     }
     if (parameter.contains("|")) {
       return QueryToken.builder()
-          .system(parameter.substring(0, parameter.indexOf("|") - 1))
+          .system(parameter.substring(0, parameter.indexOf("|")))
           .code(parameter.substring((parameter.indexOf("|") + 1)))
           .mode(Mode.EXPLICIT_SYSTEM_EXPLICIT_CODE)
           .build();
@@ -72,7 +72,7 @@ public class QueryToken {
     return mode == Mode.NO_SYSTEM_EXPLICIT_CODE;
   }
 
-  private enum Mode {
+  public enum Mode {
     EXPLICIT_SYSTEM_EXPLICIT_CODE,
     EXPLICIT_SYSTEM_ANY_CODE,
     ANY_SYSTEM_EXPLICIT_CODE,
@@ -84,6 +84,10 @@ public class QueryToken {
       return new Behavior<T>().onAnySystemAndExplicitCode(action);
     }
 
+    public <T> Behavior<T> onExplicitSystemAndAnyCode(Function<String, T> action) {
+      return new Behavior<T>().onExplicitSystemAndAnyCode(action);
+    }
+
     public <T> Behavior<T> onExplicitSystemAndExplicitCode(BiFunction<String, String, T> action) {
       return new Behavior<T>().onExplicitSystemAndExplicitCode(action);
     }
@@ -92,13 +96,30 @@ public class QueryToken {
   public class Behavior<T> {
     private BiFunction<String, String, T> explicitSystemAndExplicitCode;
     private Function<String, T> anySystemAndExplicitCode;
+    private Function<String, T> explicitSystemAndAnyCode;
 
+    /** Execute correct behavior based on the mode of the token. */
+    @SneakyThrows
     public T execute() {
-      return explicitSystemAndExplicitCode.apply(code, system);
+      if (hasAnySystemAndExplicitCode()) {
+        return anySystemAndExplicitCode.apply(code);
+      }
+      if (hasExplicitSystemAndAnyCode()) {
+        return explicitSystemAndAnyCode.apply(system);
+      }
+      if (hasExplicitSystemAndExplicitCode()) {
+        return explicitSystemAndExplicitCode.apply(code, system);
+      }
+      throw new IllegalStateException("QueryToken in unsupported mode : " + mode);
     }
 
     public Behavior<T> onAnySystemAndExplicitCode(Function<String, T> action) {
       anySystemAndExplicitCode = action;
+      return this;
+    }
+
+    public Behavior<T> onExplicitSystemAndAnyCode(Function<String, T> action) {
+      explicitSystemAndAnyCode = action;
       return this;
     }
 

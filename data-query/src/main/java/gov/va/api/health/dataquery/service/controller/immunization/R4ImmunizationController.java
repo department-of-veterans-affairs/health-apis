@@ -62,7 +62,7 @@ public class R4ImmunizationController {
   }
 
   private Specification<ImmunizationEntity> anySystemAndExplicitCode(String code) {
-    return null;
+    return ImmunizationRepository.CodeSpecification.builder().code(code).build();
   }
 
   private Immunization.Bundle bundle(
@@ -97,6 +97,11 @@ public class R4ImmunizationController {
             .map(this::transform)
             .collect(Collectors.toList()),
         (int) entities.getTotalElements());
+  }
+
+  private Specification<ImmunizationEntity> explicitSystemAndAnyCode(String ignored) {
+    /* only one system, return where status is not null */
+    return ImmunizationRepository.SystemSpecification.builder().build();
   }
 
   Specification<ImmunizationEntity> explicitSystemAndExplicitCode(String ignored, String code) {
@@ -205,6 +210,7 @@ public class R4ImmunizationController {
             .behavior()
             .onExplicitSystemAndExplicitCode(this::explicitSystemAndExplicitCode)
             .onAnySystemAndExplicitCode(this::anySystemAndExplicitCode)
+            .onExplicitSystemAndAnyCode(this::explicitSystemAndAnyCode)
             .execute();
     String icn = witnessProtection.toCdwId(patient);
     log.info("Looking for {} ({})", patient, icn);
