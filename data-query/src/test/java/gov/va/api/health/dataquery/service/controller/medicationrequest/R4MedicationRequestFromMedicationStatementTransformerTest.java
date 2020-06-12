@@ -1,45 +1,46 @@
 package gov.va.api.health.dataquery.service.controller.medicationrequest;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import gov.va.api.health.dataquery.service.controller.medicationstatement.DatamartMedicationStatement;
 import gov.va.api.health.dataquery.service.controller.medicationstatement.MedicationStatementSamples;
 import gov.va.api.health.uscorer4.api.resources.MedicationRequest;
 import java.util.Optional;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class R4MedicationRequestFromMedicationStatementTransformerTest {
+  @Test
+  public void noOptionalNote() {
+    assertNull(R4MedicationRequestFromMedicationStatementTransformer.note(Optional.empty()));
+  }
 
   @Test
   public void nullDosageInstructionTest() {
-    assertThat(
-            R4MedicationRequestFromMedicationStatementTransformer.dosageInstructionConverter(
-                Optional.empty(), null))
-        .isNull();
+    assertNull(
+        R4MedicationRequestFromMedicationStatementTransformer.dosageInstructionConverter(
+            Optional.empty(), null));
   }
 
   @Test
   public void statusTests() {
-
     DatamartMedicationStatement.Status status = null;
-
-    assertThat(R4MedicationRequestFromMedicationStatementTransformer.status(status)).isNull();
-
+    assertNull(R4MedicationRequestFromMedicationStatementTransformer.status(status));
     status = DatamartMedicationStatement.Status.active;
-    assertThat(R4MedicationRequestFromMedicationStatementTransformer.status(status))
-        .isEqualTo(MedicationRequest.Status.active);
+    assertEquals(
+        R4MedicationRequestFromMedicationStatementTransformer.status(status),
+        MedicationRequest.Status.active);
   }
 
   @Test
   public void toFhir() {
     DatamartMedicationStatement dms =
         MedicationStatementSamples.Datamart.create().medicationStatement();
-
-    assertThat(
-            R4MedicationRequestFromMedicationStatementTransformer.builder()
-                .datamart(dms)
-                .build()
-                .toFhir())
-        .isEqualTo(MedicationRequestSamples.R4.create().medicationRequestFromMedicationStatement());
+    assertEquals(
+        R4MedicationRequestFromMedicationStatementTransformer.builder()
+            .datamart(dms)
+            .build()
+            .toFhir(),
+        MedicationRequestSamples.R4.create().medicationRequestFromMedicationStatement());
   }
 }

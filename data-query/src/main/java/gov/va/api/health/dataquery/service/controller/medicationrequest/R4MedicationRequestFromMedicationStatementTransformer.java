@@ -24,7 +24,8 @@ public class R4MedicationRequestFromMedicationStatementTransformer {
 
   static List<Dosage> dosageInstructionConverter(
       Optional<Instant> effectiveDate, DatamartMedicationStatement.Dosage dosage) {
-    if (allBlank(dosage)) {
+    if (dosage == null
+        || allBlank(dosage.text(), dosage.timingCodeText(), dosage.routeText(), effectiveDate)) {
       return null;
     }
     return List.of(
