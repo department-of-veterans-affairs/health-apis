@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.medicationrequest;
 
+import gov.va.api.health.r4.api.DataAbsentReason;
 import gov.va.api.health.r4.api.bundle.BundleLink;
 import gov.va.api.health.r4.api.datatypes.Annotation;
 import gov.va.api.health.r4.api.datatypes.CodeableConcept;
@@ -230,7 +231,8 @@ public class MedicationRequestSamples {
           .medicationReference(reference("Medication/123456789", "SAW PALMETTO"))
           .dosageInstruction(dosageInstructionFromMedicationStatement())
           .reportedBoolean(true)
-          .intent(MedicationRequest.Intent.order)
+          .intent(MedicationRequest.Intent.plan)
+          ._requester(DataAbsentReason.of(DataAbsentReason.Reason.unknown))
           .build();
     }
 
