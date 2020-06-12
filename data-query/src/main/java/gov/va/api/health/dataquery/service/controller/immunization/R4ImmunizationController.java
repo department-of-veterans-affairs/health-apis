@@ -182,15 +182,16 @@ public class R4ImmunizationController {
       @RequestParam("status") String status,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
-    TokenParameter statusToken = TokenParameter.parse(status);
+    TokenParameter<Specification<ImmunizationEntity>> statusToken = TokenParameter.parse(status);
     if ((statusToken.hasExplicitSystem()
             && !statusToken.system().equals("http://hl7.org/fhir/event-status"))
         || statusToken.hasNoSystem()) {
       return Immunization.Bundle.builder().build();
     }
+
     Specification<ImmunizationEntity> searchSpec =
         statusToken
-            .<Specification<ImmunizationEntity>>behavior()
+            .behavior()
             .onExplicitSystemAndExplicitCode(
                 (s, c) -> ImmunizationRepository.CodeSpecification.builder().code(c).build())
             .onAnySystemAndExplicitCode(

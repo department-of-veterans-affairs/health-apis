@@ -11,7 +11,7 @@ import lombok.Value;
 
 @Builder
 @Value
-public class TokenParameter {
+public class TokenParameter<T> {
   String system;
 
   String code;
@@ -20,33 +20,33 @@ public class TokenParameter {
 
   /** Create a QueryToken from a token search parameter. */
   @SneakyThrows
-  public static TokenParameter parse(String parameter) {
+  public static <T> TokenParameter<T> parse(String parameter) {
     if (isBlank(parameter) || parameter.equals("|")) {
       throw new ResourceExceptions.BadSearchParameter(parameter);
     }
     if (parameter.startsWith("|")) {
-      return TokenParameter.builder()
+      return TokenParameter.<T>builder()
           .code(parameter.substring(1))
           .mode(Mode.NO_SYSTEM_EXPLICIT_CODE)
           .build();
     }
     if (parameter.endsWith("|")) {
-      return TokenParameter.builder()
+      return TokenParameter.<T>builder()
           .system(parameter.substring(0, parameter.length() - 1))
           .mode(Mode.EXPLICIT_SYSTEM_ANY_CODE)
           .build();
     }
     if (parameter.contains("|")) {
-      return TokenParameter.builder()
+      return TokenParameter.<T>builder()
           .system(parameter.substring(0, parameter.indexOf("|")))
           .code(parameter.substring((parameter.indexOf("|") + 1)))
           .mode(Mode.EXPLICIT_SYSTEM_EXPLICIT_CODE)
           .build();
     }
-    return TokenParameter.builder().code(parameter).mode(Mode.ANY_SYSTEM_EXPLICIT_CODE).build();
+    return TokenParameter.<T>builder().code(parameter).mode(Mode.ANY_SYSTEM_EXPLICIT_CODE).build();
   }
 
-  public <T> Behavior.BehaviorBuilder<T> behavior() {
+  public Behavior.BehaviorBuilder<T> behavior() {
     return Behavior.<T>builder().tokenParameter(this);
   }
 
@@ -77,6 +77,7 @@ public class TokenParameter {
     NO_SYSTEM_EXPLICIT_CODE
   }
 
+  @Value
   @Builder
   public static class Behavior<T> {
     private BiFunction<String, String, T> onExplicitSystemAndExplicitCode;
@@ -85,7 +86,7 @@ public class TokenParameter {
 
     private Function<String, T> onExplicitSystemAndAnyCode;
 
-    private TokenParameter tokenParameter;
+    private TokenParameter<T> tokenParameter;
 
     /** Execute correct behavior based on the mode of the token. */
     @SneakyThrows
