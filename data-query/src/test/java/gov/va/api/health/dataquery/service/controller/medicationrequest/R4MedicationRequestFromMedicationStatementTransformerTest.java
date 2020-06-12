@@ -30,6 +30,10 @@ public class R4MedicationRequestFromMedicationStatementTransformerTest {
     assertEquals(
         R4MedicationRequestFromMedicationStatementTransformer.status(status),
         MedicationRequest.Status.active);
+    status = DatamartMedicationStatement.Status.completed;
+    assertEquals(
+        R4MedicationRequestFromMedicationStatementTransformer.status(status),
+        MedicationRequest.Status.completed);
   }
 
   @Test
