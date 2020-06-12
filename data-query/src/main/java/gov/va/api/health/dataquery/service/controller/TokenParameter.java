@@ -46,8 +46,8 @@ public class TokenParameter {
     return TokenParameter.builder().code(parameter).mode(Mode.ANY_SYSTEM_EXPLICIT_CODE).build();
   }
 
-  public BehaviorStemCell behavior() {
-    return new BehaviorStemCell();
+  public <T> Behavior.BehaviorBuilder<T> behavior() {
+    return Behavior.<T>builder().tokenParameter(this);
   }
 
   public boolean hasAnyCode() {
@@ -77,55 +77,30 @@ public class TokenParameter {
     NO_SYSTEM_EXPLICIT_CODE
   }
 
-  public class BehaviorStemCell {
-    public <T> Behavior<T> onAnySystemAndExplicitCode(Function<String, T> action) {
-      return new Behavior<T>().onAnySystemAndExplicitCode(action);
-    }
+  @Builder
+  public static class Behavior<T> {
+    private BiFunction<String, String, T> onExplicitSystemAndExplicitCode;
 
-    public <T> Behavior<T> onExplicitSystemAndAnyCode(Function<String, T> action) {
-      return new Behavior<T>().onExplicitSystemAndAnyCode(action);
-    }
+    private Function<String, T> onAnySystemAndExplicitCode;
 
-    public <T> Behavior<T> onExplicitSystemAndExplicitCode(BiFunction<String, String, T> action) {
-      return new Behavior<T>().onExplicitSystemAndExplicitCode(action);
-    }
-  }
+    private Function<String, T> onExplicitSystemAndAnyCode;
 
-  public class Behavior<T> {
-    private BiFunction<String, String, T> explicitSystemAndExplicitCode;
-
-    private Function<String, T> anySystemAndExplicitCode;
-
-    private Function<String, T> explicitSystemAndAnyCode;
+    private TokenParameter tokenParameter;
 
     /** Execute correct behavior based on the mode of the token. */
     @SneakyThrows
     public T execute() {
-      switch (mode) {
+      switch (tokenParameter.mode) {
         case ANY_SYSTEM_EXPLICIT_CODE:
-          return anySystemAndExplicitCode.apply(code);
+          return onAnySystemAndExplicitCode.apply(tokenParameter.code);
         case EXPLICIT_SYSTEM_ANY_CODE:
-          return explicitSystemAndAnyCode.apply(system);
+          return onExplicitSystemAndAnyCode.apply(tokenParameter.system);
         case EXPLICIT_SYSTEM_EXPLICIT_CODE:
-          return explicitSystemAndExplicitCode.apply(system, code);
+          return onExplicitSystemAndExplicitCode.apply(tokenParameter.system, tokenParameter.code);
         default:
-          throw new IllegalStateException("QueryToken in unsupported mode : " + mode);
+          throw new IllegalStateException(
+              "QueryToken in unsupported mode : " + tokenParameter.mode);
       }
-    }
-
-    public Behavior<T> onAnySystemAndExplicitCode(Function<String, T> action) {
-      anySystemAndExplicitCode = action;
-      return this;
-    }
-
-    public Behavior<T> onExplicitSystemAndAnyCode(Function<String, T> action) {
-      explicitSystemAndAnyCode = action;
-      return this;
-    }
-
-    public Behavior<T> onExplicitSystemAndExplicitCode(BiFunction<String, String, T> action) {
-      explicitSystemAndExplicitCode = action;
-      return this;
     }
   }
 }

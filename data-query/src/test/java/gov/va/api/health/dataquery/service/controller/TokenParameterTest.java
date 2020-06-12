@@ -70,26 +70,29 @@ public class TokenParameterTest {
         (s, c) -> "c is for " + c + ", s is for " + s;
     assertThat(
             anySystemExplicitCodeToken
-                .behavior()
+                .<String>behavior()
                 .onAnySystemAndExplicitCode(anySystemAndExplicitCode)
                 .onExplicitSystemAndAnyCode(explicitSystemAndAnyCode)
                 .onExplicitSystemAndExplicitCode(explicitSystemAndExplicitCode)
+                .build()
                 .execute())
         .isEqualTo("c is for code");
     assertThat(
             explicitSystemExplicitCodeToken
-                .behavior()
+                .<String>behavior()
                 .onExplicitSystemAndAnyCode(explicitSystemAndAnyCode)
                 .onAnySystemAndExplicitCode(anySystemAndExplicitCode)
                 .onExplicitSystemAndExplicitCode(explicitSystemAndExplicitCode)
+                .build()
                 .execute())
         .isEqualTo("c is for code, s is for system");
     assertThat(
             explicitSystemAnyCodeToken
-                .behavior()
+                .<String>behavior()
                 .onExplicitSystemAndExplicitCode(explicitSystemAndExplicitCode)
                 .onAnySystemAndExplicitCode(anySystemAndExplicitCode)
                 .onExplicitSystemAndAnyCode(explicitSystemAndAnyCode)
+                .build()
                 .execute())
         .isEqualTo("s is for system");
   }
@@ -101,10 +104,11 @@ public class TokenParameterTest {
     BiFunction<String, String, String> explicitSystemAndExplicitCode =
         (c, s) -> "s is for " + s + ", c is for " + c;
     noSystemExplicitCodeToken
-        .behavior()
+        .<String>behavior()
         .onAnySystemAndExplicitCode(anySystemAndExplicitCode)
         .onExplicitSystemAndAnyCode(explicitSystemAndAnyCode)
         .onExplicitSystemAndExplicitCode(explicitSystemAndExplicitCode)
+        .build()
         .execute();
   }
 

@@ -61,10 +61,6 @@ public class R4ImmunizationController {
     this.witnessProtection = witnessProtection;
   }
 
-  private Specification<ImmunizationEntity> anySystemAndExplicitCode(String code) {
-    return ImmunizationRepository.CodeSpecification.builder().code(code).build();
-  }
-
   private Immunization.Bundle bundle(
       MultiValueMap<String, String> parameters, List<Immunization> reports, int totalRecords) {
     log.info("Search {} found {} results", parameters, totalRecords);
@@ -97,16 +93,6 @@ public class R4ImmunizationController {
             .map(this::transform)
             .collect(Collectors.toList()),
         (int) entities.getTotalElements());
-  }
-
-  private Specification<ImmunizationEntity> explicitSystemAndAnyCode(String ignored) {
-    /* only one system, return where status is not null */
-    return ImmunizationRepository.AnyCodeSpecification.builder().build();
-  }
-
-  Specification<ImmunizationEntity> explicitSystemAndExplicitCode(String ignored, String code) {
-    /* only one system, and it isnt needed to find the code stored under status in the database */
-    return ImmunizationRepository.CodeSpecification.builder().code(code).build();
   }
 
   private ImmunizationEntity findEntityById(String publicId) {
@@ -204,11 +190,16 @@ public class R4ImmunizationController {
     }
     Specification<ImmunizationEntity> searchSpec =
         statusToken
-            .behavior()
-            .onExplicitSystemAndExplicitCode(this::explicitSystemAndExplicitCode)
-            .onAnySystemAndExplicitCode(this::anySystemAndExplicitCode)
-            .onExplicitSystemAndAnyCode(this::explicitSystemAndAnyCode)
+            .<Specification<ImmunizationEntity>>behavior()
+            .onExplicitSystemAndExplicitCode(
+                (s, c) -> ImmunizationRepository.CodeSpecification.builder().code(c).build())
+            .onAnySystemAndExplicitCode(
+                c -> ImmunizationRepository.CodeSpecification.builder().code(c).build())
+            .onExplicitSystemAndAnyCode(
+                s -> ImmunizationRepository.AnyCodeSpecification.builder().build())
+            .build()
             .execute();
+
     String icn = witnessProtection.toCdwId(patient);
     log.info("Looking for {} ({})", patient, icn);
     MultiValueMap<String, String> parameters =
