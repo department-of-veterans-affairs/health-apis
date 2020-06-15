@@ -184,7 +184,7 @@ public class R4ImmunizationController {
       @CountParameter @Min(0) int count) {
     TokenParameter<Specification<ImmunizationEntity>> statusToken = TokenParameter.parse(status);
     if ((statusToken.hasExplicitSystem()
-            && !statusToken.system().equals("http://hl7.org/fhir/event-status"))
+            && !statusToken.hasAllowedSystem("http://hl7.org/fhir/event-status"))
         || statusToken.hasNoSystem()) {
       return Immunization.Bundle.builder().build();
     }

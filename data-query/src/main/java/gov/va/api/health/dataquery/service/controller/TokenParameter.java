@@ -50,6 +50,10 @@ public class TokenParameter<T> {
     return Behavior.<T>builder().tokenParameter(this);
   }
 
+  public boolean hasAllowedSystem(String allowedSystem) {
+    return allowedSystem.equals(system);
+  }
+
   public boolean hasAnyCode() {
     return mode == Mode.EXPLICIT_SYSTEM_ANY_CODE;
   }
@@ -86,6 +90,8 @@ public class TokenParameter<T> {
 
     private Function<String, T> onExplicitSystemAndAnyCode;
 
+    private Function<String, T> onNoSystemAndExplicitCode;
+
     private TokenParameter<T> tokenParameter;
 
     /** Execute correct behavior based on the mode of the token. */
@@ -98,6 +104,8 @@ public class TokenParameter<T> {
           return onExplicitSystemAndAnyCode.apply(tokenParameter.system);
         case EXPLICIT_SYSTEM_EXPLICIT_CODE:
           return onExplicitSystemAndExplicitCode.apply(tokenParameter.system, tokenParameter.code);
+        case NO_SYSTEM_EXPLICIT_CODE:
+          return onNoSystemAndExplicitCode.apply(tokenParameter.code);
         default:
           throw new IllegalStateException(
               "QueryToken in unsupported mode : " + tokenParameter.mode);

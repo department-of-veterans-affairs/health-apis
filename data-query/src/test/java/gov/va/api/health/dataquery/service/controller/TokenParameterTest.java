@@ -35,28 +35,40 @@ public class TokenParameterTest {
           .mode(TokenParameter.Mode.ANY_SYSTEM_EXPLICIT_CODE)
           .build();
 
+  Function<String, String> anySystemAndExplicitCode = c -> "c is for " + c;
+  Function<String, String> explicitSystemAndAnyCode = s -> "s is for " + s;
+  Function<String, String> noSystemAndExplicitCode = c -> "c is for " + c;
+  BiFunction<String, String, String> explicitSystemAndExplicitCode =
+      (s, c) -> "s is for " + s + ", c is for " + c;
+
   @Test
   public void booleanSupport() {
     assertThat(noSystemExplicitCodeToken.hasAnySystem()).isEqualTo(false);
     assertThat(noSystemExplicitCodeToken.hasExplicitSystem()).isEqualTo(false);
+    assertThat(noSystemExplicitCodeToken.hasAllowedSystem("system")).isEqualTo(false);
     assertThat(noSystemExplicitCodeToken.hasNoSystem()).isEqualTo(true);
     assertThat(noSystemExplicitCodeToken.hasAnyCode()).isEqualTo(false);
     assertThat(noSystemExplicitCodeToken.hasExplicitCode()).isEqualTo(true);
 
     assertThat(explicitSystemExplicitCodeToken.hasAnySystem()).isEqualTo(false);
     assertThat(explicitSystemExplicitCodeToken.hasExplicitSystem()).isEqualTo(true);
+    assertThat(explicitSystemExplicitCodeToken.hasAllowedSystem("system")).isEqualTo(true);
+    assertThat(explicitSystemExplicitCodeToken.hasAllowedSystem("notsystem")).isEqualTo(false);
     assertThat(explicitSystemExplicitCodeToken.hasNoSystem()).isEqualTo(false);
     assertThat(explicitSystemExplicitCodeToken.hasAnyCode()).isEqualTo(false);
     assertThat(explicitSystemExplicitCodeToken.hasExplicitCode()).isEqualTo(true);
 
     assertThat(anySystemExplicitCodeToken.hasAnySystem()).isEqualTo(true);
     assertThat(anySystemExplicitCodeToken.hasExplicitSystem()).isEqualTo(false);
+    assertThat(anySystemExplicitCodeToken.hasAllowedSystem("system")).isEqualTo(false);
     assertThat(anySystemExplicitCodeToken.hasNoSystem()).isEqualTo(false);
     assertThat(anySystemExplicitCodeToken.hasAnyCode()).isEqualTo(false);
     assertThat(anySystemExplicitCodeToken.hasExplicitCode()).isEqualTo(false);
 
     assertThat(explicitSystemAnyCodeToken.hasAnySystem()).isEqualTo(false);
     assertThat(explicitSystemAnyCodeToken.hasExplicitSystem()).isEqualTo(true);
+    assertThat(explicitSystemAnyCodeToken.hasAllowedSystem("system")).isEqualTo(true);
+    assertThat(explicitSystemAnyCodeToken.hasAllowedSystem("notsystem")).isEqualTo(false);
     assertThat(explicitSystemAnyCodeToken.hasNoSystem()).isEqualTo(false);
     assertThat(explicitSystemAnyCodeToken.hasAnyCode()).isEqualTo(true);
     assertThat(explicitSystemAnyCodeToken.hasExplicitCode()).isEqualTo(false);
@@ -64,16 +76,13 @@ public class TokenParameterTest {
 
   @Test
   public void execute() {
-    Function<String, String> anySystemAndExplicitCode = c -> "c is for " + c;
-    Function<String, String> explicitSystemAndAnyCode = s -> "s is for " + s;
-    BiFunction<String, String, String> explicitSystemAndExplicitCode =
-        (s, c) -> "c is for " + c + ", s is for " + s;
     assertThat(
             anySystemExplicitCodeToken
                 .behavior()
                 .onAnySystemAndExplicitCode(anySystemAndExplicitCode)
                 .onExplicitSystemAndAnyCode(explicitSystemAndAnyCode)
                 .onExplicitSystemAndExplicitCode(explicitSystemAndExplicitCode)
+                .onNoSystemAndExplicitCode(noSystemAndExplicitCode)
                 .build()
                 .execute())
         .isEqualTo("c is for code");
@@ -83,33 +92,30 @@ public class TokenParameterTest {
                 .onExplicitSystemAndAnyCode(explicitSystemAndAnyCode)
                 .onAnySystemAndExplicitCode(anySystemAndExplicitCode)
                 .onExplicitSystemAndExplicitCode(explicitSystemAndExplicitCode)
+                .onNoSystemAndExplicitCode(noSystemAndExplicitCode)
                 .build()
                 .execute())
-        .isEqualTo("c is for code, s is for system");
+        .isEqualTo("s is for system, c is for code");
     assertThat(
             explicitSystemAnyCodeToken
                 .behavior()
                 .onExplicitSystemAndExplicitCode(explicitSystemAndExplicitCode)
                 .onAnySystemAndExplicitCode(anySystemAndExplicitCode)
                 .onExplicitSystemAndAnyCode(explicitSystemAndAnyCode)
+                .onNoSystemAndExplicitCode(noSystemAndExplicitCode)
                 .build()
                 .execute())
         .isEqualTo("s is for system");
-  }
-
-  @Test(expected = IllegalStateException.class)
-  public void invalidStateExecute() {
-    Function<String, String> anySystemAndExplicitCode = c -> "c is for " + c;
-    Function<String, String> explicitSystemAndAnyCode = s -> "s is for " + s;
-    BiFunction<String, String, String> explicitSystemAndExplicitCode =
-        (c, s) -> "s is for " + s + ", c is for " + c;
-    noSystemExplicitCodeToken
-        .behavior()
-        .onAnySystemAndExplicitCode(anySystemAndExplicitCode)
-        .onExplicitSystemAndAnyCode(explicitSystemAndAnyCode)
-        .onExplicitSystemAndExplicitCode(explicitSystemAndExplicitCode)
-        .build()
-        .execute();
+    assertThat(
+            noSystemExplicitCodeToken
+                .behavior()
+                .onAnySystemAndExplicitCode(anySystemAndExplicitCode)
+                .onExplicitSystemAndAnyCode(explicitSystemAndAnyCode)
+                .onExplicitSystemAndExplicitCode(explicitSystemAndExplicitCode)
+                .onNoSystemAndExplicitCode(noSystemAndExplicitCode)
+                .build()
+                .execute())
+        .isEqualTo("c is for code");
   }
 
   @Test(expected = ResourceExceptions.BadSearchParameter.class)
