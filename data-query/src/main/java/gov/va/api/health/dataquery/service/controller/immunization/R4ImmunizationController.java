@@ -61,6 +61,11 @@ public class R4ImmunizationController {
     this.witnessProtection = witnessProtection;
   }
 
+  private static Specification<ImmunizationEntity> anyCodeSpec(
+      @SuppressWarnings("unused") String unused) {
+    return ImmunizationRepository.AnyCodeSpecification.builder().build();
+  }
+
   private Immunization.Bundle bundle(
       MultiValueMap<String, String> parameters, List<Immunization> reports, int totalRecords) {
     log.info("Search {} found {} results", parameters, totalRecords);
@@ -182,25 +187,22 @@ public class R4ImmunizationController {
       @RequestParam("status") String status,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
-    TokenParameter<Specification<ImmunizationEntity>> statusToken = TokenParameter.parse(status);
+    TokenParameter statusToken = TokenParameter.parse(status);
     if ((statusToken.hasExplicitSystem()
             && !statusToken.hasAllowedSystem("http://hl7.org/fhir/event-status"))
         || statusToken.hasNoSystem()) {
       return Immunization.Bundle.builder().build();
     }
-
     Specification<ImmunizationEntity> searchSpec =
         statusToken
             .behavior()
+            .onExplicitSystemAndAnyCode(s -> anyCodeSpec(s))
             .onExplicitSystemAndExplicitCode(
                 (s, c) -> ImmunizationRepository.CodeSpecification.builder().code(c).build())
             .onAnySystemAndExplicitCode(
                 c -> ImmunizationRepository.CodeSpecification.builder().code(c).build())
-            .onExplicitSystemAndAnyCode(
-                s -> ImmunizationRepository.AnyCodeSpecification.builder().build())
             .build()
             .execute();
-
     String icn = witnessProtection.toCdwId(patient);
     log.info("Looking for {} ({})", patient, icn);
     MultiValueMap<String, String> parameters =

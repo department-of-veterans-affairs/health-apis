@@ -7,29 +7,29 @@ import java.util.function.Function;
 import org.junit.Test;
 
 public class TokenParameterTest {
-  TokenParameter<String> noSystemExplicitCodeToken =
-      TokenParameter.<String>builder()
+  TokenParameter noSystemExplicitCodeToken =
+      TokenParameter.builder()
           .code("code")
           .system(null)
           .mode(TokenParameter.Mode.NO_SYSTEM_EXPLICIT_CODE)
           .build();
 
-  TokenParameter<String> explicitSystemAnyCodeToken =
-      TokenParameter.<String>builder()
+  TokenParameter explicitSystemAnyCodeToken =
+      TokenParameter.builder()
           .code(null)
           .system("system")
           .mode(TokenParameter.Mode.EXPLICIT_SYSTEM_ANY_CODE)
           .build();
 
-  TokenParameter<String> explicitSystemExplicitCodeToken =
-      TokenParameter.<String>builder()
+  TokenParameter explicitSystemExplicitCodeToken =
+      TokenParameter.builder()
           .code("code")
           .system("system")
           .mode(TokenParameter.Mode.EXPLICIT_SYSTEM_EXPLICIT_CODE)
           .build();
 
-  TokenParameter<String> anySystemExplicitCodeToken =
-      TokenParameter.<String>builder()
+  TokenParameter anySystemExplicitCodeToken =
+      TokenParameter.builder()
           .code("code")
           .system(null)
           .mode(TokenParameter.Mode.ANY_SYSTEM_EXPLICIT_CODE)

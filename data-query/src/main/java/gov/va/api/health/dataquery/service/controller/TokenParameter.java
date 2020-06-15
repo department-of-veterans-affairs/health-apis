@@ -9,9 +9,9 @@ import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.Value;
 
-@Builder
 @Value
-public class TokenParameter<T> {
+@Builder
+public class TokenParameter {
   String system;
 
   String code;
@@ -20,34 +20,34 @@ public class TokenParameter<T> {
 
   /** Create a QueryToken from a token search parameter. */
   @SneakyThrows
-  public static <T> TokenParameter<T> parse(String parameter) {
+  public static TokenParameter parse(String parameter) {
     if (isBlank(parameter) || parameter.equals("|")) {
       throw new ResourceExceptions.BadSearchParameter(parameter);
     }
     if (parameter.startsWith("|")) {
-      return TokenParameter.<T>builder()
+      return TokenParameter.builder()
           .code(parameter.substring(1))
           .mode(Mode.NO_SYSTEM_EXPLICIT_CODE)
           .build();
     }
     if (parameter.endsWith("|")) {
-      return TokenParameter.<T>builder()
+      return TokenParameter.builder()
           .system(parameter.substring(0, parameter.length() - 1))
           .mode(Mode.EXPLICIT_SYSTEM_ANY_CODE)
           .build();
     }
     if (parameter.contains("|")) {
-      return TokenParameter.<T>builder()
+      return TokenParameter.builder()
           .system(parameter.substring(0, parameter.indexOf("|")))
           .code(parameter.substring((parameter.indexOf("|") + 1)))
           .mode(Mode.EXPLICIT_SYSTEM_EXPLICIT_CODE)
           .build();
     }
-    return TokenParameter.<T>builder().code(parameter).mode(Mode.ANY_SYSTEM_EXPLICIT_CODE).build();
+    return TokenParameter.builder().code(parameter).mode(Mode.ANY_SYSTEM_EXPLICIT_CODE).build();
   }
 
-  public Behavior.BehaviorBuilder<T> behavior() {
-    return Behavior.<T>builder().tokenParameter(this);
+  public BehaviorStemCell behavior() {
+    return new BehaviorStemCell();
   }
 
   public boolean hasAllowedSystem(String allowedSystem) {
@@ -75,41 +75,59 @@ public class TokenParameter<T> {
   }
 
   public enum Mode {
-    EXPLICIT_SYSTEM_EXPLICIT_CODE,
-    EXPLICIT_SYSTEM_ANY_CODE,
     ANY_SYSTEM_EXPLICIT_CODE,
+    EXPLICIT_SYSTEM_ANY_CODE,
+    EXPLICIT_SYSTEM_EXPLICIT_CODE,
     NO_SYSTEM_EXPLICIT_CODE
   }
 
   @Value
   @Builder
-  public static class Behavior<T> {
-    private BiFunction<String, String, T> onExplicitSystemAndExplicitCode;
+  public static final class Behavior<T> {
+    @NonNull private TokenParameter token;
 
     private Function<String, T> onAnySystemAndExplicitCode;
 
     private Function<String, T> onExplicitSystemAndAnyCode;
 
-    private Function<String, T> onNoSystemAndExplicitCode;
+    private BiFunction<String, String, T> onExplicitSystemAndExplicitCode;
 
-    private TokenParameter<T> tokenParameter;
+    private Function<String, T> onNoSystemAndExplicitCode;
 
     /** Execute correct behavior based on the mode of the token. */
     @SneakyThrows
     public T execute() {
-      switch (tokenParameter.mode) {
+      switch (token.mode) {
         case ANY_SYSTEM_EXPLICIT_CODE:
-          return onAnySystemAndExplicitCode.apply(tokenParameter.code);
+          return onAnySystemAndExplicitCode.apply(token.code);
         case EXPLICIT_SYSTEM_ANY_CODE:
-          return onExplicitSystemAndAnyCode.apply(tokenParameter.system);
+          return onExplicitSystemAndAnyCode.apply(token.system);
         case EXPLICIT_SYSTEM_EXPLICIT_CODE:
-          return onExplicitSystemAndExplicitCode.apply(tokenParameter.system, tokenParameter.code);
+          return onExplicitSystemAndExplicitCode.apply(token.system, token.code);
         case NO_SYSTEM_EXPLICIT_CODE:
-          return onNoSystemAndExplicitCode.apply(tokenParameter.code);
+          return onNoSystemAndExplicitCode.apply(token.code);
         default:
-          throw new IllegalStateException(
-              "QueryToken in unsupported mode : " + tokenParameter.mode);
+          throw new IllegalStateException("QueryToken in unsupported mode : " + token.mode);
       }
+    }
+  }
+
+  public final class BehaviorStemCell {
+    public <T> Behavior.BehaviorBuilder<T> onAnySystemAndExplicitCode(Function<String, T> f) {
+      return Behavior.<T>builder().token(TokenParameter.this).onAnySystemAndExplicitCode(f);
+    }
+
+    public <T> Behavior.BehaviorBuilder<T> onExplicitSystemAndAnyCode(Function<String, T> f) {
+      return Behavior.<T>builder().token(TokenParameter.this).onExplicitSystemAndAnyCode(f);
+    }
+
+    public <T> Behavior.BehaviorBuilder<T> onExplicitSystemAndExplicitCode(
+        BiFunction<String, String, T> f) {
+      return Behavior.<T>builder().token(TokenParameter.this).onExplicitSystemAndExplicitCode(f);
+    }
+
+    public <T> Behavior.BehaviorBuilder<T> onNoSystemAndExplicitCode(Function<String, T> f) {
+      return Behavior.<T>builder().token(TokenParameter.this).onNoSystemAndExplicitCode(f);
     }
   }
 }
