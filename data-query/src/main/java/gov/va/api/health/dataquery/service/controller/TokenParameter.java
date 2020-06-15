@@ -18,7 +18,7 @@ public class TokenParameter {
 
   @NonNull Mode mode;
 
-  /** Create a QueryToken from a token search parameter. */
+  /** Create a TokenParameter from a token search parameter. */
   @SneakyThrows
   public static TokenParameter parse(String parameter) {
     if (isBlank(parameter) || parameter.equals("|")) {
@@ -50,10 +50,6 @@ public class TokenParameter {
     return new BehaviorStemCell();
   }
 
-  public boolean hasAllowedSystem(String allowedSystem) {
-    return allowedSystem.equals(system);
-  }
-
   public boolean hasAnyCode() {
     return mode == Mode.EXPLICIT_SYSTEM_ANY_CODE;
   }
@@ -72,6 +68,10 @@ public class TokenParameter {
 
   public boolean hasNoSystem() {
     return mode == Mode.NO_SYSTEM_EXPLICIT_CODE;
+  }
+
+  public boolean hasSupportedSystem(String allowedSystem) {
+    return allowedSystem.equals(system);
   }
 
   public enum Mode {
@@ -107,7 +107,7 @@ public class TokenParameter {
         case NO_SYSTEM_EXPLICIT_CODE:
           return onNoSystemAndExplicitCode.apply(token.code);
         default:
-          throw new IllegalStateException("QueryToken in unsupported mode : " + token.mode);
+          throw new IllegalStateException("TokenParameter in unsupported mode : " + token.mode);
       }
     }
   }
