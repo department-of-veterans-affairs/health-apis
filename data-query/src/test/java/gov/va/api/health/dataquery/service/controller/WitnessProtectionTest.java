@@ -1,6 +1,7 @@
 package gov.va.api.health.dataquery.service.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
@@ -20,8 +21,8 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.util.MultiValueMap;
 
 public class WitnessProtectionTest {
-
   @Mock IdentityService ids;
+
   WitnessProtection wp;
 
   @Before
@@ -59,7 +60,6 @@ public class WitnessProtectionTest {
             List.of(
                 DatamartReference.of().type("whatever").reference("zcdw").build(),
                 DatamartReference.of().type("everyone").reference("acdw").build()));
-
     wp.registerAndUpdateReferences(
         List.of(x, y, z),
         w -> {
@@ -128,11 +128,21 @@ public class WitnessProtectionTest {
     assertThat(wp.toCdwId("x")).isEqualTo("XXX");
   }
 
+  @Test
+  public void toResourceIdentityTest() {
+    ResourceIdentity coolResource =
+        ResourceIdentity.builder().system("CDW").resource("COMMUNITY").identifier("ABED").build();
+    when(ids.lookup("cool")).thenReturn(List.of(coolResource));
+    assertEquals(wp.toResourceIdentity("cool"), coolResource);
+  }
+
   @Data
   @AllArgsConstructor
   private static class Witness implements HasReplaceableId {
     private String objectType;
+
     private String cdwId;
+
     private String originalId;
 
     static Witness of(String id) {

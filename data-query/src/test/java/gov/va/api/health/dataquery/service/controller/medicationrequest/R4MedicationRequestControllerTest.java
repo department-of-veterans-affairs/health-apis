@@ -15,6 +15,7 @@ import gov.va.api.health.dataquery.service.controller.medicationorder.DatamartMe
 import gov.va.api.health.dataquery.service.controller.medicationorder.MedicationOrderEntity;
 import gov.va.api.health.dataquery.service.controller.medicationorder.MedicationOrderRepository;
 import gov.va.api.health.dataquery.service.controller.medicationorder.MedicationOrderSamples;
+import gov.va.api.health.dataquery.service.controller.medicationstatement.MedicationStatementRepository;
 import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
@@ -42,7 +43,9 @@ public class R4MedicationRequestControllerTest {
 
   private IdentityService ids = mock(IdentityService.class);
 
-  @Autowired private MedicationOrderRepository repository;
+  @Autowired private MedicationOrderRepository medicationOrderRepository;
+
+  @Autowired private MedicationStatementRepository medicationStatementRepository;
 
   @Before
   public void _init() {
@@ -61,7 +64,8 @@ public class R4MedicationRequestControllerTest {
   R4MedicationRequestController controller() {
     return new R4MedicationRequestController(
         new R4Bundler(new ConfigurableBaseUrlPageLinks("http://abed.com", "cool", "cool", "cool")),
-        repository,
+        medicationOrderRepository,
+        medicationStatementRepository,
         WitnessProtection.builder().identityService(ids).build());
   }
 
@@ -97,7 +101,7 @@ public class R4MedicationRequestControllerTest {
       var cdwId = "" + i;
       var publicId = "90" + i;
       var dm = datamart.medicationOrder(cdwId, patientId);
-      repository.save(asEntity(dm));
+      medicationOrderRepository.save(asEntity(dm));
       var medicationRequest = fhir.medicationRequestFromMedicationOrder(publicId, patientId);
       medicationRequestByPatient.put(patientId, medicationRequest);
       ResourceIdentity resourceIdentity =
@@ -121,7 +125,7 @@ public class R4MedicationRequestControllerTest {
   @Test
   public void read() {
     DatamartMedicationOrder dm = MedicationOrderSamples.Datamart.create().medicationOrder();
-    repository.save(asEntity(dm));
+    medicationOrderRepository.save(asEntity(dm));
     mockMedicationOrderIdentity("1", dm.cdwId());
     MedicationRequest actual = controller().read("1");
     assertThat(json(actual))
@@ -133,7 +137,7 @@ public class R4MedicationRequestControllerTest {
   public void readRaw() {
     DatamartMedicationOrder dm = MedicationOrderSamples.Datamart.create().medicationOrder();
     MedicationOrderEntity entity = asEntity(dm);
-    repository.save(entity);
+    medicationOrderRepository.save(entity);
     mockMedicationOrderIdentity("1", dm.cdwId());
     String actual = controller().readRaw("1", response);
     assertThat(toObject(actual)).isEqualTo(dm);
@@ -154,7 +158,7 @@ public class R4MedicationRequestControllerTest {
   @Test
   public void searchById() {
     DatamartMedicationOrder dm = MedicationOrderSamples.Datamart.create().medicationOrder();
-    repository.save(asEntity(dm));
+    medicationOrderRepository.save(asEntity(dm));
     mockMedicationOrderIdentity("1", dm.cdwId());
     MedicationRequest.Bundle actual = controller().searchById("1", 1, 1);
     MedicationRequest medicationRequest =
@@ -188,7 +192,7 @@ public class R4MedicationRequestControllerTest {
   @Test
   public void searchByIdentifier() {
     DatamartMedicationOrder dm = MedicationOrderSamples.Datamart.create().medicationOrder();
-    repository.save(asEntity(dm));
+    medicationOrderRepository.save(asEntity(dm));
     mockMedicationOrderIdentity("1", dm.cdwId());
     MedicationRequest.Bundle actual = controller().searchByIdentifier("1", 1, 1);
     validateSearchByIdResult(dm, actual, true);
@@ -312,7 +316,7 @@ public class R4MedicationRequestControllerTest {
   @Test
   public void zeroCountBundleTest() {
     DatamartMedicationOrder dm = MedicationOrderSamples.Datamart.create().medicationOrder();
-    repository.save(asEntity(dm));
+    medicationOrderRepository.save(asEntity(dm));
     mockMedicationOrderIdentity("1", dm.cdwId());
     MedicationRequest.Bundle actual = controller().searchByPatient("1", 1, 0);
     assertThat(json(actual))

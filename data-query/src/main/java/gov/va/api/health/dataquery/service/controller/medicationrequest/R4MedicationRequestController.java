@@ -14,6 +14,10 @@ import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.medicationorder.DatamartMedicationOrder;
 import gov.va.api.health.dataquery.service.controller.medicationorder.MedicationOrderEntity;
 import gov.va.api.health.dataquery.service.controller.medicationorder.MedicationOrderRepository;
+import gov.va.api.health.dataquery.service.controller.medicationstatement.DatamartMedicationStatement;
+import gov.va.api.health.dataquery.service.controller.medicationstatement.MedicationStatementEntity;
+import gov.va.api.health.dataquery.service.controller.medicationstatement.MedicationStatementRepository;
+import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.health.uscorer4.api.resources.MedicationRequest;
 import java.util.Collection;
 import java.util.List;
@@ -49,17 +53,21 @@ import org.springframework.web.bind.annotation.RestController;
 public class R4MedicationRequestController {
   private R4Bundler bundler;
 
-  private MedicationOrderRepository repository;
+  private MedicationOrderRepository medicationOrderRepository;
+
+  private MedicationStatementRepository medicationStatementRepository;
 
   private WitnessProtection witnessProtection;
 
   /** R4 MedicationRequest Constructor. */
   public R4MedicationRequestController(
       @Autowired R4Bundler bundler,
-      @Autowired MedicationOrderRepository repository,
+      @Autowired MedicationOrderRepository medicationOrderRepository,
+      @Autowired MedicationStatementRepository medicationStatementRepository,
       @Autowired WitnessProtection witnessProtection) {
     this.bundler = bundler;
-    this.repository = repository;
+    this.medicationOrderRepository = medicationOrderRepository;
+    this.medicationStatementRepository = medicationStatementRepository;
     this.witnessProtection = witnessProtection;
   }
 
@@ -78,41 +86,88 @@ public class R4MedicationRequestController {
   }
 
   private MedicationRequest.Bundle bundle(
-      MultiValueMap<String, String> parameters, int count, Page<MedicationOrderEntity> entities) {
-    log.info("Search {} found {} results", parameters, entities.getTotalElements());
+      MultiValueMap<String, String> parameters,
+      int count,
+      Page<MedicationStatementEntity> medicationStatementEntities,
+      Page<MedicationOrderEntity> medicationOrderEntities) {
+    int totalRecords =
+        (int)
+            (medicationOrderEntities.getTotalElements()
+                + medicationStatementEntities.getTotalElements());
+    log.info("Search {} found {} results", parameters, totalRecords);
     if (count == 0) {
-      return bundle(parameters, emptyList(), (int) entities.getTotalElements());
+      return bundle(parameters, emptyList(), totalRecords);
     }
     List<DatamartMedicationOrder> datamartMedicationOrders =
-        entities
+        medicationOrderEntities
             .get()
             .map(MedicationOrderEntity::asDatamartMedicationOrder)
             .collect(Collectors.toList());
-    replaceReferences(datamartMedicationOrders);
-    List<MedicationRequest> fhir =
-        datamartMedicationOrders.stream()
-            .map(
-                dm ->
-                    R4MedicationRequestFromMedicationOrderTransformer.builder()
-                        .datamart(dm)
-                        .build()
-                        .toFhir())
+    List<DatamartMedicationStatement> datamartMedicationStatements =
+        medicationStatementEntities
+            .get()
+            .map(MedicationStatementEntity::asDatamartMedicationStatement)
             .collect(Collectors.toList());
-    return bundle(parameters, fhir, (int) entities.getTotalElements());
+    replaceReferencesMedicationOrder(datamartMedicationOrders);
+    replaceReferencesMedicationStatement(datamartMedicationStatements);
+    List<MedicationRequest> fhir =
+        Stream.concat(
+                datamartMedicationStatements.stream()
+                    .map(
+                        dms ->
+                            R4MedicationRequestFromMedicationStatementTransformer.builder()
+                                .datamart(dms)
+                                .build()
+                                .toFhir()),
+                datamartMedicationOrders.stream()
+                    .map(
+                        dmo ->
+                            R4MedicationRequestFromMedicationOrderTransformer.builder()
+                                .datamart(dmo)
+                                .build()
+                                .toFhir()))
+            .collect(Collectors.toList());
+    return bundle(parameters, fhir, totalRecords);
   }
 
-  MedicationOrderEntity findById(String publicId) {
+  MedicationOrderEntity findByIdMedicationOrderEntity(String publicId) {
     Optional<MedicationOrderEntity> entity =
-        repository.findById(witnessProtection.toCdwId(publicId));
+        medicationOrderRepository.findById(witnessProtection.toCdwId(publicId));
+    return entity.orElseThrow(() -> new ResourceExceptions.NotFound(publicId));
+  }
+
+  MedicationStatementEntity findByIdMedicationStatementEntity(String publicId) {
+    Optional<MedicationStatementEntity> entity =
+        medicationStatementRepository.findById(witnessProtection.toCdwId(publicId));
     return entity.orElseThrow(() -> new ResourceExceptions.NotFound(publicId));
   }
 
   /** Read by identifier. */
   @GetMapping(value = {"/{publicId}"})
   public MedicationRequest read(@PathVariable("publicId") String publicId) {
-    DatamartMedicationOrder medicationOrder = findById(publicId).asDatamartMedicationOrder();
-    replaceReferences(List.of(medicationOrder));
-    return transform(medicationOrder);
+    ResourceIdentity resourceIdentity = witnessProtection.toResourceIdentity(publicId);
+    switch (resourceIdentity.resource()) {
+      case "MEDICATION_ORDER":
+        return readMedicationOrder(publicId);
+      case "MEDICATION_STATEMENT":
+        return readMedicationStatement(publicId);
+      default:
+        return null;
+    }
+  }
+
+  MedicationRequest readMedicationOrder(String publicId) {
+    DatamartMedicationOrder medicationOrder =
+        findByIdMedicationOrderEntity(publicId).asDatamartMedicationOrder();
+    replaceReferencesMedicationOrder(List.of(medicationOrder));
+    return transformMedicationOrderToMedicationRequest(medicationOrder);
+  }
+
+  MedicationRequest readMedicationStatement(String publicId) {
+    DatamartMedicationStatement medicationStatement =
+        findByIdMedicationStatementEntity(publicId).asDatamartMedicationStatement();
+    replaceReferencesMedicationStatement(List.of(medicationStatement));
+    return transformMedicationStatementToMedicationRequest(medicationStatement);
   }
 
   /** Read by id, raw data. */
@@ -120,16 +175,33 @@ public class R4MedicationRequestController {
       value = {"/{publicId}"},
       headers = {"raw=true"})
   public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
-    MedicationOrderEntity entity = findById(publicId);
-    IncludesIcnMajig.addHeader(response, entity.icn());
-    return entity.payload();
+    ResourceIdentity resourceIdentity = witnessProtection.toResourceIdentity(publicId);
+    switch (resourceIdentity.resource()) {
+      case "MEDICATION_ORDER":
+        MedicationOrderEntity orderEntity = findByIdMedicationOrderEntity(publicId);
+        IncludesIcnMajig.addHeader(response, orderEntity.icn());
+        return orderEntity.payload();
+      case "MEDICATION_STATEMENT":
+        MedicationStatementEntity statementEntity = findByIdMedicationStatementEntity(publicId);
+        IncludesIcnMajig.addHeader(response, statementEntity.icn());
+        return statementEntity.payload();
+      default:
+        return null;
+    }
   }
 
-  Collection<DatamartMedicationOrder> replaceReferences(
+  Collection<DatamartMedicationOrder> replaceReferencesMedicationOrder(
       Collection<DatamartMedicationOrder> resources) {
     witnessProtection.registerAndUpdateReferences(
         resources,
         resource -> Stream.of(resource.medication(), resource.patient(), resource.prescriber()));
+    return resources;
+  }
+
+  Collection<DatamartMedicationStatement> replaceReferencesMedicationStatement(
+      Collection<DatamartMedicationStatement> resources) {
+    witnessProtection.registerAndUpdateReferences(
+        resources, resource -> Stream.of(resource.medication(), resource.patient()));
     return resources;
   }
 
@@ -164,14 +236,16 @@ public class R4MedicationRequestController {
       @RequestParam("patient") String patient,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
-
     String icn = witnessProtection.toCdwId(patient);
-
     log.info("Looking for {} ({})", patient, icn);
     return bundle(
         Parameters.builder().add("patient", patient).add("page", page).add("_count", count).build(),
         count,
-        repository.findByIcn(
+        medicationStatementRepository.findByIcn(
+            icn,
+            PageRequest.of(
+                page - 1, count == 0 ? 1 : count, MedicationStatementEntity.naturalOrder())),
+        medicationOrderRepository.findByIcn(
             icn,
             PageRequest.of(
                 page - 1, count == 0 ? 1 : count, MedicationOrderEntity.naturalOrder())));
@@ -185,15 +259,13 @@ public class R4MedicationRequestController {
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
     String icn = witnessProtection.toCdwId(patient);
-
     log.info(
-        "Looking for patient: {} ({}), intent: {} . Only returning intent:order searches.",
+        "Looking for patient: {} ({}), intent: {} . Only returning intent:order or plan searches.",
         sanitize(patient),
         sanitize(icn),
         sanitize(intent));
-
-    // Only return if the intent is type order. Otherwise return an empty bundle
-    if ("order".equals(intent)) {
+    // Only return if the intent is type order or plan. Otherwise return an empty bundle
+    if ("order".equals(intent) || "plan".equals(intent)) {
       return bundle(
           Parameters.builder()
               .add("patient", patient)
@@ -202,7 +274,11 @@ public class R4MedicationRequestController {
               .add("_count", count)
               .build(),
           count,
-          repository.findByIcn(
+          medicationStatementRepository.findByIcn(
+              icn,
+              PageRequest.of(
+                  page - 1, count == 0 ? 1 : count, MedicationStatementEntity.naturalOrder())),
+          medicationOrderRepository.findByIcn(
               icn,
               PageRequest.of(
                   page - 1, count == 0 ? 1 : count, MedicationOrderEntity.naturalOrder())));
@@ -219,8 +295,16 @@ public class R4MedicationRequestController {
     }
   }
 
-  MedicationRequest transform(DatamartMedicationOrder dm) {
+  MedicationRequest transformMedicationOrderToMedicationRequest(DatamartMedicationOrder dm) {
     return R4MedicationRequestFromMedicationOrderTransformer.builder()
+        .datamart(dm)
+        .build()
+        .toFhir();
+  }
+
+  MedicationRequest transformMedicationStatementToMedicationRequest(
+      DatamartMedicationStatement dm) {
+    return R4MedicationRequestFromMedicationStatementTransformer.builder()
         .datamart(dm)
         .build()
         .toFhir();
