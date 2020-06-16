@@ -9,6 +9,7 @@ import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.R4Bundler;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
+import gov.va.api.health.dataquery.service.controller.TokenParameter;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.uscorer4.api.resources.Condition;
 import java.util.Collection;
@@ -23,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -58,6 +60,11 @@ public class R4ConditionController {
     this.bundler = bundler;
     this.repository = repository;
     this.witnessProtection = witnessProtection;
+  }
+
+  private static Specification<ConditionEntity> anyCodeSpec(
+      @SuppressWarnings("unused") String unused) {
+    return ConditionRepository.AnyCodeSpecification.builder().build();
   }
 
   /**
@@ -212,16 +219,43 @@ public class R4ConditionController {
       @RequestParam("category") String category,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
-    String icn = witnessProtection.toCdwId(patient);
-    return bundle(
+    MultiValueMap<String, String> parameters =
         Parameters.builder()
             .add("patient", patient)
             .add("category", category)
             .add("page", page)
             .add("_count", count)
-            .build(),
+            .build();
+    TokenParameter categoryToken = TokenParameter.parse(category);
+    if ((categoryToken.hasExplicitSystem()
+            && !categoryToken.hasSupportedSystem(
+                "http://hl7.org/fhir/R4/codesystem-condition-category.html"))
+        || categoryToken.hasNoSystem()) {
+      return bundle(parameters, emptyList(), 0);
+    }
+    Specification<ConditionEntity> searchSpec =
+        categoryToken
+            .behavior()
+            .onExplicitSystemAndAnyCode(s -> anyCodeSpec(s))
+            .onExplicitSystemAndExplicitCode(
+                (s, c) ->
+                    ConditionRepository.CodeSpecification.builder()
+                        .code(asDatamartCategory(c))
+                        .build())
+            .onAnySystemAndExplicitCode(
+                c ->
+                    ConditionRepository.CodeSpecification.builder()
+                        .code(asDatamartCategory(c))
+                        .build())
+            .build()
+            .execute();
+    String icn = witnessProtection.toCdwId(patient);
+    return bundle(
+        parameters,
         count,
-        repository.findByIcnAndCategory(icn, asDatamartCategory(category), page(page, count)));
+        repository.findAll(
+            ConditionRepository.PatientSpecification.builder().icn(icn).build().and(searchSpec),
+            page(page, count)));
   }
 
   /** Search Condition by patient and clinical status. */
