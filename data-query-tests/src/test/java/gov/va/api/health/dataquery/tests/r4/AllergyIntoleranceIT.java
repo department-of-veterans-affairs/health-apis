@@ -56,6 +56,18 @@ public class AllergyIntoleranceIT {
   }
 
   @Test
+  @Category({LabDataQueryPatient.class, ProdDataQueryPatient.class})
+  public void postSearch() {
+    verifier.verifyAll(
+        postTest(
+            200,
+            AllergyIntolerance.Bundle.class,
+            "AllergyIntolerance/_search",
+            "patient={patient}",
+            verifier.ids().patient()));
+  }
+
+  @Test
   @Category({
     LabDataQueryPatient.class,
     LabDataQueryClinician.class,
