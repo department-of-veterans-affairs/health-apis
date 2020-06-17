@@ -5,6 +5,7 @@ import static org.apache.commons.lang3.BooleanUtils.toBoolean;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.sentinel.Environment;
+import gov.va.api.health.sentinel.ExpectedResponse;
 import gov.va.api.health.sentinel.TestClient;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -132,10 +133,25 @@ public final class ResourceVerifier {
 
   private <T> T assertRequest(TestCase<T> tc) {
     log.info("Verify {} is {} ({})", tc.label(), tc.response().getSimpleName(), tc.status());
-    return dataQuery()
-        .get(tc.path(), tc.parameters())
-        .expect(tc.status())
-        .expectValid(tc.response());
+    ExpectedResponse response;
+    if (tc.isPost()) {
+      log.info(tc.body());
+      response = dataQuery().post(tc.path(), tc.body());
+    } else {
+      response = dataQuery().get(tc.path(), tc.parameters());
+    }
+    return response.expect(tc.status()).expectValid(tc.response());
+  }
+
+  public final <T> TestCase<T> postTest(
+      int status, Class<T> response, String path, String requestBody, String... parameters) {
+    return TestCase.<T>builder()
+        .path(apiPath() + path)
+        .body(requestBody)
+        .parameters(parameters)
+        .response(response)
+        .status(status)
+        .build();
   }
 
   public final <T> TestCase<T> test(
@@ -149,7 +165,9 @@ public final class ResourceVerifier {
   }
 
   public final <T> T verify(TestCase<T> tc) {
-    assertPagingParameterBounds(tc);
+    if (!tc.isPost()) {
+      assertPagingParameterBounds(tc);
+    }
     return assertRequest(tc);
   }
 
@@ -158,11 +176,7 @@ public final class ResourceVerifier {
       try {
         verify(tc);
       } catch (Exception | AssertionError e) {
-        log.error(
-            "Failure: {} with parameters {}: {}",
-            tc.path(),
-            Arrays.toString(tc.parameters()),
-            e.getMessage());
+        log.error("Failure: {}: {}", tc.label(), e.getMessage());
         throw e;
       }
     }
@@ -179,8 +193,23 @@ public final class ResourceVerifier {
 
     String[] parameters;
 
+    String body;
+
+    String body() {
+      return String.format(body.replaceAll("[{][a-z]+}", "%s"), parameters);
+    }
+
+    Boolean isPost() {
+      return body != null;
+    }
+
     String label() {
-      return path + " with " + Arrays.toString(parameters);
+      String label = path;
+      if (isPost()) {
+        label = label + " with body " + body;
+      }
+      label = label + " with parameters " + Arrays.toString(parameters);
+      return label;
     }
   }
 }
