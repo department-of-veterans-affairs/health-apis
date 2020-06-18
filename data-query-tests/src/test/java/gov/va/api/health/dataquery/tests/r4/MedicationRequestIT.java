@@ -41,12 +41,14 @@ public class MedicationRequestIT {
     ProdDataQueryClinician.class
   })
   public void basic() {
-    verifier.verifyAll( // Patient And Intent
+    verifier.verifyAll(
+        // Patient And Intent
         test(
             200,
             MedicationRequest.Bundle.class,
             "MedicationRequest?patient={patient}&intent=order",
-            verifier.ids().patient()), // MedicationRequest Public Id
+            verifier.ids().patient()),
+        // MedicationRequest Public Id
         test(
             200,
             MedicationRequest.class,
@@ -56,7 +58,8 @@ public class MedicationRequestIT {
             404,
             OperationOutcome.class,
             "MedicationRequest/{id}",
-            verifier.ids().unknown()), // Patient Icn
+            verifier.ids().unknown()),
+        // Patient Icn
         test(
             200,
             MedicationRequest.Bundle.class,

@@ -18,6 +18,7 @@ public class ProcedureIT {
   @Test
   @Category(Local.class)
   public void advanced() {
+
     verifier.verifyAll(
         test(200, Procedure.Bundle.class, "Procedure?_id={id}", verifier.ids().procedure()),
         test(404, OperationOutcome.class, "Procedure?_id={id}", verifier.ids().unknown()),

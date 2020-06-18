@@ -49,7 +49,8 @@ public class PatientIT {
             Patient.Bundle.class,
             "Patient?name={name}&gender={gender}",
             verifier.ids().pii().name().replaceAll("\\s", ""),
-            verifier.ids().pii().gender()), /*
+            verifier.ids().pii().gender()),
+        /*
          * These are tests for the UnsatisfiedServletRequestParameterException mapping to bad
          * request.
          */
