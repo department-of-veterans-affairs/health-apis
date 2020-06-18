@@ -15,7 +15,10 @@ import gov.va.api.health.dataquery.service.controller.medicationorder.DatamartMe
 import gov.va.api.health.dataquery.service.controller.medicationorder.MedicationOrderEntity;
 import gov.va.api.health.dataquery.service.controller.medicationorder.MedicationOrderRepository;
 import gov.va.api.health.dataquery.service.controller.medicationorder.MedicationOrderSamples;
+import gov.va.api.health.dataquery.service.controller.medicationstatement.DatamartMedicationStatement;
+import gov.va.api.health.dataquery.service.controller.medicationstatement.MedicationStatementEntity;
 import gov.va.api.health.dataquery.service.controller.medicationstatement.MedicationStatementRepository;
+import gov.va.api.health.dataquery.service.controller.medicationstatement.MedicationStatementSamples;
 import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
@@ -53,12 +56,21 @@ public class R4MedicationRequestControllerTest {
   }
 
   @SneakyThrows
-  private MedicationOrderEntity asEntity(DatamartMedicationOrder dm) {
+  private MedicationOrderEntity asMedicationOrderEntity(DatamartMedicationOrder dm) {
     return MedicationOrderEntity.builder()
         .cdwId(dm.cdwId())
         .icn(dm.patient().reference().get())
         .payload(JacksonConfig.createMapper().writeValueAsString(dm))
         .build();
+  }
+
+  @SneakyThrows
+  private MedicationStatementEntity asMedicationStatementEntity(DatamartMedicationStatement dm) {
+    return MedicationStatementEntity.builder()
+            .cdwId(dm.cdwId())
+            .icn(dm.patient().reference().get())
+            .payload(JacksonConfig.createMapper().writeValueAsString(dm))
+            .build();
   }
 
   R4MedicationRequestController controller() {
@@ -91,6 +103,23 @@ public class R4MedicationRequestControllerTest {
                     .build()));
   }
 
+  public void mockMedicationStatementIdentity(String publicId, String cdwId) {
+    ResourceIdentity resourceIdentity =
+            ResourceIdentity.builder()
+                    .identifier(cdwId)
+                    .resource("MEDICATION_STATEMENT")
+                    .system("CDW")
+                    .build();
+    when(ids.lookup(publicId)).thenReturn(List.of(resourceIdentity));
+    when(ids.register(Mockito.any()))
+            .thenReturn(
+                    List.of(
+                            Registration.builder()
+                                    .uuid(publicId)
+                                    .resourceIdentities(List.of(resourceIdentity))
+                                    .build()));
+  }
+
   private Multimap<String, MedicationRequest> populateData() {
     var fhir = MedicationRequestSamples.R4.create();
     var datamart = MedicationOrderSamples.Datamart.create();
@@ -101,7 +130,7 @@ public class R4MedicationRequestControllerTest {
       var cdwId = "" + i;
       var publicId = "90" + i;
       var dm = datamart.medicationOrder(cdwId, patientId);
-      medicationOrderRepository.save(asEntity(dm));
+      medicationOrderRepository.save(asMedicationOrderEntity(dm));
       var medicationRequest = fhir.medicationRequestFromMedicationOrder(publicId, patientId);
       medicationRequestByPatient.put(patientId, medicationRequest);
       ResourceIdentity resourceIdentity =
@@ -125,7 +154,7 @@ public class R4MedicationRequestControllerTest {
   @Test
   public void read() {
     DatamartMedicationOrder dm = MedicationOrderSamples.Datamart.create().medicationOrder();
-    medicationOrderRepository.save(asEntity(dm));
+    medicationOrderRepository.save(asMedicationOrderEntity(dm));
     mockMedicationOrderIdentity("1", dm.cdwId());
     MedicationRequest actual = controller().read("1");
     assertThat(json(actual))
@@ -134,14 +163,25 @@ public class R4MedicationRequestControllerTest {
   }
 
   @Test
-  public void readRaw() {
-    DatamartMedicationOrder dm = MedicationOrderSamples.Datamart.create().medicationOrder();
-    MedicationOrderEntity entity = asEntity(dm);
-    medicationOrderRepository.save(entity);
-    mockMedicationOrderIdentity("1", dm.cdwId());
+  public void readRawOrderTest() {
+    DatamartMedicationOrder dmo = MedicationOrderSamples.Datamart.create().medicationOrder();
+    MedicationOrderEntity medicationOrderEntity = asMedicationOrderEntity(dmo);
+    medicationOrderRepository.save(medicationOrderEntity);
+    mockMedicationOrderIdentity("1", dmo.cdwId());
     String actual = controller().readRaw("1", response);
-    assertThat(toObject(actual)).isEqualTo(dm);
-    verify(response).addHeader("X-VA-INCLUDES-ICN", entity.icn());
+    assertThat(toMedicationOrderObject(actual)).isEqualTo(dmo);
+    verify(response).addHeader("X-VA-INCLUDES-ICN", medicationOrderEntity.icn());
+  }
+
+  @Test
+  public void readRawStatementTest() {
+    DatamartMedicationStatement dms = MedicationStatementSamples.Datamart.create().medicationStatement();
+    MedicationStatementEntity medicationStatementEntity = asMedicationStatementEntity(dms);
+    medicationStatementRepository.save(medicationStatementEntity);
+    mockMedicationStatementIdentity("1", dms.cdwId());
+    String actual = controller().readRaw("1", response);
+    assertThat(toMedicationStatementObject(actual)).isEqualTo(dms);
+    verify(response).addHeader("X-VA-INCLUDES-ICN", medicationStatementEntity.icn());
   }
 
   @Test(expected = ResourceExceptions.NotFound.class)
@@ -158,7 +198,7 @@ public class R4MedicationRequestControllerTest {
   @Test
   public void searchById() {
     DatamartMedicationOrder dm = MedicationOrderSamples.Datamart.create().medicationOrder();
-    medicationOrderRepository.save(asEntity(dm));
+    medicationOrderRepository.save(asMedicationOrderEntity(dm));
     mockMedicationOrderIdentity("1", dm.cdwId());
     MedicationRequest.Bundle actual = controller().searchById("1", 1, 1);
     MedicationRequest medicationRequest =
@@ -192,7 +232,7 @@ public class R4MedicationRequestControllerTest {
   @Test
   public void searchByIdentifier() {
     DatamartMedicationOrder dm = MedicationOrderSamples.Datamart.create().medicationOrder();
-    medicationOrderRepository.save(asEntity(dm));
+    medicationOrderRepository.save(asMedicationOrderEntity(dm));
     mockMedicationOrderIdentity("1", dm.cdwId());
     MedicationRequest.Bundle actual = controller().searchByIdentifier("1", 1, 1);
     validateSearchByIdResult(dm, actual, true);
@@ -279,8 +319,13 @@ public class R4MedicationRequestControllerTest {
   }
 
   @SneakyThrows
-  private DatamartMedicationOrder toObject(String json) {
+  private DatamartMedicationOrder toMedicationOrderObject(String json) {
     return JacksonConfig.createMapper().readValue(json, DatamartMedicationOrder.class);
+  }
+
+  @SneakyThrows
+  private DatamartMedicationStatement toMedicationStatementObject(String json) {
+    return JacksonConfig.createMapper().readValue(json, DatamartMedicationStatement.class);
   }
 
   private void validateSearchByIdResult(
@@ -316,7 +361,7 @@ public class R4MedicationRequestControllerTest {
   @Test
   public void zeroCountBundleTest() {
     DatamartMedicationOrder dm = MedicationOrderSamples.Datamart.create().medicationOrder();
-    medicationOrderRepository.save(asEntity(dm));
+    medicationOrderRepository.save(asMedicationOrderEntity(dm));
     mockMedicationOrderIdentity("1", dm.cdwId());
     MedicationRequest.Bundle actual = controller().searchByPatient("1", 1, 0);
     assertThat(json(actual))

@@ -258,7 +258,7 @@ public class R4MedicationRequestController {
     long numMedicationStatements =
         medicationStatementRepository.count(medicationStatementPatientSpec);
 
-    int lastPageWithMedicationStatement = (int) Math.floor(numMedicationStatements / count);
+    int lastPageWithMedicationStatement = (int) Math.floor(numMedicationStatements / (count == 0 ? 1 : count));
 
     Page<MedicationStatementEntity> medicationStatementEntities =
         medicationStatementRepository.findByIcn(
