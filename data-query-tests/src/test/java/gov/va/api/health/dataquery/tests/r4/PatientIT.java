@@ -10,6 +10,7 @@ import gov.va.api.health.sentinel.Environment;
 import gov.va.api.health.sentinel.categories.Local;
 import gov.va.api.health.sentinel.categories.Smoke;
 import gov.va.api.health.uscorer4.api.resources.Patient;
+import java.util.Map;
 import lombok.experimental.Delegate;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -49,8 +50,7 @@ public class PatientIT {
             Patient.Bundle.class,
             "Patient?name={name}&gender={gender}",
             verifier.ids().pii().name().replaceAll("\\s", ""),
-            verifier.ids().pii().gender()),
-        /*
+            verifier.ids().pii().gender()), /*
          * These are tests for the UnsatisfiedServletRequestParameterException mapping to bad
          * request.
          */
@@ -101,5 +101,57 @@ public class PatientIT {
     verifier.verifyAll(
         test(status, OperationOutcome.class, "Patient/{id}", verifier.ids().unknown()),
         test(status, OperationOutcome.class, "Patient?_id={id}", verifier.ids().unknown()));
+  }
+
+  @Test
+  @Category({LabDataQueryPatient.class, ProdDataQueryPatient.class})
+  public void postSearch() {
+    verifier.verifyAll(
+        test(
+            200,
+            Patient.Bundle.class,
+            "Patient/_search",
+            Map.of("Content-Type", "application/x-www-form-urlencoded"),
+            "_id={id}",
+            verifier.ids().patient()),
+        test(
+            200,
+            Patient.Bundle.class,
+            "Patient/_search",
+            Map.of("Content-Type", "application/x-www-form-urlencoded"),
+            "family={family}&gender={gender}",
+            verifier.ids().pii().family(),
+            verifier.ids().pii().given()),
+        test(
+            200,
+            Patient.Bundle.class,
+            "Patient/_search",
+            Map.of("Content-Type", "application/x-www-form-urlencoded"),
+            "name={name}",
+            verifier.ids().pii().name().replaceAll("\\s", "")),
+        test(
+            200,
+            Patient.Bundle.class,
+            "Patient/_search",
+            Map.of("Content-Type", "application/x-www-form-urlencoded"),
+            "name={name}&birthdate={birthdate}",
+            verifier.ids().pii().name().replaceAll("\\s", ""),
+            verifier.ids().pii().birthdate()),
+        test(
+            200,
+            Patient.Bundle.class,
+            "Patient/_search",
+            Map.of("Content-Type", "application/x-www-form-urlencoded"),
+            "family={family}&birthdate={birthdate}",
+            verifier.ids().pii().family(),
+            verifier.ids().pii().birthdate()),
+        test(
+            200,
+            Patient.Bundle.class,
+            "Patient/_search",
+            Map.of("Content-Type", "application/x-www-form-urlencoded"),
+            "name={name}&gender={gender}",
+            verifier.ids().pii().name().replaceAll("\\s", ""),
+            verifier.ids().pii().gender()));
   }
 }

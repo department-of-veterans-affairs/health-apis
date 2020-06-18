@@ -8,6 +8,7 @@ import gov.va.api.health.dataquery.tests.categories.ProdDataQueryPatient;
 import gov.va.api.health.r4.api.resources.OperationOutcome;
 import gov.va.api.health.sentinel.categories.Local;
 import gov.va.api.health.uscorer4.api.resources.AllergyIntolerance;
+import java.util.Map;
 import lombok.experimental.Delegate;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -59,10 +60,11 @@ public class AllergyIntoleranceIT {
   @Category({LabDataQueryPatient.class, ProdDataQueryPatient.class})
   public void postSearch() {
     verifier.verifyAll(
-        postTest(
+        test(
             200,
             AllergyIntolerance.Bundle.class,
             "AllergyIntolerance/_search",
+            Map.of("Content-Type", "application/x-www-form-urlencoded"),
             "patient={patient}",
             verifier.ids().patient()));
   }

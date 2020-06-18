@@ -8,6 +8,7 @@ import gov.va.api.health.dataquery.tests.categories.ProdDataQueryPatient;
 import gov.va.api.health.r4.api.resources.OperationOutcome;
 import gov.va.api.health.sentinel.categories.Local;
 import gov.va.api.health.uscorer4.api.resources.Condition;
+import java.util.Map;
 import lombok.experimental.Delegate;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -57,6 +58,47 @@ public class ConditionIT {
         test(200, Condition.class, "Condition/{id}", verifier.ids().condition()),
         test(404, OperationOutcome.class, "Condition/{id}", verifier.ids().unknown()),
         test(200, Condition.Bundle.class, "Condition?patient={patient}", verifier.ids().patient()));
+  }
+
+  @Test
+  @Category({LabDataQueryPatient.class, ProdDataQueryPatient.class})
+  public void postSearch() {
+    verifier.verifyAll(
+        test(
+            200,
+            Condition.Bundle.class,
+            "Condition/_search",
+            Map.of("Content-Type", "application/x-www-form-urlencoded"),
+            "Condition?patient={patient}",
+            verifier.ids().patient()),
+        test(
+            200,
+            Condition.Bundle.class,
+            "Condition/_search",
+            Map.of("Content-Type", "application/x-www-form-urlencoded"),
+            "category=problem-list-item&patient={patient}",
+            verifier.ids().patient()),
+        test(
+            200,
+            Condition.Bundle.class,
+            "Condition/_search",
+            Map.of("Content-Type", "application/x-www-form-urlencoded"),
+            "category=health-concern&patient={patient}",
+            verifier.ids().patient()),
+        test(
+            200,
+            Condition.Bundle.class,
+            "Condition/_search",
+            Map.of("Content-Type", "application/x-www-form-urlencoded"),
+            "clinicalstatus=active&patient={patient}",
+            verifier.ids().patient()),
+        test(
+            200,
+            Condition.Bundle.class,
+            "Condition/_search",
+            Map.of("Content-Type", "application/x-www-form-urlencoded"),
+            "clinicalstatus=active,resolved&patient={patient}",
+            verifier.ids().patient()));
   }
 
   @Test

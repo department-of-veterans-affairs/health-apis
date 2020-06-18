@@ -8,6 +8,7 @@ import gov.va.api.health.dataquery.tests.categories.ProdDataQueryPatient;
 import gov.va.api.health.r4.api.resources.OperationOutcome;
 import gov.va.api.health.sentinel.categories.Local;
 import gov.va.api.health.uscorer4.api.resources.MedicationRequest;
+import java.util.Map;
 import lombok.experimental.Delegate;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -41,25 +42,46 @@ public class MedicationRequestIT {
     ProdDataQueryClinician.class
   })
   public void basic() {
-    verifier.verifyAll(
-        // Patient And Intent
+    verifier.verifyAll( // Patient And Intent
         test(
             200,
             MedicationRequest.Bundle.class,
             "MedicationRequest?patient={patient}&intent=order",
-            verifier.ids().patient()),
-        // MedicationRequest Public Id
+            verifier.ids().patient()), // MedicationRequest Public Id
         test(
             200,
             MedicationRequest.class,
             "MedicationRequest/{id}",
             verifier.ids().medicationOrder()),
-        test(404, OperationOutcome.class, "MedicationRequest/{id}", verifier.ids().unknown()),
-        // Patient Icn
+        test(
+            404,
+            OperationOutcome.class,
+            "MedicationRequest/{id}",
+            verifier.ids().unknown()), // Patient Icn
         test(
             200,
             MedicationRequest.Bundle.class,
             "MedicationRequest?patient={patient}",
+            verifier.ids().patient()));
+  }
+
+  @Test
+  @Category({LabDataQueryPatient.class, ProdDataQueryPatient.class})
+  public void postSearch() {
+    verifier.verifyAll(
+        test(
+            200,
+            MedicationRequest.Bundle.class,
+            "MedicationRequest/_search",
+            Map.of("Content-Type", "application/x-www-form-urlencoded"),
+            "patient={patient}",
+            verifier.ids().patient()),
+        test(
+            200,
+            MedicationRequest.Bundle.class,
+            "MedicationRequest/_search",
+            Map.of("Content-Type", "application/x-www-form-urlencoded"),
+            "patient={patient}&intent=order",
             verifier.ids().patient()));
   }
 

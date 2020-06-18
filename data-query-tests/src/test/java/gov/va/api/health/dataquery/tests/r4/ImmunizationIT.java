@@ -8,6 +8,7 @@ import gov.va.api.health.dataquery.tests.categories.ProdDataQueryPatient;
 import gov.va.api.health.r4.api.resources.OperationOutcome;
 import gov.va.api.health.sentinel.categories.Local;
 import gov.va.api.health.uscorer4.api.resources.Immunization;
+import java.util.Map;
 import lombok.experimental.Delegate;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -45,6 +46,19 @@ public class ImmunizationIT {
             200,
             Immunization.Bundle.class,
             "Immunization?patient={patient}",
+            verifier.ids().patient()));
+  }
+
+  @Test
+  @Category({LabDataQueryPatient.class, ProdDataQueryPatient.class})
+  public void postSearch() {
+    verifier.verifyAll(
+        test(
+            200,
+            Immunization.Bundle.class,
+            "Immunization/_search",
+            Map.of("Content-Type", "application/x-www-form-urlencoded"),
+            "patient={patient}",
             verifier.ids().patient()));
   }
 
