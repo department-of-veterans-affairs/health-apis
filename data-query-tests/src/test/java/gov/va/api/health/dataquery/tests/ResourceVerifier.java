@@ -4,6 +4,7 @@ import static org.apache.commons.lang3.BooleanUtils.isTrue;
 import static org.apache.commons.lang3.BooleanUtils.toBoolean;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.collect.ImmutableMap;
 import gov.va.api.health.sentinel.Environment;
 import gov.va.api.health.sentinel.ExpectedResponse;
 import gov.va.api.health.sentinel.TestClient;
@@ -11,6 +12,7 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.Builder;
@@ -135,18 +137,23 @@ public final class ResourceVerifier {
     log.info("Verify {} is {} ({})", tc.label(), tc.response().getSimpleName(), tc.status());
     ExpectedResponse response;
     if (tc.isPost()) {
-      log.info(tc.body());
-      response = dataQuery().post(tc.path(), tc.body());
+      response = dataQuery().post(tc.headers(), tc.path(), tc.body());
     } else {
       response = dataQuery().get(tc.path(), tc.parameters());
     }
     return response.expect(tc.status()).expectValid(tc.response());
   }
 
-  public final <T> TestCase<T> postTest(
-      int status, Class<T> response, String path, String requestBody, String... parameters) {
+  public final <T> TestCase<T> test(
+      int status,
+      Class<T> response,
+      String path,
+      Map<String, String> headers,
+      String requestBody,
+      String... parameters) {
     return TestCase.<T>builder()
         .path(apiPath() + path)
+        .headers(ImmutableMap.copyOf(headers))
         .body(requestBody)
         .parameters(parameters)
         .response(response)
@@ -193,10 +200,12 @@ public final class ResourceVerifier {
 
     String[] parameters;
 
+    @Builder.Default ImmutableMap<String, String> headers = ImmutableMap.of();
+
     String body;
 
     String body() {
-      return String.format(body.replaceAll("[{][a-z]+}", "%s"), parameters);
+      return String.format(body.replaceAll("[{][a-z]+[}]", "%s"), parameters);
     }
 
     Boolean isPost() {
@@ -204,12 +213,13 @@ public final class ResourceVerifier {
     }
 
     String label() {
-      String label = path;
+      StringBuilder labelBuilder = new StringBuilder();
+      labelBuilder.append(path);
       if (isPost()) {
-        label = label + " with body " + body;
+        labelBuilder.append(" with body " + body);
       }
-      label = label + " with parameters " + Arrays.toString(parameters);
-      return label;
+      labelBuilder.append(" with parameters " + Arrays.toString(parameters));
+      return labelBuilder.toString();
     }
   }
 }
