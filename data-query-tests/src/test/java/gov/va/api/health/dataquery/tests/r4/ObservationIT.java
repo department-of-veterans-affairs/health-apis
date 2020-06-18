@@ -105,11 +105,7 @@ public class ObservationIT {
             verifier.ids().observations().badLoinc()),
         // Observation Public Id
         test(200, Observation.class, "Observation/{id}", verifier.ids().observation()),
-        test(
-            404,
-            OperationOutcome.class,
-            "Observation/{id}",
-            verifier.ids().unknown()),
+        test(404, OperationOutcome.class, "Observation/{id}", verifier.ids().unknown()),
         // Patient Icn
         test(
             200,

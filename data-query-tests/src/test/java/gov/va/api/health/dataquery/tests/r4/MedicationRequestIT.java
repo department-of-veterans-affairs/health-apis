@@ -54,11 +54,7 @@ public class MedicationRequestIT {
             MedicationRequest.class,
             "MedicationRequest/{id}",
             verifier.ids().medicationOrder()),
-        test(
-            404,
-            OperationOutcome.class,
-            "MedicationRequest/{id}",
-            verifier.ids().unknown()),
+        test(404, OperationOutcome.class, "MedicationRequest/{id}", verifier.ids().unknown()),
         // Patient Icn
         test(
             200,
