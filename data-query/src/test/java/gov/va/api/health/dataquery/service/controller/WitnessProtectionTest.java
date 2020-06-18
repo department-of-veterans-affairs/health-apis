@@ -128,6 +128,11 @@ public class WitnessProtectionTest {
     assertThat(wp.toCdwId("x")).isEqualTo("XXX");
   }
 
+  @Test(expected = ResourceExceptions.NotFound.class)
+  public void toResourceIdentityExceptionTest() {
+    wp.toResourceIdentity("not cool");
+  }
+
   @Test
   public void toResourceIdentityTest() {
     ResourceIdentity coolResource =

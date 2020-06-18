@@ -189,6 +189,7 @@ public class R4MedicationRequestController {
       headers = {"raw=true"})
   public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
     ResourceIdentity resourceIdentity = witnessProtection.toResourceIdentity(publicId);
+
     switch (resourceIdentity.resource()) {
       case "MEDICATION_ORDER":
         MedicationOrderEntity orderEntity = findByIdMedicationOrderEntity(publicId);
@@ -258,7 +259,8 @@ public class R4MedicationRequestController {
     long numMedicationStatements =
         medicationStatementRepository.count(medicationStatementPatientSpec);
 
-    int lastPageWithMedicationStatement = (int) Math.floor(numMedicationStatements / (count == 0 ? 1 : count));
+    int lastPageWithMedicationStatement =
+        (int) Math.floor(numMedicationStatements / (count == 0 ? 1 : count));
 
     Page<MedicationStatementEntity> medicationStatementEntities =
         medicationStatementRepository.findByIcn(

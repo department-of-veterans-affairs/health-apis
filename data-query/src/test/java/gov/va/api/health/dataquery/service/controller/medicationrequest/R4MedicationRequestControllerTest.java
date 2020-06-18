@@ -67,10 +67,10 @@ public class R4MedicationRequestControllerTest {
   @SneakyThrows
   private MedicationStatementEntity asMedicationStatementEntity(DatamartMedicationStatement dm) {
     return MedicationStatementEntity.builder()
-            .cdwId(dm.cdwId())
-            .icn(dm.patient().reference().get())
-            .payload(JacksonConfig.createMapper().writeValueAsString(dm))
-            .build();
+        .cdwId(dm.cdwId())
+        .icn(dm.patient().reference().get())
+        .payload(JacksonConfig.createMapper().writeValueAsString(dm))
+        .build();
   }
 
   R4MedicationRequestController controller() {
@@ -105,34 +105,36 @@ public class R4MedicationRequestControllerTest {
 
   public void mockMedicationStatementIdentity(String publicId, String cdwId) {
     ResourceIdentity resourceIdentity =
-            ResourceIdentity.builder()
-                    .identifier(cdwId)
-                    .resource("MEDICATION_STATEMENT")
-                    .system("CDW")
-                    .build();
+        ResourceIdentity.builder()
+            .identifier(cdwId)
+            .resource("MEDICATION_STATEMENT")
+            .system("CDW")
+            .build();
     when(ids.lookup(publicId)).thenReturn(List.of(resourceIdentity));
     when(ids.register(Mockito.any()))
-            .thenReturn(
-                    List.of(
-                            Registration.builder()
-                                    .uuid(publicId)
-                                    .resourceIdentities(List.of(resourceIdentity))
-                                    .build()));
+        .thenReturn(
+            List.of(
+                Registration.builder()
+                    .uuid(publicId)
+                    .resourceIdentities(List.of(resourceIdentity))
+                    .build()));
   }
 
   private Multimap<String, MedicationRequest> populateData() {
     var fhir = MedicationRequestSamples.R4.create();
-    var datamart = MedicationOrderSamples.Datamart.create();
+    var datamartMedicationOrder = MedicationOrderSamples.Datamart.create();
+    var datamartMedicationStatement = MedicationStatementSamples.Datamart.create();
     var medicationRequestByPatient = LinkedHashMultimap.<String, MedicationRequest>create();
-    var registrations = new ArrayList<Registration>(10);
+    var registrations = new ArrayList<Registration>(20);
     for (int i = 0; i < 10; i++) {
       var patientId = "p" + i % 2;
       var cdwId = "" + i;
       var publicId = "90" + i;
-      var dm = datamart.medicationOrder(cdwId, patientId);
-      medicationOrderRepository.save(asMedicationOrderEntity(dm));
-      var medicationRequest = fhir.medicationRequestFromMedicationOrder(publicId, patientId);
-      medicationRequestByPatient.put(patientId, medicationRequest);
+      var dmo = datamartMedicationOrder.medicationOrder(cdwId, patientId);
+      medicationOrderRepository.save(asMedicationOrderEntity(dmo));
+      var medicationRequestFromMedicationOrder =
+          fhir.medicationRequestFromMedicationOrder(publicId, patientId);
+      medicationRequestByPatient.put(patientId, medicationRequestFromMedicationOrder);
       ResourceIdentity resourceIdentity =
           ResourceIdentity.builder()
               .identifier(cdwId)
@@ -147,6 +149,31 @@ public class R4MedicationRequestControllerTest {
       registrations.add(registration);
       when(ids.lookup(publicId)).thenReturn(List.of(resourceIdentity));
     }
+
+    for (int j = 10; j < 20; j++) {
+      var patientId = "p" + j % 2;
+      var cdwId = "" + j;
+      var publicId = "90" + j;
+      var dms = datamartMedicationStatement.medicationStatement(cdwId, patientId);
+      medicationStatementRepository.save(asMedicationStatementEntity(dms));
+      var medicationRequestFromMedicationStatement =
+          fhir.medicationRequestFromMedicationStatement(publicId, patientId);
+      medicationRequestByPatient.put(patientId, medicationRequestFromMedicationStatement);
+      ResourceIdentity resourceIdentity =
+          ResourceIdentity.builder()
+              .identifier(cdwId)
+              .resource("MEDICATION_STATEMENT")
+              .system("CDW")
+              .build();
+      Registration registration =
+          Registration.builder()
+              .uuid(publicId)
+              .resourceIdentities(List.of(resourceIdentity))
+              .build();
+      registrations.add(registration);
+      when(ids.lookup(publicId)).thenReturn(List.of(resourceIdentity));
+    }
+
     when(ids.register(any())).thenReturn(registrations);
     return medicationRequestByPatient;
   }
@@ -160,6 +187,18 @@ public class R4MedicationRequestControllerTest {
     assertThat(json(actual))
         .isEqualTo(
             json(MedicationRequestSamples.R4.create().medicationRequestFromMedicationOrder("1")));
+
+    DatamartMedicationStatement dms =
+        MedicationStatementSamples.Datamart.create().medicationStatement();
+    medicationStatementRepository.save(asMedicationStatementEntity(dms));
+    mockMedicationStatementIdentity("2", dms.cdwId());
+    actual = controller().read("2");
+    assertThat(json(actual))
+        .isEqualTo(
+            json(
+                MedicationRequestSamples.R4
+                    .create()
+                    .medicationRequestFromMedicationStatement("2")));
   }
 
   @Test
@@ -175,7 +214,8 @@ public class R4MedicationRequestControllerTest {
 
   @Test
   public void readRawStatementTest() {
-    DatamartMedicationStatement dms = MedicationStatementSamples.Datamart.create().medicationStatement();
+    DatamartMedicationStatement dms =
+        MedicationStatementSamples.Datamart.create().medicationStatement();
     MedicationStatementEntity medicationStatementEntity = asMedicationStatementEntity(dms);
     medicationStatementRepository.save(medicationStatementEntity);
     mockMedicationStatementIdentity("1", dms.cdwId());
@@ -244,6 +284,8 @@ public class R4MedicationRequestControllerTest {
   @Test
   public void searchByPatient() {
     Multimap<String, MedicationRequest> medicationRequestByPatient = populateData();
+    String blah = json(controller().searchByPatient("p0", 1, 10));
+
     assertThat(json(controller().searchByPatient("p0", 1, 10)))
         .isEqualTo(
             json(

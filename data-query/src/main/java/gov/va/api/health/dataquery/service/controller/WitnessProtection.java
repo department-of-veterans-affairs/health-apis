@@ -157,7 +157,11 @@ public class WitnessProtection {
   /** Lookup and convert the given public ID to a ResourceIdentity. */
   @Loggable(arguments = false)
   public ResourceIdentity toResourceIdentity(String publicId) {
-    return identityService.lookup(publicId).get(0);
+
+    return identityService.lookup(publicId).stream()
+        .findFirst()
+        .orElseThrow(
+            () -> new ResourceExceptions.NotFound("Could not find resource with id: " + publicId));
   }
 
   /** Utility for easy look up of ids. */
