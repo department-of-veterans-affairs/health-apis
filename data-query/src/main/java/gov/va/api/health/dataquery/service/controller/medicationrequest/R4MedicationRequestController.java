@@ -165,7 +165,7 @@ public class R4MedicationRequestController {
       case "MEDICATION_STATEMENT":
         return readMedicationStatement(publicId);
       default:
-        return null;
+        throw new ResourceExceptions.NotFound(publicId);
     }
   }
 
@@ -200,7 +200,7 @@ public class R4MedicationRequestController {
         IncludesIcnMajig.addHeader(response, statementEntity.icn());
         return statementEntity.payload();
       default:
-        return null;
+        throw new ResourceExceptions.NotFound(publicId);
     }
   }
 

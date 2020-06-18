@@ -195,8 +195,6 @@ public class R4MedicationRequestControllerTest {
 
   @Test
   public void read() {
-    mockNonMedicationTypeIdentity();
-    assertThat(controller().read("41")).isNull();
     DatamartMedicationOrder dm = MedicationOrderSamples.Datamart.create().medicationOrder();
     medicationOrderRepository.save(asMedicationOrderEntity(dm));
     mockMedicationOrderIdentity("1", dm.cdwId());
@@ -217,10 +215,16 @@ public class R4MedicationRequestControllerTest {
                     .medicationRequestFromMedicationStatement("2")));
   }
 
-  @Test
-  public void readRawNullTest() {
+  @Test(expected = ResourceExceptions.NotFound.class)
+  public void readExceptionTest() {
     mockNonMedicationTypeIdentity();
-    assertThat(controller().readRaw("41", response)).isNull();
+    controller().read("41");
+  }
+
+  @Test(expected = ResourceExceptions.NotFound.class)
+  public void readRawExceptionTest() {
+    mockNonMedicationTypeIdentity();
+    controller().readRaw("41", response);
   }
 
   @Test
