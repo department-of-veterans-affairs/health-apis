@@ -120,6 +120,23 @@ public class R4MedicationRequestControllerTest {
                     .build()));
   }
 
+  public void mockNonMedicationTypeIdentity() {
+    ResourceIdentity resourceIdentity =
+        ResourceIdentity.builder()
+            .identifier("non_cdwId")
+            .resource("NOT_MEDICATION_ORDER_OR_STATEMENT")
+            .system("CDW")
+            .build();
+    when(ids.lookup("41")).thenReturn(List.of(resourceIdentity));
+    when(ids.register(Mockito.any()))
+        .thenReturn(
+            List.of(
+                Registration.builder()
+                    .uuid("41")
+                    .resourceIdentities(List.of(resourceIdentity))
+                    .build()));
+  }
+
   private Multimap<String, MedicationRequest> populateData() {
     var fhir = MedicationRequestSamples.R4.create();
     var datamartMedicationOrder = MedicationOrderSamples.Datamart.create();
@@ -130,30 +147,6 @@ public class R4MedicationRequestControllerTest {
       var patientId = "p" + i % 2;
       var cdwId = "" + i;
       var publicId = "90" + i;
-      var dmo = datamartMedicationOrder.medicationOrder(cdwId, patientId);
-      medicationOrderRepository.save(asMedicationOrderEntity(dmo));
-      var medicationRequestFromMedicationOrder =
-          fhir.medicationRequestFromMedicationOrder(publicId, patientId);
-      medicationRequestByPatient.put(patientId, medicationRequestFromMedicationOrder);
-      ResourceIdentity resourceIdentity =
-          ResourceIdentity.builder()
-              .identifier(cdwId)
-              .resource("MEDICATION_ORDER")
-              .system("CDW")
-              .build();
-      Registration registration =
-          Registration.builder()
-              .uuid(publicId)
-              .resourceIdentities(List.of(resourceIdentity))
-              .build();
-      registrations.add(registration);
-      when(ids.lookup(publicId)).thenReturn(List.of(resourceIdentity));
-    }
-
-    for (int j = 10; j < 20; j++) {
-      var patientId = "p" + j % 2;
-      var cdwId = "" + j;
-      var publicId = "90" + j;
       var dms = datamartMedicationStatement.medicationStatement(cdwId, patientId);
       medicationStatementRepository.save(asMedicationStatementEntity(dms));
       var medicationRequestFromMedicationStatement =
@@ -173,13 +166,37 @@ public class R4MedicationRequestControllerTest {
       registrations.add(registration);
       when(ids.lookup(publicId)).thenReturn(List.of(resourceIdentity));
     }
-
+    for (int j = 10; j < 20; j++) {
+      var patientId = "p" + j % 2;
+      var cdwId = "" + j;
+      var publicId = "90" + j;
+      var dmo = datamartMedicationOrder.medicationOrder(cdwId, patientId);
+      medicationOrderRepository.save(asMedicationOrderEntity(dmo));
+      var medicationRequestFromMedicationOrder =
+          fhir.medicationRequestFromMedicationOrder(publicId, patientId);
+      medicationRequestByPatient.put(patientId, medicationRequestFromMedicationOrder);
+      ResourceIdentity resourceIdentity =
+          ResourceIdentity.builder()
+              .identifier(cdwId)
+              .resource("MEDICATION_ORDER")
+              .system("CDW")
+              .build();
+      Registration registration =
+          Registration.builder()
+              .uuid(publicId)
+              .resourceIdentities(List.of(resourceIdentity))
+              .build();
+      registrations.add(registration);
+      when(ids.lookup(publicId)).thenReturn(List.of(resourceIdentity));
+    }
     when(ids.register(any())).thenReturn(registrations);
     return medicationRequestByPatient;
   }
 
   @Test
   public void read() {
+    mockNonMedicationTypeIdentity();
+    assertThat(controller().read("41")).isNull();
     DatamartMedicationOrder dm = MedicationOrderSamples.Datamart.create().medicationOrder();
     medicationOrderRepository.save(asMedicationOrderEntity(dm));
     mockMedicationOrderIdentity("1", dm.cdwId());
@@ -187,7 +204,6 @@ public class R4MedicationRequestControllerTest {
     assertThat(json(actual))
         .isEqualTo(
             json(MedicationRequestSamples.R4.create().medicationRequestFromMedicationOrder("1")));
-
     DatamartMedicationStatement dms =
         MedicationStatementSamples.Datamart.create().medicationStatement();
     medicationStatementRepository.save(asMedicationStatementEntity(dms));
@@ -199,6 +215,12 @@ public class R4MedicationRequestControllerTest {
                 MedicationRequestSamples.R4
                     .create()
                     .medicationRequestFromMedicationStatement("2")));
+  }
+
+  @Test
+  public void readRawNullTest() {
+    mockNonMedicationTypeIdentity();
+    assertThat(controller().readRaw("41", response)).isNull();
   }
 
   @Test
@@ -284,8 +306,6 @@ public class R4MedicationRequestControllerTest {
   @Test
   public void searchByPatient() {
     Multimap<String, MedicationRequest> medicationRequestByPatient = populateData();
-    String blah = json(controller().searchByPatient("p0", 1, 10));
-
     assertThat(json(controller().searchByPatient("p0", 1, 10)))
         .isEqualTo(
             json(
