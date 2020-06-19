@@ -161,7 +161,7 @@ public class WitnessProtection {
     return identityService.lookup(publicId).stream()
         .findFirst()
         .orElseThrow(
-            () -> new ResourceExceptions.NotFound("Could not find resource with id: " + publicId));
+            () -> new ResourceExceptions.NotFound("Resource Identity " + publicId + " not found."));
   }
 
   /** Utility for easy look up of ids. */

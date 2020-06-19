@@ -262,22 +262,27 @@ public class R4MedicationRequestController {
     int lastPageWithMedicationStatement =
         (int) Math.floor((double) numMedicationStatements / (count == 0 ? 1 : count));
 
-    Page<MedicationStatementEntity> medicationStatementEntities =
-        medicationStatementRepository.findByIcn(
-            icn,
-            PageRequest.of(
-                page - 1, count == 0 ? 1 : count, MedicationStatementEntity.naturalOrder()));
+    Page<MedicationStatementEntity> medicationStatementEntities = null;
+    List<DatamartMedicationStatement> datamartMedicationStatements = List.of();
 
-    List<DatamartMedicationStatement> datamartMedicationStatements =
-        medicationStatementEntities
-            .get()
-            .map(MedicationStatementEntity::asDatamartMedicationStatement)
-            .collect(Collectors.toList());
+    if (lastPageWithMedicationStatement >= (page - 1)) {
+      medicationStatementEntities =
+          medicationStatementRepository.findByIcn(
+              icn,
+              PageRequest.of(
+                  page - 1, count == 0 ? 1 : count, MedicationStatementEntity.naturalOrder()));
 
-    replaceReferencesMedicationStatement(datamartMedicationStatements);
+      datamartMedicationStatements =
+          medicationStatementEntities
+              .get()
+              .map(MedicationStatementEntity::asDatamartMedicationStatement)
+              .collect(Collectors.toList());
 
-    List<DatamartMedicationOrder> datamartMedicationOrders = List.of();
+      replaceReferencesMedicationStatement(datamartMedicationStatements);
+    }
+
     Page<MedicationOrderEntity> medicationOrderEntities = null;
+    List<DatamartMedicationOrder> datamartMedicationOrders = List.of();
 
     if (datamartMedicationStatements.size() < count) {
       int medicationOrderCount = count - datamartMedicationStatements.size();
@@ -306,7 +311,9 @@ public class R4MedicationRequestController {
 
     int totalElements =
         (int)
-            (medicationStatementEntities.getTotalElements()
+            ((medicationStatementEntities == null
+                    ? 0
+                    : medicationStatementEntities.getTotalElements())
                 + (medicationOrderEntities == null
                     ? 0
                     : medicationOrderEntities.getTotalElements()));
@@ -326,7 +333,7 @@ public class R4MedicationRequestController {
       @CountParameter @Min(0) int count) {
     String icn = witnessProtection.toCdwId(patient);
     log.info(
-        "Looking for patient: {} ({}), intent: {} . Only returning intent:order or plan searches.",
+        "Looking for patient: {} ({}), intent: {} .",
         sanitize(patient),
         sanitize(icn),
         sanitize(intent));

@@ -1,7 +1,6 @@
 package gov.va.api.health.dataquery.service.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
@@ -138,7 +137,7 @@ public class WitnessProtectionTest {
     ResourceIdentity coolResource =
         ResourceIdentity.builder().system("CDW").resource("COMMUNITY").identifier("ABED").build();
     when(ids.lookup("cool")).thenReturn(List.of(coolResource));
-    assertEquals(wp.toResourceIdentity("cool"), coolResource);
+    assertThat(wp.toResourceIdentity("cool")).isEqualTo(coolResource);
   }
 
   @Data
