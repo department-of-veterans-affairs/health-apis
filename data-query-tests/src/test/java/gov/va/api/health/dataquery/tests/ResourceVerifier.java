@@ -205,7 +205,7 @@ public final class ResourceVerifier {
     String body;
 
     String body() {
-      return String.format(body.replaceAll("[{][a-z]+[}]", "%s"), parameters);
+      return String.format(body.replaceAll("[{][a-z0-9]+[}]", "%s"), parameters);
     }
 
     Boolean isPost() {
