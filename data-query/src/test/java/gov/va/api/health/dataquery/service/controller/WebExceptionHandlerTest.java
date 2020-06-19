@@ -3,8 +3,10 @@ package gov.va.api.health.dataquery.service.controller;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -33,6 +35,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.method.annotation.ExceptionHandlerMethodResolver;
 import org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver;
@@ -140,5 +143,21 @@ public class WebExceptionHandlerTest {
         .andExpect(jsonPath("extension[1].url", equalTo("type")))
         .andExpect(
             jsonPath("extension[1].valueString", equalTo(exception.getClass().getSimpleName())));
+  }
+
+  @Test
+  @SneakyThrows
+  public void unsupportedMethodThrowsNotAllowed() {
+    MockMvc mvc =
+        MockMvcBuilders.standaloneSetup(controller)
+            .setHandlerExceptionResolvers(createExceptionResolver())
+            .setMessageConverters()
+            .build();
+    mvc.perform(post(basePath + "/Patient/123"))
+        .andExpect(
+            result ->
+                assertTrue(
+                    result.getResolvedException()
+                        instanceof HttpRequestMethodNotSupportedException));
   }
 }
