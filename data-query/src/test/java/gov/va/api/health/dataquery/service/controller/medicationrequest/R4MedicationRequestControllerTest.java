@@ -28,6 +28,7 @@ import gov.va.api.health.uscorer4.api.resources.MedicationRequest;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
@@ -311,7 +312,7 @@ public class R4MedicationRequestControllerTest {
   @Test
   public void searchByPatient() {
     Multimap<String, MedicationRequest> medicationRequestByPatient = populateData();
-    assertThat(json(controller().searchByPatient("p0", 3, 10)))
+    assertThat(json(controller().searchByPatient("p0", 2, 10)))
         .isEqualTo(
             json(
                 MedicationRequestSamples.R4.asBundle(
@@ -338,13 +339,23 @@ public class R4MedicationRequestControllerTest {
   @Test
   public void searchByPatientAndIntent() {
     Multimap<String, MedicationRequest> medicationRequestByPatientAndIntent = populateData();
+
+    List<MedicationRequest> medicationRequests =
+        medicationRequestByPatientAndIntent.get("p0").stream()
+            .filter(
+                mr ->
+                    medicationRequestByPatientAndIntent
+                        .get("p0")
+                        .contains(mr.intent(MedicationRequest.Intent.order)))
+            .collect(Collectors.toList());
+
     assertThat(json(controller().searchByPatientAndIntent("p0", "order", 1, 10)))
         .isEqualTo(
             json(
                 MedicationRequestSamples.R4.asBundle(
                     "http://abed.com/cool",
-                    medicationRequestByPatientAndIntent.get("p0"),
-                    medicationRequestByPatientAndIntent.get("p0").size(),
+                    medicationRequests,
+                    medicationRequests.size(),
                     MedicationRequestSamples.R4.link(
                         BundleLink.LinkRelation.first,
                         "http://abed.com/cool/MedicationRequest?intent=order&patient=p0",
@@ -360,7 +371,7 @@ public class R4MedicationRequestControllerTest {
                         "http://abed.com/cool/MedicationRequest?intent=order&patient=p0",
                         1,
                         10))));
-    // Intent != order should return empty
+    // Intent != order and != plan should return empty
     assertThat(json(controller().searchByPatientAndIntent("p0", "proposal", 1, 10)))
         .isEqualTo(
             json(

@@ -47,7 +47,7 @@ public interface PageLinks {
     public int totalPages() {
       return totalPages == -1
           ? (int) Math.ceil((double) totalRecords() / (double) recordsPerPage())
-          : totalPages();
+          : totalPages;
     }
   }
 }
