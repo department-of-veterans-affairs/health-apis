@@ -128,20 +128,28 @@ doCrawlerTest() {
   # If crawler test was specified and not explicitly told to skip then it's crawl time.
   if [ "$SKIP_CRAWLER" == "true" -o -z "$SENTINEL_CRAWLER" ]; then return; fi
 
+  setupForAutomation
+
   # Wipe out any included or excluded categories to make sure we pick up the crawler test class
   INCLUDE_CATEGORY=
   EXCLUDE_CATEGORY=
 
+  # This way, the ITs use defaults when INTERNAL_API_PATH isnt set,
+  # but the crawler will use the internal path always.
+  [ -z "$INTERNAL_API_PATH" ] && INTERNAL_API_PATH="/data-query"
+  DSTU2_CRAWL_PATH=${INTERNAL_API_PATH}${DSTU2_API_PATH:-/dstu2}
+  R4_CRAWL_PATH=${INTERNAL_API_PATH}${R4_API_PATH:-/r4}
+
   # Crawl DSTU2
-  setupForAutomation
+  addToSystemProperties "sentinel.dstu2.api-path" "$DSTU2_CRAWL_PATH"
   addToSystemProperties "crawler.url.replace" "${DATA_QUERY_REPLACEMENT_URL_PREFIX}/dstu2"
-  addToSystemProperties "crawler.base-url" "${DQ_URL}${DSTU2_API_PATH}"
+  addToSystemProperties "crawler.base-url" "${DQ_URL}${DSTU2_CRAWL_PATH}"
   doTest $SENTINEL_CRAWLER
 
   # Crawl R4
-  setupForAutomation
+  addToSystemProperties "sentinel.r4.api-path" "$R4_CRAWL_PATH"
   addToSystemProperties "crawler.url.replace" "${DATA_QUERY_REPLACEMENT_URL_PREFIX}/r4"
-  addToSystemProperties "crawler.base-url" "${DQ_URL}${R4_API_PATH}"
+  addToSystemProperties "crawler.base-url" "${DQ_URL}${R4_CRAWL_PATH}"
   doTest $SENTINEL_CRAWLER
 }
 
@@ -163,11 +171,6 @@ setupForAutomation() {
 
   trustServer $K8S_LOAD_BALANCER
 
-  [ -z "$INTERNAL_API_PATH" ] && INTERNAL_API_PATH=/data-query
-  [ -z "$DSTU2_API_PATH" ] && DSTU2_API_PATH=${INTERNAL_API_PATH}/dstu2
-  [ -z "$STU3_API_PATH" ] && STU3_API_PATH=${INTERNAL_API_PATH}/stu3
-  [ -z "$R4_API_PATH" ] && R4_API_PATH=${INTERNAL_API_PATH}/r4
-
   SYSTEM_PROPERTIES="$WEB_DRIVER_PROPERTIES \
     -Dsentinel=$SENTINEL_ENV \
     -Daccess-token=$TOKEN \
@@ -188,10 +191,10 @@ setupForAutomation() {
     addToSystemProperties "$property" "$DQ_URL"
   done
 
-  addToSystemProperties "sentinel.internal.api-path" "$INTERNAL_API_PATH"
-  addToSystemProperties "sentinel.dstu2.api-path" "$DSTU2_API_PATH"
-  addToSystemProperties "sentinel.stu3.api-path" "$STU3_API_PATH"
-  addToSystemProperties "sentinel.r4.api-path" "$R4_API_PATH"
+  [ -n "$INTERNAL_API_PATH" ] && addToSystemProperties "sentinel.internal.api-path" "$INTERNAL_API_PATH"
+  [ -n "$DSTU2_API_PATH" ] && addToSystemProperties "sentinel.dstu2.api-path" "$DSTU2_API_PATH"
+  [ -n "$STU3_API_PATH" ] && addToSystemProperties "sentinel.stu3.api-path" "$STU3_API_PATH"
+  [ -n "$R4_API_PATH" ] && addToSystemProperties "sentinel.r4.api-path" "$R4_API_PATH"
 
   # This is an optional, and discouraged flag.
   [ -n "$SENTINEL_CRAWLER_IGNORES" ] && addToSystemProperties "crawler.ignores" "$SENTINEL_CRAWLER_IGNORES"
