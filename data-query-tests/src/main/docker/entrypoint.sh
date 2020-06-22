@@ -141,13 +141,11 @@ doCrawlerTest() {
   R4_CRAWL_PATH=${INTERNAL_API_PATH}${R4_API_PATH:-/r4}
 
   # Crawl DSTU2
-  addToSystemProperties "sentinel.dstu2.api-path" "$DSTU2_CRAWL_PATH"
   addToSystemProperties "crawler.url.replace" "${DATA_QUERY_REPLACEMENT_URL_PREFIX}/dstu2"
   addToSystemProperties "crawler.base-url" "${DQ_URL}${DSTU2_CRAWL_PATH}"
   doTest $SENTINEL_CRAWLER
 
   # Crawl R4
-  addToSystemProperties "sentinel.r4.api-path" "$R4_CRAWL_PATH"
   addToSystemProperties "crawler.url.replace" "${DATA_QUERY_REPLACEMENT_URL_PREFIX}/r4"
   addToSystemProperties "crawler.base-url" "${DQ_URL}${R4_CRAWL_PATH}"
   doTest $SENTINEL_CRAWLER
