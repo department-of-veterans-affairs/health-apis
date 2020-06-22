@@ -1,13 +1,12 @@
 package gov.va.api.health.dataquery.service.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import lombok.SneakyThrows;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.core.MethodParameter;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -16,13 +15,8 @@ public class CountParameterResolverTest {
 
   CountParameterResolver r = CountParameterResolver.builder().defaultCount(10).maxCount(20).build();
 
-  @Mock MethodParameter methodParameter;
-  @Mock NativeWebRequest nativeWebRequest;
-
-  @Before
-  public void _init() {
-    MockitoAnnotations.initMocks(this);
-  }
+  MethodParameter methodParameter = mock(MethodParameter.class);
+  NativeWebRequest nativeWebRequest = mock(NativeWebRequest.class);
 
   @Test
   public void appliesToMethodWithCountParametersInt() {
@@ -63,10 +57,12 @@ public class CountParameterResolverTest {
   @SuppressWarnings("unused")
   public void reflectMe(@CountParameter Void here) {}
 
-  @Test(expected = MethodArgumentTypeMismatchException.class)
+  @Test
   public void throwsExceptionWhenCountCannotBeParsed() {
     useCount("nope");
-    r.resolveArgument(methodParameter, null, nativeWebRequest, null);
+    Assertions.assertThrows(
+        MethodArgumentTypeMismatchException.class,
+        () -> r.resolveArgument(methodParameter, null, nativeWebRequest, null));
   }
 
   private void useCount(String count) {
