@@ -312,6 +312,9 @@ public class R4MedicationRequestControllerTest {
   @Test
   public void searchByPatient() {
     Multimap<String, MedicationRequest> medicationRequestByPatient = populateData();
+
+    String blha = json(controller().searchByPatient("p0", 2, 10));
+
     assertThat(json(controller().searchByPatient("p0", 2, 10)))
         .isEqualTo(
             json(
@@ -325,14 +328,19 @@ public class R4MedicationRequestControllerTest {
                         1,
                         10),
                     MedicationRequestSamples.R4.link(
+                            BundleLink.LinkRelation.prev,
+                            "http://abed.com/cool/MedicationRequest?patient=p0",
+                            1,
+                            10),
+                    MedicationRequestSamples.R4.link(
                         BundleLink.LinkRelation.self,
                         "http://abed.com/cool/MedicationRequest?patient=p0",
-                        1,
+                        2,
                         10),
                     MedicationRequestSamples.R4.link(
                         BundleLink.LinkRelation.last,
                         "http://abed.com/cool/MedicationRequest?patient=p0",
-                        1,
+                        2,
                         10))));
   }
 

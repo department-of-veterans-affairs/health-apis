@@ -98,7 +98,7 @@ public class R4MedicationRequestController {
       MultiValueMap<String, String> parameters,
       int count,
       Page<MedicationOrderEntity> medicationOrderEntities) {
-    int totalRecords = (int) (medicationOrderEntities.getTotalElements());
+    int totalRecords = (int) medicationOrderEntities.getTotalElements();
     log.info("Search {} found {} results", parameters, totalRecords);
     if (count == 0) {
       return bundle(parameters, emptyList(), totalRecords);
@@ -266,6 +266,18 @@ public class R4MedicationRequestController {
       @CountParameter @Min(0) int count) {
     String icn = witnessProtection.toCdwId(patient);
     log.info("Looking for {} ({})", patient, icn);
+
+    if (count == 0) {
+      return bundle(
+          Parameters.builder()
+              .add("patient", patient)
+              .add("page", page)
+              .add("_count", count)
+              .build(),
+          emptyList(),
+          0);
+    }
+
     MedicationStatementRepository.PatientSpecification medicationStatementPatientSpec =
         MedicationStatementRepository.PatientSpecification.builder().patient(icn).build();
     MedicationOrderRepository.PatientSpecification medicationOrderPatientSpec =
@@ -274,19 +286,19 @@ public class R4MedicationRequestController {
         medicationStatementRepository.count(medicationStatementPatientSpec);
     long numMedicationOrdersForPatient =
         medicationOrderRepository.count(medicationOrderPatientSpec);
+
     int totalPages =
         (int)
-            ((numMedicationStatementsForPatient / (count == 0 ? 1 : count))
-                + (numMedicationOrdersForPatient / (count == 0 ? 1 : count)));
+            (Math.ceil(numMedicationStatementsForPatient / (double) count)
+                + Math.ceil(numMedicationOrdersForPatient / (double) count));
+
     int lastPageWithMedicationStatement =
-        (int) Math.floor((double) numMedicationStatementsForPatient / (count == 0 ? 1 : count));
+        (int) Math.floor((double) numMedicationStatementsForPatient / count);
 
     if (lastPageWithMedicationStatement >= (page - 1)) {
       Page<MedicationStatementEntity> medicationStatementEntities =
           medicationStatementRepository.findByIcn(
-              icn,
-              PageRequest.of(
-                  page - 1, count == 0 ? 1 : count, MedicationStatementEntity.naturalOrder()));
+              icn, PageRequest.of(page - 1, count, MedicationStatementEntity.naturalOrder()));
       List<DatamartMedicationStatement> datamartMedicationStatements =
           medicationStatementEntities
               .get()
@@ -304,16 +316,13 @@ public class R4MedicationRequestController {
           medicationRequests,
           (int) medicationStatementEntities.getTotalElements(),
           totalPages);
-    } else {
+    } else if (numMedicationOrdersForPatient > 0) {
 
       int medicationOrderPage = page - lastPageWithMedicationStatement - 1;
       Page<MedicationOrderEntity> medicationOrderEntities =
           medicationOrderRepository.findByIcn(
               icn,
-              PageRequest.of(
-                  medicationOrderPage,
-                  count == 0 ? 1 : count,
-                  MedicationOrderEntity.naturalOrder()));
+              PageRequest.of(medicationOrderPage, count, MedicationOrderEntity.naturalOrder()));
       List<DatamartMedicationOrder> datamartMedicationOrders =
           medicationOrderEntities
               .get()
@@ -332,6 +341,15 @@ public class R4MedicationRequestController {
           (int) medicationOrderEntities.getTotalElements(),
           totalPages);
     }
+
+    return bundle(
+            Parameters.builder()
+                    .add("patient", patient)
+                    .add("page", page)
+                    .add("_count", count)
+                    .build(),
+            emptyList(),
+            0);
   }
 
   /** Search by patient and intent. */
