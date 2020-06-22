@@ -32,14 +32,22 @@ public interface PageLinks {
   @Builder
   final class LinkConfig {
     /** The resource path without the base URL or port. E.g. /api/Patient/1234 */
-    private final String path;
+    private String path;
 
-    private final int recordsPerPage;
+    private int recordsPerPage;
 
-    private final int page;
+    private int page;
 
-    private final int totalRecords;
+    private int totalRecords;
 
-    private final MultiValueMap<String, String> queryParams;
+    private MultiValueMap<String, String> queryParams;
+
+    @Builder.Default private int totalPages = -1;
+
+    public int totalPages() {
+      return totalPages == -1
+          ? (int) Math.ceil((double) totalRecords() / (double) recordsPerPage())
+          : totalPages();
+    }
   }
 }

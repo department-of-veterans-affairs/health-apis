@@ -143,8 +143,8 @@ public class R4MedicationRequestControllerTest {
     var datamartMedicationOrder = MedicationOrderSamples.Datamart.create();
     var datamartMedicationStatement = MedicationStatementSamples.Datamart.create();
     var medicationRequestByPatient = LinkedHashMultimap.<String, MedicationRequest>create();
-    var registrations = new ArrayList<Registration>(20);
-    for (int i = 0; i < 10; i++) {
+    var registrations = new ArrayList<Registration>(30);
+    for (int i = 0; i < 15; i++) {
       var patientId = "p" + i % 2;
       var cdwId = "" + i;
       var publicId = "90" + i;
@@ -167,7 +167,7 @@ public class R4MedicationRequestControllerTest {
       registrations.add(registration);
       when(ids.lookup(publicId)).thenReturn(List.of(resourceIdentity));
     }
-    for (int j = 10; j < 20; j++) {
+    for (int j = 15; j < 30; j++) {
       var patientId = "p" + j % 2;
       var cdwId = "" + j;
       var publicId = "90" + j;
@@ -311,7 +311,7 @@ public class R4MedicationRequestControllerTest {
   @Test
   public void searchByPatient() {
     Multimap<String, MedicationRequest> medicationRequestByPatient = populateData();
-    assertThat(json(controller().searchByPatient("p0", 1, 10)))
+    assertThat(json(controller().searchByPatient("p0", 3, 10)))
         .isEqualTo(
             json(
                 MedicationRequestSamples.R4.asBundle(
