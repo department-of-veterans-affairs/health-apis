@@ -1,6 +1,8 @@
 package gov.va.api.health.dataquery.service.controller.condition;
 
 import gov.va.api.health.autoconfig.logging.Loggable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -43,25 +45,27 @@ public interface ConditionRepository
         CriteriaQuery<?> criteriaQuery,
         CriteriaBuilder criteriaBuilder) {
 
-      Predicate predicate = criteriaBuilder.equal(root.get("category"), code());
-      return criteriaBuilder.and(predicate);
+      return criteriaBuilder.equal(root.get("category"), code());
     }
   }
 
   @Value
-  class AnyCodeSpecification implements Specification<ConditionEntity> {
+  class ExplicitSystemSpecification implements Specification<ConditionEntity> {
+    List<String> codes;
 
     @Builder
-    private AnyCodeSpecification() {}
+    private ExplicitSystemSpecification(List<String> codes) {
+      this.codes = codes;
+    }
 
     @Override
     public Predicate toPredicate(
         Root<ConditionEntity> root,
         CriteriaQuery<?> criteriaQuery,
         CriteriaBuilder criteriaBuilder) {
-
-      Predicate predicate = criteriaBuilder.isNotNull(root.get("category"));
-      return criteriaBuilder.and(predicate);
+      List<Predicate> predicates = new ArrayList<>(2);
+      codes.forEach(c -> predicates.add(criteriaBuilder.equal(root.get("category"), c)));
+      return criteriaBuilder.or(predicates.toArray(new Predicate[0]));
     }
   }
 
@@ -80,8 +84,7 @@ public interface ConditionRepository
         CriteriaQuery<?> criteriaQuery,
         CriteriaBuilder criteriaBuilder) {
 
-      Predicate predicate = criteriaBuilder.equal(root.get("icn"), icn());
-      return criteriaBuilder.and(predicate);
+      return criteriaBuilder.equal(root.get("icn"), icn());
     }
   }
 }

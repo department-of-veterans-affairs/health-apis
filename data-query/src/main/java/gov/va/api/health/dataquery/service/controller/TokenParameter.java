@@ -2,6 +2,7 @@ package gov.va.api.health.dataquery.service.controller;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
+import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import lombok.Builder;
@@ -58,8 +59,11 @@ public class TokenParameter {
     return mode == Mode.ANY_SYSTEM_EXPLICIT_CODE;
   }
 
+  /** Determines if the token has an explicit code. */
   public boolean hasExplicitCode() {
-    return mode == Mode.EXPLICIT_SYSTEM_EXPLICIT_CODE || mode == Mode.NO_SYSTEM_EXPLICIT_CODE;
+    return mode == Mode.EXPLICIT_SYSTEM_EXPLICIT_CODE
+        || mode == Mode.NO_SYSTEM_EXPLICIT_CODE
+        || mode == Mode.ANY_SYSTEM_EXPLICIT_CODE;
   }
 
   public boolean hasExplicitSystem() {
@@ -70,8 +74,20 @@ public class TokenParameter {
     return mode == Mode.NO_SYSTEM_EXPLICIT_CODE;
   }
 
-  public boolean hasSupportedSystem(String allowedSystem) {
-    return allowedSystem.equals(system);
+  public boolean hasSupportedCode(String supportedCode) {
+    return supportedCode.equals(code);
+  }
+
+  public boolean hasSupportedCode(List<String> codes) {
+    return codes.stream().map(c -> hasSupportedCode(c)).anyMatch(b -> b == true);
+  }
+
+  public boolean hasSupportedSystem(String supportedSystem) {
+    return supportedSystem.equals(system);
+  }
+
+  public boolean hasSupportedSystem(List<String> systems) {
+    return systems.stream().map(s -> hasSupportedSystem(s)).anyMatch(b -> b == true);
   }
 
   public enum Mode {

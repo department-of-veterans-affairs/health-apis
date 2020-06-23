@@ -62,9 +62,15 @@ public class R4ConditionController {
     this.witnessProtection = witnessProtection;
   }
 
-  private static Specification<ConditionEntity> anyCodeSpec(
-      @SuppressWarnings("unused") String unused) {
-    return ConditionRepository.AnyCodeSpecification.builder().build();
+  private static Specification<ConditionEntity> explicitSystemSpec(String system) {
+    if ("http://terminology.hl7.org/CodeSystem/condition-category".equals(system)) {
+      return ConditionRepository.ExplicitSystemSpecification.builder()
+          .codes(List.of("problem", "diagnosis"))
+          .build();
+    }
+    return ConditionRepository.ExplicitSystemSpecification.builder()
+        .codes(List.of("health-concern"))
+        .build();
   }
 
   /**
@@ -80,10 +86,8 @@ public class R4ConditionController {
         return DatamartCondition.Category.problem.toString();
       case "encounter-diagnosis":
         return DatamartCondition.Category.diagnosis.toString();
-      case "health-concern":
-        return "health-concern";
       default:
-        throw new ResourceExceptions.BadSearchParameter("Invalid Category Parameter: " + category);
+        return category;
     }
   }
 
@@ -229,14 +233,19 @@ public class R4ConditionController {
     TokenParameter categoryToken = TokenParameter.parse(category);
     if ((categoryToken.hasExplicitSystem()
             && !categoryToken.hasSupportedSystem(
-                "http://hl7.org/fhir/R4/codesystem-condition-category.html"))
+                List.of(
+                    "http://hl7.org/fhir/R4/codesystem-condition-category.html",
+                    "http://terminology.hl7.org/CodeSystem/condition-category")))
+        || (categoryToken.hasExplicitCode()
+            && !categoryToken.hasSupportedCode(
+                List.of("problem-list-item", "encounter-diagnosis", "health-concern")))
         || categoryToken.hasNoSystem()) {
       return bundle(parameters, emptyList(), 0);
     }
     Specification<ConditionEntity> searchSpec =
         categoryToken
             .behavior()
-            .onExplicitSystemAndAnyCode(s -> anyCodeSpec(s))
+            .onExplicitSystemAndAnyCode(s -> explicitSystemSpec(s))
             .onExplicitSystemAndExplicitCode(
                 (s, c) ->
                     ConditionRepository.CodeSpecification.builder()

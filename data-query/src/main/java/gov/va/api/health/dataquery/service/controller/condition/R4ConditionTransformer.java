@@ -44,7 +44,7 @@ public class R4ConditionTransformer {
                         Coding.builder()
                             .display("Encounter Diagnosis")
                             .code("encounter-diagnosis")
-                            .system("http://hl7.org/fhir/R4/codesystem-condition-category.html")
+                            .system("http://terminology.hl7.org/CodeSystem/condition-category")
                             .build()))
                 .build());
       case problem:
@@ -56,7 +56,7 @@ public class R4ConditionTransformer {
                         Coding.builder()
                             .display("Problem List Item")
                             .code("problem-list-item")
-                            .system("http://hl7.org/fhir/R4/codesystem-condition-category.html")
+                            .system("http://terminology.hl7.org/CodeSystem/condition-category")
                             .build()))
                 .build());
       default:

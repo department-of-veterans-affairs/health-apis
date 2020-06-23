@@ -243,10 +243,21 @@ public class R4ConditionControllerTest {
                         10))));
   }
 
-  @Test(expected = ResourceExceptions.BadSearchParameter.class)
-  public void searchByPatientAndBadCategoryThrowsBadSearchParameter() {
+  @Test
+  public void searchByPatientAndBadCategoryReturnsEmptyBundle() {
 
-    controller().searchByPatientAndCategory("x", "nope", 1, 1);
+    assertThat(toJson(controller().searchByPatientAndCategory("x", "nope", 1, 0)))
+        .isEqualTo(
+            toJson(
+                ConditionSamples.R4.asBundle(
+                    "http://fonzy.com/cool",
+                    Collections.emptyList(),
+                    0,
+                    ConditionSamples.R4.link(
+                        BundleLink.LinkRelation.self,
+                        "http://fonzy.com/cool/Condition?category=nope&patient=x",
+                        1,
+                        0))));
   }
 
   @Test
