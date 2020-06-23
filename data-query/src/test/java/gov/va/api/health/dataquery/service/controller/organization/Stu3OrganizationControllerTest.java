@@ -4,6 +4,7 @@ import static java.util.Collections.emptyList;
 import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 import static org.apache.commons.lang3.StringUtils.trimToNull;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -21,7 +22,6 @@ import gov.va.api.health.stu3.api.resources.Organization;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -163,14 +163,14 @@ public class Stu3OrganizationControllerTest {
   @Test
   public void readRawThrowsNotFoundWhenDataIsMissing() {
     addMockIdentities("x", "y");
-    Assertions.assertThrows(
+    assertThrows(
         ResourceExceptions.NotFound.class,
         () -> controller().readRaw("x", mock(HttpServletResponse.class)));
   }
 
   @Test
   public void readRawThrowsNotFoundWhenIdIsUnknown() {
-    Assertions.assertThrows(
+    assertThrows(
         ResourceExceptions.NotFound.class,
         () -> controller().readRaw("x", mock(HttpServletResponse.class)));
   }
@@ -178,17 +178,17 @@ public class Stu3OrganizationControllerTest {
   @Test
   public void readThrowsNotFoundWhenDataIsMissing() {
     addMockIdentities("x", "y");
-    Assertions.assertThrows(ResourceExceptions.NotFound.class, () -> controller().read("x"));
+    assertThrows(ResourceExceptions.NotFound.class, () -> controller().read("x"));
   }
 
   @Test
   public void readThrowsNotFoundWhenIdIsUnknown() {
-    Assertions.assertThrows(ResourceExceptions.NotFound.class, () -> controller().read("x"));
+    assertThrows(ResourceExceptions.NotFound.class, () -> controller().read("x"));
   }
 
   @Test
   public void searchAddressMissingParameters() {
-    Assertions.assertThrows(
+    assertThrows(
         ResourceExceptions.MissingSearchParameters.class,
         () -> controller().searchByAddress(null, null, null, null, 1, 1));
   }
@@ -418,7 +418,7 @@ public class Stu3OrganizationControllerTest {
 
   @Test
   public void searchIdentifierMissmatchingSystem() {
-    Assertions.assertThrows(
+    assertThrows(
         ResourceExceptions.BadSearchParameter.class,
         () -> controller().searchByIdentifier("xyz|123", 1, 1));
   }

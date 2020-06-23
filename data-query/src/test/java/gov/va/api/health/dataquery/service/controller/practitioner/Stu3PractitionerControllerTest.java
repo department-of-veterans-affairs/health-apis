@@ -1,6 +1,7 @@
 package gov.va.api.health.dataquery.service.controller.practitioner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
@@ -16,7 +17,6 @@ import gov.va.api.health.stu3.api.resources.Practitioner;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -134,25 +134,23 @@ public class Stu3PractitionerControllerTest {
   @Test
   public void readRawThrowsNotFoundWhenDataIsMissing() {
     mockPractitionerIdentity("x", "x", "x", "x", "x", "x");
-    Assertions.assertThrows(
-        ResourceExceptions.NotFound.class, () -> controller().readRaw("x", response));
+    assertThrows(ResourceExceptions.NotFound.class, () -> controller().readRaw("x", response));
   }
 
   @Test
   public void readRawThrowsNotFoundWhenIdIsUnknown() {
-    Assertions.assertThrows(
-        ResourceExceptions.NotFound.class, () -> controller().readRaw("x", response));
+    assertThrows(ResourceExceptions.NotFound.class, () -> controller().readRaw("x", response));
   }
 
   @Test
   public void readThrowsNotFoundWhenDataIsMissing() {
     mockPractitionerIdentity("x", "x", "x", "x", "x", "x");
-    Assertions.assertThrows(ResourceExceptions.NotFound.class, () -> controller().read("x"));
+    assertThrows(ResourceExceptions.NotFound.class, () -> controller().read("x"));
   }
 
   @Test
   public void readThrowsNotFoundWhenIdIsUnknown() {
-    Assertions.assertThrows(ResourceExceptions.NotFound.class, () -> controller().read("x"));
+    assertThrows(ResourceExceptions.NotFound.class, () -> controller().read("x"));
   }
 
   @Test

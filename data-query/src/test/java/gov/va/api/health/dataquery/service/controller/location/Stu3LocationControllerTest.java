@@ -1,6 +1,7 @@
 package gov.va.api.health.dataquery.service.controller.location;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -19,7 +20,6 @@ import gov.va.api.health.stu3.api.resources.Location;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -121,14 +121,14 @@ public class Stu3LocationControllerTest {
   @Test
   public void readRawThrowsNotFoundWhenDataIsMissing() {
     addMockIdentities("x", "x", "y", "y");
-    Assertions.assertThrows(
+    assertThrows(
         ResourceExceptions.NotFound.class,
         () -> controller().readRaw("x", mock(HttpServletResponse.class)));
   }
 
   @Test
   public void readRawThrowsNotFoundWhenIdIsUnknown() {
-    Assertions.assertThrows(
+    assertThrows(
         ResourceExceptions.NotFound.class,
         () -> controller().readRaw("x", mock(HttpServletResponse.class)));
   }
@@ -136,12 +136,12 @@ public class Stu3LocationControllerTest {
   @Test
   public void readThrowsNotFoundWhenDataIsMissing() {
     addMockIdentities("x", "x", "y", "y");
-    Assertions.assertThrows(ResourceExceptions.NotFound.class, () -> controller().read("x"));
+    assertThrows(ResourceExceptions.NotFound.class, () -> controller().read("x"));
   }
 
   @Test
   public void readThrowsNotFoundWhenIdIsUnknown() {
-    Assertions.assertThrows(ResourceExceptions.NotFound.class, () -> controller().read("x"));
+    assertThrows(ResourceExceptions.NotFound.class, () -> controller().read("x"));
   }
 
   @Test

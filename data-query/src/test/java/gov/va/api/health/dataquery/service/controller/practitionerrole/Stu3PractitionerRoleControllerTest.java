@@ -3,6 +3,7 @@ package gov.va.api.health.dataquery.service.controller.practitionerrole;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -26,7 +27,6 @@ import gov.va.api.health.stu3.api.resources.PractitionerRole.Bundle;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -160,14 +160,14 @@ public class Stu3PractitionerRoleControllerTest {
   @Test
   public void readRawThrowsNotFoundWhenDataIsMissing() {
     addMockIdentities("x", "x", "y", "y", "z", "z");
-    Assertions.assertThrows(
+    assertThrows(
         ResourceExceptions.NotFound.class,
         () -> controller().readRaw("x", mock(HttpServletResponse.class)));
   }
 
   @Test
   public void readRawThrowsNotFoundWhenIdIsUnknown() {
-    Assertions.assertThrows(
+    assertThrows(
         ResourceExceptions.NotFound.class,
         () -> controller().readRaw("x", mock(HttpServletResponse.class)));
   }
@@ -175,12 +175,12 @@ public class Stu3PractitionerRoleControllerTest {
   @Test
   public void readThrowsNotFoundWhenDataIsMissing() {
     addMockIdentities("x", "x", "y", "y", "z", "z");
-    Assertions.assertThrows(ResourceExceptions.NotFound.class, () -> controller().read("x"));
+    assertThrows(ResourceExceptions.NotFound.class, () -> controller().read("x"));
   }
 
   @Test
   public void readThrowsNotFoundWhenIdIsUnknown() {
-    Assertions.assertThrows(ResourceExceptions.NotFound.class, () -> controller().read("x"));
+    assertThrows(ResourceExceptions.NotFound.class, () -> controller().read("x"));
   }
 
   @Test
@@ -372,21 +372,21 @@ public class Stu3PractitionerRoleControllerTest {
 
   @Test
   public void searchByNpi_badSystem() {
-    Assertions.assertThrows(
+    assertThrows(
         ResourceExceptions.BadSearchParameter.class,
         () -> controller().searchByNpi("not_npi|12345", 1, 1));
   }
 
   @Test
   public void searchByNpi_noDelimiter() {
-    Assertions.assertThrows(
+    assertThrows(
         ResourceExceptions.BadSearchParameter.class,
         () -> controller().searchByNpi("http://hl7.org/fhir/sid/us-npi", 1, 1));
   }
 
   @Test
   public void searchBySpecialty() {
-    Assertions.assertThrows(
+    assertThrows(
         ResourceExceptions.NotImplemented.class,
         () -> controller().searchBySpecialty("specialty", 1, 1));
   }

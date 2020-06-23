@@ -1,6 +1,7 @@
 package gov.va.api.health.dataquery.service.controller.datamart;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
@@ -9,13 +10,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.Value;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public final class DatamartEntityTest {
   @Test
   public void badPayload() {
-    Assertions.assertThrows(
+    assertThrows(
         ResourceExceptions.InvalidDatamartPayload.class,
         () -> new FooEntity().deserializeDatamart("{wat]", Foo.class));
   }
@@ -29,7 +29,7 @@ public final class DatamartEntityTest {
 
   @Test
   public void noPayload() {
-    Assertions.assertThrows(
+    assertThrows(
         ResourceExceptions.InvalidDatamartPayload.class,
         () -> new FooEntity().deserializeDatamart(null, String.class));
   }
