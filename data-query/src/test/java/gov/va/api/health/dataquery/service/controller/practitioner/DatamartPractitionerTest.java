@@ -10,7 +10,7 @@ import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference
 import java.time.LocalDate;
 import java.util.Optional;
 import lombok.SneakyThrows;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class DatamartPractitionerTest {
   private static DatamartPractitioner sample() {

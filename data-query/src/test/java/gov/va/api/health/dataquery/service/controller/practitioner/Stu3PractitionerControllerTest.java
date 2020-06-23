@@ -16,15 +16,20 @@ import gov.va.api.health.stu3.api.resources.Practitioner;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @DataJpaTest
-@RunWith(SpringRunner.class)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+@ExtendWith(SpringExtension.class)
 public class Stu3PractitionerControllerTest {
 
   HttpServletResponse response = mock(HttpServletResponse.class);
@@ -128,26 +133,30 @@ public class Stu3PractitionerControllerTest {
     verify(servletResponse).addHeader("X-VA-INCLUDES-ICN", "NONE");
   }
 
-  @Test(expected = ResourceExceptions.NotFound.class)
+  @Test
   public void readRawThrowsNotFoundWhenDataIsMissing() {
     mockPractitionerIdentity("x", "x", "x", "x", "x", "x");
-    controller().readRaw("x", response);
+    Assertions.assertThrows(ResourceExceptions.NotFound.class, () ->
+    controller().readRaw("x", response));
   }
 
-  @Test(expected = ResourceExceptions.NotFound.class)
+  @Test
   public void readRawThrowsNotFoundWhenIdIsUnknown() {
-    controller().readRaw("x", response);
+    Assertions.assertThrows(ResourceExceptions.NotFound.class, () ->
+    controller().readRaw("x", response));
   }
 
-  @Test(expected = ResourceExceptions.NotFound.class)
+  @Test
   public void readThrowsNotFoundWhenDataIsMissing() {
     mockPractitionerIdentity("x", "x", "x", "x", "x", "x");
-    controller().read("x");
+    Assertions.assertThrows(ResourceExceptions.NotFound.class, () ->
+    controller().read("x"));
   }
 
-  @Test(expected = ResourceExceptions.NotFound.class)
+  @Test
   public void readThrowsNotFoundWhenIdIsUnknown() {
-    controller().read("x");
+    Assertions.assertThrows(ResourceExceptions.NotFound.class, () ->
+    controller().read("x"));
   }
 
   @Test
