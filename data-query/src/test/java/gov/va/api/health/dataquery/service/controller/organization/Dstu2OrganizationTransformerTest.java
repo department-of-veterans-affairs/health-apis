@@ -8,7 +8,7 @@ import gov.va.api.health.dstu2.api.datatypes.Address;
 import gov.va.api.health.dstu2.api.datatypes.ContactPoint;
 import gov.va.api.health.dstu2.api.resources.Organization;
 import lombok.SneakyThrows;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class Dstu2OrganizationTransformerTest {
   @Test
