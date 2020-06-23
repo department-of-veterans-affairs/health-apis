@@ -174,7 +174,7 @@ class R4MetadataController {
                                 .build(),
                             Extension.builder()
                                 .url("manage")
-                                .valueUri(properties.getSecurity().getManageEndpoint())
+                                .valueUri(properties.getSecurity().getManagementEndpoint())
                                 .build(),
                             Extension.builder()
                                 .url("revoke")

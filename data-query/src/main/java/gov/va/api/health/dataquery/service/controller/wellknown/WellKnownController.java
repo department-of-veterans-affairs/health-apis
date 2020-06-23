@@ -22,7 +22,7 @@ class WellKnownController {
     return WellKnown.builder()
         .authorizationEndpoint(metadataProperties.getSecurity().getAuthorizeEndpoint())
         .tokenEndpoint(metadataProperties.getSecurity().getTokenEndpoint())
-        .managementEndpoint(metadataProperties.getSecurity().getManageEndpoint())
+        .managementEndpoint(metadataProperties.getSecurity().getManagementEndpoint())
         .revocationEndpoint(metadataProperties.getSecurity().getRevocationEndpoint())
         .capabilities(wellKnownProperties.getCapabilities())
         .responseTypeSupported(wellKnownProperties.getResponseTypeSupported())

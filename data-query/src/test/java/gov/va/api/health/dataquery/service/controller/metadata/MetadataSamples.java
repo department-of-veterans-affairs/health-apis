@@ -34,7 +34,7 @@ class MetadataSamples {
             SecurityProperties.builder()
                 .tokenEndpoint("https://argonaut.lighthouse.va.gov/token")
                 .authorizeEndpoint("https://argonaut.lighthouse.va.gov/authorize")
-                .manageEndpoint("https://argonaut.lighthouse.va.gov/manage")
+                .managementEndpoint("https://argonaut.lighthouse.va.gov/manage")
                 .revocationEndpoint('https://argonaut.lighthouse.va.gov/revoke')
                 .description(
                     "This is the conformance statement to declare that the server"

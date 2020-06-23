@@ -62,7 +62,7 @@ public class MetadataProperties {
   public static class SecurityProperties {
     private String tokenEndpoint;
     private String authorizeEndpoint;
-    private String manageEndpoint;
+    private String managementEndpoint;
     private String revocationEndpoint;
     private String description;
   }
