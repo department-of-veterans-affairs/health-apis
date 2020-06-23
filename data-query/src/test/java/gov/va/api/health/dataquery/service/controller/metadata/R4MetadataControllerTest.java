@@ -10,7 +10,7 @@ import gov.va.api.health.dataquery.service.controller.metadata.MetadataPropertie
 import gov.va.api.health.r4.api.resources.CapabilityStatement;
 import java.util.Properties;
 import lombok.SneakyThrows;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.info.BuildProperties;
 
 public class R4MetadataControllerTest {
