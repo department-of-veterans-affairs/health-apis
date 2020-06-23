@@ -9,12 +9,15 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.Value;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public final class DatamartEntityTest {
-  @Test(expected = ResourceExceptions.InvalidDatamartPayload.class)
+  @Test
   public void badPayload() {
-    new FooEntity().deserializeDatamart("{wat]", Foo.class);
+    Assertions.assertThrows(
+        ResourceExceptions.InvalidDatamartPayload.class,
+        () -> new FooEntity().deserializeDatamart("{wat]", Foo.class));
   }
 
   @Test
@@ -24,9 +27,11 @@ public final class DatamartEntityTest {
     assertThat(new FooEntity().deserializeDatamart(payload, Foo.class)).isEqualTo(new Foo("x"));
   }
 
-  @Test(expected = ResourceExceptions.InvalidDatamartPayload.class)
+  @Test
   public void noPayload() {
-    new FooEntity().deserializeDatamart(null, String.class);
+    Assertions.assertThrows(
+        ResourceExceptions.InvalidDatamartPayload.class,
+        () -> new FooEntity().deserializeDatamart(null, String.class));
   }
 
   @Data
