@@ -35,6 +35,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.UnsatisfiedServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -192,6 +193,12 @@ public class WebExceptionHandler {
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   public OperationOutcome handleBadRequest(Exception e, HttpServletRequest request) {
     return responseFor("structure", e, request, emptyList(), true);
+  }
+
+  @ExceptionHandler({HttpRequestMethodNotSupportedException.class})
+  @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
+  public OperationOutcome handleNotAllowed(Exception e, HttpServletRequest request) {
+    return responseFor("not-allowed", e, request, emptyList(), true);
   }
 
   @ExceptionHandler({
