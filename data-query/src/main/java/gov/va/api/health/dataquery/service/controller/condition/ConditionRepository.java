@@ -33,7 +33,7 @@ public interface ConditionRepository
   @RequiredArgsConstructor(staticName = "of")
   @Value
   class CodeSpecification implements Specification<ConditionEntity> {
-    String code;
+    DatamartCondition.Category code;
 
     @Override
     public Predicate toPredicate(
@@ -41,14 +41,14 @@ public interface ConditionRepository
         CriteriaQuery<?> criteriaQuery,
         CriteriaBuilder criteriaBuilder) {
 
-      return criteriaBuilder.equal(root.get("category"), code());
+      return criteriaBuilder.equal(root.get("category"), code().toString());
     }
   }
 
   @RequiredArgsConstructor(staticName = "of")
   @Value
   class ExplicitSystemSpecification implements Specification<ConditionEntity> {
-    List<String> codes;
+    List<DatamartCondition.Category> codes;
 
     @Override
     public Predicate toPredicate(

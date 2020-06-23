@@ -49,9 +49,6 @@ public class R4ConditionController {
   private final String problemAndDiagnosisSystem =
       "http://terminology.hl7.org/CodeSystem/condition-category";
 
-  private final String healthConcernSystem =
-      "http://hl7.org/fhir/us/core/CodeSystem/condition-category";
-
   R4Bundler bundler;
 
   private ConditionRepository repository;
@@ -73,16 +70,18 @@ public class R4ConditionController {
    *
    * <p>Datamart: problem | diagnosis
    *
-   * <p>R4: problem-list-item | encounter-diagnosis | health-concern
+   * <p>R4: problem-list-item | encounter-diagnosis
+   *
+   * <p>health-concern not currently supported
    */
-  private String asDatamartCategory(String category) {
+  private DatamartCondition.Category asDatamartCategory(String category) {
     switch (category) {
       case "problem-list-item":
-        return DatamartCondition.Category.problem.toString();
+        return DatamartCondition.Category.problem;
       case "encounter-diagnosis":
-        return DatamartCondition.Category.diagnosis.toString();
+        return DatamartCondition.Category.diagnosis;
       default:
-        return category;
+        throw new IllegalStateException("Unsupported category code value: " + category);
     }
   }
 
@@ -135,12 +134,7 @@ public class R4ConditionController {
   private Specification<ConditionEntity> explicitSystemSpec(String system) {
     if (problemAndDiagnosisSystem.equals(system)) {
       return ConditionRepository.ExplicitSystemSpecification.of(
-          List.of(
-              DatamartCondition.Category.problem.toString(),
-              DatamartCondition.Category.diagnosis.toString()));
-    }
-    if (healthConcernSystem.equals(system)) {
-      return ConditionRepository.ExplicitSystemSpecification.of(List.of("health-concern"));
+          List.of(DatamartCondition.Category.problem, DatamartCondition.Category.diagnosis));
     }
     throw new IllegalStateException(
         "Unsupported system: " + system + ". Cannot build ExplicitSystemSpecification");
@@ -237,6 +231,8 @@ public class R4ConditionController {
    * Search Condition by patient and category.
    *
    * <p>GET [base]/Condition?patient=[reference]&category={[system]}|[code]
+   *
+   * <p>health-concern not currently supported
    */
   @GetMapping(params = {"patient", "category"})
   public Condition.Bundle searchByPatientAndCategory(
@@ -252,9 +248,8 @@ public class R4ConditionController {
             .add("_count", count)
             .build();
     TokenParameter categoryToken = TokenParameter.parse(category);
-    if (categoryToken.isSystemExplicitAndUnsupported(healthConcernSystem, problemAndDiagnosisSystem)
-        || categoryToken.isCodeExplicitAndUnsupported(
-            "problem-list-item", "encounter-diagnosis", "health-concern")
+    if (categoryToken.isSystemExplicitAndUnsupported(problemAndDiagnosisSystem)
+        || categoryToken.isCodeExplicitAndUnsupported("problem-list-item", "encounter-diagnosis")
         || categoryToken.hasNoSystem()) {
       return bundle(parameters, emptyList(), 0);
     }
