@@ -139,16 +139,46 @@ public class R4MedicationRequestControllerTest {
                     .build()));
   }
 
+  @Test
+  public void nonexistingSearchByPatientTest() {
+    Multimap<String, MedicationRequest> medicationRequestByPatient = populateData();
+    assertThat(json(controller().searchByPatient("nada", 8, 10)))
+        .isEqualTo(
+            json(
+                MedicationRequestSamples.R4.asBundle(
+                    "http://abed.com/cool",
+                    Collections.emptyList(),
+                    0,
+                    MedicationRequestSamples.R4.link(
+                        BundleLink.LinkRelation.first,
+                        "http://abed.com/cool/MedicationRequest?patient=nada",
+                        1,
+                        10),
+                    MedicationRequestSamples.R4.link(
+                        BundleLink.LinkRelation.self,
+                        "http://abed.com/cool/MedicationRequest?patient=nada",
+                        8,
+                        10),
+                    MedicationRequestSamples.R4.link(
+                        BundleLink.LinkRelation.last,
+                        "http://abed.com/cool/MedicationRequest?patient=nada",
+                        0,
+                        10))));
+  }
+
   private Multimap<String, MedicationRequest> populateData() {
     var fhir = MedicationRequestSamples.R4.create();
     var datamartMedicationOrder = MedicationOrderSamples.Datamart.create();
     var datamartMedicationStatement = MedicationStatementSamples.Datamart.create();
     var medicationRequestByPatient = LinkedHashMultimap.<String, MedicationRequest>create();
     var registrations = new ArrayList<Registration>(30);
-    for (int i = 0; i < 15; i++) {
+    // We need to start at 10 because ordering is based on the publicId as a string and not a
+    // number.
+    // Therefore 9010 would come before 902.
+    for (int i = 10; i < 25; i++) {
       var patientId = "p" + i % 2;
       var cdwId = "" + i;
-      var publicId = "90" + i;
+      var publicId = "9" + i;
       var dms = datamartMedicationStatement.medicationStatement(cdwId, patientId);
       medicationStatementRepository.save(asMedicationStatementEntity(dms));
       var medicationRequestFromMedicationStatement =
@@ -168,10 +198,10 @@ public class R4MedicationRequestControllerTest {
       registrations.add(registration);
       when(ids.lookup(publicId)).thenReturn(List.of(resourceIdentity));
     }
-    for (int j = 15; j < 30; j++) {
+    for (int j = 25; j < 40; j++) {
       var patientId = "p" + j % 2;
       var cdwId = "" + j;
-      var publicId = "90" + j;
+      var publicId = "9" + j;
       var dmo = datamartMedicationOrder.medicationOrder(cdwId, patientId);
       medicationOrderRepository.save(asMedicationOrderEntity(dmo));
       var medicationRequestFromMedicationOrder =
@@ -312,26 +342,66 @@ public class R4MedicationRequestControllerTest {
   @Test
   public void searchByPatient() {
     Multimap<String, MedicationRequest> medicationRequestByPatient = populateData();
-
-    String blha = json(controller().searchByPatient("p0", 2, 10));
-
-    assertThat(json(controller().searchByPatient("p0", 2, 10)))
+    List<MedicationRequest> medicationRequests =
+        medicationRequestByPatient.get("p0").stream()
+            .filter(
+                mr ->
+                    medicationRequestByPatient
+                        .get("p0")
+                        .contains(mr.intent(MedicationRequest.Intent.plan)))
+            .collect(Collectors.toList());
+    assertThat(json(controller().searchByPatient("p0", 1, 10)))
         .isEqualTo(
             json(
                 MedicationRequestSamples.R4.asBundle(
                     "http://abed.com/cool",
-                    medicationRequestByPatient.get("p0"),
-                    medicationRequestByPatient.get("p0").size(),
+                    medicationRequests,
+                    medicationRequests.size(),
                     MedicationRequestSamples.R4.link(
                         BundleLink.LinkRelation.first,
                         "http://abed.com/cool/MedicationRequest?patient=p0",
                         1,
                         10),
                     MedicationRequestSamples.R4.link(
-                            BundleLink.LinkRelation.prev,
-                            "http://abed.com/cool/MedicationRequest?patient=p0",
-                            1,
-                            10),
+                        BundleLink.LinkRelation.self,
+                        "http://abed.com/cool/MedicationRequest?patient=p0",
+                        1,
+                        10),
+                    MedicationRequestSamples.R4.link(
+                        BundleLink.LinkRelation.next,
+                        "http://abed.com/cool/MedicationRequest?patient=p0",
+                        2,
+                        10),
+                    MedicationRequestSamples.R4.link(
+                        BundleLink.LinkRelation.last,
+                        "http://abed.com/cool/MedicationRequest?patient=p0",
+                        2,
+                        10))));
+    medicationRequests =
+        medicationRequestByPatient.get("p0").stream()
+            .filter(
+                mr ->
+                    medicationRequestByPatient
+                        .get("p0")
+                        .contains(mr.intent(MedicationRequest.Intent.order)))
+            .collect(Collectors.toList());
+    assertThat(json(controller().searchByPatient("p0", 2, 10)))
+        .isEqualTo(
+            json(
+                MedicationRequestSamples.R4.asBundle(
+                    "http://abed.com/cool",
+                    medicationRequests,
+                    medicationRequests.size(),
+                    MedicationRequestSamples.R4.link(
+                        BundleLink.LinkRelation.first,
+                        "http://abed.com/cool/MedicationRequest?patient=p0",
+                        1,
+                        10),
+                    MedicationRequestSamples.R4.link(
+                        BundleLink.LinkRelation.prev,
+                        "http://abed.com/cool/MedicationRequest?patient=p0",
+                        1,
+                        10),
                     MedicationRequestSamples.R4.link(
                         BundleLink.LinkRelation.self,
                         "http://abed.com/cool/MedicationRequest?patient=p0",
@@ -347,7 +417,6 @@ public class R4MedicationRequestControllerTest {
   @Test
   public void searchByPatientAndIntent() {
     Multimap<String, MedicationRequest> medicationRequestByPatientAndIntent = populateData();
-
     List<MedicationRequest> medicationRequests =
         medicationRequestByPatientAndIntent.get("p0").stream()
             .filter(
@@ -356,7 +425,6 @@ public class R4MedicationRequestControllerTest {
                         .get("p0")
                         .contains(mr.intent(MedicationRequest.Intent.order)))
             .collect(Collectors.toList());
-
     assertThat(json(controller().searchByPatientAndIntent("p0", "order", 1, 10)))
         .isEqualTo(
             json(
@@ -377,6 +445,36 @@ public class R4MedicationRequestControllerTest {
                     MedicationRequestSamples.R4.link(
                         BundleLink.LinkRelation.last,
                         "http://abed.com/cool/MedicationRequest?intent=order&patient=p0",
+                        1,
+                        10))));
+    medicationRequests =
+        medicationRequestByPatientAndIntent.get("p0").stream()
+            .filter(
+                mr ->
+                    medicationRequestByPatientAndIntent
+                        .get("p0")
+                        .contains(mr.intent(MedicationRequest.Intent.plan)))
+            .collect(Collectors.toList());
+    assertThat(json(controller().searchByPatientAndIntent("p0", "plan", 1, 10)))
+        .isEqualTo(
+            json(
+                MedicationRequestSamples.R4.asBundle(
+                    "http://abed.com/cool",
+                    medicationRequests,
+                    medicationRequests.size(),
+                    MedicationRequestSamples.R4.link(
+                        BundleLink.LinkRelation.first,
+                        "http://abed.com/cool/MedicationRequest?intent=plan&patient=p0",
+                        1,
+                        10),
+                    MedicationRequestSamples.R4.link(
+                        BundleLink.LinkRelation.self,
+                        "http://abed.com/cool/MedicationRequest?intent=plan&patient=p0",
+                        1,
+                        10),
+                    MedicationRequestSamples.R4.link(
+                        BundleLink.LinkRelation.last,
+                        "http://abed.com/cool/MedicationRequest?intent=plan&patient=p0",
                         1,
                         10))));
     // Intent != order and != plan should return empty
@@ -462,5 +560,34 @@ public class R4MedicationRequestControllerTest {
                         "http://abed.com/cool/MedicationRequest?patient=1",
                         1,
                         0))));
+  }
+
+  @Test
+  public void zeroCountSearchesTest() {
+    assertThat(json(controller().searchByPatientAndIntent("p0", "plan", 1, 0)))
+        .isEqualTo(
+            json(
+                MedicationRequestSamples.R4.asBundle(
+                    "http://abed.com/cool",
+                    Collections.emptyList(),
+                    0,
+                    MedicationRequestSamples.R4.link(
+                        BundleLink.LinkRelation.self,
+                        "http://abed.com/cool/MedicationRequest?intent=plan&patient=p0",
+                        1,
+                        0))));
+
+    assertThat(json(controller().searchByPatientAndIntent("p0", "order", 1, 0)))
+            .isEqualTo(
+                    json(
+                            MedicationRequestSamples.R4.asBundle(
+                                    "http://abed.com/cool",
+                                    Collections.emptyList(),
+                                    0,
+                                    MedicationRequestSamples.R4.link(
+                                            BundleLink.LinkRelation.self,
+                                            "http://abed.com/cool/MedicationRequest?intent=order&patient=p0",
+                                            1,
+                                            0))));
   }
 }
