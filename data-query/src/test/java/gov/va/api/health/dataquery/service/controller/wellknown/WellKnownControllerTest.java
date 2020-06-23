@@ -32,6 +32,8 @@ public class WellKnownControllerTest {
             MetadataProperties.SecurityProperties.builder()
                 .authorizeEndpoint("https://argonaut.lighthouse.va.gov/authorize")
                 .tokenEndpoint("https://argonaut.lighthouse.va.gov/token")
+                .manageEndpoint("https://argonaut.lighthouse.va.gov/manage")
+                .revocationEndpoint('https://argonaut.lighthouse.va.gov/revoke')
                 .build())
         .build();
   }
