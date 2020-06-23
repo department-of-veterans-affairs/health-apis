@@ -2,6 +2,7 @@ package gov.va.api.health.dataquery.service.controller.patient;
 
 import static gov.va.api.health.dataquery.service.controller.Transformers.parseInstant;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import gov.va.api.health.argonaut.api.resources.Patient;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
@@ -11,15 +12,17 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.SneakyThrows;
 import org.assertj.core.util.Lists;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @DataJpaTest
-@RunWith(SpringRunner.class)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+@ExtendWith(SpringExtension.class)
 public class PatientBulkFhirControllerTest {
   @Autowired private TestEntityManager entityManager;
 
@@ -80,14 +83,14 @@ public class PatientBulkFhirControllerTest {
     assertThat(json(controller().search(1, 10))).isEqualTo(json(patients));
   }
 
-  @Test(expected = BadSearchParameter.class)
+  @Test
   public void searchBadCountThrowsUnsatisfiedServletRequestParameterException() {
-    controller().search(1, -1);
+    assertThrows(BadSearchParameter.class, () -> controller().search(1, -1));
   }
 
-  @Test(expected = BadSearchParameter.class)
+  @Test
   public void searchBadPageThrowsUnsatisfiedServletRequestParameterException() {
-    controller().search(0, 15);
+    assertThrows(BadSearchParameter.class, () -> controller().search(0, 15));
   }
 
   @Test
