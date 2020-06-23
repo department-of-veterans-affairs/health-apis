@@ -1,6 +1,7 @@
 package gov.va.api.health.dataquery.service.controller.location;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -18,15 +19,20 @@ import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
+
 import lombok.SneakyThrows;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @DataJpaTest
-@RunWith(SpringRunner.class)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+@ExtendWith(SpringExtension.class)
 public class Dstu2LocationControllerTest {
   @Autowired private LocationRepository repository;
 
@@ -115,26 +121,26 @@ public class Dstu2LocationControllerTest {
     verify(servletResponse).addHeader("X-VA-INCLUDES-ICN", "NONE");
   }
 
-  @Test(expected = ResourceExceptions.NotFound.class)
+  @Test
   public void readRawThrowsNotFoundWhenDataIsMissing() {
     addMockIdentities("x", "x", "y", "y");
-    controller().readRaw("x", mock(HttpServletResponse.class));
+    assertThrows(ResourceExceptions.NotFound.class, () -> controller().readRaw("x", mock(HttpServletResponse.class)));
   }
 
-  @Test(expected = ResourceExceptions.NotFound.class)
+  @Test
   public void readRawThrowsNotFoundWhenIdIsUnknown() {
-    controller().readRaw("x", mock(HttpServletResponse.class));
+    assertThrows(ResourceExceptions.NotFound.class, () -> controller().readRaw("x", mock(HttpServletResponse.class)));
   }
 
-  @Test(expected = ResourceExceptions.NotFound.class)
+  @Test
   public void readThrowsNotFoundWhenDataIsMissing() {
     addMockIdentities("x", "x", "y", "y");
-    controller().read("x");
+    assertThrows(ResourceExceptions.NotFound.class, () -> controller().read("x"));
   }
 
-  @Test(expected = ResourceExceptions.NotFound.class)
+  @Test
   public void readThrowsNotFoundWhenIdIsUnknown() {
-    controller().read("x");
+    assertThrows(ResourceExceptions.NotFound.class, () -> controller().read("x"));
   }
 
   @Test
