@@ -9,7 +9,7 @@ import gov.va.api.health.uscorer4.api.resources.Observation;
 import java.util.List;
 import java.util.Optional;
 import org.assertj.core.util.Lists;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class R4ObservationTransformerTest {
   @Test
