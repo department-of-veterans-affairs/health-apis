@@ -3,7 +3,7 @@ package gov.va.api.health.dataquery.service.controller.practitioner;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.stu3.api.resources.Practitioner;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class Stu3PractitionerTransformerTest {
   @Test

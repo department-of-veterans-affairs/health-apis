@@ -7,7 +7,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import java.util.Optional;
 import lombok.SneakyThrows;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class DatamartLocationTest {
   private static DatamartLocation sample() {
