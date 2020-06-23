@@ -26,31 +26,23 @@ import java.util.Collections;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
-import org.junit.Before;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.context.junit4.SpringRunner;
 
 @DataJpaTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @ExtendWith(SpringExtension.class)
 public class Dstu2MedicationStatementControllerTest {
-  HttpServletResponse response;
+  HttpServletResponse response = mock(HttpServletResponse.class);
 
   @Autowired private MedicationStatementRepository repository;
 
   private IdentityService ids = mock(IdentityService.class);
-
-  @Before
-  public void _init() {
-    response = mock(HttpServletResponse.class);
-  }
 
   @SneakyThrows
   private MedicationStatementEntity asEntity(DatamartMedicationStatement dm) {

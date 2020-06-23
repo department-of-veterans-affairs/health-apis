@@ -31,13 +31,11 @@ import javax.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.context.junit4.SpringRunner;
 
 @DataJpaTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
@@ -95,7 +93,8 @@ public class Dstu2DiagnosticReportControllerTest {
   @Test
   public void readRawForEmptyReportShouldExplodeNotFound() {
     Dstu2DiagnosticReportController controller = controller();
-    assertThrows(ResourceExceptions.NotFound.class, () -> controller.readRaw("800260864479:L", response));
+    assertThrows(
+        ResourceExceptions.NotFound.class, () -> controller.readRaw("800260864479:L", response));
   }
 
   @Test
@@ -109,7 +108,8 @@ public class Dstu2DiagnosticReportControllerTest {
     Datamart dm = Datamart.create();
     entityManager.persistAndFlush(dm.entityWithNoReport());
     entityManager.persistAndFlush(dm.crossEntity());
-    assertThrows(ResourceExceptions.NotFound.class, () -> controller().readRaw("800260864479:L", response));
+    assertThrows(
+        ResourceExceptions.NotFound.class, () -> controller().readRaw("800260864479:L", response));
   }
 
   @Test
@@ -391,7 +391,9 @@ public class Dstu2DiagnosticReportControllerTest {
   public void searchByPatientRawForUnknownPatient() {
     Datamart dm = Datamart.create();
     entityManager.persistAndFlush(dm.entity());
-    assertThrows(ResourceExceptions.NotFound.class, () -> controller().searchByPatientRaw("WHODIS?", response));
+    assertThrows(
+        ResourceExceptions.NotFound.class,
+        () -> controller().searchByPatientRaw("WHODIS?", response));
   }
 
   @Test

@@ -23,14 +23,12 @@ import javax.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.context.junit4.SpringRunner;
 
 @SuppressWarnings("WeakerAccess")
 @DataJpaTest
@@ -123,7 +121,9 @@ public class Dstu2PatientControllerTest {
   public void searchByFamilyAndGenderWithNullCdw() {
     DatamartPatient dm = Datamart.create().patient("x");
     testEntityManager.persistAndFlush(asPatientEntityV2(dm));
-    assertThrows(IllegalArgumentException.class, () -> controller().searchByFamilyAndGender("Wolff180", "null", 1, 0));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> controller().searchByFamilyAndGender("Wolff180", "null", 1, 0));
   }
 
   @Test
