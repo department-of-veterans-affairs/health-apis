@@ -578,16 +578,16 @@ public class R4MedicationRequestControllerTest {
                         0))));
 
     assertThat(json(controller().searchByPatientAndIntent("p0", "order", 1, 0)))
-            .isEqualTo(
-                    json(
-                            MedicationRequestSamples.R4.asBundle(
-                                    "http://abed.com/cool",
-                                    Collections.emptyList(),
-                                    0,
-                                    MedicationRequestSamples.R4.link(
-                                            BundleLink.LinkRelation.self,
-                                            "http://abed.com/cool/MedicationRequest?intent=order&patient=p0",
-                                            1,
-                                            0))));
+        .isEqualTo(
+            json(
+                MedicationRequestSamples.R4.asBundle(
+                    "http://abed.com/cool",
+                    Collections.emptyList(),
+                    0,
+                    MedicationRequestSamples.R4.link(
+                        BundleLink.LinkRelation.self,
+                        "http://abed.com/cool/MedicationRequest?intent=order&patient=p0",
+                        1,
+                        0))));
   }
 }

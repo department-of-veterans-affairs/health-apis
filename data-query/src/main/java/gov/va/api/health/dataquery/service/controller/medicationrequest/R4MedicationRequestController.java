@@ -357,11 +357,15 @@ public class R4MedicationRequestController {
           parameters,
           count,
           medicationOrderRepository.findByIcn(
-              icn, PageRequest.of(page - 1, count == 0 ? 1 : count, MedicationOrderEntity.naturalOrder())));
+              icn,
+              PageRequest.of(
+                  page - 1, count == 0 ? 1 : count, MedicationOrderEntity.naturalOrder())));
     } else if ("plan".equals(intent)) {
       Page<MedicationStatementEntity> medicationStatementEntities =
           medicationStatementRepository.findByIcn(
-              icn, PageRequest.of(page - 1, count == 0 ? 1 : count, MedicationStatementEntity.naturalOrder()));
+              icn,
+              PageRequest.of(
+                  page - 1, count == 0 ? 1 : count, MedicationStatementEntity.naturalOrder()));
 
       int totalRecords = (int) medicationStatementEntities.getTotalElements();
 
