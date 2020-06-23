@@ -1,6 +1,7 @@
 package gov.va.api.health.dataquery.service.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -13,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.util.MultiValueMap;
@@ -101,7 +101,7 @@ public class WitnessProtectionTest {
   @Test
   public void replacePublicIdsWithCdwIdsThrowsSearchFailedIfIdsFails() {
     when(ids.lookup(Mockito.any())).thenThrow(new IdentityService.LookupFailed("x", "x"));
-    Assertions.assertThrows(
+    assertThrows(
         ResourceExceptions.SearchFailed.class,
         () -> wp.replacePublicIdsWithCdwIds(Parameters.forIdentity("x")));
   }
@@ -109,7 +109,7 @@ public class WitnessProtectionTest {
   @Test
   public void replacePublicIdsWithCdwIdsThrowsUnknownIdentityIfIdsFails() {
     when(ids.lookup(Mockito.any())).thenThrow(new IdentityService.UnknownIdentity("x"));
-    Assertions.assertThrows(
+    assertThrows(
         ResourceExceptions.UnknownIdentityInSearchParameter.class,
         () -> wp.replacePublicIdsWithCdwIds(Parameters.forIdentity("x")));
   }
@@ -125,8 +125,7 @@ public class WitnessProtectionTest {
 
   @Test
   public void toResourceIdentityExceptionTest() {
-    Assertions.assertThrows(
-        ResourceExceptions.NotFound.class, () -> wp.toResourceIdentity("not cool"));
+    assertThrows(ResourceExceptions.NotFound.class, () -> wp.toResourceIdentity("not cool"));
   }
 
   @Test

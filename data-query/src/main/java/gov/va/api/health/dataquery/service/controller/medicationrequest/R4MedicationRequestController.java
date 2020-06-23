@@ -247,18 +247,13 @@ public class R4MedicationRequestController {
     log.info("Looking for {} ({})", patient, icn);
 
     MedicationStatementRepository.PatientSpecification medicationStatementPatientSpec =
-        MedicationStatementRepository.PatientSpecification.builder().patient(icn).build();
+        MedicationStatementRepository.PatientSpecification.of(icn);
     MedicationOrderRepository.PatientSpecification medicationOrderPatientSpec =
-        MedicationOrderRepository.PatientSpecification.builder().patient(icn).build();
+        MedicationOrderRepository.PatientSpecification.of(icn);
     long numMedicationStatementsForPatient =
         medicationStatementRepository.count(medicationStatementPatientSpec);
     long numMedicationOrdersForPatient =
         medicationOrderRepository.count(medicationOrderPatientSpec);
-
-    int totalPages =
-        (int)
-            (Math.ceil(numMedicationStatementsForPatient / (double) (count == 0 ? 1 : count))
-                + Math.ceil(numMedicationOrdersForPatient / (double) (count == 0 ? 1 : count)));
 
     if (count == 0) {
       return bundle(
@@ -270,6 +265,11 @@ public class R4MedicationRequestController {
           emptyList(),
           (int) (numMedicationStatementsForPatient + numMedicationOrdersForPatient));
     }
+
+    int totalPages =
+        (int)
+            (Math.ceil(numMedicationStatementsForPatient / (double) count)
+                + Math.ceil(numMedicationOrdersForPatient / (double) count));
 
     int lastPageWithMedicationStatement =
         (int) Math.floor((double) numMedicationStatementsForPatient / count);

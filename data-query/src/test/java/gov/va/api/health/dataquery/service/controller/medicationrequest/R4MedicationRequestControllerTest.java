@@ -89,52 +89,26 @@ public class R4MedicationRequestControllerTest {
   }
 
   public void mockMedicationOrderIdentity(String publicId, String cdwId) {
-    ResourceIdentity resourceIdentity =
-        ResourceIdentity.builder()
-            .identifier(cdwId)
-            .resource("MEDICATION_ORDER")
-            .system("CDW")
-            .build();
-    when(ids.lookup(publicId)).thenReturn(List.of(resourceIdentity));
-    when(ids.register(Mockito.any()))
-        .thenReturn(
-            List.of(
-                Registration.builder()
-                    .uuid(publicId)
-                    .resourceIdentities(List.of(resourceIdentity))
-                    .build()));
+    mockResourceIdentity("MEDICATION_ORDER", publicId, cdwId);
   }
 
   public void mockMedicationStatementIdentity(String publicId, String cdwId) {
+    mockResourceIdentity("MEDICATION_STATEMENT", publicId, cdwId);
+  }
+
+  public void mockNonMedicationTypeIdentity() {
+    mockResourceIdentity("MEDICATION_STATEMENT", "41", "non_cdwId");
+  }
+
+  public void mockResourceIdentity(String resourceType, String publicId, String cdwId) {
     ResourceIdentity resourceIdentity =
-        ResourceIdentity.builder()
-            .identifier(cdwId)
-            .resource("MEDICATION_STATEMENT")
-            .system("CDW")
-            .build();
+        ResourceIdentity.builder().identifier(cdwId).resource(resourceType).system("CDW").build();
     when(ids.lookup(publicId)).thenReturn(List.of(resourceIdentity));
     when(ids.register(Mockito.any()))
         .thenReturn(
             List.of(
                 Registration.builder()
                     .uuid(publicId)
-                    .resourceIdentities(List.of(resourceIdentity))
-                    .build()));
-  }
-
-  public void mockNonMedicationTypeIdentity() {
-    ResourceIdentity resourceIdentity =
-        ResourceIdentity.builder()
-            .identifier("non_cdwId")
-            .resource("NOT_MEDICATION_ORDER_OR_STATEMENT")
-            .system("CDW")
-            .build();
-    when(ids.lookup("41")).thenReturn(List.of(resourceIdentity));
-    when(ids.register(Mockito.any()))
-        .thenReturn(
-            List.of(
-                Registration.builder()
-                    .uuid("41")
                     .resourceIdentities(List.of(resourceIdentity))
                     .build()));
   }
@@ -576,7 +550,6 @@ public class R4MedicationRequestControllerTest {
                         "http://abed.com/cool/MedicationRequest?intent=plan&patient=p0",
                         1,
                         0))));
-
     assertThat(json(controller().searchByPatientAndIntent("p0", "order", 1, 0)))
         .isEqualTo(
             json(

@@ -5,7 +5,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import lombok.Builder;
+import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,14 +22,10 @@ public interface MedicationOrderRepository
         JpaSpecificationExecutor<MedicationOrderEntity> {
   Page<MedicationOrderEntity> findByIcn(String icn, Pageable pageable);
 
+  @RequiredArgsConstructor(staticName = "of")
   @Value
   class PatientSpecification implements Specification<MedicationOrderEntity> {
     String patient;
-
-    @Builder
-    private PatientSpecification(String patient) {
-      this.patient = patient;
-    }
 
     @Override
     public Predicate toPredicate(
