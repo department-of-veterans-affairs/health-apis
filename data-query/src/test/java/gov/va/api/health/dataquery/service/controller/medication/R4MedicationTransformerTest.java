@@ -7,7 +7,7 @@ import gov.va.api.health.dataquery.service.controller.medication.MedicationSampl
 import gov.va.api.health.dataquery.service.controller.medication.MedicationSamples.R4;
 import java.util.Optional;
 import lombok.SneakyThrows;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class R4MedicationTransformerTest {
   @Test

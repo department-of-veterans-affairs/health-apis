@@ -2,6 +2,7 @@ package gov.va.api.health.dataquery.service.controller.patient;
 
 import static gov.va.api.health.dataquery.service.controller.Transformers.parseInstant;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -20,19 +21,19 @@ import java.util.Collections;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @SuppressWarnings("WeakerAccess")
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @DataJpaTest
-@RunWith(SpringRunner.class)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+@ExtendWith(SpringExtension.class)
 public class R4PatientControllerTest {
   HttpServletResponse response = mock(HttpServletResponse.class);
 
@@ -124,11 +125,13 @@ public class R4PatientControllerTest {
     assertThat(patient.entry()).isEqualTo(Collections.emptyList());
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void searchByFamilyAndWithNullGender() {
     DatamartPatient dm = Datamart.create().patient("x");
     testEntityManager.persistAndFlush(asPatientEntityV2(dm));
-    controller().searchByFamilyAndGender("Wolff180", "null", 1, 0);
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> controller().searchByFamilyAndGender("Wolff180", "null", 1, 0));
   }
 
   @Test
