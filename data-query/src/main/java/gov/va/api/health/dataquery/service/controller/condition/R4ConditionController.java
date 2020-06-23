@@ -46,7 +46,7 @@ import org.springframework.web.bind.annotation.RestController;
     value = {"/r4/Condition"},
     produces = {"application/json", "application/fhir+json"})
 public class R4ConditionController {
-  private final String problemAndDiagnosisSystem =
+  private static final String PROBLEM_AND_DIAGNOSIS_SYSTEM =
       "http://terminology.hl7.org/CodeSystem/condition-category";
 
   R4Bundler bundler;
@@ -132,7 +132,7 @@ public class R4ConditionController {
   }
 
   private Specification<ConditionEntity> explicitSystemSpec(String system) {
-    if (problemAndDiagnosisSystem.equals(system)) {
+    if (PROBLEM_AND_DIAGNOSIS_SYSTEM.equals(system)) {
       return ConditionRepository.ExplicitSystemSpecification.of(
           List.of(DatamartCondition.Category.problem, DatamartCondition.Category.diagnosis));
     }
@@ -248,7 +248,7 @@ public class R4ConditionController {
             .add("_count", count)
             .build();
     TokenParameter categoryToken = TokenParameter.parse(category);
-    if (categoryToken.isSystemExplicitAndUnsupported(problemAndDiagnosisSystem)
+    if (categoryToken.isSystemExplicitAndUnsupported(PROBLEM_AND_DIAGNOSIS_SYSTEM)
         || categoryToken.isCodeExplicitAndUnsupported("problem-list-item", "encounter-diagnosis")
         || categoryToken.hasNoSystem()) {
       return bundle(parameters, emptyList(), 0);

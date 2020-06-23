@@ -1,10 +1,11 @@
 package gov.va.api.health.dataquery.service.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.function.BiFunction;
 import java.util.function.Function;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class TokenParameterTest {
   TokenParameter noSystemExplicitCodeToken =
@@ -138,19 +139,19 @@ public class TokenParameterTest {
         .isEqualTo("c is for code");
   }
 
-  @Test(expected = ResourceExceptions.BadSearchParameter.class)
+  @Test
   public void parseBlank() {
-    TokenParameter.parse("");
+    assertThrows(ResourceExceptions.BadSearchParameter.class, () -> TokenParameter.parse(""));
   }
 
-  @Test(expected = ResourceExceptions.BadSearchParameter.class)
+  @Test
   public void parseNull() {
-    TokenParameter.parse(null);
+    assertThrows(ResourceExceptions.BadSearchParameter.class, () -> TokenParameter.parse(null));
   }
 
-  @Test(expected = ResourceExceptions.BadSearchParameter.class)
+  @Test
   public void parsePipe() {
-    TokenParameter.parse("|");
+    assertThrows(ResourceExceptions.BadSearchParameter.class, () -> TokenParameter.parse("|"));
   }
 
   @Test
