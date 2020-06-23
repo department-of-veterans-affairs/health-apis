@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Optional;
 import lombok.SneakyThrows;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class DatamartMedicationTest {
   public void assertReadable(String json, DatamartMedication expected) throws java.io.IOException {

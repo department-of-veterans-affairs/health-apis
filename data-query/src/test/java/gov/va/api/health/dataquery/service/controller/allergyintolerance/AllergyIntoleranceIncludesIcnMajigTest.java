@@ -2,7 +2,7 @@ package gov.va.api.health.dataquery.service.controller.allergyintolerance;
 
 import gov.va.api.health.dataquery.service.controller.ExtractIcnValidator;
 import java.util.List;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class AllergyIntoleranceIncludesIcnMajigTest {
   @Test

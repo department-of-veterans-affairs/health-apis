@@ -1,6 +1,7 @@
 package gov.va.api.health.dataquery.service.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import gov.va.api.health.dataquery.service.controller.Dstu2Bundler.BundleContext;
@@ -20,25 +21,16 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Value;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 
 @SuppressWarnings("WeakerAccess")
 public class Dstu2BundlerTest {
   private static final Function<FugaziCdwRoot, FugaziArgo> FUGAZIMUS_PRIME =
       x -> FugaziArgo.of(x.id());
 
-  @Mock PageLinks links;
-  Dstu2Bundler bundler;
-
-  @Before
-  public void _init() {
-    MockitoAnnotations.initMocks(this);
-    bundler = new Dstu2Bundler(links);
-  }
+  PageLinks links = mock(PageLinks.class);
+  Dstu2Bundler bundler = new Dstu2Bundler(links);;
 
   @Test
   public void bundlerBuildsGenericTypeBundle() {

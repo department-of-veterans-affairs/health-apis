@@ -12,7 +12,7 @@ import gov.va.api.health.dataquery.service.controller.observation.DatamartObserv
 import gov.va.api.health.dstu2.api.datatypes.Coding;
 import java.util.Optional;
 import org.assertj.core.util.Lists;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class Dstu2ObservationTransformerTest {
   @Test

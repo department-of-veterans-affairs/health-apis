@@ -4,16 +4,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import javax.validation.ConstraintValidatorContext;
 import org.assertj.core.util.Lists;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 public class DateTimeParameterValidatorTest {
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void isValidThrowsIllegalArguementExceptionWhenNotGivenAString() {
     var v = new DateTimeParameterValidator();
     var notUsed = Mockito.mock(ConstraintValidatorContext.class);
-    v.isValid(Lists.emptyList(), notUsed);
+    Assertions.assertThrows(
+        IllegalArgumentException.class, () -> v.isValid(Lists.emptyList(), notUsed));
   }
 
   @Test

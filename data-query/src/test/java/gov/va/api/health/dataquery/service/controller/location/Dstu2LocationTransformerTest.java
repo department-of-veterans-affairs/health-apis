@@ -9,7 +9,7 @@ import gov.va.api.health.dstu2.api.datatypes.Coding;
 import gov.va.api.health.dstu2.api.datatypes.ContactPoint;
 import gov.va.api.health.dstu2.api.resources.Location;
 import java.util.Optional;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class Dstu2LocationTransformerTest {
   @Test

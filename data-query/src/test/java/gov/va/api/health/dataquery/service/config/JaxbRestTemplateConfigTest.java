@@ -7,7 +7,7 @@ import static org.mockito.Mockito.when;
 import gov.va.api.health.autoconfig.configuration.SecureRestTemplateConfig;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.xml.Jaxb2RootElementHttpMessageConverter;
