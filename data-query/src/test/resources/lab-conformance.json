@@ -56,6 +56,14 @@
               {
                 "url" : "authorize",
                 "valueUri" : "https://argonaut.lighthouse.va.gov/authorize"
+              },
+              {
+                "url" : "manage",
+                "valueUri" : "https://argonaut.lighthouse.va.gov/manage"
+              },
+              {
+                "url" : "revoke",
+                "valueUri" : "https://argonaut.lighthouse.va.gov/revoke"
               }
             ]
           }

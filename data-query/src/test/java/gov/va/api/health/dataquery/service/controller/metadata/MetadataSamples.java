@@ -35,7 +35,7 @@ class MetadataSamples {
                 .tokenEndpoint("https://argonaut.lighthouse.va.gov/token")
                 .authorizeEndpoint("https://argonaut.lighthouse.va.gov/authorize")
                 .managementEndpoint("https://argonaut.lighthouse.va.gov/manage")
-                .revocationEndpoint('https://argonaut.lighthouse.va.gov/revoke')
+                .revocationEndpoint("https://argonaut.lighthouse.va.gov/revoke")
                 .description(
                     "This is the conformance statement to declare that the server"
                         + " supports SMART-on-FHIR. See the SMART-on-FHIR docs for the"
