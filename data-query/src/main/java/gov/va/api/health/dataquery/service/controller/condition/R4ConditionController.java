@@ -46,6 +46,12 @@ import org.springframework.web.bind.annotation.RestController;
     value = {"/r4/Condition"},
     produces = {"application/json", "application/fhir+json"})
 public class R4ConditionController {
+  private final String problemAndDiagnosisSystem =
+      "http://terminology.hl7.org/CodeSystem/condition-category";
+
+  private final String healthConcernSystem =
+      "http://hl7.org/fhir/us/core/CodeSystem/condition-category";
+
   R4Bundler bundler;
 
   private ConditionRepository repository;
@@ -60,17 +66,6 @@ public class R4ConditionController {
     this.bundler = bundler;
     this.repository = repository;
     this.witnessProtection = witnessProtection;
-  }
-
-  private static Specification<ConditionEntity> explicitSystemSpec(String system) {
-    if ("http://terminology.hl7.org/CodeSystem/condition-category".equals(system)) {
-      return ConditionRepository.ExplicitSystemSpecification.builder()
-          .codes(List.of("problem", "diagnosis"))
-          .build();
-    }
-    return ConditionRepository.ExplicitSystemSpecification.builder()
-        .codes(List.of("health-concern"))
-        .build();
   }
 
   /**
@@ -123,6 +118,32 @@ public class R4ConditionController {
             .map(this::transform)
             .collect(Collectors.toList()),
         (int) entities.getTotalElements());
+  }
+
+  private Specification<ConditionEntity> categoryClauseFor(TokenParameter categoryToken) {
+    return categoryToken
+        .behavior()
+        .onExplicitSystemAndAnyCode(s -> explicitSystemSpec(s))
+        .onExplicitSystemAndExplicitCode(
+            (s, c) -> ConditionRepository.CodeSpecification.of(asDatamartCategory(c)))
+        .onAnySystemAndExplicitCode(
+            c -> ConditionRepository.CodeSpecification.of(asDatamartCategory(c)))
+        .build()
+        .execute();
+  }
+
+  private Specification<ConditionEntity> explicitSystemSpec(String system) {
+    if (problemAndDiagnosisSystem.equals(system)) {
+      return ConditionRepository.ExplicitSystemSpecification.of(
+          List.of(
+              DatamartCondition.Category.problem.toString(),
+              DatamartCondition.Category.diagnosis.toString()));
+    }
+    if (healthConcernSystem.equals(system)) {
+      return ConditionRepository.ExplicitSystemSpecification.of(List.of("health-concern"));
+    }
+    throw new IllegalStateException(
+        "Unsupported system: " + system + ". Cannot build ExplicitSystemSpecification");
   }
 
   private ConditionEntity findEntityById(String publicId) {
@@ -231,39 +252,18 @@ public class R4ConditionController {
             .add("_count", count)
             .build();
     TokenParameter categoryToken = TokenParameter.parse(category);
-    if ((categoryToken.hasExplicitSystem()
-            && !categoryToken.hasSupportedSystem(
-                List.of(
-                    "http://hl7.org/fhir/R4/codesystem-condition-category.html",
-                    "http://terminology.hl7.org/CodeSystem/condition-category")))
-        || (categoryToken.hasExplicitCode()
-            && !categoryToken.hasSupportedCode(
-                List.of("problem-list-item", "encounter-diagnosis", "health-concern")))
+    if (categoryToken.isSystemExplicitAndUnsupported(healthConcernSystem, problemAndDiagnosisSystem)
+        || categoryToken.isCodeExplicitAndUnsupported(
+            "problem-list-item", "encounter-diagnosis", "health-concern")
         || categoryToken.hasNoSystem()) {
       return bundle(parameters, emptyList(), 0);
     }
-    Specification<ConditionEntity> searchSpec =
-        categoryToken
-            .behavior()
-            .onExplicitSystemAndAnyCode(s -> explicitSystemSpec(s))
-            .onExplicitSystemAndExplicitCode(
-                (s, c) ->
-                    ConditionRepository.CodeSpecification.builder()
-                        .code(asDatamartCategory(c))
-                        .build())
-            .onAnySystemAndExplicitCode(
-                c ->
-                    ConditionRepository.CodeSpecification.builder()
-                        .code(asDatamartCategory(c))
-                        .build())
-            .build()
-            .execute();
     String icn = witnessProtection.toCdwId(patient);
     return bundle(
         parameters,
         count,
         repository.findAll(
-            ConditionRepository.PatientSpecification.builder().icn(icn).build().and(searchSpec),
+            ConditionRepository.PatientSpecification.of(icn).and(categoryClauseFor(categoryToken)),
             page(page, count)));
   }
 

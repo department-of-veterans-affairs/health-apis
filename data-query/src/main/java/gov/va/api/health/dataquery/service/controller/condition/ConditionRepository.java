@@ -8,7 +8,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import lombok.Builder;
+import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,14 +30,10 @@ public interface ConditionRepository
   Page<ConditionEntity> findByIcnAndClinicalStatusIn(
       String icn, Set<String> clinicalStatus, Pageable pageable);
 
+  @RequiredArgsConstructor(staticName = "of")
   @Value
   class CodeSpecification implements Specification<ConditionEntity> {
     String code;
-
-    @Builder
-    private CodeSpecification(String code) {
-      this.code = code;
-    }
 
     @Override
     public Predicate toPredicate(
@@ -49,14 +45,10 @@ public interface ConditionRepository
     }
   }
 
+  @RequiredArgsConstructor(staticName = "of")
   @Value
   class ExplicitSystemSpecification implements Specification<ConditionEntity> {
     List<String> codes;
-
-    @Builder
-    private ExplicitSystemSpecification(List<String> codes) {
-      this.codes = codes;
-    }
 
     @Override
     public Predicate toPredicate(
@@ -70,13 +62,9 @@ public interface ConditionRepository
   }
 
   @Value
+  @RequiredArgsConstructor(staticName = "of")
   class PatientSpecification implements Specification<ConditionEntity> {
     String icn;
-
-    @Builder
-    private PatientSpecification(String icn) {
-      this.icn = icn;
-    }
 
     @Override
     public Predicate toPredicate(

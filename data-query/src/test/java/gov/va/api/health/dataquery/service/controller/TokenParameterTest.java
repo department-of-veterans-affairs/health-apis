@@ -2,7 +2,6 @@ package gov.va.api.health.dataquery.service.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import org.junit.Test;
@@ -50,8 +49,10 @@ public class TokenParameterTest {
     assertThat(noSystemExplicitCodeToken.hasNoSystem()).isEqualTo(true);
     assertThat(noSystemExplicitCodeToken.hasAnyCode()).isEqualTo(false);
     assertThat(noSystemExplicitCodeToken.hasExplicitCode()).isEqualTo(true);
-    assertThat(noSystemExplicitCodeToken.hasSupportedCode(List.of("code"))).isEqualTo(true);
-    assertThat(noSystemExplicitCodeToken.hasSupportedSystem(List.of("system"))).isEqualTo(false);
+    assertThat(noSystemExplicitCodeToken.hasSupportedCode("code")).isEqualTo(true);
+    assertThat(noSystemExplicitCodeToken.hasSupportedSystem("system")).isEqualTo(false);
+    assertThat(noSystemExplicitCodeToken.isSystemExplicitAndUnsupported("system")).isEqualTo(false);
+    assertThat(noSystemExplicitCodeToken.isCodeExplicitAndUnsupported("code")).isEqualTo(false);
 
     assertThat(explicitSystemExplicitCodeToken.hasAnySystem()).isEqualTo(false);
     assertThat(explicitSystemExplicitCodeToken.hasExplicitSystem()).isEqualTo(true);
@@ -60,9 +61,12 @@ public class TokenParameterTest {
     assertThat(explicitSystemExplicitCodeToken.hasNoSystem()).isEqualTo(false);
     assertThat(explicitSystemExplicitCodeToken.hasAnyCode()).isEqualTo(false);
     assertThat(explicitSystemExplicitCodeToken.hasExplicitCode()).isEqualTo(true);
-    assertThat(explicitSystemExplicitCodeToken.hasSupportedCode(List.of("code"))).isEqualTo(true);
-    assertThat(explicitSystemExplicitCodeToken.hasSupportedSystem(List.of("system")))
-        .isEqualTo(true);
+    assertThat(explicitSystemExplicitCodeToken.hasSupportedCode(("code"))).isEqualTo(true);
+    assertThat(explicitSystemExplicitCodeToken.hasSupportedSystem("system")).isEqualTo(true);
+    assertThat(explicitSystemExplicitCodeToken.isSystemExplicitAndUnsupported(("system")))
+        .isEqualTo(false);
+    assertThat(explicitSystemExplicitCodeToken.isCodeExplicitAndUnsupported("code"))
+        .isEqualTo(false);
 
     assertThat(anySystemExplicitCodeToken.hasAnySystem()).isEqualTo(true);
     assertThat(anySystemExplicitCodeToken.hasExplicitSystem()).isEqualTo(false);
@@ -70,8 +74,11 @@ public class TokenParameterTest {
     assertThat(anySystemExplicitCodeToken.hasNoSystem()).isEqualTo(false);
     assertThat(anySystemExplicitCodeToken.hasAnyCode()).isEqualTo(false);
     assertThat(anySystemExplicitCodeToken.hasExplicitCode()).isEqualTo(true);
-    assertThat(anySystemExplicitCodeToken.hasSupportedCode(List.of("code"))).isEqualTo(true);
-    assertThat(noSystemExplicitCodeToken.hasSupportedSystem(List.of("system"))).isEqualTo(false);
+    assertThat(anySystemExplicitCodeToken.hasSupportedCode("code")).isEqualTo(true);
+    assertThat(noSystemExplicitCodeToken.hasSupportedSystem("system")).isEqualTo(false);
+    assertThat(anySystemExplicitCodeToken.isSystemExplicitAndUnsupported("notsystem"))
+        .isEqualTo(false);
+    assertThat(noSystemExplicitCodeToken.isCodeExplicitAndUnsupported("notcode")).isEqualTo(true);
 
     assertThat(explicitSystemAnyCodeToken.hasAnySystem()).isEqualTo(false);
     assertThat(explicitSystemAnyCodeToken.hasExplicitSystem()).isEqualTo(true);
@@ -80,8 +87,11 @@ public class TokenParameterTest {
     assertThat(explicitSystemAnyCodeToken.hasNoSystem()).isEqualTo(false);
     assertThat(explicitSystemAnyCodeToken.hasAnyCode()).isEqualTo(true);
     assertThat(explicitSystemAnyCodeToken.hasExplicitCode()).isEqualTo(false);
-    assertThat(explicitSystemAnyCodeToken.hasSupportedCode(List.of("code"))).isEqualTo(false);
-    assertThat(explicitSystemAnyCodeToken.hasSupportedSystem(List.of("system"))).isEqualTo(true);
+    assertThat(explicitSystemAnyCodeToken.hasSupportedCode("code")).isEqualTo(false);
+    assertThat(explicitSystemAnyCodeToken.hasSupportedSystem("system")).isEqualTo(true);
+    assertThat(explicitSystemAnyCodeToken.isSystemExplicitAndUnsupported("notsystem"))
+        .isEqualTo(true);
+    assertThat(explicitSystemAnyCodeToken.isCodeExplicitAndUnsupported("notcode")).isEqualTo(false);
   }
 
   @Test

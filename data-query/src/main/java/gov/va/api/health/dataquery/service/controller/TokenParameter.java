@@ -2,7 +2,7 @@ package gov.va.api.health.dataquery.service.controller;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
-import java.util.List;
+import java.util.Arrays;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import lombok.Builder;
@@ -78,16 +78,24 @@ public class TokenParameter {
     return supportedCode.equals(code);
   }
 
-  public boolean hasSupportedCode(List<String> codes) {
-    return codes.stream().map(c -> hasSupportedCode(c)).anyMatch(b -> b == true);
+  public boolean hasSupportedCode(String... codes) {
+    return Arrays.stream(codes).anyMatch(this::hasSupportedCode);
   }
 
   public boolean hasSupportedSystem(String supportedSystem) {
     return supportedSystem.equals(system);
   }
 
-  public boolean hasSupportedSystem(List<String> systems) {
-    return systems.stream().map(s -> hasSupportedSystem(s)).anyMatch(b -> b == true);
+  public boolean hasSupportedSystem(String... systems) {
+    return Arrays.stream(systems).anyMatch(this::hasSupportedSystem);
+  }
+
+  public boolean isCodeExplicitAndUnsupported(String... codes) {
+    return hasExplicitCode() && !hasSupportedCode(codes);
+  }
+
+  public boolean isSystemExplicitAndUnsupported(String... systems) {
+    return hasExplicitSystem() && !hasSupportedSystem(systems);
   }
 
   public enum Mode {
