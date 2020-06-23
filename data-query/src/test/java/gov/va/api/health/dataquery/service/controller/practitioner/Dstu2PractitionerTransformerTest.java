@@ -8,7 +8,7 @@ import gov.va.api.health.dstu2.api.datatypes.HumanName;
 import gov.va.api.health.dstu2.api.resources.Practitioner;
 import java.time.LocalDate;
 import java.util.Optional;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class Dstu2PractitionerTransformerTest {
   @Test
