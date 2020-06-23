@@ -1,6 +1,7 @@
 package gov.va.api.health.dataquery.service.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
@@ -12,23 +13,14 @@ import java.util.List;
 import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.springframework.util.MultiValueMap;
 
 public class WitnessProtectionTest {
-  @Mock IdentityService ids;
-
-  WitnessProtection wp;
-
-  @Before
-  public void _init() {
-    MockitoAnnotations.initMocks(this);
-    wp = new WitnessProtection(ids);
-  }
+  IdentityService ids = mock(IdentityService.class);
+  WitnessProtection wp = new WitnessProtection(ids);
 
   @Test
   public void registerAndUpdateModifiesReferences() {
@@ -106,16 +98,20 @@ public class WitnessProtectionTest {
     assertThat(actual).isEqualTo(Parameters.forIdentity("XXX"));
   }
 
-  @Test(expected = ResourceExceptions.SearchFailed.class)
+  @Test
   public void replacePublicIdsWithCdwIdsThrowsSearchFailedIfIdsFails() {
     when(ids.lookup(Mockito.any())).thenThrow(new IdentityService.LookupFailed("x", "x"));
-    wp.replacePublicIdsWithCdwIds(Parameters.forIdentity("x"));
+    Assertions.assertThrows(
+        ResourceExceptions.SearchFailed.class,
+        () -> wp.replacePublicIdsWithCdwIds(Parameters.forIdentity("x")));
   }
 
-  @Test(expected = ResourceExceptions.UnknownIdentityInSearchParameter.class)
+  @Test
   public void replacePublicIdsWithCdwIdsThrowsUnknownIdentityIfIdsFails() {
     when(ids.lookup(Mockito.any())).thenThrow(new IdentityService.UnknownIdentity("x"));
-    wp.replacePublicIdsWithCdwIds(Parameters.forIdentity("x"));
+    Assertions.assertThrows(
+        ResourceExceptions.UnknownIdentityInSearchParameter.class,
+        () -> wp.replacePublicIdsWithCdwIds(Parameters.forIdentity("x")));
   }
 
   @Test
@@ -127,9 +123,10 @@ public class WitnessProtectionTest {
     assertThat(wp.toCdwId("x")).isEqualTo("XXX");
   }
 
-  @Test(expected = ResourceExceptions.NotFound.class)
+  @Test
   public void toResourceIdentityExceptionTest() {
-    wp.toResourceIdentity("not cool");
+    Assertions.assertThrows(
+        ResourceExceptions.NotFound.class, () -> wp.toResourceIdentity("not cool"));
   }
 
   @Test

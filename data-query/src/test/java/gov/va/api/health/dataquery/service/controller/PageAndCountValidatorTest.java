@@ -1,23 +1,27 @@
 package gov.va.api.health.dataquery.service.controller;
 
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions.BadSearchParameter;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class PageAndCountValidatorTest {
 
-  @Test(expected = BadSearchParameter.class)
+  @Test
   public void countEqualToZeroThrowsBadRequest() {
-    PageAndCountValidator.validateCountBounds(0, 50);
+    Assertions.assertThrows(
+        BadSearchParameter.class, () -> PageAndCountValidator.validateCountBounds(0, 50));
   }
 
-  @Test(expected = BadSearchParameter.class)
+  @Test
   public void countGreaterThanMaxRecordCountThrowsBadRequest() {
-    PageAndCountValidator.validateCountBounds(500000, 50);
+    Assertions.assertThrows(
+        BadSearchParameter.class, () -> PageAndCountValidator.validateCountBounds(500000, 50));
   }
 
-  @Test(expected = BadSearchParameter.class)
+  @Test
   public void countLessThanZeroThrowsBadRequest() {
-    PageAndCountValidator.validateCountBounds(-1, 50);
+    Assertions.assertThrows(
+        BadSearchParameter.class, () -> PageAndCountValidator.validateCountBounds(-1, 50));
   }
 
   @Test

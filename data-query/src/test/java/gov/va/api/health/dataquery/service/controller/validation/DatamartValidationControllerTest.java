@@ -14,7 +14,7 @@ import gov.va.api.health.dataquery.service.controller.observation.ObservationSam
 import gov.va.api.health.dataquery.service.controller.patient.PatientSamples;
 import gov.va.api.health.dataquery.service.controller.procedure.ProcedureSamples;
 import lombok.SneakyThrows;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class DatamartValidationControllerTest {
 

@@ -7,7 +7,7 @@ import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.metadata.MetadataProperties;
 import gov.va.api.health.dstu2.api.information.WellKnown;
 import lombok.SneakyThrows;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class WellKnownControllerTest {
   private WellKnown actual() {

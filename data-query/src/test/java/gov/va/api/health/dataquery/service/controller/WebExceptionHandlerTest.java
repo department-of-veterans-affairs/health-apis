@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -17,20 +18,16 @@ import gov.va.api.health.dataquery.service.controller.patient.PatientRepositoryV
 import gov.va.api.health.ids.client.IdEncoder.BadId;
 import java.lang.reflect.Method;
 import java.lang.reflect.UndeclaredThrowableException;
-import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
+import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolationException;
 import lombok.SneakyThrows;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameter;
-import org.mockito.Mock;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.test.web.servlet.MockMvc;
@@ -42,47 +39,31 @@ import org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExc
 import org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod;
 
 @SuppressWarnings("DefaultAnnotationParam")
-@RunWith(Parameterized.class)
 public class WebExceptionHandlerTest {
   private final String basePath = "/dstu2";
 
-  @Parameter(0)
-  public HttpStatus status;
-
-  @Parameter(1)
-  public Exception exception;
-
-  @Mock HttpServletRequest request;
-  @Mock Dstu2Bundler bundler;
-  @Mock PatientRepositoryV2 repository;
-  @Mock WitnessProtection witnessProtection;
-  private Dstu2PatientController controller;
-  private WebExceptionHandler exceptionHandler;
+  HttpServletRequest request = mock(HttpServletRequest.class);
+  Dstu2Bundler bundler = mock(Dstu2Bundler.class);
+  PatientRepositoryV2 repository = mock(PatientRepositoryV2.class);
+  WitnessProtection witnessProtection = mock(WitnessProtection.class);
+  private Dstu2PatientController controller =
+      new Dstu2PatientController(bundler, repository, witnessProtection);
+  private WebExceptionHandler exceptionHandler = new WebExceptionHandler("1234567890123456");
 
   @SuppressWarnings("deprecation")
-  @Parameterized.Parameters(name = "{index}:{0} - {1}")
-  public static List<Object[]> parameters() {
-    return Arrays.asList(
-        test(HttpStatus.NOT_FOUND, new BadId("x", null)),
-        test(HttpStatus.BAD_REQUEST, new ConstraintViolationException(new HashSet<>())),
-        test(HttpStatus.INTERNAL_SERVER_ERROR, new RuntimeException()),
-        test(
+  public static Stream<Arguments> parameters() {
+    return Stream.of(
+        Arguments.of(HttpStatus.NOT_FOUND, new BadId("x", null)),
+        Arguments.of(HttpStatus.BAD_REQUEST, new ConstraintViolationException(new HashSet<>())),
+        Arguments.of(HttpStatus.INTERNAL_SERVER_ERROR, new RuntimeException()),
+        Arguments.of(
             HttpStatus.INTERNAL_SERVER_ERROR,
             new UndeclaredThrowableException(
-                new JsonMappingException("Failed to convert string '.' to double.")))
-        //
-        );
+                new JsonMappingException("Failed to convert string '.' to double."))));
   }
 
   private static Object[] test(HttpStatus status, Exception exception) {
     return new Object[] {status, exception};
-  }
-
-  @Before
-  public void _init() {
-    MockitoAnnotations.initMocks(this);
-    controller = new Dstu2PatientController(bundler, repository, witnessProtection);
-    exceptionHandler = new WebExceptionHandler("1234567890123456");
   }
 
   private ExceptionHandlerExceptionResolver createExceptionResolver() {
@@ -104,9 +85,10 @@ public class WebExceptionHandlerTest {
     return exceptionResolver;
   }
 
-  @Test
+  @ParameterizedTest
+  @MethodSource("parameters")
   @SneakyThrows
-  public void expectStatus() {
+  public void expectStatus(HttpStatus status, Exception exception) {
     when(repository.findById(Mockito.anyString())).thenThrow(exception);
     when(witnessProtection.toCdwId(Mockito.anyString())).thenReturn("whatever");
     when(request.getRequestURI()).thenReturn(basePath + "/Patient/123");
