@@ -7,6 +7,7 @@ import static gov.va.api.health.dataquery.service.controller.diagnosticreport.Di
 import static gov.va.api.health.dataquery.service.controller.diagnosticreport.DiagnosticReportSamples.Dstu2.link;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -28,15 +29,19 @@ import java.util.List;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @DataJpaTest
-@RunWith(SpringRunner.class)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+@ExtendWith(SpringExtension.class)
 public class Dstu2DiagnosticReportControllerTest {
   HttpServletResponse response = mock(HttpServletResponse.class);
 
@@ -64,16 +69,16 @@ public class Dstu2DiagnosticReportControllerTest {
     assertThat(report).isEqualTo(Dstu2.create().report());
   }
 
-  @Test(expected = ResourceExceptions.NotFound.class)
+  @Test
   public void readForEmptyReportShouldExplodeNotFound() {
     Dstu2DiagnosticReportController controller = controller();
-    controller.read("800260864479:L");
+    assertThrows(ResourceExceptions.NotFound.class, () -> controller.read("800260864479:L"));
   }
 
-  @Test(expected = ResourceExceptions.NotFound.class)
+  @Test
   public void readForUnknownReportShouldExplodeNotFound() {
     Dstu2DiagnosticReportController controller = controller();
-    controller.read("123456:X");
+    assertThrows(ResourceExceptions.NotFound.class, () -> controller.read("123456:X"));
   }
 
   @Test
@@ -87,24 +92,24 @@ public class Dstu2DiagnosticReportControllerTest {
     verify(response).addHeader("X-VA-INCLUDES-ICN", dm.entity().icn());
   }
 
-  @Test(expected = ResourceExceptions.NotFound.class)
+  @Test
   public void readRawForEmptyReportShouldExplodeNotFound() {
     Dstu2DiagnosticReportController controller = controller();
-    controller.readRaw("800260864479:L", response);
+    assertThrows(ResourceExceptions.NotFound.class, () -> controller.readRaw("800260864479:L", response));
   }
 
-  @Test(expected = ResourceExceptions.NotFound.class)
+  @Test
   public void readRawForUnknownReportShouldExplodeNotFound() {
     Dstu2DiagnosticReportController controller = controller();
-    controller.readRaw("123456:X", response);
+    assertThrows(ResourceExceptions.NotFound.class, () -> controller.readRaw("123456:X", response));
   }
 
-  @Test(expected = ResourceExceptions.NotFound.class)
+  @Test
   public void readRawWithNoReport() {
     Datamart dm = Datamart.create();
     entityManager.persistAndFlush(dm.entityWithNoReport());
     entityManager.persistAndFlush(dm.crossEntity());
-    controller().readRaw("800260864479:L", response);
+    assertThrows(ResourceExceptions.NotFound.class, () -> controller().readRaw("800260864479:L", response));
   }
 
   @Test
@@ -382,11 +387,11 @@ public class Dstu2DiagnosticReportControllerTest {
     verify(response).addHeader("X-VA-INCLUDES-ICN", dm.entity().icn());
   }
 
-  @Test(expected = ResourceExceptions.NotFound.class)
+  @Test
   public void searchByPatientRawForUnknownPatient() {
     Datamart dm = Datamart.create();
     entityManager.persistAndFlush(dm.entity());
-    controller().searchByPatientRaw("WHODIS?", response);
+    assertThrows(ResourceExceptions.NotFound.class, () -> controller().searchByPatientRaw("WHODIS?", response));
   }
 
   @Test
