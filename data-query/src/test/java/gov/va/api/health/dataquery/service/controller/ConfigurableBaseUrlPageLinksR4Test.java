@@ -4,14 +4,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.r4.api.bundle.BundleLink;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 public class ConfigurableBaseUrlPageLinksR4Test {
   private static ConfigurableBaseUrlPageLinks links;
 
-  @Before
-  public void _init() {
+  @BeforeAll
+  public static void _init() {
     links = new ConfigurableBaseUrlPageLinks("https://awesome.com", "unused", "unused", "r4");
   }
 

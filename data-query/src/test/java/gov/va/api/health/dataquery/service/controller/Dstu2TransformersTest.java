@@ -12,7 +12,7 @@ import gov.va.api.health.dstu2.api.datatypes.Coding;
 import gov.va.api.health.dstu2.api.elements.Reference;
 import java.util.List;
 import java.util.Optional;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class Dstu2TransformersTest {
   @Test

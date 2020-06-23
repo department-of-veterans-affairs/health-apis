@@ -6,14 +6,14 @@ import gov.va.api.health.dataquery.service.controller.PageLinks.LinkConfig;
 import gov.va.api.health.stu3.api.bundle.BundleLink;
 import gov.va.api.health.stu3.api.bundle.BundleLink.LinkRelation;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 public class ConfigurableBaseUrlPageLinksStu3Test {
-  private ConfigurableBaseUrlPageLinks links;
+  private static ConfigurableBaseUrlPageLinks links;
 
-  @Before
-  public void _init() {
+  @BeforeAll
+  public static void _init() {
     links = new ConfigurableBaseUrlPageLinks("https://awesome.com", "unused", "api/stu3", "unused");
   }
 
