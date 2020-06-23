@@ -1,23 +1,19 @@
 package gov.va.api.health.dataquery.tests.r4;
 
 import gov.va.api.health.dataquery.tests.ResourceVerifier;
-import gov.va.api.health.dataquery.tests.categories.LabDataQueryPatient;
-import gov.va.api.health.dataquery.tests.categories.ProdDataQueryPatient;
 import gov.va.api.health.uscorer4.api.resources.AllergyIntolerance;
 import gov.va.api.health.uscorer4.api.resources.Condition;
 import gov.va.api.health.uscorer4.api.resources.Observation;
 import gov.va.api.health.uscorer4.api.resources.Patient;
 import java.util.Map;
 import lombok.experimental.Delegate;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
 
 public class R4PostSearchIT {
 
   @Delegate ResourceVerifier verifier = ResourceVerifier.r4();
 
   @Test
-  @Category({LabDataQueryPatient.class, ProdDataQueryPatient.class})
   public void basic() {
     verifier.verifyAll(
         // Basic Search by Patient

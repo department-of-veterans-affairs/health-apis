@@ -1,22 +1,15 @@
 package gov.va.api.health.dataquery.tests.r4;
 
 import gov.va.api.health.dataquery.tests.ResourceVerifier;
-import gov.va.api.health.dataquery.tests.categories.LabDataQueryClinician;
-import gov.va.api.health.dataquery.tests.categories.LabDataQueryPatient;
-import gov.va.api.health.dataquery.tests.categories.ProdDataQueryClinician;
-import gov.va.api.health.dataquery.tests.categories.ProdDataQueryPatient;
 import gov.va.api.health.r4.api.resources.OperationOutcome;
-import gov.va.api.health.sentinel.categories.Local;
 import gov.va.api.health.uscorer4.api.resources.Condition;
 import lombok.experimental.Delegate;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
 
 public class ConditionIT {
   @Delegate ResourceVerifier verifier = ResourceVerifier.r4();
 
   @Test
-  @Category(value = {Local.class, LabDataQueryClinician.class, ProdDataQueryClinician.class})
   public void advanced() {
     verifier.verifyAll(
         test(200, Condition.Bundle.class, "Condition?_id={id}", verifier.ids().condition()),
@@ -25,13 +18,6 @@ public class ConditionIT {
   }
 
   @Test
-  @Category({
-    Local.class,
-    LabDataQueryPatient.class,
-    LabDataQueryClinician.class,
-    ProdDataQueryPatient.class,
-    ProdDataQueryClinician.class
-  })
   public void basic() {
     verifier.verifyAll(
         test(
@@ -60,12 +46,6 @@ public class ConditionIT {
   }
 
   @Test
-  @Category({
-    LabDataQueryPatient.class,
-    LabDataQueryClinician.class,
-    ProdDataQueryPatient.class,
-    ProdDataQueryClinician.class
-  })
   public void searchNotMe() {
     verifier.verifyAll(
         test(403, OperationOutcome.class, "Condition?patient={patient}", verifier.ids().unknown()));

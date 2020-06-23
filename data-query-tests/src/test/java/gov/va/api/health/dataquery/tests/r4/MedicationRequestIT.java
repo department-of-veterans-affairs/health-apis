@@ -9,8 +9,8 @@ import gov.va.api.health.r4.api.resources.OperationOutcome;
 import gov.va.api.health.sentinel.categories.Local;
 import gov.va.api.health.uscorer4.api.resources.MedicationRequest;
 import lombok.experimental.Delegate;
-import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
 
 public class MedicationRequestIT {
   @Delegate ResourceVerifier verifier = ResourceVerifier.r4();
