@@ -11,7 +11,7 @@ import gov.va.api.health.dataquery.service.controller.allergyintolerance.Datamar
 import gov.va.api.health.dataquery.service.controller.allergyintolerance.DatamartAllergyIntolerance.Type;
 import java.util.List;
 import java.util.Optional;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class Dstu2AllergyIntoleranceTransformerTest {
   @Test

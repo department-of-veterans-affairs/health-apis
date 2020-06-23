@@ -10,7 +10,7 @@ import gov.va.api.health.dataquery.service.config.ReferenceSerializerProperties;
 import gov.va.api.health.dataquery.service.controller.metadata.MetadataProperties.StatementType;
 import gov.va.api.health.dstu2.api.resources.Conformance;
 import lombok.SneakyThrows;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class Dstu2MetadataControllerTest {
 

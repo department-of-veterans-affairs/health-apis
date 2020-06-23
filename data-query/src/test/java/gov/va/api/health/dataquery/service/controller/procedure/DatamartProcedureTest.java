@@ -9,7 +9,7 @@ import gov.va.api.health.dataquery.service.controller.procedure.DatamartProcedur
 import java.time.Instant;
 import java.util.Optional;
 import lombok.SneakyThrows;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class DatamartProcedureTest {
   public void assertReadable(DatamartProcedure sample, String json) throws java.io.IOException {

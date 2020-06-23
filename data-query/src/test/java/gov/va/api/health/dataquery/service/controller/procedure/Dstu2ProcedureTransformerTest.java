@@ -11,7 +11,7 @@ import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import java.util.List;
 import java.util.Optional;
 import lombok.SneakyThrows;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class Dstu2ProcedureTransformerTest {
   @Test

@@ -4,7 +4,7 @@ import gov.va.api.health.argonaut.api.resources.MedicationOrder;
 import gov.va.api.health.dataquery.service.controller.ExtractIcnValidator;
 import gov.va.api.health.dstu2.api.elements.Reference;
 import java.util.List;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class Dstu2MedicationOrderIncludesIcnMajigTest {
   @Test

@@ -2,6 +2,7 @@ package gov.va.api.health.dataquery.service.controller.observation;
 
 import static gov.va.api.health.dataquery.service.controller.observation.ObservationSamples.Dstu2.link;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -33,18 +34,19 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.tuple.Pair;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @DataJpaTest
-@RunWith(SpringRunner.class)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+@ExtendWith(SpringExtension.class)
 public class Dstu2ObservationControllerTest {
-  HttpServletResponse response;
+  HttpServletResponse response = mock(HttpServletResponse.class);
 
   private IdentityService ids = mock(IdentityService.class);
 
@@ -66,11 +68,6 @@ public class Dstu2ObservationControllerTest {
   @SneakyThrows
   private static DatamartObservation toObject(String payload) {
     return JacksonConfig.createMapper().readValue(payload, DatamartObservation.class);
-  }
-
-  @Before
-  public void _init() {
-    response = mock(HttpServletResponse.class);
   }
 
   Dstu2ObservationController controller() {
@@ -174,26 +171,26 @@ public class Dstu2ObservationControllerTest {
     verify(response).addHeader("X-VA-INCLUDES-ICN", entity.icn());
   }
 
-  @Test(expected = ResourceExceptions.NotFound.class)
+  @Test
   public void readRawThrowsNotFoundWhenDataIsMissing() {
     mockObservationIdentity("x", "x");
-    controller().readRaw("x", response);
+    assertThrows(ResourceExceptions.NotFound.class, () -> controller().readRaw("x", response));
   }
 
-  @Test(expected = ResourceExceptions.NotFound.class)
+  @Test
   public void readRawThrowsNotFoundWhenIdIsUnknown() {
-    controller().readRaw("x", response);
+    assertThrows(ResourceExceptions.NotFound.class, () -> controller().readRaw("x", response));
   }
 
-  @Test(expected = ResourceExceptions.NotFound.class)
+  @Test
   public void readThrowsNotFoundWhenDataIsMissing() {
     mockObservationIdentity("x", "x");
-    controller().read("x");
+    assertThrows(ResourceExceptions.NotFound.class, () -> controller().read("x"));
   }
 
-  @Test(expected = ResourceExceptions.NotFound.class)
+  @Test
   public void readThrowsNotFoundWhenIdIsUnknown() {
-    controller().readRaw("x", response);
+    assertThrows(ResourceExceptions.NotFound.class, () -> controller().readRaw("x", response));
   }
 
   @Test
@@ -222,9 +219,9 @@ public class Dstu2ObservationControllerTest {
     assertThat(controller().searchByIdentifier("x", 1, 1)).isEqualTo(actual);
   }
 
-  @Test(expected = ResourceExceptions.NotFound.class)
+  @Test
   public void searchByIdWhenIdIsUnknown() {
-    controller().searchById("x", 1, 1);
+    assertThrows(ResourceExceptions.NotFound.class, () -> controller().searchById("x", 1, 1));
   }
 
   @Test

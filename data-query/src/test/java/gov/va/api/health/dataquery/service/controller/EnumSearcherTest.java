@@ -4,14 +4,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.SneakyThrows;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class EnumSearcherTest {
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void findThrowsIllegalArguementExceptionWhenNoEnumConstant() {
     EnumSearcher<?> e = EnumSearcher.of(sample.class);
-    e.find("GARBAGE");
+    Assertions.assertThrows(IllegalArgumentException.class, () -> e.find("GARBAGE"));
   }
 
   @Test

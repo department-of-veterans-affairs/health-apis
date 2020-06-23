@@ -20,7 +20,8 @@ import java.util.stream.Stream;
 import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.Delegate;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpHeaders;
@@ -28,9 +29,11 @@ import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 public class IncludesIcnMajigTest {
-  @Test(expected = InvalidParameterException.class)
+  @Test
   public void beforeBodyWriteThrowsExceptionForUnsupportedType() {
-    new FakeMajg().beforeBodyWrite(null, null, null, null, null, null);
+    Assertions.assertThrows(
+        InvalidParameterException.class,
+        () -> new FakeMajg().beforeBodyWrite(null, null, null, null, null, null));
   }
 
   @Test
