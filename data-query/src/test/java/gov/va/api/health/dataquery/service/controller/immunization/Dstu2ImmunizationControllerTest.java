@@ -2,6 +2,7 @@ package gov.va.api.health.dataquery.service.controller.immunization;
 
 import static gov.va.api.health.dataquery.service.controller.immunization.ImmunizationSamples.Dstu2.link;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -26,15 +27,19 @@ import java.util.Collections;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @DataJpaTest
-@RunWith(SpringRunner.class)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+@ExtendWith(SpringExtension.class)
 public class Dstu2ImmunizationControllerTest {
   HttpServletResponse response = mock(HttpServletResponse.class);
 
@@ -129,26 +134,26 @@ public class Dstu2ImmunizationControllerTest {
     verify(response).addHeader("X-VA-INCLUDES-ICN", entity.icn());
   }
 
-  @Test(expected = ResourceExceptions.NotFound.class)
+  @Test
   public void readRawThrowsNotFoundWhenDataIsMissing() {
     mockImmunizationIdentity("1", "1");
-    controller().readRaw("1", response);
+    assertThrows(ResourceExceptions.NotFound.class, () -> controller().readRaw("1", response));
   }
 
-  @Test(expected = ResourceExceptions.NotFound.class)
+  @Test
   public void readRawThrowsNotFoundWhenIdIsUnknown() {
-    controller().readRaw("1", response);
+    assertThrows(ResourceExceptions.NotFound.class, () -> controller().readRaw("1", response));
   }
 
-  @Test(expected = ResourceExceptions.NotFound.class)
+  @Test
   public void readThrowsNotFoundWhenDataIsMissing() {
     mockImmunizationIdentity("1", "1");
-    controller().read("1");
+    assertThrows(ResourceExceptions.NotFound.class, () -> controller().read("1"));
   }
 
-  @Test(expected = ResourceExceptions.NotFound.class)
+  @Test
   public void readThrowsNotFoundWhenIdIsUnknown() {
-    controller().read("1");
+    assertThrows(ResourceExceptions.NotFound.class, () -> controller().read("1"));
   }
 
   @Test
