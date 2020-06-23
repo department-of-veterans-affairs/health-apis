@@ -149,6 +149,7 @@ public class R4ConditionControllerTest {
     assertThrows(ResourceExceptions.NotFound.class, () -> controller().read("x"));
   }
 
+  @Test
   public void readThrowsNotFoundWhenIdIsUnknown() {
     assertThrows(ResourceExceptions.NotFound.class, () -> controller().read("x"));
   }
