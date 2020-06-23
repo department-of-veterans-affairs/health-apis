@@ -26,14 +26,19 @@ import gov.va.api.health.stu3.api.resources.PractitionerRole.Bundle;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @DataJpaTest
-@RunWith(SpringRunner.class)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+@ExtendWith(SpringExtension.class)
 public class Stu3PractitionerRoleControllerTest {
   @Autowired private PractitionerRepository repository;
 
@@ -154,26 +159,29 @@ public class Stu3PractitionerRoleControllerTest {
     verify(servletResponse).addHeader("X-VA-INCLUDES-ICN", "NONE");
   }
 
-  @Test(expected = ResourceExceptions.NotFound.class)
+  @Test
   public void readRawThrowsNotFoundWhenDataIsMissing() {
     addMockIdentities("x", "x", "y", "y", "z", "z");
-    controller().readRaw("x", mock(HttpServletResponse.class));
+    Assertions.assertThrows(ResourceExceptions.NotFound.class, () ->
+    controller().readRaw("x", mock(HttpServletResponse.class)));
   }
 
-  @Test(expected = ResourceExceptions.NotFound.class)
+  @Test
   public void readRawThrowsNotFoundWhenIdIsUnknown() {
-    controller().readRaw("x", mock(HttpServletResponse.class));
+    Assertions.assertThrows(ResourceExceptions.NotFound.class, () ->
+    controller().readRaw("x", mock(HttpServletResponse.class)));
   }
 
-  @Test(expected = ResourceExceptions.NotFound.class)
+  @Test
   public void readThrowsNotFoundWhenDataIsMissing() {
     addMockIdentities("x", "x", "y", "y", "z", "z");
-    controller().read("x");
+    Assertions.assertThrows(ResourceExceptions.NotFound.class, () ->
+    controller().read("x"));
   }
 
-  @Test(expected = ResourceExceptions.NotFound.class)
+  @Test
   public void readThrowsNotFoundWhenIdIsUnknown() {
-    controller().read("x");
+    Assertions.assertThrows(ResourceExceptions.NotFound.class, () -> controller().read("x"));
   }
 
   @Test
@@ -363,18 +371,20 @@ public class Stu3PractitionerRoleControllerTest {
                         1))));
   }
 
-  @Test(expected = ResourceExceptions.BadSearchParameter.class)
+  @Test
   public void searchByNpi_badSystem() {
-    controller().searchByNpi("not_npi|12345", 1, 1);
+    Assertions.assertThrows(ResourceExceptions.BadSearchParameter.class, () -> controller().searchByNpi("not_npi|12345", 1, 1));
   }
 
-  @Test(expected = ResourceExceptions.BadSearchParameter.class)
+  @Test
   public void searchByNpi_noDelimiter() {
-    controller().searchByNpi("http://hl7.org/fhir/sid/us-npi", 1, 1);
+    Assertions.assertThrows(ResourceExceptions.BadSearchParameter.class, () ->
+    controller().searchByNpi("http://hl7.org/fhir/sid/us-npi", 1, 1));
   }
 
-  @Test(expected = ResourceExceptions.NotImplemented.class)
+  @Test
   public void searchBySpecialty() {
-    controller().searchBySpecialty("specialty", 1, 1);
+    Assertions.assertThrows(ResourceExceptions.NotImplemented.class, () ->
+    controller().searchBySpecialty("specialty", 1, 1));
   }
 }
