@@ -8,7 +8,7 @@ import gov.va.api.health.dataquery.service.controller.condition.ConditionSamples
 import gov.va.api.health.dataquery.service.controller.condition.DatamartCondition.IcdCode;
 import gov.va.api.health.dataquery.service.controller.condition.DatamartCondition.SnomedCode;
 import java.util.Optional;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class Dstu2ConditionTransformerTest {
   @Test

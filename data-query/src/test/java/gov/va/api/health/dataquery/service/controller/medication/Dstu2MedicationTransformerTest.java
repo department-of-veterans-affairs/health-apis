@@ -10,7 +10,7 @@ import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.elements.Narrative;
 import java.util.Optional;
 import lombok.SneakyThrows;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class Dstu2MedicationTransformerTest {
   @Test

@@ -9,7 +9,7 @@ import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference
 import java.time.Instant;
 import java.util.Optional;
 import lombok.SneakyThrows;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class DatamartAllergyIntoleranceTest {
   public void assertReadable(String json) throws java.io.IOException {
