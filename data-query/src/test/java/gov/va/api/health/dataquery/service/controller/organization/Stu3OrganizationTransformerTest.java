@@ -8,7 +8,7 @@ import gov.va.api.health.stu3.api.datatypes.ContactPoint;
 import gov.va.api.health.stu3.api.resources.Organization;
 import java.util.Optional;
 import lombok.SneakyThrows;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class Stu3OrganizationTransformerTest {
   @Test
