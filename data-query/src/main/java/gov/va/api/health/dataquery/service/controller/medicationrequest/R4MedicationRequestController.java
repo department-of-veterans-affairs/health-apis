@@ -248,7 +248,7 @@ public class R4MedicationRequestController {
     }
 
     int lastPageWithMedicationStatement =
-            (int) Math.ceil((double) numMedicationStatementsForPatient / count);
+        (int) Math.ceil((double) numMedicationStatementsForPatient / count);
 
     int totalPages =
         (int)
@@ -335,10 +335,10 @@ public class R4MedicationRequestController {
     // If the intent == order then it is a MedicationOrder
     if ("order".equals(intent)) {
       Page<MedicationOrderEntity> medicationOrderEntities =
-              medicationOrderRepository.findByIcn(
-                      icn,
-                      PageRequest.of(
-                              page - 1, count == 0 ? 1 : count, MedicationOrderEntity.naturalOrder()));
+          medicationOrderRepository.findByIcn(
+              icn,
+              PageRequest.of(
+                  page - 1, count == 0 ? 1 : count, MedicationOrderEntity.naturalOrder()));
 
       int totalRecords = (int) medicationOrderEntities.getTotalElements();
 
@@ -347,10 +347,10 @@ public class R4MedicationRequestController {
       }
 
       List<DatamartMedicationOrder> datamartMedicationOrders =
-              medicationOrderEntities
-                      .get()
-                      .map(MedicationOrderEntity::asDatamartMedicationOrder)
-                      .collect(Collectors.toList());
+          medicationOrderEntities
+              .get()
+              .map(MedicationOrderEntity::asDatamartMedicationOrder)
+              .collect(Collectors.toList());
       replaceReferencesMedicationOrder(datamartMedicationOrders);
       List<MedicationRequest> fhir = medRequestsFromMedOrders(datamartMedicationOrders);
 
