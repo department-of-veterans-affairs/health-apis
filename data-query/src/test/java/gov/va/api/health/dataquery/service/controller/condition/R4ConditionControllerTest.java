@@ -37,6 +37,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @ExtendWith(SpringExtension.class)
 public class R4ConditionControllerTest {
+  private static final String PROBLEM_AND_DIAGNOSIS_SYSTEM =
+      "http://terminology.hl7.org/CodeSystem/condition-category";
+
   HttpServletResponse response = mock(HttpServletResponse.class);
 
   private IdentityService ids = mock(IdentityService.class);
@@ -242,7 +245,6 @@ public class R4ConditionControllerTest {
 
   @Test
   public void searchByPatientAndBadCategoryReturnsEmptyBundle() {
-
     assertThat(toJson(controller().searchByPatientAndCategory("x", "nope", 1, 0)))
         .isEqualTo(
             toJson(
@@ -258,7 +260,7 @@ public class R4ConditionControllerTest {
   }
 
   @Test
-  public void searchByPatientAndCategory() {
+  public void searchByPatientAndCategoryCode() {
     Multimap<String, Condition> conditionsByPatient = populateData();
     assertThat(toJson(controller().searchByPatientAndCategory("p0", "encounter-diagnosis", 1, 10)))
         .isEqualTo(
@@ -294,6 +296,88 @@ public class R4ConditionControllerTest {
   }
 
   @Test
+  public void searchByPatientAndCategorySystem() {
+    Multimap<String, Condition> conditionsByPatient = populateData();
+    assertThat(
+            toJson(
+                controller()
+                    .searchByPatientAndCategory("p0", PROBLEM_AND_DIAGNOSIS_SYSTEM + "|", 1, 10)))
+        .isEqualTo(
+            toJson(
+                ConditionSamples.R4.asBundle(
+                    "http://fonzy.com/cool",
+                    conditionsByPatient.get("p0"),
+                    (int) conditionsByPatient.get("p0").size(),
+                    link(
+                        BundleLink.LinkRelation.first,
+                        "http://fonzy.com/cool/Condition?category="
+                            + PROBLEM_AND_DIAGNOSIS_SYSTEM
+                            + "|&patient=p0",
+                        1,
+                        10),
+                    link(
+                        BundleLink.LinkRelation.self,
+                        "http://fonzy.com/cool/Condition?category="
+                            + PROBLEM_AND_DIAGNOSIS_SYSTEM
+                            + "|&patient=p0",
+                        1,
+                        10),
+                    link(
+                        BundleLink.LinkRelation.last,
+                        "http://fonzy.com/cool/Condition?category="
+                            + PROBLEM_AND_DIAGNOSIS_SYSTEM
+                            + "|&patient=p0",
+                        1,
+                        10))));
+  }
+
+  @Test
+  public void searchByPatientAndCategorySystemAndCode() {
+    Multimap<String, Condition> conditionsByPatient = populateData();
+    assertThat(
+            toJson(
+                controller()
+                    .searchByPatientAndCategory(
+                        "p0", PROBLEM_AND_DIAGNOSIS_SYSTEM + "|encounter-diagnosis", 1, 10)))
+        .isEqualTo(
+            toJson(
+                ConditionSamples.R4.asBundle(
+                    "http://fonzy.com/cool",
+                    conditionsByPatient.get("p0").stream()
+                        .filter(
+                            c -> "Encounter Diagnosis".equalsIgnoreCase(c.category().get(0).text()))
+                        .collect(Collectors.toList()),
+                    (int)
+                        conditionsByPatient.get("p0").stream()
+                            .filter(
+                                c ->
+                                    "Encounter Diagnosis"
+                                        .equalsIgnoreCase(c.category().get(0).text()))
+                            .count(),
+                    link(
+                        BundleLink.LinkRelation.first,
+                        "http://fonzy.com/cool/Condition?category="
+                            + PROBLEM_AND_DIAGNOSIS_SYSTEM
+                            + "|encounter-diagnosis&patient=p0",
+                        1,
+                        10),
+                    link(
+                        BundleLink.LinkRelation.self,
+                        "http://fonzy.com/cool/Condition?category="
+                            + PROBLEM_AND_DIAGNOSIS_SYSTEM
+                            + "|encounter-diagnosis&patient=p0",
+                        1,
+                        10),
+                    link(
+                        BundleLink.LinkRelation.last,
+                        "http://fonzy.com/cool/Condition?category="
+                            + PROBLEM_AND_DIAGNOSIS_SYSTEM
+                            + "|encounter-diagnosis&patient=p0",
+                        1,
+                        10))));
+  }
+
+  @Test
   public void searchByPatientAndClinicalStatus() {
     Multimap<String, Condition> conditionsByPatient = populateData();
     assertThat(toJson(controller().searchByPatientAndClinicalStatus("p0", "active", 1, 10)))
@@ -323,6 +407,22 @@ public class R4ConditionControllerTest {
                         "http://fonzy.com/cool/Condition?clinical-status=active&patient=p0",
                         1,
                         10))));
+  }
+
+  @Test
+  public void searchByPatientAndExplicityNoSystemCategoryReturnsEmptyBundle() {
+    assertThat(toJson(controller().searchByPatientAndCategory("x", "|encounter-diagnosis", 1, 0)))
+        .isEqualTo(
+            toJson(
+                ConditionSamples.R4.asBundle(
+                    "http://fonzy.com/cool",
+                    Collections.emptyList(),
+                    0,
+                    ConditionSamples.R4.link(
+                        BundleLink.LinkRelation.self,
+                        "http://fonzy.com/cool/Condition?category=|encounter-diagnosis&patient=x",
+                        1,
+                        0))));
   }
 
   @Test

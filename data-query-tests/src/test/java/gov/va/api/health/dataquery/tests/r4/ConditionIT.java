@@ -42,22 +42,7 @@ public class ConditionIT {
         test(
             200,
             Condition.Bundle.class,
-            "Condition?patient={patient}&category=health-concern",
-            verifier.ids().patient()),
-        test(
-            200,
-            Condition.Bundle.class,
             "Condition?patient={patient}&category=http://terminology.hl7.org/CodeSystem/condition-category|problem-list-item",
-            verifier.ids().patient()),
-        test(
-            200,
-            Condition.Bundle.class,
-            "Condition?patient={patient}&category=http://terminology.hl7.org/CodeSystem/condition-category|",
-            verifier.ids().patient()),
-        test(
-            200,
-            Condition.Bundle.class,
-            "Condition?patient={patient}&category=|problem-list-item",
             verifier.ids().patient()),
         test(
             200,

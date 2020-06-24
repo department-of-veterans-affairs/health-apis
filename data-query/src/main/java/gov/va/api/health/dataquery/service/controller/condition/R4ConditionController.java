@@ -250,7 +250,7 @@ public class R4ConditionController {
     TokenParameter categoryToken = TokenParameter.parse(category);
     if (categoryToken.isSystemExplicitAndUnsupported(PROBLEM_AND_DIAGNOSIS_SYSTEM)
         || categoryToken.isCodeExplicitAndUnsupported("problem-list-item", "encounter-diagnosis")
-        || categoryToken.hasNoSystem()) {
+        || categoryToken.hasExplicitlyNoSystem()) {
       return bundle(parameters, emptyList(), 0);
     }
     String icn = witnessProtection.toCdwId(patient);

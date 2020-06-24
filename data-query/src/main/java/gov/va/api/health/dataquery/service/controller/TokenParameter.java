@@ -70,7 +70,7 @@ public class TokenParameter {
     return mode == Mode.EXPLICIT_SYSTEM_ANY_CODE || mode == Mode.EXPLICIT_SYSTEM_EXPLICIT_CODE;
   }
 
-  public boolean hasNoSystem() {
+  public boolean hasExplicitlyNoSystem() {
     return mode == Mode.NO_SYSTEM_EXPLICIT_CODE;
   }
 
