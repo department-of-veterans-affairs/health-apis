@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -51,11 +50,6 @@ public class R4MedicationRequestControllerTest {
   @Autowired private MedicationOrderRepository medicationOrderRepository;
 
   @Autowired private MedicationStatementRepository medicationStatementRepository;
-
-  @BeforeEach
-  public void _init() {
-    response = mock(HttpServletResponse.class);
-  }
 
   @SneakyThrows
   private MedicationOrderEntity asMedicationOrderEntity(DatamartMedicationOrder dm) {
