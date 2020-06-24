@@ -94,25 +94,6 @@ public class R4MedicationRequestController {
     return bundle(parameters, reports, totalRecords, -1);
   }
 
-  private MedicationRequest.Bundle bundle(
-      MultiValueMap<String, String> parameters,
-      int count,
-      Page<MedicationOrderEntity> medicationOrderEntities) {
-    int totalRecords = (int) medicationOrderEntities.getTotalElements();
-    log.info("Search {} found {} results", parameters, totalRecords);
-    if (count == 0) {
-      return bundle(parameters, emptyList(), totalRecords);
-    }
-    List<DatamartMedicationOrder> datamartMedicationOrders =
-        medicationOrderEntities
-            .get()
-            .map(MedicationOrderEntity::asDatamartMedicationOrder)
-            .collect(Collectors.toList());
-    replaceReferencesMedicationOrder(datamartMedicationOrders);
-    List<MedicationRequest> fhir = medRequestsFromMedOrders(datamartMedicationOrders);
-    return bundle(parameters, fhir, totalRecords);
-  }
-
   MedicationOrderEntity findByIdMedicationOrderEntity(String publicId) {
     Optional<MedicationOrderEntity> entity =
         medicationOrderRepository.findById(witnessProtection.toCdwId(publicId));
@@ -266,15 +247,15 @@ public class R4MedicationRequestController {
           (int) (numMedicationStatementsForPatient + numMedicationOrdersForPatient));
     }
 
+    int lastPageWithMedicationStatement =
+            (int) Math.ceil((double) numMedicationStatementsForPatient / count);
+
     int totalPages =
         (int)
-            (Math.ceil(numMedicationStatementsForPatient / (double) count)
+            (lastPageWithMedicationStatement
                 + Math.ceil(numMedicationOrdersForPatient / (double) count));
 
-    int lastPageWithMedicationStatement =
-        (int) Math.floor((double) numMedicationStatementsForPatient / count);
-
-    if (lastPageWithMedicationStatement >= (page - 1)) {
+    if (lastPageWithMedicationStatement >= page) {
       Page<MedicationStatementEntity> medicationStatementEntities =
           medicationStatementRepository.findByIcn(
               icn, PageRequest.of(page - 1, count, MedicationStatementEntity.naturalOrder()));
@@ -297,7 +278,7 @@ public class R4MedicationRequestController {
           totalPages);
     } else if (numMedicationOrdersForPatient > 0) {
 
-      int medicationOrderPage = page - lastPageWithMedicationStatement - 2;
+      int medicationOrderPage = page - lastPageWithMedicationStatement - 1;
       Page<MedicationOrderEntity> medicationOrderEntities =
           medicationOrderRepository.findByIcn(
               icn,
@@ -353,13 +334,27 @@ public class R4MedicationRequestController {
     // If the intent == plan then it is a MedicationStatement
     // If the intent == order then it is a MedicationOrder
     if ("order".equals(intent)) {
-      return bundle(
-          parameters,
-          count,
-          medicationOrderRepository.findByIcn(
-              icn,
-              PageRequest.of(
-                  page - 1, count == 0 ? 1 : count, MedicationOrderEntity.naturalOrder())));
+      Page<MedicationOrderEntity> medicationOrderEntities =
+              medicationOrderRepository.findByIcn(
+                      icn,
+                      PageRequest.of(
+                              page - 1, count == 0 ? 1 : count, MedicationOrderEntity.naturalOrder()));
+
+      int totalRecords = (int) medicationOrderEntities.getTotalElements();
+
+      if (count == 0) {
+        return bundle(parameters, emptyList(), totalRecords);
+      }
+
+      List<DatamartMedicationOrder> datamartMedicationOrders =
+              medicationOrderEntities
+                      .get()
+                      .map(MedicationOrderEntity::asDatamartMedicationOrder)
+                      .collect(Collectors.toList());
+      replaceReferencesMedicationOrder(datamartMedicationOrders);
+      List<MedicationRequest> fhir = medRequestsFromMedOrders(datamartMedicationOrders);
+
+      return bundle(parameters, fhir, totalRecords);
     } else if ("plan".equals(intent)) {
       Page<MedicationStatementEntity> medicationStatementEntities =
           medicationStatementRepository.findByIcn(

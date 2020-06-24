@@ -97,7 +97,7 @@ public class R4MedicationRequestControllerTest {
   }
 
   public void mockNonMedicationTypeIdentity() {
-    mockResourceIdentity("MEDICATION_STATEMENT", "41", "non_cdwId");
+    mockResourceIdentity("NON_MS_MO", "41", "non_cdwId");
   }
 
   public void mockResourceIdentity(String resourceType, String publicId, String cdwId) {
