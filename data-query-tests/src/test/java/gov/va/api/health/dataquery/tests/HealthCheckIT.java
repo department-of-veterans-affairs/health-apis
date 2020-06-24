@@ -2,12 +2,9 @@ package gov.va.api.health.dataquery.tests;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 
-import gov.va.api.health.sentinel.categories.Local;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
 
 public class HealthCheckIT {
-  @Category(Local.class)
   @Test
   public void dataQueryIsHealthy() {
     TestClients.dstu2DataQuery()

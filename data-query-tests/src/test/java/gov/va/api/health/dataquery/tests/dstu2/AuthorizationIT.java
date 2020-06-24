@@ -2,15 +2,12 @@ package gov.va.api.health.dataquery.tests.dstu2;
 
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.tests.TestClients;
-import gov.va.api.health.dataquery.tests.categories.LabDataQueryPatient;
-import gov.va.api.health.dataquery.tests.categories.ProdDataQueryPatient;
 import gov.va.api.health.sentinel.ExpectedResponse;
 import gov.va.api.health.sentinel.FhirTestClient;
 import gov.va.api.health.sentinel.ServiceDefinition;
 import gov.va.api.health.sentinel.TestClient;
 import java.util.Optional;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
 
 public class AuthorizationIT {
   private final String apiPath() {
@@ -18,7 +15,6 @@ public class AuthorizationIT {
   }
 
   @Test
-  @Category({ProdDataQueryPatient.class, LabDataQueryPatient.class})
   public void invalidTokenIsUnauthorized() {
     TestClient unauthorizedDqClient =
         FhirTestClient.builder()

@@ -1,22 +1,15 @@
 package gov.va.api.health.dataquery.tests.r4;
 
 import gov.va.api.health.dataquery.tests.ResourceVerifier;
-import gov.va.api.health.dataquery.tests.categories.LabDataQueryClinician;
-import gov.va.api.health.dataquery.tests.categories.LabDataQueryPatient;
-import gov.va.api.health.dataquery.tests.categories.ProdDataQueryClinician;
-import gov.va.api.health.dataquery.tests.categories.ProdDataQueryPatient;
 import gov.va.api.health.r4.api.resources.OperationOutcome;
-import gov.va.api.health.sentinel.categories.Local;
 import gov.va.api.health.uscorer4.api.resources.MedicationRequest;
 import lombok.experimental.Delegate;
-import org.junit.experimental.categories.Category;
 import org.junit.jupiter.api.Test;
 
 public class MedicationRequestIT {
   @Delegate ResourceVerifier verifier = ResourceVerifier.r4();
 
   @Test
-  @Category({Local.class, LabDataQueryClinician.class, ProdDataQueryClinician.class})
   public void advanced() {
     verifier.verifyAll(
         test(
@@ -33,13 +26,6 @@ public class MedicationRequestIT {
   }
 
   @Test
-  @Category({
-    Local.class,
-    LabDataQueryPatient.class,
-    LabDataQueryClinician.class,
-    ProdDataQueryPatient.class,
-    ProdDataQueryClinician.class
-  })
   public void basic() {
     verifier.verifyAll(
         // Patient And Intent
@@ -64,12 +50,6 @@ public class MedicationRequestIT {
   }
 
   @Test
-  @Category({
-    LabDataQueryPatient.class,
-    LabDataQueryClinician.class,
-    ProdDataQueryPatient.class,
-    ProdDataQueryClinician.class
-  })
   public void searchNotMe() {
     verifier.verifyAll(
         test(

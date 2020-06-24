@@ -1,21 +1,14 @@
 package gov.va.api.health.dataquery.tests.dstu2;
 
 import gov.va.api.health.dataquery.tests.ResourceVerifier;
-import gov.va.api.health.dataquery.tests.categories.LabDataQueryPatient;
-import gov.va.api.health.dataquery.tests.categories.ProdDataQueryPatient;
 import gov.va.api.health.dstu2.api.resources.Location;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
-import gov.va.api.health.sentinel.categories.Local;
 import lombok.experimental.Delegate;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
 
 public class LocationIT {
   @Delegate ResourceVerifier verifier = ResourceVerifier.dstu2();
 
-  @Category({Local.class, ProdDataQueryPatient.class, LabDataQueryPatient.class
-    // , ProdDataQueryClinician.class
-  })
   @Test
   public void advanced() {
     verifier.verifyAll(
@@ -24,9 +17,6 @@ public class LocationIT {
         test(200, Location.Bundle.class, "Location?identifier={id}", verifier.ids().location()));
   }
 
-  @Category({Local.class, ProdDataQueryPatient.class, LabDataQueryPatient.class
-    // , ProdDataQueryClinician.class
-  })
   @Test
   public void basic() {
     verifier.verifyAll(

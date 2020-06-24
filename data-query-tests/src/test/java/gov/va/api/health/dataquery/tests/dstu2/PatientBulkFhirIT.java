@@ -6,17 +6,14 @@ import com.google.common.collect.ImmutableMap;
 import gov.va.api.health.argonaut.api.resources.Patient;
 import gov.va.api.health.dataquery.service.controller.BulkFhirCount;
 import gov.va.api.health.dataquery.tests.TestClients;
-import gov.va.api.health.dataquery.tests.categories.InternalBulkFhir;
 import gov.va.api.health.sentinel.ExpectedResponse;
-import gov.va.api.health.sentinel.categories.Manual;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.LinkedList;
 import java.util.List;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
 
 @Slf4j
 public class PatientBulkFhirIT {
@@ -25,7 +22,6 @@ public class PatientBulkFhirIT {
   }
 
   @Test
-  @Category(value = {InternalBulkFhir.class})
   public void bulkFhirPatientSearch() {
     log.info("Verify Patient Bulk Search internal/bulk/Patient?page=x&_count=y");
     ExpectedResponse responseAll =
@@ -58,7 +54,6 @@ public class PatientBulkFhirIT {
   }
 
   @Test
-  @Category({Manual.class, InternalBulkFhir.class})
   public void bulkFhirPatientSearchPerformance() {
     /*
      * We will ask for 5000 patients 100 times and log out the time it took to complete
@@ -81,7 +76,6 @@ public class PatientBulkFhirIT {
   }
 
   @Test
-  @Category({InternalBulkFhir.class})
   @SneakyThrows
   public void bulkPatientCount() {
     String path = apiPath() + "internal/bulk/Patient/count";

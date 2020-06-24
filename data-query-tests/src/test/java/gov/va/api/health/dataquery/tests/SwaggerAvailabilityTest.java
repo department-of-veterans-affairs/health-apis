@@ -2,12 +2,10 @@ package gov.va.api.health.dataquery.tests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import gov.va.api.health.sentinel.categories.Manual;
 import gov.va.api.health.sentinel.selenium.DevApiPortal;
 import io.restassured.RestAssured;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
@@ -30,13 +28,11 @@ public class SwaggerAvailabilityTest {
     apiPortalPage.quit();
   }
 
-  @Category(Manual.class)
   @Test
   public void checkDevAvailability() {
     checkAvailability("https://developer.va.gov/explore/health/docs/argonaut");
   }
 
-  @Category(Manual.class)
   @Test
   public void checkDevDevAvailability() {
     checkAvailability("https://dev-developer.va.gov/explore/health/docs/argonaut");

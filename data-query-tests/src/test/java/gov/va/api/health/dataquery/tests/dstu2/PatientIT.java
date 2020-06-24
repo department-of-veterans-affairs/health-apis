@@ -2,23 +2,15 @@ package gov.va.api.health.dataquery.tests.dstu2;
 
 import gov.va.api.health.argonaut.api.resources.Patient;
 import gov.va.api.health.dataquery.tests.ResourceVerifier;
-import gov.va.api.health.dataquery.tests.categories.LabDataQueryClinician;
-import gov.va.api.health.dataquery.tests.categories.LabDataQueryPatient;
-import gov.va.api.health.dataquery.tests.categories.ProdDataQueryClinician;
-import gov.va.api.health.dataquery.tests.categories.ProdDataQueryPatient;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import gov.va.api.health.sentinel.Environment;
-import gov.va.api.health.sentinel.categories.Local;
-import gov.va.api.health.sentinel.categories.Smoke;
 import lombok.experimental.Delegate;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
 
 public class PatientIT {
   @Delegate ResourceVerifier verifier = ResourceVerifier.dstu2();
 
   @Test
-  @Category({Local.class, LabDataQueryClinician.class, ProdDataQueryClinician.class})
   public void advanced() {
     verifier.verifyAll(
         test(
@@ -54,14 +46,6 @@ public class PatientIT {
   }
 
   @Test
-  @Category({
-    Local.class,
-    Smoke.class,
-    LabDataQueryPatient.class,
-    LabDataQueryClinician.class,
-    ProdDataQueryPatient.class,
-    ProdDataQueryClinician.class
-  })
   public void basic() {
     verifier.verifyAll(
         test(200, Patient.class, "Patient/{id}", verifier.ids().patient()),
@@ -73,7 +57,6 @@ public class PatientIT {
    * this only in LOCAL mode against the sandbox db.
    */
   @Test
-  @Category(Local.class)
   public void patientIdentifierSearching() {
     verifier.verify(
         test(200, Patient.Bundle.class, "Patient?identifier={id}", verifier.ids().patient()));
@@ -85,12 +68,6 @@ public class PatientIT {
    * lifted, the result of an unknown ID should be 404 Not Found.
    */
   @Test
-  @Category({
-    LabDataQueryPatient.class,
-    LabDataQueryClinician.class,
-    ProdDataQueryPatient.class,
-    ProdDataQueryClinician.class
-  })
   public void patientMatching() {
     int status = (Environment.get() == Environment.LOCAL) ? 404 : 403;
     verifier.verifyAll(

@@ -2,21 +2,19 @@ package gov.va.api.health.dataquery.tests.crawler;
 
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import gov.va.api.health.dataquery.tests.crawler.ResourceDiscovery.UnknownFhirVersion;
 import gov.va.api.health.dstu2.api.resources.Conformance;
 import gov.va.api.health.r4.api.resources.CapabilityStatement;
-import gov.va.api.health.sentinel.categories.Local;
 import io.restassured.response.Response;
 import java.util.List;
 import java.util.stream.Stream;
 import lombok.NoArgsConstructor;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
 
-@Category(Local.class)
 public class ResourceDiscoveryTest {
   ResourceDiscovery rd =
       ResourceDiscovery.of(
@@ -86,9 +84,9 @@ public class ResourceDiscoveryTest {
         .isEqualTo("AllergyIntolerance");
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void resourceThrowsIllegalArgumentExceptionIfNoSlashIsFound() {
-    ResourceDiscovery.resource("garbage");
+    assertThrows(IllegalArgumentException.class, () -> ResourceDiscovery.resource("garbage"));
   }
 
   @Test
@@ -101,12 +99,12 @@ public class ResourceDiscoveryTest {
         .isEqualTo("https://dev-api.va.gov/Patient//12345");
   }
 
-  @Test(expected = UnknownFhirVersion.class)
+  @Test
   public void unknownResponseThrowsException() {
     Response response = mock(Response.class);
     when(response.as(Conformance.class)).thenThrow(new RuntimeException("fugazi"));
     when(response.as(CapabilityStatement.class)).thenThrow(new RuntimeException("fugazi"));
-    rd.queriesFor(response);
+    assertThrows(UnknownFhirVersion.class, () -> rd.queriesFor(response));
   }
 
   @NoArgsConstructor(staticName = "get")
