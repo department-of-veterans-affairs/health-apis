@@ -56,7 +56,7 @@ public interface ConditionRepository
         CriteriaQuery<?> criteriaQuery,
         CriteriaBuilder criteriaBuilder) {
       List<Predicate> predicates = new ArrayList<>(2);
-      codes.forEach(c -> predicates.add(criteriaBuilder.equal(root.get("category"), c)));
+      codes.forEach(c -> predicates.add(criteriaBuilder.equal(root.get("category"), c.toString())));
       return criteriaBuilder.or(predicates.toArray(new Predicate[0]));
     }
   }
