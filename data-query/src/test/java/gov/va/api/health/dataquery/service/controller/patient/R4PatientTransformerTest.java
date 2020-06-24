@@ -8,7 +8,7 @@ import gov.va.api.health.r4.api.datatypes.Coding;
 import gov.va.api.health.r4.api.elements.Extension;
 import gov.va.api.health.uscorer4.api.resources.Patient;
 import java.util.List;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class R4PatientTransformerTest {
   @Test

@@ -6,7 +6,7 @@ import gov.va.api.health.dataquery.service.controller.condition.ConditionSamples
 import gov.va.api.health.dataquery.service.controller.condition.ConditionSamples.R4;
 import gov.va.api.health.uscorer4.api.resources.Condition;
 import java.util.Optional;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class R4ConditionTransformerTest {
   @Test

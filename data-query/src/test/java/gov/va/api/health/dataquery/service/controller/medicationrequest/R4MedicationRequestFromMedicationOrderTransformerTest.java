@@ -9,7 +9,7 @@ import gov.va.api.health.r4.api.DataAbsentReason;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class R4MedicationRequestFromMedicationOrderTransformerTest {
   @Test
