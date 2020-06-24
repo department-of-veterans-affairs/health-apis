@@ -249,7 +249,7 @@ public class ConditionSamples {
                       gov.va.api.health.r4.api.datatypes.Coding.builder()
                           .display("Encounter Diagnosis")
                           .code("encounter-diagnosis")
-                          .system("http://hl7.org/fhir/R4/codesystem-condition-category.html")
+                          .system("http://terminology.hl7.org/CodeSystem/condition-category")
                           .build()))
               .build());
     }
@@ -263,7 +263,7 @@ public class ConditionSamples {
                       gov.va.api.health.r4.api.datatypes.Coding.builder()
                           .display("Problem List Item")
                           .code("problem-list-item")
-                          .system("http://hl7.org/fhir/R4/codesystem-condition-category.html")
+                          .system("http://terminology.hl7.org/CodeSystem/condition-category")
                           .build()))
               .build());
     }

@@ -94,7 +94,6 @@ public interface ObservationRepository
         Root<ObservationEntity> root,
         CriteriaQuery<?> criteriaQuery,
         CriteriaBuilder criteriaBuilder) {
-
       List<Predicate> predicates = new ArrayList<>(4);
       predicates.add(criteriaBuilder.equal(root.get("icn"), patient()));
 
