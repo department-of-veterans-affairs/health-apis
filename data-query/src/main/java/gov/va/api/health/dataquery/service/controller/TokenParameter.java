@@ -118,18 +118,26 @@ public class TokenParameter {
 
     private Function<String, T> onNoSystemAndExplicitCode;
 
+    /** Check if behavior is specified before executing it. */
+    public <T1> T1 check(T1 n) {
+      if (n == null) {
+        throw new IllegalStateException("no handler specified for " + token.mode);
+      }
+      return n;
+    }
+
     /** Execute correct behavior based on the mode of the token. */
     @SneakyThrows
     public T execute() {
       switch (token.mode) {
         case ANY_SYSTEM_EXPLICIT_CODE:
-          return onAnySystemAndExplicitCode.apply(token.code);
+          return check(onAnySystemAndExplicitCode).apply(token.code);
         case EXPLICIT_SYSTEM_ANY_CODE:
-          return onExplicitSystemAndAnyCode.apply(token.system);
+          return check(onExplicitSystemAndAnyCode).apply(token.system);
         case EXPLICIT_SYSTEM_EXPLICIT_CODE:
-          return onExplicitSystemAndExplicitCode.apply(token.system, token.code);
+          return check(onExplicitSystemAndExplicitCode).apply(token.system, token.code);
         case NO_SYSTEM_EXPLICIT_CODE:
-          return onNoSystemAndExplicitCode.apply(token.code);
+          return check(onNoSystemAndExplicitCode).apply(token.code);
         default:
           throw new IllegalStateException("TokenParameter in unsupported mode : " + token.mode);
       }
