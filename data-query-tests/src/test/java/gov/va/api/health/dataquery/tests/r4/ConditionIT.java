@@ -57,6 +57,11 @@ public class ConditionIT {
         test(
             200,
             Condition.Bundle.class,
+            "Condition?patient={patient}&category=|problem-list-item",
+            verifier.ids().patient()),
+        test(
+            200,
+            Condition.Bundle.class,
             "Condition?patient={patient}&clinicalstatus=active",
             verifier.ids().patient()),
         test(
