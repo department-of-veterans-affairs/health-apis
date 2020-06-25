@@ -132,6 +132,47 @@ public class R4MedicationRequestController {
         .collect(Collectors.toList());
   }
 
+  MedicationRequest.Bundle medicationOrdersForPatient(
+      MultiValueMap<String, String> parameters, String icn, int page, int count) {
+    Page<MedicationOrderEntity> medicationOrderEntities =
+        medicationOrderRepository.findByIcn(
+            icn,
+            PageRequest.of(page - 1, count == 0 ? 1 : count, MedicationOrderEntity.naturalOrder()));
+    int totalRecords = (int) medicationOrderEntities.getTotalElements();
+    if (count == 0) {
+      return bundle(parameters, emptyList(), totalRecords);
+    }
+    List<DatamartMedicationOrder> datamartMedicationOrders =
+        medicationOrderEntities
+            .get()
+            .map(MedicationOrderEntity::asDatamartMedicationOrder)
+            .collect(Collectors.toList());
+    replaceReferencesMedicationOrder(datamartMedicationOrders);
+    List<MedicationRequest> fhir = medRequestsFromMedOrders(datamartMedicationOrders);
+    return bundle(parameters, fhir, totalRecords);
+  }
+
+  MedicationRequest.Bundle medicationStatementsForPatient(
+      MultiValueMap<String, String> parameters, String icn, int page, int count) {
+    Page<MedicationStatementEntity> medicationStatementEntities =
+        medicationStatementRepository.findByIcn(
+            icn,
+            PageRequest.of(
+                page - 1, count == 0 ? 1 : count, MedicationStatementEntity.naturalOrder()));
+    int totalRecords = (int) medicationStatementEntities.getTotalElements();
+    if (count == 0) {
+      return bundle(parameters, emptyList(), totalRecords);
+    }
+    List<DatamartMedicationStatement> datamartMedicationStatements =
+        medicationStatementEntities
+            .get()
+            .map(MedicationStatementEntity::asDatamartMedicationStatement)
+            .collect(Collectors.toList());
+    replaceReferencesMedicationStatement(datamartMedicationStatements);
+    List<MedicationRequest> fhir = medRequestsFromMedStatements(datamartMedicationStatements);
+    return bundle(parameters, fhir, totalRecords);
+  }
+
   /** Read by identifier. */
   @GetMapping(value = {"/{publicId}"})
   public MedicationRequest read(@PathVariable("publicId") String publicId) {
@@ -271,41 +312,9 @@ public class R4MedicationRequestController {
     // If the intent == plan then it is a MedicationStatement
     // If the intent == order then it is a MedicationOrder
     if ("order".equals(intent)) {
-      Page<MedicationOrderEntity> medicationOrderEntities =
-          medicationOrderRepository.findByIcn(
-              icn,
-              PageRequest.of(
-                  page - 1, count == 0 ? 1 : count, MedicationOrderEntity.naturalOrder()));
-      int totalRecords = (int) medicationOrderEntities.getTotalElements();
-      if (count == 0) {
-        return bundle(parameters, emptyList(), totalRecords);
-      }
-      List<DatamartMedicationOrder> datamartMedicationOrders =
-          medicationOrderEntities
-              .get()
-              .map(MedicationOrderEntity::asDatamartMedicationOrder)
-              .collect(Collectors.toList());
-      replaceReferencesMedicationOrder(datamartMedicationOrders);
-      List<MedicationRequest> fhir = medRequestsFromMedOrders(datamartMedicationOrders);
-      return bundle(parameters, fhir, totalRecords);
+      return medicationOrdersForPatient(parameters, icn, page, count);
     } else if ("plan".equals(intent)) {
-      Page<MedicationStatementEntity> medicationStatementEntities =
-          medicationStatementRepository.findByIcn(
-              icn,
-              PageRequest.of(
-                  page - 1, count == 0 ? 1 : count, MedicationStatementEntity.naturalOrder()));
-      int totalRecords = (int) medicationStatementEntities.getTotalElements();
-      if (count == 0) {
-        return bundle(parameters, emptyList(), totalRecords);
-      }
-      List<DatamartMedicationStatement> datamartMedicationStatements =
-          medicationStatementEntities
-              .get()
-              .map(MedicationStatementEntity::asDatamartMedicationStatement)
-              .collect(Collectors.toList());
-      replaceReferencesMedicationStatement(datamartMedicationStatements);
-      List<MedicationRequest> fhir = medRequestsFromMedStatements(datamartMedicationStatements);
-      return bundle(parameters, fhir, totalRecords);
+      return medicationStatementsForPatient(parameters, icn, page, count);
     } else {
       return bundle(parameters, emptyList(), 0);
     }
