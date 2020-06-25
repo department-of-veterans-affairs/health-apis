@@ -28,7 +28,7 @@ public class ConditionIT {
         test(
             200,
             Condition.Bundle.class,
-            "Condition?patient={patient}&category=health-concern",
+            "Condition?patient={patient}&category=http://terminology.hl7.org/CodeSystem/condition-category|problem-list-item",
             verifier.ids().patient()),
         test(
             200,
