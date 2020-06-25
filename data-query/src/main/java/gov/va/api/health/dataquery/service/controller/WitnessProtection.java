@@ -62,10 +62,8 @@ public class WitnessProtection {
             .map(Optional::get)
             .collect(Collectors.toSet());
     IdentityMapping identityMapping = registerAndMap(ids);
-
     resources.stream()
         .forEach(r -> identityMapping.publicIdOf(r.asReference()).ifPresent(r::cdwId));
-
     return identityMapping;
   }
 
@@ -156,9 +154,18 @@ public class WitnessProtection {
     return Parameters.identiferOf(cdwParameters);
   }
 
+  /** Lookup and convert the given public ID to a ResourceIdentity. */
+  @Loggable(arguments = false)
+  public ResourceIdentity toResourceIdentity(String publicId) {
+
+    return identityService.lookup(publicId).stream()
+        .findFirst()
+        .orElseThrow(
+            () -> new ResourceExceptions.NotFound("Resource Identity " + publicId + " not found."));
+  }
+
   /** Utility for easy look up of ids. */
   public static class IdentityMapping {
-
     private final Table<String, String, Registration> ids;
 
     /** Create a new instance with the given registrations. */

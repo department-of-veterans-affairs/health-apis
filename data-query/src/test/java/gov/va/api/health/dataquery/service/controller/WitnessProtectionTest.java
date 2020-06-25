@@ -1,6 +1,7 @@
 package gov.va.api.health.dataquery.service.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -13,13 +14,11 @@ import java.util.List;
 import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.util.MultiValueMap;
 
 public class WitnessProtectionTest {
-
   IdentityService ids = mock(IdentityService.class);
   WitnessProtection wp = new WitnessProtection(ids);
 
@@ -52,7 +51,6 @@ public class WitnessProtectionTest {
             List.of(
                 DatamartReference.of().type("whatever").reference("zcdw").build(),
                 DatamartReference.of().type("everyone").reference("acdw").build()));
-
     wp.registerAndUpdateReferences(
         List.of(x, y, z),
         w -> {
@@ -103,7 +101,7 @@ public class WitnessProtectionTest {
   @Test
   public void replacePublicIdsWithCdwIdsThrowsSearchFailedIfIdsFails() {
     when(ids.lookup(Mockito.any())).thenThrow(new IdentityService.LookupFailed("x", "x"));
-    Assertions.assertThrows(
+    assertThrows(
         ResourceExceptions.SearchFailed.class,
         () -> wp.replacePublicIdsWithCdwIds(Parameters.forIdentity("x")));
   }
@@ -111,7 +109,7 @@ public class WitnessProtectionTest {
   @Test
   public void replacePublicIdsWithCdwIdsThrowsUnknownIdentityIfIdsFails() {
     when(ids.lookup(Mockito.any())).thenThrow(new IdentityService.UnknownIdentity("x"));
-    Assertions.assertThrows(
+    assertThrows(
         ResourceExceptions.UnknownIdentityInSearchParameter.class,
         () -> wp.replacePublicIdsWithCdwIds(Parameters.forIdentity("x")));
   }
@@ -125,11 +123,26 @@ public class WitnessProtectionTest {
     assertThat(wp.toCdwId("x")).isEqualTo("XXX");
   }
 
+  @Test
+  public void toResourceIdentityExceptionTest() {
+    assertThrows(ResourceExceptions.NotFound.class, () -> wp.toResourceIdentity("not cool"));
+  }
+
+  @Test
+  public void toResourceIdentityTest() {
+    ResourceIdentity coolResource =
+        ResourceIdentity.builder().system("CDW").resource("COMMUNITY").identifier("ABED").build();
+    when(ids.lookup("cool")).thenReturn(List.of(coolResource));
+    assertThat(wp.toResourceIdentity("cool")).isEqualTo(coolResource);
+  }
+
   @Data
   @AllArgsConstructor
   private static class Witness implements HasReplaceableId {
     private String objectType;
+
     private String cdwId;
+
     private String originalId;
 
     static Witness of(String id) {
