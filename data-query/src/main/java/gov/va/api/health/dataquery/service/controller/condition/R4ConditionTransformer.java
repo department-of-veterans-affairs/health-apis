@@ -14,6 +14,8 @@ import lombok.NonNull;
 
 @Builder
 public class R4ConditionTransformer {
+  private static final String PROBLEM_AND_DIAGNOSIS_SYSTEM =
+      "http://terminology.hl7.org/CodeSystem/condition-category";
   @NonNull private final DatamartCondition datamart;
 
   /**
@@ -44,7 +46,7 @@ public class R4ConditionTransformer {
                         Coding.builder()
                             .display("Encounter Diagnosis")
                             .code("encounter-diagnosis")
-                            .system("http://hl7.org/fhir/R4/codesystem-condition-category.html")
+                            .system(PROBLEM_AND_DIAGNOSIS_SYSTEM)
                             .build()))
                 .build());
       case problem:
@@ -56,7 +58,7 @@ public class R4ConditionTransformer {
                         Coding.builder()
                             .display("Problem List Item")
                             .code("problem-list-item")
-                            .system("http://hl7.org/fhir/R4/codesystem-condition-category.html")
+                            .system(PROBLEM_AND_DIAGNOSIS_SYSTEM)
                             .build()))
                 .build());
       default:
