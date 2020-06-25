@@ -9,6 +9,7 @@ import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.R4Bundler;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
+import gov.va.api.health.dataquery.service.controller.TokenParameter;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.uscorer4.api.resources.Condition;
 import java.util.Collection;
@@ -23,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -44,6 +46,9 @@ import org.springframework.web.bind.annotation.RestController;
     value = {"/r4/Condition"},
     produces = {"application/json", "application/fhir+json"})
 public class R4ConditionController {
+  private static final String PROBLEM_AND_DIAGNOSIS_SYSTEM =
+      "http://terminology.hl7.org/CodeSystem/condition-category";
+
   R4Bundler bundler;
 
   private ConditionRepository repository;
@@ -65,18 +70,18 @@ public class R4ConditionController {
    *
    * <p>Datamart: problem | diagnosis
    *
-   * <p>R4: problem-list-item | encounter-diagnosis | health-concern
+   * <p>R4: problem-list-item | encounter-diagnosis
+   *
+   * <p>health-concern not currently supported
    */
-  private String asDatamartCategory(String category) {
+  private DatamartCondition.Category asDatamartCategory(String category) {
     switch (category) {
       case "problem-list-item":
-        return DatamartCondition.Category.problem.toString();
+        return DatamartCondition.Category.problem;
       case "encounter-diagnosis":
-        return DatamartCondition.Category.diagnosis.toString();
-      case "health-concern":
-        return "health-concern";
+        return DatamartCondition.Category.diagnosis;
       default:
-        throw new ResourceExceptions.BadSearchParameter("Invalid Category Parameter: " + category);
+        throw new IllegalStateException("Unsupported category code value: " + category);
     }
   }
 
@@ -112,6 +117,27 @@ public class R4ConditionController {
             .map(this::transform)
             .collect(Collectors.toList()),
         (int) entities.getTotalElements());
+  }
+
+  private Specification<ConditionEntity> categoryClauseFor(TokenParameter categoryToken) {
+    return categoryToken
+        .behavior()
+        .onExplicitSystemAndAnyCode(s -> explicitSystemSpec(s))
+        .onExplicitSystemAndExplicitCode(
+            (s, c) -> ConditionRepository.CodeSpecification.of(asDatamartCategory(c)))
+        .onAnySystemAndExplicitCode(
+            c -> ConditionRepository.CodeSpecification.of(asDatamartCategory(c)))
+        .build()
+        .execute();
+  }
+
+  private Specification<ConditionEntity> explicitSystemSpec(String system) {
+    if (PROBLEM_AND_DIAGNOSIS_SYSTEM.equals(system)) {
+      return ConditionRepository.ExplicitSystemSpecification.of(
+          List.of(DatamartCondition.Category.problem, DatamartCondition.Category.diagnosis));
+    }
+    throw new IllegalStateException(
+        "Unsupported system: " + system + ". Cannot build ExplicitSystemSpecification");
   }
 
   private ConditionEntity findEntityById(String publicId) {
@@ -205,6 +231,8 @@ public class R4ConditionController {
    * Search Condition by patient and category.
    *
    * <p>GET [base]/Condition?patient=[reference]&category={[system]}|[code]
+   *
+   * <p>health-concern not currently supported
    */
   @GetMapping(params = {"patient", "category"})
   public Condition.Bundle searchByPatientAndCategory(
@@ -212,16 +240,26 @@ public class R4ConditionController {
       @RequestParam("category") String category,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
-    String icn = witnessProtection.toCdwId(patient);
-    return bundle(
+    MultiValueMap<String, String> parameters =
         Parameters.builder()
             .add("patient", patient)
             .add("category", category)
             .add("page", page)
             .add("_count", count)
-            .build(),
+            .build();
+    TokenParameter categoryToken = TokenParameter.parse(category);
+    if (categoryToken.isSystemExplicitAndUnsupported(PROBLEM_AND_DIAGNOSIS_SYSTEM)
+        || categoryToken.isCodeExplicitAndUnsupported("problem-list-item", "encounter-diagnosis")
+        || categoryToken.hasExplicitlyNoSystem()) {
+      return bundle(parameters, emptyList(), 0);
+    }
+    String icn = witnessProtection.toCdwId(patient);
+    return bundle(
+        parameters,
         count,
-        repository.findByIcnAndCategory(icn, asDatamartCategory(category), page(page, count)));
+        repository.findAll(
+            ConditionRepository.PatientSpecification.of(icn).and(categoryClauseFor(categoryToken)),
+            page(page, count)));
   }
 
   /** Search Condition by patient and clinical status. */
