@@ -258,6 +258,14 @@ class Dstu2MetadataController {
                             Extension.builder()
                                 .url("authorize")
                                 .valueUri(properties.getSecurity().getAuthorizeEndpoint())
+                                .build(),
+                            Extension.builder()
+                                .url("manage")
+                                .valueUri(properties.getSecurity().getManagementEndpoint())
+                                .build(),
+                            Extension.builder()
+                                .url("revoke")
+                                .valueUri(properties.getSecurity().getRevocationEndpoint())
                                 .build()))
                     .build()))
         .cors(true)
