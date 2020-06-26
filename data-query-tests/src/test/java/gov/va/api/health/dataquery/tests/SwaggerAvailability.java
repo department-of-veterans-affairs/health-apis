@@ -10,7 +10,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
 @Slf4j
-public class SwaggerAvailabilityTest {
+public class SwaggerAvailability {
   DevApiPortal apiPortalPage = new DevApiPortal();
 
   private void checkAvailability(String url) {

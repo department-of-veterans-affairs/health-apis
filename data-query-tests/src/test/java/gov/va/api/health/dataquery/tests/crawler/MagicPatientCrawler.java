@@ -7,17 +7,14 @@ import gov.va.api.health.dataquery.tests.DataQueryProperties;
 import gov.va.api.health.dataquery.tests.SystemDefinition;
 import gov.va.api.health.dataquery.tests.SystemDefinitions;
 import gov.va.api.health.sentinel.SentinelProperties;
-import gov.va.api.health.sentinel.categories.Manual;
 import java.io.File;
 import java.util.concurrent.Executors;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
 
 @Slf4j
-public class UsingMagicPatientCrawlerTest {
+public class MagicPatientCrawler {
 
-  @Category(Manual.class)
   @Test
   public void crawl() {
     assertThat(magicAccessToken()).isNotNull();

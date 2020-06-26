@@ -1,6 +1,8 @@
 package gov.va.api.health.dataquery.tests.crawler;
 
+import static gov.va.api.health.dataquery.tests.TestAssumptionUtility.assumeLocal;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import gov.va.api.health.argonaut.api.resources.Medication;
 import gov.va.api.health.argonaut.api.resources.MedicationStatement;
@@ -9,19 +11,22 @@ import gov.va.api.health.dataquery.tests.crawler.UrlToResourceConverter.DoNotUnd
 import gov.va.api.health.dstu2.api.bundle.AbstractBundle;
 import gov.va.api.health.dstu2.api.resources.Resource;
 import gov.va.api.health.fhir.api.FhirVersion;
-import gov.va.api.health.sentinel.categories.Local;
 import gov.va.api.health.stu3.api.resources.Location;
 import java.util.List;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
-@Category(Local.class)
 public class UrlToResourceConverterTest {
   UrlToResourceConverter converter =
       UrlToResourceConverter.builder()
           .bundleClass(AbstractBundle.class)
           .resourcePackages(List.of(Patient.class.getPackage(), Resource.class.getPackage()))
           .build();
+
+  @BeforeAll
+  public static void assumeEnvironment() {
+    assumeLocal();
+  }
 
   @Test
   public void conversions() {
@@ -57,18 +62,21 @@ public class UrlToResourceConverterTest {
         .isEqualTo(gov.va.api.health.uscorer4.api.resources.Patient.class);
   }
 
-  @Test(expected = DoNotUnderstandUrl.class)
+  @Test()
   public void noSuchClass() {
-    converter.apply("http://something.com/api/WhatIsThisClass/123");
+    assertThrows(
+        DoNotUnderstandUrl.class,
+        () -> converter.apply("http://something.com/api/WhatIsThisClass/123"));
   }
 
-  @Test(expected = DoNotUnderstandUrl.class)
+  @Test()
   public void notParseable() {
-    converter.apply("http://what-is-this-nonsense.com");
+    assertThrows(
+        DoNotUnderstandUrl.class, () -> converter.apply("http://what-is-this-nonsense.com"));
   }
 
-  @Test(expected = DoNotUnderstandUrl.class)
+  @Test()
   public void relativeUrlsNotSupported() {
-    converter.apply("/api/Patient/123");
+    assertThrows(DoNotUnderstandUrl.class, () -> converter.apply("/api/Patient/123"));
   }
 }

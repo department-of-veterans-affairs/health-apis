@@ -1,17 +1,21 @@
 package gov.va.api.health.dataquery.tests.crawler;
 
+import static gov.va.api.health.dataquery.tests.TestAssumptionUtility.assumeLocal;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import gov.va.api.health.sentinel.categories.Local;
 import java.util.List;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
-@Category(Local.class)
 public final class ConcurrentResourceBalancingRequestQueueTest {
-
   ConcurrentResourceBalancingRequestQueue q = new ConcurrentResourceBalancingRequestQueue();
+
+  @BeforeAll
+  public static void assumeEnvironment() {
+    assumeLocal();
+  }
 
   @Test
   public void balanceResources() {
@@ -74,21 +78,25 @@ public final class ConcurrentResourceBalancingRequestQueueTest {
     assertThat(q.hasNext()).isFalse();
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test()
   public void exceptionIsThrownWhenAttemptingToAddMalformedUrlToQueue() {
-    q.add("x");
+    assertThrows(IllegalArgumentException.class, () -> q.add("x"));
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test()
   public void exceptionIsThrownWhenAttemptingToGetNextFromEmptyQueue() {
-    q.add("foo/api/AllergyIntolerance/1");
-    q.next();
-    q.next();
+    assertThrows(
+        IllegalStateException.class,
+        () -> {
+          q.add("foo/api/AllergyIntolerance/1");
+          q.next();
+          q.next();
+        });
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test()
   public void exceptionIsThrownWhenAttemptingToGetNextQueueThatWasNeverUsed() {
-    q.next();
+    assertThrows(IllegalStateException.class, () -> q.next());
   }
 
   @Test
