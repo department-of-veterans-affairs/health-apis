@@ -1,7 +1,5 @@
 package gov.va.api.health.dataquery.tests.stu3;
 
-import static gov.va.api.health.dataquery.tests.TestAssumptionUtility.assumeAllButLocal;
-import static gov.va.api.health.dataquery.tests.TestAssumptionUtility.assumeLocal;
 
 import gov.va.api.health.dataquery.tests.ResourceVerifier;
 import gov.va.api.health.stu3.api.resources.Location;
@@ -14,7 +12,6 @@ public class LocationIT {
 
   @Test
   public void advanced() {
-    assumeLocal();
     verifyAll(
         // Search By _id
         test(200, Location.Bundle.class, "Location?_id={id}", verifier.ids().location()),
@@ -52,7 +49,6 @@ public class LocationIT {
 
   @Test
   public void basic() {
-    assumeAllButLocal();
     verifyAll(
         test(200, Location.class, "Location/{id}", verifier.ids().location()),
         test(404, OperationOutcome.class, "Location/{id}", verifier.ids().unknown()));

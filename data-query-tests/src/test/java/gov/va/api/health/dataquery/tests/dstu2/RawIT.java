@@ -1,6 +1,5 @@
 package gov.va.api.health.dataquery.tests.dstu2;
 
-import static gov.va.api.health.dataquery.tests.TestAssumptionUtility.assumeAllButLocal;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
@@ -12,7 +11,6 @@ import io.restassured.specification.RequestSpecification;
 import lombok.SneakyThrows;
 import lombok.experimental.Delegate;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -27,11 +25,6 @@ public class RawIT {
       RestAssured.given()
           .spec(verifier.dataQuery().service().requestSpecification())
           .headers(ImmutableMap.of("raw", System.getProperty("raw-token", "true")));
-
-  @BeforeAll
-  static void assumeEnvironment() {
-    assumeAllButLocal();
-  }
 
   @Test
   public void allergyIntoleranceRaw() {

@@ -31,7 +31,6 @@ public class MedicationOrderIT {
 
   @Test
   public void basic() {
-    assumeAllButLocal();
     verifier.verifyAll(
         test(200, MedicationOrder.class, "MedicationOrder/{id}", verifier.ids().medicationOrder()),
         test(404, OperationOutcome.class, "MedicationOrder/{id}", verifier.ids().unknown()),

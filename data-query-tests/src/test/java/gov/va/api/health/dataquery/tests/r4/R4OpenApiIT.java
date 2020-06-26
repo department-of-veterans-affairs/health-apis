@@ -1,6 +1,5 @@
 package gov.va.api.health.dataquery.tests.r4;
 
-import static gov.va.api.health.dataquery.tests.TestAssumptionUtility.assumeAllButLocal;
 
 import gov.va.api.health.dataquery.tests.TestClients;
 import gov.va.api.health.sentinel.TestClient;
@@ -17,7 +16,6 @@ public class R4OpenApiIT {
 
   @Test
   public void openApiIsValid() {
-    assumeAllButLocal();
     // Ultimately r4 is expected to be unified.
     // Until then, use the internal path for testing.
     log.info("Verify {}r4-openapi.json is valid (200)", apiPath());

@@ -28,7 +28,6 @@ public class ImmunizationIT {
 
   @Test
   public void basic() {
-    assumeAllButLocal();
     verifier.verifyAll(
         test(200, Immunization.class, "Immunization/{id}", verifier.ids().immunization()),
         test(404, OperationOutcome.class, "Immunization/{id}", verifier.ids().unknown()),

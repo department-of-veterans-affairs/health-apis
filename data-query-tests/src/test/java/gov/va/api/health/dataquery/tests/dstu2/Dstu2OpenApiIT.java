@@ -1,6 +1,5 @@
 package gov.va.api.health.dataquery.tests.dstu2;
 
-import static gov.va.api.health.dataquery.tests.TestAssumptionUtility.assumeAllButLocal;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.dataquery.tests.ResourceVerifier;
@@ -18,7 +17,6 @@ public class Dstu2OpenApiIT {
 
   @Test
   public void openApiIsValid() {
-    assumeAllButLocal();
     log.info("Verify {}openapi.json is valid (200)", apiPath());
     assertThat(
             RestAssured.given()

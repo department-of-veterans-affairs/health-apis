@@ -31,7 +31,6 @@ public class MedicationRequestIT {
 
   @Test
   public void basic() {
-    assumeAllButLocal();
     verifier.verifyAll(
         // Patient And Intent
         test(

@@ -27,7 +27,6 @@ public class ObservationIT {
 
   @Test
   public void basic() {
-    assumeAllButLocal();
     verifier.verifyAll(
         // Patient And Category
         test(

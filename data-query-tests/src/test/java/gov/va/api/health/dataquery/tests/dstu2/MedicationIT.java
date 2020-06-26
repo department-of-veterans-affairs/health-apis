@@ -1,6 +1,5 @@
 package gov.va.api.health.dataquery.tests.dstu2;
 
-import static gov.va.api.health.dataquery.tests.TestAssumptionUtility.assumeAllButLocal;
 import static gov.va.api.health.dataquery.tests.TestAssumptionUtility.assumeLocal;
 
 import gov.va.api.health.argonaut.api.resources.Medication;
@@ -27,7 +26,6 @@ public class MedicationIT {
 
   @Test
   public void basic() {
-    assumeAllButLocal();
     verifier.verifyAll(
         test(200, Medication.class, "Medication/{id}", verifier.ids().medication()),
         test(404, OperationOutcome.class, "Medication/{id}", verifier.ids().unknown()));

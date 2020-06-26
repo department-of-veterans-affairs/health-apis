@@ -56,8 +56,6 @@ public class PatientIT {
 
   @Test
   public void basic() {
-    assumeAllButLocal();
-    // todo, removed smoke.class, is there anything missing here?
     verifier.verifyAll(
         test(200, Patient.class, "Patient/{id}", verifier.ids().patient()),
         test(200, Patient.Bundle.class, "Patient?_id={id}", verifier.ids().patient()));

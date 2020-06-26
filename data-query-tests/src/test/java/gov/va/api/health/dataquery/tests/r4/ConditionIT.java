@@ -23,7 +23,6 @@ public class ConditionIT {
 
   @Test
   public void basic() {
-    assumeAllButLocal();
     verifier.verifyAll(
         test(
             200,

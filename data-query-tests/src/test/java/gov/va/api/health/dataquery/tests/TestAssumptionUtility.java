@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assumptions.assumeThat;
 import gov.va.api.health.sentinel.Environment;
 
 public class TestAssumptionUtility {
+
   public static void assumeAllButLocal() {
     assumeThat(Environment.get())
         .overridingErrorMessage("Skipping in " + Environment.get())
