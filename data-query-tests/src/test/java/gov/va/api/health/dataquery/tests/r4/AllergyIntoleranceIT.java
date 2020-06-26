@@ -1,17 +1,13 @@
 package gov.va.api.health.dataquery.tests.r4;
 
-import gov.va.api.health.dataquery.tests.ResourceVerifier;
-import gov.va.api.health.dataquery.tests.TestAssumptionUtility;
-import gov.va.api.health.r4.api.resources.OperationOutcome;
-import gov.va.api.health.sentinel.Environment;
-import gov.va.api.health.uscorer4.api.resources.AllergyIntolerance;
-import lombok.experimental.Delegate;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-
 import static gov.va.api.health.dataquery.tests.TestAssumptionUtility.assumeAllButLocal;
 import static gov.va.api.health.dataquery.tests.TestAssumptionUtility.assumeLocal;
-import static org.assertj.core.api.Assumptions.assumeThat;
+
+import gov.va.api.health.dataquery.tests.ResourceVerifier;
+import gov.va.api.health.r4.api.resources.OperationOutcome;
+import gov.va.api.health.uscorer4.api.resources.AllergyIntolerance;
+import lombok.experimental.Delegate;
+import org.junit.jupiter.api.Test;
 
 public class AllergyIntoleranceIT {
   @Delegate ResourceVerifier verifier = ResourceVerifier.r4();

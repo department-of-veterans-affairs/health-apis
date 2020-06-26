@@ -6,11 +6,15 @@ import gov.va.api.health.uscorer4.api.resources.MedicationRequest;
 import lombok.experimental.Delegate;
 import org.junit.jupiter.api.Test;
 
+import static gov.va.api.health.dataquery.tests.TestAssumptionUtility.assumeAllButLocal;
+import static gov.va.api.health.dataquery.tests.TestAssumptionUtility.assumeLocal;
+
 public class MedicationRequestIT {
   @Delegate ResourceVerifier verifier = ResourceVerifier.r4();
 
   @Test
   public void advanced() {
+    assumeLocal();
     verifier.verifyAll(
         test(
             200,
@@ -27,6 +31,7 @@ public class MedicationRequestIT {
 
   @Test
   public void basic() {
+    assumeAllButLocal();
     verifier.verifyAll(
         // Patient And Intent
         test(
@@ -51,6 +56,7 @@ public class MedicationRequestIT {
 
   @Test
   public void searchNotMe() {
+    assumeAllButLocal();
     verifier.verifyAll(
         test(
             403,

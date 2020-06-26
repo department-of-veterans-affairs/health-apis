@@ -6,11 +6,15 @@ import gov.va.api.health.uscorer4.api.resources.Observation;
 import lombok.experimental.Delegate;
 import org.junit.jupiter.api.Test;
 
+import static gov.va.api.health.dataquery.tests.TestAssumptionUtility.assumeAllButLocal;
+import static gov.va.api.health.dataquery.tests.TestAssumptionUtility.assumeLocal;
+
 public class ObservationIT {
   @Delegate ResourceVerifier verifier = ResourceVerifier.r4();
 
   @Test
   public void advanced() {
+    assumeLocal();
     verifier.verifyAll(
         test(200, Observation.Bundle.class, "Observation?_id={id}", verifier.ids().observation()),
         test(404, OperationOutcome.class, "Observation?_id={id}", verifier.ids().unknown()),
@@ -23,6 +27,7 @@ public class ObservationIT {
 
   @Test
   public void basic() {
+    assumeAllButLocal();
     verifier.verifyAll(
         // Patient And Category
         test(
@@ -102,6 +107,7 @@ public class ObservationIT {
 
   @Test
   public void searchNotMe() {
+    assumeAllButLocal();
     verifier.verifyAll(
         test(
             403,

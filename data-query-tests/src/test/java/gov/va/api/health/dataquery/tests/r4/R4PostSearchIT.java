@@ -9,12 +9,15 @@ import java.util.Map;
 import lombok.experimental.Delegate;
 import org.junit.jupiter.api.Test;
 
+import static gov.va.api.health.dataquery.tests.TestAssumptionUtility.assumeAllButLocal;
+
 public class R4PostSearchIT {
 
   @Delegate ResourceVerifier verifier = ResourceVerifier.r4();
 
   @Test
   public void basic() {
+    assumeAllButLocal();
     verifier.verifyAll(
         // Basic Search by Patient
         test(

@@ -7,11 +7,15 @@ import gov.va.api.health.uscorer4.api.resources.Patient;
 import lombok.experimental.Delegate;
 import org.junit.jupiter.api.Test;
 
+import static gov.va.api.health.dataquery.tests.TestAssumptionUtility.assumeAllButLocal;
+import static gov.va.api.health.dataquery.tests.TestAssumptionUtility.assumeLocal;
+
 public class PatientIT {
   @Delegate ResourceVerifier verifier = ResourceVerifier.r4();
 
   @Test
   public void advanced() {
+    assumeLocal();
     verifier.verifyAll(
         test(
             200,
@@ -52,6 +56,8 @@ public class PatientIT {
 
   @Test
   public void basic() {
+    assumeAllButLocal();
+    // todo, removed smoke.class, is there anything missing here?
     verifier.verifyAll(
         test(200, Patient.class, "Patient/{id}", verifier.ids().patient()),
         test(200, Patient.Bundle.class, "Patient?_id={id}", verifier.ids().patient()));
@@ -63,6 +69,7 @@ public class PatientIT {
    */
   @Test
   public void patientIdentifierSearching() {
+    assumeLocal();
     verifier.verify(
         test(200, Patient.Bundle.class, "Patient?identifier={id}", verifier.ids().patient()));
   }
@@ -74,6 +81,7 @@ public class PatientIT {
    */
   @Test
   public void patientMatching() {
+    assumeAllButLocal();
     int status = (Environment.get() == Environment.LOCAL) ? 404 : 403;
     verifier.verifyAll(
         test(status, OperationOutcome.class, "Patient/{id}", verifier.ids().unknown()),

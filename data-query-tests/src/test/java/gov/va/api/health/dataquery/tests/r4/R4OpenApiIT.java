@@ -5,6 +5,8 @@ import gov.va.api.health.sentinel.TestClient;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
+import static gov.va.api.health.dataquery.tests.TestAssumptionUtility.assumeAllButLocal;
+
 @Slf4j
 public class R4OpenApiIT {
   final TestClient internal = TestClients.internalDataQuery();
@@ -15,6 +17,7 @@ public class R4OpenApiIT {
 
   @Test
   public void openApiIsValid() {
+    assumeAllButLocal();
     // Ultimately r4 is expected to be unified.
     // Until then, use the internal path for testing.
     log.info("Verify {}r4-openapi.json is valid (200)", apiPath());
