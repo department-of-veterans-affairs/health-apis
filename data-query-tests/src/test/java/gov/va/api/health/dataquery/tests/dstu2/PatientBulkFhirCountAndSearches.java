@@ -16,7 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
 @Slf4j
-public class PatientBulkFhir {
+public class PatientBulkFhirCountAndSearches {
 
   private String apiPath() {
     return TestClients.internalDataQuery().service().urlWithApiPath();
