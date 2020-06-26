@@ -61,13 +61,12 @@ trustServer() {
     -noprompt
 }
 
-defaultTests() {
-  doListTests | grep 'IT$'
-}
+
 
 doTest() {
-  local tests="$@"
-  [ -z "$tests" ] && tests=$(defaultTests)
+  local pattern="$@"
+ [ -z "$pattern" ] && pattern=.*IT\$
+echo "Executing tests for pattern: $pattern"
   local noise="org.junit"
   noise+="|groovy.lang.Meta"
   noise+="|io.restassured.filter"
@@ -77,7 +76,13 @@ doTest() {
   noise+="|org.apache.http"
   noise+="|org.codehaus.groovy"
   noise+="|sun.reflect"
-  java -cp "$(pwd)/*" $SYSTEM_PROPERTIES org.junit.runner.JUnitCore $filter $tests \
+  java \
+    ${SYSTEM_PROPERTIES[@]} \
+    -jar junit-platform-console-standalone.jar \
+    --scan-classpath \
+    -cp "$MAIN_JAR" -cp "$TESTS_JAR" \
+    --include-classname=$pattern \
+    --fail-if-no-tests \
     | grep -vE "^	at ($noise)"
 
   # Exit on failure otherwise let other actions run.
@@ -94,7 +99,7 @@ doListTests() {
 
 doSmokeTest() {
   setupForAutomation
-  doTest
+  doTest  ".*PatientIT$"
 }
 
 doRegressionTest() {
@@ -180,7 +185,7 @@ eval set -- "$ARGS"
 while true
 do
   case "$1" in
-    -D) SYSTEM_PROPERTIES+=" -D$2";;
+    -D) SYSTEM_PROPERTIES+=( "-D$2");;
     --debug) set -x;;
     -h|--help) usage "halp! what this do?";;
     --trust) trustServer $2;;

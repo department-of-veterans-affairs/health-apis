@@ -1,13 +1,13 @@
 package gov.va.api.health.dataquery.tests.dstu2;
 
+import static gov.va.api.health.dataquery.tests.TestAssumptionUtility.assumeAllButLocal;
+import static gov.va.api.health.dataquery.tests.TestAssumptionUtility.assumeLocal;
+
 import gov.va.api.health.argonaut.api.resources.Condition;
 import gov.va.api.health.dataquery.tests.ResourceVerifier;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import lombok.experimental.Delegate;
 import org.junit.jupiter.api.Test;
-
-import static gov.va.api.health.dataquery.tests.TestAssumptionUtility.assumeAllButLocal;
-import static gov.va.api.health.dataquery.tests.TestAssumptionUtility.assumeLocal;
 
 public class ConditionIT {
   @Delegate ResourceVerifier verifier = ResourceVerifier.dstu2();
