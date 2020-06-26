@@ -1,5 +1,7 @@
 package gov.va.api.health.dataquery.tests.dstu2;
 
+import static gov.va.api.health.dataquery.tests.TestAssumptionUtility.assumeAllButLocal;
+
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.tests.TestClients;
 import gov.va.api.health.sentinel.ExpectedResponse;
@@ -8,8 +10,6 @@ import gov.va.api.health.sentinel.ServiceDefinition;
 import gov.va.api.health.sentinel.TestClient;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
-
-import static gov.va.api.health.dataquery.tests.TestAssumptionUtility.assumeAllButLocal;
 
 public class AuthorizationIT {
   private final String apiPath() {

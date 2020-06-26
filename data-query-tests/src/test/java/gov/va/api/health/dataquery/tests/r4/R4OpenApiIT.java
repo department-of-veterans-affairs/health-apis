@@ -1,11 +1,11 @@
 package gov.va.api.health.dataquery.tests.r4;
 
+import static gov.va.api.health.dataquery.tests.TestAssumptionUtility.assumeAllButLocal;
+
 import gov.va.api.health.dataquery.tests.TestClients;
 import gov.va.api.health.sentinel.TestClient;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
-
-import static gov.va.api.health.dataquery.tests.TestAssumptionUtility.assumeAllButLocal;
 
 @Slf4j
 public class R4OpenApiIT {

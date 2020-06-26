@@ -1,5 +1,7 @@
 package gov.va.api.health.dataquery.tests.r4;
 
+import static gov.va.api.health.dataquery.tests.TestAssumptionUtility.assumeAllButLocal;
+
 import gov.va.api.health.dataquery.tests.ResourceVerifier;
 import gov.va.api.health.uscorer4.api.resources.AllergyIntolerance;
 import gov.va.api.health.uscorer4.api.resources.Condition;
@@ -8,8 +10,6 @@ import gov.va.api.health.uscorer4.api.resources.Patient;
 import java.util.Map;
 import lombok.experimental.Delegate;
 import org.junit.jupiter.api.Test;
-
-import static gov.va.api.health.dataquery.tests.TestAssumptionUtility.assumeAllButLocal;
 
 public class R4PostSearchIT {
 
