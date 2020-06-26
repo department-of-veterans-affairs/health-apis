@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.tests.dstu2;
 
+import static gov.va.api.health.dataquery.tests.TestAssumptionUtility.assumeAllButLocal;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.dataquery.tests.TestClients;
@@ -15,6 +16,7 @@ public class MetadataStatementIT {
 
   @Test
   public void dstu2ConformanceStatementIsValid() {
+    assumeAllButLocal();
     ExpectedResponse response = TestClients.internalDataQuery().get(apiPath() + "dstu2/metadata");
     response.expect(200).expectValid(Conformance.class);
     String rawJson = response.response().asString();
@@ -25,6 +27,7 @@ public class MetadataStatementIT {
 
   @Test
   public void r4CapabilityStatementIsValid() {
+    assumeAllButLocal();
     ExpectedResponse response = TestClients.internalDataQuery().get(apiPath() + "r4/metadata");
     response.expect(200).expectValid(CapabilityStatement.class);
     String rawJson = response.response().asString();

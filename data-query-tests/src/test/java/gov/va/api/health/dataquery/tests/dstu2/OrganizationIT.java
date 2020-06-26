@@ -6,11 +6,14 @@ import gov.va.api.health.dstu2.api.resources.Organization;
 import lombok.experimental.Delegate;
 import org.junit.jupiter.api.Test;
 
+import static gov.va.api.health.dataquery.tests.TestAssumptionUtility.assumeLocal;
+
 public class OrganizationIT {
   @Delegate ResourceVerifier verifier = ResourceVerifier.dstu2();
 
   @Test
   public void advanced() {
+    assumeLocal();
     verifier.verifyAll(
         test(
             200, Organization.Bundle.class, "Organization?_id={id}", verifier.ids().organization()),
@@ -24,6 +27,7 @@ public class OrganizationIT {
 
   @Test
   public void basic() {
+    assumeLocal();
     verifier.verifyAll(
         test(200, Organization.class, "Organization/{id}", verifier.ids().organization()),
         test(404, OperationOutcome.class, "Organization/{id}", verifier.ids().unknown()));

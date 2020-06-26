@@ -23,6 +23,7 @@ public class PatientBulkFhirIT {
 
   @Test
   public void bulkFhirPatientSearch() {
+    //todo what do here for env?
     log.info("Verify Patient Bulk Search internal/bulk/Patient?page=x&_count=y");
     ExpectedResponse responseAll =
         TestClients.internalDataQuery()
@@ -55,6 +56,7 @@ public class PatientBulkFhirIT {
 
   @Test
   public void bulkFhirPatientSearchPerformance() {
+    // todo what do here for env?
     /*
      * We will ask for 5000 patients 100 times and log out the time it took to complete
      */
@@ -78,6 +80,7 @@ public class PatientBulkFhirIT {
   @Test
   @SneakyThrows
   public void bulkPatientCount() {
+    //todo what do here for env?
     String path = apiPath() + "internal/bulk/Patient/count";
     log.info("Verify bulk-fhir count [{}]", path);
     ExpectedResponse response =

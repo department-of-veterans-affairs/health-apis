@@ -1,5 +1,7 @@
 package gov.va.api.health.dataquery.tests.dstu2;
 
+import static gov.va.api.health.dataquery.tests.TestAssumptionUtility.assumeAllButLocal;
+import static gov.va.api.health.dataquery.tests.TestAssumptionUtility.assumeLocal;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.dataquery.tests.TestClients;
@@ -17,6 +19,7 @@ public class WellKnownIT {
    */
   @Test
   public void localWellKnownIsValid() {
+    assumeLocal();
     requestWellKnown("/");
   }
 
@@ -32,6 +35,7 @@ public class WellKnownIT {
 
   @Test
   public void wellKnownIsValid() {
+    assumeAllButLocal();
     requestWellKnown(apiPath());
   }
 }

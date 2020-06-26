@@ -9,6 +9,8 @@ import gov.va.api.health.sentinel.TestClient;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
+import static gov.va.api.health.dataquery.tests.TestAssumptionUtility.assumeAllButLocal;
+
 public class AuthorizationIT {
   private final String apiPath() {
     return TestClients.dstu2DataQuery().service().apiPath();
@@ -16,6 +18,7 @@ public class AuthorizationIT {
 
   @Test
   public void invalidTokenIsUnauthorized() {
+    assumeAllButLocal();
     TestClient unauthorizedDqClient =
         FhirTestClient.builder()
             .service(unauthorizedServiceDefinition(TestClients.dstu2DataQuery().service()))

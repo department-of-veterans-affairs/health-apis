@@ -6,11 +6,15 @@ import gov.va.api.health.dstu2.api.resources.Practitioner;
 import lombok.experimental.Delegate;
 import org.junit.jupiter.api.Test;
 
+import static gov.va.api.health.dataquery.tests.TestAssumptionUtility.assumeAllButLocal;
+import static gov.va.api.health.dataquery.tests.TestAssumptionUtility.assumeLocal;
+
 public class PractitionerIT {
   @Delegate ResourceVerifier verifier = ResourceVerifier.dstu2();
 
   @Test
   public void advanced() {
+    assumeLocal();
     verifier.verifyAll(
         test(
             200, Practitioner.Bundle.class, "Practitioner?_id={id}", verifier.ids().practitioner()),
@@ -24,6 +28,7 @@ public class PractitionerIT {
 
   @Test
   public void basic() {
+    assumeAllButLocal();
     verifier.verifyAll(
         test(200, Practitioner.class, "Practitioner/{id}", verifier.ids().practitioner()),
         test(404, OperationOutcome.class, "Practitioner/{id}", verifier.ids().unknown()));
