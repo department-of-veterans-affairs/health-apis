@@ -138,8 +138,8 @@ doCrawlerTest() {
   # but the crawler will use the internal path always.
   [ -z "$INTERNAL_API_PATH" ] && INTERNAL_API_PATH="/data-query"
   [[ "$INTERNAL_API_PATH" =~ .*/$ ]] && INTERNAL_API_PATH=${INTERNAL_API_PATH:0:-1}
-  DSTU2_CRAWL_PATH=${INTERNAL_API_PATH}/dstu2
-  R4_CRAWL_PATH=${INTERNAL_API_PATH}/r4
+  [ -z "$DSTU2_CRAWL_PATH" ] && DSTU2_CRAWL_PATH=${INTERNAL_API_PATH}/dstu2
+  [ -z "$R4_CRAWL_PATH" ] && R4_CRAWL_PATH=${INTERNAL_API_PATH}/r4
 
   # Crawl DSTU2
   addToSystemProperties "crawler.url.replace" "${DATA_QUERY_REPLACEMENT_URL_PREFIX}/dstu2"
