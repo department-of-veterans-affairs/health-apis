@@ -8,17 +8,15 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import static gov.va.api.health.dataquery.tests.TestAssumptionUtility.assumeAllButLocal;
+import static gov.va.api.health.dataquery.tests.TestAssumptionUtility.assumeLocal;
 
 public class LocationIT {
   @Delegate private final ResourceVerifier verifier = ResourceVerifier.stu3();
 
-  @BeforeAll
-  static void assumeEnvironment() {
-    assumeAllButLocal();
-  }
 
   @Test
   public void advanced() {
+    assumeLocal();
     verifyAll(
         // Search By _id
         test(200, Location.Bundle.class, "Location?_id={id}", verifier.ids().location()),
@@ -56,6 +54,7 @@ public class LocationIT {
 
   @Test
   public void basic() {
+    assumeAllButLocal();
     verifyAll(
         test(200, Location.class, "Location/{id}", verifier.ids().location()),
         test(404, OperationOutcome.class, "Location/{id}", verifier.ids().unknown()));

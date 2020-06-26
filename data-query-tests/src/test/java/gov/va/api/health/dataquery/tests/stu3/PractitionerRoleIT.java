@@ -8,17 +8,14 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import static gov.va.api.health.dataquery.tests.TestAssumptionUtility.assumeAllButLocal;
+import static gov.va.api.health.dataquery.tests.TestAssumptionUtility.assumeLocal;
 
 public class PractitionerRoleIT {
   @Delegate ResourceVerifier verifier = ResourceVerifier.stu3();
 
-  @BeforeAll
-  static void assumeEnvironment() {
-    assumeAllButLocal();
-  }
-
   @Test
   public void advanced() {
+    assumeLocal();
     verifier.verifyAll(
         test(
             200,
@@ -56,6 +53,7 @@ public class PractitionerRoleIT {
 
   @Test
   public void basic() {
+    assumeAllButLocal();
     verifier.verifyAll(
         test(200, PractitionerRole.class, "PractitionerRole/{id}", verifier.ids().practitioner()),
         test(404, OperationOutcome.class, "PractitionerRole/{id}", verifier.ids().unknown()));
