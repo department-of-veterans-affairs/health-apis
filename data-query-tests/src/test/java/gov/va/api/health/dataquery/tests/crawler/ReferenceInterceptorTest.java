@@ -1,6 +1,5 @@
 package gov.va.api.health.dataquery.tests.crawler;
 
-import static gov.va.api.health.dataquery.tests.EnvironmentAssumptions.assumeLocal;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
@@ -15,7 +14,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.Singular;
 import lombok.SneakyThrows;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 public class ReferenceInterceptorTest {

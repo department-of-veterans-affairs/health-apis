@@ -1,12 +1,10 @@
 package gov.va.api.health.dataquery.tests.crawler;
 
-import static gov.va.api.health.dataquery.tests.EnvironmentAssumptions.assumeLocal;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.dataquery.tests.crawler.Result.Outcome;
 import java.time.Duration;
 import java.time.Instant;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 

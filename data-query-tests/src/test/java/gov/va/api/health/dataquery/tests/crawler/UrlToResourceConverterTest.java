@@ -1,6 +1,5 @@
 package gov.va.api.health.dataquery.tests.crawler;
 
-import static gov.va.api.health.dataquery.tests.EnvironmentAssumptions.assumeLocal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -13,7 +12,6 @@ import gov.va.api.health.dstu2.api.resources.Resource;
 import gov.va.api.health.fhir.api.FhirVersion;
 import gov.va.api.health.stu3.api.resources.Location;
 import java.util.List;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 public class UrlToResourceConverterTest {
