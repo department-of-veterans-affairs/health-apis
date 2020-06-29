@@ -11,10 +11,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 public class IgnoreFilterResultCollectorTest {
-  @BeforeAll
-  public static void assumeEnvironment() {
-    assumeLocal();
-  }
 
   @Test
   public void addFailResultIncrementsFailures() {
@@ -55,7 +51,6 @@ public class IgnoreFilterResultCollectorTest {
   @Test
   public void addOKResult() {
     ResultCollector resultCollector = Mockito.mock(ResultCollector.class);
-    // .ignoreList("foo");
     IgnoreFilterResultCollector results = IgnoreFilterResultCollector.wrap(resultCollector);
     results.useFilter("");
     Result okResult =

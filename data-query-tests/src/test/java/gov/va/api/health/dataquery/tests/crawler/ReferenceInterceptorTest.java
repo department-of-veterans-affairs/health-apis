@@ -20,11 +20,6 @@ import org.junit.jupiter.api.Test;
 
 public class ReferenceInterceptorTest {
 
-  @BeforeAll
-  public static void assumeEnvironment() {
-    assumeLocal();
-  }
-
   private Reference reference(String path) {
     return Reference.builder().display("display-value").reference(path).id("id-value").build();
   }

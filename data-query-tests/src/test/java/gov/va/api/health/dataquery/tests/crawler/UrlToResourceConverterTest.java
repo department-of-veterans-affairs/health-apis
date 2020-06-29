@@ -23,11 +23,6 @@ public class UrlToResourceConverterTest {
           .resourcePackages(List.of(Patient.class.getPackage(), Resource.class.getPackage()))
           .build();
 
-  @BeforeAll
-  public static void assumeEnvironment() {
-    assumeLocal();
-  }
-
   @Test
   public void conversions() {
     assertThat(converter.apply("https://argonaut.com/api/Patient/123")).isEqualTo(Patient.class);

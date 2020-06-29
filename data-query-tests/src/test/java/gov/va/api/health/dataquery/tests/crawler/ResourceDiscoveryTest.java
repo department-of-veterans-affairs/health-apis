@@ -25,11 +25,6 @@ public class ResourceDiscoveryTest {
               .patientId("185601V825290")
               .build());
 
-  @BeforeAll
-  public static void assumeEnvironment() {
-    assumeLocal();
-  }
-
   public Dstu2TestData dstu2() {
     return Dstu2TestData.get();
   }

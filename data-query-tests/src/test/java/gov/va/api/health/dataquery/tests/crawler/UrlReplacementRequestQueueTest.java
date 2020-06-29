@@ -15,24 +15,18 @@ public class UrlReplacementRequestQueueTest {
           .requestQueue(new ConcurrentResourceBalancingRequestQueue())
           .build();
 
-  @BeforeAll
-  public static void assumeEnvironment() {
-    assumeLocal();
-  }
-
   @Test
   public void emptyBaseUrlThrowsIllegalArgumentException() {
+    UrlReplacementRequestQueue emptyBaseUrl =
+            UrlReplacementRequestQueue.builder()
+                    .replaceUrl("")
+                    .withUrl("https://staging-argonaut.lighthouse.va.gov/api/")
+                    .requestQueue(new ConcurrentResourceBalancingRequestQueue())
+                    .build();
+
     assertThrows(
         IllegalArgumentException.class,
-        () -> {
-          UrlReplacementRequestQueue emptyBaseUrl =
-              UrlReplacementRequestQueue.builder()
-                  .replaceUrl("")
-                  .withUrl("https://staging-argonaut.lighthouse.va.gov/api/")
-                  .requestQueue(new ConcurrentResourceBalancingRequestQueue())
-                  .build();
-          emptyBaseUrl.add("Empty forceUrl");
-        });
+        () -> emptyBaseUrl.add("Empty forceUrl")); ;
   }
 
   @Test

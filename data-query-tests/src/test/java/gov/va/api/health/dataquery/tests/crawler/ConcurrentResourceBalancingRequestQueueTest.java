@@ -12,11 +12,6 @@ import org.junit.jupiter.api.Test;
 public final class ConcurrentResourceBalancingRequestQueueTest {
   ConcurrentResourceBalancingRequestQueue q = new ConcurrentResourceBalancingRequestQueue();
 
-  @BeforeAll
-  public static void assumeEnvironment() {
-    assumeLocal();
-  }
-
   @Test
   public void balanceResources() {
     final List<String> urls =
