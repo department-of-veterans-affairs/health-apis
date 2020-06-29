@@ -4,13 +4,7 @@ import static org.assertj.core.api.Assumptions.assumeThat;
 
 import gov.va.api.health.sentinel.Environment;
 
-public class TestAssumptionUtility {
-
-  public static void assumeNotLocal() {
-    assumeThat(Environment.get())
-        .overridingErrorMessage("Skipping in " + Environment.get())
-        .isNotEqualTo(Environment.LOCAL);
-  }
+public class EnvironmentAssumptions {
 
   public static void assumeLab() {
     assumeThat(Environment.get())
@@ -22,6 +16,12 @@ public class TestAssumptionUtility {
     assumeThat(Environment.get())
         .overridingErrorMessage("Skipping in " + Environment.get())
         .isEqualTo(Environment.LOCAL);
+  }
+
+  public static void assumeNotLocal() {
+    assumeThat(Environment.get())
+        .overridingErrorMessage("Skipping in " + Environment.get())
+        .isNotEqualTo(Environment.LOCAL);
   }
 
   public static void assumeProduction() {

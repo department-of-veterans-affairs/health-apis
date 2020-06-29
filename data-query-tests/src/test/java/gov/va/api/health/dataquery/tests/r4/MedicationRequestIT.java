@@ -1,7 +1,7 @@
 package gov.va.api.health.dataquery.tests.r4;
 
-import static gov.va.api.health.dataquery.tests.TestAssumptionUtility.assumeNotLocal;
-import static gov.va.api.health.dataquery.tests.TestAssumptionUtility.assumeLocal;
+import static gov.va.api.health.dataquery.tests.EnvironmentAssumptions.assumeLocal;
+import static gov.va.api.health.dataquery.tests.EnvironmentAssumptions.assumeNotLocal;
 
 import gov.va.api.health.dataquery.tests.ResourceVerifier;
 import gov.va.api.health.r4.api.resources.OperationOutcome;

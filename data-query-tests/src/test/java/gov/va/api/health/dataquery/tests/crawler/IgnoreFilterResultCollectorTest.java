@@ -1,6 +1,6 @@
 package gov.va.api.health.dataquery.tests.crawler;
 
-import static gov.va.api.health.dataquery.tests.TestAssumptionUtility.assumeLocal;
+import static gov.va.api.health.dataquery.tests.EnvironmentAssumptions.assumeLocal;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.dataquery.tests.crawler.Result.Outcome;

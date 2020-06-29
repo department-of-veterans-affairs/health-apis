@@ -1,6 +1,6 @@
 package gov.va.api.health.dataquery.tests.dstu2;
 
-import static gov.va.api.health.dataquery.tests.TestAssumptionUtility.assumeLocal;
+import static gov.va.api.health.dataquery.tests.EnvironmentAssumptions.assumeLocal;
 
 import gov.va.api.health.dataquery.tests.ResourceVerifier;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;

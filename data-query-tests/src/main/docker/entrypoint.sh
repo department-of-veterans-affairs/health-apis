@@ -25,7 +25,7 @@ Example
     -Dlab.client-id=12345\
     -Dlab.client-secret=ABCDEF\
     -Dlab.user-password=secret\
-    gov.va.api.health.dataquery.tests.UsingMagicPatientCrawlerTest
+    gov.va.api.health.dataquery.tests.MagicPatientCrawl
 
 Docker Run Examples
   docker run --rm --init --network=host\
@@ -65,8 +65,8 @@ trustServer() {
 
 doTest() {
   local pattern="$@"
- [ -z "$pattern" ] && pattern=.*IT\$
-echo "Executing tests for pattern: $pattern"
+  [ -z "$pattern" ] && pattern=.*IT\$
+  echo "Executing tests for pattern: $pattern"
   local noise="org.junit"
   noise+="|groovy.lang.Meta"
   noise+="|io.restassured.filter"
@@ -99,7 +99,7 @@ doListTests() {
 
 doSmokeTest() {
   setupForAutomation
-  doTest  ".*PatientIT$"
+  doTest ".*PatientIT$"
 }
 
 doRegressionTest() {
@@ -186,7 +186,7 @@ eval set -- "$ARGS"
 while true
 do
   case "$1" in
-    -D) SYSTEM_PROPERTIES+=( "-D$2");;
+    -D) SYSTEM_PROPERTIES+=("-D$2");;
     --debug) set -x;;
     -h|--help) usage "halp! what this do?";;
     --trust) trustServer $2;;

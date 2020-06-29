@@ -1,6 +1,6 @@
 package gov.va.api.health.dataquery.tests.dstu2;
 
-import static gov.va.api.health.dataquery.tests.TestAssumptionUtility.assumeNotLocal;
+import static gov.va.api.health.dataquery.tests.EnvironmentAssumptions.assumeNotLocal;
 
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.tests.TestClients;

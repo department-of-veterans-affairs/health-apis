@@ -1,6 +1,6 @@
 package gov.va.api.health.dataquery.tests.crawler;
 
-import static gov.va.api.health.dataquery.tests.TestAssumptionUtility.assumeLocal;
+import static gov.va.api.health.dataquery.tests.EnvironmentAssumptions.assumeLocal;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -18,18 +18,17 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 public class ResourceDiscoveryTest {
-
-  @BeforeAll
-  public static void assumeEnvironment() {
-    assumeLocal();
-  }
-
   ResourceDiscovery rd =
       ResourceDiscovery.of(
           ResourceDiscovery.Context.builder()
               .url("http://localhost:8090/api/")
               .patientId("185601V825290")
               .build());
+
+  @BeforeAll
+  public static void assumeEnvironment() {
+    assumeLocal();
+  }
 
   public Dstu2TestData dstu2() {
     return Dstu2TestData.get();
@@ -38,21 +37,16 @@ public class ResourceDiscoveryTest {
   @Test
   public void dstu2UselessConformanceStatementsReturnNoQueries() {
     Response response = mock(Response.class);
-
     when(response.as(Conformance.class)).thenReturn(dstu2().conformanceWithNoRestResourceList);
     assertThat(rd.queriesFor(response)).isEmpty();
-
     when(response.as(Conformance.class)).thenReturn(dstu2().conformanceWithEmptyRestResourceList);
     assertThat(rd.queriesFor(response)).isEmpty();
-
     when(response.as(Conformance.class)).thenReturn(dstu2().conformanceWithResources);
     assertThat(rd.queriesFor(response))
         .containsExactlyInAnyOrder(
             rd.context().url() + "Patient/" + rd.context().patientId(),
             rd.context().url() + "Patient?_id=" + rd.context().patientId(),
-            rd.context().url() + "Thing?patient=" + rd.context().patientId()
-            //
-            );
+            rd.context().url() + "Thing?patient=" + rd.context().patientId());
   }
 
   public R4TestData r4() {
@@ -62,23 +56,18 @@ public class ResourceDiscoveryTest {
   @Test
   public void r4UselessConformanceStatementsReturnNoQueries() {
     Response response = mock(Response.class);
-
     when(response.as(CapabilityStatement.class))
         .thenReturn(r4().capabilityStatementWithNoRestResourceList);
     assertThat(rd.queriesFor(response)).isEmpty();
-
     when(response.as(CapabilityStatement.class))
         .thenReturn(r4().capabilityStatementWithEmptyRestResourceList);
     assertThat(rd.queriesFor(response)).isEmpty();
-
     when(response.as(CapabilityStatement.class)).thenReturn(r4().capabilityStatementWithResources);
     assertThat(rd.queriesFor(response))
         .containsExactlyInAnyOrder(
             rd.context().url() + "Patient/" + rd.context().patientId(),
             rd.context().url() + "Patient?_id=" + rd.context().patientId(),
-            rd.context().url() + "Thing?patient=" + rd.context().patientId()
-            //
-            );
+            rd.context().url() + "Thing?patient=" + rd.context().patientId());
   }
 
   @Test
@@ -117,7 +106,6 @@ public class ResourceDiscoveryTest {
 
   @NoArgsConstructor(staticName = "get")
   public static class Dstu2TestData {
-
     Conformance conformanceWithNoRestResourceList = Conformance.builder().build();
 
     Conformance conformanceWithEmptyRestResourceList =
@@ -133,9 +121,7 @@ public class ResourceDiscoveryTest {
                                 resource("ThingNotSearchable"),
                                 resource("ThingNotSearchableByPatient", "_id"),
                                 resource("Thing", "_id", "patient"),
-                                resource("Patient", "_id")
-                                //
-                                ))
+                                resource("Patient", "_id")))
                         .build()))
             .build();
 
@@ -153,7 +139,6 @@ public class ResourceDiscoveryTest {
 
   @NoArgsConstructor(staticName = "get")
   public static class R4TestData {
-
     CapabilityStatement capabilityStatementWithNoRestResourceList =
         CapabilityStatement.builder().build();
 
@@ -170,9 +155,7 @@ public class ResourceDiscoveryTest {
                                 resource("ThingNotSearchable"),
                                 resource("ThingNotSearchableByPatient", "_id"),
                                 resource("Thing", "_id", "patient"),
-                                resource("Patient", "_id")
-                                //
-                                ))
+                                resource("Patient", "_id")))
                         .build()))
             .build();
 

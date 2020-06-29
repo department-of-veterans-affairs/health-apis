@@ -1,6 +1,6 @@
 package gov.va.api.health.dataquery.tests;
 
-import static gov.va.api.health.dataquery.tests.TestAssumptionUtility.assumeLocal;
+import static gov.va.api.health.dataquery.tests.EnvironmentAssumptions.assumeLocal;
 import static org.hamcrest.CoreMatchers.equalTo;
 
 import org.junit.jupiter.api.Test;
