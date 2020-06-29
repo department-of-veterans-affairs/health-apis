@@ -83,6 +83,7 @@ doTest() {
     --scan-classpath \
     -cp "$MAIN_JAR" -cp "$TESTS_JAR" \
     --include-classname=$pattern \
+    --disable-ansi-colors \
     --fail-if-no-tests \
     | grep -vE "^	at ($noise)"
 
