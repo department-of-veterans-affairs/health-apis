@@ -8,7 +8,7 @@ MAIN_JAR=$(find -maxdepth 1 -name "data-query-tests-*.jar" -a -not -name "data-q
 TESTS_JAR=$(find -maxdepth 1 -name "data-query-tests-*-tests.jar")
 WEB_DRIVER_PROPERTIES="-Dwebdriver.chrome.driver=/usr/local/bin/chromedriver -Dwebdriver.chrome.headless=true"
 SYSTEM_PROPERTIES=$WEB_DRIVER_PROPERTIES
-SENTINEL_CRAWLER='.*MagicPatientCrawl$'
+SENTINEL_CRAWLER=.*MagicPatientCrawl\$
 
 usage() {
 cat <<EOF
@@ -26,7 +26,7 @@ Example
     -Dlab.client-id=12345\
     -Dlab.client-secret=ABCDEF\
     -Dlab.user-password=secret\
-    .*MagicPatientCrawl$
+    .*MagicPatientCrawl\$
 
 Docker Run Examples
   docker run --rm --init --network=host\

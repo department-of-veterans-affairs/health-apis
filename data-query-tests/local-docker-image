@@ -41,7 +41,6 @@ run() {
     -e SENTINEL_ENV=${ENV:-local} \
     -e DQ_URL=http://$THIS_MACHINE:8090 \
     -e TOKEN=nope \
-    -e SENTINEL_CRAWLER=gov.va.api.health.dataquery.tests.crawler.MagicPatientCrawl \
     -e DATA_QUERY_REPLACEMENT_URL_PREFIX=http://localhost:8090 \
     -e DSTU2_API_PATH=/dstu2 \
     -e STU3_API_PATH=/stu3 \
