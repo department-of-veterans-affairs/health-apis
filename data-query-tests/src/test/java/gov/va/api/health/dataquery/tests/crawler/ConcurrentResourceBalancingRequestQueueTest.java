@@ -78,13 +78,9 @@ public final class ConcurrentResourceBalancingRequestQueueTest {
 
   @Test
   public void exceptionIsThrownWhenAttemptingToGetNextFromEmptyQueue() {
-    assertThrows(
-        IllegalStateException.class,
-        () -> {
-          q.add("foo/api/AllergyIntolerance/1");
-          q.next();
-          q.next();
-        });
+    q.add("foo/api/AllergyIntolerance/1");
+    q.next();
+    assertThrows(IllegalStateException.class, () -> q.next());
   }
 
   @Test
