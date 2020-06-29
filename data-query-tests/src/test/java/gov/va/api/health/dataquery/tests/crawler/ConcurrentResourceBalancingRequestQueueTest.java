@@ -78,12 +78,12 @@ public final class ConcurrentResourceBalancingRequestQueueTest {
     assertThat(q.hasNext()).isFalse();
   }
 
-  @Test()
+  @Test
   public void exceptionIsThrownWhenAttemptingToAddMalformedUrlToQueue() {
     assertThrows(IllegalArgumentException.class, () -> q.add("x"));
   }
 
-  @Test()
+  @Test
   public void exceptionIsThrownWhenAttemptingToGetNextFromEmptyQueue() {
     assertThrows(
         IllegalStateException.class,
@@ -94,7 +94,7 @@ public final class ConcurrentResourceBalancingRequestQueueTest {
         });
   }
 
-  @Test()
+  @Test
   public void exceptionIsThrownWhenAttemptingToGetNextQueueThatWasNeverUsed() {
     assertThrows(IllegalStateException.class, () -> q.next());
   }

@@ -1,6 +1,6 @@
 package gov.va.api.health.dataquery.tests.dstu2;
 
-import static gov.va.api.health.dataquery.tests.TestAssumptionUtility.assumeAllButLocal;
+import static gov.va.api.health.dataquery.tests.TestAssumptionUtility.assumeNotLocal;
 
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.tests.TestClients;
@@ -18,7 +18,7 @@ public class AuthorizationIT {
 
   @Test
   public void invalidTokenIsUnauthorized() {
-    assumeAllButLocal();
+    assumeNotLocal();
     TestClient unauthorizedDqClient =
         FhirTestClient.builder()
             .service(unauthorizedServiceDefinition(TestClients.dstu2DataQuery().service()))

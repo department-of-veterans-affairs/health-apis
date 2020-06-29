@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.tests.crawler;
 
+import static gov.va.api.health.dataquery.tests.TestAssumptionUtility.assumeLocal;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -13,9 +14,16 @@ import io.restassured.response.Response;
 import java.util.List;
 import java.util.stream.Stream;
 import lombok.NoArgsConstructor;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 public class ResourceDiscoveryTest {
+
+  @BeforeAll
+  public static void assumeEnvironment() {
+    assumeLocal();
+  }
+
   ResourceDiscovery rd =
       ResourceDiscovery.of(
           ResourceDiscovery.Context.builder()

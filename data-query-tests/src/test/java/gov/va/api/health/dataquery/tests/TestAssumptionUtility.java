@@ -6,7 +6,7 @@ import gov.va.api.health.sentinel.Environment;
 
 public class TestAssumptionUtility {
 
-  public static void assumeAllButLocal() {
+  public static void assumeNotLocal() {
     assumeThat(Environment.get())
         .overridingErrorMessage("Skipping in " + Environment.get())
         .isNotEqualTo(Environment.LOCAL);

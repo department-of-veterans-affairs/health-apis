@@ -1,6 +1,6 @@
 package gov.va.api.health.dataquery.tests.r4;
 
-import static gov.va.api.health.dataquery.tests.TestAssumptionUtility.assumeAllButLocal;
+import static gov.va.api.health.dataquery.tests.TestAssumptionUtility.assumeNotLocal;
 import static gov.va.api.health.dataquery.tests.TestAssumptionUtility.assumeLocal;
 
 import gov.va.api.health.dataquery.tests.ResourceVerifier;
@@ -79,7 +79,7 @@ public class PatientIT {
    */
   @Test
   public void patientMatching() {
-    assumeAllButLocal();
+    assumeNotLocal();
     int status = (Environment.get() == Environment.LOCAL) ? 404 : 403;
     verifier.verifyAll(
         test(status, OperationOutcome.class, "Patient/{id}", verifier.ids().unknown()),

@@ -20,7 +20,7 @@ public class UrlReplacementRequestQueueTest {
     assumeLocal();
   }
 
-  @Test()
+  @Test
   public void emptyBaseUrlThrowsIllegalArgumentException() {
     assertThrows(
         IllegalArgumentException.class,
@@ -35,7 +35,7 @@ public class UrlReplacementRequestQueueTest {
         });
   }
 
-  @Test()
+  @Test
   public void emptyForceUrlThrowsIllegalArgumentException() {
     assertThrows(
         IllegalArgumentException.class,
@@ -50,7 +50,7 @@ public class UrlReplacementRequestQueueTest {
         });
   }
 
-  @Test()
+  @Test
   public void exceptionIsThrownWhenAttemptingToGetNextFromEmptyQueue() {
     assertThrows(
         IllegalStateException.class,
@@ -62,7 +62,7 @@ public class UrlReplacementRequestQueueTest {
         });
   }
 
-  @Test()
+  @Test
   public void exceptionIsThrownWhenAttemptingToGetNextQueueThatWasNeverUsed() {
     assertThrows(IllegalStateException.class, () -> rq.next());
   }
@@ -109,7 +109,7 @@ public class UrlReplacementRequestQueueTest {
     assertThat(rq.hasNext()).isFalse();
   }
 
-  @Test()
+  @Test
   public void nullBaseUrlThrowsIllegalArgumentException() {
     assertThrows(
         IllegalArgumentException.class,
@@ -124,7 +124,7 @@ public class UrlReplacementRequestQueueTest {
         });
   }
 
-  @Test()
+  @Test
   public void nullForceUrlThrowsIllegalArgumentException() {
     assertThrows(
         IllegalArgumentException.class,

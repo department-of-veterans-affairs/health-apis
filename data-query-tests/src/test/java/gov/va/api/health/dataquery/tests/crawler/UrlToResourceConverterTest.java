@@ -62,20 +62,20 @@ public class UrlToResourceConverterTest {
         .isEqualTo(gov.va.api.health.uscorer4.api.resources.Patient.class);
   }
 
-  @Test()
+  @Test
   public void noSuchClass() {
     assertThrows(
         DoNotUnderstandUrl.class,
         () -> converter.apply("http://something.com/api/WhatIsThisClass/123"));
   }
 
-  @Test()
+  @Test
   public void notParseable() {
     assertThrows(
         DoNotUnderstandUrl.class, () -> converter.apply("http://what-is-this-nonsense.com"));
   }
 
-  @Test()
+  @Test
   public void relativeUrlsNotSupported() {
     assertThrows(DoNotUnderstandUrl.class, () -> converter.apply("/api/Patient/123"));
   }

@@ -1,6 +1,6 @@
 package gov.va.api.health.dataquery.tests.r4;
 
-import static gov.va.api.health.dataquery.tests.TestAssumptionUtility.assumeAllButLocal;
+import static gov.va.api.health.dataquery.tests.TestAssumptionUtility.assumeNotLocal;
 
 import gov.va.api.health.dataquery.tests.ResourceVerifier;
 import gov.va.api.health.uscorer4.api.resources.AllergyIntolerance;
@@ -17,7 +17,7 @@ public class R4PostSearchIT {
 
   @Test
   public void basic() {
-    assumeAllButLocal();
+    assumeNotLocal();
     verifier.verifyAll(
         // Basic Search by Patient
         test(

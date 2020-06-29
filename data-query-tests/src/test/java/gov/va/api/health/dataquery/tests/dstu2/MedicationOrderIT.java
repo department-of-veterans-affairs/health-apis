@@ -1,6 +1,6 @@
 package gov.va.api.health.dataquery.tests.dstu2;
 
-import static gov.va.api.health.dataquery.tests.TestAssumptionUtility.assumeAllButLocal;
+import static gov.va.api.health.dataquery.tests.TestAssumptionUtility.assumeNotLocal;
 import static gov.va.api.health.dataquery.tests.TestAssumptionUtility.assumeLocal;
 
 import gov.va.api.health.argonaut.api.resources.MedicationOrder;
@@ -43,7 +43,7 @@ public class MedicationOrderIT {
 
   @Test
   public void searchNotMe() {
-    assumeAllButLocal();
+    assumeNotLocal();
     verifier.verifyAll(
         test(
             403,
