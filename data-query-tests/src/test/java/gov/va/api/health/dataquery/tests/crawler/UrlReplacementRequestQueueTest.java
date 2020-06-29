@@ -39,12 +39,12 @@ public class UrlReplacementRequestQueueTest {
 
   @Test
   public void exceptionIsThrownWhenAttemptingToGetNextFromEmptyQueue() {
+    rq.add(
+        "https://dev-api.va.gov/services/argonaut/v0/AllergyIntolerance/3be00408-b0ff-598d-8ba1-1e0bbfb02b99");
+    rq.next();
     assertThrows(
         IllegalStateException.class,
         () -> {
-          rq.add(
-              "https://dev-api.va.gov/services/argonaut/v0/AllergyIntolerance/3be00408-b0ff-598d-8ba1-1e0bbfb02b99");
-          rq.next();
           rq.next();
         });
   }
