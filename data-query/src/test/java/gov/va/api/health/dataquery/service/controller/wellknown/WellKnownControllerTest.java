@@ -14,6 +14,8 @@ public class WellKnownControllerTest {
     return WellKnown.builder()
         .tokenEndpoint("https://argonaut.lighthouse.va.gov/token")
         .authorizationEndpoint("https://argonaut.lighthouse.va.gov/authorize")
+        .managementEndpoint("https://argonaut.lighthouse.va.gov/manage")
+        .revocationEndpoint("https://argonaut.lighthouse.va.gov/revoke")
         .capabilities(
             asList(
                 "context-standalone-patient",
@@ -32,6 +34,8 @@ public class WellKnownControllerTest {
             MetadataProperties.SecurityProperties.builder()
                 .authorizeEndpoint("https://argonaut.lighthouse.va.gov/authorize")
                 .tokenEndpoint("https://argonaut.lighthouse.va.gov/token")
+                .managementEndpoint("https://argonaut.lighthouse.va.gov/manage")
+                .revocationEndpoint("https://argonaut.lighthouse.va.gov/revoke")
                 .build())
         .build();
   }

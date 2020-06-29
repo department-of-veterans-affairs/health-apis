@@ -21,12 +21,22 @@ public class MedicationRequestIT {
             MedicationRequest.Bundle.class,
             "MedicationRequest?_id={id}",
             verifier.ids().medicationOrder()),
+        test(
+            200,
+            MedicationRequest.Bundle.class,
+            "MedicationRequest?_id={id}",
+            verifier.ids().medicationStatement()),
         test(404, OperationOutcome.class, "MedicationRequest?_id={id}", verifier.ids().unknown()),
         test(
             200,
             MedicationRequest.Bundle.class,
             "MedicationRequest?identifier={id}",
-            verifier.ids().medicationOrder()));
+            verifier.ids().medicationOrder()),
+        test(
+            200,
+            MedicationRequest.Bundle.class,
+            "MedicationRequest?identifier={id}",
+            verifier.ids().medicationStatement()));
   }
 
   @Test
@@ -38,12 +48,22 @@ public class MedicationRequestIT {
             MedicationRequest.Bundle.class,
             "MedicationRequest?patient={patient}&intent=order",
             verifier.ids().patient()),
+        test(
+            200,
+            MedicationRequest.Bundle.class,
+            "MedicationRequest?patient={patient}&intent=plan",
+            verifier.ids().patient()),
         // MedicationRequest Public Id
         test(
             200,
             MedicationRequest.class,
             "MedicationRequest/{id}",
             verifier.ids().medicationOrder()),
+        test(
+            200,
+            MedicationRequest.class,
+            "MedicationRequest/{id}",
+            verifier.ids().medicationStatement()),
         test(404, OperationOutcome.class, "MedicationRequest/{id}", verifier.ids().unknown()),
         // Patient Icn
         test(

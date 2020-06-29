@@ -133,7 +133,7 @@ public class ConfigurableBaseUrlPageLinks implements PageLinks {
     abstract B last();
 
     final int lastPage() {
-      return (int) Math.ceil((double) config.totalRecords() / (double) config.recordsPerPage());
+      return config.totalPages();
     }
 
     abstract B next();

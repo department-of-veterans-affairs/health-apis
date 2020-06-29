@@ -124,6 +124,8 @@ configValue data-query $PROFILE metadata.contact.name "$(whoDis)"
 configValue data-query $PROFILE metadata.contact.email "$(sendMoarSpams)"
 configValue data-query $PROFILE metadata.security.token-endpoint http://fake.com/token
 configValue data-query $PROFILE metadata.security.authorize-endpoint http://fake.com/authorize
+configValue data-query $PROFILE metadata.security.management-endpoint http://fake.com/manage
+configValue data-query $PROFILE metadata.security.revocation-endpoint http://fake.com/revoke
 configValue data-query $PROFILE spring.datasource.url "$DATAQUERY_DB_URL"
 configValue data-query $PROFILE spring.datasource.username "$DATAQUERY_DB_USER"
 configValue data-query $PROFILE spring.datasource.password "$DATAQUERY_DB_PASSWORD"
