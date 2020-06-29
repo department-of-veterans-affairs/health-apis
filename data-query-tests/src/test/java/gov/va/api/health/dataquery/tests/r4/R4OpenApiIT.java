@@ -1,6 +1,5 @@
 package gov.va.api.health.dataquery.tests.r4;
 
-
 import gov.va.api.health.dataquery.tests.TestClients;
 import gov.va.api.health.sentinel.TestClient;
 import lombok.extern.slf4j.Slf4j;

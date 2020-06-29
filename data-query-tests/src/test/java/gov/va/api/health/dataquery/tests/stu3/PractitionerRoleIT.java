@@ -1,6 +1,5 @@
 package gov.va.api.health.dataquery.tests.stu3;
 
-
 import gov.va.api.health.dataquery.tests.ResourceVerifier;
 import gov.va.api.health.stu3.api.resources.OperationOutcome;
 import gov.va.api.health.stu3.api.resources.PractitionerRole;
