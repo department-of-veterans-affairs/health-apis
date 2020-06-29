@@ -1,22 +1,15 @@
 package gov.va.api.health.dataquery.tests.stu3;
 
 import gov.va.api.health.dataquery.tests.ResourceVerifier;
-import gov.va.api.health.dataquery.tests.categories.LabDataQueryPatient;
-import gov.va.api.health.dataquery.tests.categories.ProdDataQueryPatient;
-import gov.va.api.health.sentinel.categories.Local;
 import gov.va.api.health.stu3.api.resources.OperationOutcome;
 import gov.va.api.health.stu3.api.resources.PractitionerRole;
 import lombok.experimental.Delegate;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
 
 public class PractitionerRoleIT {
   @Delegate ResourceVerifier verifier = ResourceVerifier.stu3();
 
   @Test
-  @Category({Local.class, LabDataQueryPatient.class, ProdDataQueryPatient.class
-    // , ProdDataQueryClinician.class
-  })
   public void advanced() {
     verifier.verifyAll(
         test(
@@ -54,12 +47,6 @@ public class PractitionerRoleIT {
   }
 
   @Test
-  @Category({
-    Local.class,
-    LabDataQueryPatient.class,
-    ProdDataQueryPatient.class,
-    // , ProdDataQueryClinician.class
-  })
   public void basic() {
     verifier.verifyAll(
         test(200, PractitionerRole.class, "PractitionerRole/{id}", verifier.ids().practitioner()),

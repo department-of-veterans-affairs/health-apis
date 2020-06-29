@@ -3,14 +3,11 @@ package gov.va.api.health.dataquery.tests.crawler;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.dataquery.tests.crawler.Result.Outcome;
-import gov.va.api.health.sentinel.categories.Local;
 import java.time.Duration;
 import java.time.Instant;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-@Category(Local.class)
 public class IgnoreFilterResultCollectorTest {
 
   @Test
@@ -18,7 +15,6 @@ public class IgnoreFilterResultCollectorTest {
     ResultCollector resultCollector = Mockito.mock(ResultCollector.class);
     IgnoreFilterResultCollector results = IgnoreFilterResultCollector.wrap(resultCollector);
     results.useFilter("foo,bar");
-
     Result badnessResult =
         Result.builder()
             .query(
@@ -28,7 +24,6 @@ public class IgnoreFilterResultCollectorTest {
             .duration(Duration.ofMillis(10))
             .build();
     results.add(badnessResult);
-
     assertThat(results.failures()).isOne();
     assertThat(results.ignoredFailures()).isZero();
   }
@@ -38,7 +33,6 @@ public class IgnoreFilterResultCollectorTest {
     ResultCollector resultCollector = Mockito.mock(ResultCollector.class);
     IgnoreFilterResultCollector results = IgnoreFilterResultCollector.wrap(resultCollector);
     results.useFilter("foo,bar,Resource/z8z848z3-35zz-5zz-93zz-z4z8731z1z11");
-
     Result badnessResult =
         Result.builder()
             .query(
@@ -48,7 +42,6 @@ public class IgnoreFilterResultCollectorTest {
             .duration(Duration.ofMillis(10))
             .build();
     results.add(badnessResult);
-
     assertThat(results.failures()).isZero();
     assertThat(results.ignoredFailures()).isOne();
   }
@@ -56,10 +49,8 @@ public class IgnoreFilterResultCollectorTest {
   @Test
   public void addOKResult() {
     ResultCollector resultCollector = Mockito.mock(ResultCollector.class);
-    IgnoreFilterResultCollector results =
-        IgnoreFilterResultCollector.wrap(resultCollector); // .ignoreList("foo");
+    IgnoreFilterResultCollector results = IgnoreFilterResultCollector.wrap(resultCollector);
     results.useFilter("");
-
     Result okResult =
         Result.builder()
             .query(
@@ -69,7 +60,6 @@ public class IgnoreFilterResultCollectorTest {
             .duration(Duration.ofMillis(10))
             .build();
     results.add(okResult);
-
     assertThat(results.failures()).isZero();
     assertThat(results.ignoredFailures()).isZero();
   }

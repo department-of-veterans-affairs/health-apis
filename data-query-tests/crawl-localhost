@@ -42,7 +42,7 @@ esac
 mvn \
   -P'!standard' \
   -Dgroups=gov.va.api.health.sentinel.categories.Manual \
-  -Dtest="*UsingMagicPatientCrawlerTest*" \
+  -Dtest="*MagicPatientCrawl*" \
   -Daccess-token=not-used \
   -Dsentinel=LOCAL \
   -Dcrawler.base-url=http://localhost:8090/${FHIR_VERSION} \

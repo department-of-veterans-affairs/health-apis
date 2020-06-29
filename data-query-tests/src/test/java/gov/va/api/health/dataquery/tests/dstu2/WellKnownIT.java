@@ -1,16 +1,12 @@
 package gov.va.api.health.dataquery.tests.dstu2;
 
+import static gov.va.api.health.dataquery.tests.EnvironmentAssumptions.assumeLocal;
+import static gov.va.api.health.dataquery.tests.EnvironmentAssumptions.assumeNotLocal;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.dataquery.tests.TestClients;
-import gov.va.api.health.dataquery.tests.categories.LabDataQueryClinician;
-import gov.va.api.health.dataquery.tests.categories.LabDataQueryPatient;
-import gov.va.api.health.dataquery.tests.categories.ProdDataQueryClinician;
-import gov.va.api.health.dataquery.tests.categories.ProdDataQueryPatient;
 import gov.va.api.health.sentinel.ExpectedResponse;
-import gov.va.api.health.sentinel.categories.Local;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
 
 public class WellKnownIT {
   private final String apiPath() {
@@ -22,8 +18,8 @@ public class WellKnownIT {
    * ingress otherwise).
    */
   @Test
-  @Category({Local.class})
   public void localWellKnownIsValid() {
+    assumeLocal();
     requestWellKnown("/");
   }
 
@@ -38,13 +34,8 @@ public class WellKnownIT {
   }
 
   @Test
-  @Category({
-    LabDataQueryPatient.class,
-    LabDataQueryClinician.class,
-    ProdDataQueryPatient.class,
-    ProdDataQueryClinician.class
-  })
   public void wellKnownIsValid() {
+    assumeNotLocal();
     requestWellKnown(apiPath());
   }
 }

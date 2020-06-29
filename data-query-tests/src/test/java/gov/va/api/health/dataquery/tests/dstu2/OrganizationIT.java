@@ -1,21 +1,19 @@
 package gov.va.api.health.dataquery.tests.dstu2;
 
+import static gov.va.api.health.dataquery.tests.EnvironmentAssumptions.assumeLocal;
+
 import gov.va.api.health.dataquery.tests.ResourceVerifier;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import gov.va.api.health.dstu2.api.resources.Organization;
-import gov.va.api.health.sentinel.categories.Local;
 import lombok.experimental.Delegate;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
 
 public class OrganizationIT {
   @Delegate ResourceVerifier verifier = ResourceVerifier.dstu2();
 
-  @Category({Local.class
-    // , ProdDataQueryClinician.class
-  })
   @Test
   public void advanced() {
+    assumeLocal();
     verifier.verifyAll(
         test(
             200, Organization.Bundle.class, "Organization?_id={id}", verifier.ids().organization()),
@@ -27,11 +25,9 @@ public class OrganizationIT {
             verifier.ids().organization()));
   }
 
-  @Category({Local.class
-    // , ProdDataQueryPatient.class, ProdDataQueryClinician.class
-  })
   @Test
   public void basic() {
+    assumeLocal();
     verifier.verifyAll(
         test(200, Organization.class, "Organization/{id}", verifier.ids().organization()),
         test(404, OperationOutcome.class, "Organization/{id}", verifier.ids().unknown()));

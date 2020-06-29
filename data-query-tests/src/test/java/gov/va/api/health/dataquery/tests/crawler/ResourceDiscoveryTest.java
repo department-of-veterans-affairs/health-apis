@@ -2,21 +2,19 @@ package gov.va.api.health.dataquery.tests.crawler;
 
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import gov.va.api.health.dataquery.tests.crawler.ResourceDiscovery.UnknownFhirVersion;
 import gov.va.api.health.dstu2.api.resources.Conformance;
 import gov.va.api.health.r4.api.resources.CapabilityStatement;
-import gov.va.api.health.sentinel.categories.Local;
 import io.restassured.response.Response;
 import java.util.List;
 import java.util.stream.Stream;
 import lombok.NoArgsConstructor;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
 
-@Category(Local.class)
 public class ResourceDiscoveryTest {
   ResourceDiscovery rd =
       ResourceDiscovery.of(
@@ -32,21 +30,16 @@ public class ResourceDiscoveryTest {
   @Test
   public void dstu2UselessConformanceStatementsReturnNoQueries() {
     Response response = mock(Response.class);
-
     when(response.as(Conformance.class)).thenReturn(dstu2().conformanceWithNoRestResourceList);
     assertThat(rd.queriesFor(response)).isEmpty();
-
     when(response.as(Conformance.class)).thenReturn(dstu2().conformanceWithEmptyRestResourceList);
     assertThat(rd.queriesFor(response)).isEmpty();
-
     when(response.as(Conformance.class)).thenReturn(dstu2().conformanceWithResources);
     assertThat(rd.queriesFor(response))
         .containsExactlyInAnyOrder(
             rd.context().url() + "Patient/" + rd.context().patientId(),
             rd.context().url() + "Patient?_id=" + rd.context().patientId(),
-            rd.context().url() + "Thing?patient=" + rd.context().patientId()
-            //
-            );
+            rd.context().url() + "Thing?patient=" + rd.context().patientId());
   }
 
   public R4TestData r4() {
@@ -56,23 +49,18 @@ public class ResourceDiscoveryTest {
   @Test
   public void r4UselessConformanceStatementsReturnNoQueries() {
     Response response = mock(Response.class);
-
     when(response.as(CapabilityStatement.class))
         .thenReturn(r4().capabilityStatementWithNoRestResourceList);
     assertThat(rd.queriesFor(response)).isEmpty();
-
     when(response.as(CapabilityStatement.class))
         .thenReturn(r4().capabilityStatementWithEmptyRestResourceList);
     assertThat(rd.queriesFor(response)).isEmpty();
-
     when(response.as(CapabilityStatement.class)).thenReturn(r4().capabilityStatementWithResources);
     assertThat(rd.queriesFor(response))
         .containsExactlyInAnyOrder(
             rd.context().url() + "Patient/" + rd.context().patientId(),
             rd.context().url() + "Patient?_id=" + rd.context().patientId(),
-            rd.context().url() + "Thing?patient=" + rd.context().patientId()
-            //
-            );
+            rd.context().url() + "Thing?patient=" + rd.context().patientId());
   }
 
   @Test
@@ -86,9 +74,9 @@ public class ResourceDiscoveryTest {
         .isEqualTo("AllergyIntolerance");
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void resourceThrowsIllegalArgumentExceptionIfNoSlashIsFound() {
-    ResourceDiscovery.resource("garbage");
+    assertThrows(IllegalArgumentException.class, () -> ResourceDiscovery.resource("garbage"));
   }
 
   @Test
@@ -101,17 +89,16 @@ public class ResourceDiscoveryTest {
         .isEqualTo("https://dev-api.va.gov/Patient//12345");
   }
 
-  @Test(expected = UnknownFhirVersion.class)
+  @Test
   public void unknownResponseThrowsException() {
     Response response = mock(Response.class);
     when(response.as(Conformance.class)).thenThrow(new RuntimeException("fugazi"));
     when(response.as(CapabilityStatement.class)).thenThrow(new RuntimeException("fugazi"));
-    rd.queriesFor(response);
+    assertThrows(UnknownFhirVersion.class, () -> rd.queriesFor(response));
   }
 
   @NoArgsConstructor(staticName = "get")
   public static class Dstu2TestData {
-
     Conformance conformanceWithNoRestResourceList = Conformance.builder().build();
 
     Conformance conformanceWithEmptyRestResourceList =
@@ -127,9 +114,7 @@ public class ResourceDiscoveryTest {
                                 resource("ThingNotSearchable"),
                                 resource("ThingNotSearchableByPatient", "_id"),
                                 resource("Thing", "_id", "patient"),
-                                resource("Patient", "_id")
-                                //
-                                ))
+                                resource("Patient", "_id")))
                         .build()))
             .build();
 
@@ -147,7 +132,6 @@ public class ResourceDiscoveryTest {
 
   @NoArgsConstructor(staticName = "get")
   public static class R4TestData {
-
     CapabilityStatement capabilityStatementWithNoRestResourceList =
         CapabilityStatement.builder().build();
 
@@ -164,9 +148,7 @@ public class ResourceDiscoveryTest {
                                 resource("ThingNotSearchable"),
                                 resource("ThingNotSearchableByPatient", "_id"),
                                 resource("Thing", "_id", "patient"),
-                                resource("Patient", "_id")
-                                //
-                                ))
+                                resource("Patient", "_id")))
                         .build()))
             .build();
 

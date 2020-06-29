@@ -4,13 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.dataquery.tests.ResourceVerifier;
 import gov.va.api.health.dataquery.tests.TestClients;
-import gov.va.api.health.dataquery.tests.categories.LabDataQueryPatient;
-import gov.va.api.health.dataquery.tests.categories.ProdDataQueryPatient;
-import gov.va.api.health.sentinel.categories.Local;
 import io.restassured.RestAssured;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
 
 @Slf4j
 public class Dstu2OpenApiIT {
@@ -20,7 +16,6 @@ public class Dstu2OpenApiIT {
   }
 
   @Test
-  @Category({Local.class, LabDataQueryPatient.class, ProdDataQueryPatient.class})
   public void openApiIsValid() {
     log.info("Verify {}openapi.json is valid (200)", apiPath());
     assertThat(

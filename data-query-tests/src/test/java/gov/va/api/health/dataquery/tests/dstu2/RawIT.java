@@ -4,9 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
 import gov.va.api.health.dataquery.tests.ResourceVerifier;
-import gov.va.api.health.dataquery.tests.categories.LabDataQueryPatient;
-import gov.va.api.health.dataquery.tests.categories.ProdDataQueryPatient;
-import gov.va.api.health.sentinel.categories.Local;
 import io.restassured.RestAssured;
 import io.restassured.path.json.config.JsonPathConfig;
 import io.restassured.response.Response;
@@ -14,8 +11,7 @@ import io.restassured.specification.RequestSpecification;
 import lombok.SneakyThrows;
 import lombok.experimental.Delegate;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
 
 /**
  * This class is only meant to test the "raw" functionality of data-query Regular reads and searches
@@ -31,7 +27,6 @@ public class RawIT {
           .headers(ImmutableMap.of("raw", System.getProperty("raw-token", "true")));
 
   @Test
-  @Category({Local.class, LabDataQueryPatient.class, ProdDataQueryPatient.class})
   public void allergyIntoleranceRaw() {
     assertFhirObject("AllergyIntolerance", verifier.ids().allergyIntolerance());
   }
@@ -49,14 +44,12 @@ public class RawIT {
   }
 
   @Test
-  @Category({Local.class, LabDataQueryPatient.class, ProdDataQueryPatient.class})
   public void conditionRaw() {
     assertFhirObject("Condition", verifier.ids().condition());
   }
 
   @Test
   @SneakyThrows
-  @Category({Local.class, LabDataQueryPatient.class, ProdDataQueryPatient.class})
   public void diagnosticReportRaw() {
     // objectType is not returned in a raw diagnosticReport read, so we'll make sure it has an
     // identifier instead
@@ -71,43 +64,36 @@ public class RawIT {
   }
 
   @Test
-  @Category({Local.class, LabDataQueryPatient.class, ProdDataQueryPatient.class})
   public void immunizationRaw() {
     assertFhirObject("Immunization", verifier.ids().immunization());
   }
 
   @Test
-  @Category({Local.class, LabDataQueryPatient.class, ProdDataQueryPatient.class})
   public void medicationOrderRaw() {
     assertFhirObject("MedicationOrder", verifier.ids().medicationOrder());
   }
 
   @Test
-  @Category({Local.class, LabDataQueryPatient.class, ProdDataQueryPatient.class})
   public void medicationRaw() {
     assertFhirObject("Medication", verifier.ids().medication());
   }
 
   @Test
-  @Category({Local.class, LabDataQueryPatient.class, ProdDataQueryPatient.class})
   public void medicationStatementRaw() {
     assertFhirObject("MedicationStatement", verifier.ids().medicationStatement());
   }
 
   @Test
-  @Category({Local.class, LabDataQueryPatient.class, ProdDataQueryPatient.class})
   public void observationRaw() {
     assertFhirObject("Observation", verifier.ids().observation());
   }
 
   @Test
-  @Category({Local.class, LabDataQueryPatient.class, ProdDataQueryPatient.class})
   public void patientRaw() {
     assertFhirObject("Patient", verifier.ids().patient());
   }
 
   @Test
-  @Category({Local.class, LabDataQueryPatient.class, ProdDataQueryPatient.class})
   public void procedureRaw() {
     assertFhirObject("Procedure", verifier.ids().procedure());
   }

@@ -1,12 +1,10 @@
 package gov.va.api.health.dataquery.tests.crawler;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import gov.va.api.health.sentinel.categories.Local;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
 
-@Category(Local.class)
 public class UrlReplacementRequestQueueTest {
   UrlReplacementRequestQueue rq =
       UrlReplacementRequestQueue.builder()
@@ -15,39 +13,45 @@ public class UrlReplacementRequestQueueTest {
           .requestQueue(new ConcurrentResourceBalancingRequestQueue())
           .build();
 
-  @Test(expected = IllegalArgumentException.class)
-  public void emptyBaseUrlThrowsIllegalStateException() {
-    UrlReplacementRequestQueue emptyBaseUrl =
-        UrlReplacementRequestQueue.builder()
-            .replaceUrl("")
-            .withUrl("https://staging-argonaut.lighthouse.va.gov/api/")
-            .requestQueue(new ConcurrentResourceBalancingRequestQueue())
-            .build();
-    emptyBaseUrl.add("Empty forceUrl");
+  @Test
+  public void emptyBaseUrlThrowsIllegalArgumentException() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            UrlReplacementRequestQueue.builder()
+                .replaceUrl("")
+                .withUrl("https://staging-argonaut.lighthouse.va.gov/api/")
+                .requestQueue(new ConcurrentResourceBalancingRequestQueue())
+                .build());
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void emptyForceUrlThrowsIllegalStateException() {
-    UrlReplacementRequestQueue emptyBaseUrl =
-        UrlReplacementRequestQueue.builder()
-            .replaceUrl("https://dev-api.va.gov/services/argonaut/v0/")
-            .withUrl("")
-            .requestQueue(new ConcurrentResourceBalancingRequestQueue())
-            .build();
-    emptyBaseUrl.add("Empty forceUrl");
+  @Test
+  public void emptyForceUrlThrowsIllegalArgumentException() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            UrlReplacementRequestQueue.builder()
+                .replaceUrl("https://dev-api.va.gov/services/argonaut/v0/")
+                .withUrl("")
+                .requestQueue(new ConcurrentResourceBalancingRequestQueue())
+                .build());
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test
   public void exceptionIsThrownWhenAttemptingToGetNextFromEmptyQueue() {
     rq.add(
         "https://dev-api.va.gov/services/argonaut/v0/AllergyIntolerance/3be00408-b0ff-598d-8ba1-1e0bbfb02b99");
     rq.next();
-    rq.next();
+    assertThrows(
+        IllegalStateException.class,
+        () -> {
+          rq.next();
+        });
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test
   public void exceptionIsThrownWhenAttemptingToGetNextQueueThatWasNeverUsed() {
-    rq.next();
+    assertThrows(IllegalStateException.class, () -> rq.next());
   }
 
   @Test
@@ -92,26 +96,28 @@ public class UrlReplacementRequestQueueTest {
     assertThat(rq.hasNext()).isFalse();
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void nullBaseUrlThrowsIllegalStateException() {
-    UrlReplacementRequestQueue emptyBaseUrl =
-        UrlReplacementRequestQueue.builder()
-            .replaceUrl(null)
-            .withUrl("https://staging-argonaut.lighthouse.va.gov/api/")
-            .requestQueue(new ConcurrentResourceBalancingRequestQueue())
-            .build();
-    emptyBaseUrl.add("Empty baseUrl");
+  @Test
+  public void nullBaseUrlThrowsIllegalArgumentException() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            UrlReplacementRequestQueue.builder()
+                .replaceUrl(null)
+                .withUrl("https://staging-argonaut.lighthouse.va.gov/api/")
+                .requestQueue(new ConcurrentResourceBalancingRequestQueue())
+                .build());
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void nullForceUrlThrowsIllegalStateException() {
-    UrlReplacementRequestQueue emptyBaseUrl =
-        UrlReplacementRequestQueue.builder()
-            .replaceUrl("https://dev-api.va.gov/services/argonaut/v0/")
-            .withUrl(null)
-            .requestQueue(new ConcurrentResourceBalancingRequestQueue())
-            .build();
-    emptyBaseUrl.add("Empty forceUrl");
+  @Test
+  public void nullForceUrlThrowsIllegalArgumentException() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            UrlReplacementRequestQueue.builder()
+                .replaceUrl("https://dev-api.va.gov/services/argonaut/v0/")
+                .withUrl(null)
+                .requestQueue(new ConcurrentResourceBalancingRequestQueue())
+                .build());
   }
 
   @Test

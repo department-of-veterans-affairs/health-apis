@@ -8,16 +8,14 @@ import gov.va.api.health.dataquery.tests.SystemDefinition;
 import gov.va.api.health.dataquery.tests.SystemDefinitions;
 import gov.va.api.health.sentinel.LabBot;
 import gov.va.api.health.sentinel.LabBot.LabBotUserResult;
-import gov.va.api.health.sentinel.categories.Manual;
 import java.io.File;
 import java.util.List;
 import java.util.concurrent.Executors;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
 
 @Slf4j
-public class UsingOAuthCrawlerTest {
+public class OAuthCrawl {
 
   private RequestQueue baseRequestQueue(SystemDefinition env) {
     if (isBlank(CrawlerProperties.urlReplace())) {
@@ -64,7 +62,6 @@ public class UsingOAuthCrawlerTest {
     return results.failures();
   }
 
-  @Category(Manual.class)
   @Test
   public void crawlPatients() {
     int failureCount = 0;

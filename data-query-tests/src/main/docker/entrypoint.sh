@@ -8,15 +8,13 @@ MAIN_JAR=$(find -maxdepth 1 -name "data-query-tests-*.jar" -a -not -name "data-q
 TESTS_JAR=$(find -maxdepth 1 -name "data-query-tests-*-tests.jar")
 WEB_DRIVER_PROPERTIES="-Dwebdriver.chrome.driver=/usr/local/bin/chromedriver -Dwebdriver.chrome.headless=true"
 SYSTEM_PROPERTIES=$WEB_DRIVER_PROPERTIES
-EXCLUDE_CATEGORY=
-INCLUDE_CATEGORY=
+SENTINEL_CRAWLER=.*MagicPatientCrawl\$
 
 usage() {
 cat <<EOF
 Commands
   list-tests
-  list-categories
-  test [--include-category <category>] [--exclude-category <category>] [--trust <host>] [-Dkey=value] <name> [name] [...]
+  test [--trust <host>] [-Dkey=value] <name> [name] [...]
   smoke-test
   regression-test [--skip-crawler]
   crawler-test
@@ -24,13 +22,11 @@ Commands
 
 Example
   test\
-    --exclude-category gov.va.api.health.sentinel.categories.Local\
-    --include-category gov.va.api.health.sentinel.categories.Manual\
     --trust example.something.elb.amazonaws.com\
     -Dlab.client-id=12345\
     -Dlab.client-secret=ABCDEF\
     -Dlab.user-password=secret\
-    gov.va.api.health.dataquery.tests.UsingMagicPatientCrawlerTest
+    .*MagicPatientCrawl\$
 
 Docker Run Examples
   docker run --rm --init --network=host\
@@ -66,16 +62,12 @@ trustServer() {
     -noprompt
 }
 
-defaultTests() {
-  doListTests | grep 'IT$'
-}
+
 
 doTest() {
-  local tests="$@"
-  [ -z "$tests" ] && tests=$(defaultTests)
-  local filter
-  [ -n "$EXCLUDE_CATEGORY" ] && filter+=" --filter=org.junit.experimental.categories.ExcludeCategories=$EXCLUDE_CATEGORY"
-  [ -n "$INCLUDE_CATEGORY" ] && filter+=" --filter=org.junit.experimental.categories.IncludeCategories=$INCLUDE_CATEGORY"
+  local pattern="$@"
+  [ -z "$pattern" ] && pattern=.*IT\$
+  echo "Executing tests for pattern: $pattern"
   local noise="org.junit"
   noise+="|groovy.lang.Meta"
   noise+="|io.restassured.filter"
@@ -85,7 +77,13 @@ doTest() {
   noise+="|org.apache.http"
   noise+="|org.codehaus.groovy"
   noise+="|sun.reflect"
-  java -cp "$(pwd)/*" $SYSTEM_PROPERTIES org.junit.runner.JUnitCore $filter $tests \
+  java \
+    ${SYSTEM_PROPERTIES[@]} \
+    -jar junit-platform-console-standalone.jar \
+    --scan-classpath \
+    -cp "$MAIN_JAR" -cp "$TESTS_JAR" \
+    --include-classname=$pattern \
+    --fail-if-no-tests \
     | grep -vE "^	at ($noise)"
 
   # Exit on failure otherwise let other actions run.
@@ -100,27 +98,14 @@ doListTests() {
     | sort
 }
 
-doListCategories() {
-  jar -tf $MAIN_JAR \
-    | grep -E 'gov/va/api/health/sentinel/categories/.*\.class|gov/va/api/health/dataquery/tests/categories/.*\.class' \
-    | sed 's/\.class//' \
-    | tr / . \
-    | sort
-}
-
 doSmokeTest() {
   setupForAutomation
-
-  INCLUDE_CATEGORY=$SENTINEL_SMOKE_TEST_CATEGORY
-  doTest
+  doTest ".*PatientIT$"
 }
 
 doRegressionTest() {
   setupForAutomation
-
-  INCLUDE_CATEGORY=$SENTINEL_REGRESSION_TEST_CATEGORY
   doTest
-
   doCrawlerTest
 }
 
@@ -129,10 +114,6 @@ doCrawlerTest() {
   if [ "$SKIP_CRAWLER" == "true" -o -z "$SENTINEL_CRAWLER" ]; then return; fi
 
   setupForAutomation
-
-  # Wipe out any included or excluded categories to make sure we pick up the crawler test class
-  INCLUDE_CATEGORY=
-  EXCLUDE_CATEGORY=
 
   # This way, the ITs use defaults when INTERNAL_API_PATH isnt set,
   # but the crawler will use the internal path always.
@@ -155,7 +136,6 @@ doCrawlerTest() {
 checkVariablesForAutomation() {
   # Check out required deployment variables and data query specific variables.
   for param in "K8S_LOAD_BALANCER" "K8S_ENVIRONMENT" "SENTINEL_ENV" "TOKEN" \
-    "SENTINEL_SMOKE_TEST_CATEGORY" "SENTINEL_REGRESSION_TEST_CATEGORY" \
     "DATA_QUERY_REPLACEMENT_URL_PREFIX" "USER_PASSWORD" "CLIENT_ID" "CLIENT_SECRET" "PATIENT_ID"; do
     [ -z ${!param} ] && usage "Variable $param must be specified."
   done
@@ -200,16 +180,14 @@ setupForAutomation() {
 }
 
 ARGS=$(getopt -n $(basename ${0}) \
-    -l "exclude-category:,include-category:,debug,help,trust:,skip-crawler" \
-    -o "e:i:D:hs" -- "$@")
+    -l "debug,help,trust:,skip-crawler" \
+    -o "D:hs" -- "$@")
 [ $? != 0 ] && usage
 eval set -- "$ARGS"
 while true
 do
   case "$1" in
-    -e|--exclude-category) EXCLUDE_CATEGORY=$2;;
-    -i|--include-category) INCLUDE_CATEGORY=$2;;
-    -D) SYSTEM_PROPERTIES+=" -D$2";;
+    -D) SYSTEM_PROPERTIES+=("-D$2");;
     --debug) set -x;;
     -h|--help) usage "halp! what this do?";;
     --trust) trustServer $2;;
@@ -225,7 +203,6 @@ shift
 
 case "$COMMAND" in
   t|test) doTest $@;;
-  lc|list-categories) doListCategories;;
   lt|list-tests) doListTests;;
   s|smoke-test) doSmokeTest;;
   r|regression-test) doRegressionTest;;
