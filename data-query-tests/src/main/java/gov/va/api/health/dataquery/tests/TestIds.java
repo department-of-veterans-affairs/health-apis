@@ -24,6 +24,7 @@ public final class TestIds {
   @NonNull String practitioner;
   @NonNull String procedure;
   @NonNull String unknown;
+  @NonNull String uuid;
 
   @NonNull DiagnosticReports diagnosticReports;
   @NonNull Locations locations;
