@@ -13,6 +13,6 @@ public class IdentityServiceIT {
   @Test
   public void readByUuid() {
     assumeNotLocal();
-    verifier.verify(test(200, Observation.Bundle.class, "Observation/{}", verifier.ids().uuid()));
+    verifier.verify(test(200, Observation.class, "Observation/{}", verifier.ids().uuid()));
   }
 }
