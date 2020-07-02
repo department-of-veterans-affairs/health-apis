@@ -84,6 +84,7 @@ public final class SystemDefinitions {
         .procedure("I2-J2OUEVFHKESKUKIALZPTDTJNMQ000000")
         .procedures(localAndLabProcedures())
         .unknown("5555555555555")
+        .uuid("9b83f0bb-970e-516b-91d2-81a92f38a681")
         .build();
   }
 
@@ -168,6 +169,7 @@ public final class SystemDefinitions {
         .procedure("I2-JJ3KKRP45LEYYEEMLIWYBE473U000000")
         .procedures(localAndLabProcedures())
         .unknown("5555555555555")
+        .uuid("NOPE")
         .build();
   }
 
@@ -225,6 +227,7 @@ public final class SystemDefinitions {
         .procedure("I2-DTO3TGZDH7VWRWL6CVHS4NTMTUBWUNA5D4U2L45RJJ3LG6LY6XXA0000")
         .procedures(productionCdwProcedures())
         .unknown("5555555555555")
+        .uuid("5c2d00d6-7ce8-595a-8ed3-1ba2d21a99ff")
         .build();
   }
 
