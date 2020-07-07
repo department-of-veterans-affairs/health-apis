@@ -63,6 +63,7 @@
     <Or>
       <Class name="gov.va.api.health.dataquery.service.controller.observation.ObservationRepository$PatientAndCategoryAndDateSpecification$PatientAndCategoryAndDateSpecificationBuilder"/>
       <Class name="gov.va.api.health.dataquery.service.controller.observation.ObservationRepository$PatientAndCodeAndDateSpecification$PatientAndCodeAndDateSpecificationBuilder"/>
+      <Class name="gov.va.api.health.dataquery.service.controller.observation.ObservationRepository$PatientAndDateSpecification$PatientAndDateSpecificationBuilder"/>
       <Class name="gov.va.api.health.dataquery.service.controller.patient.PatientSearchRepository$NameAndBirthdateSpecification$NameAndBirthdateSpecificationBuilder"/>
       <Class name="gov.va.api.health.dataquery.service.controller.patient.PatientRepositoryV2$BirthdateAndFamilySpecification$BirthdateAndFamilySpecificationBuilder"/>
       <Class name="gov.va.api.health.dataquery.service.controller.patient.PatientRepositoryV2$NameAndBirthdateSpecification$NameAndBirthdateSpecificationBuilder"/>
@@ -72,8 +73,21 @@
   </Match>
 
   <!--
-  These fields are going through parameter validation and will not have CRLF characters.
--->
+  This lombok generated builder accepts an array which is ultimated given to the PatientAndDateSpecification
+  constructor. This constructor processes the array to store individual fields. The array is not stored
+  directly.
+  -->
+  <Match>
+    <Or>
+      <Class name="gov.va.api.health.dataquery.service.controller.observation.ObservationRepository$PatientAndCategoryAndDateSpecification"/>
+      <Class name="gov.va.api.health.dataquery.service.controller.observation.ObservationRepository$PatientAndCodeAndDateSpecification"/>
+    </Or>
+    <Bug pattern="EI_EXPOSE_REP"/>
+  </Match>
+
+  <!--
+    These fields are going through parameter validation and will not have CRLF characters.
+  -->
   <Match>
     <Class name="gov.va.api.health.dataquery.service.controller.procedure.Dstu2ProcedureController"/>
     <Method name="searchByPatientAndDate"/>
