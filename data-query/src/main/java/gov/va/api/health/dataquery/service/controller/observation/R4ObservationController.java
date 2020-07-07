@@ -24,6 +24,7 @@ import java.util.stream.Stream;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -101,33 +102,32 @@ public class R4ObservationController {
 
   /**
    * A category csv can contain any combination of code, system|code, system|, |code, or system
-   * tokens. Therefore, we need to iterate over the list one by one, ANDing the specs together.
+   * tokens. Therefore, we need to iterate over the list one by one.
    */
-  private Specification<ObservationEntity> categoryClauseFor(List<TokenParameter> categoryTokens) {
-    Specification<ObservationEntity> spec = null;
-    for (TokenParameter token : categoryTokens) {
-      if (spec == null) {
-        spec = categoryClauseFor(token);
-      } else {
-        Specification<ObservationEntity> test = categoryClauseFor(token);
-        spec.or(test);
-      }
-    }
-    return spec;
+  private Specification<ObservationEntity> categoryClauseFor(
+      @NotEmpty List<TokenParameter> categoryTokens) {
+    // Spring doesn't want to OR the same spec together more than once.
+    // This collects all codes based on the same criteria TokenParameter uses for
+    // determining behavior.
+    Set<String> categoriesForQuery =
+        categoryTokens.stream()
+            .map(this::categoryFor)
+            .flatMap(Collection::stream)
+            .collect(Collectors.toSet());
+    return ObservationRepository.CategorySpecification.of(categoriesForQuery);
   }
 
-  /** Determine the category clause based on the a tokens value. */
-  private Specification<ObservationEntity> categoryClauseFor(TokenParameter categoryToken) {
+  /** Determine the category based on the a tokens value. */
+  private List<String> categoryFor(TokenParameter categoryToken) {
     return categoryToken
         .behavior()
-        .onExplicitSystemAndExplicitCode(
-            (s, c) -> ObservationRepository.CategorySpecification.of(Set.of(c)))
-        .onAnySystemAndExplicitCode(c -> ObservationRepository.CategorySpecification.of(Set.of(c)))
+        .onExplicitSystemAndExplicitCode((s, c) -> List.of(c))
+        .onAnySystemAndExplicitCode(List::of)
+        .onNoSystemAndExplicitCode(List::of)
         .onExplicitSystemAndAnyCode(
             s -> {
               if (OBSERVATION_CATEGORY_SYSTEM.equals(s)) {
-                return ObservationRepository.CategorySpecification.of(
-                    Set.of("laboratory", "vital-signs"));
+                return List.of("laboratory", "vital-signs");
               }
               throw new IllegalStateException(
                   "Unsupported Category System: "
@@ -245,12 +245,15 @@ public class R4ObservationController {
             .add("_count", count)
             .build();
     String cdwPatient = witnessProtection.toCdwId(patient);
+
     List<TokenParameter> tokens =
         Splitter.on(",").trimResults().splitToList(categoryCsv).stream()
             .map(TokenParameter::parse)
-            .filter(x -> !x.isSystemExplicitAndUnsupported(OBSERVATION_CATEGORY_SYSTEM))
-            .filter(y -> !y.isSystemExplicitAndUnsupported("laboratory", "vital-signs"))
-            .filter(z -> !z.hasExplicitlyNoSystem())
+            .filter(
+                t ->
+                    !t.isSystemExplicitAndUnsupported(OBSERVATION_CATEGORY_SYSTEM)
+                        || !t.isSystemExplicitAndUnsupported("laboratory", "vital-signs")
+                        || !t.hasExplicitlyNoSystem())
             .collect(Collectors.toList());
     if (tokens.isEmpty()) {
       return bundle(parameters, emptyList(), 0);

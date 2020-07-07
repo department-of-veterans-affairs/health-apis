@@ -37,12 +37,88 @@ public interface ObservationRepository
 
     @Override
     public Predicate toPredicate(
-            Root<ObservationEntity> root,
-            CriteriaQuery<?> criteriaQuery,
-            CriteriaBuilder criteriaBuilder) {
+        Root<ObservationEntity> root,
+        CriteriaQuery<?> criteriaQuery,
+        CriteriaBuilder criteriaBuilder) {
       List<Predicate> predicates = new ArrayList<>(1);
-      categories().forEach(category -> predicates.add(criteriaBuilder.equal(root.get("category"), categories())));
+      In<String> categoriesInClause = criteriaBuilder.in(root.get("category"));
+      categories.forEach(categoriesInClause::value);
+      predicates.add(categoriesInClause);
       return criteriaBuilder.or(predicates.toArray(new Predicate[0]));
+    }
+  }
+
+  @Value
+  class PatientAndCategoryAndDateSpecification implements Specification<ObservationEntity> {
+    String patient;
+
+    Set<String> categories;
+
+    String[] dates;
+
+    @Builder
+    private PatientAndCategoryAndDateSpecification(
+        String patient, Collection<String> categories, String[] dates) {
+      this.patient = patient;
+      this.categories = new HashSet<>(categories);
+      this.dates = dates;
+    }
+
+    @Override
+    public Predicate toPredicate(
+        Root<ObservationEntity> root,
+        CriteriaQuery<?> criteriaQuery,
+        CriteriaBuilder criteriaBuilder) {
+      List<Predicate> predicates = new ArrayList<>(2);
+
+      predicates.add(
+          PatientAndDateSpecification.builder()
+              .patient(patient())
+              .dates(dates())
+              .build()
+              .toPredicate(root, criteriaQuery, criteriaBuilder));
+
+      predicates.add(
+          CategorySpecification.of(categories()).toPredicate(root, criteriaQuery, criteriaBuilder));
+
+      return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+    }
+  }
+
+  @Value
+  class PatientAndCodeAndDateSpecification implements Specification<ObservationEntity> {
+    String patient;
+
+    Set<String> codes;
+
+    String[] dates;
+
+    @Builder
+    private PatientAndCodeAndDateSpecification(
+        String patient, Collection<String> codes, String[] dates) {
+      this.patient = patient;
+      this.codes = new HashSet<>(codes);
+      this.dates = dates;
+    }
+
+    @Override
+    public Predicate toPredicate(
+        Root<ObservationEntity> root,
+        CriteriaQuery<?> criteriaQuery,
+        CriteriaBuilder criteriaBuilder) {
+      List<Predicate> predicates = new ArrayList<>(2);
+      predicates.add(
+          PatientAndDateSpecification.builder()
+              .patient(patient())
+              .dates(dates())
+              .build()
+              .toPredicate(root, criteriaQuery, criteriaBuilder));
+
+      In<String> codesInClause = criteriaBuilder.in(root.get("code"));
+      codes.forEach(codesInClause::value);
+      predicates.add(codesInClause);
+
+      return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
     }
   }
 
@@ -75,81 +151,6 @@ public interface ObservationRepository
       if (date2() != null) {
         predicates.add(date2().toInstantPredicate(root.get("dateUtc"), criteriaBuilder));
       }
-      return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
-    }
-  }
-
-  @Value
-  class PatientAndCategoryAndDateSpecification implements Specification<ObservationEntity> {
-    String patient;
-
-    Set<String> categories;
-
-    String[] dates;
-
-    @Builder
-    private PatientAndCategoryAndDateSpecification(
-        String patient, Collection<String> categories, String[] dates) {
-      this.patient = patient;
-      this.categories = new HashSet<>(categories);
-      this.dates = dates;
-    }
-
-    @Override
-    public Predicate toPredicate(
-        Root<ObservationEntity> root,
-        CriteriaQuery<?> criteriaQuery,
-        CriteriaBuilder criteriaBuilder) {
-      List<Predicate> predicates = new ArrayList<>(2);
-
-      predicates.add(
-          ObservationRepository.PatientAndDateSpecification.builder()
-              .patient(patient())
-              .dates(dates())
-              .build()
-              .toPredicate(root, criteriaQuery, criteriaBuilder));
-
-      In<String> categoriesInClause = criteriaBuilder.in(root.get("category"));
-      categories.forEach(categoriesInClause::value);
-      predicates.add(categoriesInClause);
-
-      return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
-    }
-  }
-
-  @Value
-  class PatientAndCodeAndDateSpecification implements Specification<ObservationEntity> {
-    String patient;
-
-    Set<String> codes;
-
-    String[] dates;
-
-    @Builder
-    private PatientAndCodeAndDateSpecification(
-        String patient, Collection<String> codes, String[] dates) {
-      this.patient = patient;
-      this.codes = new HashSet<>(codes);
-      this.dates = dates;
-    }
-
-    @Override
-    public Predicate toPredicate(
-        Root<ObservationEntity> root,
-        CriteriaQuery<?> criteriaQuery,
-        CriteriaBuilder criteriaBuilder) {
-      List<Predicate> predicates = new ArrayList<>(2);
-      predicates.add(
-          ObservationRepository.PatientAndDateSpecification.builder()
-              .patient(patient())
-              .dates(dates())
-              .build()
-              .toPredicate(root, criteriaQuery, criteriaBuilder));
-
-      In<String> codesInClause = criteriaBuilder.in(root.get("code"));
-      codes.forEach(codesInClause::value);
-      predicates.add(codesInClause);
-
       return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
     }
   }

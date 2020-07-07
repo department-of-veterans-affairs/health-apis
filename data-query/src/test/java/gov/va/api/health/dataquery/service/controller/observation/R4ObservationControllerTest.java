@@ -735,23 +735,106 @@ public class R4ObservationControllerTest {
                     observationsByPatient.get("p0").size(),
                     link(
                         BundleLink.LinkRelation.first,
-                        "http://fonzy.com/cool/Observation?patient=p0&"
+                        "http://fonzy.com/cool/Observation?category="
                             + OBSERVATION_CATEGORY_SYSTEM
-                            + "|",
+                            + "|&patient=p0",
                         1,
                         10),
                     link(
                         BundleLink.LinkRelation.self,
-                        "http://fonzy.com/cool/Observation?patient=p0&"
+                        "http://fonzy.com/cool/Observation?category="
                             + OBSERVATION_CATEGORY_SYSTEM
-                            + "|",
+                            + "|&patient=p0",
                         1,
                         10),
                     link(
                         BundleLink.LinkRelation.last,
-                        "http://fonzy.com/cool/Observation?patient=p0&"
+                        "http://fonzy.com/cool/Observation?category="
                             + OBSERVATION_CATEGORY_SYSTEM
-                            + "|",
+                            + "|&patient=p0",
+                        1,
+                        10))));
+  }
+
+  @Test
+  void searchByPatientAndCategorySystemAndCode() {
+    Multimap<String, Observation> observationsByPatient = populateData();
+    List<Observation> labs =
+        observationsByPatient.get("p0").stream()
+            .filter(o -> "laboratory".equals(o.category().get(0).coding().get(0).code()))
+            .collect(Collectors.toList());
+    assertThat(
+            json(
+                controller()
+                    .searchByPatientAndCategory(
+                        false, "p0", OBSERVATION_CATEGORY_SYSTEM + "|laboratory", null, 1, 10)))
+        .isEqualTo(
+            json(
+                ObservationSamples.R4.asBundle(
+                    "http://fonzy.com/cool",
+                    labs,
+                    labs.size(),
+                    link(
+                        BundleLink.LinkRelation.first,
+                        "http://fonzy.com/cool/Observation?category="
+                            + OBSERVATION_CATEGORY_SYSTEM
+                            + "|laboratory&patient=p0",
+                        1,
+                        10),
+                    link(
+                        BundleLink.LinkRelation.self,
+                        "http://fonzy.com/cool/Observation?category="
+                            + OBSERVATION_CATEGORY_SYSTEM
+                            + "|laboratory&patient=p0",
+                        1,
+                        10),
+                    link(
+                        BundleLink.LinkRelation.last,
+                        "http://fonzy.com/cool/Observation?category="
+                            + OBSERVATION_CATEGORY_SYSTEM
+                            + "|laboratory&patient=p0",
+                        1,
+                        10))));
+  }
+
+  @Test
+  void searchByPatientAndCategoryTokenMix() {
+    Multimap<String, Observation> observationsByPatient = populateData();
+    assertThat(
+            json(
+                controller()
+                    .searchByPatientAndCategory(
+                        false,
+                        "p0",
+                        OBSERVATION_CATEGORY_SYSTEM + "|vital-signs,|laboratory",
+                        null,
+                        1,
+                        10)))
+        .isEqualTo(
+            json(
+                ObservationSamples.R4.asBundle(
+                    "http://fonzy.com/cool",
+                    observationsByPatient.get("p0"),
+                    observationsByPatient.get("p0").size(),
+                    link(
+                        BundleLink.LinkRelation.first,
+                        "http://fonzy.com/cool/Observation?category="
+                            + OBSERVATION_CATEGORY_SYSTEM
+                            + "|vital-signs,|laboratory&patient=p0",
+                        1,
+                        10),
+                    link(
+                        BundleLink.LinkRelation.self,
+                        "http://fonzy.com/cool/Observation?category="
+                            + OBSERVATION_CATEGORY_SYSTEM
+                            + "|vital-signs,|laboratory&patient=p0",
+                        1,
+                        10),
+                    link(
+                        BundleLink.LinkRelation.last,
+                        "http://fonzy.com/cool/Observation?category="
+                            + OBSERVATION_CATEGORY_SYSTEM
+                            + "|vital-signs,|laboratory&patient=p0",
                         1,
                         10))));
   }
