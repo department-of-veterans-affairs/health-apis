@@ -42,6 +42,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @ExtendWith(SpringExtension.class)
 public class R4ObservationControllerTest {
+  private static final String OBSERVATION_CATEGORY_SYSTEM =
+      "http://terminology.hl7.org/CodeSystem/observation-category";
+
   HttpServletResponse response = mock(HttpServletResponse.class);
 
   private IdentityService ids = mock(IdentityService.class);
@@ -151,7 +154,7 @@ public class R4ObservationControllerTest {
   }
 
   @Test
-  public void read() {
+  void read() {
     DatamartObservation dm = ObservationSamples.Datamart.create().observation();
     repository.save(asEntity(dm));
     mockObservationIdentity("x", dm.cdwId());
@@ -160,7 +163,7 @@ public class R4ObservationControllerTest {
   }
 
   @Test
-  public void readRaw() {
+  void readRaw() {
     DatamartObservation dm = ObservationSamples.Datamart.create().observation();
     ObservationEntity entity = asEntity(dm);
     repository.save(entity);
@@ -171,29 +174,29 @@ public class R4ObservationControllerTest {
   }
 
   @Test
-  public void readRawThrowsNotFoundWhenDataIsMissing() {
+  void readRawThrowsNotFoundWhenDataIsMissing() {
     mockObservationIdentity("x", "x");
     assertThrows(ResourceExceptions.NotFound.class, () -> controller().readRaw("x", response));
   }
 
   @Test
-  public void readRawThrowsNotFoundWhenIdIsUnknown() {
+  void readRawThrowsNotFoundWhenIdIsUnknown() {
     assertThrows(ResourceExceptions.NotFound.class, () -> controller().readRaw("x", response));
   }
 
   @Test
-  public void readThrowsNotFoundWhenDataIsMissing() {
+  void readThrowsNotFoundWhenDataIsMissing() {
     mockObservationIdentity("x", "x");
     assertThrows(ResourceExceptions.NotFound.class, () -> controller().read("x"));
   }
 
   @Test
-  public void readThrowsNotFoundWhenIdIsUnknown() {
+  void readThrowsNotFoundWhenIdIsUnknown() {
     assertThrows(ResourceExceptions.NotFound.class, () -> controller().readRaw("x", response));
   }
 
   @Test
-  public void searchById() {
+  void searchById() {
     DatamartObservation dm = ObservationSamples.Datamart.create().observation();
     repository.save(asEntity(dm));
     mockObservationIdentity("x", dm.cdwId());
@@ -226,12 +229,12 @@ public class R4ObservationControllerTest {
   }
 
   @Test
-  public void searchByIdWhenIdIsUnknown() {
+  void searchByIdWhenIdIsUnknown() {
     assertThrows(ResourceExceptions.NotFound.class, () -> controller().searchById("x", 1, 1));
   }
 
   @Test
-  public void searchByIdWith0Count() {
+  void searchByIdWith0Count() {
     DatamartObservation dm = ObservationSamples.Datamart.create().observation();
     repository.save(asEntity(dm));
     mockObservationIdentity("x", dm.cdwId());
@@ -253,7 +256,7 @@ public class R4ObservationControllerTest {
   }
 
   @Test
-  public void searchByPatient() {
+  void searchByPatient() {
     Multimap<String, Observation> observationsByPatient = populateData();
     assertThat(json(controller().searchByPatient(false, "p0", 1, 10)))
         .isEqualTo(
@@ -280,7 +283,7 @@ public class R4ObservationControllerTest {
   }
 
   @Test
-  public void searchByPatientAndCategoryAndOneDateHack() {
+  void searchByPatientAndCategoryAndOneDateHack() {
     /*
     This test exhaustively verifies all of the different date prefixes
     in combination with patient and category.
@@ -359,7 +362,7 @@ public class R4ObservationControllerTest {
   }
 
   @Test
-  public void searchByPatientAndCategoryAndOneDateNoHack() {
+  void searchByPatientAndCategoryAndOneDateNoHack() {
     /*
     This test exhaustively verifies all of the different date prefixes
     in combination with patient and category.
@@ -438,7 +441,7 @@ public class R4ObservationControllerTest {
   }
 
   @Test
-  public void searchByPatientAndCategoryAndTwoDatesHack() {
+  void searchByPatientAndCategoryAndTwoDatesHack() {
     /*
     The single date test does exhaustive date-prefix searching. We won't do that here.
 
@@ -519,7 +522,7 @@ public class R4ObservationControllerTest {
   }
 
   @Test
-  public void searchByPatientAndCategoryAndTwoDatesNoHack() {
+  void searchByPatientAndCategoryAndTwoDatesNoHack() {
     /*
     The single date test does exhaustive date-prefix searching. We won't do that here.
 
@@ -600,7 +603,7 @@ public class R4ObservationControllerTest {
   }
 
   @Test
-  public void searchByPatientAndCategoryHack() {
+  void searchByPatientAndCategoryHack() {
     Multimap<String, Observation> observationsByPatient = populateData();
     List<Observation> observations =
         observationsByPatient.get("p0").stream()
@@ -658,7 +661,7 @@ public class R4ObservationControllerTest {
   }
 
   @Test
-  public void searchByPatientAndCategoryNoHack() {
+  void searchByPatientAndCategoryNoHack() {
     Multimap<String, Observation> observationsByPatient = populateData();
     List<Observation> observations =
         observationsByPatient.get("p0").stream()
@@ -717,7 +720,44 @@ public class R4ObservationControllerTest {
   }
 
   @Test
-  public void searchByPatientAndCode() {
+  void searchByPatientAndCategorySystem() {
+    Multimap<String, Observation> observationsByPatient = populateData();
+    assertThat(
+            json(
+                controller()
+                    .searchByPatientAndCategory(
+                        false, "p0", OBSERVATION_CATEGORY_SYSTEM + "|", null, 1, 10)))
+        .isEqualTo(
+            json(
+                ObservationSamples.R4.asBundle(
+                    "http://fonzy.com/cool",
+                    observationsByPatient.get("p0"),
+                    observationsByPatient.get("p0").size(),
+                    link(
+                        BundleLink.LinkRelation.first,
+                        "http://fonzy.com/cool/Observation?patient=p0&"
+                            + OBSERVATION_CATEGORY_SYSTEM
+                            + "|",
+                        1,
+                        10),
+                    link(
+                        BundleLink.LinkRelation.self,
+                        "http://fonzy.com/cool/Observation?patient=p0&"
+                            + OBSERVATION_CATEGORY_SYSTEM
+                            + "|",
+                        1,
+                        10),
+                    link(
+                        BundleLink.LinkRelation.last,
+                        "http://fonzy.com/cool/Observation?patient=p0&"
+                            + OBSERVATION_CATEGORY_SYSTEM
+                            + "|",
+                        1,
+                        10))));
+  }
+
+  @Test
+  void searchByPatientAndCode() {
     Multimap<String, Observation> observationsByPatient = populateData();
     List<Observation> patient0Observations =
         observationsByPatient.get("p0").stream()
@@ -774,7 +814,7 @@ public class R4ObservationControllerTest {
   }
 
   @Test
-  public void searchByPatientAndCodeAndOneDate() {
+  void searchByPatientAndCodeAndOneDate() {
     /* Codes end up getting populated on a patient to patient basis,
      * That is to say p0 is always 1989-3 and p1 is always 8480-6 */
     Multimap<String, Observation> observationsByPatient = populateData();
@@ -843,7 +883,7 @@ public class R4ObservationControllerTest {
   }
 
   @Test
-  public void searchByPatientAndCodeAndTwoDates() {
+  void searchByPatientAndCodeAndTwoDates() {
     Multimap<String, Observation> observationsByPatient = populateData();
     Multimap<Pair<String, String>, String> testDates = LinkedHashMultimap.create();
     testDates.putAll(
@@ -904,7 +944,7 @@ public class R4ObservationControllerTest {
   }
 
   @Test
-  public void searchByPatientAndTwoCategoriesAndTwoDatesHack() {
+  void searchByPatientAndTwoCategoriesAndTwoDatesHack() {
     /*
     Observation dates for p0
      2005-01-10T07:57:00Z -> laboratory
@@ -990,7 +1030,7 @@ public class R4ObservationControllerTest {
   }
 
   @Test
-  public void searchByPatientAndTwoCategoriesAndTwoDatesNoHack() {
+  void searchByPatientAndTwoCategoriesAndTwoDatesNoHack() {
     /*
     Observation dates for p0
      2005-01-10T07:57:00Z -> laboratory
@@ -1076,7 +1116,7 @@ public class R4ObservationControllerTest {
   }
 
   @Test
-  public void searchByPatientHack() {
+  void searchByPatientHack() {
     Multimap<String, Observation> observationsByPatient = populateData();
     assertThat(json(controller().searchByPatient(true, "p0", 1, 10)))
         .isEqualTo(

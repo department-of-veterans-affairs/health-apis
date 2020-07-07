@@ -11,12 +11,14 @@ import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.R4Bundler;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
+import gov.va.api.health.dataquery.service.controller.TokenParameter;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.r4.api.bundle.AbstractEntry;
 import gov.va.api.health.uscorer4.api.resources.Observation;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletResponse;
@@ -27,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -47,6 +50,8 @@ import org.springframework.web.bind.annotation.RestController;
     value = {"/r4/Observation"},
     produces = {"application/json", "application/fhir+json"})
 public class R4ObservationController {
+  private static final String OBSERVATION_CATEGORY_SYSTEM =
+      "http://terminology.hl7.org/CodeSystem/observation-category";
 
   private R4Bundler bundler;
 
@@ -92,6 +97,45 @@ public class R4ObservationController {
             .map(dm -> R4ObservationTransformer.builder().datamart(dm).build().toFhir())
             .collect(Collectors.toList());
     return bundle(parameters, fhir, (int) entitiesPage.getTotalElements());
+  }
+
+  /**
+   * A category csv can contain any combination of code, system|code, system|, |code, or system
+   * tokens. Therefore, we need to iterate over the list one by one, ANDing the specs together.
+   */
+  private Specification<ObservationEntity> categoryClauseFor(List<TokenParameter> categoryTokens) {
+    Specification<ObservationEntity> spec = null;
+    for (TokenParameter token : categoryTokens) {
+      if (spec == null) {
+        spec = categoryClauseFor(token);
+      } else {
+        Specification<ObservationEntity> test = categoryClauseFor(token);
+        spec.or(test);
+      }
+    }
+    return spec;
+  }
+
+  /** Determine the category clause based on the a tokens value. */
+  private Specification<ObservationEntity> categoryClauseFor(TokenParameter categoryToken) {
+    return categoryToken
+        .behavior()
+        .onExplicitSystemAndExplicitCode(
+            (s, c) -> ObservationRepository.CategorySpecification.of(Set.of(c)))
+        .onAnySystemAndExplicitCode(c -> ObservationRepository.CategorySpecification.of(Set.of(c)))
+        .onExplicitSystemAndAnyCode(
+            s -> {
+              if (OBSERVATION_CATEGORY_SYSTEM.equals(s)) {
+                return ObservationRepository.CategorySpecification.of(
+                    Set.of("laboratory", "vital-signs"));
+              }
+              throw new IllegalStateException(
+                  "Unsupported Category System: "
+                      + s
+                      + " Cannot build ExplicitSystemSpecification.");
+            })
+        .build()
+        .execute();
   }
 
   ObservationEntity findById(String publicId) {
@@ -201,12 +245,22 @@ public class R4ObservationController {
             .add("_count", count)
             .build();
     String cdwPatient = witnessProtection.toCdwId(patient);
-    ObservationRepository.PatientAndCategoryAndDateSpecification spec =
-        ObservationRepository.PatientAndCategoryAndDateSpecification.builder()
+    List<TokenParameter> tokens =
+        Splitter.on(",").trimResults().splitToList(categoryCsv).stream()
+            .map(TokenParameter::parse)
+            .filter(x -> !x.isSystemExplicitAndUnsupported(OBSERVATION_CATEGORY_SYSTEM))
+            .filter(y -> !y.isSystemExplicitAndUnsupported("laboratory", "vital-signs"))
+            .filter(z -> !z.hasExplicitlyNoSystem())
+            .collect(Collectors.toList());
+    if (tokens.isEmpty()) {
+      return bundle(parameters, emptyList(), 0);
+    }
+    Specification<ObservationEntity> spec =
+        ObservationRepository.PatientAndDateSpecification.builder()
             .patient(cdwPatient)
-            .categories(Splitter.on(",").trimResults().splitToList(categoryCsv))
             .dates(date)
-            .build();
+            .build()
+            .and(categoryClauseFor(tokens));
     if (queryHack) {
       List<ObservationEntity> all = repository.findAll(spec);
       int firstIndex = Math.min((page - 1) * count, all.size());
