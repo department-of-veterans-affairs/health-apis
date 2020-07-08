@@ -37,13 +37,13 @@ public class ObservationIT {
         test(
             200,
             Observation.Bundle.class,
-            "Observation?patient={patient}&category=laboratory&date={date}",
+            "Observation?patient={patient}&category=http://terminology.hl7.org/CodeSystem/observation-category|laboratory&date={date}",
             verifier.ids().patient(),
             verifier.ids().observations().onDate()),
         test(
             200,
             Observation.Bundle.class,
-            "Observation?patient={patient}&category=laboratory&date={from}&date={to}",
+            "Observation?patient={patient}&category=laboratory,vital-signs&date={from}&date={to}",
             verifier.ids().patient(),
             verifier.ids().observations().dateRange().from(),
             verifier.ids().observations().dateRange().to()),
@@ -55,7 +55,7 @@ public class ObservationIT {
         test(
             200,
             Observation.Bundle.class,
-            "Observation?patient={patient}&category=laboratory,vital-signs",
+            "Observation?patient={patient}&category=http://terminology.hl7.org/CodeSystem/observation-category|",
             verifier.ids().patient()),
         // Patient And Code
         test(
