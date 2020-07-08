@@ -40,11 +40,9 @@ public interface ObservationRepository
         Root<ObservationEntity> root,
         CriteriaQuery<?> criteriaQuery,
         CriteriaBuilder criteriaBuilder) {
-      List<Predicate> predicates = new ArrayList<>(1);
       In<String> categoriesInClause = criteriaBuilder.in(root.get("category"));
       categories.forEach(categoriesInClause::value);
-      predicates.add(categoriesInClause);
-      return criteriaBuilder.or(predicates.toArray(new Predicate[0]));
+      return criteriaBuilder.or(categoriesInClause);
     }
   }
 
