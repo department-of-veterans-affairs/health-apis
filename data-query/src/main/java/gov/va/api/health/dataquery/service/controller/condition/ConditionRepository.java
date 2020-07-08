@@ -57,11 +57,9 @@ public interface ConditionRepository
         Root<ConditionEntity> root,
         CriteriaQuery<?> criteriaQuery,
         CriteriaBuilder criteriaBuilder) {
-      List<Predicate> predicates = new ArrayList<>(1);
-      In<String> categoriesInClause = criteriaBuilder.in(root.get("clinicalStatus"));
-      clinicalStatuses.forEach(categoriesInClause::value);
-      predicates.add(categoriesInClause);
-      return criteriaBuilder.or(predicates.toArray(new Predicate[0]));
+      In<String> clinicalStatusesInClause = criteriaBuilder.in(root.get("clinicalStatus"));
+      clinicalStatuses.forEach(clinicalStatusesInClause::value);
+      return criteriaBuilder.or(clinicalStatusesInClause);
     }
   }
 
