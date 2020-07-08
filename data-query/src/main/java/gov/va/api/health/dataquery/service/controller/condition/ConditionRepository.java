@@ -59,10 +59,6 @@ public interface ConditionRepository
         CriteriaBuilder criteriaBuilder) {
       List<Predicate> predicates = new ArrayList<>(1);
       In<String> categoriesInClause = criteriaBuilder.in(root.get("clinicalStatus"));
-      /* Treat 'inactive' as resolved as inactive is the parent code of resolved */
-      if (clinicalStatuses.contains("inactive")) {
-        clinicalStatuses.add("resolved");
-      }
       clinicalStatuses.forEach(categoriesInClause::value);
       predicates.add(categoriesInClause);
       return criteriaBuilder.or(predicates.toArray(new Predicate[0]));

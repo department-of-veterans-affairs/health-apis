@@ -281,22 +281,17 @@ public class R4ConditionControllerTest {
   @Test
   public void searchByPatientAndCategoryCode() {
     Multimap<String, Condition> conditionsByPatient = populateData();
+    var conditionsP0 =
+        conditionsByPatient.get("p0").stream()
+            .filter(c -> "Encounter Diagnosis".equalsIgnoreCase(c.category().get(0).text()))
+            .collect(Collectors.toList());
     assertThat(toJson(controller().searchByPatientAndCategory("p0", "encounter-diagnosis", 1, 10)))
         .isEqualTo(
             toJson(
                 ConditionSamples.R4.asBundle(
                     "http://fonzy.com/cool",
-                    conditionsByPatient.get("p0").stream()
-                        .filter(
-                            c -> "Encounter Diagnosis".equalsIgnoreCase(c.category().get(0).text()))
-                        .collect(Collectors.toList()),
-                    (int)
-                        conditionsByPatient.get("p0").stream()
-                            .filter(
-                                c ->
-                                    "Encounter Diagnosis"
-                                        .equalsIgnoreCase(c.category().get(0).text()))
-                            .count(),
+                    conditionsP0,
+                    conditionsP0.size(),
                     link(
                         BundleLink.LinkRelation.first,
                         "http://fonzy.com/cool/Condition?category=encounter-diagnosis&patient=p0",
@@ -326,7 +321,7 @@ public class R4ConditionControllerTest {
                 ConditionSamples.R4.asBundle(
                     "http://fonzy.com/cool",
                     conditionsByPatient.get("p0"),
-                    (int) conditionsByPatient.get("p0").size(),
+                    conditionsByPatient.get("p0").size(),
                     link(
                         BundleLink.LinkRelation.first,
                         "http://fonzy.com/cool/Condition?category="
@@ -353,6 +348,10 @@ public class R4ConditionControllerTest {
   @Test
   public void searchByPatientAndCategorySystemAndCode() {
     Multimap<String, Condition> conditionsByPatient = populateData();
+    var conditionsP0 =
+        conditionsByPatient.get("p0").stream()
+            .filter(c -> "Encounter Diagnosis".equalsIgnoreCase(c.category().get(0).text()))
+            .collect(Collectors.toList());
     assertThat(
             toJson(
                 controller()
@@ -362,17 +361,8 @@ public class R4ConditionControllerTest {
             toJson(
                 ConditionSamples.R4.asBundle(
                     "http://fonzy.com/cool",
-                    conditionsByPatient.get("p0").stream()
-                        .filter(
-                            c -> "Encounter Diagnosis".equalsIgnoreCase(c.category().get(0).text()))
-                        .collect(Collectors.toList()),
-                    (int)
-                        conditionsByPatient.get("p0").stream()
-                            .filter(
-                                c ->
-                                    "Encounter Diagnosis"
-                                        .equalsIgnoreCase(c.category().get(0).text()))
-                            .count(),
+                    conditionsP0,
+                    conditionsP0.size(),
                     link(
                         BundleLink.LinkRelation.first,
                         "http://fonzy.com/cool/Condition?category="
@@ -399,18 +389,17 @@ public class R4ConditionControllerTest {
   @Test
   public void searchByPatientAndClinicalStatusCode() {
     Multimap<String, Condition> conditionsByPatient = populateData();
+    var conditionsP0 =
+        conditionsByPatient.get("p0").stream()
+            .filter(c -> "Active".equalsIgnoreCase(c.clinicalStatus().text()))
+            .collect(Collectors.toList());
     assertThat(toJson(controller().searchByPatientAndClinicalStatus("p0", "active", 1, 10)))
         .isEqualTo(
             toJson(
                 ConditionSamples.R4.asBundle(
                     "http://fonzy.com/cool",
-                    conditionsByPatient.get("p0").stream()
-                        .filter(c -> "Active".equalsIgnoreCase(c.clinicalStatus().text()))
-                        .collect(Collectors.toList()),
-                    (int)
-                        conditionsByPatient.get("p0").stream()
-                            .filter(c -> "Active".equalsIgnoreCase(c.clinicalStatus().text()))
-                            .count(),
+                    conditionsP0,
+                    conditionsP0.size(),
                     link(
                         BundleLink.LinkRelation.first,
                         "http://fonzy.com/cool/Condition?clinical-status=active&patient=p0",
@@ -426,18 +415,17 @@ public class R4ConditionControllerTest {
                         "http://fonzy.com/cool/Condition?clinical-status=active&patient=p0",
                         1,
                         10))));
+    var conditionsP1 =
+        conditionsByPatient.get("p1").stream()
+            .filter(c -> "Resolved".equalsIgnoreCase(c.clinicalStatus().text()))
+            .collect(Collectors.toList());
     assertThat(toJson(controller().searchByPatientAndClinicalStatus("p1", "resolved", 1, 10)))
         .isEqualTo(
             toJson(
                 ConditionSamples.R4.asBundle(
                     "http://fonzy.com/cool",
-                    conditionsByPatient.get("p1").stream()
-                        .filter(c -> "Resolved".equalsIgnoreCase(c.clinicalStatus().text()))
-                        .collect(Collectors.toList()),
-                    (int)
-                        conditionsByPatient.get("p1").stream()
-                            .filter(c -> "Resolved".equalsIgnoreCase(c.clinicalStatus().text()))
-                            .count(),
+                    conditionsP1,
+                    conditionsP1.size(),
                     link(
                         BundleLink.LinkRelation.first,
                         "http://fonzy.com/cool/Condition?clinical-status=resolved&patient=p1",
@@ -458,6 +446,10 @@ public class R4ConditionControllerTest {
   @Test
   public void searchByPatientAndClinicalStatusOfInactiveIsTreatedAtResolved() {
     Multimap<String, Condition> conditionsByPatient = populateData();
+    var conditionsP1 =
+        conditionsByPatient.get("p1").stream()
+            .filter(c -> "Resolved".equalsIgnoreCase(c.clinicalStatus().text()))
+            .collect(Collectors.toList());
     assertThat(
             toJson(
                 controller()
@@ -467,13 +459,8 @@ public class R4ConditionControllerTest {
             toJson(
                 ConditionSamples.R4.asBundle(
                     "http://fonzy.com/cool",
-                    conditionsByPatient.get("p1").stream()
-                        .filter(c -> "Resolved".equalsIgnoreCase(c.clinicalStatus().text()))
-                        .collect(Collectors.toList()),
-                    (int)
-                        conditionsByPatient.get("p1").stream()
-                            .filter(c -> "Resolved".equalsIgnoreCase(c.clinicalStatus().text()))
-                            .count(),
+                    conditionsP1,
+                    conditionsP1.size(),
                     link(
                         BundleLink.LinkRelation.first,
                         "http://fonzy.com/cool/Condition?clinical-status="
@@ -509,7 +496,7 @@ public class R4ConditionControllerTest {
                 ConditionSamples.R4.asBundle(
                     "http://fonzy.com/cool",
                     conditionsByPatient.get("p0"),
-                    (int) conditionsByPatient.get("p0").size(),
+                    conditionsByPatient.get("p0").size(),
                     link(
                         BundleLink.LinkRelation.first,
                         "http://fonzy.com/cool/Condition?clinical-status="
@@ -536,6 +523,10 @@ public class R4ConditionControllerTest {
   @Test
   public void searchByPatientAndClinicalSystemAndCode() {
     Multimap<String, Condition> conditionsByPatient = populateData();
+    var conditionsP0 =
+        conditionsByPatient.get("p0").stream()
+            .filter(c -> "Active".equalsIgnoreCase(c.clinicalStatus().text()))
+            .collect(Collectors.toList());
     assertThat(
             toJson(
                 controller()
@@ -545,13 +536,8 @@ public class R4ConditionControllerTest {
             toJson(
                 ConditionSamples.R4.asBundle(
                     "http://fonzy.com/cool",
-                    conditionsByPatient.get("p0").stream()
-                        .filter(c -> "Active".equalsIgnoreCase(c.clinicalStatus().text()))
-                        .collect(Collectors.toList()),
-                    (int)
-                        conditionsByPatient.get("p0").stream()
-                            .filter(c -> "Active".equalsIgnoreCase(c.clinicalStatus().text()))
-                            .count(),
+                    conditionsP0,
+                    conditionsP0.size(),
                     link(
                         BundleLink.LinkRelation.first,
                         "http://fonzy.com/cool/Condition?clinical-status="
