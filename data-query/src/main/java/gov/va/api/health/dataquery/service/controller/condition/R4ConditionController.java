@@ -141,11 +141,9 @@ public class R4ConditionController {
         clinicalStatusTokens.stream()
             .map(this::clinicalStatusFor)
             .flatMap(Collection::stream)
+            /* Treat 'inactive' as resolved as inactive is the parent code of resolved */
+            .map(cs -> { if ("inactive".equals(cs)) { return "resolved"; } return cs; })
             .collect(Collectors.toSet());
-    /* Treat 'inactive' as resolved as inactive is the parent code of resolved */
-    if (clinicalStatusesForQuery.contains("inactive")) {
-      clinicalStatusesForQuery.add("resolved");
-    }
     return ConditionRepository.ClinicalStatusSpecification.of(clinicalStatusesForQuery);
   }
 
