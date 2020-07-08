@@ -73,7 +73,7 @@
   </Match>
 
   <!--
-  This lombok generated builder accepts an array which is ultimated given to the PatientAndDateSpecification
+  This lombok generated builder accepts an array which is ultimately given to the PatientAndDateSpecification
   constructor. This constructor processes the array to store individual fields. The array is not stored
   directly.
   -->
