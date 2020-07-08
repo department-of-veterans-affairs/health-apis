@@ -139,10 +139,15 @@ public class R4ConditionController {
       List<TokenParameter> clinicalStatusTokens) {
     Set<String> clinicalStatusesForQuery =
         clinicalStatusTokens.stream()
-            .map(this::clinicalStatusFor)
-            .flatMap(Collection::stream)
+            .flatMap(c -> clinicalStatusFor(c).stream())
             /* Treat 'inactive' as resolved as inactive is the parent code of resolved */
-            .map(cs -> { if ("inactive".equals(cs)) { return "resolved"; } return cs; })
+            .map(
+                cs -> {
+                  if ("inactive".equals(cs)) {
+                    return "resolved";
+                  }
+                  return cs;
+                })
             .collect(Collectors.toSet());
     return ConditionRepository.ClinicalStatusSpecification.of(clinicalStatusesForQuery);
   }
