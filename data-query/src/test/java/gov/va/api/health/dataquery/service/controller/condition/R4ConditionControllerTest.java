@@ -40,6 +40,9 @@ public class R4ConditionControllerTest {
   private static final String PROBLEM_AND_DIAGNOSIS_SYSTEM =
       "http://terminology.hl7.org/CodeSystem/condition-category";
 
+  private static final String CLINICAL_STATUS_SYSTEM =
+      "http://terminology.hl7.org/CodeSystem/condition-clinical";
+
   HttpServletResponse response = mock(HttpServletResponse.class);
 
   private IdentityService ids = mock(IdentityService.class);
@@ -260,6 +263,22 @@ public class R4ConditionControllerTest {
   }
 
   @Test
+  public void searchByPatientAndBadClinicalStatusReturnsEmptyBundle() {
+    assertThat(toJson(controller().searchByPatientAndClinicalStatus("x", "nope", 1, 0)))
+        .isEqualTo(
+            toJson(
+                ConditionSamples.R4.asBundle(
+                    "http://fonzy.com/cool",
+                    Collections.emptyList(),
+                    0,
+                    ConditionSamples.R4.link(
+                        BundleLink.LinkRelation.self,
+                        "http://fonzy.com/cool/Condition?clinical-status=nope&patient=x",
+                        1,
+                        0))));
+  }
+
+  @Test
   public void searchByPatientAndCategoryCode() {
     Multimap<String, Condition> conditionsByPatient = populateData();
     assertThat(toJson(controller().searchByPatientAndCategory("p0", "encounter-diagnosis", 1, 10)))
@@ -378,7 +397,7 @@ public class R4ConditionControllerTest {
   }
 
   @Test
-  public void searchByPatientAndClinicalStatus() {
+  public void searchByPatientAndClinicalStatusCode() {
     Multimap<String, Condition> conditionsByPatient = populateData();
     assertThat(toJson(controller().searchByPatientAndClinicalStatus("p0", "active", 1, 10)))
         .isEqualTo(
@@ -407,7 +426,157 @@ public class R4ConditionControllerTest {
                         "http://fonzy.com/cool/Condition?clinical-status=active&patient=p0",
                         1,
                         10))));
+    assertThat(toJson(controller().searchByPatientAndClinicalStatus("p1", "resolved", 1, 10)))
+        .isEqualTo(
+            toJson(
+                ConditionSamples.R4.asBundle(
+                    "http://fonzy.com/cool",
+                    conditionsByPatient.get("p1").stream()
+                        .filter(c -> "Resolved".equalsIgnoreCase(c.clinicalStatus().text()))
+                        .collect(Collectors.toList()),
+                    (int)
+                        conditionsByPatient.get("p1").stream()
+                            .filter(c -> "Resolved".equalsIgnoreCase(c.clinicalStatus().text()))
+                            .count(),
+                    link(
+                        BundleLink.LinkRelation.first,
+                        "http://fonzy.com/cool/Condition?clinical-status=resolved&patient=p1",
+                        1,
+                        10),
+                    link(
+                        BundleLink.LinkRelation.self,
+                        "http://fonzy.com/cool/Condition?clinical-status=resolved&patient=p1",
+                        1,
+                        10),
+                    link(
+                        BundleLink.LinkRelation.last,
+                        "http://fonzy.com/cool/Condition?clinical-status=resolved&patient=p1",
+                        1,
+                        10))));
   }
+
+  @Test
+  public void searchByPatientAndClinicalStatusOfInactiveIsTreatedAtResolved() {
+    Multimap<String, Condition> conditionsByPatient = populateData();
+    assertThat(
+            toJson(
+                controller()
+                    .searchByPatientAndClinicalStatus(
+                        "p1", CLINICAL_STATUS_SYSTEM + "|inactive", 1, 10)))
+        .isEqualTo(
+            toJson(
+                ConditionSamples.R4.asBundle(
+                    "http://fonzy.com/cool",
+                    conditionsByPatient.get("p1").stream()
+                        .filter(c -> "Resolved".equalsIgnoreCase(c.clinicalStatus().text()))
+                        .collect(Collectors.toList()),
+                    (int)
+                        conditionsByPatient.get("p1").stream()
+                            .filter(c -> "Resolved".equalsIgnoreCase(c.clinicalStatus().text()))
+                            .count(),
+                    link(
+                        BundleLink.LinkRelation.first,
+                        "http://fonzy.com/cool/Condition?clinical-status="
+                            + CLINICAL_STATUS_SYSTEM
+                            + "|inactive&patient=p1",
+                        1,
+                        10),
+                    link(
+                        BundleLink.LinkRelation.self,
+                        "http://fonzy.com/cool/Condition?clinical-status="
+                            + CLINICAL_STATUS_SYSTEM
+                            + "|inactive&patient=p1",
+                        1,
+                        10),
+                    link(
+                        BundleLink.LinkRelation.last,
+                        "http://fonzy.com/cool/Condition?clinical-status="
+                            + CLINICAL_STATUS_SYSTEM
+                            + "|inactive&patient=p1",
+                        1,
+                        10))));
+  }
+
+  @Test
+  public void searchByPatientAndClinicalStatusSystem() {
+    Multimap<String, Condition> conditionsByPatient = populateData();
+    assertThat(
+            toJson(
+                controller()
+                    .searchByPatientAndClinicalStatus("p0", CLINICAL_STATUS_SYSTEM + "|", 1, 10)))
+        .isEqualTo(
+            toJson(
+                ConditionSamples.R4.asBundle(
+                    "http://fonzy.com/cool",
+                    conditionsByPatient.get("p0"),
+                    (int) conditionsByPatient.get("p0").size(),
+                    link(
+                        BundleLink.LinkRelation.first,
+                        "http://fonzy.com/cool/Condition?clinical-status="
+                            + CLINICAL_STATUS_SYSTEM
+                            + "|&patient=p0",
+                        1,
+                        10),
+                    link(
+                        BundleLink.LinkRelation.self,
+                        "http://fonzy.com/cool/Condition?clinical-status="
+                            + CLINICAL_STATUS_SYSTEM
+                            + "|&patient=p0",
+                        1,
+                        10),
+                    link(
+                        BundleLink.LinkRelation.last,
+                        "http://fonzy.com/cool/Condition?clinical-status="
+                            + CLINICAL_STATUS_SYSTEM
+                            + "|&patient=p0",
+                        1,
+                        10))));
+  }
+
+  @Test
+  public void searchByPatientAndClinicalSystemAndCode() {
+    Multimap<String, Condition> conditionsByPatient = populateData();
+    assertThat(
+            toJson(
+                controller()
+                    .searchByPatientAndClinicalStatus(
+                        "p0", CLINICAL_STATUS_SYSTEM + "|active", 1, 10)))
+        .isEqualTo(
+            toJson(
+                ConditionSamples.R4.asBundle(
+                    "http://fonzy.com/cool",
+                    conditionsByPatient.get("p0").stream()
+                        .filter(c -> "Active".equalsIgnoreCase(c.clinicalStatus().text()))
+                        .collect(Collectors.toList()),
+                    (int)
+                        conditionsByPatient.get("p0").stream()
+                            .filter(c -> "Active".equalsIgnoreCase(c.clinicalStatus().text()))
+                            .count(),
+                    link(
+                        BundleLink.LinkRelation.first,
+                        "http://fonzy.com/cool/Condition?clinical-status="
+                            + CLINICAL_STATUS_SYSTEM
+                            + "|active&patient=p0",
+                        1,
+                        10),
+                    link(
+                        BundleLink.LinkRelation.self,
+                        "http://fonzy.com/cool/Condition?clinical-status="
+                            + CLINICAL_STATUS_SYSTEM
+                            + "|active&patient=p0",
+                        1,
+                        10),
+                    link(
+                        BundleLink.LinkRelation.last,
+                        "http://fonzy.com/cool/Condition?clinical-status="
+                            + CLINICAL_STATUS_SYSTEM
+                            + "|active&patient=p0",
+                        1,
+                        10))));
+  }
+
+  @Test
+  public void searchByPatientAndExplicitlyNoSystemClinicalStatusReturnsEmptyBundle() {}
 
   @Test
   public void searchByPatientAndExplicityNoSystemCategoryReturnsEmptyBundle() {
@@ -429,7 +598,10 @@ public class R4ConditionControllerTest {
   public void searchByPatientAndMultipleClinicalStatus() {
     Multimap<String, Condition> conditionsByPatient = populateData();
     assertThat(
-            toJson(controller().searchByPatientAndClinicalStatus("p0", "active,resolved", 1, 10)))
+            toJson(
+                controller()
+                    .searchByPatientAndClinicalStatus(
+                        "p0", "active," + CLINICAL_STATUS_SYSTEM + "|resolved", 1, 10)))
         .isEqualTo(
             toJson(
                 ConditionSamples.R4.asBundle(
@@ -438,17 +610,23 @@ public class R4ConditionControllerTest {
                     conditionsByPatient.get("p0").size(),
                     link(
                         BundleLink.LinkRelation.first,
-                        "http://fonzy.com/cool/Condition?clinical-status=active,resolved&patient=p0",
+                        "http://fonzy.com/cool/Condition?clinical-status=active,"
+                            + CLINICAL_STATUS_SYSTEM
+                            + "|resolved&patient=p0",
                         1,
                         10),
                     link(
                         BundleLink.LinkRelation.self,
-                        "http://fonzy.com/cool/Condition?clinical-status=active,resolved&patient=p0",
+                        "http://fonzy.com/cool/Condition?clinical-status=active,"
+                            + CLINICAL_STATUS_SYSTEM
+                            + "|resolved&patient=p0",
                         1,
                         10),
                     link(
                         BundleLink.LinkRelation.last,
-                        "http://fonzy.com/cool/Condition?clinical-status=active,resolved&patient=p0",
+                        "http://fonzy.com/cool/Condition?clinical-status=active,"
+                            + CLINICAL_STATUS_SYSTEM
+                            + "|resolved&patient=p0",
                         1,
                         10))));
   }

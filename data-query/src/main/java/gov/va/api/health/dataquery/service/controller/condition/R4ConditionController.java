@@ -3,6 +3,7 @@ package gov.va.api.health.dataquery.service.controller.condition;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 
+import com.google.common.base.Splitter;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
@@ -11,6 +12,7 @@ import gov.va.api.health.dataquery.service.controller.R4Bundler;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.TokenParameter;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
+import gov.va.api.health.dataquery.service.controller.condition.ConditionRepository.ExplicitCategorySystemSpecification;
 import gov.va.api.health.uscorer4.api.resources.Condition;
 import java.util.Collection;
 import java.util.List;
@@ -48,6 +50,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class R4ConditionController {
   private static final String PROBLEM_AND_DIAGNOSIS_SYSTEM =
       "http://terminology.hl7.org/CodeSystem/condition-category";
+  private static final String CLINICAL_STATUS_SYSTEM =
+      "http://terminology.hl7.org/CodeSystem/condition-clinical";
 
   R4Bundler bundler;
 
@@ -122,22 +126,52 @@ public class R4ConditionController {
   private Specification<ConditionEntity> categoryClauseFor(TokenParameter categoryToken) {
     return categoryToken
         .behavior()
-        .onExplicitSystemAndAnyCode(s -> explicitSystemSpec(s))
+        .onExplicitSystemAndAnyCode(s -> explicitCategorySystemSpec(s))
         .onExplicitSystemAndExplicitCode(
-            (s, c) -> ConditionRepository.CodeSpecification.of(asDatamartCategory(c)))
+            (s, c) -> ConditionRepository.CategoryCodeSpecification.of(asDatamartCategory(c)))
         .onAnySystemAndExplicitCode(
-            c -> ConditionRepository.CodeSpecification.of(asDatamartCategory(c)))
+            c -> ConditionRepository.CategoryCodeSpecification.of(asDatamartCategory(c)))
         .build()
         .execute();
   }
 
-  private Specification<ConditionEntity> explicitSystemSpec(String system) {
+  private Specification<ConditionEntity> clincialStatusClauseFor(
+      List<TokenParameter> clinicalStatusTokens) {
+    Set<String> clinicalStatusesForQuery =
+        clinicalStatusTokens.stream()
+            .map(this::clinicalStatusFor)
+            .flatMap(Collection::stream)
+            .collect(Collectors.toSet());
+    return ConditionRepository.ClinicalStatusSpecification.of(clinicalStatusesForQuery);
+  }
+
+  private List<String> clinicalStatusFor(TokenParameter clinicalStatusToken) {
+    return clinicalStatusToken
+        .behavior()
+        .onExplicitSystemAndExplicitCode((s, cs) -> List.of(cs))
+        .onAnySystemAndExplicitCode(List::of)
+        .onNoSystemAndExplicitCode(List::of)
+        .onExplicitSystemAndAnyCode(
+            s -> {
+              if (CLINICAL_STATUS_SYSTEM.equals(s)) {
+                return List.of("active", "resolved");
+              }
+              throw new IllegalStateException(
+                  "Unsupported clinical-status System: "
+                      + s
+                      + " Cannot build ExplicitSystemSpecification.");
+            })
+        .build()
+        .execute();
+  }
+
+  private Specification<ConditionEntity> explicitCategorySystemSpec(String system) {
     if (PROBLEM_AND_DIAGNOSIS_SYSTEM.equals(system)) {
-      return ConditionRepository.ExplicitSystemSpecification.of(
+      return ExplicitCategorySystemSpecification.of(
           List.of(DatamartCondition.Category.problem, DatamartCondition.Category.diagnosis));
     }
     throw new IllegalStateException(
-        "Unsupported system: " + system + ". Cannot build ExplicitSystemSpecification");
+        "Unsupported system: " + system + ". Cannot build ExplicitCategorySystemSpecification");
   }
 
   private ConditionEntity findEntityById(String publicId) {
@@ -266,20 +300,36 @@ public class R4ConditionController {
   @GetMapping(params = {"patient", "clinical-status"})
   public Condition.Bundle searchByPatientAndClinicalStatus(
       @RequestParam("patient") String patient,
-      @RequestParam("clinical-status") String clinicalStatus,
+      @RequestParam("clinical-status") String clinicalStatusCsv,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
     String icn = witnessProtection.toCdwId(patient);
-    return bundle(
+    MultiValueMap<String, String> parameters =
         Parameters.builder()
             .add("patient", patient)
-            .add("clinical-status", clinicalStatus)
+            .add("clinical-status", clinicalStatusCsv)
             .add("page", page)
             .add("_count", count)
-            .build(),
+            .build();
+    List<TokenParameter> clinicalStatusTokens =
+        Splitter.on(",").trimResults().splitToList(clinicalStatusCsv).stream()
+            .map(TokenParameter::parse)
+            .filter(
+                t ->
+                    !t.isSystemExplicitAndUnsupported(CLINICAL_STATUS_SYSTEM)
+                        || !t.isCodeExplicitAndUnsupported("active", "resolved")
+                        || !t.hasExplicitlyNoSystem())
+            .collect(Collectors.toList());
+    if (clinicalStatusTokens.isEmpty()) {
+      return bundle(parameters, emptyList(), 0);
+    }
+    return bundle(
+        parameters,
         count,
-        repository.findByIcnAndClinicalStatusIn(
-            icn, Set.of(clinicalStatus.split("\\s*,\\s*")), page(page, count)));
+        repository.findAll(
+            ConditionRepository.PatientSpecification.of(icn)
+                .and(clincialStatusClauseFor(clinicalStatusTokens)),
+            page(page, count)));
   }
 
   Condition transform(DatamartCondition dm) {

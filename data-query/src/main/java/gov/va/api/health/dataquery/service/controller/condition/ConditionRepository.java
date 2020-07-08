@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaBuilder.In;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
@@ -32,7 +33,7 @@ public interface ConditionRepository
 
   @RequiredArgsConstructor(staticName = "of")
   @Value
-  class CodeSpecification implements Specification<ConditionEntity> {
+  class CategoryCodeSpecification implements Specification<ConditionEntity> {
     DatamartCondition.Category code;
 
     @Override
@@ -47,7 +48,30 @@ public interface ConditionRepository
 
   @RequiredArgsConstructor(staticName = "of")
   @Value
-  class ExplicitSystemSpecification implements Specification<ConditionEntity> {
+  class ClinicalStatusSpecification implements Specification<ConditionEntity> {
+
+    Set<String> clinicalStatuses;
+
+    @Override
+    public Predicate toPredicate(
+        Root<ConditionEntity> root,
+        CriteriaQuery<?> criteriaQuery,
+        CriteriaBuilder criteriaBuilder) {
+      List<Predicate> predicates = new ArrayList<>(1);
+      In<String> categoriesInClause = criteriaBuilder.in(root.get("clinicalStatus"));
+      /* Treat 'inactive' as resolved as inactive is the parent code of resolved */
+      if (clinicalStatuses.contains("inactive")) {
+        clinicalStatuses.add("resolved");
+      }
+      clinicalStatuses.forEach(categoriesInClause::value);
+      predicates.add(categoriesInClause);
+      return criteriaBuilder.or(predicates.toArray(new Predicate[0]));
+    }
+  }
+
+  @RequiredArgsConstructor(staticName = "of")
+  @Value
+  class ExplicitCategorySystemSpecification implements Specification<ConditionEntity> {
     List<DatamartCondition.Category> codes;
 
     @Override
