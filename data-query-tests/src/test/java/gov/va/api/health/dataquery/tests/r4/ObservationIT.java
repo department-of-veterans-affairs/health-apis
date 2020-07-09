@@ -61,9 +61,8 @@ public class ObservationIT {
         test(
             200,
             Observation.Bundle.class,
-            "Observation?patient={patient}&code={loinc1}",
-            verifier.ids().patient(),
-            verifier.ids().observations().loinc1()),
+            "Observation?patient={patient}&code=http://loinc.org|",
+            verifier.ids().patient()),
         test(
             200,
             Observation.Bundle.class,
@@ -82,7 +81,7 @@ public class ObservationIT {
         test(
             200,
             Observation.Bundle.class,
-            "Observation?patient={patient}&code={loinc1},{loinc2}",
+            "Observation?patient={patient}&code=http://loinc.org|{loinc1},{loinc2}",
             verifier.ids().patient(),
             verifier.ids().observations().loinc1(),
             verifier.ids().observations().loinc2()),
