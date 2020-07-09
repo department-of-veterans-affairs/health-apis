@@ -276,7 +276,7 @@ public class ConditionSamples {
                   gov.va.api.health.r4.api.datatypes.Coding.builder()
                       .code("active")
                       .display("Active")
-                      .system("http://hl7.org/fhir/R4/codesystem-condition-clinical.html")
+                      .system("http://terminology.hl7.org/CodeSystem/condition-clinical")
                       .build()))
           .build();
     }
@@ -289,7 +289,7 @@ public class ConditionSamples {
                   gov.va.api.health.r4.api.datatypes.Coding.builder()
                       .code("resolved")
                       .display("Resolved")
-                      .system("http://hl7.org/fhir/R4/codesystem-condition-clinical.html")
+                      .system("http://terminology.hl7.org/CodeSystem/condition-clinical")
                       .build()))
           .build();
     }
