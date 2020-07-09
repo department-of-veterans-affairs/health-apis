@@ -16,6 +16,8 @@ import lombok.NonNull;
 public class R4ConditionTransformer {
   private static final String PROBLEM_AND_DIAGNOSIS_SYSTEM =
       "http://terminology.hl7.org/CodeSystem/condition-category";
+  private static final String CLINICAL_STATUS_SYSTEM =
+      "http://terminology.hl7.org/CodeSystem/condition-clinical";
   @NonNull private final DatamartCondition datamart;
 
   /**
@@ -79,7 +81,7 @@ public class R4ConditionTransformer {
                     Coding.builder()
                         .code("active")
                         .display("Active")
-                        .system("http://hl7.org/fhir/R4/codesystem-condition-clinical.html")
+                        .system(CLINICAL_STATUS_SYSTEM)
                         .build()))
             .build();
       case resolved:
@@ -90,7 +92,7 @@ public class R4ConditionTransformer {
                     Coding.builder()
                         .code("resolved")
                         .display("Resolved")
-                        .system("http://hl7.org/fhir/R4/codesystem-condition-clinical.html")
+                        .system(CLINICAL_STATUS_SYSTEM)
                         .build()))
             .build();
       default:
