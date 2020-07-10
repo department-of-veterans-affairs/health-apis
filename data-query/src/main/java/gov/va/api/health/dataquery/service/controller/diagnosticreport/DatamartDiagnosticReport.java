@@ -7,10 +7,12 @@ import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Value;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Value
+@Data
 @Builder
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class DatamartDiagnosticReport {
   @Builder.Default private String objectType = "DiagnosticReport";
@@ -27,17 +29,65 @@ public class DatamartDiagnosticReport {
 
   private String issuedDateTime;
 
-  @Builder.Default private Optional<DatamartReference> accessionInstitution = Optional.empty();
+  private Optional<DatamartReference> accessionInstitution;
 
-  @Builder.Default private Optional<DatamartReference> verifyingStaff = Optional.empty();
+  private Optional<DatamartReference> verifyingStaff;
 
-  @Builder.Default private Optional<DatamartReference> topography = Optional.empty();
+  private Optional<DatamartReference> topography;
 
-  @Builder.Default private Optional<DatamartReference> visit = Optional.empty();
+  private Optional<DatamartReference> visit;
 
-  @Builder.Default private List<DatamartReference> orders = new ArrayList<>();
+  private List<DatamartReference> orders;
 
-  @Builder.Default private List<DatamartReference> results = new ArrayList<>();
+  private List<DatamartReference> results;
 
   private String reportStatus;
+
+  /** Lazy getter. */
+  public Optional<DatamartReference> accessionInstitution() {
+    if (accessionInstitution == null) {
+      accessionInstitution = Optional.empty();
+    }
+    return accessionInstitution;
+  }
+
+  /** Lazy Getter. */
+  public List<DatamartReference> orders() {
+    if (orders == null) {
+      orders = new ArrayList<>();
+    }
+    return orders;
+  }
+
+  /** Lazy Getter. */
+  public List<DatamartReference> results() {
+    if (results == null) {
+      results = new ArrayList<>();
+    }
+    return results;
+  }
+
+  /** Lazy getter. */
+  public Optional<DatamartReference> topography() {
+    if (topography == null) {
+      topography = Optional.empty();
+    }
+    return topography;
+  }
+
+  /** Lazy getter. */
+  public Optional<DatamartReference> verifyingStaff() {
+    if (verifyingStaff == null) {
+      verifyingStaff = Optional.empty();
+    }
+    return verifyingStaff;
+  }
+
+  /** Lazy getter. */
+  public Optional<DatamartReference> visit() {
+    if (visit == null) {
+      visit = Optional.empty();
+    }
+    return visit;
+  }
 }
