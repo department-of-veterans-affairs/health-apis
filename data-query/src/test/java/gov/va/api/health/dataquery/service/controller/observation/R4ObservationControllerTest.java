@@ -45,6 +45,8 @@ public class R4ObservationControllerTest {
   private static final String OBSERVATION_CATEGORY_SYSTEM =
       "http://terminology.hl7.org/CodeSystem/observation-category";
 
+  private static final String OBSERVATION_CODE_SYSTEM = "http://loinc.org";
+
   HttpServletResponse response = mock(HttpServletResponse.class);
 
   private IdentityService ids = mock(IdentityService.class);
@@ -1024,6 +1026,124 @@ public class R4ObservationControllerTest {
                           1,
                           10))));
     }
+  }
+
+  @Test
+  void searchByPatientAndCodeSystem() {
+    Multimap<String, Observation> observationsByPatient = populateData();
+    assertThat(
+            json(
+                controller()
+                    .searchByPatientAndCode("p0", OBSERVATION_CODE_SYSTEM + "|", null, 1, 10)))
+        .isEqualTo(
+            json(
+                ObservationSamples.R4.asBundle(
+                    "http://fonzy.com/cool",
+                    observationsByPatient.get("p0"),
+                    observationsByPatient.get("p0").size(),
+                    link(
+                        BundleLink.LinkRelation.first,
+                        "http://fonzy.com/cool/Observation?code="
+                            + OBSERVATION_CODE_SYSTEM
+                            + "|&patient=p0",
+                        1,
+                        10),
+                    link(
+                        BundleLink.LinkRelation.self,
+                        "http://fonzy.com/cool/Observation?code="
+                            + OBSERVATION_CODE_SYSTEM
+                            + "|&patient=p0",
+                        1,
+                        10),
+                    link(
+                        BundleLink.LinkRelation.last,
+                        "http://fonzy.com/cool/Observation?code="
+                            + OBSERVATION_CODE_SYSTEM
+                            + "|&patient=p0",
+                        1,
+                        10))));
+  }
+
+  @Test
+  void searchByPatientAndCodeSystemAndCode() {
+    Multimap<String, Observation> observationsByPatient = populateData();
+    List<Observation> patient0Observations =
+        observationsByPatient.get("p0").stream()
+            .filter(c -> "1989-3".equalsIgnoreCase(c.code().coding().get(0).code()))
+            .collect(Collectors.toList());
+    assertThat(
+            json(
+                controller()
+                    .searchByPatientAndCode(
+                        "p0", OBSERVATION_CODE_SYSTEM + "|1989-3", null, 1, 10)))
+        .isEqualTo(
+            json(
+                ObservationSamples.R4.asBundle(
+                    "http://fonzy.com/cool",
+                    patient0Observations,
+                    patient0Observations.size(),
+                    link(
+                        BundleLink.LinkRelation.first,
+                        "http://fonzy.com/cool/Observation?code="
+                            + OBSERVATION_CODE_SYSTEM
+                            + "|1989-3&patient=p0",
+                        1,
+                        10),
+                    link(
+                        BundleLink.LinkRelation.self,
+                        "http://fonzy.com/cool/Observation?code="
+                            + OBSERVATION_CODE_SYSTEM
+                            + "|1989-3&patient=p0",
+                        1,
+                        10),
+                    link(
+                        BundleLink.LinkRelation.last,
+                        "http://fonzy.com/cool/Observation?code="
+                            + OBSERVATION_CODE_SYSTEM
+                            + "|1989-3&patient=p0",
+                        1,
+                        10))));
+  }
+
+  @Test
+  void searchByPatientAndCodeTokenMix() {
+    Multimap<String, Observation> observationsByPatient = populateData();
+    List<Observation> patient0Observations =
+        observationsByPatient.get("p0").stream()
+            .filter(c -> "1989-3".equalsIgnoreCase(c.code().coding().get(0).code()))
+            .collect(Collectors.toList());
+    assertThat(
+            json(
+                controller()
+                    .searchByPatientAndCode(
+                        "p0", OBSERVATION_CODE_SYSTEM + "|1989-3,|8480-6", null, 1, 10)))
+        .isEqualTo(
+            json(
+                ObservationSamples.R4.asBundle(
+                    "http://fonzy.com/cool",
+                    patient0Observations,
+                    patient0Observations.size(),
+                    link(
+                        BundleLink.LinkRelation.first,
+                        "http://fonzy.com/cool/Observation?code="
+                            + OBSERVATION_CODE_SYSTEM
+                            + "|1989-3,|8480-6&patient=p0",
+                        1,
+                        10),
+                    link(
+                        BundleLink.LinkRelation.self,
+                        "http://fonzy.com/cool/Observation?code="
+                            + OBSERVATION_CODE_SYSTEM
+                            + "|1989-3,|8480-6&patient=p0",
+                        1,
+                        10),
+                    link(
+                        BundleLink.LinkRelation.last,
+                        "http://fonzy.com/cool/Observation?code="
+                            + OBSERVATION_CODE_SYSTEM
+                            + "|1989-3,|8480-6&patient=p0",
+                        1,
+                        10))));
   }
 
   @Test

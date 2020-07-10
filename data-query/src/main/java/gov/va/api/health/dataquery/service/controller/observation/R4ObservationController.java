@@ -54,6 +54,8 @@ public class R4ObservationController {
   private static final String OBSERVATION_CATEGORY_SYSTEM =
       "http://terminology.hl7.org/CodeSystem/observation-category";
 
+  private static final String OBSERVATION_CODE_SYSTEM = "http://loinc.org";
+
   private R4Bundler bundler;
 
   private ObservationRepository repository;
@@ -133,6 +135,35 @@ public class R4ObservationController {
                   "Unsupported Category System: "
                       + s
                       + " Cannot build ExplicitSystemSpecification.");
+            })
+        .build()
+        .execute();
+  }
+
+  private Specification<ObservationEntity> codeClauseFor(
+      @NotEmpty List<TokenParameter> codeTokens) {
+    // Spring doesn't want to OR the same spec together more than once.
+    // This collects all codes based on the same criteria TokenParameter uses for
+    // determining behavior.
+    Set<String> codesForQuery =
+        codeTokens.stream().flatMap(c -> codeFor(c).stream()).collect(Collectors.toSet());
+    return ObservationRepository.CodeSpecification.of(codesForQuery);
+  }
+
+  /** Determine the code based on the a tokens value. */
+  private List<String> codeFor(TokenParameter codeToken) {
+    return codeToken
+        .behavior()
+        .onExplicitSystemAndExplicitCode((s, c) -> List.of(c))
+        .onAnySystemAndExplicitCode(List::of)
+        .onNoSystemAndExplicitCode(List::of)
+        .onExplicitSystemAndAnyCode(
+            s -> {
+              if (OBSERVATION_CODE_SYSTEM.equals(s)) {
+                return List.of(s);
+              }
+              throw new IllegalStateException(
+                  "Unsupported Code System: " + s + " Cannot build ExplicitSystemSpecification.");
             })
         .build()
         .execute();
@@ -245,14 +276,13 @@ public class R4ObservationController {
             .add("_count", count)
             .build();
     String cdwPatient = witnessProtection.toCdwId(patient);
-
     List<TokenParameter> tokens =
         Splitter.on(",").trimResults().splitToList(categoryCsv).stream()
             .map(TokenParameter::parse)
             .filter(
                 t ->
                     !t.isSystemExplicitAndUnsupported(OBSERVATION_CATEGORY_SYSTEM)
-                        || !t.isSystemExplicitAndUnsupported("laboratory", "vital-signs")
+                        || !t.isCodeExplicitAndUnsupported("laboratory", "vital-signs")
                         || !t.hasExplicitlyNoSystem())
             .collect(Collectors.toList());
     if (tokens.isEmpty()) {
@@ -303,12 +333,23 @@ public class R4ObservationController {
             .add("_count", count)
             .build();
     String cdwPatient = witnessProtection.toCdwId(patient);
-    ObservationRepository.PatientAndCodeAndDateSpecification spec =
-        ObservationRepository.PatientAndCodeAndDateSpecification.builder()
+    List<TokenParameter> tokens =
+        Splitter.on(",").trimResults().splitToList(codeCsv).stream()
+            .map(TokenParameter::parse)
+            .filter(
+                t ->
+                    !t.isSystemExplicitAndUnsupported(OBSERVATION_CATEGORY_SYSTEM)
+                        || !t.hasExplicitlyNoSystem())
+            .collect(Collectors.toList());
+    if (tokens.isEmpty()) {
+      return bundle(parameters, emptyList(), 0);
+    }
+    Specification<ObservationEntity> spec =
+        ObservationRepository.PatientAndDateSpecification.builder()
             .patient(cdwPatient)
-            .codes(Splitter.on(",").splitToList(codeCsv))
             .dates(date)
-            .build();
+            .build()
+            .and(codeClauseFor(tokens));
     Page<ObservationEntity> entitiesPage = repository.findAll(spec, page(page, count));
     return bundle(parameters, entitiesPage);
   }
