@@ -26,6 +26,7 @@
     <Or>
       <Class name="gov.va.api.health.dataquery.service.controller.allergyintolerance.DatamartAllergyIntolerance"/>
       <Class name="gov.va.api.health.dataquery.service.controller.allergyintolerance.DatamartAllergyIntolerance$Reaction"/>
+      <Class name="gov.va.api.health.dataquery.service.controller.diagnosticreport.DatamartDiagnosticReport"/>
       <Class name="gov.va.api.health.dataquery.service.controller.diagnosticreport.DatamartDiagnosticReports"/>
       <Class name="gov.va.api.health.dataquery.service.controller.diagnosticreport.DatamartDiagnosticReports$DiagnosticReport"/>
       <Class name="gov.va.api.health.dataquery.service.controller.medicationorder.DatamartMedicationOrder"/>
