@@ -37,12 +37,12 @@ public class ConditionIT {
         test(
             200,
             Condition.Bundle.class,
-            "Condition?patient={patient}&clinicalstatus=active",
+            "Condition?patient={patient}&clinical-status=active",
             verifier.ids().patient()),
         test(
             200,
             Condition.Bundle.class,
-            "Condition?patient={patient}&clinicalstatus=http://terminology.hl7.org/CodeSystem/condition-clinical|active,resolved",
+            "Condition?patient={patient}&clinical-status=http://terminology.hl7.org/CodeSystem/condition-clinical|active,resolved",
             verifier.ids().patient()),
         test(200, Condition.class, "Condition/{id}", verifier.ids().condition()),
         test(404, OperationOutcome.class, "Condition/{id}", verifier.ids().unknown()),
