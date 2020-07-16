@@ -1,4 +1,4 @@
-package gov.va.api.health.dataquery.service.controller.diagnosticreport;
+package gov.va.api.health.dataquery.service.controller.diagnosticreport.v1;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
