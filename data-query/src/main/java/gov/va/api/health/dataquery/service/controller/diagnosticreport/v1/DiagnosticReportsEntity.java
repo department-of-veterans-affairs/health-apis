@@ -1,9 +1,12 @@
-package gov.va.api.health.dataquery.service.controller.diagnosticreport;
+package gov.va.api.health.dataquery.service.controller.diagnosticreport.v1;
 
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartEntity;
+import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -15,21 +18,27 @@ import lombok.NoArgsConstructor;
 @Data
 @Entity
 @Builder
-@Table(name = "DiagnosticReport_CrossWalk", schema = "app")
+@Table(name = "DiagnosticReport", schema = "app")
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class DiagnosticReportCrossEntity implements DatamartEntity {
+public class DiagnosticReportsEntity implements DatamartEntity {
   @Id
+  @Column(name = "PatientFullIcn")
   @EqualsAndHashCode.Include
-  @Column(name = "Identifier")
-  private String reportId;
-
-  @Column(name = "PatientFullICN")
   private String icn;
+
+  @Lob
+  @Basic(fetch = FetchType.EAGER)
+  @Column(name = "DiagnosticReport")
+  private String payload;
+
+  DatamartDiagnosticReports asDatamartDiagnosticReports() {
+    return deserializeDatamart(payload, DatamartDiagnosticReports.class);
+  }
 
   @Override
   public String cdwId() {
-    return reportId();
+    return icn();
   }
 }

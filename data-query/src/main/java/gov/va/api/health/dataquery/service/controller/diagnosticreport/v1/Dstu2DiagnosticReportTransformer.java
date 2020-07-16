@@ -1,4 +1,4 @@
-package gov.va.api.health.dataquery.service.controller.diagnosticreport;
+package gov.va.api.health.dataquery.service.controller.diagnosticreport.v1;
 
 import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
 import static gov.va.api.health.dataquery.service.controller.Transformers.emptyToNull;
@@ -9,7 +9,7 @@ import static org.springframework.util.CollectionUtils.isEmpty;
 
 import gov.va.api.health.argonaut.api.resources.DiagnosticReport;
 import gov.va.api.health.dataquery.service.controller.Transformers;
-import gov.va.api.health.dataquery.service.controller.diagnosticreport.DatamartDiagnosticReports.Result;
+import gov.va.api.health.dataquery.service.controller.diagnosticreport.v1.DatamartDiagnosticReports.Result;
 import gov.va.api.health.dstu2.api.DataAbsentReason;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;

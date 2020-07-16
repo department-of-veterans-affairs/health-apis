@@ -1,10 +1,10 @@
-package gov.va.api.health.dataquery.service.controller.diagnosticreport;
+package gov.va.api.health.dataquery.service.controller.diagnosticreport.v1;
 
 import static gov.va.api.health.autoconfig.configuration.JacksonConfig.createMapper;
 import static gov.va.api.health.dataquery.service.controller.Transformers.parseInstant;
-import static gov.va.api.health.dataquery.service.controller.diagnosticreport.DiagnosticReportSamples.Datamart;
-import static gov.va.api.health.dataquery.service.controller.diagnosticreport.DiagnosticReportSamples.Dstu2;
-import static gov.va.api.health.dataquery.service.controller.diagnosticreport.DiagnosticReportSamples.Dstu2.link;
+import static gov.va.api.health.dataquery.service.controller.diagnosticreport.v1.DiagnosticReportSamples.Datamart;
+import static gov.va.api.health.dataquery.service.controller.diagnosticreport.v1.DiagnosticReportSamples.Dstu2;
+import static gov.va.api.health.dataquery.service.controller.diagnosticreport.v1.DiagnosticReportSamples.Dstu2.link;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -18,6 +18,9 @@ import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLin
 import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
+import gov.va.api.health.dataquery.service.controller.diagnosticreport.v1.DatamartDiagnosticReports;
+import gov.va.api.health.dataquery.service.controller.diagnosticreport.v1.DiagnosticReportsEntity;
+import gov.va.api.health.dataquery.service.controller.diagnosticreport.Dstu2DiagnosticReportController;
 import gov.va.api.health.dstu2.api.DataAbsentReason;
 import gov.va.api.health.dstu2.api.bundle.BundleLink;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;

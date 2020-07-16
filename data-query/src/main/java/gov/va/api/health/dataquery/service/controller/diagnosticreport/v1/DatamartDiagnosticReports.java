@@ -1,4 +1,4 @@
-package gov.va.api.health.dataquery.service.controller.diagnosticreport;
+package gov.va.api.health.dataquery.service.controller.diagnosticreport.v1;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;

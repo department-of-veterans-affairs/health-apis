@@ -1,9 +1,10 @@
-package gov.va.api.health.dataquery.service.controller.diagnosticreport;
+package gov.va.api.health.dataquery.service.controller.diagnosticreport.v1;
 
 import static gov.va.api.health.autoconfig.configuration.JacksonConfig.createMapper;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import gov.va.api.health.dataquery.service.controller.diagnosticreport.v1.DatamartDiagnosticReports;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 

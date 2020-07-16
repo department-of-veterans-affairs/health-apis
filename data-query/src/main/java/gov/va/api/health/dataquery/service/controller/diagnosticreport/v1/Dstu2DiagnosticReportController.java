@@ -1,4 +1,4 @@
-package gov.va.api.health.dataquery.service.controller.diagnosticreport;
+package gov.va.api.health.dataquery.service.controller.diagnosticreport.v1;
 
 import static gov.va.api.health.dataquery.service.controller.Transformers.parseInstant;
 import static java.util.Arrays.asList;
@@ -44,11 +44,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
 import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Request Mappings for Diagnostic Report Profile, see
@@ -56,12 +53,8 @@ import org.springframework.web.bind.annotation.RestController;
  * implementation details.
  */
 @Validated
-@RestController
 @Slf4j
 @SuppressWarnings("WeakerAccess")
-@RequestMapping(
-    value = {"/dstu2/DiagnosticReport"},
-    produces = {"application/json", "application/json+fhir", "application/fhir+json"})
 public class Dstu2DiagnosticReportController {
   private Dstu2Bundler bundler;
 
@@ -156,7 +149,6 @@ public class Dstu2DiagnosticReportController {
   }
 
   /** Read by identifier. */
-  @GetMapping(value = {"/{publicId}"})
   public DiagnosticReport read(@PathVariable("publicId") String publicId) {
     Pair<DatamartDiagnosticReports, DatamartDiagnosticReports.DiagnosticReport> result =
         pairPayload(publicId);
@@ -172,9 +164,6 @@ public class Dstu2DiagnosticReportController {
   }
 
   /** Return the raw Datamart document for the given identifier. */
-  @GetMapping(
-      value = {"/{publicId}"},
-      headers = {"raw=true"})
   public DatamartDiagnosticReports.DiagnosticReport readRaw(
       @PathVariable("publicId") String publicId, HttpServletResponse response) {
     var pair = pairPayload(publicId);
@@ -297,7 +286,6 @@ public class Dstu2DiagnosticReportController {
   }
 
   /** Search by _id. */
-  @GetMapping(params = {"_id"})
   public DiagnosticReport.Bundle searchById(
       @RequestParam("_id") String id,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
@@ -313,7 +301,6 @@ public class Dstu2DiagnosticReportController {
   }
 
   /** Search by identifier. */
-  @GetMapping(params = {"identifier"})
   public DiagnosticReport.Bundle searchByIdentifier(
       @RequestParam("identifier") String identifier,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
@@ -322,7 +309,6 @@ public class Dstu2DiagnosticReportController {
   }
 
   /** Search by patient. */
-  @GetMapping(params = {"patient"})
   public DiagnosticReport.Bundle searchByPatient(
       @RequestParam("patient") String patient,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
@@ -336,7 +322,6 @@ public class Dstu2DiagnosticReportController {
   }
 
   /** Search by Patient+Category + Date if provided. */
-  @GetMapping(params = {"patient", "category"})
   public DiagnosticReport.Bundle searchByPatientAndCategoryAndDate(
       @RequestParam("patient") String patient,
       @RequestParam("category") String category,
@@ -355,7 +340,6 @@ public class Dstu2DiagnosticReportController {
   }
 
   /** Search by Patient+Code. */
-  @GetMapping(params = {"patient", "code"})
   public DiagnosticReport.Bundle searchByPatientAndCode(
       @RequestParam("patient") String patient,
       @RequestParam("code") String code,
@@ -371,9 +355,6 @@ public class Dstu2DiagnosticReportController {
   }
 
   /** Search by patient. */
-  @GetMapping(
-      value = "/raw",
-      params = {"patient"})
   public String searchByPatientRaw(
       @RequestParam("patient") String patient, HttpServletResponse response) {
     MultiValueMap<String, String> publicParameters =
