@@ -1,6 +1,7 @@
 package gov.va.api.health.dataquery.service.controller.diagnosticreport;
 
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
+import gov.va.api.health.dataquery.service.controller.datamart.HasReplaceableId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -14,7 +15,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class DatamartDiagnosticReport {
+public class DatamartDiagnosticReport implements HasReplaceableId {
   @Builder.Default private String objectType = "DiagnosticReport";
 
   @Builder.Default private int objectVersion = 2;

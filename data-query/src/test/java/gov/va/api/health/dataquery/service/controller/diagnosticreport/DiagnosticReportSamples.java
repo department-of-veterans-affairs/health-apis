@@ -1,4 +1,4 @@
-package gov.va.api.health.dataquery.service.controller.diagnosticreport.v1;
+package gov.va.api.health.dataquery.service.controller.diagnosticreport;
 
 import static gov.va.api.health.autoconfig.configuration.JacksonConfig.createMapper;
 import static gov.va.api.health.dataquery.service.controller.Transformers.parseInstant;
@@ -7,6 +7,9 @@ import static java.util.Arrays.asList;
 import gov.va.api.health.argonaut.api.resources.DiagnosticReport;
 import gov.va.api.health.argonaut.api.resources.DiagnosticReport.Bundle;
 import gov.va.api.health.argonaut.api.resources.DiagnosticReport.Entry;
+import gov.va.api.health.dataquery.service.controller.diagnosticreport.v1.DatamartDiagnosticReports;
+import gov.va.api.health.dataquery.service.controller.diagnosticreport.v1.DiagnosticReportCrossEntity;
+import gov.va.api.health.dataquery.service.controller.diagnosticreport.v1.DiagnosticReportsEntity;
 import gov.va.api.health.dstu2.api.bundle.AbstractBundle;
 import gov.va.api.health.dstu2.api.bundle.AbstractEntry;
 import gov.va.api.health.dstu2.api.bundle.BundleLink;
@@ -43,12 +46,12 @@ public class DiagnosticReportSamples {
       return Datamart.builder().build();
     }
 
-    DiagnosticReportCrossEntity crossEntity() {
+    public DiagnosticReportCrossEntity crossEntity() {
       return DiagnosticReportCrossEntity.builder().reportId(reportId).icn(icn).build();
     }
 
     @SneakyThrows
-    DiagnosticReportsEntity entity() {
+    public DiagnosticReportsEntity entity() {
       return DiagnosticReportsEntity.builder()
           .icn(icn)
           .payload(createMapper().writeValueAsString(reports()))
@@ -56,7 +59,7 @@ public class DiagnosticReportSamples {
     }
 
     @SneakyThrows
-    DiagnosticReportsEntity entityWithNoReport() {
+    public DiagnosticReportsEntity entityWithNoReport() {
       return DiagnosticReportsEntity.builder()
           .icn(icn)
           .payload(
@@ -96,7 +99,7 @@ public class DiagnosticReportSamples {
 
     @Builder.Default String performerDisplay = "MANILA-RO";
 
-    static Bundle asBundle(
+    public static Bundle asBundle(
         String baseUrl,
         Collection<DiagnosticReport> reports,
         int totalRecords,
@@ -122,18 +125,18 @@ public class DiagnosticReportSamples {
           .build();
     }
 
-    static Dstu2 create() {
+    public static Dstu2 create() {
       return Dstu2.builder().build();
     }
 
-    static BundleLink link(BundleLink.LinkRelation rel, String base, int page, int count) {
+    public static BundleLink link(BundleLink.LinkRelation rel, String base, int page, int count) {
       return BundleLink.builder()
           .relation(rel)
           .url(base + "&page=" + page + "&_count=" + count)
           .build();
     }
 
-    DiagnosticReport report() {
+    public DiagnosticReport report() {
       return DiagnosticReport.builder()
           .id(reportId)
           .resourceType("DiagnosticReport")
