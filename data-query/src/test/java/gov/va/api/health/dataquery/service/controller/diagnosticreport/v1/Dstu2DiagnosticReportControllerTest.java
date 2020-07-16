@@ -2,9 +2,9 @@ package gov.va.api.health.dataquery.service.controller.diagnosticreport.v1;
 
 import static gov.va.api.health.autoconfig.configuration.JacksonConfig.createMapper;
 import static gov.va.api.health.dataquery.service.controller.Transformers.parseInstant;
-import static gov.va.api.health.dataquery.service.controller.diagnosticreport.v1.DiagnosticReportSamples.Datamart;
-import static gov.va.api.health.dataquery.service.controller.diagnosticreport.v1.DiagnosticReportSamples.Dstu2;
-import static gov.va.api.health.dataquery.service.controller.diagnosticreport.v1.DiagnosticReportSamples.Dstu2.link;
+import static gov.va.api.health.dataquery.service.controller.diagnosticreport.DiagnosticReportSamples.Datamart;
+import static gov.va.api.health.dataquery.service.controller.diagnosticreport.DiagnosticReportSamples.Dstu2;
+import static gov.va.api.health.dataquery.service.controller.diagnosticreport.DiagnosticReportSamples.Dstu2.link;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -18,8 +18,6 @@ import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLin
 import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
-import gov.va.api.health.dataquery.service.controller.diagnosticreport.v1.DatamartDiagnosticReports;
-import gov.va.api.health.dataquery.service.controller.diagnosticreport.v1.DiagnosticReportsEntity;
 import gov.va.api.health.dataquery.service.controller.diagnosticreport.Dstu2DiagnosticReportController;
 import gov.va.api.health.dstu2.api.DataAbsentReason;
 import gov.va.api.health.dstu2.api.bundle.BundleLink;
@@ -66,20 +64,20 @@ public class Dstu2DiagnosticReportControllerTest {
     Datamart dm = Datamart.create();
     entityManager.persistAndFlush(dm.entity());
     entityManager.persistAndFlush(dm.crossEntity());
-    DiagnosticReport report = controller().read("800260864479:L");
+    DiagnosticReport report = controller().read(false, "800260864479:L");
     assertThat(report).isEqualTo(Dstu2.create().report());
   }
 
   @Test
   public void readForEmptyReportShouldExplodeNotFound() {
     Dstu2DiagnosticReportController controller = controller();
-    assertThrows(ResourceExceptions.NotFound.class, () -> controller.read("800260864479:L"));
+    assertThrows(ResourceExceptions.NotFound.class, () -> controller.read(false, "800260864479:L"));
   }
 
   @Test
   public void readForUnknownReportShouldExplodeNotFound() {
     Dstu2DiagnosticReportController controller = controller();
-    assertThrows(ResourceExceptions.NotFound.class, () -> controller.read("123456:X"));
+    assertThrows(ResourceExceptions.NotFound.class, () -> controller.read(false, "123456:X"));
   }
 
   @Test
@@ -88,7 +86,7 @@ public class Dstu2DiagnosticReportControllerTest {
     entityManager.persistAndFlush(dm.entity());
     entityManager.persistAndFlush(dm.crossEntity());
     DatamartDiagnosticReports.DiagnosticReport report =
-        controller().readRaw("800260864479:L", response);
+        controller().readRaw(false, "800260864479:L", response);
     assertThat(report).isEqualTo(dm.report());
     verify(response).addHeader("X-VA-INCLUDES-ICN", dm.entity().icn());
   }
@@ -97,13 +95,15 @@ public class Dstu2DiagnosticReportControllerTest {
   public void readRawForEmptyReportShouldExplodeNotFound() {
     Dstu2DiagnosticReportController controller = controller();
     assertThrows(
-        ResourceExceptions.NotFound.class, () -> controller.readRaw("800260864479:L", response));
+        ResourceExceptions.NotFound.class,
+        () -> controller.readRaw(false, "800260864479:L", response));
   }
 
   @Test
   public void readRawForUnknownReportShouldExplodeNotFound() {
     Dstu2DiagnosticReportController controller = controller();
-    assertThrows(ResourceExceptions.NotFound.class, () -> controller.readRaw("123456:X", response));
+    assertThrows(
+        ResourceExceptions.NotFound.class, () -> controller.readRaw(false, "123456:X", response));
   }
 
   @Test
@@ -112,7 +112,8 @@ public class Dstu2DiagnosticReportControllerTest {
     entityManager.persistAndFlush(dm.entityWithNoReport());
     entityManager.persistAndFlush(dm.crossEntity());
     assertThrows(
-        ResourceExceptions.NotFound.class, () -> controller().readRaw("800260864479:L", response));
+        ResourceExceptions.NotFound.class,
+        () -> controller().readRaw(false, "800260864479:L", response));
   }
 
   @Test
@@ -120,7 +121,7 @@ public class Dstu2DiagnosticReportControllerTest {
     Datamart dm = Datamart.create();
     entityManager.persistAndFlush(dm.entity());
     entityManager.persistAndFlush(dm.crossEntity());
-    DiagnosticReport.Bundle bundle = controller().searchById("800260864479:L", 1, 15);
+    DiagnosticReport.Bundle bundle = controller().searchById(false, "800260864479:L", 1, 15);
     validateSearchByIdResult(bundle);
   }
 
@@ -129,7 +130,7 @@ public class Dstu2DiagnosticReportControllerTest {
     Datamart dm = Datamart.create();
     entityManager.persistAndFlush(dm.entity());
     entityManager.persistAndFlush(dm.crossEntity());
-    DiagnosticReport.Bundle bundle = controller().searchById("800260864479:L", 1, 0);
+    DiagnosticReport.Bundle bundle = controller().searchById(false, "800260864479:L", 1, 0);
     assertThat(json(bundle))
         .isEqualTo(
             json(
@@ -149,7 +150,8 @@ public class Dstu2DiagnosticReportControllerTest {
     Datamart dm = Datamart.create();
     entityManager.persistAndFlush(dm.entity());
     entityManager.persistAndFlush(dm.crossEntity());
-    DiagnosticReport.Bundle bundle = controller().searchByIdentifier("800260864479:L", 1, 15);
+    DiagnosticReport.Bundle bundle =
+        controller().searchByIdentifier(false, "800260864479:L", 1, 15);
     validateSearchByIdResult(bundle);
   }
 
@@ -157,7 +159,8 @@ public class Dstu2DiagnosticReportControllerTest {
   public void searchByPatient() {
     Datamart dm = Datamart.create();
     entityManager.persistAndFlush(dm.entity());
-    DiagnosticReport.Bundle bundle = controller().searchByPatient("1011537977V693883", 1, 15);
+    DiagnosticReport.Bundle bundle =
+        controller().searchByPatient(false, "1011537977V693883", 1, 15);
     assertThat(Iterables.getOnlyElement(bundle.entry()).resource())
         .isEqualTo(Dstu2.create().report());
     assertThat(json(bundle))
@@ -215,8 +218,13 @@ public class Dstu2DiagnosticReportControllerTest {
     entityManager.persistAndFlush(entity);
     DiagnosticReport.Bundle bundle =
         controller()
-            .searchByPatientAndCategoryAndDate(
-                icn, "LAB", new String[] {"gt2008", "ge2008", "eq2009", "le2010", "lt2010"}, 1, 15);
+            .searchByPatientAndCategory(
+                false,
+                icn,
+                "LAB",
+                new String[] {"gt2008", "ge2008", "eq2009", "le2010", "lt2010"},
+                1,
+                15);
     assertThat(bundle.entry().stream().map(e -> e.resource()).collect(Collectors.toList()))
         .isEqualTo(
             asList(
@@ -269,7 +277,7 @@ public class Dstu2DiagnosticReportControllerTest {
     entityManager.persistAndFlush(dm.crossEntity());
     DiagnosticReport.Bundle bundle =
         controller()
-            .searchByPatientAndCategoryAndDate("1011537977V693883", "CHEM", new String[] {}, 1, 15);
+            .searchByPatientAndCategory(false, "1011537977V693883", "CHEM", new String[] {}, 1, 15);
     // Searching for any category except LAB yields no results
     assertThat(bundle.entry()).isEmpty();
   }
@@ -281,8 +289,8 @@ public class Dstu2DiagnosticReportControllerTest {
     entityManager.persistAndFlush(dm.crossEntity());
     DiagnosticReport.Bundle bundle =
         controller()
-            .searchByPatientAndCategoryAndDate(
-                "1011537977V693883", "LAB", new String[] {"ge2000"}, 1, 15);
+            .searchByPatientAndCategory(
+                false, "1011537977V693883", "LAB", new String[] {"ge2000"}, 1, 15);
     assertThat(bundle.entry()).isEmpty();
   }
 
@@ -298,15 +306,25 @@ public class Dstu2DiagnosticReportControllerTest {
     Dstu2DiagnosticReportController controller = controller();
     assertThat(
             controller
-                .searchByPatientAndCategoryAndDate(
-                    "1011537977V693883", "LAB", new String[] {"gt2009-09-24T00:00:00Z"}, 1, 15)
+                .searchByPatientAndCategory(
+                    false,
+                    "1011537977V693883",
+                    "LAB",
+                    new String[] {"gt2009-09-24T00:00:00Z"},
+                    1,
+                    15)
                 .entry()
                 .size())
         .isEqualTo(1);
     assertThat(
             controller
-                .searchByPatientAndCategoryAndDate(
-                    "1011537977V693883", "LAB", new String[] {"gt2009-09-24T01:00:00Z"}, 1, 15)
+                .searchByPatientAndCategory(
+                    false,
+                    "1011537977V693883",
+                    "LAB",
+                    new String[] {"gt2009-09-24T01:00:00Z"},
+                    1,
+                    15)
                 .entry())
         .isEmpty();
   }
@@ -318,8 +336,8 @@ public class Dstu2DiagnosticReportControllerTest {
     entityManager.persistAndFlush(dm.crossEntity());
     DiagnosticReport.Bundle bundle =
         controller()
-            .searchByPatientAndCategoryAndDate(
-                "1011537977V693883", "LAB", new String[] {"2009-09-24T03:15:24Z"}, 1, 15);
+            .searchByPatientAndCategory(
+                false, "1011537977V693883", "LAB", new String[] {"2009-09-24T03:15:24Z"}, 1, 15);
     assertThat(bundle.entry().size()).isEqualTo(1);
   }
 
@@ -330,8 +348,8 @@ public class Dstu2DiagnosticReportControllerTest {
     entityManager.persistAndFlush(dm.crossEntity());
     DiagnosticReport.Bundle bundle =
         controller()
-            .searchByPatientAndCategoryAndDate(
-                "1011537977V693883", "LAB", new String[] {"2009-09-24T03:36:35Z"}, 1, 15);
+            .searchByPatientAndCategory(
+                false, "1011537977V693883", "LAB", new String[] {"2009-09-24T03:36:35Z"}, 1, 15);
     assertThat(bundle.entry().size()).isEqualTo(1);
   }
 
@@ -341,7 +359,7 @@ public class Dstu2DiagnosticReportControllerTest {
     entityManager.persistAndFlush(dm.entity());
     entityManager.persistAndFlush(dm.crossEntity());
     DiagnosticReport.Bundle bundle =
-        controller().searchByPatientAndCode("1011537977V693883", "x", 1, 15);
+        controller().searchByPatientAndCode(false, "1011537977V693883", "x", 1, 15);
     // Searching by any code yields no results
     assertThat(bundle.entry()).isEmpty();
   }
@@ -352,7 +370,7 @@ public class Dstu2DiagnosticReportControllerTest {
     entityManager.persistAndFlush(dm.entity());
     entityManager.persistAndFlush(dm.crossEntity());
     DiagnosticReport.Bundle bundle =
-        controller().searchByPatientAndCode("1011537977V693883", "", 1, 15);
+        controller().searchByPatientAndCode(false, "1011537977V693883", "", 1, 15);
     assertThat(Iterables.getOnlyElement(bundle.entry()).resource())
         .isEqualTo(Dstu2.create().report());
     assertThat(json(bundle))
@@ -403,7 +421,7 @@ public class Dstu2DiagnosticReportControllerTest {
   public void searchByUnknownPatient() {
     Datamart dm = Datamart.create();
     entityManager.persistAndFlush(dm.entity());
-    DiagnosticReport.Bundle bundle = controller().searchByPatient("WHODIS", 1, 15);
+    DiagnosticReport.Bundle bundle = controller().searchByPatient(false, "WHODIS", 1, 15);
     assertThat(bundle.entry()).isEmpty();
   }
 
