@@ -116,8 +116,8 @@ public class DatamartDiagnosticReportTest {
 
   @Test
   @SneakyThrows
-  public void unmarshalSampleV0() {
-    assertReadableV1("datamart-diagnostic-report-v0.json");
+  public void unmarshalSampleV1() {
+    assertReadableV1("datamart-diagnostic-report-v1.json");
   }
 
   @Test
