@@ -35,6 +35,10 @@ public class DatamartValidationControllerTest {
         .isEqualTo(ConditionSamples.Datamart.create().condition());
     assertThat(controller.validation(json(DiagnosticReportSamples.DatamartV1.create().reports())))
         .isEqualTo(DiagnosticReportSamples.DatamartV1.create().reports());
+    assertThat(
+            controller.validation(
+                json(DiagnosticReportSamples.DatamartV2.create().diagnosticReport())))
+        .isEqualTo(DiagnosticReportSamples.DatamartV2.create().diagnosticReport());
     assertThat(controller.validation(json(ImmunizationSamples.Datamart.create().immunization())))
         .isEqualTo(ImmunizationSamples.Datamart.create().immunization());
     assertThat(controller.validation(json(MedicationSamples.Datamart.create().medication())))

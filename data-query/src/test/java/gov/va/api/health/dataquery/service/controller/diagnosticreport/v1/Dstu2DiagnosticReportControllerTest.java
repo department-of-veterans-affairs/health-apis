@@ -18,8 +18,6 @@ import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLin
 import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
-import gov.va.api.health.dataquery.service.controller.diagnosticreport.DatamartDiagnosticReport;
-import gov.va.api.health.dataquery.service.controller.diagnosticreport.DiagnosticReportSamples;
 import gov.va.api.health.dataquery.service.controller.diagnosticreport.Dstu2DiagnosticReportController;
 import gov.va.api.health.dstu2.api.DataAbsentReason;
 import gov.va.api.health.dstu2.api.bundle.BundleLink;
@@ -89,9 +87,11 @@ public class Dstu2DiagnosticReportControllerTest {
     DatamartV1 dm = DatamartV1.create();
     entityManager.persistAndFlush(dm.entity());
     entityManager.persistAndFlush(dm.crossEntity());
-    String report =
-            controller().readRaw(false, "800260864479:L", response);
-    assertThat(JacksonConfig.createMapper().readValue(report, DatamartDiagnosticReports.DiagnosticReport.class)).isEqualTo(dm.report());
+    String report = controller().readRaw(false, "800260864479:L", response);
+    assertThat(
+            JacksonConfig.createMapper()
+                .readValue(report, DatamartDiagnosticReports.DiagnosticReport.class))
+        .isEqualTo(dm.report());
     verify(response).addHeader("X-VA-INCLUDES-ICN", dm.entity().icn());
   }
 
@@ -301,7 +301,7 @@ public class Dstu2DiagnosticReportControllerTest {
   @Test
   public void searchByPatientAndCategoryAndDateWithDateGreaterThan() {
     DatamartV1 dm =
-            DatamartV1.builder()
+        DatamartV1.builder()
             .issuedDateTime("2009-09-24T00:00:00")
             .effectiveDateTime("2009-09-24T01:00:00")
             .build();
