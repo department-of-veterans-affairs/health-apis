@@ -7,6 +7,7 @@ import static java.util.Arrays.asList;
 import gov.va.api.health.argonaut.api.resources.DiagnosticReport;
 import gov.va.api.health.argonaut.api.resources.DiagnosticReport.Bundle;
 import gov.va.api.health.argonaut.api.resources.DiagnosticReport.Entry;
+import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dataquery.service.controller.diagnosticreport.v1.DatamartDiagnosticReports;
 import gov.va.api.health.dataquery.service.controller.diagnosticreport.v1.DiagnosticReportCrossEntity;
 import gov.va.api.health.dataquery.service.controller.diagnosticreport.v1.DiagnosticReportsEntity;
@@ -19,8 +20,12 @@ import gov.va.api.health.dstu2.api.elements.Reference;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
+
+import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 
@@ -28,7 +33,7 @@ import lombok.experimental.UtilityClass;
 public class DiagnosticReportSamples {
 
   @Builder
-  public static class Datamart {
+  public static class DatamartV1 {
 
     @Builder.Default String icn = "1011537977V693883";
 
@@ -42,8 +47,8 @@ public class DiagnosticReportSamples {
 
     @Builder.Default String performerDisplay = "MANILA-RO";
 
-    public static Datamart create() {
-      return Datamart.builder().build();
+    public static DatamartV1 create() {
+      return DatamartV1.builder().build();
     }
 
     public DiagnosticReportCrossEntity crossEntity() {
@@ -75,12 +80,51 @@ public class DiagnosticReportSamples {
           .issuedDateTime(issuedDateTime)
           .accessionInstitutionSid(performer)
           .accessionInstitutionName(performerDisplay)
-          .results(List.of(DatamartDiagnosticReports.Result.builder().result("TEST").build()))
+          .results(List.of(DatamartDiagnosticReports.Result.builder().result("TEST").display("1234").build()))
           .build();
     }
 
     public DatamartDiagnosticReports reports() {
       return DatamartDiagnosticReports.builder().fullIcn(icn).reports(asList(report())).build();
+    }
+  }
+
+  @AllArgsConstructor(staticName = "create")
+  public static class DatamartV2 {
+
+    public DatamartDiagnosticReport diagnosticReport() {
+      String icn = "1011537977V693883";
+      String reportId = "800260864479:L";
+      return diagnosticReport(reportId, icn);
+    }
+
+    public DatamartDiagnosticReport diagnosticReport(String cdwId, String patientIcn) {
+      String effectiveDateTime = "2009-09-24T03:15:24Z";
+      String issuedDateTime = "2009-09-24T03:36:35Z";
+
+
+      return DatamartDiagnosticReport.builder()
+              .cdwId(cdwId)
+              .patient(referenceOf("Patient", patientIcn, null))
+              .accessionInstitution(accessionInstitution())
+              .effectiveDateTime(effectiveDateTime)
+              .issuedDateTime(issuedDateTime)
+              .results(List.of(referenceOf("Observation", "TEST", "1234")))
+              .build();
+    }
+
+    public Optional<DatamartReference> accessionInstitution() {
+      String performer = "655775";
+      String performerDisplay = "MANILA-RO";
+      return Optional.of(referenceOf("Organization", performer, performerDisplay));
+    }
+
+    private DatamartReference referenceOf(String type, String id, String display) {
+      return DatamartReference.builder()
+              .type(Optional.of(type))
+              .reference(Optional.ofNullable(id))
+              .display(Optional.ofNullable(display))
+              .build();
     }
   }
 
@@ -136,31 +180,49 @@ public class DiagnosticReportSamples {
           .build();
     }
 
-    public DiagnosticReport report() {
+    public Reference performer() {
+      return Reference.builder()
+              .reference("Organization/" + performer)
+              .display(performerDisplay)
+              .build();
+    }
+
+
+    public DiagnosticReport report(String publicId, String patientIcn) {
       return DiagnosticReport.builder()
-          .id(reportId)
-          .resourceType("DiagnosticReport")
-          .status(DiagnosticReport.Code._final)
-          .category(
-              CodeableConcept.builder()
-                  .coding(
-                      asList(
-                          Coding.builder()
-                              .system("http://hl7.org/fhir/ValueSet/diagnostic-service-sections")
-                              .code("LAB")
-                              .display("Laboratory")
-                              .build()))
-                  .build())
-          .code(CodeableConcept.builder().text("panel").build())
-          .subject(Reference.builder().reference("Patient/" + icn).build())
-          .effectiveDateTime(parseInstant(effectiveDateTime).toString())
-          .issued(parseInstant(issuedDateTime).toString())
-          .performer(
-              Reference.builder()
-                  .reference("Organization/" + performer)
-                  .display(performerDisplay)
-                  .build())
-          .build();
+              .id(publicId)
+              .resourceType("DiagnosticReport")
+              .status(DiagnosticReport.Code._final)
+              .category(
+                      CodeableConcept.builder()
+                              .coding(
+                                      asList(
+                                              Coding.builder()
+                                                      .system("http://hl7.org/fhir/ValueSet/diagnostic-service-sections")
+                                                      .code("LAB")
+                                                      .display("Laboratory")
+                                                      .build()))
+                              .build())
+              .code(CodeableConcept.builder().text("panel").build())
+              .subject(Reference.builder().reference("Patient/" + patientIcn).build())
+              .effectiveDateTime(parseInstant(effectiveDateTime).toString())
+              .issued(parseInstant(issuedDateTime).toString())
+              .result(List.of(
+                      Reference.builder()
+                              .reference("Observation/TEST")
+                              .display("1234")
+                              .build()
+              ))
+              .performer(performer())
+              .build();
+    }
+
+    public DiagnosticReport report(String publicId) {
+      return report(publicId, icn);
+    }
+
+    public DiagnosticReport report() {
+      return report(reportId);
     }
   }
 }
