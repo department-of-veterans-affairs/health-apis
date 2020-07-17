@@ -105,14 +105,19 @@ public class DiagnosticReportSamples {
     }
 
     public DatamartDiagnosticReport diagnosticReport(String cdwId, String patientIcn) {
-      String effectiveDateTime = "2009-09-24T03:15:24Z";
       String issuedDateTime = "2009-09-24T03:36:35Z";
+      return diagnosticReport(cdwId, patientIcn, issuedDateTime);
+    }
+
+    public DatamartDiagnosticReport diagnosticReport(
+        String cdwId, String patientIcn, String issuedDate) {
+      String effectiveDateTime = "2009-09-24T03:15:24Z";
       return DatamartDiagnosticReport.builder()
           .cdwId(cdwId)
           .patient(referenceOf("Patient", patientIcn, null))
           .accessionInstitution(accessionInstitution())
           .effectiveDateTime(effectiveDateTime)
-          .issuedDateTime(issuedDateTime)
+          .issuedDateTime(issuedDate)
           .results(List.of(referenceOf("Observation", "TEST", "1234")))
           .build();
     }
@@ -185,6 +190,10 @@ public class DiagnosticReportSamples {
     }
 
     public DiagnosticReport report(String publicId, String patientIcn) {
+      return report(publicId, patientIcn, issuedDateTime);
+    }
+
+    public DiagnosticReport report(String publicId, String patientIcn, String issuedDateTime) {
       return DiagnosticReport.builder()
           .id(publicId)
           .resourceType("DiagnosticReport")

@@ -1,22 +1,33 @@
 package gov.va.api.health.dataquery.service.controller.diagnosticreport;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 
 import gov.va.api.health.argonaut.api.resources.DiagnosticReport;
+import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.DateTimeParameter;
 import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
+import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.Parameters;
+import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
-import gov.va.api.health.dataquery.service.controller.diagnosticreport.v1.DatamartDiagnosticReports;
+import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,15 +53,19 @@ public class Dstu2DiagnosticReportController {
 
   private WitnessProtection witnessProtection;
 
+  private DiagnosticReportRepository repository;
+
   private EntityManager entityManager;
 
   /** All args constructor. */
   public Dstu2DiagnosticReportController(
       @Autowired Dstu2Bundler bundler,
       @Autowired WitnessProtection witnessProtection,
+      @Autowired DiagnosticReportRepository repository,
       @Autowired EntityManager entityManager) {
     this.bundler = bundler;
     this.witnessProtection = witnessProtection;
+    this.repository = repository;
     this.entityManager = entityManager;
   }
 
@@ -69,29 +84,72 @@ public class Dstu2DiagnosticReportController {
             linkConfig, reports, DiagnosticReport.Entry::new, DiagnosticReport.Bundle::new));
   }
 
+  DiagnosticReport.Bundle bundle(
+      MultiValueMap<String, String> parameters, Page<DiagnosticReportEntity> entitiesPage) {
+    if (Parameters.countOf(parameters) <= 0) {
+      return bundle(parameters, emptyList(), (int) entitiesPage.getTotalElements());
+    }
+    List<DatamartDiagnosticReport> datamart =
+        entitiesPage.stream()
+            .map(DiagnosticReportEntity::asDatamartDiagnosticReport)
+            .collect(Collectors.toList());
+    replaceReferences(datamart);
+    List<DiagnosticReport> fhir =
+        datamart.stream()
+            .map(dm -> Dstu2DiagnosticReportTransformer.builder().datamart(dm).build().toFhir())
+            .collect(Collectors.toList());
+    return bundle(parameters, fhir, (int) entitiesPage.getTotalElements());
+  }
+
+  private DiagnosticReportEntity findById(String publicId) {
+    Optional<DiagnosticReportEntity> entity =
+        repository.findById(witnessProtection.toCdwId(publicId));
+    return entity.orElseThrow(() -> new ResourceExceptions.NotFound(publicId));
+  }
+
+  Pageable page(int page, int count) {
+    return PageRequest.of(page - 1, Math.max(count, 1), DiagnosticReportEntity.naturalOrder());
+  }
+
   /** Read by identifier. */
   @GetMapping(value = {"/{publicId}"})
   public DiagnosticReport read(
       @RequestHeader(name = "v2", defaultValue = "false") Boolean v2,
       @PathVariable("publicId") String publicId) {
     if (v2) {
-      return DiagnosticReport.builder().build();
+      DatamartDiagnosticReport dm = findById(publicId).asDatamartDiagnosticReport();
+      replaceReferences(List.of(dm));
+      return Dstu2DiagnosticReportTransformer.builder().datamart(dm).build().toFhir();
     }
     return v1Controller().read(publicId);
   }
 
   /** Return the raw Datamart document for the given identifier. */
+  @SneakyThrows
   @GetMapping(
       value = {"/{publicId}"},
       headers = {"raw=true"})
-  public DatamartDiagnosticReports.DiagnosticReport readRaw(
+  public String readRaw(
       @RequestHeader(name = "v2", defaultValue = "false") Boolean v2,
       @PathVariable("publicId") String publicId,
       HttpServletResponse response) {
     if (v2) {
-      return DatamartDiagnosticReports.DiagnosticReport.builder().build();
+      DiagnosticReportEntity entity = findById(publicId);
+      IncludesIcnMajig.addHeader(response, entity.icn());
+      return entity.payload();
     }
-    return v1Controller().readRaw(publicId, response);
+    return JacksonConfig.createMapper()
+        .writerWithDefaultPrettyPrinter()
+        .writeValueAsString(v1Controller().readRaw(publicId, response));
+  }
+
+  void replaceReferences(Collection<DatamartDiagnosticReport> resources) {
+    witnessProtection.registerAndUpdateReferences(
+        resources,
+        resource ->
+            Stream.concat(
+                Stream.of(resource.patient(), resource.accessionInstitution().orElse(null)),
+                resource.results().stream()));
   }
 
   /** Search by _id. */
@@ -101,12 +159,7 @@ public class Dstu2DiagnosticReportController {
       @RequestParam("_id") String id,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
-    if (v2) {
-      MultiValueMap<String, String> parameters =
-          Parameters.builder().add("identifier", id).add("page", page).add("_count", count).build();
-      return bundle(parameters, emptyList(), 0);
-    }
-    return v1Controller().searchById(id, page, count);
+    return searchByIdentifier(v2, id, page, count);
   }
 
   /** Search by identifier. */
@@ -117,9 +170,20 @@ public class Dstu2DiagnosticReportController {
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
     if (v2) {
-      return searchById(true, identifier, page, count);
+      MultiValueMap<String, String> parameters =
+          Parameters.builder()
+              .add("identifier", identifier)
+              .add("page", page)
+              .add("_count", count)
+              .build();
+      DiagnosticReport dr = read(true, identifier);
+      int totalRecords = dr == null ? 0 : 1;
+      if (dr == null || page != 1 || count <= 0) {
+        return bundle(parameters, emptyList(), totalRecords);
+      }
+      return bundle(parameters, asList(dr), totalRecords);
     }
-    return searchById(false, identifier, page, count);
+    return v1Controller().searchByIdentifier(identifier, page, count);
   }
 
   /** Search by patient. */
@@ -136,7 +200,17 @@ public class Dstu2DiagnosticReportController {
               .add("page", page)
               .add("_count", count)
               .build();
-      return bundle(parameters, emptyList(), 0);
+      String cdwId = witnessProtection.toCdwId(patient);
+      int pageParam = Parameters.pageOf(parameters);
+      int countParam = Parameters.countOf(parameters);
+      Page<DiagnosticReportEntity> entitiesPage =
+          repository.findByIcn(
+              cdwId,
+              PageRequest.of(
+                  pageParam - 1,
+                  countParam == 0 ? 1 : countParam,
+                  DiagnosticReportEntity.naturalOrder()));
+      return bundle(parameters, entitiesPage);
     }
     return v1Controller().searchByPatient(patient, page, count);
   }
@@ -152,6 +226,7 @@ public class Dstu2DiagnosticReportController {
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
     if (v2) {
+      String cdwId = witnessProtection.toCdwId(patient);
       MultiValueMap<String, String> parameters =
           Parameters.builder()
               .add("patient", patient)
@@ -160,7 +235,14 @@ public class Dstu2DiagnosticReportController {
               .add("page", page)
               .add("_count", count)
               .build();
-      return bundle(parameters, emptyList(), 0);
+      DiagnosticReportRepository.PatientAndCategoryAndDateSpecification spec =
+          DiagnosticReportRepository.PatientAndCategoryAndDateSpecification.builder()
+              .patient(cdwId)
+              .category(category)
+              .dates(date)
+              .build();
+      Page<DiagnosticReportEntity> entitiesPage = repository.findAll(spec, page(page, count));
+      return bundle(parameters, entitiesPage);
     }
     return v1Controller().searchByPatientAndCategoryAndDate(patient, category, date, page, count);
   }
@@ -174,6 +256,7 @@ public class Dstu2DiagnosticReportController {
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
     if (v2) {
+      String cdwId = witnessProtection.toCdwId(patient);
       MultiValueMap<String, String> parameters =
           Parameters.builder()
               .add("patient", patient)
@@ -181,7 +264,13 @@ public class Dstu2DiagnosticReportController {
               .add("page", page)
               .add("_count", count)
               .build();
-      return bundle(parameters, emptyList(), 0);
+      DiagnosticReportRepository.PatientAndCodeSpecification spec =
+          DiagnosticReportRepository.PatientAndCodeSpecification.builder()
+              .patient(cdwId)
+              .code(code)
+              .build();
+      Page<DiagnosticReportEntity> entitiesPage = repository.findAll(spec, page(page, count));
+      return bundle(parameters, entitiesPage);
     }
     return v1Controller().searchByPatientAndCode(patient, code, page, count);
   }
