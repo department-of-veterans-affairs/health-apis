@@ -1,6 +1,7 @@
 package gov.va.api.health.dataquery.service.controller.diagnosticreport;
 
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asReference;
+import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
 import static java.util.Collections.singletonList;
 
 import gov.va.api.health.argonaut.api.resources.DiagnosticReport;
@@ -14,7 +15,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.NonNull;
-import org.springframework.util.CollectionUtils;
 
 @Builder
 public class Dstu2DiagnosticReportTransformer {
@@ -49,7 +49,7 @@ public class Dstu2DiagnosticReportTransformer {
   }
 
   private List<Reference> results() {
-    if (CollectionUtils.isEmpty(datamart.results())) {
+    if (isBlank(datamart.results())) {
       return null;
     }
     return datamart.results().stream()

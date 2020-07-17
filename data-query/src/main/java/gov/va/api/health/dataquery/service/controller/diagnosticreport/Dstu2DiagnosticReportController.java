@@ -118,7 +118,7 @@ public class Dstu2DiagnosticReportController {
   public DiagnosticReport read(
       @RequestHeader(name = "v2", defaultValue = "false") Boolean v2,
       @PathVariable("publicId") String publicId) {
-    if (v2) {
+    if (Boolean.TRUE.equals(v2)) {
       log.info("Using v2 DiagnosticReport.");
       DatamartDiagnosticReport dm = findById(publicId).asDatamartDiagnosticReport();
       replaceReferences(List.of(dm));
@@ -136,7 +136,7 @@ public class Dstu2DiagnosticReportController {
       @RequestHeader(name = "v2", defaultValue = "false") Boolean v2,
       @PathVariable("publicId") String publicId,
       HttpServletResponse response) {
-    if (v2) {
+    if (Boolean.TRUE.equals(v2)) {
       log.info("Using v2 DiagnosticReport.");
       DiagnosticReportEntity entity = findById(publicId);
       IncludesIcnMajig.addHeader(response, entity.icn());
@@ -173,7 +173,7 @@ public class Dstu2DiagnosticReportController {
       @RequestParam("identifier") String identifier,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
-    if (v2) {
+    if (Boolean.TRUE.equals(v2)) {
       log.info("Using v2 DiagnosticReport.");
       MultiValueMap<String, String> parameters =
           Parameters.builder()
@@ -198,7 +198,7 @@ public class Dstu2DiagnosticReportController {
       @RequestParam("patient") String patient,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
-    if (v2) {
+    if (Boolean.TRUE.equals(v2)) {
       log.info("Using v2 DiagnosticReport.");
       MultiValueMap<String, String> parameters =
           Parameters.builder()
@@ -231,7 +231,7 @@ public class Dstu2DiagnosticReportController {
           String[] date,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
-    if (v2) {
+    if (Boolean.TRUE.equals(v2)) {
       log.info("Using v2 DiagnosticReport.");
       String cdwId = witnessProtection.toCdwId(patient);
       MultiValueMap<String, String> parameters =
@@ -262,7 +262,7 @@ public class Dstu2DiagnosticReportController {
       @RequestParam("code") String code,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
-    if (v2) {
+    if (Boolean.TRUE.equals(v2)) {
       log.info("Using v2 DiagnosticReport.");
       String cdwId = witnessProtection.toCdwId(patient);
       MultiValueMap<String, String> parameters =
