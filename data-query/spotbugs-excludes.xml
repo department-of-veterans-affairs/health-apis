@@ -62,6 +62,7 @@
   -->
   <Match>
     <Or>
+      <Class name="gov.va.api.health.dataquery.service.controller.diagnosticreport.DiagnosticReportRepository$PatientAndCategoryAndDateSpecification$PatientAndCategoryAndDateSpecificationBuilder"/>
       <Class name="gov.va.api.health.dataquery.service.controller.observation.ObservationRepository$PatientAndCategoryAndDateSpecification$PatientAndCategoryAndDateSpecificationBuilder"/>
       <Class name="gov.va.api.health.dataquery.service.controller.observation.ObservationRepository$PatientAndCodeAndDateSpecification$PatientAndCodeAndDateSpecificationBuilder"/>
       <Class name="gov.va.api.health.dataquery.service.controller.observation.ObservationRepository$PatientAndDateSpecification$PatientAndDateSpecificationBuilder"/>
