@@ -24,6 +24,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -42,6 +43,7 @@ import org.springframework.web.bind.annotation.RestController;
  * https://www.fhir.org/guides/argonaut/r2/StructureDefinition-argo-diagnosticreport.html for
  * implementation details.
  */
+@Slf4j
 @Validated
 @RestController
 @SuppressWarnings("WeakerAccess")
@@ -117,6 +119,7 @@ public class Dstu2DiagnosticReportController {
       @RequestHeader(name = "v2", defaultValue = "false") Boolean v2,
       @PathVariable("publicId") String publicId) {
     if (v2) {
+      log.info("Using v2 DiagnosticReport.");
       DatamartDiagnosticReport dm = findById(publicId).asDatamartDiagnosticReport();
       replaceReferences(List.of(dm));
       return Dstu2DiagnosticReportTransformer.builder().datamart(dm).build().toFhir();
@@ -134,6 +137,7 @@ public class Dstu2DiagnosticReportController {
       @PathVariable("publicId") String publicId,
       HttpServletResponse response) {
     if (v2) {
+      log.info("Using v2 DiagnosticReport.");
       DiagnosticReportEntity entity = findById(publicId);
       IncludesIcnMajig.addHeader(response, entity.icn());
       return entity.payload();
@@ -170,6 +174,7 @@ public class Dstu2DiagnosticReportController {
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
     if (v2) {
+      log.info("Using v2 DiagnosticReport.");
       MultiValueMap<String, String> parameters =
           Parameters.builder()
               .add("identifier", identifier)
@@ -194,6 +199,7 @@ public class Dstu2DiagnosticReportController {
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
     if (v2) {
+      log.info("Using v2 DiagnosticReport.");
       MultiValueMap<String, String> parameters =
           Parameters.builder()
               .add("patient", patient)
@@ -226,6 +232,7 @@ public class Dstu2DiagnosticReportController {
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
     if (v2) {
+      log.info("Using v2 DiagnosticReport.");
       String cdwId = witnessProtection.toCdwId(patient);
       MultiValueMap<String, String> parameters =
           Parameters.builder()
@@ -256,6 +263,7 @@ public class Dstu2DiagnosticReportController {
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
     if (v2) {
+      log.info("Using v2 DiagnosticReport.");
       String cdwId = witnessProtection.toCdwId(patient);
       MultiValueMap<String, String> parameters =
           Parameters.builder()
