@@ -17,22 +17,22 @@
   },
   "verifyingStaff" : {
     "type" : "Practitioner",
-    "reference" : "SURPRISE",
-    "display" : "SURPRISE"
+    "reference" : "000",
+    "display" : "Big Boi"
   },
   "topography" : {
-    "type" : "Location",
+    "type" : "Observation",
     "reference" : "777",
     "display" : "PLASMA"
   },
   "visit" : {
     "type" : "Encounter",
-    "reference" : "SURPRISE",
-    "display" : "SURPRISE"
+    "reference" : "222",
+    "display" : "Outpatient"
   },
   "orders" : [
     {
-      "type" : "Observation",
+      "type" : "DiagnosticOrder",
       "reference" : "555",
       "display" : "RENAL PANEL"
     }

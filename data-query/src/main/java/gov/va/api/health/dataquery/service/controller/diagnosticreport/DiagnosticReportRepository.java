@@ -92,7 +92,9 @@ public interface DiagnosticReportRepository
       predicates.add(criteriaBuilder.equal(root.get("icn"), patient()));
 
       // Code
-      predicates.add(criteriaBuilder.equal(root.get("code"), code()));
+      if (code() != null) {
+        predicates.add(criteriaBuilder.equal(root.get("code"), code()));
+      }
 
       return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
     }

@@ -275,7 +275,7 @@ public class Dstu2DiagnosticReportController {
       DiagnosticReportRepository.PatientAndCodeSpecification spec =
           DiagnosticReportRepository.PatientAndCodeSpecification.builder()
               .patient(cdwId)
-              .code(code)
+              .code("".equals(code) ? null : code)
               .build();
       Page<DiagnosticReportEntity> entitiesPage = repository.findAll(spec, page(page, count));
       return bundle(parameters, entitiesPage);

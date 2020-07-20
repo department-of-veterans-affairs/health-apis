@@ -95,10 +95,10 @@ public class DatamartDiagnosticReportTest {
         .effectiveDateTime("2019-06-30T10:51:06Z")
         .issuedDateTime("2019-07-01T10:51:06Z")
         .accessionInstitution(Optional.of(reference("Organization", "999", "ABC-DEF")))
-        .verifyingStaff(Optional.of(reference("Practitioner", "SURPRISE", "SURPRISE")))
-        .topography(Optional.of(reference("Location", "777", "PLASMA")))
-        .visit(Optional.of(reference("Encounter", "SURPRISE", "SURPRISE")))
-        .orders(List.of(reference("Observation", "555", "RENAL PANEL")))
+        .verifyingStaff(Optional.of(reference("Practitioner", "000", "Big Boi")))
+        .topography(Optional.of(reference("Observation", "777", "PLASMA")))
+        .visit(Optional.of(reference("Encounter", "222", "Outpatient")))
+        .orders(List.of(reference("DiagnosticOrder", "555", "RENAL PANEL")))
         .results(
             List.of(
                 reference("Observation", "111:L", "ALBUMIN"),

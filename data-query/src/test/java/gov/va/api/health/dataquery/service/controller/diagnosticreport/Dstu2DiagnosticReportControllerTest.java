@@ -60,7 +60,6 @@ public class Dstu2DiagnosticReportControllerTest {
         .cdwId(dm.cdwId())
         .icn(dm.patient().reference().orElse(null))
         .category("LAB")
-        .code("panel")
         .dateUtc(Instant.parse(dm.issuedDateTime()))
         .payload(json(dm))
         .build();
@@ -356,29 +355,26 @@ public class Dstu2DiagnosticReportControllerTest {
                     diagnosticReports.size(),
                     link(
                         BundleLink.LinkRelation.first,
-                        "http://fonzy.com/cool/DiagnosticReport" + "?category=LAB" + "&patient=p0",
+                        "http://fonzy.com/cool/DiagnosticReport?category=LAB&patient=p0",
                         1,
                         15),
                     link(
                         BundleLink.LinkRelation.self,
-                        "http://fonzy.com/cool/DiagnosticReport" + "?category=LAB" + "&patient=p0",
+                        "http://fonzy.com/cool/DiagnosticReport?category=LAB&patient=p0",
                         1,
                         15),
                     link(
                         BundleLink.LinkRelation.last,
-                        "http://fonzy.com/cool/DiagnosticReport" + "?category=LAB" + "&patient=p0",
+                        "http://fonzy.com/cool/DiagnosticReport?category=LAB&patient=p0",
                         1,
                         15))));
   }
 
   @Test
-  void searchByPatientAndCode() {
+  void searchByPatientAndCodeBlank() {
     Multimap<String, DiagnosticReport> diagnosticReportsByPatient = populateData();
-    Collection<DiagnosticReport> diagnosticReports =
-        diagnosticReportsByPatient.get("p0").stream()
-            .filter(dr -> "panel".equals(dr.code().text()))
-            .collect(Collectors.toList());
-    assertThat(json(controller().searchByPatientAndCode(true, "p0", "panel", 1, 15)))
+    Collection<DiagnosticReport> diagnosticReports = diagnosticReportsByPatient.get("p0");
+    assertThat(json(controller().searchByPatientAndCode(true, "p0", "", 1, 15)))
         .isEqualTo(
             json(
                 DiagnosticReportSamples.Dstu2.asBundle(
@@ -387,18 +383,45 @@ public class Dstu2DiagnosticReportControllerTest {
                     diagnosticReports.size(),
                     link(
                         BundleLink.LinkRelation.first,
-                        "http://fonzy.com/cool/DiagnosticReport" + "?code=panel" + "&patient=p0",
+                        "http://fonzy.com/cool/DiagnosticReport?code=&patient=p0",
                         1,
                         15),
                     link(
                         BundleLink.LinkRelation.self,
-                        "http://fonzy.com/cool/DiagnosticReport" + "?code=panel" + "&patient=p0",
+                        "http://fonzy.com/cool/DiagnosticReport?code=&patient=p0",
                         1,
                         15),
                     link(
                         BundleLink.LinkRelation.last,
-                        "http://fonzy.com/cool/DiagnosticReport" + "?code=panel" + "&patient=p0",
+                        "http://fonzy.com/cool/DiagnosticReport?code=&patient=p0",
                         1,
+                        15))));
+  }
+
+  @Test
+  void searchByPatientAndCodePopulated() {
+    Multimap<String, DiagnosticReport> diagnosticReportsByPatient = populateData();
+    assertThat(json(controller().searchByPatientAndCode(true, "p0", "panel", 1, 15)))
+        .isEqualTo(
+            json(
+                DiagnosticReportSamples.Dstu2.asBundle(
+                    "http://fonzy.com/cool",
+                    emptyList(),
+                    0,
+                    link(
+                        BundleLink.LinkRelation.first,
+                        "http://fonzy.com/cool/DiagnosticReport?code=panel&patient=p0",
+                        1,
+                        15),
+                    link(
+                        BundleLink.LinkRelation.self,
+                        "http://fonzy.com/cool/DiagnosticReport?code=panel&patient=p0",
+                        1,
+                        15),
+                    link(
+                        BundleLink.LinkRelation.last,
+                        "http://fonzy.com/cool/DiagnosticReport?code=panel&patient=p0",
+                        0,
                         15))));
   }
 
