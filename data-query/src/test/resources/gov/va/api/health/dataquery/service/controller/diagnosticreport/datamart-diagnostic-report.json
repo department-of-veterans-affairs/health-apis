@@ -1,0 +1,58 @@
+{
+  "objectType" : "DiagnosticReport",
+  "objectVersion" : "2",
+  "cdwId" : "111:L",
+  "patient" : {
+    "type" : "Patient",
+    "reference" : "666V666",
+    "display" : "VETERAN,HERNAM MINAM"
+  },
+  "sta3n" : "111",
+  "effectiveDateTime" : "2019-06-30T10:51:06Z",
+  "issuedDateTime" : "2019-07-01T10:51:06Z",
+  "accessionInstitution" : {
+    "type" : "Organization",
+    "reference" : "999",
+    "display" : "ABC-DEF"
+  },
+  "verifyingStaff" : {
+    "type" : "Practitioner",
+    "reference" : "000",
+    "display" : "Big Boi"
+  },
+  "topography" : {
+    "type" : "Observation",
+    "reference" : "777",
+    "display" : "PLASMA"
+  },
+  "visit" : {
+    "type" : "Encounter",
+    "reference" : "222",
+    "display" : "Outpatient"
+  },
+  "orders" : [
+    {
+      "type" : "DiagnosticOrder",
+      "reference" : "555",
+      "display" : "RENAL PANEL"
+    }
+  ],
+  "results" : [
+    {
+      "type" : "Observation",
+      "reference" : "111:L",
+      "display" : "ALBUMIN"
+    },
+    {
+      "type" : "Observation",
+      "reference" : "222:L",
+      "display" : "ALB/GLOB RATIO"
+    },
+    {
+      "type" : "Observation",
+      "reference" : "333:L",
+      "display" : "PROTEIN,TOTAL"
+    }
+  ],
+  "reportStatus" : "final"
+}

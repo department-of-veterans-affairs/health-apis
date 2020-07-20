@@ -7,6 +7,7 @@ import static java.util.Arrays.asList;
 import gov.va.api.health.argonaut.api.resources.DiagnosticReport;
 import gov.va.api.health.argonaut.api.resources.DiagnosticReport.Bundle;
 import gov.va.api.health.argonaut.api.resources.DiagnosticReport.Entry;
+import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dataquery.service.controller.diagnosticreport.v1.DatamartDiagnosticReports;
 import gov.va.api.health.dataquery.service.controller.diagnosticreport.v1.DiagnosticReportCrossEntity;
 import gov.va.api.health.dataquery.service.controller.diagnosticreport.v1.DiagnosticReportsEntity;
@@ -19,17 +20,17 @@ import gov.va.api.health.dstu2.api.elements.Reference;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class DiagnosticReportSamples {
-
   @Builder
-  public static class Datamart {
-
+  public static class DatamartV1 {
     @Builder.Default String icn = "1011537977V693883";
 
     @Builder.Default String reportId = "800260864479:L";
@@ -42,8 +43,8 @@ public class DiagnosticReportSamples {
 
     @Builder.Default String performerDisplay = "MANILA-RO";
 
-    public static Datamart create() {
-      return Datamart.builder().build();
+    public static DatamartV1 create() {
+      return DatamartV1.builder().build();
     }
 
     public DiagnosticReportCrossEntity crossEntity() {
@@ -75,7 +76,12 @@ public class DiagnosticReportSamples {
           .issuedDateTime(issuedDateTime)
           .accessionInstitutionSid(performer)
           .accessionInstitutionName(performerDisplay)
-          .results(List.of(DatamartDiagnosticReports.Result.builder().result("TEST").build()))
+          .results(
+              List.of(
+                  DatamartDiagnosticReports.Result.builder()
+                      .result("TEST")
+                      .display("1234")
+                      .build()))
           .build();
     }
 
@@ -84,9 +90,49 @@ public class DiagnosticReportSamples {
     }
   }
 
+  @AllArgsConstructor(staticName = "create")
+  public static class DatamartV2 {
+    public Optional<DatamartReference> accessionInstitution() {
+      String performer = "655775";
+      String performerDisplay = "MANILA-RO";
+      return Optional.of(referenceOf("Organization", performer, performerDisplay));
+    }
+
+    public DatamartDiagnosticReport diagnosticReport() {
+      String icn = "1011537977V693883";
+      String reportId = "800260864479:L";
+      return diagnosticReport(reportId, icn);
+    }
+
+    public DatamartDiagnosticReport diagnosticReport(String cdwId, String patientIcn) {
+      String issuedDateTime = "2009-09-24T03:36:35Z";
+      return diagnosticReport(cdwId, patientIcn, issuedDateTime);
+    }
+
+    public DatamartDiagnosticReport diagnosticReport(
+        String cdwId, String patientIcn, String issuedDate) {
+      String effectiveDateTime = "2009-09-24T03:15:24Z";
+      return DatamartDiagnosticReport.builder()
+          .cdwId(cdwId)
+          .patient(referenceOf("Patient", patientIcn, null))
+          .accessionInstitution(accessionInstitution())
+          .effectiveDateTime(effectiveDateTime)
+          .issuedDateTime(issuedDate)
+          .results(List.of(referenceOf("Observation", "TEST", "1234")))
+          .build();
+    }
+
+    private DatamartReference referenceOf(String type, String id, String display) {
+      return DatamartReference.builder()
+          .type(Optional.of(type))
+          .reference(Optional.ofNullable(id))
+          .display(Optional.ofNullable(display))
+          .build();
+    }
+  }
+
   @Builder
   public static class Dstu2 {
-
     @Builder.Default String icn = "1011537977V693883";
 
     @Builder.Default String reportId = "800260864479:L";
@@ -136,9 +182,20 @@ public class DiagnosticReportSamples {
           .build();
     }
 
-    public DiagnosticReport report() {
+    public Reference performer() {
+      return Reference.builder()
+          .reference("Organization/" + performer)
+          .display(performerDisplay)
+          .build();
+    }
+
+    public DiagnosticReport report(String publicId, String patientIcn) {
+      return report(publicId, patientIcn, issuedDateTime);
+    }
+
+    public DiagnosticReport report(String publicId, String patientIcn, String issuedDateTime) {
       return DiagnosticReport.builder()
-          .id(reportId)
+          .id(publicId)
           .resourceType("DiagnosticReport")
           .status(DiagnosticReport.Code._final)
           .category(
@@ -152,15 +209,21 @@ public class DiagnosticReportSamples {
                               .build()))
                   .build())
           .code(CodeableConcept.builder().text("panel").build())
-          .subject(Reference.builder().reference("Patient/" + icn).build())
+          .subject(Reference.builder().reference("Patient/" + patientIcn).build())
           .effectiveDateTime(parseInstant(effectiveDateTime).toString())
           .issued(parseInstant(issuedDateTime).toString())
-          .performer(
-              Reference.builder()
-                  .reference("Organization/" + performer)
-                  .display(performerDisplay)
-                  .build())
+          .result(
+              List.of(Reference.builder().reference("Observation/TEST").display("1234").build()))
+          .performer(performer())
           .build();
+    }
+
+    public DiagnosticReport report(String publicId) {
+      return report(publicId, icn);
+    }
+
+    public DiagnosticReport report() {
+      return report(reportId);
     }
   }
 }

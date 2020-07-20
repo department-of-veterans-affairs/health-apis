@@ -2,7 +2,7 @@ package gov.va.api.health.dataquery.service.controller.diagnosticreport.v1;
 
 import static gov.va.api.health.autoconfig.configuration.JacksonConfig.createMapper;
 import static gov.va.api.health.dataquery.service.controller.Transformers.parseInstant;
-import static gov.va.api.health.dataquery.service.controller.diagnosticreport.DiagnosticReportSamples.Datamart;
+import static gov.va.api.health.dataquery.service.controller.diagnosticreport.DiagnosticReportSamples.DatamartV1;
 import static gov.va.api.health.dataquery.service.controller.diagnosticreport.DiagnosticReportSamples.Dstu2;
 import static gov.va.api.health.dataquery.service.controller.diagnosticreport.DiagnosticReportSamples.Dstu2.link;
 import static java.util.Arrays.asList;
@@ -51,6 +51,7 @@ public class Dstu2DiagnosticReportControllerTest {
         new Dstu2Bundler(
             new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool", "cool", "cool")),
         WitnessProtection.builder().identityService(mock(IdentityService.class)).build(),
+        null,
         entityManager.getEntityManager());
   }
 
@@ -61,7 +62,7 @@ public class Dstu2DiagnosticReportControllerTest {
 
   @Test
   public void read() {
-    Datamart dm = Datamart.create();
+    DatamartV1 dm = DatamartV1.create();
     entityManager.persistAndFlush(dm.entity());
     entityManager.persistAndFlush(dm.crossEntity());
     DiagnosticReport report = controller().read(false, "800260864479:L");
@@ -81,13 +82,16 @@ public class Dstu2DiagnosticReportControllerTest {
   }
 
   @Test
+  @SneakyThrows
   public void readRaw() {
-    Datamart dm = Datamart.create();
+    DatamartV1 dm = DatamartV1.create();
     entityManager.persistAndFlush(dm.entity());
     entityManager.persistAndFlush(dm.crossEntity());
-    DatamartDiagnosticReports.DiagnosticReport report =
-        controller().readRaw(false, "800260864479:L", response);
-    assertThat(report).isEqualTo(dm.report());
+    String report = controller().readRaw(false, "800260864479:L", response);
+    assertThat(
+            JacksonConfig.createMapper()
+                .readValue(report, DatamartDiagnosticReports.DiagnosticReport.class))
+        .isEqualTo(dm.report());
     verify(response).addHeader("X-VA-INCLUDES-ICN", dm.entity().icn());
   }
 
@@ -108,7 +112,7 @@ public class Dstu2DiagnosticReportControllerTest {
 
   @Test
   public void readRawWithNoReport() {
-    Datamart dm = Datamart.create();
+    DatamartV1 dm = DatamartV1.create();
     entityManager.persistAndFlush(dm.entityWithNoReport());
     entityManager.persistAndFlush(dm.crossEntity());
     assertThrows(
@@ -118,7 +122,7 @@ public class Dstu2DiagnosticReportControllerTest {
 
   @Test
   public void searchById() {
-    Datamart dm = Datamart.create();
+    DatamartV1 dm = DatamartV1.create();
     entityManager.persistAndFlush(dm.entity());
     entityManager.persistAndFlush(dm.crossEntity());
     DiagnosticReport.Bundle bundle = controller().searchById(false, "800260864479:L", 1, 15);
@@ -127,7 +131,7 @@ public class Dstu2DiagnosticReportControllerTest {
 
   @Test
   public void searchByIdWith0Count() {
-    Datamart dm = Datamart.create();
+    DatamartV1 dm = DatamartV1.create();
     entityManager.persistAndFlush(dm.entity());
     entityManager.persistAndFlush(dm.crossEntity());
     DiagnosticReport.Bundle bundle = controller().searchById(false, "800260864479:L", 1, 0);
@@ -147,7 +151,7 @@ public class Dstu2DiagnosticReportControllerTest {
 
   @Test
   public void searchByIdentifier() {
-    Datamart dm = Datamart.create();
+    DatamartV1 dm = DatamartV1.create();
     entityManager.persistAndFlush(dm.entity());
     entityManager.persistAndFlush(dm.crossEntity());
     DiagnosticReport.Bundle bundle =
@@ -157,7 +161,7 @@ public class Dstu2DiagnosticReportControllerTest {
 
   @Test
   public void searchByPatient() {
-    Datamart dm = Datamart.create();
+    DatamartV1 dm = DatamartV1.create();
     entityManager.persistAndFlush(dm.entity());
     DiagnosticReport.Bundle bundle =
         controller().searchByPatient(false, "1011537977V693883", 1, 15);
@@ -272,7 +276,7 @@ public class Dstu2DiagnosticReportControllerTest {
 
   @Test
   public void searchByPatientAndCategoryAndDateForCategoryWithNoResults() {
-    Datamart dm = Datamart.create();
+    DatamartV1 dm = DatamartV1.create();
     entityManager.persistAndFlush(dm.entity());
     entityManager.persistAndFlush(dm.crossEntity());
     DiagnosticReport.Bundle bundle =
@@ -284,7 +288,7 @@ public class Dstu2DiagnosticReportControllerTest {
 
   @Test
   public void searchByPatientAndCategoryAndDateForDateWithNoResults() {
-    Datamart dm = Datamart.builder().effectiveDateTime("").issuedDateTime("").build();
+    DatamartV1 dm = DatamartV1.builder().effectiveDateTime("").issuedDateTime("").build();
     entityManager.persistAndFlush(dm.entity());
     entityManager.persistAndFlush(dm.crossEntity());
     DiagnosticReport.Bundle bundle =
@@ -296,8 +300,8 @@ public class Dstu2DiagnosticReportControllerTest {
 
   @Test
   public void searchByPatientAndCategoryAndDateWithDateGreaterThan() {
-    Datamart dm =
-        Datamart.builder()
+    DatamartV1 dm =
+        DatamartV1.builder()
             .issuedDateTime("2009-09-24T00:00:00")
             .effectiveDateTime("2009-09-24T01:00:00")
             .build();
@@ -331,7 +335,7 @@ public class Dstu2DiagnosticReportControllerTest {
 
   @Test
   public void searchByPatientAndCategoryAndDateWithExactEffectiveMatch() {
-    Datamart dm = Datamart.create();
+    DatamartV1 dm = DatamartV1.create();
     entityManager.persistAndFlush(dm.entity());
     entityManager.persistAndFlush(dm.crossEntity());
     DiagnosticReport.Bundle bundle =
@@ -343,7 +347,7 @@ public class Dstu2DiagnosticReportControllerTest {
 
   @Test
   public void searchByPatientAndCategoryAndDateWithExactIssuedTimeMatch() {
-    Datamart dm = Datamart.create();
+    DatamartV1 dm = DatamartV1.create();
     entityManager.persistAndFlush(dm.entity());
     entityManager.persistAndFlush(dm.crossEntity());
     DiagnosticReport.Bundle bundle =
@@ -355,7 +359,7 @@ public class Dstu2DiagnosticReportControllerTest {
 
   @Test
   public void searchByPatientAndCodeWithCodeGivenShouldGiveNoResults() {
-    Datamart dm = Datamart.create();
+    DatamartV1 dm = DatamartV1.create();
     entityManager.persistAndFlush(dm.entity());
     entityManager.persistAndFlush(dm.crossEntity());
     DiagnosticReport.Bundle bundle =
@@ -366,7 +370,7 @@ public class Dstu2DiagnosticReportControllerTest {
 
   @Test
   public void searchByPatientAndCodeWithNoCodeGiven() {
-    Datamart dm = Datamart.create();
+    DatamartV1 dm = DatamartV1.create();
     entityManager.persistAndFlush(dm.entity());
     entityManager.persistAndFlush(dm.crossEntity());
     DiagnosticReport.Bundle bundle =
@@ -399,7 +403,7 @@ public class Dstu2DiagnosticReportControllerTest {
 
   @Test
   public void searchByPatientRaw() {
-    Datamart dm = Datamart.create();
+    DatamartV1 dm = DatamartV1.create();
     entityManager.persistAndFlush(dm.entity());
     String json = controller().searchByPatientRaw("1011537977V693883", response);
     assertThat(
@@ -410,7 +414,7 @@ public class Dstu2DiagnosticReportControllerTest {
 
   @Test
   public void searchByPatientRawForUnknownPatient() {
-    Datamart dm = Datamart.create();
+    DatamartV1 dm = DatamartV1.create();
     entityManager.persistAndFlush(dm.entity());
     assertThrows(
         ResourceExceptions.NotFound.class,
@@ -419,7 +423,7 @@ public class Dstu2DiagnosticReportControllerTest {
 
   @Test
   public void searchByUnknownPatient() {
-    Datamart dm = Datamart.create();
+    DatamartV1 dm = DatamartV1.create();
     entityManager.persistAndFlush(dm.entity());
     DiagnosticReport.Bundle bundle = controller().searchByPatient(false, "WHODIS", 1, 15);
     assertThat(bundle.entry()).isEmpty();
