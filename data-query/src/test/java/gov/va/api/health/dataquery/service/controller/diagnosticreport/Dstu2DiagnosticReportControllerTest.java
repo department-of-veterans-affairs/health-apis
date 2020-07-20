@@ -371,7 +371,7 @@ public class Dstu2DiagnosticReportControllerTest {
   }
 
   @Test
-  void searchByPatientAndCodeBlank() {
+  void searchByPatientAndCodeEmpty() {
     Multimap<String, DiagnosticReport> diagnosticReportsByPatient = populateData();
     Collection<DiagnosticReport> diagnosticReports = diagnosticReportsByPatient.get("p0");
     assertThat(json(controller().searchByPatientAndCode(true, "p0", "", 1, 15)))

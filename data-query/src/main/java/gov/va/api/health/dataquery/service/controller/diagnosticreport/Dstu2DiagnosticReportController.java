@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.diagnosticreport;
 
+import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 
@@ -275,7 +276,7 @@ public class Dstu2DiagnosticReportController {
       DiagnosticReportRepository.PatientAndCodeSpecification spec =
           DiagnosticReportRepository.PatientAndCodeSpecification.builder()
               .patient(cdwId)
-              .code("".equals(code) ? null : code)
+              .code(isBlank(code) ? null : code)
               .build();
       Page<DiagnosticReportEntity> entitiesPage = repository.findAll(spec, page(page, count));
       return bundle(parameters, entitiesPage);
