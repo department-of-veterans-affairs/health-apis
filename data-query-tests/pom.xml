@@ -11,7 +11,7 @@
   <version>3.0.6-SNAPSHOT</version>
   <packaging>jar</packaging>
   <properties>
-    <fhir-resources.version>4.0.0</fhir-resources.version>
+    <fhir-resources.version>4.0.1</fhir-resources.version>
     <health-apis-ids.version>3.0.1</health-apis-ids.version>
     <selenium.version>3.141.59</selenium.version>
     <sentinel.skipLaunch>false</sentinel.skipLaunch>
