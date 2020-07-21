@@ -4,7 +4,6 @@ import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.api.ResourceIdentity;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.Builder;
@@ -65,7 +64,7 @@ final class IdentityParameterReplacer {
     }
 
     Parameters results = Parameters.builder();
-    for (Entry<String, List<String>> entry : publicParameters.entrySet()) {
+    for (Map.Entry<String, List<String>> entry : publicParameters.entrySet()) {
       if (!isIdentity(entry.getKey())) {
         results.addAll(aliasOf(entry.getKey()), entry.getValue());
         continue;

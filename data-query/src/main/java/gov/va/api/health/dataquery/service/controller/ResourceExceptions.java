@@ -4,7 +4,6 @@ import java.net.URLDecoder;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.NonNull;
@@ -30,7 +29,7 @@ public final class ResourceExceptions {
     StringBuilder msg = new StringBuilder();
     String params =
         parameters.entrySet().stream()
-            .sorted(Comparator.comparing(Entry::getKey))
+            .sorted(Comparator.comparing(Map.Entry::getKey))
             .flatMap(ResourceExceptions::toKeyValueString)
             .collect(Collectors.joining("&"));
     msg.append('?').append(params);

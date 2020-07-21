@@ -12,11 +12,11 @@ import lombok.NonNull;
 /**
  * Converts an Argonaut URL into a class type that represents the result of the query. Examples:
  *
- * <pre>
+ * <pre>{@code
  * https://argonaut.com/api/Patient/123 -> Patient.class
  * https://apis.va.gov/services/argonaut/v0/Patient?_id=123 -> Patient.Bundle.class
  * https://apis.va.gov/services/argonaut/v0/Procedure?patient=123 -> Procedure.Bundle.class
- * </pre>
+ * }</pre>
  */
 @AllArgsConstructor
 @Builder

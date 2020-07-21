@@ -4,9 +4,10 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
@@ -109,6 +110,7 @@ public class ConfigurableBaseUrlPageLinks implements PageLinks {
    * @param <B> The bundle link class
    */
   @Data
+  @AllArgsConstructor(access = AccessLevel.PROTECTED)
   abstract static class AbstractLinkContext<B> {
     private final String baseUrl;
 
@@ -154,7 +156,7 @@ public class ConfigurableBaseUrlPageLinks implements PageLinks {
       msg.append(config.path()).append('?');
       String params =
           mutableParams.entrySet().stream()
-              .sorted(Comparator.comparing(Entry::getKey))
+              .sorted(Comparator.comparing(Map.Entry::getKey))
               .flatMap(this::toKeyValueString)
               .collect(Collectors.joining("&"));
       if (!params.isEmpty()) {
