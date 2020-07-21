@@ -38,8 +38,7 @@ public class R4DiagnosticReportTransformer {
   }
 
   /** Determine the results value(s) for the DiagnosticReport. */
-  public List<Reference> results() {
-    List<DatamartReference> maybeResults = datamart.results();
+  public List<Reference> results(List<DatamartReference> maybeResults) {
     if (isBlank(maybeResults)) {
       return null;
     }
@@ -65,7 +64,7 @@ public class R4DiagnosticReportTransformer {
         .subject(asReference(datamart.patient()))
         .effectiveDateTime(datamart.effectiveDateTime())
         .issued(datamart.issuedDateTime())
-        .result(results())
+        .result(results(datamart.results()))
         .build();
   }
 }
