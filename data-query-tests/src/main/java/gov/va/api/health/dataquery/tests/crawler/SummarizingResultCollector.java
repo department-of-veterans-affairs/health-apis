@@ -4,7 +4,7 @@ import gov.va.api.health.dataquery.tests.crawler.Result.Outcome;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.SortedSet;
+import java.util.NavigableSet;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -77,7 +77,7 @@ public class SummarizingResultCollector implements ResultCollector {
 
     Map<String, SummaryStats> readStats = summarize(r -> !ResourceDiscovery.isSearch(r.query()));
     Map<String, SummaryStats> searchStats = summarize(r -> ResourceDiscovery.isSearch(r.query()));
-    SortedSet<String> keys = new TreeSet<>();
+    NavigableSet<String> keys = new TreeSet<>();
     keys.addAll(readStats.keySet());
     keys.addAll(searchStats.keySet());
     final StringBuilder result = new StringBuilder();

@@ -4,7 +4,6 @@ import static java.util.Collections.emptyList;
 
 import gov.va.api.health.argonaut.api.resources.Medication;
 import gov.va.api.health.argonaut.api.resources.Medication.Bundle;
-import gov.va.api.health.argonaut.api.resources.Medication.Entry;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
 import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
@@ -67,7 +66,8 @@ public class Dstu2MedicationController {
             .totalRecords(totalRecords)
             .build();
     return bundler.bundle(
-        Dstu2Bundler.BundleContext.of(linkConfig, reports, Entry::new, Bundle::new));
+        Dstu2Bundler.BundleContext.of(
+            linkConfig, reports, Medication.Entry::new, Medication.Bundle::new));
   }
 
   MedicationEntity findById(String publicId) {

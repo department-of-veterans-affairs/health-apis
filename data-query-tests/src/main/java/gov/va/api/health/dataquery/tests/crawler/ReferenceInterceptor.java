@@ -32,11 +32,11 @@ import org.apache.commons.lang3.StringUtils;
  *
  * <p>Order is not guaranteed.
  *
- * <pre>
+ * <pre>{@code
  * ReferenceInterceptor interceptor = new ReferenceInterceptor();
  * Thing t = interceptor.mapper().readValue(json,Thing.class);
  * interceptor.references().forEach(url -> coolLink(url));
- * </pre>
+ * }</pre>
  */
 @Slf4j
 class ReferenceInterceptor {
