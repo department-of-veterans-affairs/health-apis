@@ -157,19 +157,19 @@ public final class Transformers {
    * <p>Consider this example:
    *
    * <pre>
-   * ifPresent(patient.getGender(), gender -> Patient.Gender.valueOf(gender.value()))
+   * {@code ifPresent(patient.getGender(), gender -> Patient.Gender.valueOf(gender.value()))}
    * </pre>
    *
    * This is equivalent to this standard Java code.
    *
-   * <pre>
+   * <pre>{@code
    * Gender gender = patient.getGender();
    * if (gender == null) {
    *   return null;
    * } else {
    *   return Patient.Gender.valueOf(gender.value());
    * }
-   * </pre>
+   * }</pre>
    */
   public static <T, R> R ifPresent(T object, Function<T, R> extract) {
     if (object == null) {

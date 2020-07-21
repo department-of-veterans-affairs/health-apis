@@ -12,10 +12,10 @@ import org.apache.commons.lang3.StringUtils;
  * based a set of rules that convert from CamelCaseNames of FHIR to UPPERCASE_NAMES of Identity
  * Service.
  *
- * <pre>
+ * <pre>{@code
  * Patient -> PATIENT
  * AllergyIntolerance -> ALLERGY_INTOLERANCE
- * </pre>
+ * }</pre>
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ResourceNameTranslation {
@@ -30,10 +30,10 @@ public final class ResourceNameTranslation {
   /**
    * Given a FHIR name, magically turn it into an Identity Service name. For example,
    *
-   * <pre>
+   * <pre>{@code
    * Patient -> PATIENT
    * AllergyIntolerance -> ALLERGY_INTOLERANCE
-   * </pre>
+   * }</pre>
    */
   public String fhirToIdentityService(String fhirName) {
     return Arrays.stream(StringUtils.splitByCharacterTypeCamelCase(fhirName))
@@ -44,10 +44,10 @@ public final class ResourceNameTranslation {
   /**
    * Given an Identity Service name, magically turn it into a FHIR name. For example,
    *
-   * <pre>
+   * <pre>{@code
    * PATIENT -> Patient
    * ALLERGY_INTOLERANCE -> AllergyIntolerance
-   * </pre>
+   * }</pre>
    */
   public String identityServiceToFhir(String identityServiceName) {
     return Arrays.stream(StringUtils.splitByWholeSeparator(identityServiceName, "_"))
