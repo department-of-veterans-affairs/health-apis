@@ -11,7 +11,7 @@
   <version>3.0.7-SNAPSHOT</version>
   <packaging>jar</packaging>
   <properties>
-    <health-apis-ids.version>3.0.1</health-apis-ids.version>
+    <health-apis-ids.version>3.0.2</health-apis-ids.version>
     <jacoco.coverage>0.94</jacoco.coverage>
   </properties>
   <dependencies>
