@@ -9,6 +9,7 @@ import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference
 import gov.va.api.health.dataquery.service.controller.diagnosticreport.v1.DatamartDiagnosticReports;
 import gov.va.api.health.dataquery.service.controller.diagnosticreport.v1.DiagnosticReportCrossEntity;
 import gov.va.api.health.dataquery.service.controller.diagnosticreport.v1.DiagnosticReportsEntity;
+import gov.va.api.health.r4.api.elements.Reference;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -110,7 +111,7 @@ public class DiagnosticReportSamples {
           .accessionInstitution(accessionInstitution())
           .effectiveDateTime(effectiveDateTime)
           .issuedDateTime(issuedDate)
-          .results(List.of(referenceOf("Observation", "TEST", "1234")))
+          .results(results())
           .build();
     }
 
@@ -120,6 +121,10 @@ public class DiagnosticReportSamples {
           .reference(Optional.ofNullable(id))
           .display(Optional.ofNullable(display))
           .build();
+    }
+
+    public List<DatamartReference> results() {
+      return List.of(referenceOf("Observation", "TEST", "1234"));
     }
   }
 
@@ -237,7 +242,6 @@ public class DiagnosticReportSamples {
 
   @AllArgsConstructor(staticName = "create")
   public static class R4 {
-
     public gov.va.api.health.uscorer4.api.resources.DiagnosticReport diagnosticReport() {
       String reportId = "800260864479:L";
       String icn = "1011537977V693883";
@@ -272,13 +276,16 @@ public class DiagnosticReportSamples {
                   .build())
           .effectiveDateTime(effectiveDateTime)
           .issued(issuedDateTime)
-          .result(
-              singletonList(
-                  gov.va.api.health.r4.api.elements.Reference.builder()
-                      .reference("Observation/TEST")
-                      .display("1234")
-                      .build()))
+          .result(results())
           .build();
+    }
+
+    public List<Reference> results() {
+      return singletonList(
+          gov.va.api.health.r4.api.elements.Reference.builder()
+              .reference("Observation/TEST")
+              .display("1234")
+              .build());
     }
   }
 }

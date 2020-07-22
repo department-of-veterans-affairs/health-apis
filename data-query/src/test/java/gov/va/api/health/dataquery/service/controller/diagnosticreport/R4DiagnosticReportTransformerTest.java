@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.diagnosticreport;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -9,7 +10,6 @@ import gov.va.api.health.uscorer4.api.resources.DiagnosticReport;
 import org.junit.jupiter.api.Test;
 
 public class R4DiagnosticReportTransformerTest {
-
   @Test
   void diagnosticReport() {
     assertThat(tx(DiagnosticReportSamples.DatamartV2.create().diagnosticReport()).toFhir())
@@ -36,6 +36,15 @@ public class R4DiagnosticReportTransformerTest {
                             .build()))
                 .code(CodeableConcept.builder().text("panel").build())
                 .build());
+  }
+
+  @Test
+  void results() {
+    assertThat(tx(DatamartDiagnosticReport.builder().build()).results(emptyList())).isNull();
+    assertThat(
+            tx(DatamartDiagnosticReport.builder().build())
+                .results(DiagnosticReportSamples.DatamartV2.create().results()))
+        .isEqualTo(DiagnosticReportSamples.R4.create().results());
   }
 
   R4DiagnosticReportTransformer tx(DatamartDiagnosticReport dm) {
