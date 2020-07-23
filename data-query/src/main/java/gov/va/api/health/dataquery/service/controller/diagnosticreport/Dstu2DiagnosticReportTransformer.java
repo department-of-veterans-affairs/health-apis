@@ -76,7 +76,7 @@ public class Dstu2DiagnosticReportTransformer {
   }
 
   /** Transforms a Datamart DateTime string to a Fhir DateTime string. */
-  public String transformDateTime(String maybeDateTime) {
+  String transformDateTime(String maybeDateTime) {
     return asDateTimeString(parseInstant(maybeDateTime));
   }
 }
