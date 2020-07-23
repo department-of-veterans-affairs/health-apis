@@ -17,6 +17,7 @@ import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.persistence.EntityManager;
@@ -243,10 +244,14 @@ public class Dstu2DiagnosticReportController {
               .add("page", page)
               .add("_count", count)
               .build();
+      Set<String> dbCategory = Set.of(category);
+      if ("LAB".equals(category)) {
+        dbCategory = Set.of("CH", "MB");
+      }
       DiagnosticReportRepository.PatientAndCategoryAndDateSpecification spec =
           DiagnosticReportRepository.PatientAndCategoryAndDateSpecification.builder()
               .patient(cdwId)
-              .category(category)
+              .categories(dbCategory)
               .dates(date)
               .build();
       Page<DiagnosticReportEntity> entitiesPage = repository.findAll(spec, page(page, count));
