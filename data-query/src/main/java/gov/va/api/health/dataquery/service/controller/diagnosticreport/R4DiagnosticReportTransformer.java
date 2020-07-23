@@ -20,7 +20,7 @@ import lombok.NonNull;
 public class R4DiagnosticReportTransformer {
   @NonNull final DatamartDiagnosticReport datamart;
 
-  public String asFhirDateTimeString(String maybeDateTime) {
+  String asFhirDateTimeString(String maybeDateTime) {
     return asDateTimeString(parseInstant(maybeDateTime));
   }
 
@@ -44,7 +44,7 @@ public class R4DiagnosticReportTransformer {
   }
 
   /** Determine the results value(s) for the DiagnosticReport. */
-  public List<Reference> results(List<DatamartReference> maybeResults) {
+  List<Reference> results(List<DatamartReference> maybeResults) {
     if (isBlank(maybeResults)) {
       return null;
     }
@@ -60,7 +60,7 @@ public class R4DiagnosticReportTransformer {
    *     of Observations in dm.results() is there somewhere we should map that?
    * */
   /** Generate the FHIR resource from the datamart payload. */
-  public DiagnosticReport toFhir() {
+  DiagnosticReport toFhir() {
     return DiagnosticReport.builder()
         .id(datamart.cdwId())
         .resourceType("DiagnosticReport")
