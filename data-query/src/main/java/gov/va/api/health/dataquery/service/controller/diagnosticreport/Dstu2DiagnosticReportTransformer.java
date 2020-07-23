@@ -2,6 +2,7 @@ package gov.va.api.health.dataquery.service.controller.diagnosticreport;
 
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asReference;
 import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
+import static gov.va.api.health.dataquery.service.controller.Transformers.parseInstant;
 import static java.util.Collections.singletonList;
 
 import gov.va.api.health.argonaut.api.resources.DiagnosticReport;
@@ -11,10 +12,12 @@ import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
 import gov.va.api.health.dstu2.api.elements.Extension;
 import gov.va.api.health.dstu2.api.elements.Reference;
+import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.NonNull;
+import org.apache.commons.lang3.StringUtils;
 
 @Builder
 public class Dstu2DiagnosticReportTransformer {
@@ -65,11 +68,23 @@ public class Dstu2DiagnosticReportTransformer {
         .category(category())
         .code(code())
         .subject(asReference(datamart.patient()))
-        .effectiveDateTime(datamart.effectiveDateTime())
-        .issued(datamart.issuedDateTime())
+        .effectiveDateTime(transformDateTime(datamart.effectiveDateTime()))
+        .issued(transformDateTime(datamart.issuedDateTime()))
         .performer(performer())
         ._performer(performerExtension())
         .result(results())
         .build();
+  }
+
+  /** Transforms a Datamart DateTime string to a Fhir DateTime string. */
+  public String transformDateTime(String maybeDateTime) {
+    if (StringUtils.isBlank(maybeDateTime)) {
+      return null;
+    }
+    Instant instant = parseInstant(maybeDateTime);
+    if (instant == null) {
+      return null;
+    }
+    return instant.toString();
   }
 }

@@ -58,6 +58,14 @@ public class Dstu2DiagnosticReportTransformerTest {
     assertThat(dr.performer()).isEqualTo(DiagnosticReportSamples.Dstu2.create().performer());
   }
 
+  @Test
+  void transformDateTime() {
+    Dstu2DiagnosticReportTransformer tx = tx(DatamartDiagnosticReport.builder().build());
+    assertThat(tx.transformDateTime(null)).isNull();
+    assertThat(tx.transformDateTime("x")).isNull();
+    assertThat(tx.transformDateTime("2020-01-20T21:36:00")).isEqualTo("2020-01-20T21:36:00Z");
+  }
+
   Dstu2DiagnosticReportTransformer tx(DatamartDiagnosticReport dm) {
     return Dstu2DiagnosticReportTransformer.builder().datamart(dm).build();
   }
