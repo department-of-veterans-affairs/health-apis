@@ -59,7 +59,7 @@ public class Dstu2DiagnosticReportControllerTest {
     return DiagnosticReportEntity.builder()
         .cdwId(dm.cdwId())
         .icn(dm.patient().reference().orElse(null))
-        .category("LAB")
+        .category("CH")
         .dateUtc(Instant.parse(dm.issuedDateTime()))
         .payload(json(dm))
         .build();
