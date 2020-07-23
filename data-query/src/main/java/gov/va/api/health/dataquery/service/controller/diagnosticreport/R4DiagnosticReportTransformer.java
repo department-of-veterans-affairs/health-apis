@@ -1,7 +1,9 @@
 package gov.va.api.health.dataquery.service.controller.diagnosticreport;
 
 import static gov.va.api.health.dataquery.service.controller.R4Transformers.asReference;
+import static gov.va.api.health.dataquery.service.controller.Transformers.asDateTimeString;
 import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
+import static gov.va.api.health.dataquery.service.controller.Transformers.parseInstant;
 
 import gov.va.api.health.dataquery.service.controller.R4Transformers;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
@@ -18,8 +20,12 @@ import lombok.NonNull;
 public class R4DiagnosticReportTransformer {
   @NonNull final DatamartDiagnosticReport datamart;
 
+  public String asFhirDateTimeString(String maybeDateTime) {
+    return asDateTimeString(parseInstant(maybeDateTime));
+  }
+
   /** Determine the catgory value(s) for the DiagnosticReport. */
-  public List<CodeableConcept> category() {
+  private List<CodeableConcept> category() {
     return List.of(
         CodeableConcept.builder()
             .coding(
@@ -33,7 +39,7 @@ public class R4DiagnosticReportTransformer {
   }
 
   /** Determine the code value for the DiagnosticReport. */
-  public CodeableConcept code() {
+  private CodeableConcept code() {
     return CodeableConcept.builder().text("panel").build();
   }
 
@@ -62,8 +68,8 @@ public class R4DiagnosticReportTransformer {
         .category(category())
         .code(code())
         .subject(asReference(datamart.patient()))
-        .effectiveDateTime(datamart.effectiveDateTime())
-        .issued(datamart.issuedDateTime())
+        .effectiveDateTime(asFhirDateTimeString(datamart.effectiveDateTime()))
+        .issued(asFhirDateTimeString(datamart.issuedDateTime()))
         .result(results(datamart.results()))
         .build();
   }

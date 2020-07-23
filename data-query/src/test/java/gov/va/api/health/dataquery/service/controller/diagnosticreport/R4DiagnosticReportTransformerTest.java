@@ -11,6 +11,14 @@ import org.junit.jupiter.api.Test;
 
 public class R4DiagnosticReportTransformerTest {
   @Test
+  void asFhirDateTimeString() {
+    R4DiagnosticReportTransformer tx = tx(DatamartDiagnosticReport.builder().build());
+    assertThat(tx.asFhirDateTimeString(null)).isNull();
+    assertThat(tx.asFhirDateTimeString("x")).isNull();
+    assertThat(tx.asFhirDateTimeString("2020-01-20T21:36:00")).isEqualTo("2020-01-20T21:36:00Z");
+  }
+
+  @Test
   void diagnosticReport() {
     assertThat(tx(DiagnosticReportSamples.DatamartV2.create().diagnosticReport()).toFhir())
         .isEqualTo(DiagnosticReportSamples.R4.create().diagnosticReport());
