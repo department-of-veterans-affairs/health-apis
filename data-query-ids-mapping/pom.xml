@@ -8,7 +8,7 @@
     <relativePath/>
   </parent>
   <artifactId>data-query-ids-mapping</artifactId>
-  <version>3.0.8</version>
+  <version>3.0.9-SNAPSHOT</version>
   <packaging>jar</packaging>
   <properties>
     <health-apis-ids.version>3.0.2</health-apis-ids.version>
