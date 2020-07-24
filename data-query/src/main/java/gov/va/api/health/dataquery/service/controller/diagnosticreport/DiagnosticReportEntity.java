@@ -57,4 +57,11 @@ public class DiagnosticReportEntity implements DatamartEntity {
   DatamartDiagnosticReport asDatamartDiagnosticReport() {
     return deserializeDatamart(payload, DatamartDiagnosticReport.class);
   }
+
+  public enum CategoryCodes {
+    // LabChem
+    CH,
+    // Microbiology
+    MB
+  }
 }
