@@ -3,6 +3,7 @@ package gov.va.api.health.dataquery.service.controller.diagnosticreport;
 import static gov.va.api.health.autoconfig.configuration.JacksonConfig.createMapper;
 import static gov.va.api.health.dataquery.service.controller.Transformers.parseInstant;
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 
 import gov.va.api.health.argonaut.api.resources.DiagnosticReport;
 import gov.va.api.health.argonaut.api.resources.DiagnosticReport.Bundle;
@@ -224,6 +225,59 @@ public class DiagnosticReportSamples {
 
     public DiagnosticReport report() {
       return report(reportId);
+    }
+  }
+
+  @AllArgsConstructor(staticName = "create")
+  public static class R4 {
+    public gov.va.api.health.uscorer4.api.resources.DiagnosticReport diagnosticReport() {
+      String reportId = "800260864479:L";
+      return diagnosticReport(reportId);
+    }
+
+    public gov.va.api.health.uscorer4.api.resources.DiagnosticReport diagnosticReport(String publicId) {
+      String icn = "1011537977V693883";
+      String issuedDateTime = "2009-09-24T03:36:35Z";
+      return diagnosticReport(publicId, icn, issuedDateTime);
+    }
+
+    public gov.va.api.health.uscorer4.api.resources.DiagnosticReport diagnosticReport(
+        String publicId, String patientIcn, String issuedDateTime) {
+      String effectiveDateTime = "2009-09-24T03:15:24Z";
+      return gov.va.api.health.uscorer4.api.resources.DiagnosticReport.builder()
+          .id(publicId)
+          .resourceType("DiagnosticReport")
+          .status(
+              gov.va.api.health.uscorer4.api.resources.DiagnosticReport.DiagnosticReportStatus
+                  ._final)
+          .category(
+              singletonList(
+                  gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()
+                      .coding(
+                          singletonList(
+                              gov.va.api.health.r4.api.datatypes.Coding.builder()
+                                  .system("http://terminology.hl7.org/CodeSystem/v2-0074")
+                                  .code("LAB")
+                                  .display("Laboratory")
+                                  .build()))
+                      .build()))
+          .code(gov.va.api.health.r4.api.datatypes.CodeableConcept.builder().text("panel").build())
+          .subject(
+              gov.va.api.health.r4.api.elements.Reference.builder()
+                  .reference("Patient/" + patientIcn)
+                  .build())
+          .effectiveDateTime(effectiveDateTime)
+          .issued(issuedDateTime)
+          .result(results())
+          .build();
+    }
+
+    public List<gov.va.api.health.r4.api.elements.Reference> results() {
+      return singletonList(
+          gov.va.api.health.r4.api.elements.Reference.builder()
+              .reference("Observation/TEST")
+              .display("1234")
+              .build());
     }
   }
 }

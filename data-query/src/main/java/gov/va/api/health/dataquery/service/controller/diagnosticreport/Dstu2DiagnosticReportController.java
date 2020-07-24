@@ -273,8 +273,8 @@ public class Dstu2DiagnosticReportController {
               .add("page", page)
               .add("_count", count)
               .build();
-      DiagnosticReportRepository.PatientAndCodeSpecification spec =
-          DiagnosticReportRepository.PatientAndCodeSpecification.builder()
+      DiagnosticReportRepository.PatientAndCodeAndDateSpecification spec =
+          DiagnosticReportRepository.PatientAndCodeAndDateSpecification.builder()
               .patient(cdwId)
               .code(isBlank(code) ? null : code)
               .build();

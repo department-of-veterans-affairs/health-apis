@@ -8,6 +8,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Value;
 import org.springframework.data.domain.Page;
@@ -24,6 +25,32 @@ public interface DiagnosticReportRepository
     extends PagingAndSortingRepository<DiagnosticReportEntity, String>,
         JpaSpecificationExecutor<DiagnosticReportEntity> {
   Page<DiagnosticReportEntity> findByIcn(String icn, Pageable pageable);
+
+  @Value
+  @AllArgsConstructor(staticName = "of")
+  class DateSpecification implements Specification<DiagnosticReportEntity> {
+
+    DateTimeParameters date1;
+
+    DateTimeParameters date2;
+
+    @Override
+    public Predicate toPredicate(
+        Root<DiagnosticReportEntity> root,
+        CriteriaQuery<?> criteriaQuery,
+        CriteriaBuilder criteriaBuilder) {
+      List<Predicate> predicates = new ArrayList<>(2);
+
+      if (date1() != null) {
+        predicates.add(date1().toInstantPredicate(root.get("dateUtc"), criteriaBuilder));
+      }
+      if (date2() != null) {
+        predicates.add(date2().toInstantPredicate(root.get("dateUtc"), criteriaBuilder));
+      }
+
+      return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+    }
+  }
 
   @Value
   class PatientAndCategoryAndDateSpecification implements Specification<DiagnosticReportEntity> {
@@ -49,7 +76,7 @@ public interface DiagnosticReportRepository
         Root<DiagnosticReportEntity> root,
         CriteriaQuery<?> criteriaQuery,
         CriteriaBuilder criteriaBuilder) {
-      List<Predicate> predicates = new ArrayList<>(4);
+      List<Predicate> predicates = new ArrayList<>(3);
 
       // Patient
       predicates.add(criteriaBuilder.equal(root.get("icn"), patient()));
@@ -58,11 +85,10 @@ public interface DiagnosticReportRepository
       predicates.add(criteriaBuilder.equal(root.get("category"), category()));
 
       // Date(s)
-      if (date1() != null) {
-        predicates.add(date1().toInstantPredicate(root.get("dateUtc"), criteriaBuilder));
-      }
-      if (date2() != null) {
-        predicates.add(date2().toInstantPredicate(root.get("dateUtc"), criteriaBuilder));
+      if (date1() != null || date2() != null) {
+        predicates.add(
+            DateSpecification.of(date1(), date2())
+                .toPredicate(root, criteriaQuery, criteriaBuilder));
       }
 
       return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
@@ -70,15 +96,21 @@ public interface DiagnosticReportRepository
   }
 
   @Value
-  class PatientAndCodeSpecification implements Specification<DiagnosticReportEntity> {
+  class PatientAndCodeAndDateSpecification implements Specification<DiagnosticReportEntity> {
     String patient;
 
     String code;
 
+    DateTimeParameters date1;
+
+    DateTimeParameters date2;
+
     @Builder
-    private PatientAndCodeSpecification(String patient, String code) {
+    private PatientAndCodeAndDateSpecification(String patient, String code, String[] dates) {
       this.patient = patient;
       this.code = code;
+      date1 = (dates == null || dates.length < 1) ? null : new DateTimeParameters(dates[0]);
+      date2 = (dates == null || dates.length < 2) ? null : new DateTimeParameters(dates[1]);
     }
 
     @Override
@@ -86,7 +118,7 @@ public interface DiagnosticReportRepository
         Root<DiagnosticReportEntity> root,
         CriteriaQuery<?> criteriaQuery,
         CriteriaBuilder criteriaBuilder) {
-      List<Predicate> predicates = new ArrayList<>(2);
+      List<Predicate> predicates = new ArrayList<>(3);
 
       // Patient
       predicates.add(criteriaBuilder.equal(root.get("icn"), patient()));
@@ -94,6 +126,13 @@ public interface DiagnosticReportRepository
       // Code
       if (code() != null) {
         predicates.add(criteriaBuilder.equal(root.get("code"), code()));
+      }
+
+      // Date(s)
+      if (date1() != null || date2() != null) {
+        predicates.add(
+            DateSpecification.of(date1(), date2())
+                .toPredicate(root, criteriaQuery, criteriaBuilder));
       }
 
       return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
