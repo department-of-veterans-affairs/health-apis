@@ -3,12 +3,14 @@ package gov.va.api.health.dataquery.service.controller.diagnosticreport;
 import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
 
 import gov.va.api.health.argonaut.api.resources.DiagnosticReport;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.DateTimeParameter;
 import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
+import gov.va.api.health.dataquery.service.controller.EnumSearcher;
 import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.Parameters;
@@ -17,6 +19,7 @@ import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.persistence.EntityManager;
@@ -102,6 +105,21 @@ public class Dstu2DiagnosticReportController {
             .map(dm -> Dstu2DiagnosticReportTransformer.builder().datamart(dm).build().toFhir())
             .collect(Collectors.toList());
     return bundle(parameters, fhir, (int) entitiesPage.getTotalElements());
+  }
+
+  /** Determines Datamart CategoryCode(s) based on the fhir category code provided. */
+  private Set<DiagnosticReportEntity.CategoryCodes> datamartCategoryCodesFor(String fhirCategory) {
+    if ("LAB".equals(fhirCategory)) {
+      return Set.of(
+          DiagnosticReportEntity.CategoryCodes.CH, DiagnosticReportEntity.CategoryCodes.MB);
+    }
+    // If the category isn't supported by the database.
+    try {
+      return Set.of(EnumSearcher.of(DiagnosticReportEntity.CategoryCodes.class).find(fhirCategory));
+    } catch (IllegalArgumentException e) {
+      log.info(e.getMessage());
+      return emptySet();
+    }
   }
 
   private DiagnosticReportEntity findById(String publicId) {
@@ -246,7 +264,7 @@ public class Dstu2DiagnosticReportController {
       DiagnosticReportRepository.PatientAndCategoryAndDateSpecification spec =
           DiagnosticReportRepository.PatientAndCategoryAndDateSpecification.builder()
               .patient(cdwId)
-              .category(category)
+              .categories(datamartCategoryCodesFor(category))
               .dates(date)
               .build();
       Page<DiagnosticReportEntity> entitiesPage = repository.findAll(spec, page(page, count));

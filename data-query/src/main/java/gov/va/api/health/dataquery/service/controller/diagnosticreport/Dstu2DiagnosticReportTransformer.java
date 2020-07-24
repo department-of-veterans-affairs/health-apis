@@ -1,7 +1,9 @@
 package gov.va.api.health.dataquery.service.controller.diagnosticreport;
 
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asReference;
+import static gov.va.api.health.dataquery.service.controller.Transformers.asDateTimeString;
 import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
+import static gov.va.api.health.dataquery.service.controller.Transformers.parseInstant;
 import static java.util.Collections.singletonList;
 
 import gov.va.api.health.argonaut.api.resources.DiagnosticReport;
@@ -65,11 +67,16 @@ public class Dstu2DiagnosticReportTransformer {
         .category(category())
         .code(code())
         .subject(asReference(datamart.patient()))
-        .effectiveDateTime(datamart.effectiveDateTime())
-        .issued(datamart.issuedDateTime())
+        .effectiveDateTime(transformDateTime(datamart.effectiveDateTime()))
+        .issued(transformDateTime(datamart.issuedDateTime()))
         .performer(performer())
         ._performer(performerExtension())
         .result(results())
         .build();
+  }
+
+  /** Transforms a Datamart DateTime string to a Fhir DateTime string. */
+  String transformDateTime(String maybeDateTime) {
+    return asDateTimeString(parseInstant(maybeDateTime));
   }
 }
