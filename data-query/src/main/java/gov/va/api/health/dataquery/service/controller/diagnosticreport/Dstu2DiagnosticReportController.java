@@ -246,7 +246,10 @@ public class Dstu2DiagnosticReportController {
               .build();
       Set<String> dbCategory = Set.of(category);
       if ("LAB".equals(category)) {
-        dbCategory = Set.of("CH", "MB");
+        dbCategory =
+            Set.of(
+                DiagnosticReportEntity.CategoryCodes.CH.toString(),
+                DiagnosticReportEntity.CategoryCodes.MB.toString());
       }
       DiagnosticReportRepository.PatientAndCategoryAndDateSpecification spec =
           DiagnosticReportRepository.PatientAndCategoryAndDateSpecification.builder()
