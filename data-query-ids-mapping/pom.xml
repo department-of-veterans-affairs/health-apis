@@ -4,11 +4,11 @@
   <parent>
     <groupId>gov.va.api.health</groupId>
     <artifactId>api-starter</artifactId>
-    <version>7.0.2</version>
+    <version>7.0.3</version>
     <relativePath/>
   </parent>
   <artifactId>data-query-ids-mapping</artifactId>
-  <version>3.0.10-SNAPSHOT</version>
+  <version>3.0.10</version>
   <packaging>jar</packaging>
   <properties>
     <health-apis-ids.version>3.0.2</health-apis-ids.version>
