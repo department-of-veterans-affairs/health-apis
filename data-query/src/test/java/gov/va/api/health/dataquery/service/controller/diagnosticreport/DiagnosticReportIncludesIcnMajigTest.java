@@ -4,7 +4,7 @@ import gov.va.api.health.dataquery.service.controller.ExtractIcnValidator;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
-public class Dstu2DiagnosticReportIncludesIcnMajigTest {
+public class DiagnosticReportIncludesIcnMajigTest {
   @Test
   void dstu2() {
     ExtractIcnValidator.builder()
