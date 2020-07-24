@@ -1,10 +1,10 @@
 package gov.va.api.health.dataquery.service.controller.diagnosticreport;
 
-import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 
+import com.google.common.base.Splitter;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.DateTimeParameter;
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
@@ -232,7 +232,7 @@ public class R4DiagnosticReportController {
   @GetMapping(params = {"patient", "code"})
   public DiagnosticReport.Bundle searchByPatientAndCode(
       @RequestParam("patient") String patient,
-      @RequestParam("code") String code,
+      @RequestParam("code") String codeCsv,
       @RequestParam(value = "date", required = false) @Valid @DateTimeParameter @Size(max = 2)
           String[] date,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
@@ -241,15 +241,19 @@ public class R4DiagnosticReportController {
     MultiValueMap<String, String> parameters =
         Parameters.builder()
             .add("patient", patient)
-            .add("code", code)
+            .add("code", codeCsv)
             .addAll("date", date)
             .add("page", page)
             .add("_count", count)
             .build();
+    Set<String> codes =
+        Splitter.on(",").trimResults().splitToList(codeCsv).stream()
+            .filter(c -> !"".equals(c))
+            .collect(Collectors.toSet());
     DiagnosticReportRepository.PatientAndCodeAndDateSpecification spec =
         DiagnosticReportRepository.PatientAndCodeAndDateSpecification.builder()
             .patient(cdwId)
-            .code(isBlank(code) ? null : code)
+            .codes(codes)
             .dates(date)
             .build();
     Page<DiagnosticReportEntity> entitiesPage = repository.findAll(spec, page(page, count));
@@ -260,21 +264,25 @@ public class R4DiagnosticReportController {
   @GetMapping(params = {"patient", "status"})
   public DiagnosticReport.Bundle searchByPatientAndStatus(
       @RequestParam("patient") String patient,
-      @RequestParam("status") String status,
+      @RequestParam("status") String statusCsv,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
     String cdwId = witnessProtection.toCdwId(patient);
     MultiValueMap<String, String> parameters =
         Parameters.builder()
             .add("patient", patient)
-            .add("status", status)
+            .add("status", statusCsv)
             .add("page", page)
             .add("_count", count)
             .build();
     // The status for all diagnosticReports returned will be 'final'
     // (see R4DiagnosticReportTransformer) if any other status code is
     // requested, return an empty bundle
-    if (!"final".equals(status)) {
+    Set<String> statuses =
+        Splitter.on(",").trimResults().splitToList(statusCsv).stream()
+            .filter(c -> !"".equals(c))
+            .collect(Collectors.toSet());
+    if (!statuses.isEmpty() && !statuses.contains("final")) {
       return bundle(parameters, emptyList(), 0);
     }
     int pageParam = Parameters.pageOf(parameters);

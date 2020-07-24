@@ -1,5 +1,8 @@
 package gov.va.api.health.dataquery.service.controller.diagnosticreport;
 
+import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
+import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
+
 import gov.va.api.health.autoconfig.logging.Loggable;
 import gov.va.api.health.dataquery.service.controller.DateTimeParameters;
 import java.util.ArrayList;
@@ -88,7 +91,7 @@ public interface DiagnosticReportRepository
       predicates.add(categoriesInClause);
 
       // Date(s)
-      if (date1() != null || date2() != null) {
+      if (!allBlank(date1(), date2())) {
         predicates.add(
             DateSpecification.of(date1(), date2())
                 .toPredicate(root, criteriaQuery, criteriaBuilder));
@@ -102,16 +105,16 @@ public interface DiagnosticReportRepository
   class PatientAndCodeAndDateSpecification implements Specification<DiagnosticReportEntity> {
     String patient;
 
-    String code;
+    Set<String> codes;
 
     DateTimeParameters date1;
 
     DateTimeParameters date2;
 
     @Builder
-    private PatientAndCodeAndDateSpecification(String patient, String code, String[] dates) {
+    private PatientAndCodeAndDateSpecification(String patient, Set<String> codes, String[] dates) {
       this.patient = patient;
-      this.code = code;
+      this.codes = codes;
       date1 = (dates == null || dates.length < 1) ? null : new DateTimeParameters(dates[0]);
       date2 = (dates == null || dates.length < 2) ? null : new DateTimeParameters(dates[1]);
     }
@@ -127,12 +130,14 @@ public interface DiagnosticReportRepository
       predicates.add(criteriaBuilder.equal(root.get("icn"), patient()));
 
       // Code
-      if (code() != null) {
-        predicates.add(criteriaBuilder.equal(root.get("code"), code()));
+      if (!isBlank(codes())) {
+        CriteriaBuilder.In<String> codesInClause = criteriaBuilder.in(root.get("code"));
+        codes().forEach(codesInClause::value);
+        predicates.add(codesInClause);
       }
 
       // Date(s)
-      if (date1() != null || date2() != null) {
+      if (!allBlank(date1(), date2())) {
         predicates.add(
             DateSpecification.of(date1(), date2())
                 .toPredicate(root, criteriaQuery, criteriaBuilder));
