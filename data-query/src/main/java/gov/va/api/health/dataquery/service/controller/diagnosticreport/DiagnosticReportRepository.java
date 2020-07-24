@@ -30,7 +30,7 @@ public interface DiagnosticReportRepository
   class PatientAndCategoryAndDateSpecification implements Specification<DiagnosticReportEntity> {
     String patient;
 
-    Set<String> categories;
+    Set<DiagnosticReportEntity.CategoryCodes> categories;
 
     DateTimeParameters date1;
 
@@ -38,7 +38,7 @@ public interface DiagnosticReportRepository
 
     @Builder
     private PatientAndCategoryAndDateSpecification(
-        String patient, Set<String> categories, String[] dates) {
+        String patient, Set<DiagnosticReportEntity.CategoryCodes> categories, String[] dates) {
       this.patient = patient;
       this.categories = categories;
       this.date1 = (dates == null || dates.length < 1) ? null : new DateTimeParameters(dates[0]);
@@ -57,7 +57,7 @@ public interface DiagnosticReportRepository
 
       // Category
       CriteriaBuilder.In<String> categoriesInClause = criteriaBuilder.in(root.get("category"));
-      categories.forEach(categoriesInClause::value);
+      categories.forEach(c -> categoriesInClause.value(c.toString()));
       predicates.add(categoriesInClause);
 
       // Date(s)

@@ -59,7 +59,9 @@ public class DiagnosticReportEntity implements DatamartEntity {
   }
 
   public enum CategoryCodes {
+    // LabChem
     CH,
+    // Microbiology
     MB
   }
 }

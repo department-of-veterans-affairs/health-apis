@@ -426,6 +426,33 @@ public class Dstu2DiagnosticReportControllerTest {
   }
 
   @Test
+  void searchByPatientAndInvalidCategory() {
+    populateData();
+    assertThat(json(controller().searchByPatientAndCategory(true, "p0", "NOPE", null, 1, 15)))
+        .isEqualTo(
+            json(
+                DiagnosticReportSamples.Dstu2.asBundle(
+                    "http://fonzy.com/cool",
+                    emptyList(),
+                    0,
+                    link(
+                        BundleLink.LinkRelation.first,
+                        "http://fonzy.com/cool/DiagnosticReport?category=NOPE&patient=p0",
+                        1,
+                        15),
+                    link(
+                        BundleLink.LinkRelation.self,
+                        "http://fonzy.com/cool/DiagnosticReport?category=NOPE&patient=p0",
+                        1,
+                        15),
+                    link(
+                        BundleLink.LinkRelation.last,
+                        "http://fonzy.com/cool/DiagnosticReport?category=NOPE&patient=p0",
+                        0,
+                        15))));
+  }
+
+  @Test
   void searchWithCount0() {
     DatamartDiagnosticReport datamart =
         DiagnosticReportSamples.DatamartV2.create().diagnosticReport();
