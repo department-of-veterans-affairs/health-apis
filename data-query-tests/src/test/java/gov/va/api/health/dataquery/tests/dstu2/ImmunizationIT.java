@@ -1,11 +1,12 @@
 package gov.va.api.health.dataquery.tests.dstu2;
 
-import static gov.va.api.health.dataquery.tests.EnvironmentAssumptions.assumeLocal;
-import static gov.va.api.health.dataquery.tests.EnvironmentAssumptions.assumeNotLocal;
+import static gov.va.api.health.sentinel.EnvironmentAssumptions.assumeEnvironmentIn;
+import static gov.va.api.health.sentinel.EnvironmentAssumptions.assumeEnvironmentNotIn;
 
 import gov.va.api.health.argonaut.api.resources.Immunization;
 import gov.va.api.health.dataquery.tests.ResourceVerifier;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
+import gov.va.api.health.sentinel.Environment;
 import lombok.experimental.Delegate;
 import org.junit.jupiter.api.Test;
 
@@ -14,7 +15,7 @@ public class ImmunizationIT {
 
   @Test
   public void advanced() {
-    assumeLocal();
+    assumeEnvironmentIn(Environment.LOCAL);
     verifier.verifyAll(
         test(
             200, Immunization.Bundle.class, "Immunization?_id={id}", verifier.ids().immunization()),
@@ -40,7 +41,7 @@ public class ImmunizationIT {
 
   @Test
   public void searchNotMe() {
-    assumeNotLocal();
+    assumeEnvironmentNotIn(Environment.LOCAL);
     verifier.verifyAll(
         test(
             403,

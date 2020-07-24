@@ -1,10 +1,11 @@
 package gov.va.api.health.dataquery.tests.dstu2;
 
-import static gov.va.api.health.dataquery.tests.EnvironmentAssumptions.assumeLocal;
-import static gov.va.api.health.dataquery.tests.EnvironmentAssumptions.assumeNotLocal;
+import static gov.va.api.health.sentinel.EnvironmentAssumptions.assumeEnvironmentIn;
+import static gov.va.api.health.sentinel.EnvironmentAssumptions.assumeEnvironmentNotIn;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.dataquery.tests.TestClients;
+import gov.va.api.health.sentinel.Environment;
 import gov.va.api.health.sentinel.ExpectedResponse;
 import org.junit.jupiter.api.Test;
 
@@ -19,7 +20,7 @@ public class WellKnownIT {
    */
   @Test
   public void localWellKnownIsValid() {
-    assumeLocal();
+    assumeEnvironmentIn(Environment.LOCAL);
     requestWellKnown("/");
   }
 
@@ -35,7 +36,7 @@ public class WellKnownIT {
 
   @Test
   public void wellKnownIsValid() {
-    assumeNotLocal();
+    assumeEnvironmentNotIn(Environment.LOCAL);
     requestWellKnown(apiPath());
   }
 }
