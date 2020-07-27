@@ -106,6 +106,18 @@ class R4MetadataController {
                 .search(
                     Set.of(SearchParam.PATIENT, SearchParam.CATEGORY, SearchParam.CLINICAL_STATUS))
                 .build(),
+            support("DiagnosticReport")
+                .profileUrl(
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-diagnosticreport-lab")
+                .search(
+                    Set.of(
+                        SearchParam.ID,
+                        SearchParam.PATIENT,
+                        SearchParam.CATEGORY,
+                        SearchParam.CODE,
+                        SearchParam.DATE,
+                        SearchParam.STATUS))
+                .build(),
             support("Immunization")
                 .profileUrl("http://hl7.org/fhir/us/core/StructureDefinition/us-core-immunization")
                 .search(Set.of(SearchParam.PATIENT))
@@ -139,6 +151,10 @@ class R4MetadataController {
                         SearchParam.NAME,
                         SearchParam.GENDER,
                         SearchParam.GIVEN))
+                .build(),
+            support("Procedure")
+                .profileUrl("http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure")
+                .search(Set.of(SearchParam.ID, SearchParam.PATIENT, SearchParam.DATE))
                 .build())
         .map(SupportedResource::asResource)
         .collect(toList());
