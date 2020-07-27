@@ -1,10 +1,10 @@
 package gov.va.api.health.dataquery.service.controller.diagnosticreport;
 
-import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 
+import com.google.common.base.Splitter;
 import gov.va.api.health.argonaut.api.resources.DiagnosticReport;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
@@ -278,7 +278,7 @@ public class Dstu2DiagnosticReportController {
   public DiagnosticReport.Bundle searchByPatientAndCode(
       @RequestHeader(name = "v2", defaultValue = "false") Boolean v2,
       @RequestParam("patient") String patient,
-      @RequestParam("code") String code,
+      @RequestParam("code") String codeCsv,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
     if (Boolean.TRUE.equals(v2)) {
@@ -287,19 +287,23 @@ public class Dstu2DiagnosticReportController {
       MultiValueMap<String, String> parameters =
           Parameters.builder()
               .add("patient", patient)
-              .add("code", code)
+              .add("code", codeCsv)
               .add("page", page)
               .add("_count", count)
               .build();
-      DiagnosticReportRepository.PatientAndCodeSpecification spec =
-          DiagnosticReportRepository.PatientAndCodeSpecification.builder()
+      Set<String> codes =
+          Splitter.on(",").trimResults().splitToList(codeCsv).stream()
+              .filter(c -> !"".equals(c))
+              .collect(Collectors.toSet());
+      DiagnosticReportRepository.PatientAndCodeAndDateSpecification spec =
+          DiagnosticReportRepository.PatientAndCodeAndDateSpecification.builder()
               .patient(cdwId)
-              .code(isBlank(code) ? null : code)
+              .codes(codes)
               .build();
       Page<DiagnosticReportEntity> entitiesPage = repository.findAll(spec, page(page, count));
       return bundle(parameters, entitiesPage);
     }
-    return v1Controller().searchByPatientAndCode(patient, code, page, count);
+    return v1Controller().searchByPatientAndCode(patient, codeCsv, page, count);
   }
 
   /** Search by patient. Raw Reads ONLY in V2. */

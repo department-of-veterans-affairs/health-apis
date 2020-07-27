@@ -9,7 +9,6 @@ import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference
 import gov.va.api.health.dataquery.service.controller.diagnosticreport.v1.DatamartDiagnosticReports;
 import gov.va.api.health.dataquery.service.controller.diagnosticreport.v1.DiagnosticReportCrossEntity;
 import gov.va.api.health.dataquery.service.controller.diagnosticreport.v1.DiagnosticReportsEntity;
-import gov.va.api.health.r4.api.elements.Reference;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -242,11 +241,55 @@ public class DiagnosticReportSamples {
 
   @AllArgsConstructor(staticName = "create")
   public static class R4 {
+    public static gov.va.api.health.uscorer4.api.resources.DiagnosticReport.Bundle asBundle(
+        String baseUrl,
+        Collection<gov.va.api.health.uscorer4.api.resources.DiagnosticReport> reports,
+        int totalRecords,
+        gov.va.api.health.r4.api.bundle.BundleLink... links) {
+      return gov.va.api.health.uscorer4.api.resources.DiagnosticReport.Bundle.builder()
+          .resourceType("Bundle")
+          .type(gov.va.api.health.r4.api.bundle.AbstractBundle.BundleType.searchset)
+          .total(totalRecords)
+          .link(Arrays.asList(links))
+          .entry(
+              reports.stream()
+                  .map(
+                      c ->
+                          gov.va.api.health.uscorer4.api.resources.DiagnosticReport.Entry.builder()
+                              .fullUrl(baseUrl + "/DiagnosticReport/" + c.id())
+                              .resource(c)
+                              .search(
+                                  gov.va.api.health.r4.api.bundle.AbstractEntry.Search.builder()
+                                      .mode(
+                                          gov.va.api.health.r4.api.bundle.AbstractEntry.SearchMode
+                                              .match)
+                                      .build())
+                              .build())
+                  .collect(Collectors.toList()))
+          .build();
+    }
+
+    public static gov.va.api.health.r4.api.bundle.BundleLink link(
+        gov.va.api.health.r4.api.bundle.BundleLink.LinkRelation rel,
+        String base,
+        int page,
+        int count) {
+      return gov.va.api.health.r4.api.bundle.BundleLink.builder()
+          .relation(rel)
+          .url(base + "&page=" + page + "&_count=" + count)
+          .build();
+    }
+
     public gov.va.api.health.uscorer4.api.resources.DiagnosticReport diagnosticReport() {
       String reportId = "800260864479:L";
+      return diagnosticReport(reportId);
+    }
+
+    public gov.va.api.health.uscorer4.api.resources.DiagnosticReport diagnosticReport(
+        String publicId) {
       String icn = "1011537977V693883";
       String issuedDateTime = "2009-09-24T03:36:35Z";
-      return diagnosticReport(reportId, icn, issuedDateTime);
+      return diagnosticReport(publicId, icn, issuedDateTime);
     }
 
     public gov.va.api.health.uscorer4.api.resources.DiagnosticReport diagnosticReport(
@@ -280,7 +323,7 @@ public class DiagnosticReportSamples {
           .build();
     }
 
-    public List<Reference> results() {
+    public List<gov.va.api.health.r4.api.elements.Reference> results() {
       return singletonList(
           gov.va.api.health.r4.api.elements.Reference.builder()
               .reference("Observation/TEST")

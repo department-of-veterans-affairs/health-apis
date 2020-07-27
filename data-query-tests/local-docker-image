@@ -42,6 +42,7 @@ run() {
     -e DQ_URL=http://$THIS_MACHINE:8090 \
     -e TOKEN=nope \
     -e DATA_QUERY_REPLACEMENT_URL_PREFIX=http://localhost:8090 \
+    -e INTERNAL_API_PATH=/ \
     -e DSTU2_API_PATH=/dstu2 \
     -e STU3_API_PATH=/stu3 \
     -e R4_API_PATH=/r4 \
