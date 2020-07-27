@@ -136,6 +136,51 @@
           ]
         },
         {
+          "type" : "DiagnosticReport",
+          "profile" : "http://hl7.org/fhir/us/core/StructureDefinition/us-core-diagnosticreport-lab",
+          "interaction" : [
+            {
+              "code" : "search-type",
+              "documentation" : "Implemented per the specification"
+            },
+            {
+              "code" : "read",
+              "documentation" : "Implemented per the specification"
+            }
+          ],
+          "versioning" : "no-version",
+          "referencePolicy" : [
+            "literal",
+            "local"
+          ],
+          "searchParam" : [
+            {
+              "name" : "_id",
+              "type" : "string"
+            },
+            {
+              "name" : "category",
+              "type" : "string"
+            },
+            {
+              "name" : "code",
+              "type" : "token"
+            },
+            {
+              "name" : "date",
+              "type" : "date"
+            },
+            {
+              "name" : "patient",
+              "type" : "reference"
+            },
+            {
+              "name" : "status",
+              "type" : "token"
+            }
+          ]
+        },
+        {
           "type" : "Immunization",
           "profile" : "http://hl7.org/fhir/us/core/StructureDefinition/us-core-immunization",
           "interaction" : [
@@ -291,6 +336,39 @@
             {
               "name" : "name",
               "type" : "string"
+            }
+          ]
+        },
+        {
+          "type" : "Procedure",
+          "profile" : "http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure",
+          "interaction" : [
+            {
+              "code" : "search-type",
+              "documentation" : "Implemented per the specification"
+            },
+            {
+              "code" : "read",
+              "documentation" : "Implemented per the specification"
+            }
+          ],
+          "versioning" : "no-version",
+          "referencePolicy" : [
+            "literal",
+            "local"
+          ],
+          "searchParam" : [
+            {
+              "name" : "_id",
+              "type" : "string"
+            },
+            {
+              "name" : "date",
+              "type" : "date"
+            },
+            {
+              "name" : "patient",
+              "type" : "reference"
             }
           ]
         }
