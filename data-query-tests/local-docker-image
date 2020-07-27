@@ -27,7 +27,7 @@ build() {
 
 run() {
 
-  ALLOW_URLS='.*/(metadata|AllergyIntolerance|Condition|DiagnosticReport|Immunization|Medication|MedicationOrder|MedicationStatement|Observation|Patient|Procedure)[?/].*'
+  ALLOW_URLS='.*/(metadata|AllergyIntolerance|Condition|DiagnosticReport|Immunization|Medication|MedicationOrder|MedicationRequest|MedicationStatement|Observation|Patient|Procedure)[?/].*'
   case $(uname) in
     Darwin) THIS_MACHINE="docker.for.mac.localhost";;
     Linux) THIS_MACHINE="localhost";;
