@@ -52,7 +52,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(
     value = {"/r4/DiagnosticReport"},
     produces = {"application/json", "application/fhir+json"})
-@AllArgsConstructor(onConstructor_ = @Autowired)
+@AllArgsConstructor(onConstructor = @__({@Autowired}))
 public class R4DiagnosticReportController {
   private R4Bundler bundler;
 
