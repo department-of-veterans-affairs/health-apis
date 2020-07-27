@@ -1,9 +1,10 @@
 package gov.va.api.health.dataquery.tests.dstu2;
 
-import static gov.va.api.health.dataquery.tests.EnvironmentAssumptions.assumeNotLocal;
+import static gov.va.api.health.sentinel.EnvironmentAssumptions.assumeEnvironmentNotIn;
 
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.tests.TestClients;
+import gov.va.api.health.sentinel.Environment;
 import gov.va.api.health.sentinel.ExpectedResponse;
 import gov.va.api.health.sentinel.FhirTestClient;
 import gov.va.api.health.sentinel.ServiceDefinition;
@@ -18,7 +19,7 @@ public class AuthorizationIT {
 
   @Test
   public void invalidTokenIsUnauthorized() {
-    assumeNotLocal();
+    assumeEnvironmentNotIn(Environment.LOCAL);
     TestClient unauthorizedDqClient =
         FhirTestClient.builder()
             .service(unauthorizedServiceDefinition(TestClients.dstu2DataQuery().service()))

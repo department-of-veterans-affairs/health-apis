@@ -1,8 +1,9 @@
 package gov.va.api.health.dataquery.tests.r4;
 
-import static gov.va.api.health.dataquery.tests.EnvironmentAssumptions.assumeNotLocal;
+import static gov.va.api.health.sentinel.EnvironmentAssumptions.assumeEnvironmentNotIn;
 
 import gov.va.api.health.dataquery.tests.ResourceVerifier;
+import gov.va.api.health.sentinel.Environment;
 import gov.va.api.health.uscorer4.api.resources.AllergyIntolerance;
 import gov.va.api.health.uscorer4.api.resources.Condition;
 import gov.va.api.health.uscorer4.api.resources.Observation;
@@ -17,7 +18,7 @@ public class R4PostSearchIT {
 
   @Test
   public void basic() {
-    assumeNotLocal();
+    assumeEnvironmentNotIn(Environment.LOCAL);
     verifier.verifyAll(
         // Basic Search by Patient
         test(
