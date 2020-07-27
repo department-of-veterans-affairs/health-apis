@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -51,22 +52,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(
     value = {"/r4/DiagnosticReport"},
     produces = {"application/json", "application/fhir+json"})
+@AllArgsConstructor(onConstructor = @__({@Autowired}))
 public class R4DiagnosticReportController {
   private R4Bundler bundler;
 
   private WitnessProtection witnessProtection;
 
   private DiagnosticReportRepository repository;
-
-  /** Autowired AllArgsContructor. */
-  R4DiagnosticReportController(
-      @Autowired R4Bundler bundler,
-      @Autowired WitnessProtection witnessProtection,
-      @Autowired DiagnosticReportRepository repository) {
-    this.bundler = bundler;
-    this.witnessProtection = witnessProtection;
-    this.repository = repository;
-  }
 
   private DiagnosticReport.Bundle bundle(
       MultiValueMap<String, String> parameters,
