@@ -1,10 +1,11 @@
 package gov.va.api.health.dataquery.tests.r4;
 
-import static gov.va.api.health.dataquery.tests.EnvironmentAssumptions.assumeLocal;
-import static gov.va.api.health.dataquery.tests.EnvironmentAssumptions.assumeNotLocal;
+import static gov.va.api.health.sentinel.EnvironmentAssumptions.assumeEnvironmentIn;
+import static gov.va.api.health.sentinel.EnvironmentAssumptions.assumeEnvironmentNotIn;
 
 import gov.va.api.health.dataquery.tests.ResourceVerifier;
 import gov.va.api.health.r4.api.resources.OperationOutcome;
+import gov.va.api.health.sentinel.Environment;
 import gov.va.api.health.uscorer4.api.resources.Condition;
 import lombok.experimental.Delegate;
 import org.junit.jupiter.api.Test;
@@ -14,7 +15,7 @@ public class ConditionIT {
 
   @Test
   public void advanced() {
-    assumeLocal();
+    assumeEnvironmentIn(Environment.LOCAL);
     verifier.verifyAll(
         test(200, Condition.Bundle.class, "Condition?_id={id}", verifier.ids().condition()),
         test(404, OperationOutcome.class, "Condition?_id={id}", verifier.ids().unknown()),
@@ -51,7 +52,7 @@ public class ConditionIT {
 
   @Test
   public void searchNotMe() {
-    assumeNotLocal();
+    assumeEnvironmentNotIn(Environment.LOCAL);
     verifier.verifyAll(
         test(403, OperationOutcome.class, "Condition?patient={patient}", verifier.ids().unknown()));
   }

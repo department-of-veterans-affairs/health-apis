@@ -1,7 +1,7 @@
 package gov.va.api.health.dataquery.tests.dstu2;
 
-import static gov.va.api.health.dataquery.tests.EnvironmentAssumptions.assumeLocal;
-import static gov.va.api.health.dataquery.tests.EnvironmentAssumptions.assumeNotLocal;
+import static gov.va.api.health.sentinel.EnvironmentAssumptions.assumeEnvironmentIn;
+import static gov.va.api.health.sentinel.EnvironmentAssumptions.assumeEnvironmentNotIn;
 
 import gov.va.api.health.argonaut.api.resources.Patient;
 import gov.va.api.health.dataquery.tests.ResourceVerifier;
@@ -15,7 +15,7 @@ public class PatientIT {
 
   @Test
   public void advanced() {
-    assumeLocal();
+    assumeEnvironmentIn(Environment.LOCAL);
     verifier.verifyAll(
         test(
             200,
@@ -62,7 +62,7 @@ public class PatientIT {
    */
   @Test
   public void patientIdentifierSearching() {
-    assumeLocal();
+    assumeEnvironmentIn(Environment.LOCAL);
     verifier.verify(
         test(200, Patient.Bundle.class, "Patient?identifier={id}", verifier.ids().patient()));
   }
@@ -74,7 +74,7 @@ public class PatientIT {
    */
   @Test
   public void patientMatching() {
-    assumeNotLocal();
+    assumeEnvironmentNotIn(Environment.LOCAL);
     int status = (Environment.get() == Environment.LOCAL) ? 404 : 403;
     verifier.verifyAll(
         test(status, OperationOutcome.class, "Patient/{id}", verifier.ids().unknown()),
