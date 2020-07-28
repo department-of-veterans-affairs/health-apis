@@ -13,6 +13,7 @@ import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.R4Bundler;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
+import gov.va.api.health.dataquery.service.controller.TokenParameter;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.uscorer4.api.resources.DiagnosticReport;
 import java.util.Collection;
@@ -54,6 +55,10 @@ import org.springframework.web.bind.annotation.RestController;
     produces = {"application/json", "application/fhir+json"})
 @AllArgsConstructor(onConstructor = @__({@Autowired}))
 public class R4DiagnosticReportController {
+  private static final String DR_CATEGORY_SYSTEM = "http://terminology.hl7.org/CodeSystem/v2-0074";
+
+  private static final String DR_STATUS_SYSTEM = "http://hl7.org/fhir/diagnostic-report-status";
+
   private R4Bundler bundler;
 
   private WitnessProtection witnessProtection;
@@ -93,13 +98,61 @@ public class R4DiagnosticReportController {
     return bundle(parameters, fhir, (int) entitiesPage.getTotalElements());
   }
 
+  private Set<DiagnosticReportEntity.CategoryCodes> categoriesFor(TokenParameter categoryToken) {
+    return categoryToken
+        .behavior()
+        .onExplicitSystemAndExplicitCode((s, c) -> datamartCategoryCodesFor(c))
+        .onAnySystemAndExplicitCode(this::datamartCategoryCodesFor)
+        .onNoSystemAndExplicitCode(this::datamartCategoryCodesFor)
+        .onExplicitSystemAndAnyCode(
+            s -> {
+              if (DR_CATEGORY_SYSTEM.equals(s)) {
+                return Set.of(
+                    DiagnosticReportEntity.CategoryCodes.CH,
+                    DiagnosticReportEntity.CategoryCodes.MB);
+              }
+              throw new IllegalStateException(
+                  "Unsupported Status System: " + s + " Cannot build ExplicitSystemSpecification.");
+            })
+        .build()
+        .execute();
+  }
+
+  private Set<String> codesFor(List<TokenParameter> codeTokens) {
+    if (codeTokens.isEmpty()) {
+      return emptySet();
+    }
+    return codeTokens.stream()
+        .flatMap(
+            t ->
+                t.behavior().onAnySystemAndExplicitCode(List::of)
+                    .onNoSystemAndExplicitCode(List::of)
+                    .onExplicitSystemAndExplicitCode(
+                        (s, c) -> {
+                          // We don't currently support any explicit systems for search by code
+                          throw new IllegalStateException(
+                              "Unsupported Status System: "
+                                  + s
+                                  + " Cannot build ExplicitSystemSpecification.");
+                        })
+                    .onExplicitSystemAndAnyCode(
+                        s -> {
+                          // We don't currently support any explicit systems for search by code
+                          throw new IllegalStateException(
+                              "Unsupported Status System: "
+                                  + s
+                                  + " Cannot build ExplicitSystemSpecification.");
+                        })
+                    .build().execute().stream())
+        .collect(Collectors.toSet());
+  }
+
   /** Determines Datamart CategoryCode(s) based on the fhir category code provided. */
   private Set<DiagnosticReportEntity.CategoryCodes> datamartCategoryCodesFor(String fhirCategory) {
     if ("LAB".equals(fhirCategory)) {
       return Set.of(
           DiagnosticReportEntity.CategoryCodes.CH, DiagnosticReportEntity.CategoryCodes.MB);
     }
-    // If the category isn't supported by the database.
     try {
       return Set.of(EnumSearcher.of(DiagnosticReportEntity.CategoryCodes.class).find(fhirCategory));
     } catch (IllegalArgumentException e) {
@@ -210,10 +263,11 @@ public class R4DiagnosticReportController {
             .add("page", page)
             .add("_count", count)
             .build();
+    TokenParameter categoryToken = TokenParameter.parse(category);
     DiagnosticReportRepository.PatientAndCategoryAndDateSpecification spec =
         DiagnosticReportRepository.PatientAndCategoryAndDateSpecification.builder()
             .patient(cdwId)
-            .categories(datamartCategoryCodesFor(category))
+            .categories(categoriesFor(categoryToken))
             .dates(date)
             .build();
     Page<DiagnosticReportEntity> entitiesPage = repository.findAll(spec, page(page, count));
@@ -238,14 +292,16 @@ public class R4DiagnosticReportController {
             .add("page", page)
             .add("_count", count)
             .build();
-    Set<String> codes =
+    List<TokenParameter> codeTokens =
         Splitter.on(",").trimResults().splitToList(codeCsv).stream()
             .filter(c -> !"".equals(c))
-            .collect(Collectors.toSet());
+            .map(TokenParameter::parse)
+            .filter(t -> !t.isCodeExplicitAndUnsupported("panel") || !t.hasExplicitlyNoSystem())
+            .collect(Collectors.toList());
     DiagnosticReportRepository.PatientAndCodeAndDateSpecification spec =
         DiagnosticReportRepository.PatientAndCodeAndDateSpecification.builder()
             .patient(cdwId)
-            .codes(codes)
+            .codes(codesFor(codeTokens))
             .dates(date)
             .build();
     Page<DiagnosticReportEntity> entitiesPage = repository.findAll(spec, page(page, count));
@@ -270,11 +326,16 @@ public class R4DiagnosticReportController {
     // The status for all diagnosticReports returned will be 'final'
     // (see R4DiagnosticReportTransformer) if any other status code is
     // requested, return an empty bundle
-    Set<String> statuses =
+    List<TokenParameter> statusTokens =
         Splitter.on(",").trimResults().splitToList(statusCsv).stream()
-            .filter(c -> !"".equals(c))
-            .collect(Collectors.toSet());
-    if (!statuses.isEmpty() && !statuses.contains("final")) {
+            .map(TokenParameter::parse)
+            .filter(
+                t ->
+                    !t.isSystemExplicitAndUnsupported(DR_STATUS_SYSTEM)
+                        || !t.isCodeExplicitAndUnsupported("final")
+                        || !t.hasExplicitlyNoSystem())
+            .collect(Collectors.toList());
+    if (statusTokens.isEmpty() || !statusFinal(statusTokens)) {
       return bundle(parameters, emptyList(), 0);
     }
     int pageParam = Parameters.pageOf(parameters);
@@ -287,5 +348,26 @@ public class R4DiagnosticReportController {
                 countParam == 0 ? 1 : countParam,
                 DiagnosticReportEntity.naturalOrder()));
     return bundle(parameters, entitiesPage);
+  }
+
+  private Boolean statusFinal(List<TokenParameter> codeTokens) {
+    return codeTokens.stream()
+        .flatMap(
+            t ->
+                t.behavior().onExplicitSystemAndExplicitCode((s, c) -> List.of(c))
+                    .onAnySystemAndExplicitCode(List::of).onNoSystemAndExplicitCode(List::of)
+                    .onExplicitSystemAndAnyCode(
+                        s -> {
+                          if (DR_STATUS_SYSTEM.equals(s)) {
+                            return List.of("final");
+                          }
+                          throw new IllegalStateException(
+                              "Unsupported Status System: "
+                                  + s
+                                  + " Cannot build ExplicitSystemSpecification.");
+                        })
+                    .build().execute().stream())
+        .distinct()
+        .anyMatch("final"::equals);
   }
 }
