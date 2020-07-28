@@ -118,33 +118,25 @@ public class R4DiagnosticReportController {
         .execute();
   }
 
-  private Set<String> codesFor(List<TokenParameter> codeTokens) {
-    if (codeTokens.isEmpty()) {
-      return emptySet();
-    }
-    return codeTokens.stream()
-        .flatMap(
-            t ->
-                t.behavior().onAnySystemAndExplicitCode(List::of)
-                    .onNoSystemAndExplicitCode(List::of)
-                    .onExplicitSystemAndExplicitCode(
-                        (s, c) -> {
-                          // We don't currently support any explicit systems for search by code
-                          throw new IllegalStateException(
-                              "Unsupported Status System: "
-                                  + s
-                                  + " Cannot build ExplicitSystemSpecification.");
-                        })
-                    .onExplicitSystemAndAnyCode(
-                        s -> {
-                          // We don't currently support any explicit systems for search by code
-                          throw new IllegalStateException(
-                              "Unsupported Status System: "
-                                  + s
-                                  + " Cannot build ExplicitSystemSpecification.");
-                        })
-                    .build().execute().stream())
-        .collect(Collectors.toSet());
+  private String codeFor(TokenParameter codeToken) {
+    return codeToken
+        .behavior()
+        .onAnySystemAndExplicitCode(c -> c)
+        .onNoSystemAndExplicitCode(c -> c)
+        .onExplicitSystemAndExplicitCode(
+            (s, c) -> {
+              // We don't currently support any explicit systems for search by code
+              throw new IllegalStateException(
+                  "Unsupported Status System: " + s + " Cannot build ExplicitSystemSpecification.");
+            })
+        .onExplicitSystemAndAnyCode(
+            s -> {
+              // We don't currently support any explicit systems for search by code
+              throw new IllegalStateException(
+                  "Unsupported Status System: " + s + " Cannot build ExplicitSystemSpecification.");
+            })
+        .build()
+        .execute();
   }
 
   /** Determines Datamart CategoryCode(s) based on the fhir category code provided. */
@@ -264,6 +256,11 @@ public class R4DiagnosticReportController {
             .add("_count", count)
             .build();
     TokenParameter categoryToken = TokenParameter.parse(category);
+    if (categoryToken.isSystemExplicitAndUnsupported(DR_CATEGORY_SYSTEM)
+        || categoryToken.isCodeExplicitAndUnsupported("CH", "LAB", "MB")
+        || categoryToken.hasExplicitlyNoSystem()) {
+      return bundle(parameters, emptyList(), 0);
+    }
     DiagnosticReportRepository.PatientAndCategoryAndDateSpecification spec =
         DiagnosticReportRepository.PatientAndCategoryAndDateSpecification.builder()
             .patient(cdwId)
@@ -292,16 +289,27 @@ public class R4DiagnosticReportController {
             .add("page", page)
             .add("_count", count)
             .build();
-    List<TokenParameter> codeTokens =
-        Splitter.on(",").trimResults().splitToList(codeCsv).stream()
-            .filter(c -> !"".equals(c))
-            .map(TokenParameter::parse)
-            .filter(t -> !t.isCodeExplicitAndUnsupported("panel") || !t.hasExplicitlyNoSystem())
-            .collect(Collectors.toList());
+    Set<String> codes = null;
+    if (!"".equals(codeCsv)) {
+      codes =
+          Splitter.on(",").trimResults().splitToList(codeCsv).stream()
+              .map(TokenParameter::parse)
+              // Code searches do not support systems
+              .filter(
+                  t ->
+                      (t.hasSupportedCode("panel") && !t.hasExplicitlyNoSystem())
+                          && !t.hasExplicitSystem())
+              .map(this::codeFor)
+              .collect(Collectors.toSet());
+    }
+    // When codes is null, it means search was `code=`
+    if (codes != null && codes.isEmpty()) {
+      return bundle(parameters, emptyList(), 0);
+    }
     DiagnosticReportRepository.PatientAndCodeAndDateSpecification spec =
         DiagnosticReportRepository.PatientAndCodeAndDateSpecification.builder()
             .patient(cdwId)
-            .codes(codesFor(codeTokens))
+            .codes(codes)
             .dates(date)
             .build();
     Page<DiagnosticReportEntity> entitiesPage = repository.findAll(spec, page(page, count));
@@ -331,9 +339,8 @@ public class R4DiagnosticReportController {
             .map(TokenParameter::parse)
             .filter(
                 t ->
-                    !t.isSystemExplicitAndUnsupported(DR_STATUS_SYSTEM)
-                        || !t.isCodeExplicitAndUnsupported("final")
-                        || !t.hasExplicitlyNoSystem())
+                    t.hasSupportedSystem(DR_STATUS_SYSTEM)
+                        || (t.hasSupportedCode("final") && !t.hasExplicitlyNoSystem()))
             .collect(Collectors.toList());
     if (statusTokens.isEmpty() || !statusFinal(statusTokens)) {
       return bundle(parameters, emptyList(), 0);
@@ -354,7 +361,15 @@ public class R4DiagnosticReportController {
     return codeTokens.stream()
         .flatMap(
             t ->
-                t.behavior().onExplicitSystemAndExplicitCode((s, c) -> List.of(c))
+                t.behavior()
+                    .onExplicitSystemAndExplicitCode(
+                        (s, c) -> {
+                          if (DR_STATUS_SYSTEM.equals(s)) {
+                            return List.of(c);
+                          }
+                          // Unsupported System
+                          return emptyList();
+                        })
                     .onAnySystemAndExplicitCode(List::of).onNoSystemAndExplicitCode(List::of)
                     .onExplicitSystemAndAnyCode(
                         s -> {

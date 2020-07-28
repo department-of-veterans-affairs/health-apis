@@ -45,11 +45,39 @@ public class R4DiagnosticReportControllerTest {
 
   @Autowired private DiagnosticReportRepository repository;
 
+  private DiagnosticReport.Bundle bundleOf(
+      Collection<DiagnosticReport> diagnosticReports, String paramString, int page, int count) {
+    int lastPage = diagnosticReports.isEmpty() ? 0 : 1;
+    return DiagnosticReportSamples.R4.asBundle(
+        "http://fonzy.com/cool",
+        diagnosticReports,
+        diagnosticReports.size(),
+        link(
+            BundleLink.LinkRelation.first,
+            "http://fonzy.com/cool/DiagnosticReport?" + paramString,
+            1,
+            count),
+        link(
+            BundleLink.LinkRelation.self,
+            "http://fonzy.com/cool/DiagnosticReport?" + paramString,
+            1,
+            count),
+        link(
+            BundleLink.LinkRelation.last,
+            "http://fonzy.com/cool/DiagnosticReport?" + paramString,
+            lastPage,
+            count));
+  }
+
   private R4DiagnosticReportController controller() {
     return new R4DiagnosticReportController(
         new R4Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool", "cool", "cool")),
         WitnessProtection.builder().identityService(ids).build(),
         repository);
+  }
+
+  private DiagnosticReport.Bundle emptyBundleOf(String paramString) {
+    return bundleOf(emptyList(), paramString, 1, 15);
   }
 
   @SneakyThrows
@@ -260,33 +288,6 @@ public class R4DiagnosticReportControllerTest {
   }
 
   @Test
-  void searchByPatientAndBadStatus() {
-    populateData();
-    assertThat(json(controller().searchByPatientAndStatus("p0", "NOPE", 1, 15)))
-        .isEqualTo(
-            json(
-                DiagnosticReportSamples.R4.asBundle(
-                    "http://fonzy.com/cool",
-                    emptyList(),
-                    0,
-                    link(
-                        BundleLink.LinkRelation.first,
-                        "http://fonzy.com/cool/DiagnosticReport?patient=p0&status=NOPE",
-                        1,
-                        15),
-                    link(
-                        BundleLink.LinkRelation.self,
-                        "http://fonzy.com/cool/DiagnosticReport?patient=p0&status=NOPE",
-                        1,
-                        15),
-                    link(
-                        BundleLink.LinkRelation.last,
-                        "http://fonzy.com/cool/DiagnosticReport?patient=p0&status=NOPE",
-                        0,
-                        15))));
-  }
-
-  @Test
   void searchByPatientAndCategoryAndNoDate() {
     Multimap<String, DiagnosticReport> diagnosticReportsByPatient = populateData();
     Collection<DiagnosticReport> diagnosticReports =
@@ -420,44 +421,65 @@ public class R4DiagnosticReportControllerTest {
   }
 
   @Test
-  void searchByPatientAndCategoryWithBadSystemAndAnyCode() {
-    assertThrows(
-        IllegalStateException.class,
-        () -> controller().searchByPatientAndCategory("x", "http://not.today|", null, 1, 15));
-  }
-
-  @Test
-  void searchByPatientAndCategoryWithExplicitSystem() {
-    assertThrows(
-        IllegalStateException.class,
-        () -> controller().searchByPatientAndCategory("x", "http://not.today|", null, 1, 15));
-  }
-
-  @Test
-  void searchByPatientAndCategoryWithInvalidCode() {
-    populateData();
-    assertThat(json(controller().searchByPatientAndCategory("p0", "NOPE", null, 1, 15)))
+  void searchByPatientAndCategoryTokenSearches() {
+    Multimap<String, DiagnosticReport> diagnosticReportsByPatient = populateData();
+    Collection<DiagnosticReport> diagnosticReports = diagnosticReportsByPatient.get("p0");
+    // Unknown System, Any Code
+    assertThat(json(controller().searchByPatientAndCategory("p0", "http://big.oof|", null, 1, 15)))
+        .isEqualTo(json(emptyBundleOf("category=http://big.oof|&patient=p0")));
+    // Unknown System, Explicit Code
+    assertThat(
+            json(controller().searchByPatientAndCategory("p0", "http://big.oof|LAB", null, 1, 15)))
+        .isEqualTo(json(emptyBundleOf("category=http://big.oof|LAB&patient=p0")));
+    // Explicit System, Unknown Code
+    assertThat(
+            json(
+                controller()
+                    .searchByPatientAndCategory(
+                        "p0", "http://terminology.hl7.org/CodeSystem/v2-0074|NOPE", null, 1, 15)))
         .isEqualTo(
             json(
-                DiagnosticReportSamples.R4.asBundle(
-                    "http://fonzy.com/cool",
-                    emptyList(),
-                    0,
-                    link(
-                        BundleLink.LinkRelation.first,
-                        "http://fonzy.com/cool/DiagnosticReport?category=NOPE&patient=p0",
-                        1,
-                        15),
-                    link(
-                        BundleLink.LinkRelation.self,
-                        "http://fonzy.com/cool/DiagnosticReport?category=NOPE&patient=p0",
-                        1,
-                        15),
-                    link(
-                        BundleLink.LinkRelation.last,
-                        "http://fonzy.com/cool/DiagnosticReport?category=NOPE&patient=p0",
-                        0,
-                        15))));
+                emptyBundleOf(
+                    "category=http://terminology.hl7.org/CodeSystem/v2-0074|NOPE&patient=p0")));
+    // Any System, Unknown Code
+    assertThat(json(controller().searchByPatientAndCategory("p0", "|NOPE", null, 1, 15)))
+        .isEqualTo(json(emptyBundleOf("category=|NOPE&patient=p0")));
+    // Any System, Explicit Code
+    assertThat(json(controller().searchByPatientAndCategory("p0", "|LAB", null, 1, 15)))
+        .isEqualTo(json(emptyBundleOf("category=|LAB&patient=p0")));
+    //  Explicit System, Explicit Code
+    assertThat(
+            json(
+                controller()
+                    .searchByPatientAndCategory(
+                        "p0", "http://terminology.hl7.org/CodeSystem/v2-0074|LAB", null, 1, 15)))
+        .isEqualTo(
+            json(
+                bundleOf(
+                    diagnosticReports,
+                    "category=http://terminology.hl7.org/CodeSystem/v2-0074|LAB&patient=p0",
+                    1,
+                    15)));
+    //  Explicit System, Any Code
+    assertThat(
+            json(
+                controller()
+                    .searchByPatientAndCategory(
+                        "p0", "http://terminology.hl7.org/CodeSystem/v2-0074|", null, 1, 15)))
+        .isEqualTo(
+            json(
+                bundleOf(
+                    diagnosticReports,
+                    "category=http://terminology.hl7.org/CodeSystem/v2-0074|&patient=p0",
+                    1,
+                    15)));
+  }
+
+  @Test
+  void searchByPatientAndCategoryWithUnknownCode() {
+    populateData();
+    assertThat(json(controller().searchByPatientAndCategory("p0", "NOPE", null, 1, 15)))
+        .isEqualTo(json(emptyBundleOf("category=NOPE&patient=p0")));
   }
 
   @Test
@@ -580,6 +602,24 @@ public class R4DiagnosticReportControllerTest {
   }
 
   @Test
+  void searchByPatientAndCodeTokenSearches() {
+    Multimap<String, DiagnosticReport> diagnosticReportsByPatient = populateData();
+    Collection<DiagnosticReport> diagnosticReports = diagnosticReportsByPatient.get("p0");
+    // Unknown System, Any Code
+    assertThat(json(controller().searchByPatientAndCode("p0", "http://big.oof|", null, 1, 15)))
+        .isEqualTo(json(emptyBundleOf("code=http://big.oof|&patient=p0")));
+    // Unknown System, Explicit Code
+    assertThat(json(controller().searchByPatientAndCode("p0", "http://big.oof|panel", null, 1, 15)))
+        .isEqualTo(json(emptyBundleOf("code=http://big.oof|panel&patient=p0")));
+    // Any System, Unknown Code
+    assertThat(json(controller().searchByPatientAndCode("p0", "|NOPE", null, 1, 15)))
+        .isEqualTo(json(emptyBundleOf("code=|NOPE&patient=p0")));
+    // Any System, Explicit Code
+    assertThat(json(controller().searchByPatientAndCode("p0", "|panel", null, 1, 15)))
+        .isEqualTo(json(emptyBundleOf("code=|panel&patient=p0")));
+  }
+
+  @Test
   void searchByPatientAndEmptyCodeAndNoDate() {
     Multimap<String, DiagnosticReport> diagnosticReportsByPatient = populateData();
     Collection<DiagnosticReport> diagnosticReports = diagnosticReportsByPatient.get("p0");
@@ -592,12 +632,12 @@ public class R4DiagnosticReportControllerTest {
                     diagnosticReports.size(),
                     link(
                         BundleLink.LinkRelation.first,
-                        "http://fonzy.com/cool/DiagnosticReport" + "?code=" + "&patient=p0",
+                        "http://fonzy.com/cool/DiagnosticReport?code=&patient=p0",
                         1,
                         15),
                     link(
                         BundleLink.LinkRelation.self,
-                        "http://fonzy.com/cool/DiagnosticReport" + "?code=" + "&patient=p0",
+                        "http://fonzy.com/cool/DiagnosticReport?code=&patient=p0",
                         1,
                         15),
                     link(
@@ -639,19 +679,48 @@ public class R4DiagnosticReportControllerTest {
   }
 
   @Test
-  void searchByPatientAndStatusWithBadSystemAndAnyCode() {
-    assertThrows(
-        IllegalStateException.class,
-        () -> controller().searchByPatientAndStatus("x", "http://not.today|", 1, 15));
-  }
-
-  @Test
-  void searchByPatientAndStatusWithValidSystemAndAnyCode() {
+  void searchByPatientAndStatusTokenSearches() {
     Multimap<String, DiagnosticReport> diagnosticReportsByPatient = populateData();
     Collection<DiagnosticReport> diagnosticReports =
         diagnosticReportsByPatient.get("p0").stream()
             .filter(dr -> DiagnosticReport.DiagnosticReportStatus._final.equals(dr.status()))
             .collect(Collectors.toList());
+    // Unknown System, Any Code
+    assertThat(json(controller().searchByPatientAndStatus("p0", "http://big.oof|", 1, 15)))
+        .isEqualTo(json(emptyBundleOf("patient=p0&status=http://big.oof|")));
+    // Unknown System, Explicit Code
+    assertThat(json(controller().searchByPatientAndStatus("p0", "http://big.oof|final", 1, 15)))
+        .isEqualTo(json(emptyBundleOf("patient=p0&status=http://big.oof|final")));
+    // Explicit System, Unknown Code
+    assertThat(
+            json(
+                controller()
+                    .searchByPatientAndStatus(
+                        "p0", "http://hl7.org/fhir/diagnostic-report-status|NOPE", 1, 15)))
+        .isEqualTo(
+            json(
+                emptyBundleOf(
+                    "patient=p0&status=http://hl7.org/fhir/diagnostic-report-status|NOPE")));
+    // Any System, Unknown Code
+    assertThat(json(controller().searchByPatientAndStatus("p0", "|NOPE", 1, 15)))
+        .isEqualTo(json(emptyBundleOf("patient=p0&status=|NOPE")));
+    // Any System, Explicit Code
+    assertThat(json(controller().searchByPatientAndStatus("p0", "|final", 1, 15)))
+        .isEqualTo(json(emptyBundleOf("patient=p0&status=|final")));
+    //  Explicit System, Explicit Code
+    assertThat(
+            json(
+                controller()
+                    .searchByPatientAndStatus(
+                        "p0", "http://hl7.org/fhir/diagnostic-report-status|final", 1, 15)))
+        .isEqualTo(
+            json(
+                bundleOf(
+                    diagnosticReports,
+                    "patient=p0&status=http://hl7.org/fhir/diagnostic-report-status|final",
+                    1,
+                    15)));
+    // Explicit System, Any Code
     assertThat(
             json(
                 controller()
@@ -659,24 +728,17 @@ public class R4DiagnosticReportControllerTest {
                         "p0", "http://hl7.org/fhir/diagnostic-report-status|", 1, 15)))
         .isEqualTo(
             json(
-                DiagnosticReportSamples.R4.asBundle(
-                    "http://fonzy.com/cool",
+                bundleOf(
                     diagnosticReports,
-                    diagnosticReports.size(),
-                    link(
-                        BundleLink.LinkRelation.first,
-                        "http://fonzy.com/cool/DiagnosticReport?patient=p0&status=http://hl7.org/fhir/diagnostic-report-status|",
-                        1,
-                        15),
-                    link(
-                        BundleLink.LinkRelation.self,
-                        "http://fonzy.com/cool/DiagnosticReport?patient=p0&status=http://hl7.org/fhir/diagnostic-report-status|",
-                        1,
-                        15),
-                    link(
-                        BundleLink.LinkRelation.last,
-                        "http://fonzy.com/cool/DiagnosticReport?patient=p0&status=http://hl7.org/fhir/diagnostic-report-status|",
-                        1,
-                        15))));
+                    "patient=p0&status=http://hl7.org/fhir/diagnostic-report-status|",
+                    1,
+                    15)));
+  }
+
+  @Test
+  void searchByPatientAndUnknownStatus() {
+    populateData();
+    assertThat(json(controller().searchByPatientAndStatus("p0", "NOPE", 1, 15)))
+        .isEqualTo(json(emptyBundleOf("patient=p0&status=NOPE")));
   }
 }
