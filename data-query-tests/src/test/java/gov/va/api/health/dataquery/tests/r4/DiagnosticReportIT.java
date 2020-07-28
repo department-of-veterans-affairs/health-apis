@@ -51,7 +51,7 @@ public class DiagnosticReportIT {
         test(
             200,
             DiagnosticReport.Bundle.class,
-            "DiagnosticReport?patient={patient}&category=|LAB&date={dateYear}",
+            "DiagnosticReport?patient={patient}&category=LAB&date={dateYear}",
             verifier.ids().patient(),
             verifier.ids().diagnosticReports().dateYear()),
         test(
