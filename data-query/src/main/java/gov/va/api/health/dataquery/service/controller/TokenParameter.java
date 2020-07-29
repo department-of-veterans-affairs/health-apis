@@ -94,8 +94,16 @@ public class TokenParameter {
     return hasExplicitCode() && !hasSupportedCode(codes);
   }
 
+  public boolean isCodeExplicitlySetAndOneOf(String... codes) {
+    return hasExplicitCode() && hasSupportedCode(codes);
+  }
+
   public boolean isSystemExplicitAndUnsupported(String... systems) {
     return hasExplicitSystem() && !hasSupportedSystem(systems);
+  }
+
+  public boolean isSystemExplicitlySetAndOneOf(String... systems) {
+    return hasExplicitSystem() && hasSupportedSystem(systems);
   }
 
   public enum Mode {
