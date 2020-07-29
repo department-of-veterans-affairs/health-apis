@@ -50,6 +50,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class R4ConditionController {
   private static final String PROBLEM_AND_DIAGNOSIS_SYSTEM =
       "http://terminology.hl7.org/CodeSystem/condition-category";
+
   private static final String CLINICAL_STATUS_SYSTEM =
       "http://terminology.hl7.org/CodeSystem/condition-clinical";
 
@@ -67,6 +68,11 @@ public class R4ConditionController {
     this.bundler = bundler;
     this.repository = repository;
     this.witnessProtection = witnessProtection;
+  }
+
+  private static boolean isClinicalStatusSystemOrJustSupportedCode(TokenParameter t) {
+    return t.hasSupportedSystem(CLINICAL_STATUS_SYSTEM)
+        || (t.hasSupportedCode("active", "resolved") && !t.hasExplicitlyNoSystem());
   }
 
   /**
@@ -135,12 +141,17 @@ public class R4ConditionController {
         .execute();
   }
 
+  private boolean categorySystemOrCodeAreExplicitAndUnsupported(TokenParameter categoryToken) {
+    return categoryToken.isSystemExplicitAndUnsupported(PROBLEM_AND_DIAGNOSIS_SYSTEM)
+        || categoryToken.isCodeExplicitAndUnsupported("problem-list-item", "encounter-diagnosis")
+        || categoryToken.hasExplicitlyNoSystem();
+  }
+
   private Specification<ConditionEntity> clincialStatusClauseFor(
       List<TokenParameter> clinicalStatusTokens) {
     Set<String> clinicalStatusesForQuery =
         clinicalStatusTokens.stream()
             .flatMap(c -> clinicalStatusFor(c).stream())
-            /* Treat 'inactive' as resolved as inactive is the parent code of resolved */
             .map(
                 cs -> {
                   if ("inactive".equals(cs)) {
@@ -289,9 +300,7 @@ public class R4ConditionController {
             .add("_count", count)
             .build();
     TokenParameter categoryToken = TokenParameter.parse(category);
-    if (categoryToken.isSystemExplicitAndUnsupported(PROBLEM_AND_DIAGNOSIS_SYSTEM)
-        || categoryToken.isCodeExplicitAndUnsupported("problem-list-item", "encounter-diagnosis")
-        || categoryToken.hasExplicitlyNoSystem()) {
+    if (categorySystemOrCodeAreExplicitAndUnsupported(categoryToken)) {
       return bundle(parameters, emptyList(), 0);
     }
     String icn = witnessProtection.toCdwId(patient);
@@ -321,10 +330,7 @@ public class R4ConditionController {
     List<TokenParameter> clinicalStatusTokens =
         Splitter.on(",").trimResults().splitToList(clinicalStatusCsv).stream()
             .map(TokenParameter::parse)
-            .filter(
-                t ->
-                    t.hasSupportedSystem(CLINICAL_STATUS_SYSTEM)
-                        || (t.hasSupportedCode("active", "resolved") && !t.hasExplicitlyNoSystem()))
+            .filter(R4ConditionController::isClinicalStatusSystemOrJustSupportedCode)
             .collect(Collectors.toList());
     if (clinicalStatusTokens.isEmpty()) {
       return bundle(parameters, emptyList(), 0);
