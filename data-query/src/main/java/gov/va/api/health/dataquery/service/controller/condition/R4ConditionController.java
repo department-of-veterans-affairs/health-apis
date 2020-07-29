@@ -323,9 +323,8 @@ public class R4ConditionController {
             .map(TokenParameter::parse)
             .filter(
                 t ->
-                    !t.isSystemExplicitAndUnsupported(CLINICAL_STATUS_SYSTEM)
-                        || !t.isCodeExplicitAndUnsupported("active", "resolved")
-                        || !t.hasExplicitlyNoSystem())
+                    t.hasSupportedSystem(CLINICAL_STATUS_SYSTEM)
+                        || (t.hasSupportedCode("active", "resolved") && !t.hasExplicitlyNoSystem()))
             .collect(Collectors.toList());
     if (clinicalStatusTokens.isEmpty()) {
       return bundle(parameters, emptyList(), 0);
