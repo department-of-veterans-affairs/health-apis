@@ -441,13 +441,13 @@ public class R4DiagnosticReportControllerTest {
             json(
                 emptyBundleOf(
                     "category=http://terminology.hl7.org/CodeSystem/v2-0074|NOPE&patient=p0")));
-    // Any System, Unknown Code
+    // No System, Unknown Code
     assertThat(json(controller().searchByPatientAndCategory("p0", "|NOPE", null, 1, 15)))
         .isEqualTo(json(emptyBundleOf("category=|NOPE&patient=p0")));
-    // Any System, Explicit Code
+    // No System, Explicit Code
     assertThat(json(controller().searchByPatientAndCategory("p0", "|LAB", null, 1, 15)))
         .isEqualTo(json(emptyBundleOf("category=|LAB&patient=p0")));
-    //  Explicit System, Explicit Code
+    // Explicit System, Explicit Code
     assertThat(
             json(
                 controller()
@@ -460,7 +460,7 @@ public class R4DiagnosticReportControllerTest {
                     "category=http://terminology.hl7.org/CodeSystem/v2-0074|LAB&patient=p0",
                     1,
                     15)));
-    //  Explicit System, Any Code
+    // Explicit System, Any Code
     assertThat(
             json(
                 controller()
@@ -611,10 +611,10 @@ public class R4DiagnosticReportControllerTest {
     // Unknown System, Explicit Code
     assertThat(json(controller().searchByPatientAndCode("p0", "http://big.oof|panel", null, 1, 15)))
         .isEqualTo(json(emptyBundleOf("code=http://big.oof|panel&patient=p0")));
-    // Any System, Unknown Code
+    // No System, Unknown Code
     assertThat(json(controller().searchByPatientAndCode("p0", "|NOPE", null, 1, 15)))
         .isEqualTo(json(emptyBundleOf("code=|NOPE&patient=p0")));
-    // Any System, Explicit Code
+    // No System, Explicit Code
     assertThat(json(controller().searchByPatientAndCode("p0", "|panel", null, 1, 15)))
         .isEqualTo(json(emptyBundleOf("code=|panel&patient=p0")));
   }
@@ -701,13 +701,13 @@ public class R4DiagnosticReportControllerTest {
             json(
                 emptyBundleOf(
                     "patient=p0&status=http://hl7.org/fhir/diagnostic-report-status|NOPE")));
-    // Any System, Unknown Code
+    // No System, Unknown Code
     assertThat(json(controller().searchByPatientAndStatus("p0", "|NOPE", 1, 15)))
         .isEqualTo(json(emptyBundleOf("patient=p0&status=|NOPE")));
-    // Any System, Explicit Code
+    // No System, Explicit Code
     assertThat(json(controller().searchByPatientAndStatus("p0", "|final", 1, 15)))
         .isEqualTo(json(emptyBundleOf("patient=p0&status=|final")));
-    //  Explicit System, Explicit Code
+    // Explicit System, Explicit Code
     assertThat(
             json(
                 controller()
