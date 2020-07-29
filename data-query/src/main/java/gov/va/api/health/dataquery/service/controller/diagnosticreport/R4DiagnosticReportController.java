@@ -1,13 +1,11 @@
 package gov.va.api.health.dataquery.service.controller.diagnosticreport;
 
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
-import static java.util.Collections.emptySet;
+import static org.apache.logging.log4j.util.Strings.isNotBlank;
 
 import com.google.common.base.Splitter;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.DateTimeParameter;
-import gov.va.api.health.dataquery.service.controller.EnumSearcher;
 import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.Parameters;
@@ -15,6 +13,7 @@ import gov.va.api.health.dataquery.service.controller.R4Bundler;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.TokenParameter;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
+import gov.va.api.health.dataquery.service.controller.diagnosticreport.DiagnosticReportEntity.CategoryCode;
 import gov.va.api.health.uscorer4.api.resources.DiagnosticReport;
 import java.util.Collection;
 import java.util.List;
@@ -59,11 +58,30 @@ public class R4DiagnosticReportController {
 
   private static final String DR_STATUS_SYSTEM = "http://hl7.org/fhir/diagnostic-report-status";
 
-  private R4Bundler bundler;
+  private final R4Bundler bundler;
 
-  private WitnessProtection witnessProtection;
+  private final WitnessProtection witnessProtection;
 
-  private DiagnosticReportRepository repository;
+  private final DiagnosticReportRepository repository;
+
+  /**
+   * If this is invoked, then we've got a bug. It represents that we are trying to process a system
+   * that should have short-circuited searching.
+   */
+  private static IllegalStateException illegalSystemState(String system) {
+    log.error("System value '{}' should have be skipped. We have bug.", system);
+    return new IllegalStateException(
+        "Unsupported system: " + system + ". Cannot build ExplicitSystemSpecification.");
+  }
+
+  private static boolean isFhirStatusSystemOrJustFinal(TokenParameter t) {
+    return t.hasSupportedSystem(DR_STATUS_SYSTEM)
+        || (t.hasSupportedCode("final") && !t.hasExplicitlyNoSystem());
+  }
+
+  private static boolean isJustPanelCode(TokenParameter t) {
+    return (t.hasSupportedCode("panel") && !t.hasExplicitlyNoSystem()) && !t.hasExplicitSystem();
+  }
 
   private DiagnosticReport.Bundle bundle(
       MultiValueMap<String, String> parameters,
@@ -98,21 +116,18 @@ public class R4DiagnosticReportController {
     return bundle(parameters, fhir, (int) entitiesPage.getTotalElements());
   }
 
-  private Set<DiagnosticReportEntity.CategoryCodes> categoriesFor(TokenParameter categoryToken) {
+  private Set<CategoryCode> categoriesFor(TokenParameter categoryToken) {
     return categoryToken
         .behavior()
-        .onExplicitSystemAndExplicitCode((s, c) -> datamartCategoryCodesFor(c))
-        .onAnySystemAndExplicitCode(this::datamartCategoryCodesFor)
-        .onNoSystemAndExplicitCode(this::datamartCategoryCodesFor)
+        .onExplicitSystemAndExplicitCode((s, c) -> CategoryCode.forFhirCategory(c))
+        .onAnySystemAndExplicitCode(CategoryCode::forFhirCategory)
+        .onNoSystemAndExplicitCode(CategoryCode::forFhirCategory)
         .onExplicitSystemAndAnyCode(
             s -> {
               if (DR_CATEGORY_SYSTEM.equals(s)) {
-                return Set.of(
-                    DiagnosticReportEntity.CategoryCodes.CH,
-                    DiagnosticReportEntity.CategoryCodes.MB);
+                return Set.of(CategoryCode.CH, CategoryCode.MB);
               }
-              throw new IllegalStateException(
-                  "Unsupported Status System: " + s + " Cannot build ExplicitSystemSpecification.");
+              throw illegalSystemState(s);
             })
         .build()
         .execute();
@@ -125,32 +140,14 @@ public class R4DiagnosticReportController {
         .onNoSystemAndExplicitCode(c -> c)
         .onExplicitSystemAndExplicitCode(
             (s, c) -> {
-              // We don't currently support any explicit systems for search by code
-              throw new IllegalStateException(
-                  "Unsupported Status System: " + s + " Cannot build ExplicitSystemSpecification.");
+              throw illegalSystemState(s);
             })
         .onExplicitSystemAndAnyCode(
             s -> {
-              // We don't currently support any explicit systems for search by code
-              throw new IllegalStateException(
-                  "Unsupported Status System: " + s + " Cannot build ExplicitSystemSpecification.");
+              throw illegalSystemState(s);
             })
         .build()
         .execute();
-  }
-
-  /** Determines Datamart CategoryCode(s) based on the fhir category code provided. */
-  private Set<DiagnosticReportEntity.CategoryCodes> datamartCategoryCodesFor(String fhirCategory) {
-    if ("LAB".equals(fhirCategory)) {
-      return Set.of(
-          DiagnosticReportEntity.CategoryCodes.CH, DiagnosticReportEntity.CategoryCodes.MB);
-    }
-    try {
-      return Set.of(EnumSearcher.of(DiagnosticReportEntity.CategoryCodes.class).find(fhirCategory));
-    } catch (IllegalArgumentException e) {
-      log.info(e.getMessage());
-      return emptySet();
-    }
   }
 
   private DiagnosticReportEntity findById(String publicId) {
@@ -213,7 +210,7 @@ public class R4DiagnosticReportController {
     if (dr == null || page != 1 || count <= 0) {
       return bundle(parameters, emptyList(), totalRecords);
     }
-    return bundle(parameters, asList(dr), totalRecords);
+    return bundle(parameters, List.of(dr), totalRecords);
   }
 
   /** Search resource by patient. */
@@ -290,21 +287,16 @@ public class R4DiagnosticReportController {
             .add("_count", count)
             .build();
     Set<String> codes = null;
-    if (!"".equals(codeCsv)) {
+    if (isNotBlank(codeCsv)) {
       codes =
           Splitter.on(",").trimResults().splitToList(codeCsv).stream()
               .map(TokenParameter::parse)
-              // Code searches do not support systems
-              .filter(
-                  t ->
-                      (t.hasSupportedCode("panel") && !t.hasExplicitlyNoSystem())
-                          && !t.hasExplicitSystem())
+              .filter(R4DiagnosticReportController::isJustPanelCode)
               .map(this::codeFor)
               .collect(Collectors.toSet());
-    }
-    // When codes is null, it means search was `code=`
-    if (codes != null && codes.isEmpty()) {
-      return bundle(parameters, emptyList(), 0);
+      if (codes.isEmpty()) {
+        return bundle(parameters, emptyList(), 0);
+      }
     }
     DiagnosticReportRepository.PatientAndCodeAndDateSpecification spec =
         DiagnosticReportRepository.PatientAndCodeAndDateSpecification.builder()
@@ -331,16 +323,14 @@ public class R4DiagnosticReportController {
             .add("page", page)
             .add("_count", count)
             .build();
-    // The status for all diagnosticReports returned will be 'final'
-    // (see R4DiagnosticReportTransformer) if any other status code is
-    // requested, return an empty bundle
+    /*
+     * The status for all diagnosticReports returned will be 'final' (see
+     * R4DiagnosticReportTransformer) if any other status code is requested, return an empty bundle
+     */
     List<TokenParameter> statusTokens =
         Splitter.on(",").trimResults().splitToList(statusCsv).stream()
             .map(TokenParameter::parse)
-            .filter(
-                t ->
-                    t.hasSupportedSystem(DR_STATUS_SYSTEM)
-                        || (t.hasSupportedCode("final") && !t.hasExplicitlyNoSystem()))
+            .filter(R4DiagnosticReportController::isFhirStatusSystemOrJustFinal)
             .collect(Collectors.toList());
     if (statusTokens.isEmpty() || !statusFinal(statusTokens)) {
       return bundle(parameters, emptyList(), 0);
@@ -367,7 +357,9 @@ public class R4DiagnosticReportController {
                           if (DR_STATUS_SYSTEM.equals(s)) {
                             return List.of(c);
                           }
-                          // Unsupported System
+                          /*
+                           * This is system is not available in our data. Do not bother searching.
+                           */
                           return emptyList();
                         })
                     .onAnySystemAndExplicitCode(List::of).onNoSystemAndExplicitCode(List::of)
@@ -376,10 +368,7 @@ public class R4DiagnosticReportController {
                           if (DR_STATUS_SYSTEM.equals(s)) {
                             return List.of("final");
                           }
-                          throw new IllegalStateException(
-                              "Unsupported Status System: "
-                                  + s
-                                  + " Cannot build ExplicitSystemSpecification.");
+                          throw illegalSystemState(s);
                         })
                     .build().execute().stream())
         .distinct()
