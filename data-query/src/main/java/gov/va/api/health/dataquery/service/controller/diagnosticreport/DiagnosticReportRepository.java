@@ -5,6 +5,7 @@ import static gov.va.api.health.dataquery.service.controller.Transformers.isBlan
 
 import gov.va.api.health.autoconfig.logging.Loggable;
 import gov.va.api.health.dataquery.service.controller.DateTimeParameters;
+import gov.va.api.health.dataquery.service.controller.diagnosticreport.DiagnosticReportEntity.CategoryCode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -60,7 +61,7 @@ public interface DiagnosticReportRepository
   class PatientAndCategoryAndDateSpecification implements Specification<DiagnosticReportEntity> {
     String patient;
 
-    Set<DiagnosticReportEntity.CategoryCodes> categories;
+    Set<CategoryCode> categories;
 
     DateTimeParameters date1;
 
@@ -68,11 +69,11 @@ public interface DiagnosticReportRepository
 
     @Builder
     private PatientAndCategoryAndDateSpecification(
-        String patient, Set<DiagnosticReportEntity.CategoryCodes> categories, String[] dates) {
+        String patient, Set<CategoryCode> categories, String[] dates) {
       this.patient = patient;
       this.categories = categories;
-      this.date1 = (dates == null || dates.length < 1) ? null : new DateTimeParameters(dates[0]);
-      this.date2 = (dates == null || dates.length < 2) ? null : new DateTimeParameters(dates[1]);
+      date1 = (dates == null || dates.length < 1) ? null : new DateTimeParameters(dates[0]);
+      date2 = (dates == null || dates.length < 2) ? null : new DateTimeParameters(dates[1]);
     }
 
     @Override

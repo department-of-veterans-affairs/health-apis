@@ -1,7 +1,11 @@
 package gov.va.api.health.dataquery.service.controller.diagnosticreport;
 
+import static java.util.Collections.emptySet;
+
+import gov.va.api.health.dataquery.service.controller.EnumSearcher;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartEntity;
 import java.time.Instant;
+import java.util.Set;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -58,10 +62,22 @@ public class DiagnosticReportEntity implements DatamartEntity {
     return deserializeDatamart(payload, DatamartDiagnosticReport.class);
   }
 
-  public enum CategoryCodes {
+  public enum CategoryCode {
     // LabChem
     CH,
     // Microbiology
-    MB
+    MB;
+
+    /** Return 0 or more datamart categories based on the given FHIR category code. */
+    public static Set<CategoryCode> forFhirCategory(String fhirCategory) {
+      if ("LAB".equals(fhirCategory)) {
+        return Set.of(CategoryCode.CH, CategoryCode.MB);
+      }
+      try {
+        return Set.of(EnumSearcher.of(CategoryCode.class).find(fhirCategory));
+      } catch (IllegalArgumentException e) {
+        return emptySet();
+      }
+    }
   }
 }

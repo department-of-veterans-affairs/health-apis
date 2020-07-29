@@ -38,13 +38,13 @@ public class DiagnosticReportIT {
         test(
             200,
             DiagnosticReport.Bundle.class,
-            "DiagnosticReport?patient={patient}&category=LAB&date={onDate}",
+            "DiagnosticReport?patient={patient}&category=http://terminology.hl7.org/CodeSystem/v2-0074|LAB&date={onDate}",
             verifier.ids().patient(),
             verifier.ids().diagnosticReports().onDate()),
         test(
             200,
             DiagnosticReport.Bundle.class,
-            "DiagnosticReport?patient={patient}&category=LAB&date={fromDate}&date={toDate}",
+            "DiagnosticReport?patient={patient}&category=http://terminology.hl7.org/CodeSystem/v2-0074|&date={fromDate}&date={toDate}",
             verifier.ids().patient(),
             verifier.ids().diagnosticReports().fromDate(),
             verifier.ids().diagnosticReports().toDate()),
@@ -153,7 +153,7 @@ public class DiagnosticReportIT {
         test(
             200,
             DiagnosticReport.Bundle.class,
-            "DiagnosticReport?patient={patient}&code=&date={onDate}",
+            "DiagnosticReport?patient={patient}&code=panel&date={onDate}",
             verifier.ids().patient(),
             verifier.ids().diagnosticReports().onDate()),
         test(

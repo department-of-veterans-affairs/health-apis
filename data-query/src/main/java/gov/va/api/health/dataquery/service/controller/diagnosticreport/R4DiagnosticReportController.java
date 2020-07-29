@@ -1,19 +1,19 @@
 package gov.va.api.health.dataquery.service.controller.diagnosticreport;
 
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
-import static java.util.Collections.emptySet;
+import static org.apache.logging.log4j.util.Strings.isNotBlank;
 
 import com.google.common.base.Splitter;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.DateTimeParameter;
-import gov.va.api.health.dataquery.service.controller.EnumSearcher;
 import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.R4Bundler;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
+import gov.va.api.health.dataquery.service.controller.TokenParameter;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
+import gov.va.api.health.dataquery.service.controller.diagnosticreport.DiagnosticReportEntity.CategoryCode;
 import gov.va.api.health.uscorer4.api.resources.DiagnosticReport;
 import java.util.Collection;
 import java.util.List;
@@ -54,11 +54,34 @@ import org.springframework.web.bind.annotation.RestController;
     produces = {"application/json", "application/fhir+json"})
 @AllArgsConstructor(onConstructor = @__({@Autowired}))
 public class R4DiagnosticReportController {
-  private R4Bundler bundler;
+  private static final String DR_CATEGORY_SYSTEM = "http://terminology.hl7.org/CodeSystem/v2-0074";
 
-  private WitnessProtection witnessProtection;
+  private static final String DR_STATUS_SYSTEM = "http://hl7.org/fhir/diagnostic-report-status";
 
-  private DiagnosticReportRepository repository;
+  private final R4Bundler bundler;
+
+  private final WitnessProtection witnessProtection;
+
+  private final DiagnosticReportRepository repository;
+
+  /**
+   * If this is invoked, then we've got a bug. It represents that we are trying to process a system
+   * that should have short-circuited searching.
+   */
+  private static IllegalStateException illegalSystemState(String system) {
+    log.error("System value '{}' should have be skipped. We have bug.", system);
+    return new IllegalStateException(
+        "Unsupported system: " + system + ". Cannot build ExplicitSystemSpecification.");
+  }
+
+  private static boolean isFhirStatusSystemOrJustFinal(TokenParameter t) {
+    return t.hasSupportedSystem(DR_STATUS_SYSTEM)
+        || (t.hasSupportedCode("final") && !t.hasExplicitlyNoSystem());
+  }
+
+  private static boolean isJustPanelCode(TokenParameter t) {
+    return (t.hasSupportedCode("panel") && !t.hasExplicitlyNoSystem()) && !t.hasExplicitSystem();
+  }
 
   private DiagnosticReport.Bundle bundle(
       MultiValueMap<String, String> parameters,
@@ -93,19 +116,38 @@ public class R4DiagnosticReportController {
     return bundle(parameters, fhir, (int) entitiesPage.getTotalElements());
   }
 
-  /** Determines Datamart CategoryCode(s) based on the fhir category code provided. */
-  private Set<DiagnosticReportEntity.CategoryCodes> datamartCategoryCodesFor(String fhirCategory) {
-    if ("LAB".equals(fhirCategory)) {
-      return Set.of(
-          DiagnosticReportEntity.CategoryCodes.CH, DiagnosticReportEntity.CategoryCodes.MB);
-    }
-    // If the category isn't supported by the database.
-    try {
-      return Set.of(EnumSearcher.of(DiagnosticReportEntity.CategoryCodes.class).find(fhirCategory));
-    } catch (IllegalArgumentException e) {
-      log.info(e.getMessage());
-      return emptySet();
-    }
+  private Set<CategoryCode> categoriesFor(TokenParameter categoryToken) {
+    return categoryToken
+        .behavior()
+        .onExplicitSystemAndExplicitCode((s, c) -> CategoryCode.forFhirCategory(c))
+        .onAnySystemAndExplicitCode(CategoryCode::forFhirCategory)
+        .onNoSystemAndExplicitCode(CategoryCode::forFhirCategory)
+        .onExplicitSystemAndAnyCode(
+            s -> {
+              if (DR_CATEGORY_SYSTEM.equals(s)) {
+                return Set.of(CategoryCode.CH, CategoryCode.MB);
+              }
+              throw illegalSystemState(s);
+            })
+        .build()
+        .execute();
+  }
+
+  private String codeFor(TokenParameter codeToken) {
+    return codeToken
+        .behavior()
+        .onAnySystemAndExplicitCode(c -> c)
+        .onNoSystemAndExplicitCode(c -> c)
+        .onExplicitSystemAndExplicitCode(
+            (s, c) -> {
+              throw illegalSystemState(s);
+            })
+        .onExplicitSystemAndAnyCode(
+            s -> {
+              throw illegalSystemState(s);
+            })
+        .build()
+        .execute();
   }
 
   private DiagnosticReportEntity findById(String publicId) {
@@ -168,7 +210,7 @@ public class R4DiagnosticReportController {
     if (dr == null || page != 1 || count <= 0) {
       return bundle(parameters, emptyList(), totalRecords);
     }
-    return bundle(parameters, asList(dr), totalRecords);
+    return bundle(parameters, List.of(dr), totalRecords);
   }
 
   /** Search resource by patient. */
@@ -210,10 +252,16 @@ public class R4DiagnosticReportController {
             .add("page", page)
             .add("_count", count)
             .build();
+    TokenParameter categoryToken = TokenParameter.parse(category);
+    if (categoryToken.isSystemExplicitAndUnsupported(DR_CATEGORY_SYSTEM)
+        || categoryToken.isCodeExplicitAndUnsupported("CH", "LAB", "MB")
+        || categoryToken.hasExplicitlyNoSystem()) {
+      return bundle(parameters, emptyList(), 0);
+    }
     DiagnosticReportRepository.PatientAndCategoryAndDateSpecification spec =
         DiagnosticReportRepository.PatientAndCategoryAndDateSpecification.builder()
             .patient(cdwId)
-            .categories(datamartCategoryCodesFor(category))
+            .categories(categoriesFor(categoryToken))
             .dates(date)
             .build();
     Page<DiagnosticReportEntity> entitiesPage = repository.findAll(spec, page(page, count));
@@ -238,10 +286,18 @@ public class R4DiagnosticReportController {
             .add("page", page)
             .add("_count", count)
             .build();
-    Set<String> codes =
-        Splitter.on(",").trimResults().splitToList(codeCsv).stream()
-            .filter(c -> !"".equals(c))
-            .collect(Collectors.toSet());
+    Set<String> codes = null;
+    if (isNotBlank(codeCsv)) {
+      codes =
+          Splitter.on(",").trimResults().splitToList(codeCsv).stream()
+              .map(TokenParameter::parse)
+              .filter(R4DiagnosticReportController::isJustPanelCode)
+              .map(this::codeFor)
+              .collect(Collectors.toSet());
+      if (codes.isEmpty()) {
+        return bundle(parameters, emptyList(), 0);
+      }
+    }
     DiagnosticReportRepository.PatientAndCodeAndDateSpecification spec =
         DiagnosticReportRepository.PatientAndCodeAndDateSpecification.builder()
             .patient(cdwId)
@@ -267,14 +323,16 @@ public class R4DiagnosticReportController {
             .add("page", page)
             .add("_count", count)
             .build();
-    // The status for all diagnosticReports returned will be 'final'
-    // (see R4DiagnosticReportTransformer) if any other status code is
-    // requested, return an empty bundle
-    Set<String> statuses =
+    /*
+     * The status for all diagnosticReports returned will be 'final' (see
+     * R4DiagnosticReportTransformer) if any other status code is requested, return an empty bundle
+     */
+    List<TokenParameter> statusTokens =
         Splitter.on(",").trimResults().splitToList(statusCsv).stream()
-            .filter(c -> !"".equals(c))
-            .collect(Collectors.toSet());
-    if (!statuses.isEmpty() && !statuses.contains("final")) {
+            .map(TokenParameter::parse)
+            .filter(R4DiagnosticReportController::isFhirStatusSystemOrJustFinal)
+            .collect(Collectors.toList());
+    if (statusTokens.isEmpty() || !statusFinal(statusTokens)) {
       return bundle(parameters, emptyList(), 0);
     }
     int pageParam = Parameters.pageOf(parameters);
@@ -287,5 +345,33 @@ public class R4DiagnosticReportController {
                 countParam == 0 ? 1 : countParam,
                 DiagnosticReportEntity.naturalOrder()));
     return bundle(parameters, entitiesPage);
+  }
+
+  private Boolean statusFinal(List<TokenParameter> codeTokens) {
+    return codeTokens.stream()
+        .flatMap(
+            t ->
+                t.behavior()
+                    .onExplicitSystemAndExplicitCode(
+                        (s, c) -> {
+                          if (DR_STATUS_SYSTEM.equals(s)) {
+                            return List.of(c);
+                          }
+                          /*
+                           * This is system is not available in our data. Do not bother searching.
+                           */
+                          return emptyList();
+                        })
+                    .onAnySystemAndExplicitCode(List::of).onNoSystemAndExplicitCode(List::of)
+                    .onExplicitSystemAndAnyCode(
+                        s -> {
+                          if (DR_STATUS_SYSTEM.equals(s)) {
+                            return List.of("final");
+                          }
+                          throw illegalSystemState(s);
+                        })
+                    .build().execute().stream())
+        .distinct()
+        .anyMatch("final"::equals);
   }
 }
