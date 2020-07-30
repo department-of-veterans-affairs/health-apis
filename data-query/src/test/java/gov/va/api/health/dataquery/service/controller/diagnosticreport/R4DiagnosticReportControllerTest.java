@@ -32,11 +32,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @DataJpaTest
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @ExtendWith(SpringExtension.class)
 public class R4DiagnosticReportControllerTest {
   HttpServletResponse response = mock(HttpServletResponse.class);
@@ -47,7 +45,6 @@ public class R4DiagnosticReportControllerTest {
 
   private DiagnosticReport.Bundle bundleOf(
       Collection<DiagnosticReport> diagnosticReports, String paramString, int page, int count) {
-    int lastPage = diagnosticReports.isEmpty() ? 0 : 1;
     return DiagnosticReportSamples.R4.asBundle(
         "http://fonzy.com/cool",
         diagnosticReports,
@@ -65,7 +62,7 @@ public class R4DiagnosticReportControllerTest {
         link(
             BundleLink.LinkRelation.last,
             "http://fonzy.com/cool/DiagnosticReport?" + paramString,
-            lastPage,
+            page,
             count));
   }
 

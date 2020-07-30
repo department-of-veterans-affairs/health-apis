@@ -94,29 +94,41 @@ public class TokenParameter {
     return hasExplicitCode() && !hasSupportedCode(codes);
   }
 
+  public boolean isCodeExplicitlySetAndOneOf(String... codes) {
+    return hasExplicitCode() && hasSupportedCode(codes);
+  }
+
   public boolean isSystemExplicitAndUnsupported(String... systems) {
     return hasExplicitSystem() && !hasSupportedSystem(systems);
   }
 
+  public boolean isSystemExplicitlySetAndOneOf(String... systems) {
+    return hasExplicitSystem() && hasSupportedSystem(systems);
+  }
+
   public enum Mode {
+    /** e.g. cool */
     ANY_SYSTEM_EXPLICIT_CODE,
+    /** e.g. http://fonzy.com| */
     EXPLICIT_SYSTEM_ANY_CODE,
+    /** e.g. http://fonzy.com|cool */
     EXPLICIT_SYSTEM_EXPLICIT_CODE,
+    /** e.g. |cool */
     NO_SYSTEM_EXPLICIT_CODE
   }
 
   @Value
   @Builder
-  public static final class Behavior<T> {
-    @NonNull private TokenParameter token;
+  public static class Behavior<T> {
+    @NonNull TokenParameter token;
 
-    private Function<String, T> onAnySystemAndExplicitCode;
+    Function<String, T> onAnySystemAndExplicitCode;
 
-    private Function<String, T> onExplicitSystemAndAnyCode;
+    Function<String, T> onExplicitSystemAndAnyCode;
 
-    private BiFunction<String, String, T> onExplicitSystemAndExplicitCode;
+    BiFunction<String, String, T> onExplicitSystemAndExplicitCode;
 
-    private Function<String, T> onNoSystemAndExplicitCode;
+    Function<String, T> onNoSystemAndExplicitCode;
 
     /** Check if behavior is specified before executing it. */
     public <T1> T1 check(T1 n) {
@@ -127,6 +139,7 @@ public class TokenParameter {
     }
 
     /** Execute correct behavior based on the mode of the token. */
+    @SuppressWarnings("UnnecessaryDefault")
     @SneakyThrows
     public T execute() {
       switch (token.mode) {
@@ -158,6 +171,7 @@ public class TokenParameter {
       return Behavior.<T>builder().token(TokenParameter.this).onExplicitSystemAndExplicitCode(f);
     }
 
+    @SuppressWarnings("unused")
     public <T> Behavior.BehaviorBuilder<T> onNoSystemAndExplicitCode(Function<String, T> f) {
       return Behavior.<T>builder().token(TokenParameter.this).onNoSystemAndExplicitCode(f);
     }

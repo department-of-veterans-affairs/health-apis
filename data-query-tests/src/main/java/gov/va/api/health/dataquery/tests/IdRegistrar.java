@@ -92,8 +92,7 @@ public final class IdRegistrar {
             .expect(201)
             .expectListOf(Registration.class);
     TestIds publicIds =
-        cdwIds
-            .toBuilder()
+        cdwIds.toBuilder()
             .publicIds(true)
             .allergyIntolerance(findUuid(registrations, allergyIntolerance))
             .condition(findUuid(registrations, condition))

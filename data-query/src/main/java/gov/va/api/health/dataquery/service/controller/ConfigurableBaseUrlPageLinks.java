@@ -135,7 +135,7 @@ public class ConfigurableBaseUrlPageLinks implements PageLinks {
     abstract B last();
 
     final int lastPage() {
-      return config.totalPages();
+      return Math.max(config.totalPages(), 1);
     }
 
     abstract B next();
