@@ -3,6 +3,7 @@ package gov.va.api.health.dataquery.service.controller;
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asCodeableConceptWrapping;
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asCoding;
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asReference;
+import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.eitherTextOrDisplay;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
@@ -106,5 +107,15 @@ public class Dstu2TransformersTest {
   @Test
   public void asReferenceReturnsNullWhenRefIsNull() {
     assertThat(asReference((DatamartReference) null)).isNull();
+  }
+
+  @Test
+  void eitherTextOrDisplayReturns() {
+    assertThat(eitherTextOrDisplay("t", Coding.builder().display("d").build())).isEqualTo("t");
+    assertThat(eitherTextOrDisplay("t", null)).isEqualTo("t");
+    assertThat(eitherTextOrDisplay("", Coding.builder().display("d").build())).isEqualTo("d");
+    assertThat(eitherTextOrDisplay(" ", Coding.builder().display("d").build())).isEqualTo("d");
+    assertThat(eitherTextOrDisplay(null, Coding.builder().display("d").build())).isEqualTo("d");
+    assertThat(eitherTextOrDisplay(null, Coding.builder().build())).isNull();
   }
 }

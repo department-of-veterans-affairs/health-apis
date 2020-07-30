@@ -2,10 +2,11 @@ package gov.va.api.health.dataquery.service.controller.observation;
 
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asCoding;
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asReference;
+import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.eitherTextOrDisplay;
 import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
 import static gov.va.api.health.dataquery.service.controller.Transformers.asDateTimeString;
 import static gov.va.api.health.dataquery.service.controller.Transformers.emptyToNull;
-import static java.util.Arrays.asList;
+import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 import static org.apache.commons.lang3.StringUtils.upperCase;
@@ -38,7 +39,7 @@ final class Dstu2ObservationTransformer {
     if (coding == null) {
       return null;
     }
-    return CodeableConcept.builder().coding(asList(coding)).build();
+    return CodeableConcept.builder().coding(List.of(coding)).build();
   }
 
   static Coding categoryCoding(DatamartObservation.Category category) {
@@ -70,7 +71,7 @@ final class Dstu2ObservationTransformer {
   }
 
   static CodeableConcept codeableConcept(Optional<DatamartObservation.CodeableConcept> maybeCode) {
-    if (maybeCode == null || maybeCode.isEmpty()) {
+    if (isBlank(maybeCode)) {
       return null;
     }
 
@@ -80,7 +81,10 @@ final class Dstu2ObservationTransformer {
       return null;
     }
 
-    return CodeableConcept.builder().coding(asList(coding)).text(dmCode.text()).build();
+    return CodeableConcept.builder()
+        .coding(List.of(coding))
+        .text(eitherTextOrDisplay(dmCode.text(), coding))
+        .build();
   }
 
   static Observation.ObservationComponent component(DatamartObservation.VitalsComponent component) {
@@ -95,7 +99,7 @@ final class Dstu2ObservationTransformer {
     }
 
     return Observation.ObservationComponent.builder()
-        .code(CodeableConcept.builder().coding(asList(coding)).build())
+        .code(CodeableConcept.builder().coding(List.of(coding)).build())
         .valueQuantity(quantity)
         .build();
   }
@@ -114,7 +118,7 @@ final class Dstu2ObservationTransformer {
 
     return Observation.ObservationComponent.builder()
         .code(concept)
-        .valueCodeableConcept(CodeableConcept.builder().coding(asList(valueCoding)).build())
+        .valueCodeableConcept(CodeableConcept.builder().coding(List.of(valueCoding)).build())
         .build();
   }
 
@@ -144,7 +148,7 @@ final class Dstu2ObservationTransformer {
 
     return CodeableConcept.builder()
         .coding(
-            asList(
+            List.of(
                 Coding.builder()
                     .system("http://hl7.org/fhir/v2/0078")
                     .code(interpretation)
@@ -268,7 +272,7 @@ final class Dstu2ObservationTransformer {
       return null;
     }
 
-    return asList(Observation.ObservationReferenceRange.builder().low(low).high(high).build());
+    return List.of(Observation.ObservationReferenceRange.builder().low(low).high(high).build());
   }
 
   private static SimpleQuantity simpleQuantity(Quantity quantity) {

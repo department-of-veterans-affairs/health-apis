@@ -1,8 +1,10 @@
 package gov.va.api.health.dataquery.service.controller.observation;
 
+import static gov.va.api.health.dataquery.service.controller.observation.R4ObservationTransformer.codeableConcept;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
 import gov.va.api.health.r4.api.datatypes.CodeableConcept;
 import gov.va.api.health.r4.api.datatypes.Coding;
 import gov.va.api.health.uscorer4.api.resources.Observation;
@@ -12,6 +14,7 @@ import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.Test;
 
 public class R4ObservationTransformerTest {
+
   @Test
   public void categoryCoding() {
     assertThat(R4ObservationTransformer.categoryCoding(DatamartObservation.Category.exam))
@@ -69,6 +72,54 @@ public class R4ObservationTransformerTest {
                 .system("http://terminology.hl7.org/CodeSystem/observation-category")
                 .code("vital-signs")
                 .display("Vital Signs")
+                .build());
+  }
+
+  @Test
+  void codeableConceptTransformations() {
+    assertThat(codeableConcept(Optional.empty())).isNull();
+    assertThat(codeableConcept(Optional.of(DatamartObservation.CodeableConcept.builder().build())))
+        .isNull();
+    // use display as text value
+    assertThat(
+            codeableConcept(
+                Optional.of(
+                    DatamartObservation.CodeableConcept.builder()
+                        .coding(
+                            Optional.of(
+                                DatamartCoding.of().code("c").display("d").system("s").build()))
+                        .build())))
+        .isEqualTo(
+            gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()
+                .text("d")
+                .coding(
+                    List.of(
+                        gov.va.api.health.r4.api.datatypes.Coding.builder()
+                            .display("d")
+                            .code("c")
+                            .system("s")
+                            .build()))
+                .build());
+    // use given text value as text value
+    assertThat(
+            codeableConcept(
+                Optional.of(
+                    DatamartObservation.CodeableConcept.builder()
+                        .text("t")
+                        .coding(
+                            Optional.of(
+                                DatamartCoding.of().code("c").display("d").system("s").build()))
+                        .build())))
+        .isEqualTo(
+            gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()
+                .text("t")
+                .coding(
+                    List.of(
+                        gov.va.api.health.r4.api.datatypes.Coding.builder()
+                            .display("d")
+                            .code("c")
+                            .system("s")
+                            .build()))
                 .build());
   }
 

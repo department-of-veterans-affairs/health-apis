@@ -2,16 +2,18 @@ package gov.va.api.health.dataquery.service.controller.observation;
 
 import static gov.va.api.health.dataquery.service.controller.R4Transformers.asCoding;
 import static gov.va.api.health.dataquery.service.controller.R4Transformers.asReference;
+import static gov.va.api.health.dataquery.service.controller.R4Transformers.eitherTextOrDisplay;
 import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
 import static gov.va.api.health.dataquery.service.controller.Transformers.asDateTimeString;
 import static gov.va.api.health.dataquery.service.controller.Transformers.emptyToNull;
-import static java.util.Arrays.asList;
+import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 import static org.apache.commons.lang3.StringUtils.upperCase;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
+import gov.va.api.health.dataquery.service.controller.R4Transformers;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.r4.api.datatypes.CodeableConcept;
 import gov.va.api.health.r4.api.datatypes.Coding;
@@ -39,7 +41,7 @@ public class R4ObservationTransformer {
     if (coding == null) {
       return null;
     } else {
-      return List.of(CodeableConcept.builder().coding(asList(coding)).build());
+      return List.of(CodeableConcept.builder().coding(List.of(coding)).build());
     }
   }
 
@@ -77,7 +79,7 @@ public class R4ObservationTransformer {
   }
 
   static CodeableConcept codeableConcept(Optional<DatamartObservation.CodeableConcept> maybeCode) {
-    if (maybeCode.isEmpty()) {
+    if (isBlank(maybeCode)) {
       return null;
     }
     DatamartObservation.CodeableConcept code = maybeCode.get();
@@ -85,7 +87,10 @@ public class R4ObservationTransformer {
     if (allBlank(coding, code.text())) {
       return null;
     } else {
-      return CodeableConcept.builder().coding(asList(coding)).text(code.text()).build();
+      return CodeableConcept.builder()
+          .coding(List.of(coding))
+          .text(eitherTextOrDisplay(code.text(), coding))
+          .build();
     }
   }
 
@@ -99,7 +104,7 @@ public class R4ObservationTransformer {
       return null;
     }
     return Observation.Component.builder()
-        .code(CodeableConcept.builder().coding(asList(coding)).build())
+        .code(CodeableConcept.builder().coding(List.of(coding)).build())
         .valueQuantity(quantity)
         .build();
   }
@@ -115,7 +120,7 @@ public class R4ObservationTransformer {
     }
     return Observation.Component.builder()
         .code(concept)
-        .valueCodeableConcept(CodeableConcept.builder().coding(asList(valueCoding)).build())
+        .valueCodeableConcept(CodeableConcept.builder().coding(List.of(valueCoding)).build())
         .build();
   }
 
@@ -143,7 +148,7 @@ public class R4ObservationTransformer {
     return List.of(
         CodeableConcept.builder()
             .coding(
-                asList(
+                List.of(
                     Coding.builder()
                         .system(
                             "http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation")
@@ -262,7 +267,7 @@ public class R4ObservationTransformer {
       return null;
     } else {
       List<Reference> results =
-          performers.stream().map(p -> asReference(p)).collect(Collectors.toList());
+          performers.stream().map(R4Transformers::asReference).collect(Collectors.toList());
       return emptyToNull(results);
     }
   }
@@ -294,7 +299,7 @@ public class R4ObservationTransformer {
     if (allBlank(low, high)) {
       return null;
     }
-    return asList(Observation.ReferenceRange.builder().low(low).high(high).build());
+    return List.of(Observation.ReferenceRange.builder().low(low).high(high).build());
   }
 
   private static SimpleQuantity simpleQuantity(Quantity quantity) {
@@ -325,7 +330,7 @@ public class R4ObservationTransformer {
     List<Observation.Component> vitals =
         emptyToNull(
             datamart.vitalsComponents().stream()
-                .map(v -> component(v))
+                .map(R4ObservationTransformer::component)
                 .collect(Collectors.toList()));
     if (vitals != null) {
       results.addAll(vitals);
@@ -333,7 +338,7 @@ public class R4ObservationTransformer {
     List<Observation.Component> antibiotics =
         emptyToNull(
             datamart.antibioticComponents().stream()
-                .map(v -> component(v))
+                .map(R4ObservationTransformer::component)
                 .collect(Collectors.toList()));
     if (antibiotics != null) {
       results.addAll(antibiotics);

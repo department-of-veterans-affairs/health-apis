@@ -1,5 +1,7 @@
 package gov.va.api.health.dataquery.service.controller;
 
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
@@ -73,5 +75,13 @@ public final class Dstu2Transformers {
         .display(maybeReference.display().orElse(null))
         .reference(path.orElse(null))
         .build();
+  }
+
+  /** Return either the text (which is preferred) or the coding.display value if necessary. */
+  public static String eitherTextOrDisplay(String preferredText, Coding fallBackToDisplay) {
+    if (isNotBlank(preferredText)) {
+      return preferredText;
+    }
+    return fallBackToDisplay.display();
   }
 }
