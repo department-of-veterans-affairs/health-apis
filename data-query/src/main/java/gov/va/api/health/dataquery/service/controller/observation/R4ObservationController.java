@@ -207,7 +207,7 @@ public class R4ObservationController {
         .onExplicitSystemAndAnyCode(
             s -> {
               if (OBSERVATION_CODE_SYSTEM.equals(s)) {
-                return List.of(s);
+                return List.of(ObservationRepository.ANY_CODE_VALUE);
               }
               throw new IllegalStateException(
                   "Unsupported Code System: " + s + " Cannot build ExplicitSystemSpecification.");

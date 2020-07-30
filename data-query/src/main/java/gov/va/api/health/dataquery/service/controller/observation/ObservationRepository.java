@@ -30,6 +30,12 @@ public interface ObservationRepository
         JpaSpecificationExecutor<ObservationEntity> {
   String OBSERVATION_CODE_SYSTEM = "http://loinc.org";
 
+  /**
+   * This is a magic value used by code specification to include results that have any non-null code
+   * value.
+   */
+  String ANY_CODE_VALUE = ObservationRepository.class.getName() + ".ANY_CODE_VALUE";
+
   Page<ObservationEntity> findByIcn(String icn, Pageable pageable);
 
   @Value
@@ -48,6 +54,11 @@ public interface ObservationRepository
     }
   }
 
+  /**
+   * When creating the CodeSpecification, if the given 'codes' set contains {@link #ANY_CODE_VALUE},
+   * then all other specific codes will be ignored and the predicate will include records with any
+   * non-null code value.
+   */
   @Value
   @RequiredArgsConstructor(staticName = "of")
   class CodeSpecification implements Specification<ObservationEntity> {
@@ -58,7 +69,7 @@ public interface ObservationRepository
         Root<ObservationEntity> root,
         CriteriaQuery<?> criteriaQuery,
         CriteriaBuilder criteriaBuilder) {
-      if (codes.contains(OBSERVATION_CODE_SYSTEM)) {
+      if (codes.contains(ANY_CODE_VALUE)) {
         return criteriaBuilder.isNotNull(root.get("code"));
       } else {
         In<String> categoriesInClause = criteriaBuilder.in(root.get("code"));
