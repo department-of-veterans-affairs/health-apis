@@ -351,7 +351,8 @@ public class R4DiagnosticReportController {
     return codeTokens.stream()
         .flatMap(
             t ->
-                t.behavior()
+                t
+                    .behavior()
                     .onExplicitSystemAndExplicitCode(
                         (s, c) -> {
                           if (DR_STATUS_SYSTEM.equals(s)) {
@@ -362,7 +363,8 @@ public class R4DiagnosticReportController {
                            */
                           return emptyList();
                         })
-                    .onAnySystemAndExplicitCode(List::of).onNoSystemAndExplicitCode(List::of)
+                    .onAnySystemAndExplicitCode(List::of)
+                    .onNoSystemAndExplicitCode(List::of)
                     .onExplicitSystemAndAnyCode(
                         s -> {
                           if (DR_STATUS_SYSTEM.equals(s)) {
@@ -370,7 +372,9 @@ public class R4DiagnosticReportController {
                           }
                           throw illegalSystemState(s);
                         })
-                    .build().execute().stream())
+                    .build()
+                    .execute()
+                    .stream())
         .distinct()
         .anyMatch("final"::equals);
   }

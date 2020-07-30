@@ -4,11 +4,11 @@
   <parent>
     <groupId>gov.va.api.health</groupId>
     <artifactId>test-starter</artifactId>
-    <version>7.0.4</version>
+    <version>7.0.5</version>
     <relativePath/>
   </parent>
   <artifactId>data-query-tests</artifactId>
-  <version>3.0.14-SNAPSHOT</version>
+  <version>3.0.15-SNAPSHOT</version>
   <packaging>jar</packaging>
   <properties>
     <fhir-resources.version>4.0.2</fhir-resources.version>
