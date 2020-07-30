@@ -11,6 +11,7 @@ import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.R4Bundler;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.TokenParameter;
+import gov.va.api.health.dataquery.service.controller.TokenParameter.Mode;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.r4.api.bundle.AbstractEntry;
 import gov.va.api.health.uscorer4.api.resources.Observation;
@@ -73,22 +74,48 @@ public class R4ObservationController {
 
   @SuppressWarnings("RedundantIfStatement")
   private static boolean isSupportedCategoryValue(TokenParameter t) {
-    // http://terminology.hl7.org/CodeSystem/observation-category|laboratory
-    // http://terminology.hl7.org/CodeSystem/observation-category|vital-signs
-    if (t.isSystemExplicitlySetAndOneOf(OBSERVATION_CATEGORY_SYSTEM)
+    // laboratory
+    // vital-signs
+    if (t.mode() == Mode.ANY_SYSTEM_EXPLICIT_CODE
         && t.isCodeExplicitlySetAndOneOf("laboratory", "vital-signs")) {
       return true;
     }
-    // laboratory
-    // vital-signs
-    if (t.hasAnySystem() && t.isCodeExplicitlySetAndOneOf("laboratory", "vital-signs")) {
+    // http://terminology.hl7.org/CodeSystem/observation-category|laboratory
+    // http://terminology.hl7.org/CodeSystem/observation-category|vital-signs
+    if (t.mode() == Mode.EXPLICIT_SYSTEM_EXPLICIT_CODE
+        && t.isSystemExplicitlySetAndOneOf(OBSERVATION_CATEGORY_SYSTEM)
+        && t.isCodeExplicitlySetAndOneOf("laboratory", "vital-signs")) {
       return true;
     }
     // http://terminology.hl7.org/CodeSystem/observation-category|
-    if (t.isSystemExplicitlySetAndOneOf(OBSERVATION_CATEGORY_SYSTEM) && t.hasAnyCode()) {
+    if (t.mode() == Mode.EXPLICIT_SYSTEM_ANY_CODE
+        && t.isSystemExplicitlySetAndOneOf(OBSERVATION_CATEGORY_SYSTEM)) {
       return true;
     }
-    // any other combination
+    // bar
+    // http://foo.com|bar
+    // http://foo.com|laboratory
+    return false;
+  }
+
+  @SuppressWarnings("RedundantIfStatement")
+  private static boolean isSupportedCodeValue(TokenParameter t) {
+    // 12345
+    if (t.mode() == Mode.ANY_SYSTEM_EXPLICIT_CODE) {
+      return true;
+    }
+    // http://loinc.org|12345
+    if (t.mode() == Mode.EXPLICIT_SYSTEM_EXPLICIT_CODE
+        && t.isSystemExplicitlySetAndOneOf(OBSERVATION_CODE_SYSTEM)) {
+      return true;
+    }
+    // http://loinc.org|
+    if (t.mode() == Mode.EXPLICIT_SYSTEM_ANY_CODE
+        && t.isSystemExplicitlySetAndOneOf(OBSERVATION_CODE_SYSTEM)) {
+      return true;
+    }
+    // http://foo.com|12345
+    // http://foo.com|
     return false;
   }
 
@@ -352,10 +379,7 @@ public class R4ObservationController {
     List<TokenParameter> tokens =
         Splitter.on(",").trimResults().splitToList(codeCsv).stream()
             .map(TokenParameter::parse)
-            .filter(
-                t ->
-                    !t.isSystemExplicitAndUnsupported(OBSERVATION_CATEGORY_SYSTEM)
-                        || !t.hasExplicitlyNoSystem())
+            .filter(R4ObservationController::isSupportedCodeValue)
             .collect(Collectors.toList());
     if (tokens.isEmpty()) {
       return bundle(parameters, emptyList(), 0);

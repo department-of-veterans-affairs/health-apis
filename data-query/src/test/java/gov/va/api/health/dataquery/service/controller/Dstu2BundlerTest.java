@@ -30,7 +30,8 @@ public class Dstu2BundlerTest {
       x -> FugaziArgo.of(x.id());
 
   PageLinks links = mock(PageLinks.class);
-  Dstu2Bundler bundler = new Dstu2Bundler(links);;
+  Dstu2Bundler bundler = new Dstu2Bundler(links);
+  ;
 
   @Test
   public void bundlerBuildsGenericTypeBundle() {

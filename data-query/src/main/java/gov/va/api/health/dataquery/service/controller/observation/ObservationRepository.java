@@ -28,7 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 public interface ObservationRepository
     extends PagingAndSortingRepository<ObservationEntity, String>,
         JpaSpecificationExecutor<ObservationEntity> {
-  static final String OBSERVATION_CODE_SYSTEM = "http://loinc.org";
+  String OBSERVATION_CODE_SYSTEM = "http://loinc.org";
 
   Page<ObservationEntity> findByIcn(String icn, Pageable pageable);
 
@@ -45,6 +45,26 @@ public interface ObservationRepository
       In<String> categoriesInClause = criteriaBuilder.in(root.get("category"));
       categories.forEach(categoriesInClause::value);
       return criteriaBuilder.or(categoriesInClause);
+    }
+  }
+
+  @Value
+  @RequiredArgsConstructor(staticName = "of")
+  class CodeSpecification implements Specification<ObservationEntity> {
+    Set<String> codes;
+
+    @Override
+    public Predicate toPredicate(
+        Root<ObservationEntity> root,
+        CriteriaQuery<?> criteriaQuery,
+        CriteriaBuilder criteriaBuilder) {
+      if (codes.contains(OBSERVATION_CODE_SYSTEM)) {
+        return criteriaBuilder.isNotNull(root.get("code"));
+      } else {
+        In<String> categoriesInClause = criteriaBuilder.in(root.get("code"));
+        codes.forEach(categoriesInClause::value);
+        return criteriaBuilder.or(categoriesInClause);
+      }
     }
   }
 
@@ -138,6 +158,7 @@ public interface ObservationRepository
       date2 = (dates == null || dates.length < 2) ? null : new DateTimeParameters(dates[1]);
     }
 
+    @Override
     public Predicate toPredicate(
         Root<ObservationEntity> root,
         CriteriaQuery<?> criteriaQuery,
@@ -152,26 +173,6 @@ public interface ObservationRepository
         predicates.add(date2().toInstantPredicate(root.get("dateUtc"), criteriaBuilder));
       }
       return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
-    }
-  }
-
-  @Value
-  @RequiredArgsConstructor(staticName = "of")
-  class CodeSpecification implements Specification<ObservationEntity> {
-    Set<String> codes;
-
-    @Override
-    public Predicate toPredicate(
-        Root<ObservationEntity> root,
-        CriteriaQuery<?> criteriaQuery,
-        CriteriaBuilder criteriaBuilder) {
-      if (codes.contains(OBSERVATION_CODE_SYSTEM)) {
-        return criteriaBuilder.isNotNull(root.get("code"));
-      } else {
-        In<String> categoriesInClause = criteriaBuilder.in(root.get("code"));
-        codes.forEach(categoriesInClause::value);
-        return criteriaBuilder.or(categoriesInClause);
-      }
     }
   }
 }

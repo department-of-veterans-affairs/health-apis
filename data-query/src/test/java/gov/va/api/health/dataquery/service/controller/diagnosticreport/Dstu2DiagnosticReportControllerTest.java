@@ -32,11 +32,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @DataJpaTest
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @ExtendWith(SpringExtension.class)
 public class Dstu2DiagnosticReportControllerTest {
   HttpServletResponse response = mock(HttpServletResponse.class);
@@ -421,7 +419,7 @@ public class Dstu2DiagnosticReportControllerTest {
                     link(
                         BundleLink.LinkRelation.last,
                         "http://fonzy.com/cool/DiagnosticReport?code=panel&patient=p0",
-                        0,
+                        1,
                         15))));
   }
 
@@ -448,7 +446,7 @@ public class Dstu2DiagnosticReportControllerTest {
                     link(
                         BundleLink.LinkRelation.last,
                         "http://fonzy.com/cool/DiagnosticReport?category=NOPE&patient=p0",
-                        0,
+                        1,
                         15))));
   }
 
