@@ -70,9 +70,33 @@ public class R4ConditionController {
     this.witnessProtection = witnessProtection;
   }
 
-  private static boolean isClinicalStatusSystemOrJustSupportedCode(TokenParameter t) {
-    return t.hasSupportedSystem(CLINICAL_STATUS_SYSTEM)
-        || (t.hasSupportedCode("active", "resolved") && !t.hasExplicitlyNoSystem());
+  @SuppressWarnings("RedundantIfStatement")
+  private static boolean isSupportedClinicalStatus(TokenParameter t) {
+    // http://terminology.hl7.org/CodeSystem/condition-clinical|active
+    // http://terminology.hl7.org/CodeSystem/condition-clinical|resolved
+    // http://terminology.hl7.org/CodeSystem/condition-clinical|inactive -> resolved
+    if (t.mode() == TokenParameter.Mode.EXPLICIT_SYSTEM_EXPLICIT_CODE
+        && t.isSystemExplicitlySetAndOneOf(CLINICAL_STATUS_SYSTEM)
+        && t.isCodeExplicitlySetAndOneOf("active", "resolved", "inactive")) {
+      return true;
+    }
+    // active
+    // resolved
+    // inactive -> resolved
+    if (t.mode() == TokenParameter.Mode.ANY_SYSTEM_EXPLICIT_CODE
+        && t.isCodeExplicitlySetAndOneOf("active", "resolved", "inactive")) {
+      return true;
+    }
+    // http://terminology.hl7.org/CodeSystem/condition-clinical|
+    if (t.mode() == TokenParameter.Mode.EXPLICIT_SYSTEM_ANY_CODE
+        && t.isSystemExplicitlySetAndOneOf(CLINICAL_STATUS_SYSTEM)) {
+      return true;
+    }
+    // bar
+    // http://terminology.hl7.org/CodeSystem/condition-clinical|bar
+    // http://foo.com|bar
+    // http://foo.com|active
+    return false;
   }
 
   /**
@@ -141,10 +165,30 @@ public class R4ConditionController {
         .execute();
   }
 
-  private boolean categorySystemOrCodeAreExplicitAndUnsupported(TokenParameter categoryToken) {
-    return categoryToken.isSystemExplicitAndUnsupported(PROBLEM_AND_DIAGNOSIS_SYSTEM)
-        || categoryToken.isCodeExplicitAndUnsupported("problem-list-item", "encounter-diagnosis")
-        || categoryToken.hasExplicitlyNoSystem();
+  private boolean categoryIsUnsupported(TokenParameter t) {
+    // http://terminology.hl7.org/CodeSystem/condition-category|problem-list-item"
+    // http://terminology.hl7.org/CodeSystem/condition-category|encounter-diagnosis
+    if (t.mode() == TokenParameter.Mode.EXPLICIT_SYSTEM_EXPLICIT_CODE
+        && t.isSystemExplicitlySetAndOneOf(PROBLEM_AND_DIAGNOSIS_SYSTEM)
+        && t.isCodeExplicitlySetAndOneOf("problem-list-item", "encounter-diagnosis")) {
+      return false;
+    }
+    // problem-list-item
+    // encounter-diagnosis
+    if (t.mode() == TokenParameter.Mode.ANY_SYSTEM_EXPLICIT_CODE
+        && t.isCodeExplicitlySetAndOneOf("problem-list-item", "encounter-diagnosis")) {
+      return false;
+    }
+    // http://terminology.hl7.org/CodeSystem/condition-category|
+    if (t.mode() == TokenParameter.Mode.EXPLICIT_SYSTEM_ANY_CODE
+        && t.isSystemExplicitlySetAndOneOf(PROBLEM_AND_DIAGNOSIS_SYSTEM)) {
+      return false;
+    }
+    // bar
+    // http://terminology.hl7.org/CodeSystem/condition-category|bar
+    // http://foo.com|bar
+    // http://foo.com|problem-list-item
+    return true;
   }
 
   private Specification<ConditionEntity> clincialStatusClauseFor(
@@ -300,7 +344,7 @@ public class R4ConditionController {
             .add("_count", count)
             .build();
     TokenParameter categoryToken = TokenParameter.parse(category);
-    if (categorySystemOrCodeAreExplicitAndUnsupported(categoryToken)) {
+    if (categoryIsUnsupported(categoryToken)) {
       return bundle(parameters, emptyList(), 0);
     }
     String icn = witnessProtection.toCdwId(patient);
@@ -330,7 +374,7 @@ public class R4ConditionController {
     List<TokenParameter> clinicalStatusTokens =
         Splitter.on(",").trimResults().splitToList(clinicalStatusCsv).stream()
             .map(TokenParameter::parse)
-            .filter(R4ConditionController::isClinicalStatusSystemOrJustSupportedCode)
+            .filter(R4ConditionController::isSupportedClinicalStatus)
             .collect(Collectors.toList());
     if (clinicalStatusTokens.isEmpty()) {
       return bundle(parameters, emptyList(), 0);
