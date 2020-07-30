@@ -40,7 +40,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ExtendWith(SpringExtension.class)
 public class Dstu2ProcedureControllerTest {
   HttpServletResponse response = mock(HttpServletResponse.class);
-  ;
 
   private IdentityService ids = mock(IdentityService.class);
 

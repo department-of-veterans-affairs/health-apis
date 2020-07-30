@@ -31,15 +31,14 @@ public class Dstu2BundlerTest {
 
   PageLinks links = mock(PageLinks.class);
   Dstu2Bundler bundler = new Dstu2Bundler(links);
-  ;
 
   @Test
   public void bundlerBuildsGenericTypeBundle() {
     List<BundleLink> bundleLinks =
         Collections.singletonList(
             BundleLink.builder().relation(LinkRelation.self).url("http://whatever.com").build());
-    when(this.links.dstu2Links(Mockito.any())).thenReturn(bundleLinks);
-    when(this.links.dstu2ReadLink(Mockito.any(), Mockito.any()))
+    when(links.dstu2Links(Mockito.any())).thenReturn(bundleLinks);
+    when(links.dstu2ReadLink(Mockito.any(), Mockito.any()))
         .thenReturn("http://one.com")
         .thenReturn("http://two.com")
         .thenReturn("http://three.com");

@@ -24,7 +24,6 @@ import gov.va.api.health.uscorer4.api.resources.Observation;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -247,7 +246,7 @@ public class R4ObservationControllerTest {
             json(
                 ObservationSamples.R4.asBundle(
                     "http://fonzy.com/cool",
-                    Collections.emptyList(),
+                    List.of(),
                     1,
                     link(
                         BundleLink.LinkRelation.self,
@@ -811,7 +810,7 @@ public class R4ObservationControllerTest {
             json(
                 ObservationSamples.R4.asBundle(
                     "http://fonzy.com/cool",
-                    Collections.emptyList(),
+                    List.of(),
                     0,
                     link(
                         BundleLink.LinkRelation.first,
@@ -1151,7 +1150,7 @@ public class R4ObservationControllerTest {
             json(
                 ObservationSamples.R4.asBundle(
                     "http://fonzy.com/cool",
-                    Collections.emptyList(),
+                    List.of(),
                     0,
                     link(
                         BundleLink.LinkRelation.first,
