@@ -1,6 +1,5 @@
 package gov.va.api.health.dataquery.service.controller.observation;
 
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 
 import com.google.common.base.Splitter;
@@ -12,6 +11,7 @@ import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.R4Bundler;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.TokenParameter;
+import gov.va.api.health.dataquery.service.controller.TokenParameter.Mode;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.r4.api.bundle.AbstractEntry;
 import gov.va.api.health.uscorer4.api.resources.Observation;
@@ -56,11 +56,11 @@ public class R4ObservationController {
 
   private static final String OBSERVATION_CODE_SYSTEM = "http://loinc.org";
 
-  private R4Bundler bundler;
+  private final R4Bundler bundler;
 
-  private ObservationRepository repository;
+  private final ObservationRepository repository;
 
-  private WitnessProtection witnessProtection;
+  private final WitnessProtection witnessProtection;
 
   /** Constructor. */
   public R4ObservationController(
@@ -70,6 +70,53 @@ public class R4ObservationController {
     this.bundler = bundler;
     this.repository = repository;
     this.witnessProtection = witnessProtection;
+  }
+
+  @SuppressWarnings("RedundantIfStatement")
+  private static boolean isSupportedCategoryValue(TokenParameter t) {
+    // laboratory
+    // vital-signs
+    if (t.mode() == Mode.ANY_SYSTEM_EXPLICIT_CODE
+        && t.isCodeExplicitlySetAndOneOf("laboratory", "vital-signs")) {
+      return true;
+    }
+    // http://terminology.hl7.org/CodeSystem/observation-category|laboratory
+    // http://terminology.hl7.org/CodeSystem/observation-category|vital-signs
+    if (t.mode() == Mode.EXPLICIT_SYSTEM_EXPLICIT_CODE
+        && t.isSystemExplicitlySetAndOneOf(OBSERVATION_CATEGORY_SYSTEM)
+        && t.isCodeExplicitlySetAndOneOf("laboratory", "vital-signs")) {
+      return true;
+    }
+    // http://terminology.hl7.org/CodeSystem/observation-category|
+    if (t.mode() == Mode.EXPLICIT_SYSTEM_ANY_CODE
+        && t.isSystemExplicitlySetAndOneOf(OBSERVATION_CATEGORY_SYSTEM)) {
+      return true;
+    }
+    // bar
+    // http://foo.com|bar
+    // http://foo.com|laboratory
+    return false;
+  }
+
+  @SuppressWarnings("RedundantIfStatement")
+  private static boolean isSupportedCodeValue(TokenParameter t) {
+    // 12345
+    if (t.mode() == Mode.ANY_SYSTEM_EXPLICIT_CODE) {
+      return true;
+    }
+    // http://loinc.org|12345
+    if (t.mode() == Mode.EXPLICIT_SYSTEM_EXPLICIT_CODE
+        && t.isSystemExplicitlySetAndOneOf(OBSERVATION_CODE_SYSTEM)) {
+      return true;
+    }
+    // http://loinc.org|
+    if (t.mode() == Mode.EXPLICIT_SYSTEM_ANY_CODE
+        && t.isSystemExplicitlySetAndOneOf(OBSERVATION_CODE_SYSTEM)) {
+      return true;
+    }
+    // http://foo.com|12345
+    // http://foo.com|
+    return false;
   }
 
   Observation.Bundle bundle(
@@ -90,13 +137,13 @@ public class R4ObservationController {
     if (Parameters.countOf(parameters) <= 0) {
       return bundle(parameters, emptyList(), (int) entitiesPage.getTotalElements());
     }
-    List<DatamartObservation> datamarts =
+    List<DatamartObservation> datamartObservations =
         entitiesPage.stream()
             .map(ObservationEntity::asDatamartObservation)
             .collect(Collectors.toList());
-    replaceReferences(datamarts);
+    replaceReferences(datamartObservations);
     List<Observation> fhir =
-        datamarts.stream()
+        datamartObservations.stream()
             .map(dm -> R4ObservationTransformer.builder().datamart(dm).build().toFhir())
             .collect(Collectors.toList());
     return bundle(parameters, fhir, (int) entitiesPage.getTotalElements());
@@ -160,7 +207,7 @@ public class R4ObservationController {
         .onExplicitSystemAndAnyCode(
             s -> {
               if (OBSERVATION_CODE_SYSTEM.equals(s)) {
-                return List.of(s);
+                return List.of(ObservationRepository.ANY_CODE_VALUE);
               }
               throw new IllegalStateException(
                   "Unsupported Code System: " + s + " Cannot build ExplicitSystemSpecification.");
@@ -228,7 +275,7 @@ public class R4ObservationController {
     if (resource == null || page != 1 || count <= 0) {
       return bundle(parameters, emptyList(), totalRecords);
     }
-    return bundle(parameters, asList(resource), totalRecords);
+    return bundle(parameters, List.of(resource), totalRecords);
   }
 
   /** Search R4 Observation by Patient. */
@@ -279,11 +326,7 @@ public class R4ObservationController {
     List<TokenParameter> tokens =
         Splitter.on(",").trimResults().splitToList(categoryCsv).stream()
             .map(TokenParameter::parse)
-            .filter(
-                t ->
-                    !t.isSystemExplicitAndUnsupported(OBSERVATION_CATEGORY_SYSTEM)
-                        || !t.isCodeExplicitAndUnsupported("laboratory", "vital-signs")
-                        || !t.hasExplicitlyNoSystem())
+            .filter(R4ObservationController::isSupportedCategoryValue)
             .collect(Collectors.toList());
     if (tokens.isEmpty()) {
       return bundle(parameters, emptyList(), 0);
@@ -336,10 +379,7 @@ public class R4ObservationController {
     List<TokenParameter> tokens =
         Splitter.on(",").trimResults().splitToList(codeCsv).stream()
             .map(TokenParameter::parse)
-            .filter(
-                t ->
-                    !t.isSystemExplicitAndUnsupported(OBSERVATION_CATEGORY_SYSTEM)
-                        || !t.hasExplicitlyNoSystem())
+            .filter(R4ObservationController::isSupportedCodeValue)
             .collect(Collectors.toList());
     if (tokens.isEmpty()) {
       return bundle(parameters, emptyList(), 0);

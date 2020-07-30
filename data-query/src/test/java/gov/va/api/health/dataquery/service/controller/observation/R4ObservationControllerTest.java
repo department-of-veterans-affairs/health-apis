@@ -23,7 +23,7 @@ import gov.va.api.health.r4.api.datatypes.Coding;
 import gov.va.api.health.uscorer4.api.resources.Observation;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -35,11 +35,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+@SuppressWarnings("OptionalGetWithoutIsPresent")
 @DataJpaTest
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @ExtendWith(SpringExtension.class)
 public class R4ObservationControllerTest {
   private static final String OBSERVATION_CATEGORY_SYSTEM =
@@ -47,12 +46,13 @@ public class R4ObservationControllerTest {
 
   private static final String OBSERVATION_CODE_SYSTEM = "http://loinc.org";
 
-  HttpServletResponse response = mock(HttpServletResponse.class);
+  private final IdentityService ids = mock(IdentityService.class);
 
-  private IdentityService ids = mock(IdentityService.class);
+  HttpServletResponse response = mock(HttpServletResponse.class);
 
   @Autowired private ObservationRepository repository;
 
+  @SuppressWarnings("OptionalGetWithoutIsPresent")
   @SneakyThrows
   private static ObservationEntity asEntity(DatamartObservation dm) {
     return ObservationEntity.builder()
@@ -246,7 +246,7 @@ public class R4ObservationControllerTest {
             json(
                 ObservationSamples.R4.asBundle(
                     "http://fonzy.com/cool",
-                    Collections.emptyList(),
+                    List.of(),
                     1,
                     link(
                         BundleLink.LinkRelation.self,
@@ -800,8 +800,45 @@ public class R4ObservationControllerTest {
   }
 
   @Test
-  void searchByPatientAndCategoryTokenMix() {
+  void searchByPatientAndCategorySystemUnknown() {
     Multimap<String, Observation> observationsByPatient = populateData();
+    assertThat(
+            json(
+                controller()
+                    .searchByPatientAndCategory(false, "p0", "http://nope.com|", null, 1, 10)))
+        .isEqualTo(
+            json(
+                ObservationSamples.R4.asBundle(
+                    "http://fonzy.com/cool",
+                    List.of(),
+                    0,
+                    link(
+                        BundleLink.LinkRelation.first,
+                        "http://fonzy.com/cool/Observation?category=http://nope.com|&patient=p0",
+                        1,
+                        10),
+                    link(
+                        BundleLink.LinkRelation.self,
+                        "http://fonzy.com/cool/Observation?category=http://nope.com|&patient=p0",
+                        1,
+                        10),
+                    link(
+                        BundleLink.LinkRelation.last,
+                        "http://fonzy.com/cool/Observation?category=http://nope.com|&patient=p0",
+                        1,
+                        10))));
+  }
+
+  @Test
+  void searchByPatientAndCategoryTokenMix() {
+    /*
+     * We'll search categories
+     * http://terminology.hl7.org/CodeSystem/observation-category|vital-signs and |laboratory. The
+     * "|laboratory" will get ignored since it explicitly sets a 'no system' value.
+     */
+    Multimap<String, Observation> observationsByPatient = populateData();
+    Collection<Observation> vitalsigns =
+        observationsByPatient.get("p0").stream().skip(3).collect(Collectors.toList());
     assertThat(
             json(
                 controller()
@@ -816,8 +853,8 @@ public class R4ObservationControllerTest {
             json(
                 ObservationSamples.R4.asBundle(
                     "http://fonzy.com/cool",
-                    observationsByPatient.get("p0"),
-                    observationsByPatient.get("p0").size(),
+                    vitalsigns,
+                    vitalsigns.size(),
                     link(
                         BundleLink.LinkRelation.first,
                         "http://fonzy.com/cool/Observation?category="
@@ -1101,6 +1138,33 @@ public class R4ObservationControllerTest {
                         "http://fonzy.com/cool/Observation?code="
                             + OBSERVATION_CODE_SYSTEM
                             + "|1989-3&patient=p0",
+                        1,
+                        10))));
+  }
+
+  @Test
+  void searchByPatientAndCodeSystemUnknown() {
+    Multimap<String, Observation> observationsByPatient = populateData();
+    assertThat(json(controller().searchByPatientAndCode("p0", "http://nope.com|", null, 1, 10)))
+        .isEqualTo(
+            json(
+                ObservationSamples.R4.asBundle(
+                    "http://fonzy.com/cool",
+                    List.of(),
+                    0,
+                    link(
+                        BundleLink.LinkRelation.first,
+                        "http://fonzy.com/cool/Observation?code=http://nope.com|&patient=p0",
+                        1,
+                        10),
+                    link(
+                        BundleLink.LinkRelation.self,
+                        "http://fonzy.com/cool/Observation?code=http://nope.com|&patient=p0",
+                        1,
+                        10),
+                    link(
+                        BundleLink.LinkRelation.last,
+                        "http://fonzy.com/cool/Observation?code=http://nope.com|&patient=p0",
                         1,
                         10))));
   }
