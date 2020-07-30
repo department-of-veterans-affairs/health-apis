@@ -165,32 +165,6 @@ public class R4ConditionController {
         .execute();
   }
 
-  private boolean categoryIsUnsupported(TokenParameter t) {
-    // http://terminology.hl7.org/CodeSystem/condition-category|problem-list-item"
-    // http://terminology.hl7.org/CodeSystem/condition-category|encounter-diagnosis
-    if (t.mode() == TokenParameter.Mode.EXPLICIT_SYSTEM_EXPLICIT_CODE
-        && t.isSystemExplicitlySetAndOneOf(PROBLEM_AND_DIAGNOSIS_SYSTEM)
-        && t.isCodeExplicitlySetAndOneOf("problem-list-item", "encounter-diagnosis")) {
-      return false;
-    }
-    // problem-list-item
-    // encounter-diagnosis
-    if (t.mode() == TokenParameter.Mode.ANY_SYSTEM_EXPLICIT_CODE
-        && t.isCodeExplicitlySetAndOneOf("problem-list-item", "encounter-diagnosis")) {
-      return false;
-    }
-    // http://terminology.hl7.org/CodeSystem/condition-category|
-    if (t.mode() == TokenParameter.Mode.EXPLICIT_SYSTEM_ANY_CODE
-        && t.isSystemExplicitlySetAndOneOf(PROBLEM_AND_DIAGNOSIS_SYSTEM)) {
-      return false;
-    }
-    // bar
-    // http://terminology.hl7.org/CodeSystem/condition-category|bar
-    // http://foo.com|bar
-    // http://foo.com|problem-list-item
-    return true;
-  }
-
   private Specification<ConditionEntity> clincialStatusClauseFor(
       List<TokenParameter> clinicalStatusTokens) {
     Set<String> clinicalStatusesForQuery =
@@ -239,6 +213,32 @@ public class R4ConditionController {
   private ConditionEntity findEntityById(String publicId) {
     Optional<ConditionEntity> entity = repository.findById(witnessProtection.toCdwId(publicId));
     return entity.orElseThrow(() -> new ResourceExceptions.NotFound(publicId));
+  }
+
+  private boolean isUnsupportedCategory(TokenParameter t) {
+    // http://terminology.hl7.org/CodeSystem/condition-category|problem-list-item"
+    // http://terminology.hl7.org/CodeSystem/condition-category|encounter-diagnosis
+    if (t.mode() == TokenParameter.Mode.EXPLICIT_SYSTEM_EXPLICIT_CODE
+        && t.isSystemExplicitlySetAndOneOf(PROBLEM_AND_DIAGNOSIS_SYSTEM)
+        && t.isCodeExplicitlySetAndOneOf("problem-list-item", "encounter-diagnosis")) {
+      return false;
+    }
+    // problem-list-item
+    // encounter-diagnosis
+    if (t.mode() == TokenParameter.Mode.ANY_SYSTEM_EXPLICIT_CODE
+        && t.isCodeExplicitlySetAndOneOf("problem-list-item", "encounter-diagnosis")) {
+      return false;
+    }
+    // http://terminology.hl7.org/CodeSystem/condition-category|
+    if (t.mode() == TokenParameter.Mode.EXPLICIT_SYSTEM_ANY_CODE
+        && t.isSystemExplicitlySetAndOneOf(PROBLEM_AND_DIAGNOSIS_SYSTEM)) {
+      return false;
+    }
+    // bar
+    // http://terminology.hl7.org/CodeSystem/condition-category|bar
+    // http://foo.com|bar
+    // http://foo.com|problem-list-item
+    return true;
   }
 
   private PageRequest page(int page, int count) {
@@ -344,7 +344,7 @@ public class R4ConditionController {
             .add("_count", count)
             .build();
     TokenParameter categoryToken = TokenParameter.parse(category);
-    if (categoryIsUnsupported(categoryToken)) {
+    if (isUnsupportedCategory(categoryToken)) {
       return bundle(parameters, emptyList(), 0);
     }
     String icn = witnessProtection.toCdwId(patient);
