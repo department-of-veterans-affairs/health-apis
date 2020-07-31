@@ -85,14 +85,6 @@ public class R4Transformers {
         .build();
   }
 
-  /** Return either the text (which is preferred) or the coding.display value if necessary. */
-  public static String textOrElseDisplay(String preferredText, Coding fallBackToDisplay) {
-    if (isNotBlank(preferredText)) {
-      return preferredText;
-    }
-    return fallBackToDisplay.display();
-  }
-
   /**
    * Parse an Instant from a string such as '2007-12-03T10:15:30Z', appending 'Z' if it is missing.
    */
@@ -104,5 +96,13 @@ public class R4Transformers {
       log.error("Failed to parse '{}' as instant", instant);
       return null;
     }
+  }
+
+  /** Return either the text (which is preferred) or the coding.display value if necessary. */
+  public static String textOrElseDisplay(String preferredText, Coding fallBackToDisplay) {
+    if (isNotBlank(preferredText)) {
+      return preferredText;
+    }
+    return fallBackToDisplay.display();
   }
 }
