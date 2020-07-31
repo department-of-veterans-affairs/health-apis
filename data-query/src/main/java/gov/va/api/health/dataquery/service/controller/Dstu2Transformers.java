@@ -78,7 +78,7 @@ public final class Dstu2Transformers {
   }
 
   /** Return either the text (which is preferred) or the coding.display value if necessary. */
-  public static String eitherTextOrDisplay(String preferredText, Coding fallBackToDisplay) {
+  public static String textOrElseDisplay(String preferredText, Coding fallBackToDisplay) {
     if (isNotBlank(preferredText)) {
       return preferredText;
     }

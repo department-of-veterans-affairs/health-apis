@@ -2,7 +2,7 @@ package gov.va.api.health.dataquery.service.controller.observation;
 
 import static gov.va.api.health.dataquery.service.controller.R4Transformers.asCoding;
 import static gov.va.api.health.dataquery.service.controller.R4Transformers.asReference;
-import static gov.va.api.health.dataquery.service.controller.R4Transformers.eitherTextOrDisplay;
+import static gov.va.api.health.dataquery.service.controller.R4Transformers.textOrElseDisplay;
 import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
 import static gov.va.api.health.dataquery.service.controller.Transformers.asDateTimeString;
 import static gov.va.api.health.dataquery.service.controller.Transformers.emptyToNull;
@@ -89,7 +89,7 @@ public class R4ObservationTransformer {
     } else {
       return CodeableConcept.builder()
           .coding(List.of(coding))
-          .text(eitherTextOrDisplay(code.text(), coding))
+          .text(textOrElseDisplay(code.text(), coding))
           .build();
     }
   }
