@@ -1,8 +1,10 @@
 package gov.va.api.health.dataquery.service.controller.observation;
 
+import static gov.va.api.health.dataquery.service.controller.observation.Dstu2ObservationTransformer.codeableConcept;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.argonaut.api.resources.Observation;
+import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
 import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation.AntibioticComponent;
 import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation.BacteriologyComponent;
 import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation.CodeableConcept;
@@ -10,13 +12,14 @@ import gov.va.api.health.dataquery.service.controller.observation.DatamartObserv
 import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation.ReferenceRange;
 import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation.VitalsComponent;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
+import java.util.List;
 import java.util.Optional;
 import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.Test;
 
 public class Dstu2ObservationTransformerTest {
   @Test
-  public void categoryCoding() {
+  void categoryCoding() {
     assertThat(Dstu2ObservationTransformer.categoryCoding(DatamartObservation.Category.exam))
         .isEqualTo(
             Coding.builder()
@@ -77,7 +80,43 @@ public class Dstu2ObservationTransformerTest {
   }
 
   @Test
-  public void empty() {
+  void codeableConceptTransformations() {
+    assertThat(codeableConcept(null)).isNull();
+    assertThat(codeableConcept(Optional.empty())).isNull();
+    assertThat(codeableConcept(Optional.of(CodeableConcept.builder().build()))).isNull();
+    // use display as text value
+    assertThat(
+            codeableConcept(
+                Optional.of(
+                    CodeableConcept.builder()
+                        .coding(
+                            Optional.of(
+                                DatamartCoding.of().code("c").display("d").system("s").build()))
+                        .build())))
+        .isEqualTo(
+            gov.va.api.health.dstu2.api.datatypes.CodeableConcept.builder()
+                .text("d")
+                .coding(List.of(Coding.builder().display("d").code("c").system("s").build()))
+                .build());
+    // use given text value as text value
+    assertThat(
+            codeableConcept(
+                Optional.of(
+                    CodeableConcept.builder()
+                        .text("t")
+                        .coding(
+                            Optional.of(
+                                DatamartCoding.of().code("c").display("d").system("s").build()))
+                        .build())))
+        .isEqualTo(
+            gov.va.api.health.dstu2.api.datatypes.CodeableConcept.builder()
+                .text("t")
+                .coding(List.of(Coding.builder().display("d").code("c").system("s").build()))
+                .build());
+  }
+
+  @Test
+  void empty() {
     assertThat(
             Dstu2ObservationTransformer.builder()
                 .datamart(DatamartObservation.builder().build())
@@ -87,7 +126,7 @@ public class Dstu2ObservationTransformerTest {
   }
 
   @Test
-  public void interpretationDisplay() {
+  void interpretationDisplay() {
     assertThat(Dstu2ObservationTransformer.interpretationDisplay("<")).isEqualTo("Off scale low");
     assertThat(Dstu2ObservationTransformer.interpretationDisplay(">")).isEqualTo("Off scale high");
     assertThat(Dstu2ObservationTransformer.interpretationDisplay("A")).isEqualTo("Abnormal");
@@ -137,13 +176,10 @@ public class Dstu2ObservationTransformerTest {
   }
 
   @Test
-  public void transformerIsNullSafe() {
+  void transformerIsNullSafe() {
     assertThat(Dstu2ObservationTransformer.category(null)).isNull();
-    assertThat(Dstu2ObservationTransformer.codeableConcept(java.util.Optional.empty())).isNull();
-    assertThat(
-            Dstu2ObservationTransformer.codeableConcept(
-                Optional.of(CodeableConcept.builder().build())))
-        .isNull();
+    assertThat(codeableConcept(java.util.Optional.empty())).isNull();
+    assertThat(codeableConcept(Optional.of(CodeableConcept.builder().build()))).isNull();
     assertThat(Dstu2ObservationTransformer.component((VitalsComponent) null)).isNull();
     assertThat(Dstu2ObservationTransformer.component(VitalsComponent.builder().build())).isNull();
     assertThat(Dstu2ObservationTransformer.component((AntibioticComponent) null)).isNull();

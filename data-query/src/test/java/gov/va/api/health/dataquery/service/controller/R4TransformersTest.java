@@ -3,6 +3,7 @@ package gov.va.api.health.dataquery.service.controller;
 import static gov.va.api.health.dataquery.service.controller.R4Transformers.asCodeableConceptWrapping;
 import static gov.va.api.health.dataquery.service.controller.R4Transformers.asCoding;
 import static gov.va.api.health.dataquery.service.controller.R4Transformers.asReference;
+import static gov.va.api.health.dataquery.service.controller.R4Transformers.textOrElseDisplay;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
@@ -96,6 +97,16 @@ public class R4TransformersTest {
                         .system(Optional.of("system"))
                         .build())))
         .isEqualTo(Coding.builder().system("system").code("code").display("display").build());
+  }
+
+  @Test
+  void eitherTextOrDisplayReturns() {
+    assertThat(textOrElseDisplay("t", Coding.builder().display("d").build())).isEqualTo("t");
+    assertThat(textOrElseDisplay("t", null)).isEqualTo("t");
+    assertThat(textOrElseDisplay("", Coding.builder().display("d").build())).isEqualTo("d");
+    assertThat(textOrElseDisplay(" ", Coding.builder().display("d").build())).isEqualTo("d");
+    assertThat(textOrElseDisplay(null, Coding.builder().display("d").build())).isEqualTo("d");
+    assertThat(textOrElseDisplay(null, Coding.builder().build())).isNull();
   }
 
   @Test
