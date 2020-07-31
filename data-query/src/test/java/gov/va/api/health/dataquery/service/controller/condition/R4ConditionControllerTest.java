@@ -246,34 +246,54 @@ public class R4ConditionControllerTest {
 
   @Test
   public void searchByPatientAndBadCategoryReturnsEmptyBundle() {
-    assertThat(toJson(controller().searchByPatientAndCategory("x", "nope", 1, 0)))
+    assertThat(toJson(controller().searchByPatientAndCategory("x", "nope", 1, 10)))
         .isEqualTo(
             toJson(
                 ConditionSamples.R4.asBundle(
                     "http://fonzy.com/cool",
                     Collections.emptyList(),
                     0,
-                    ConditionSamples.R4.link(
+                    link(
+                        BundleLink.LinkRelation.first,
+                        "http://fonzy.com/cool/Condition?category=nope&patient=x",
+                        1,
+                        10),
+                    link(
                         BundleLink.LinkRelation.self,
                         "http://fonzy.com/cool/Condition?category=nope&patient=x",
                         1,
-                        0))));
+                        10),
+                    link(
+                        BundleLink.LinkRelation.last,
+                        "http://fonzy.com/cool/Condition?category=nope&patient=x",
+                        1,
+                        10))));
   }
 
   @Test
   public void searchByPatientAndBadClinicalStatusReturnsEmptyBundle() {
-    assertThat(toJson(controller().searchByPatientAndClinicalStatus("x", "nope", 1, 0)))
+    assertThat(toJson(controller().searchByPatientAndClinicalStatus("x", "nope", 1, 10)))
         .isEqualTo(
             toJson(
                 ConditionSamples.R4.asBundle(
                     "http://fonzy.com/cool",
                     Collections.emptyList(),
                     0,
-                    ConditionSamples.R4.link(
+                    link(
+                        BundleLink.LinkRelation.first,
+                        "http://fonzy.com/cool/Condition?clinical-status=nope&patient=x",
+                        1,
+                        10),
+                    link(
                         BundleLink.LinkRelation.self,
                         "http://fonzy.com/cool/Condition?clinical-status=nope&patient=x",
                         1,
-                        0))));
+                        10),
+                    link(
+                        BundleLink.LinkRelation.last,
+                        "http://fonzy.com/cool/Condition?clinical-status=nope&patient=x",
+                        1,
+                        10))));
   }
 
   @Test
@@ -442,7 +462,7 @@ public class R4ConditionControllerTest {
   }
 
   @Test
-  public void searchByPatientAndClinicalStatusOfInactiveIsTreatedAtResolved() {
+  public void searchByPatientAndClinicalStatusOfInactiveIsTreatedAsResolved() {
     Multimap<String, Condition> conditionsByPatient = populateData();
     var conditionsP1 =
         conditionsByPatient.get("p1").stream()
@@ -519,6 +539,33 @@ public class R4ConditionControllerTest {
   }
 
   @Test
+  public void searchByPatientAndClinicalStatusUnsupportedSystemAndSupportedCode() {
+    assertThat(
+            toJson(controller().searchByPatientAndClinicalStatus("x", "http://nope|active", 1, 10)))
+        .isEqualTo(
+            toJson(
+                ConditionSamples.R4.asBundle(
+                    "http://fonzy.com/cool",
+                    Collections.emptyList(),
+                    0,
+                    link(
+                        BundleLink.LinkRelation.first,
+                        "http://fonzy.com/cool/Condition?clinical-status=http://nope|active&patient=x",
+                        1,
+                        10),
+                    link(
+                        BundleLink.LinkRelation.self,
+                        "http://fonzy.com/cool/Condition?clinical-status=http://nope|active&patient=x",
+                        1,
+                        10),
+                    link(
+                        BundleLink.LinkRelation.last,
+                        "http://fonzy.com/cool/Condition?clinical-status=http://nope|active&patient=x",
+                        1,
+                        10))));
+  }
+
+  @Test
   public void searchByPatientAndClinicalSystemAndCode() {
     Multimap<String, Condition> conditionsByPatient = populateData();
     var conditionsP0 =
@@ -560,22 +607,55 @@ public class R4ConditionControllerTest {
   }
 
   @Test
-  public void searchByPatientAndExplicitlyNoSystemClinicalStatusReturnsEmptyBundle() {}
-
-  @Test
-  public void searchByPatientAndExplicityNoSystemCategoryReturnsEmptyBundle() {
-    assertThat(toJson(controller().searchByPatientAndCategory("x", "|encounter-diagnosis", 1, 0)))
+  public void searchByPatientAndExplicitlyNoSystemClinicalStatusReturnsEmptyBundle() {
+    assertThat(toJson(controller().searchByPatientAndClinicalStatus("x", "|active", 1, 10)))
         .isEqualTo(
             toJson(
                 ConditionSamples.R4.asBundle(
                     "http://fonzy.com/cool",
                     Collections.emptyList(),
                     0,
-                    ConditionSamples.R4.link(
+                    link(
+                        BundleLink.LinkRelation.first,
+                        "http://fonzy.com/cool/Condition?clinical-status=|active&patient=x",
+                        1,
+                        10),
+                    link(
+                        BundleLink.LinkRelation.self,
+                        "http://fonzy.com/cool/Condition?clinical-status=|active&patient=x",
+                        1,
+                        10),
+                    link(
+                        BundleLink.LinkRelation.last,
+                        "http://fonzy.com/cool/Condition?clinical-status=|active&patient=x",
+                        1,
+                        10))));
+  }
+
+  @Test
+  public void searchByPatientAndExplicityNoSystemCategoryReturnsEmptyBundle() {
+    assertThat(toJson(controller().searchByPatientAndCategory("x", "|encounter-diagnosis", 1, 10)))
+        .isEqualTo(
+            toJson(
+                ConditionSamples.R4.asBundle(
+                    "http://fonzy.com/cool",
+                    Collections.emptyList(),
+                    0,
+                    link(
+                        BundleLink.LinkRelation.first,
+                        "http://fonzy.com/cool/Condition?category=|encounter-diagnosis&patient=x",
+                        1,
+                        10),
+                    link(
                         BundleLink.LinkRelation.self,
                         "http://fonzy.com/cool/Condition?category=|encounter-diagnosis&patient=x",
                         1,
-                        0))));
+                        10),
+                    link(
+                        BundleLink.LinkRelation.last,
+                        "http://fonzy.com/cool/Condition?category=|encounter-diagnosis&patient=x",
+                        1,
+                        10))));
   }
 
   @Test

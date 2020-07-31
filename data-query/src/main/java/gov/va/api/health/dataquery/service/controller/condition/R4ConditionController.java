@@ -50,6 +50,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class R4ConditionController {
   private static final String PROBLEM_AND_DIAGNOSIS_SYSTEM =
       "http://terminology.hl7.org/CodeSystem/condition-category";
+
   private static final String CLINICAL_STATUS_SYSTEM =
       "http://terminology.hl7.org/CodeSystem/condition-clinical";
 
@@ -67,6 +68,35 @@ public class R4ConditionController {
     this.bundler = bundler;
     this.repository = repository;
     this.witnessProtection = witnessProtection;
+  }
+
+  @SuppressWarnings("RedundantIfStatement")
+  private static boolean isSupportedClinicalStatus(TokenParameter t) {
+    // http://terminology.hl7.org/CodeSystem/condition-clinical|active
+    // http://terminology.hl7.org/CodeSystem/condition-clinical|resolved
+    // http://terminology.hl7.org/CodeSystem/condition-clinical|inactive -> resolved
+    if (t.mode() == TokenParameter.Mode.EXPLICIT_SYSTEM_EXPLICIT_CODE
+        && t.isSystemExplicitlySetAndOneOf(CLINICAL_STATUS_SYSTEM)
+        && t.isCodeExplicitlySetAndOneOf("active", "resolved", "inactive")) {
+      return true;
+    }
+    // active
+    // resolved
+    // inactive -> resolved
+    if (t.mode() == TokenParameter.Mode.ANY_SYSTEM_EXPLICIT_CODE
+        && t.isCodeExplicitlySetAndOneOf("active", "resolved", "inactive")) {
+      return true;
+    }
+    // http://terminology.hl7.org/CodeSystem/condition-clinical|
+    if (t.mode() == TokenParameter.Mode.EXPLICIT_SYSTEM_ANY_CODE
+        && t.isSystemExplicitlySetAndOneOf(CLINICAL_STATUS_SYSTEM)) {
+      return true;
+    }
+    // bar
+    // http://terminology.hl7.org/CodeSystem/condition-clinical|bar
+    // http://foo.com|bar
+    // http://foo.com|active
+    return false;
   }
 
   /**
@@ -140,7 +170,6 @@ public class R4ConditionController {
     Set<String> clinicalStatusesForQuery =
         clinicalStatusTokens.stream()
             .flatMap(c -> clinicalStatusFor(c).stream())
-            /* Treat 'inactive' as resolved as inactive is the parent code of resolved */
             .map(
                 cs -> {
                   if ("inactive".equals(cs)) {
@@ -184,6 +213,32 @@ public class R4ConditionController {
   private ConditionEntity findEntityById(String publicId) {
     Optional<ConditionEntity> entity = repository.findById(witnessProtection.toCdwId(publicId));
     return entity.orElseThrow(() -> new ResourceExceptions.NotFound(publicId));
+  }
+
+  private boolean isSupportedCategory(TokenParameter t) {
+    // http://terminology.hl7.org/CodeSystem/condition-category|problem-list-item"
+    // http://terminology.hl7.org/CodeSystem/condition-category|encounter-diagnosis
+    if (t.mode() == TokenParameter.Mode.EXPLICIT_SYSTEM_EXPLICIT_CODE
+        && t.isSystemExplicitlySetAndOneOf(PROBLEM_AND_DIAGNOSIS_SYSTEM)
+        && t.isCodeExplicitlySetAndOneOf("problem-list-item", "encounter-diagnosis")) {
+      return true;
+    }
+    // problem-list-item
+    // encounter-diagnosis
+    if (t.mode() == TokenParameter.Mode.ANY_SYSTEM_EXPLICIT_CODE
+        && t.isCodeExplicitlySetAndOneOf("problem-list-item", "encounter-diagnosis")) {
+      return true;
+    }
+    // http://terminology.hl7.org/CodeSystem/condition-category|
+    if (t.mode() == TokenParameter.Mode.EXPLICIT_SYSTEM_ANY_CODE
+        && t.isSystemExplicitlySetAndOneOf(PROBLEM_AND_DIAGNOSIS_SYSTEM)) {
+      return true;
+    }
+    // bar
+    // http://terminology.hl7.org/CodeSystem/condition-category|bar
+    // http://foo.com|bar
+    // http://foo.com|problem-list-item
+    return false;
   }
 
   private PageRequest page(int page, int count) {
@@ -289,9 +344,7 @@ public class R4ConditionController {
             .add("_count", count)
             .build();
     TokenParameter categoryToken = TokenParameter.parse(category);
-    if (categoryToken.isSystemExplicitAndUnsupported(PROBLEM_AND_DIAGNOSIS_SYSTEM)
-        || categoryToken.isCodeExplicitAndUnsupported("problem-list-item", "encounter-diagnosis")
-        || categoryToken.hasExplicitlyNoSystem()) {
+    if (!isSupportedCategory(categoryToken)) {
       return bundle(parameters, emptyList(), 0);
     }
     String icn = witnessProtection.toCdwId(patient);
@@ -321,11 +374,7 @@ public class R4ConditionController {
     List<TokenParameter> clinicalStatusTokens =
         Splitter.on(",").trimResults().splitToList(clinicalStatusCsv).stream()
             .map(TokenParameter::parse)
-            .filter(
-                t ->
-                    !t.isSystemExplicitAndUnsupported(CLINICAL_STATUS_SYSTEM)
-                        || !t.isCodeExplicitAndUnsupported("active", "resolved")
-                        || !t.hasExplicitlyNoSystem())
+            .filter(R4ConditionController::isSupportedClinicalStatus)
             .collect(Collectors.toList());
     if (clinicalStatusTokens.isEmpty()) {
       return bundle(parameters, emptyList(), 0);
