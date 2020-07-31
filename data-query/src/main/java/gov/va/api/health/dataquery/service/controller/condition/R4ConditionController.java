@@ -215,30 +215,30 @@ public class R4ConditionController {
     return entity.orElseThrow(() -> new ResourceExceptions.NotFound(publicId));
   }
 
-  private boolean isUnsupportedCategory(TokenParameter t) {
+  private boolean isSupportedCategory(TokenParameter t) {
     // http://terminology.hl7.org/CodeSystem/condition-category|problem-list-item"
     // http://terminology.hl7.org/CodeSystem/condition-category|encounter-diagnosis
     if (t.mode() == TokenParameter.Mode.EXPLICIT_SYSTEM_EXPLICIT_CODE
         && t.isSystemExplicitlySetAndOneOf(PROBLEM_AND_DIAGNOSIS_SYSTEM)
         && t.isCodeExplicitlySetAndOneOf("problem-list-item", "encounter-diagnosis")) {
-      return false;
+      return true;
     }
     // problem-list-item
     // encounter-diagnosis
     if (t.mode() == TokenParameter.Mode.ANY_SYSTEM_EXPLICIT_CODE
         && t.isCodeExplicitlySetAndOneOf("problem-list-item", "encounter-diagnosis")) {
-      return false;
+      return true;
     }
     // http://terminology.hl7.org/CodeSystem/condition-category|
     if (t.mode() == TokenParameter.Mode.EXPLICIT_SYSTEM_ANY_CODE
         && t.isSystemExplicitlySetAndOneOf(PROBLEM_AND_DIAGNOSIS_SYSTEM)) {
-      return false;
+      return true;
     }
     // bar
     // http://terminology.hl7.org/CodeSystem/condition-category|bar
     // http://foo.com|bar
     // http://foo.com|problem-list-item
-    return true;
+    return false;
   }
 
   private PageRequest page(int page, int count) {
@@ -344,7 +344,7 @@ public class R4ConditionController {
             .add("_count", count)
             .build();
     TokenParameter categoryToken = TokenParameter.parse(category);
-    if (isUnsupportedCategory(categoryToken)) {
+    if (!isSupportedCategory(categoryToken)) {
       return bundle(parameters, emptyList(), 0);
     }
     String icn = witnessProtection.toCdwId(patient);
