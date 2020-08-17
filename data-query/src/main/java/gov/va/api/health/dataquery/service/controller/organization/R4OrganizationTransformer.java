@@ -70,15 +70,16 @@ public class R4OrganizationTransformer {
     if (telecom == null || allBlank(telecom.system(), telecom.value())) {
       return null;
     }
-    return convert(
-        telecom,
-        tel ->
-            ContactPoint.builder().system(telecomSystem(tel.system())).value(tel.value()).build());
+    return ContactPoint.builder()
+        .system(telecomSystem(telecom.system()))
+        .value(telecom.value())
+        .build();
   }
 
   static ContactPoint.ContactPointSystem telecomSystem(DatamartOrganization.Telecom.System tel) {
     return convert(
-        tel, source -> EnumSearcher.of(ContactPoint.ContactPointSystem.class).find(tel.toString()));
+        tel,
+        source -> EnumSearcher.of(ContactPoint.ContactPointSystem.class).find(source.toString()));
   }
 
   static List<ContactPoint> telecoms(List<Telecom> maybeTelecoms) {
