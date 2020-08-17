@@ -126,11 +126,13 @@ doCrawlerTest() {
   # Crawl DSTU2
   addToSystemProperties "crawler.url.replace" "${DATA_QUERY_REPLACEMENT_URL_PREFIX}/dstu2"
   addToSystemProperties "crawler.base-url" "${DQ_URL}${DSTU2_CRAWL_PATH}"
+  [ -n "$DSTU2_ALLOW_CRAWL_URLS" ] && addToSystemProperties "crawler.allow-query-url-pattern" "$DSTU2_ALLOW_CRAWL_URLS"
   doTest $SENTINEL_CRAWLER
 
   # Crawl R4
   addToSystemProperties "crawler.url.replace" "${DATA_QUERY_REPLACEMENT_URL_PREFIX}/r4"
   addToSystemProperties "crawler.base-url" "${DQ_URL}${R4_CRAWL_PATH}"
+  [ -n "$R4_ALLOW_CRAWL_URLS" ] && addToSystemProperties "crawler.allow-query-url-pattern" "$R4_ALLOW_CRAWL_URLS"
   doTest $SENTINEL_CRAWLER
 }
 
@@ -151,15 +153,13 @@ setupForAutomation() {
 
   trustServer $K8S_LOAD_BALANCER
 
-  SYSTEM_PROPERTIES="$WEB_DRIVER_PROPERTIES \
-    -Dsentinel=$SENTINEL_ENV \
+  SYSTEM_PROPERTIES="-Dsentinel=$SENTINEL_ENV \
     -Daccess-token=$TOKEN \
     -Draw-token=$RAW_TOKEN \
     -Dbulk-token=$BULK_TOKEN \
     -D${K8S_ENVIRONMENT}.user-password=$USER_PASSWORD \
     -D${K8S_ENVIRONMENT}.client-id=$CLIENT_ID \
     -D${K8S_ENVIRONMENT}.client-secret=$CLIENT_SECRET \
-    -Dcrawler.allow-query-url-pattern=$ALLOW_URLS \
     -Dpatient-id=$PATIENT_ID"
 
   [ -z "$DQ_URL" ] && DQ_URL=https://$K8S_LOAD_BALANCER
