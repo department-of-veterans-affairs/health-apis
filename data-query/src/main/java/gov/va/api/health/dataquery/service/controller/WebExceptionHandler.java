@@ -11,27 +11,21 @@ import com.fasterxml.jackson.core.io.JsonEOFException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
+import gov.va.api.health.autoconfig.encryption.BasicEncryption;
 import gov.va.api.health.dstu2.api.elements.Extension;
 import gov.va.api.health.dstu2.api.elements.Narrative;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import gov.va.api.health.ids.client.IdEncoder.BadId;
 import java.lang.reflect.UndeclaredThrowableException;
-import java.security.Key;
-import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import javax.crypto.Cipher;
-import javax.crypto.spec.GCMParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolationException;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindException;
@@ -144,21 +138,10 @@ public class WebExceptionHandler {
         .build();
   }
 
-  @SneakyThrows
-  private String encrypt(String plainText) {
-    Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
-    Key key = new SecretKeySpec(encryptionKey.getBytes("UTF-8"), "AES");
-    SecureRandom secureRandom = SecureRandom.getInstance("SHA1PRNG");
-    byte[] iv = new byte[cipher.getBlockSize()];
-    secureRandom.nextBytes(iv);
-    cipher.init(Cipher.ENCRYPT_MODE, key, new GCMParameterSpec(128, iv));
-    byte[] enBytes = cipher.doFinal(plainText.getBytes("UTF-8"));
-    byte[] combined = ArrayUtils.addAll(iv, enBytes);
-    return Base64.getEncoder().encodeToString(combined);
-  }
-
   private List<Extension> extensions(Throwable tr, HttpServletRequest request) {
     List<Extension> extensions = new ArrayList<>(5);
+
+    BasicEncryption encrypter = BasicEncryption.forKey(encryptionKey);
 
     extensions.add(
         Extension.builder().url("timestamp").valueInstant(Instant.now().toString()).build());
@@ -168,7 +151,10 @@ public class WebExceptionHandler {
 
     if (isNotBlank(sanitizedMessage(tr))) {
       extensions.add(
-          Extension.builder().url("message").valueString(encrypt(sanitizedMessage(tr))).build());
+          Extension.builder()
+              .url("message")
+              .valueString(encrypter.encrypt(sanitizedMessage(tr)))
+              .build());
     }
 
     String cause =
@@ -176,7 +162,8 @@ public class WebExceptionHandler {
             .map(t -> t.getClass().getSimpleName() + " " + sanitizedMessage(t))
             .collect(Collectors.joining(", "));
     if (isNotBlank(cause)) {
-      extensions.add(Extension.builder().url("cause").valueString(encrypt(cause)).build());
+      extensions.add(
+          Extension.builder().url("cause").valueString(encrypter.encrypt(cause)).build());
     }
 
     extensions.add(Extension.builder().url("request").valueString(reconstructUrl(request)).build());
