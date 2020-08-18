@@ -284,10 +284,6 @@ public class LocationSamples {
     }
 
     gov.va.api.health.uscorer4.api.resources.Location location(String id) {
-      return location(id, "456");
-    }
-
-    gov.va.api.health.uscorer4.api.resources.Location location(String id, String organizationId) {
       return gov.va.api.health.uscorer4.api.resources.Location.builder()
           .resourceType("Location")
           .id(id)
@@ -308,7 +304,7 @@ public class LocationSamples {
           .description("BLDG 146, RM W02")
           .managingOrganization(
               gov.va.api.health.r4.api.elements.Reference.builder()
-                  .reference("Organization/" + organizationId)
+                  .reference("Organization/456")
                   .display("OLIN E. TEAGUE VET CENTER")
                   .build())
           .mode(gov.va.api.health.uscorer4.api.resources.Location.Mode.instance)

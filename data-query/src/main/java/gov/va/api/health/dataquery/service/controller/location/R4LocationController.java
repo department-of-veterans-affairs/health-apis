@@ -158,16 +158,18 @@ public class R4LocationController {
       @RequestParam("identifier") String publicId,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
-    Location resource = read(publicId);
-    List<Location> records = resource == null ? emptyList() : List.of(resource);
-    return bundle(
+    MultiValueMap<String, String> parameters =
         Parameters.builder()
             .add("identifier", publicId)
             .add("page", page)
             .add("_count", count)
-            .build(),
-        records,
-        records.size());
+            .build();
+    Location resource = read(publicId);
+    List<Location> records = resource == null ? emptyList() : List.of(resource);
+    if (count == 0) {
+      return bundle(parameters, emptyList(), records.size());
+    }
+    return bundle(parameters, records, records.size());
   }
 
   /** Search for resource by name. */

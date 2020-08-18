@@ -88,37 +88,6 @@ public class R4LocationControllerTest {
         WitnessProtection.builder().identityService(ids).build());
   }
 
-  private void mockIdentity(
-      String locationPublicId,
-      String locationCdwId,
-      String organizationPublicId,
-      String organizationCdwId) {
-    ResourceIdentity locationResourceIdentity =
-        ResourceIdentity.builder()
-            .system("CDW")
-            .resource("LOCATION")
-            .identifier(locationCdwId)
-            .build();
-    ResourceIdentity organizationResourceIdentity =
-        ResourceIdentity.builder()
-            .system("CDW")
-            .resource("ORGANIZATION")
-            .identifier(organizationCdwId)
-            .build();
-    when(ids.lookup(locationPublicId)).thenReturn(List.of(locationResourceIdentity));
-    when(ids.register(any()))
-        .thenReturn(
-            List.of(
-                Registration.builder()
-                    .uuid(locationPublicId)
-                    .resourceIdentities(List.of(locationResourceIdentity))
-                    .build(),
-                Registration.builder()
-                    .uuid(organizationPublicId)
-                    .resourceIdentities(List.of(organizationResourceIdentity))
-                    .build()));
-  }
-
   private void mockLocationIdentity(String publicId, String cdwId) {
     ResourceIdentity resourceIdentity =
         ResourceIdentity.builder().system("CDW").resource("LOCATION").identifier(cdwId).build();
@@ -258,6 +227,26 @@ public class R4LocationControllerTest {
             asJson(
                 bundleOf(
                     "identifier=x", List.of(LocationSamples.R4.create().location("x")), 1, 1)));
+  }
+
+  @Test
+  void searchByIdentifierWithCount0() {
+    DatamartLocation dm = LocationSamples.Datamart.create().location();
+    mockLocationIdentity("x", dm.cdwId());
+    repository.save(asEntity(dm));
+    Location.Bundle actual = controller().searchByIdentifier("x", 1, 0);
+    assertThat(asJson(actual))
+        .isEqualTo(
+            asJson(
+                LocationSamples.R4.asBundle(
+                    "http://fonzy.com/cool",
+                    emptyList(),
+                    1,
+                    LocationSamples.R4.link(
+                        BundleLink.LinkRelation.self,
+                        "http://fonzy.com/cool/Location?identifier=x",
+                        1,
+                        0))));
   }
 
   @Test
