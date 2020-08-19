@@ -1,0 +1,34 @@
+package gov.va.api.health.dataquery.patientregistration;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import gov.va.api.health.autoconfig.configuration.JacksonConfig;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.context.annotation.Import;
+import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+@ExtendWith(SpringExtension.class)
+@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
+@Import({FugaziApplication.class, JacksonConfig.class})
+@TestPropertySource(properties = {"ssl.enable-client=false"})
+@Slf4j
+public class PatientRegistrationFilterSpringTest {
+  @Autowired TestRestTemplate rest;
+
+  @Test
+  void filterIsApplied() {
+    ResponseEntity<String> response = rest.getForEntity("/fugazi/Patient/123", String.class);
+    // TODO replace with useful tests as the filter is implemented
+    System.out.println(response);
+    assertThat(response.getHeaders().get(PatientRegistrationFilter.REGISTRATION_HEADER))
+        .isNotNull();
+  }
+}
