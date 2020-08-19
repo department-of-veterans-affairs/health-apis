@@ -260,4 +260,91 @@ public class OrganizationSamples {
           .build();
     }
   }
+
+  @AllArgsConstructor(staticName = "create")
+  static class R4 {
+
+    static gov.va.api.health.uscorer4.api.resources.Organization.Bundle asBundle(
+        String baseUrl,
+        Collection<gov.va.api.health.uscorer4.api.resources.Organization> organizations,
+        gov.va.api.health.r4.api.bundle.BundleLink... links) {
+      return gov.va.api.health.uscorer4.api.resources.Organization.Bundle.builder()
+          .resourceType("Bundle")
+          .type(gov.va.api.health.r4.api.bundle.AbstractBundle.BundleType.searchset)
+          .total(organizations.size())
+          .link(Arrays.asList(links))
+          .entry(
+              organizations.stream()
+                  .map(
+                      c ->
+                          gov.va.api.health.uscorer4.api.resources.Organization.Entry.builder()
+                              .fullUrl(baseUrl + "/Organization/" + c.id())
+                              .resource(c)
+                              .search(
+                                  gov.va.api.health.r4.api.bundle.AbstractEntry.Search.builder()
+                                      .mode(
+                                          gov.va.api.health.r4.api.bundle.AbstractEntry.SearchMode
+                                              .match)
+                                      .build())
+                              .build())
+                  .collect(Collectors.toList()))
+          .build();
+    }
+
+    static gov.va.api.health.r4.api.bundle.BundleLink link(
+        gov.va.api.health.r4.api.bundle.BundleLink.LinkRelation rel,
+        String base,
+        int page,
+        int count) {
+      return gov.va.api.health.r4.api.bundle.BundleLink.builder()
+          .relation(rel)
+          .url(base + "&page=" + page + "&_count=" + count)
+          .build();
+    }
+
+    public gov.va.api.health.uscorer4.api.resources.Organization organization() {
+      return organization("1234");
+    }
+
+    gov.va.api.health.uscorer4.api.resources.Organization organization(String id) {
+      return gov.va.api.health.uscorer4.api.resources.Organization.builder()
+          .resourceType("Organization")
+          .id(id)
+          .identifier(
+              asList(
+                  gov.va.api.health.r4.api.datatypes.Identifier.builder()
+                      .system("http://hl7.org/fhir/sid/us-npi")
+                      .value("1205983228")
+                      .build()))
+          .active(true)
+          .name("NEW AMSTERDAM CBOC")
+          .telecom(
+              asList(
+                  gov.va.api.health.r4.api.datatypes.ContactPoint.builder()
+                      .system(
+                          gov.va.api.health.r4.api.datatypes.ContactPoint.ContactPointSystem.phone)
+                      .value("(800) 555-7710")
+                      .build(),
+                  gov.va.api.health.r4.api.datatypes.ContactPoint.builder()
+                      .system(
+                          gov.va.api.health.r4.api.datatypes.ContactPoint.ContactPointSystem.fax)
+                      .value("800-555-7720")
+                      .build(),
+                  gov.va.api.health.r4.api.datatypes.ContactPoint.builder()
+                      .system(
+                          gov.va.api.health.r4.api.datatypes.ContactPoint.ContactPointSystem.phone)
+                      .value("800-555-7730")
+                      .build()))
+          .address(
+              asList(
+                  gov.va.api.health.r4.api.datatypes.Address.builder()
+                      .line(asList("10 MONROE AVE, SUITE 6B", "PO BOX 4160"))
+                      .text("10 MONROE AVE, SUITE 6B PO BOX 4160 NEW AMSTERDAM OH 44444-4160")
+                      .city("NEW AMSTERDAM")
+                      .state("OH")
+                      .postalCode("44444-4160")
+                      .build()))
+          .build();
+    }
+  }
 }
