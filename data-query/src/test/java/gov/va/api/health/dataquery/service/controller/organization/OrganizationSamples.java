@@ -4,14 +4,30 @@ import static java.util.Arrays.asList;
 
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
+import gov.va.api.health.r4.api.bundle.BundleLink;
+import gov.va.api.health.uscorer4.api.resources.Organization;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 
 public class OrganizationSamples {
+
+  // Organization Search Params
+  public static final String ORGANIZATION_NAME = "NEW AMSTERDAM CBOC";
+
+  public static final String ORGANIZATION_ADDRESS_LINE_ONE = "10 MONROE AVE, SUITE 6B";
+
+  public static final String ORGANIZATION_ADDRESS_LINE_TWO = "PO BOX 4160";
+
+  public static final String ORGANIZATION_ADDRESS_CITY = "NEW AMSTERDAM";
+
+  public static final String ORGANIZATION_ADDRESS_STATE = "OH";
+
+  public static final String ORGANIZATION_ADDRESS_POSTAL_CODE = "44444-4160";
 
   @AllArgsConstructor(staticName = "create")
   static class Datamart {
@@ -53,11 +69,11 @@ public class OrganizationSamples {
                       .build()))
           .address(
               DatamartOrganization.Address.builder()
-                  .line1("10 MONROE AVE, SUITE 6B")
-                  .line2("PO BOX 4160")
-                  .city("NEW AMSTERDAM")
-                  .state("OH")
-                  .postalCode("44444-4160")
+                  .line1(ORGANIZATION_ADDRESS_LINE_ONE)
+                  .line2(ORGANIZATION_ADDRESS_LINE_TWO)
+                  .city(ORGANIZATION_ADDRESS_CITY)
+                  .state(ORGANIZATION_ADDRESS_STATE)
+                  .postalCode(ORGANIZATION_ADDRESS_POSTAL_CODE)
                   .build())
           .partOf(
               Optional.of(
@@ -266,12 +282,13 @@ public class OrganizationSamples {
 
     static gov.va.api.health.uscorer4.api.resources.Organization.Bundle asBundle(
         String baseUrl,
-        Collection<gov.va.api.health.uscorer4.api.resources.Organization> organizations,
-        gov.va.api.health.r4.api.bundle.BundleLink... links) {
+        Collection<Organization> organizations,
+        int totalRecords,
+        BundleLink... links) {
       return gov.va.api.health.uscorer4.api.resources.Organization.Bundle.builder()
           .resourceType("Bundle")
           .type(gov.va.api.health.r4.api.bundle.AbstractBundle.BundleType.searchset)
-          .total(organizations.size())
+          .total(totalRecords)
           .link(Arrays.asList(links))
           .entry(
               organizations.stream()
@@ -317,7 +334,7 @@ public class OrganizationSamples {
                       .value("1205983228")
                       .build()))
           .active(true)
-          .name("NEW AMSTERDAM CBOC")
+          .name(ORGANIZATION_NAME)
           .telecom(
               asList(
                   gov.va.api.health.r4.api.datatypes.ContactPoint.builder()
@@ -338,11 +355,18 @@ public class OrganizationSamples {
           .address(
               asList(
                   gov.va.api.health.r4.api.datatypes.Address.builder()
-                      .line(asList("10 MONROE AVE, SUITE 6B", "PO BOX 4160"))
-                      .text("10 MONROE AVE, SUITE 6B PO BOX 4160 NEW AMSTERDAM OH 44444-4160")
-                      .city("NEW AMSTERDAM")
-                      .state("OH")
-                      .postalCode("44444-4160")
+                      .line(asList(ORGANIZATION_ADDRESS_LINE_ONE, ORGANIZATION_ADDRESS_LINE_TWO))
+                      .text(
+                          Stream.of(
+                                  ORGANIZATION_ADDRESS_LINE_ONE,
+                                  ORGANIZATION_ADDRESS_LINE_TWO,
+                                  ORGANIZATION_ADDRESS_CITY,
+                                  ORGANIZATION_ADDRESS_STATE,
+                                  ORGANIZATION_ADDRESS_POSTAL_CODE)
+                              .collect(Collectors.joining(" ")))
+                      .city(ORGANIZATION_ADDRESS_CITY)
+                      .state(ORGANIZATION_ADDRESS_STATE)
+                      .postalCode(ORGANIZATION_ADDRESS_POSTAL_CODE)
                       .build()))
           .build();
     }
