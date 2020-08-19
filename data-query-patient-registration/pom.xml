@@ -3,16 +3,20 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>gov.va.api.health</groupId>
-    <artifactId>health-apis-parent</artifactId>
+    <artifactId>api-starter</artifactId>
     <version>7.0.8</version>
+    <relativePath/>
   </parent>
-  <artifactId>data-query-parent</artifactId>
+  <artifactId>data-query-patient-registration</artifactId>
   <version>3.0.22-SNAPSHOT</version>
-  <packaging>pom</packaging>
-  <modules>
-    <module>data-query-ids-mapping</module>
-    <module>data-query-patient-registration</module>
-    <module>data-query</module>
-    <module>data-query-tests</module>
-  </modules>
+  <packaging>jar</packaging>
+  <properties>
+    <jacoco.coverage>0.94</jacoco.coverage>
+  </properties>
+  <dependencies>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+  </dependencies>
 </project>
