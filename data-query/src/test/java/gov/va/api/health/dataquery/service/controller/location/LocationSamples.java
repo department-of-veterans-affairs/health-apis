@@ -6,11 +6,23 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class LocationSamples {
+  // Location Search Params
+  public static final String LOCATION_NAME = "TEM MH PSO TRS IND93EH";
+
+  public static final String LOCATION_ADDRESS_STREET = "1901 VETERANS MEMORIAL DRIVE";
+
+  public static final String LOCATION_ADDRESS_CITY = "TEMPLE";
+
+  public static final String LOCATION_ADDRESS_STATE = "TEXAS";
+
+  public static final String LOCATION_ADDRESS_POSTAL_CODE = "76504";
+
   @AllArgsConstructor(staticName = "create")
   static final class Datamart {
     DatamartLocation location() {
@@ -21,16 +33,16 @@ public class LocationSamples {
       return DatamartLocation.builder()
           .cdwId(id)
           .status(DatamartLocation.Status.active)
-          .name("TEM MH PSO TRS IND93EH")
+          .name(LOCATION_NAME)
           .description(Optional.of("BLDG 146, RM W02"))
           .type(Optional.of("PSYCHIATRY CLINIC"))
           .telecom("254-743-2867")
           .address(
               DatamartLocation.Address.builder()
-                  .line1("1901 VETERANS MEMORIAL DRIVE")
-                  .city("TEMPLE")
-                  .state("TEXAS")
-                  .postalCode("76504")
+                  .line1(LOCATION_ADDRESS_STREET)
+                  .city(LOCATION_ADDRESS_CITY)
+                  .state(LOCATION_ADDRESS_STATE)
+                  .postalCode(LOCATION_ADDRESS_POSTAL_CODE)
                   .build())
           .physicalType(Optional.of("BLDG 146, RM W02"))
           .managingOrganization(
@@ -89,10 +101,10 @@ public class LocationSamples {
           .id(id)
           .address(
               gov.va.api.health.dstu2.api.datatypes.Address.builder()
-                  .line(asList("1901 VETERANS MEMORIAL DRIVE"))
-                  .city("TEMPLE")
-                  .state("TEXAS")
-                  .postalCode("76504")
+                  .line(asList(LOCATION_ADDRESS_STREET))
+                  .city(LOCATION_ADDRESS_CITY)
+                  .state(LOCATION_ADDRESS_STATE)
+                  .postalCode(LOCATION_ADDRESS_POSTAL_CODE)
                   .build())
           .description("BLDG 146, RM W02")
           .managingOrganization(
@@ -101,7 +113,7 @@ public class LocationSamples {
                   .display("OLIN E. TEAGUE VET CENTER")
                   .build())
           .mode(gov.va.api.health.dstu2.api.resources.Location.Mode.instance)
-          .name("TEM MH PSO TRS IND93EH")
+          .name(LOCATION_NAME)
           .physicalType(
               gov.va.api.health.dstu2.api.datatypes.CodeableConcept.builder()
                   .coding(
@@ -177,11 +189,17 @@ public class LocationSamples {
           .id(id)
           .address(
               gov.va.api.health.stu3.api.resources.Location.LocationAddress.builder()
-                  .line(asList("1901 VETERANS MEMORIAL DRIVE"))
-                  .city("TEMPLE")
-                  .state("TEXAS")
-                  .postalCode("76504")
-                  .text("1901 VETERANS MEMORIAL DRIVE TEMPLE TEXAS 76504")
+                  .line(asList(LOCATION_ADDRESS_STREET))
+                  .city(LOCATION_ADDRESS_CITY)
+                  .state(LOCATION_ADDRESS_STATE)
+                  .postalCode(LOCATION_ADDRESS_POSTAL_CODE)
+                  .text(
+                      Stream.of(
+                              LOCATION_ADDRESS_STREET,
+                              LOCATION_ADDRESS_CITY,
+                              LOCATION_ADDRESS_STATE,
+                              LOCATION_ADDRESS_POSTAL_CODE)
+                          .collect(Collectors.joining(" ")))
                   .build())
           .description("BLDG 146, RM W02")
           .managingOrganization(
@@ -190,7 +208,7 @@ public class LocationSamples {
                   .display("OLIN E. TEAGUE VET CENTER")
                   .build())
           .mode(gov.va.api.health.stu3.api.resources.Location.Mode.instance)
-          .name("TEM MH PSO TRS IND93EH")
+          .name(LOCATION_NAME)
           .physicalType(
               gov.va.api.health.stu3.api.datatypes.CodeableConcept.builder()
                   .coding(
@@ -225,11 +243,12 @@ public class LocationSamples {
     static gov.va.api.health.uscorer4.api.resources.Location.Bundle asBundle(
         String baseUrl,
         Collection<gov.va.api.health.uscorer4.api.resources.Location> locations,
+        int totalRecords,
         gov.va.api.health.r4.api.bundle.BundleLink... links) {
       return gov.va.api.health.uscorer4.api.resources.Location.Bundle.builder()
           .resourceType("Bundle")
           .type(gov.va.api.health.r4.api.bundle.AbstractBundle.BundleType.searchset)
-          .total(locations.size())
+          .total(totalRecords)
           .link(Arrays.asList(links))
           .entry(
               locations.stream()
@@ -261,29 +280,35 @@ public class LocationSamples {
     }
 
     gov.va.api.health.uscorer4.api.resources.Location location() {
-      return location("123", "456");
+      return location("123");
     }
 
-    gov.va.api.health.uscorer4.api.resources.Location location(String id, String organizationId) {
+    gov.va.api.health.uscorer4.api.resources.Location location(String id) {
       return gov.va.api.health.uscorer4.api.resources.Location.builder()
           .resourceType("Location")
           .id(id)
           .address(
               gov.va.api.health.r4.api.datatypes.Address.builder()
-                  .line(asList("1901 VETERANS MEMORIAL DRIVE"))
-                  .city("TEMPLE")
-                  .state("TEXAS")
-                  .postalCode("76504")
-                  .text("1901 VETERANS MEMORIAL DRIVE TEMPLE TEXAS 76504")
+                  .line(asList(LOCATION_ADDRESS_STREET))
+                  .city(LOCATION_ADDRESS_CITY)
+                  .state(LOCATION_ADDRESS_STATE)
+                  .postalCode(LOCATION_ADDRESS_POSTAL_CODE)
+                  .text(
+                      Stream.of(
+                              LOCATION_ADDRESS_STREET,
+                              LOCATION_ADDRESS_CITY,
+                              LOCATION_ADDRESS_STATE,
+                              LOCATION_ADDRESS_POSTAL_CODE)
+                          .collect(Collectors.joining(" ")))
                   .build())
           .description("BLDG 146, RM W02")
           .managingOrganization(
               gov.va.api.health.r4.api.elements.Reference.builder()
-                  .reference("Organization/" + organizationId)
+                  .reference("Organization/456")
                   .display("OLIN E. TEAGUE VET CENTER")
                   .build())
           .mode(gov.va.api.health.uscorer4.api.resources.Location.Mode.instance)
-          .name("TEM MH PSO TRS IND93EH")
+          .name(LOCATION_NAME)
           .physicalType(
               gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()
                   .coding(

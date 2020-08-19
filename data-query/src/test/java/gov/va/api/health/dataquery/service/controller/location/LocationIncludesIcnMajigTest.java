@@ -16,6 +16,16 @@ public class LocationIncludesIcnMajigTest {
   }
 
   @Test
+  public void r4() {
+    ExtractIcnValidator.builder()
+        .majig(new R4LocationIncludesIcnMajig())
+        .body(gov.va.api.health.uscorer4.api.resources.Location.builder().id("123").build())
+        .expectedIcns(List.of("NONE"))
+        .build()
+        .assertIcn();
+  }
+
+  @Test
   public void stu3() {
     ExtractIcnValidator.builder()
         .majig(new Stu3LocationIncludesIcnMajig())
