@@ -21,6 +21,8 @@ import gov.va.api.health.r4.api.bundle.BundleLink;
 import gov.va.api.health.r4.api.datatypes.CodeableConcept;
 import gov.va.api.health.r4.api.datatypes.Coding;
 import gov.va.api.health.uscorer4.api.resources.Observation;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -78,6 +80,10 @@ public class R4ObservationControllerTest {
         new R4Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool", "cool", "cool")),
         repository,
         WitnessProtection.builder().identityService(ids).build());
+  }
+
+  private String encode(String value) {
+    return URLEncoder.encode(value, StandardCharsets.UTF_8);
   }
 
   @SneakyThrows
@@ -724,6 +730,7 @@ public class R4ObservationControllerTest {
   @Test
   void searchByPatientAndCategorySystem() {
     Multimap<String, Observation> observationsByPatient = populateData();
+    String encoded = encode(OBSERVATION_CATEGORY_SYSTEM + "|");
     assertThat(
             json(
                 controller()
@@ -737,23 +744,17 @@ public class R4ObservationControllerTest {
                     observationsByPatient.get("p0").size(),
                     link(
                         BundleLink.LinkRelation.first,
-                        "http://fonzy.com/cool/Observation?category="
-                            + OBSERVATION_CATEGORY_SYSTEM
-                            + "|&patient=p0",
+                        "http://fonzy.com/cool/Observation?category=" + encoded + "&patient=p0",
                         1,
                         10),
                     link(
                         BundleLink.LinkRelation.self,
-                        "http://fonzy.com/cool/Observation?category="
-                            + OBSERVATION_CATEGORY_SYSTEM
-                            + "|&patient=p0",
+                        "http://fonzy.com/cool/Observation?category=" + encoded + "&patient=p0",
                         1,
                         10),
                     link(
                         BundleLink.LinkRelation.last,
-                        "http://fonzy.com/cool/Observation?category="
-                            + OBSERVATION_CATEGORY_SYSTEM
-                            + "|&patient=p0",
+                        "http://fonzy.com/cool/Observation?category=" + encoded + "&patient=p0",
                         1,
                         10))));
   }
@@ -765,6 +766,7 @@ public class R4ObservationControllerTest {
         observationsByPatient.get("p0").stream()
             .filter(o -> "laboratory".equals(o.category().get(0).coding().get(0).code()))
             .collect(Collectors.toList());
+    String encoded = encode(OBSERVATION_CATEGORY_SYSTEM + "|laboratory");
     assertThat(
             json(
                 controller()
@@ -778,23 +780,17 @@ public class R4ObservationControllerTest {
                     labs.size(),
                     link(
                         BundleLink.LinkRelation.first,
-                        "http://fonzy.com/cool/Observation?category="
-                            + OBSERVATION_CATEGORY_SYSTEM
-                            + "|laboratory&patient=p0",
+                        "http://fonzy.com/cool/Observation?category=" + encoded + "&patient=p0",
                         1,
                         10),
                     link(
                         BundleLink.LinkRelation.self,
-                        "http://fonzy.com/cool/Observation?category="
-                            + OBSERVATION_CATEGORY_SYSTEM
-                            + "|laboratory&patient=p0",
+                        "http://fonzy.com/cool/Observation?category=" + encoded + "&patient=p0",
                         1,
                         10),
                     link(
                         BundleLink.LinkRelation.last,
-                        "http://fonzy.com/cool/Observation?category="
-                            + OBSERVATION_CATEGORY_SYSTEM
-                            + "|laboratory&patient=p0",
+                        "http://fonzy.com/cool/Observation?category=" + encoded + "&patient=p0",
                         1,
                         10))));
   }
@@ -802,6 +798,7 @@ public class R4ObservationControllerTest {
   @Test
   void searchByPatientAndCategorySystemUnknown() {
     Multimap<String, Observation> observationsByPatient = populateData();
+    String encoded = encode("http://nope.com|");
     assertThat(
             json(
                 controller()
@@ -814,17 +811,17 @@ public class R4ObservationControllerTest {
                     0,
                     link(
                         BundleLink.LinkRelation.first,
-                        "http://fonzy.com/cool/Observation?category=http://nope.com|&patient=p0",
+                        "http://fonzy.com/cool/Observation?category=" + encoded + "&patient=p0",
                         1,
                         10),
                     link(
                         BundleLink.LinkRelation.self,
-                        "http://fonzy.com/cool/Observation?category=http://nope.com|&patient=p0",
+                        "http://fonzy.com/cool/Observation?category=" + encoded + "&patient=p0",
                         1,
                         10),
                     link(
                         BundleLink.LinkRelation.last,
-                        "http://fonzy.com/cool/Observation?category=http://nope.com|&patient=p0",
+                        "http://fonzy.com/cool/Observation?category=" + encoded + "&patient=p0",
                         1,
                         10))));
   }
@@ -839,6 +836,7 @@ public class R4ObservationControllerTest {
     Multimap<String, Observation> observationsByPatient = populateData();
     Collection<Observation> vitalsigns =
         observationsByPatient.get("p0").stream().skip(3).collect(Collectors.toList());
+    String encoded = encode(OBSERVATION_CATEGORY_SYSTEM + "|vital-signs,|laboratory");
     assertThat(
             json(
                 controller()
@@ -857,23 +855,17 @@ public class R4ObservationControllerTest {
                     vitalsigns.size(),
                     link(
                         BundleLink.LinkRelation.first,
-                        "http://fonzy.com/cool/Observation?category="
-                            + OBSERVATION_CATEGORY_SYSTEM
-                            + "|vital-signs,|laboratory&patient=p0",
+                        "http://fonzy.com/cool/Observation?category=" + encoded + "&patient=p0",
                         1,
                         10),
                     link(
                         BundleLink.LinkRelation.self,
-                        "http://fonzy.com/cool/Observation?category="
-                            + OBSERVATION_CATEGORY_SYSTEM
-                            + "|vital-signs,|laboratory&patient=p0",
+                        "http://fonzy.com/cool/Observation?category=" + encoded + "&patient=p0",
                         1,
                         10),
                     link(
                         BundleLink.LinkRelation.last,
-                        "http://fonzy.com/cool/Observation?category="
-                            + OBSERVATION_CATEGORY_SYSTEM
-                            + "|vital-signs,|laboratory&patient=p0",
+                        "http://fonzy.com/cool/Observation?category=" + encoded + "&patient=p0",
                         1,
                         10))));
   }
@@ -1068,6 +1060,7 @@ public class R4ObservationControllerTest {
   @Test
   void searchByPatientAndCodeSystem() {
     Multimap<String, Observation> observationsByPatient = populateData();
+    String encoded = encode(OBSERVATION_CODE_SYSTEM + "|");
     assertThat(
             json(
                 controller()
@@ -1080,23 +1073,17 @@ public class R4ObservationControllerTest {
                     observationsByPatient.get("p0").size(),
                     link(
                         BundleLink.LinkRelation.first,
-                        "http://fonzy.com/cool/Observation?code="
-                            + OBSERVATION_CODE_SYSTEM
-                            + "|&patient=p0",
+                        "http://fonzy.com/cool/Observation?code=" + encoded + "&patient=p0",
                         1,
                         10),
                     link(
                         BundleLink.LinkRelation.self,
-                        "http://fonzy.com/cool/Observation?code="
-                            + OBSERVATION_CODE_SYSTEM
-                            + "|&patient=p0",
+                        "http://fonzy.com/cool/Observation?code=" + encoded + "&patient=p0",
                         1,
                         10),
                     link(
                         BundleLink.LinkRelation.last,
-                        "http://fonzy.com/cool/Observation?code="
-                            + OBSERVATION_CODE_SYSTEM
-                            + "|&patient=p0",
+                        "http://fonzy.com/cool/Observation?code=" + encoded + "&patient=p0",
                         1,
                         10))));
   }
@@ -1108,6 +1095,7 @@ public class R4ObservationControllerTest {
         observationsByPatient.get("p0").stream()
             .filter(c -> "1989-3".equalsIgnoreCase(c.code().coding().get(0).code()))
             .collect(Collectors.toList());
+    String encoded = encode(OBSERVATION_CODE_SYSTEM + "|1989-3");
     assertThat(
             json(
                 controller()
@@ -1121,23 +1109,17 @@ public class R4ObservationControllerTest {
                     patient0Observations.size(),
                     link(
                         BundleLink.LinkRelation.first,
-                        "http://fonzy.com/cool/Observation?code="
-                            + OBSERVATION_CODE_SYSTEM
-                            + "|1989-3&patient=p0",
+                        "http://fonzy.com/cool/Observation?code=" + encoded + "&patient=p0",
                         1,
                         10),
                     link(
                         BundleLink.LinkRelation.self,
-                        "http://fonzy.com/cool/Observation?code="
-                            + OBSERVATION_CODE_SYSTEM
-                            + "|1989-3&patient=p0",
+                        "http://fonzy.com/cool/Observation?code=" + encoded + "&patient=p0",
                         1,
                         10),
                     link(
                         BundleLink.LinkRelation.last,
-                        "http://fonzy.com/cool/Observation?code="
-                            + OBSERVATION_CODE_SYSTEM
-                            + "|1989-3&patient=p0",
+                        "http://fonzy.com/cool/Observation?code=" + encoded + "&patient=p0",
                         1,
                         10))));
   }
@@ -1145,6 +1127,7 @@ public class R4ObservationControllerTest {
   @Test
   void searchByPatientAndCodeSystemUnknown() {
     Multimap<String, Observation> observationsByPatient = populateData();
+    String encoded = encode("http://nope.com|");
     assertThat(json(controller().searchByPatientAndCode("p0", "http://nope.com|", null, 1, 10)))
         .isEqualTo(
             json(
@@ -1154,17 +1137,17 @@ public class R4ObservationControllerTest {
                     0,
                     link(
                         BundleLink.LinkRelation.first,
-                        "http://fonzy.com/cool/Observation?code=http://nope.com|&patient=p0",
+                        "http://fonzy.com/cool/Observation?code=" + encoded + "&patient=p0",
                         1,
                         10),
                     link(
                         BundleLink.LinkRelation.self,
-                        "http://fonzy.com/cool/Observation?code=http://nope.com|&patient=p0",
+                        "http://fonzy.com/cool/Observation?code=" + encoded + "&patient=p0",
                         1,
                         10),
                     link(
                         BundleLink.LinkRelation.last,
-                        "http://fonzy.com/cool/Observation?code=http://nope.com|&patient=p0",
+                        "http://fonzy.com/cool/Observation?code=" + encoded + "&patient=p0",
                         1,
                         10))));
   }
@@ -1176,6 +1159,7 @@ public class R4ObservationControllerTest {
         observationsByPatient.get("p0").stream()
             .filter(c -> "1989-3".equalsIgnoreCase(c.code().coding().get(0).code()))
             .collect(Collectors.toList());
+    String encoded = encode(OBSERVATION_CODE_SYSTEM + "|1989-3,|8480-6");
     assertThat(
             json(
                 controller()
@@ -1189,23 +1173,17 @@ public class R4ObservationControllerTest {
                     patient0Observations.size(),
                     link(
                         BundleLink.LinkRelation.first,
-                        "http://fonzy.com/cool/Observation?code="
-                            + OBSERVATION_CODE_SYSTEM
-                            + "|1989-3,|8480-6&patient=p0",
+                        "http://fonzy.com/cool/Observation?code=" + encoded + "&patient=p0",
                         1,
                         10),
                     link(
                         BundleLink.LinkRelation.self,
-                        "http://fonzy.com/cool/Observation?code="
-                            + OBSERVATION_CODE_SYSTEM
-                            + "|1989-3,|8480-6&patient=p0",
+                        "http://fonzy.com/cool/Observation?code=" + encoded + "&patient=p0",
                         1,
                         10),
                     link(
                         BundleLink.LinkRelation.last,
-                        "http://fonzy.com/cool/Observation?code="
-                            + OBSERVATION_CODE_SYSTEM
-                            + "|1989-3,|8480-6&patient=p0",
+                        "http://fonzy.com/cool/Observation?code=" + encoded + "&patient=p0",
                         1,
                         10))));
   }
@@ -1245,6 +1223,7 @@ public class R4ObservationControllerTest {
     testDates.putAll(
         Pair.of("gt2005-01-13", "lt2005-01-17"),
         List.of("2005-01-14T07:57:00Z", "2005-01-16T07:57:00Z"));
+    String encodedCat = encode("laboratory,vital-signs");
     for (var date : testDates.keySet()) {
       List<Observation> observations =
           observationsByPatient.get("p0").stream()
@@ -1268,7 +1247,9 @@ public class R4ObservationControllerTest {
                       observations.size(),
                       link(
                           BundleLink.LinkRelation.first,
-                          "http://fonzy.com/cool/Observation?category=laboratory,vital-signs&date="
+                          "http://fonzy.com/cool/Observation?category="
+                              + encodedCat
+                              + "&date="
                               + date.getLeft()
                               + "&date="
                               + date.getRight()
@@ -1277,7 +1258,9 @@ public class R4ObservationControllerTest {
                           10),
                       link(
                           BundleLink.LinkRelation.self,
-                          "http://fonzy.com/cool/Observation?category=laboratory,vital-signs&date="
+                          "http://fonzy.com/cool/Observation?category="
+                              + encodedCat
+                              + "&date="
                               + date.getLeft()
                               + "&date="
                               + date.getRight()
@@ -1286,7 +1269,9 @@ public class R4ObservationControllerTest {
                           10),
                       link(
                           BundleLink.LinkRelation.last,
-                          "http://fonzy.com/cool/Observation?category=laboratory,vital-signs&date="
+                          "http://fonzy.com/cool/Observation?category="
+                              + encodedCat
+                              + "&date="
                               + date.getLeft()
                               + "&date="
                               + date.getRight()
@@ -1336,6 +1321,7 @@ public class R4ObservationControllerTest {
           observationsByPatient.get("p0").stream()
               .filter(o -> testDates.get(date).contains(o.effectiveDateTime()))
               .collect(Collectors.toList());
+      String encoded = encode("laboratory,vital-signs");
       assertThat(
               json(
                   controller()
@@ -1354,7 +1340,9 @@ public class R4ObservationControllerTest {
                       observations.size(),
                       link(
                           BundleLink.LinkRelation.first,
-                          "http://fonzy.com/cool/Observation?category=laboratory,vital-signs&date="
+                          "http://fonzy.com/cool/Observation?category="
+                              + encoded
+                              + "&date="
                               + date.getLeft()
                               + "&date="
                               + date.getRight()
@@ -1363,7 +1351,9 @@ public class R4ObservationControllerTest {
                           10),
                       link(
                           BundleLink.LinkRelation.self,
-                          "http://fonzy.com/cool/Observation?category=laboratory,vital-signs&date="
+                          "http://fonzy.com/cool/Observation?category="
+                              + encoded
+                              + "&date="
                               + date.getLeft()
                               + "&date="
                               + date.getRight()
@@ -1372,7 +1362,9 @@ public class R4ObservationControllerTest {
                           10),
                       link(
                           BundleLink.LinkRelation.last,
-                          "http://fonzy.com/cool/Observation?category=laboratory,vital-signs&date="
+                          "http://fonzy.com/cool/Observation?category="
+                              + encoded
+                              + "&date="
                               + date.getLeft()
                               + "&date="
                               + date.getRight()

@@ -24,7 +24,6 @@ import gov.va.api.health.stu3.api.bundle.AbstractBundle;
 import gov.va.api.health.stu3.api.bundle.BundleLink;
 import gov.va.api.health.stu3.api.resources.PractitionerRole;
 import gov.va.api.health.stu3.api.resources.PractitionerRole.Bundle;
-
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -122,6 +121,10 @@ public class Stu3PractitionerRoleControllerTest {
         WitnessProtection.builder().identityService(ids).build());
   }
 
+  private String encode(String value) {
+    return URLEncoder.encode(value, StandardCharsets.UTF_8);
+  }
+
   @Test
   public void read() {
     String publicId = "p1";
@@ -196,11 +199,9 @@ public class Stu3PractitionerRoleControllerTest {
     DatamartPractitioner dm =
         PractitionerRoleSamples.Datamart.create().practitioner(cdwId, locCdwId, orgCdwId);
     repository.save(asEntity(dm));
-
     assertThat(asJson(controller().searchById(publicId, 1, 0)))
         .isEqualTo(
             asJson(emptyBundle("http://fonzy.com/cool/PractitionerRole?identifier=" + publicId)));
-
     assertThat(asJson(controller().searchById(publicId, 1, 1)))
         .isEqualTo(
             asJson(
@@ -238,11 +239,9 @@ public class Stu3PractitionerRoleControllerTest {
     DatamartPractitioner dm =
         PractitionerRoleSamples.Datamart.create().practitioner(cdwId, locCdwId, orgCdwId);
     repository.save(asEntity(dm));
-
     assertThat(asJson(controller().searchByIdentifier(publicId, 1, 0)))
         .isEqualTo(
             asJson(emptyBundle("http://fonzy.com/cool/PractitionerRole?identifier=" + publicId)));
-
     assertThat(asJson(controller().searchByIdentifier(publicId, 1, 1)))
         .isEqualTo(
             asJson(
@@ -282,7 +281,6 @@ public class Stu3PractitionerRoleControllerTest {
     DatamartPractitioner dm =
         PractitionerRoleSamples.Datamart.create().practitioner(cdwId, locCdwId, orgCdwId);
     repository.save(asEntity(dm));
-
     assertThat(asJson(controller().searchByName(family, given, 1, 0)))
         .isEqualTo(
             asJson(
@@ -290,7 +288,6 @@ public class Stu3PractitionerRoleControllerTest {
                     String.format(
                         "http://fonzy.com/cool/PractitionerRole?given=%s&practitioner.family=%s",
                         given, family))));
-
     assertThat(asJson(controller().searchByName(family, given, 1, 1)))
         .isEqualTo(
             asJson(
@@ -322,10 +319,6 @@ public class Stu3PractitionerRoleControllerTest {
                         1))));
   }
 
-  private String encode(String value){
-    return URLEncoder.encode(value, StandardCharsets.UTF_8);
-  }
-
   @Test
   public void searchByNpi() {
     String systemAndCode = "http://hl7.org/fhir/sid/us-npi|12345";
@@ -339,14 +332,12 @@ public class Stu3PractitionerRoleControllerTest {
     DatamartPractitioner dm =
         PractitionerRoleSamples.Datamart.create().practitioner(cdwId, locCdwId, orgCdwId);
     repository.save(asEntity(dm));
-
     assertThat(asJson(controller().searchByNpi(systemAndCode, 1, 0)))
         .isEqualTo(
             asJson(
                 emptyBundle(
                     "http://fonzy.com/cool/PractitionerRole?practitioner.identifier="
                         + encode(systemAndCode))));
-
     assertThat(asJson(controller().searchByNpi(systemAndCode, 1, 1)))
         .isEqualTo(
             asJson(

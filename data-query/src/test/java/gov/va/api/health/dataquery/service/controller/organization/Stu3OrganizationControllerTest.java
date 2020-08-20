@@ -19,7 +19,6 @@ import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.health.stu3.api.bundle.BundleLink;
 import gov.va.api.health.stu3.api.resources.Organization;
-
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -132,9 +131,14 @@ public class Stu3OrganizationControllerTest {
                     emptyList(),
                     OrganizationSamples.Stu3.link(
                         BundleLink.LinkRelation.self,
-                        "http://fonzy.com/cool/Organization?identifier=" + encode("http://hl7.org/fhir/sid/us-npi|" + emptyness),
+                        "http://fonzy.com/cool/Organization?identifier="
+                            + encode("http://hl7.org/fhir/sid/us-npi|" + emptyness),
                         1,
                         0))));
+  }
+
+  private String encode(String value) {
+    return URLEncoder.encode(value, StandardCharsets.UTF_8);
   }
 
   @Test
@@ -386,10 +390,6 @@ public class Stu3OrganizationControllerTest {
                         "http://fonzy.com/cool/Organization?address-state=" + state,
                         1,
                         1))));
-  }
-
-  private String encode(String value) {
-    return URLEncoder.encode(value, StandardCharsets.UTF_8);
   }
 
   @Test

@@ -16,6 +16,8 @@ import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.health.stu3.api.bundle.BundleLink;
 import gov.va.api.health.stu3.api.resources.Practitioner;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
@@ -228,6 +230,7 @@ public class Stu3PractitionerControllerTest {
   @Test
   public void searchByNpi() {
     String systemAndCode = "http://hl7.org/fhir/sid/us-npi|1234567";
+    String encoded = URLEncoder.encode(systemAndCode, StandardCharsets.UTF_8);
     String publicId = "abc";
     String cdwId = "123";
     String orgPubId = "def";
@@ -246,17 +249,17 @@ public class Stu3PractitionerControllerTest {
                     List.of(PractitionerSamples.Stu3.create().practitioner(publicId)),
                     PractitionerSamples.Stu3.link(
                         BundleLink.LinkRelation.first,
-                        "http://fonzy.com/cool/Practitioner?identifier=" + systemAndCode,
+                        "http://fonzy.com/cool/Practitioner?identifier=" + encoded,
                         1,
                         1),
                     PractitionerSamples.Stu3.link(
                         BundleLink.LinkRelation.self,
-                        "http://fonzy.com/cool/Practitioner?identifier=" + systemAndCode,
+                        "http://fonzy.com/cool/Practitioner?identifier=" + encoded,
                         1,
                         1),
                     PractitionerSamples.Stu3.link(
                         BundleLink.LinkRelation.last,
-                        "http://fonzy.com/cool/Practitioner?identifier=" + systemAndCode,
+                        "http://fonzy.com/cool/Practitioner?identifier=" + encoded,
                         1,
                         1))));
   }
