@@ -20,6 +20,8 @@ import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.health.r4.api.bundle.BundleLink;
 import gov.va.api.health.uscorer4.api.resources.DiagnosticReport;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -75,6 +77,10 @@ public class R4DiagnosticReportControllerTest {
 
   private DiagnosticReport.Bundle emptyBundleOf(String paramString) {
     return bundleOf(emptyList(), paramString, 1, 15);
+  }
+
+  private String encode(String value) {
+    return URLEncoder.encode(value, StandardCharsets.UTF_8);
   }
 
   @SneakyThrows
@@ -251,7 +257,8 @@ public class R4DiagnosticReportControllerTest {
                     1,
                     link(
                         BundleLink.LinkRelation.self,
-                        "http://fonzy.com/cool/DiagnosticReport?identifier=800260864479:L",
+                        "http://fonzy.com/cool/DiagnosticReport?identifier="
+                            + encode("800260864479:L"),
                         1,
                         0))));
   }
@@ -323,6 +330,7 @@ public class R4DiagnosticReportControllerTest {
             .filter(dr -> "LAB".equals(dr.category().get(0).coding().get(0).code()))
             .filter(dr -> "2020-01-20T07:57:00Z".equals(dr.issued()))
             .collect(Collectors.toList());
+    String encoded = encode("eq2020-01-20T07:57:00Z");
     assertThat(
             json(
                 controller()
@@ -338,7 +346,8 @@ public class R4DiagnosticReportControllerTest {
                         BundleLink.LinkRelation.first,
                         "http://fonzy.com/cool/DiagnosticReport"
                             + "?category=LAB"
-                            + "&date=eq2020-01-20T07:57:00Z"
+                            + "&date="
+                            + encoded
                             + "&patient=p0",
                         1,
                         15),
@@ -346,7 +355,8 @@ public class R4DiagnosticReportControllerTest {
                         BundleLink.LinkRelation.self,
                         "http://fonzy.com/cool/DiagnosticReport"
                             + "?category=LAB"
-                            + "&date=eq2020-01-20T07:57:00Z"
+                            + "&date="
+                            + encoded
                             + "&patient=p0",
                         1,
                         15),
@@ -354,7 +364,8 @@ public class R4DiagnosticReportControllerTest {
                         BundleLink.LinkRelation.last,
                         "http://fonzy.com/cool/DiagnosticReport"
                             + "?category=LAB"
-                            + "&date=eq2020-01-20T07:57:00Z"
+                            + "&date="
+                            + encoded
                             + "&patient=p0",
                         1,
                         15))));
@@ -373,6 +384,8 @@ public class R4DiagnosticReportControllerTest {
                       && issued.isBefore(Instant.parse("2020-01-26T07:57:00Z"));
                 })
             .collect(Collectors.toList());
+    String encodedDate1 = encode("gt2020-01-20T07:57:00Z");
+    String encodedDate2 = encode("le2020-01-25T07:57:00Z");
     assertThat(
             json(
                 controller()
@@ -392,8 +405,10 @@ public class R4DiagnosticReportControllerTest {
                         BundleLink.LinkRelation.first,
                         "http://fonzy.com/cool/DiagnosticReport"
                             + "?category=LAB"
-                            + "&date=gt2020-01-20T07:57:00Z"
-                            + "&date=le2020-01-25T07:57:00Z"
+                            + "&date="
+                            + encodedDate1
+                            + "&date="
+                            + encodedDate2
                             + "&patient=p0",
                         1,
                         15),
@@ -401,8 +416,10 @@ public class R4DiagnosticReportControllerTest {
                         BundleLink.LinkRelation.self,
                         "http://fonzy.com/cool/DiagnosticReport"
                             + "?category=LAB"
-                            + "&date=gt2020-01-20T07:57:00Z"
-                            + "&date=le2020-01-25T07:57:00Z"
+                            + "&date="
+                            + encodedDate1
+                            + "&date="
+                            + encodedDate2
                             + "&patient=p0",
                         1,
                         15),
@@ -410,8 +427,10 @@ public class R4DiagnosticReportControllerTest {
                         BundleLink.LinkRelation.last,
                         "http://fonzy.com/cool/DiagnosticReport"
                             + "?category=LAB"
-                            + "&date=gt2020-01-20T07:57:00Z"
-                            + "&date=le2020-01-25T07:57:00Z"
+                            + "&date="
+                            + encodedDate1
+                            + "&date="
+                            + encodedDate2
                             + "&patient=p0",
                         1,
                         15))));
@@ -423,11 +442,11 @@ public class R4DiagnosticReportControllerTest {
     Collection<DiagnosticReport> diagnosticReports = diagnosticReportsByPatient.get("p0");
     // Unknown System, Any Code
     assertThat(json(controller().searchByPatientAndCategory("p0", "http://big.oof|", null, 1, 15)))
-        .isEqualTo(json(emptyBundleOf("category=http://big.oof|&patient=p0")));
+        .isEqualTo(json(emptyBundleOf("category=" + encode("http://big.oof|") + "&patient=p0")));
     // Unknown System, Explicit Code
     assertThat(
             json(controller().searchByPatientAndCategory("p0", "http://big.oof|LAB", null, 1, 15)))
-        .isEqualTo(json(emptyBundleOf("category=http://big.oof|LAB&patient=p0")));
+        .isEqualTo(json(emptyBundleOf("category=" + encode("http://big.oof|LAB") + "&patient=p0")));
     // Explicit System, Unknown Code
     assertThat(
             json(
@@ -437,13 +456,15 @@ public class R4DiagnosticReportControllerTest {
         .isEqualTo(
             json(
                 emptyBundleOf(
-                    "category=http://terminology.hl7.org/CodeSystem/v2-0074|NOPE&patient=p0")));
+                    "category="
+                        + encode("http://terminology.hl7.org/CodeSystem/v2-0074|NOPE")
+                        + "&patient=p0")));
     // No System, Unknown Code
     assertThat(json(controller().searchByPatientAndCategory("p0", "|NOPE", null, 1, 15)))
-        .isEqualTo(json(emptyBundleOf("category=|NOPE&patient=p0")));
+        .isEqualTo(json(emptyBundleOf("category=" + encode("|NOPE") + "&patient=p0")));
     // No System, Explicit Code
     assertThat(json(controller().searchByPatientAndCategory("p0", "|LAB", null, 1, 15)))
-        .isEqualTo(json(emptyBundleOf("category=|LAB&patient=p0")));
+        .isEqualTo(json(emptyBundleOf("category=" + encode("|LAB") + "&patient=p0")));
     // Explicit System, Explicit Code
     assertThat(
             json(
@@ -454,7 +475,9 @@ public class R4DiagnosticReportControllerTest {
             json(
                 bundleOf(
                     diagnosticReports,
-                    "category=http://terminology.hl7.org/CodeSystem/v2-0074|LAB&patient=p0",
+                    "category="
+                        + encode("http://terminology.hl7.org/CodeSystem/v2-0074|LAB")
+                        + "&patient=p0",
                     1,
                     15)));
     // Explicit System, Any Code
@@ -467,7 +490,9 @@ public class R4DiagnosticReportControllerTest {
             json(
                 bundleOf(
                     diagnosticReports,
-                    "category=http://terminology.hl7.org/CodeSystem/v2-0074|&patient=p0",
+                    "category="
+                        + encode("http://terminology.hl7.org/CodeSystem/v2-0074|")
+                        + "&patient=p0",
                     1,
                     15)));
   }
@@ -514,6 +539,7 @@ public class R4DiagnosticReportControllerTest {
         diagnosticReportsByPatient.get("p0").stream()
             .filter(dr -> "2020-01-20T07:57:00Z".equals(dr.issued()))
             .collect(Collectors.toList());
+    String encoded = encode("eq2020-01-20T07:57:00Z");
     assertThat(
             json(
                 controller()
@@ -527,17 +553,23 @@ public class R4DiagnosticReportControllerTest {
                     diagnosticReports.size(),
                     link(
                         BundleLink.LinkRelation.first,
-                        "http://fonzy.com/cool/DiagnosticReport?code=&date=eq2020-01-20T07:57:00Z&patient=p0",
+                        "http://fonzy.com/cool/DiagnosticReport?code=&date="
+                            + encoded
+                            + "&patient=p0",
                         1,
                         15),
                     link(
                         BundleLink.LinkRelation.self,
-                        "http://fonzy.com/cool/DiagnosticReport?code=&date=eq2020-01-20T07:57:00Z&patient=p0",
+                        "http://fonzy.com/cool/DiagnosticReport?code=&date="
+                            + encoded
+                            + "&patient=p0",
                         1,
                         15),
                     link(
                         BundleLink.LinkRelation.last,
-                        "http://fonzy.com/cool/DiagnosticReport?code=&date=eq2020-01-20T07:57:00Z&patient=p0",
+                        "http://fonzy.com/cool/DiagnosticReport?code=&date="
+                            + encoded
+                            + "&patient=p0",
                         1,
                         15))));
   }
@@ -573,8 +605,10 @@ public class R4DiagnosticReportControllerTest {
                         BundleLink.LinkRelation.first,
                         "http://fonzy.com/cool/DiagnosticReport"
                             + "?code="
-                            + "&date=gt2020-01-20T07:57:00Z"
-                            + "&date=le2020-01-25T07:57:00Z"
+                            + "&date="
+                            + encode("gt2020-01-20T07:57:00Z")
+                            + "&date="
+                            + encode("le2020-01-25T07:57:00Z")
                             + "&patient=p0",
                         1,
                         15),
@@ -582,8 +616,10 @@ public class R4DiagnosticReportControllerTest {
                         BundleLink.LinkRelation.self,
                         "http://fonzy.com/cool/DiagnosticReport"
                             + "?code="
-                            + "&date=gt2020-01-20T07:57:00Z"
-                            + "&date=le2020-01-25T07:57:00Z"
+                            + "&date="
+                            + encode("gt2020-01-20T07:57:00Z")
+                            + "&date="
+                            + encode("le2020-01-25T07:57:00Z")
                             + "&patient=p0",
                         1,
                         15),
@@ -591,8 +627,10 @@ public class R4DiagnosticReportControllerTest {
                         BundleLink.LinkRelation.last,
                         "http://fonzy.com/cool/DiagnosticReport"
                             + "?code="
-                            + "&date=gt2020-01-20T07:57:00Z"
-                            + "&date=le2020-01-25T07:57:00Z"
+                            + "&date="
+                            + encode("gt2020-01-20T07:57:00Z")
+                            + "&date="
+                            + encode("le2020-01-25T07:57:00Z")
                             + "&patient=p0",
                         1,
                         15))));
@@ -604,16 +642,16 @@ public class R4DiagnosticReportControllerTest {
     Collection<DiagnosticReport> diagnosticReports = diagnosticReportsByPatient.get("p0");
     // Unknown System, Any Code
     assertThat(json(controller().searchByPatientAndCode("p0", "http://big.oof|", null, 1, 15)))
-        .isEqualTo(json(emptyBundleOf("code=http://big.oof|&patient=p0")));
+        .isEqualTo(json(emptyBundleOf("code=" + encode("http://big.oof|") + "&patient=p0")));
     // Unknown System, Explicit Code
     assertThat(json(controller().searchByPatientAndCode("p0", "http://big.oof|panel", null, 1, 15)))
-        .isEqualTo(json(emptyBundleOf("code=http://big.oof|panel&patient=p0")));
+        .isEqualTo(json(emptyBundleOf("code=" + encode("http://big.oof|panel") + "&patient=p0")));
     // No System, Unknown Code
     assertThat(json(controller().searchByPatientAndCode("p0", "|NOPE", null, 1, 15)))
-        .isEqualTo(json(emptyBundleOf("code=|NOPE&patient=p0")));
+        .isEqualTo(json(emptyBundleOf("code=" + encode("|NOPE") + "&patient=p0")));
     // No System, Explicit Code
     assertThat(json(controller().searchByPatientAndCode("p0", "|panel", null, 1, 15)))
-        .isEqualTo(json(emptyBundleOf("code=|panel&patient=p0")));
+        .isEqualTo(json(emptyBundleOf("code=" + encode("|panel") + "&patient=p0")));
   }
 
   @Test
@@ -684,10 +722,10 @@ public class R4DiagnosticReportControllerTest {
             .collect(Collectors.toList());
     // Unknown System, Any Code
     assertThat(json(controller().searchByPatientAndStatus("p0", "http://big.oof|", 1, 15)))
-        .isEqualTo(json(emptyBundleOf("patient=p0&status=http://big.oof|")));
+        .isEqualTo(json(emptyBundleOf("patient=p0&status=" + encode("http://big.oof|"))));
     // Unknown System, Explicit Code
     assertThat(json(controller().searchByPatientAndStatus("p0", "http://big.oof|final", 1, 15)))
-        .isEqualTo(json(emptyBundleOf("patient=p0&status=http://big.oof|final")));
+        .isEqualTo(json(emptyBundleOf("patient=p0&status=" + encode("http://big.oof|final"))));
     // Explicit System, Unknown Code
     assertThat(
             json(
@@ -697,13 +735,14 @@ public class R4DiagnosticReportControllerTest {
         .isEqualTo(
             json(
                 emptyBundleOf(
-                    "patient=p0&status=http://hl7.org/fhir/diagnostic-report-status|NOPE")));
+                    "patient=p0&status="
+                        + encode("http://hl7.org/fhir/diagnostic-report-status|NOPE"))));
     // No System, Unknown Code
     assertThat(json(controller().searchByPatientAndStatus("p0", "|NOPE", 1, 15)))
-        .isEqualTo(json(emptyBundleOf("patient=p0&status=|NOPE")));
+        .isEqualTo(json(emptyBundleOf("patient=p0&status=" + encode("|NOPE"))));
     // No System, Explicit Code
     assertThat(json(controller().searchByPatientAndStatus("p0", "|final", 1, 15)))
-        .isEqualTo(json(emptyBundleOf("patient=p0&status=|final")));
+        .isEqualTo(json(emptyBundleOf("patient=p0&status=" + encode("|final"))));
     // Explicit System, Explicit Code
     assertThat(
             json(
@@ -714,7 +753,8 @@ public class R4DiagnosticReportControllerTest {
             json(
                 bundleOf(
                     diagnosticReports,
-                    "patient=p0&status=http://hl7.org/fhir/diagnostic-report-status|final",
+                    "patient=p0&status="
+                        + encode("http://hl7.org/fhir/diagnostic-report-status|final"),
                     1,
                     15)));
     // Explicit System, Any Code
@@ -727,7 +767,7 @@ public class R4DiagnosticReportControllerTest {
             json(
                 bundleOf(
                     diagnosticReports,
-                    "patient=p0&status=http://hl7.org/fhir/diagnostic-report-status|",
+                    "patient=p0&status=" + encode("http://hl7.org/fhir/diagnostic-report-status|"),
                     1,
                     15)));
   }

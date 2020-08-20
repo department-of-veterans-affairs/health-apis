@@ -18,6 +18,8 @@ import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.health.r4.api.bundle.BundleLink;
 import gov.va.api.health.uscorer4.api.resources.Location;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
@@ -88,6 +90,10 @@ public class R4LocationControllerTest {
         WitnessProtection.builder().identityService(ids).build());
   }
 
+  private String encode(String value) {
+    return URLEncoder.encode(value, StandardCharsets.UTF_8);
+  }
+
   private void mockLocationIdentity(String publicId, String cdwId) {
     ResourceIdentity resourceIdentity =
         ResourceIdentity.builder().system("CDW").resource("LOCATION").identifier(cdwId).build();
@@ -142,7 +148,7 @@ public class R4LocationControllerTest {
         .isEqualTo(
             asJson(
                 bundleOf(
-                    "address=" + addressStreet,
+                    "address=" + encode(addressStreet),
                     List.of(LocationSamples.R4.create().location()),
                     1,
                     15)));
@@ -258,7 +264,11 @@ public class R4LocationControllerTest {
     assertThat(asJson(actual))
         .isEqualTo(
             asJson(
-                bundleOf("name=" + name, List.of(LocationSamples.R4.create().location()), 1, 15)));
+                bundleOf(
+                    "name=" + encode(name),
+                    List.of(LocationSamples.R4.create().location()),
+                    1,
+                    15)));
   }
 
   @Test
@@ -276,7 +286,7 @@ public class R4LocationControllerTest {
                     1,
                     LocationSamples.R4.link(
                         BundleLink.LinkRelation.self,
-                        "http://fonzy.com/cool/Location?name=" + name,
+                        "http://fonzy.com/cool/Location?name=" + encode(name),
                         1,
                         0))));
   }
