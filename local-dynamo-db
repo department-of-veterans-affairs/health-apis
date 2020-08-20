@@ -82,6 +82,19 @@ start() {
   do
     sleep .25s
   done
+  cat <<EOF
+
+To use this database when running locally, set the following environment variables
+
+DYNAMO_PATIENT_REGISTRAR_ENABLED=true
+AWS_ACCESS_KEY=anything
+AWS_SECRET_ACCESS_KEY=anything
+
+The AWS access key variables can contain any value, but must be set, e.g.
+
+DYNAMO_PATIENT_REGISTRAR_ENABLED=true AWS_ACCESS_KEY=x AWS_SECRET_ACCESS_KEY=x run-local.sh -d r
+
+EOF
 }
 
 stop() {
