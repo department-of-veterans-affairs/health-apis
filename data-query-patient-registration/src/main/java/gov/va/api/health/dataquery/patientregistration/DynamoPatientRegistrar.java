@@ -17,11 +17,16 @@ import java.util.Map;
 import java.util.concurrent.Future;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Component;
 
 @Component
+@ConditionalOnProperty(
+    value = "dynamo-patient-registrar.enabled",
+    havingValue = "true",
+    matchIfMissing = false)
 @Slf4j
 public class DynamoPatientRegistrar implements PatientRegistrar {
 
@@ -40,6 +45,7 @@ public class DynamoPatientRegistrar implements PatientRegistrar {
     DynamoDB dynamoDB = new DynamoDB(client);
     table = dynamoDB.getTable(options.getTable());
     this.options = options;
+    log.info("Configuration: {}", options);
   }
 
   @Override

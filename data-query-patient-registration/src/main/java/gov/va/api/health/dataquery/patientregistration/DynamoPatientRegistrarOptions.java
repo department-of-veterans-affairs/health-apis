@@ -32,4 +32,7 @@ public class DynamoPatientRegistrarOptions {
 
   /** The name of the application to use when registering, e.g. data-query */
   private String applicationName;
+
+  /** If true, registration will be applied. */
+  private boolean enabled;
 }

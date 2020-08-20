@@ -16,6 +16,7 @@ class DynamoPatientRegistrarTest {
       assertThat(
               new DynamoPatientRegistrar(
                       DynamoPatientRegistrarOptions.builder()
+                          .enabled(true)
                           .endpoint("http://localhost:" + db.port())
                           .region(db.signingRegion())
                           .table(db.tableName())

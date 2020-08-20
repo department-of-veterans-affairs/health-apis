@@ -24,6 +24,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
       "dynamo-patient-registrar.endpoint=http://localhost:8000",
       "dynamo-patient-registrar.region=us-gov-west-1",
       "dynamo-patient-registrar.table=patient-registration-local",
+      "dynamo-patient-registrar.enabled=false"
     })
 @Slf4j
 public class PatientRegistrationFilterSpringTest {
