@@ -19,6 +19,9 @@ import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.health.stu3.api.bundle.BundleLink;
 import gov.va.api.health.stu3.api.resources.Organization;
+
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
@@ -91,6 +94,7 @@ public class Stu3OrganizationControllerTest {
   @Test
   public void emptyChecks() {
     String emptyness = " ";
+    String encoded = encode(emptyness);
     String publicId = "abc";
     String cdwId = "123";
     addMockIdentities(publicId, cdwId);
@@ -104,7 +108,7 @@ public class Stu3OrganizationControllerTest {
                     emptyList(),
                     OrganizationSamples.Stu3.link(
                         BundleLink.LinkRelation.self,
-                        "http://fonzy.com/cool/Organization?name=" + emptyness,
+                        "http://fonzy.com/cool/Organization?name=" + encoded,
                         1,
                         0))));
     assertThat(asJson(controller().searchByAddress(emptyness, null, null, null, 1, 0)))
@@ -115,7 +119,7 @@ public class Stu3OrganizationControllerTest {
                     emptyList(),
                     OrganizationSamples.Stu3.link(
                         BundleLink.LinkRelation.self,
-                        "http://fonzy.com/cool/Organization?address=" + emptyness,
+                        "http://fonzy.com/cool/Organization?address=" + encoded,
                         1,
                         0))));
     Organization.Bundle actuallyEmpty =
@@ -128,8 +132,7 @@ public class Stu3OrganizationControllerTest {
                     emptyList(),
                     OrganizationSamples.Stu3.link(
                         BundleLink.LinkRelation.self,
-                        "http://fonzy.com/cool/Organization?identifier=http://hl7.org/fhir/sid/us-npi|"
-                            + emptyness,
+                        "http://fonzy.com/cool/Organization?identifier=" + encode("http://hl7.org/fhir/sid/us-npi|" + emptyness),
                         1,
                         0))));
   }
@@ -194,6 +197,7 @@ public class Stu3OrganizationControllerTest {
   @Test
   public void searchByCity() {
     String city = "NEW AMSTERDAM";
+    String encodedCity = encode(city);
     String publicId = "abc";
     String cdwId = "123";
     addMockIdentities(publicId, cdwId);
@@ -208,17 +212,17 @@ public class Stu3OrganizationControllerTest {
                     List.of(OrganizationSamples.Stu3.create().organization(publicId)),
                     OrganizationSamples.Stu3.link(
                         BundleLink.LinkRelation.first,
-                        "http://fonzy.com/cool/Organization?address-city=" + city,
+                        "http://fonzy.com/cool/Organization?address-city=" + encodedCity,
                         1,
                         1),
                     OrganizationSamples.Stu3.link(
                         BundleLink.LinkRelation.self,
-                        "http://fonzy.com/cool/Organization?address-city=" + city,
+                        "http://fonzy.com/cool/Organization?address-city=" + encodedCity,
                         1,
                         1),
                     OrganizationSamples.Stu3.link(
                         BundleLink.LinkRelation.last,
-                        "http://fonzy.com/cool/Organization?address-city=" + city,
+                        "http://fonzy.com/cool/Organization?address-city=" + encodedCity,
                         1,
                         1))));
   }
@@ -259,6 +263,7 @@ public class Stu3OrganizationControllerTest {
     String publicId = "abc";
     String cdwId = "123";
     String identifier = "http://hl7.org/fhir/sid/us-npi|1205983228";
+    String encodedIdentifier = encode(identifier);
     DatamartOrganization dm = OrganizationSamples.Datamart.create().organization(cdwId);
     repository.save(asEntity(dm));
     addMockIdentities(publicId, cdwId);
@@ -271,17 +276,17 @@ public class Stu3OrganizationControllerTest {
                     List.of(OrganizationSamples.Stu3.create().organization(publicId)),
                     OrganizationSamples.Stu3.link(
                         BundleLink.LinkRelation.first,
-                        "http://fonzy.com/cool/Organization?identifier=" + identifier,
+                        "http://fonzy.com/cool/Organization?identifier=" + encodedIdentifier,
                         1,
                         1),
                     OrganizationSamples.Stu3.link(
                         BundleLink.LinkRelation.self,
-                        "http://fonzy.com/cool/Organization?identifier=" + identifier,
+                        "http://fonzy.com/cool/Organization?identifier=" + encodedIdentifier,
                         1,
                         1),
                     OrganizationSamples.Stu3.link(
                         BundleLink.LinkRelation.last,
-                        "http://fonzy.com/cool/Organization?identifier=" + identifier,
+                        "http://fonzy.com/cool/Organization?identifier=" + encodedIdentifier,
                         1,
                         1))));
   }
@@ -289,6 +294,7 @@ public class Stu3OrganizationControllerTest {
   @Test
   public void searchByName() {
     String name = "NEW AMSTERDAM CBOC";
+    String encodedName = encode(name);
     String publicId = "abc";
     String cdwId = "123";
     addMockIdentities(publicId, cdwId);
@@ -303,17 +309,17 @@ public class Stu3OrganizationControllerTest {
                     List.of(OrganizationSamples.Stu3.create().organization(publicId)),
                     OrganizationSamples.Stu3.link(
                         BundleLink.LinkRelation.first,
-                        "http://fonzy.com/cool/Organization?name=" + name,
+                        "http://fonzy.com/cool/Organization?name=" + encodedName,
                         1,
                         1),
                     OrganizationSamples.Stu3.link(
                         BundleLink.LinkRelation.self,
-                        "http://fonzy.com/cool/Organization?name=" + name,
+                        "http://fonzy.com/cool/Organization?name=" + encodedName,
                         1,
                         1),
                     OrganizationSamples.Stu3.link(
                         BundleLink.LinkRelation.last,
-                        "http://fonzy.com/cool/Organization?name=" + name,
+                        "http://fonzy.com/cool/Organization?name=" + encodedName,
                         1,
                         1))));
   }
@@ -382,9 +388,14 @@ public class Stu3OrganizationControllerTest {
                         1))));
   }
 
+  private String encode(String value) {
+    return URLEncoder.encode(value, StandardCharsets.UTF_8);
+  }
+
   @Test
   public void searchByStreet() {
     String street = "10 MONROE AVE, SUITE 6B PO BOX 4160";
+    String encodedStreet = encode(street);
     String publicId = "abc";
     String cdwId = "123";
     addMockIdentities(publicId, cdwId);
@@ -399,17 +410,17 @@ public class Stu3OrganizationControllerTest {
                     List.of(OrganizationSamples.Stu3.create().organization(publicId)),
                     OrganizationSamples.Stu3.link(
                         BundleLink.LinkRelation.first,
-                        "http://fonzy.com/cool/Organization?address=" + street,
+                        "http://fonzy.com/cool/Organization?address=" + encodedStreet,
                         1,
                         1),
                     OrganizationSamples.Stu3.link(
                         BundleLink.LinkRelation.self,
-                        "http://fonzy.com/cool/Organization?address=" + street,
+                        "http://fonzy.com/cool/Organization?address=" + encodedStreet,
                         1,
                         1),
                     OrganizationSamples.Stu3.link(
                         BundleLink.LinkRelation.last,
-                        "http://fonzy.com/cool/Organization?address=" + street,
+                        "http://fonzy.com/cool/Organization?address=" + encodedStreet,
                         1,
                         1))));
   }

@@ -24,6 +24,9 @@ import gov.va.api.health.stu3.api.bundle.AbstractBundle;
 import gov.va.api.health.stu3.api.bundle.BundleLink;
 import gov.va.api.health.stu3.api.resources.PractitionerRole;
 import gov.va.api.health.stu3.api.resources.PractitionerRole.Bundle;
+
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
@@ -319,6 +322,10 @@ public class Stu3PractitionerRoleControllerTest {
                         1))));
   }
 
+  private String encode(String value){
+    return URLEncoder.encode(value, StandardCharsets.UTF_8);
+  }
+
   @Test
   public void searchByNpi() {
     String systemAndCode = "http://hl7.org/fhir/sid/us-npi|12345";
@@ -338,7 +345,7 @@ public class Stu3PractitionerRoleControllerTest {
             asJson(
                 emptyBundle(
                     "http://fonzy.com/cool/PractitionerRole?practitioner.identifier="
-                        + systemAndCode)));
+                        + encode(systemAndCode))));
 
     assertThat(asJson(controller().searchByNpi(systemAndCode, 1, 1)))
         .isEqualTo(
@@ -351,19 +358,19 @@ public class Stu3PractitionerRoleControllerTest {
                     PractitionerRoleSamples.Stu3.link(
                         BundleLink.LinkRelation.first,
                         "http://fonzy.com/cool/PractitionerRole?practitioner.identifier="
-                            + systemAndCode,
+                            + encode(systemAndCode),
                         1,
                         1),
                     PractitionerRoleSamples.Stu3.link(
                         BundleLink.LinkRelation.self,
                         "http://fonzy.com/cool/PractitionerRole?practitioner.identifier="
-                            + systemAndCode,
+                            + encode(systemAndCode),
                         1,
                         1),
                     PractitionerRoleSamples.Stu3.link(
                         BundleLink.LinkRelation.last,
                         "http://fonzy.com/cool/PractitionerRole?practitioner.identifier="
-                            + systemAndCode,
+                            + encode(systemAndCode),
                         1,
                         1))));
   }
