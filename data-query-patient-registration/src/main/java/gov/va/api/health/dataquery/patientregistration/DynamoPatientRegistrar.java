@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Component;
@@ -24,24 +25,21 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class DynamoPatientRegistrar implements PatientRegistrar {
 
-  private final DynamoDB dynamoDB;
-
   private final Table table;
 
-  public DynamoPatientRegistrar() {
-    // SHOULD PICK UP FROM EC2 ROLE OR ENVIRONMENT
-    // System.setProperty("aws.accessKeyId", "NOTUSED");
-    // System.setProperty("aws.secretKey", "NOTUSED");
+  private final DynamoPatientRegistrarOptions options;
 
+  /** Construct a new instance that will bind to a particular table as specified in the options. */
+  public DynamoPatientRegistrar(@Autowired DynamoPatientRegistrarOptions options) {
     AmazonDynamoDB client =
         AmazonDynamoDBClientBuilder.standard()
             .withEndpointConfiguration(
                 new AwsClientBuilder.EndpointConfiguration(
-                    "http://localhost:8000", "us-gov-west-1"))
+                    options.getEndpoint(), options.getRegion()))
             .build();
-    dynamoDB = new DynamoDB(client);
-    table = dynamoDB.getTable("patient-registration-local");
-    table.describe();
+    DynamoDB dynamoDB = new DynamoDB(client);
+    table = dynamoDB.getTable(options.getTable());
+    this.options = options;
   }
 
   @Override
@@ -66,7 +64,7 @@ public class DynamoPatientRegistrar implements PatientRegistrar {
             .access(
                 List.of(
                     Access.builder()
-                        .application("fugazi") // TODO inject name
+                        .application(options.getApplicationName())
                         .firstAccessTime(
                             Instant.ofEpochMilli(item.getLong(Schema.FIRST_ACCESS_TIME)))
                         .lastAccessTime(Instant.ofEpochMilli(item.getLong(Schema.LAST_ACCESS_TIME)))

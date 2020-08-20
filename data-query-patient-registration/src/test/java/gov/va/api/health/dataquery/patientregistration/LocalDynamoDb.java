@@ -18,8 +18,10 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.SneakyThrows;
 
-public class LocalDynamoDb {
+public class LocalDynamoDb implements AutoCloseable {
+
   @Getter private final int port;
+
   @Getter private final String tableName;
 
   private transient DynamoDBProxyServer server;
@@ -28,15 +30,29 @@ public class LocalDynamoDb {
 
   @Getter private Table table;
 
+  @Getter private String signingRegion;
+
   @Builder
-  public LocalDynamoDb(int port, String tableName) {
+  public LocalDynamoDb(int port, String tableName, String signingRegion) {
     this.port = port;
     this.tableName = tableName;
+    this.signingRegion = signingRegion == null ? "us-gov-west-1" : signingRegion;
   }
 
-  private void checkServer() {
-    if (server == null) {
-      throw new IllegalStateException("Dynamo DB server is not running. Invoke start()");
+  public static LocalDynamoDb startDefault() {
+    return LocalDynamoDb.builder()
+        .port(8000)
+        .tableName("patient-registration-local")
+        .build()
+        .start();
+  }
+
+  @Override
+  @SneakyThrows
+  public void close() {
+    if (server != null) {
+      server.stop();
+      server = null;
     }
   }
 
@@ -73,16 +89,10 @@ public class LocalDynamoDb {
         AmazonDynamoDBClientBuilder.standard()
             .withEndpointConfiguration(
                 new AwsClientBuilder.EndpointConfiguration(
-                    "http://localhost:" + port(), "us-gov-west-1"))
+                    "http://localhost:" + port(), signingRegion))
             .build();
     dynamoDb = new DynamoDB(client);
     initializeSchema();
     return this;
-  }
-
-  @SneakyThrows
-  public void stop() {
-    checkServer();
-    server.stop();
   }
 }

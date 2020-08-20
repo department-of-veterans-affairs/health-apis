@@ -18,17 +18,25 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @Import({FugaziApplication.class, JacksonConfig.class})
-@TestPropertySource(properties = {"ssl.enable-client=false"})
+@TestPropertySource(
+    properties = {
+      "ssl.enable-client=false",
+      "dynamo-patient-registrar.endpoint=http://localhost:8000",
+      "dynamo-patient-registrar.region=us-gov-west-1",
+      "dynamo-patient-registrar.table=patient-registration-local",
+    })
 @Slf4j
 public class PatientRegistrationFilterSpringTest {
   @Autowired TestRestTemplate rest;
 
   @Test
   void filterIsApplied() {
-    ResponseEntity<String> response = rest.getForEntity("/fugazi/Patient/123", String.class);
-    // TODO replace with useful tests as the filter is implemented
-    System.out.println(response);
-    assertThat(response.getHeaders().get(PatientRegistrationFilter.REGISTRATION_HEADER))
-        .isNotNull();
+    try (var db = LocalDynamoDb.startDefault()) {
+      ResponseEntity<String> response = rest.getForEntity("/fugazi/Patient/123", String.class);
+      // TODO replace with useful tests as the filter is implemented
+      System.out.println(response);
+      assertThat(response.getHeaders().get(PatientRegistrationFilter.REGISTRATION_HEADER))
+          .isNotNull();
+    }
   }
 }
