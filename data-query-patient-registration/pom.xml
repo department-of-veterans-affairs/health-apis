@@ -7,18 +7,16 @@
     <version>7.0.8</version>
     <relativePath/>
   </parent>
-  <artifactId>data-query-ids-mapping</artifactId>
+  <artifactId>data-query-patient-registration</artifactId>
   <version>3.0.25-SNAPSHOT</version>
   <packaging>jar</packaging>
   <properties>
-    <health-apis-ids.version>3.0.2</health-apis-ids.version>
     <jacoco.coverage>0.94</jacoco.coverage>
   </properties>
   <dependencies>
     <dependency>
-      <groupId>gov.va.api.health</groupId>
-      <artifactId>ids-client</artifactId>
-      <version>${health-apis-ids.version}</version>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
     </dependency>
   </dependencies>
 </project>

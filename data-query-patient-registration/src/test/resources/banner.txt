@@ -1,0 +1,5 @@
+====
+
+    ${Ansi.BLUE} Fugazi ${Ansi.BOLD}${Ansi.YELLOW}Service ${Ansi.NORMAL}${Ansi.BLUE}${application.version}${Ansi.NORMAL}
+
+====
