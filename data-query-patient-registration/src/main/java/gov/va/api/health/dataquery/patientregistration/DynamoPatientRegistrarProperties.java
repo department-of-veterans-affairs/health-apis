@@ -17,7 +17,7 @@ import org.springframework.context.annotation.Configuration;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class DynamoPatientRegistrarOptions {
+public class DynamoPatientRegistrarProperties {
   /**
    * The AWS endpoint, e.g. "http://localhost:8000" for local development or
    * https://dynamodb.us-gov-west-1.amazonaws.com:443 for real AWS.

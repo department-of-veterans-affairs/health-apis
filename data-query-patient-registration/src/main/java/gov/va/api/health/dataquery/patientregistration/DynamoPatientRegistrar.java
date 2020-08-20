@@ -10,9 +10,7 @@ import com.amazonaws.services.dynamodbv2.document.Table;
 import com.amazonaws.services.dynamodbv2.document.spec.UpdateItemSpec;
 import com.amazonaws.services.dynamodbv2.model.ReturnValue;
 import com.amazonaws.services.dynamodbv2.model.ScalarAttributeType;
-import gov.va.api.health.dataquery.patientregistration.PatientRegistration.Access;
 import java.time.Instant;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
 import lombok.extern.slf4j.Slf4j;
@@ -23,19 +21,16 @@ import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Component;
 
 @Component
-@ConditionalOnProperty(
-    value = "dynamo-patient-registrar.enabled",
-    havingValue = "true",
-    matchIfMissing = false)
+@ConditionalOnProperty(value = "dynamo-patient-registrar.enabled", havingValue = "true")
 @Slf4j
 public class DynamoPatientRegistrar implements PatientRegistrar {
 
   private final Table table;
 
-  private final DynamoPatientRegistrarOptions options;
+  private final DynamoPatientRegistrarProperties options;
 
   /** Construct a new instance that will bind to a particular table as specified in the options. */
-  public DynamoPatientRegistrar(@Autowired DynamoPatientRegistrarOptions options) {
+  public DynamoPatientRegistrar(@Autowired DynamoPatientRegistrarProperties options) {
     AmazonDynamoDB client =
         AmazonDynamoDBClientBuilder.standard()
             .withEndpointConfiguration(
@@ -43,7 +38,9 @@ public class DynamoPatientRegistrar implements PatientRegistrar {
                     options.getEndpoint(), options.getRegion()))
             .build();
     DynamoDB dynamoDB = new DynamoDB(client);
+
     table = dynamoDB.getTable(options.getTable());
+
     this.options = options;
     log.info("Configuration: {}", options);
   }
@@ -59,24 +56,20 @@ public class DynamoPatientRegistrar implements PatientRegistrar {
         new UpdateItemSpec()
             .withPrimaryKey(Schema.primaryKey(icn))
             .withUpdateExpression(
-                "set lastAccessTime = :l, firstAccessTime = if_not_exists(firstAccessTime,:f)")
-            .withValueMap(Map.of(":f", now, ":l", now))
+                "set lastAccessTime = :l, "
+                    + "firstAccessTime = if_not_exists(firstAccessTime,:f), "
+                    + "application = if_not_exists(application,:a)")
+            .withValueMap(Map.of(":f", now, ":l", now, ":a", options.getApplicationName()))
             .withReturnValues(ReturnValue.ALL_NEW);
     Item item = table.updateItem(spec).getItem();
 
     var registration =
         PatientRegistration.builder()
             .icn(icn)
-            .access(
-                List.of(
-                    Access.builder()
-                        .application(options.getApplicationName())
-                        .firstAccessTime(
-                            Instant.ofEpochMilli(item.getLong(Schema.FIRST_ACCESS_TIME)))
-                        .lastAccessTime(Instant.ofEpochMilli(item.getLong(Schema.LAST_ACCESS_TIME)))
-                        .build()))
+            .application(options.getApplicationName())
+            .firstAccessTime(Instant.ofEpochMilli(item.getLong(Schema.FIRST_ACCESS_TIME)))
+            .lastAccessTime(Instant.ofEpochMilli(item.getLong(Schema.LAST_ACCESS_TIME)))
             .build();
-    registration.icn(icn);
     return new AsyncResult<>(registration);
   }
 

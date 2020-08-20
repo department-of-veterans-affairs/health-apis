@@ -65,7 +65,7 @@ public class PatientRegistrationFilter extends OncePerRequestFilter {
     }
     try {
       PatientRegistration registration = maybeRegistration.get(10, TimeUnit.MILLISECONDS);
-      log.info("Patient registration has completed. {}", registration.access());
+      log.info("Patient registration has completed. {}", registration);
     } catch (InterruptedException | ExecutionException | TimeoutException e) {
       log.warn("Ignoring patient registration results error.", e);
     }

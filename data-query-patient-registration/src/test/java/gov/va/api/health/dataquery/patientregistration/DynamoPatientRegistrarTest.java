@@ -11,11 +11,11 @@ class DynamoPatientRegistrarTest {
 
   @Test
   @SneakyThrows
-  void deleteMeAndDoSomethingMeaningful() {
+  void register() {
     try (var db = LocalDynamoDb.startDefault()) {
       assertThat(
               new DynamoPatientRegistrar(
-                      DynamoPatientRegistrarOptions.builder()
+                      DynamoPatientRegistrarProperties.builder()
                           .enabled(true)
                           .endpoint("http://localhost:" + db.port())
                           .region(db.signingRegion())

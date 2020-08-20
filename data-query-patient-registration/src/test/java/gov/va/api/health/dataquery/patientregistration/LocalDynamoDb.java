@@ -17,7 +17,9 @@ import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class LocalDynamoDb implements AutoCloseable {
 
   @Getter private final int port;
@@ -41,7 +43,7 @@ public class LocalDynamoDb implements AutoCloseable {
 
   public static LocalDynamoDb startDefault() {
     return LocalDynamoDb.builder()
-        .port(8000)
+        .port(8001)
         .tableName("patient-registration-local")
         .build()
         .start();
@@ -71,7 +73,8 @@ public class LocalDynamoDb implements AutoCloseable {
             .withKeySchema(ks)
             .withProvisionedThroughput(provisionedthroughput);
     table = dynamoDb.createTable(request);
-    table.describe();
+    log.info("{}", table.describe());
+    log.info("wow");
   }
 
   @SneakyThrows
