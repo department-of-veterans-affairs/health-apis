@@ -25,6 +25,8 @@ import gov.va.api.health.dstu2.api.datatypes.Coding;
 import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -74,6 +76,10 @@ public class Dstu2ObservationControllerTest {
             new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool", "cool", "cool")),
         repository,
         WitnessProtection.builder().identityService(ids).build());
+  }
+
+  private String encode(String value) {
+    return URLEncoder.encode(value, StandardCharsets.UTF_8);
   }
 
   @SneakyThrows
@@ -792,6 +798,7 @@ public class Dstu2ObservationControllerTest {
     testDates.putAll(
         Pair.of("gt2005-01-13", "lt2005-01-17"),
         List.of("2005-01-14T07:57:00Z", "2005-01-16T07:57:00Z"));
+    String encoded = encode("laboratory,vital-signs");
     for (var date : testDates.keySet()) {
       List<Observation> observations =
           observationsByPatient.get("p0").stream()
@@ -815,7 +822,9 @@ public class Dstu2ObservationControllerTest {
                       observations.size(),
                       link(
                           LinkRelation.first,
-                          "http://fonzy.com/cool/Observation?category=laboratory,vital-signs&date="
+                          "http://fonzy.com/cool/Observation?category="
+                              + encoded
+                              + "&date="
                               + date.getLeft()
                               + "&date="
                               + date.getRight()
@@ -824,7 +833,9 @@ public class Dstu2ObservationControllerTest {
                           10),
                       link(
                           LinkRelation.self,
-                          "http://fonzy.com/cool/Observation?category=laboratory,vital-signs&date="
+                          "http://fonzy.com/cool/Observation?category="
+                              + encoded
+                              + "&date="
                               + date.getLeft()
                               + "&date="
                               + date.getRight()
@@ -833,7 +844,9 @@ public class Dstu2ObservationControllerTest {
                           10),
                       link(
                           LinkRelation.last,
-                          "http://fonzy.com/cool/Observation?category=laboratory,vital-signs&date="
+                          "http://fonzy.com/cool/Observation?category="
+                              + encoded
+                              + "&date="
                               + date.getLeft()
                               + "&date="
                               + date.getRight()
@@ -878,6 +891,7 @@ public class Dstu2ObservationControllerTest {
     testDates.putAll(
         Pair.of("gt2005-01-13", "lt2005-01-17"),
         List.of("2005-01-14T07:57:00Z", "2005-01-16T07:57:00Z"));
+    String encoded = encode("laboratory,vital-signs");
     for (var date : testDates.keySet()) {
       List<Observation> observations =
           observationsByPatient.get("p0").stream()
@@ -901,7 +915,9 @@ public class Dstu2ObservationControllerTest {
                       observations.size(),
                       link(
                           LinkRelation.first,
-                          "http://fonzy.com/cool/Observation?category=laboratory,vital-signs&date="
+                          "http://fonzy.com/cool/Observation?category="
+                              + encoded
+                              + "&date="
                               + date.getLeft()
                               + "&date="
                               + date.getRight()
@@ -910,7 +926,9 @@ public class Dstu2ObservationControllerTest {
                           10),
                       link(
                           LinkRelation.self,
-                          "http://fonzy.com/cool/Observation?category=laboratory,vital-signs&date="
+                          "http://fonzy.com/cool/Observation?category="
+                              + encoded
+                              + "&date="
                               + date.getLeft()
                               + "&date="
                               + date.getRight()
@@ -919,7 +937,9 @@ public class Dstu2ObservationControllerTest {
                           10),
                       link(
                           LinkRelation.last,
-                          "http://fonzy.com/cool/Observation?category=laboratory,vital-signs&date="
+                          "http://fonzy.com/cool/Observation?category="
+                              + encoded
+                              + "&date="
                               + date.getLeft()
                               + "&date="
                               + date.getRight()

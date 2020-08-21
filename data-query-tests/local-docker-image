@@ -26,8 +26,6 @@ build() {
 
 
 run() {
-
-  ALLOW_URLS='.*/(metadata|AllergyIntolerance|Condition|DiagnosticReport|Immunization|Medication|MedicationOrder|MedicationRequest|MedicationStatement|Observation|Patient|Procedure)[?/].*'
   case $(uname) in
     Darwin) THIS_MACHINE="docker.for.mac.localhost";;
     Linux) THIS_MACHINE="localhost";;
@@ -47,8 +45,8 @@ run() {
     -e STU3_API_PATH=/stu3 \
     -e R4_API_PATH=/r4 \
     -e USER_PASSWORD=nope \
-    -e DSTU2_ALLOW_CRAWL_URLS="$ALLOW_URLS" \
-    -e R4_ALLOW_CRAWL_URLS="$ALLOW_URLS" \
+    -e DSTU2_ALLOW_CRAWL_URLS=".*\/(?!(Appointment))(?!(Encounter))(?!(MedicationDispense))[A-Za-z]*(\/|\?)[A-Za-z0-9-_&=]*" \
+    -e R4_ALLOW_CRAWL_URLS=".*\/(?!(Appointment))(?!(Encounter))(?!(MedicationDispense))(?!(Organization))[A-Za-z]*(\/|\?)[A-Za-z0-9-_&=]*" \
     -e CLIENT_ID=nope \
     -e CLIENT_SECRET=nope \
     -e PATIENT_ID=43000199 \

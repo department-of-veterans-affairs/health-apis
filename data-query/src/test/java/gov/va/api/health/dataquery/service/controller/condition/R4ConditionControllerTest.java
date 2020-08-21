@@ -19,6 +19,8 @@ import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.health.r4.api.bundle.BundleLink;
 import gov.va.api.health.uscorer4.api.resources.Condition;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -63,6 +65,10 @@ public class R4ConditionControllerTest {
         new R4Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool", "cool", "cool")),
         repository,
         WitnessProtection.builder().identityService(ids).build());
+  }
+
+  private String encode(String value) {
+    return URLEncoder.encode(value, StandardCharsets.UTF_8);
   }
 
   public void mockConditionIdentity(String publicId, String cdwId) {
@@ -330,6 +336,7 @@ public class R4ConditionControllerTest {
   @Test
   public void searchByPatientAndCategorySystem() {
     Multimap<String, Condition> conditionsByPatient = populateData();
+    String encoded = encode(PROBLEM_AND_DIAGNOSIS_SYSTEM + "|");
     assertThat(
             toJson(
                 controller()
@@ -342,23 +349,17 @@ public class R4ConditionControllerTest {
                     conditionsByPatient.get("p0").size(),
                     link(
                         BundleLink.LinkRelation.first,
-                        "http://fonzy.com/cool/Condition?category="
-                            + PROBLEM_AND_DIAGNOSIS_SYSTEM
-                            + "|&patient=p0",
+                        "http://fonzy.com/cool/Condition?category=" + encoded + "&patient=p0",
                         1,
                         10),
                     link(
                         BundleLink.LinkRelation.self,
-                        "http://fonzy.com/cool/Condition?category="
-                            + PROBLEM_AND_DIAGNOSIS_SYSTEM
-                            + "|&patient=p0",
+                        "http://fonzy.com/cool/Condition?category=" + encoded + "&patient=p0",
                         1,
                         10),
                     link(
                         BundleLink.LinkRelation.last,
-                        "http://fonzy.com/cool/Condition?category="
-                            + PROBLEM_AND_DIAGNOSIS_SYSTEM
-                            + "|&patient=p0",
+                        "http://fonzy.com/cool/Condition?category=" + encoded + "&patient=p0",
                         1,
                         10))));
   }
@@ -370,6 +371,7 @@ public class R4ConditionControllerTest {
         conditionsByPatient.get("p0").stream()
             .filter(c -> "Encounter Diagnosis".equalsIgnoreCase(c.category().get(0).text()))
             .collect(Collectors.toList());
+    String encoded = encode(PROBLEM_AND_DIAGNOSIS_SYSTEM + "|encounter-diagnosis");
     assertThat(
             toJson(
                 controller()
@@ -383,23 +385,17 @@ public class R4ConditionControllerTest {
                     conditionsP0.size(),
                     link(
                         BundleLink.LinkRelation.first,
-                        "http://fonzy.com/cool/Condition?category="
-                            + PROBLEM_AND_DIAGNOSIS_SYSTEM
-                            + "|encounter-diagnosis&patient=p0",
+                        "http://fonzy.com/cool/Condition?category=" + encoded + "&patient=p0",
                         1,
                         10),
                     link(
                         BundleLink.LinkRelation.self,
-                        "http://fonzy.com/cool/Condition?category="
-                            + PROBLEM_AND_DIAGNOSIS_SYSTEM
-                            + "|encounter-diagnosis&patient=p0",
+                        "http://fonzy.com/cool/Condition?category=" + encoded + "&patient=p0",
                         1,
                         10),
                     link(
                         BundleLink.LinkRelation.last,
-                        "http://fonzy.com/cool/Condition?category="
-                            + PROBLEM_AND_DIAGNOSIS_SYSTEM
-                            + "|encounter-diagnosis&patient=p0",
+                        "http://fonzy.com/cool/Condition?category=" + encoded + "&patient=p0",
                         1,
                         10))));
   }
@@ -468,6 +464,7 @@ public class R4ConditionControllerTest {
         conditionsByPatient.get("p1").stream()
             .filter(c -> "Resolved".equalsIgnoreCase(c.clinicalStatus().text()))
             .collect(Collectors.toList());
+    String encoded = encode(CLINICAL_STATUS_SYSTEM + "|inactive");
     assertThat(
             toJson(
                 controller()
@@ -482,22 +479,22 @@ public class R4ConditionControllerTest {
                     link(
                         BundleLink.LinkRelation.first,
                         "http://fonzy.com/cool/Condition?clinical-status="
-                            + CLINICAL_STATUS_SYSTEM
-                            + "|inactive&patient=p1",
+                            + encoded
+                            + "&patient=p1",
                         1,
                         10),
                     link(
                         BundleLink.LinkRelation.self,
                         "http://fonzy.com/cool/Condition?clinical-status="
-                            + CLINICAL_STATUS_SYSTEM
-                            + "|inactive&patient=p1",
+                            + encoded
+                            + "&patient=p1",
                         1,
                         10),
                     link(
                         BundleLink.LinkRelation.last,
                         "http://fonzy.com/cool/Condition?clinical-status="
-                            + CLINICAL_STATUS_SYSTEM
-                            + "|inactive&patient=p1",
+                            + encoded
+                            + "&patient=p1",
                         1,
                         10))));
   }
@@ -505,6 +502,7 @@ public class R4ConditionControllerTest {
   @Test
   public void searchByPatientAndClinicalStatusSystem() {
     Multimap<String, Condition> conditionsByPatient = populateData();
+    String encoded = encode(CLINICAL_STATUS_SYSTEM + "|");
     assertThat(
             toJson(
                 controller()
@@ -518,28 +516,29 @@ public class R4ConditionControllerTest {
                     link(
                         BundleLink.LinkRelation.first,
                         "http://fonzy.com/cool/Condition?clinical-status="
-                            + CLINICAL_STATUS_SYSTEM
-                            + "|&patient=p0",
+                            + encoded
+                            + "&patient=p0",
                         1,
                         10),
                     link(
                         BundleLink.LinkRelation.self,
                         "http://fonzy.com/cool/Condition?clinical-status="
-                            + CLINICAL_STATUS_SYSTEM
-                            + "|&patient=p0",
+                            + encoded
+                            + "&patient=p0",
                         1,
                         10),
                     link(
                         BundleLink.LinkRelation.last,
                         "http://fonzy.com/cool/Condition?clinical-status="
-                            + CLINICAL_STATUS_SYSTEM
-                            + "|&patient=p0",
+                            + encoded
+                            + "&patient=p0",
                         1,
                         10))));
   }
 
   @Test
   public void searchByPatientAndClinicalStatusUnsupportedSystemAndSupportedCode() {
+    String encoded = encode("http://nope|active");
     assertThat(
             toJson(controller().searchByPatientAndClinicalStatus("x", "http://nope|active", 1, 10)))
         .isEqualTo(
@@ -550,17 +549,17 @@ public class R4ConditionControllerTest {
                     0,
                     link(
                         BundleLink.LinkRelation.first,
-                        "http://fonzy.com/cool/Condition?clinical-status=http://nope|active&patient=x",
+                        "http://fonzy.com/cool/Condition?clinical-status=" + encoded + "&patient=x",
                         1,
                         10),
                     link(
                         BundleLink.LinkRelation.self,
-                        "http://fonzy.com/cool/Condition?clinical-status=http://nope|active&patient=x",
+                        "http://fonzy.com/cool/Condition?clinical-status=" + encoded + "&patient=x",
                         1,
                         10),
                     link(
                         BundleLink.LinkRelation.last,
-                        "http://fonzy.com/cool/Condition?clinical-status=http://nope|active&patient=x",
+                        "http://fonzy.com/cool/Condition?clinical-status=" + encoded + "&patient=x",
                         1,
                         10))));
   }
@@ -572,6 +571,7 @@ public class R4ConditionControllerTest {
         conditionsByPatient.get("p0").stream()
             .filter(c -> "Active".equalsIgnoreCase(c.clinicalStatus().text()))
             .collect(Collectors.toList());
+    String encoded = encode(CLINICAL_STATUS_SYSTEM + "|active");
     assertThat(
             toJson(
                 controller()
@@ -586,28 +586,29 @@ public class R4ConditionControllerTest {
                     link(
                         BundleLink.LinkRelation.first,
                         "http://fonzy.com/cool/Condition?clinical-status="
-                            + CLINICAL_STATUS_SYSTEM
-                            + "|active&patient=p0",
+                            + encoded
+                            + "&patient=p0",
                         1,
                         10),
                     link(
                         BundleLink.LinkRelation.self,
                         "http://fonzy.com/cool/Condition?clinical-status="
-                            + CLINICAL_STATUS_SYSTEM
-                            + "|active&patient=p0",
+                            + encoded
+                            + "&patient=p0",
                         1,
                         10),
                     link(
                         BundleLink.LinkRelation.last,
                         "http://fonzy.com/cool/Condition?clinical-status="
-                            + CLINICAL_STATUS_SYSTEM
-                            + "|active&patient=p0",
+                            + encoded
+                            + "&patient=p0",
                         1,
                         10))));
   }
 
   @Test
   public void searchByPatientAndExplicitlyNoSystemClinicalStatusReturnsEmptyBundle() {
+    String encoded = encode("|active");
     assertThat(toJson(controller().searchByPatientAndClinicalStatus("x", "|active", 1, 10)))
         .isEqualTo(
             toJson(
@@ -617,23 +618,24 @@ public class R4ConditionControllerTest {
                     0,
                     link(
                         BundleLink.LinkRelation.first,
-                        "http://fonzy.com/cool/Condition?clinical-status=|active&patient=x",
+                        "http://fonzy.com/cool/Condition?clinical-status=" + encoded + "&patient=x",
                         1,
                         10),
                     link(
                         BundleLink.LinkRelation.self,
-                        "http://fonzy.com/cool/Condition?clinical-status=|active&patient=x",
+                        "http://fonzy.com/cool/Condition?clinical-status=" + encoded + "&patient=x",
                         1,
                         10),
                     link(
                         BundleLink.LinkRelation.last,
-                        "http://fonzy.com/cool/Condition?clinical-status=|active&patient=x",
+                        "http://fonzy.com/cool/Condition?clinical-status=" + encoded + "&patient=x",
                         1,
                         10))));
   }
 
   @Test
   public void searchByPatientAndExplicityNoSystemCategoryReturnsEmptyBundle() {
+    String encoded = encode("|encounter-diagnosis");
     assertThat(toJson(controller().searchByPatientAndCategory("x", "|encounter-diagnosis", 1, 10)))
         .isEqualTo(
             toJson(
@@ -643,17 +645,17 @@ public class R4ConditionControllerTest {
                     0,
                     link(
                         BundleLink.LinkRelation.first,
-                        "http://fonzy.com/cool/Condition?category=|encounter-diagnosis&patient=x",
+                        "http://fonzy.com/cool/Condition?category=" + encoded + "&patient=x",
                         1,
                         10),
                     link(
                         BundleLink.LinkRelation.self,
-                        "http://fonzy.com/cool/Condition?category=|encounter-diagnosis&patient=x",
+                        "http://fonzy.com/cool/Condition?category=" + encoded + "&patient=x",
                         1,
                         10),
                     link(
                         BundleLink.LinkRelation.last,
-                        "http://fonzy.com/cool/Condition?category=|encounter-diagnosis&patient=x",
+                        "http://fonzy.com/cool/Condition?category=" + encoded + "&patient=x",
                         1,
                         10))));
   }
@@ -661,6 +663,7 @@ public class R4ConditionControllerTest {
   @Test
   public void searchByPatientAndMultipleClinicalStatus() {
     Multimap<String, Condition> conditionsByPatient = populateData();
+    String encoded = encode("active," + CLINICAL_STATUS_SYSTEM + "|resolved");
     assertThat(
             toJson(
                 controller()
@@ -674,23 +677,23 @@ public class R4ConditionControllerTest {
                     conditionsByPatient.get("p0").size(),
                     link(
                         BundleLink.LinkRelation.first,
-                        "http://fonzy.com/cool/Condition?clinical-status=active,"
-                            + CLINICAL_STATUS_SYSTEM
-                            + "|resolved&patient=p0",
+                        "http://fonzy.com/cool/Condition?clinical-status="
+                            + encoded
+                            + "&patient=p0",
                         1,
                         10),
                     link(
                         BundleLink.LinkRelation.self,
-                        "http://fonzy.com/cool/Condition?clinical-status=active,"
-                            + CLINICAL_STATUS_SYSTEM
-                            + "|resolved&patient=p0",
+                        "http://fonzy.com/cool/Condition?clinical-status="
+                            + encoded
+                            + "&patient=p0",
                         1,
                         10),
                     link(
                         BundleLink.LinkRelation.last,
-                        "http://fonzy.com/cool/Condition?clinical-status=active,"
-                            + CLINICAL_STATUS_SYSTEM
-                            + "|resolved&patient=p0",
+                        "http://fonzy.com/cool/Condition?clinical-status="
+                            + encoded
+                            + "&patient=p0",
                         1,
                         10))));
   }
