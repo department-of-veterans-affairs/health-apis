@@ -30,9 +30,9 @@ FILTER=" "
 [ -n "$LAB_USER" ] && LOGIN_ARGS="-Dlab.user=$LAB_USER" && FILTER="$LAB_USER"
 
 
-mvn -q -P'!standard' test \
+mvn -P'!standard' test \
   -Dgroups= \
-  -Dtest="*OauthLoginTest*" \
+  -Dtest="*OauthLogin*" \
   $LOGIN_ARGS \
   > $OUTPUT 2>&1
 

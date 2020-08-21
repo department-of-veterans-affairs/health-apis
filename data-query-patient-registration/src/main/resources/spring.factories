@@ -1,0 +1,3 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  gov.va.api.health.dataquery.patientregistration.DynamoPatientRegistrarProperties,\
+  gov.va.api.health.dataquery.patientregistration.NoopPatientRegistrarConfig
