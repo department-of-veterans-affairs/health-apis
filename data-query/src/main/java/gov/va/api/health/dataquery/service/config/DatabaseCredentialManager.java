@@ -18,6 +18,8 @@ import java.util.Optional;
 import javax.sql.DataSource;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
@@ -31,18 +33,18 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @Configuration
+@NoArgsConstructor
 @ConfigurationProperties(prefix = "spring.datasource")
 public class DatabaseCredentialManager {
   private String awsParameterName;
 
-  private String buildConnectionUrl(ConnectionInfo connectionInfo) {
-    // jdbc:sqlserver://localhost:1433;database=dq;sendStringParametersAsUnicode=false
+  String buildConnectionUrl(ConnectionInfo connectionInfo) {
     StringBuilder dbUrl = new StringBuilder();
     dbUrl.append("jdbc:sqlserver://");
     dbUrl.append(connectionInfo.host().get());
     dbUrl.append(":" + connectionInfo.port().get());
     dbUrl.append(";");
-    dbUrl.append("database=" + connectionInfo.db());
+    dbUrl.append("DatabaseName=" + connectionInfo.db().get());
     if (!connectionInfo.configurations().isEmpty()) {
       dbUrl.append(";");
       dbUrl.append(String.join(";", connectionInfo.configurations()));
@@ -54,6 +56,7 @@ public class DatabaseCredentialManager {
     try {
       ConnectionInfo connectionInfo =
           JacksonConfig.createMapper().readValue(parameterValue, ConnectionInfo.class);
+      log.info("Configuring database using AWS Parameter: {}", getAwsParameterName());
       if (allPresent(connectionInfo.db(), connectionInfo.host(), connectionInfo.port())) {
         dataSourceBuilder.url(buildConnectionUrl(connectionInfo));
       }
@@ -81,9 +84,10 @@ public class DatabaseCredentialManager {
    */
   @Bean
   public DataSource getDataSource() {
+    AWSSimpleSystemsManagement ssm = AWSSimpleSystemsManagementClientBuilder.defaultClient();
     DataSourceBuilder<?> dataSourceBuilder =
         getDataSourceProperties().initializeDataSourceBuilder();
-    getParameterValue(getAwsParameterName())
+    getParameterValue(ssm, getAwsParameterName())
         .ifPresent(param -> configureDataSource(dataSourceBuilder, param));
     return dataSourceBuilder.build();
   }
@@ -94,8 +98,7 @@ public class DatabaseCredentialManager {
     return new DataSourceProperties();
   }
 
-  private Optional<String> getParameterValue(String parameterName) {
-    AWSSimpleSystemsManagement ssm = AWSSimpleSystemsManagementClientBuilder.defaultClient();
+  Optional<String> getParameterValue(AWSSimpleSystemsManagement ssm, String parameterName) {
     GetParameterRequest req = new GetParameterRequest();
     req.setName(parameterName);
     req.setWithDecryption(true);
@@ -116,11 +119,12 @@ public class DatabaseCredentialManager {
   }
 
   @Value
+  @Builder
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
-  private static class ConnectionInfo {
+  static class ConnectionInfo {
     Optional<String> host;
 
-    Optional<String> port;
+    Optional<Integer> port;
 
     Optional<String> db;
 
@@ -151,7 +155,7 @@ public class DatabaseCredentialManager {
     }
 
     /** Lazy Getter. */
-    public Optional<String> port() {
+    public Optional<Integer> port() {
       return port == null ? Optional.empty() : port;
     }
 
