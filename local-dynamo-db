@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-CONTAINER_NAME=dqpr
+CONTAINER_NAME=patient-registration-db
 
 
 usage() {
