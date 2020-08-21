@@ -8,15 +8,77 @@
     <relativePath/>
   </parent>
   <artifactId>data-query-patient-registration</artifactId>
-  <version>3.0.27-SNAPSHOT</version>
+  <version>3.0.29-SNAPSHOT</version>
   <packaging>jar</packaging>
   <properties>
     <jacoco.coverage>0.94</jacoco.coverage>
+    <!-- DYNAMO DB AND AWS SDK VERSION NUMBERS ARE MATCHED -->
+    <!-- Consult dependency tree to see which version of the SDK the local db uses -->
+    <dynamo-db-local.version>1.13.2</dynamo-db-local.version>
+    <aws-java-sdk-bom.version>1.11.780</aws-java-sdk-bom.version>
   </properties>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>com.amazonaws</groupId>
+        <artifactId>aws-java-sdk-bom</artifactId>
+        <version>${aws-java-sdk-bom.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
   <dependencies>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
     </dependency>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-dynamodb</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-sts</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>DynamoDBLocal</artifactId>
+      <version>${dynamo-db-local.version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
+  <repositories>
+    <repository>
+      <id>dynamodb-local-oregon</id>
+      <name>DynamoDB Local Release Repository</name>
+      <url>https://s3-us-west-2.amazonaws.com/dynamodb-local/release</url>
+    </repository>
+  </repositories>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy-sql-lite</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>copy-dependencies</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.directory}/dependencies</outputDirectory>
+              <overWriteReleases>false</overWriteReleases>
+              <overWriteSnapshots>false</overWriteSnapshots>
+              <overWriteIfNewer>true</overWriteIfNewer>
+              <excludeTransitive>false</excludeTransitive>
+              <includeScope>test</includeScope>
+              <includeTypes>so,dll,dylib</includeTypes>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 </project>
