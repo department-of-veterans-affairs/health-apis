@@ -34,8 +34,8 @@ import javax.ws.rs.Path;
               "patient/Location.read",
               "patient/Medication.read",
               "patient/MedicationRequest.read",
-              "patient/Organization.read",
               "patient/Observation.read",
+              "patient/Organization.read",
               "patient/Patient.read",
               "patient/Procedure.read",
               "offline_access",
@@ -85,11 +85,11 @@ import javax.ws.rs.Path;
                           name = "patient/MedicationRequest.read",
                           description = "read medication requests"),
                       @OAuthScope(
-                          name = "patient/Organization.read",
-                          description = "read organization requests"),
-                      @OAuthScope(
                           name = "patient/Observation.read",
                           description = "read observations"),
+                        @OAuthScope(
+                            name = "patient/Organization.read",
+                            description = "read organization requests"),
                       @OAuthScope(name = "patient/Patient.read", description = "read patient"),
                       @OAuthScope(name = "patient/Procedure.read", description = "read procedures"),
                       @OAuthScope(name = "offline_access", description = "offline access"),
