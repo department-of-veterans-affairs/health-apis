@@ -1,0 +1,112 @@
+#!/usr/bin/env bash
+
+CONTAINER_NAME=patient-registration-db
+
+
+usage() {
+cat >&2 <<EOF
+$0 [options] <command>
+
+Interact with a local Dynamo DB.
+
+Options
+-n, --name <name>
+  The secret name
+
+Commands
+start
+  Start the database
+stop
+  Stop and destroy the database
+list
+  List the patient registration entries
+
+${1:-}
+EOF
+exit 1
+}
+
+main() {
+  local args
+  if ! args=$(getopt \
+    -l "debug" \
+    -o "" -- "$@")
+  then usage; fi
+  eval set -- "$args"
+  while true
+  do
+    case "$1" in
+      --debug) DEBUG=true;;
+      --) shift; break;;
+    esac
+    shift
+  done
+
+  if [ -z "${DEBUG:-}" ]; then DEBUG=false; fi
+  if [ "$DEBUG" == "true" ]; then set -x; fi
+
+  if [ $# != 1 ]; then usage "Command not specified"; fi
+  local command=$1
+  case $command in
+    s|start) start;;
+    k|stop) stop;;
+    l|list) list;;
+    *) usage "Unknown command: $command";;
+  esac
+}
+
+
+start() {
+  docker run \
+    --rm \
+    --name $CONTAINER_NAME \
+    -p 8000:8000 \
+    -d \
+    amazon/dynamodb-local:latest \
+    -jar DynamoDBLocal.jar -inMemory -sharedDb
+  if [ $? != 0 ]; then exit 1; fi
+
+  # Wait for the DB listener to be open
+  while [ -z "$(lsof -ti tcp:8000 -s tcp:listen)" ]; do sleep 1; done
+
+  # We still might try to create schema before the DB is ready
+  # even though the listener is open
+  while ! aws dynamodb \
+      --endpoint-url http://localhost:8000 \
+      create-table \
+      --table-name patient-registration-local \
+      --region us-gov-west-1 \
+      --attribute-definitions AttributeName=icn,AttributeType=S \
+      --key-schema AttributeName=icn,KeyType=HASH \
+      --provisioned-throughput ReadCapacityUnits=10,WriteCapacityUnits=5
+  do
+    sleep .25s
+  done
+  cat <<EOF
+
+To use this database when running locally, set the following environment variables
+
+DYNAMO_PATIENT_REGISTRAR_ENABLED=true
+AWS_ACCESS_KEY=anything
+AWS_SECRET_ACCESS_KEY=anything
+
+The AWS access key variables can contain any value, but must be set, e.g.
+
+DYNAMO_PATIENT_REGISTRAR_ENABLED=true AWS_ACCESS_KEY=x AWS_SECRET_ACCESS_KEY=x run-local.sh -d r
+
+EOF
+}
+
+stop() {
+  docker stop $CONTAINER_NAME
+}
+
+list() {
+  aws dynamodb \
+    --endpoint-url http://localhost:8000 \
+    scan \
+    --table-name patient-registration-local \
+    | jq '.Items[]|[.icn.S,.application.S,.firstAccessTime.N,.lastAccessTime.N]|join(" ")' -r
+}
+
+main "$@"

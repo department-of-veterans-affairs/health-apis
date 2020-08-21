@@ -65,7 +65,7 @@ public class PatientRegistrationFilter extends OncePerRequestFilter {
     }
     try {
       PatientRegistration registration = maybeRegistration.get(10, TimeUnit.MILLISECONDS);
-      log.info("Patient registration has completed. {}", registration.access());
+      log.debug("Patient registration has completed. {}", registration);
     } catch (InterruptedException | ExecutionException | TimeoutException e) {
       log.warn("Ignoring patient registration results error.", e);
     }
@@ -75,7 +75,7 @@ public class PatientRegistrationFilter extends OncePerRequestFilter {
       HttpServletResponse httpServletResponse, Optional<String> icn) {
     assert icn.isPresent() : "icn is empty";
     httpServletResponse.addHeader(REGISTRATION_HEADER, Instant.now().toString());
-    log.info("Registering patient");
+    log.debug("Registering patient");
     try {
       return registrar.register(icn.get());
     } catch (Exception e) {
