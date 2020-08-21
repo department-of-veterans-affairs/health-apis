@@ -46,7 +46,7 @@ run() {
     -e R4_API_PATH=/r4 \
     -e USER_PASSWORD=nope \
     -e DSTU2_ALLOW_CRAWL_URLS=".*\/(?!(Appointment))(?!(Encounter))(?!(MedicationDispense))[A-Za-z]*(\/|\?)[A-Za-z0-9-_&=]*" \
-    -e R4_ALLOW_CRAWL_URLS=".*\/(?!(Appointment))(?!(Encounter))(?!(MedicationDispense))(?!(Organization))[A-Za-z]*(\/|\?)[A-Za-z0-9-_&=]*" \
+    -e R4_ALLOW_CRAWL_URLS=".*\/(?!(Appointment))(?!(Encounter))(?!(MedicationDispense))[A-Za-z]*(\/|\?)[A-Za-z0-9-_&=]*" \
     -e CLIENT_ID=nope \
     -e CLIENT_SECRET=nope \
     -e PATIENT_ID=43000199 \
