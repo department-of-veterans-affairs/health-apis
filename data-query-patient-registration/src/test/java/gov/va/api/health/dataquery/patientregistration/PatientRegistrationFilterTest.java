@@ -12,8 +12,8 @@ import static org.mockito.Mockito.when;
 import gov.va.api.health.dataquery.patientregistration.PatientRegistrationFilter.IcnDistiller;
 import gov.va.api.health.dataquery.patientregistration.PatientRegistrationFilter.PatientReadIcnDistiller;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
@@ -48,7 +48,7 @@ class PatientRegistrationFilterTest {
   void filterAppliesWhenIcnIsDistilled() {
     when(distiller.distillFromUri(request)).thenReturn("123");
     var registration = PatientRegistration.builder().build();
-    when(registrar.register("123")).thenReturn(new AsyncResult<>(registration));
+    when(registrar.register("123")).thenReturn(new AsyncResult<>(registration).completable());
     invokeDoFilterInternal();
     verify(registrar).register("123");
   }
@@ -82,7 +82,7 @@ class PatientRegistrationFilterTest {
   void filterIgnoresRegistrarResultsErrors() {
     when(distiller.distillFromUri(request)).thenReturn("123");
     var registration = PatientRegistration.builder().build();
-    Future<PatientRegistration> future = mock(Future.class);
+    CompletableFuture<PatientRegistration> future = mock(CompletableFuture.class);
     when(future.isDone()).thenReturn(true);
     when(future.get(anyLong(), any(TimeUnit.class)))
         .thenThrow(new ExecutionException("fugazi", null));
@@ -95,7 +95,7 @@ class PatientRegistrationFilterTest {
   void filterIgnoresRegistrarResultsStillInProgress() {
     when(distiller.distillFromUri(request)).thenReturn("123");
     var registration = PatientRegistration.builder().build();
-    Future<PatientRegistration> future = mock(Future.class);
+    CompletableFuture<PatientRegistration> future = mock(CompletableFuture.class);
     when(future.isDone()).thenReturn(false);
     when(registrar.register("123")).thenReturn(future);
     invokeDoFilterInternal();

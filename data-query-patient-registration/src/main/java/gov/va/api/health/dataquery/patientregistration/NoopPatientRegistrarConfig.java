@@ -1,7 +1,7 @@
 package gov.va.api.health.dataquery.patientregistration;
 
 import java.time.Instant;
-import java.util.concurrent.Future;
+import java.util.concurrent.CompletableFuture;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,14 +18,15 @@ public class NoopPatientRegistrarConfig {
 
   public static class NoopPatientRegistrar implements PatientRegistrar {
     @Override
-    public Future<PatientRegistration> register(String icn) {
+    public CompletableFuture<PatientRegistration> register(String icn) {
       return new AsyncResult<>(
-          PatientRegistration.builder()
-              .icn(icn)
-              .application("noop")
-              .firstAccessTime(Instant.MIN)
-              .lastAccessTime(Instant.now())
-              .build());
+              PatientRegistration.builder()
+                  .icn(icn)
+                  .application("noop")
+                  .firstAccessTime(Instant.MIN)
+                  .lastAccessTime(Instant.now())
+                  .build())
+          .completable();
     }
   }
 }

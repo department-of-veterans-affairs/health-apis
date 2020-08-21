@@ -12,15 +12,15 @@ import com.amazonaws.services.dynamodbv2.model.ReturnValue;
 import com.amazonaws.services.dynamodbv2.model.ScalarAttributeType;
 import java.time.Instant;
 import java.util.Map;
-import java.util.concurrent.Future;
+import java.util.concurrent.CompletableFuture;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-@Component
+@Service
 @ConditionalOnProperty(value = "dynamo-patient-registrar.enabled", havingValue = "true")
 @Slf4j
 public class DynamoPatientRegistrar implements PatientRegistrar {
@@ -47,7 +47,7 @@ public class DynamoPatientRegistrar implements PatientRegistrar {
 
   @Override
   @Async
-  public Future<PatientRegistration> register(String icn) {
+  public CompletableFuture<PatientRegistration> register(String icn) {
     log.info("Registering {}", icn);
 
     long now = Instant.now().toEpochMilli();
@@ -70,7 +70,7 @@ public class DynamoPatientRegistrar implements PatientRegistrar {
             .firstAccessTime(Instant.ofEpochMilli(item.getLong(Schema.FIRST_ACCESS_TIME)))
             .lastAccessTime(Instant.ofEpochMilli(item.getLong(Schema.LAST_ACCESS_TIME)))
             .build();
-    return new AsyncResult<>(registration);
+    return new AsyncResult<>(registration).completable();
   }
 
   public static class Schema {
