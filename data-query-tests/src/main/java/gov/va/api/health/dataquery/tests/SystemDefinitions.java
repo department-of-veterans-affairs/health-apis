@@ -76,7 +76,7 @@ public final class SystemDefinitions {
         .medicationStatement("I2-AKEI5ITNUR5DGUNZXC33PYWXKU000000")
         .observation("I2-TSP35ALBRP4GSCBKRIWDO5CA54000000")
         .observations(observations())
-        .organization("I2-AKOTGEFSVKFJOPUKHIVJAH5VQU000000")
+        .organization("I2-ZJURFG76GQN5LW7WP56TXADUFM000000")
         .organizations(localAndLabOrganizations())
         .patient("1011537977V693883")
         .practitioner("I2-DBBL6FFRELZQJ64PWDI7FIVXIU000000")
