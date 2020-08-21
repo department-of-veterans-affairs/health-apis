@@ -16,6 +16,16 @@ public class OrganizationIncludesIcnMajigTest {
   }
 
   @Test
+  public void r4() {
+    ExtractIcnValidator.builder()
+        .majig(new R4OrganizationIncludesIcnMajig())
+        .body(gov.va.api.health.uscorer4.api.resources.Organization.builder().id("123").build())
+        .expectedIcns(List.of("NONE"))
+        .build()
+        .assertIcn();
+  }
+
+  @Test
   public void stu3() {
     ExtractIcnValidator.builder()
         .majig(new Stu3OrganizationIncludesIcnMajig())
