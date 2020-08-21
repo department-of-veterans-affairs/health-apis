@@ -153,8 +153,7 @@ class R4MetadataController {
                         SearchParam.DATE))
                 .build(),
             support("Organization")
-                .profileUrl(
-                    "http://hl7.org/fhir/us/core/StructureDefinition-us-core-organization.html")
+                .profileUrl("http://hl7.org/fhir/us/core/StructureDefinition-us-core-organization")
                 .search(
                     Set.of(
                         SearchParam.ID,

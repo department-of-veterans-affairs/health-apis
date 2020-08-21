@@ -87,9 +87,9 @@ import javax.ws.rs.Path;
                       @OAuthScope(
                           name = "patient/Observation.read",
                           description = "read observations"),
-                        @OAuthScope(
-                            name = "patient/Organization.read",
-                            description = "read organization requests"),
+                      @OAuthScope(
+                          name = "patient/Organization.read",
+                          description = "read organization requests"),
                       @OAuthScope(name = "patient/Patient.read", description = "read patient"),
                       @OAuthScope(name = "patient/Procedure.read", description = "read procedures"),
                       @OAuthScope(name = "offline_access", description = "offline access"),
