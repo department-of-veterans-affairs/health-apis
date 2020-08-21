@@ -7,6 +7,7 @@ import gov.va.api.health.uscorer4.api.LocationApi;
 import gov.va.api.health.uscorer4.api.MedicationApi;
 import gov.va.api.health.uscorer4.api.MedicationRequestApi;
 import gov.va.api.health.uscorer4.api.ObservationApi;
+import gov.va.api.health.uscorer4.api.OrganizationApi;
 import gov.va.api.health.uscorer4.api.PatientApi;
 import gov.va.api.health.uscorer4.api.ProcedureApi;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
@@ -33,6 +34,7 @@ import javax.ws.rs.Path;
               "patient/Location.read",
               "patient/Medication.read",
               "patient/MedicationRequest.read",
+              "patient/Organization.read",
               "patient/Observation.read",
               "patient/Patient.read",
               "patient/Procedure.read",
@@ -83,6 +85,9 @@ import javax.ws.rs.Path;
                           name = "patient/MedicationRequest.read",
                           description = "read medication requests"),
                       @OAuthScope(
+                          name = "patient/Organization.read",
+                          description = "read organization requests"),
+                      @OAuthScope(
                           name = "patient/Observation.read",
                           description = "read observations"),
                       @OAuthScope(name = "patient/Patient.read", description = "read patient"),
@@ -99,5 +104,6 @@ public interface R4DataQueryService
         MedicationApi,
         MedicationRequestApi,
         ObservationApi,
+        OrganizationApi,
         PatientApi,
         ProcedureApi {}

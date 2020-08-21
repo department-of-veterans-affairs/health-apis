@@ -152,6 +152,18 @@ class R4MetadataController {
                         SearchParam.CODE,
                         SearchParam.DATE))
                 .build(),
+            support("Organization")
+                .profileUrl(
+                    "http://hl7.org/fhir/us/core/StructureDefinition-us-core-organization.html")
+                .search(
+                    Set.of(
+                        SearchParam.ID,
+                        SearchParam.NAME,
+                        SearchParam.ADDRESS,
+                        SearchParam.ADDRESS_CITY,
+                        SearchParam.ADDRESS_STATE,
+                        SearchParam.ADDRESS_POSTALCODE))
+                .build(),
             support("Patient")
                 .profileUrl("http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient")
                 .search(
