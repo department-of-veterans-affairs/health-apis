@@ -41,6 +41,16 @@ public final class Transformers {
     return true;
   }
 
+  /** Return false if at least one value in the given list is a blank string, or a null object. */
+  public static boolean allPresent(Object... values) {
+    for (Object v : values) {
+      if (isBlank(v)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   /**
    * Converts the given object to a BigDecimal. Currently supports Integer, Double, and Long
    * objects.
