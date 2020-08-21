@@ -20,6 +20,8 @@ import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.health.r4.api.bundle.BundleLink;
 import gov.va.api.health.uscorer4.api.resources.Organization;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -94,6 +96,10 @@ public class R4OrganizationControllerTest {
         WitnessProtection.builder().identityService(ids).build());
   }
 
+  private String encode(String value) {
+    return URLEncoder.encode(value, StandardCharsets.UTF_8);
+  }
+
   private void mockOrganizationIdentity(String publicId, String cdwId) {
     ResourceIdentity resourceIdentity =
         ResourceIdentity.builder().system("CDW").resource("ORGANIZATION").identifier(cdwId).build();
@@ -153,7 +159,7 @@ public class R4OrganizationControllerTest {
         .isEqualTo(
             asJson(
                 bundleOf(
-                    "address=" + addressStreet,
+                    "address=" + encode(addressStreet),
                     List.of(OrganizationSamples.R4.create().organization()),
                     1,
                     15)));
@@ -169,7 +175,7 @@ public class R4OrganizationControllerTest {
         .isEqualTo(
             asJson(
                 bundleOf(
-                    "address-city=" + city,
+                    "address-city=" + encode(city),
                     List.of(OrganizationSamples.R4.create().organization()),
                     1,
                     15)));
@@ -276,7 +282,7 @@ public class R4OrganizationControllerTest {
         .isEqualTo(
             asJson(
                 bundleOf(
-                    "name=" + name,
+                    "name=" + encode(name),
                     List.of(OrganizationSamples.R4.create().organization()),
                     1,
                     15)));
@@ -297,7 +303,7 @@ public class R4OrganizationControllerTest {
                     1,
                     OrganizationSamples.R4.link(
                         BundleLink.LinkRelation.self,
-                        "http://fonzy.com/cool/Organization?name=" + name,
+                        "http://fonzy.com/cool/Organization?name=" + encode(name),
                         1,
                         0))));
   }
