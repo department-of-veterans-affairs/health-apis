@@ -25,6 +25,8 @@ import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
 import gov.va.api.health.dstu2.api.elements.Reference;
 import gov.va.api.health.ids.api.IdentityService;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -133,6 +135,7 @@ public class Dstu2DiagnosticReportControllerTest {
     entityManager.persistAndFlush(dm.entity());
     entityManager.persistAndFlush(dm.crossEntity());
     DiagnosticReport.Bundle bundle = controller().searchById(false, "800260864479:L", 1, 0);
+    String encoded = URLEncoder.encode("800260864479:L", StandardCharsets.UTF_8);
     assertThat(json(bundle))
         .isEqualTo(
             json(
@@ -142,7 +145,7 @@ public class Dstu2DiagnosticReportControllerTest {
                     1,
                     link(
                         BundleLink.LinkRelation.self,
-                        "http://fonzy.com/cool/DiagnosticReport?identifier=800260864479:L",
+                        "http://fonzy.com/cool/DiagnosticReport?identifier=" + encoded,
                         1,
                         0))));
   }
@@ -428,6 +431,7 @@ public class Dstu2DiagnosticReportControllerTest {
   }
 
   private void validateSearchByIdResult(DiagnosticReport.Bundle bundle) {
+    String encoded = URLEncoder.encode("800260864479:L", StandardCharsets.UTF_8);
     assertThat(Iterables.getOnlyElement(bundle.entry()).resource())
         .isEqualTo(Dstu2.create().report());
     assertThat(json(bundle))
@@ -439,17 +443,17 @@ public class Dstu2DiagnosticReportControllerTest {
                     1,
                     link(
                         BundleLink.LinkRelation.first,
-                        "http://fonzy.com/cool/DiagnosticReport?identifier=800260864479:L",
+                        "http://fonzy.com/cool/DiagnosticReport?identifier=" + encoded,
                         1,
                         15),
                     link(
                         BundleLink.LinkRelation.self,
-                        "http://fonzy.com/cool/DiagnosticReport?identifier=800260864479:L",
+                        "http://fonzy.com/cool/DiagnosticReport?identifier=" + encoded,
                         1,
                         15),
                     link(
                         BundleLink.LinkRelation.last,
-                        "http://fonzy.com/cool/DiagnosticReport?identifier=800260864479:L",
+                        "http://fonzy.com/cool/DiagnosticReport?identifier=" + encoded,
                         1,
                         15))));
   }

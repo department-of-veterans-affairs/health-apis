@@ -1,5 +1,7 @@
 package gov.va.api.health.dataquery.service.controller;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -145,7 +147,8 @@ public class ConfigurableBaseUrlPageLinks implements PageLinks {
     abstract B self();
 
     final Stream<String> toKeyValueString(Map.Entry<String, List<String>> entry) {
-      return entry.getValue().stream().map((value) -> entry.getKey() + '=' + value);
+      return entry.getValue().stream()
+          .map((value) -> entry.getKey() + '=' + URLEncoder.encode(value, StandardCharsets.UTF_8));
     }
 
     final String toUrl(int page) {

@@ -69,7 +69,7 @@ public final class SystemDefinitions {
         .diagnosticReport("I2-3ACWF6E3HPG6GLOSVWR2CIQNPI000000")
         .diagnosticReports(diagnosticReports())
         .immunization("I2-55SQNNDBJUHYLVNXKTTYZSIVQE000000")
-        .location("I2-2FPCKUIXVR7RJLLG34XVWGZERM000000")
+        .location("I2-4KG3N5YUSPTWD3DAFMLMRL5V5U000000")
         .locations(localAndLabLocations())
         .medication("I2-Q6VHYRTPQZ755P7JKKFUU5Q4TM000000")
         .medicationOrder("I2-J3UNHOOTERVSTBX4RMTN6MAMQ4000000")
@@ -105,11 +105,11 @@ public final class SystemDefinitions {
 
   private static TestIds.Locations localAndLabLocations() {
     return TestIds.Locations.builder()
-        .name("TEM MH PSO TRS IND93EH 3")
-        .addressCity("TEMPLE")
-        .addressPostalCode("76504")
-        .addressState("TEXAS")
-        .addressStreet("1901 VETERANS MEMORIAL DRIVE")
+        .name("VISUAL IMPAIRMENT SVCS OUTPATIENT REHAB (VISOR)")
+        .addressStreet("151 KNOLLCROFT ROAD")
+        .addressCity("LYONS")
+        .addressState("NJ")
+        .addressPostalCode("07939")
         .build();
   }
 

@@ -122,6 +122,17 @@ class R4MetadataController {
                 .profileUrl("http://hl7.org/fhir/us/core/StructureDefinition/us-core-immunization")
                 .search(Set.of(SearchParam.PATIENT))
                 .build(),
+            support("Location")
+                .profileUrl("http://hl7.org/fhir/us/core/StructureDefinition/us-core-location")
+                .search(
+                    Set.of(
+                        SearchParam.ID,
+                        SearchParam.NAME,
+                        SearchParam.ADDRESS,
+                        SearchParam.ADDRESS_CITY,
+                        SearchParam.ADDRESS_STATE,
+                        SearchParam.ADDRESS_POSTALCODE))
+                .build(),
             support("Medication")
                 .profileUrl("http://hl7.org/fhir/us/core/StructureDefinition/us-core-medication")
                 .build(),
@@ -240,7 +251,11 @@ class R4MetadataController {
     NAME("name", SearchParamType.string),
     PATIENT("patient", SearchParamType.reference),
     STATUS("status", SearchParamType.token),
-    TYPE("type", SearchParamType.token);
+    TYPE("type", SearchParamType.token),
+    ADDRESS("address", SearchParamType.string),
+    ADDRESS_CITY("address-city", SearchParamType.string),
+    ADDRESS_STATE("address-state", SearchParamType.string),
+    ADDRESS_POSTALCODE("address-postalcode", SearchParamType.string);
 
     private final String param;
 
