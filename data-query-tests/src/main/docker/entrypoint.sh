@@ -84,6 +84,7 @@ doTest() {
     -cp "$MAIN_JAR" -cp "$TESTS_JAR" \
     --include-classname=$pattern \
     --disable-ansi-colors \
+    --disable-banner \
     --fail-if-no-tests \
     | grep -vE "^	at ($noise)"
 

@@ -20,6 +20,8 @@ import gov.va.api.health.dstu2.api.bundle.BundleLink;
 import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -50,6 +52,10 @@ public class Dstu2DiagnosticReportControllerTest {
         WitnessProtection.builder().identityService(ids).build(),
         repository,
         null);
+  }
+
+  private String encode(String value) {
+    return URLEncoder.encode(value, StandardCharsets.UTF_8);
   }
 
   @SneakyThrows
@@ -242,6 +248,7 @@ public class Dstu2DiagnosticReportControllerTest {
             .filter(dr -> "LAB".equals(dr.category().coding().get(0).code()))
             .filter(dr -> "2020-01-20T07:57:00Z".equals(dr.issued()))
             .collect(Collectors.toList());
+    String encodedDate = encode("2020-01-20T07:57:00Z");
     assertThat(
             json(
                 controller()
@@ -257,7 +264,8 @@ public class Dstu2DiagnosticReportControllerTest {
                         BundleLink.LinkRelation.first,
                         "http://fonzy.com/cool/DiagnosticReport"
                             + "?category=LAB"
-                            + "&date=2020-01-20T07:57:00Z"
+                            + "&date="
+                            + encodedDate
                             + "&patient=p0",
                         1,
                         15),
@@ -265,7 +273,8 @@ public class Dstu2DiagnosticReportControllerTest {
                         BundleLink.LinkRelation.self,
                         "http://fonzy.com/cool/DiagnosticReport"
                             + "?category=LAB"
-                            + "&date=2020-01-20T07:57:00Z"
+                            + "&date="
+                            + encodedDate
                             + "&patient=p0",
                         1,
                         15),
@@ -273,7 +282,8 @@ public class Dstu2DiagnosticReportControllerTest {
                         BundleLink.LinkRelation.last,
                         "http://fonzy.com/cool/DiagnosticReport"
                             + "?category=LAB"
-                            + "&date=2020-01-20T07:57:00Z"
+                            + "&date="
+                            + encodedDate
                             + "&patient=p0",
                         1,
                         15))));
@@ -312,8 +322,10 @@ public class Dstu2DiagnosticReportControllerTest {
                         BundleLink.LinkRelation.first,
                         "http://fonzy.com/cool/DiagnosticReport"
                             + "?category=LAB"
-                            + "&date=gt2020-01-20T07:57:00Z"
-                            + "&date=le2020-01-25T07:57:00Z"
+                            + "&date="
+                            + encode("gt2020-01-20T07:57:00Z")
+                            + "&date="
+                            + encode("le2020-01-25T07:57:00Z")
                             + "&patient=p0",
                         1,
                         15),
@@ -321,8 +333,10 @@ public class Dstu2DiagnosticReportControllerTest {
                         BundleLink.LinkRelation.self,
                         "http://fonzy.com/cool/DiagnosticReport"
                             + "?category=LAB"
-                            + "&date=gt2020-01-20T07:57:00Z"
-                            + "&date=le2020-01-25T07:57:00Z"
+                            + "&date="
+                            + encode("gt2020-01-20T07:57:00Z")
+                            + "&date="
+                            + encode("le2020-01-25T07:57:00Z")
                             + "&patient=p0",
                         1,
                         15),
@@ -330,8 +344,10 @@ public class Dstu2DiagnosticReportControllerTest {
                         BundleLink.LinkRelation.last,
                         "http://fonzy.com/cool/DiagnosticReport"
                             + "?category=LAB"
-                            + "&date=gt2020-01-20T07:57:00Z"
-                            + "&date=le2020-01-25T07:57:00Z"
+                            + "&date="
+                            + encode("gt2020-01-20T07:57:00Z")
+                            + "&date="
+                            + encode("le2020-01-25T07:57:00Z")
                             + "&patient=p0",
                         1,
                         15))));
@@ -455,6 +471,7 @@ public class Dstu2DiagnosticReportControllerTest {
     DatamartDiagnosticReport datamart =
         DiagnosticReportSamples.DatamartV2.create().diagnosticReport();
     repository.save(entity(datamart));
+    String encoded = encode("800260864479:L");
     assertThat(json(controller().searchByIdentifier(true, "800260864479:L", 1, 0)))
         .isEqualTo(
             json(
@@ -464,7 +481,7 @@ public class Dstu2DiagnosticReportControllerTest {
                     1,
                     link(
                         BundleLink.LinkRelation.self,
-                        "http://fonzy.com/cool/DiagnosticReport?identifier=800260864479:L",
+                        "http://fonzy.com/cool/DiagnosticReport?identifier=" + encoded,
                         1,
                         0))));
   }
