@@ -17,6 +17,8 @@ import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.health.stu3.api.bundle.BundleLink;
 import gov.va.api.health.stu3.api.resources.Location;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
@@ -88,6 +90,10 @@ public class Stu3LocationControllerTest {
         WitnessProtection.builder().identityService(ids).build());
   }
 
+  private String encode(String value) {
+    return URLEncoder.encode(value, StandardCharsets.UTF_8);
+  }
+
   @Test
   public void read() {
     String publicId = "abc";
@@ -145,6 +151,7 @@ public class Stu3LocationControllerTest {
   @Test
   public void searchByAddress() {
     String street = "1901 VETERANS MEMORIAL DRIVE";
+    String encoded = encode(street);
     String publicId = "abc";
     String cdwId = "123";
     String orgPubId = "def";
@@ -161,17 +168,17 @@ public class Stu3LocationControllerTest {
                     List.of(LocationSamples.Stu3.create().location(publicId, orgPubId)),
                     LocationSamples.Stu3.link(
                         BundleLink.LinkRelation.first,
-                        "http://fonzy.com/cool/Location?address=" + street,
+                        "http://fonzy.com/cool/Location?address=" + encoded,
                         1,
                         1),
                     LocationSamples.Stu3.link(
                         BundleLink.LinkRelation.self,
-                        "http://fonzy.com/cool/Location?address=" + street,
+                        "http://fonzy.com/cool/Location?address=" + encoded,
                         1,
                         1),
                     LocationSamples.Stu3.link(
                         BundleLink.LinkRelation.last,
-                        "http://fonzy.com/cool/Location?address=" + street,
+                        "http://fonzy.com/cool/Location?address=" + encoded,
                         1,
                         1))));
   }
@@ -245,6 +252,7 @@ public class Stu3LocationControllerTest {
   @Test
   public void searchByName() {
     String name = "TEM MH PSO TRS IND93EH";
+    String encoded = encode(name);
     String publicId = "abc";
     String cdwId = "123";
     String orgPubId = "def";
@@ -261,17 +269,17 @@ public class Stu3LocationControllerTest {
                     List.of(LocationSamples.Stu3.create().location(publicId, orgPubId)),
                     LocationSamples.Stu3.link(
                         BundleLink.LinkRelation.first,
-                        "http://fonzy.com/cool/Location?name=" + name,
+                        "http://fonzy.com/cool/Location?name=" + encoded,
                         1,
                         1),
                     LocationSamples.Stu3.link(
                         BundleLink.LinkRelation.self,
-                        "http://fonzy.com/cool/Location?name=" + name,
+                        "http://fonzy.com/cool/Location?name=" + encoded,
                         1,
                         1),
                     LocationSamples.Stu3.link(
                         BundleLink.LinkRelation.last,
-                        "http://fonzy.com/cool/Location?name=" + name,
+                        "http://fonzy.com/cool/Location?name=" + encoded,
                         1,
                         1))));
   }

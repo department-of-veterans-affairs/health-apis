@@ -25,6 +25,8 @@ import gov.va.api.health.dstu2.api.bundle.BundleLink.LinkRelation;
 import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -289,6 +291,7 @@ public class Dstu2ConditionControllerTest {
   @Test
   public void searchByPatientAndMultipleClinicalStatus() {
     Multimap<String, Condition> conditionsByPatient = populateData();
+    String encoded = URLEncoder.encode("active,resolved", StandardCharsets.UTF_8);
     assertThat(json(controller().searchByPatientAndClinicalStatus("p0", "active,resolved", 1, 10)))
         .isEqualTo(
             json(
@@ -298,17 +301,17 @@ public class Dstu2ConditionControllerTest {
                     conditionsByPatient.get("p0").size(),
                     link(
                         LinkRelation.first,
-                        "http://fonzy.com/cool/Condition?clinicalstatus=active,resolved&patient=p0",
+                        "http://fonzy.com/cool/Condition?clinicalstatus=" + encoded + "&patient=p0",
                         1,
                         10),
                     link(
                         LinkRelation.self,
-                        "http://fonzy.com/cool/Condition?clinicalstatus=active,resolved&patient=p0",
+                        "http://fonzy.com/cool/Condition?clinicalstatus=" + encoded + "&patient=p0",
                         1,
                         10),
                     link(
                         LinkRelation.last,
-                        "http://fonzy.com/cool/Condition?clinicalstatus=active,resolved&patient=p0",
+                        "http://fonzy.com/cool/Condition?clinicalstatus=" + encoded + "&patient=p0",
                         1,
                         10))));
   }
