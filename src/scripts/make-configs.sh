@@ -101,6 +101,13 @@ checkForUnsetValues() {
   [ $? == 0 ] && rm -v $target.$MARKER
 }
 
+comment() {
+  local project="$1"
+  local profile="$2"
+  local target="$REPO/$project/config/application-${profile}.properties"  
+  cat >> $target
+}
+
 whoDis() {
   local me=$(git config --global --get user.name)
   [ -z "$me" ] && me=$USER
@@ -132,5 +139,18 @@ configValue data-query $PROFILE spring.datasource.password "$DATAQUERY_DB_PASSWO
 configValue data-query $PROFILE well-known.capabilities "context-standalone-patient, launch-ehr, permission-offline, permission-patient"
 configValue data-query $PROFILE well-known.response-type-supported "code, refresh_token"
 configValue data-query $PROFILE well-known.scopes-supported "patient/DiagnosticReport.read, patient/Patient.read, offline_access"
-
+addValue data-query $PROFILE dynamo-patient-registrar.enabled false
+addValue data-query $PROFILE dynamo-patient-registrar.endpoint "http://localhost:8000"
+addValue data-query $PROFILE dynamo-patient-registrar.table patient-registration-local
+addValue data-query $PROFILE dynamo-patient-registrar.region us-gov-west-1
 checkForUnsetValues data-query $PROFILE
+
+comment data-query $PROFILE <<EOF
+#
+# To use AWS, use the following values and set
+# environment variables: AWS_ACCESS_KEY, AWS_SECRET_ACCESS_KEY
+#
+#dynamo-patient-registrar.endpoint=https://dynamodb.us-gov-west-1.amazonaws.com
+#dynamo-patient-registrar.table=patient-registration-qa
+#dynamo-patient-registrar.region=us-gov-west-1
+EOF
