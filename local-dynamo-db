@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-CONTAINER_NAME=dqddb
+CONTAINER_NAME=dqpr
 
 
 usage() {
