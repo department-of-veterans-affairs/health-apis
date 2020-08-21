@@ -145,7 +145,7 @@ public class OrganizationSamples {
                               .display("COMMUNITY BASED OUTPATIENT CLINIC")
                               .build()))
                   .build())
-          .name("NEW AMSTERDAM CBOC")
+          .name(ORGANIZATION_NAME)
           .telecom(
               asList(
                   gov.va.api.health.dstu2.api.datatypes.ContactPoint.builder()
@@ -168,110 +168,12 @@ public class OrganizationSamples {
           .address(
               Collections.singletonList(
                   gov.va.api.health.dstu2.api.datatypes.Address.builder()
-                      .line(Arrays.asList("10 MONROE AVE, SUITE 6B", "PO BOX 4160"))
-                      .city("NEW AMSTERDAM")
-                      .state("OH")
-                      .postalCode("44444-4160")
-                      .build()))
-          .build();
-    }
-  }
-
-  @AllArgsConstructor(staticName = "create")
-  static class Stu3 {
-
-    static gov.va.api.health.stu3.api.resources.Organization.Bundle asBundle(
-        String baseUrl,
-        Collection<gov.va.api.health.stu3.api.resources.Organization> organizations,
-        gov.va.api.health.stu3.api.bundle.BundleLink... links) {
-      return gov.va.api.health.stu3.api.resources.Organization.Bundle.builder()
-          .resourceType("Bundle")
-          .type(gov.va.api.health.stu3.api.bundle.AbstractBundle.BundleType.searchset)
-          .total(organizations.size())
-          .link(Arrays.asList(links))
-          .entry(
-              organizations.stream()
-                  .map(
-                      c ->
-                          gov.va.api.health.stu3.api.resources.Organization.Entry.builder()
-                              .fullUrl(baseUrl + "/Organization/" + c.id())
-                              .resource(c)
-                              .search(
-                                  gov.va.api.health.stu3.api.bundle.AbstractEntry.Search.builder()
-                                      .mode(
-                                          gov.va.api.health.stu3.api.bundle.AbstractEntry.SearchMode
-                                              .match)
-                                      .build())
-                              .build())
-                  .collect(Collectors.toList()))
-          .build();
-    }
-
-    static gov.va.api.health.stu3.api.bundle.BundleLink link(
-        gov.va.api.health.stu3.api.bundle.BundleLink.LinkRelation rel,
-        String base,
-        int page,
-        int count) {
-      return gov.va.api.health.stu3.api.bundle.BundleLink.builder()
-          .relation(rel)
-          .url(base + "&page=" + page + "&_count=" + count)
-          .build();
-    }
-
-    public gov.va.api.health.stu3.api.resources.Organization organization() {
-      return organization("1234");
-    }
-
-    gov.va.api.health.stu3.api.resources.Organization organization(String id) {
-      return gov.va.api.health.stu3.api.resources.Organization.builder()
-          .resourceType("Organization")
-          .id(id)
-          .identifier(
-              asList(
-                  gov.va.api.health.stu3.api.resources.Organization.OrganizationIdentifier.builder()
-                      .system("http://hl7.org/fhir/sid/us-npi")
-                      .value("1205983228")
-                      .build()))
-          .active(true)
-          .type(
-              asList(
-                  gov.va.api.health.stu3.api.datatypes.CodeableConcept.builder()
-                      .coding(
-                          asList(
-                              gov.va.api.health.stu3.api.datatypes.Coding.builder()
-                                  .system("institution")
-                                  .code("CBOC")
-                                  .display("COMMUNITY BASED OUTPATIENT CLINIC")
-                                  .build()))
-                      .build()))
-          .name("NEW AMSTERDAM CBOC")
-          .telecom(
-              asList(
-                  gov.va.api.health.stu3.api.datatypes.ContactPoint.builder()
-                      .system(
-                          gov.va.api.health.stu3.api.datatypes.ContactPoint.ContactPointSystem
-                              .phone)
-                      .value("(800) 555-7710")
-                      .build(),
-                  gov.va.api.health.stu3.api.datatypes.ContactPoint.builder()
-                      .system(
-                          gov.va.api.health.stu3.api.datatypes.ContactPoint.ContactPointSystem.fax)
-                      .value("800-555-7720")
-                      .build(),
-                  gov.va.api.health.stu3.api.datatypes.ContactPoint.builder()
-                      .system(
-                          gov.va.api.health.stu3.api.datatypes.ContactPoint.ContactPointSystem
-                              .phone)
-                      .value("800-555-7730")
-                      .build()))
-          .address(
-              asList(
-                  gov.va.api.health.stu3.api.resources.Organization.OrganizationAddress.builder()
-                      .line(asList("10 MONROE AVE, SUITE 6B", "PO BOX 4160"))
-                      .text("10 MONROE AVE, SUITE 6B PO BOX 4160 NEW AMSTERDAM OH 44444-4160")
-                      .city("NEW AMSTERDAM")
-                      .state("OH")
-                      .postalCode("44444-4160")
+                      .line(
+                          Arrays.asList(
+                              ORGANIZATION_ADDRESS_LINE_ONE, ORGANIZATION_ADDRESS_LINE_TWO))
+                      .city(ORGANIZATION_ADDRESS_CITY)
+                      .state(ORGANIZATION_ADDRESS_STATE)
+                      .postalCode(ORGANIZATION_ADDRESS_POSTAL_CODE)
                       .build()))
           .build();
     }
@@ -355,6 +257,130 @@ public class OrganizationSamples {
           .address(
               asList(
                   gov.va.api.health.r4.api.datatypes.Address.builder()
+                      .line(asList(ORGANIZATION_ADDRESS_LINE_ONE, ORGANIZATION_ADDRESS_LINE_TWO))
+                      .text(
+                          Stream.of(
+                                  ORGANIZATION_ADDRESS_LINE_ONE,
+                                  ORGANIZATION_ADDRESS_LINE_TWO,
+                                  ORGANIZATION_ADDRESS_CITY,
+                                  ORGANIZATION_ADDRESS_STATE,
+                                  ORGANIZATION_ADDRESS_POSTAL_CODE)
+                              .collect(Collectors.joining(" ")))
+                      .city(ORGANIZATION_ADDRESS_CITY)
+                      .state(ORGANIZATION_ADDRESS_STATE)
+                      .postalCode(ORGANIZATION_ADDRESS_POSTAL_CODE)
+                      .build()))
+          .build();
+    }
+  }
+
+  @AllArgsConstructor(staticName = "create")
+  static class Stu3 {
+
+    static gov.va.api.health.stu3.api.resources.Organization.Bundle asBundle(
+        String baseUrl,
+<<<<<<< HEAD
+        Collection<Organization> organizations,
+        int totalRecords,
+        BundleLink... links) {
+      return gov.va.api.health.uscorer4.api.resources.Organization.Bundle.builder()
+          .resourceType("Bundle")
+          .type(gov.va.api.health.r4.api.bundle.AbstractBundle.BundleType.searchset)
+          .total(totalRecords)
+=======
+        Collection<gov.va.api.health.stu3.api.resources.Organization> organizations,
+        gov.va.api.health.stu3.api.bundle.BundleLink... links) {
+      return gov.va.api.health.stu3.api.resources.Organization.Bundle.builder()
+          .resourceType("Bundle")
+          .type(gov.va.api.health.stu3.api.bundle.AbstractBundle.BundleType.searchset)
+          .total(organizations.size())
+>>>>>>> 87f7abf23cd17cd76933740a20f4fb4345451817
+          .link(Arrays.asList(links))
+          .entry(
+              organizations.stream()
+                  .map(
+                      c ->
+                          gov.va.api.health.stu3.api.resources.Organization.Entry.builder()
+                              .fullUrl(baseUrl + "/Organization/" + c.id())
+                              .resource(c)
+                              .search(
+                                  gov.va.api.health.stu3.api.bundle.AbstractEntry.Search.builder()
+                                      .mode(
+                                          gov.va.api.health.stu3.api.bundle.AbstractEntry.SearchMode
+                                              .match)
+                                      .build())
+                              .build())
+                  .collect(Collectors.toList()))
+          .build();
+    }
+
+    static gov.va.api.health.stu3.api.bundle.BundleLink link(
+        gov.va.api.health.stu3.api.bundle.BundleLink.LinkRelation rel,
+        String base,
+        int page,
+        int count) {
+      return gov.va.api.health.stu3.api.bundle.BundleLink.builder()
+          .relation(rel)
+          .url(base + "&page=" + page + "&_count=" + count)
+          .build();
+    }
+
+    public gov.va.api.health.stu3.api.resources.Organization organization() {
+      return organization("1234");
+    }
+
+    gov.va.api.health.stu3.api.resources.Organization organization(String id) {
+      return gov.va.api.health.stu3.api.resources.Organization.builder()
+          .resourceType("Organization")
+          .id(id)
+          .identifier(
+              asList(
+                  gov.va.api.health.stu3.api.resources.Organization.OrganizationIdentifier.builder()
+                      .system("http://hl7.org/fhir/sid/us-npi")
+                      .value("1205983228")
+                      .build()))
+          .active(true)
+<<<<<<< HEAD
+=======
+          .type(
+              asList(
+                  gov.va.api.health.stu3.api.datatypes.CodeableConcept.builder()
+                      .coding(
+                          asList(
+                              gov.va.api.health.stu3.api.datatypes.Coding.builder()
+                                  .system("institution")
+                                  .code("CBOC")
+                                  .display("COMMUNITY BASED OUTPATIENT CLINIC")
+                                  .build()))
+                      .build()))
+>>>>>>> 87f7abf23cd17cd76933740a20f4fb4345451817
+          .name(ORGANIZATION_NAME)
+          .telecom(
+              asList(
+                  gov.va.api.health.stu3.api.datatypes.ContactPoint.builder()
+                      .system(
+                          gov.va.api.health.stu3.api.datatypes.ContactPoint.ContactPointSystem
+                              .phone)
+                      .value("(800) 555-7710")
+                      .build(),
+                  gov.va.api.health.stu3.api.datatypes.ContactPoint.builder()
+                      .system(
+                          gov.va.api.health.stu3.api.datatypes.ContactPoint.ContactPointSystem.fax)
+                      .value("800-555-7720")
+                      .build(),
+                  gov.va.api.health.stu3.api.datatypes.ContactPoint.builder()
+                      .system(
+                          gov.va.api.health.stu3.api.datatypes.ContactPoint.ContactPointSystem
+                              .phone)
+                      .value("800-555-7730")
+                      .build()))
+          .address(
+              asList(
+<<<<<<< HEAD
+                  gov.va.api.health.r4.api.datatypes.Address.builder()
+=======
+                  gov.va.api.health.stu3.api.resources.Organization.OrganizationAddress.builder()
+>>>>>>> 87f7abf23cd17cd76933740a20f4fb4345451817
                       .line(asList(ORGANIZATION_ADDRESS_LINE_ONE, ORGANIZATION_ADDRESS_LINE_TWO))
                       .text(
                           Stream.of(

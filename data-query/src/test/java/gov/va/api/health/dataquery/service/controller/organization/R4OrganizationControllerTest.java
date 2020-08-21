@@ -20,6 +20,11 @@ import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.health.r4.api.bundle.BundleLink;
 import gov.va.api.health.uscorer4.api.resources.Organization;
+<<<<<<< HEAD
+=======
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+>>>>>>> 87f7abf23cd17cd76933740a20f4fb4345451817
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -94,6 +99,13 @@ public class R4OrganizationControllerTest {
         WitnessProtection.builder().identityService(ids).build());
   }
 
+<<<<<<< HEAD
+=======
+  private String encode(String value) {
+    return URLEncoder.encode(value, StandardCharsets.UTF_8);
+  }
+
+>>>>>>> 87f7abf23cd17cd76933740a20f4fb4345451817
   private void mockOrganizationIdentity(String publicId, String cdwId) {
     ResourceIdentity resourceIdentity =
         ResourceIdentity.builder().system("CDW").resource("ORGANIZATION").identifier(cdwId).build();
@@ -153,7 +165,11 @@ public class R4OrganizationControllerTest {
         .isEqualTo(
             asJson(
                 bundleOf(
+<<<<<<< HEAD
                     "address=" + addressStreet,
+=======
+                    "address=" + encode(addressStreet),
+>>>>>>> 87f7abf23cd17cd76933740a20f4fb4345451817
                     List.of(OrganizationSamples.R4.create().organization()),
                     1,
                     15)));
@@ -169,7 +185,11 @@ public class R4OrganizationControllerTest {
         .isEqualTo(
             asJson(
                 bundleOf(
+<<<<<<< HEAD
                     "address-city=" + city,
+=======
+                    "address-city=" + encode(city),
+>>>>>>> 87f7abf23cd17cd76933740a20f4fb4345451817
                     List.of(OrganizationSamples.R4.create().organization()),
                     1,
                     15)));
@@ -276,7 +296,11 @@ public class R4OrganizationControllerTest {
         .isEqualTo(
             asJson(
                 bundleOf(
+<<<<<<< HEAD
                     "name=" + name,
+=======
+                    "name=" + encode(name),
+>>>>>>> 87f7abf23cd17cd76933740a20f4fb4345451817
                     List.of(OrganizationSamples.R4.create().organization()),
                     1,
                     15)));
@@ -297,7 +321,11 @@ public class R4OrganizationControllerTest {
                     1,
                     OrganizationSamples.R4.link(
                         BundleLink.LinkRelation.self,
+<<<<<<< HEAD
                         "http://fonzy.com/cool/Organization?name=" + name,
+=======
+                        "http://fonzy.com/cool/Organization?name=" + encode(name),
+>>>>>>> 87f7abf23cd17cd76933740a20f4fb4345451817
                         1,
                         0))));
   }
