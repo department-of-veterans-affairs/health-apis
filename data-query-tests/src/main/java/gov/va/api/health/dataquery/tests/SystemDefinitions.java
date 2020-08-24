@@ -62,6 +62,7 @@ public final class SystemDefinitions {
   }
 
   private static TestIds labIds() {
+    /* IDS encoded with secret production key */
     return TestIds.builder()
         .publicIds(true)
         .allergyIntolerance("I2-5XYSWFRZ637QKNR6IIRKYHA5RY000000")
@@ -76,7 +77,7 @@ public final class SystemDefinitions {
         .medicationStatement("I2-AKEI5ITNUR5DGUNZXC33PYWXKU000000")
         .observation("I2-TSP35ALBRP4GSCBKRIWDO5CA54000000")
         .observations(observations())
-        .organization("I2-ZJURFG76GQN5LW7WP56TXADUFM000000")
+        .organization("I2-AKOTGEFSVKFJOPUKHIVJAH5VQU000000")
         .organizations(localAndLabOrganizations())
         .patient("1011537977V693883")
         .practitioner("I2-DBBL6FFRELZQJ64PWDI7FIVXIU000000")
@@ -205,6 +206,7 @@ public final class SystemDefinitions {
    *     If test breaks, they may no longer work at the Orlando VAMC and will need to be replaced.
    */
   private static TestIds productionCdwIds() {
+    /* IDS encoded with secret production key */
     return TestIds.builder()
         .publicIds(true)
         .allergyIntolerance("I2-A6U4FCERBNSVAFYF6CMUOOHMBPJOJFVSJAWGW5TYE3EOC6TQ2OBQ0000")
