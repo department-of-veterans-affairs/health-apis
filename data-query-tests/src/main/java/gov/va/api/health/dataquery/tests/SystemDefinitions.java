@@ -206,7 +206,7 @@ public final class SystemDefinitions {
    *     If test breaks, they may no longer work at the Orlando VAMC and will need to be replaced.
    */
   private static TestIds productionCdwIds() {
-    /* IDS encoded with secret production key */`
+    /* IDS encoded with secret production key */
     return TestIds.builder()
         .publicIds(true)
         .allergyIntolerance("I2-A6U4FCERBNSVAFYF6CMUOOHMBPJOJFVSJAWGW5TYE3EOC6TQ2OBQ0000")
