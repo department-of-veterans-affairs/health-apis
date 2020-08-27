@@ -169,7 +169,6 @@ class PatientRegistrationFilterTest {
   void patientSearchIcnDistillerFindsIcnForPatientSearchByIdUrls(String uri) {
     String expected = uri.replaceAll("^.*=", "");
     when(request.getParameter("_id")).thenReturn(expected);
-    System.out.println(request.getRequestURI());
     String icn =
         new PatientSearchByIcnDistiller()
             .distillFromUri(requestForUri(StringUtils.substringBefore(uri, "?")));
