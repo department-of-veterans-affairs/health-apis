@@ -17,6 +17,7 @@ public class PatientRegistrationConfig {
     var registration = new FilterRegistrationBean<PatientRegistrationFilter>();
     registration.setFilter(PatientRegistrationFilter.builder().registrar(registrar).build());
     registration.addUrlPatterns("/dstu2/Patient/*", "/stu3/Patient/*", "/r4/Patient/*");
+    registration.addUrlPatterns("/dstu2/Patient", "/stu3/Patient", "/r4/Patient");
     return registration;
   }
 }

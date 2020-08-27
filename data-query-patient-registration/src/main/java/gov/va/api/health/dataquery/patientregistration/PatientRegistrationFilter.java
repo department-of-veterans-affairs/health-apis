@@ -30,7 +30,7 @@ public class PatientRegistrationFilter extends OncePerRequestFilter {
   @Builder.Default private final List<IcnDistiller> distillers = defaultDistillers();
 
   private static List<IcnDistiller> defaultDistillers() {
-    return List.of(new PatientReadIcnDistiller());
+    return List.of(new PatientReadIcnDistiller(), new PatientSearchByIcnDistiller());
   }
 
   private Optional<String> distillIcnFromRequest(HttpServletRequest httpServletRequest) {
@@ -101,6 +101,22 @@ public class PatientRegistrationFilter extends OncePerRequestFilter {
       var matcher = PATIENT_URI_PATTERN.matcher(request.getRequestURI());
       if (matcher.matches()) {
         return matcher.group(1);
+      }
+      return null;
+    }
+  }
+
+  static class PatientSearchByIcnDistiller implements IcnDistiller {
+
+    @Override
+    public String distillFromUri(HttpServletRequest request) {
+      if (request.getRequestURI().endsWith("/Patient")) {
+        if (request.getParameter("_id") != null) {
+          return request.getParameter("_id");
+        }
+        if (request.getParameter("identifier") != null) {
+          return request.getParameter("identifier");
+        }
       }
       return null;
     }
