@@ -279,22 +279,12 @@ public class OrganizationSamples {
 
     static gov.va.api.health.stu3.api.resources.Organization.Bundle asBundle(
         String baseUrl,
-<<<<<<< HEAD
-        Collection<Organization> organizations,
-        int totalRecords,
-        BundleLink... links) {
-      return gov.va.api.health.uscorer4.api.resources.Organization.Bundle.builder()
-          .resourceType("Bundle")
-          .type(gov.va.api.health.r4.api.bundle.AbstractBundle.BundleType.searchset)
-          .total(totalRecords)
-=======
         Collection<gov.va.api.health.stu3.api.resources.Organization> organizations,
         gov.va.api.health.stu3.api.bundle.BundleLink... links) {
       return gov.va.api.health.stu3.api.resources.Organization.Bundle.builder()
           .resourceType("Bundle")
           .type(gov.va.api.health.stu3.api.bundle.AbstractBundle.BundleType.searchset)
           .total(organizations.size())
->>>>>>> 87f7abf23cd17cd76933740a20f4fb4345451817
           .link(Arrays.asList(links))
           .entry(
               organizations.stream()
@@ -340,8 +330,6 @@ public class OrganizationSamples {
                       .value("1205983228")
                       .build()))
           .active(true)
-<<<<<<< HEAD
-=======
           .type(
               asList(
                   gov.va.api.health.stu3.api.datatypes.CodeableConcept.builder()
@@ -353,7 +341,6 @@ public class OrganizationSamples {
                                   .display("COMMUNITY BASED OUTPATIENT CLINIC")
                                   .build()))
                       .build()))
->>>>>>> 87f7abf23cd17cd76933740a20f4fb4345451817
           .name(ORGANIZATION_NAME)
           .telecom(
               asList(
@@ -376,11 +363,7 @@ public class OrganizationSamples {
                       .build()))
           .address(
               asList(
-<<<<<<< HEAD
-                  gov.va.api.health.r4.api.datatypes.Address.builder()
-=======
                   gov.va.api.health.stu3.api.resources.Organization.OrganizationAddress.builder()
->>>>>>> 87f7abf23cd17cd76933740a20f4fb4345451817
                       .line(asList(ORGANIZATION_ADDRESS_LINE_ONE, ORGANIZATION_ADDRESS_LINE_TWO))
                       .text(
                           Stream.of(
