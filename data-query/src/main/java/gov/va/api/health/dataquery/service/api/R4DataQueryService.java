@@ -1,7 +1,9 @@
 package gov.va.api.health.dataquery.service.api;
 
+import gov.va.api.health.r4.api.MetadataApi;
 import gov.va.api.health.uscorer4.api.AllergyIntoleranceApi;
 import gov.va.api.health.uscorer4.api.ConditionApi;
+import gov.va.api.health.uscorer4.api.DiagnosticReportApi;
 import gov.va.api.health.uscorer4.api.ImmunizationApi;
 import gov.va.api.health.uscorer4.api.LocationApi;
 import gov.va.api.health.uscorer4.api.MedicationApi;
@@ -30,12 +32,11 @@ import javax.ws.rs.Path;
             scopes = {
               "patient/AllergyIntolerance.read",
               "patient/Condition.read",
+              "patient/DiagnosticReport.read",
               "patient/Immunization.read",
-              "patient/Location.read",
               "patient/Medication.read",
               "patient/MedicationRequest.read",
               "patient/Observation.read",
-              "patient/Organization.read",
               "patient/Patient.read",
               "patient/Procedure.read",
               "offline_access",
@@ -75,9 +76,11 @@ import javax.ws.rs.Path;
                           description = "read allergy intolerances"),
                       @OAuthScope(name = "patient/Condition.read", description = "read conditions"),
                       @OAuthScope(
+                          name = "patient/DiagnosticReport.read",
+                          description = "read diagnostic reports"),
+                      @OAuthScope(
                           name = "patient/Immunization.read",
                           description = "read immunizations"),
-                      @OAuthScope(name = "patient/Location.read", description = "read locations"),
                       @OAuthScope(
                           name = "patient/Medication.read",
                           description = "read medications"),
@@ -87,9 +90,6 @@ import javax.ws.rs.Path;
                       @OAuthScope(
                           name = "patient/Observation.read",
                           description = "read observations"),
-                      @OAuthScope(
-                          name = "patient/Organization.read",
-                          description = "read organization requests"),
                       @OAuthScope(name = "patient/Patient.read", description = "read patient"),
                       @OAuthScope(name = "patient/Procedure.read", description = "read procedures"),
                       @OAuthScope(name = "offline_access", description = "offline access"),
@@ -99,10 +99,12 @@ import javax.ws.rs.Path;
 public interface R4DataQueryService
     extends AllergyIntoleranceApi,
         ConditionApi,
+        DiagnosticReportApi,
         ImmunizationApi,
         LocationApi,
         MedicationApi,
         MedicationRequestApi,
+        MetadataApi,
         ObservationApi,
         OrganizationApi,
         PatientApi,

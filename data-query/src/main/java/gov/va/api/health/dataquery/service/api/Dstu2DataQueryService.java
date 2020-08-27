@@ -10,7 +10,9 @@ import gov.va.api.health.argonaut.api.MedicationStatementApi;
 import gov.va.api.health.argonaut.api.ObservationApi;
 import gov.va.api.health.argonaut.api.PatientApi;
 import gov.va.api.health.argonaut.api.ProcedureApi;
+import gov.va.api.health.dstu2.api.LocationApi;
 import gov.va.api.health.dstu2.api.MetadataApi;
+import gov.va.api.health.dstu2.api.OrganizationApi;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
@@ -106,11 +108,13 @@ public interface Dstu2DataQueryService
         ConditionApi,
         DiagnosticReportApi,
         ImmunizationApi,
+        LocationApi,
         MedicationOrderApi,
         MedicationApi,
         MedicationStatementApi,
         MetadataApi,
         ObservationApi,
+        OrganizationApi,
         PatientApi,
         ProcedureApi {
   class DataQueryServiceException extends RuntimeException {
