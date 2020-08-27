@@ -33,10 +33,12 @@ public class PatientRegistrationFilterSpringTest {
   @Test
   void filterIsApplied() {
     try (var db = LocalDynamoDb.startDefault()) {
-      ResponseEntity<String> response = rest.getForEntity("/fugazi/Patient/123", String.class);
-      // TODO replace with useful tests as the filter is implemented
-      System.out.println(response);
-      assertThat(response.getHeaders().get(PatientRegistrationFilter.REGISTRATION_HEADER))
+      ResponseEntity<String> readResponse = rest.getForEntity("/fugazi/Patient/123", String.class);
+      assertThat(readResponse.getHeaders().get(PatientRegistrationFilter.REGISTRATION_HEADER))
+          .isNotNull();
+      ResponseEntity<String> searchResponse =
+          rest.getForEntity("/fugazi/Patient?_id=123", String.class);
+      assertThat(searchResponse.getHeaders().get(PatientRegistrationFilter.REGISTRATION_HEADER))
           .isNotNull();
     }
   }

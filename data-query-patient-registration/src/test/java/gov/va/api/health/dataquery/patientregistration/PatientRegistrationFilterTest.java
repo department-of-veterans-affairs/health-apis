@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 
 import gov.va.api.health.dataquery.patientregistration.PatientRegistrationFilter.IcnDistiller;
 import gov.va.api.health.dataquery.patientregistration.PatientRegistrationFilter.PatientReadIcnDistiller;
+import gov.va.api.health.dataquery.patientregistration.PatientRegistrationFilter.PatientSearchByIcnDistiller;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -29,11 +30,14 @@ import org.springframework.scheduling.annotation.AsyncResult;
 
 @ExtendWith(MockitoExtension.class)
 class PatientRegistrationFilterTest {
-
   @Mock FilterChain chain;
+
   @Mock IcnDistiller distiller;
+
   @Mock PatientRegistrar registrar;
+
   @Mock HttpServletRequest request;
+
   @Mock HttpServletResponse response;
 
   PatientRegistrationFilter filter() {
@@ -121,6 +125,59 @@ class PatientRegistrationFilterTest {
   void patientReadIcnDistillerFindsIcnForPatientReadUrls(String uri) {
     String expected = uri.replaceAll("^.*/", "");
     String icn = new PatientReadIcnDistiller().distillFromUri(requestForUri(uri));
+    assertThat(icn).isEqualTo(expected);
+  }
+
+  @ParameterizedTest
+  @ValueSource(
+      strings = {
+        "/r4/Immunization?_id=123",
+        "/dstu2/Observation?_id=123V456",
+        "/whatever/r4/Practitioner?_id=123"
+      })
+  void patientSearchIcnDistillerDoesNotFindIcnForNonPatientSearchByIdUrls(String uri) {
+    String icn = new PatientSearchByIcnDistiller().distillFromUri(requestForUri(uri));
+    assertThat(icn).isNull();
+  }
+
+  @ParameterizedTest
+  @ValueSource(
+      strings = {
+        "/r4/Immunization?identifier=123",
+        "/dstu2/Observation?identifier=123V456",
+        "/whatever/r4/Practitioner?identifier=123"
+      })
+  void patientSearchIcnDistillerDoesNotFindIcnForNonPatientSearchByIdentifierUrls(String uri) {
+    String icn = new PatientSearchByIcnDistiller().distillFromUri(requestForUri(uri));
+    assertThat(icn).isNull();
+  }
+
+  @ParameterizedTest
+  @ValueSource(
+      strings = {
+        "/r4/Patient?_id=123",
+        "/dstu2/Patient?_id=123V456",
+        "/whatever/r4/Patient?_id=123"
+      })
+  void patientSearchIcnDistillerFindsIcnForPatientSearchByIdUrls(String uri) {
+    String expected = uri.replaceAll("^.*=", "");
+    when(request.getParameter("_id")).thenReturn(expected);
+    String icn = new PatientSearchByIcnDistiller().distillFromUri(requestForUri(uri));
+    assertThat(icn).isEqualTo(expected);
+  }
+
+  @ParameterizedTest
+  @ValueSource(
+      strings = {
+        "/r4/Patient?identifier=123",
+        "/dstu2/Patient?identifier=123V456",
+        "/whatever/r4/Patient?identifier=123"
+      })
+  void patientSearchIcnDistillerFindsIcnForPatientSearchByIdentifierUrls(String uri) {
+    String expected = uri.replaceAll("^.*=", "");
+    when(request.getParameter("_id")).thenReturn(null);
+    when(request.getParameter("identifier")).thenReturn(expected);
+    String icn = new PatientSearchByIcnDistiller().distillFromUri(requestForUri(uri));
     assertThat(icn).isEqualTo(expected);
   }
 
