@@ -3,9 +3,12 @@ package gov.va.api.health.dataquery.patientregistration;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
+import gov.va.api.health.dataquery.patientregistration.PatientRegistrationFilter.PatientReadIcnDistiller;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -30,15 +33,12 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 public class PatientRegistrationFilterSpringTest {
   @Autowired TestRestTemplate rest;
 
-  @Test
-  void filterIsApplied() {
+  @ParameterizedTest
+  @ValueSource(strings = {"/fugazi/Patient/123", "/fugazi/Patient?_id=123", "/fugazi/Patient?identifier=123"})
+  void filterApplied(String url) {
     try (var db = LocalDynamoDb.startDefault()) {
-      ResponseEntity<String> readResponse = rest.getForEntity("/fugazi/Patient/123", String.class);
-      assertThat(readResponse.getHeaders().get(PatientRegistrationFilter.REGISTRATION_HEADER))
-          .isNotNull();
-      ResponseEntity<String> searchResponse =
-          rest.getForEntity("/fugazi/Patient?_id=123", String.class);
-      assertThat(searchResponse.getHeaders().get(PatientRegistrationFilter.REGISTRATION_HEADER))
+      ResponseEntity<String> response = rest.getForEntity(url, String.class);
+      assertThat(response.getHeaders().get(PatientRegistrationFilter.REGISTRATION_HEADER))
           .isNotNull();
     }
   }
