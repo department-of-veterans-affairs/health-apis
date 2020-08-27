@@ -20,6 +20,7 @@ import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -133,10 +134,13 @@ class PatientRegistrationFilterTest {
       strings = {
         "/r4/Immunization?_id=123",
         "/dstu2/Observation?_id=123V456",
-        "/whatever/r4/Practitioner?_id=123"
+        "/whatever/r4/Practitioner?_id=123",
+        "/whatever/tehe/PatientGotcha?_id=123"
       })
   void patientSearchIcnDistillerDoesNotFindIcnForNonPatientSearchByIdUrls(String uri) {
-    String icn = new PatientSearchByIcnDistiller().distillFromUri(requestForUri(uri));
+    String icn =
+        new PatientSearchByIcnDistiller()
+            .distillFromUri(requestForUri(StringUtils.substringBefore(uri, "?")));
     assertThat(icn).isNull();
   }
 
@@ -145,10 +149,13 @@ class PatientRegistrationFilterTest {
       strings = {
         "/r4/Immunization?identifier=123",
         "/dstu2/Observation?identifier=123V456",
-        "/whatever/r4/Practitioner?identifier=123"
+        "/whatever/r4/Practitioner?identifier=123",
+        "/whatever/tehe/PatientGotcha?identifier=123"
       })
   void patientSearchIcnDistillerDoesNotFindIcnForNonPatientSearchByIdentifierUrls(String uri) {
-    String icn = new PatientSearchByIcnDistiller().distillFromUri(requestForUri(uri));
+    String icn =
+        new PatientSearchByIcnDistiller()
+            .distillFromUri(requestForUri(StringUtils.substringBefore(uri, "?")));
     assertThat(icn).isNull();
   }
 
@@ -162,7 +169,10 @@ class PatientRegistrationFilterTest {
   void patientSearchIcnDistillerFindsIcnForPatientSearchByIdUrls(String uri) {
     String expected = uri.replaceAll("^.*=", "");
     when(request.getParameter("_id")).thenReturn(expected);
-    String icn = new PatientSearchByIcnDistiller().distillFromUri(requestForUri(uri));
+    System.out.println(request.getRequestURI());
+    String icn =
+        new PatientSearchByIcnDistiller()
+            .distillFromUri(requestForUri(StringUtils.substringBefore(uri, "?")));
     assertThat(icn).isEqualTo(expected);
   }
 
@@ -177,7 +187,9 @@ class PatientRegistrationFilterTest {
     String expected = uri.replaceAll("^.*=", "");
     when(request.getParameter("_id")).thenReturn(null);
     when(request.getParameter("identifier")).thenReturn(expected);
-    String icn = new PatientSearchByIcnDistiller().distillFromUri(requestForUri(uri));
+    String icn =
+        new PatientSearchByIcnDistiller()
+            .distillFromUri(requestForUri(StringUtils.substringBefore(uri, "?")));
     assertThat(icn).isEqualTo(expected);
   }
 

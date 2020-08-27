@@ -107,12 +107,10 @@ public class PatientRegistrationFilter extends OncePerRequestFilter {
   }
 
   static class PatientSearchByIcnDistiller implements IcnDistiller {
-    private static final Pattern PATIENT_SEARCH_URI_PATTERN = Pattern.compile(".*/Patient.*");
 
     @Override
     public String distillFromUri(HttpServletRequest request) {
-      var matcher = PATIENT_SEARCH_URI_PATTERN.matcher(request.getRequestURI());
-      if (matcher.matches()) {
+      if (request.getRequestURI().endsWith("/Patient")) {
         if (request.getParameter("_id") != null) {
           return request.getParameter("_id");
         }

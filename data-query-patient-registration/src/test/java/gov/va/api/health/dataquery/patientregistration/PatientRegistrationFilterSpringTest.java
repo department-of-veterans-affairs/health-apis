@@ -3,9 +3,7 @@ package gov.va.api.health.dataquery.patientregistration;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
-import gov.va.api.health.dataquery.patientregistration.PatientRegistrationFilter.PatientReadIcnDistiller;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -34,7 +32,12 @@ public class PatientRegistrationFilterSpringTest {
   @Autowired TestRestTemplate rest;
 
   @ParameterizedTest
-  @ValueSource(strings = {"/fugazi/Patient/123", "/fugazi/Patient?_id=123", "/fugazi/Patient?identifier=123"})
+  @ValueSource(
+      strings = {
+        "/fugazi/Patient/123",
+        "/fugazi/Patient?_id=123",
+        "/fugazi/Patient?identifier=123"
+      })
   void filterApplied(String url) {
     try (var db = LocalDynamoDb.startDefault()) {
       ResponseEntity<String> response = rest.getForEntity(url, String.class);
