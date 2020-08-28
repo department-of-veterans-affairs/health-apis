@@ -47,12 +47,18 @@ import javax.ws.rs.Path;
             title = "US Core R4",
             version = "v1",
             description =
-                " This service is compliant with the FHIR US Core Implementation"
-                    + " Guide. This service does not provide or replace the consultation, guidance,"
-                    + " or care of a health care professional or other qualified provider."
-                    + " This service provides a supplement for informational and educational"
-                    + " purposes only. Health care professionals and other qualified providers"
-                    + " should continue to consult authoritative records when making decisions."),
+                "In adherence to changes per the [21st Century Cures Act]"
+                    + "(https://www.federalregister.gov/documents/2020/05/01/2020-07419"
+                    + "/21st-century-cures-act-interoperability-information-blocking-and-the"
+                    + "-onc-health-it-certification#h-13), the Veteran Health API profile follows "
+                    + "the US Core Implementation Guide. Per these regulations, we will be adding "
+                    + "new FHIR resources to this tab as they are available.\n\n"
+                    + "This service is compliant with the FHIR US Core Implementation Guide. "
+                    + "This service does not provide or replace the consultation, guidance, or "
+                    + "care of a health care professional or other qualified provider. This service"
+                    + " provides a supplement for informational and educational purposes only. "
+                    + "Health care professionals and other qualified providers should continue to "
+                    + "consult authoritative records when making decisions."),
     servers = {
       @Server(url = "https://sandbox-api.va.gov/services/fhir/v0/r4/", description = "Sandbox")
     },
