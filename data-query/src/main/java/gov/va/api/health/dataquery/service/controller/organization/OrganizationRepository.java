@@ -44,20 +44,28 @@ public interface OrganizationRepository
         Root<OrganizationEntity> root,
         CriteriaQuery<?> criteriaQuery,
         CriteriaBuilder criteriaBuilder) {
-      List<Predicate> predicates = new ArrayList<>(4);
+      List<Predicate> explicitPredicates = new ArrayList<>(4);
+      List<Predicate> inferredPredicates = new ArrayList<>(4);
       if (street != null) {
-        predicates.add(criteriaBuilder.equal(root.get("street"), street()));
+        inferredPredicates.add(criteriaBuilder.equal(root.get("street"), street()));
       }
       if (city != null) {
-        predicates.add(criteriaBuilder.equal(root.get("city"), city()));
+        explicitPredicates.add(criteriaBuilder.equal(root.get("city"), city()));
+      } else {
+        inferredPredicates.add(criteriaBuilder.equal(root.get("city"), street()));
       }
       if (state != null) {
-        predicates.add(criteriaBuilder.equal(root.get("state"), state()));
+        explicitPredicates.add(criteriaBuilder.equal(root.get("state"), state()));
+      } else {
+        inferredPredicates.add(criteriaBuilder.equal(root.get("state"), street()));
       }
       if (postalCode != null) {
-        predicates.add(criteriaBuilder.equal(root.get("postalCode"), postalCode()));
+        explicitPredicates.add(criteriaBuilder.equal(root.get("postalCode"), postalCode()));
+      } else {
+        inferredPredicates.add(criteriaBuilder.equal(root.get("postalCode"), street()));
       }
-      return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+      criteriaBuilder.or(inferredPredicates.toArray(new Predicate[0]));
+      return criteriaBuilder.and(explicitPredicates.toArray(new Predicate[0]));
     }
   }
 }
