@@ -10,7 +10,6 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 @DataJpaTest
 public class OrganizationRepositoryTest {
-
   @Autowired OrganizationRepository repository;
 
   @Test
@@ -31,32 +30,22 @@ public class OrganizationRepositoryTest {
 
   private void searchByAddressContainingCityAndByAddressStateAndByAddressPostalCode() {
     assertThat(
-        repository.findAll(
-            OrganizationRepository.AddressSpecification.builder()
-                .street("Second City")
-                .state("SecondState")
-                .postalCode("22222")
-                .build()))
-        .isEqualTo(List.of(Samples.ENTITY_TWO);
-  }
-
-  private void searchByAddressContainingStateAndByAddressPostalCode() {
-    assertThat(
-        repository.findAll(
-            OrganizationRepository.AddressSpecification.builder()
-                .street("FirstState")
-                .postalCode("22222")
-                .build()))
-        .isEqualTo(Lists.emptyList());
+            repository.findAll(
+                OrganizationRepository.AddressSpecification.builder()
+                    .street("SecondCity")
+                    .state("SecondState")
+                    .postalCode("22222")
+                    .build()))
+        .isEqualTo(List.of(Samples.ENTITY_TWO));
   }
 
   private void searchByAddressContainingPostalCodeAndByAddressCity() {
     assertThat(
-        repository.findAll(
-            OrganizationRepository.AddressSpecification.builder()
-                .street("22222")
-                .city("FirstCity")
-                .build()))
+            repository.findAll(
+                OrganizationRepository.AddressSpecification.builder()
+                    .street("22222")
+                    .city("FirstCity")
+                    .build()))
         .isEqualTo(List.of(Samples.ENTITY_THREE));
   }
 
@@ -69,13 +58,23 @@ public class OrganizationRepositoryTest {
         .isEqualTo(List.of(Samples.ENTITY_TWO, Samples.ENTITY_THREE));
   }
 
+  private void searchByAddressContainingStateAndByAddressPostalCode() {
+    assertThat(
+            repository.findAll(
+                OrganizationRepository.AddressSpecification.builder()
+                    .street("FirstState")
+                    .postalCode("22222")
+                    .build()))
+        .isEqualTo(Lists.emptyList());
+  }
+
   private void searchByAddressContainingStreet() {
     assertThat(
-        repository.findAll(
-            OrganizationRepository.AddressSpecification.builder()
-                .street("123 First Street")
-                .build()))
-        .isEqualTo(List.of(Samples.ENTITY_ONE);
+            repository.findAll(
+                OrganizationRepository.AddressSpecification.builder()
+                    .street("123 First Street")
+                    .build()))
+        .isEqualTo(List.of(Samples.ENTITY_ONE));
   }
 
   static class Samples {
@@ -93,10 +92,10 @@ public class OrganizationRepositoryTest {
 
     private static final OrganizationEntity ENTITY_TWO =
         OrganizationEntity.builder()
-            .cdwId("123")
+            .cdwId("456")
             .npi("npi")
             .name("Second")
-            .street("456 First Street")
+            .street("456 Second Street")
             .city("SecondCity")
             .state("SecondState")
             .postalCode("22222")

@@ -27,6 +27,14 @@ public interface OrganizationRepository
 
   Page<OrganizationEntity> findByNpi(String npi, Pageable pageable);
 
+  /**
+   * If address and another address-* parameter is specified, assume the more specific parameter
+   * value, e.g. address=FL&address-postalcode=32934 would use FL for state, street, city, and
+   * country and 32934 for postal code.
+   *
+   * Example:
+   * (state=FL or street=FL or city=FL or country=FL) and (postalCode=32934).
+   */
   @Value
   @Builder
   class AddressSpecification implements Specification<OrganizationEntity> {
@@ -64,8 +72,16 @@ public interface OrganizationRepository
       } else {
         inferredPredicates.add(criteriaBuilder.equal(root.get("postalCode"), street()));
       }
-      criteriaBuilder.or(inferredPredicates.toArray(new Predicate[0]));
-      return criteriaBuilder.and(explicitPredicates.toArray(new Predicate[0]));
+      Predicate inferredPredicate =
+          criteriaBuilder.or(inferredPredicates.toArray(new Predicate[0]));
+      Predicate explicitPredicate =
+          criteriaBuilder.and(explicitPredicates.toArray(new Predicate[0]));
+      if (inferredPredicates.isEmpty() || street() == null) {
+        return explicitPredicate;
+      } else if (explicitPredicates.isEmpty()) {
+        return inferredPredicate;
+      }
+      return criteriaBuilder.and(inferredPredicate, explicitPredicate);
     }
   }
 }
