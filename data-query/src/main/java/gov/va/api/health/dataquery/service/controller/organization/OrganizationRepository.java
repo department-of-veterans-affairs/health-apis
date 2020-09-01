@@ -32,8 +32,7 @@ public interface OrganizationRepository
    * value, e.g. address=FL&address-postalcode=32934 would use FL for state, street, city, and
    * country and 32934 for postal code.
    *
-   * Example:
-   * (state=FL or street=FL or city=FL or country=FL) and (postalCode=32934).
+   * <p>Example: (state=FL or street=FL or city=FL or country=FL) and (postalCode=32934).
    */
   @Value
   @Builder
@@ -72,16 +71,16 @@ public interface OrganizationRepository
       } else {
         inferredPredicates.add(criteriaBuilder.equal(root.get("postalCode"), street()));
       }
-      Predicate inferredPredicate =
+      Predicate anyInferredPredicate =
           criteriaBuilder.or(inferredPredicates.toArray(new Predicate[0]));
-      Predicate explicitPredicate =
+      Predicate everyExplicitPredicate =
           criteriaBuilder.and(explicitPredicates.toArray(new Predicate[0]));
-      if (inferredPredicates.isEmpty() || street() == null) {
-        return explicitPredicate;
+      if (street() == null) {
+        return everyExplicitPredicate;
       } else if (explicitPredicates.isEmpty()) {
-        return inferredPredicate;
+        return anyInferredPredicate;
       }
-      return criteriaBuilder.and(inferredPredicate, explicitPredicate);
+      return criteriaBuilder.and(anyInferredPredicate, everyExplicitPredicate);
     }
   }
 }
