@@ -1,6 +1,8 @@
 package gov.va.api.health.dataquery.service.controller.location;
 
 import gov.va.api.health.autoconfig.logging.Loggable;
+import gov.va.api.health.dataquery.service.controller.ResourceExceptions.BadSearchParameter;
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -60,18 +62,32 @@ public interface LocationRepository
         inferredPredicates.add(criteriaBuilder.equal(root.get("postalCode"), address));
       }
       if (street != null) {
-        predicates.add(criteriaBuilder.equal(root.get("street"), street()));
+        explicitPredicates.add(criteriaBuilder.equal(root.get("street"), street()));
       }
       if (city != null) {
-        predicates.add(criteriaBuilder.equal(root.get("city"), city()));
+        explicitPredicates.add(criteriaBuilder.equal(root.get("city"), city()));
       }
       if (state != null) {
-        predicates.add(criteriaBuilder.equal(root.get("state"), state()));
+        explicitPredicates.add(criteriaBuilder.equal(root.get("state"), state()));
       }
       if (postalCode != null) {
-        predicates.add(criteriaBuilder.equal(root.get("postalCode"), postalCode()));
+        explicitPredicates.add(criteriaBuilder.equal(root.get("postalCode"), postalCode()));
       }
-      return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+
+      Predicate anyInferredPredicate =
+          criteriaBuilder.or(inferredPredicates.toArray(new Predicate[0]));
+      Predicate everyExplicitPredicate =
+          criteriaBuilder.and(explicitPredicates.toArray(new Predicate[0]));
+
+      if (inferredPredicates.isEmpty() && explicitPredicates.isEmpty()) {
+        throw new IllegalArgumentException("Location AddressSpecification could not process predicates.");
+      } else if (inferredPredicates.isEmpty()) {
+        return everyExplicitPredicate;
+      } else if (explicitPredicates.isEmpty()) {
+        return anyInferredPredicate;
+      } else {
+        return criteriaBuilder.and(anyInferredPredicate, everyExplicitPredicate);
+      }
     }
   }
 }
