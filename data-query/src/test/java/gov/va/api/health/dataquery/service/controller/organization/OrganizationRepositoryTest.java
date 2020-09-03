@@ -1,12 +1,14 @@
 package gov.va.api.health.dataquery.service.controller.organization;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.List;
 import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 
 @DataJpaTest
 public class OrganizationRepositoryTest {
@@ -18,8 +20,16 @@ public class OrganizationRepositoryTest {
     searchByAddressContainingState();
     searchByAddressContainingPostalCodeAndByAddressCity();
     searchByAddressContainingStreet();
+    searchByAddressContainingCityAndByStreet();
     searchByAddressContainingStateAndByAddressPostalCode();
     searchByAddressContainingCityAndByAddressStateAndByAddressPostalCode();
+    emptyPredicatesWillThrowInvalidDataAccessApiUsageException();
+  }
+
+  private void emptyPredicatesWillThrowInvalidDataAccessApiUsageException() {
+    assertThrows(
+        InvalidDataAccessApiUsageException.class,
+        () -> repository.findAll(OrganizationRepository.AddressSpecification.builder().build()));
   }
 
   private void initializeData() {
@@ -35,6 +45,16 @@ public class OrganizationRepositoryTest {
                     .address("SecondCity")
                     .state("SecondState")
                     .postalCode("22222")
+                    .build()))
+        .isEqualTo(List.of(Samples.ENTITY_TWO));
+  }
+
+  private void searchByAddressContainingCityAndByStreet() {
+    assertThat(
+            repository.findAll(
+                OrganizationRepository.AddressSpecification.builder()
+                    .address("SecondCity")
+                    .street("456 Second Street")
                     .build()))
         .isEqualTo(List.of(Samples.ENTITY_TWO));
   }

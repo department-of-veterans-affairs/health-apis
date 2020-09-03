@@ -79,12 +79,17 @@ public interface OrganizationRepository
           criteriaBuilder.or(inferredPredicates.toArray(new Predicate[0]));
       Predicate everyExplicitPredicate =
           criteriaBuilder.and(explicitPredicates.toArray(new Predicate[0]));
-      if (address == null) {
+
+      if (inferredPredicates.isEmpty() && explicitPredicates.isEmpty()) {
+        throw new IllegalArgumentException(
+            "Organization AddressSpecification could not process predicates.");
+      } else if (inferredPredicates.isEmpty()) {
         return everyExplicitPredicate;
       } else if (explicitPredicates.isEmpty()) {
         return anyInferredPredicate;
+      } else {
+        return criteriaBuilder.and(anyInferredPredicate, everyExplicitPredicate);
       }
-      return criteriaBuilder.and(anyInferredPredicate, everyExplicitPredicate);
     }
   }
 }
