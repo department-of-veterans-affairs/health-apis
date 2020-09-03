@@ -14,6 +14,18 @@ import org.springframework.dao.InvalidDataAccessApiUsageException;
 public class LocationRepositoryTest {
   @Autowired LocationRepository repository;
 
+  private void emptyPredicatesWillThrowInvalidDataAccessApiUsageException() {
+    assertThrows(
+        InvalidDataAccessApiUsageException.class,
+        () -> repository.findAll(LocationRepository.AddressSpecification.builder().build()));
+  }
+
+  private void initializeData() {
+    repository.save(Samples.ENTITY_ONE);
+    repository.save(Samples.ENTITY_TWO);
+    repository.save(Samples.ENTITY_THREE);
+  }
+
   @Test
   void locationSpecifications() {
     initializeData();
@@ -26,10 +38,15 @@ public class LocationRepositoryTest {
     emptyPredicatesWillThrowInvalidDataAccessApiUsageException();
   }
 
-  private void emptyPredicatesWillThrowInvalidDataAccessApiUsageException() {
-    assertThrows(
-        InvalidDataAccessApiUsageException.class,
-        () -> repository.findAll(LocationRepository.AddressSpecification.builder().build()));
+  private void searchByAddressContainingCityAndByAddressStateAndByAddressPostalCode() {
+    assertThat(
+            repository.findAll(
+                LocationRepository.AddressSpecification.builder()
+                    .address("SecondCity")
+                    .state("SecondState")
+                    .postalCode("22222")
+                    .build()))
+        .isEqualTo(List.of(Samples.ENTITY_TWO));
   }
 
   private void searchByAddressContainingCityAndByStreet() {
@@ -38,23 +55,6 @@ public class LocationRepositoryTest {
                 LocationRepository.AddressSpecification.builder()
                     .address("SecondCity")
                     .street("456 Second Street")
-                    .build()))
-        .isEqualTo(List.of(Samples.ENTITY_TWO));
-  }
-
-  private void initializeData() {
-    repository.save(Samples.ENTITY_ONE);
-    repository.save(Samples.ENTITY_TWO);
-    repository.save(Samples.ENTITY_THREE);
-  }
-
-  private void searchByAddressContainingCityAndByAddressStateAndByAddressPostalCode() {
-    assertThat(
-            repository.findAll(
-                LocationRepository.AddressSpecification.builder()
-                    .address("SecondCity")
-                    .state("SecondState")
-                    .postalCode("22222")
                     .build()))
         .isEqualTo(List.of(Samples.ENTITY_TWO));
   }

@@ -1,8 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.location;
 
 import gov.va.api.health.autoconfig.logging.Loggable;
-import gov.va.api.health.dataquery.service.controller.ResourceExceptions.BadSearchParameter;
-import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -80,7 +78,8 @@ public interface LocationRepository
           criteriaBuilder.and(explicitPredicates.toArray(new Predicate[0]));
 
       if (inferredPredicates.isEmpty() && explicitPredicates.isEmpty()) {
-        throw new IllegalArgumentException("Location AddressSpecification could not process predicates.");
+        throw new IllegalArgumentException(
+            "At least one of address, street, city, state, or postalCode must be specified.");
       } else if (inferredPredicates.isEmpty()) {
         return everyExplicitPredicate;
       } else if (explicitPredicates.isEmpty()) {
