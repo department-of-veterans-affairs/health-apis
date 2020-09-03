@@ -106,13 +106,13 @@ public class R4OrganizationController {
   /** Search for resource by address. */
   @GetMapping
   public Organization.Bundle searchByAddress(
-      @RequestParam(value = "address", required = false) String street,
+      @RequestParam(value = "address", required = false) String address,
       @RequestParam(value = "address-city", required = false) String city,
       @RequestParam(value = "address-state", required = false) String state,
       @RequestParam(value = "address-postalcode", required = false) String postalCode,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
-    if (allBlank(street, city, state, postalCode)) {
+    if (allBlank(address, city, state, postalCode)) {
       throw new ResourceExceptions.MissingSearchParameters(
           String.format(
               "At least one of %s must be specified",
@@ -120,7 +120,7 @@ public class R4OrganizationController {
     }
     MultiValueMap<String, String> parameters =
         Parameters.builder()
-            .addIgnoreNull("address", street)
+            .addIgnoreNull("address", address)
             .addIgnoreNull("address-city", city)
             .addIgnoreNull("address-state", state)
             .addIgnoreNull("address-postalcode", postalCode)
@@ -129,7 +129,7 @@ public class R4OrganizationController {
             .build();
     OrganizationRepository.AddressSpecification spec =
         OrganizationRepository.AddressSpecification.builder()
-            .street(street)
+            .address(address)
             .city(city)
             .state(state)
             .postalCode(postalCode)

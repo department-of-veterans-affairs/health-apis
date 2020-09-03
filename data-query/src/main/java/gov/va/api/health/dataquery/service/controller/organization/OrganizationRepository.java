@@ -38,6 +38,8 @@ public interface OrganizationRepository
   @Builder
   class AddressSpecification implements Specification<OrganizationEntity> {
 
+    String address;
+
     String street;
 
     String city;
@@ -53,29 +55,31 @@ public interface OrganizationRepository
         CriteriaBuilder criteriaBuilder) {
       List<Predicate> explicitPredicates = new ArrayList<>(4);
       List<Predicate> inferredPredicates = new ArrayList<>(4);
+
+      if (address != null) {
+        inferredPredicates.add(criteriaBuilder.equal(root.get("street"), address));
+        inferredPredicates.add(criteriaBuilder.equal(root.get("city"), address));
+        inferredPredicates.add(criteriaBuilder.equal(root.get("state"), address));
+        inferredPredicates.add(criteriaBuilder.equal(root.get("postalCode"), address));
+      }
+
       if (street != null) {
-        inferredPredicates.add(criteriaBuilder.equal(root.get("street"), street()));
+        explicitPredicates.add(criteriaBuilder.equal(root.get("street"), street()));
       }
       if (city != null) {
         explicitPredicates.add(criteriaBuilder.equal(root.get("city"), city()));
-      } else {
-        inferredPredicates.add(criteriaBuilder.equal(root.get("city"), street()));
       }
       if (state != null) {
         explicitPredicates.add(criteriaBuilder.equal(root.get("state"), state()));
-      } else {
-        inferredPredicates.add(criteriaBuilder.equal(root.get("state"), street()));
       }
       if (postalCode != null) {
         explicitPredicates.add(criteriaBuilder.equal(root.get("postalCode"), postalCode()));
-      } else {
-        inferredPredicates.add(criteriaBuilder.equal(root.get("postalCode"), street()));
       }
       Predicate anyInferredPredicate =
           criteriaBuilder.or(inferredPredicates.toArray(new Predicate[0]));
       Predicate everyExplicitPredicate =
           criteriaBuilder.and(explicitPredicates.toArray(new Predicate[0]));
-      if (street() == null) {
+      if (address == null) {
         return everyExplicitPredicate;
       } else if (explicitPredicates.isEmpty()) {
         return anyInferredPredicate;

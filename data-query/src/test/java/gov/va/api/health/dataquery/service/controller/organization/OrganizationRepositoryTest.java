@@ -32,7 +32,7 @@ public class OrganizationRepositoryTest {
     assertThat(
             repository.findAll(
                 OrganizationRepository.AddressSpecification.builder()
-                    .street("SecondCity")
+                    .address("SecondCity")
                     .state("SecondState")
                     .postalCode("22222")
                     .build()))
@@ -43,7 +43,7 @@ public class OrganizationRepositoryTest {
     assertThat(
             repository.findAll(
                 OrganizationRepository.AddressSpecification.builder()
-                    .street("22222")
+                    .address("22222")
                     .city("FirstCity")
                     .build()))
         .isEqualTo(List.of(Samples.ENTITY_THREE));
@@ -53,7 +53,7 @@ public class OrganizationRepositoryTest {
     assertThat(
             repository.findAll(
                 OrganizationRepository.AddressSpecification.builder()
-                    .street("SecondState")
+                    .address("SecondState")
                     .build()))
         .isEqualTo(List.of(Samples.ENTITY_TWO, Samples.ENTITY_THREE));
   }
@@ -62,7 +62,7 @@ public class OrganizationRepositoryTest {
     assertThat(
             repository.findAll(
                 OrganizationRepository.AddressSpecification.builder()
-                    .street("FirstState")
+                    .address("FirstState")
                     .postalCode("22222")
                     .build()))
         .isEqualTo(Lists.emptyList());
