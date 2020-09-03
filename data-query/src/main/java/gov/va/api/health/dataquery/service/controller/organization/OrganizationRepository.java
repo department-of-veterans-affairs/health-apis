@@ -82,7 +82,7 @@ public interface OrganizationRepository
 
       if (inferredPredicates.isEmpty() && explicitPredicates.isEmpty()) {
         throw new IllegalArgumentException(
-            "Organization AddressSpecification could not process predicates.");
+            "At least one of address, street, city, state, or postalCode must be specified.");
       } else if (inferredPredicates.isEmpty()) {
         return everyExplicitPredicate;
       } else if (explicitPredicates.isEmpty()) {
