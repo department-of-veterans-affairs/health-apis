@@ -57,10 +57,10 @@ public interface OrganizationRepository
       List<Predicate> inferredPredicates = new ArrayList<>(4);
 
       if (address != null) {
-        inferredPredicates.add(criteriaBuilder.equal(root.get("street"), address));
-        inferredPredicates.add(criteriaBuilder.equal(root.get("city"), address));
-        inferredPredicates.add(criteriaBuilder.equal(root.get("state"), address));
-        inferredPredicates.add(criteriaBuilder.equal(root.get("postalCode"), address));
+        inferredPredicates.add(criteriaBuilder.equal(root.get("street"), address()));
+        inferredPredicates.add(criteriaBuilder.equal(root.get("city"), address()));
+        inferredPredicates.add(criteriaBuilder.equal(root.get("state"), address()));
+        inferredPredicates.add(criteriaBuilder.equal(root.get("postalCode"), address()));
       }
 
       if (street != null) {

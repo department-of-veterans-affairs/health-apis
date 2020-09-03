@@ -24,9 +24,19 @@ public interface LocationRepository
         JpaSpecificationExecutor<LocationEntity> {
   Page<LocationEntity> findByName(String name, Pageable pageable);
 
+  /**
+   * If address and another address-* parameter is specified, assume the more specific parameter
+   * value, e.g. address=FL&address-postalcode=32934 would use FL for state, street, city, and
+   * country and 32934 for postal code.
+   *
+   * <p>Example: (state=FL or street=FL or city=FL or country=FL) and (postalCode=32934).
+   */
   @Value
   @Builder
   class AddressSpecification implements Specification<LocationEntity> {
+
+    String address;
+
     String street;
 
     String city;
@@ -40,20 +50,43 @@ public interface LocationRepository
         Root<LocationEntity> root,
         CriteriaQuery<?> criteriaQuery,
         CriteriaBuilder criteriaBuilder) {
-      List<Predicate> predicates = new ArrayList<>(4);
+      List<Predicate> explicitPredicates = new ArrayList<>(4);
+      List<Predicate> inferredPredicates = new ArrayList<>(4);
+
+      if (address != null) {
+        inferredPredicates.add(criteriaBuilder.equal(root.get("street"), address()));
+        inferredPredicates.add(criteriaBuilder.equal(root.get("city"), address()));
+        inferredPredicates.add(criteriaBuilder.equal(root.get("state"), address()));
+        inferredPredicates.add(criteriaBuilder.equal(root.get("postalCode"), address()));
+      }
       if (street != null) {
-        predicates.add(criteriaBuilder.equal(root.get("street"), street()));
+        explicitPredicates.add(criteriaBuilder.equal(root.get("street"), street()));
       }
       if (city != null) {
-        predicates.add(criteriaBuilder.equal(root.get("city"), city()));
+        explicitPredicates.add(criteriaBuilder.equal(root.get("city"), city()));
       }
       if (state != null) {
-        predicates.add(criteriaBuilder.equal(root.get("state"), state()));
+        explicitPredicates.add(criteriaBuilder.equal(root.get("state"), state()));
       }
       if (postalCode != null) {
-        predicates.add(criteriaBuilder.equal(root.get("postalCode"), postalCode()));
+        explicitPredicates.add(criteriaBuilder.equal(root.get("postalCode"), postalCode()));
       }
-      return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+
+      Predicate anyInferredPredicate =
+          criteriaBuilder.or(inferredPredicates.toArray(new Predicate[0]));
+      Predicate everyExplicitPredicate =
+          criteriaBuilder.and(explicitPredicates.toArray(new Predicate[0]));
+
+      if (inferredPredicates.isEmpty() && explicitPredicates.isEmpty()) {
+        throw new IllegalArgumentException(
+            "At least one of address, street, city, state, or postalCode must be specified.");
+      } else if (inferredPredicates.isEmpty()) {
+        return everyExplicitPredicate;
+      } else if (explicitPredicates.isEmpty()) {
+        return anyInferredPredicate;
+      } else {
+        return criteriaBuilder.and(anyInferredPredicate, everyExplicitPredicate);
+      }
     }
   }
 }
