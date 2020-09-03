@@ -24,9 +24,19 @@ public interface LocationRepository
         JpaSpecificationExecutor<LocationEntity> {
   Page<LocationEntity> findByName(String name, Pageable pageable);
 
+  /**
+   * If address and another address-* parameter is specified, assume the more specific parameter
+   * value, e.g. address=FL&address-postalcode=32934 would use FL for state, street, city, and
+   * country and 32934 for postal code.
+   *
+   * <p>Example: (state=FL or street=FL or city=FL or country=FL) and (postalCode=32934).
+   */
   @Value
   @Builder
   class AddressSpecification implements Specification<LocationEntity> {
+
+    String address;
+
     String street;
 
     String city;
@@ -40,7 +50,15 @@ public interface LocationRepository
         Root<LocationEntity> root,
         CriteriaQuery<?> criteriaQuery,
         CriteriaBuilder criteriaBuilder) {
-      List<Predicate> predicates = new ArrayList<>(4);
+      List<Predicate> explicitPredicates = new ArrayList<>(4);
+      List<Predicate> inferredPredicates = new ArrayList<>(4);
+
+      if (address != null) {
+        inferredPredicates.add(criteriaBuilder.equal(root.get("street"), address));
+        inferredPredicates.add(criteriaBuilder.equal(root.get("city"), address));
+        inferredPredicates.add(criteriaBuilder.equal(root.get("state"), address));
+        inferredPredicates.add(criteriaBuilder.equal(root.get("postalCode"), address));
+      }
       if (street != null) {
         predicates.add(criteriaBuilder.equal(root.get("street"), street()));
       }
