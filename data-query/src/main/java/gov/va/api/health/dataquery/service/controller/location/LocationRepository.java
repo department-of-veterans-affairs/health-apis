@@ -55,10 +55,10 @@ public interface LocationRepository
       List<Predicate> inferredPredicates = new ArrayList<>(4);
 
       if (address != null) {
+        String addressPattern = "%" + address().toLowerCase(Locale.US) + "%";
         for (String property : new String[] {"street", "city", "state", "postalCode"}) {
-          String lowerAddress = "%" + address().toLowerCase(Locale.US) + "%";
           inferredPredicates.add(
-              criteriaBuilder.like(criteriaBuilder.lower(root.get(property)), lowerAddress));
+              criteriaBuilder.like(criteriaBuilder.lower(root.get(property)), addressPattern));
         }
       }
       if (street != null) {
