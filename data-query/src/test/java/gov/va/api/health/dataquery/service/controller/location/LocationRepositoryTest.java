@@ -67,12 +67,25 @@ public class LocationRepositoryTest {
                     .city("FirstCity")
                     .build()))
         .isEqualTo(List.of(Samples.ENTITY_THREE));
+    // partial match
+    assertThat(
+            repository.findAll(
+                LocationRepository.AddressSpecification.builder()
+                    .address("222")
+                    .city("FirstCity")
+                    .build()))
+        .isEqualTo(List.of(Samples.ENTITY_THREE));
   }
 
   private void searchByAddressContainingState() {
     assertThat(
             repository.findAll(
                 LocationRepository.AddressSpecification.builder().address("SecondState").build()))
+        .isEqualTo(List.of(Samples.ENTITY_TWO, Samples.ENTITY_THREE));
+    // partial match
+    assertThat(
+            repository.findAll(
+                LocationRepository.AddressSpecification.builder().address("econdstat").build()))
         .isEqualTo(List.of(Samples.ENTITY_TWO, Samples.ENTITY_THREE));
   }
 
@@ -92,6 +105,11 @@ public class LocationRepositoryTest {
                 LocationRepository.AddressSpecification.builder()
                     .street("123 First Street")
                     .build()))
+        .isEqualTo(List.of(Samples.ENTITY_ONE));
+    // partial match
+    assertThat(
+            repository.findAll(
+                LocationRepository.AddressSpecification.builder().address("3 first").build()))
         .isEqualTo(List.of(Samples.ENTITY_ONE));
   }
 

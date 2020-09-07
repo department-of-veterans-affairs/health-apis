@@ -3,6 +3,7 @@ package gov.va.api.health.dataquery.service.controller.location;
 import gov.va.api.health.autoconfig.logging.Loggable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
@@ -54,10 +55,11 @@ public interface LocationRepository
       List<Predicate> inferredPredicates = new ArrayList<>(4);
 
       if (address != null) {
-        inferredPredicates.add(criteriaBuilder.equal(root.get("street"), address()));
-        inferredPredicates.add(criteriaBuilder.equal(root.get("city"), address()));
-        inferredPredicates.add(criteriaBuilder.equal(root.get("state"), address()));
-        inferredPredicates.add(criteriaBuilder.equal(root.get("postalCode"), address()));
+        String addressPattern = "%" + address().toLowerCase(Locale.US) + "%";
+        for (String property : new String[] {"street", "city", "state", "postalCode"}) {
+          inferredPredicates.add(
+              criteriaBuilder.like(criteriaBuilder.lower(root.get(property)), addressPattern));
+        }
       }
       if (street != null) {
         explicitPredicates.add(criteriaBuilder.equal(root.get("street"), street()));
