@@ -37,7 +37,7 @@ import lombok.Builder;
 import lombok.NonNull;
 
 @Builder
-final class R4PatientTransformer {
+public final class R4PatientTransformer {
 
   @NonNull private final DatamartPatient datamart;
 
@@ -524,7 +524,7 @@ final class R4PatientTransformer {
     return emptyToNull(asList);
   }
 
-  Patient toFhir() {
+  public Patient toFhir() {
     return Patient.builder()
         .id(datamart.fullIcn())
         .resourceType("Patient")

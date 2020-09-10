@@ -36,6 +36,14 @@ public interface ObservationRepository
    */
   String ANY_CODE_VALUE = ObservationRepository.class.getName() + ".ANY_CODE_VALUE";
 
+  /**
+   * A paged search that returns a view of the patients with just the payload column read.
+   *
+   * @param page The page data to find
+   * @return A page of patient payloads
+   */
+  Page<ObservationPayloadDto> findAllProjectedBy(Pageable page);
+
   Page<ObservationEntity> findByIcn(String icn, Pageable pageable);
 
   @Value

@@ -34,6 +34,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Builder
 public class R4ObservationTransformer {
+
   @NonNull private final DatamartObservation datamart;
 
   static List<CodeableConcept> category(DatamartObservation.Category category) {
@@ -348,7 +349,7 @@ public class R4ObservationTransformer {
     return emptyToNull(results);
   }
 
-  Observation toFhir() {
+  public Observation toFhir() {
     /*
      * Specimen reference is omitted since we do not support the a specimen resource and
      * do not want dead links
