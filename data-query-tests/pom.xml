@@ -8,11 +8,11 @@
     <relativePath/>
   </parent>
   <artifactId>data-query-tests</artifactId>
-  <version>3.0.37-SNAPSHOT</version>
+  <version>3.0.37</version>
   <packaging>jar</packaging>
   <properties>
-    <fhir-resources.version>4.0.9</fhir-resources.version>
-    <health-apis-ids.version>3.0.2</health-apis-ids.version>
+    <fhir-resources.version>4.0.17</fhir-resources.version>
+    <health-apis-ids.version>3.0.3</health-apis-ids.version>
     <selenium.version>3.141.59</selenium.version>
     <sentinel.skipLaunch>false</sentinel.skipLaunch>
   </properties>
