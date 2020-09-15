@@ -1,14 +1,18 @@
 package gov.va.api.health.dataquery.service.controller.bulk;
 
+import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.datamart.HasPayload;
+import gov.va.api.health.dataquery.service.controller.observation.ObservationPayloadDto;
 import gov.va.api.health.dataquery.service.controller.observation.ObservationRepository;
 import gov.va.api.health.dataquery.service.controller.observation.R4ObservationTransformer;
 import gov.va.api.health.dataquery.service.controller.patient.PatientRepositoryV2;
 import gov.va.api.health.dataquery.service.controller.patient.R4PatientTransformer;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.time.Instant;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import javax.servlet.http.HttpServletResponse;
@@ -62,13 +66,22 @@ public class StreamingBulkController {
   @GetMapping(value = "/Observation")
   public ResponseEntity<StreamingResponseBody> observations(
       final HttpServletResponse response,
+      @RequestParam(value = "since") String since,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @RequestParam(value = "_count", defaultValue = "1000000") @Min(0) int count) {
+    Function<PageRequest, Page<ObservationPayloadDto>> funk;
+    if (!isBlank(since)) {
+      Instant sinceInstant = Instant.parse(since);
+      funk =
+          pageRequest -> observationRepository.findByDateUtcGreaterThan(sinceInstant, pageRequest);
+    } else {
+      funk = observationRepository::findAllProjectedBy;
+    }
     return stream(
         response,
         page,
         count,
-        observationRepository::findAllProjectedBy,
+        funk,
         dm -> R4ObservationTransformer.builder().datamart(dm).build().toFhir());
   }
 
@@ -77,6 +90,7 @@ public class StreamingBulkController {
       final HttpServletResponse response,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @RequestParam(value = "_count", defaultValue = "1000000") @Min(0) int count) {
+    // ToDo more complex way to determine "since" for a patient
     return stream(
         response,
         page,
