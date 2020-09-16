@@ -2,7 +2,6 @@ package gov.va.api.health.dataquery.service.controller.patient;
 
 import gov.va.api.health.autoconfig.logging.Loggable;
 import gov.va.api.health.dataquery.service.controller.DateTimeParameters;
-
 import java.time.Instant;
 import java.util.ArrayList;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -32,8 +31,6 @@ public interface PatientRepositoryV2
    */
   Page<PatientPayloadDto> findAllProjectedBy(Pageable page);
 
-  Page<PatientPayloadDto> findByLastUpdatedGreaterThan(Instant lastUpdated, Pageable page);
-
   Page<PatientEntityV2> findByFirstName(String firstName, Pageable pageable);
 
   Page<PatientEntityV2> findByFirstNameAndGender(
@@ -46,6 +43,8 @@ public interface PatientRepositoryV2
   Page<PatientEntityV2> findByIcn(String icn, Pageable pageable);
 
   Page<PatientEntityV2> findByLastNameAndGender(String lastName, String gender, Pageable pageable);
+
+  Page<PatientPayloadDto> findByLastUpdatedGreaterThan(Instant lastUpdated, Pageable page);
 
   @Value
   class NameAndBirthdateSpecification implements Specification<PatientEntityV2> {

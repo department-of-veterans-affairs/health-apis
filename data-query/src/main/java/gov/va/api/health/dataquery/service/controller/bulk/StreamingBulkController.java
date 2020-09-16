@@ -48,12 +48,11 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
     produces = {"application/json", "application/fhir+json"})
 @AllArgsConstructor(onConstructor_ = {@Autowired})
 public class StreamingBulkController {
-
   private final ConditionRepository conditionRepository;
 
-  private final PatientRepositoryV2 patientRepository;
-
   private final ObservationRepository observationRepository;
+
+  private final PatientRepositoryV2 patientRepository;
 
   private final ObjectMapper mapper = JacksonConfig.createMapper();
 
@@ -119,6 +118,13 @@ public class StreamingBulkController {
         dm -> R4ObservationTransformer.builder().datamart(dm).build().toFhir());
   }
 
+  PageRequest pageRequestFor(int page, int count, Sort sort) {
+    if (sort == null) {
+      return PageRequest.of(page - 1, count == 0 ? 1 : count);
+    }
+    return PageRequest.of(page - 1, count == 0 ? 1 : count, sort);
+  }
+
   @GetMapping(value = "/Patient")
   public ResponseEntity<StreamingResponseBody> patients(
       final HttpServletResponse response,
@@ -129,7 +135,7 @@ public class StreamingBulkController {
     if (!isBlank(since)) {
       Instant sinceInstant = Instant.parse(since);
       funk =
-              pageRequest -> patientRepository.findByLastUpdatedGreaterThan(sinceInstant, pageRequest);
+          pageRequest -> patientRepository.findByLastUpdatedGreaterThan(sinceInstant, pageRequest);
     } else {
       funk = patientRepository::findAllProjectedBy;
     }
@@ -163,13 +169,9 @@ public class StreamingBulkController {
       Sort sort,
       Function<PageRequest, Page<DTO>> query,
       Function<DM, FHIR> transform) {
-    PageRequest pageRequest =
-        sort == null
-            ? PageRequest.of(page - 1, count == 0 ? 1 : count)
-            : PageRequest.of(page - 1, count == 0 ? 1 : count, sort);
     StreamingResponseBody stream =
         out -> {
-          query.apply(pageRequest).stream()
+          query.apply(pageRequestFor(page, count, sort)).stream()
               .parallel()
               .map(quietly(HasPayload::deserialize))
               .map(quietly(transform))
