@@ -31,6 +31,7 @@ public interface PatientRepositoryV2
    * @param page The page data to find
    * @return A page of patient payloads
    */
+  @Override
   Page<PatientPayloadDto> findAllProjectedBy(Pageable page);
 
   Page<PatientEntityV2> findByFirstName(String firstName, Pageable pageable);
@@ -46,6 +47,7 @@ public interface PatientRepositoryV2
 
   Page<PatientEntityV2> findByLastNameAndGender(String lastName, String gender, Pageable pageable);
 
+  @Override
   Page<PatientPayloadDto> findByLastUpdatedGreaterThan(Instant lastUpdated, Pageable page);
 
   @Value
