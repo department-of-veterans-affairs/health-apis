@@ -3,6 +3,7 @@ package gov.va.api.health.dataquery.service.controller.bulk;
 import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Splitter;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.condition.ConditionEntity;
 import gov.va.api.health.dataquery.service.controller.condition.ConditionRepository;
@@ -17,8 +18,10 @@ import gov.va.api.health.dataquery.service.controller.patient.R4PatientTransform
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.time.Instant;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.Min;
 import lombok.AllArgsConstructor;
@@ -91,6 +94,21 @@ public class StreamingBulkController {
           repository.findByLastUpdatedGreaterThan(Instant.parse(since), pageRequest);
     }
     return repository::findAllProjectedBy;
+  }
+
+  @GetMapping
+  public ResponseEntity<StreamingResponseBody> export(
+      @RequestParam(value = "_outputFormat", required = false) String outputFormat,
+      @RequestParam(value = "_since", required = false) String since,
+      @RequestParam(value = "_type", required = false) String type) {
+    if (isBlank(type)) {
+      return null;
+    }
+    List<String> resourceTypes =
+        Splitter.on(",").splitToList(type).stream()
+            .map(String::toUpperCase)
+            .collect(Collectors.toList());
+    return null;
   }
 
   @GetMapping(value = "/Observation")

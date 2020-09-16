@@ -27,7 +27,6 @@ public interface ConditionRepository
     extends PagingAndSortingRepository<ConditionEntity, String>,
         JpaSpecificationExecutor<ConditionEntity>,
         BulkRepository<ConditionPayloadDto> {
-  @Override
   Page<ConditionPayloadDto> findAllProjectedBy(Pageable page);
 
   Page<ConditionEntity> findByIcn(String icn, Pageable pageable);
@@ -37,7 +36,6 @@ public interface ConditionRepository
   Page<ConditionEntity> findByIcnAndClinicalStatusIn(
       String icn, Set<String> clinicalStatus, Pageable pageable);
 
-  @Override
   Page<ConditionPayloadDto> findByLastUpdatedGreaterThan(Instant lastUpdated, Pageable page);
 
   @RequiredArgsConstructor(staticName = "of")
