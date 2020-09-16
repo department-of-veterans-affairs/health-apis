@@ -2,6 +2,8 @@ package gov.va.api.health.dataquery.service.controller.patient;
 
 import gov.va.api.health.autoconfig.logging.Loggable;
 import gov.va.api.health.dataquery.service.controller.DateTimeParameters;
+
+import java.time.Instant;
 import java.util.ArrayList;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -29,6 +31,8 @@ public interface PatientRepositoryV2
    * @return A page of patient payloads
    */
   Page<PatientPayloadDto> findAllProjectedBy(Pageable page);
+
+  Page<PatientPayloadDto> findByLastUpdatedGreaterThan(Instant lastUpdated, Pageable page);
 
   Page<PatientEntityV2> findByFirstName(String firstName, Pageable pageable);
 

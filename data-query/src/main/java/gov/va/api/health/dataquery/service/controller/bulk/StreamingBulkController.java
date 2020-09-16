@@ -4,10 +4,16 @@ import static gov.va.api.health.dataquery.service.controller.Transformers.isBlan
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
+import gov.va.api.health.dataquery.service.controller.condition.ConditionEntity;
+import gov.va.api.health.dataquery.service.controller.condition.ConditionPayloadDto;
+import gov.va.api.health.dataquery.service.controller.condition.ConditionRepository;
+import gov.va.api.health.dataquery.service.controller.condition.R4ConditionTransformer;
 import gov.va.api.health.dataquery.service.controller.datamart.HasPayload;
 import gov.va.api.health.dataquery.service.controller.observation.ObservationPayloadDto;
 import gov.va.api.health.dataquery.service.controller.observation.ObservationRepository;
 import gov.va.api.health.dataquery.service.controller.observation.R4ObservationTransformer;
+import gov.va.api.health.dataquery.service.controller.patient.PatientEntityV2;
+import gov.va.api.health.dataquery.service.controller.patient.PatientPayloadDto;
 import gov.va.api.health.dataquery.service.controller.patient.PatientRepositoryV2;
 import gov.va.api.health.dataquery.service.controller.patient.R4PatientTransformer;
 import java.io.OutputStream;
@@ -23,6 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -41,6 +48,8 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
     produces = {"application/json", "application/fhir+json"})
 @AllArgsConstructor(onConstructor_ = {@Autowired})
 public class StreamingBulkController {
+
+  private final ConditionRepository conditionRepository;
 
   private final PatientRepositoryV2 patientRepository;
 
@@ -63,10 +72,34 @@ public class StreamingBulkController {
     };
   }
 
+  @GetMapping(value = "/Condition")
+  public ResponseEntity<StreamingResponseBody> conditions(
+      final HttpServletResponse response,
+      @RequestParam(value = "since", required = false) String since,
+      @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
+      @RequestParam(value = "_count", defaultValue = "1000000") @Min(0) int count) {
+    Function<PageRequest, Page<ConditionPayloadDto>> funk;
+    if (!isBlank(since)) {
+      Instant sinceInstant = Instant.parse(since);
+      funk =
+          pageRequest ->
+              conditionRepository.findByLastUpdatedGreaterThan(sinceInstant, pageRequest);
+    } else {
+      funk = conditionRepository::findAllProjectedBy;
+    }
+    return stream(
+        response,
+        page,
+        count,
+        ConditionEntity.naturalOrder(),
+        funk,
+        dm -> R4ConditionTransformer.builder().datamart(dm).build());
+  }
+
   @GetMapping(value = "/Observation")
   public ResponseEntity<StreamingResponseBody> observations(
       final HttpServletResponse response,
-      @RequestParam(value = "since") String since,
+      @RequestParam(value = "since", required = false) String since,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @RequestParam(value = "_count", defaultValue = "1000000") @Min(0) int count) {
     Function<PageRequest, Page<ObservationPayloadDto>> funk;
@@ -81,6 +114,7 @@ public class StreamingBulkController {
         response,
         page,
         count,
+        null,
         funk,
         dm -> R4ObservationTransformer.builder().datamart(dm).build().toFhir());
   }
@@ -88,17 +122,24 @@ public class StreamingBulkController {
   @GetMapping(value = "/Patient")
   public ResponseEntity<StreamingResponseBody> patients(
       final HttpServletResponse response,
+      @RequestParam(value = "since", required = false) String since,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @RequestParam(value = "_count", defaultValue = "1000000") @Min(0) int count) {
-    // ToDo more complex way to determine "since" for a patient
+    Function<PageRequest, Page<PatientPayloadDto>> funk;
+    if (!isBlank(since)) {
+      Instant sinceInstant = Instant.parse(since);
+      funk =
+              pageRequest -> patientRepository.findByLastUpdatedGreaterThan(sinceInstant, pageRequest);
+    } else {
+      funk = patientRepository::findAllProjectedBy;
+    }
     return stream(
         response,
         page,
         count,
-        patientRepository::findAllProjectedBy,
-        dm -> {
-          return R4PatientTransformer.builder().datamart(dm).build().toFhir();
-        });
+        PatientEntityV2.naturalOrder(),
+        funk,
+        dm -> R4PatientTransformer.builder().datamart(dm).build().toFhir());
   }
 
   <T, R> Function<T, R> quietly(Function<T, R> function) {
@@ -119,11 +160,16 @@ public class StreamingBulkController {
       HttpServletResponse response,
       int page,
       int count,
+      Sort sort,
       Function<PageRequest, Page<DTO>> query,
       Function<DM, FHIR> transform) {
+    PageRequest pageRequest =
+        sort == null
+            ? PageRequest.of(page - 1, count == 0 ? 1 : count)
+            : PageRequest.of(page - 1, count == 0 ? 1 : count, sort);
     StreamingResponseBody stream =
         out -> {
-          query.apply(PageRequest.of(page - 1, count == 0 ? 1 : count)).stream()
+          query.apply(pageRequest).stream()
               .parallel()
               .map(quietly(HasPayload::deserialize))
               .map(quietly(transform))

@@ -1,6 +1,7 @@
 package gov.va.api.health.dataquery.service.controller.condition;
 
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartEntity;
+import java.time.Instant;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -57,12 +58,15 @@ public class ConditionEntity implements DatamartEntity {
   @Column(name = "ClinicalStatus")
   private String clinicalStatus;
 
+  @Column(name = "LastUpdated")
+  private Instant lastUpdated;
+
   @Column(name = "Condition")
   @Basic(fetch = FetchType.EAGER)
   @Lob
   private String payload;
 
-  static Sort naturalOrder() {
+  public static Sort naturalOrder() {
     return Sort.by("cdwId").ascending();
   }
 

@@ -53,7 +53,7 @@ public class PatientEntityV2 implements DatamartEntity {
   @Basic(fetch = FetchType.EAGER)
   private String payload;
 
-  static Sort naturalOrder() {
+  public static Sort naturalOrder() {
     return Sort.by("icn").ascending();
   }
 

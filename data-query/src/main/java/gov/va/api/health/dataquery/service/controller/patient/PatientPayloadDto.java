@@ -14,7 +14,7 @@ public class PatientPayloadDto implements HasPayload<DatamartPatient> {
   String payload;
 
   @SneakyThrows
-  @Deprecated
+  // @Deprecated
   public DatamartPatient asDatamartPatient() {
     return JacksonConfig.createMapper().readValue(payload, DatamartPatient.class);
   }
