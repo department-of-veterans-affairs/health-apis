@@ -2,6 +2,7 @@ package gov.va.api.health.dataquery.service.controller.patient;
 
 import gov.va.api.health.autoconfig.logging.Loggable;
 import gov.va.api.health.dataquery.service.controller.DateTimeParameters;
+import gov.va.api.health.dataquery.service.controller.bulk.BulkRepository;
 import java.time.Instant;
 import java.util.ArrayList;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -22,7 +23,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(isolation = Isolation.READ_UNCOMMITTED)
 public interface PatientRepositoryV2
     extends PagingAndSortingRepository<PatientEntityV2, String>,
-        JpaSpecificationExecutor<PatientEntityV2> {
+        JpaSpecificationExecutor<PatientEntityV2>,
+        BulkRepository<PatientPayloadDto> {
   /**
    * A paged search that returns a view of the patients with just the payload column read.
    *

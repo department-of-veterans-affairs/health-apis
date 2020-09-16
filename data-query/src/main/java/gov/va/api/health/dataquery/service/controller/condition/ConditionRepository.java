@@ -1,6 +1,7 @@
 package gov.va.api.health.dataquery.service.controller.condition;
 
 import gov.va.api.health.autoconfig.logging.Loggable;
+import gov.va.api.health.dataquery.service.controller.bulk.BulkRepository;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +25,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(isolation = Isolation.READ_UNCOMMITTED)
 public interface ConditionRepository
     extends PagingAndSortingRepository<ConditionEntity, String>,
-        JpaSpecificationExecutor<ConditionEntity> {
+        JpaSpecificationExecutor<ConditionEntity>,
+        BulkRepository<ConditionPayloadDto> {
+  @Override
   Page<ConditionPayloadDto> findAllProjectedBy(Pageable page);
 
   Page<ConditionEntity> findByIcn(String icn, Pageable pageable);
@@ -34,6 +37,7 @@ public interface ConditionRepository
   Page<ConditionEntity> findByIcnAndClinicalStatusIn(
       String icn, Set<String> clinicalStatus, Pageable pageable);
 
+  @Override
   Page<ConditionPayloadDto> findByLastUpdatedGreaterThan(Instant lastUpdated, Pageable page);
 
   @RequiredArgsConstructor(staticName = "of")
