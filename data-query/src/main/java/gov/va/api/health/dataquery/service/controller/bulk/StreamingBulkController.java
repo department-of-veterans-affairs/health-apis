@@ -18,10 +18,10 @@ import gov.va.api.health.dataquery.service.controller.patient.R4PatientTransform
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.Min;
 import lombok.AllArgsConstructor;
@@ -96,19 +96,34 @@ public class StreamingBulkController {
     return repository::findAllProjectedBy;
   }
 
-  @GetMapping
+  @GetMapping(value = "/count")
   public ResponseEntity<StreamingResponseBody> export(
-      @RequestParam(value = "_outputFormat", required = false) String outputFormat,
-      @RequestParam(value = "_since", required = false) String since,
-      @RequestParam(value = "_type", required = false) String type) {
-    if (isBlank(type)) {
-      return null;
-    }
-    List<String> resourceTypes =
-        Splitter.on(",").splitToList(type).stream()
-            .map(String::toUpperCase)
-            .collect(Collectors.toList());
-    return null;
+      final HttpServletResponse response, @RequestParam(value = "_type") String type) {
+    List<String> counts = new ArrayList<>();
+    Splitter.on(",")
+        .splitToList(type)
+        .forEach(
+            r -> {
+              switch (r.toUpperCase()) {
+                case "CONDITION":
+                  counts.add("Conditions: " + conditionRepository.count());
+                  break;
+                case "OBSERVATION":
+                  counts.add("Observations: " + observationRepository.count());
+                  break;
+                case "PATIENT":
+                  counts.add("Patients: " + patientRepository.count());
+                  break;
+                default:
+                  throw new IllegalArgumentException("Invalid Resource Type: " + r);
+              }
+            });
+
+    StreamingResponseBody stream =
+        out -> {
+          counts.stream().forEach(appendLine(out));
+        };
+    return new ResponseEntity<>(stream, HttpStatus.OK);
   }
 
   @GetMapping(value = "/Observation")
