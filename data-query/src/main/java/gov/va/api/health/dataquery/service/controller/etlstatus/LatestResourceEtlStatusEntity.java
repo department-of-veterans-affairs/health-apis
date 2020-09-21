@@ -1,4 +1,4 @@
-package gov.va.api.health.dataquery.service.controller.latestresourceetlstatus;
+package gov.va.api.health.dataquery.service.controller.etlstatus;
 
 import java.time.Instant;
 import javax.persistence.Column;
@@ -11,7 +11,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.springframework.data.domain.Sort;
 
 @Data
 @Entity
@@ -20,8 +19,8 @@ import org.springframework.data.domain.Sort;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class LatestResourceEtlStatusEntity extends Object {
-
+public class LatestResourceEtlStatusEntity {
+  
   @Id
   @Column(name = "ResourceName")
   @EqualsAndHashCode.Include
@@ -30,7 +29,4 @@ public class LatestResourceEtlStatusEntity extends Object {
   @Column(name = "EndDateTimeUTC")
   private Instant endDateTime;
 
-  static Sort naturalOrder() {
-    return Sort.by("ResourceName").ascending();
-  }
 }
