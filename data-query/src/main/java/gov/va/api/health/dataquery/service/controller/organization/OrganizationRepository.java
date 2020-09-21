@@ -3,6 +3,7 @@ package gov.va.api.health.dataquery.service.controller.organization;
 import gov.va.api.health.autoconfig.logging.Loggable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
@@ -27,9 +28,18 @@ public interface OrganizationRepository
 
   Page<OrganizationEntity> findByNpi(String npi, Pageable pageable);
 
+  /**
+   * If address and another address-* parameter is specified, assume the more specific parameter
+   * value, e.g. address=FL&address-postalcode=32934 would use FL for state, street, city, and
+   * country and 32934 for postal code.
+   *
+   * <p>Example: (state=FL or street=FL or city=FL or country=FL) and (postalCode=32934).
+   */
   @Value
   @Builder
   class AddressSpecification implements Specification<OrganizationEntity> {
+
+    String address;
 
     String street;
 
@@ -44,20 +54,44 @@ public interface OrganizationRepository
         Root<OrganizationEntity> root,
         CriteriaQuery<?> criteriaQuery,
         CriteriaBuilder criteriaBuilder) {
-      List<Predicate> predicates = new ArrayList<>(4);
+      List<Predicate> explicitPredicates = new ArrayList<>(4);
+      List<Predicate> inferredPredicates = new ArrayList<>(4);
+
+      if (address != null) {
+        String addressPattern = "%" + address().toLowerCase(Locale.US) + "%";
+        for (String property : new String[] {"street", "city", "state", "postalCode"}) {
+          inferredPredicates.add(
+              criteriaBuilder.like(criteriaBuilder.lower(root.get(property)), addressPattern));
+        }
+      }
+
       if (street != null) {
-        predicates.add(criteriaBuilder.equal(root.get("street"), street()));
+        explicitPredicates.add(criteriaBuilder.equal(root.get("street"), street()));
       }
       if (city != null) {
-        predicates.add(criteriaBuilder.equal(root.get("city"), city()));
+        explicitPredicates.add(criteriaBuilder.equal(root.get("city"), city()));
       }
       if (state != null) {
-        predicates.add(criteriaBuilder.equal(root.get("state"), state()));
+        explicitPredicates.add(criteriaBuilder.equal(root.get("state"), state()));
       }
       if (postalCode != null) {
-        predicates.add(criteriaBuilder.equal(root.get("postalCode"), postalCode()));
+        explicitPredicates.add(criteriaBuilder.equal(root.get("postalCode"), postalCode()));
       }
-      return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+      Predicate anyInferredPredicate =
+          criteriaBuilder.or(inferredPredicates.toArray(new Predicate[0]));
+      Predicate everyExplicitPredicate =
+          criteriaBuilder.and(explicitPredicates.toArray(new Predicate[0]));
+
+      if (inferredPredicates.isEmpty() && explicitPredicates.isEmpty()) {
+        throw new IllegalArgumentException(
+            "At least one of address, street, city, state, or postalCode must be specified.");
+      } else if (inferredPredicates.isEmpty()) {
+        return everyExplicitPredicate;
+      } else if (explicitPredicates.isEmpty()) {
+        return anyInferredPredicate;
+      } else {
+        return criteriaBuilder.and(anyInferredPredicate, everyExplicitPredicate);
+      }
     }
   }
 }
