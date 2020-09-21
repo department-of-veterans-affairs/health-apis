@@ -3,9 +3,9 @@ package gov.va.api.health.dataquery.tests.dstu2;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
-import gov.va.api.health.argonaut.api.resources.Patient;
 import gov.va.api.health.dataquery.service.controller.BulkFhirCount;
 import gov.va.api.health.dataquery.tests.TestClients;
+import gov.va.api.health.dstu2.api.resources.Patient;
 import gov.va.api.health.sentinel.ExpectedResponse;
 import java.time.Duration;
 import java.time.Instant;
