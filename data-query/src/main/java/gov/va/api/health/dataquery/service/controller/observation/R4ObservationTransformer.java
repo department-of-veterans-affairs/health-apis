@@ -20,7 +20,7 @@ import gov.va.api.health.r4.api.datatypes.Coding;
 import gov.va.api.health.r4.api.datatypes.Quantity;
 import gov.va.api.health.r4.api.datatypes.SimpleQuantity;
 import gov.va.api.health.r4.api.elements.Reference;
-import gov.va.api.health.uscorer4.api.resources.Observation;
+import gov.va.api.health.r4.api.resources.Observation;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;

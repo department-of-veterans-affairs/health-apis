@@ -2,8 +2,6 @@ package gov.va.api.health.dataquery.service.controller.patient;
 
 import static java.util.Arrays.asList;
 
-import gov.va.api.health.argonaut.api.resources.Patient;
-import gov.va.api.health.argonaut.api.resources.Patient.Gender;
 import gov.va.api.health.dataquery.service.controller.patient.DatamartPatient.Address;
 import gov.va.api.health.dataquery.service.controller.patient.DatamartPatient.MaritalStatus;
 import gov.va.api.health.dataquery.service.controller.patient.DatamartPatient.Race;
@@ -23,6 +21,8 @@ import gov.va.api.health.dstu2.api.datatypes.Identifier;
 import gov.va.api.health.dstu2.api.datatypes.Identifier.IdentifierUse;
 import gov.va.api.health.dstu2.api.elements.Extension;
 import gov.va.api.health.dstu2.api.elements.Reference;
+import gov.va.api.health.dstu2.api.resources.Patient;
+import gov.va.api.health.dstu2.api.resources.Patient.Gender;
 import gov.va.api.health.r4.api.bundle.AbstractBundle;
 import java.util.Collection;
 import java.util.List;
@@ -233,11 +233,11 @@ public class PatientSamples {
 
   @AllArgsConstructor(staticName = "create")
   public static class R4 {
-    static gov.va.api.health.uscorer4.api.resources.Patient.Bundle asBundle(
+    static gov.va.api.health.r4.api.resources.Patient.Bundle asBundle(
         String basePath,
-        Collection<gov.va.api.health.uscorer4.api.resources.Patient> records,
+        Collection<gov.va.api.health.r4.api.resources.Patient> records,
         gov.va.api.health.r4.api.bundle.BundleLink... links) {
-      return gov.va.api.health.uscorer4.api.resources.Patient.Bundle.builder()
+      return gov.va.api.health.r4.api.resources.Patient.Bundle.builder()
           .resourceType("Bundle")
           .type(AbstractBundle.BundleType.searchset)
           .total(records.size())
@@ -246,7 +246,7 @@ public class PatientSamples {
               records.stream()
                   .map(
                       c ->
-                          gov.va.api.health.uscorer4.api.resources.Patient.Entry.builder()
+                          gov.va.api.health.r4.api.resources.Patient.Entry.builder()
                               .fullUrl(basePath + "/Patient/" + c.id())
                               .resource(c)
                               .search(
@@ -271,8 +271,8 @@ public class PatientSamples {
           .build();
     }
 
-    public gov.va.api.health.uscorer4.api.resources.Patient.PatientContact contact() {
-      return gov.va.api.health.uscorer4.api.resources.Patient.PatientContact.builder()
+    public gov.va.api.health.r4.api.resources.Patient.PatientContact contact() {
+      return gov.va.api.health.r4.api.resources.Patient.PatientContact.builder()
           .relationship(
               List.of(
                   gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()
@@ -315,12 +315,12 @@ public class PatientSamples {
           .build();
     }
 
-    public gov.va.api.health.uscorer4.api.resources.Patient patient() {
+    public gov.va.api.health.r4.api.resources.Patient patient() {
       return patient("1000003");
     }
 
-    public gov.va.api.health.uscorer4.api.resources.Patient patient(String id) {
-      return gov.va.api.health.uscorer4.api.resources.Patient.builder()
+    public gov.va.api.health.r4.api.resources.Patient patient(String id) {
+      return gov.va.api.health.r4.api.resources.Patient.builder()
           .id(id)
           .resourceType("Patient")
           .extension(
@@ -408,7 +408,7 @@ public class PatientSamples {
                       .value("Tobias236.Wolff180@email.example")
                       .use(gov.va.api.health.r4.api.datatypes.ContactPoint.ContactPointUse.home)
                       .build()))
-          .gender(gov.va.api.health.uscorer4.api.resources.Patient.Gender.male)
+          .gender(gov.va.api.health.r4.api.resources.Patient.Gender.male)
           .birthDate("1970-11-14")
           .deceasedDateTime("2001-03-03T15:08:09Z")
           .address(

@@ -6,14 +6,14 @@ import static gov.va.api.health.dataquery.service.controller.Transformers.asDate
 import static gov.va.api.health.dataquery.service.controller.Transformers.asDateTimeString;
 import static gov.va.api.health.dataquery.service.controller.Transformers.ifPresent;
 
-import gov.va.api.health.argonaut.api.resources.Condition;
-import gov.va.api.health.argonaut.api.resources.Condition.VerificationStatusCode;
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
 import gov.va.api.health.dataquery.service.controller.condition.DatamartCondition.Category;
 import gov.va.api.health.dataquery.service.controller.condition.DatamartCondition.IcdCode;
 import gov.va.api.health.dataquery.service.controller.condition.DatamartCondition.SnomedCode;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
+import gov.va.api.health.dstu2.api.resources.Condition;
+import gov.va.api.health.dstu2.api.resources.Condition.VerificationStatusCode;
 import java.util.List;
 import lombok.Builder;
 import lombok.NonNull;

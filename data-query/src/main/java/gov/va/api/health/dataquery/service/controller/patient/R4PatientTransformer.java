@@ -20,7 +20,7 @@ import gov.va.api.health.r4.api.datatypes.HumanName;
 import gov.va.api.health.r4.api.datatypes.Identifier;
 import gov.va.api.health.r4.api.elements.Extension;
 import gov.va.api.health.r4.api.elements.Reference;
-import gov.va.api.health.uscorer4.api.resources.Patient;
+import gov.va.api.health.r4.api.resources.Patient;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;

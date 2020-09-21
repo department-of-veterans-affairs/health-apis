@@ -2,7 +2,7 @@ package gov.va.api.health.dataquery.service.controller.patient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import gov.va.api.health.argonaut.api.resources.Patient;
+import gov.va.api.health.dstu2.api.resources.Patient;
 import org.junit.jupiter.api.Test;
 
 public class GenderMappingTest {
@@ -37,17 +37,17 @@ public class GenderMappingTest {
   @Test
   public void genderMappingToR4FhirIsValid() {
     assertThat(GenderMapping.toR4Fhir("M"))
-        .isEqualTo(gov.va.api.health.uscorer4.api.resources.Patient.Gender.male);
+        .isEqualTo(gov.va.api.health.r4.api.resources.Patient.Gender.male);
     assertThat(GenderMapping.toR4Fhir("m"))
-        .isEqualTo(gov.va.api.health.uscorer4.api.resources.Patient.Gender.male);
+        .isEqualTo(gov.va.api.health.r4.api.resources.Patient.Gender.male);
     assertThat(GenderMapping.toR4Fhir("F"))
-        .isEqualTo(gov.va.api.health.uscorer4.api.resources.Patient.Gender.female);
+        .isEqualTo(gov.va.api.health.r4.api.resources.Patient.Gender.female);
     assertThat(GenderMapping.toR4Fhir("*MISSING*"))
-        .isEqualTo(gov.va.api.health.uscorer4.api.resources.Patient.Gender.other);
+        .isEqualTo(gov.va.api.health.r4.api.resources.Patient.Gender.other);
     assertThat(GenderMapping.toR4Fhir("*mIssIng*"))
-        .isEqualTo(gov.va.api.health.uscorer4.api.resources.Patient.Gender.other);
+        .isEqualTo(gov.va.api.health.r4.api.resources.Patient.Gender.other);
     assertThat(GenderMapping.toR4Fhir("*UNKNOWN AT THIS TIME*"))
-        .isEqualTo(gov.va.api.health.uscorer4.api.resources.Patient.Gender.unknown);
+        .isEqualTo(gov.va.api.health.r4.api.resources.Patient.Gender.unknown);
     assertThat(GenderMapping.toR4Fhir("-UNKNOWN AT THIS TIME-")).isNull();
     assertThat(GenderMapping.toR4Fhir("")).isNull();
     assertThat(GenderMapping.toR4Fhir("male")).isNull();

@@ -16,7 +16,7 @@ import gov.va.api.health.dataquery.service.controller.patient.PatientSamples.Dat
 import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
-import gov.va.api.health.uscorer4.api.resources.Patient;
+import gov.va.api.health.r4.api.resources.Patient;
 import java.util.Collections;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;

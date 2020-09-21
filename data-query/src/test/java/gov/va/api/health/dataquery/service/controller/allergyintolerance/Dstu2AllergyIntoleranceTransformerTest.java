@@ -2,13 +2,13 @@ package gov.va.api.health.dataquery.service.controller.allergyintolerance;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import gov.va.api.health.argonaut.api.resources.AllergyIntolerance;
 import gov.va.api.health.dataquery.service.controller.allergyintolerance.AllergyIntoleranceSamples.Datamart;
 import gov.va.api.health.dataquery.service.controller.allergyintolerance.AllergyIntoleranceSamples.Dstu2;
 import gov.va.api.health.dataquery.service.controller.allergyintolerance.DatamartAllergyIntolerance.Category;
 import gov.va.api.health.dataquery.service.controller.allergyintolerance.DatamartAllergyIntolerance.Certainty;
 import gov.va.api.health.dataquery.service.controller.allergyintolerance.DatamartAllergyIntolerance.Status;
 import gov.va.api.health.dataquery.service.controller.allergyintolerance.DatamartAllergyIntolerance.Type;
+import gov.va.api.health.dstu2.api.resources.AllergyIntolerance;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;

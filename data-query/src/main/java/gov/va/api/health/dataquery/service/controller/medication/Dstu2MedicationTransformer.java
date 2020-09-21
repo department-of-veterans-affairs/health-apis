@@ -1,10 +1,10 @@
 package gov.va.api.health.dataquery.service.controller.medication;
 
-import gov.va.api.health.argonaut.api.resources.Medication;
-import gov.va.api.health.argonaut.api.resources.Medication.Product;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
 import gov.va.api.health.dstu2.api.elements.Narrative;
+import gov.va.api.health.dstu2.api.resources.Medication;
+import gov.va.api.health.dstu2.api.resources.Medication.Product;
 import java.util.List;
 import java.util.Optional;
 import lombok.Builder;

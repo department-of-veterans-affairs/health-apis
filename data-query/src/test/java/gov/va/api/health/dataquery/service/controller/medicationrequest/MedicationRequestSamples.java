@@ -10,7 +10,7 @@ import gov.va.api.health.r4.api.datatypes.SimpleQuantity;
 import gov.va.api.health.r4.api.datatypes.Timing;
 import gov.va.api.health.r4.api.elements.Dosage;
 import gov.va.api.health.r4.api.elements.Reference;
-import gov.va.api.health.uscorer4.api.resources.MedicationRequest;
+import gov.va.api.health.r4.api.resources.MedicationRequest;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collection;

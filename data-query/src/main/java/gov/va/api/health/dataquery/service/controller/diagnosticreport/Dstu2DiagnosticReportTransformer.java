@@ -6,13 +6,13 @@ import static gov.va.api.health.dataquery.service.controller.Transformers.isBlan
 import static gov.va.api.health.dataquery.service.controller.Transformers.parseInstant;
 import static java.util.Collections.singletonList;
 
-import gov.va.api.health.argonaut.api.resources.DiagnosticReport;
 import gov.va.api.health.dataquery.service.controller.Dstu2Transformers;
 import gov.va.api.health.dstu2.api.DataAbsentReason;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
 import gov.va.api.health.dstu2.api.elements.Extension;
 import gov.va.api.health.dstu2.api.elements.Reference;
+import gov.va.api.health.dstu2.api.resources.DiagnosticReport;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.Builder;

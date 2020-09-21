@@ -19,7 +19,7 @@ import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.health.r4.api.bundle.BundleLink.LinkRelation;
-import gov.va.api.health.uscorer4.api.resources.Procedure;
+import gov.va.api.health.r4.api.resources.Procedure;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -84,11 +84,11 @@ public class R4ProcedureControllerTest {
                     .build()));
   }
 
-  private Multimap<String, gov.va.api.health.uscorer4.api.resources.Procedure> populateData() {
+  private Multimap<String, gov.va.api.health.r4.api.resources.Procedure> populateData() {
     var fhir = ProcedureSamples.R4.create();
     var datamart = ProcedureSamples.Datamart.create();
     var procedureByPatient =
-        LinkedHashMultimap.<String, gov.va.api.health.uscorer4.api.resources.Procedure>create();
+        LinkedHashMultimap.<String, gov.va.api.health.r4.api.resources.Procedure>create();
     var registrations = new ArrayList<Registration>(10);
     for (int i = 0; i < 10; i++) {
       String patientId = "p" + i % 2;

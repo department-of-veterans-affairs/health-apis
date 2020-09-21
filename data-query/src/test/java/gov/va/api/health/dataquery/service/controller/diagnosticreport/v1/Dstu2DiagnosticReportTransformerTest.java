@@ -3,11 +3,11 @@ package gov.va.api.health.dataquery.service.controller.diagnosticreport.v1;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import gov.va.api.health.argonaut.api.resources.DiagnosticReport;
 import gov.va.api.health.dstu2.api.DataAbsentReason;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
 import gov.va.api.health.dstu2.api.elements.Reference;
+import gov.va.api.health.dstu2.api.resources.DiagnosticReport;
 import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 

@@ -9,9 +9,6 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
-import gov.va.api.health.argonaut.api.resources.Condition;
-import gov.va.api.health.argonaut.api.resources.Condition.Bundle;
-import gov.va.api.health.argonaut.api.resources.Condition.ClinicalStatusCode;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
 import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
@@ -22,6 +19,9 @@ import gov.va.api.health.dataquery.service.controller.condition.ConditionSamples
 import gov.va.api.health.dataquery.service.controller.condition.DatamartCondition.Category;
 import gov.va.api.health.dataquery.service.controller.condition.DatamartCondition.ClinicalStatus;
 import gov.va.api.health.dstu2.api.bundle.BundleLink.LinkRelation;
+import gov.va.api.health.dstu2.api.resources.Condition;
+import gov.va.api.health.dstu2.api.resources.Condition.Bundle;
+import gov.va.api.health.dstu2.api.resources.Condition.ClinicalStatusCode;
 import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;

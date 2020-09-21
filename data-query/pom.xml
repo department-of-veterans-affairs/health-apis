@@ -8,11 +8,11 @@
     <relativePath/>
   </parent>
   <artifactId>data-query</artifactId>
-  <version>3.0.39-SNAPSHOT</version>
+  <version>3.0.40-SNAPSHOT</version>
   <packaging>jar</packaging>
   <properties>
     <fall-risk.version>1.0.29</fall-risk.version>
-    <fhir-resources.version>4.0.17</fhir-resources.version>
+    <fhir-resources.version>5.0.0</fhir-resources.version>
     <guava.version>29.0-jre</guava.version>
     <health-apis-ids.version>3.0.3</health-apis-ids.version>
     <mssql-jdbc.version>7.4.1.jre8</mssql-jdbc.version>
@@ -31,17 +31,12 @@
     </dependency>
     <dependency>
       <groupId>gov.va.api.health</groupId>
-      <artifactId>argonaut</artifactId>
+      <artifactId>argonaut-dstu2</artifactId>
       <version>${fhir-resources.version}</version>
     </dependency>
     <dependency>
       <groupId>gov.va.api.health</groupId>
-      <artifactId>dstu2</artifactId>
-      <version>${fhir-resources.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>gov.va.api.health</groupId>
-      <artifactId>stu3</artifactId>
+      <artifactId>argonaut-stu3</artifactId>
       <version>${fhir-resources.version}</version>
     </dependency>
     <dependency>
@@ -173,25 +168,13 @@
         <dependencies>
           <dependency>
             <groupId>gov.va.api.health</groupId>
-            <artifactId>dstu2-examples</artifactId>
-            <version>${fhir-resources.version}</version>
-            <scope>runtime</scope>
-          </dependency>
-          <dependency>
-            <groupId>gov.va.api.health</groupId>
-            <artifactId>argonaut-examples</artifactId>
+            <artifactId>argonaut-dstu2-examples</artifactId>
             <version>${fhir-resources.version}</version>
             <scope>runtime</scope>
           </dependency>
           <dependency>
             <groupId>gov.va.api.health</groupId>
             <artifactId>us-core-r4-examples</artifactId>
-            <version>${fhir-resources.version}</version>
-            <scope>runtime</scope>
-          </dependency>
-          <dependency>
-            <groupId>gov.va.api.health</groupId>
-            <artifactId>r4-examples</artifactId>
             <version>${fhir-resources.version}</version>
             <scope>runtime</scope>
           </dependency>

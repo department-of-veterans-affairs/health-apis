@@ -10,7 +10,7 @@ public class MedicationIncludesIcnMajigTest {
   public void dstu2ExtractNoIcns() {
     ExtractIcnValidator.builder()
         .majig(new Dstu2MedicationIncludesIcnMajig())
-        .body(gov.va.api.health.argonaut.api.resources.Medication.builder().id("123").build())
+        .body(gov.va.api.health.dstu2.api.resources.Medication.builder().id("123").build())
         .expectedIcns(List.of("NONE"))
         .build()
         .assertIcn();
@@ -20,7 +20,7 @@ public class MedicationIncludesIcnMajigTest {
   public void r42ExtractNoIcns() {
     ExtractIcnValidator.builder()
         .majig(new R4MedicationIncludesIcnMajig())
-        .body(gov.va.api.health.uscorer4.api.resources.Medication.builder().id("123").build())
+        .body(gov.va.api.health.r4.api.resources.Medication.builder().id("123").build())
         .expectedIcns(List.of("NONE"))
         .build()
         .assertIcn();

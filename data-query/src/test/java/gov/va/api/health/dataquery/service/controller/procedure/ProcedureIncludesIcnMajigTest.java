@@ -10,7 +10,7 @@ public class ProcedureIncludesIcnMajigTest {
     ExtractIcnValidator.builder()
         .majig(new Dstu2ProcedureIncludesIcnMajig())
         .body(
-            gov.va.api.health.argonaut.api.resources.Procedure.builder()
+            gov.va.api.health.dstu2.api.resources.Procedure.builder()
                 .id("123")
                 .subject(
                     gov.va.api.health.dstu2.api.elements.Reference.builder()
@@ -27,7 +27,7 @@ public class ProcedureIncludesIcnMajigTest {
     ExtractIcnValidator.builder()
         .majig(new R4ProcedureIncludesIcnMajig())
         .body(
-            gov.va.api.health.uscorer4.api.resources.Procedure.builder()
+            gov.va.api.health.r4.api.resources.Procedure.builder()
                 .id("123")
                 .subject(
                     gov.va.api.health.r4.api.elements.Reference.builder()

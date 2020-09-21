@@ -2,8 +2,6 @@ package gov.va.api.health.dataquery.service.controller.medicationorder;
 
 import static java.util.Arrays.asList;
 
-import gov.va.api.health.argonaut.api.resources.MedicationOrder;
-import gov.va.api.health.argonaut.api.resources.MedicationOrder.Status;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dstu2.api.bundle.AbstractBundle;
 import gov.va.api.health.dstu2.api.bundle.AbstractEntry;
@@ -13,6 +11,8 @@ import gov.va.api.health.dstu2.api.datatypes.Duration;
 import gov.va.api.health.dstu2.api.datatypes.SimpleQuantity;
 import gov.va.api.health.dstu2.api.datatypes.Timing;
 import gov.va.api.health.dstu2.api.elements.Reference;
+import gov.va.api.health.dstu2.api.resources.MedicationOrder;
+import gov.va.api.health.dstu2.api.resources.MedicationOrder.Status;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.List;

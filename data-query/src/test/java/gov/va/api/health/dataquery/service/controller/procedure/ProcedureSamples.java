@@ -1,11 +1,11 @@
 package gov.va.api.health.dataquery.service.controller.procedure;
 
-import gov.va.api.health.argonaut.api.resources.Procedure;
-import gov.va.api.health.argonaut.api.resources.Procedure.Bundle;
-import gov.va.api.health.argonaut.api.resources.Procedure.Entry;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dataquery.service.controller.procedure.DatamartProcedure.Status;
+import gov.va.api.health.dstu2.api.resources.Procedure;
+import gov.va.api.health.dstu2.api.resources.Procedure.Bundle;
+import gov.va.api.health.dstu2.api.resources.Procedure.Entry;
 import gov.va.api.health.r4.api.bundle.AbstractBundle.BundleType;
 import gov.va.api.health.r4.api.bundle.AbstractEntry;
 import gov.va.api.health.r4.api.bundle.AbstractEntry.SearchMode;
@@ -141,12 +141,12 @@ public class ProcedureSamples {
 
   @AllArgsConstructor(staticName = "create")
   public static class R4 {
-    static gov.va.api.health.uscorer4.api.resources.Procedure.Bundle asBundle(
+    static gov.va.api.health.r4.api.resources.Procedure.Bundle asBundle(
         String baseUrl,
-        Collection<gov.va.api.health.uscorer4.api.resources.Procedure> resources,
+        Collection<gov.va.api.health.r4.api.resources.Procedure> resources,
         int totalRecords,
         BundleLink... links) {
-      return gov.va.api.health.uscorer4.api.resources.Procedure.Bundle.builder()
+      return gov.va.api.health.r4.api.resources.Procedure.Bundle.builder()
           .resourceType("Bundle")
           .type(BundleType.searchset)
           .total(totalRecords)
@@ -155,7 +155,7 @@ public class ProcedureSamples {
               resources.stream()
                   .map(
                       c ->
-                          gov.va.api.health.uscorer4.api.resources.Procedure.Entry.builder()
+                          gov.va.api.health.r4.api.resources.Procedure.Entry.builder()
                               .fullUrl(baseUrl + "/Procedure/" + c.id())
                               .resource(c)
                               .search(AbstractEntry.Search.builder().mode(SearchMode.match).build())
@@ -171,17 +171,17 @@ public class ProcedureSamples {
           .build();
     }
 
-    gov.va.api.health.uscorer4.api.resources.Procedure procedure() {
+    gov.va.api.health.r4.api.resources.Procedure procedure() {
       return procedure("1000000719261", "1004476237V111282", "2008-01-02T06:00:00Z");
     }
 
-    gov.va.api.health.uscorer4.api.resources.Procedure procedure(
+    gov.va.api.health.r4.api.resources.Procedure procedure(
         String id, String patientId, String performedOn) {
-      return gov.va.api.health.uscorer4.api.resources.Procedure.builder()
+      return gov.va.api.health.r4.api.resources.Procedure.builder()
           .resourceType("Procedure")
           .id(id)
           .subject(reference("VETERAN,GRAY PRO", "Patient/" + patientId))
-          .status(gov.va.api.health.uscorer4.api.resources.Procedure.Status.completed)
+          .status(gov.va.api.health.r4.api.resources.Procedure.Status.completed)
           .code(
               gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()
                   .coding(

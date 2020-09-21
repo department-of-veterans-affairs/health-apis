@@ -3,11 +3,11 @@ package gov.va.api.health.dataquery.tests.crawler;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import gov.va.api.health.argonaut.api.resources.Medication;
-import gov.va.api.health.argonaut.api.resources.MedicationStatement;
-import gov.va.api.health.argonaut.api.resources.Patient;
 import gov.va.api.health.dataquery.tests.crawler.UrlToResourceConverter.DoNotUnderstandUrl;
 import gov.va.api.health.dstu2.api.bundle.AbstractBundle;
+import gov.va.api.health.dstu2.api.resources.Medication;
+import gov.va.api.health.dstu2.api.resources.MedicationStatement;
+import gov.va.api.health.dstu2.api.resources.Patient;
 import gov.va.api.health.dstu2.api.resources.Resource;
 import gov.va.api.health.fhir.api.FhirVersion;
 import gov.va.api.health.stu3.api.resources.Location;
@@ -52,7 +52,7 @@ public class UrlToResourceConverterTest {
     assertThat(
             UrlToResourceConverter.forFhirVersion(FhirVersion.R4)
                 .apply("https://argonaut.com/api/Patient/123"))
-        .isEqualTo(gov.va.api.health.uscorer4.api.resources.Patient.class);
+        .isEqualTo(gov.va.api.health.r4.api.resources.Patient.class);
   }
 
   @Test

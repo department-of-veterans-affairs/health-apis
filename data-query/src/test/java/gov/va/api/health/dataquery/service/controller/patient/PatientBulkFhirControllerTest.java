@@ -4,10 +4,10 @@ import static gov.va.api.health.dataquery.service.controller.Transformers.parseI
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import gov.va.api.health.argonaut.api.resources.Patient;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.BulkFhirCount;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions.BadSearchParameter;
+import gov.va.api.health.dstu2.api.resources.Patient;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.SneakyThrows;

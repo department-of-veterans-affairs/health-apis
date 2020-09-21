@@ -7,7 +7,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
 import gov.va.api.health.r4.api.datatypes.CodeableConcept;
 import gov.va.api.health.r4.api.datatypes.Coding;
-import gov.va.api.health.uscorer4.api.resources.Observation;
+import gov.va.api.health.r4.api.resources.Observation;
 import java.util.List;
 import java.util.Optional;
 import org.assertj.core.util.Lists;

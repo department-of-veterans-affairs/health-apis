@@ -16,7 +16,7 @@ import gov.va.api.health.r4.api.datatypes.SimpleQuantity;
 import gov.va.api.health.r4.api.datatypes.Timing;
 import gov.va.api.health.r4.api.elements.Dosage;
 import gov.va.api.health.r4.api.elements.Extension;
-import gov.va.api.health.uscorer4.api.resources.MedicationRequest;
+import gov.va.api.health.r4.api.resources.MedicationRequest;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;

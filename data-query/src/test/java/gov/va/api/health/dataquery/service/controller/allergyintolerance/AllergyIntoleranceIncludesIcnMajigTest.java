@@ -10,7 +10,7 @@ public class AllergyIntoleranceIncludesIcnMajigTest {
     ExtractIcnValidator.builder()
         .majig(new Dstu2AllergyIntoleranceIncludesIcnMajig())
         .body(
-            gov.va.api.health.argonaut.api.resources.AllergyIntolerance.builder()
+            gov.va.api.health.dstu2.api.resources.AllergyIntolerance.builder()
                 .id("123")
                 .patient(
                     gov.va.api.health.dstu2.api.elements.Reference.builder()
@@ -27,7 +27,7 @@ public class AllergyIntoleranceIncludesIcnMajigTest {
     ExtractIcnValidator.builder()
         .majig(new R4AllergyIntoleranceIncludesIcnMajig())
         .body(
-            gov.va.api.health.uscorer4.api.resources.AllergyIntolerance.builder()
+            gov.va.api.health.r4.api.resources.AllergyIntolerance.builder()
                 .id("123")
                 .patient(
                     gov.va.api.health.r4.api.elements.Reference.builder()

@@ -2,12 +2,12 @@ package gov.va.api.health.dataquery.service.controller.procedure;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import gov.va.api.health.argonaut.api.resources.Procedure;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.procedure.DatamartProcedure.Status;
 import gov.va.api.health.dataquery.service.controller.procedure.ProcedureSamples.Datamart;
 import gov.va.api.health.dataquery.service.controller.procedure.ProcedureSamples.Dstu2;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
+import gov.va.api.health.dstu2.api.resources.Procedure;
 import java.util.List;
 import java.util.Optional;
 import lombok.SneakyThrows;
