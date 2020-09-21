@@ -20,7 +20,7 @@ import org.springframework.data.domain.Sort;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class LatestResourceEtlStatusEntity {
+public class LatestResourceEtlStatusEntity extends Object {
 
   @Id
   @Column(name = "ResourceName")
