@@ -141,12 +141,12 @@ public class DiagnosticReportSamples {
 
     @Builder.Default String performerDisplay = "MANILA-RO";
 
-    public static gov.va.api.health.argonaut.api.resources.DiagnosticReport.Bundle asBundle(
+    public static gov.va.api.health.dstu2.api.resources.DiagnosticReport.Bundle asBundle(
         String baseUrl,
-        Collection<gov.va.api.health.argonaut.api.resources.DiagnosticReport> reports,
+        Collection<gov.va.api.health.dstu2.api.resources.DiagnosticReport> reports,
         int totalRecords,
         gov.va.api.health.dstu2.api.bundle.BundleLink... links) {
-      return gov.va.api.health.argonaut.api.resources.DiagnosticReport.Bundle.builder()
+      return gov.va.api.health.dstu2.api.resources.DiagnosticReport.Bundle.builder()
           .resourceType("Bundle")
           .type(gov.va.api.health.dstu2.api.bundle.AbstractBundle.BundleType.searchset)
           .total(totalRecords)
@@ -155,7 +155,7 @@ public class DiagnosticReportSamples {
               reports.stream()
                   .map(
                       c ->
-                          gov.va.api.health.argonaut.api.resources.DiagnosticReport.Entry.builder()
+                          gov.va.api.health.dstu2.api.resources.DiagnosticReport.Entry.builder()
                               .fullUrl(baseUrl + "/DiagnosticReport/" + c.id())
                               .resource(c)
                               .search(
@@ -191,17 +191,17 @@ public class DiagnosticReportSamples {
           .build();
     }
 
-    public gov.va.api.health.argonaut.api.resources.DiagnosticReport report(
+    public gov.va.api.health.dstu2.api.resources.DiagnosticReport report(
         String publicId, String patientIcn) {
       return report(publicId, patientIcn, issuedDateTime);
     }
 
-    public gov.va.api.health.argonaut.api.resources.DiagnosticReport report(
+    public gov.va.api.health.dstu2.api.resources.DiagnosticReport report(
         String publicId, String patientIcn, String issuedDateTime) {
-      return gov.va.api.health.argonaut.api.resources.DiagnosticReport.builder()
+      return gov.va.api.health.dstu2.api.resources.DiagnosticReport.builder()
           .id(publicId)
           .resourceType("DiagnosticReport")
-          .status(gov.va.api.health.argonaut.api.resources.DiagnosticReport.Code._final)
+          .status(gov.va.api.health.dstu2.api.resources.DiagnosticReport.Code._final)
           .category(
               gov.va.api.health.dstu2.api.datatypes.CodeableConcept.builder()
                   .coding(
@@ -230,23 +230,23 @@ public class DiagnosticReportSamples {
           .build();
     }
 
-    public gov.va.api.health.argonaut.api.resources.DiagnosticReport report(String publicId) {
+    public gov.va.api.health.dstu2.api.resources.DiagnosticReport report(String publicId) {
       return report(publicId, icn);
     }
 
-    public gov.va.api.health.argonaut.api.resources.DiagnosticReport report() {
+    public gov.va.api.health.dstu2.api.resources.DiagnosticReport report() {
       return report(reportId);
     }
   }
 
   @AllArgsConstructor(staticName = "create")
   public static class R4 {
-    public static gov.va.api.health.uscorer4.api.resources.DiagnosticReport.Bundle asBundle(
+    public static gov.va.api.health.r4.api.resources.DiagnosticReport.Bundle asBundle(
         String baseUrl,
-        Collection<gov.va.api.health.uscorer4.api.resources.DiagnosticReport> reports,
+        Collection<gov.va.api.health.r4.api.resources.DiagnosticReport> reports,
         int totalRecords,
         gov.va.api.health.r4.api.bundle.BundleLink... links) {
-      return gov.va.api.health.uscorer4.api.resources.DiagnosticReport.Bundle.builder()
+      return gov.va.api.health.r4.api.resources.DiagnosticReport.Bundle.builder()
           .resourceType("Bundle")
           .type(gov.va.api.health.r4.api.bundle.AbstractBundle.BundleType.searchset)
           .total(totalRecords)
@@ -255,7 +255,7 @@ public class DiagnosticReportSamples {
               reports.stream()
                   .map(
                       c ->
-                          gov.va.api.health.uscorer4.api.resources.DiagnosticReport.Entry.builder()
+                          gov.va.api.health.r4.api.resources.DiagnosticReport.Entry.builder()
                               .fullUrl(baseUrl + "/DiagnosticReport/" + c.id())
                               .resource(c)
                               .search(
@@ -280,27 +280,24 @@ public class DiagnosticReportSamples {
           .build();
     }
 
-    public gov.va.api.health.uscorer4.api.resources.DiagnosticReport diagnosticReport() {
+    public gov.va.api.health.r4.api.resources.DiagnosticReport diagnosticReport() {
       String reportId = "800260864479:L";
       return diagnosticReport(reportId);
     }
 
-    public gov.va.api.health.uscorer4.api.resources.DiagnosticReport diagnosticReport(
-        String publicId) {
+    public gov.va.api.health.r4.api.resources.DiagnosticReport diagnosticReport(String publicId) {
       String icn = "1011537977V693883";
       String issuedDateTime = "2009-09-24T03:36:35Z";
       return diagnosticReport(publicId, icn, issuedDateTime);
     }
 
-    public gov.va.api.health.uscorer4.api.resources.DiagnosticReport diagnosticReport(
+    public gov.va.api.health.r4.api.resources.DiagnosticReport diagnosticReport(
         String publicId, String patientIcn, String issuedDateTime) {
       String effectiveDateTime = "2009-09-24T03:15:24Z";
-      return gov.va.api.health.uscorer4.api.resources.DiagnosticReport.builder()
+      return gov.va.api.health.r4.api.resources.DiagnosticReport.builder()
           .id(publicId)
           .resourceType("DiagnosticReport")
-          .status(
-              gov.va.api.health.uscorer4.api.resources.DiagnosticReport.DiagnosticReportStatus
-                  ._final)
+          .status(gov.va.api.health.r4.api.resources.DiagnosticReport.DiagnosticReportStatus._final)
           .category(
               singletonList(
                   gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()

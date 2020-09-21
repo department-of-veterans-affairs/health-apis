@@ -9,7 +9,7 @@ public class PatientIncludesIcnMajigTest {
   public void dstu2() {
     ExtractIcnValidator.builder()
         .majig(new Dstu2PatientIncludesIcnMajig())
-        .body(gov.va.api.health.argonaut.api.resources.Patient.builder().id("666V666").build())
+        .body(gov.va.api.health.dstu2.api.resources.Patient.builder().id("666V666").build())
         .expectedIcns(List.of("666V666"))
         .build()
         .assertIcn();
@@ -19,7 +19,7 @@ public class PatientIncludesIcnMajigTest {
   public void r4() {
     ExtractIcnValidator.builder()
         .majig(new R4PatientIncludesIcnMajig())
-        .body(gov.va.api.health.uscorer4.api.resources.Patient.builder().id("666V666").build())
+        .body(gov.va.api.health.r4.api.resources.Patient.builder().id("666V666").build())
         .expectedIcns(List.of("666V666"))
         .build()
         .assertIcn();

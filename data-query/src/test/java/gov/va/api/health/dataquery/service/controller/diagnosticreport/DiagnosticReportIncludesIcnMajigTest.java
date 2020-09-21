@@ -10,7 +10,7 @@ public class DiagnosticReportIncludesIcnMajigTest {
     ExtractIcnValidator.builder()
         .majig(new Dstu2DiagnosticReportIncludesIcnMajig())
         .body(
-            gov.va.api.health.argonaut.api.resources.DiagnosticReport.builder()
+            gov.va.api.health.dstu2.api.resources.DiagnosticReport.builder()
                 .id("123")
                 .subject(
                     gov.va.api.health.dstu2.api.elements.Reference.builder()
@@ -27,7 +27,7 @@ public class DiagnosticReportIncludesIcnMajigTest {
     ExtractIcnValidator.builder()
         .majig(new R4DiagnosticReportIncludesIcnMajig())
         .body(
-            gov.va.api.health.uscorer4.api.resources.DiagnosticReport.builder()
+            gov.va.api.health.r4.api.resources.DiagnosticReport.builder()
                 .id("123")
                 .subject(
                     gov.va.api.health.r4.api.elements.Reference.builder()

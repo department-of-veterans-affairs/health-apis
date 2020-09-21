@@ -2,9 +2,9 @@ package gov.va.api.health.dataquery.service.controller.medicationstatement;
 
 import static gov.va.api.health.dataquery.service.controller.Transformers.asReferenceId;
 
-import gov.va.api.health.argonaut.api.resources.MedicationStatement;
 import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
 import gov.va.api.health.dstu2.api.bundle.AbstractEntry;
+import gov.va.api.health.dstu2.api.resources.MedicationStatement;
 import java.util.stream.Stream;
 import lombok.experimental.Delegate;
 import org.springframework.web.bind.annotation.ControllerAdvice;

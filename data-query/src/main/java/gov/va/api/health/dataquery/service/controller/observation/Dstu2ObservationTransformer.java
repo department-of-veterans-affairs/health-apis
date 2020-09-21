@@ -12,7 +12,6 @@ import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 import static org.apache.commons.lang3.StringUtils.upperCase;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
-import gov.va.api.health.argonaut.api.resources.Observation;
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
@@ -20,6 +19,7 @@ import gov.va.api.health.dstu2.api.datatypes.Coding;
 import gov.va.api.health.dstu2.api.datatypes.Quantity;
 import gov.va.api.health.dstu2.api.datatypes.SimpleQuantity;
 import gov.va.api.health.dstu2.api.elements.Reference;
+import gov.va.api.health.dstu2.api.resources.Observation;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;

@@ -147,12 +147,12 @@ public class AllergyIntoleranceSamples {
 
   @AllArgsConstructor(staticName = "create")
   public static class Dstu2 {
-    static gov.va.api.health.argonaut.api.resources.AllergyIntolerance.Bundle asBundle(
+    static gov.va.api.health.dstu2.api.resources.AllergyIntolerance.Bundle asBundle(
         String baseUrl,
-        Collection<gov.va.api.health.argonaut.api.resources.AllergyIntolerance> resources,
+        Collection<gov.va.api.health.dstu2.api.resources.AllergyIntolerance> resources,
         int totalRecords,
         gov.va.api.health.dstu2.api.bundle.BundleLink... links) {
-      return gov.va.api.health.argonaut.api.resources.AllergyIntolerance.Bundle.builder()
+      return gov.va.api.health.dstu2.api.resources.AllergyIntolerance.Bundle.builder()
           .resourceType("Bundle")
           .type(gov.va.api.health.dstu2.api.bundle.AbstractBundle.BundleType.searchset)
           .total(totalRecords)
@@ -161,8 +161,7 @@ public class AllergyIntoleranceSamples {
               resources.stream()
                   .map(
                       a ->
-                          gov.va.api.health.argonaut.api.resources.AllergyIntolerance.Entry
-                              .builder()
+                          gov.va.api.health.dstu2.api.resources.AllergyIntolerance.Entry.builder()
                               .fullUrl(baseUrl + "/AllergyIntolerance/" + a.id())
                               .resource(a)
                               .search(
@@ -187,18 +186,18 @@ public class AllergyIntoleranceSamples {
           .build();
     }
 
-    public gov.va.api.health.argonaut.api.resources.AllergyIntolerance allergyIntolerance(
+    public gov.va.api.health.dstu2.api.resources.AllergyIntolerance allergyIntolerance(
         String cdwId) {
       return allergyIntolerance(cdwId, "666V666");
     }
 
-    public gov.va.api.health.argonaut.api.resources.AllergyIntolerance allergyIntolerance() {
+    public gov.va.api.health.dstu2.api.resources.AllergyIntolerance allergyIntolerance() {
       return allergyIntolerance("800001608621", "666V666");
     }
 
-    public gov.va.api.health.argonaut.api.resources.AllergyIntolerance allergyIntolerance(
+    public gov.va.api.health.dstu2.api.resources.AllergyIntolerance allergyIntolerance(
         String cdwId, String patientId) {
-      return gov.va.api.health.argonaut.api.resources.AllergyIntolerance.builder()
+      return gov.va.api.health.dstu2.api.resources.AllergyIntolerance.builder()
           .resourceType("AllergyIntolerance")
           .id(cdwId)
           .recordedDate("2017-07-23T04:27:43Z")
@@ -213,9 +212,9 @@ public class AllergyIntoleranceSamples {
                   .display("VETERAN,HERNAM MINAM")
                   .build())
           .substance(fullyPopulatedSubstance())
-          .status(gov.va.api.health.argonaut.api.resources.AllergyIntolerance.Status.active)
-          .type(gov.va.api.health.argonaut.api.resources.AllergyIntolerance.Type.allergy)
-          .category(gov.va.api.health.argonaut.api.resources.AllergyIntolerance.Category.medication)
+          .status(gov.va.api.health.dstu2.api.resources.AllergyIntolerance.Status.active)
+          .type(gov.va.api.health.dstu2.api.resources.AllergyIntolerance.Type.allergy)
+          .category(gov.va.api.health.dstu2.api.resources.AllergyIntolerance.Category.medication)
           .note(note())
           .reaction(reactions())
           .build();
@@ -268,11 +267,10 @@ public class AllergyIntoleranceSamples {
           .build();
     }
 
-    public List<gov.va.api.health.argonaut.api.resources.AllergyIntolerance.Reaction> reactions() {
+    public List<gov.va.api.health.dstu2.api.resources.AllergyIntolerance.Reaction> reactions() {
       return asList(
-          gov.va.api.health.argonaut.api.resources.AllergyIntolerance.Reaction.builder()
-              .certainty(
-                  gov.va.api.health.argonaut.api.resources.AllergyIntolerance.Certainty.likely)
+          gov.va.api.health.dstu2.api.resources.AllergyIntolerance.Reaction.builder()
+              .certainty(gov.va.api.health.dstu2.api.resources.AllergyIntolerance.Certainty.likely)
               .manifestation(manifestations())
               .build());
     }
@@ -280,12 +278,12 @@ public class AllergyIntoleranceSamples {
 
   @AllArgsConstructor(staticName = "create")
   public static class R4 {
-    static gov.va.api.health.uscorer4.api.resources.AllergyIntolerance.Bundle asBundle(
+    static gov.va.api.health.r4.api.resources.AllergyIntolerance.Bundle asBundle(
         String baseUrl,
-        Collection<gov.va.api.health.uscorer4.api.resources.AllergyIntolerance> resources,
+        Collection<gov.va.api.health.r4.api.resources.AllergyIntolerance> resources,
         int totalRecords,
         gov.va.api.health.r4.api.bundle.BundleLink... links) {
-      return gov.va.api.health.uscorer4.api.resources.AllergyIntolerance.Bundle.builder()
+      return gov.va.api.health.r4.api.resources.AllergyIntolerance.Bundle.builder()
           .resourceType("Bundle")
           .type(gov.va.api.health.r4.api.bundle.AbstractBundle.BundleType.searchset)
           .total(totalRecords)
@@ -294,8 +292,7 @@ public class AllergyIntoleranceSamples {
               resources.stream()
                   .map(
                       a ->
-                          gov.va.api.health.uscorer4.api.resources.AllergyIntolerance.Entry
-                              .builder()
+                          gov.va.api.health.r4.api.resources.AllergyIntolerance.Entry.builder()
                               .fullUrl(baseUrl + "/AllergyIntolerance/" + a.id())
                               .resource(a)
                               .search(
@@ -320,13 +317,13 @@ public class AllergyIntoleranceSamples {
           .build();
     }
 
-    public gov.va.api.health.uscorer4.api.resources.AllergyIntolerance allergyIntolerance() {
+    public gov.va.api.health.r4.api.resources.AllergyIntolerance allergyIntolerance() {
       return allergyIntolerance("800001608621", "666V666", "1234", "12345");
     }
 
-    public gov.va.api.health.uscorer4.api.resources.AllergyIntolerance allergyIntolerance(
+    public gov.va.api.health.r4.api.resources.AllergyIntolerance allergyIntolerance(
         String publicId, String patientPublicId, String recorderPublicId, String authorPublicId) {
-      return gov.va.api.health.uscorer4.api.resources.AllergyIntolerance.builder()
+      return gov.va.api.health.r4.api.resources.AllergyIntolerance.builder()
           .resourceType("AllergyIntolerance")
           .id(publicId)
           .clinicalStatus(
@@ -338,10 +335,9 @@ public class AllergyIntoleranceSamples {
                               .code("active")
                               .build()))
                   .build())
-          .type(gov.va.api.health.uscorer4.api.resources.AllergyIntolerance.Type.allergy)
+          .type(gov.va.api.health.r4.api.resources.AllergyIntolerance.Type.allergy)
           .category(
-              List.of(
-                  gov.va.api.health.uscorer4.api.resources.AllergyIntolerance.Category.medication))
+              List.of(gov.va.api.health.r4.api.resources.AllergyIntolerance.Category.medication))
           .patient(
               gov.va.api.health.r4.api.elements.Reference.builder()
                   .reference("Patient/" + patientPublicId)
@@ -393,7 +389,7 @@ public class AllergyIntoleranceSamples {
                       .build()))
           .reaction(
               List.of(
-                  gov.va.api.health.uscorer4.api.resources.AllergyIntolerance.Reaction.builder()
+                  gov.va.api.health.r4.api.resources.AllergyIntolerance.Reaction.builder()
                       .substance(
                           gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()
                               .coding(

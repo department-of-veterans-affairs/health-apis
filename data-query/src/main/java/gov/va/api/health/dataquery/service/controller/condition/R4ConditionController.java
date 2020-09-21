@@ -13,7 +13,7 @@ import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.TokenParameter;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.condition.ConditionRepository.ExplicitCategorySystemSpecification;
-import gov.va.api.health.uscorer4.api.resources.Condition;
+import gov.va.api.health.r4.api.resources.Condition;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;

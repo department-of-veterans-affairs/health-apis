@@ -4,10 +4,10 @@ import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.a
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asReference;
 import static gov.va.api.health.dataquery.service.controller.Transformers.asDateTimeString;
 
-import gov.va.api.health.argonaut.api.resources.Procedure;
-import gov.va.api.health.argonaut.api.resources.Procedure.Status;
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
+import gov.va.api.health.dstu2.api.resources.Procedure;
+import gov.va.api.health.dstu2.api.resources.Procedure.Status;
 import java.util.List;
 import java.util.Optional;
 import lombok.Builder;

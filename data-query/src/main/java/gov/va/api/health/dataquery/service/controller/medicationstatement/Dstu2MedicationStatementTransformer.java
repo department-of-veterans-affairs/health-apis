@@ -3,9 +3,9 @@ package gov.va.api.health.dataquery.service.controller.medicationstatement;
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asReference;
 import static gov.va.api.health.dataquery.service.controller.Transformers.asDateTimeString;
 
-import gov.va.api.health.argonaut.api.resources.MedicationStatement;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Timing;
+import gov.va.api.health.dstu2.api.resources.MedicationStatement;
 import java.util.List;
 import java.util.Optional;
 import lombok.Builder;

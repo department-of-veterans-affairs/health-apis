@@ -14,7 +14,7 @@ import gov.va.api.health.dataquery.service.controller.TokenParameter;
 import gov.va.api.health.dataquery.service.controller.TokenParameter.Mode;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.r4.api.bundle.AbstractEntry;
-import gov.va.api.health.uscorer4.api.resources.Observation;
+import gov.va.api.health.r4.api.resources.Observation;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;

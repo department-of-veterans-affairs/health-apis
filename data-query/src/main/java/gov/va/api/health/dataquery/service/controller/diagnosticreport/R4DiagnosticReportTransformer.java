@@ -10,7 +10,7 @@ import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference
 import gov.va.api.health.r4.api.datatypes.CodeableConcept;
 import gov.va.api.health.r4.api.datatypes.Coding;
 import gov.va.api.health.r4.api.elements.Reference;
-import gov.va.api.health.uscorer4.api.resources.DiagnosticReport;
+import gov.va.api.health.r4.api.resources.DiagnosticReport;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.Builder;

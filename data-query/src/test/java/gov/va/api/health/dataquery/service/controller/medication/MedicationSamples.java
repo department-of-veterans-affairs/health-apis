@@ -43,12 +43,12 @@ public class MedicationSamples {
 
   @AllArgsConstructor(staticName = "create")
   public static class Dstu2 {
-    static gov.va.api.health.argonaut.api.resources.Medication.Bundle asBundle(
+    static gov.va.api.health.dstu2.api.resources.Medication.Bundle asBundle(
         String baseUrl,
-        Collection<gov.va.api.health.argonaut.api.resources.Medication> medications,
+        Collection<gov.va.api.health.dstu2.api.resources.Medication> medications,
         int totalRecords,
         gov.va.api.health.dstu2.api.bundle.BundleLink... links) {
-      return gov.va.api.health.argonaut.api.resources.Medication.Bundle.builder()
+      return gov.va.api.health.dstu2.api.resources.Medication.Bundle.builder()
           .resourceType("Bundle")
           .type(gov.va.api.health.dstu2.api.bundle.AbstractBundle.BundleType.searchset)
           .total(totalRecords)
@@ -57,7 +57,7 @@ public class MedicationSamples {
               medications.stream()
                   .map(
                       c ->
-                          gov.va.api.health.argonaut.api.resources.Medication.Entry.builder()
+                          gov.va.api.health.dstu2.api.resources.Medication.Entry.builder()
                               .fullUrl(baseUrl + "/Medication/" + c.id())
                               .resource(c)
                               .search(
@@ -117,13 +117,13 @@ public class MedicationSamples {
           .build();
     }
 
-    gov.va.api.health.argonaut.api.resources.Medication medication() {
+    gov.va.api.health.dstu2.api.resources.Medication medication() {
       return medication("1000");
     }
 
-    gov.va.api.health.argonaut.api.resources.Medication medication(String id) {
-      return gov.va.api.health.argonaut.api.resources.Medication.builder()
-          .resourceType(gov.va.api.health.argonaut.api.resources.Medication.class.getSimpleName())
+    gov.va.api.health.dstu2.api.resources.Medication medication(String id) {
+      return gov.va.api.health.dstu2.api.resources.Medication.builder()
+          .resourceType(gov.va.api.health.dstu2.api.resources.Medication.class.getSimpleName())
           .id(id)
           .code(codeRxNorm())
           .product(product())
@@ -131,8 +131,8 @@ public class MedicationSamples {
           .build();
     }
 
-    gov.va.api.health.argonaut.api.resources.Medication.Product product() {
-      return gov.va.api.health.argonaut.api.resources.Medication.Product.builder()
+    gov.va.api.health.dstu2.api.resources.Medication.Product product() {
+      return gov.va.api.health.dstu2.api.resources.Medication.Product.builder()
           .id("4015523")
           .form(gov.va.api.health.dstu2.api.datatypes.CodeableConcept.builder().text("TAB").build())
           .build();
@@ -155,12 +155,12 @@ public class MedicationSamples {
 
   @AllArgsConstructor(staticName = "create")
   public static class R4 {
-    static gov.va.api.health.uscorer4.api.resources.Medication.Bundle asBundle(
+    static gov.va.api.health.r4.api.resources.Medication.Bundle asBundle(
         String baseUrl,
-        Collection<gov.va.api.health.uscorer4.api.resources.Medication> resources,
+        Collection<gov.va.api.health.r4.api.resources.Medication> resources,
         int totalRecords,
         gov.va.api.health.r4.api.bundle.BundleLink... links) {
-      return gov.va.api.health.uscorer4.api.resources.Medication.Bundle.builder()
+      return gov.va.api.health.r4.api.resources.Medication.Bundle.builder()
           .resourceType("Bundle")
           .type(gov.va.api.health.r4.api.bundle.AbstractBundle.BundleType.searchset)
           .total(totalRecords)
@@ -169,7 +169,7 @@ public class MedicationSamples {
               resources.stream()
                   .map(
                       c ->
-                          gov.va.api.health.uscorer4.api.resources.Medication.Entry.builder()
+                          gov.va.api.health.r4.api.resources.Medication.Entry.builder()
                               .fullUrl(baseUrl + "/Medication/" + c.id())
                               .resource(c)
                               .search(
@@ -235,12 +235,12 @@ public class MedicationSamples {
       return List.of(gov.va.api.health.r4.api.datatypes.Identifier.builder().id("4015523").build());
     }
 
-    public gov.va.api.health.uscorer4.api.resources.Medication medication() {
+    public gov.va.api.health.r4.api.resources.Medication medication() {
       return medication("1000");
     }
 
-    public gov.va.api.health.uscorer4.api.resources.Medication medication(String id) {
-      return gov.va.api.health.uscorer4.api.resources.Medication.builder()
+    public gov.va.api.health.r4.api.resources.Medication medication(String id) {
+      return gov.va.api.health.r4.api.resources.Medication.builder()
           .resourceType("Medication")
           .id(id)
           .code(codeRxNorm())

@@ -240,12 +240,12 @@ public class LocationSamples {
 
   @AllArgsConstructor(staticName = "create")
   static final class R4 {
-    static gov.va.api.health.uscorer4.api.resources.Location.Bundle asBundle(
+    static gov.va.api.health.r4.api.resources.Location.Bundle asBundle(
         String baseUrl,
-        Collection<gov.va.api.health.uscorer4.api.resources.Location> locations,
+        Collection<gov.va.api.health.r4.api.resources.Location> locations,
         int totalRecords,
         gov.va.api.health.r4.api.bundle.BundleLink... links) {
-      return gov.va.api.health.uscorer4.api.resources.Location.Bundle.builder()
+      return gov.va.api.health.r4.api.resources.Location.Bundle.builder()
           .resourceType("Bundle")
           .type(gov.va.api.health.r4.api.bundle.AbstractBundle.BundleType.searchset)
           .total(totalRecords)
@@ -254,7 +254,7 @@ public class LocationSamples {
               locations.stream()
                   .map(
                       c ->
-                          gov.va.api.health.uscorer4.api.resources.Location.Entry.builder()
+                          gov.va.api.health.r4.api.resources.Location.Entry.builder()
                               .fullUrl(baseUrl + "/Location/" + c.id())
                               .resource(c)
                               .search(
@@ -279,12 +279,12 @@ public class LocationSamples {
           .build();
     }
 
-    gov.va.api.health.uscorer4.api.resources.Location location() {
+    gov.va.api.health.r4.api.resources.Location location() {
       return location("123");
     }
 
-    gov.va.api.health.uscorer4.api.resources.Location location(String id) {
-      return gov.va.api.health.uscorer4.api.resources.Location.builder()
+    gov.va.api.health.r4.api.resources.Location location(String id) {
+      return gov.va.api.health.r4.api.resources.Location.builder()
           .resourceType("Location")
           .id(id)
           .address(
@@ -307,7 +307,7 @@ public class LocationSamples {
                   .reference("Organization/456")
                   .display("OLIN E. TEAGUE VET CENTER")
                   .build())
-          .mode(gov.va.api.health.uscorer4.api.resources.Location.Mode.instance)
+          .mode(gov.va.api.health.r4.api.resources.Location.Mode.instance)
           .name(LOCATION_NAME)
           .physicalType(
               gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()
@@ -317,7 +317,7 @@ public class LocationSamples {
                               .display("BLDG 146, RM W02")
                               .build()))
                   .build())
-          .status(gov.va.api.health.uscorer4.api.resources.Location.Status.active)
+          .status(gov.va.api.health.r4.api.resources.Location.Status.active)
           .telecom(
               asList(
                   gov.va.api.health.r4.api.datatypes.ContactPoint.builder()

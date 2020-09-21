@@ -11,7 +11,7 @@ import gov.va.api.health.dataquery.service.controller.organization.DatamartOrgan
 import gov.va.api.health.r4.api.datatypes.Address;
 import gov.va.api.health.r4.api.datatypes.ContactPoint;
 import gov.va.api.health.r4.api.datatypes.Identifier;
-import gov.va.api.health.uscorer4.api.resources.Organization;
+import gov.va.api.health.r4.api.resources.Organization;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;

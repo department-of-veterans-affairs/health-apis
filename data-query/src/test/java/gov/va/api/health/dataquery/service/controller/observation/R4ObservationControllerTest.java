@@ -20,7 +20,7 @@ import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.health.r4.api.bundle.BundleLink;
 import gov.va.api.health.r4.api.datatypes.CodeableConcept;
 import gov.va.api.health.r4.api.datatypes.Coding;
-import gov.va.api.health.uscorer4.api.resources.Observation;
+import gov.va.api.health.r4.api.resources.Observation;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;

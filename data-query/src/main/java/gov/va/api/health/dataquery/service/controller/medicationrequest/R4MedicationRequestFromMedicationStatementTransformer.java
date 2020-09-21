@@ -11,7 +11,7 @@ import gov.va.api.health.r4.api.datatypes.CodeableConcept;
 import gov.va.api.health.r4.api.datatypes.Period;
 import gov.va.api.health.r4.api.datatypes.Timing;
 import gov.va.api.health.r4.api.elements.Dosage;
-import gov.va.api.health.uscorer4.api.resources.MedicationRequest;
+import gov.va.api.health.r4.api.resources.MedicationRequest;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;

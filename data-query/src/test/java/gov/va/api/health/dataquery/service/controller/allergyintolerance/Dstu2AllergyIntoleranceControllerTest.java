@@ -8,8 +8,6 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
-import gov.va.api.health.argonaut.api.resources.AllergyIntolerance;
-import gov.va.api.health.argonaut.api.resources.AllergyIntolerance.Bundle;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
 import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
@@ -18,6 +16,8 @@ import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.allergyintolerance.AllergyIntoleranceSamples.Datamart;
 import gov.va.api.health.dataquery.service.controller.allergyintolerance.AllergyIntoleranceSamples.Dstu2;
 import gov.va.api.health.dstu2.api.bundle.BundleLink.LinkRelation;
+import gov.va.api.health.dstu2.api.resources.AllergyIntolerance;
+import gov.va.api.health.dstu2.api.resources.AllergyIntolerance.Bundle;
 import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;

@@ -4,7 +4,7 @@ import gov.va.api.health.r4.api.datatypes.CodeableConcept;
 import gov.va.api.health.r4.api.datatypes.Coding;
 import gov.va.api.health.r4.api.datatypes.Identifier;
 import gov.va.api.health.r4.api.elements.Narrative;
-import gov.va.api.health.uscorer4.api.resources.Medication;
+import gov.va.api.health.r4.api.resources.Medication;
 import java.util.List;
 import java.util.Optional;
 import lombok.Builder;

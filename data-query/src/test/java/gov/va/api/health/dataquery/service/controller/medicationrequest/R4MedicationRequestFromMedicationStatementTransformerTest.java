@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import gov.va.api.health.dataquery.service.controller.medicationstatement.DatamartMedicationStatement;
 import gov.va.api.health.dataquery.service.controller.medicationstatement.MedicationStatementSamples;
-import gov.va.api.health.uscorer4.api.resources.MedicationRequest;
+import gov.va.api.health.r4.api.resources.MedicationRequest;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 

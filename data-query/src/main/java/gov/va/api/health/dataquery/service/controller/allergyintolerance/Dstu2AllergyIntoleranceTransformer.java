@@ -8,7 +8,6 @@ import static gov.va.api.health.dataquery.service.controller.Transformers.emptyT
 import static java.util.Arrays.asList;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
-import gov.va.api.health.argonaut.api.resources.AllergyIntolerance;
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
 import gov.va.api.health.dataquery.service.controller.allergyintolerance.DatamartAllergyIntolerance.Status;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
@@ -16,6 +15,7 @@ import gov.va.api.health.dstu2.api.datatypes.Annotation;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
 import gov.va.api.health.dstu2.api.elements.Reference;
+import gov.va.api.health.dstu2.api.resources.AllergyIntolerance;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;

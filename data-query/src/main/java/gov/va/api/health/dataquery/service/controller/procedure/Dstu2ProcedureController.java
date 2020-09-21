@@ -4,8 +4,6 @@ import static gov.va.api.health.autoconfig.logging.LogSanitizer.sanitize;
 import static java.util.Collections.emptyList;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
-import gov.va.api.health.argonaut.api.resources.Procedure;
-import gov.va.api.health.argonaut.api.resources.Procedure.Bundle;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.DateTimeParameter;
 import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
@@ -15,6 +13,8 @@ import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions.NotFound;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.procedure.ProcedureRepository.PatientAndDateSpecification;
+import gov.va.api.health.dstu2.api.resources.Procedure;
+import gov.va.api.health.dstu2.api.resources.Procedure.Bundle;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;

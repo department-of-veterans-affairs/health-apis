@@ -2,7 +2,7 @@ package gov.va.api.health.dataquery.service.controller.medication;
 
 import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
 import gov.va.api.health.r4.api.bundle.AbstractEntry;
-import gov.va.api.health.uscorer4.api.resources.Medication;
+import gov.va.api.health.r4.api.resources.Medication;
 import java.util.stream.Stream;
 import lombok.experimental.Delegate;
 import org.springframework.web.bind.annotation.ControllerAdvice;
