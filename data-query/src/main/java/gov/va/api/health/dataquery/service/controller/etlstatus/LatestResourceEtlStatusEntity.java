@@ -20,7 +20,6 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class LatestResourceEtlStatusEntity {
-  
   @Id
   @Column(name = "ResourceName")
   @EqualsAndHashCode.Include
@@ -28,5 +27,4 @@ public class LatestResourceEtlStatusEntity {
 
   @Column(name = "EndDateTimeUTC")
   private Instant endDateTime;
-
 }
