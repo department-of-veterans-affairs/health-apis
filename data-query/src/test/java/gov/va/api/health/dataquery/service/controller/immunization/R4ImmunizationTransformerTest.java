@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.r4.api.DataAbsentReason;
-import gov.va.api.health.uscorer4.api.resources.Immunization;
+import gov.va.api.health.r4.api.resources.Immunization;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 

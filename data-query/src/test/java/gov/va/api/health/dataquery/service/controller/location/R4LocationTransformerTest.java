@@ -6,7 +6,7 @@ import gov.va.api.health.r4.api.datatypes.Address;
 import gov.va.api.health.r4.api.datatypes.CodeableConcept;
 import gov.va.api.health.r4.api.datatypes.Coding;
 import gov.va.api.health.r4.api.datatypes.ContactPoint;
-import gov.va.api.health.uscorer4.api.resources.Location;
+import gov.va.api.health.r4.api.resources.Location;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;

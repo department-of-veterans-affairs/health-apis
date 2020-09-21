@@ -1,9 +1,5 @@
 package gov.va.api.health.dataquery.service.controller.condition;
 
-import gov.va.api.health.argonaut.api.resources.Condition;
-import gov.va.api.health.argonaut.api.resources.Condition.Bundle;
-import gov.va.api.health.argonaut.api.resources.Condition.Entry;
-import gov.va.api.health.argonaut.api.resources.Condition.VerificationStatusCode;
 import gov.va.api.health.dataquery.service.controller.condition.DatamartCondition.IcdCode;
 import gov.va.api.health.dataquery.service.controller.condition.DatamartCondition.SnomedCode;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
@@ -15,6 +11,10 @@ import gov.va.api.health.dstu2.api.bundle.BundleLink.LinkRelation;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
 import gov.va.api.health.dstu2.api.elements.Reference;
+import gov.va.api.health.dstu2.api.resources.Condition;
+import gov.va.api.health.dstu2.api.resources.Condition.Bundle;
+import gov.va.api.health.dstu2.api.resources.Condition.Entry;
+import gov.va.api.health.dstu2.api.resources.Condition.VerificationStatusCode;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -201,12 +201,12 @@ public class ConditionSamples {
 
   @AllArgsConstructor(staticName = "create")
   public static class R4 {
-    static gov.va.api.health.uscorer4.api.resources.Condition.Bundle asBundle(
+    static gov.va.api.health.r4.api.resources.Condition.Bundle asBundle(
         String baseUrl,
-        Collection<gov.va.api.health.uscorer4.api.resources.Condition> conditions,
+        Collection<gov.va.api.health.r4.api.resources.Condition> conditions,
         int totalRecords,
         gov.va.api.health.r4.api.bundle.BundleLink... links) {
-      return gov.va.api.health.uscorer4.api.resources.Condition.Bundle.builder()
+      return gov.va.api.health.r4.api.resources.Condition.Bundle.builder()
           .resourceType("Bundle")
           .type(gov.va.api.health.r4.api.bundle.AbstractBundle.BundleType.searchset)
           .total(totalRecords)
@@ -215,7 +215,7 @@ public class ConditionSamples {
               conditions.stream()
                   .map(
                       c ->
-                          gov.va.api.health.uscorer4.api.resources.Condition.Entry.builder()
+                          gov.va.api.health.r4.api.resources.Condition.Entry.builder()
                               .fullUrl(baseUrl + "/Condition/" + c.id())
                               .resource(c)
                               .search(
@@ -294,9 +294,9 @@ public class ConditionSamples {
           .build();
     }
 
-    public gov.va.api.health.uscorer4.api.resources.Condition condition(
+    public gov.va.api.health.r4.api.resources.Condition condition(
         String id, String patientId, String recordedDate) {
-      return gov.va.api.health.uscorer4.api.resources.Condition.builder()
+      return gov.va.api.health.r4.api.resources.Condition.builder()
           .resourceType("Condition")
           .id(id)
           .subject(reference("VETERAN,FIRNM MINAM", "Patient/" + patientId))
@@ -311,11 +311,11 @@ public class ConditionSamples {
           .build();
     }
 
-    public gov.va.api.health.uscorer4.api.resources.Condition condition() {
+    public gov.va.api.health.r4.api.resources.Condition condition() {
       return condition("800274570575:D");
     }
 
-    public gov.va.api.health.uscorer4.api.resources.Condition condition(String id) {
+    public gov.va.api.health.r4.api.resources.Condition condition(String id) {
       return condition(id, "666V666", "2011-06-27");
     }
 

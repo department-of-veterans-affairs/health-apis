@@ -5,7 +5,7 @@ import static java.util.Arrays.asList;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.r4.api.bundle.BundleLink;
-import gov.va.api.health.uscorer4.api.resources.Organization;
+import gov.va.api.health.r4.api.resources.Organization;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -182,12 +182,12 @@ public class OrganizationSamples {
   @AllArgsConstructor(staticName = "create")
   static class R4 {
 
-    static gov.va.api.health.uscorer4.api.resources.Organization.Bundle asBundle(
+    static gov.va.api.health.r4.api.resources.Organization.Bundle asBundle(
         String baseUrl,
         Collection<Organization> organizations,
         int totalRecords,
         BundleLink... links) {
-      return gov.va.api.health.uscorer4.api.resources.Organization.Bundle.builder()
+      return gov.va.api.health.r4.api.resources.Organization.Bundle.builder()
           .resourceType("Bundle")
           .type(gov.va.api.health.r4.api.bundle.AbstractBundle.BundleType.searchset)
           .total(totalRecords)
@@ -196,7 +196,7 @@ public class OrganizationSamples {
               organizations.stream()
                   .map(
                       c ->
-                          gov.va.api.health.uscorer4.api.resources.Organization.Entry.builder()
+                          gov.va.api.health.r4.api.resources.Organization.Entry.builder()
                               .fullUrl(baseUrl + "/Organization/" + c.id())
                               .resource(c)
                               .search(
@@ -221,12 +221,12 @@ public class OrganizationSamples {
           .build();
     }
 
-    public gov.va.api.health.uscorer4.api.resources.Organization organization() {
+    public gov.va.api.health.r4.api.resources.Organization organization() {
       return organization("1234");
     }
 
-    gov.va.api.health.uscorer4.api.resources.Organization organization(String id) {
-      return gov.va.api.health.uscorer4.api.resources.Organization.builder()
+    gov.va.api.health.r4.api.resources.Organization organization(String id) {
+      return gov.va.api.health.r4.api.resources.Organization.builder()
           .resourceType("Organization")
           .id(id)
           .identifier(

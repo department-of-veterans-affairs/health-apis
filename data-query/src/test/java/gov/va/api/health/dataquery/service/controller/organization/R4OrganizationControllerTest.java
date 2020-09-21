@@ -19,7 +19,7 @@ import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.health.r4.api.bundle.BundleLink;
-import gov.va.api.health.uscorer4.api.resources.Organization;
+import gov.va.api.health.r4.api.resources.Organization;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;

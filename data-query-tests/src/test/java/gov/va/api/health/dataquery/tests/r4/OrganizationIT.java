@@ -2,7 +2,7 @@ package gov.va.api.health.dataquery.tests.r4;
 
 import gov.va.api.health.dataquery.tests.ResourceVerifier;
 import gov.va.api.health.r4.api.resources.OperationOutcome;
-import gov.va.api.health.uscorer4.api.resources.Organization;
+import gov.va.api.health.r4.api.resources.Organization;
 import lombok.experimental.Delegate;
 import org.junit.jupiter.api.Test;
 

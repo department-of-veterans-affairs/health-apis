@@ -19,7 +19,7 @@ import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.health.r4.api.bundle.BundleLink.LinkRelation;
-import gov.va.api.health.uscorer4.api.resources.AllergyIntolerance;
+import gov.va.api.health.r4.api.resources.AllergyIntolerance;
 import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;

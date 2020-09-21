@@ -284,12 +284,12 @@ public class ObservationSamples {
 
   @AllArgsConstructor(staticName = "create")
   public static class Dstu2 {
-    static gov.va.api.health.argonaut.api.resources.Observation.Bundle asBundle(
+    static gov.va.api.health.dstu2.api.resources.Observation.Bundle asBundle(
         String baseUrl,
-        Collection<gov.va.api.health.argonaut.api.resources.Observation> observations,
+        Collection<gov.va.api.health.dstu2.api.resources.Observation> observations,
         int totalRecords,
         gov.va.api.health.dstu2.api.bundle.BundleLink... links) {
-      return gov.va.api.health.argonaut.api.resources.Observation.Bundle.builder()
+      return gov.va.api.health.dstu2.api.resources.Observation.Bundle.builder()
           .resourceType("Bundle")
           .type(gov.va.api.health.dstu2.api.bundle.AbstractBundle.BundleType.searchset)
           .total(totalRecords)
@@ -298,7 +298,7 @@ public class ObservationSamples {
               observations.stream()
                   .map(
                       c ->
-                          gov.va.api.health.argonaut.api.resources.Observation.Entry.builder()
+                          gov.va.api.health.dstu2.api.resources.Observation.Entry.builder()
                               .fullUrl(baseUrl + "/Observation/" + c.id())
                               .resource(c)
                               .search(
@@ -323,20 +323,20 @@ public class ObservationSamples {
           .build();
     }
 
-    public gov.va.api.health.argonaut.api.resources.Observation observation() {
+    public gov.va.api.health.dstu2.api.resources.Observation observation() {
       return observation("800001973863:A", "666V666");
     }
 
-    public gov.va.api.health.argonaut.api.resources.Observation observation(String id) {
+    public gov.va.api.health.dstu2.api.resources.Observation observation(String id) {
       return observation(id, "666V666");
     }
 
-    public gov.va.api.health.argonaut.api.resources.Observation observation(
+    public gov.va.api.health.dstu2.api.resources.Observation observation(
         String id, String patientId) {
-      return gov.va.api.health.argonaut.api.resources.Observation.builder()
+      return gov.va.api.health.dstu2.api.resources.Observation.builder()
           .resourceType("Observation")
           .id(id)
-          .status(gov.va.api.health.argonaut.api.resources.Observation.Status._final)
+          .status(gov.va.api.health.dstu2.api.resources.Observation.Status._final)
           .category(
               gov.va.api.health.dstu2.api.datatypes.CodeableConcept.builder()
                   .coding(
@@ -397,7 +397,7 @@ public class ObservationSamples {
               "CYTOSPIN:NO ACID-FAST BACILLI SEEN. 01/02/2015 BACILLI ISOLATED AFTER 6 WEEKS BY LABCORP")
           .referenceRange(
               asList(
-                  gov.va.api.health.argonaut.api.resources.Observation.ObservationReferenceRange
+                  gov.va.api.health.dstu2.api.resources.Observation.ObservationReferenceRange
                       .builder()
                       .low(
                           gov.va.api.health.dstu2.api.datatypes.SimpleQuantity.builder()
@@ -416,8 +416,7 @@ public class ObservationSamples {
                       .build()))
           .component(
               asList(
-                  gov.va.api.health.argonaut.api.resources.Observation.ObservationComponent
-                      .builder()
+                  gov.va.api.health.dstu2.api.resources.Observation.ObservationComponent.builder()
                       .code(
                           gov.va.api.health.dstu2.api.datatypes.CodeableConcept.builder()
                               .coding(
@@ -436,8 +435,7 @@ public class ObservationSamples {
                               .code("mm[Hg]")
                               .build())
                       .build(),
-                  gov.va.api.health.argonaut.api.resources.Observation.ObservationComponent
-                      .builder()
+                  gov.va.api.health.dstu2.api.resources.Observation.ObservationComponent.builder()
                       .code(
                           gov.va.api.health.dstu2.api.datatypes.CodeableConcept.builder()
                               .coding(
@@ -456,8 +454,7 @@ public class ObservationSamples {
                               .code("mm[Hg]")
                               .build())
                       .build(),
-                  gov.va.api.health.argonaut.api.resources.Observation.ObservationComponent
-                      .builder()
+                  gov.va.api.health.dstu2.api.resources.Observation.ObservationComponent.builder()
                       .code(
                           gov.va.api.health.dstu2.api.datatypes.CodeableConcept.builder()
                               .coding(
@@ -480,8 +477,7 @@ public class ObservationSamples {
                                           .build()))
                               .build())
                       .build(),
-                  gov.va.api.health.argonaut.api.resources.Observation.ObservationComponent
-                      .builder()
+                  gov.va.api.health.dstu2.api.resources.Observation.ObservationComponent.builder()
                       .code(
                           gov.va.api.health.dstu2.api.datatypes.CodeableConcept.builder()
                               .coding(
@@ -504,8 +500,7 @@ public class ObservationSamples {
                                           .build()))
                               .build())
                       .build(),
-                  gov.va.api.health.argonaut.api.resources.Observation.ObservationComponent
-                      .builder()
+                  gov.va.api.health.dstu2.api.resources.Observation.ObservationComponent.builder()
                       .code(
                           gov.va.api.health.dstu2.api.datatypes.CodeableConcept.builder()
                               .coding(
@@ -528,8 +523,7 @@ public class ObservationSamples {
                                           .build()))
                               .build())
                       .build(),
-                  gov.va.api.health.argonaut.api.resources.Observation.ObservationComponent
-                      .builder()
+                  gov.va.api.health.dstu2.api.resources.Observation.ObservationComponent.builder()
                       .code(
                           gov.va.api.health.dstu2.api.datatypes.CodeableConcept.builder()
                               .coding(
@@ -552,8 +546,7 @@ public class ObservationSamples {
                                           .build()))
                               .build())
                       .build(),
-                  gov.va.api.health.argonaut.api.resources.Observation.ObservationComponent
-                      .builder()
+                  gov.va.api.health.dstu2.api.resources.Observation.ObservationComponent.builder()
                       .code(
                           gov.va.api.health.dstu2.api.datatypes.CodeableConcept.builder()
                               .coding(
@@ -576,16 +569,14 @@ public class ObservationSamples {
                                           .build()))
                               .build())
                       .build(),
-                  gov.va.api.health.argonaut.api.resources.Observation.ObservationComponent
-                      .builder()
+                  gov.va.api.health.dstu2.api.resources.Observation.ObservationComponent.builder()
                       .code(
                           gov.va.api.health.dstu2.api.datatypes.CodeableConcept.builder()
                               .text("Acid Fast Stain")
                               .build())
                       .valueString("Concentrate Negative")
                       .build(),
-                  gov.va.api.health.argonaut.api.resources.Observation.ObservationComponent
-                      .builder()
+                  gov.va.api.health.dstu2.api.resources.Observation.ObservationComponent.builder()
                       .code(
                           gov.va.api.health.dstu2.api.datatypes.CodeableConcept.builder()
                               .text("Sputum Screen")
@@ -598,12 +589,12 @@ public class ObservationSamples {
 
   @AllArgsConstructor(staticName = "create")
   public static class R4 {
-    static gov.va.api.health.uscorer4.api.resources.Observation.Bundle asBundle(
+    static gov.va.api.health.r4.api.resources.Observation.Bundle asBundle(
         String baseUrl,
-        Collection<gov.va.api.health.uscorer4.api.resources.Observation> observations,
+        Collection<gov.va.api.health.r4.api.resources.Observation> observations,
         int totalRecords,
         gov.va.api.health.r4.api.bundle.BundleLink... links) {
-      return gov.va.api.health.uscorer4.api.resources.Observation.Bundle.builder()
+      return gov.va.api.health.r4.api.resources.Observation.Bundle.builder()
           .resourceType("Bundle")
           .type(gov.va.api.health.r4.api.bundle.AbstractBundle.BundleType.searchset)
           .total(totalRecords)
@@ -612,7 +603,7 @@ public class ObservationSamples {
               observations.stream()
                   .map(
                       c ->
-                          gov.va.api.health.uscorer4.api.resources.Observation.Entry.builder()
+                          gov.va.api.health.r4.api.resources.Observation.Entry.builder()
                               .fullUrl(baseUrl + "/Observation/" + c.id())
                               .resource(c)
                               .search(
@@ -637,20 +628,19 @@ public class ObservationSamples {
           .build();
     }
 
-    public gov.va.api.health.uscorer4.api.resources.Observation observation() {
+    public gov.va.api.health.r4.api.resources.Observation observation() {
       return observation("800001973863:A", "666V666");
     }
 
-    public gov.va.api.health.uscorer4.api.resources.Observation observation(String id) {
+    public gov.va.api.health.r4.api.resources.Observation observation(String id) {
       return observation(id, "666V666");
     }
 
-    public gov.va.api.health.uscorer4.api.resources.Observation observation(
-        String id, String patientId) {
-      return gov.va.api.health.uscorer4.api.resources.Observation.builder()
+    public gov.va.api.health.r4.api.resources.Observation observation(String id, String patientId) {
+      return gov.va.api.health.r4.api.resources.Observation.builder()
           .resourceType("Observation")
           .id(id)
-          .status(gov.va.api.health.uscorer4.api.resources.Observation.ObservationStatus._final)
+          .status(gov.va.api.health.r4.api.resources.Observation.ObservationStatus._final)
           .category(
               List.of(
                   gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()
@@ -713,7 +703,7 @@ public class ObservationSamples {
                       .build()))
           .referenceRange(
               asList(
-                  gov.va.api.health.uscorer4.api.resources.Observation.ReferenceRange.builder()
+                  gov.va.api.health.r4.api.resources.Observation.ReferenceRange.builder()
                       .low(
                           gov.va.api.health.r4.api.datatypes.SimpleQuantity.builder()
                               .value(new BigDecimal("30.0"))
@@ -731,7 +721,7 @@ public class ObservationSamples {
                       .build()))
           .component(
               asList(
-                  gov.va.api.health.uscorer4.api.resources.Observation.Component.builder()
+                  gov.va.api.health.r4.api.resources.Observation.Component.builder()
                       .code(
                           gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()
                               .coding(
@@ -750,7 +740,7 @@ public class ObservationSamples {
                               .code("mm[Hg]")
                               .build())
                       .build(),
-                  gov.va.api.health.uscorer4.api.resources.Observation.Component.builder()
+                  gov.va.api.health.r4.api.resources.Observation.Component.builder()
                       .code(
                           gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()
                               .coding(
@@ -769,7 +759,7 @@ public class ObservationSamples {
                               .code("mm[Hg]")
                               .build())
                       .build(),
-                  gov.va.api.health.uscorer4.api.resources.Observation.Component.builder()
+                  gov.va.api.health.r4.api.resources.Observation.Component.builder()
                       .code(
                           gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()
                               .coding(
@@ -792,7 +782,7 @@ public class ObservationSamples {
                                           .build()))
                               .build())
                       .build(),
-                  gov.va.api.health.uscorer4.api.resources.Observation.Component.builder()
+                  gov.va.api.health.r4.api.resources.Observation.Component.builder()
                       .code(
                           gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()
                               .coding(
@@ -815,7 +805,7 @@ public class ObservationSamples {
                                           .build()))
                               .build())
                       .build(),
-                  gov.va.api.health.uscorer4.api.resources.Observation.Component.builder()
+                  gov.va.api.health.r4.api.resources.Observation.Component.builder()
                       .code(
                           gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()
                               .coding(
@@ -838,7 +828,7 @@ public class ObservationSamples {
                                           .build()))
                               .build())
                       .build(),
-                  gov.va.api.health.uscorer4.api.resources.Observation.Component.builder()
+                  gov.va.api.health.r4.api.resources.Observation.Component.builder()
                       .code(
                           gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()
                               .coding(
@@ -861,7 +851,7 @@ public class ObservationSamples {
                                           .build()))
                               .build())
                       .build(),
-                  gov.va.api.health.uscorer4.api.resources.Observation.Component.builder()
+                  gov.va.api.health.r4.api.resources.Observation.Component.builder()
                       .code(
                           gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()
                               .coding(
@@ -884,14 +874,14 @@ public class ObservationSamples {
                                           .build()))
                               .build())
                       .build(),
-                  gov.va.api.health.uscorer4.api.resources.Observation.Component.builder()
+                  gov.va.api.health.r4.api.resources.Observation.Component.builder()
                       .code(
                           gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()
                               .text("Acid Fast Stain")
                               .build())
                       .valueString("Concentrate Negative")
                       .build(),
-                  gov.va.api.health.uscorer4.api.resources.Observation.Component.builder()
+                  gov.va.api.health.r4.api.resources.Observation.Component.builder()
                       .code(
                           gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()
                               .text("Sputum Screen")

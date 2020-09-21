@@ -6,7 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.r4.api.datatypes.CodeableConcept;
 import gov.va.api.health.r4.api.datatypes.Coding;
-import gov.va.api.health.uscorer4.api.resources.DiagnosticReport;
+import gov.va.api.health.r4.api.resources.DiagnosticReport;
 import org.junit.jupiter.api.Test;
 
 public class R4DiagnosticReportTransformerTest {

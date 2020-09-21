@@ -7,7 +7,6 @@ import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
-import gov.va.api.health.argonaut.api.resources.DiagnosticReport;
 import gov.va.api.health.dataquery.service.controller.Transformers;
 import gov.va.api.health.dataquery.service.controller.diagnosticreport.v1.DatamartDiagnosticReports.Result;
 import gov.va.api.health.dstu2.api.DataAbsentReason;
@@ -15,6 +14,7 @@ import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
 import gov.va.api.health.dstu2.api.elements.Extension;
 import gov.va.api.health.dstu2.api.elements.Reference;
+import gov.va.api.health.dstu2.api.resources.DiagnosticReport;
 import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;

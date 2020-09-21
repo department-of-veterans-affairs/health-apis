@@ -10,7 +10,7 @@ import gov.va.api.health.r4.api.datatypes.Annotation;
 import gov.va.api.health.r4.api.datatypes.CodeableConcept;
 import gov.va.api.health.r4.api.datatypes.Coding;
 import gov.va.api.health.r4.api.elements.Extension;
-import gov.va.api.health.uscorer4.api.resources.Immunization;
+import gov.va.api.health.r4.api.resources.Immunization;
 import java.util.List;
 import java.util.Optional;
 import lombok.Builder;

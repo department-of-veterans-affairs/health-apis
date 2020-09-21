@@ -9,8 +9,6 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
-import gov.va.api.health.argonaut.api.resources.MedicationOrder;
-import gov.va.api.health.argonaut.api.resources.MedicationOrder.Bundle;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
 import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
@@ -19,6 +17,8 @@ import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.medicationorder.MedicationOrderSamples.Dstu2;
 import gov.va.api.health.dstu2.api.bundle.BundleLink;
 import gov.va.api.health.dstu2.api.bundle.BundleLink.LinkRelation;
+import gov.va.api.health.dstu2.api.resources.MedicationOrder;
+import gov.va.api.health.dstu2.api.resources.MedicationOrder.Bundle;
 import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;

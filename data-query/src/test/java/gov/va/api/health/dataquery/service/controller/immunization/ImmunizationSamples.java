@@ -86,12 +86,12 @@ public class ImmunizationSamples {
 
   @AllArgsConstructor(staticName = "create")
   public static class Dstu2 {
-    static gov.va.api.health.argonaut.api.resources.Immunization.Bundle asBundle(
+    static gov.va.api.health.dstu2.api.resources.Immunization.Bundle asBundle(
         String baseUrl,
-        Collection<gov.va.api.health.argonaut.api.resources.Immunization> immunizations,
+        Collection<gov.va.api.health.dstu2.api.resources.Immunization> immunizations,
         int totalRecords,
         gov.va.api.health.dstu2.api.bundle.BundleLink... links) {
-      return gov.va.api.health.argonaut.api.resources.Immunization.Bundle.builder()
+      return gov.va.api.health.dstu2.api.resources.Immunization.Bundle.builder()
           .resourceType("Bundle")
           .type(gov.va.api.health.dstu2.api.bundle.AbstractBundle.BundleType.searchset)
           .total(totalRecords)
@@ -100,7 +100,7 @@ public class ImmunizationSamples {
               immunizations.stream()
                   .map(
                       c ->
-                          gov.va.api.health.argonaut.api.resources.Immunization.Entry.builder()
+                          gov.va.api.health.dstu2.api.resources.Immunization.Entry.builder()
                               .fullUrl(baseUrl + "/Immunization/" + c.id())
                               .resource(c)
                               .search(
@@ -125,17 +125,16 @@ public class ImmunizationSamples {
           .build();
     }
 
-    gov.va.api.health.argonaut.api.resources.Immunization immunization() {
+    gov.va.api.health.dstu2.api.resources.Immunization immunization() {
       return immunization("1000000030337", "1011549983V753765");
     }
 
-    gov.va.api.health.argonaut.api.resources.Immunization immunization(
-        String id, String patientId) {
-      return gov.va.api.health.argonaut.api.resources.Immunization.builder()
-          .resourceType(gov.va.api.health.argonaut.api.resources.Immunization.class.getSimpleName())
+    gov.va.api.health.dstu2.api.resources.Immunization immunization(String id, String patientId) {
+      return gov.va.api.health.dstu2.api.resources.Immunization.builder()
+          .resourceType(gov.va.api.health.dstu2.api.resources.Immunization.class.getSimpleName())
           .id(id)
           .date("1997-05-09T14:21:18Z")
-          .status(gov.va.api.health.argonaut.api.resources.Immunization.Status.completed)
+          .status(gov.va.api.health.dstu2.api.resources.Immunization.Status.completed)
           ._status(null)
           .vaccineCode(vaccineCode())
           .patient(reference("ZZTESTPATIENT,THOMAS THE", "Patient/" + patientId))
@@ -156,13 +155,13 @@ public class ImmunizationSamples {
       return List.of(gov.va.api.health.dstu2.api.datatypes.Annotation.builder().text(text).build());
     }
 
-    gov.va.api.health.argonaut.api.resources.Immunization.Reaction reaction(String display) {
-      return gov.va.api.health.argonaut.api.resources.Immunization.Reaction.builder()
+    gov.va.api.health.dstu2.api.resources.Immunization.Reaction reaction(String display) {
+      return gov.va.api.health.dstu2.api.resources.Immunization.Reaction.builder()
           .detail(gov.va.api.health.dstu2.api.elements.Reference.builder().display(display).build())
           .build();
     }
 
-    List<gov.va.api.health.argonaut.api.resources.Immunization.Reaction> reactions() {
+    List<gov.va.api.health.dstu2.api.resources.Immunization.Reaction> reactions() {
       return List.of(reaction("Other"));
     }
 
@@ -188,12 +187,12 @@ public class ImmunizationSamples {
 
   @AllArgsConstructor(staticName = "create")
   public static class R4 {
-    static gov.va.api.health.uscorer4.api.resources.Immunization.Bundle asBundle(
+    static gov.va.api.health.r4.api.resources.Immunization.Bundle asBundle(
         String baseUrl,
-        Collection<gov.va.api.health.uscorer4.api.resources.Immunization> immunizations,
+        Collection<gov.va.api.health.r4.api.resources.Immunization> immunizations,
         int totalRecords,
         gov.va.api.health.r4.api.bundle.BundleLink... links) {
-      return gov.va.api.health.uscorer4.api.resources.Immunization.Bundle.builder()
+      return gov.va.api.health.r4.api.resources.Immunization.Bundle.builder()
           .resourceType("Bundle")
           .type(gov.va.api.health.r4.api.bundle.AbstractBundle.BundleType.searchset)
           .total(totalRecords)
@@ -202,7 +201,7 @@ public class ImmunizationSamples {
               immunizations.stream()
                   .map(
                       c ->
-                          gov.va.api.health.uscorer4.api.resources.Immunization.Entry.builder()
+                          gov.va.api.health.r4.api.resources.Immunization.Entry.builder()
                               .fullUrl(baseUrl + "/Immunization/" + c.id())
                               .resource(c)
                               .search(
@@ -227,18 +226,17 @@ public class ImmunizationSamples {
           .build();
     }
 
-    gov.va.api.health.uscorer4.api.resources.Immunization immunization() {
+    gov.va.api.health.r4.api.resources.Immunization immunization() {
       return immunization("1000000030337", "1011549983V753765");
     }
 
-    gov.va.api.health.uscorer4.api.resources.Immunization immunization(
-        String id, String patientId) {
-      return gov.va.api.health.uscorer4.api.resources.Immunization.builder()
-          .resourceType(gov.va.api.health.uscorer4.api.resources.Immunization.class.getSimpleName())
+    gov.va.api.health.r4.api.resources.Immunization immunization(String id, String patientId) {
+      return gov.va.api.health.r4.api.resources.Immunization.builder()
+          .resourceType(gov.va.api.health.r4.api.resources.Immunization.class.getSimpleName())
           .id(id)
           .primarySource(Boolean.TRUE)
           .occurrenceDateTime("1997-05-09T14:21:18Z")
-          .status(gov.va.api.health.uscorer4.api.resources.Immunization.Status.completed)
+          .status(gov.va.api.health.r4.api.resources.Immunization.Status.completed)
           .vaccineCode(vaccineCode())
           .patient(reference("ZZTESTPATIENT,THOMAS THE", "Patient/" + patientId))
           .performer(performer())
@@ -255,9 +253,9 @@ public class ImmunizationSamples {
               .build());
     }
 
-    List<gov.va.api.health.uscorer4.api.resources.Immunization.Performer> performer() {
+    List<gov.va.api.health.r4.api.resources.Immunization.Performer> performer() {
       return List.of(
-          gov.va.api.health.uscorer4.api.resources.Immunization.Performer.builder()
+          gov.va.api.health.r4.api.resources.Immunization.Performer.builder()
               .actor(
                   R4Transformers.asReference(
                       Optional.of(
@@ -269,13 +267,13 @@ public class ImmunizationSamples {
               .build());
     }
 
-    gov.va.api.health.uscorer4.api.resources.Immunization.Reaction reaction(String display) {
-      return gov.va.api.health.uscorer4.api.resources.Immunization.Reaction.builder()
+    gov.va.api.health.r4.api.resources.Immunization.Reaction reaction(String display) {
+      return gov.va.api.health.r4.api.resources.Immunization.Reaction.builder()
           .detail(gov.va.api.health.r4.api.elements.Reference.builder().display(display).build())
           .build();
     }
 
-    List<gov.va.api.health.uscorer4.api.resources.Immunization.Reaction> reactions() {
+    List<gov.va.api.health.r4.api.resources.Immunization.Reaction> reactions() {
       return List.of(reaction("Other"));
     }
 

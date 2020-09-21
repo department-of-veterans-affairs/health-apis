@@ -4,8 +4,6 @@ import static gov.va.api.health.autoconfig.configuration.JacksonConfig.createMap
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import gov.va.api.health.argonaut.api.resources.Patient;
-import gov.va.api.health.argonaut.api.resources.Patient.Gender;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dstu2.api.datatypes.Address;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
@@ -16,6 +14,8 @@ import gov.va.api.health.dstu2.api.datatypes.HumanName;
 import gov.va.api.health.dstu2.api.datatypes.Identifier;
 import gov.va.api.health.dstu2.api.elements.Extension;
 import gov.va.api.health.dstu2.api.elements.Reference;
+import gov.va.api.health.dstu2.api.resources.Patient;
+import gov.va.api.health.dstu2.api.resources.Patient.Gender;
 import java.util.Optional;
 import lombok.Builder;
 import lombok.SneakyThrows;

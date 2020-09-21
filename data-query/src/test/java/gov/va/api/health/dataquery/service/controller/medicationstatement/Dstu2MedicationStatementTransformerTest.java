@@ -2,12 +2,12 @@ package gov.va.api.health.dataquery.service.controller.medicationstatement;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import gov.va.api.health.argonaut.api.resources.MedicationStatement;
-import gov.va.api.health.argonaut.api.resources.MedicationStatement.Dosage;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Timing;
 import gov.va.api.health.dstu2.api.elements.Reference;
+import gov.va.api.health.dstu2.api.resources.MedicationStatement;
+import gov.va.api.health.dstu2.api.resources.MedicationStatement.Dosage;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;

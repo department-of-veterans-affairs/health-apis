@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.dataquery.service.controller.procedure.DatamartProcedure.Status;
 import gov.va.api.health.r4.api.datatypes.CodeableConcept;
-import gov.va.api.health.uscorer4.api.resources.Procedure;
+import gov.va.api.health.r4.api.resources.Procedure;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 

@@ -11,7 +11,7 @@ import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.R4Bundler;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
-import gov.va.api.health.uscorer4.api.resources.Patient;
+import gov.va.api.health.r4.api.resources.Patient;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;

@@ -7,7 +7,7 @@ import static gov.va.api.health.dataquery.service.controller.Transformers.asDate
 
 import gov.va.api.health.r4.api.datatypes.CodeableConcept;
 import gov.va.api.health.r4.api.datatypes.Coding;
-import gov.va.api.health.uscorer4.api.resources.Condition;
+import gov.va.api.health.r4.api.resources.Condition;
 import java.util.List;
 import lombok.Builder;
 import lombok.NonNull;

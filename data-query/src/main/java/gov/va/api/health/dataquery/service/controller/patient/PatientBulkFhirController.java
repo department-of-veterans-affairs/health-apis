@@ -1,8 +1,8 @@
 package gov.va.api.health.dataquery.service.controller.patient;
 
-import gov.va.api.health.argonaut.api.resources.Patient;
 import gov.va.api.health.dataquery.service.controller.BulkFhirCount;
 import gov.va.api.health.dataquery.service.controller.PageAndCountValidator;
+import gov.va.api.health.dstu2.api.resources.Patient;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.validation.constraints.Min;

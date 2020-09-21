@@ -5,8 +5,8 @@ import static gov.va.api.health.sentinel.EnvironmentAssumptions.assumeEnvironmen
 
 import gov.va.api.health.dataquery.tests.ResourceVerifier;
 import gov.va.api.health.r4.api.resources.OperationOutcome;
+import gov.va.api.health.r4.api.resources.Procedure;
 import gov.va.api.health.sentinel.Environment;
-import gov.va.api.health.uscorer4.api.resources.Procedure;
 import lombok.experimental.Delegate;
 import org.junit.jupiter.api.Test;
 

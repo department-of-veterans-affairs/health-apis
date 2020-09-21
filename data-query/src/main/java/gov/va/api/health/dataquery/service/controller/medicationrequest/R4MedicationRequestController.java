@@ -18,7 +18,7 @@ import gov.va.api.health.dataquery.service.controller.medicationstatement.Datama
 import gov.va.api.health.dataquery.service.controller.medicationstatement.MedicationStatementEntity;
 import gov.va.api.health.dataquery.service.controller.medicationstatement.MedicationStatementRepository;
 import gov.va.api.health.ids.api.ResourceIdentity;
-import gov.va.api.health.uscorer4.api.resources.MedicationRequest;
+import gov.va.api.health.r4.api.resources.MedicationRequest;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;

@@ -2,7 +2,6 @@ package gov.va.api.health.dataquery.service.controller.immunization;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import gov.va.api.health.argonaut.api.resources.Immunization;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dataquery.service.controller.immunization.DatamartImmunization.Status;
@@ -10,6 +9,7 @@ import gov.va.api.health.dataquery.service.controller.immunization.ImmunizationS
 import gov.va.api.health.dataquery.service.controller.immunization.ImmunizationSamples.Dstu2;
 import gov.va.api.health.dstu2.api.DataAbsentReason;
 import gov.va.api.health.dstu2.api.DataAbsentReason.Reason;
+import gov.va.api.health.dstu2.api.resources.Immunization;
 import java.util.Optional;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;

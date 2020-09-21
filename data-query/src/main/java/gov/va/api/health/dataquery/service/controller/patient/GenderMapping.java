@@ -23,31 +23,31 @@ class GenderMapping {
     }
   }
 
-  gov.va.api.health.argonaut.api.resources.Patient.Gender toDstu2Fhir(String cdw) {
+  gov.va.api.health.dstu2.api.resources.Patient.Gender toDstu2Fhir(String cdw) {
     switch (upperCase(cdw, Locale.US)) {
       case "M":
-        return gov.va.api.health.argonaut.api.resources.Patient.Gender.male;
+        return gov.va.api.health.dstu2.api.resources.Patient.Gender.male;
       case "F":
-        return gov.va.api.health.argonaut.api.resources.Patient.Gender.female;
+        return gov.va.api.health.dstu2.api.resources.Patient.Gender.female;
       case "*MISSING*":
-        return gov.va.api.health.argonaut.api.resources.Patient.Gender.other;
+        return gov.va.api.health.dstu2.api.resources.Patient.Gender.other;
       case "*UNKNOWN AT THIS TIME*":
-        return gov.va.api.health.argonaut.api.resources.Patient.Gender.unknown;
+        return gov.va.api.health.dstu2.api.resources.Patient.Gender.unknown;
       default:
         return null;
     }
   }
 
-  gov.va.api.health.uscorer4.api.resources.Patient.Gender toR4Fhir(String cdw) {
+  gov.va.api.health.r4.api.resources.Patient.Gender toR4Fhir(String cdw) {
     switch (upperCase(cdw, Locale.US)) {
       case "M":
-        return gov.va.api.health.uscorer4.api.resources.Patient.Gender.male;
+        return gov.va.api.health.r4.api.resources.Patient.Gender.male;
       case "F":
-        return gov.va.api.health.uscorer4.api.resources.Patient.Gender.female;
+        return gov.va.api.health.r4.api.resources.Patient.Gender.female;
       case "*MISSING*":
-        return gov.va.api.health.uscorer4.api.resources.Patient.Gender.other;
+        return gov.va.api.health.r4.api.resources.Patient.Gender.other;
       case "*UNKNOWN AT THIS TIME*":
-        return gov.va.api.health.uscorer4.api.resources.Patient.Gender.unknown;
+        return gov.va.api.health.r4.api.resources.Patient.Gender.unknown;
       default:
         return null;
     }

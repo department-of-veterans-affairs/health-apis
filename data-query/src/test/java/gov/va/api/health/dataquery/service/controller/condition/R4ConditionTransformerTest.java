@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.dataquery.service.controller.condition.ConditionSamples.Datamart;
 import gov.va.api.health.dataquery.service.controller.condition.ConditionSamples.R4;
-import gov.va.api.health.uscorer4.api.resources.Condition;
+import gov.va.api.health.r4.api.resources.Condition;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 

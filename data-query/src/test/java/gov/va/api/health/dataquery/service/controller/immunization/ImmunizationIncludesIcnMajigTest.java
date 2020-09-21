@@ -10,7 +10,7 @@ public class ImmunizationIncludesIcnMajigTest {
     ExtractIcnValidator.builder()
         .majig(new Dstu2ImmunizationIncludesIcnMajig())
         .body(
-            gov.va.api.health.argonaut.api.resources.Immunization.builder()
+            gov.va.api.health.dstu2.api.resources.Immunization.builder()
                 .id("123")
                 .patient(
                     gov.va.api.health.dstu2.api.elements.Reference.builder()
@@ -27,7 +27,7 @@ public class ImmunizationIncludesIcnMajigTest {
     ExtractIcnValidator.builder()
         .majig(new R4ImmunizationIncludesIcnMajig())
         .body(
-            gov.va.api.health.uscorer4.api.resources.Immunization.builder()
+            gov.va.api.health.r4.api.resources.Immunization.builder()
                 .id("123")
                 .patient(
                     gov.va.api.health.r4.api.elements.Reference.builder()

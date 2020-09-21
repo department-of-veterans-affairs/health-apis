@@ -6,8 +6,8 @@ import static gov.va.api.health.dataquery.service.controller.Transformers.asDate
 
 import gov.va.api.health.dataquery.service.controller.Transformers;
 import gov.va.api.health.r4.api.datatypes.CodeableConcept;
-import gov.va.api.health.uscorer4.api.resources.Procedure;
-import gov.va.api.health.uscorer4.api.resources.Procedure.Status;
+import gov.va.api.health.r4.api.resources.Procedure;
+import gov.va.api.health.r4.api.resources.Procedure.Status;
 import java.util.Optional;
 import lombok.Builder;
 import lombok.NonNull;

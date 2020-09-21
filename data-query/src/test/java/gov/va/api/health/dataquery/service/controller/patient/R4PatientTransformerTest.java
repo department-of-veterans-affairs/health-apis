@@ -6,7 +6,7 @@ import gov.va.api.health.dataquery.service.controller.patient.PatientSamples.Dat
 import gov.va.api.health.dataquery.service.controller.patient.PatientSamples.R4;
 import gov.va.api.health.r4.api.datatypes.Coding;
 import gov.va.api.health.r4.api.elements.Extension;
-import gov.va.api.health.uscorer4.api.resources.Patient;
+import gov.va.api.health.r4.api.resources.Patient;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 

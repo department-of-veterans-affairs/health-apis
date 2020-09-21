@@ -2,8 +2,6 @@ package gov.va.api.health.dataquery.service.controller.medicationorder;
 
 import static java.util.Collections.emptyList;
 
-import gov.va.api.health.argonaut.api.resources.MedicationOrder;
-import gov.va.api.health.argonaut.api.resources.MedicationOrder.Bundle;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
 import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
@@ -11,6 +9,8 @@ import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
+import gov.va.api.health.dstu2.api.resources.MedicationOrder;
+import gov.va.api.health.dstu2.api.resources.MedicationOrder.Bundle;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;

@@ -34,7 +34,7 @@ public class UrlToResourceConverter implements Function<String, Class<?>> {
             .bundleClass(gov.va.api.health.dstu2.api.bundle.AbstractBundle.class)
             .resourcePackages(
                 List.of(
-                    gov.va.api.health.argonaut.api.resources.Patient.class.getPackage(),
+                    gov.va.api.health.dstu2.api.resources.Patient.class.getPackage(),
                     gov.va.api.health.dstu2.api.resources.Resource.class.getPackage()))
             .build();
       case STU3:
@@ -50,7 +50,7 @@ public class UrlToResourceConverter implements Function<String, Class<?>> {
             .bundleClass(gov.va.api.health.r4.api.bundle.AbstractBundle.class)
             .resourcePackages(
                 List.of(
-                    gov.va.api.health.uscorer4.api.resources.Patient.class.getPackage(),
+                    gov.va.api.health.r4.api.resources.Patient.class.getPackage(),
                     gov.va.api.health.r4.api.resources.Resource.class.getPackage()))
             .build();
       default:

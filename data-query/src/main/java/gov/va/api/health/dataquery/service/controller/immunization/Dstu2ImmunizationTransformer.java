@@ -3,7 +3,6 @@ package gov.va.api.health.dataquery.service.controller.immunization;
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asReference;
 import static gov.va.api.health.dataquery.service.controller.Transformers.asDateTimeString;
 
-import gov.va.api.health.argonaut.api.resources.Immunization;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dataquery.service.controller.immunization.DatamartImmunization.Status;
 import gov.va.api.health.dstu2.api.DataAbsentReason;
@@ -12,6 +11,7 @@ import gov.va.api.health.dstu2.api.datatypes.Annotation;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
 import gov.va.api.health.dstu2.api.elements.Extension;
+import gov.va.api.health.dstu2.api.resources.Immunization;
 import java.util.List;
 import java.util.Optional;
 import lombok.Builder;

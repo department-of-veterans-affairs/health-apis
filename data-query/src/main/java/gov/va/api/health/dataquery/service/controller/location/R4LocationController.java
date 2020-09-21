@@ -10,7 +10,7 @@ import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.R4Bundler;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
-import gov.va.api.health.uscorer4.api.resources.Location;
+import gov.va.api.health.r4.api.resources.Location;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
