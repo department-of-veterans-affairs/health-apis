@@ -27,4 +27,13 @@ public class LatestResourceEtlStatusEntity {
 
   @Column(name = "EndDateTimeUTC")
   private Instant endDateTime;
+
+  public String getResourceName(){
+    return this.resourceName;
+  }
+
+  public Instant getEndDateTime(){
+    return this.endDateTime;
+  }
+
 }
