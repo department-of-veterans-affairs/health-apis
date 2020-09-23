@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
 @RequestMapping(
-    value = {"/latestresourceetlstatus"},
+    value = {"/etlstatus"},
     produces = {"application/json"})
 public class LatestResourceEtlStatusController {
   private final AtomicBoolean hasCachedCollectionStatus = new AtomicBoolean(false);
@@ -89,10 +89,10 @@ public class LatestResourceEtlStatusController {
 
   private Health toHealth(@NotNull LatestResourceEtlStatusEntity entity) {
     Instant tooLongAgo = Instant.now().minus(1, ChronoUnit.DAYS);
-    return Health.status(new Status(entity.endDateTime().isBefore(tooLongAgo) ? "DOWN" : "UP"))
-        .withDetail("name", entity.resourceName())
-        .withDetail("lastUpdated", entity.endDateTime())
-        .withDetail("time", Instant.now())
+    return Health.status(
+            new Status(
+                entity.endDateTime().isBefore(tooLongAgo) ? "DOWN" : "UP", entity.resourceName()))
+        .withDetail("endDateTime", entity.endDateTime())
         .build();
   }
 }
