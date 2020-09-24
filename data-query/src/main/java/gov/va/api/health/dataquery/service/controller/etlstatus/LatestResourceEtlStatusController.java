@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
-import javax.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.health.Health;
@@ -22,27 +22,22 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
+@AllArgsConstructor(onConstructor_ = @Autowired)
 @RequestMapping(
-    value = {"/etlstatus"},
+    value = {"/etl-status"},
     produces = {"application/json"})
 public class LatestResourceEtlStatusController {
-  private final AtomicBoolean hasCachedCollectionStatus = new AtomicBoolean(false);
+  private final AtomicBoolean hasCachedResourceStatus = new AtomicBoolean(false);
 
   private LatestResourceEtlStatusRepository repository;
 
-  /** All args constructor. */
-  public LatestResourceEtlStatusController(
-      @Autowired LatestResourceEtlStatusRepository repository) {
-    this.repository = repository;
-  }
-
   /** Clears cache every 5 minutes. */
   @Scheduled(cron = "0 */5 * * * *")
-  @CacheEvict(value = "collection-status")
-  public void clearCollectionStatusScheduler() {
-    if (hasCachedCollectionStatus.getAndSet(false)) {
+  @CacheEvict(value = "resource-status")
+  public void clearResourceStatusScheduler() {
+    if (hasCachedResourceStatus.getAndSet(false)) {
       // reduce log spam by only reporting cleared if we've actually cached something
-      log.info("Clearing etl-collection-status cache");
+      log.info("Clearing etl-status cache");
     }
   }
 
@@ -54,29 +49,28 @@ public class LatestResourceEtlStatusController {
    *
    * <p>Every 5 minutes, the cache is invalidated.
    */
-  @Cacheable("collection-status")
-  @GetMapping(value = "/general-status")
-  public ResponseEntity<Health> collectionStatusHealth() {
-    hasCachedCollectionStatus.set(true);
+  @Cacheable("resource-status")
+  @GetMapping(value = "/")
+  public ResponseEntity<Health> resourceStatusHealth() {
+    hasCachedResourceStatus.set(true);
     Instant tooLongAgo = Instant.now().minus(1, ChronoUnit.DAYS);
-    AtomicBoolean overall = new AtomicBoolean(false);
+    AtomicBoolean overall = new AtomicBoolean(true);
+    Iterable<LatestResourceEtlStatusEntity> receivedData = repository.findAll();
+    if (StreamSupport.stream(receivedData.spliterator(), false).count() == 0) {
+      overall.set(false);
+    }
     List<Health> details =
-        StreamSupport.stream(repository.findAll().spliterator(), true)
+        StreamSupport.stream(receivedData.spliterator(), true)
             .map(
                 e -> {
                   if (e.endDateTime().isBefore(tooLongAgo)) {
                     overall.set(false);
                   }
-                  return toHealth(e);
+                  return toHealth(e, tooLongAgo);
                 })
             .collect(Collectors.toList());
     Health overallHealth =
-        Health.status(
-                new Status(
-                    details.stream().anyMatch(h -> h.getStatus().equals(Status.DOWN))
-                        ? "DOWN"
-                        : "UP",
-                    "Downstream services"))
+        Health.status(new Status(overall.get() == false ? "DOWN" : "UP", "Downstream services"))
             .withDetail("name", "All downstream services")
             .withDetail("downstreamServices", details)
             .withDetail("time", Instant.now())
@@ -87,8 +81,8 @@ public class LatestResourceEtlStatusController {
     return ResponseEntity.ok(overallHealth);
   }
 
-  private Health toHealth(@NotNull LatestResourceEtlStatusEntity entity) {
-    Instant tooLongAgo = Instant.now().minus(1, ChronoUnit.DAYS);
+  private Health toHealth(LatestResourceEtlStatusEntity entity, Instant tooLongAgo) {
+
     return Health.status(
             new Status(
                 entity.endDateTime().isBefore(tooLongAgo) ? "DOWN" : "UP", entity.resourceName()))
