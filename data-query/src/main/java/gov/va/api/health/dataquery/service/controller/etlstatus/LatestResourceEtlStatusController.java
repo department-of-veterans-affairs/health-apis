@@ -1,6 +1,5 @@
 package gov.va.api.health.dataquery.service.controller.etlstatus;
 
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Streams;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -54,31 +53,18 @@ public class LatestResourceEtlStatusController {
   @GetMapping(value = "/")
   public ResponseEntity<Health> resourceStatusHealth() {
     hasCachedResourceStatus.set(true);
-    Instant tooLongAgo = Instant.now().minus(36, ChronoUnit.HOURS);
-    AtomicBoolean areAllDatesAcceptable = new AtomicBoolean(true);
-    Iterable<LatestResourceEtlStatusEntity> receivedData = repository.findAll();
-    List<Health> details = null;
-    if (Iterables.isEmpty(receivedData)) {
-      areAllDatesAcceptable.set(false);
-    } else {
-      details =
-          Streams.stream(receivedData)
-              .map(
-                  e -> {
-                    if (e.endDateTime().isBefore(tooLongAgo)) {
-                      areAllDatesAcceptable.set(false);
-                    }
-                    return toHealth(e, tooLongAgo);
-                  })
-              .collect(Collectors.toList());
-    }
-
+    Instant now = Instant.now();
+    Instant tooLongAgo = now.minus(36, ChronoUnit.HOURS);
+    Iterable<LatestResourceEtlStatusEntity> entities = repository.findAll();
+    List<Health> statusDetails =
+        Streams.stream(entities).map(e -> toHealth(e, tooLongAgo)).collect(Collectors.toList());
+    boolean isDown =
+        statusDetails.isEmpty()
+            || statusDetails.stream().anyMatch(h -> h.getStatus().equals(Status.DOWN));
     Health overallHealth =
-        Health.status(
-                new Status(areAllDatesAcceptable.get() ? "UP" : "DOWN", "Downstream services"))
-            .withDetail("name", "All downstream services")
-            .withDetail("downstreamServices", details != null ? details : "null")
-            .withDetail("time", Instant.now())
+        Health.status(new Status(isDown ? "DOWN" : "UP", "Resource ETL Statuses"))
+            .withDetail("time", now)
+            .withDetail("statuses", statusDetails.isEmpty() ? "null" : statusDetails)
             .build();
     if (!overallHealth.getStatus().equals(Status.UP)) {
       return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(overallHealth);
