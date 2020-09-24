@@ -27,12 +27,7 @@ public class LatestResourceEtlStatusTest {
   }
 
   @Test
-  void resourceStatusHealth_clearCache() {
-    _controller().clearResourceStatusScheduler();
-  }
-
-  @Test
-  void resourceStatusHealth_healthy() {
+  void allHealthyIsOverallHealthy() {
     when(repository.findAll())
         .thenReturn(
             List.of(
@@ -43,7 +38,23 @@ public class LatestResourceEtlStatusTest {
   }
 
   @Test
-  void resourceStatusHealth_healthy_and_unhealthy() {
+  void allUnhealthyIsOverallUnhealthy() {
+    when(repository.findAll())
+        .thenReturn(
+            List.of(
+                _makeEntity("AllergyIntolerance", Instant.now().minus(2, ChronoUnit.DAYS)),
+                _makeEntity("Condition", Instant.now().minus(2, ChronoUnit.DAYS))));
+    ResponseEntity<Health> actual = _controller().resourceStatusHealth();
+    assertThat(actual.getBody().getStatus()).isEqualTo(Status.DOWN);
+  }
+
+  @Test
+  void clearCache() {
+    _controller().clearResourceStatusScheduler();
+  }
+
+  @Test
+  void healthyAndUnhealthyIsOverallUnhealthy() {
     when(repository.findAll())
         .thenReturn(
             List.of(
@@ -54,19 +65,8 @@ public class LatestResourceEtlStatusTest {
   }
 
   @Test
-  void resourceStatusHealth_null() {
+  void nullIsOverallUnhealthy() {
     when(repository.findAll()).thenReturn(List.of());
-    ResponseEntity<Health> actual = _controller().resourceStatusHealth();
-    assertThat(actual.getBody().getStatus()).isEqualTo(Status.DOWN);
-  }
-
-  @Test
-  void resourceStatusHealth_unhealthy() {
-    when(repository.findAll())
-        .thenReturn(
-            List.of(
-                _makeEntity("AllergyIntolerance", Instant.now().minus(2, ChronoUnit.DAYS)),
-                _makeEntity("Condition", Instant.now().minus(2, ChronoUnit.DAYS))));
     ResponseEntity<Health> actual = _controller().resourceStatusHealth();
     assertThat(actual.getBody().getStatus()).isEqualTo(Status.DOWN);
   }

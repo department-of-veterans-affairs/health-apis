@@ -1,11 +1,12 @@
 package gov.va.api.health.dataquery.service.controller.etlstatus;
 
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Streams;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,14 +38,14 @@ public class LatestResourceEtlStatusController {
   public void clearResourceStatusScheduler() {
     if (hasCachedResourceStatus.getAndSet(false)) {
       // reduce log spam by only reporting cleared if we've actually cached something
-      log.info("Clearing etl-status cache");
+      log.info("Clearing resource-status cache");
     }
   }
 
   /**
    * Gets health of etl resources.
    *
-   * <p>Results are cached in collection-status to limit the amount of queries to once every 5
+   * <p>Results are cached in resource-status to limit the amount of queries to once every 5
    * minutes.
    *
    * <p>Every 5 minutes, the cache is invalidated.
@@ -54,25 +55,29 @@ public class LatestResourceEtlStatusController {
   public ResponseEntity<Health> resourceStatusHealth() {
     hasCachedResourceStatus.set(true);
     Instant tooLongAgo = Instant.now().minus(1, ChronoUnit.DAYS);
-    AtomicBoolean overall = new AtomicBoolean(true);
+    AtomicBoolean areAllDatesAcceptable = new AtomicBoolean(true);
     Iterable<LatestResourceEtlStatusEntity> receivedData = repository.findAll();
-    if (StreamSupport.stream(receivedData.spliterator(), false).count() == 0) {
-      overall.set(false);
+    List<Health> details = null;
+    if (Iterables.isEmpty(receivedData)) {
+      areAllDatesAcceptable.set(false);
+    } else {
+      details =
+          Streams.stream(receivedData)
+              .map(
+                  e -> {
+                    if (e.endDateTime().isBefore(tooLongAgo)) {
+                      areAllDatesAcceptable.set(false);
+                    }
+                    return toHealth(e, tooLongAgo);
+                  })
+              .collect(Collectors.toList());
     }
-    List<Health> details =
-        StreamSupport.stream(receivedData.spliterator(), true)
-            .map(
-                e -> {
-                  if (e.endDateTime().isBefore(tooLongAgo)) {
-                    overall.set(false);
-                  }
-                  return toHealth(e, tooLongAgo);
-                })
-            .collect(Collectors.toList());
+
     Health overallHealth =
-        Health.status(new Status(overall.get() == false ? "DOWN" : "UP", "Downstream services"))
+        Health.status(
+                new Status(areAllDatesAcceptable.get() ? "UP" : "DOWN", "Downstream services"))
             .withDetail("name", "All downstream services")
-            .withDetail("downstreamServices", details)
+            .withDetail("downstreamServices", details != null ? details : "null")
             .withDetail("time", Instant.now())
             .build();
     if (!overallHealth.getStatus().equals(Status.UP)) {
