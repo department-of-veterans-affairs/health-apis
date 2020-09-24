@@ -54,7 +54,7 @@ public class LatestResourceEtlStatusController {
   @GetMapping(value = "/")
   public ResponseEntity<Health> resourceStatusHealth() {
     hasCachedResourceStatus.set(true);
-    Instant tooLongAgo = Instant.now().minus(1, ChronoUnit.DAYS);
+    Instant tooLongAgo = Instant.now().minus(36, ChronoUnit.HOURS);
     AtomicBoolean areAllDatesAcceptable = new AtomicBoolean(true);
     Iterable<LatestResourceEtlStatusEntity> receivedData = repository.findAll();
     List<Health> details = null;
