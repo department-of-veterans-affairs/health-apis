@@ -13,6 +13,7 @@ import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.Status;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
+@EnableCaching
 @RestController
 @AllArgsConstructor(onConstructor_ = @Autowired)
 @RequestMapping(
@@ -30,6 +32,21 @@ public class LatestResourceEtlStatusController {
   private final AtomicBoolean hasCachedResourceStatus = new AtomicBoolean(false);
 
   private LatestResourceEtlStatusRepository repository;
+
+  /**
+   * Compares Latest Resource ETL Status Entities to Health
+   *
+   * <p>Health is compared to 36 hours before it got called for validity.
+   */
+  private static Health toHealth(LatestResourceEtlStatusEntity entity) {
+
+    Instant tooLongAgo = Instant.now().minus(36, ChronoUnit.HOURS);
+    return Health.status(
+            new Status(
+                entity.endDateTime().isBefore(tooLongAgo) ? "DOWN" : "UP", entity.resourceName()))
+        .withDetail("endDateTime", entity.endDateTime())
+        .build();
+  }
 
   /** Clears cache every 5 minutes. */
   @Scheduled(cron = "0 */5 * * * *")
@@ -50,34 +67,24 @@ public class LatestResourceEtlStatusController {
    * <p>Every 5 minutes, the cache is invalidated.
    */
   @Cacheable("resource-status")
-  @GetMapping(value = "/")
+  @GetMapping()
   public ResponseEntity<Health> resourceStatusHealth() {
     hasCachedResourceStatus.set(true);
     Instant now = Instant.now();
-    Instant tooLongAgo = now.minus(36, ChronoUnit.HOURS);
     Iterable<LatestResourceEtlStatusEntity> entities = repository.findAll();
     List<Health> statusDetails =
-        Streams.stream(entities).map(e -> toHealth(e, tooLongAgo)).collect(Collectors.toList());
+        Streams.stream(entities).map(e -> toHealth(e)).collect(Collectors.toList());
     boolean isDown =
         statusDetails.isEmpty()
             || statusDetails.stream().anyMatch(h -> h.getStatus().equals(Status.DOWN));
     Health overallHealth =
         Health.status(new Status(isDown ? "DOWN" : "UP", "Resource ETL Statuses"))
             .withDetail("time", now)
-            .withDetail("statuses", statusDetails.isEmpty() ? "null" : statusDetails)
+            .withDetail("statuses", statusDetails)
             .build();
     if (!overallHealth.getStatus().equals(Status.UP)) {
       return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(overallHealth);
     }
     return ResponseEntity.ok(overallHealth);
-  }
-
-  private Health toHealth(LatestResourceEtlStatusEntity entity, Instant tooLongAgo) {
-
-    return Health.status(
-            new Status(
-                entity.endDateTime().isBefore(tooLongAgo) ? "DOWN" : "UP", entity.resourceName()))
-        .withDetail("endDateTime", entity.endDateTime())
-        .build();
   }
 }

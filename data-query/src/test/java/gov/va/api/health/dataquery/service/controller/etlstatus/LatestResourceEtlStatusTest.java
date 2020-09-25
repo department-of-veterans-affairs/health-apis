@@ -22,30 +22,53 @@ public class LatestResourceEtlStatusTest {
     return new LatestResourceEtlStatusController(repository);
   }
 
+  private Health _convertHealth(LatestResourceEtlStatusEntity entity, String expectedStatus) {
+    ;
+    return Health.status(new Status(expectedStatus, entity.resourceName()))
+        .withDetail("endDateTime", entity.endDateTime())
+        .build();
+  }
+
   private LatestResourceEtlStatusEntity _makeEntity(String resource, Instant time) {
     return LatestResourceEtlStatusEntity.builder().resourceName(resource).endDateTime(time).build();
   }
 
   @Test
   void allHealthyIsOverallHealthy() {
-    when(repository.findAll())
-        .thenReturn(
-            List.of(
-                _makeEntity("AllergyIntolerance", Instant.now()),
-                _makeEntity("Condition", Instant.now())));
+    Instant now = Instant.now();
+    LatestResourceEtlStatusEntity firstEntity = _makeEntity("AllergyIntolerance", now);
+    LatestResourceEtlStatusEntity secondEntity = _makeEntity("Condition", now);
+    when(repository.findAll()).thenReturn(List.of(firstEntity, secondEntity));
     ResponseEntity<Health> actual = _controller().resourceStatusHealth();
-    assertThat(actual.getBody().getStatus()).isEqualTo(Status.UP);
+    Instant actualNow = (Instant) actual.getBody().getDetails().get("time");
+    Health firstHealth = _convertHealth(firstEntity, "UP");
+    Health secondHealth = _convertHealth(secondEntity, "UP");
+    assertThat(actual.getBody())
+        .isEqualTo(
+            Health.status(new Status("UP", "Resource ETL Statuses"))
+                .withDetail("time", actualNow)
+                .withDetail("statuses", List.of(firstHealth, secondHealth))
+                .build());
   }
 
   @Test
   void allUnhealthyIsOverallUnhealthy() {
-    when(repository.findAll())
-        .thenReturn(
-            List.of(
-                _makeEntity("AllergyIntolerance", Instant.now().minus(2, ChronoUnit.DAYS)),
-                _makeEntity("Condition", Instant.now().minus(2, ChronoUnit.DAYS))));
+    Instant now = Instant.now();
+    LatestResourceEtlStatusEntity firstEntity =
+        _makeEntity("AllergyIntolerance", now.minus(2, ChronoUnit.DAYS));
+    LatestResourceEtlStatusEntity secondEntity =
+        _makeEntity("Condition", now.minus(2, ChronoUnit.DAYS));
+    when(repository.findAll()).thenReturn(List.of(firstEntity, secondEntity));
     ResponseEntity<Health> actual = _controller().resourceStatusHealth();
-    assertThat(actual.getBody().getStatus()).isEqualTo(Status.DOWN);
+    Instant actualNow = (Instant) actual.getBody().getDetails().get("time");
+    Health firstHealth = _convertHealth(firstEntity, "DOWN");
+    Health secondHealth = _convertHealth(secondEntity, "DOWN");
+    assertThat(actual.getBody())
+        .isEqualTo(
+            Health.status(new Status("DOWN", "Resource ETL Statuses"))
+                .withDetail("time", actualNow)
+                .withDetail("statuses", List.of(firstHealth, secondHealth))
+                .build());
   }
 
   @Test
@@ -55,19 +78,33 @@ public class LatestResourceEtlStatusTest {
 
   @Test
   void healthyAndUnhealthyIsOverallUnhealthy() {
-    when(repository.findAll())
-        .thenReturn(
-            List.of(
-                _makeEntity("AllergyIntolerance", Instant.now()),
-                _makeEntity("Condition", Instant.now().minus(2, ChronoUnit.DAYS))));
+    Instant now = Instant.now();
+    LatestResourceEtlStatusEntity firstEntity = _makeEntity("AllergyIntolerance", now);
+    LatestResourceEtlStatusEntity secondEntity =
+        _makeEntity("Condition", now.minus(2, ChronoUnit.DAYS));
+    when(repository.findAll()).thenReturn(List.of(firstEntity, secondEntity));
     ResponseEntity<Health> actual = _controller().resourceStatusHealth();
-    assertThat(actual.getBody().getStatus()).isEqualTo(Status.DOWN);
+    Instant actualNow = (Instant) actual.getBody().getDetails().get("time");
+    Health firstHealth = _convertHealth(firstEntity, "UP");
+    Health secondHealth = _convertHealth(secondEntity, "DOWN");
+    assertThat(actual.getBody())
+        .isEqualTo(
+            Health.status(new Status("DOWN", "Resource ETL Statuses"))
+                .withDetail("time", actualNow)
+                .withDetail("statuses", List.of(firstHealth, secondHealth))
+                .build());
   }
 
   @Test
   void nullIsOverallUnhealthy() {
     when(repository.findAll()).thenReturn(List.of());
     ResponseEntity<Health> actual = _controller().resourceStatusHealth();
-    assertThat(actual.getBody().getStatus()).isEqualTo(Status.DOWN);
+    Instant actualNow = (Instant) actual.getBody().getDetails().get("time");
+    assertThat(actual.getBody())
+        .isEqualTo(
+            Health.status(new Status("DOWN", "Resource ETL Statuses"))
+                .withDetail("time", actualNow)
+                .withDetail("statuses", List.of())
+                .build());
   }
 }
