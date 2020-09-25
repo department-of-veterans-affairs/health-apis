@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @AllArgsConstructor(onConstructor_ = @Autowired)
 @RequestMapping(
-    value = {"etl-status", "dstu2/etl-status", "stu3/etl-status", "r4/etl-status"},
+    value = {"/etl-status", "/dstu2/etl-status", "/stu3/etl-status", "/r4/etl-status"},
     produces = "application/json")
 public class LatestResourceEtlStatusController {
   private final AtomicBoolean hasCachedResourceStatus = new AtomicBoolean(false);
