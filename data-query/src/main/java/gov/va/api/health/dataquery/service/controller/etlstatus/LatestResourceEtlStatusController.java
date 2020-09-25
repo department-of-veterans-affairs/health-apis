@@ -24,8 +24,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @AllArgsConstructor(onConstructor_ = @Autowired)
 @RequestMapping(
-    value = {"/etl-status"},
-    produces = {"application/json"})
+    value = {"etl-status", "dstu2/etl-status", "stu3/etl-status", "r4/etl-status"},
+    produces = "application/json")
 public class LatestResourceEtlStatusController {
   private final AtomicBoolean hasCachedResourceStatus = new AtomicBoolean(false);
 
@@ -37,7 +37,6 @@ public class LatestResourceEtlStatusController {
    * <p>Health is compared to 36 hours before it got called for validity.
    */
   private static Health toHealth(LatestResourceEtlStatusEntity entity, Instant tooLongAgo) {
-
     return Health.status(
             new Status(
                 entity.endDateTime().isBefore(tooLongAgo) ? "DOWN" : "UP", entity.resourceName()))
@@ -53,6 +52,20 @@ public class LatestResourceEtlStatusController {
       // reduce log spam by only reporting cleared if we've actually cached something
       log.info("Clearing resource-status cache");
     }
+  }
+
+  /**
+   * Get status of ETL resources.
+   *
+   * <p>Results are cached in resource-status to limit the amount of queries to once every 5
+   * minutes.
+   *
+   * <p>Every 5 minutes, the cache is invalidated.
+   */
+  @Cacheable("resource-status")
+  @GetMapping
+  public ResponseEntity<Health> resourceStatusHealth() {
+    return resourceStatusHealth(Instant.now());
   }
 
   ResponseEntity<Health> resourceStatusHealth(Instant now) {
@@ -73,19 +86,5 @@ public class LatestResourceEtlStatusController {
       return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(overallHealth);
     }
     return ResponseEntity.ok(overallHealth);
-  }
-
-  /**
-   * Gets health of etl resources.
-   *
-   * <p>Results are cached in resource-status to limit the amount of queries to once every 5
-   * minutes.
-   *
-   * <p>Every 5 minutes, the cache is invalidated.
-   */
-  @Cacheable("resource-status")
-  @GetMapping
-  public ResponseEntity<Health> resourceStatusHealth() {
-    return resourceStatusHealth(Instant.now());
   }
 }
