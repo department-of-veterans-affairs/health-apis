@@ -10,19 +10,16 @@ import gov.va.api.health.sentinel.ServiceDefinition;
 import io.restassured.RestAssured;
 import io.restassured.http.Method;
 import java.time.Instant;
-import java.util.List;
 import java.util.Set;
 import lombok.Data;
 import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
-@Slf4j
 public class LatestResourceEtlStatusIT {
 
   @Test
   void checkCaching() {
-    String path = "/etl-status";
+    String path = "etl-status";
     Set<Instant> times = ImmutableSet.of(timeOf(path), timeOf(path), timeOf(path));
     assertThat(times.size()).isLessThan(3);
   }
@@ -55,5 +52,4 @@ public class LatestResourceEtlStatusIT {
   private static final class Details {
     Instant time;
   }
-
 }
