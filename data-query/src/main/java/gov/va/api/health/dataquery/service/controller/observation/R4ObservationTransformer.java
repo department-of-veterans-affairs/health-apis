@@ -86,12 +86,14 @@ public class R4ObservationTransformer {
     Coding coding = asCoding(code.coding());
     if (allBlank(coding, code.text())) {
       return null;
-    } else {
-      return CodeableConcept.builder()
-          .coding(List.of(coding))
-          .text(textOrElseDisplay(code.text(), coding))
-          .build();
+    } else if (isBlank(coding)) {
+      return CodeableConcept.builder().text(code.text()).build();
     }
+
+    return CodeableConcept.builder()
+        .coding(List.of(coding))
+        .text(textOrElseDisplay(code.text(), coding))
+        .build();
   }
 
   static Observation.Component component(DatamartObservation.VitalsComponent component) {
@@ -102,6 +104,8 @@ public class R4ObservationTransformer {
     Quantity quantity = quantity(component.valueQuantity());
     if (allBlank(coding, quantity)) {
       return null;
+    } else if (isBlank(coding)) {
+      return Observation.Component.builder().valueQuantity(quantity).build();
     }
     return Observation.Component.builder()
         .code(CodeableConcept.builder().coding(List.of(coding)).build())
@@ -117,6 +121,8 @@ public class R4ObservationTransformer {
     Coding valueCoding = asCoding(component.valueCodeableConcept());
     if (allBlank(concept, valueCoding)) {
       return null;
+    } else if (isBlank(valueCoding)) {
+      return Observation.Component.builder().code(concept).build();
     }
     return Observation.Component.builder()
         .code(concept)

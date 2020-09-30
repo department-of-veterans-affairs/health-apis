@@ -121,6 +121,42 @@ public class R4ObservationTransformerTest {
                             .system("s")
                             .build()))
                 .build());
+    // check for a null coding, with a non-blank/non-null text
+    assertThat(
+            codeableConcept(
+                Optional.of(DatamartObservation.CodeableConcept.builder().text("t").build())))
+        .isEqualTo(gov.va.api.health.r4.api.datatypes.CodeableConcept.builder().text("t").build());
+  }
+
+  @Test
+  void componentAntibioticComponentTransformation() {
+    assertThat(
+            R4ObservationTransformer.component(
+                DatamartObservation.AntibioticComponent.builder()
+                    .code(
+                        Optional.of(
+                            DatamartObservation.CodeableConcept.builder().text("a").build()))
+                    .build()))
+        .isEqualTo(
+            Observation.Component.builder()
+                .code(
+                    gov.va.api.health.r4.api.datatypes.CodeableConcept.builder().text("a").build())
+                .build());
+  }
+
+  @Test
+  void componentVitalsComponentTransformation() {
+    assertThat(
+            R4ObservationTransformer.component(
+                DatamartObservation.VitalsComponent.builder()
+                    .valueQuantity(
+                        Optional.of(DatamartObservation.Quantity.builder().code("v").build()))
+                    .build()))
+        .isEqualTo(
+            Observation.Component.builder()
+                .valueQuantity(
+                    gov.va.api.health.r4.api.datatypes.Quantity.builder().code("v").build())
+                .build());
   }
 
   @Test
