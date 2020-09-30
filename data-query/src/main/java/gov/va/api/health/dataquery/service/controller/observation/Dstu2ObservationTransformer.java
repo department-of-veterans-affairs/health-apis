@@ -79,6 +79,8 @@ final class Dstu2ObservationTransformer {
     Coding coding = asCoding(dmCode.coding());
     if (allBlank(coding, dmCode.text())) {
       return null;
+    } else if (isBlank(coding)) {
+      return CodeableConcept.builder().text(dmCode.text()).build();
     }
 
     return CodeableConcept.builder()
@@ -96,6 +98,8 @@ final class Dstu2ObservationTransformer {
     Quantity quantity = quantity(component.valueQuantity());
     if (allBlank(coding, quantity)) {
       return null;
+    } else if (isBlank(coding)) {
+      return Observation.ObservationComponent.builder().valueQuantity(quantity).build();
     }
 
     return Observation.ObservationComponent.builder()
@@ -114,6 +118,8 @@ final class Dstu2ObservationTransformer {
     Coding valueCoding = asCoding(component.valueCodeableConcept());
     if (allBlank(concept, valueCoding)) {
       return null;
+    } else if (isBlank(valueCoding)) {
+      return Observation.ObservationComponent.builder().code(concept).build();
     }
 
     return Observation.ObservationComponent.builder()

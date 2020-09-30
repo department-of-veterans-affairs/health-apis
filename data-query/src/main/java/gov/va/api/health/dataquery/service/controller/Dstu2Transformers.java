@@ -31,7 +31,11 @@ public final class Dstu2Transformers {
     if (coding == null || coding.isEmpty()) {
       return null;
     }
-    return CodeableConcept.builder().coding(List.of(asCoding(coding.get()))).build();
+    Coding codeVal = asCoding(coding.get());
+    if (codeVal == null) {
+      return CodeableConcept.builder().coding(List.of()).build();
+    }
+    return CodeableConcept.builder().coding(List.of(codeVal)).build();
   }
 
   /** Convert the datamart coding to coding if possible, otherwise return null. */

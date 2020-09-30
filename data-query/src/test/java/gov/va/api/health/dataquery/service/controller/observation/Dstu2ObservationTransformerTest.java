@@ -113,6 +113,43 @@ public class Dstu2ObservationTransformerTest {
                 .text("t")
                 .coding(List.of(Coding.builder().display("d").code("c").system("s").build()))
                 .build());
+    // check for a null coding, with a non-blank/non-null text
+    assertThat(codeableConcept(Optional.of(CodeableConcept.builder().text("t").build())))
+        .isEqualTo(
+            gov.va.api.health.dstu2.api.datatypes.CodeableConcept.builder().text("t").build());
+  }
+
+  @Test
+  void componentAntibioticComponentTransformation() {
+    assertThat(
+            Dstu2ObservationTransformer.component(
+                AntibioticComponent.builder()
+                    .code(
+                        Optional.of(
+                            DatamartObservation.CodeableConcept.builder().text("a").build()))
+                    .build()))
+        .isEqualTo(
+            Observation.ObservationComponent.builder()
+                .code(
+                    gov.va.api.health.dstu2.api.datatypes.CodeableConcept.builder()
+                        .text("a")
+                        .build())
+                .build());
+  }
+
+  @Test
+  void componentVitalsComponentTransformation() {
+    assertThat(
+            Dstu2ObservationTransformer.component(
+                VitalsComponent.builder()
+                    .valueQuantity(
+                        Optional.of(DatamartObservation.Quantity.builder().code("v").build()))
+                    .build()))
+        .isEqualTo(
+            Observation.ObservationComponent.builder()
+                .valueQuantity(
+                    gov.va.api.health.dstu2.api.datatypes.Quantity.builder().code("v").build())
+                .build());
   }
 
   @Test
