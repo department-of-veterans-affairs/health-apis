@@ -18,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
@@ -55,7 +56,7 @@ public class LatestResourceEtlStatusController {
     }
   }
 
-  ResponseEntity<Health> resourceStatusHealth(Instant now) {
+  ResponseEntity<Health> resourceStatusHealth(Instant now, boolean shouldReturnStatus) {
     hasCachedResourceStatus.set(true);
     Instant tooLongAgo = now.minus(36, ChronoUnit.HOURS);
     Iterable<LatestResourceEtlStatusEntity> entities = repository.findAll();
@@ -64,15 +65,21 @@ public class LatestResourceEtlStatusController {
     boolean isDown =
         statusDetails.isEmpty()
             || statusDetails.stream().anyMatch(h -> h.getStatus().equals(Status.DOWN));
-    Health overallHealth =
+    Health.Builder health =
         Health.status(new Status(isDown ? "DOWN" : "UP", "Resource ETL Statuses"))
-            .withDetail("time", now)
-            .withDetail("statuses", statusDetails)
-            .build();
+            .withDetail("time", now);
+    if (shouldReturnStatus) {
+      health.withDetail("statuses", statusDetails);
+    }
+    Health overallHealth = health.build();
     if (!overallHealth.getStatus().equals(Status.UP)) {
       return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(overallHealth);
     }
     return ResponseEntity.ok(overallHealth);
+  }
+
+  ResponseEntity<Health> resourceStatusHealth(Instant now) {
+    return resourceStatusHealth(now, true);
   }
 
   /**
@@ -85,7 +92,8 @@ public class LatestResourceEtlStatusController {
    */
   @Cacheable("resource-status")
   @GetMapping
-  public ResponseEntity<Health> resourceStatusHealth() {
-    return resourceStatusHealth(Instant.now());
+  public ResponseEntity<Health> resourceStatusHealth(
+      @RequestParam(defaultValue = "true", required = false) boolean status) {
+    return resourceStatusHealth(Instant.now(), status);
   }
 }

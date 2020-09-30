@@ -103,4 +103,18 @@ public class LatestResourceEtlStatusTest {
                 .withDetail("statuses", List.of())
                 .build());
   }
+
+  @Test
+  void statusNotSetOmitsStatus() {
+    Instant now = Instant.now();
+    LatestResourceEtlStatusEntity firstEntity = _makeEntity("AllergyIntolerance", now);
+    LatestResourceEtlStatusEntity secondEntity = _makeEntity("Condition", now);
+    when(repository.findAll()).thenReturn(List.of(firstEntity, secondEntity));
+    ResponseEntity<Health> actualWithNoDetails = _controller().resourceStatusHealth(now, false);
+    assertThat(actualWithNoDetails.getBody())
+        .isEqualTo(
+            Health.status(new Status("UP", "Resource ETL Statuses"))
+                .withDetail("time", now)
+                .build());
+  }
 }
