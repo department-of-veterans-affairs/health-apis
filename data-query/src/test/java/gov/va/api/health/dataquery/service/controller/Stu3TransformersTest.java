@@ -61,6 +61,10 @@ public class Stu3TransformersTest {
   public void codableConcept() {
     assertThat(asCodeableConceptWrapping(Optional.empty())).isNull();
     assertThat(
+            Stu3Transformers.asCodeableConceptWrapping(
+                Optional.of(DatamartCoding.builder().build())))
+        .isNull();
+    assertThat(
             asCodeableConceptWrapping(
                 Optional.of(
                     DatamartCoding.builder()
@@ -87,13 +91,6 @@ public class Stu3TransformersTest {
                 .coding(
                     List.of(
                         Coding.builder().system("system").code("code").display("display").build()))
-                .build());
-    assertThat(
-            Stu3Transformers.asCodeableConceptWrapping(
-                Optional.of(DatamartCoding.builder().build())))
-        .isEqualTo(
-            gov.va.api.health.stu3.api.datatypes.CodeableConcept.builder()
-                .coding(List.of())
                 .build());
   }
 

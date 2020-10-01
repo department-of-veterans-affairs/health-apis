@@ -20,6 +20,7 @@ public class Dstu2TransformersTest {
   public void asCodeableConceptWrappingReturnsNullIfCodingCannotBeConverted() {
     assertThat(asCodeableConceptWrapping(DatamartCoding.builder().build())).isNull();
     assertThat(asCodeableConceptWrapping(Optional.empty())).isNull();
+    assertThat(asCodeableConceptWrapping(Optional.of(DatamartCoding.builder().build()))).isNull();
   }
 
   @Test
@@ -38,8 +39,6 @@ public class Dstu2TransformersTest {
             CodeableConcept.builder()
                 .coding(List.of(Coding.builder().system("s").code("c").display("d").build()))
                 .build());
-    assertThat(asCodeableConceptWrapping(Optional.of(DatamartCoding.builder().build())))
-        .isEqualTo(CodeableConcept.builder().coding(List.of()).build());
   }
 
   @Test

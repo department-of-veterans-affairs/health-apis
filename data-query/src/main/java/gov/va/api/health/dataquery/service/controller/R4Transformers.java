@@ -36,12 +36,8 @@ public class R4Transformers {
    * it cannot be converted.
    */
   public static CodeableConcept asCodeableConceptWrapping(Optional<DatamartCoding> coding) {
-    if (Transformers.isBlank(coding)) {
+    if (Transformers.isBlank(coding) || asCoding(coding.get()) == null) {
       return null;
-    }
-    Coding codeVal = asCoding(coding.get());
-    if (codeVal == null) {
-      return CodeableConcept.builder().coding(List.of()).build();
     }
     return CodeableConcept.builder().coding(List.of(asCoding(coding.get()))).build();
   }

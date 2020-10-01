@@ -22,6 +22,9 @@ public class R4TransformersTest {
   public void asCodeableConceptWrappingReturnsNullIfCodingCannotBeConverted() {
     assertThat(asCodeableConceptWrapping(DatamartCoding.builder().build())).isNull();
     assertThat(asCodeableConceptWrapping(Optional.empty())).isNull();
+    assertThat(
+            R4Transformers.asCodeableConceptWrapping(Optional.of(DatamartCoding.builder().build())))
+        .isNull();
   }
 
   @Test
@@ -40,10 +43,6 @@ public class R4TransformersTest {
             CodeableConcept.builder()
                 .coding(List.of(Coding.builder().system("s").code("c").display("d").build()))
                 .build());
-    assertThat(
-            R4Transformers.asCodeableConceptWrapping(Optional.of(DatamartCoding.builder().build())))
-        .isEqualTo(
-            gov.va.api.health.r4.api.datatypes.CodeableConcept.builder().coding(List.of()).build());
   }
 
   @Test
