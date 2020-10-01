@@ -7,6 +7,7 @@ import static gov.va.api.health.dataquery.service.controller.Transformers.allBla
 import static gov.va.api.health.dataquery.service.controller.Transformers.asDateTimeString;
 import static gov.va.api.health.dataquery.service.controller.Transformers.emptyToNull;
 import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
+import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 import static org.apache.commons.lang3.StringUtils.upperCase;
@@ -86,12 +87,12 @@ public class R4ObservationTransformer {
     Coding coding = asCoding(code.coding());
     if (allBlank(coding, code.text())) {
       return null;
-    } else {
-      return CodeableConcept.builder()
-          .coding(List.of(coding))
-          .text(textOrElseDisplay(code.text(), coding))
-          .build();
     }
+
+    return CodeableConcept.builder()
+        .coding(emptyToNull(asList(coding)))
+        .text(textOrElseDisplay(code.text(), coding))
+        .build();
   }
 
   static Observation.Component component(DatamartObservation.VitalsComponent component) {
@@ -104,7 +105,7 @@ public class R4ObservationTransformer {
       return null;
     }
     return Observation.Component.builder()
-        .code(CodeableConcept.builder().coding(List.of(coding)).build())
+        .code(coding == null ? null : CodeableConcept.builder().coding(asList(coding)).build())
         .valueQuantity(quantity)
         .build();
   }
@@ -120,7 +121,10 @@ public class R4ObservationTransformer {
     }
     return Observation.Component.builder()
         .code(concept)
-        .valueCodeableConcept(CodeableConcept.builder().coding(List.of(valueCoding)).build())
+        .valueCodeableConcept(
+            valueCoding == null
+                ? null
+                : CodeableConcept.builder().coding(List.of(valueCoding)).build())
         .build();
   }
 
