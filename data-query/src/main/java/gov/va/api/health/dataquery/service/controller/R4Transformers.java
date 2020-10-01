@@ -39,6 +39,10 @@ public class R4Transformers {
     if (Transformers.isBlank(coding)) {
       return null;
     }
+    Coding codeVal = asCoding(coding.get());
+    if (codeVal == null) {
+      return CodeableConcept.builder().coding(List.of()).build();
+    }
     return CodeableConcept.builder().coding(List.of(asCoding(coding.get()))).build();
   }
 

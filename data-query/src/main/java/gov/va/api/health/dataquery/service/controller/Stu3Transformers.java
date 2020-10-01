@@ -29,6 +29,10 @@ public final class Stu3Transformers {
     if (coding == null || coding.isEmpty()) {
       return null;
     }
+    Coding codeVal = asCoding(coding.get());
+    if (codeVal == null) {
+      return CodeableConcept.builder().coding(List.of()).build();
+    }
     return CodeableConcept.builder().coding(List.of(asCoding(coding.get()))).build();
   }
 
