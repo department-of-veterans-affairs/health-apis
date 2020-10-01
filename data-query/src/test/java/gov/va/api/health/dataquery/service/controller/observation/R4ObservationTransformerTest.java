@@ -2,6 +2,7 @@ package gov.va.api.health.dataquery.service.controller.observation;
 
 import static gov.va.api.health.dataquery.service.controller.observation.R4ObservationTransformer.codeableConcept;
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
@@ -142,6 +143,45 @@ public class R4ObservationTransformerTest {
                 .code(
                     gov.va.api.health.r4.api.datatypes.CodeableConcept.builder().text("a").build())
                 .build());
+    assertThat(
+            R4ObservationTransformer.component(
+                DatamartObservation.AntibioticComponent.builder()
+                    .valueCodeableConcept(
+                        Optional.of(DatamartCoding.builder().code(Optional.of("c")).build()))
+                    .build()))
+        .isEqualTo(
+            Observation.Component.builder()
+                .valueCodeableConcept(
+                    gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()
+                        .coding(
+                            singletonList(
+                                gov.va.api.health.r4.api.datatypes.Coding.builder()
+                                    .code("c")
+                                    .build()))
+                        .build())
+                .build());
+    assertThat(
+            R4ObservationTransformer.component(
+                DatamartObservation.AntibioticComponent.builder()
+                    .code(
+                        Optional.of(
+                            DatamartObservation.CodeableConcept.builder().text("a").build()))
+                    .valueCodeableConcept(
+                        Optional.of(DatamartCoding.builder().code(Optional.of("c")).build()))
+                    .build()))
+        .isEqualTo(
+            Observation.Component.builder()
+                .code(
+                    gov.va.api.health.r4.api.datatypes.CodeableConcept.builder().text("a").build())
+                .valueCodeableConcept(
+                    gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()
+                        .coding(
+                            singletonList(
+                                gov.va.api.health.r4.api.datatypes.Coding.builder()
+                                    .code("c")
+                                    .build()))
+                        .build())
+                .build());
   }
 
   @Test
@@ -156,6 +196,42 @@ public class R4ObservationTransformerTest {
             Observation.Component.builder()
                 .valueQuantity(
                     gov.va.api.health.r4.api.datatypes.Quantity.builder().code("v").build())
+                .build());
+    assertThat(
+            R4ObservationTransformer.component(
+                DatamartObservation.VitalsComponent.builder()
+                    .code(Optional.of(DatamartCoding.builder().code(Optional.of("c")).build()))
+                    .build()))
+        .isEqualTo(
+            Observation.Component.builder()
+                .code(
+                    gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()
+                        .coding(
+                            singletonList(
+                                gov.va.api.health.r4.api.datatypes.Coding.builder()
+                                    .code("c")
+                                    .build()))
+                        .build())
+                .build());
+    assertThat(
+            R4ObservationTransformer.component(
+                DatamartObservation.VitalsComponent.builder()
+                    .valueQuantity(
+                        Optional.of(DatamartObservation.Quantity.builder().code("v").build()))
+                    .code(Optional.of(DatamartCoding.builder().code(Optional.of("c")).build()))
+                    .build()))
+        .isEqualTo(
+            Observation.Component.builder()
+                .valueQuantity(
+                    gov.va.api.health.r4.api.datatypes.Quantity.builder().code("v").build())
+                .code(
+                    gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()
+                        .coding(
+                            singletonList(
+                                gov.va.api.health.r4.api.datatypes.Coding.builder()
+                                    .code("c")
+                                    .build()))
+                        .build())
                 .build());
   }
 

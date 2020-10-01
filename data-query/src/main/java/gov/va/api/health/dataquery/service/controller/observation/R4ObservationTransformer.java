@@ -7,6 +7,7 @@ import static gov.va.api.health.dataquery.service.controller.Transformers.allBla
 import static gov.va.api.health.dataquery.service.controller.Transformers.asDateTimeString;
 import static gov.va.api.health.dataquery.service.controller.Transformers.emptyToNull;
 import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
+import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 import static org.apache.commons.lang3.StringUtils.upperCase;
@@ -86,12 +87,10 @@ public class R4ObservationTransformer {
     Coding coding = asCoding(code.coding());
     if (allBlank(coding, code.text())) {
       return null;
-    } else if (isBlank(coding)) {
-      return CodeableConcept.builder().text(code.text()).build();
     }
 
     return CodeableConcept.builder()
-        .coding(List.of(coding))
+        .coding(emptyToNull(asList(coding)))
         .text(textOrElseDisplay(code.text(), coding))
         .build();
   }
@@ -104,13 +103,13 @@ public class R4ObservationTransformer {
     Quantity quantity = quantity(component.valueQuantity());
     if (allBlank(coding, quantity)) {
       return null;
-    } else if (isBlank(coding)) {
-      return Observation.Component.builder().valueQuantity(quantity).build();
     }
-    return Observation.Component.builder()
-        .code(CodeableConcept.builder().coding(List.of(coding)).build())
-        .valueQuantity(quantity)
-        .build();
+    return coding == null
+        ? Observation.Component.builder().valueQuantity(quantity).build()
+        : Observation.Component.builder()
+            .code(CodeableConcept.builder().coding(asList(coding)).build())
+            .valueQuantity(quantity)
+            .build();
   }
 
   static Observation.Component component(DatamartObservation.AntibioticComponent component) {
@@ -121,13 +120,13 @@ public class R4ObservationTransformer {
     Coding valueCoding = asCoding(component.valueCodeableConcept());
     if (allBlank(concept, valueCoding)) {
       return null;
-    } else if (isBlank(valueCoding)) {
-      return Observation.Component.builder().code(concept).build();
     }
-    return Observation.Component.builder()
-        .code(concept)
-        .valueCodeableConcept(CodeableConcept.builder().coding(List.of(valueCoding)).build())
-        .build();
+    return valueCoding == null
+        ? Observation.Component.builder().code(concept).build()
+        : Observation.Component.builder()
+            .code(concept)
+            .valueCodeableConcept(CodeableConcept.builder().coding(List.of(valueCoding)).build())
+            .build();
   }
 
   static Observation.Component component(DatamartObservation.BacteriologyComponent component) {

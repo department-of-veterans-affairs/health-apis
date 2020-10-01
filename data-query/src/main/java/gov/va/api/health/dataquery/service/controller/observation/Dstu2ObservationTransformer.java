@@ -7,6 +7,7 @@ import static gov.va.api.health.dataquery.service.controller.Transformers.allBla
 import static gov.va.api.health.dataquery.service.controller.Transformers.asDateTimeString;
 import static gov.va.api.health.dataquery.service.controller.Transformers.emptyToNull;
 import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
+import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 import static org.apache.commons.lang3.StringUtils.upperCase;
@@ -79,12 +80,10 @@ final class Dstu2ObservationTransformer {
     Coding coding = asCoding(dmCode.coding());
     if (allBlank(coding, dmCode.text())) {
       return null;
-    } else if (isBlank(coding)) {
-      return CodeableConcept.builder().text(dmCode.text()).build();
     }
 
     return CodeableConcept.builder()
-        .coding(List.of(coding))
+        .coding(emptyToNull(asList(coding)))
         .text(textOrElseDisplay(dmCode.text(), coding))
         .build();
   }
@@ -98,14 +97,14 @@ final class Dstu2ObservationTransformer {
     Quantity quantity = quantity(component.valueQuantity());
     if (allBlank(coding, quantity)) {
       return null;
-    } else if (isBlank(coding)) {
-      return Observation.ObservationComponent.builder().valueQuantity(quantity).build();
     }
 
-    return Observation.ObservationComponent.builder()
-        .code(CodeableConcept.builder().coding(List.of(coding)).build())
-        .valueQuantity(quantity)
-        .build();
+    return coding == null
+        ? Observation.ObservationComponent.builder().valueQuantity(quantity).build()
+        : Observation.ObservationComponent.builder()
+            .code(CodeableConcept.builder().coding(asList(coding)).build())
+            .valueQuantity(quantity)
+            .build();
   }
 
   static Observation.ObservationComponent component(
@@ -118,14 +117,14 @@ final class Dstu2ObservationTransformer {
     Coding valueCoding = asCoding(component.valueCodeableConcept());
     if (allBlank(concept, valueCoding)) {
       return null;
-    } else if (isBlank(valueCoding)) {
-      return Observation.ObservationComponent.builder().code(concept).build();
     }
 
-    return Observation.ObservationComponent.builder()
-        .code(concept)
-        .valueCodeableConcept(CodeableConcept.builder().coding(List.of(valueCoding)).build())
-        .build();
+    return valueCoding == null
+        ? Observation.ObservationComponent.builder().code(concept).build()
+        : Observation.ObservationComponent.builder()
+            .code(concept)
+            .valueCodeableConcept(CodeableConcept.builder().coding(List.of(valueCoding)).build())
+            .build();
   }
 
   static Observation.ObservationComponent component(
