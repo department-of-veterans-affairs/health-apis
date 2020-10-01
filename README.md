@@ -4,9 +4,23 @@ Health APIs Data Query application. The system consists of
 [Spring Boot](https://spring.io/projects/spring-boot) microservices that provide
 [Argonaut Data Query](http://www.fhir.org/guides/argonaut/r2/profiles.html) and [FHIR STU3](http://www.hl7.org/fhir/STU3/) compliant resources backed by information from the Corporate Data Warehouse.
 
-###### Application
+###### Modules
 - [data-query](data-query/README.md) - Data Query experience API providing specification compliant resources
 - [data-query-tests](data-query-tests/README.md) - Integration tests
+- data-query-ids-mapping - Provides short hand resource mappings for [ID encoding](https://github.com/department-of-veterans-affairs/health-apis-ids).
+- data-query-patient-registration - Provides Spring components to intercept requests and perform patient registration.
+
+#### System Components
+![components](src/plantuml/components.png)
+
+Like all Lighthouse APIs, traffic from the consumer moves through the VA networking components, API Gateway, load balancers, etc. before reaching this API. The API Gateway handles authentication and rate limiting before traffic is received by Data Query components.
+- **Kong**  
+  An instance of the [Health APIs Kong](https://github.com/department-of-veterans-affairs/health-apis-kong) is deployed with Data Query to perform authorization. It is responsible for token validation, SMART-on-FHIR OAuth scope enforcement, etc. Data Query itself is inaccessible except via the authorization Kong instance.
+- **Data Query**  
+  Data Query processes consumer requests. As part of requests, usage data will be recorded in an Amazon Dynamo table to be used for metrics reporting.
+- **Datamart**  
+  A database within the Corporate Data Warehouse provides read-only data for Data Query. Nightly ETL processes gather and preprocess data that originates in VistA. 
+
 
 ----
 
