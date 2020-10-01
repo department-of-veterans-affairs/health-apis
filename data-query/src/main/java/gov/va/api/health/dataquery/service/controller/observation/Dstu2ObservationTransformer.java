@@ -99,12 +99,10 @@ final class Dstu2ObservationTransformer {
       return null;
     }
 
-    return coding == null
-        ? Observation.ObservationComponent.builder().valueQuantity(quantity).build()
-        : Observation.ObservationComponent.builder()
-            .code(CodeableConcept.builder().coding(asList(coding)).build())
-            .valueQuantity(quantity)
-            .build();
+    return Observation.ObservationComponent.builder()
+        .code(coding == null ? null : CodeableConcept.builder().coding(asList(coding)).build())
+        .valueQuantity(quantity)
+        .build();
   }
 
   static Observation.ObservationComponent component(
@@ -119,12 +117,13 @@ final class Dstu2ObservationTransformer {
       return null;
     }
 
-    return valueCoding == null
-        ? Observation.ObservationComponent.builder().code(concept).build()
-        : Observation.ObservationComponent.builder()
-            .code(concept)
-            .valueCodeableConcept(CodeableConcept.builder().coding(List.of(valueCoding)).build())
-            .build();
+    return Observation.ObservationComponent.builder()
+        .code(concept)
+        .valueCodeableConcept(
+            valueCoding == null
+                ? null
+                : CodeableConcept.builder().coding(List.of(valueCoding)).build())
+        .build();
   }
 
   static Observation.ObservationComponent component(

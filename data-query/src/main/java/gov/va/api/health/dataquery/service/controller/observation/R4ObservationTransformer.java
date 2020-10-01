@@ -104,12 +104,10 @@ public class R4ObservationTransformer {
     if (allBlank(coding, quantity)) {
       return null;
     }
-    return coding == null
-        ? Observation.Component.builder().valueQuantity(quantity).build()
-        : Observation.Component.builder()
-            .code(CodeableConcept.builder().coding(asList(coding)).build())
-            .valueQuantity(quantity)
-            .build();
+    return Observation.Component.builder()
+        .code(coding == null ? null : CodeableConcept.builder().coding(asList(coding)).build())
+        .valueQuantity(quantity)
+        .build();
   }
 
   static Observation.Component component(DatamartObservation.AntibioticComponent component) {
@@ -121,12 +119,13 @@ public class R4ObservationTransformer {
     if (allBlank(concept, valueCoding)) {
       return null;
     }
-    return valueCoding == null
-        ? Observation.Component.builder().code(concept).build()
-        : Observation.Component.builder()
-            .code(concept)
-            .valueCodeableConcept(CodeableConcept.builder().coding(List.of(valueCoding)).build())
-            .build();
+    return Observation.Component.builder()
+        .code(concept)
+        .valueCodeableConcept(
+            valueCoding == null
+                ? null
+                : CodeableConcept.builder().coding(List.of(valueCoding)).build())
+        .build();
   }
 
   static Observation.Component component(DatamartObservation.BacteriologyComponent component) {

@@ -60,6 +60,7 @@ public class Stu3TransformersTest {
   @Test
   public void codableConcept() {
     assertThat(asCodeableConceptWrapping(Optional.empty())).isNull();
+    assertThat(asCodeableConceptWrapping(DatamartCoding.builder().build())).isNull();
     assertThat(
             Stu3Transformers.asCodeableConceptWrapping(
                 Optional.of(DatamartCoding.builder().build())))
@@ -78,7 +79,6 @@ public class Stu3TransformersTest {
                     List.of(
                         Coding.builder().system("system").code("code").display("display").build()))
                 .build());
-    assertThat(asCodeableConceptWrapping(DatamartCoding.builder().build())).isNull();
     assertThat(
             asCodeableConceptWrapping(
                 DatamartCoding.builder()
