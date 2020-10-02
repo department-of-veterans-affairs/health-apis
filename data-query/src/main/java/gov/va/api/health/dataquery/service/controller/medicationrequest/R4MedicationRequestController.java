@@ -276,13 +276,13 @@ public class R4MedicationRequestController {
       return bundle(
           ctx.parameters(),
           ctx.medicationStatementSupport().search(),
-          (int) ctx.medicationStatementSupport().medicationStatementEntities().getTotalElements(),
+          ctx.getTotalRequests(),
           ctx.totalPages());
     } else if (ctx.medicationOrderSupport().numMedicationOrdersForPatient() > 0) {
       return bundle(
           ctx.parameters(),
           ctx.medicationOrderSupport().search(),
-          (int) ctx.medicationOrderSupport().medicationOrderEntities().getTotalElements(),
+          ctx.getTotalRequests(),
           ctx.totalPages());
     }
     return bundle(ctx.parameters(), emptyList(), ctx.totalPages());
@@ -355,10 +355,17 @@ public class R4MedicationRequestController {
       this.medicationStatementSupport = new MedicationStatementSupport(this);
     }
 
+    int getTotalRequests() {
+      int statements =
+          (int) medicationStatementSupport.medicationStatementEntities().getTotalElements();
+      int orders = (int) medicationOrderSupport.medicationOrderEntities().getTotalElements();
+      return (statements + orders);
+    }
+
     int lastPageWithMedicationStatement() {
       return (int)
           Math.ceil(
-              (double) medicationStatementSupport().numMedicationStatementsForPatient() / count());
+              (double) (medicationStatementSupport().numMedicationStatementsForPatient()) / count());
     }
 
     MultiValueMap<String, String> parameters() {
@@ -377,7 +384,7 @@ public class R4MedicationRequestController {
       return (int)
           (lastPageWithMedicationStatement()
               + Math.ceil(
-                  medicationOrderSupport().numMedicationOrdersForPatient() / (double) count()));
+                  (double) medicationOrderSupport().numMedicationOrdersForPatient() / count()));
     }
   }
 

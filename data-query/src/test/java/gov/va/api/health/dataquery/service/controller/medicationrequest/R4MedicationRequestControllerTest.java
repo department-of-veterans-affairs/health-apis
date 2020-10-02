@@ -134,6 +134,31 @@ public class R4MedicationRequestControllerTest {
                         10))));
   }
 
+  @Test
+  public void numberOfRequestsIsStatementsAndOrdersAdded() {
+    Multimap<String, MedicationRequest> medicationRequestByPatient = populateData();
+    List<MedicationRequest> medicationRequestsTotal =
+        medicationRequestByPatient.get("p0").stream().collect(Collectors.toList());
+    List<MedicationRequest> medicationRequestsOrder =
+        medicationRequestByPatient.get("p0").stream()
+            .filter(
+                mr ->
+                    medicationRequestByPatient
+                        .get("p0")
+                        .contains(mr.intent(MedicationRequest.Intent.order)))
+            .collect(Collectors.toList());
+    List<MedicationRequest> medicationRequestsPlan =
+        medicationRequestByPatient.get("p0").stream()
+            .filter(
+                mr ->
+                    medicationRequestByPatient
+                        .get("p0")
+                        .contains(mr.intent(MedicationRequest.Intent.plan)))
+            .collect(Collectors.toList());
+    assertThat(medicationRequestsOrder.size() + medicationRequestsPlan.size())
+        .isEqualTo(medicationRequestsTotal.size());
+  }
+
   private Multimap<String, MedicationRequest> populateData() {
     var fhir = MedicationRequestSamples.R4.create();
     var datamartMedicationOrder = MedicationOrderSamples.Datamart.create();
