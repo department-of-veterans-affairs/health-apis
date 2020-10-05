@@ -329,15 +329,14 @@ public class R4MedicationRequestControllerTest {
                         .get("p0")
                         .contains(mr.intent(MedicationRequest.Intent.plan)))
             .collect(Collectors.toList());
+    var p0 = medicationRequestByPatient.get("p0").stream().collect(Collectors.toList());
     assertThat(json(controller().searchByPatient("p0", 1, 10)))
         .isEqualTo(
             json(
                 MedicationRequestSamples.R4.asBundle(
                     "http://abed.com/cool",
                     medicationRequests,
-                    medicationRequestByPatient.get("p0").stream()
-                        .collect(Collectors.toList())
-                        .size(),
+                    p0.size(),
                     MedicationRequestSamples.R4.link(
                         BundleLink.LinkRelation.first,
                         "http://abed.com/cool/MedicationRequest?patient=p0",
@@ -372,9 +371,7 @@ public class R4MedicationRequestControllerTest {
                 MedicationRequestSamples.R4.asBundle(
                     "http://abed.com/cool",
                     medicationRequests,
-                    medicationRequestByPatient.get("p0").stream()
-                        .collect(Collectors.toList())
-                        .size(),
+                    p0.size(),
                     MedicationRequestSamples.R4.link(
                         BundleLink.LinkRelation.first,
                         "http://abed.com/cool/MedicationRequest?patient=p0",
