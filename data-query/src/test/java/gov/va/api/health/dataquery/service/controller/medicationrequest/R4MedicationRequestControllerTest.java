@@ -335,7 +335,9 @@ public class R4MedicationRequestControllerTest {
                 MedicationRequestSamples.R4.asBundle(
                     "http://abed.com/cool",
                     medicationRequests,
-                    controller().searchByPatient("p0", 1, 15).total(),
+                    medicationRequestByPatient.get("p0").stream()
+                        .collect(Collectors.toList())
+                        .size(),
                     MedicationRequestSamples.R4.link(
                         BundleLink.LinkRelation.first,
                         "http://abed.com/cool/MedicationRequest?patient=p0",
@@ -370,7 +372,9 @@ public class R4MedicationRequestControllerTest {
                 MedicationRequestSamples.R4.asBundle(
                     "http://abed.com/cool",
                     medicationRequests,
-                    controller().searchByPatient("p0", 2, 15).total(),
+                    medicationRequestByPatient.get("p0").stream()
+                        .collect(Collectors.toList())
+                        .size(),
                     MedicationRequestSamples.R4.link(
                         BundleLink.LinkRelation.first,
                         "http://abed.com/cool/MedicationRequest?patient=p0",

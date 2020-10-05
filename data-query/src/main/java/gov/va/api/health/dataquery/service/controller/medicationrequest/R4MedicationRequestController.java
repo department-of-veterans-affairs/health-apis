@@ -276,13 +276,13 @@ public class R4MedicationRequestController {
       return bundle(
           ctx.parameters(),
           ctx.medicationStatementSupport().search(),
-          ctx.getTotalRequests(),
+          ctx.totalCount(),
           ctx.totalPages());
     } else if (ctx.medicationOrderSupport().numMedicationOrdersForPatient() > 0) {
       return bundle(
           ctx.parameters(),
           ctx.medicationOrderSupport().search(),
-          ctx.getTotalRequests(),
+          ctx.totalCount(),
           ctx.totalPages());
     }
     return bundle(ctx.parameters(), emptyList(), ctx.totalPages());
@@ -355,16 +355,10 @@ public class R4MedicationRequestController {
       this.medicationStatementSupport = new MedicationStatementSupport(this);
     }
 
-    int getTotalRequests() {
-      int statements = (int) medicationStatementSupport.getTotalStatementRecords();
-      int orders = (int) medicationOrderSupport.getTotalOrderRecords();
-      return (statements + orders);
-    }
-
     int lastPageWithMedicationStatement() {
       return (int)
           Math.ceil(
-              (double) medicationStatementSupport().numMedicationStatementsForPatient() / count());
+              medicationStatementSupport().numMedicationStatementsForPatient() / (double) count());
     }
 
     MultiValueMap<String, String> parameters() {
@@ -379,11 +373,17 @@ public class R4MedicationRequestController {
       return witnessProtection.toCdwId(patient);
     }
 
+    int totalCount() {
+      int statements = (int) medicationStatementSupport.medicationStatementCount();
+      int orders = (int) medicationOrderSupport.medicationOrderCount();
+      return (statements + orders);
+    }
+
     int totalPages() {
       return (int)
           (lastPageWithMedicationStatement()
               + Math.ceil(
-                  (double) medicationOrderSupport().numMedicationOrdersForPatient() / count()));
+                  medicationOrderSupport().numMedicationOrdersForPatient() / (double) count()));
     }
   }
 
@@ -392,7 +392,7 @@ public class R4MedicationRequestController {
   private class MedicationOrderSupport {
     SearchContext ctx;
 
-    long getTotalOrderRecords() {
+    long medicationOrderCount() {
       return medicationOrderRepository.count(
           MedicationOrderRepository.PatientSpecification.of(ctx.toCdwId()));
     }
@@ -432,7 +432,7 @@ public class R4MedicationRequestController {
   private class MedicationStatementSupport {
     SearchContext ctx;
 
-    long getTotalStatementRecords() {
+    long medicationStatementCount() {
       return medicationStatementRepository.count(
           MedicationStatementRepository.PatientSpecification.of(ctx.toCdwId()));
     }
