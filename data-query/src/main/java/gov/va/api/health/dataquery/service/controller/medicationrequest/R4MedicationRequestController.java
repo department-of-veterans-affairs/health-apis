@@ -374,9 +374,9 @@ public class R4MedicationRequestController {
     }
 
     int totalCount() {
-      int statements = (int) medicationStatementSupport.medicationStatementCount();
-      int orders = (int) medicationOrderSupport.medicationOrderCount();
-      return (statements + orders);
+      int statements = (int) medicationStatementSupport.numMedicationStatementsForPatient();
+      int orders = (int) medicationOrderSupport.numMedicationOrdersForPatient();
+      return statements + orders;
     }
 
     int totalPages() {
@@ -391,11 +391,6 @@ public class R4MedicationRequestController {
   @AllArgsConstructor
   private class MedicationOrderSupport {
     SearchContext ctx;
-
-    long medicationOrderCount() {
-      return medicationOrderRepository.count(
-          MedicationOrderRepository.PatientSpecification.of(ctx.toCdwId()));
-    }
 
     Page<MedicationOrderEntity> medicationOrderEntities() {
       return medicationOrderRepository.findByIcn(
@@ -431,11 +426,6 @@ public class R4MedicationRequestController {
   @AllArgsConstructor
   private class MedicationStatementSupport {
     SearchContext ctx;
-
-    long medicationStatementCount() {
-      return medicationStatementRepository.count(
-          MedicationStatementRepository.PatientSpecification.of(ctx.toCdwId()));
-    }
 
     Page<MedicationStatementEntity> medicationStatementEntities() {
       return medicationStatementRepository.findByIcn(
