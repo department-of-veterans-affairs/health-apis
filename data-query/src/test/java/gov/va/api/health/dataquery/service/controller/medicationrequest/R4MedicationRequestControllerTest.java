@@ -137,10 +137,10 @@ public class R4MedicationRequestControllerTest {
   @Test
   public void numberOfRequestsIsStatementsAndOrdersAdded() {
     Multimap<String, MedicationRequest> medicationRequestByPatient = populateData();
-    MedicationRequest.Bundle medReqBundleFirst = controller().searchByPatient("p0", 1, 1);
-    MedicationRequest.Bundle medReqBundleLast = controller().searchByPatient("p0", 1, 10);
+    MedicationRequest.Bundle medReqBundleFirst = controller().searchByPatient("p0", 1, 15);
+    MedicationRequest.Bundle medReqBundleLast = controller().searchByPatient("p0", 2, 15);
     List<MedicationRequest> medicationRequestsTotal =
-            medicationRequestByPatient.get("p0").stream().collect(Collectors.toList());
+        medicationRequestByPatient.get("p0").stream().collect(Collectors.toList());
     assertThat(medReqBundleFirst.total()).isEqualTo(medicationRequestsTotal.size());
     assertThat(medReqBundleLast.total()).isEqualTo(medicationRequestsTotal.size());
   }
@@ -335,7 +335,7 @@ public class R4MedicationRequestControllerTest {
                 MedicationRequestSamples.R4.asBundle(
                     "http://abed.com/cool",
                     medicationRequests,
-                    medicationRequests.size(),
+                    controller().searchByPatient("p0", 1, 15).total(),
                     MedicationRequestSamples.R4.link(
                         BundleLink.LinkRelation.first,
                         "http://abed.com/cool/MedicationRequest?patient=p0",
@@ -370,7 +370,7 @@ public class R4MedicationRequestControllerTest {
                 MedicationRequestSamples.R4.asBundle(
                     "http://abed.com/cool",
                     medicationRequests,
-                    medicationRequests.size(),
+                    controller().searchByPatient("p0", 2, 15).total(),
                     MedicationRequestSamples.R4.link(
                         BundleLink.LinkRelation.first,
                         "http://abed.com/cool/MedicationRequest?patient=p0",
