@@ -137,26 +137,12 @@ public class R4MedicationRequestControllerTest {
   @Test
   public void numberOfRequestsIsStatementsAndOrdersAdded() {
     Multimap<String, MedicationRequest> medicationRequestByPatient = populateData();
+    MedicationRequest.Bundle medReqBundleFirst = controller().searchByPatient("p0", 1, 1);
+    MedicationRequest.Bundle medReqBundleLast = controller().searchByPatient("p0", 1, 10);
     List<MedicationRequest> medicationRequestsTotal =
-        medicationRequestByPatient.get("p0").stream().collect(Collectors.toList());
-    List<MedicationRequest> medicationRequestsOrder =
-        medicationRequestByPatient.get("p0").stream()
-            .filter(
-                mr ->
-                    medicationRequestByPatient
-                        .get("p0")
-                        .contains(mr.intent(MedicationRequest.Intent.order)))
-            .collect(Collectors.toList());
-    List<MedicationRequest> medicationRequestsPlan =
-        medicationRequestByPatient.get("p0").stream()
-            .filter(
-                mr ->
-                    medicationRequestByPatient
-                        .get("p0")
-                        .contains(mr.intent(MedicationRequest.Intent.plan)))
-            .collect(Collectors.toList());
-    assertThat(medicationRequestsOrder.size() + medicationRequestsPlan.size())
-        .isEqualTo(medicationRequestsTotal.size());
+            medicationRequestByPatient.get("p0").stream().collect(Collectors.toList());
+    assertThat(medReqBundleFirst.total()).isEqualTo(medicationRequestsTotal.size());
+    assertThat(medReqBundleLast.total()).isEqualTo(medicationRequestsTotal.size());
   }
 
   private Multimap<String, MedicationRequest> populateData() {
