@@ -58,7 +58,7 @@ public class RawIT {
         response
             .jsonPath()
             .using(JsonPathConfig.jsonPathConfig().charset("UTF-8"))
-            .get("identifier")
+            .get("cdwId")
             .toString();
     assertThat(resourceIdentifier).isNotBlank();
   }
