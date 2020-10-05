@@ -26,7 +26,7 @@ public final class Stu3Transformers {
 
   /** Convert the Optional datamart coding to Fhir, otherwise return null. */
   public static CodeableConcept asCodeableConceptWrapping(Optional<DatamartCoding> coding) {
-    if (coding == null || coding.isEmpty()) {
+    if (coding == null || coding.isEmpty() || asCoding(coding.get()) == null) {
       return null;
     }
     return CodeableConcept.builder().coding(List.of(asCoding(coding.get()))).build();

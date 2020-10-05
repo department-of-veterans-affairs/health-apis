@@ -7,6 +7,7 @@ import static gov.va.api.health.dataquery.service.controller.Transformers.allBla
 import static gov.va.api.health.dataquery.service.controller.Transformers.asDateTimeString;
 import static gov.va.api.health.dataquery.service.controller.Transformers.emptyToNull;
 import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
+import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 import static org.apache.commons.lang3.StringUtils.upperCase;
@@ -82,7 +83,7 @@ final class Dstu2ObservationTransformer {
     }
 
     return CodeableConcept.builder()
-        .coding(List.of(coding))
+        .coding(emptyToNull(asList(coding)))
         .text(textOrElseDisplay(dmCode.text(), coding))
         .build();
   }
@@ -99,7 +100,7 @@ final class Dstu2ObservationTransformer {
     }
 
     return Observation.ObservationComponent.builder()
-        .code(CodeableConcept.builder().coding(List.of(coding)).build())
+        .code(coding == null ? null : CodeableConcept.builder().coding(asList(coding)).build())
         .valueQuantity(quantity)
         .build();
   }
@@ -118,7 +119,10 @@ final class Dstu2ObservationTransformer {
 
     return Observation.ObservationComponent.builder()
         .code(concept)
-        .valueCodeableConcept(CodeableConcept.builder().coding(List.of(valueCoding)).build())
+        .valueCodeableConcept(
+            valueCoding == null
+                ? null
+                : CodeableConcept.builder().coding(List.of(valueCoding)).build())
         .build();
   }
 

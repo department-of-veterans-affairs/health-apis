@@ -22,6 +22,9 @@ public class R4TransformersTest {
   public void asCodeableConceptWrappingReturnsNullIfCodingCannotBeConverted() {
     assertThat(asCodeableConceptWrapping(DatamartCoding.builder().build())).isNull();
     assertThat(asCodeableConceptWrapping(Optional.empty())).isNull();
+    assertThat(
+            R4Transformers.asCodeableConceptWrapping(Optional.of(DatamartCoding.builder().build())))
+        .isNull();
   }
 
   @Test
