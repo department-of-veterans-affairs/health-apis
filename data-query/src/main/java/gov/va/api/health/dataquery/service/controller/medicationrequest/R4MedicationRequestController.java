@@ -358,7 +358,7 @@ public class R4MedicationRequestController {
     int lastPageWithMedicationStatement() {
       return (int)
           Math.ceil(
-              medicationStatementSupport().numMedicationStatementsForPatient() / (double) count());
+              (double) medicationStatementSupport().numMedicationStatementsForPatient() / count());
     }
 
     MultiValueMap<String, String> parameters() {
