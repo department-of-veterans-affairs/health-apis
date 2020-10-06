@@ -119,7 +119,7 @@ public class Dstu2DiagnosticReportController {
   /** Read by identifier. */
   @GetMapping(value = {"/{publicId}"})
   public DiagnosticReport read(
-      @RequestHeader(name = "v2", defaultValue = "false") Boolean v2,
+      @RequestHeader(name = "v2", defaultValue = "true") Boolean v2,
       @PathVariable("publicId") String publicId) {
     if (Boolean.TRUE.equals(v2)) {
       log.info("Using v2 DiagnosticReport.");
@@ -136,7 +136,7 @@ public class Dstu2DiagnosticReportController {
       value = {"/{publicId}"},
       headers = {"raw=true"})
   public String readRaw(
-      @RequestHeader(name = "v2", defaultValue = "false") Boolean v2,
+      @RequestHeader(name = "v2", defaultValue = "true") Boolean v2,
       @PathVariable("publicId") String publicId,
       HttpServletResponse response) {
     if (Boolean.TRUE.equals(v2)) {
@@ -162,7 +162,7 @@ public class Dstu2DiagnosticReportController {
   /** Search by _id. */
   @GetMapping(params = {"_id"})
   public DiagnosticReport.Bundle searchById(
-      @RequestHeader(name = "v2", defaultValue = "false") Boolean v2,
+      @RequestHeader(name = "v2", defaultValue = "true") Boolean v2,
       @RequestParam("_id") String id,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
@@ -172,7 +172,7 @@ public class Dstu2DiagnosticReportController {
   /** Search by identifier. */
   @GetMapping(params = {"identifier"})
   public DiagnosticReport.Bundle searchByIdentifier(
-      @RequestHeader(name = "v2", defaultValue = "false") Boolean v2,
+      @RequestHeader(name = "v2", defaultValue = "true") Boolean v2,
       @RequestParam("identifier") String identifier,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
@@ -197,7 +197,7 @@ public class Dstu2DiagnosticReportController {
   /** Search by patient. */
   @GetMapping(params = {"patient"})
   public DiagnosticReport.Bundle searchByPatient(
-      @RequestHeader(name = "v2", defaultValue = "false") Boolean v2,
+      @RequestHeader(name = "v2", defaultValue = "true") Boolean v2,
       @RequestParam("patient") String patient,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
@@ -227,7 +227,7 @@ public class Dstu2DiagnosticReportController {
   /** Search by Patient+Category + Date if provided. */
   @GetMapping(params = {"patient", "category"})
   public DiagnosticReport.Bundle searchByPatientAndCategory(
-      @RequestHeader(name = "v2", defaultValue = "false") Boolean v2,
+      @RequestHeader(name = "v2", defaultValue = "true") Boolean v2,
       @RequestParam("patient") String patient,
       @RequestParam("category") String category,
       @RequestParam(value = "date", required = false) @Valid @DateTimeParameter @Size(max = 2)
@@ -260,7 +260,7 @@ public class Dstu2DiagnosticReportController {
   /** Search by Patient+Code. */
   @GetMapping(params = {"patient", "code"})
   public DiagnosticReport.Bundle searchByPatientAndCode(
-      @RequestHeader(name = "v2", defaultValue = "false") Boolean v2,
+      @RequestHeader(name = "v2", defaultValue = "true") Boolean v2,
       @RequestParam("patient") String patient,
       @RequestParam("code") String codeCsv,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
