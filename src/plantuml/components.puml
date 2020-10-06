@@ -1,0 +1,24 @@
+@startuml
+
+skinparam {
+  handwritten true
+  shadowing false
+  monochrome true
+}
+
+actor Consumer
+cloud "API Gateway,\nLoad Balancer,\nIngress Controllers" as ALB
+rectangle "Token Validation Service" as TV
+
+rectangle Kong as LILKONG
+rectangle "Data Query" as DQ
+database Datamart <<CDW>> as DATAMART
+database "Patient Registration" <<dynamo>> as PR
+
+Consumer -> ALB
+ALB -> LILKONG
+LILKONG --> DQ
+LILKONG -> TV
+DQ -- DATAMART:< read only
+DQ -- PR:> write only
+@enduml
