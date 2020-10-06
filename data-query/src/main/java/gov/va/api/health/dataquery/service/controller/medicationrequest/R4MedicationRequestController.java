@@ -276,13 +276,13 @@ public class R4MedicationRequestController {
       return bundle(
           ctx.parameters(),
           ctx.medicationStatementSupport().search(),
-          (int) ctx.medicationStatementSupport().medicationStatementEntities().getTotalElements(),
+          ctx.totalRecords(),
           ctx.totalPages());
     } else if (ctx.medicationOrderSupport().numMedicationOrdersForPatient() > 0) {
       return bundle(
           ctx.parameters(),
           ctx.medicationOrderSupport().search(),
-          (int) ctx.medicationOrderSupport().medicationOrderEntities().getTotalElements(),
+          ctx.totalRecords(),
           ctx.totalPages());
     }
     return bundle(ctx.parameters(), emptyList(), ctx.totalPages());
@@ -378,6 +378,12 @@ public class R4MedicationRequestController {
           (lastPageWithMedicationStatement()
               + Math.ceil(
                   medicationOrderSupport().numMedicationOrdersForPatient() / (double) count()));
+    }
+
+    int totalRecords() {
+      int statements = (int) medicationStatementSupport.numMedicationStatementsForPatient();
+      int orders = (int) medicationOrderSupport.numMedicationOrdersForPatient();
+      return statements + orders;
     }
   }
 

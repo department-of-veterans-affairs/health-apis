@@ -134,6 +134,17 @@ public class R4MedicationRequestControllerTest {
                         10))));
   }
 
+  @Test
+  public void numberOfRequestsIsStatementsAndOrdersAdded() {
+    Multimap<String, MedicationRequest> medicationRequestByPatient = populateData();
+    MedicationRequest.Bundle medReqBundleFirst = controller().searchByPatient("p0", 1, 15);
+    MedicationRequest.Bundle medReqBundleLast = controller().searchByPatient("p0", 2, 15);
+    List<MedicationRequest> medicationRequestsTotal =
+        medicationRequestByPatient.get("p0").stream().collect(Collectors.toList());
+    assertThat(medReqBundleFirst.total()).isEqualTo(medicationRequestsTotal.size());
+    assertThat(medReqBundleLast.total()).isEqualTo(medicationRequestsTotal.size());
+  }
+
   private Multimap<String, MedicationRequest> populateData() {
     var fhir = MedicationRequestSamples.R4.create();
     var datamartMedicationOrder = MedicationOrderSamples.Datamart.create();
@@ -318,13 +329,14 @@ public class R4MedicationRequestControllerTest {
                         .get("p0")
                         .contains(mr.intent(MedicationRequest.Intent.plan)))
             .collect(Collectors.toList());
+    var p0 = medicationRequestByPatient.get("p0").stream().collect(Collectors.toList());
     assertThat(json(controller().searchByPatient("p0", 1, 10)))
         .isEqualTo(
             json(
                 MedicationRequestSamples.R4.asBundle(
                     "http://abed.com/cool",
                     medicationRequests,
-                    medicationRequests.size(),
+                    p0.size(),
                     MedicationRequestSamples.R4.link(
                         BundleLink.LinkRelation.first,
                         "http://abed.com/cool/MedicationRequest?patient=p0",
@@ -359,7 +371,7 @@ public class R4MedicationRequestControllerTest {
                 MedicationRequestSamples.R4.asBundle(
                     "http://abed.com/cool",
                     medicationRequests,
-                    medicationRequests.size(),
+                    p0.size(),
                     MedicationRequestSamples.R4.link(
                         BundleLink.LinkRelation.first,
                         "http://abed.com/cool/MedicationRequest?patient=p0",
