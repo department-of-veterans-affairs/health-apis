@@ -3,6 +3,7 @@ package gov.va.api.health.dataquery.service.controller.patient;
 import static gov.va.api.health.dataquery.service.controller.R4Transformers.parseInstant;
 import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
 import static gov.va.api.health.dataquery.service.controller.Transformers.emptyToNull;
+import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.StringUtils.containsIgnoreCase;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -454,10 +455,9 @@ final class R4PatientTransformer {
 
   private Reference managingOrganization() {
     Optional<String> managingOrganization = datamart.managingOrganization();
-    if (managingOrganization == null) {
-      return null;
-    }
-    return Reference.builder().reference(managingOrganization.get()).build();
+    return isBlank(managingOrganization)
+        ? null
+        : Reference.builder().display(managingOrganization.get()).build();
   }
 
   private CodeableConcept maritalStatus() {
