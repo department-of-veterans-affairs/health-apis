@@ -4,9 +4,10 @@ cd $(dirname $(readlink -f $0))
 
 usage() {
 cat <<EOF
-$0 [options] [email]
+$0 [options] [email|user-id]
 
 Performs OAuth login for lab users and prints their login ID and an access token.
+See all-lab-users.txt for valid email addresses or user ids.
 
 Options
 -h, --help   Print this help and exit
@@ -27,8 +28,21 @@ trap onExit EXIT
 
 LAB_USER="$1"
 FILTER=" "
-[ -n "$LAB_USER" ] && LOGIN_ARGS="-Dlab.user=$LAB_USER" && FILTER="$LAB_USER"
 
+
+if [ -n "$LAB_USER" ]
+then
+  if [[ "$LAB_USER" != *@* ]]
+  then
+    LAB_USER=$(grep -E "gmail.com $LAB_USER\$" all-lab-users.txt | cut -d ' ' -f 1)
+    if [ -z "$LAB_USER" ]
+    then
+      usage "Did not find email address for user $1"
+    fi
+  fi
+  LOGIN_ARGS="-Dlab.user=$LAB_USER"
+  FILTER="$LAB_USER"
+fi
 
 mvn -P'!standard' test \
   -Dgroups= \
