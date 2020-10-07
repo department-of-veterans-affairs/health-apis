@@ -59,3 +59,4 @@ USERS_FILE=lab-users.txt
 
 
 cat $USERS_FILE | cut -d ' ' -f 1,6 | grep -F "$FILTER"
+cat $USERS_FILE | awk '{print "LAB_EMAIL=\"" $1 "\""; print "LAB_USER=\"" $4 "\""; print "LAB_TOKEN=\"" $6 "\""}' > lab-user.conf
