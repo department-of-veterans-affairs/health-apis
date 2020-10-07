@@ -38,7 +38,6 @@ import lombok.NonNull;
 
 @Builder
 final class R4PatientTransformer {
-
   @NonNull private final DatamartPatient datamart;
 
   static Address address(DatamartPatient.Address address) {
@@ -453,6 +452,14 @@ final class R4PatientTransformer {
     return emptyToNull(results);
   }
 
+  private Reference managingOrganization() {
+    Optional<String> managingOrganization = datamart.managingOrganization();
+    if (managingOrganization == null) {
+      return null;
+    }
+    return Reference.builder().reference(managingOrganization.get()).build();
+  }
+
   private CodeableConcept maritalStatus() {
     DatamartPatient.MaritalStatus status = datamart.maritalStatus();
     if (status == null) {
@@ -539,6 +546,7 @@ final class R4PatientTransformer {
         .deceasedDateTime(deceasedDateTime())
         .maritalStatus(maritalStatus())
         .contact(contacts())
+        .managingOrganization(managingOrganization())
         .build();
   }
 }
