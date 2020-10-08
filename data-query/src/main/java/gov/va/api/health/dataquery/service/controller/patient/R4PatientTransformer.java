@@ -178,6 +178,19 @@ final class R4PatientTransformer {
     return emptyToNull(results);
   }
 
+  static Reference managingOrganization(Optional<String> managingOrganization) {
+    if (isBlank(managingOrganization)) {
+      return null;
+    }
+    DatamartReference managingOrganizationDatamartReference =
+        DatamartReference.builder()
+            .type(Optional.of("Organization"))
+            .display(managingOrganization)
+            .reference(managingOrganization)
+            .build();
+    return asReference(managingOrganizationDatamartReference);
+  }
+
   static Coding maritalStatusCoding(String code) {
     String upper = upperCase(trimToEmpty(code), Locale.US);
     Coding.CodingBuilder result =
@@ -455,20 +468,6 @@ final class R4PatientTransformer {
     return emptyToNull(results);
   }
 
-  private Reference managingOrganization() {
-    Optional<String> managingOrganization = datamart.managingOrganization();
-    if (isBlank(managingOrganization)) {
-      return null;
-    }
-    DatamartReference managingOrganizationDatamartReference =
-        DatamartReference.builder()
-            .type(Optional.of("Organization"))
-            .display(managingOrganization)
-            .reference(managingOrganization)
-            .build();
-    return asReference(managingOrganizationDatamartReference);
-  }
-
   private CodeableConcept maritalStatus() {
     DatamartPatient.MaritalStatus status = datamart.maritalStatus();
     if (status == null) {
@@ -555,7 +554,7 @@ final class R4PatientTransformer {
         .deceasedDateTime(deceasedDateTime())
         .maritalStatus(maritalStatus())
         .contact(contacts())
-        .managingOrganization(managingOrganization())
+        .managingOrganization(managingOrganization(datamart.managingOrganization()))
         .build();
   }
 }
