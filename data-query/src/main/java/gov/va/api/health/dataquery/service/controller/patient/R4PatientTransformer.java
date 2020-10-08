@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.patient;
 
+import static gov.va.api.health.dataquery.service.controller.R4Transformers.asReference;
 import static gov.va.api.health.dataquery.service.controller.R4Transformers.parseInstant;
 import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
 import static gov.va.api.health.dataquery.service.controller.Transformers.emptyToNull;
@@ -13,6 +14,7 @@ import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 import static org.apache.commons.lang3.StringUtils.upperCase;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
+import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.r4.api.datatypes.Address;
 import gov.va.api.health.r4.api.datatypes.CodeableConcept;
 import gov.va.api.health.r4.api.datatypes.Coding;
@@ -455,9 +457,16 @@ final class R4PatientTransformer {
 
   private Reference managingOrganization() {
     Optional<String> managingOrganization = datamart.managingOrganization();
-    return isBlank(managingOrganization)
-        ? null
-        : Reference.builder().display(managingOrganization.get()).build();
+    if (isBlank(managingOrganization)) {
+      return null;
+    }
+    DatamartReference managingOrganizationDatamartReference =
+        DatamartReference.builder()
+            .type(Optional.of("Organization"))
+            .display(managingOrganization)
+            .reference(managingOrganization)
+            .build();
+    return asReference(managingOrganizationDatamartReference);
   }
 
   private CodeableConcept maritalStatus() {
