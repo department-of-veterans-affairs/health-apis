@@ -5,6 +5,7 @@ import static gov.va.api.health.dataquery.service.controller.Transformers.allBla
 import static gov.va.api.health.dataquery.service.controller.Transformers.emptyToNull;
 import static java.util.Comparator.comparingInt;
 import static java.util.function.Predicate.not;
+import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.containsIgnoreCase;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -32,7 +33,6 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.NonNull;
 
@@ -330,9 +330,7 @@ final class R4PatientTransformer {
 
   private List<Address> addresses() {
     return emptyToNull(
-        datamart.address().stream()
-            .map(R4PatientTransformer::address)
-            .collect(Collectors.toList()));
+        datamart.address().stream().map(R4PatientTransformer::address).collect(toList()));
   }
 
   private String birthDate() {
@@ -348,9 +346,7 @@ final class R4PatientTransformer {
 
   private List<Patient.PatientContact> contacts() {
     return emptyToNull(
-        datamart.contact().stream()
-            .map(R4PatientTransformer::contact)
-            .collect(Collectors.toList()));
+        datamart.contact().stream().map(R4PatientTransformer::contact).collect(toList()));
   }
 
   private Boolean deceased() {
