@@ -73,9 +73,26 @@ public class R4PatientTransformerTest {
 
   @Test
   public void managingOrganization() {
-    assertThat(R4PatientTransformer.managingOrganization(Optional.empty())).isNull();
-    assertThat(R4PatientTransformer.managingOrganization(Optional.of(" "))).isNull();
-    assertThat(R4PatientTransformer.managingOrganization(Optional.of("Assert")))
+    assertThat(
+            R4PatientTransformer.builder()
+                .datamart(Datamart.create().patient().managingOrganization(Optional.empty()))
+                .build()
+                .toFhir()
+                .managingOrganization())
+        .isNull();
+    assertThat(
+            R4PatientTransformer.builder()
+                .datamart(Datamart.create().patient().managingOrganization(Optional.of(" ")))
+                .build()
+                .toFhir()
+                .managingOrganization())
+        .isNull();
+    assertThat(
+            R4PatientTransformer.builder()
+                .datamart(Datamart.create().patient().managingOrganization(Optional.of("Assert")))
+                .build()
+                .toFhir()
+                .managingOrganization())
         .isEqualTo(Reference.builder().reference("Organization/Assert").display("Assert").build());
   }
 
