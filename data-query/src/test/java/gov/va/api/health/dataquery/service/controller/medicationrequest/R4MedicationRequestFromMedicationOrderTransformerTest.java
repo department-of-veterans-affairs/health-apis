@@ -112,6 +112,8 @@ public class R4MedicationRequestFromMedicationOrderTransformerTest {
     assertThat(
             R4MedicationRequestFromMedicationOrderTransformer.builder()
                 .datamart(dmo)
+                .patternOutpatient(".*:(O|FP)")
+                .patternInpatient(".*:(I|FPI)")
                 .build()
                 .toFhir())
         .isEqualTo(MedicationRequestSamples.R4.create().medicationRequestFromMedicationOrder());

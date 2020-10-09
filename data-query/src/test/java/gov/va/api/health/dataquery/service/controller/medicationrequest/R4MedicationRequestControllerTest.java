@@ -75,7 +75,9 @@ public class R4MedicationRequestControllerTest {
         new R4Bundler(new ConfigurableBaseUrlPageLinks("http://abed.com", "cool", "cool", "cool")),
         medicationOrderRepository,
         medicationStatementRepository,
-        WitnessProtection.builder().identityService(ids).build());
+        WitnessProtection.builder().identityService(ids).build(),
+        ".*:(O|FP)",
+        ".*:(I|FPI)");
   }
 
   @Test

@@ -26,7 +26,6 @@ import java.util.regex.Pattern;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 
 @Builder
 @Slf4j
@@ -73,10 +72,8 @@ public class R4MedicationRequestFromMedicationOrderTransformer {
 
   @NonNull final DatamartMedicationOrder datamart;
 
-  @Value("${pattern.inpatient}")
   private final String patternInpatient;
 
-  @Value("${pattern.outpatient}")
   private final String patternOutpatient;
 
   static CodeableConcept codeableConceptText(Optional<String> maybeText) {

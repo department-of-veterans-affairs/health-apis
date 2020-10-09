@@ -61,16 +61,24 @@ public class R4MedicationRequestController {
 
   private final WitnessProtection witnessProtection;
 
+  private final String patternOutpatient;
+
+  private final String patternInpatient;
+
   /** R4 MedicationRequest Constructor. */
   public R4MedicationRequestController(
       @Autowired R4Bundler bundler,
       @Autowired MedicationOrderRepository medicationOrderRepository,
       @Autowired MedicationStatementRepository medicationStatementRepository,
-      @Autowired WitnessProtection witnessProtection) {
+      @Autowired WitnessProtection witnessProtection,
+      @Autowired String patternOutpatient,
+      @Autowired String patternInpatient) {
     this.bundler = bundler;
     this.medicationOrderRepository = medicationOrderRepository;
     this.medicationStatementRepository = medicationStatementRepository;
     this.witnessProtection = witnessProtection;
+    this.patternOutpatient = patternOutpatient;
+    this.patternInpatient = patternInpatient;
   }
 
   private MedicationRequest.Bundle bundle(
@@ -115,6 +123,8 @@ public class R4MedicationRequestController {
             dmo ->
                 R4MedicationRequestFromMedicationOrderTransformer.builder()
                     .datamart(dmo)
+                    .patternInpatient(patternInpatient)
+                    .patternOutpatient(patternOutpatient)
                     .build()
                     .toFhir())
         .collect(Collectors.toList());
@@ -323,6 +333,8 @@ public class R4MedicationRequestController {
   MedicationRequest transformMedicationOrderToMedicationRequest(DatamartMedicationOrder dm) {
     return R4MedicationRequestFromMedicationOrderTransformer.builder()
         .datamart(dm)
+        .patternOutpatient(".*:(O|FP)")
+        .patternInpatient(".*:(I|FPI)")
         .build()
         .toFhir();
   }
