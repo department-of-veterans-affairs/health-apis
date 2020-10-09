@@ -1,11 +1,10 @@
 package gov.va.api.health.dataquery.service.controller.patient;
 
-import static gov.va.api.health.dataquery.service.controller.R4Transformers.asReference;
 import static gov.va.api.health.dataquery.service.controller.R4Transformers.parseInstant;
 import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
 import static gov.va.api.health.dataquery.service.controller.Transformers.emptyToNull;
-import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
-import static java.util.Arrays.asList;
+import static java.util.Comparator.comparingInt;
+import static java.util.function.Predicate.not;
 import static org.apache.commons.lang3.StringUtils.containsIgnoreCase;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -14,7 +13,6 @@ import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 import static org.apache.commons.lang3.StringUtils.upperCase;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
-import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.r4.api.datatypes.Address;
 import gov.va.api.health.r4.api.datatypes.CodeableConcept;
 import gov.va.api.health.r4.api.datatypes.Coding;
@@ -28,7 +26,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -39,6 +36,7 @@ import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.NonNull;
 
+@SuppressWarnings("EnhancedSwitchMigration")
 @Builder
 final class R4PatientTransformer {
   @NonNull private final DatamartPatient datamart;
@@ -259,10 +257,10 @@ final class R4PatientTransformer {
       results.add(Extension.builder().url("ombCategory").valueCoding(coding).build());
     }
     Optional<Coding> firstCoding =
-        races.stream().map(race -> raceCoding(race)).filter(Objects::nonNull).findFirst();
-    if (firstCoding.isPresent()) {
-      results.add(Extension.builder().url("text").valueString(firstCoding.get().display()).build());
-    }
+        races.stream().map(R4PatientTransformer::raceCoding).filter(Objects::nonNull).findFirst();
+    firstCoding.ifPresent(
+        coding ->
+            results.add(Extension.builder().url("text").valueString(coding.display()).build()));
     return emptyToNull(results);
   }
 
@@ -300,7 +298,7 @@ final class R4PatientTransformer {
     if (coding == null) {
       return null;
     }
-    return asList(CodeableConcept.builder().coding(asList(coding)).text(contact.type()).build());
+    return List.of(CodeableConcept.builder().coding(List.of(coding)).text(contact.type()).build());
   }
 
   private static int sortNum(ContactPoint.ContactPointUse use) {
@@ -327,12 +325,14 @@ final class R4PatientTransformer {
     if (phone == null) {
       return null;
     }
-    return phone.replaceAll("\\(|\\)|-", "");
+    return phone.replaceAll("[()\\-]", "");
   }
 
   private List<Address> addresses() {
     return emptyToNull(
-        datamart.address().stream().map(adr -> address(adr)).collect(Collectors.toList()));
+        datamart.address().stream()
+            .map(R4PatientTransformer::address)
+            .collect(Collectors.toList()));
   }
 
   private String birthDate() {
@@ -348,7 +348,9 @@ final class R4PatientTransformer {
 
   private List<Patient.PatientContact> contacts() {
     return emptyToNull(
-        datamart.contact().stream().map(con -> contact(con)).collect(Collectors.toList()));
+        datamart.contact().stream()
+            .map(R4PatientTransformer::contact)
+            .collect(Collectors.toList()));
   }
 
   private Boolean deceased() {
@@ -423,7 +425,7 @@ final class R4PatientTransformer {
               .type(
                   CodeableConcept.builder()
                       .coding(
-                          asList(
+                          List.of(
                               Coding.builder()
                                   .system("http://hl7.org/fhir/v2/0203")
                                   .code("MR")
@@ -441,7 +443,7 @@ final class R4PatientTransformer {
               .type(
                   CodeableConcept.builder()
                       .coding(
-                          asList(
+                          List.of(
                               Coding.builder()
                                   .system("http://hl7.org/fhir/v2/0203")
                                   .code("SB")
@@ -456,17 +458,13 @@ final class R4PatientTransformer {
   }
 
   Reference managingOrganization() {
-    Optional<String> managingOrganization = datamart.managingOrganization();
-    if (isBlank(managingOrganization)) {
-      return null;
-    }
-    DatamartReference managingOrganizationDatamartReference =
-        DatamartReference.builder()
-            .type(Optional.of("Organization"))
-            .display(managingOrganization)
-            .reference(managingOrganization)
-            .build();
-    return asReference(managingOrganizationDatamartReference);
+    return datamart
+        .managingOrganization()
+        .filter(not(String::isBlank))
+        .map(
+            ref ->
+                Reference.builder().type("Organization").reference("Organization/" + ref).build())
+        .orElse(null);
   }
 
   private CodeableConcept maritalStatus() {
@@ -481,7 +479,7 @@ final class R4PatientTransformer {
     if (coding == null) {
       return null;
     }
-    return CodeableConcept.builder().coding(asList(coding)).build();
+    return CodeableConcept.builder().coding(List.of(coding)).build();
   }
 
   private List<HumanName> names() {
@@ -491,23 +489,23 @@ final class R4PatientTransformer {
     HumanName.HumanNameBuilder builder =
         HumanName.builder().use(HumanName.NameUse.usual).text(datamart.name());
     if (isNotBlank(datamart.firstName())) {
-      builder.given(asList(datamart.firstName()));
+      builder.given(List.of(datamart.firstName()));
     }
     if (isNotBlank(datamart.lastName())) {
       builder.family(datamart.lastName());
     }
-    return asList(builder.build());
+    return List.of(builder.build());
   }
 
   private List<ContactPoint> telecoms() {
-    Set<ContactPoint> results = new LinkedHashSet<>();
+    Set<ContactPoint> unorderedContacts = new LinkedHashSet<>();
     for (final DatamartPatient.Telecom telecom : datamart.telecom()) {
       if (telecom == null) {
         continue;
       }
       String phoneNumber = stripPhone(telecom.phoneNumber());
       if (isNotBlank(phoneNumber) && contactPointUse(telecom) != null) {
-        results.add(
+        unorderedContacts.add(
             ContactPoint.builder()
                 .system(ContactPoint.ContactPointSystem.phone)
                 .value(phoneNumber)
@@ -516,7 +514,7 @@ final class R4PatientTransformer {
       }
       String workPhoneNumber = stripPhone(telecom.workPhoneNumber());
       if (isNotBlank(workPhoneNumber)) {
-        results.add(
+        unorderedContacts.add(
             ContactPoint.builder()
                 .system(ContactPoint.ContactPointSystem.phone)
                 .value(workPhoneNumber)
@@ -524,7 +522,7 @@ final class R4PatientTransformer {
                 .build());
       }
       if (isNotBlank(telecom.email())) {
-        results.add(
+        unorderedContacts.add(
             ContactPoint.builder()
                 .system(ContactPoint.ContactPointSystem.email)
                 .value(telecom.email())
@@ -534,10 +532,9 @@ final class R4PatientTransformer {
                 .build());
       }
     }
-    List<ContactPoint> asList = new ArrayList<>(results);
-    Collections.sort(
-        asList, (left, right) -> Integer.compare(sortNum(left.use()), sortNum(right.use())));
-    return emptyToNull(asList);
+    List<ContactPoint> sortedContacts = new ArrayList<>(unorderedContacts);
+    sortedContacts.sort(comparingInt(left -> sortNum(left.use())));
+    return emptyToNull(sortedContacts);
   }
 
   Patient toFhir() {

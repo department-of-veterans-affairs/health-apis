@@ -89,11 +89,13 @@ public class R4PatientTransformerTest {
         .isNull();
     assertThat(
             R4PatientTransformer.builder()
-                .datamart(Datamart.create().patient().managingOrganization(Optional.of("Assert")))
+                .datamart(
+                    Datamart.create().patient().managingOrganization(Optional.of("MarieKondo")))
                 .build()
                 .toFhir()
                 .managingOrganization())
-        .isEqualTo(Reference.builder().reference("Organization/Assert").display("Assert").build());
+        .isEqualTo(
+            Reference.builder().type("Organization").reference("Organization/MarieKondo").build());
   }
 
   @Test

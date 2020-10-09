@@ -71,7 +71,7 @@ public class PatientSamples {
           .deathDateTime("2001-03-03T15:08:09Z")
           .gender("M")
           .maritalStatus(MaritalStatus.builder().abbrev("M").code("M").build())
-          .managingOrganization(Optional.of("managingOrganizationField"))
+          .managingOrganization(Optional.of("va123"))
           .race(List.of(Race.builder().display("American Indian or Alaska Native").build()))
           .telecom(
               List.of(
@@ -433,8 +433,8 @@ public class PatientSamples {
                   .build())
           .managingOrganization(
               gov.va.api.health.r4.api.elements.Reference.builder()
-                  .reference("Organization/managingOrganizationField")
-                  .display("managingOrganizationField")
+                  .type("Organization")
+                  .reference("Organization/va123")
                   .build())
           .build();
     }
