@@ -71,8 +71,10 @@ public class R4MedicationRequestController {
       @Autowired MedicationOrderRepository medicationOrderRepository,
       @Autowired MedicationStatementRepository medicationStatementRepository,
       @Autowired WitnessProtection witnessProtection,
-      @Autowired String patternOutpatient,
-      @Autowired String patternInpatient) {
+      @org.springframework.beans.factory.annotation.Value("${pattern.outpatient}")
+          String patternOutpatient,
+      @org.springframework.beans.factory.annotation.Value("${pattern.inpatient}")
+          String patternInpatient) {
     this.bundler = bundler;
     this.medicationOrderRepository = medicationOrderRepository;
     this.medicationStatementRepository = medicationStatementRepository;
@@ -119,26 +121,14 @@ public class R4MedicationRequestController {
   List<MedicationRequest> medRequestsFromMedOrders(
       List<DatamartMedicationOrder> datamartMedicationOrders) {
     return datamartMedicationOrders.stream()
-        .map(
-            dmo ->
-                R4MedicationRequestFromMedicationOrderTransformer.builder()
-                    .datamart(dmo)
-                    .patternInpatient(patternInpatient)
-                    .patternOutpatient(patternOutpatient)
-                    .build()
-                    .toFhir())
+        .map(this::transformMedicationOrderToMedicationRequest)
         .collect(Collectors.toList());
   }
 
   List<MedicationRequest> medRequestsFromMedStatements(
       List<DatamartMedicationStatement> datamartMedicationStatements) {
     return datamartMedicationStatements.stream()
-        .map(
-            dms ->
-                R4MedicationRequestFromMedicationStatementTransformer.builder()
-                    .datamart(dms)
-                    .build()
-                    .toFhir())
+        .map(this::transformMedicationStatementToMedicationRequest)
         .collect(Collectors.toList());
   }
 
@@ -333,8 +323,8 @@ public class R4MedicationRequestController {
   MedicationRequest transformMedicationOrderToMedicationRequest(DatamartMedicationOrder dm) {
     return R4MedicationRequestFromMedicationOrderTransformer.builder()
         .datamart(dm)
-        .patternOutpatient(".*:(O|FP)")
-        .patternInpatient(".*:(I|FPI)")
+        .patternOutpatient(patternOutpatient)
+        .patternInpatient(patternInpatient)
         .build()
         .toFhir();
   }
