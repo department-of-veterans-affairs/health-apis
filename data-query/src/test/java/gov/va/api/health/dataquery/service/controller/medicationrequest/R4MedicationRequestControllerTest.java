@@ -26,6 +26,7 @@ import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.health.r4.api.bundle.BundleLink;
+import gov.va.api.health.r4.api.datatypes.CodeableConcept;
 import gov.va.api.health.r4.api.resources.MedicationRequest;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -75,6 +76,32 @@ public class R4MedicationRequestControllerTest {
         medicationOrderRepository,
         medicationStatementRepository,
         WitnessProtection.builder().identityService(ids).build());
+  }
+
+  @Test
+  public void correctSuffixDetermination() {
+    var fhir = MedicationRequestSamples.R4.create();
+    MedicationRequest req = fhir.medicationRequestFromMedicationOrder();
+    assertThat(req).isNotNull();
+
+    req = fhir.medicationRequestFromMedicationOrder("123:");
+    assertThat(req.category()).isEqualTo(List.of(CodeableConcept.builder().text(null).build()));
+
+    req = fhir.medicationRequestFromMedicationOrder("123:I");
+    assertThat(req.category())
+        .isEqualTo(List.of(CodeableConcept.builder().text("Inpatient").build()));
+
+    req = fhir.medicationRequestFromMedicationOrder("123:FPI");
+    assertThat(req.category())
+        .isEqualTo(List.of(CodeableConcept.builder().text("Inpatient").build()));
+
+    req = fhir.medicationRequestFromMedicationOrder("123:O");
+    assertThat(req.category())
+        .isEqualTo(List.of(CodeableConcept.builder().text("Outpatient").build()));
+
+    req = fhir.medicationRequestFromMedicationOrder("123:FP");
+    assertThat(req.category())
+        .isEqualTo(List.of(CodeableConcept.builder().text("Outpatient").build()));
   }
 
   @SneakyThrows

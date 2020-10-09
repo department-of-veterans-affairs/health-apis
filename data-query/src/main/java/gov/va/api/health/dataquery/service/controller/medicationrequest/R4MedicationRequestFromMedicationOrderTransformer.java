@@ -21,9 +21,12 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 
 @Builder
 @Slf4j
@@ -69,6 +72,12 @@ public class R4MedicationRequestFromMedicationOrderTransformer {
           .build();
 
   @NonNull final DatamartMedicationOrder datamart;
+
+  @Value("${pattern.inpatient}")
+  private final String patternInpatient;
+
+  @Value("${pattern.outpatient}")
+  private final String patternOutpatient;
 
   static CodeableConcept codeableConceptText(Optional<String> maybeText) {
     if (maybeText.isEmpty()) {
@@ -191,10 +200,25 @@ public class R4MedicationRequestFromMedicationOrderTransformer {
         .build();
   }
 
+  private List<CodeableConcept> parseCategory(String id) {
+    Pattern outPattern = Pattern.compile(patternOutpatient);
+    Pattern inPattern = Pattern.compile(patternInpatient);
+    Matcher matcherOut = outPattern.matcher(id);
+    Matcher matcherIn = inPattern.matcher(id);
+    String suffix = null;
+    if (matcherOut.matches()) {
+      suffix = "Outpatient";
+    } else if (matcherIn.matches()) {
+      suffix = "Inpatient";
+    }
+    return List.of(CodeableConcept.builder().text(suffix).build());
+  }
+
   MedicationRequest toFhir() {
     return MedicationRequest.builder()
         .resourceType("MedicationRequest")
         .id(datamart.cdwId())
+        .category(parseCategory(datamart.cdwId()))
         .subject(asReference(datamart.patient()))
         .authoredOn(asDateTimeString(datamart.dateWritten()))
         .status(status(datamart.status()))

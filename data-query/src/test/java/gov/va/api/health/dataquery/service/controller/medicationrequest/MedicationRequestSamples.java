@@ -15,6 +15,8 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.experimental.UtilityClass;
@@ -201,6 +203,7 @@ public class MedicationRequestSamples {
       return MedicationRequest.builder()
           .resourceType("MedicationRequest")
           .id(id)
+          .category(parseCategory(id))
           .subject(reference("Patient/" + patientId, "VETERAN,FARM ACY"))
           .authoredOn("2016-11-17T18:02:04Z")
           .status(MedicationRequest.Status.stopped)
@@ -234,6 +237,20 @@ public class MedicationRequestSamples {
           .intent(MedicationRequest.Intent.plan)
           ._requester(DataAbsentReason.of(DataAbsentReason.Reason.unknown))
           .build();
+    }
+
+    private List<CodeableConcept> parseCategory(String id) {
+      Pattern outPattern = Pattern.compile(".*:(O|FP)");
+      Pattern inPattern = Pattern.compile(".*:(I|FPI)");
+      Matcher matcherOut = outPattern.matcher(id);
+      Matcher matcherIn = inPattern.matcher(id);
+      String suffix = null;
+      if (matcherOut.matches()) {
+        suffix = "Outpatient";
+      } else if (matcherIn.matches()) {
+        suffix = "Inpatient";
+      }
+      return List.of(CodeableConcept.builder().text(suffix).build());
     }
 
     private Reference reference(String ref, String display) {
