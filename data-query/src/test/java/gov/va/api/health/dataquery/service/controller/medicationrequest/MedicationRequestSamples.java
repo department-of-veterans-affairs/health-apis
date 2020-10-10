@@ -245,24 +245,30 @@ public class MedicationRequestSamples {
       final String system = "https://www.hl7.org/fhir/codesystem-medicationrequest-category.html";
       if (outPattern.matcher(id).matches()) {
         String displayText = "Outpatient";
-        String code = "outpatient";
         return List.of(
             CodeableConcept.builder()
                 .text(displayText)
                 .coding(
                     List.of(
-                        Coding.builder().display(displayText).code(code).system(system).build()))
+                        Coding.builder()
+                            .display(displayText)
+                            .code("outpatient")
+                            .system(system)
+                            .build()))
                 .build());
       }
       if (inPattern.matcher(id).matches()) {
         String displayText = "Inpatient";
-        String code = "inpatient";
         return List.of(
             CodeableConcept.builder()
                 .text(displayText)
                 .coding(
                     List.of(
-                        Coding.builder().display(displayText).code(code).system(system).build()))
+                        Coding.builder()
+                            .display(displayText)
+                            .code("inpatient")
+                            .system(system)
+                            .build()))
                 .build());
       }
       return null;
