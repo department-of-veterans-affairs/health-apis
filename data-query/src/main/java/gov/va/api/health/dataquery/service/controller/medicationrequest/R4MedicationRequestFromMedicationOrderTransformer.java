@@ -72,9 +72,9 @@ public class R4MedicationRequestFromMedicationOrderTransformer {
 
   @NonNull final DatamartMedicationOrder datamart;
 
-  private final Pattern outPattern;
+  @NonNull private final Pattern outPattern;
 
-  private final Pattern inPattern;
+  @NonNull private final Pattern inPattern;
 
   static CodeableConcept codeableConceptText(Optional<String> maybeText) {
     if (maybeText.isEmpty()) {
@@ -198,7 +198,7 @@ public class R4MedicationRequestFromMedicationOrderTransformer {
   }
 
   private List<CodeableConcept> parseCategory(String id) {
-    String system = "https://www.hl7.org/fhir/codesystem-medicationrequest-category.html";
+    final String system = "https://www.hl7.org/fhir/codesystem-medicationrequest-category.html";
     if (outPattern.matcher(id).matches()) {
       String displayText = "Outpatient";
       String code = "outpatient";

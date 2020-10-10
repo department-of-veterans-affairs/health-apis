@@ -91,6 +91,9 @@ public class R4MedicationRequestControllerTest {
     req = fhir.medicationRequestFromMedicationOrder("123:");
     assertThat(req.category()).isEqualTo(null);
 
+    req = fhir.medicationRequestFromMedicationOrder("123:XXX");
+    assertThat(req.category()).isEqualTo(null);
+
     req = fhir.medicationRequestFromMedicationOrder("123:I");
     assertThat(req.category())
         .isEqualTo(
