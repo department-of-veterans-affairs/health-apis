@@ -10,6 +10,7 @@ import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference
 import gov.va.api.health.dataquery.service.controller.medicationorder.DatamartMedicationOrder;
 import gov.va.api.health.r4.api.DataAbsentReason;
 import gov.va.api.health.r4.api.datatypes.CodeableConcept;
+import gov.va.api.health.r4.api.datatypes.Coding;
 import gov.va.api.health.r4.api.datatypes.Duration;
 import gov.va.api.health.r4.api.datatypes.Period;
 import gov.va.api.health.r4.api.datatypes.SimpleQuantity;
@@ -21,7 +22,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.Builder;
 import lombok.NonNull;
@@ -72,9 +72,9 @@ public class R4MedicationRequestFromMedicationOrderTransformer {
 
   @NonNull final DatamartMedicationOrder datamart;
 
-  private final String patternInpatient;
+  private final Pattern outPattern;
 
-  private final String patternOutpatient;
+  private final Pattern inPattern;
 
   static CodeableConcept codeableConceptText(Optional<String> maybeText) {
     if (maybeText.isEmpty()) {
@@ -198,17 +198,28 @@ public class R4MedicationRequestFromMedicationOrderTransformer {
   }
 
   private List<CodeableConcept> parseCategory(String id) {
-    Pattern outPattern = Pattern.compile(patternOutpatient);
-    Pattern inPattern = Pattern.compile(patternInpatient);
-    Matcher matcherOut = outPattern.matcher(id);
-    Matcher matcherIn = inPattern.matcher(id);
-    String suffix = null;
-    if (matcherOut.matches()) {
-      suffix = "Outpatient";
-    } else if (matcherIn.matches()) {
-      suffix = "Inpatient";
+    String system = "terminology.hl7.org/CodeSystem/medicationrequest-category";
+    if (outPattern.matcher(id).matches()) {
+      String displayText = "Outpatient";
+      String code = "outpatient";
+      return List.of(
+          CodeableConcept.builder()
+              .text(displayText)
+              .coding(
+                  List.of(Coding.builder().display(displayText).code(code).system(system).build()))
+              .build());
     }
-    return List.of(CodeableConcept.builder().text(suffix).build());
+    if (inPattern.matcher(id).matches()) {
+      String displayText = "Inpatient";
+      String code = "inpatient";
+      return List.of(
+          CodeableConcept.builder()
+              .text(displayText)
+              .coding(
+                  List.of(Coding.builder().display(displayText).code(code).system(system).build()))
+              .build());
+    }
+    return null;
   }
 
   MedicationRequest toFhir() {

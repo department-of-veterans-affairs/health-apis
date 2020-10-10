@@ -22,6 +22,7 @@ import gov.va.api.health.r4.api.resources.MedicationRequest;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletResponse;
@@ -61,9 +62,9 @@ public class R4MedicationRequestController {
 
   private final WitnessProtection witnessProtection;
 
-  private final String patternOutpatient;
+  private final Pattern outPattern;
 
-  private final String patternInpatient;
+  private final Pattern inPattern;
 
   /** R4 MedicationRequest Constructor. */
   public R4MedicationRequestController(
@@ -77,8 +78,8 @@ public class R4MedicationRequestController {
     this.medicationOrderRepository = medicationOrderRepository;
     this.medicationStatementRepository = medicationStatementRepository;
     this.witnessProtection = witnessProtection;
-    this.patternOutpatient = patternOutpatient;
-    this.patternInpatient = patternInpatient;
+    this.outPattern = Pattern.compile(patternOutpatient);
+    this.inPattern = Pattern.compile(patternInpatient);
   }
 
   private MedicationRequest.Bundle bundle(
@@ -321,8 +322,8 @@ public class R4MedicationRequestController {
   MedicationRequest transformMedicationOrderToMedicationRequest(DatamartMedicationOrder dm) {
     return R4MedicationRequestFromMedicationOrderTransformer.builder()
         .datamart(dm)
-        .patternOutpatient(patternOutpatient)
-        .patternInpatient(patternInpatient)
+        .inPattern(inPattern)
+        .outPattern(outPattern)
         .build()
         .toFhir();
   }

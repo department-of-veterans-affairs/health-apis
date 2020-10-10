@@ -4,6 +4,7 @@ import gov.va.api.health.r4.api.DataAbsentReason;
 import gov.va.api.health.r4.api.bundle.BundleLink;
 import gov.va.api.health.r4.api.datatypes.Annotation;
 import gov.va.api.health.r4.api.datatypes.CodeableConcept;
+import gov.va.api.health.r4.api.datatypes.Coding;
 import gov.va.api.health.r4.api.datatypes.Duration;
 import gov.va.api.health.r4.api.datatypes.Period;
 import gov.va.api.health.r4.api.datatypes.SimpleQuantity;
@@ -15,7 +16,6 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
@@ -242,15 +242,30 @@ public class MedicationRequestSamples {
     private List<CodeableConcept> parseCategory(String id) {
       Pattern outPattern = Pattern.compile(".*:(O|FP)");
       Pattern inPattern = Pattern.compile(".*:(I|FPI)");
-      Matcher matcherOut = outPattern.matcher(id);
-      Matcher matcherIn = inPattern.matcher(id);
-      String suffix = null;
-      if (matcherOut.matches()) {
-        suffix = "Outpatient";
-      } else if (matcherIn.matches()) {
-        suffix = "Inpatient";
+      String system = "terminology.hl7.org/CodeSystem/medicationrequest-category";
+      if (outPattern.matcher(id).matches()) {
+        String displayText = "Outpatient";
+        String code = "outpatient";
+        return List.of(
+            CodeableConcept.builder()
+                .text(displayText)
+                .coding(
+                    List.of(
+                        Coding.builder().display(displayText).code(code).system(system).build()))
+                .build());
       }
-      return List.of(CodeableConcept.builder().text(suffix).build());
+      if (inPattern.matcher(id).matches()) {
+        String displayText = "Inpatient";
+        String code = "inpatient";
+        return List.of(
+            CodeableConcept.builder()
+                .text(displayText)
+                .coding(
+                    List.of(
+                        Coding.builder().display(displayText).code(code).system(system).build()))
+                .build());
+      }
+      return null;
     }
 
     private Reference reference(String ref, String display) {

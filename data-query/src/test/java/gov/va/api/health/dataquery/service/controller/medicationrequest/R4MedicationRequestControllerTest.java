@@ -27,6 +27,7 @@ import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.health.r4.api.bundle.BundleLink;
 import gov.va.api.health.r4.api.datatypes.CodeableConcept;
+import gov.va.api.health.r4.api.datatypes.Coding;
 import gov.va.api.health.r4.api.resources.MedicationRequest;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -83,27 +84,72 @@ public class R4MedicationRequestControllerTest {
   @Test
   public void correctSuffixDetermination() {
     var fhir = MedicationRequestSamples.R4.create();
+    String system = "terminology.hl7.org/CodeSystem/medicationrequest-category";
     MedicationRequest req = fhir.medicationRequestFromMedicationOrder();
     assertThat(req).isNotNull();
 
     req = fhir.medicationRequestFromMedicationOrder("123:");
-    assertThat(req.category()).isEqualTo(List.of(CodeableConcept.builder().text(null).build()));
+    assertThat(req.category()).isEqualTo(null);
 
     req = fhir.medicationRequestFromMedicationOrder("123:I");
     assertThat(req.category())
-        .isEqualTo(List.of(CodeableConcept.builder().text("Inpatient").build()));
+        .isEqualTo(
+            List.of(
+                CodeableConcept.builder()
+                    .text("Inpatient")
+                    .coding(
+                        List.of(
+                            Coding.builder()
+                                .display("Inpatient")
+                                .code("inpatient")
+                                .system(system)
+                                .build()))
+                    .build()));
 
     req = fhir.medicationRequestFromMedicationOrder("123:FPI");
     assertThat(req.category())
-        .isEqualTo(List.of(CodeableConcept.builder().text("Inpatient").build()));
+        .isEqualTo(
+            List.of(
+                CodeableConcept.builder()
+                    .text("Inpatient")
+                    .coding(
+                        List.of(
+                            Coding.builder()
+                                .display("Inpatient")
+                                .code("inpatient")
+                                .system(system)
+                                .build()))
+                    .build()));
 
     req = fhir.medicationRequestFromMedicationOrder("123:O");
     assertThat(req.category())
-        .isEqualTo(List.of(CodeableConcept.builder().text("Outpatient").build()));
+        .isEqualTo(
+            List.of(
+                CodeableConcept.builder()
+                    .text("Outpatient")
+                    .coding(
+                        List.of(
+                            Coding.builder()
+                                .display("Outpatient")
+                                .code("outpatient")
+                                .system(system)
+                                .build()))
+                    .build()));
 
     req = fhir.medicationRequestFromMedicationOrder("123:FP");
     assertThat(req.category())
-        .isEqualTo(List.of(CodeableConcept.builder().text("Outpatient").build()));
+        .isEqualTo(
+            List.of(
+                CodeableConcept.builder()
+                    .text("Outpatient")
+                    .coding(
+                        List.of(
+                            Coding.builder()
+                                .display("Outpatient")
+                                .code("outpatient")
+                                .system(system)
+                                .build()))
+                    .build()));
   }
 
   @SneakyThrows

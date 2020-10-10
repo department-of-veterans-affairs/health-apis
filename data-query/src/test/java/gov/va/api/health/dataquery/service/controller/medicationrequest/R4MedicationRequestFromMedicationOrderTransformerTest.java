@@ -9,6 +9,7 @@ import gov.va.api.health.r4.api.DataAbsentReason;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 import org.junit.jupiter.api.Test;
 
 public class R4MedicationRequestFromMedicationOrderTransformerTest {
@@ -112,8 +113,8 @@ public class R4MedicationRequestFromMedicationOrderTransformerTest {
     assertThat(
             R4MedicationRequestFromMedicationOrderTransformer.builder()
                 .datamart(dmo)
-                .patternOutpatient(".*:(O|FP)")
-                .patternInpatient(".*:(I|FPI)")
+                .outPattern(Pattern.compile(".*:(O|FP)"))
+                .inPattern(Pattern.compile(".*:(I|FPI)"))
                 .build()
                 .toFhir())
         .isEqualTo(MedicationRequestSamples.R4.create().medicationRequestFromMedicationOrder());
