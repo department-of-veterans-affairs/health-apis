@@ -26,6 +26,7 @@ import gov.va.api.health.dstu2.api.resources.Patient.Gender;
 import gov.va.api.health.r4.api.bundle.AbstractBundle;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.experimental.UtilityClass;
@@ -70,6 +71,7 @@ public class PatientSamples {
           .deathDateTime("2001-03-03T15:08:09Z")
           .gender("M")
           .maritalStatus(MaritalStatus.builder().abbrev("M").code("M").build())
+          .managingOrganization(Optional.of("va123"))
           .race(List.of(Race.builder().display("American Indian or Alaska Native").build()))
           .telecom(
               List.of(
@@ -428,6 +430,11 @@ public class PatientSamples {
                               .code("M")
                               .display("Married")
                               .build()))
+                  .build())
+          .managingOrganization(
+              gov.va.api.health.r4.api.elements.Reference.builder()
+                  .type("Organization")
+                  .reference("Organization/va123")
                   .build())
           .build();
     }

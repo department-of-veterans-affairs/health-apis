@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class DatamartPatient {
   @Builder.Default private String objectType = "Patient";
+
   @Builder.Default private int objectVersion = 1;
 
   private String fullIcn;
@@ -70,11 +71,35 @@ public class DatamartPatient {
   }
 
   /** Lazy getter. */
+  public Optional<String> managingOrganization() {
+    if (managingOrganization == null) {
+      managingOrganization = Optional.empty();
+    }
+    return managingOrganization;
+  }
+
+  /** Lazy getter. */
   public List<Race> race() {
     if (race == null) {
       race = new ArrayList<>();
     }
     return race;
+  }
+
+  /** Lazy getter. */
+  public Optional<String> religion() {
+    if (religion == null) {
+      religion = Optional.empty();
+    }
+    return religion;
+  }
+
+  /** Lazy getter. */
+  public Optional<String> selfIdentifiedGender() {
+    if (selfIdentifiedGender == null) {
+      selfIdentifiedGender = Optional.empty();
+    }
+    return selfIdentifiedGender;
   }
 
   /** Lazy getter. */
