@@ -84,7 +84,7 @@ public class R4MedicationRequestControllerTest {
   @Test
   public void correctSuffixDetermination() {
     var fhir = MedicationRequestSamples.R4.create();
-    String system = "terminology.hl7.org/CodeSystem/medicationrequest-category";
+    String system = "https://www.hl7.org/fhir/codesystem-medicationrequest-category.html";
     MedicationRequest req = fhir.medicationRequestFromMedicationOrder();
     assertThat(req).isNotNull();
 

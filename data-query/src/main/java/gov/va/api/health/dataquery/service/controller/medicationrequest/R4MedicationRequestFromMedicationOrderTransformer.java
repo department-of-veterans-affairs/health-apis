@@ -198,7 +198,7 @@ public class R4MedicationRequestFromMedicationOrderTransformer {
   }
 
   private List<CodeableConcept> parseCategory(String id) {
-    String system = "terminology.hl7.org/CodeSystem/medicationrequest-category";
+    String system = "https://www.hl7.org/fhir/codesystem-medicationrequest-category.html";
     if (outPattern.matcher(id).matches()) {
       String displayText = "Outpatient";
       String code = "outpatient";
