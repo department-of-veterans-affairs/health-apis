@@ -28,7 +28,6 @@ import java.util.stream.Stream;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.Min;
 import lombok.AllArgsConstructor;
-import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -63,9 +62,9 @@ public class R4MedicationRequestController {
 
   private final WitnessProtection witnessProtection;
 
-  @NonNull private final Pattern outPattern;
+  private final Pattern outPattern;
 
-  @NonNull private final Pattern inPattern;
+  private final Pattern inPattern;
 
   /** R4 MedicationRequest Constructor. */
   public R4MedicationRequestController(
