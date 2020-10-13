@@ -10,6 +10,7 @@ import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference
 import gov.va.api.health.dataquery.service.controller.medicationorder.DatamartMedicationOrder;
 import gov.va.api.health.r4.api.DataAbsentReason;
 import gov.va.api.health.r4.api.datatypes.CodeableConcept;
+import gov.va.api.health.r4.api.datatypes.Coding;
 import gov.va.api.health.r4.api.datatypes.Duration;
 import gov.va.api.health.r4.api.datatypes.Period;
 import gov.va.api.health.r4.api.datatypes.SimpleQuantity;
@@ -21,6 +22,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -69,6 +71,10 @@ public class R4MedicationRequestFromMedicationOrderTransformer {
           .build();
 
   @NonNull final DatamartMedicationOrder datamart;
+
+  @NonNull private final Pattern outPattern;
+
+  @NonNull private final Pattern inPattern;
 
   static CodeableConcept codeableConceptText(Optional<String> maybeText) {
     if (maybeText.isEmpty()) {
@@ -191,10 +197,44 @@ public class R4MedicationRequestFromMedicationOrderTransformer {
         .build();
   }
 
+  private List<CodeableConcept> parseCategory(String id) {
+    final String system = "https://www.hl7.org/fhir/codesystem-medicationrequest-category.html";
+    if (outPattern.matcher(id).matches()) {
+      String displayText = "Outpatient";
+      return List.of(
+          CodeableConcept.builder()
+              .text(displayText)
+              .coding(
+                  List.of(
+                      Coding.builder()
+                          .display(displayText)
+                          .code("outpatient")
+                          .system(system)
+                          .build()))
+              .build());
+    }
+    if (inPattern.matcher(id).matches()) {
+      String displayText = "Inpatient";
+      return List.of(
+          CodeableConcept.builder()
+              .text(displayText)
+              .coding(
+                  List.of(
+                      Coding.builder()
+                          .display(displayText)
+                          .code("inpatient")
+                          .system(system)
+                          .build()))
+              .build());
+    }
+    return null;
+  }
+
   MedicationRequest toFhir() {
     return MedicationRequest.builder()
         .resourceType("MedicationRequest")
         .id(datamart.cdwId())
+        .category(parseCategory(datamart.cdwId()))
         .subject(asReference(datamart.patient()))
         .authoredOn(asDateTimeString(datamart.dateWritten()))
         .status(status(datamart.status()))

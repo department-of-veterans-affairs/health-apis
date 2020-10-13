@@ -26,6 +26,8 @@ import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.health.r4.api.bundle.BundleLink;
+import gov.va.api.health.r4.api.datatypes.CodeableConcept;
+import gov.va.api.health.r4.api.datatypes.Coding;
 import gov.va.api.health.r4.api.resources.MedicationRequest;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -74,7 +76,90 @@ public class R4MedicationRequestControllerTest {
         new R4Bundler(new ConfigurableBaseUrlPageLinks("http://abed.com", "cool", "cool", "cool")),
         medicationOrderRepository,
         medicationStatementRepository,
-        WitnessProtection.builder().identityService(ids).build());
+        WitnessProtection.builder().identityService(ids).build(),
+        ".*:(O|FP)",
+        ".*:(I|FPI)");
+  }
+
+  @Test
+  public void correctSuffixDetermination() {
+    var fhir = MedicationRequestSamples.R4.create();
+    String system = "https://www.hl7.org/fhir/codesystem-medicationrequest-category.html";
+
+    assertThat(
+            controller()
+                .transformMedicationOrderToMedicationRequest(
+                    MedicationOrderSamples.Datamart.create().medicationOrder("123:", "1234"))
+                .category())
+        .isEqualTo(null);
+
+    assertThat(
+            controller()
+                .transformMedicationOrderToMedicationRequest(
+                    MedicationOrderSamples.Datamart.create().medicationOrder("123:XXX", "1234"))
+                .category())
+        .isEqualTo(null);
+
+    assertThat(
+            controller()
+                .transformMedicationOrderToMedicationRequest(
+                    MedicationOrderSamples.Datamart.create().medicationOrder("123I", "1234"))
+                .category())
+        .isEqualTo(null);
+
+    var inpatient =
+        List.of(
+            CodeableConcept.builder()
+                .text("Inpatient")
+                .coding(
+                    List.of(
+                        Coding.builder()
+                            .display("Inpatient")
+                            .code("inpatient")
+                            .system(system)
+                            .build()))
+                .build());
+
+    assertThat(
+            controller()
+                .transformMedicationOrderToMedicationRequest(
+                    MedicationOrderSamples.Datamart.create().medicationOrder("123:I", "1234"))
+                .category())
+        .isEqualTo(inpatient);
+
+    assertThat(
+            controller()
+                .transformMedicationOrderToMedicationRequest(
+                    MedicationOrderSamples.Datamart.create().medicationOrder("123:FPI", "1234"))
+                .category())
+        .isEqualTo(inpatient);
+
+    var outpatient =
+        List.of(
+            CodeableConcept.builder()
+                .text("Outpatient")
+                .coding(
+                    List.of(
+                        Coding.builder()
+                            .display("Outpatient")
+                            .code("outpatient")
+                            .system(system)
+                            .build()))
+                .build());
+
+    assertThat(
+            controller()
+                .transformMedicationOrderToMedicationRequest(
+                    MedicationOrderSamples.Datamart.create().medicationOrder("123:O", "1234"))
+                .category())
+        .isEqualTo(outpatient);
+
+    assertThat(
+            controller()
+                .transformMedicationOrderToMedicationRequest(
+                    MedicationOrderSamples.Datamart.create().medicationOrder("123:FP", "1234"))
+                .category())
+        .isEqualTo(outpatient);
   }
 
   @SneakyThrows

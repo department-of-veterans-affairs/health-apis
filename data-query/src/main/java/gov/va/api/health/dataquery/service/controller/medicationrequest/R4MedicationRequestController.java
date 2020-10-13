@@ -22,14 +22,15 @@ import gov.va.api.health.r4.api.resources.MedicationRequest;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.Min;
 import lombok.AllArgsConstructor;
-import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.util.MultiValueMap;
@@ -61,16 +62,24 @@ public class R4MedicationRequestController {
 
   private final WitnessProtection witnessProtection;
 
+  private final Pattern outPattern;
+
+  private final Pattern inPattern;
+
   /** R4 MedicationRequest Constructor. */
   public R4MedicationRequestController(
       @Autowired R4Bundler bundler,
       @Autowired MedicationOrderRepository medicationOrderRepository,
       @Autowired MedicationStatementRepository medicationStatementRepository,
-      @Autowired WitnessProtection witnessProtection) {
+      @Autowired WitnessProtection witnessProtection,
+      @Value("${pattern.outpatient}") String patternOutpatient,
+      @Value("${pattern.inpatient}") String patternInpatient) {
     this.bundler = bundler;
     this.medicationOrderRepository = medicationOrderRepository;
     this.medicationStatementRepository = medicationStatementRepository;
     this.witnessProtection = witnessProtection;
+    this.outPattern = Pattern.compile(patternOutpatient);
+    this.inPattern = Pattern.compile(patternInpatient);
   }
 
   private MedicationRequest.Bundle bundle(
@@ -111,24 +120,14 @@ public class R4MedicationRequestController {
   List<MedicationRequest> medRequestsFromMedOrders(
       List<DatamartMedicationOrder> datamartMedicationOrders) {
     return datamartMedicationOrders.stream()
-        .map(
-            dmo ->
-                R4MedicationRequestFromMedicationOrderTransformer.builder()
-                    .datamart(dmo)
-                    .build()
-                    .toFhir())
+        .map(this::transformMedicationOrderToMedicationRequest)
         .collect(Collectors.toList());
   }
 
   List<MedicationRequest> medRequestsFromMedStatements(
       List<DatamartMedicationStatement> datamartMedicationStatements) {
     return datamartMedicationStatements.stream()
-        .map(
-            dms ->
-                R4MedicationRequestFromMedicationStatementTransformer.builder()
-                    .datamart(dms)
-                    .build()
-                    .toFhir())
+        .map(this::transformMedicationStatementToMedicationRequest)
         .collect(Collectors.toList());
   }
 
@@ -323,6 +322,8 @@ public class R4MedicationRequestController {
   MedicationRequest transformMedicationOrderToMedicationRequest(DatamartMedicationOrder dm) {
     return R4MedicationRequestFromMedicationOrderTransformer.builder()
         .datamart(dm)
+        .inPattern(inPattern)
+        .outPattern(outPattern)
         .build()
         .toFhir();
   }
@@ -335,7 +336,7 @@ public class R4MedicationRequestController {
         .toFhir();
   }
 
-  @Value
+  @lombok.Value
   private class SearchContext {
     String patient;
 
@@ -387,7 +388,7 @@ public class R4MedicationRequestController {
     }
   }
 
-  @Value
+  @lombok.Value
   @AllArgsConstructor
   private class MedicationOrderSupport {
     SearchContext ctx;
@@ -422,7 +423,7 @@ public class R4MedicationRequestController {
     }
   }
 
-  @Value
+  @lombok.Value
   @AllArgsConstructor
   private class MedicationStatementSupport {
     SearchContext ctx;

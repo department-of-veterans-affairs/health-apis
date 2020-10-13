@@ -4,6 +4,7 @@ import gov.va.api.health.r4.api.DataAbsentReason;
 import gov.va.api.health.r4.api.bundle.BundleLink;
 import gov.va.api.health.r4.api.datatypes.Annotation;
 import gov.va.api.health.r4.api.datatypes.CodeableConcept;
+import gov.va.api.health.r4.api.datatypes.Coding;
 import gov.va.api.health.r4.api.datatypes.Duration;
 import gov.va.api.health.r4.api.datatypes.Period;
 import gov.va.api.health.r4.api.datatypes.SimpleQuantity;
@@ -15,6 +16,7 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.experimental.UtilityClass;
@@ -201,6 +203,7 @@ public class MedicationRequestSamples {
       return MedicationRequest.builder()
           .resourceType("MedicationRequest")
           .id(id)
+          .category(parseCategory(id))
           .subject(reference("Patient/" + patientId, "VETERAN,FARM ACY"))
           .authoredOn("2016-11-17T18:02:04Z")
           .status(MedicationRequest.Status.stopped)
@@ -234,6 +237,41 @@ public class MedicationRequestSamples {
           .intent(MedicationRequest.Intent.plan)
           ._requester(DataAbsentReason.of(DataAbsentReason.Reason.unknown))
           .build();
+    }
+
+    private List<CodeableConcept> parseCategory(String id) {
+      Pattern outPattern = Pattern.compile(".*:(O|FP)");
+      Pattern inPattern = Pattern.compile(".*:(I|FPI)");
+      final String system = "https://www.hl7.org/fhir/codesystem-medicationrequest-category.html";
+      if (outPattern.matcher(id).matches()) {
+        String displayText = "Outpatient";
+        return List.of(
+            CodeableConcept.builder()
+                .text(displayText)
+                .coding(
+                    List.of(
+                        Coding.builder()
+                            .display(displayText)
+                            .code("outpatient")
+                            .system(system)
+                            .build()))
+                .build());
+      }
+      if (inPattern.matcher(id).matches()) {
+        String displayText = "Inpatient";
+        return List.of(
+            CodeableConcept.builder()
+                .text(displayText)
+                .coding(
+                    List.of(
+                        Coding.builder()
+                            .display(displayText)
+                            .code("inpatient")
+                            .system(system)
+                            .build()))
+                .build());
+      }
+      return null;
     }
 
     private Reference reference(String ref, String display) {
