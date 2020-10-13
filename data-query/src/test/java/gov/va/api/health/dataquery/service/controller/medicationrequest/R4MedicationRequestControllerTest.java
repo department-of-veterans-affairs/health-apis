@@ -85,14 +85,20 @@ public class R4MedicationRequestControllerTest {
   public void correctSuffixDetermination() {
     var fhir = MedicationRequestSamples.R4.create();
     String system = "https://www.hl7.org/fhir/codesystem-medicationrequest-category.html";
-    MedicationRequest req = fhir.medicationRequestFromMedicationOrder();
-    assertThat(req).isNotNull();
 
-    req = fhir.medicationRequestFromMedicationOrder("123:");
-    assertThat(req.category()).isEqualTo(null);
+    assertThat(
+            controller()
+                .transformMedicationOrderToMedicationRequest(
+                    MedicationOrderSamples.Datamart.create().medicationOrder("123:", "1234"))
+                .category())
+        .isEqualTo(null);
 
-    req = fhir.medicationRequestFromMedicationOrder("123:XXX");
-    assertThat(req.category()).isEqualTo(null);
+    assertThat(
+            controller()
+                .transformMedicationOrderToMedicationRequest(
+                    MedicationOrderSamples.Datamart.create().medicationOrder("123:XXX", "1234"))
+                .category())
+        .isEqualTo(null);
 
     var inpatient =
         List.of(
@@ -107,18 +113,12 @@ public class R4MedicationRequestControllerTest {
                             .build()))
                 .build());
 
-    req = fhir.medicationRequestFromMedicationOrder("123:I");
-    assertThat(req.category()).isEqualTo(inpatient);
-
     assertThat(
             controller()
                 .transformMedicationOrderToMedicationRequest(
                     MedicationOrderSamples.Datamart.create().medicationOrder("123:I", "1234"))
                 .category())
         .isEqualTo(inpatient);
-
-    req = fhir.medicationRequestFromMedicationOrder("123:FPI");
-    assertThat(req.category()).isEqualTo(inpatient);
 
     assertThat(
             controller()
@@ -140,18 +140,12 @@ public class R4MedicationRequestControllerTest {
                             .build()))
                 .build());
 
-    req = fhir.medicationRequestFromMedicationOrder("123:O");
-    assertThat(req.category()).isEqualTo(outpatient);
-
     assertThat(
             controller()
                 .transformMedicationOrderToMedicationRequest(
                     MedicationOrderSamples.Datamart.create().medicationOrder("123:O", "1234"))
                 .category())
         .isEqualTo(outpatient);
-
-    req = fhir.medicationRequestFromMedicationOrder("123:FP");
-    assertThat(req.category()).isEqualTo(outpatient);
 
     assertThat(
             controller()
