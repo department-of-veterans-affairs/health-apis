@@ -100,6 +100,13 @@ public class R4MedicationRequestControllerTest {
                 .category())
         .isEqualTo(null);
 
+    assertThat(
+            controller()
+                .transformMedicationOrderToMedicationRequest(
+                    MedicationOrderSamples.Datamart.create().medicationOrder("123I", "1234"))
+                .category())
+        .isEqualTo(null);
+
     var inpatient =
         List.of(
             CodeableConcept.builder()
