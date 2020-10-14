@@ -26,7 +26,6 @@ public final class TestClients {
   /** ID service test client. */
   public static TestClient ids() {
     return BasicTestClient.builder()
-        .service(SystemDefinitions.systemDefinition().ids())
         .contentType("application/json")
         .mapper(JacksonConfig::createMapper)
         .build();

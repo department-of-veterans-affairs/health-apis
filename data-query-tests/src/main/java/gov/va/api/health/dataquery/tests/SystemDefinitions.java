@@ -50,7 +50,6 @@ public final class SystemDefinitions {
   private static SystemDefinition lab() {
     String url = "https://sandbox-api.va.gov";
     return SystemDefinition.builder()
-        .ids(serviceDefinition("ids", url, 443, null, "/not-available/"))
         .dstu2DataQuery(
             serviceDefinition("dstu2", url, 443, magicAccessToken(), "/services/fhir/v0/dstu2/"))
         .stu3DataQuery(
@@ -95,7 +94,6 @@ public final class SystemDefinitions {
   private static SystemDefinition local() {
     String url = "http://localhost";
     return SystemDefinition.builder()
-        .ids(serviceDefinition("ids", url, 8089, null, "/api/"))
         .dstu2DataQuery(serviceDefinition("dstu2", url, 8090, null, "/dstu2/"))
         .stu3DataQuery(serviceDefinition("stu3", url, 8090, null, "/stu3/"))
         .r4DataQuery(serviceDefinition("r4", url, 8090, null, "/r4/"))
@@ -188,7 +186,6 @@ public final class SystemDefinitions {
   private static SystemDefinition prod() {
     String url = "https://api.va.gov";
     return SystemDefinition.builder()
-        .ids(serviceDefinition("ids", url, 443, null, "/not-available/"))
         .dstu2DataQuery(
             serviceDefinition("dstu2", url, 443, magicAccessToken(), "/services/fhir/v0/dstu2/"))
         .stu3DataQuery(
@@ -281,7 +278,6 @@ public final class SystemDefinitions {
   private static SystemDefinition qa() {
     String url = "https://blue.qa.lighthouse.va.gov";
     return SystemDefinition.builder()
-        .ids(serviceDefinition("ids", url, 443, null, "/not-available/"))
         .dstu2DataQuery(serviceDefinition("dstu2", url, 443, magicAccessToken(), "/fhir/v0/dstu2/"))
         .stu3DataQuery(serviceDefinition("stu3", url, 443, magicAccessToken(), "/fhir/v0/stu3/"))
         .r4DataQuery(serviceDefinition("r4", url, 443, magicAccessToken(), "/fhir/v0/r4/"))
@@ -304,7 +300,6 @@ public final class SystemDefinitions {
   private static SystemDefinition staging() {
     String url = "https://blue.staging.lighthouse.va.gov";
     return SystemDefinition.builder()
-        .ids(serviceDefinition("ids", url, 443, null, "/not-available/"))
         .dstu2DataQuery(serviceDefinition("dstu2", url, 443, magicAccessToken(), "/fhir/v0/dstu2/"))
         .stu3DataQuery(serviceDefinition("stu3", url, 443, magicAccessToken(), "/fhir/v0/stu3/"))
         .r4DataQuery(serviceDefinition("r4", url, 443, magicAccessToken(), "/fhir/v0/r4/"))
@@ -317,7 +312,6 @@ public final class SystemDefinitions {
   private static SystemDefinition stagingLab() {
     String url = "https://blue.staging-lab.lighthouse.va.gov";
     return SystemDefinition.builder()
-        .ids(serviceDefinition("ids", url, 443, null, "/not-available/"))
         .dstu2DataQuery(serviceDefinition("dstu2", url, 443, magicAccessToken(), "/fhir/v0/dstu2/"))
         .stu3DataQuery(serviceDefinition("stu3", url, 443, magicAccessToken(), "/fhir/v0/stu3/"))
         .r4DataQuery(serviceDefinition("r4", url, 443, magicAccessToken(), "/fhir/v0/r4/"))
