@@ -457,9 +457,7 @@ final class R4PatientTransformer {
     return datamart
         .managingOrganization()
         .filter(not(String::isBlank))
-        .map(
-            ref ->
-                Reference.builder().type("Organization").reference("Organization/" + ref).build())
+        .map(ref -> Reference.builder().reference("Organization/" + ref).build())
         .orElse(null);
   }
 
