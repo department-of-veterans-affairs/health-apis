@@ -433,7 +433,6 @@ public class PatientSamples {
                   .build())
           .managingOrganization(
               gov.va.api.health.r4.api.elements.Reference.builder()
-                  .type("Organization")
                   .reference("Organization/va123")
                   .build())
           .build();
