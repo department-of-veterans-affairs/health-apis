@@ -21,6 +21,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
@@ -218,7 +221,13 @@ public class R4ObservationController {
 
   ObservationEntity findById(String publicId) {
     String cdwId = witnessProtection.toCdwId(publicId);
-    Optional<ObservationEntity> maybeEntity = repository.findById(cdwId);
+    // DUPLICATES IN CDW ARE CAUSING THIS TO FAIL: repository.findById(cdwId);
+    Optional<ObservationEntity> maybeEntity =
+        repository.findOne(
+            (Root<ObservationEntity> root,
+                CriteriaQuery<?> criteriaQuery,
+                CriteriaBuilder criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("cdwId"), cdwId));
     return maybeEntity.orElseThrow(() -> new ResourceExceptions.NotFound(publicId));
   }
 
