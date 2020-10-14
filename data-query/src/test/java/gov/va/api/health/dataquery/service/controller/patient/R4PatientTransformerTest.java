@@ -94,8 +94,7 @@ public class R4PatientTransformerTest {
                 .build()
                 .toFhir()
                 .managingOrganization())
-        .isEqualTo(
-            Reference.builder().type("Organization").reference("Organization/MarieKondo").build());
+        .isEqualTo(Reference.builder().reference("Organization/MarieKondo").build());
   }
 
   @Test

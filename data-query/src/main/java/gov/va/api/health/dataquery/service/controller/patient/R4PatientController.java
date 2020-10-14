@@ -11,7 +11,9 @@ import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.R4Bundler;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
+import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.health.r4.api.resources.Patient;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -75,16 +77,18 @@ public class R4PatientController {
       MultiValueMap<String, String> parameters, Page<PatientEntityV2> entitiesPage) {
     log.info("Search {} found {} results", parameters, entitiesPage.getTotalElements());
     if (Parameters.countOf(parameters) == 0) {
-      return R4PatientController.this.bundle(
-          parameters, emptyList(), (int) entitiesPage.getTotalElements());
+      return bundle(parameters, emptyList(), (int) entitiesPage.getTotalElements());
     }
     List<DatamartPatient> datamarts =
-        entitiesPage.stream().map(PatientEntityV2::asDatamartPatient).collect(Collectors.toList());
+        replaceReferences(
+            entitiesPage.stream()
+                .map(PatientEntityV2::asDatamartPatient)
+                .collect(Collectors.toList()));
     List<Patient> fhir =
         datamarts.stream()
             .map(dm -> R4PatientTransformer.builder().datamart(dm).build().toFhir())
             .collect(Collectors.toList());
-    return R4PatientController.this.bundle(parameters, fhir, (int) entitiesPage.getTotalElements());
+    return bundle(parameters, fhir, (int) entitiesPage.getTotalElements());
   }
 
   String cdwGender(String fhirGender) {
@@ -107,7 +111,7 @@ public class R4PatientController {
   /** Read by id. */
   @GetMapping(value = {"/{publicId}"})
   public Patient read(@PathVariable("publicId") String publicId) {
-    DatamartPatient dm = findById(publicId).asDatamartPatient();
+    DatamartPatient dm = replaceReferences(findById(publicId).asDatamartPatient());
     return R4PatientTransformer.builder().datamart(dm).build().toFhir();
   }
 
@@ -119,6 +123,30 @@ public class R4PatientController {
     PatientEntityV2 entityV2 = findById(publicId);
     IncludesIcnMajig.addHeader(response, entityV2.icn());
     return entityV2.payload();
+  }
+
+  private <T extends Collection<DatamartPatient>> T replaceReferences(T resources) {
+    for (DatamartPatient p : resources) {
+      replaceReferences(p);
+    }
+    return resources;
+  }
+
+  private DatamartPatient replaceReferences(DatamartPatient p) {
+    if (p.managingOrganization().isPresent()) {
+      var publicId =
+          witnessProtection
+              .register(
+                  List.of(
+                      ResourceIdentity.builder()
+                          .system("CDW")
+                          .resource("Organization")
+                          .identifier(p.managingOrganization().get())
+                          .build()))
+              .get(0);
+      p.managingOrganization(Optional.of(publicId.uuid()));
+    }
+    return p;
   }
 
   /** Search by Birthdate+Family. */
