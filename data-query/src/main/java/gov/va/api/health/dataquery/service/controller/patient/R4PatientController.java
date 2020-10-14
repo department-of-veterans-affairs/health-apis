@@ -13,7 +13,6 @@ import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.health.r4.api.resources.Patient;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -80,10 +79,10 @@ public class R4PatientController {
       return bundle(parameters, emptyList(), (int) entitiesPage.getTotalElements());
     }
     List<DatamartPatient> datamarts =
-        replaceReferences(
-            entitiesPage.stream()
-                .map(PatientEntityV2::asDatamartPatient)
-                .collect(Collectors.toList()));
+        entitiesPage.stream()
+            .map(PatientEntityV2::asDatamartPatient)
+            .map(this::replaceReferences)
+            .collect(Collectors.toList());
     List<Patient> fhir =
         datamarts.stream()
             .map(dm -> R4PatientTransformer.builder().datamart(dm).build().toFhir())
@@ -125,26 +124,19 @@ public class R4PatientController {
     return entityV2.payload();
   }
 
-  private <T extends Collection<DatamartPatient>> T replaceReferences(T resources) {
-    for (DatamartPatient p : resources) {
-      replaceReferences(p);
-    }
-    return resources;
-  }
-
   private DatamartPatient replaceReferences(DatamartPatient p) {
     if (p.managingOrganization().isPresent()) {
       var publicId =
-          witnessProtection
-              .register(
-                  List.of(
-                      ResourceIdentity.builder()
-                          .system("CDW")
-                          .resource("Organization")
-                          .identifier(p.managingOrganization().get())
-                          .build()))
-              .get(0);
-      p.managingOrganization(Optional.of(publicId.uuid()));
+          witnessProtection.register(
+              List.of(
+                  ResourceIdentity.builder()
+                      .system("CDW")
+                      .resource("Organization")
+                      .identifier(p.managingOrganization().get())
+                      .build()));
+      if (!publicId.isEmpty()) {
+        p.managingOrganization(Optional.of(publicId.get(0).uuid()));
+      }
     }
     return p;
   }
