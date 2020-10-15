@@ -91,7 +91,7 @@
             </goals>
             <configuration>
               <outputDirectory>${project.build.directory}</outputDirectory>
-              <includeArtifactIds>junit-platform-console-standalone,h2,ids,data-query</includeArtifactIds>
+              <includeArtifactIds>junit-platform-console-standalone,h2,data-query</includeArtifactIds>
               <stripVersion>true</stripVersion>
             </configuration>
           </execution>
