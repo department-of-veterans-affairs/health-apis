@@ -23,14 +23,6 @@ public final class TestClients {
         .build();
   }
 
-  /** ID service test client. */
-  public static TestClient ids() {
-    return BasicTestClient.builder()
-        .contentType("application/json")
-        .mapper(JacksonConfig::createMapper)
-        .build();
-  }
-
   /** Internal Data Query test client. */
   public static TestClient internalDataQuery() {
     return BasicTestClient.builder()
