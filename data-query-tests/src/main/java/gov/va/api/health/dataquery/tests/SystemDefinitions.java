@@ -193,7 +193,7 @@ public final class SystemDefinitions {
         .build();
   }
 
-  private static Procedures productionCdwProcedures() {
+  private static Procedures productionIdProcedures() {
     return Procedures.builder().fromDate("ge2009").onDate("ge2009").toDate("le2014").build();
   }
 
@@ -224,7 +224,7 @@ public final class SystemDefinitions {
         .practitioner("I2-6NVSMKEGQKNB3KRDXBGE7NRIEY000000")
         .practitioners(productionPractitioners())
         .procedure("I2-DTO3TGZDH7VWRWL6CVHS4NTMTUBWUNA5D4U2L45RJJ3LG6LY6XXA0000")
-        .procedures(productionCdwProcedures())
+        .procedures(productionIdProcedures())
         .unknown("5555555555555")
         .uuid("5c2d00d6-7ce8-595a-8ed3-1ba2d21a99ff")
         .build();
@@ -266,6 +266,7 @@ public final class SystemDefinitions {
         .given("SAID R")
         .npi("http://hl7.org/fhir/sid/us-npi|1013904481")
         .specialty("http://hl7.org/fhir/practitioner-specialty|xxx")
+        // Valid ID will need to be added when test is available
         .build();
   }
 
