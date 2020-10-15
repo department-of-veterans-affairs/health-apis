@@ -8,8 +8,6 @@ import lombok.Value;
 @Value
 @Builder
 public final class SystemDefinition {
-  @NonNull ServiceDefinition ids;
-
   @NonNull ServiceDefinition dstu2DataQuery;
 
   @NonNull ServiceDefinition stu3DataQuery;
@@ -18,5 +16,5 @@ public final class SystemDefinition {
 
   @NonNull ServiceDefinition internalDataQuery;
 
-  @NonNull TestIds cdwIds;
+  @NonNull TestIds publicIds;
 }

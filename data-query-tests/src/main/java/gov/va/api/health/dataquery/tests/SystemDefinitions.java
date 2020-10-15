@@ -19,7 +19,6 @@ import lombok.experimental.UtilityClass;
  */
 @UtilityClass
 public final class SystemDefinitions {
-
   private static DiagnosticReports diagnosticReports() {
     return DiagnosticReports.builder()
         .loinc1("10000-8")
@@ -50,21 +49,19 @@ public final class SystemDefinitions {
   private static SystemDefinition lab() {
     String url = "https://sandbox-api.va.gov";
     return SystemDefinition.builder()
-        .ids(serviceDefinition("ids", url, 443, null, "/not-available/"))
         .dstu2DataQuery(
             serviceDefinition("dstu2", url, 443, magicAccessToken(), "/services/fhir/v0/dstu2/"))
         .stu3DataQuery(
             serviceDefinition("stu3", url, 443, magicAccessToken(), "/services/fhir/v0/stu3/"))
         .r4DataQuery(serviceDefinition("r4", url, 443, magicAccessToken(), "/services/fhir/v0/r4/"))
         .internalDataQuery(serviceDefinition("internal", url, 443, null, "/not-available/"))
-        .cdwIds(labIds())
+        .publicIds(labIds())
         .build();
   }
 
   private static TestIds labIds() {
     /* IDS encoded with secret production key */
     return TestIds.builder()
-        .publicIds(true)
         .allergyIntolerance("I2-5XYSWFRZ637QKNR6IIRKYHA5RY000000")
         .condition("I2-FOBJ7YQOH3RIQ5UZ6TRM32ZSQA000000")
         .diagnosticReport("I2-3ACWF6E3HPG6GLOSVWR2CIQNPI000000")
@@ -95,12 +92,11 @@ public final class SystemDefinitions {
   private static SystemDefinition local() {
     String url = "http://localhost";
     return SystemDefinition.builder()
-        .ids(serviceDefinition("ids", url, 8089, null, "/api/"))
         .dstu2DataQuery(serviceDefinition("dstu2", url, 8090, null, "/dstu2/"))
         .stu3DataQuery(serviceDefinition("stu3", url, 8090, null, "/stu3/"))
         .r4DataQuery(serviceDefinition("r4", url, 8090, null, "/r4/"))
         .internalDataQuery(serviceDefinition("internal", url, 8090, null, "/"))
-        .cdwIds(localIds())
+        .publicIds(localIds())
         .build();
   }
 
@@ -141,7 +137,6 @@ public final class SystemDefinitions {
   private static TestIds localIds() {
     /* IDS encoded with key: data-query */
     return TestIds.builder()
-        .publicIds(true)
         .allergyIntolerance("I2-6PEP3VSTE3TIHUPLHXRZBG4QTY000000")
         .condition("I2-NHQ2GKYCVNIOUULQCYTK2K6EQ4000000")
         .diagnosticReport("I2-NVJU4EWW3YBUEM2EFYP6VYA4JM000000")
@@ -188,15 +183,18 @@ public final class SystemDefinitions {
   private static SystemDefinition prod() {
     String url = "https://api.va.gov";
     return SystemDefinition.builder()
-        .ids(serviceDefinition("ids", url, 443, null, "/not-available/"))
         .dstu2DataQuery(
             serviceDefinition("dstu2", url, 443, magicAccessToken(), "/services/fhir/v0/dstu2/"))
         .stu3DataQuery(
             serviceDefinition("stu3", url, 443, magicAccessToken(), "/services/fhir/v0/stu3/"))
         .r4DataQuery(serviceDefinition("r4", url, 443, magicAccessToken(), "/services/fhir/v0/r4/"))
         .internalDataQuery(serviceDefinition("internal", url, 443, null, "/not-available/"))
-        .cdwIds(productionCdwIds())
+        .publicIds(productionIds())
         .build();
+  }
+
+  private static Procedures productionIdProcedures() {
+    return Procedures.builder().fromDate("ge2009").onDate("ge2009").toDate("le2014").build();
   }
 
   /*
@@ -205,10 +203,9 @@ public final class SystemDefinitions {
    * - Practitioner: The following is a real Practitioner working at the Orlando VAMC.
    *     If test breaks, they may no longer work at the Orlando VAMC and will need to be replaced.
    */
-  private static TestIds productionCdwIds() {
+  private static TestIds productionIds() {
     /* IDS encoded with secret production key */
     return TestIds.builder()
-        .publicIds(true)
         .allergyIntolerance("I2-A6U4FCERBNSVAFYF6CMUOOHMBPJOJFVSJAWGW5TYE3EOC6TQ2OBQ0000")
         .condition("I2-H7TWOL6IPU27YRF3OKZIUJM5D27UCDVBMBWSONEYQ66OTFL4OVYQ0000")
         .diagnosticReport("I2-M2QUOOXL3O73NUZCB7HEOVQ2GAGQFOATAYXW5FMU3I57IYQDE6RQ0000")
@@ -227,14 +224,10 @@ public final class SystemDefinitions {
         .practitioner("I2-6NVSMKEGQKNB3KRDXBGE7NRIEY000000")
         .practitioners(productionPractitioners())
         .procedure("I2-DTO3TGZDH7VWRWL6CVHS4NTMTUBWUNA5D4U2L45RJJ3LG6LY6XXA0000")
-        .procedures(productionCdwProcedures())
+        .procedures(productionIdProcedures())
         .unknown("5555555555555")
         .uuid("5c2d00d6-7ce8-595a-8ed3-1ba2d21a99ff")
         .build();
-  }
-
-  private static Procedures productionCdwProcedures() {
-    return Procedures.builder().fromDate("ge2009").onDate("ge2009").toDate("le2014").build();
   }
 
   private static TestIds.Locations productionLocations() {
@@ -272,8 +265,8 @@ public final class SystemDefinitions {
         .family("ACOSTA")
         .given("SAID R")
         .npi("http://hl7.org/fhir/sid/us-npi|1013904481")
-        // Valid ID will need to be added when test is available
         .specialty("http://hl7.org/fhir/practitioner-specialty|xxx")
+        // Valid ID will need to be added when test is available
         .build();
   }
 
@@ -281,12 +274,11 @@ public final class SystemDefinitions {
   private static SystemDefinition qa() {
     String url = "https://blue.qa.lighthouse.va.gov";
     return SystemDefinition.builder()
-        .ids(serviceDefinition("ids", url, 443, null, "/not-available/"))
         .dstu2DataQuery(serviceDefinition("dstu2", url, 443, magicAccessToken(), "/fhir/v0/dstu2/"))
         .stu3DataQuery(serviceDefinition("stu3", url, 443, magicAccessToken(), "/fhir/v0/stu3/"))
         .r4DataQuery(serviceDefinition("r4", url, 443, magicAccessToken(), "/fhir/v0/r4/"))
         .internalDataQuery(serviceDefinition("internal", url, 443, null, "/data-query/"))
-        .cdwIds(productionCdwIds())
+        .publicIds(productionIds())
         .build();
   }
 
@@ -304,12 +296,11 @@ public final class SystemDefinitions {
   private static SystemDefinition staging() {
     String url = "https://blue.staging.lighthouse.va.gov";
     return SystemDefinition.builder()
-        .ids(serviceDefinition("ids", url, 443, null, "/not-available/"))
         .dstu2DataQuery(serviceDefinition("dstu2", url, 443, magicAccessToken(), "/fhir/v0/dstu2/"))
         .stu3DataQuery(serviceDefinition("stu3", url, 443, magicAccessToken(), "/fhir/v0/stu3/"))
         .r4DataQuery(serviceDefinition("r4", url, 443, magicAccessToken(), "/fhir/v0/r4/"))
         .internalDataQuery(serviceDefinition("internal", url, 443, null, "/data-query/"))
-        .cdwIds(productionCdwIds())
+        .publicIds(productionIds())
         .build();
   }
 
@@ -317,12 +308,11 @@ public final class SystemDefinitions {
   private static SystemDefinition stagingLab() {
     String url = "https://blue.staging-lab.lighthouse.va.gov";
     return SystemDefinition.builder()
-        .ids(serviceDefinition("ids", url, 443, null, "/not-available/"))
         .dstu2DataQuery(serviceDefinition("dstu2", url, 443, magicAccessToken(), "/fhir/v0/dstu2/"))
         .stu3DataQuery(serviceDefinition("stu3", url, 443, magicAccessToken(), "/fhir/v0/stu3/"))
         .r4DataQuery(serviceDefinition("r4", url, 443, magicAccessToken(), "/fhir/v0/r4/"))
         .internalDataQuery(serviceDefinition("internal", url, 443, null, "/data-query/"))
-        .cdwIds(labIds())
+        .publicIds(labIds())
         .build();
   }
 
