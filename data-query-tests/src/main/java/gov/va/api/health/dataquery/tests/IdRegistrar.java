@@ -20,10 +20,7 @@ public final class IdRegistrar {
 
   private TestIds registerCdwIds() {
     TestIds cdwIds = system().cdwIds();
-    if (cdwIds.publicIds()) {
-      log.infoOnce("Registration not necessary");
-      return cdwIds;
-    }
-    return null;
+    log.infoOnce("Registration not necessary");
+    return cdwIds;
   }
 }

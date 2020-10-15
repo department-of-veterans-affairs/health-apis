@@ -63,7 +63,6 @@ public final class SystemDefinitions {
   private static TestIds labIds() {
     /* IDS encoded with secret production key */
     return TestIds.builder()
-        .publicIds(true)
         .allergyIntolerance("I2-5XYSWFRZ637QKNR6IIRKYHA5RY000000")
         .condition("I2-FOBJ7YQOH3RIQ5UZ6TRM32ZSQA000000")
         .diagnosticReport("I2-3ACWF6E3HPG6GLOSVWR2CIQNPI000000")
@@ -139,7 +138,6 @@ public final class SystemDefinitions {
   private static TestIds localIds() {
     /* IDS encoded with key: data-query */
     return TestIds.builder()
-        .publicIds(true)
         .allergyIntolerance("I2-6PEP3VSTE3TIHUPLHXRZBG4QTY000000")
         .condition("I2-NHQ2GKYCVNIOUULQCYTK2K6EQ4000000")
         .diagnosticReport("I2-NVJU4EWW3YBUEM2EFYP6VYA4JM000000")
@@ -205,7 +203,6 @@ public final class SystemDefinitions {
   private static TestIds productionCdwIds() {
     /* IDS encoded with secret production key */
     return TestIds.builder()
-        .publicIds(true)
         .allergyIntolerance("I2-A6U4FCERBNSVAFYF6CMUOOHMBPJOJFVSJAWGW5TYE3EOC6TQ2OBQ0000")
         .condition("I2-H7TWOL6IPU27YRF3OKZIUJM5D27UCDVBMBWSONEYQ66OTFL4OVYQ0000")
         .diagnosticReport("I2-M2QUOOXL3O73NUZCB7HEOVQ2GAGQFOATAYXW5FMU3I57IYQDE6RQ0000")

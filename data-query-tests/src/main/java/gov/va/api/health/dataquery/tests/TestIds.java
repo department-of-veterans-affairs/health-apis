@@ -9,7 +9,6 @@ import lombok.Value;
 @Value
 @Builder(toBuilder = true)
 public final class TestIds {
-  boolean publicIds;
   @NonNull String allergyIntolerance;
   @NonNull String condition;
   @NonNull String diagnosticReport;
