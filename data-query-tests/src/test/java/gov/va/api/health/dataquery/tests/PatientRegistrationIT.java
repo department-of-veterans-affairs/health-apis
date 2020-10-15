@@ -10,13 +10,13 @@ public class PatientRegistrationIT {
   private String patientReadUrlDstu2() {
     return TestClients.dstu2DataQuery().service().apiPath()
         + "Patient/"
-        + SystemDefinitions.systemDefinition().cdwIds().patient();
+        + SystemDefinitions.systemDefinition().publicIds().patient();
   }
 
   private String patientReadUrlR4() {
     return TestClients.r4DataQuery().service().apiPath()
         + "Patient/"
-        + SystemDefinitions.systemDefinition().cdwIds().patient();
+        + SystemDefinitions.systemDefinition().publicIds().patient();
   }
 
   @Test

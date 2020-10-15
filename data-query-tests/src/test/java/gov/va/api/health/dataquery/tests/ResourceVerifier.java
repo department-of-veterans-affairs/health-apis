@@ -45,7 +45,7 @@ public final class ResourceVerifier {
 
   private final Class<?> operationOutcomeClass;
 
-  private final TestIds ids = IdRegistrar.of(SystemDefinitions.systemDefinition()).registeredIds();
+  private final TestIds ids = SystemDefinitions.systemDefinition().publicIds();
 
   /**
    * Datamart is not quite stable enough to prohibit builds from passing. Since this feature is

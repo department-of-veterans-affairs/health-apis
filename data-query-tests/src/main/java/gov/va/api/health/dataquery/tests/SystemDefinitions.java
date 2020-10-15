@@ -19,7 +19,6 @@ import lombok.experimental.UtilityClass;
  */
 @UtilityClass
 public final class SystemDefinitions {
-
   private static DiagnosticReports diagnosticReports() {
     return DiagnosticReports.builder()
         .loinc1("10000-8")
@@ -56,7 +55,7 @@ public final class SystemDefinitions {
             serviceDefinition("stu3", url, 443, magicAccessToken(), "/services/fhir/v0/stu3/"))
         .r4DataQuery(serviceDefinition("r4", url, 443, magicAccessToken(), "/services/fhir/v0/r4/"))
         .internalDataQuery(serviceDefinition("internal", url, 443, null, "/not-available/"))
-        .cdwIds(labIds())
+        .publicIds(labIds())
         .build();
   }
 
@@ -97,7 +96,7 @@ public final class SystemDefinitions {
         .stu3DataQuery(serviceDefinition("stu3", url, 8090, null, "/stu3/"))
         .r4DataQuery(serviceDefinition("r4", url, 8090, null, "/r4/"))
         .internalDataQuery(serviceDefinition("internal", url, 8090, null, "/"))
-        .cdwIds(localIds())
+        .publicIds(localIds())
         .build();
   }
 
@@ -190,8 +189,12 @@ public final class SystemDefinitions {
             serviceDefinition("stu3", url, 443, magicAccessToken(), "/services/fhir/v0/stu3/"))
         .r4DataQuery(serviceDefinition("r4", url, 443, magicAccessToken(), "/services/fhir/v0/r4/"))
         .internalDataQuery(serviceDefinition("internal", url, 443, null, "/not-available/"))
-        .cdwIds(productionCdwIds())
+        .publicIds(productionIds())
         .build();
+  }
+
+  private static Procedures productionCdwProcedures() {
+    return Procedures.builder().fromDate("ge2009").onDate("ge2009").toDate("le2014").build();
   }
 
   /*
@@ -200,7 +203,7 @@ public final class SystemDefinitions {
    * - Practitioner: The following is a real Practitioner working at the Orlando VAMC.
    *     If test breaks, they may no longer work at the Orlando VAMC and will need to be replaced.
    */
-  private static TestIds productionCdwIds() {
+  private static TestIds productionIds() {
     /* IDS encoded with secret production key */
     return TestIds.builder()
         .allergyIntolerance("I2-A6U4FCERBNSVAFYF6CMUOOHMBPJOJFVSJAWGW5TYE3EOC6TQ2OBQ0000")
@@ -225,10 +228,6 @@ public final class SystemDefinitions {
         .unknown("5555555555555")
         .uuid("5c2d00d6-7ce8-595a-8ed3-1ba2d21a99ff")
         .build();
-  }
-
-  private static Procedures productionCdwProcedures() {
-    return Procedures.builder().fromDate("ge2009").onDate("ge2009").toDate("le2014").build();
   }
 
   private static TestIds.Locations productionLocations() {
@@ -266,7 +265,6 @@ public final class SystemDefinitions {
         .family("ACOSTA")
         .given("SAID R")
         .npi("http://hl7.org/fhir/sid/us-npi|1013904481")
-        // Valid ID will need to be added when test is available
         .specialty("http://hl7.org/fhir/practitioner-specialty|xxx")
         .build();
   }
@@ -279,7 +277,7 @@ public final class SystemDefinitions {
         .stu3DataQuery(serviceDefinition("stu3", url, 443, magicAccessToken(), "/fhir/v0/stu3/"))
         .r4DataQuery(serviceDefinition("r4", url, 443, magicAccessToken(), "/fhir/v0/r4/"))
         .internalDataQuery(serviceDefinition("internal", url, 443, null, "/data-query/"))
-        .cdwIds(productionCdwIds())
+        .publicIds(productionIds())
         .build();
   }
 
@@ -301,7 +299,7 @@ public final class SystemDefinitions {
         .stu3DataQuery(serviceDefinition("stu3", url, 443, magicAccessToken(), "/fhir/v0/stu3/"))
         .r4DataQuery(serviceDefinition("r4", url, 443, magicAccessToken(), "/fhir/v0/r4/"))
         .internalDataQuery(serviceDefinition("internal", url, 443, null, "/data-query/"))
-        .cdwIds(productionCdwIds())
+        .publicIds(productionIds())
         .build();
   }
 
@@ -313,7 +311,7 @@ public final class SystemDefinitions {
         .stu3DataQuery(serviceDefinition("stu3", url, 443, magicAccessToken(), "/fhir/v0/stu3/"))
         .r4DataQuery(serviceDefinition("r4", url, 443, magicAccessToken(), "/fhir/v0/r4/"))
         .internalDataQuery(serviceDefinition("internal", url, 443, null, "/data-query/"))
-        .cdwIds(labIds())
+        .publicIds(labIds())
         .build();
   }
 
