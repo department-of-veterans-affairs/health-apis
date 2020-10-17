@@ -1,7 +1,9 @@
 package gov.va.api.health.dataquery.service.controller.medicationrequest;
 
+import static gov.va.api.health.dataquery.service.controller.medicationrequest.MedicationRequestSamples.R4.outpatientCategory;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -15,6 +17,7 @@ import gov.va.api.health.dataquery.service.controller.R4Bundler;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.medicationorder.DatamartMedicationOrder;
+import gov.va.api.health.dataquery.service.controller.medicationorder.DatamartMedicationOrder.Category;
 import gov.va.api.health.dataquery.service.controller.medicationorder.MedicationOrderEntity;
 import gov.va.api.health.dataquery.service.controller.medicationorder.MedicationOrderRepository;
 import gov.va.api.health.dataquery.service.controller.medicationorder.MedicationOrderSamples;
@@ -26,17 +29,19 @@ import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.health.r4.api.bundle.BundleLink;
-import gov.va.api.health.r4.api.datatypes.CodeableConcept;
-import gov.va.api.health.r4.api.datatypes.Coding;
 import gov.va.api.health.r4.api.resources.MedicationRequest;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -52,6 +57,15 @@ public class R4MedicationRequestControllerTest {
   @Autowired private MedicationOrderRepository medicationOrderRepository;
 
   @Autowired private MedicationStatementRepository medicationStatementRepository;
+
+  static Stream<Arguments> updateMedicationOrderCategory() {
+    return Stream.of(
+        arguments("123", Category.UNKNOWN),
+        arguments("123:O", Category.OUTPATIENT),
+        arguments("123:FP", Category.OUTPATIENT),
+        arguments("123:I", Category.INPATIENT),
+        arguments("123:FPI", Category.INPATIENT));
+  }
 
   @SneakyThrows
   private MedicationOrderEntity asMedicationOrderEntity(DatamartMedicationOrder dm) {
@@ -79,87 +93,6 @@ public class R4MedicationRequestControllerTest {
         WitnessProtection.builder().identityService(ids).build(),
         ".*:(O|FP)",
         ".*:(I|FPI)");
-  }
-
-  @Test
-  public void correctSuffixDetermination() {
-    var fhir = MedicationRequestSamples.R4.create();
-    String system = "https://www.hl7.org/fhir/codesystem-medicationrequest-category.html";
-
-    assertThat(
-            controller()
-                .transformMedicationOrderToMedicationRequest(
-                    MedicationOrderSamples.Datamart.create().medicationOrder("123:", "1234"))
-                .category())
-        .isEqualTo(null);
-
-    assertThat(
-            controller()
-                .transformMedicationOrderToMedicationRequest(
-                    MedicationOrderSamples.Datamart.create().medicationOrder("123:XXX", "1234"))
-                .category())
-        .isEqualTo(null);
-
-    assertThat(
-            controller()
-                .transformMedicationOrderToMedicationRequest(
-                    MedicationOrderSamples.Datamart.create().medicationOrder("123I", "1234"))
-                .category())
-        .isEqualTo(null);
-
-    var inpatient =
-        List.of(
-            CodeableConcept.builder()
-                .text("Inpatient")
-                .coding(
-                    List.of(
-                        Coding.builder()
-                            .display("Inpatient")
-                            .code("inpatient")
-                            .system(system)
-                            .build()))
-                .build());
-
-    assertThat(
-            controller()
-                .transformMedicationOrderToMedicationRequest(
-                    MedicationOrderSamples.Datamart.create().medicationOrder("123:I", "1234"))
-                .category())
-        .isEqualTo(inpatient);
-
-    assertThat(
-            controller()
-                .transformMedicationOrderToMedicationRequest(
-                    MedicationOrderSamples.Datamart.create().medicationOrder("123:FPI", "1234"))
-                .category())
-        .isEqualTo(inpatient);
-
-    var outpatient =
-        List.of(
-            CodeableConcept.builder()
-                .text("Outpatient")
-                .coding(
-                    List.of(
-                        Coding.builder()
-                            .display("Outpatient")
-                            .code("outpatient")
-                            .system(system)
-                            .build()))
-                .build());
-
-    assertThat(
-            controller()
-                .transformMedicationOrderToMedicationRequest(
-                    MedicationOrderSamples.Datamart.create().medicationOrder("123:O", "1234"))
-                .category())
-        .isEqualTo(outpatient);
-
-    assertThat(
-            controller()
-                .transformMedicationOrderToMedicationRequest(
-                    MedicationOrderSamples.Datamart.create().medicationOrder("123:FP", "1234"))
-                .category())
-        .isEqualTo(outpatient);
   }
 
   @SneakyThrows
@@ -297,7 +230,10 @@ public class R4MedicationRequestControllerTest {
     MedicationRequest actual = controller().read("1");
     assertThat(json(actual))
         .isEqualTo(
-            json(MedicationRequestSamples.R4.create().medicationRequestFromMedicationOrder("1")));
+            json(
+                MedicationRequestSamples.R4
+                    .create()
+                    .medicationRequestFromMedicationOrder("1", outpatientCategory())));
     DatamartMedicationStatement dms =
         MedicationStatementSamples.Datamart.create().medicationStatement();
     medicationStatementRepository.save(asMedicationStatementEntity(dms));
@@ -366,7 +302,8 @@ public class R4MedicationRequestControllerTest {
     MedicationRequest medicationRequest =
         MedicationRequestSamples.R4
             .create()
-            .medicationRequestFromMedicationOrder("1", dm.patient().reference().get());
+            .medicationRequestFromMedicationOrder(
+                "1", dm.patient().reference().get(), outpatientCategory());
     assertThat(json(actual))
         .isEqualTo(
             json(
@@ -577,12 +514,21 @@ public class R4MedicationRequestControllerTest {
     return JacksonConfig.createMapper().readValue(json, DatamartMedicationStatement.class);
   }
 
+  @ParameterizedTest
+  @MethodSource
+  void updateMedicationOrderCategory(String cdwId, Category expectedCategory) {
+    var mo = MedicationOrderSamples.Datamart.create().medicationOrder(cdwId, "x");
+    controller().newSearchContext("x", 1, 2).medicationOrderSupport().updateCategory(mo);
+    assertThat(mo.category()).isEqualTo(expectedCategory);
+  }
+
   private void validateSearchByIdResult(
       DatamartMedicationOrder dm, MedicationRequest.Bundle actual, boolean validSearchParams) {
     MedicationRequest medicationOrder =
         MedicationRequestSamples.R4
             .create()
-            .medicationRequestFromMedicationOrder("1", dm.patient().reference().get());
+            .medicationRequestFromMedicationOrder(
+                "1", dm.patient().reference().get(), outpatientCategory());
     assertThat(json(actual))
         .isEqualTo(
             json(

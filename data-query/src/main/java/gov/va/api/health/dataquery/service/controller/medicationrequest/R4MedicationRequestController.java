@@ -1,7 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.medicationrequest;
 
 import static gov.va.api.health.autoconfig.logging.LogSanitizer.sanitize;
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 
 import gov.va.api.health.dataquery.service.controller.CountParameter;
@@ -12,6 +11,7 @@ import gov.va.api.health.dataquery.service.controller.R4Bundler;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.medicationorder.DatamartMedicationOrder;
+import gov.va.api.health.dataquery.service.controller.medicationorder.DatamartMedicationOrder.Category;
 import gov.va.api.health.dataquery.service.controller.medicationorder.MedicationOrderEntity;
 import gov.va.api.health.dataquery.service.controller.medicationorder.MedicationOrderRepository;
 import gov.va.api.health.dataquery.service.controller.medicationstatement.DatamartMedicationStatement;
@@ -46,7 +46,7 @@ import org.springframework.web.bind.annotation.RestController;
  * https://www.hl7.org/fhir/us/core/StructureDefinition-us-core-medicationrequest.html for
  * implementation details.
  */
-@SuppressWarnings("WeakerAccess")
+@SuppressWarnings({"WeakerAccess", "EnhancedSwitchMigration"})
 @Validated
 @Slf4j
 @RestController
@@ -62,9 +62,9 @@ public class R4MedicationRequestController {
 
   private final WitnessProtection witnessProtection;
 
-  private final Pattern outPattern;
+  private final Pattern medOrderOutpatientCategoryPattern;
 
-  private final Pattern inPattern;
+  private final Pattern medOrderInpatientCategoryPattern;
 
   /** R4 MedicationRequest Constructor. */
   public R4MedicationRequestController(
@@ -78,8 +78,8 @@ public class R4MedicationRequestController {
     this.medicationOrderRepository = medicationOrderRepository;
     this.medicationStatementRepository = medicationStatementRepository;
     this.witnessProtection = witnessProtection;
-    this.outPattern = Pattern.compile(patternOutpatient);
-    this.inPattern = Pattern.compile(patternInpatient);
+    medOrderOutpatientCategoryPattern = Pattern.compile(patternOutpatient);
+    medOrderInpatientCategoryPattern = Pattern.compile(patternInpatient);
   }
 
   private MedicationRequest.Bundle bundle(
@@ -172,6 +172,10 @@ public class R4MedicationRequestController {
     return bundle(parameters, fhir, totalRecords);
   }
 
+  SearchContext newSearchContext(String patient, int page, int count) {
+    return new SearchContext(patient, count, page);
+  }
+
   /** Read by identifier. */
   @GetMapping(value = {"/{publicId}"})
   public MedicationRequest read(@PathVariable("publicId") String publicId) {
@@ -220,19 +224,15 @@ public class R4MedicationRequestController {
     }
   }
 
-  Collection<DatamartMedicationOrder> replaceReferencesMedicationOrder(
-      Collection<DatamartMedicationOrder> resources) {
+  void replaceReferencesMedicationOrder(Collection<DatamartMedicationOrder> resources) {
     witnessProtection.registerAndUpdateReferences(
         resources,
         resource -> Stream.of(resource.medication(), resource.patient(), resource.prescriber()));
-    return resources;
   }
 
-  Collection<DatamartMedicationStatement> replaceReferencesMedicationStatement(
-      Collection<DatamartMedicationStatement> resources) {
+  void replaceReferencesMedicationStatement(Collection<DatamartMedicationStatement> resources) {
     witnessProtection.registerAndUpdateReferences(
         resources, resource -> Stream.of(resource.medication(), resource.patient()));
-    return resources;
   }
 
   /** Search R4 MedicationRequest by _id. */
@@ -257,7 +257,7 @@ public class R4MedicationRequestController {
     if (resource == null || page != 1 || count <= 0) {
       return bundle(parameters, emptyList(), totalRecords);
     }
-    return bundle(parameters, asList(resource), totalRecords);
+    return bundle(parameters, List.of(resource), totalRecords);
   }
 
   /** Search by patient. */
@@ -266,7 +266,7 @@ public class R4MedicationRequestController {
       @RequestParam("patient") String patient,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
-    SearchContext ctx = new SearchContext(patient, count, page);
+    SearchContext ctx = newSearchContext(patient, page, count);
     if (count == 0) {
       return bundle(ctx.parameters(), emptyList(), ctx.totalPages());
     }
@@ -322,8 +322,6 @@ public class R4MedicationRequestController {
   MedicationRequest transformMedicationOrderToMedicationRequest(DatamartMedicationOrder dm) {
     return R4MedicationRequestFromMedicationOrderTransformer.builder()
         .datamart(dm)
-        .inPattern(inPattern)
-        .outPattern(outPattern)
         .build()
         .toFhir();
   }
@@ -337,7 +335,7 @@ public class R4MedicationRequestController {
   }
 
   @lombok.Value
-  private class SearchContext {
+  class SearchContext {
     String patient;
 
     int count;
@@ -352,8 +350,8 @@ public class R4MedicationRequestController {
       this.patient = patient;
       this.count = count;
       this.page = page;
-      this.medicationOrderSupport = new MedicationOrderSupport(this);
-      this.medicationStatementSupport = new MedicationStatementSupport(this);
+      medicationOrderSupport = new MedicationOrderSupport(this);
+      medicationStatementSupport = new MedicationStatementSupport(this);
     }
 
     int lastPageWithMedicationStatement() {
@@ -390,7 +388,7 @@ public class R4MedicationRequestController {
 
   @lombok.Value
   @AllArgsConstructor
-  private class MedicationOrderSupport {
+  class MedicationOrderSupport {
     SearchContext ctx;
 
     Page<MedicationOrderEntity> medicationOrderEntities() {
@@ -417,15 +415,26 @@ public class R4MedicationRequestController {
           medicationOrderEntities()
               .get()
               .map(MedicationOrderEntity::asDatamartMedicationOrder)
+              .peek(this::updateCategory)
               .collect(Collectors.toList());
       replaceReferencesMedicationOrder(datamartMedicationOrders);
       return medRequestsFromMedOrders(datamartMedicationOrders);
+    }
+
+    void updateCategory(DatamartMedicationOrder datamartMedicationOrder) {
+      if (medOrderOutpatientCategoryPattern.matcher(datamartMedicationOrder.cdwId()).matches()) {
+        datamartMedicationOrder.category(Category.OUTPATIENT);
+      } else if (medOrderInpatientCategoryPattern
+          .matcher(datamartMedicationOrder.cdwId())
+          .matches()) {
+        datamartMedicationOrder.category(Category.INPATIENT);
+      }
     }
   }
 
   @lombok.Value
   @AllArgsConstructor
-  private class MedicationStatementSupport {
+  class MedicationStatementSupport {
     SearchContext ctx;
 
     Page<MedicationStatementEntity> medicationStatementEntities() {

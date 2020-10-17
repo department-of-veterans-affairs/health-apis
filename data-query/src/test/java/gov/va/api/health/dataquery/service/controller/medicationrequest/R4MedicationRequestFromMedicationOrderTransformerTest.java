@@ -1,18 +1,54 @@
 package gov.va.api.health.dataquery.service.controller.medicationrequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dataquery.service.controller.medicationorder.DatamartMedicationOrder;
+import gov.va.api.health.dataquery.service.controller.medicationorder.DatamartMedicationOrder.Category;
 import gov.va.api.health.dataquery.service.controller.medicationorder.MedicationOrderSamples;
 import gov.va.api.health.r4.api.DataAbsentReason;
+import gov.va.api.health.r4.api.datatypes.CodeableConcept;
+import gov.va.api.health.r4.api.datatypes.Coding;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
-import java.util.regex.Pattern;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 public class R4MedicationRequestFromMedicationOrderTransformerTest {
+
+  static Stream<Arguments> category() {
+    return Stream.of(
+        arguments(Category.COMMUNITY, "Community", "community"),
+        arguments(Category.DISCHARGE, "Discharge", "discharge"),
+        arguments(Category.INPATIENT, "Inpatient", "inpatient"),
+        arguments(Category.OUTPATIENT, "Outpatient", "outpatient"));
+  }
+
+  @ParameterizedTest
+  @MethodSource
+  void category(Category category, String expectedDisplay, String expectedCode) {
+    DatamartMedicationOrder dmo = MedicationOrderSamples.Datamart.create().medicationOrder();
+    dmo.category(category);
+    var tx = R4MedicationRequestFromMedicationOrderTransformer.builder().datamart(dmo).build();
+    var expected =
+        CodeableConcept.builder()
+            .text(expectedDisplay)
+            .coding(
+                List.of(
+                    Coding.builder()
+                        .display(expectedDisplay)
+                        .code(expectedCode)
+                        .system("http://terminology.hl7.org/CodeSystem/medicationrequest-category")
+                        .build()))
+            .build();
+    assertThat(tx.category()).containsExactly(expected);
+  }
+
   @Test
   public void codeableConceptNullTest() {
     assertThat(
@@ -113,8 +149,6 @@ public class R4MedicationRequestFromMedicationOrderTransformerTest {
     assertThat(
             R4MedicationRequestFromMedicationOrderTransformer.builder()
                 .datamart(dmo)
-                .outPattern(Pattern.compile(".*:(O|FP)"))
-                .inPattern(Pattern.compile(".*:(I|FPI)"))
                 .build()
                 .toFhir())
         .isEqualTo(MedicationRequestSamples.R4.create().medicationRequestFromMedicationOrder());

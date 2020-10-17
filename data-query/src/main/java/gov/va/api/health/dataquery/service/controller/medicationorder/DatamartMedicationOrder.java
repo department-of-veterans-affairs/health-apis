@@ -12,6 +12,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@SuppressWarnings("OptionalAssignedToNull")
 @Data
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -40,6 +41,20 @@ public class DatamartMedicationOrder implements HasReplaceableId {
 
   private Optional<DispenseRequest> dispenseRequest;
 
+  /**
+   * Category is a synthetic property that is currently not supplied by the database directly. It
+   * must be computed and set using additional information than what is available on this record.
+   */
+  private Category category;
+
+  /** Lazy, set to UNKNOWN. */
+  public Category category() {
+    if (category == null) {
+      category = Category.UNKNOWN;
+    }
+    return category;
+  }
+
   /** Lazy initialization with empty. */
   public Optional<Instant> dateEnded() {
     if (dateEnded == null) {
@@ -48,7 +63,7 @@ public class DatamartMedicationOrder implements HasReplaceableId {
     return dateEnded;
   }
 
-  /** Lazy Inititialization with empty. */
+  /** Lazy Initialization with empty. */
   public Optional<DispenseRequest> dispenseRequest() {
     if (dispenseRequest == null) {
       return Optional.empty();
@@ -68,6 +83,14 @@ public class DatamartMedicationOrder implements HasReplaceableId {
   @SuppressWarnings("unused")
   private void setEtlDate(String unused) {
     /* no op */
+  }
+
+  public enum Category {
+    INPATIENT,
+    OUTPATIENT,
+    COMMUNITY,
+    DISCHARGE,
+    UNKNOWN
   }
 
   @Data

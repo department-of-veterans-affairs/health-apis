@@ -3,6 +3,7 @@ package gov.va.api.health.dataquery.service.controller.medicationorder;
 import static java.util.Arrays.asList;
 
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
+import gov.va.api.health.dataquery.service.controller.medicationorder.DatamartMedicationOrder.Category;
 import gov.va.api.health.dstu2.api.bundle.AbstractBundle;
 import gov.va.api.health.dstu2.api.bundle.AbstractEntry;
 import gov.va.api.health.dstu2.api.bundle.BundleLink;
@@ -64,10 +65,14 @@ public class MedicationOrderSamples {
     }
 
     public DatamartMedicationOrder medicationOrder() {
-      return medicationOrder("1400181354458:O", "666V666");
+      return medicationOrder("1400181354458:O", "666V666", Category.OUTPATIENT);
     }
 
     public DatamartMedicationOrder medicationOrder(String cdwId, String icn) {
+      return medicationOrder(cdwId, icn, null);
+    }
+
+    public DatamartMedicationOrder medicationOrder(String cdwId, String icn, Category category) {
       return DatamartMedicationOrder.builder()
           .cdwId(cdwId)
           .patient(
@@ -76,6 +81,7 @@ public class MedicationOrderSamples {
                   .reference(icn)
                   .display("VETERAN,FARM ACY")
                   .build())
+          .category(category)
           .dateWritten(Instant.parse("2016-11-17T18:02:04Z"))
           .status("DISCONTINUED")
           .dateEnded(Optional.of(Instant.parse("2017-02-15T05:00:00Z")))

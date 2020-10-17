@@ -16,7 +16,6 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.experimental.UtilityClass;
@@ -161,6 +160,19 @@ public class MedicationRequestSamples {
           .build();
     }
 
+    public static CodeableConcept outpatientCategory() {
+      return CodeableConcept.builder()
+          .text("Outpatient")
+          .coding(
+              List.of(
+                  Coding.builder()
+                      .display("Outpatient")
+                      .code("outpatient")
+                      .system("http://terminology.hl7.org/CodeSystem/medicationrequest-category")
+                      .build()))
+          .build();
+    }
+
     private MedicationRequest.DispenseRequest dispenseRequestFromMedicationOrder() {
       return MedicationRequest.DispenseRequest.builder()
           .numberOfRepeatsAllowed(1)
@@ -192,18 +204,29 @@ public class MedicationRequestSamples {
     }
 
     public MedicationRequest medicationRequestFromMedicationOrder() {
-      return medicationRequestFromMedicationOrder("1400181354458:O", "666V666");
+      return medicationRequestFromMedicationOrder(
+          "1400181354458:O", "666V666", outpatientCategory());
     }
 
     public MedicationRequest medicationRequestFromMedicationOrder(String id) {
       return medicationRequestFromMedicationOrder(id, "666V666");
     }
 
+    public MedicationRequest medicationRequestFromMedicationOrder(
+        String id, CodeableConcept category) {
+      return medicationRequestFromMedicationOrder(id, "666V666", category);
+    }
+
     public MedicationRequest medicationRequestFromMedicationOrder(String id, String patientId) {
+      return medicationRequestFromMedicationOrder(id, patientId, null);
+    }
+
+    public MedicationRequest medicationRequestFromMedicationOrder(
+        String id, String patientId, CodeableConcept category) {
       return MedicationRequest.builder()
           .resourceType("MedicationRequest")
           .id(id)
-          .category(parseCategory(id))
+          .category(category == null ? null : List.of(category))
           .subject(reference("Patient/" + patientId, "VETERAN,FARM ACY"))
           .authoredOn("2016-11-17T18:02:04Z")
           .status(MedicationRequest.Status.stopped)
@@ -237,41 +260,6 @@ public class MedicationRequestSamples {
           .intent(MedicationRequest.Intent.plan)
           ._requester(DataAbsentReason.of(DataAbsentReason.Reason.unknown))
           .build();
-    }
-
-    private List<CodeableConcept> parseCategory(String id) {
-      Pattern outPattern = Pattern.compile(".*:(O|FP)");
-      Pattern inPattern = Pattern.compile(".*:(I|FPI)");
-      final String system = "https://www.hl7.org/fhir/codesystem-medicationrequest-category.html";
-      if (outPattern.matcher(id).matches()) {
-        String displayText = "Outpatient";
-        return List.of(
-            CodeableConcept.builder()
-                .text(displayText)
-                .coding(
-                    List.of(
-                        Coding.builder()
-                            .display(displayText)
-                            .code("outpatient")
-                            .system(system)
-                            .build()))
-                .build());
-      }
-      if (inPattern.matcher(id).matches()) {
-        String displayText = "Inpatient";
-        return List.of(
-            CodeableConcept.builder()
-                .text(displayText)
-                .coding(
-                    List.of(
-                        Coding.builder()
-                            .display(displayText)
-                            .code("inpatient")
-                            .system(system)
-                            .build()))
-                .build());
-      }
-      return null;
     }
 
     private Reference reference(String ref, String display) {
