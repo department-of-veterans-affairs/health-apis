@@ -8,6 +8,7 @@ import static gov.va.api.health.dataquery.service.controller.Transformers.asDate
 import com.google.common.collect.ImmutableMap;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dataquery.service.controller.medicationorder.DatamartMedicationOrder;
+import gov.va.api.health.dataquery.service.controller.medicationorder.DatamartMedicationOrder.Category;
 import gov.va.api.health.r4.api.DataAbsentReason;
 import gov.va.api.health.r4.api.datatypes.CodeableConcept;
 import gov.va.api.health.r4.api.datatypes.Coding;
@@ -21,16 +22,23 @@ import gov.va.api.health.r4.api.resources.MedicationRequest;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
 import java.util.Optional;
-import java.util.regex.Pattern;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 @Builder
 @Slf4j
 public class R4MedicationRequestFromMedicationOrderTransformer {
+
+  public static final String CATEGORY_SYSTEM =
+      "http://terminology.hl7.org/CodeSystem/medicationrequest-category";
+
   // todo these need confirmation from KBS? Created backlog story API-1117
+  @SuppressWarnings("SpellCheckingInspection")
   static final ImmutableMap<String, MedicationRequest.Status> STATUS_VALUES =
       ImmutableMap.<String, MedicationRequest.Status>builder()
           .put("ACTIVE", MedicationRequest.Status.active)
@@ -72,10 +80,6 @@ public class R4MedicationRequestFromMedicationOrderTransformer {
 
   @NonNull final DatamartMedicationOrder datamart;
 
-  @NonNull private final Pattern outPattern;
-
-  @NonNull private final Pattern inPattern;
-
   static CodeableConcept codeableConceptText(Optional<String> maybeText) {
     if (maybeText.isEmpty()) {
       return null;
@@ -83,6 +87,7 @@ public class R4MedicationRequestFromMedicationOrderTransformer {
     return CodeableConcept.builder().text(maybeText.get()).build();
   }
 
+  @SuppressWarnings("OptionalGetWithoutIsPresent")
   static MedicationRequest.DispenseRequest dispenseRequest(
       Optional<DatamartMedicationOrder.DispenseRequest> maybeDispenseRequest) {
     if (allBlank(maybeDispenseRequest)) {
@@ -113,7 +118,9 @@ public class R4MedicationRequestFromMedicationOrderTransformer {
               .additionalInstruction(
                   dosageInstruction.additionalInstructions().isEmpty()
                       ? null
-                      : List.of(codeableConceptText(dosageInstruction.additionalInstructions())))
+                      : List.of(
+                          Objects.requireNonNull(
+                              codeableConceptText(dosageInstruction.additionalInstructions()))))
               .asNeededBoolean(dosageInstruction.asNeeded())
               .route(codeableConceptText(dosageInstruction.routeText()))
               .doseAndRate(
@@ -197,44 +204,30 @@ public class R4MedicationRequestFromMedicationOrderTransformer {
         .build();
   }
 
-  private List<CodeableConcept> parseCategory(String id) {
-    final String system = "https://www.hl7.org/fhir/codesystem-medicationrequest-category.html";
-    if (outPattern.matcher(id).matches()) {
-      String displayText = "Outpatient";
-      return List.of(
-          CodeableConcept.builder()
-              .text(displayText)
-              .coding(
-                  List.of(
-                      Coding.builder()
-                          .display(displayText)
-                          .code("outpatient")
-                          .system(system)
-                          .build()))
-              .build());
+  List<CodeableConcept> category() {
+    if (datamart.category() == Category.UNKNOWN) {
+      return null;
     }
-    if (inPattern.matcher(id).matches()) {
-      String displayText = "Inpatient";
-      return List.of(
-          CodeableConcept.builder()
-              .text(displayText)
-              .coding(
-                  List.of(
-                      Coding.builder()
-                          .display(displayText)
-                          .code("inpatient")
-                          .system(system)
-                          .build()))
-              .build());
-    }
-    return null;
+    String code = datamart.category().toString().toLowerCase(Locale.US);
+    String displayText = StringUtils.capitalize(code);
+    return List.of(
+        CodeableConcept.builder()
+            .text(displayText)
+            .coding(
+                List.of(
+                    Coding.builder()
+                        .display(displayText)
+                        .code(code)
+                        .system(CATEGORY_SYSTEM)
+                        .build()))
+            .build());
   }
 
   MedicationRequest toFhir() {
     return MedicationRequest.builder()
         .resourceType("MedicationRequest")
         .id(datamart.cdwId())
-        .category(parseCategory(datamart.cdwId()))
+        .category(category())
         .subject(asReference(datamart.patient()))
         .authoredOn(asDateTimeString(datamart.dateWritten()))
         .status(status(datamart.status()))
