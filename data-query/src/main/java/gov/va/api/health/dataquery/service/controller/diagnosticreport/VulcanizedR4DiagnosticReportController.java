@@ -9,10 +9,12 @@ import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedBundl
 import gov.va.api.health.r4.api.resources.DiagnosticReport;
 import gov.va.api.health.r4.api.resources.DiagnosticReport.Bundle;
 import gov.va.api.health.r4.api.resources.DiagnosticReport.Entry;
-import gov.va.api.lighthouse.vulcan.Mappings;
 import gov.va.api.lighthouse.vulcan.Vulcan;
 import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
 import gov.va.api.lighthouse.vulcan.VulcanConfiguration.PagingConfiguration;
+import gov.va.api.lighthouse.vulcan.mappings.Mappings;
+import gov.va.api.lighthouse.vulcan.mappings.TokenParameter;
+import java.util.List;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
@@ -38,6 +40,19 @@ public class VulcanizedR4DiagnosticReportController {
 
   private final LinkProperties linkProperties;
 
+  private boolean codeIsPanel(TokenParameter t) {
+    return (t.hasSupportedCode("panel") && !t.hasExplicitlyNoSystem()) && !t.hasExplicitSystem();
+  }
+
+  private List<String> codeValue(TokenParameter token) {
+    return token
+        .behavior()
+        .onAnySystemAndExplicitCode(List::of)
+        .onNoSystemAndExplicitCode(List::of)
+        .build()
+        .execute();
+  }
+
   private VulcanConfiguration<DiagnosticReportEntity> configuration() {
     return VulcanConfiguration.forEntity(DiagnosticReportEntity.class)
         .paging(
@@ -55,9 +70,9 @@ public class VulcanizedR4DiagnosticReportController {
                 .value("identifier", "cdwId", witnessProtection::toCdwId)
                 .value("patient", "icn")
                 .dateAsInstant("date", "dateUtc")
-                .csvList("code", "code")
                 .csvList("status", "code")
                 .string("category", "category")
+                .token("code", this::codeIsPanel, this::codeValue)
                 // TODO category token
                 // TODO csv token for code
                 // TODO csv token for status that short circuits return nothing or returns search by
