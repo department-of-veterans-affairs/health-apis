@@ -2,10 +2,10 @@ package gov.va.api.health.dataquery.service.controller.practitionerrole;
 
 import static gov.va.api.health.dataquery.service.controller.R4Transformers.asCodeableConceptWrapping;
 import static gov.va.api.health.dataquery.service.controller.R4Transformers.asReference;
+import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
 import static gov.va.api.health.dataquery.service.controller.Transformers.emptyToNull;
 import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
 
-import gov.va.api.health.dataquery.service.controller.R4Transformers;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dataquery.service.controller.practitioner.DatamartPractitioner;
 import gov.va.api.health.r4.api.datatypes.CodeableConcept;
@@ -29,47 +29,50 @@ import lombok.NonNull;
 final class R4PractitionerRoleTransformer {
   @NonNull private final DatamartPractitioner datamart;
 
-  private static List<CodeableConcept> code(Optional<DatamartPractitioner.PractitionerRole> role) {
-    if (role.isEmpty()) {
+  private static List<CodeableConcept> code(
+      Optional<DatamartPractitioner.PractitionerRole> maybeRole) {
+    if (maybeRole.isEmpty()) {
       return null;
     }
-    return List.of(asCodeableConceptWrapping(role.get().role()));
+    return List.of(asCodeableConceptWrapping(maybeRole.get().role()));
   }
 
-  static List<Reference> healthcareService(Optional<DatamartPractitioner.PractitionerRole> role) {
-    if (role.isEmpty()) {
+  static List<Reference> healthcareService(
+      Optional<DatamartPractitioner.PractitionerRole> maybeRole) {
+    if (maybeRole.isEmpty()) {
       return null;
     }
-    Optional<String> service = role.get().healthCareService();
+    Optional<String> service = maybeRole.get().healthCareService();
     if (isBlank(service)) {
       return null;
     }
     return List.of(Reference.builder().display(service.get()).build());
   }
 
-  private static List<Reference> locations(Optional<DatamartPractitioner.PractitionerRole> role) {
-    if (role.isEmpty()) {
+  private static List<Reference> locations(
+      Optional<DatamartPractitioner.PractitionerRole> maybeRole) {
+    if (maybeRole.isEmpty()) {
       return null;
     }
     return emptyToNull(
-        role.get().location().stream()
-            .map(loc -> R4Transformers.asReference(loc))
+        maybeRole.get().location().stream()
+            .map(loc -> asReference(loc))
             .collect(Collectors.toList()));
   }
 
-  private static Reference organization(Optional<DatamartPractitioner.PractitionerRole> role) {
-    if (role.isEmpty()) {
+  private static Reference organization(Optional<DatamartPractitioner.PractitionerRole> maybeRole) {
+    if (maybeRole.isEmpty()) {
       return null;
     }
-    return asReference(role.get().managingOrganization());
+    return asReference(maybeRole.get().managingOrganization());
   }
 
-  static Period period(Optional<DatamartPractitioner.PractitionerRole> role) {
-    if (role.isEmpty()) {
+  static Period period(Optional<DatamartPractitioner.PractitionerRole> maybeRole) {
+    if (maybeRole.isEmpty()) {
       return null;
     }
-    Optional<DatamartPractitioner.PractitionerRole.Period> period = role.get().period();
-    if (period.isEmpty()) {
+    Optional<DatamartPractitioner.PractitionerRole.Period> period = maybeRole.get().period();
+    if (period.isEmpty() || allBlank(period.get().start(), period.get().end())) {
       return null;
     }
     return Period.builder()
@@ -86,12 +89,13 @@ final class R4PractitionerRoleTransformer {
             .build());
   }
 
-  static List<CodeableConcept> specialty(Optional<DatamartPractitioner.PractitionerRole> role) {
-    if (role.isEmpty()) {
+  static List<CodeableConcept> specialty(
+      Optional<DatamartPractitioner.PractitionerRole> maybeRole) {
+    if (maybeRole.isEmpty()) {
       return null;
     }
     Set<CodeableConcept> r4specialties = new LinkedHashSet<>();
-    for (DatamartPractitioner.PractitionerRole.Specialty specialty : role.get().specialty()) {
+    for (DatamartPractitioner.PractitionerRole.Specialty specialty : maybeRole.get().specialty()) {
       if (specialty == null) {
         continue;
       }
@@ -121,6 +125,9 @@ final class R4PractitionerRoleTransformer {
   }
 
   private static ContactPoint telecom(DatamartPractitioner.Telecom telecom) {
+    if (telecom == null || isBlank(telecom)) {
+      return null;
+    }
     ContactPointSystem r4system = telecomSystem(telecom.system());
     return ContactPoint.builder().system(r4system).value(telecom.value()).build();
   }
