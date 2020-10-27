@@ -6,6 +6,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import gov.va.api.health.dataquery.service.controller.practitioner.DatamartPractitioner;
 import gov.va.api.health.dataquery.service.controller.practitioner.DatamartPractitioner.Telecom.System;
 import gov.va.api.health.dataquery.service.controller.practitioner.DatamartPractitioner.Telecom.Use;
+import gov.va.api.health.dataquery.service.controller.practitionerrole.PractitionerRoleSamples.Datamart;
+import gov.va.api.health.dataquery.service.controller.practitionerrole.PractitionerRoleSamples.R4;
 import gov.va.api.health.r4.api.datatypes.CodeableConcept;
 import gov.va.api.health.r4.api.datatypes.Coding;
 import gov.va.api.health.r4.api.datatypes.ContactPoint;
@@ -135,5 +137,15 @@ public class R4PractitionerRoleTransformerTest {
         List.of(DatamartPractitioner.Telecom.builder().system(null).value("333-333-3333").build());
     assertThat(R4PractitionerRoleTransformer.telecoms(nullSystem))
         .isEqualTo(List.of(ContactPoint.builder().system(null).value("333-333-3333").build()));
+  }
+
+  @Test
+  public void toFhir() {
+    assertThat(
+            R4PractitionerRoleTransformer.builder()
+                .datamart(Datamart.create().practitioner("999", "998", "997"))
+                .build()
+                .toFhir())
+        .isEqualTo(R4.create().practitionerRole("999", "997", "998"));
   }
 }
