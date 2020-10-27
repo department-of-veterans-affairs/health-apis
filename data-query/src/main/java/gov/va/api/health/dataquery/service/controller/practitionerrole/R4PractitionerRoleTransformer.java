@@ -16,11 +16,8 @@ import gov.va.api.health.r4.api.datatypes.Period;
 import gov.va.api.health.r4.api.elements.Reference;
 import gov.va.api.health.r4.api.resources.PractitionerRole;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.NonNull;
@@ -94,14 +91,12 @@ final class R4PractitionerRoleTransformer {
     if (maybeRole.isEmpty()) {
       return null;
     }
-    Set<CodeableConcept> r4specialties = new LinkedHashSet<>();
-    for (DatamartPractitioner.PractitionerRole.Specialty specialty : maybeRole.get().specialty()) {
-      if (specialty == null) {
-        continue;
-      }
-      r4specialties.add(specialty(specialty));
-    }
-    return emptyToNull(new ArrayList<>(r4specialties));
+    List<CodeableConcept> specialties =
+        maybeRole.get().specialty().stream()
+            .filter(s -> s != null)
+            .map(s -> specialty(s))
+            .collect(Collectors.toList());
+    return emptyToNull(specialties);
   }
 
   static CodeableConcept specialty(
@@ -155,11 +150,12 @@ final class R4PractitionerRoleTransformer {
     if (telecoms == null || telecoms.isEmpty()) {
       return null;
     }
-    Set<ContactPoint> contactPoints = new LinkedHashSet<>();
-    for (DatamartPractitioner.Telecom telecom : telecoms) {
-      contactPoints.add(telecom(telecom));
-    }
-    return emptyToNull(new ArrayList<>(contactPoints));
+    List<ContactPoint> contactPoints =
+        telecoms.stream()
+            .filter(telecom -> telecom != null)
+            .map(telecom -> telecom(telecom))
+            .collect(Collectors.toList());
+    return emptyToNull(contactPoints);
   }
 
   public PractitionerRole toFhir() {
