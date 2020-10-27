@@ -17,6 +17,7 @@ import gov.va.api.health.r4.api.elements.Reference;
 import gov.va.api.health.r4.api.resources.PractitionerRole;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.Builder;
@@ -28,7 +29,7 @@ final class R4PractitionerRoleTransformer {
 
   private static List<CodeableConcept> code(
       Optional<DatamartPractitioner.PractitionerRole> maybeRole) {
-    if (maybeRole.isEmpty()) {
+    if (isBlank(maybeRole)) {
       return null;
     }
     return List.of(asCodeableConceptWrapping(maybeRole.get().role()));
@@ -36,7 +37,7 @@ final class R4PractitionerRoleTransformer {
 
   static List<Reference> healthcareService(
       Optional<DatamartPractitioner.PractitionerRole> maybeRole) {
-    if (maybeRole.isEmpty()) {
+    if (isBlank(maybeRole)) {
       return null;
     }
     Optional<String> service = maybeRole.get().healthCareService();
@@ -48,7 +49,7 @@ final class R4PractitionerRoleTransformer {
 
   private static List<Reference> locations(
       Optional<DatamartPractitioner.PractitionerRole> maybeRole) {
-    if (maybeRole.isEmpty()) {
+    if (isBlank(maybeRole)) {
       return null;
     }
     return emptyToNull(
@@ -58,18 +59,18 @@ final class R4PractitionerRoleTransformer {
   }
 
   private static Reference organization(Optional<DatamartPractitioner.PractitionerRole> maybeRole) {
-    if (maybeRole.isEmpty()) {
+    if (isBlank(maybeRole)) {
       return null;
     }
     return asReference(maybeRole.get().managingOrganization());
   }
 
   static Period period(Optional<DatamartPractitioner.PractitionerRole> maybeRole) {
-    if (maybeRole.isEmpty()) {
+    if (isBlank(maybeRole)) {
       return null;
     }
     Optional<DatamartPractitioner.PractitionerRole.Period> period = maybeRole.get().period();
-    if (period.isEmpty() || allBlank(period.get().start(), period.get().end())) {
+    if (isBlank(period) || allBlank(period.get().start(), period.get().end())) {
       return null;
     }
     return Period.builder()
@@ -88,12 +89,12 @@ final class R4PractitionerRoleTransformer {
 
   static List<CodeableConcept> specialty(
       Optional<DatamartPractitioner.PractitionerRole> maybeRole) {
-    if (maybeRole.isEmpty()) {
+    if (isBlank(maybeRole)) {
       return null;
     }
     List<CodeableConcept> specialties =
         maybeRole.get().specialty().stream()
-            .filter(s -> s != null)
+            .filter(Objects::nonNull)
             .map(s -> specialty(s))
             .collect(Collectors.toList());
     return emptyToNull(specialties);
@@ -147,12 +148,12 @@ final class R4PractitionerRoleTransformer {
   }
 
   static List<ContactPoint> telecoms(List<DatamartPractitioner.Telecom> telecoms) {
-    if (telecoms == null || telecoms.isEmpty()) {
+    if (isBlank(telecoms)) {
       return null;
     }
     List<ContactPoint> contactPoints =
         telecoms.stream()
-            .filter(telecom -> telecom != null)
+            .filter(Objects::nonNull)
             .map(telecom -> telecom(telecom))
             .collect(Collectors.toList());
     return emptyToNull(contactPoints);
