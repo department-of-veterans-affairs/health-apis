@@ -1,6 +1,9 @@
 package gov.va.api.health.dataquery.service.config;
 
+import static gov.va.api.lighthouse.vulcan.Vulcan.useUrl;
+
 import gov.va.api.health.r4.api.resources.Resource;
+import gov.va.api.lighthouse.vulcan.VulcanConfiguration.PagingConfiguration;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,6 +13,7 @@ import lombok.experimental.Accessors;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.domain.Sort;
 
 @Configuration
 @EnableConfigurationProperties
@@ -25,6 +29,17 @@ public class LinkProperties {
   private String publicDstu2BasePath;
   private String publicStu3BasePath;
   private String publicR4BasePath;
+
+  public PagingConfiguration pagingConfiguration(String resource, Sort sorting) {
+    return PagingConfiguration.builder()
+        .baseUrlStrategy(useUrl(r4().resourceUrl(resource)))
+        .pageParameter("page")
+        .countParameter("_count")
+        .defaultCount(15) // TODO inject via properties
+        .maxCount(100) // TODO inject via properties
+        .sort(sorting)
+        .build();
+  }
 
   public Links<Resource> r4() {
     return new Links<Resource>(publicUrl, publicR4BasePath);

@@ -16,6 +16,7 @@ import gov.va.api.health.dstu2.api.elements.Extension;
 import gov.va.api.health.dstu2.api.elements.Narrative;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import gov.va.api.health.ids.client.IdEncoder.BadId;
+import gov.va.api.lighthouse.vulcan.InvalidRequest;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -175,7 +176,8 @@ public class WebExceptionHandler {
     BindException.class,
     ResourceExceptions.BadSearchParameter.class,
     ResourceExceptions.MissingSearchParameters.class,
-    UnsatisfiedServletRequestParameterException.class
+    UnsatisfiedServletRequestParameterException.class,
+    InvalidRequest.class
   })
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   public OperationOutcome handleBadRequest(Exception e, HttpServletRequest request) {
