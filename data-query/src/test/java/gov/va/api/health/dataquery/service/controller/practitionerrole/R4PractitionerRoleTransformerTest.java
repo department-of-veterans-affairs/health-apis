@@ -119,6 +119,16 @@ public class R4PractitionerRoleTransformerTest {
                 .system(System.email)
                 .value("foo@example.com")
                 .use(Use.work)
+                .build(),
+            DatamartPractitioner.Telecom.builder()
+                .system(System.fax)
+                .value("444-444-4444")
+                .use(Use.work)
+                .build(),
+            DatamartPractitioner.Telecom.builder()
+                .system(System.pager)
+                .value("5-555")
+                .use(Use.work)
                 .build());
 
     assertThat(R4PractitionerRoleTransformer.telecoms(phoneAndEmail))
@@ -131,7 +141,9 @@ public class R4PractitionerRoleTransformerTest {
                 ContactPoint.builder()
                     .system(ContactPointSystem.email)
                     .value("foo@example.com")
-                    .build()));
+                    .build(),
+                ContactPoint.builder().system(ContactPointSystem.fax).value("444-444-4444").build(),
+                ContactPoint.builder().system(ContactPointSystem.pager).value("5-555").build()));
 
     List<DatamartPractitioner.Telecom> nullSystem =
         List.of(DatamartPractitioner.Telecom.builder().system(null).value("333-333-3333").build());

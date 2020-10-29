@@ -121,7 +121,7 @@ final class R4PractitionerRoleTransformer {
   }
 
   private static ContactPoint telecom(DatamartPractitioner.Telecom telecom) {
-    if (telecom == null || isBlank(telecom)) {
+    if (isBlank(telecom)) {
       return null;
     }
     ContactPointSystem r4system = telecomSystem(telecom.system());
