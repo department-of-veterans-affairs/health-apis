@@ -2,6 +2,7 @@ package gov.va.api.health.dataquery.service.controller.diagnosticreport;
 
 import static gov.va.api.health.dataquery.service.controller.vulcanizer.Vulcanizer.transformEntityUsing;
 import static gov.va.api.lighthouse.vulcan.Rules.atLeastOneParameterOf;
+import static gov.va.api.lighthouse.vulcan.Rules.forbidUnknownParameters;
 import static gov.va.api.lighthouse.vulcan.Rules.ifParameter;
 import static gov.va.api.lighthouse.vulcan.Rules.parametersNeverSpecifiedTogether;
 import static gov.va.api.lighthouse.vulcan.Vulcan.returnNothing;
@@ -12,8 +13,6 @@ import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.diagnosticreport.DiagnosticReportEntity.CategoryCode;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedBundler;
 import gov.va.api.health.r4.api.resources.DiagnosticReport;
-import gov.va.api.health.r4.api.resources.DiagnosticReport.Bundle;
-import gov.va.api.health.r4.api.resources.DiagnosticReport.Entry;
 import gov.va.api.lighthouse.vulcan.Vulcan;
 import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
 import gov.va.api.lighthouse.vulcan.mappings.Mappings;
@@ -24,14 +23,12 @@ import java.util.Set;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Slf4j
 @Validated
 @RestController
 @SuppressWarnings("WeakerAccess")
@@ -64,23 +61,29 @@ public class VulcanizedR4DiagnosticReportController {
                 .tokenList("status", this::tokenStatusIsSupported, this::tokenStatusValues)
                 .get())
         .defaultQuery(returnNothing())
-        .rule(atLeastOneParameterOf("patient", "_id"))
-        .rule(parametersNeverSpecifiedTogether("patient", "_id"))
+        .rule(atLeastOneParameterOf("patient", "_id", "identifier"))
+        .rule(parametersNeverSpecifiedTogether("patient", "_id", "identifier"))
         .rule(ifParameter("status").thenAlsoAtLeastOneParameterOf("patient"))
+        .rule(forbidUnknownParameters())
         .build();
   }
 
+  /** Search support. */
   @GetMapping
   public DiagnosticReport.Bundle search(HttpServletRequest request) {
     return Vulcan.forRepo(repository)
         .config(configuration())
         .build()
-        .forge(request)
+        .search(request)
         .map(toBundle());
   }
 
-  private VulcanizedBundler<
-          DiagnosticReportEntity, DatamartDiagnosticReport, DiagnosticReport, Entry, Bundle>
+  VulcanizedBundler<
+          DiagnosticReportEntity,
+          DatamartDiagnosticReport,
+          DiagnosticReport,
+          DiagnosticReport.Entry,
+          DiagnosticReport.Bundle>
       toBundle() {
     return transformEntityUsing(DiagnosticReportEntity::asDatamartDiagnosticReport)
         .withWitnessProtection(witnessProtection)
@@ -88,14 +91,14 @@ public class VulcanizedR4DiagnosticReportController {
             resource -> Stream.concat(Stream.of(resource.patient()), resource.results().stream()))
         .thenTransformToResourceUsing(
             dm -> R4DiagnosticReportTransformer.builder().datamart(dm).build().toFhir())
-        .andBundleAs(Bundle::new)
-        .createEntriesUsing(Entry::new)
+        .andBundleAs(DiagnosticReport.Bundle::new)
+        .createEntriesUsing(DiagnosticReport.Entry::new)
         .withLinkProperties(linkProperties)
         .get();
   }
 
   @SuppressWarnings("RedundantIfStatement")
-  private boolean tokenCategoryIsSupported(TokenParameter token) {
+  boolean tokenCategoryIsSupported(TokenParameter token) {
     if (token.isSystemExplicitAndUnsupported(DR_CATEGORY_SYSTEM)
         || token.isCodeExplicitAndUnsupported("CH", "LAB", "MB")
         || token.hasExplicitlyNoSystem()) {
@@ -104,7 +107,7 @@ public class VulcanizedR4DiagnosticReportController {
     return true;
   }
 
-  private Collection<String> tokenCategoryValues(TokenParameter token) {
+  Collection<String> tokenCategoryValues(TokenParameter token) {
     return token
         .behavior()
         .onExplicitSystemAndExplicitCode((s, c) -> CategoryCode.forFhirCategory(c))
@@ -118,21 +121,21 @@ public class VulcanizedR4DiagnosticReportController {
         .collect(toList());
   }
 
-  private boolean tokenCodeIsSupported(TokenParameter token) {
+  boolean tokenCodeIsSupported(TokenParameter token) {
     return (token.hasSupportedCode("panel") && !token.hasExplicitlyNoSystem())
         && !token.hasExplicitSystem();
   }
 
-  private Collection<String> tokenCodeValues(TokenParameter token) {
+  Collection<String> tokenCodeValues(TokenParameter token) {
     return token.behavior().onAnySystemAndExplicitCode(List::of).build().execute();
   }
 
-  private boolean tokenStatusIsSupported(TokenParameter token) {
-    return token.hasSupportedSystem(DR_STATUS_SYSTEM)
-        || (token.hasSupportedCode("final") && !token.hasExplicitlyNoSystem());
+  boolean tokenStatusIsSupported(TokenParameter token) {
+    return token.hasSupportedCode("final")
+        && (token.hasSupportedSystem(DR_STATUS_SYSTEM) || token.hasAnySystem());
   }
 
-  private Collection<String> tokenStatusValues(TokenParameter token) {
+  Collection<String> tokenStatusValues(TokenParameter token) {
     /*
      * There are no values of status that are searchable. All diagnostic reports are "final", if the
      * token is supported, then we effectively "select all". By returning no values, the token

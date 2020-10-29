@@ -29,14 +29,20 @@ public class LinkProperties {
   private String publicDstu2BasePath;
   private String publicStu3BasePath;
   private String publicR4BasePath;
+  private int defaultPageSize;
+  private int maxPageSize;
 
+  /**
+   * Create standard page configuration for use for Vulcan based controllers. This is expecting a
+   * resource name, e.g. DiagnosticReport and sorting, which is defined on the Datamart entities.
+   */
   public PagingConfiguration pagingConfiguration(String resource, Sort sorting) {
     return PagingConfiguration.builder()
         .baseUrlStrategy(useUrl(r4().resourceUrl(resource)))
         .pageParameter("page")
         .countParameter("_count")
-        .defaultCount(15) // TODO inject via properties
-        .maxCount(100) // TODO inject via properties
+        .defaultCount(defaultPageSize)
+        .maxCount(maxPageSize)
         .sort(sorting)
         .build();
   }
