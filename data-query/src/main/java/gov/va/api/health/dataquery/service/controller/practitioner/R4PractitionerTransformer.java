@@ -43,22 +43,22 @@ public class R4PractitionerTransformer {
     return maybeBirthDate.map(LocalDate::toString).orElse(null);
   }
 
-  static List<HumanName> name(DatamartPractitioner.Name source) {
-    if (source == null
-        || allBlank(source.family(), source.given(), source.suffix(), source.prefix())) {
+  static List<HumanName> name(DatamartPractitioner.Name name) {
+    if (name == null
+        || allBlank(name.family(), name.given(), name.suffix(), name.prefix())) {
       return null;
     }
     return List.of(
         HumanName.builder()
-            .family(source.family())
-            .given(nameList(Optional.ofNullable(source.given())))
-            .suffix(nameList(source.suffix()))
-            .prefix(nameList(source.prefix()))
+            .family(name.family())
+            .given(nameList(Optional.ofNullable(name.given())))
+            .suffix(nameList(name.suffix()))
+            .prefix(nameList(name.prefix()))
             .build());
   }
 
-  static List<String> nameList(Optional<String> source) {
-    return emptyToNull(asList(source.orElse(null)));
+  static List<String> nameList(Optional<String> maybeName) {
+    return emptyToNull(asList(maybeName.orElse(null)));
   }
 
   static ContactPoint telecom(DatamartPractitioner.Telecom telecom) {
@@ -91,9 +91,9 @@ public class R4PractitionerTransformer {
         datamart.address().stream().map(adr -> address(adr)).collect(Collectors.toList()));
   }
 
-  Practitioner.GenderCode gender(DatamartPractitioner.Gender source) {
+  Practitioner.GenderCode gender(DatamartPractitioner.Gender providedGender) {
     return convert(
-        source, gender -> EnumSearcher.of(Practitioner.GenderCode.class).find(gender.toString()));
+        providedGender, gender -> EnumSearcher.of(Practitioner.GenderCode.class).find(gender.toString()));
   }
 
   List<ContactPoint> telecoms() {
