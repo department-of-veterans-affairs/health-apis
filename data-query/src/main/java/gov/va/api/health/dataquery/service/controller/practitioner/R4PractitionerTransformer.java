@@ -1,7 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.practitioner;
 
 import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
-import static gov.va.api.health.dataquery.service.controller.Transformers.convert;
 import static gov.va.api.health.dataquery.service.controller.Transformers.emptyToNull;
 import static java.util.Arrays.asList;
 
@@ -44,21 +43,16 @@ public class R4PractitionerTransformer {
   }
 
   static List<HumanName> name(DatamartPractitioner.Name name) {
-    if (name == null
-        || allBlank(name.family(), name.given(), name.suffix(), name.prefix())) {
+    if (name == null || allBlank(name.family(), name.given(), name.suffix(), name.prefix())) {
       return null;
     }
     return List.of(
         HumanName.builder()
             .family(name.family())
-            .given(nameList(Optional.ofNullable(name.given())))
-            .suffix(nameList(name.suffix()))
-            .prefix(nameList(name.prefix()))
+            .given(emptyToNull(asList(name.given())))
+            .suffix(emptyToNull(asList(name.suffix().orElse(null))))
+            .prefix(emptyToNull(asList(name.prefix().orElse(null))))
             .build());
-  }
-
-  static List<String> nameList(Optional<String> maybeName) {
-    return emptyToNull(asList(maybeName.orElse(null)));
   }
 
   static ContactPoint telecom(DatamartPractitioner.Telecom telecom) {
@@ -92,8 +86,10 @@ public class R4PractitionerTransformer {
   }
 
   Practitioner.GenderCode gender(DatamartPractitioner.Gender providedGender) {
-    return convert(
-        providedGender, gender -> EnumSearcher.of(Practitioner.GenderCode.class).find(gender.toString()));
+    if (providedGender == null) {
+      return null;
+    }
+    return EnumSearcher.of(Practitioner.GenderCode.class).find(providedGender.toString());
   }
 
   List<ContactPoint> telecoms() {
