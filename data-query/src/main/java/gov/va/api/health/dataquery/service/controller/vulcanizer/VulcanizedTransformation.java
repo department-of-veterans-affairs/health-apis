@@ -39,7 +39,7 @@ public class VulcanizedTransformation<EntityT, DatamartT extends HasReplaceableI
 
   /** Updates references inline of the given record. Returns the same object as passed in. */
   public <T extends Collection<DatamartT>> T applyWitnessProtection(T datamartRecords) {
-    witnessProtection.registerAndUpdateReferences(datamartRecords, replaceReferences);
+    witnessProtection().registerAndUpdateReferences(datamartRecords, replaceReferences());
     return datamartRecords;
   }
 

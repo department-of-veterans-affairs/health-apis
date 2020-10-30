@@ -53,7 +53,7 @@ public class VulcanizedBundler<
     BundleT bundle = bundling.newBundle().get();
     bundle.resourceType("Bundle");
     bundle.type(AbstractBundle.BundleType.searchset);
-    bundle.total((int) result.paging().totalRecords()); // TODO make totalRecords int
+    bundle.total((int) result.paging().totalRecords());
     bundle.link(toLinks(result.paging()));
     bundle.entry(entries);
     return bundle;
@@ -71,7 +71,7 @@ public class VulcanizedBundler<
     return url -> BundleLink.builder().relation(relation).url(url).build();
   }
 
-  private List<BundleLink> toLinks(Paging paging) {
+  List<BundleLink> toLinks(Paging paging) {
     List<BundleLink> links = new ArrayList<>(5);
     paging.firstPageUrl().map(toLink(LinkRelation.first)).ifPresent(links::add);
     paging.previousPageUrl().map(toLink(LinkRelation.prev)).ifPresent(links::add);
