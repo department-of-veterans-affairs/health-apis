@@ -2,10 +2,12 @@ package gov.va.api.health.dataquery.service.controller.diagnosticreport;
 
 import static gov.va.api.health.dataquery.service.controller.MockRequests.paging;
 import static gov.va.api.health.dataquery.service.controller.MockRequests.requestFromUri;
+import static gov.va.api.health.dataquery.service.controller.diagnosticreport.DiagnosticReportSamples.id;
 import static gov.va.api.health.dataquery.service.controller.diagnosticreport.DiagnosticReportSamples.registration;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.google.common.base.Splitter;
@@ -19,7 +21,9 @@ import gov.va.api.lighthouse.vulcan.InvalidRequest;
 import gov.va.api.lighthouse.vulcan.VulcanResult;
 import gov.va.api.lighthouse.vulcan.mappings.TokenParameter;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
+import javax.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -68,6 +72,26 @@ class VulcanizedR4DiagnosticReportControllerTest {
   void invalidRequests(String query) {
     var r = requestFromUri("http://fonzy.com/r4/DiagnosticReport" + query);
     assertThatExceptionOfType(InvalidRequest.class).isThrownBy(() -> controller().search(r));
+  }
+
+  @Test
+  void read() {
+    when(ids.register(any())).thenReturn(List.of(registration("dr1", "pdr1")));
+    when(ids.lookup("pdr1")).thenReturn(List.of(id("dr1")));
+    DiagnosticReportEntity entity = DatamartV2.create().entity("dr1", "p1");
+    when(repository.findById("dr1")).thenReturn(Optional.of(entity));
+    assertThat(controller().read("pdr1"))
+        .isEqualTo(DiagnosticReportSamples.R4.create().diagnosticReport("pdr1", "p1"));
+  }
+
+  @Test
+  void readRaw() {
+    HttpServletResponse response = mock(HttpServletResponse.class);
+    when(ids.lookup("pdr1")).thenReturn(List.of(id("dr1")));
+    DiagnosticReportEntity entity =
+        DiagnosticReportEntity.builder().icn("p1").payload("payload!").build();
+    when(repository.findById("dr1")).thenReturn(Optional.of(entity));
+    assertThat(controller().readRaw("pdr1", response)).isEqualTo("payload!");
   }
 
   @Test

@@ -25,22 +25,21 @@ import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class DiagnosticReportSamples {
+  public static ResourceIdentity id(String cdwId) {
+    return ResourceIdentity.builder()
+        .system("CDW")
+        .resource("DIAGNOSTIC_REPORT")
+        .identifier(cdwId)
+        .build();
+  }
+
   @SneakyThrows
   static String json(Object o) {
     return JacksonConfig.createMapper().writerWithDefaultPrettyPrinter().writeValueAsString(o);
   }
 
   public static Registration registration(String cdwId, String publicId) {
-    ResourceIdentity resourceIdentity =
-        ResourceIdentity.builder()
-            .system("CDW")
-            .resource("DIAGNOSTIC_REPORT")
-            .identifier(cdwId)
-            .build();
-    return Registration.builder()
-        .uuid(publicId)
-        .resourceIdentities(List.of(resourceIdentity))
-        .build();
+    return Registration.builder().uuid(publicId).resourceIdentities(List.of(id(cdwId))).build();
   }
 
   @Builder
