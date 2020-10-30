@@ -5,6 +5,10 @@ import static java.util.Arrays.asList;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dataquery.service.controller.practitioner.DatamartPractitioner;
+import gov.va.api.health.r4.api.bundle.AbstractBundle.BundleType;
+import gov.va.api.health.r4.api.bundle.AbstractEntry.SearchMode;
+import gov.va.api.health.r4.api.datatypes.ContactPoint;
+import gov.va.api.health.r4.api.datatypes.ContactPoint.ContactPointSystem;
 import gov.va.api.health.stu3.api.bundle.AbstractBundle;
 import gov.va.api.health.stu3.api.bundle.AbstractEntry;
 import gov.va.api.health.stu3.api.bundle.BundleLink;
@@ -208,6 +212,142 @@ public class PractitionerRoleSamples {
                       .display("CHEY MEDICAL")
                       .build()))
           .healthcareService(asList(Reference.builder().display("MEDICAL SERVICE").build()))
+          .build();
+    }
+  }
+
+  @AllArgsConstructor(staticName = "create")
+  public static class R4 {
+    static gov.va.api.health.r4.api.resources.PractitionerRole.Bundle asBundle(
+        String basePath,
+        Collection<gov.va.api.health.r4.api.resources.PractitionerRole> records,
+        gov.va.api.health.r4.api.bundle.BundleLink... links) {
+      return gov.va.api.health.r4.api.resources.PractitionerRole.Bundle.builder()
+          .resourceType("Bundle")
+          .type(BundleType.searchset)
+          .total(records.size())
+          .link(asList(links))
+          .entry(
+              records.stream()
+                  .map(
+                      c ->
+                          gov.va.api.health.r4.api.resources.PractitionerRole.Entry.builder()
+                              .fullUrl(basePath + "/PractitionerRole/" + c.id())
+                              .resource(c)
+                              .search(
+                                  gov.va.api.health.r4.api.bundle.AbstractEntry.Search.builder()
+                                      .mode(SearchMode.match)
+                                      .build())
+                              .build())
+                  .collect(Collectors.toList()))
+          .build();
+    }
+
+    static gov.va.api.health.r4.api.bundle.BundleLink link(
+        gov.va.api.health.r4.api.bundle.BundleLink.LinkRelation relation,
+        String base,
+        int page,
+        int count) {
+      return gov.va.api.health.r4.api.bundle.BundleLink.builder()
+          .relation(relation)
+          .url(base + "&page=" + page + "&_count=" + count)
+          .build();
+    }
+
+    public gov.va.api.health.r4.api.resources.PractitionerRole practitionerRole(
+        String pubId, String pubOrgId, String pubLocId) {
+      return gov.va.api.health.r4.api.resources.PractitionerRole.builder()
+          .resourceType("PractitionerRole")
+          .id("999")
+          .period(gov.va.api.health.r4.api.datatypes.Period.builder().start("1988-08-19").build())
+          .practitioner(
+              gov.va.api.health.r4.api.elements.Reference.builder()
+                  .reference("Practitioner/" + pubId)
+                  .build())
+          .active(true)
+          .organization(
+              gov.va.api.health.r4.api.elements.Reference.builder()
+                  .reference("Organization/" + pubOrgId)
+                  .display("CHEYENNE VA MEDICAL")
+                  .build())
+          .code(
+              asList(
+                  gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()
+                      .coding(
+                          asList(
+                              gov.va.api.health.r4.api.datatypes.Coding.builder()
+                                  .system("rpcmm")
+                                  .code("37")
+                                  .display("PSYCHOLOGIST")
+                                  .build()))
+                      .build()))
+          .specialty(
+              asList(
+                  gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()
+                      .coding(
+                          asList(
+                              gov.va.api.health.r4.api.datatypes.Coding.builder()
+                                  .system("http://nucc.org/provider-taxonomy")
+                                  .code("V111500")
+                                  .build()))
+                      .build(),
+                  gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()
+                      .coding(
+                          asList(
+                              gov.va.api.health.r4.api.datatypes.Coding.builder()
+                                  .system("http://nucc.org/provider-taxonomy")
+                                  .code("V111000")
+                                  .build()))
+                      .build(),
+                  gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()
+                      .coding(
+                          asList(
+                              gov.va.api.health.r4.api.datatypes.Coding.builder()
+                                  .system("http://nucc.org/provider-taxonomy")
+                                  .code("V110900")
+                                  .build()))
+                      .build(),
+                  gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()
+                      .coding(
+                          asList(
+                              gov.va.api.health.r4.api.datatypes.Coding.builder()
+                                  .system("http://nucc.org/provider-taxonomy")
+                                  .code("207Q00000X")
+                                  .build()))
+                      .build()))
+          .location(
+              asList(
+                  gov.va.api.health.r4.api.elements.Reference.builder()
+                      .reference("Location/" + pubLocId)
+                      .display("CHEY MEDICAL")
+                      .build()))
+          .telecom(
+              asList(
+                  ContactPoint.builder()
+                      .system(ContactPointSystem.phone)
+                      .value("123-456-7890")
+                      .build(),
+                  ContactPoint.builder()
+                      .system(ContactPointSystem.phone)
+                      .value("111-222-3333")
+                      .build(),
+                  ContactPoint.builder()
+                      .system(ContactPointSystem.pager)
+                      .value("444-555-6666")
+                      .build(),
+                  ContactPoint.builder()
+                      .system(ContactPointSystem.fax)
+                      .value("777-888-9999")
+                      .build(),
+                  ContactPoint.builder()
+                      .system(ContactPointSystem.email)
+                      .value("bob.nelson@www.creedthoughts.gov.www/creedthoughts")
+                      .build()))
+          .healthcareService(
+              asList(
+                  gov.va.api.health.r4.api.elements.Reference.builder()
+                      .display("MEDICAL SERVICE")
+                      .build()))
           .build();
     }
   }
