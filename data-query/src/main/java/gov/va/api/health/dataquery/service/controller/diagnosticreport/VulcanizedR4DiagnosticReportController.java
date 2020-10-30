@@ -10,10 +10,10 @@ import static java.util.stream.Collectors.toList;
 import gov.va.api.health.dataquery.service.config.LinkProperties;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.diagnosticreport.DiagnosticReportEntity.CategoryCode;
-import gov.va.api.health.dataquery.service.controller.vulcanizer.Vulcanized;
-import gov.va.api.health.dataquery.service.controller.vulcanizer.Vulcanized.ResourceTransformation;
+import gov.va.api.health.dataquery.service.controller.vulcanizer.Bundling;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedBundler;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedReader;
+import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedTransformation;
 import gov.va.api.health.r4.api.resources.DiagnosticReport;
 import gov.va.api.lighthouse.vulcan.Vulcan;
 import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
@@ -21,6 +21,7 @@ import gov.va.api.lighthouse.vulcan.mappings.Mappings;
 import gov.va.api.lighthouse.vulcan.mappings.TokenParameter;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
@@ -101,11 +102,13 @@ public class VulcanizedR4DiagnosticReportController {
           DiagnosticReport.Entry,
           DiagnosticReport.Bundle>
       toBundle() {
-    return vulcanize()
-        .andBundleAs(DiagnosticReport.Bundle::new)
-        .createEntriesUsing(DiagnosticReport.Entry::new)
-        .withLinkProperties(linkProperties)
-        .get();
+    return VulcanizedBundler.forTransformation(transformation())
+        .bundling(
+            Bundling.newBundle(DiagnosticReport.Bundle::new)
+                .newEntry(DiagnosticReport.Entry::new)
+                .linkProperties(linkProperties)
+                .build())
+        .build();
   }
 
   @SuppressWarnings("RedundantIfStatement")
@@ -156,23 +159,22 @@ public class VulcanizedR4DiagnosticReportController {
     return List.of();
   }
 
-  private ResourceTransformation<DiagnosticReportEntity, DatamartDiagnosticReport, DiagnosticReport>
-      vulcanize() {
-    return Vulcanized.resource()
-        .transformEntityUsing(DiagnosticReportEntity::asDatamartDiagnosticReport)
-        .withWitnessProtection(witnessProtection)
-        .replacingReferences(
+  VulcanizedTransformation<DiagnosticReportEntity, DatamartDiagnosticReport, DiagnosticReport>
+      transformation() {
+    return VulcanizedTransformation.toDatamart(DiagnosticReportEntity::asDatamartDiagnosticReport)
+        .toResource(dm -> R4DiagnosticReportTransformer.builder().datamart(dm).build().toFhir())
+        .witnessProtection(witnessProtection)
+        .replaceReferences(
             resource -> Stream.concat(Stream.of(resource.patient()), resource.results().stream()))
-        .thenTransformToResourceUsing(
-            dm -> R4DiagnosticReportTransformer.builder().datamart(dm).build().toFhir());
+        .build();
   }
 
-  public VulcanizedReader<DiagnosticReportEntity, DatamartDiagnosticReport, DiagnosticReport>
+  VulcanizedReader<DiagnosticReportEntity, DatamartDiagnosticReport, DiagnosticReport>
       vulcanizedReader() {
-    return vulcanize()
-        .andReadFromRepository(repository)
-        .extractPatientIdUsing(DiagnosticReportEntity::icn)
-        .extractPayloadUsing(DiagnosticReportEntity::payload)
-        .get();
+    return VulcanizedReader.forTransformation(transformation())
+        .repository(repository)
+        .toPatientId(e -> Optional.of(e.icn()))
+        .toPayload(DiagnosticReportEntity::payload)
+        .build();
   }
 }
