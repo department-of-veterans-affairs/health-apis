@@ -25,6 +25,10 @@ import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class DiagnosticReportSamples {
+  @SneakyThrows
+  static String json(Object o) {
+    return JacksonConfig.createMapper().writerWithDefaultPrettyPrinter().writeValueAsString(o);
+  }
 
   public static Registration registration(String cdwId, String publicId) {
     ResourceIdentity resourceIdentity =
@@ -37,11 +41,6 @@ public class DiagnosticReportSamples {
         .uuid(publicId)
         .resourceIdentities(List.of(resourceIdentity))
         .build();
-  }
-
-  @SneakyThrows
-  static String json(Object o) {
-    return JacksonConfig.createMapper().writerWithDefaultPrettyPrinter().writeValueAsString(o);
   }
 
   @Builder
@@ -107,7 +106,6 @@ public class DiagnosticReportSamples {
 
   @AllArgsConstructor(staticName = "create")
   public static class DatamartV2 {
-
     public Optional<DatamartReference> accessionInstitution() {
       String performer = "655775";
       String performerDisplay = "MANILA-RO";

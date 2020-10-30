@@ -7,17 +7,18 @@ import gov.va.api.health.dataquery.service.controller.datamart.HasReplaceableId;
 import gov.va.api.health.r4.api.bundle.AbstractBundle;
 import gov.va.api.health.r4.api.bundle.AbstractEntry;
 import gov.va.api.health.r4.api.resources.Resource;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.repository.CrudRepository;
 
-public class Vulcanizer {
+public class Vulcanized {
 
-  public static <E, D extends HasReplaceableId> DatamartTransformation<E, D> transformEntityUsing(
-      Function<E, D> toDatamart) {
-    return new DatamartTransformation<E, D>().toDatamart(toDatamart);
+  public static StemCell resource() {
+    return new StemCell();
   }
 
   @RequiredArgsConstructor
@@ -69,6 +70,39 @@ public class Vulcanizer {
 
   @RequiredArgsConstructor
   @Setter
+  public static class ReadFrom<
+          EntityT, DatamartT extends HasReplaceableId, ResourceT extends Resource>
+      implements Supplier<VulcanizedReader<EntityT, DatamartT, ResourceT>> {
+
+    private final ResourceTransformation<EntityT, DatamartT, ResourceT> resourceTransformation;
+
+    CrudRepository<EntityT, String> repository;
+
+    Function<EntityT, Optional<String>> extractOptionalPatientIdUsing;
+    Function<EntityT, String> extractPayloadUsing;
+
+    public ReadFrom<EntityT, DatamartT, ResourceT> extractPatientIdUsing(
+        Function<EntityT, String> function) {
+      extractOptionalPatientIdUsing = entity -> Optional.ofNullable(function.apply(entity));
+      return this;
+    }
+
+    @Override
+    public VulcanizedReader<EntityT, DatamartT, ResourceT> get() {
+      return VulcanizedReader.<EntityT, DatamartT, ResourceT>builder()
+          .witnessProtection(resourceTransformation.databaseTransformation.withWitnessProtection)
+          .toDatamart(resourceTransformation.databaseTransformation.toDatamart)
+          .replaceReferences(resourceTransformation.databaseTransformation.replacingReferences)
+          .toResource(resourceTransformation.toResource)
+          .repository(repository)
+          .toPatientId(extractOptionalPatientIdUsing)
+          .toPayload(extractPayloadUsing)
+          .build();
+    }
+  }
+
+  @RequiredArgsConstructor
+  @Setter
   public static class ResourceTransformation<
       EntityT, DatamartT extends HasReplaceableId, ResourceT extends Resource> {
 
@@ -81,6 +115,18 @@ public class Vulcanizer {
             Supplier<BundleT> newBundle) {
       return new BundleCreation<EntityT, DatamartT, ResourceT, EntryT, BundleT>(this)
           .newBundle(newBundle);
+    }
+
+    public ReadFrom<EntityT, DatamartT, ResourceT> andReadFromRepository(
+        CrudRepository<EntityT, String> repository) {
+      return new ReadFrom<>(this).repository(repository);
+    }
+  }
+
+  public static class StemCell {
+    public <E, D extends HasReplaceableId> DatamartTransformation<E, D> transformEntityUsing(
+        Function<E, D> toDatamart) {
+      return new DatamartTransformation<E, D>().toDatamart(toDatamart);
     }
   }
 }

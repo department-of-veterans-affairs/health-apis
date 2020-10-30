@@ -29,19 +29,13 @@ public class VulcanizedBundler<
         BundleT extends AbstractBundle<EntryT>>
     implements Function<VulcanResult<EntityT>, BundleT> {
 
-  WitnessProtection witnessProtection;
-
   Function<EntityT, DatamartT> toDatamart;
-
+  WitnessProtection witnessProtection;
   Function<DatamartT, Stream<DatamartReference>> replaceReferences;
-
-  LinkProperties linkProperties;
-
-  Supplier<BundleT> newBundle;
-
-  Supplier<EntryT> newEntry;
-
   Function<DatamartT, ResourceT> toResource;
+  Supplier<BundleT> newBundle;
+  Supplier<EntryT> newEntry;
+  LinkProperties linkProperties;
 
   @Override
   public BundleT apply(VulcanResult<EntityT> result) {

@@ -1,6 +1,5 @@
 package gov.va.api.health.dataquery.service.controller.diagnosticreport;
 
-import static gov.va.api.health.dataquery.service.controller.vulcanizer.Vulcanizer.transformEntityUsing;
 import static gov.va.api.lighthouse.vulcan.Rules.atLeastOneParameterOf;
 import static gov.va.api.lighthouse.vulcan.Rules.forbidUnknownParameters;
 import static gov.va.api.lighthouse.vulcan.Rules.ifParameter;
@@ -11,7 +10,10 @@ import static java.util.stream.Collectors.toList;
 import gov.va.api.health.dataquery.service.config.LinkProperties;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.diagnosticreport.DiagnosticReportEntity.CategoryCode;
+import gov.va.api.health.dataquery.service.controller.vulcanizer.Vulcanized;
+import gov.va.api.health.dataquery.service.controller.vulcanizer.Vulcanized.ResourceTransformation;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedBundler;
+import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedReader;
 import gov.va.api.health.r4.api.resources.DiagnosticReport;
 import gov.va.api.lighthouse.vulcan.Vulcan;
 import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
@@ -22,10 +24,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -68,6 +72,18 @@ public class VulcanizedR4DiagnosticReportController {
         .build();
   }
 
+  @GetMapping(value = "/{publicId}")
+  public DiagnosticReport read(@PathVariable("publicId") String publicId) {
+    return vulcanizedReader().read(publicId);
+  }
+
+  @GetMapping(
+      value = {"/{publicId}"},
+      headers = {"raw=true"})
+  public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
+    return vulcanizedReader().readRaw(publicId, response);
+  }
+
   /** Search support. */
   @GetMapping
   public DiagnosticReport.Bundle search(HttpServletRequest request) {
@@ -85,12 +101,7 @@ public class VulcanizedR4DiagnosticReportController {
           DiagnosticReport.Entry,
           DiagnosticReport.Bundle>
       toBundle() {
-    return transformEntityUsing(DiagnosticReportEntity::asDatamartDiagnosticReport)
-        .withWitnessProtection(witnessProtection)
-        .replacingReferences(
-            resource -> Stream.concat(Stream.of(resource.patient()), resource.results().stream()))
-        .thenTransformToResourceUsing(
-            dm -> R4DiagnosticReportTransformer.builder().datamart(dm).build().toFhir())
+    return vulcanize()
         .andBundleAs(DiagnosticReport.Bundle::new)
         .createEntriesUsing(DiagnosticReport.Entry::new)
         .withLinkProperties(linkProperties)
@@ -143,5 +154,25 @@ public class VulcanizedR4DiagnosticReportController {
      * clause to find all records for this patient.
      */
     return List.of();
+  }
+
+  private ResourceTransformation<DiagnosticReportEntity, DatamartDiagnosticReport, DiagnosticReport>
+      vulcanize() {
+    return Vulcanized.resource()
+        .transformEntityUsing(DiagnosticReportEntity::asDatamartDiagnosticReport)
+        .withWitnessProtection(witnessProtection)
+        .replacingReferences(
+            resource -> Stream.concat(Stream.of(resource.patient()), resource.results().stream()))
+        .thenTransformToResourceUsing(
+            dm -> R4DiagnosticReportTransformer.builder().datamart(dm).build().toFhir());
+  }
+
+  public VulcanizedReader<DiagnosticReportEntity, DatamartDiagnosticReport, DiagnosticReport>
+      vulcanizedReader() {
+    return vulcanize()
+        .andReadFromRepository(repository)
+        .extractPatientIdUsing(DiagnosticReportEntity::icn)
+        .extractPayloadUsing(DiagnosticReportEntity::payload)
+        .get();
   }
 }
