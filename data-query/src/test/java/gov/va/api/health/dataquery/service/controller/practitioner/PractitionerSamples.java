@@ -223,7 +223,7 @@ public class PractitionerSamples {
     }
 
     public gov.va.api.health.stu3.api.resources.Practitioner practitioner() {
-      return practitioner("12345");
+      return practitioner("1234");
     }
 
     public gov.va.api.health.stu3.api.resources.Practitioner practitioner(String id) {
@@ -268,7 +268,7 @@ public class PractitionerSamples {
   @AllArgsConstructor(staticName = "create")
   public static class R4 {
     public Practitioner practitioner() {
-      return practitioner("12345");
+      return practitioner("1234");
     }
 
     public Practitioner practitioner(String id) {
@@ -277,9 +277,9 @@ public class PractitionerSamples {
           .id(id)
           .identifier(null)
           .active(true)
-          .name(List.of(HumanName.builder().family("Smith").given(List.of("John")).build()))
+          .name(List.of(HumanName.builder().family("Joe").given(List.of("Johnson")).build()))
           .gender(Practitioner.GenderCode.male)
-          .birthDate("1976-07-04")
+          .birthDate("1970-11-14")
           .address(
               List.of(
                   Address.builder()

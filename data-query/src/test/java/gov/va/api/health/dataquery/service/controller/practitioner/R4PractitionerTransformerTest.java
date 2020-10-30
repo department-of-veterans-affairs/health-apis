@@ -7,7 +7,6 @@ import gov.va.api.health.r4.api.datatypes.Address;
 import gov.va.api.health.r4.api.datatypes.ContactPoint;
 import gov.va.api.health.r4.api.datatypes.HumanName;
 import gov.va.api.health.r4.api.resources.Practitioner;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
@@ -103,33 +102,7 @@ public class R4PractitionerTransformerTest {
   public void toFhir() {
     assertThat(
             R4PractitionerTransformer.builder()
-                .datamart(
-                    DatamartPractitioner.builder()
-                        .cdwId("12345")
-                        .active(true)
-                        .name(
-                            DatamartPractitioner.Name.builder()
-                                .given("John")
-                                .family("Smith")
-                                .build())
-                        .gender(DatamartPractitioner.Gender.male)
-                        .birthDate(Optional.of(LocalDate.of(1976, 07, 04)))
-                        .address(
-                            List.of(
-                                DatamartPractitioner.Address.builder()
-                                    .line1("111 MacGyver Viaduct")
-                                    .city("Anchorage")
-                                    .state("Alaska")
-                                    .postalCode("99501")
-                                    .build()))
-                        .telecom(
-                            List.of(
-                                DatamartPractitioner.Telecom.builder()
-                                    .use(DatamartPractitioner.Telecom.Use.mobile)
-                                    .value("123-456-1234")
-                                    .system(DatamartPractitioner.Telecom.System.phone)
-                                    .build()))
-                        .build())
+                .datamart(PractitionerSamples.Datamart.create().practitioner())
                 .build()
                 .toFhir())
         .isEqualTo(PractitionerSamples.R4.create().practitioner());
