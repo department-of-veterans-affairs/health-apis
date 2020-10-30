@@ -5,6 +5,10 @@ import static java.util.Collections.singletonList;
 
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
+import gov.va.api.health.r4.api.datatypes.Address;
+import gov.va.api.health.r4.api.datatypes.ContactPoint;
+import gov.va.api.health.r4.api.datatypes.HumanName;
+import gov.va.api.health.r4.api.resources.Practitioner;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
@@ -256,6 +260,40 @@ public class PractitionerSamples {
                       .system(
                           gov.va.api.health.stu3.api.datatypes.ContactPoint.ContactPointSystem
                               .phone)
+                      .build()))
+          .build();
+    }
+  }
+
+  @AllArgsConstructor(staticName = "create")
+  public static class R4 {
+    public Practitioner practitioner() {
+      return practitioner("1234");
+    }
+
+    public Practitioner practitioner(String id) {
+      return Practitioner.builder()
+          .resourceType("Practitioner")
+          .id(id)
+          .identifier(null)
+          .active(true)
+          .name(List.of(HumanName.builder().family("Joe").given(List.of("Johnson")).build()))
+          .gender(Practitioner.GenderCode.male)
+          .birthDate("1970-11-14")
+          .address(
+              List.of(
+                  Address.builder()
+                      .line(List.of("111 MacGyver Viaduct"))
+                      .city("Anchorage")
+                      .state("Alaska")
+                      .postalCode("99501")
+                      .build()))
+          .telecom(
+              List.of(
+                  ContactPoint.builder()
+                      .use(ContactPoint.ContactPointUse.mobile)
+                      .value("123-456-1234")
+                      .system(ContactPoint.ContactPointSystem.phone)
                       .build()))
           .build();
     }
