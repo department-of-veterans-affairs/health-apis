@@ -5,10 +5,14 @@ import static gov.va.api.health.dataquery.service.controller.Transformers.parseI
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 
+import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dataquery.service.controller.diagnosticreport.v1.DatamartDiagnosticReports;
 import gov.va.api.health.dataquery.service.controller.diagnosticreport.v1.DiagnosticReportCrossEntity;
 import gov.va.api.health.dataquery.service.controller.diagnosticreport.v1.DiagnosticReportsEntity;
+import gov.va.api.health.ids.api.Registration;
+import gov.va.api.health.ids.api.ResourceIdentity;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -21,6 +25,23 @@ import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class DiagnosticReportSamples {
+  public static ResourceIdentity id(String cdwId) {
+    return ResourceIdentity.builder()
+        .system("CDW")
+        .resource("DIAGNOSTIC_REPORT")
+        .identifier(cdwId)
+        .build();
+  }
+
+  @SneakyThrows
+  static String json(Object o) {
+    return JacksonConfig.createMapper().writerWithDefaultPrettyPrinter().writeValueAsString(o);
+  }
+
+  public static Registration registration(String cdwId, String publicId) {
+    return Registration.builder().uuid(publicId).resourceIdentities(List.of(id(cdwId))).build();
+  }
+
   @Builder
   public static class DatamartV1 {
     @Builder.Default String icn = "1011537977V693883";
@@ -111,6 +132,21 @@ public class DiagnosticReportSamples {
           .effectiveDateTime(effectiveDateTime)
           .issuedDateTime(issuedDate)
           .results(results())
+          .build();
+    }
+
+    public DiagnosticReportEntity entity(String cdwId, String patientIcn) {
+      return entity(diagnosticReport(cdwId, patientIcn));
+    }
+
+    @SneakyThrows
+    public DiagnosticReportEntity entity(DatamartDiagnosticReport dm) {
+      return DiagnosticReportEntity.builder()
+          .cdwId(dm.cdwId())
+          .icn(dm.patient().reference().orElse(null))
+          .category("CH")
+          .dateUtc(Instant.parse(dm.issuedDateTime()))
+          .payload(json(dm))
           .build();
     }
 
@@ -287,6 +323,11 @@ public class DiagnosticReportSamples {
 
     public gov.va.api.health.r4.api.resources.DiagnosticReport diagnosticReport(String publicId) {
       String icn = "1011537977V693883";
+      return diagnosticReport(publicId, icn);
+    }
+
+    public gov.va.api.health.r4.api.resources.DiagnosticReport diagnosticReport(
+        String publicId, String icn) {
       String issuedDateTime = "2009-09-24T03:36:35Z";
       return diagnosticReport(publicId, icn, issuedDateTime);
     }

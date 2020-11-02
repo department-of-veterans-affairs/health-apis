@@ -27,8 +27,8 @@ public class FhirMediaTypesConfig implements WebMvcConfigurer {
   private final int defaultCount;
 
   public FhirMediaTypesConfig(
-      @Value("${count-parameter.max-count:20}") int maxCount,
-      @Value("${count-parameter.default-count:15}") int defaultCount) {
+      @Value("${data-query.max-page-size:20}") int maxCount,
+      @Value("${data-query.default-page-size:15}") int defaultCount) {
     this.maxCount = maxCount;
     this.defaultCount = defaultCount;
   }

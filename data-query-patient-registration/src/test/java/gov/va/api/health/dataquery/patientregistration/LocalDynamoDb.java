@@ -43,7 +43,7 @@ public class LocalDynamoDb implements AutoCloseable {
 
   public static LocalDynamoDb startDefault() {
     return LocalDynamoDb.builder()
-        .port(8001)
+        .port(8947)
         .tableName("patient-registration-local")
         .build()
         .start();
