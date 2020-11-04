@@ -3,8 +3,14 @@ package gov.va.api.health.dataquery.service.controller.practitioner;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 
+import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
+import gov.va.api.health.ids.api.Registration;
+import gov.va.api.health.ids.api.ResourceIdentity;
+import gov.va.api.health.r4.api.bundle.AbstractBundle;
+import gov.va.api.health.r4.api.bundle.AbstractEntry;
+import gov.va.api.health.r4.api.bundle.BundleLink;
 import gov.va.api.health.r4.api.datatypes.Address;
 import gov.va.api.health.r4.api.datatypes.ContactPoint;
 import gov.va.api.health.r4.api.datatypes.HumanName;
@@ -15,12 +21,43 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class PractitionerSamples {
+
+  public static ResourceIdentity id(String cdwId) {
+    return ResourceIdentity.builder()
+        .system("CDW")
+        .resource("PRACTITIONER")
+        .identifier(cdwId)
+        .build();
+  }
+
+  @SneakyThrows
+  static String json(Object o) {
+    return JacksonConfig.createMapper().writerWithDefaultPrettyPrinter().writeValueAsString(o);
+  }
+
+  public static Registration registration(String cdwId, String publicId) {
+    return Registration.builder().uuid(publicId).resourceIdentities(List.of(id(cdwId))).build();
+  }
+
   @AllArgsConstructor(staticName = "create")
   static class Datamart {
+
+    @SneakyThrows
+    public PractitionerEntity entity(String cdwId, String locCdwId, String orgCdwId) {
+      DatamartPractitioner dm = practitioner(cdwId);
+      return PractitionerEntity.builder()
+          .cdwId(cdwId)
+          .familyName("Joe")
+          .givenName("Johnson")
+          .payload(json(dm))
+          .build();
+    }
+
     public DatamartPractitioner practitioner() {
       return practitioner("1234");
     }
@@ -267,6 +304,45 @@ public class PractitionerSamples {
 
   @AllArgsConstructor(staticName = "create")
   public static class R4 {
+
+    static Practitioner.Bundle asBundle(
+        String basePath, Collection<Practitioner> practitioners, BundleLink... links) {
+      return asBundle(basePath, practitioners, practitioners.size(), links);
+    }
+
+    static Practitioner.Bundle asBundle(
+        String basePath,
+        Collection<Practitioner> practitioners,
+        int totalRecords,
+        BundleLink... links) {
+      return Practitioner.Bundle.builder()
+          .resourceType("Bundle")
+          .type(AbstractBundle.BundleType.searchset)
+          .total(totalRecords)
+          .link(asList(links))
+          .entry(
+              practitioners.stream()
+                  .map(
+                      c ->
+                          Practitioner.Entry.builder()
+                              .fullUrl(basePath + "/Practitioner/" + c.id())
+                              .resource(c)
+                              .search(
+                                  AbstractEntry.Search.builder()
+                                      .mode(AbstractEntry.SearchMode.match)
+                                      .build())
+                              .build())
+                  .collect(Collectors.toList()))
+          .build();
+    }
+
+    static BundleLink link(BundleLink.LinkRelation rel, String base, int page, int count) {
+      return BundleLink.builder()
+          .relation(rel)
+          .url(base + "&page=" + page + "&_count=" + count)
+          .build();
+    }
+
     public Practitioner practitioner() {
       return practitioner("1234");
     }
