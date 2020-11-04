@@ -57,7 +57,14 @@ public class R4PractitionerRoleControllerTest {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {"", "?practitioner.identifier=123&practitioner.name=Foo"})
+  @ValueSource(
+      strings = {
+        "",
+        "?practitioner.identifier=123&practitioner.name=Foo",
+        "?identifier=123&practitioner.identifier=123",
+        "?_id=123&identifier=123",
+        "?identifier=123&practitioner.name=Foo"
+      })
   @SneakyThrows
   public void invalidRequests(String query) {
     var r = requestFromUri("http://fonzy.com/r4/PractitionerRole" + query);
@@ -147,22 +154,24 @@ public class R4PractitionerRoleControllerTest {
   @ParameterizedTest
   @CsvSource({
     "12345,false",
+    "|12345,false",
     "http://example.com/bad/system|12345,false",
     "http://example.com/bad/system|,false",
     "http://hl7.org/fhir/sid/us-npi|12345,true",
     "http://hl7.org/fhir/sid/us-npi|,false",
     "http://hl7.org/fhir/sid/us-npi,false"
   })
-  void tokenIdentifierIsSupported(String parameterValue, boolean expectedSupport) {
+  void tokenPractitionerIdentifierIsSupported(String parameterValue, boolean expectedSupport) {
     var token = TokenParameter.parse("practitioner.identifier", parameterValue);
-    assertThat(controller().tokenIdentifierIsSupported(token)).isEqualTo(expectedSupport);
+    assertThat(controller().tokenPractitionerIdentifierIsSupported(token))
+        .isEqualTo(expectedSupport);
   }
 
   @ParameterizedTest
   @CsvSource({"12345,12345", "http://hl7.org/fhir/sid/us-npi|12345,12345"})
-  void tokenIdentifierValue(String parameterValue, String expected) {
+  void tokenPractitionerIdentifierValue(String parameterValue, String expected) {
     var token = TokenParameter.parse("practitioner.identifier", parameterValue);
-    assertThat(controller().tokenIdentifierValue(token)).contains(expected);
+    assertThat(controller().tokenPractitionerIdentifierValue(token)).contains(expected);
   }
 
   @ParameterizedTest

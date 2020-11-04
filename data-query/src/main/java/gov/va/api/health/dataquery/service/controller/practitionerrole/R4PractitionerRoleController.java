@@ -28,6 +28,7 @@ import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -58,7 +59,8 @@ public class R4PractitionerRoleController {
   public static Rule parameterNotImplemented(String parameter) {
     return (r) -> {
       if (r.request().getParameter(parameter) != null) {
-        throw new ResourceExceptions.NotImplemented("not-implemented");
+        throw new ResourceExceptions.NotImplemented(
+            "specialty search param is not yet implemented");
       }
     };
   }
@@ -71,18 +73,22 @@ public class R4PractitionerRoleController {
         .mappings(
             Mappings.forEntity(PractitionerEntity.class)
                 .value("_id", "cdwId", witnessProtection::toCdwId)
+                .value("identifier", "npi")
+                .string("practitioner.name", "familyName")
                 .token(
                     "practitioner.identifier",
                     "npi",
-                    this::tokenIdentifierIsSupported,
-                    this::tokenIdentifierValue)
+                    this::tokenPractitionerIdentifierIsSupported,
+                    this::tokenPractitionerIdentifierValue)
                 .get())
         .defaultQuery(returnNothing())
         .rule(
             atLeastOneParameterOf(
-                "specialty", "practitioner.identifier", "practitioner.name", "_id"))
-        .rule(parametersNeverSpecifiedTogether("_id", "practitioner.identifier"))
+                "specialty", "practitioner.identifier", "practitioner.name", "_id", "identifier"))
+        .rule(parametersNeverSpecifiedTogether("_id", "identifier", "practitioner.identifier"))
         .rule(parametersNeverSpecifiedTogether("practitioner.identifier", "practitioner.name"))
+        .rule(parametersNeverSpecifiedTogether("_id", "practitioner.name"))
+        .rule(parametersNeverSpecifiedTogether("identifier", "practitioner.name"))
         .rule(parameterNotImplemented("specialty"))
         .rule(forbidUnknownParameters())
         .build();
@@ -127,18 +133,18 @@ public class R4PractitionerRoleController {
   }
 
   /** Validate identifier token. */
-  public boolean tokenIdentifierIsSupported(TokenParameter token) {
+  public boolean tokenPractitionerIdentifierIsSupported(TokenParameter token) {
     if (token.hasExplicitlyNoSystem()) {
       return false;
     }
     if (!token.hasSupportedSystem("http://hl7.org/fhir/sid/us-npi")) {
       return false;
     }
-    return (token.code() != null && !token.code().trim().isEmpty());
+    return StringUtils.isNotBlank(token.code());
   }
 
   /** Get identifier values. */
-  public Collection<String> tokenIdentifierValue(TokenParameter token) {
+  public Collection<String> tokenPractitionerIdentifierValue(TokenParameter token) {
     return token
         .behavior()
         .onExplicitSystemAndExplicitCode(List::of)
