@@ -2,6 +2,7 @@ package gov.va.api.health.dataquery.service.controller.device;
 
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.experimental.UtilityClass;
 
@@ -23,23 +24,24 @@ public class DeviceSamples {
                   .display("VETERAN,HERNAM MINAM")
                   .build())
           .location(
-              DatamartReference.of()
-                  .type("Location")
-                  .reference("528")
-                  .display("JONESBORO VA CLINIC")
-                  .build())
+              Optional.of(
+                  DatamartReference.of()
+                      .type("Location")
+                      .reference("528")
+                      .display("JONESBORO VA CLINIC")
+                      .build()))
           .type(
               DatamartCoding.of()
                   .system("http://snomed.info/sct")
                   .code("53350007")
                   .display("Prosthesis, device (physical object)")
                   .build())
-          .manufacturer("BOSTON SCIENTIFIC")
-          .model("L331")
-          .udi("unsupported")
-          .lotNumber("A19031")
-          .serialNumber("819569")
-          .deviceName("PACEMAKER")
+          .manufacturer(Optional.of("BOSTON SCIENTIFIC"))
+          .model(Optional.of("L331"))
+          .udi(Optional.of("unsupported"))
+          .lotNumber(Optional.of("A19031"))
+          .serialNumber(Optional.of("819569"))
+          .deviceName(Optional.of("PACEMAKER"))
           .build();
     }
   }

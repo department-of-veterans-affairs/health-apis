@@ -3,6 +3,7 @@ package gov.va.api.health.dataquery.service.controller.device;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dataquery.service.controller.datamart.HasReplaceableId;
+import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,21 +19,21 @@ public class DatamartDevice implements HasReplaceableId {
 
   DatamartReference patient;
 
-  DatamartReference location;
+  Optional<DatamartReference> location;
 
   DatamartCoding type;
 
-  String manufacturer;
+  Optional<String> manufacturer;
 
-  String model;
+  Optional<String> model;
 
-  String udi;
+  Optional<String> udi;
 
-  String lotNumber;
+  Optional<String> lotNumber;
 
-  String serialNumber;
+  Optional<String> serialNumber;
 
-  String deviceName;
+  Optional<String> deviceName;
 
   @Builder.Default private String objectType = "Device";
 
