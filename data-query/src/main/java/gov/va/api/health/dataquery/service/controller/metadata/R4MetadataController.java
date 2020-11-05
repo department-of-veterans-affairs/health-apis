@@ -174,6 +174,11 @@ class R4MetadataController {
                         SearchParam.GENDER,
                         SearchParam.GIVEN))
                 .build(),
+            support("PractitionerRole")
+                .profileUrl(
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitionerrole")
+                .search(Set.of(SearchParam.ID))
+                .build(),
             support("Procedure")
                 .profileUrl("http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure")
                 .search(Set.of(SearchParam.ID, SearchParam.PATIENT, SearchParam.DATE))
