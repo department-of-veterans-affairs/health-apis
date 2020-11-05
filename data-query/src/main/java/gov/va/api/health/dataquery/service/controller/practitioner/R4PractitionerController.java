@@ -5,7 +5,6 @@ import static gov.va.api.lighthouse.vulcan.Rules.forbidUnknownParameters;
 import static gov.va.api.lighthouse.vulcan.Rules.ifParameter;
 import static gov.va.api.lighthouse.vulcan.Rules.parametersNeverSpecifiedTogether;
 import static gov.va.api.lighthouse.vulcan.Vulcan.returnNothing;
-import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import gov.va.api.health.dataquery.service.config.LinkProperties;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
@@ -17,9 +16,6 @@ import gov.va.api.health.r4.api.resources.Practitioner;
 import gov.va.api.lighthouse.vulcan.Vulcan;
 import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
 import gov.va.api.lighthouse.vulcan.mappings.Mappings;
-import gov.va.api.lighthouse.vulcan.mappings.TokenParameter;
-import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
@@ -53,11 +49,6 @@ public class R4PractitionerController {
         .mappings(
             Mappings.forEntity(PractitionerEntity.class)
                 .value("_id", "cdwId", witnessProtection::toCdwId)
-                .token(
-                    "practitioner.identifier",
-                    "npi",
-                    this::tokenIdentifierIsSupported,
-                    this::tokenIdentifierValue)
                 .get())
         .defaultQuery(returnNothing())
         .rule(atLeastOneParameterOf("patient", "_id", "identifier"))
@@ -103,26 +94,6 @@ public class R4PractitionerController {
                 .linkProperties(linkProperties)
                 .build())
         .build();
-  }
-
-  /** Validate token identifier. */
-  public boolean tokenIdentifierIsSupported(TokenParameter token) {
-    if (token.hasExplicitlyNoSystem()
-        || !token.hasSupportedSystem("http://hl7.org/fhir/sid/us-npi")) {
-      return false;
-    }
-    return (isBlank(token.code()));
-  }
-
-  /** Get identifier values. */
-  public Collection<String> tokenIdentifierValue(TokenParameter token) {
-    return token
-        .behavior()
-        .onExplicitSystemAndExplicitCode(List::of)
-        .onNoSystemAndExplicitCode(List::of)
-        .onAnySystemAndExplicitCode(List::of)
-        .build()
-        .execute();
   }
 
   VulcanizedTransformation<PractitionerEntity, DatamartPractitioner, Practitioner>

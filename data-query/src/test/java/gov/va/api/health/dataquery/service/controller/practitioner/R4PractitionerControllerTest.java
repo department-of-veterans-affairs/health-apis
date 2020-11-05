@@ -57,8 +57,6 @@ public class R4PractitionerControllerTest {
     assertThatExceptionOfType(InvalidRequest.class).isThrownBy(() -> controller().search(r));
   }
 
-  // PractitionerEntity.builder().cdwId("pr1").payload("payload").build();
-
   @Test
   void read() {
     when(ids.register(any())).thenReturn(List.of(registration("pr1", "ppr1")));
