@@ -1,0 +1,26 @@
+{
+  "objectType" : "Device",
+  "objectVersion" : "1",
+  "cdwId" : "800001608621",
+  "patient" : {
+    "type" : "Patient",
+    "reference" : "1010101010V666666",
+    "display" : "VETERAN,HERNAM MINAM"
+  },
+  "location" : {
+    "type" : "Location",
+    "reference" : "528",
+    "display" : "JONESBORO VA CLINIC"
+  },
+  "type" : {
+    "system" : "http://snomed.info/sct",
+    "code" : "53350007",
+    "display" : "Prosthesis, device (physical object)"
+  },
+  "manufacturer" : "BOSTON SCIENTIFIC",
+  "model" : "L331",
+  "udi" : "unsupported",
+  "lotNumber" : "A19031",
+  "serialNumber" : "819569",
+  "deviceName" : "PACEMAKER"
+}
