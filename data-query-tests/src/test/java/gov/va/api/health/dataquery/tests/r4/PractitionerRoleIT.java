@@ -14,42 +14,27 @@ public class PractitionerRoleIT {
     verifier.verifyAll(
         test(200, PractitionerRole.class, "PractitionerRole/{id}", verifier.ids().practitioner()),
         test(404, OperationOutcome.class, "PractitionerRole/{id}", verifier.ids().unknown()),
-        // search by identifier
+        // search by _id
         test(
             200,
             PractitionerRole.Bundle.class,
-            "PractitionerRole?identifier={npi}",
-            verifier.ids().practitioners().npi()),
-        // search by practitioner.identifier
-        test(
-            200,
-            PractitionerRole.Bundle.class,
-            "PractitionerRole?practitioner.identifier={npi}",
-            verifier.ids().practitioners().npi()),
-        // search by practitioner.name Family name
-        test(
-            200,
-            PractitionerRole.Bundle.class,
-            "PractitionerRole?practitioner.name={name}",
-            verifier.ids().practitioners().family()));
+            "PractitionerRole?_id={id}",
+            verifier.ids().practitioner()));
   }
 
   @Test
   public void malformed() {
     verifier.verifyAll(
         test(400, OperationOutcome.class, "PractitionerRole/"),
-        test(400, OperationOutcome.class, "PractitionerRole?blah=123"),
-        // parameters not specified together
-        test(
-            400,
-            OperationOutcome.class,
-            "PractitionerRole?practitioner.name=Somename&practitioner.identifier=123"));
+        test(400, OperationOutcome.class, "PractitionerRole?blah=123"));
   }
 
   @Test
-  public void searchBySpecialty() {
+  public void notImplementedParameters() {
     verifier.verifyAll(
         // Throws NotImplemented exception
-        test(501, OperationOutcome.class, "PractitionerRole?specialty=system|code"));
+        test(501, OperationOutcome.class, "PractitionerRole?specialty=system|code"),
+        test(501, OperationOutcome.class, "PractitionerRole?practitioner.identifier=system|code"),
+        test(501, OperationOutcome.class, "PractitionerRole?practitioner.name=Doe"));
   }
 }

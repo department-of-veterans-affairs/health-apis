@@ -2,7 +2,6 @@ package gov.va.api.health.dataquery.service.controller.practitionerrole;
 
 import static gov.va.api.lighthouse.vulcan.Rules.atLeastOneParameterOf;
 import static gov.va.api.lighthouse.vulcan.Rules.forbidUnknownParameters;
-import static gov.va.api.lighthouse.vulcan.Rules.parametersNeverSpecifiedTogether;
 import static gov.va.api.lighthouse.vulcan.Vulcan.returnNothing;
 
 import gov.va.api.health.dataquery.service.config.LinkProperties;
@@ -20,15 +19,11 @@ import gov.va.api.lighthouse.vulcan.Rule;
 import gov.va.api.lighthouse.vulcan.Vulcan;
 import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
 import gov.va.api.lighthouse.vulcan.mappings.Mappings;
-import gov.va.api.lighthouse.vulcan.mappings.TokenParameter;
-import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -60,7 +55,7 @@ public class R4PractitionerRoleController {
     return (r) -> {
       if (r.request().getParameter(parameter) != null) {
         throw new ResourceExceptions.NotImplemented(
-            "specialty search param is not yet implemented");
+            parameter + " search param is not yet implemented");
       }
     };
   }
@@ -73,22 +68,13 @@ public class R4PractitionerRoleController {
         .mappings(
             Mappings.forEntity(PractitionerEntity.class)
                 .value("_id", "cdwId", witnessProtection::toCdwId)
-                .value("identifier", "npi")
-                .string("practitioner.name", "familyName")
-                .token(
-                    "practitioner.identifier",
-                    "npi",
-                    this::tokenPractitionerIdentifierIsSupported,
-                    this::tokenPractitionerIdentifierValue)
                 .get())
         .defaultQuery(returnNothing())
         .rule(
             atLeastOneParameterOf(
-                "specialty", "practitioner.identifier", "practitioner.name", "_id", "identifier"))
-        .rule(parametersNeverSpecifiedTogether("_id", "identifier", "practitioner.identifier"))
-        .rule(parametersNeverSpecifiedTogether("practitioner.identifier", "practitioner.name"))
-        .rule(parametersNeverSpecifiedTogether("_id", "practitioner.name"))
-        .rule(parametersNeverSpecifiedTogether("identifier", "practitioner.name"))
+                "_id", "practitioner.name", "practitioner.identifier", "specialty"))
+        .rule(parameterNotImplemented("practitioner.name"))
+        .rule(parameterNotImplemented("practitioner.identifier"))
         .rule(parameterNotImplemented("specialty"))
         .rule(forbidUnknownParameters())
         .build();
@@ -130,28 +116,6 @@ public class R4PractitionerRoleController {
                 .linkProperties(linkProperties)
                 .build())
         .build();
-  }
-
-  /** Validate identifier token. */
-  public boolean tokenPractitionerIdentifierIsSupported(TokenParameter token) {
-    if (token.hasExplicitlyNoSystem()) {
-      return false;
-    }
-    if (!token.hasSupportedSystem("http://hl7.org/fhir/sid/us-npi")) {
-      return false;
-    }
-    return StringUtils.isNotBlank(token.code());
-  }
-
-  /** Get identifier values. */
-  public Collection<String> tokenPractitionerIdentifierValue(TokenParameter token) {
-    return token
-        .behavior()
-        .onExplicitSystemAndExplicitCode(List::of)
-        .onNoSystemAndExplicitCode(List::of)
-        .onAnySystemAndExplicitCode(List::of)
-        .build()
-        .execute();
   }
 
   VulcanizedTransformation<PractitionerEntity, DatamartPractitioner, PractitionerRole>

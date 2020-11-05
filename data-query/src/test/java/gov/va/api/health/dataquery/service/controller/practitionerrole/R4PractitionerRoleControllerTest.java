@@ -22,7 +22,6 @@ import gov.va.api.health.r4.api.bundle.BundleLink.LinkRelation;
 import gov.va.api.health.r4.api.resources.PractitionerRole;
 import gov.va.api.lighthouse.vulcan.InvalidRequest;
 import gov.va.api.lighthouse.vulcan.VulcanResult;
-import gov.va.api.lighthouse.vulcan.mappings.TokenParameter;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -31,7 +30,6 @@ import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -57,14 +55,7 @@ public class R4PractitionerRoleControllerTest {
   }
 
   @ParameterizedTest
-  @ValueSource(
-      strings = {
-        "",
-        "?practitioner.identifier=123&practitioner.name=Foo",
-        "?identifier=123&practitioner.identifier=123",
-        "?_id=123&identifier=123",
-        "?identifier=123&practitioner.name=Foo"
-      })
+  @ValueSource(strings = {"", "?_id=123&identifier=123", "?invalidparam=123"})
   @SneakyThrows
   public void invalidRequests(String query) {
     var r = requestFromUri("http://fonzy.com/r4/PractitionerRole" + query);
@@ -152,36 +143,14 @@ public class R4PractitionerRoleControllerTest {
   }
 
   @ParameterizedTest
-  @CsvSource({
-    "12345,false",
-    "|12345,false",
-    "http://example.com/bad/system|12345,false",
-    "http://example.com/bad/system|,false",
-    "http://hl7.org/fhir/sid/us-npi|12345,true",
-    "http://hl7.org/fhir/sid/us-npi|,false",
-    "http://hl7.org/fhir/sid/us-npi,false"
-  })
-  void tokenPractitionerIdentifierIsSupported(String parameterValue, boolean expectedSupport) {
-    var token = TokenParameter.parse("practitioner.identifier", parameterValue);
-    assertThat(controller().tokenPractitionerIdentifierIsSupported(token))
-        .isEqualTo(expectedSupport);
-  }
-
-  @ParameterizedTest
-  @CsvSource({"12345,12345", "http://hl7.org/fhir/sid/us-npi|12345,12345"})
-  void tokenPractitionerIdentifierValue(String parameterValue, String expected) {
-    var token = TokenParameter.parse("practitioner.identifier", parameterValue);
-    assertThat(controller().tokenPractitionerIdentifierValue(token)).contains(expected);
-  }
-
-  @ParameterizedTest
   @ValueSource(
       strings = {
         "?specialty=http://nucc.org/provider-taxonomy|208D0000X",
-        "?practitioner.identifier=1932127842&specialty=208D0000X"
+        "?practitioner.identifier=1932127842",
+        "?practitioner.name=Doe"
       })
   @SneakyThrows
-  void unimplementedSpecialty(String query) {
+  void unimplementedPractitioner(String query) {
     var r = requestFromUri("http://fonzy.com/r4/PractitionerRole" + query);
     assertThatExceptionOfType(NotImplemented.class).isThrownBy(() -> controller().search(r));
   }
