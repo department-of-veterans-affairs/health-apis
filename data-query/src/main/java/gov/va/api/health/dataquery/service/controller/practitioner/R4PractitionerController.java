@@ -2,7 +2,6 @@ package gov.va.api.health.dataquery.service.controller.practitioner;
 
 import static gov.va.api.lighthouse.vulcan.Rules.atLeastOneParameterOf;
 import static gov.va.api.lighthouse.vulcan.Rules.forbidUnknownParameters;
-import static gov.va.api.lighthouse.vulcan.Rules.ifParameter;
 import static gov.va.api.lighthouse.vulcan.Rules.parametersNeverSpecifiedTogether;
 import static gov.va.api.lighthouse.vulcan.Vulcan.returnNothing;
 
@@ -32,9 +31,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @SuppressWarnings("WeakerAccess")
 @RequestMapping(
-    value = {"/r4/vulcanized/Practitioner"},
+    value = {"/r4/Practitioner"},
     produces = {"application/json", "application/fhir+json"})
-@AllArgsConstructor(onConstructor = @__({@Autowired}))
+@AllArgsConstructor(onConstructor_ = @Autowired)
 public class R4PractitionerController {
   private final LinkProperties linkProperties;
 
@@ -51,9 +50,8 @@ public class R4PractitionerController {
                 .value("_id", "cdwId", witnessProtection::toCdwId)
                 .get())
         .defaultQuery(returnNothing())
-        .rule(atLeastOneParameterOf("patient", "_id", "identifier"))
-        .rule(parametersNeverSpecifiedTogether("patient", "_id", "identifier"))
-        .rule(ifParameter("status").thenAlsoAtLeastOneParameterOf("patient"))
+        .rule(atLeastOneParameterOf("_id", "identifier"))
+        .rule(parametersNeverSpecifiedTogether("_id", "identifier"))
         .rule(forbidUnknownParameters())
         .build();
   }
