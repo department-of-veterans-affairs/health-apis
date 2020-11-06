@@ -55,7 +55,7 @@ public class R4PractitionerRoleController {
     return (r) -> {
       if (r.request().getParameter(parameter) != null) {
         throw new ResourceExceptions.NotImplemented(
-            parameter + " search param is not yet implemented");
+            parameter + " search parameter is not yet implemented");
       }
     };
   }
@@ -72,7 +72,8 @@ public class R4PractitionerRoleController {
         .defaultQuery(returnNothing())
         .rule(
             atLeastOneParameterOf(
-                "_id", "practitioner.name", "practitioner.identifier", "specialty"))
+                "_id", "identifier", "practitioner.name", "practitioner.identifier", "specialty"))
+        .rule(parameterNotImplemented("identifier"))
         .rule(parameterNotImplemented("practitioner.name"))
         .rule(parameterNotImplemented("practitioner.identifier"))
         .rule(parameterNotImplemented("specialty"))

@@ -55,7 +55,7 @@ public class R4PractitionerRoleControllerTest {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {"", "?_id=123&identifier=123", "?invalidparam=123"})
+  @ValueSource(strings = {"", "?_id=123&invalidparam=123", "?invalidparam=123"})
   @SneakyThrows
   public void invalidRequests(String query) {
     var r = requestFromUri("http://fonzy.com/r4/PractitionerRole" + query);
@@ -145,6 +145,7 @@ public class R4PractitionerRoleControllerTest {
   @ParameterizedTest
   @ValueSource(
       strings = {
+        "?identifier=123",
         "?specialty=http://nucc.org/provider-taxonomy|208D0000X",
         "?practitioner.identifier=1932127842",
         "?practitioner.name=Doe"

@@ -33,6 +33,7 @@ public class PractitionerRoleIT {
   public void notImplementedParameters() {
     verifier.verifyAll(
         // Throws NotImplemented exception
+        test(501, OperationOutcome.class, "PractitionerRole?identifier=123"),
         test(501, OperationOutcome.class, "PractitionerRole?specialty=system|code"),
         test(501, OperationOutcome.class, "PractitionerRole?practitioner.identifier=system|code"),
         test(501, OperationOutcome.class, "PractitionerRole?practitioner.name=Doe"));
