@@ -11,7 +11,6 @@ import gov.va.api.health.r4.api.MetadataApi;
 import gov.va.api.health.r4.api.ObservationApi;
 import gov.va.api.health.r4.api.OrganizationApi;
 import gov.va.api.health.r4.api.PatientApi;
-import gov.va.api.health.r4.api.PractitionerRoleApi;
 import gov.va.api.health.r4.api.ProcedureApi;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
@@ -115,5 +114,4 @@ public interface R4DataQueryService
         ObservationApi,
         OrganizationApi,
         PatientApi,
-        PractitionerRoleApi,
         ProcedureApi {}
