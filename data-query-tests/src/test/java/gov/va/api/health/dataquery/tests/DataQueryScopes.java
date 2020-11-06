@@ -15,6 +15,7 @@ public class DataQueryScopes {
         "patient/Immunization.read",
         "patient/Medication.read",
         "patient/MedicationOrder.read",
+        "patient/MedicationRequest.read",
         "patient/MedicationStatement.read",
         "patient/Observation.read",
         "patient/Patient.read",
