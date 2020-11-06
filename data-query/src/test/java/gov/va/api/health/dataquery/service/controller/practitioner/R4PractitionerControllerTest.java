@@ -50,7 +50,7 @@ public class R4PractitionerControllerTest {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {"", "?_id=123&identifier=123"})
+  @ValueSource(strings = {"", "?_id=123&identifier=123", "?invalid=request"})
   @SneakyThrows
   void invalidRequest(String query) {
     var r = requestFromUri("http://fonzy.com/r4/Practitioner" + query);
@@ -92,7 +92,7 @@ public class R4PractitionerControllerTest {
         VulcanResult.<PractitionerEntity>builder()
             .paging(
                 paging(
-                    "http://fonzy.com/r4/Practitioner?practitioner.identifier=p1&page=%d&_count=%d",
+                    "http://fonzy.com/r4/Practitioner?practitioner=p1&page=%d&_count=%d",
                     1, 4, 5, 6, 9, 15))
             .entities(
                 Stream.of(
@@ -108,27 +108,27 @@ public class R4PractitionerControllerTest {
             999,
             PractitionerSamples.R4.link(
                 BundleLink.LinkRelation.first,
-                "http://fonzy.com/r4/Practitioner?practitioner.identifier=p1",
+                "http://fonzy.com/r4/Practitioner?practitioner=p1",
                 1,
                 15),
             PractitionerSamples.R4.link(
                 BundleLink.LinkRelation.prev,
-                "http://fonzy.com/r4/Practitioner?practitioner.identifier=p1",
+                "http://fonzy.com/r4/Practitioner?practitioner=p1",
                 4,
                 15),
             PractitionerSamples.R4.link(
                 BundleLink.LinkRelation.self,
-                "http://fonzy.com/r4/Practitioner?practitioner.identifier=p1",
+                "http://fonzy.com/r4/Practitioner?practitioner=p1",
                 5,
                 15),
             PractitionerSamples.R4.link(
                 BundleLink.LinkRelation.next,
-                "http://fonzy.com/r4/Practitioner?practitioner.identifier=p1",
+                "http://fonzy.com/r4/Practitioner?practitioner=p1",
                 6,
                 15),
             PractitionerSamples.R4.link(
                 BundleLink.LinkRelation.last,
-                "http://fonzy.com/r4/Practitioner?practitioner.identifier=p1",
+                "http://fonzy.com/r4/Practitioner?practitioner=p1",
                 9,
                 15));
 
