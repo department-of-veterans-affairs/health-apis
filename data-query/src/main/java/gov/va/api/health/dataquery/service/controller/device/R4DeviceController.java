@@ -25,6 +25,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Request mappings for the US-Core-R4 Implantable Device resource.
@@ -32,7 +33,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
  * @implSpec http://hl7.org/fhir/us/core/StructureDefinition-us-core-implantable-device.html
  */
 @Validated
-@Controller
+@RestController
 @RequestMapping(
     value = {"/r4/Device"},
     produces = {"application/json", "application/fhir+json"})
@@ -69,8 +70,7 @@ public class R4DeviceController {
 
   @GetMapping(value = "/{publicId}", headers = "raw=true")
   public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
-    return repository.findById(publicId).get().payload();
-    //return vulcanizedReader().readRaw(publicId, response);
+    return vulcanizedReader().readRaw(publicId, response);
   }
 
   /** US-Core-R4 Implantable Device Search Support. */
