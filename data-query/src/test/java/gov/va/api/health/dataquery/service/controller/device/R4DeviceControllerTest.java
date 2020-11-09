@@ -13,7 +13,9 @@ import static org.mockito.Mockito.when;
 import gov.va.api.health.dataquery.service.config.LinkProperties;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.ids.api.IdentityService;
+import gov.va.api.health.r4.api.bundle.AbstractBundle;
 import gov.va.api.health.r4.api.bundle.BundleLink;
+import gov.va.api.health.r4.api.resources.Device;
 import gov.va.api.lighthouse.vulcan.InvalidRequest;
 import gov.va.api.lighthouse.vulcan.VulcanResult;
 import java.util.List;
@@ -36,7 +38,6 @@ import org.springframework.data.jpa.domain.Specification;
 @Execution(ExecutionMode.CONCURRENT)
 @ExtendWith(MockitoExtension.class)
 public class R4DeviceControllerTest {
-
   @Mock IdentityService ids;
 
   @Mock DeviceRepository repository;
@@ -55,13 +56,7 @@ public class R4DeviceControllerTest {
 
   @ParameterizedTest
   @ValueSource(
-      strings = {
-        "?nachos=friday",
-        "?type=156009",
-        "?patient=p1&_id=123",
-        "?patient=p1&identifier=123",
-        "?_id=123&identifier=456"
-      })
+      strings = {"?patient=p1&_id=123", "?patient=p1&identifier=123", "?_id=123&identifier=456"})
   @SneakyThrows
   void invalidRequests(String query) {
     var request = requestFromUri("http://fonzy.com/r4/Device" + query);
@@ -118,6 +113,28 @@ public class R4DeviceControllerTest {
             DeviceSamples.R4.link(
                 BundleLink.LinkRelation.last, "http://fonzy.com/r4/Device?patient=p1", 9, 15));
     assertThat(bundler.apply(vr)).isEqualTo(expected);
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"?nachos=friday", "?type=156009"})
+  @SneakyThrows
+  void unknownParameters(String query) {
+    var url = "http://fonzy.com/r4/Device" + query;
+    var request = requestFromUri(url);
+    assertThat(controller().search(request))
+        .isEqualTo(
+            Device.Bundle.builder()
+                .resourceType("Bundle")
+                .type(AbstractBundle.BundleType.searchset)
+                .total(0)
+                .link(
+                    List.of(
+                        BundleLink.builder()
+                            .relation(BundleLink.LinkRelation.self)
+                            .url(url + "&_count=15&page=1")
+                            .build()))
+                .entry(List.of())
+                .build());
   }
 
   @ParameterizedTest

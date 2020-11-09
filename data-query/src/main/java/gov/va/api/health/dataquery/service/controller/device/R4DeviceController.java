@@ -1,6 +1,5 @@
 package gov.va.api.health.dataquery.service.controller.device;
 
-import static gov.va.api.lighthouse.vulcan.Rules.forbidUnknownParameters;
 import static gov.va.api.lighthouse.vulcan.Rules.parametersNeverSpecifiedTogether;
 import static gov.va.api.lighthouse.vulcan.Vulcan.returnNothing;
 
@@ -20,7 +19,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -59,7 +57,6 @@ public class R4DeviceController {
                 .get())
         .defaultQuery(returnNothing())
         .rule(parametersNeverSpecifiedTogether("patient", "_id", "identifier"))
-        .rule(forbidUnknownParameters())
         .build();
   }
 
