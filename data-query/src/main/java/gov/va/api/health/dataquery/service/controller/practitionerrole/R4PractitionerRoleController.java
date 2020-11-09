@@ -1,7 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.practitionerrole;
 
 import static gov.va.api.lighthouse.vulcan.Rules.atLeastOneParameterOf;
-import static gov.va.api.lighthouse.vulcan.Rules.forbidUnknownParameters;
 import static gov.va.api.lighthouse.vulcan.Vulcan.returnNothing;
 
 import gov.va.api.health.dataquery.service.config.LinkProperties;
@@ -59,7 +58,6 @@ public class R4PractitionerRoleController {
                 .get())
         .defaultQuery(returnNothing())
         .rule(atLeastOneParameterOf("_id"))
-        .rule(forbidUnknownParameters())
         .build();
   }
 
