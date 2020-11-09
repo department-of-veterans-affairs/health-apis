@@ -11,6 +11,7 @@ import lombok.Value;
 public final class TestIds {
   @NonNull String allergyIntolerance;
   @NonNull String condition;
+  @NonNull String device;
   @NonNull String diagnosticReport;
   @NonNull String immunization;
   @NonNull String location;
