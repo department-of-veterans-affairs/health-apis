@@ -5,7 +5,6 @@ import static gov.va.api.lighthouse.vulcan.Rules.forbidUnknownParameters;
 import static gov.va.api.lighthouse.vulcan.Vulcan.returnNothing;
 
 import gov.va.api.health.dataquery.service.config.LinkProperties;
-import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.practitioner.DatamartPractitioner;
 import gov.va.api.health.dataquery.service.controller.practitioner.PractitionerEntity;
@@ -15,7 +14,6 @@ import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedBundl
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedReader;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedTransformation;
 import gov.va.api.health.r4.api.resources.PractitionerRole;
-import gov.va.api.lighthouse.vulcan.Rule;
 import gov.va.api.lighthouse.vulcan.Vulcan;
 import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
 import gov.va.api.lighthouse.vulcan.mappings.Mappings;
@@ -50,16 +48,6 @@ public class R4PractitionerRoleController {
 
   private PractitionerRepository repository;
 
-  /** Vulcan rule for unimplemented parameter. */
-  public static Rule parameterNotImplemented(String parameter) {
-    return (r) -> {
-      if (r.request().getParameter(parameter) != null) {
-        throw new ResourceExceptions.NotImplemented(
-            parameter + " search parameter is not yet implemented");
-      }
-    };
-  }
-
   private VulcanConfiguration<PractitionerEntity> configuration() {
     return VulcanConfiguration.forEntity(PractitionerEntity.class)
         .paging(
@@ -70,13 +58,7 @@ public class R4PractitionerRoleController {
                 .value("_id", "cdwId", witnessProtection::toCdwId)
                 .get())
         .defaultQuery(returnNothing())
-        .rule(
-            atLeastOneParameterOf(
-                "_id", "identifier", "practitioner.name", "practitioner.identifier", "specialty"))
-        .rule(parameterNotImplemented("identifier"))
-        .rule(parameterNotImplemented("practitioner.name"))
-        .rule(parameterNotImplemented("practitioner.identifier"))
-        .rule(parameterNotImplemented("specialty"))
+        .rule(atLeastOneParameterOf("_id"))
         .rule(forbidUnknownParameters())
         .build();
   }

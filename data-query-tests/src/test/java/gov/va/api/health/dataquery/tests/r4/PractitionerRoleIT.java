@@ -28,14 +28,4 @@ public class PractitionerRoleIT {
         test(400, OperationOutcome.class, "PractitionerRole/"),
         test(400, OperationOutcome.class, "PractitionerRole?blah=123"));
   }
-
-  @Test
-  public void notImplementedParameters() {
-    verifier.verifyAll(
-        // Throws NotImplemented exception
-        test(501, OperationOutcome.class, "PractitionerRole?identifier=123"),
-        test(501, OperationOutcome.class, "PractitionerRole?specialty=system|code"),
-        test(501, OperationOutcome.class, "PractitionerRole?practitioner.identifier=system|code"),
-        test(501, OperationOutcome.class, "PractitionerRole?practitioner.name=Doe"));
-  }
 }

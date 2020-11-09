@@ -11,7 +11,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import gov.va.api.health.dataquery.service.config.LinkProperties;
-import gov.va.api.health.dataquery.service.controller.ResourceExceptions.NotImplemented;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.practitioner.PractitionerEntity;
 import gov.va.api.health.dataquery.service.controller.practitioner.PractitionerRepository;
@@ -140,19 +139,5 @@ public class R4PractitionerRoleControllerTest {
                 15));
     var applied = bundler.apply(vr);
     assertThat(applied).isEqualTo(expected);
-  }
-
-  @ParameterizedTest
-  @ValueSource(
-      strings = {
-        "?identifier=123",
-        "?specialty=http://nucc.org/provider-taxonomy|208D0000X",
-        "?practitioner.identifier=1932127842",
-        "?practitioner.name=Doe"
-      })
-  @SneakyThrows
-  void unimplementedPractitioner(String query) {
-    var r = requestFromUri("http://fonzy.com/r4/PractitionerRole" + query);
-    assertThatExceptionOfType(NotImplemented.class).isThrownBy(() -> controller().search(r));
   }
 }
