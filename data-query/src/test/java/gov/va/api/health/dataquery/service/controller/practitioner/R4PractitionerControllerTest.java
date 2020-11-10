@@ -28,6 +28,9 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 
 @ExtendWith(MockitoExtension.class)
 public class R4PractitionerControllerTest {
@@ -131,8 +134,25 @@ public class R4PractitionerControllerTest {
                 "http://fonzy.com/r4/Practitioner?identifier=p1",
                 9,
                 15));
-
     var applied = bundler.apply(vr);
     assertThat(applied).isEqualTo(expected);
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"?_id=pr1"})
+  @SneakyThrows
+  void validRequest(String query) {
+    when(ids.register(any())).thenReturn(List.of(registration("pr1", "ppr1")));
+    PractitionerSamples.Datamart dm = PractitionerSamples.Datamart.create();
+    when(repository.findAll(any(Specification.class), any(Pageable.class)))
+        .thenAnswer(
+            i ->
+                new PageImpl(
+                    List.of(dm.entity("pr1", "loc1", "org1")),
+                    i.getArgument(1, Pageable.class),
+                    1));
+    var r = requestFromUri("http://fonzy.com/r4/Practitioner" + query);
+    var actual = controller().search(r);
+    assertThat(actual.entry()).hasSize(1);
   }
 }
