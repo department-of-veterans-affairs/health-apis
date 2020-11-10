@@ -13,9 +13,10 @@ public class PractitionerIT {
   @Delegate ResourceVerifier verifier = ResourceVerifier.r4();
 
   @Test
-  public void advanced() {
-    assumeEnvironmentIn(Environment.LOCAL);
+  public void basic() {
     verifier.verifyAll(
+        test(200, Practitioner.class, "Practitioner/{id}", verifier.ids().practitioner()),
+        test(404, OperationOutcome.class, "Practitioner/{id}", verifier.ids().unknown()),
         test(
             200, Practitioner.Bundle.class, "Practitioner?_id={id}", verifier.ids().practitioner()),
         test(
@@ -24,18 +25,6 @@ public class PractitionerIT {
             p -> p.entry().isEmpty(),
             "Practitioner?_id={id}",
             verifier.ids().unknown()));
-  }
-
-  @Test
-  public void basic() {
-    verifier.verifyAll(
-        test(200, Practitioner.class, "Practitioner/{id}", verifier.ids().practitioner()),
-        test(404, OperationOutcome.class, "Practitioner/{id}", verifier.ids().unknown()),
-        test(
-            200,
-            Practitioner.Bundle.class,
-            "Practitioner?_id={id}",
-            verifier.ids().practitioner()));
   }
 
   @Test
