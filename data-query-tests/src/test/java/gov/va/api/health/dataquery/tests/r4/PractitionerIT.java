@@ -10,8 +10,21 @@ import lombok.experimental.Delegate;
 import org.junit.jupiter.api.Test;
 
 public class PractitionerIT {
-
   @Delegate ResourceVerifier verifier = ResourceVerifier.r4();
+
+  @Test
+  public void advanced() {
+    assumeEnvironmentIn(Environment.LOCAL);
+    verifier.verifyAll(
+        test(
+            200, Practitioner.Bundle.class, "Practitioner?_id={id}", verifier.ids().practitioner()),
+        test(
+            200,
+            Practitioner.Bundle.class,
+            p -> p.entry().isEmpty(),
+            "Practitioner?_id={id}",
+            verifier.ids().unknown()));
+  }
 
   @Test
   public void basic() {
