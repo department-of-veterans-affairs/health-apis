@@ -2,6 +2,7 @@ package gov.va.api.health.dataquery.service.controller.practitioner;
 
 import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
 import static gov.va.api.health.dataquery.service.controller.Transformers.emptyToNull;
+import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
 import static java.util.Arrays.asList;
 
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
@@ -94,11 +95,14 @@ public class R4PractitionerTransformer {
   }
 
   List<Identifier> identifiers() {
-    String system = datamart.npi().orElse(null);
-    if (system == null) {
+    if (isBlank(datamart.npi())) {
       return null;
     }
-    return List.of(Identifier.builder().system(system).value("1942308409").build());
+    return List.of(
+        Identifier.builder()
+            .system("http://hl7.org/fhir/sid/us-npi")
+            .value(datamart.npi().get())
+            .build());
   }
 
   List<ContactPoint> telecoms() {

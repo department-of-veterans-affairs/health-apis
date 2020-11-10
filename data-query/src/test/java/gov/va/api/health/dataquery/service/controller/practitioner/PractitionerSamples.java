@@ -363,7 +363,12 @@ public class PractitionerSamples {
                       .build()))
           .gender(gov.va.api.health.r4.api.resources.Practitioner.GenderCode.male)
           .birthDate("1970-11-14")
-          .identifier(List.of(Identifier.builder().system("1234567").value("1942308409").build()))
+          .identifier(
+              List.of(
+                  Identifier.builder()
+                      .system("http://hl7.org/fhir/sid/us-npi")
+                      .value("1234567")
+                      .build()))
           .address(
               List.of(
                   gov.va.api.health.r4.api.datatypes.Address.builder()
