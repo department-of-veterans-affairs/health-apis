@@ -26,9 +26,19 @@ public class DeviceIT {
     assumeEnvironmentIn(Environment.LOCAL);
     verifier.verifyAll(
         test(200, Device.Bundle.class, "Device?_id={id}", verifier.ids().device()),
-        test(200, Device.Bundle.class, "Device?_id={id}", verifier.ids().unknown()),
+        test(
+            200,
+            Device.Bundle.class,
+            d -> d.entry().isEmpty(),
+            "Device?_id={id}",
+            verifier.ids().unknown()),
         test(200, Device.Bundle.class, "Device?identifier={id}", verifier.ids().device()),
-        test(200, Device.Bundle.class, "Device?identifier={id}", verifier.ids().unknown()));
+        test(
+            200,
+            Device.Bundle.class,
+            d -> d.entry().isEmpty(),
+            "Device?identifier={id}",
+            verifier.ids().unknown()));
   }
 
   @Test

@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 import lombok.Builder;
 import lombok.SneakyThrows;
 import lombok.Value;
@@ -141,7 +142,11 @@ public final class ResourceVerifier {
     } else {
       response = dataQuery().get(tc.path(), tc.parameters());
     }
-    return response.expect(tc.status()).expectValid(tc.response());
+    var expected = response.expect(tc.status()).expectValid(tc.response());
+    if (tc.satisfiesCondition() != null) {
+      assertThat(tc.satisfiesCondition().apply(expected)).isTrue();
+    }
+    return expected;
   }
 
   public final <T> TestCase<T> test(
@@ -163,11 +168,21 @@ public final class ResourceVerifier {
 
   public final <T> TestCase<T> test(
       int status, Class<T> response, String path, String... parameters) {
+    return test(status, response, null, path, parameters);
+  }
+
+  public final <T> TestCase<T> test(
+      int status,
+      Class<T> response,
+      Function<T, Boolean> satisfiesCondition,
+      String path,
+      String... parameters) {
     return TestCase.<T>builder()
         .path(apiPath() + path)
         .parameters(parameters)
         .response(response)
         .status(status)
+        .satisfiesCondition(satisfiesCondition)
         .build();
   }
 
@@ -203,6 +218,8 @@ public final class ResourceVerifier {
     @Builder.Default ImmutableMap<String, String> headers = ImmutableMap.of();
 
     String body;
+
+    Function<T, Boolean> satisfiesCondition;
 
     String body() {
       return String.format(body.replaceAll("[{][a-z0-9]+[}]", "%s"), parameters);
