@@ -50,7 +50,6 @@ public class R4DeviceController {
         .mappings(
             Mappings.forEntity(DeviceEntity.class)
                 .value("_id", "cdwId", witnessProtection::toCdwId)
-                // ToDo -- cdwId system for a token search?
                 .value("identifier", "cdwId", witnessProtection::toCdwId)
                 .value("patient", "icn")
                 // ToDo -- Search by Patient+Type (Missing: db column "type")
