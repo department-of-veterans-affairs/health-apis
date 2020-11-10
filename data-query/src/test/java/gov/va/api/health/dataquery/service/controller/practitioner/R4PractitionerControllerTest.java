@@ -53,7 +53,7 @@ public class R4PractitionerControllerTest {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {"", "?_id=123&identifier=123", "?invalid=request"})
+  @ValueSource(strings = {"", "?identifier=123", "?invalid=request"})
   @SneakyThrows
   void invalidRequest(String query) {
     var r = requestFromUri("http://fonzy.com/r4/Practitioner" + query);

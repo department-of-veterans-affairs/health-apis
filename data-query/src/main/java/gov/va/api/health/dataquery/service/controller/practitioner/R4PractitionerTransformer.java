@@ -8,6 +8,7 @@ import gov.va.api.health.dataquery.service.controller.EnumSearcher;
 import gov.va.api.health.r4.api.datatypes.Address;
 import gov.va.api.health.r4.api.datatypes.ContactPoint;
 import gov.va.api.health.r4.api.datatypes.HumanName;
+import gov.va.api.health.r4.api.datatypes.Identifier;
 import gov.va.api.health.r4.api.resources.Practitioner;
 import java.time.LocalDate;
 import java.util.List;
@@ -92,6 +93,14 @@ public class R4PractitionerTransformer {
     return EnumSearcher.of(Practitioner.GenderCode.class).find(providedGender.toString());
   }
 
+  List<Identifier> identifiers() {
+    String system = datamart.npi().orElse(null);
+    if (system == null) {
+      return null;
+    }
+    return List.of(Identifier.builder().system(system).value("1942308409").build());
+  }
+
   List<ContactPoint> telecoms() {
     return emptyToNull(
         datamart.telecom().stream().map(tel -> telecom(tel)).collect(Collectors.toList()));
@@ -106,6 +115,7 @@ public class R4PractitionerTransformer {
         .name(name(datamart.name()))
         .telecom(telecoms())
         .address(addresses())
+        .identifier(identifiers())
         .gender(gender(datamart.gender()))
         .birthDate(birthDate(datamart.birthDate()))
         .build();

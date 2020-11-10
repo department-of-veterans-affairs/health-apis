@@ -1,8 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.practitioner;
 
 import static gov.va.api.lighthouse.vulcan.Rules.atLeastOneParameterOf;
-import static gov.va.api.lighthouse.vulcan.Rules.forbidUnknownParameters;
-import static gov.va.api.lighthouse.vulcan.Rules.parametersNeverSpecifiedTogether;
 import static gov.va.api.lighthouse.vulcan.Vulcan.returnNothing;
 
 import gov.va.api.health.dataquery.service.config.LinkProperties;
@@ -50,9 +48,7 @@ public class R4PractitionerController {
                 .value("_id", "cdwId", witnessProtection::toCdwId)
                 .get())
         .defaultQuery(returnNothing())
-        .rule(atLeastOneParameterOf("_id", "identifier"))
-        .rule(parametersNeverSpecifiedTogether("_id", "identifier"))
-        .rule(forbidUnknownParameters())
+        .rule(atLeastOneParameterOf("_id"))
         .build();
   }
 

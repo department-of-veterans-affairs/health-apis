@@ -8,6 +8,7 @@ import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
+import gov.va.api.health.r4.api.datatypes.Identifier;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
@@ -362,6 +363,7 @@ public class PractitionerSamples {
                       .build()))
           .gender(gov.va.api.health.r4.api.resources.Practitioner.GenderCode.male)
           .birthDate("1970-11-14")
+          .identifier(List.of(Identifier.builder().system("1234567").value("1942308409").build()))
           .address(
               List.of(
                   gov.va.api.health.r4.api.datatypes.Address.builder()
