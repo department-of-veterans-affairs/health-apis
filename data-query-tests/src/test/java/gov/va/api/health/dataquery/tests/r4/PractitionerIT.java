@@ -14,6 +14,7 @@ public class PractitionerIT {
 
   @Test
   public void basic() {
+    assumeEnvironmentIn(Environment.LOCAL);
     verifier.verifyAll(
         test(200, Practitioner.class, "Practitioner/{id}", verifier.ids().practitioner()),
         test(404, OperationOutcome.class, "Practitioner/{id}", verifier.ids().unknown()),
