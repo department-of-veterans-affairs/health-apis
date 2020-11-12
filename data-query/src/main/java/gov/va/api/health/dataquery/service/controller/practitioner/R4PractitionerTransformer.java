@@ -2,12 +2,14 @@ package gov.va.api.health.dataquery.service.controller.practitioner;
 
 import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
 import static gov.va.api.health.dataquery.service.controller.Transformers.emptyToNull;
+import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
 import static java.util.Arrays.asList;
 
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
 import gov.va.api.health.r4.api.datatypes.Address;
 import gov.va.api.health.r4.api.datatypes.ContactPoint;
 import gov.va.api.health.r4.api.datatypes.HumanName;
+import gov.va.api.health.r4.api.datatypes.Identifier;
 import gov.va.api.health.r4.api.resources.Practitioner;
 import java.time.LocalDate;
 import java.util.List;
@@ -92,6 +94,17 @@ public class R4PractitionerTransformer {
     return EnumSearcher.of(Practitioner.GenderCode.class).find(providedGender.toString());
   }
 
+  List<Identifier> identifiers() {
+    if (isBlank(datamart.npi())) {
+      return null;
+    }
+    return List.of(
+        Identifier.builder()
+            .system("http://hl7.org/fhir/sid/us-npi")
+            .value(datamart.npi().get())
+            .build());
+  }
+
   List<ContactPoint> telecoms() {
     return emptyToNull(
         datamart.telecom().stream().map(tel -> telecom(tel)).collect(Collectors.toList()));
@@ -106,6 +119,7 @@ public class R4PractitionerTransformer {
         .name(name(datamart.name()))
         .telecom(telecoms())
         .address(addresses())
+        .identifier(identifiers())
         .gender(gender(datamart.gender()))
         .birthDate(birthDate(datamart.birthDate()))
         .build();

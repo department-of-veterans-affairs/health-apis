@@ -3,24 +3,55 @@ package gov.va.api.health.dataquery.service.controller.practitioner;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 
+import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
 import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
-import gov.va.api.health.r4.api.datatypes.Address;
-import gov.va.api.health.r4.api.datatypes.ContactPoint;
-import gov.va.api.health.r4.api.datatypes.HumanName;
-import gov.va.api.health.r4.api.resources.Practitioner;
+import gov.va.api.health.ids.api.Registration;
+import gov.va.api.health.ids.api.ResourceIdentity;
+import gov.va.api.health.r4.api.datatypes.Identifier;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class PractitionerSamples {
+
+  public static ResourceIdentity id(String cdwId) {
+    return ResourceIdentity.builder()
+        .system("CDW")
+        .resource("PRACTITIONER")
+        .identifier(cdwId)
+        .build();
+  }
+
+  @SneakyThrows
+  static String json(Object o) {
+    return JacksonConfig.createMapper().writerWithDefaultPrettyPrinter().writeValueAsString(o);
+  }
+
+  public static Registration registration(String cdwId, String publicId) {
+    return Registration.builder().uuid(publicId).resourceIdentities(List.of(id(cdwId))).build();
+  }
+
   @AllArgsConstructor(staticName = "create")
   static class Datamart {
+
+    @SneakyThrows
+    public PractitionerEntity entity(String cdwId, String locCdwId, String orgCdwId) {
+      DatamartPractitioner dm = practitioner(cdwId);
+      return PractitionerEntity.builder()
+          .cdwId(cdwId)
+          .familyName("Joe")
+          .givenName("Johnson")
+          .payload(json(dm))
+          .build();
+    }
+
     public DatamartPractitioner practitioner() {
       return practitioner("1234");
     }
@@ -267,22 +298,80 @@ public class PractitionerSamples {
 
   @AllArgsConstructor(staticName = "create")
   public static class R4 {
-    public Practitioner practitioner() {
+
+    static gov.va.api.health.r4.api.resources.Practitioner.Bundle asBundle(
+        String basePath,
+        Collection<gov.va.api.health.r4.api.resources.Practitioner> practitioners,
+        gov.va.api.health.r4.api.bundle.BundleLink... links) {
+      return asBundle(basePath, practitioners, practitioners.size(), links);
+    }
+
+    static gov.va.api.health.r4.api.resources.Practitioner.Bundle asBundle(
+        String basePath,
+        Collection<gov.va.api.health.r4.api.resources.Practitioner> practitioners,
+        int totalRecords,
+        gov.va.api.health.r4.api.bundle.BundleLink... links) {
+      return gov.va.api.health.r4.api.resources.Practitioner.Bundle.builder()
+          .resourceType("Bundle")
+          .type(gov.va.api.health.r4.api.bundle.AbstractBundle.BundleType.searchset)
+          .total(totalRecords)
+          .link(asList(links))
+          .entry(
+              practitioners.stream()
+                  .map(
+                      c ->
+                          gov.va.api.health.r4.api.resources.Practitioner.Entry.builder()
+                              .fullUrl(basePath + "/Practitioner/" + c.id())
+                              .resource(c)
+                              .search(
+                                  gov.va.api.health.r4.api.bundle.AbstractEntry.Search.builder()
+                                      .mode(
+                                          gov.va.api.health.r4.api.bundle.AbstractEntry.SearchMode
+                                              .match)
+                                      .build())
+                              .build())
+                  .collect(Collectors.toList()))
+          .build();
+    }
+
+    static gov.va.api.health.r4.api.bundle.BundleLink link(
+        gov.va.api.health.r4.api.bundle.BundleLink.LinkRelation rel,
+        String base,
+        int page,
+        int count) {
+      return gov.va.api.health.r4.api.bundle.BundleLink.builder()
+          .relation(rel)
+          .url(base + "&page=" + page + "&_count=" + count)
+          .build();
+    }
+
+    public gov.va.api.health.r4.api.resources.Practitioner practitioner() {
       return practitioner("1234");
     }
 
-    public Practitioner practitioner(String id) {
-      return Practitioner.builder()
+    public gov.va.api.health.r4.api.resources.Practitioner practitioner(String id) {
+      return gov.va.api.health.r4.api.resources.Practitioner.builder()
           .resourceType("Practitioner")
           .id(id)
           .identifier(null)
           .active(true)
-          .name(List.of(HumanName.builder().family("Joe").given(List.of("Johnson")).build()))
-          .gender(Practitioner.GenderCode.male)
+          .name(
+              List.of(
+                  gov.va.api.health.r4.api.datatypes.HumanName.builder()
+                      .family("Joe")
+                      .given(List.of("Johnson"))
+                      .build()))
+          .gender(gov.va.api.health.r4.api.resources.Practitioner.GenderCode.male)
           .birthDate("1970-11-14")
+          .identifier(
+              List.of(
+                  Identifier.builder()
+                      .system("http://hl7.org/fhir/sid/us-npi")
+                      .value("1234567")
+                      .build()))
           .address(
               List.of(
-                  Address.builder()
+                  gov.va.api.health.r4.api.datatypes.Address.builder()
                       .line(List.of("111 MacGyver Viaduct"))
                       .city("Anchorage")
                       .state("Alaska")
@@ -290,10 +379,11 @@ public class PractitionerSamples {
                       .build()))
           .telecom(
               List.of(
-                  ContactPoint.builder()
-                      .use(ContactPoint.ContactPointUse.mobile)
+                  gov.va.api.health.r4.api.datatypes.ContactPoint.builder()
+                      .use(gov.va.api.health.r4.api.datatypes.ContactPoint.ContactPointUse.mobile)
                       .value("123-456-1234")
-                      .system(ContactPoint.ContactPointSystem.phone)
+                      .system(
+                          gov.va.api.health.r4.api.datatypes.ContactPoint.ContactPointSystem.phone)
                       .build()))
           .build();
     }
