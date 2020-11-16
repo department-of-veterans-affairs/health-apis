@@ -18,7 +18,12 @@ public class DeviceIT {
     verifier.verifyAll(
         test(200, Device.class, "Device/{id}", verifier.ids().device()),
         test(404, OperationOutcome.class, "Device/{id}", verifier.ids().unknown()),
-        test(200, Device.Bundle.class, "Device?patient={patientIcn}", verifier.ids().patient()));
+        test(200, Device.Bundle.class, "Device?patient={patientIcn}", verifier.ids().patient()),
+        test(
+            200,
+            Device.Bundle.class,
+            "Device?patient={patientIcn}&type=http://snomed.info/sct|53350007",
+            verifier.ids().patient()));
   }
 
   @Test
