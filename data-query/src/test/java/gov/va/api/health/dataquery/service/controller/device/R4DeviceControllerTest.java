@@ -13,7 +13,6 @@ import static org.mockito.Mockito.when;
 import gov.va.api.health.dataquery.service.config.LinkProperties;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.ids.api.IdentityService;
-import gov.va.api.health.r4.api.bundle.AbstractBundle;
 import gov.va.api.health.r4.api.bundle.BundleLink;
 import gov.va.api.health.r4.api.resources.Device;
 import gov.va.api.lighthouse.vulcan.InvalidRequest;
@@ -56,7 +55,24 @@ public class R4DeviceControllerTest {
 
   @ParameterizedTest
   @ValueSource(
-      strings = {"?patient=p1&_id=123", "?patient=p1&identifier=123", "?_id=123&identifier=456"})
+      strings = {"?nachos=friday", "?patient=p1&type=54321", "?patient=p1&type=http://not.today|"})
+  @SneakyThrows
+  void emptyBundle(String query) {
+    var url = "http://fonzy.com/r4/Device" + query;
+    var request = requestFromUri(url);
+    Device.Bundle bundle = controller().search(request);
+    assertThat(bundle.total()).isEqualTo(0);
+    assertThat(bundle.entry()).isEmpty();
+  }
+
+  @ParameterizedTest
+  @ValueSource(
+      strings = {
+        "?patient=p1&_id=123",
+        "?patient=p1&identifier=123",
+        "?_id=123&identifier=456",
+        "?type=1234"
+      })
   @SneakyThrows
   void invalidRequests(String query) {
     var request = requestFromUri("http://fonzy.com/r4/Device" + query);
@@ -116,29 +132,15 @@ public class R4DeviceControllerTest {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {"?nachos=friday", "?type=156009"})
-  @SneakyThrows
-  void unknownParameters(String query) {
-    var url = "http://fonzy.com/r4/Device" + query;
-    var request = requestFromUri(url);
-    assertThat(controller().search(request))
-        .isEqualTo(
-            Device.Bundle.builder()
-                .resourceType("Bundle")
-                .type(AbstractBundle.BundleType.searchset)
-                .total(0)
-                .link(
-                    List.of(
-                        BundleLink.builder()
-                            .relation(BundleLink.LinkRelation.self)
-                            .url(url + "&_count=15&page=1")
-                            .build()))
-                .entry(List.of())
-                .build());
-  }
-
-  @ParameterizedTest
-  @ValueSource(strings = {"?_id=pd1", "?identifier=pd1", "?patient=p1"})
+  @ValueSource(
+      strings = {
+        "?_id=pd1",
+        "?identifier=pd1",
+        "?patient=p1",
+        "?patient=p1&type=53350007",
+        "?patient=p1&type=http://snomed.info/sct|53350007",
+        "?patient=p1&type=http://snomed.info/sct|"
+      })
   @SneakyThrows
   void validRequests(String query) {
     when(ids.register(any()))

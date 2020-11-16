@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.device;
 
+import static gov.va.api.lighthouse.vulcan.Rules.ifParameter;
 import static gov.va.api.lighthouse.vulcan.Rules.parametersNeverSpecifiedTogether;
 import static gov.va.api.lighthouse.vulcan.Vulcan.returnNothing;
 
@@ -13,6 +14,9 @@ import gov.va.api.health.r4.api.resources.Device;
 import gov.va.api.lighthouse.vulcan.Vulcan;
 import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
 import gov.va.api.lighthouse.vulcan.mappings.Mappings;
+import gov.va.api.lighthouse.vulcan.mappings.TokenParameter;
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
@@ -37,6 +41,7 @@ import org.springframework.web.bind.annotation.RestController;
     produces = {"application/json", "application/fhir+json"})
 @AllArgsConstructor(onConstructor_ = @Autowired)
 public class R4DeviceController {
+  private static final String DEVICE_TYPE_SYSTEM = "http://snomed.info/sct";
 
   private final WitnessProtection witnessProtection;
 
@@ -52,10 +57,11 @@ public class R4DeviceController {
                 .value("_id", "cdwId", witnessProtection::toCdwId)
                 .value("identifier", "cdwId", witnessProtection::toCdwId)
                 .value("patient", "icn")
-                // ToDo -- Search by Patient+Type (Missing: db column "type")
+                .token("type", this::tokenTypeIsSupported, this::tokenTypeValues)
                 .get())
         .defaultQuery(returnNothing())
         .rule(parametersNeverSpecifiedTogether("patient", "_id", "identifier"))
+        .rule(ifParameter("type").thenAlsoAtLeastOneParameterOf("patient"))
         .build();
   }
 
@@ -87,6 +93,23 @@ public class R4DeviceController {
                 .linkProperties(linkProperties)
                 .build())
         .build();
+  }
+
+  boolean tokenTypeIsSupported(TokenParameter token) {
+    // Prosthesis, device (physical object)
+    return (token.hasSupportedCode("53350007")
+            && (token.hasSupportedSystem(DEVICE_TYPE_SYSTEM) || token.hasAnySystem()))
+        || (token.hasSupportedSystem(DEVICE_TYPE_SYSTEM) && token.hasAnyCode());
+  }
+
+  Collection<String> tokenTypeValues(TokenParameter token) {
+    /*
+     * There are no values of type that are searchable. All devices are "53350007", if the
+     * token is supported, then we effectively "select all". By returning no values, the token
+     * mapping will abstain from contributing to any additional where clauses. We rely on `patient`
+     * clause to find all records for this patient.
+     */
+    return List.of();
   }
 
   VulcanizedTransformation<DeviceEntity, DatamartDevice, Device> transformation() {
