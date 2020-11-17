@@ -54,7 +54,12 @@ public class VulcanizedReader<
    */
   public String readRaw(String publicId, HttpServletResponse response) {
     EntityT entity = find(publicId);
-    toPatientId.apply(entity).ifPresent(p -> IncludesIcnMajig.addHeader(response, p));
+    Optional<String> patientId = toPatientId.apply(entity);
+    if (patientId.isPresent()) {
+      IncludesIcnMajig.addHeader(response, patientId.get());
+    } else {
+      IncludesIcnMajig.addHeaderForNoPatients(response);
+    }
     return toPayload.apply(entity);
   }
 }

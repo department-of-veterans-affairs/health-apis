@@ -16,6 +16,7 @@ import gov.va.api.health.dataquery.service.controller.vulcanizer.Foos.Ids;
 import gov.va.api.health.ids.api.IdentityService;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.Test;
@@ -32,7 +33,16 @@ class VulcanizedReaderTest {
   @Mock HttpServletResponse response;
 
   @Test
-  void readRawReturnsPayload() {
+  void readRawReturnsPayloadAndNoneHeaderForNoPatientId() {
+    when(ids.lookup("pf1")).thenReturn(List.of(Ids.id("WHATEVER", "f1")));
+    when(repo.findById("f1")).thenReturn(Optional.of(new FooEntity("f1", "p1")));
+    var payload = reader(e -> Optional.empty()).readRaw("pf1", response);
+    assertThat(payload).isEqualTo("payload:f1:p1");
+    verify(response).addHeader(IncludesIcnMajig.INCLUDES_ICN_HEADER, "NONE");
+  }
+
+  @Test
+  void readRawReturnsPayloadAndPatientIdHeader() {
     when(ids.lookup("pf1")).thenReturn(List.of(Ids.id("WHATEVER", "f1")));
     when(repo.findById("f1")).thenReturn(Optional.of(new FooEntity("f1", "p1")));
     var payload = reader().readRaw("pf1", response);
@@ -65,6 +75,11 @@ class VulcanizedReaderTest {
   }
 
   VulcanizedReader<FooEntity, FooDatamart, FooResource> reader() {
+    return reader(e -> Optional.of(e.ref()));
+  }
+
+  private VulcanizedReader<FooEntity, FooDatamart, FooResource> reader(
+      Function<FooEntity, Optional<String>> toPatientId) {
     return VulcanizedReader.forTransformation(
             VulcanizedTransformation.toDatamart(FooEntity::toDatamart)
                 .toResource(FooDatamart::toResource)
@@ -72,7 +87,7 @@ class VulcanizedReaderTest {
                 .replaceReferences(d -> Stream.of(d.patient()))
                 .build())
         .toPayload(FooEntity::payload)
-        .toPatientId(e -> Optional.of(e.ref()))
+        .toPatientId(toPatientId)
         .repository(repo)
         .build();
   }
