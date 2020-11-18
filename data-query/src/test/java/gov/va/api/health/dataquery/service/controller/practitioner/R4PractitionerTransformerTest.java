@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import gov.va.api.health.r4.api.datatypes.Address;
 import gov.va.api.health.r4.api.datatypes.ContactPoint;
 import gov.va.api.health.r4.api.datatypes.HumanName;
+import gov.va.api.health.r4.api.datatypes.Identifier;
 import gov.va.api.health.r4.api.resources.Practitioner;
 import java.util.List;
 import java.util.Optional;
@@ -42,7 +43,16 @@ public class R4PractitionerTransformerTest {
                 .datamart(DatamartPractitioner.builder().build())
                 .build()
                 .toFhir())
-        .isEqualTo(Practitioner.builder().resourceType("Practitioner").build());
+        .isEqualTo(
+            Practitioner.builder()
+                .resourceType("Practitioner")
+                .identifier(
+                    List.of(
+                        Identifier.builder()
+                            .system("http://hl7.org/fhir/sid/us-npi")
+                            .value("Unknown")
+                            .build()))
+                .build());
   }
 
   @Test

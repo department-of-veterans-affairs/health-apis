@@ -2,7 +2,6 @@ package gov.va.api.health.dataquery.service.controller.practitioner;
 
 import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
 import static gov.va.api.health.dataquery.service.controller.Transformers.emptyToNull;
-import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
 import static java.util.Arrays.asList;
 
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
@@ -95,13 +94,11 @@ public class R4PractitionerTransformer {
   }
 
   List<Identifier> identifiers() {
-    if (isBlank(datamart.npi())) {
-      return null;
-    }
+    // ToDo is unknown the correct value to populate?
     return List.of(
         Identifier.builder()
             .system("http://hl7.org/fhir/sid/us-npi")
-            .value(datamart.npi().get())
+            .value(datamart.npi().orElse("Unknown"))
             .build());
   }
 
