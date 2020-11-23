@@ -90,10 +90,14 @@ class Dstu2MetadataController {
   private Set<SearchParam> conditionSearchParams() {
     switch (properties.getStatementType()) {
       case PATIENT:
-        return singleton(SearchParam.PATIENT);
+        return ImmutableSet.of(SearchParam.ID, SearchParam.IDENTIFIER, SearchParam.PATIENT);
       case CLINICIAN:
         return ImmutableSet.of(
-            SearchParam.CATEGORY, SearchParam.CLINICAL_STATUS, SearchParam.PATIENT);
+            SearchParam.CATEGORY,
+            SearchParam.CLINICAL_STATUS,
+            SearchParam.ID,
+            SearchParam.IDENTIFIER,
+            SearchParam.PATIENT);
       default:
         throw noSearchParamsForConformanceStatementTypeException();
     }
@@ -115,10 +119,15 @@ class Dstu2MetadataController {
   private Set<SearchParam> diagnosticReportSearchParams() {
     switch (properties.getStatementType()) {
       case PATIENT:
-        return singleton(SearchParam.PATIENT);
+        return ImmutableSet.of(SearchParam.ID, SearchParam.IDENTIFIER, SearchParam.PATIENT);
       case CLINICIAN:
         return ImmutableSet.of(
-            SearchParam.CATEGORY, SearchParam.CODE, SearchParam.DATE, SearchParam.PATIENT);
+            SearchParam.CATEGORY,
+            SearchParam.CODE,
+            SearchParam.DATE,
+            SearchParam.ID,
+            SearchParam.IDENTIFIER,
+            SearchParam.PATIENT);
       default:
         throw noSearchParamsForConformanceStatementTypeException();
     }
@@ -133,10 +142,16 @@ class Dstu2MetadataController {
   private Set<SearchParam> observationSearchParams() {
     switch (properties.getStatementType()) {
       case PATIENT:
-        return ImmutableSet.of(SearchParam.PATIENT, SearchParam.CATEGORY);
+        return ImmutableSet.of(
+            SearchParam.ID, SearchParam.IDENTIFIER, SearchParam.PATIENT, SearchParam.CATEGORY);
       case CLINICIAN:
         return ImmutableSet.of(
-            SearchParam.CATEGORY, SearchParam.CODE, SearchParam.DATE, SearchParam.PATIENT);
+            SearchParam.CATEGORY,
+            SearchParam.CODE,
+            SearchParam.DATE,
+            SearchParam.ID,
+            SearchParam.IDENTIFIER,
+            SearchParam.PATIENT);
       default:
         throw noSearchParamsForConformanceStatementTypeException();
     }
@@ -194,7 +209,8 @@ class Dstu2MetadataController {
     return Stream.of(
             support("AllergyIntolerance")
                 .documentation(ALLERGYINTOLERANCE_HTML)
-                .search(ImmutableSet.of(SearchParam.PATIENT))
+                .search(
+                    ImmutableSet.of(SearchParam.ID, SearchParam.IDENTIFIER, SearchParam.PATIENT))
                 .build(),
             support("Condition")
                 .documentation(CONDITION_HTML)
@@ -206,10 +222,14 @@ class Dstu2MetadataController {
                 .build(),
             support("Immunization")
                 .documentation(IMMUNIZATION_HTML)
-                .search(ImmutableSet.of(SearchParam.PATIENT))
+                .search(
+                    ImmutableSet.of(SearchParam.ID, SearchParam.IDENTIFIER, SearchParam.PATIENT))
                 .build(),
             support("Location").documentation(LOCATION_HTML).build(),
-            support("Medication").documentation(MEDICATION_HTML).build(),
+            support("Medication")
+                .documentation(MEDICATION_HTML)
+                .search(ImmutableSet.of(SearchParam.ID, SearchParam.IDENTIFIER))
+                .build(),
             support("MedicationOrder")
                 .documentation(MEDICATIONORDER_HTML)
                 .search(ImmutableSet.of(SearchParam.PATIENT))
@@ -306,6 +326,7 @@ class Dstu2MetadataController {
     GENDER("gender", SearchParamType.token),
     GIVEN("given", SearchParamType.string),
     ID("_id", SearchParamType.string),
+    IDENTIFIER("identifier", SearchParamType.string),
     NAME("name", SearchParamType.string),
     PATIENT("patient", SearchParamType.reference),
     STATUS("status", SearchParamType.token),

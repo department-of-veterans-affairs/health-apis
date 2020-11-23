@@ -87,6 +87,14 @@
           ],
           "searchParam" : [
             {
+              "name" : "_id",
+              "type" : "string"
+            },
+            {
+              "name" : "identifier",
+              "type" : "string"
+            },
+            {
               "name" : "patient",
               "type" : "reference"
             }
@@ -115,6 +123,14 @@
             {
               "name" : "clinicalstatus",
               "type" : "token"
+            },
+            {
+              "name" : "_id",
+              "type" : "string"
+            },
+            {
+              "name" : "identifier",
+              "type" : "string"
             },
             {
               "name" : "patient",
@@ -151,6 +167,14 @@
               "type" : "date"
             },
             {
+              "name" : "_id",
+              "type" : "string"
+            },
+            {
+              "name" : "identifier",
+              "type" : "string"
+            },
+            {
               "name" : "patient",
               "type" : "reference"
             }
@@ -172,6 +196,14 @@
             }
           ],
           "searchParam" : [
+            {
+              "name" : "_id",
+              "type" : "string"
+            },
+            {
+              "name" : "identifier",
+              "type" : "string"
+            },
             {
               "name" : "patient",
               "type" : "reference"
@@ -197,8 +229,22 @@
           },
           "interaction" : [
             {
+              "code" : "search-type",
+              "documentation" : "Implemented per the specification"
+            },
+            {
               "code" : "read",
               "documentation" : "Implemented per the specification"
+            }
+          ],
+          "searchParam" : [
+            {
+              "name" : "_id",
+              "type" : "string"
+            },
+            {
+              "name" : "identifier",
+              "type" : "string"
             }
           ]
         },
@@ -273,6 +319,14 @@
             {
               "name" : "date",
               "type" : "date"
+            },
+            {
+              "name" : "_id",
+              "type" : "string"
+            },
+            {
+              "name" : "identifier",
+              "type" : "string"
             },
             {
               "name" : "patient",
