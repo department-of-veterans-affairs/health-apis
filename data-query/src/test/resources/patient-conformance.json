@@ -245,6 +245,14 @@
           ],
           "searchParam" : [
             {
+              "name" : "_id",
+              "type" : "string"
+            },
+            {
+              "name" : "identifier",
+              "type" : "string"
+            },
+            {
               "name" : "patient",
               "type" : "reference"
             }
@@ -266,6 +274,14 @@
             }
           ],
           "searchParam" : [
+            {
+              "name" : "_id",
+              "type" : "string"
+            },
+            {
+              "name" : "identifier",
+              "type" : "string"
+            },
             {
               "name" : "patient",
               "type" : "reference"
@@ -337,6 +353,10 @@
             {
               "name" : "_id",
               "type" : "string"
+            },
+            {
+              "name" : "identifier",
+              "type" : "string"
             }
           ]
         },
@@ -368,6 +388,14 @@
             }
           ],
           "searchParam" : [
+            {
+              "name" : "_id",
+              "type" : "string"
+            },
+            {
+              "name" : "identifier",
+              "type" : "string"
+            },
             {
               "name" : "patient",
               "type" : "reference"

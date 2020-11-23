@@ -2,7 +2,6 @@ package gov.va.api.health.dataquery.service.controller.metadata;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
-import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 
 import com.google.common.collect.ImmutableSet;
@@ -160,7 +159,7 @@ class Dstu2MetadataController {
   private Set<SearchParam> patientSearchParams() {
     switch (properties.getStatementType()) {
       case PATIENT:
-        return singleton(SearchParam.ID);
+        return ImmutableSet.of(SearchParam.ID, SearchParam.IDENTIFIER);
       case CLINICIAN:
         return ImmutableSet.of(
             SearchParam.BIRTH_DATE,
@@ -168,6 +167,7 @@ class Dstu2MetadataController {
             SearchParam.GENDER,
             SearchParam.GIVEN,
             SearchParam.ID,
+            SearchParam.IDENTIFIER,
             SearchParam.NAME);
       default:
         throw noSearchParamsForConformanceStatementTypeException();
@@ -177,9 +177,10 @@ class Dstu2MetadataController {
   private Set<SearchParam> procedureSearchParams() {
     switch (properties.getStatementType()) {
       case PATIENT:
-        return singleton(SearchParam.PATIENT);
+        return ImmutableSet.of(SearchParam.ID, SearchParam.IDENTIFIER, SearchParam.PATIENT);
       case CLINICIAN:
-        return ImmutableSet.of(SearchParam.DATE, SearchParam.PATIENT);
+        return ImmutableSet.of(
+            SearchParam.DATE, SearchParam.ID, SearchParam.IDENTIFIER, SearchParam.PATIENT);
       default:
         throw noSearchParamsForConformanceStatementTypeException();
     }
@@ -232,11 +233,13 @@ class Dstu2MetadataController {
                 .build(),
             support("MedicationOrder")
                 .documentation(MEDICATIONORDER_HTML)
-                .search(ImmutableSet.of(SearchParam.PATIENT))
+                .search(
+                    ImmutableSet.of(SearchParam.ID, SearchParam.IDENTIFIER, SearchParam.PATIENT))
                 .build(),
             support("MedicationStatement")
                 .documentation(MEDICATIONSTATEMENT_HTML)
-                .search(ImmutableSet.of(SearchParam.PATIENT))
+                .search(
+                    ImmutableSet.of(SearchParam.ID, SearchParam.IDENTIFIER, SearchParam.PATIENT))
                 .build(),
             support("Observation")
                 .documentation(OBSERVATIONRESULTS_HTML)
