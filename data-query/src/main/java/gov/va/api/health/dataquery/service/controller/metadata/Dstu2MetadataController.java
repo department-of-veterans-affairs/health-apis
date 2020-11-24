@@ -108,7 +108,12 @@ class Dstu2MetadataController {
   private Set<SearchParam> patientSearchParams() {
     switch (properties.getStatementType()) {
       case PATIENT:
-        return ImmutableSet.of(SearchParam.ID, SearchParam.IDENTIFIER);
+        return ImmutableSet.of(
+            SearchParam.ID,
+            SearchParam.IDENTIFIER,
+            SearchParam.NAME,
+            SearchParam.BIRTH_DATE,
+            SearchParam.GENDER);
       case CLINICIAN:
         return ImmutableSet.of(
             SearchParam.BIRTH_DATE,
@@ -118,18 +123,6 @@ class Dstu2MetadataController {
             SearchParam.ID,
             SearchParam.IDENTIFIER,
             SearchParam.NAME);
-      default:
-        throw noSearchParamsForConformanceStatementTypeException();
-    }
-  }
-
-  private Set<SearchParam> procedureSearchParams() {
-    switch (properties.getStatementType()) {
-      case PATIENT:
-        return ImmutableSet.of(SearchParam.ID, SearchParam.IDENTIFIER, SearchParam.PATIENT);
-      case CLINICIAN:
-        return ImmutableSet.of(
-            SearchParam.DATE, SearchParam.ID, SearchParam.IDENTIFIER, SearchParam.PATIENT);
       default:
         throw noSearchParamsForConformanceStatementTypeException();
     }
@@ -228,7 +221,12 @@ class Dstu2MetadataController {
                 .build(),
             support("Procedure")
                 .documentation(PROCEDURE_HTML)
-                .search(procedureSearchParams())
+                .search(
+                    ImmutableSet.of(
+                        SearchParam.DATE,
+                        SearchParam.ID,
+                        SearchParam.IDENTIFIER,
+                        SearchParam.PATIENT))
                 .build())
         .map(SupportedResource::asResource)
         .filter(r -> referenceSerializerProperties.checkForResource(r.type()))

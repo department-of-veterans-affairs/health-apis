@@ -413,6 +413,18 @@
             {
               "name" : "identifier",
               "type" : "string"
+            },
+            {
+              "name" : "name",
+              "type" : "string"
+            },
+            {
+              "name" : "birthdate",
+              "type" : "date"
+            },
+            {
+              "name" : "gender",
+              "type" : "token"
             }
           ]
         },
@@ -458,6 +470,10 @@
             }
           ],
           "searchParam" : [
+            {
+              "name" : "date",
+              "type" : "date"
+            },
             {
               "name" : "_id",
               "type" : "string"
