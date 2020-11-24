@@ -1,8 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.procedure;
 
-import static gov.va.api.health.autoconfig.logging.LogSanitizer.sanitize;
 import static java.util.Collections.emptyList;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.DateTimeParameter;
@@ -24,6 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,31 +46,17 @@ import org.springframework.web.bind.annotation.RestController;
 @Builder
 @Validated
 @RestController
+@AllArgsConstructor(onConstructor_ = @Autowired)
 @RequestMapping(
     value = {"/r4/Procedure"},
     produces = {"application/json", "application/fhir+json"})
 public class R4ProcedureController {
-
-  ProcedureHack procedureHack;
 
   private R4Bundler bundler;
 
   private ProcedureRepository repository;
 
   private WitnessProtection witnessProtection;
-
-  /** Constructor. Note the Procedure hack params. */
-  @Autowired
-  public R4ProcedureController(
-      ProcedureHack procedureHack,
-      R4Bundler bundler,
-      ProcedureRepository repository,
-      WitnessProtection witnessProtection) {
-    this.procedureHack = procedureHack;
-    this.bundler = bundler;
-    this.repository = repository;
-    this.witnessProtection = witnessProtection;
-  }
 
   private Bundle bundle(
       MultiValueMap<String, String> parameters, List<Procedure> reports, int totalRecords) {
@@ -102,9 +87,6 @@ public class R4ProcedureController {
     DatamartProcedure procedure = findById(publicId).asDatamartProcedure();
     replaceReferences(List.of(procedure));
     Procedure fhir = transform(procedure);
-    if (isNotBlank(icnHeader) && procedureHack.isPatientWithoutRecords(icnHeader)) {
-      fhir = procedureHack.disguiseAsPatientWithoutRecords(fhir, Procedure.class);
-    }
     return fhir;
   }
 
@@ -117,14 +99,7 @@ public class R4ProcedureController {
       @RequestHeader(value = "X-VA-ICN", required = false) String icnHeader,
       HttpServletResponse response) {
     ProcedureEntity entity = findById(publicId);
-    if (isNotBlank(icnHeader)
-        && procedureHack.isPatientWithoutRecords(icnHeader)
-        && entity.icn().equals(procedureHack.withRecordsId)) {
-      log.info("Procedure Hack: Setting includes header to magic patient: {}", sanitize(icnHeader));
-      IncludesIcnMajig.addHeader(response, IncludesIcnMajig.encodeHeaderValue(icnHeader));
-    } else {
-      IncludesIcnMajig.addHeader(response, IncludesIcnMajig.encodeHeaderValue(entity.icn()));
-    }
+    IncludesIcnMajig.addHeader(response, IncludesIcnMajig.encodeHeaderValue(entity.icn()));
     return entity.payload();
   }
 
@@ -170,10 +145,6 @@ public class R4ProcedureController {
           String[] date,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
-    final boolean isPatientWithoutRecords = procedureHack.isPatientWithoutRecords(patient);
-    if (isPatientWithoutRecords) {
-      patient = procedureHack.withRecordsId;
-    }
     String icn = witnessProtection.toCdwId(patient);
     PatientAndDateSpecification spec =
         PatientAndDateSpecification.builder().patient(icn).dates(date).build();
@@ -205,9 +176,6 @@ public class R4ProcedureController {
                   .map(this::transform)
                   .collect(Collectors.toList()),
               (int) pageOfProcedures.getTotalElements());
-    }
-    if (isPatientWithoutRecords) {
-      bundle = procedureHack.disguiseAsPatientWithoutRecords(bundle, Procedure.Bundle.class);
     }
     return bundle;
   }
