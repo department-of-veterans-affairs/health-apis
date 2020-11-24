@@ -226,7 +226,10 @@ class Dstu2MetadataController {
                 .search(
                     ImmutableSet.of(SearchParam.ID, SearchParam.IDENTIFIER, SearchParam.PATIENT))
                 .build(),
-            support("Location").documentation(LOCATION_HTML).build(),
+            support("Location")
+                .documentation(LOCATION_HTML)
+                .search(ImmutableSet.of(SearchParam.ID, SearchParam.IDENTIFIER))
+                .build(),
             support("Medication")
                 .documentation(MEDICATION_HTML)
                 .search(ImmutableSet.of(SearchParam.ID, SearchParam.IDENTIFIER))
@@ -245,9 +248,15 @@ class Dstu2MetadataController {
                 .documentation(OBSERVATIONRESULTS_HTML)
                 .search(observationSearchParams())
                 .build(),
-            support("Organization").documentation(ORGANIZATION_HTML).build(),
+            support("Organization")
+                .documentation(ORGANIZATION_HTML)
+                .search(ImmutableSet.of(SearchParam.ID, SearchParam.IDENTIFIER))
+                .build(),
             support("Patient").documentation(PATIENT_HTML).search(patientSearchParams()).build(),
-            support("Practitioner").documentation(PRACTITIONER_HTML).build(),
+            support("Practitioner")
+                .documentation(PRACTITIONER_HTML)
+                .search(ImmutableSet.of(SearchParam.ID, SearchParam.IDENTIFIER))
+                .build(),
             support("Procedure")
                 .documentation(PROCEDURE_HTML)
                 .search(procedureSearchParams())
