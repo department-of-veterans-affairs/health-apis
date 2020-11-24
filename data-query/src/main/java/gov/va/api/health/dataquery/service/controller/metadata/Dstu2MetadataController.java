@@ -86,22 +86,6 @@ class Dstu2MetadataController {
 
   @Autowired ReferenceSerializerProperties referenceSerializerProperties;
 
-  private Set<SearchParam> conditionSearchParams() {
-    switch (properties.getStatementType()) {
-      case PATIENT:
-        return ImmutableSet.of(SearchParam.ID, SearchParam.IDENTIFIER, SearchParam.PATIENT);
-      case CLINICIAN:
-        return ImmutableSet.of(
-            SearchParam.CATEGORY,
-            SearchParam.CLINICAL_STATUS,
-            SearchParam.ID,
-            SearchParam.IDENTIFIER,
-            SearchParam.PATIENT);
-      default:
-        throw noSearchParamsForConformanceStatementTypeException();
-    }
-  }
-
   private List<Contact> contact() {
     return singletonList(
         Contact.builder()
@@ -115,45 +99,10 @@ class Dstu2MetadataController {
             .build());
   }
 
-  private Set<SearchParam> diagnosticReportSearchParams() {
-    switch (properties.getStatementType()) {
-      case PATIENT:
-        return ImmutableSet.of(SearchParam.ID, SearchParam.IDENTIFIER, SearchParam.PATIENT);
-      case CLINICIAN:
-        return ImmutableSet.of(
-            SearchParam.CATEGORY,
-            SearchParam.CODE,
-            SearchParam.DATE,
-            SearchParam.ID,
-            SearchParam.IDENTIFIER,
-            SearchParam.PATIENT);
-      default:
-        throw noSearchParamsForConformanceStatementTypeException();
-    }
-  }
-
   private IllegalArgumentException noSearchParamsForConformanceStatementTypeException() {
     throw new IllegalStateException(
         "Search parameters are not configured for conformance statement type: "
             + properties.getStatementType());
-  }
-
-  private Set<SearchParam> observationSearchParams() {
-    switch (properties.getStatementType()) {
-      case PATIENT:
-        return ImmutableSet.of(
-            SearchParam.ID, SearchParam.IDENTIFIER, SearchParam.PATIENT, SearchParam.CATEGORY);
-      case CLINICIAN:
-        return ImmutableSet.of(
-            SearchParam.CATEGORY,
-            SearchParam.CODE,
-            SearchParam.DATE,
-            SearchParam.ID,
-            SearchParam.IDENTIFIER,
-            SearchParam.PATIENT);
-      default:
-        throw noSearchParamsForConformanceStatementTypeException();
-    }
   }
 
   private Set<SearchParam> patientSearchParams() {
@@ -215,11 +164,24 @@ class Dstu2MetadataController {
                 .build(),
             support("Condition")
                 .documentation(CONDITION_HTML)
-                .search(conditionSearchParams())
+                .search(
+                    ImmutableSet.of(
+                        SearchParam.CATEGORY,
+                        SearchParam.CLINICAL_STATUS,
+                        SearchParam.ID,
+                        SearchParam.IDENTIFIER,
+                        SearchParam.PATIENT))
                 .build(),
             support("DiagnosticReport")
                 .documentation(DIAGNOSTICREPORT_HTML)
-                .search(diagnosticReportSearchParams())
+                .search(
+                    ImmutableSet.of(
+                        SearchParam.CATEGORY,
+                        SearchParam.CODE,
+                        SearchParam.DATE,
+                        SearchParam.ID,
+                        SearchParam.IDENTIFIER,
+                        SearchParam.PATIENT))
                 .build(),
             support("Immunization")
                 .documentation(IMMUNIZATION_HTML)
@@ -246,7 +208,14 @@ class Dstu2MetadataController {
                 .build(),
             support("Observation")
                 .documentation(OBSERVATIONRESULTS_HTML)
-                .search(observationSearchParams())
+                .search(
+                    ImmutableSet.of(
+                        SearchParam.CATEGORY,
+                        SearchParam.CODE,
+                        SearchParam.DATE,
+                        SearchParam.ID,
+                        SearchParam.IDENTIFIER,
+                        SearchParam.PATIENT))
                 .build(),
             support("Organization")
                 .documentation(ORGANIZATION_HTML)
