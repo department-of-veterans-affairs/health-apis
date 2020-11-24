@@ -97,6 +97,14 @@
           ],
           "searchParam" : [
             {
+              "name" : "_id",
+              "type" : "string"
+            },
+            {
+              "name" : "identifier",
+              "type" : "string"
+            },
+            {
               "name" : "patient",
               "type" : "reference"
             }
@@ -122,12 +130,20 @@
           ],
           "searchParam" : [
             {
+              "name" : "_id",
+              "type" : "string"
+            },
+            {
               "name" : "category",
               "type" : "string"
             },
             {
               "name" : "clinical-status",
               "type" : "token"
+            },
+            {
+              "name" : "identifier",
+              "type" : "string"
             },
             {
               "name" : "patient",
@@ -169,6 +185,10 @@
             {
               "name" : "date",
               "type" : "date"
+            },
+            {
+              "name" : "identifier",
+              "type" : "string"
             },
             {
               "name" : "patient",
@@ -332,6 +352,10 @@
             {
               "name" : "date",
               "type" : "date"
+            },
+            {
+              "name" : "identifier",
+              "type" : "string"
             },
             {
               "name" : "patient",

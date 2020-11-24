@@ -99,12 +99,17 @@ class R4MetadataController {
             support("AllergyIntolerance")
                 .profileUrl(
                     "http://hl7.org/fhir/us/core/StructureDefinition/us-core-allergyintolerance")
-                .search(Set.of(SearchParam.PATIENT))
+                .search(Set.of(SearchParam.ID, SearchParam.IDENTIFIER, SearchParam.PATIENT))
                 .build(),
             support("Condition")
                 .profileUrl("http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition")
                 .search(
-                    Set.of(SearchParam.PATIENT, SearchParam.CATEGORY, SearchParam.CLINICAL_STATUS))
+                    Set.of(
+                        SearchParam.ID,
+                        SearchParam.IDENTIFIER,
+                        SearchParam.PATIENT,
+                        SearchParam.CATEGORY,
+                        SearchParam.CLINICAL_STATUS))
                 .build(),
             support("DiagnosticReport")
                 .profileUrl(
@@ -112,6 +117,7 @@ class R4MetadataController {
                 .search(
                     Set.of(
                         SearchParam.ID,
+                        SearchParam.IDENTIFIER,
                         SearchParam.PATIENT,
                         SearchParam.CATEGORY,
                         SearchParam.CODE,
@@ -147,6 +153,7 @@ class R4MetadataController {
                 .search(
                     Set.of(
                         SearchParam.ID,
+                        SearchParam.IDENTIFIER,
                         SearchParam.PATIENT,
                         SearchParam.CATEGORY,
                         SearchParam.CODE,
@@ -258,6 +265,7 @@ class R4MetadataController {
     GENDER("gender", SearchParamType.token),
     GIVEN("given", SearchParamType.string),
     ID("_id", SearchParamType.string),
+    IDENTIFIER("identifier", SearchParamType.string),
     INTENT("intent", SearchParamType.string),
     NAME("name", SearchParamType.string),
     PATIENT("patient", SearchParamType.reference),
