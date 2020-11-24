@@ -126,7 +126,7 @@ class R4MetadataController {
                 .build(),
             support("Immunization")
                 .profileUrl("http://hl7.org/fhir/us/core/StructureDefinition/us-core-immunization")
-                .search(Set.of(SearchParam.PATIENT))
+                .search(Set.of(SearchParam.ID, SearchParam.IDENTIFIER, SearchParam.PATIENT))
                 .build(),
             support("Location")
                 .profileUrl("http://hl7.org/fhir/us/core/StructureDefinition/us-core-location")
@@ -141,11 +141,17 @@ class R4MetadataController {
                 .build(),
             support("Medication")
                 .profileUrl("http://hl7.org/fhir/us/core/StructureDefinition/us-core-medication")
+                .search(Set.of(SearchParam.ID, SearchParam.IDENTIFIER))
                 .build(),
             support("MedicationRequest")
                 .profileUrl(
                     "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationrequest")
-                .search(Set.of(SearchParam.ID, SearchParam.INTENT, SearchParam.PATIENT))
+                .search(
+                    Set.of(
+                        SearchParam.ID,
+                        SearchParam.IDENTIFIER,
+                        SearchParam.INTENT,
+                        SearchParam.PATIENT))
                 .build(),
             support("Observation")
                 .profileUrl(
@@ -179,11 +185,16 @@ class R4MetadataController {
                         SearchParam.BIRTH_DATE,
                         SearchParam.NAME,
                         SearchParam.GENDER,
-                        SearchParam.GIVEN))
+                        SearchParam.IDENTIFIER))
                 .build(),
             support("Procedure")
                 .profileUrl("http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure")
-                .search(Set.of(SearchParam.ID, SearchParam.PATIENT, SearchParam.DATE))
+                .search(
+                    Set.of(
+                        SearchParam.ID,
+                        SearchParam.IDENTIFIER,
+                        SearchParam.PATIENT,
+                        SearchParam.DATE))
                 .build())
         .map(SupportedResource::asResource)
         .collect(toList());

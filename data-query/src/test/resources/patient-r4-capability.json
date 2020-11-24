@@ -220,6 +220,14 @@
           ],
           "searchParam" : [
             {
+              "name" : "_id",
+              "type" : "string"
+            },
+            {
+              "name" : "identifier",
+              "type" : "string"
+            },
+            {
               "name" : "patient",
               "type" : "reference"
             }
@@ -275,6 +283,10 @@
           "profile" : "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medication",
           "interaction" : [
             {
+              "code" : "search-type",
+              "documentation" : "Implemented per the specification"
+            },
+            {
               "code" : "read",
               "documentation" : "Implemented per the specification"
             }
@@ -283,6 +295,16 @@
           "referencePolicy" : [
             "literal",
             "local"
+          ],
+          "searchParam" : [
+            {
+              "name" : "_id",
+              "type" : "string"
+            },
+            {
+              "name" : "identifier",
+              "type" : "string"
+            }
           ]
         },
         {
@@ -306,6 +328,10 @@
           "searchParam" : [
             {
               "name" : "_id",
+              "type" : "string"
+            },
+            {
+              "name" : "identifier",
               "type" : "string"
             },
             {
@@ -444,7 +470,7 @@
               "type" : "token"
             },
             {
-              "name" : "given",
+              "name" : "identifier",
               "type" : "string"
             },
             {
@@ -479,6 +505,10 @@
             {
               "name" : "date",
               "type" : "date"
+            },
+            {
+              "name" : "identifier",
+              "type" : "string"
             },
             {
               "name" : "patient",
