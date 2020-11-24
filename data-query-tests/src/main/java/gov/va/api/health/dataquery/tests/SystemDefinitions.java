@@ -226,7 +226,7 @@ public final class SystemDefinitions {
         .patient("1011537977V693883")
         .practitioner("I2-6NVSMKEGQKNB3KRDXBGE7NRIEY000000")
         .practitioners(productionPractitioners())
-        .procedure("I2-DTO3TGZDH7VWRWL6CVHS4NTMTUBWUNA5D4U2L45RJJ3LG6LY6XXA0000")
+        .procedure("I2-XOBUUJIJHDENC4YDKPK524H6QC4SEIGNLQQROOTB3W52KMFUEW6Q0000")
         .procedures(productionIdProcedures())
         .unknown("5555555555555")
         .uuid("5c2d00d6-7ce8-595a-8ed3-1ba2d21a99ff")
