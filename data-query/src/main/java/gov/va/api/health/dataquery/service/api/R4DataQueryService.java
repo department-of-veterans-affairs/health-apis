@@ -2,7 +2,6 @@ package gov.va.api.health.dataquery.service.api;
 
 import gov.va.api.health.r4.api.AllergyIntoleranceApi;
 import gov.va.api.health.r4.api.ConditionApi;
-import gov.va.api.health.r4.api.DeviceApi;
 import gov.va.api.health.r4.api.DiagnosticReportApi;
 import gov.va.api.health.r4.api.ImmunizationApi;
 import gov.va.api.health.r4.api.LocationApi;
@@ -12,8 +11,6 @@ import gov.va.api.health.r4.api.MetadataApi;
 import gov.va.api.health.r4.api.ObservationApi;
 import gov.va.api.health.r4.api.OrganizationApi;
 import gov.va.api.health.r4.api.PatientApi;
-import gov.va.api.health.r4.api.PractitionerApi;
-import gov.va.api.health.r4.api.PractitionerRoleApi;
 import gov.va.api.health.r4.api.ProcedureApi;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
@@ -35,17 +32,12 @@ import javax.ws.rs.Path;
             scopes = {
               "patient/AllergyIntolerance.read",
               "patient/Condition.read",
-              "patient/Device.read",
               "patient/DiagnosticReport.read",
               "patient/Immunization.read",
-              "patient/Location.read",
               "patient/Medication.read",
               "patient/MedicationRequest.read",
               "patient/Observation.read",
-              "patient/Organization.read",
               "patient/Patient.read",
-              "patient/Practitioner.read",
-              "patient/PractitionerRole.read",
               "patient/Procedure.read",
               "offline_access",
               "launch/patient"
@@ -89,14 +81,12 @@ import javax.ws.rs.Path;
                           name = "patient/AllergyIntolerance.read",
                           description = "read allergy intolerances"),
                       @OAuthScope(name = "patient/Condition.read", description = "read conditions"),
-                      @OAuthScope(name = "patient/Device.read", description = "read device"),
                       @OAuthScope(
                           name = "patient/DiagnosticReport.read",
                           description = "read diagnostic reports"),
                       @OAuthScope(
                           name = "patient/Immunization.read",
                           description = "read immunizations"),
-                      @OAuthScope(name = "patient/Location.read", description = "read locations"),
                       @OAuthScope(
                           name = "patient/Medication.read",
                           description = "read medications"),
@@ -106,16 +96,7 @@ import javax.ws.rs.Path;
                       @OAuthScope(
                           name = "patient/Observation.read",
                           description = "read observations"),
-                      @OAuthScope(
-                          name = "patient/Organization.read",
-                          description = "read organizations"),
                       @OAuthScope(name = "patient/Patient.read", description = "read patient"),
-                      @OAuthScope(
-                          name = "patient/Practitioner.read",
-                          description = "read practitioner"),
-                      @OAuthScope(
-                          name = "patient/PractitionerRole.read",
-                          description = "read practitioner roles"),
                       @OAuthScope(name = "patient/Procedure.read", description = "read procedures"),
                       @OAuthScope(name = "offline_access", description = "offline access"),
                       @OAuthScope(name = "launch/patient", description = "patient launch"),
@@ -124,7 +105,6 @@ import javax.ws.rs.Path;
 public interface R4DataQueryService
     extends AllergyIntoleranceApi,
         ConditionApi,
-        DeviceApi,
         DiagnosticReportApi,
         ImmunizationApi,
         LocationApi,
@@ -134,6 +114,4 @@ public interface R4DataQueryService
         ObservationApi,
         OrganizationApi,
         PatientApi,
-        PractitionerApi,
-        PractitionerRoleApi,
         ProcedureApi {}
