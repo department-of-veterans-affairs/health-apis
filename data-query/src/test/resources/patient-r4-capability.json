@@ -273,6 +273,10 @@
               "type" : "string"
             },
             {
+              "name" : "identifier",
+              "type" : "string"
+            },
+            {
               "name" : "name",
               "type" : "string"
             }
@@ -426,6 +430,10 @@
             },
             {
               "name" : "address-state",
+              "type" : "string"
+            },
+            {
+              "name" : "identifier",
               "type" : "string"
             },
             {

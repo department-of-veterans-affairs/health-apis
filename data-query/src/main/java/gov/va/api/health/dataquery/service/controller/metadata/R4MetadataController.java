@@ -133,6 +133,7 @@ class R4MetadataController {
                 .search(
                     Set.of(
                         SearchParam.ID,
+                        SearchParam.IDENTIFIER,
                         SearchParam.NAME,
                         SearchParam.ADDRESS,
                         SearchParam.ADDRESS_CITY,
@@ -170,6 +171,7 @@ class R4MetadataController {
                 .search(
                     Set.of(
                         SearchParam.ID,
+                        SearchParam.IDENTIFIER,
                         SearchParam.NAME,
                         SearchParam.ADDRESS,
                         SearchParam.ADDRESS_CITY,
