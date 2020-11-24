@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +46,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Builder
 @Validated
 @RestController
+@AllArgsConstructor(onConstructor_ = @Autowired)
 @RequestMapping(
     value = {"/r4/Procedure"},
     produces = {"application/json", "application/fhir+json"})
@@ -55,15 +57,6 @@ public class R4ProcedureController {
   private ProcedureRepository repository;
 
   private WitnessProtection witnessProtection;
-
-  /** Constructor. */
-  @Autowired
-  public R4ProcedureController(
-      R4Bundler bundler, ProcedureRepository repository, WitnessProtection witnessProtection) {
-    this.bundler = bundler;
-    this.repository = repository;
-    this.witnessProtection = witnessProtection;
-  }
 
   private Bundle bundle(
       MultiValueMap<String, String> parameters, List<Procedure> reports, int totalRecords) {

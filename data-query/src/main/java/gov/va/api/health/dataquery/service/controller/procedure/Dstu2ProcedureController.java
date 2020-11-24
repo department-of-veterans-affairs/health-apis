@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +46,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Builder
 @Validated
 @RestController
+@AllArgsConstructor(onConstructor_ = @Autowired)
 @RequestMapping(
     value = {"/dstu2/Procedure"},
     produces = {"application/json", "application/json+fhir", "application/fhir+json"})
@@ -55,15 +57,6 @@ public class Dstu2ProcedureController {
   private ProcedureRepository repository;
 
   private WitnessProtection witnessProtection;
-
-  /** Let's try something new. */
-  @Autowired
-  public Dstu2ProcedureController(
-      Dstu2Bundler bundler, ProcedureRepository repository, WitnessProtection witnessProtection) {
-    this.bundler = bundler;
-    this.repository = repository;
-    this.witnessProtection = witnessProtection;
-  }
 
   private Bundle bundle(
       MultiValueMap<String, String> parameters, List<Procedure> reports, int totalRecords) {
