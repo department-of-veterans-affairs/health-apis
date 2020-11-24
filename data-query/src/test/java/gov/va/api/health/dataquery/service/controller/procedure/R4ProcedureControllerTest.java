@@ -55,12 +55,6 @@ public class R4ProcedureControllerTest {
 
   R4ProcedureController controller() {
     return new R4ProcedureController(
-        ProcedureHack.builder()
-            .withRecordsId("clark")
-            .withoutRecordsId("superman")
-            .withRecordsDisplay("Clark Kent")
-            .withoutRecordsDisplay("Superman")
-            .build(),
         new R4Bundler(new ConfigurableBaseUrlPageLinks("http://abed.com", "cool", "cool", "cool")),
         repository,
         WitnessProtection.builder().identityService(ids).build());
@@ -142,19 +136,6 @@ public class R4ProcedureControllerTest {
   }
 
   @Test
-  public void readRawSuperman() {
-    // clark - has procedures
-    // superman - no procedures
-    DatamartProcedure dm =
-        ProcedureSamples.Datamart.create()
-            .procedure("clrks-cdw-procedure", "clark", "2005-01-21T07:57:00Z");
-    repository.save(asEntity(dm));
-    mockProcedureIdentity("clrks-procedure", "clrks-cdw-procedure");
-    String json = controller().readRaw("clrks-procedure", "superman", response);
-    assertThat(toObject(json)).isEqualTo(dm);
-  }
-
-  @Test
   public void readRawThrowsNotFoundWhenDataIsMissing() {
     mockProcedureIdentity("1", "1");
     assertThrows(ResourceExceptions.NotFound.class, () -> controller().readRaw("1", "1", response));
@@ -163,24 +144,6 @@ public class R4ProcedureControllerTest {
   @Test
   public void readRawThrowsNotFoundWhenIdIsUnknown() {
     assertThrows(ResourceExceptions.NotFound.class, () -> controller().readRaw("1", "1", response));
-  }
-
-  @Test
-  public void readSuperman() {
-    // clark - has procedures
-    // superman - no procedures
-    DatamartProcedure dm =
-        ProcedureSamples.Datamart.create()
-            .procedure("clrks-cdw-procedure", "clark", "2005-01-21T07:57:00Z");
-    repository.save(asEntity(dm));
-    mockProcedureIdentity("clrks-procedure", "clrks-cdw-procedure");
-    Procedure actual = controller().read("clrks-procedure", "superman");
-    assertThat(json(actual))
-        .isEqualTo(
-            json(
-                R4.create()
-                    .procedure(
-                        "clrks-procedure", "superman", dm.performedDateTime().get().toString())));
   }
 
   @Test
@@ -214,43 +177,6 @@ public class R4ProcedureControllerTest {
                     link(LinkRelation.first, "http://abed.com/cool/Procedure?identifier=1", 1, 1),
                     link(LinkRelation.self, "http://abed.com/cool/Procedure?identifier=1", 1, 1),
                     link(LinkRelation.last, "http://abed.com/cool/Procedure?identifier=1", 1, 1))));
-  }
-
-  @Test
-  public void searchByIdSuperman() {
-    // clark - has procedures
-    // superman - no procedures
-    DatamartProcedure dm =
-        ProcedureSamples.Datamart.create()
-            .procedure("clrks-cdw-procedure", "clark", "2005-01-21T07:57:00Z");
-    repository.save(asEntity(dm));
-    mockProcedureIdentity("clrks-procedure", "clrks-cdw-procedure");
-    Procedure.Bundle actual = controller().searchById("superman", "clrks-procedure", 1, 1);
-    Procedure procedure =
-        R4.create()
-            .procedure("clrks-procedure", "superman", dm.performedDateTime().get().toString());
-    assertThat(json(actual))
-        .isEqualTo(
-            json(
-                R4.asBundle(
-                    "http://abed.com/cool",
-                    List.of(procedure),
-                    1,
-                    link(
-                        LinkRelation.first,
-                        "http://abed.com/cool/Procedure?identifier=clrks-procedure",
-                        1,
-                        1),
-                    link(
-                        LinkRelation.self,
-                        "http://abed.com/cool/Procedure?identifier=clrks-procedure",
-                        1,
-                        1),
-                    link(
-                        LinkRelation.last,
-                        "http://abed.com/cool/Procedure?identifier=clrks-procedure",
-                        1,
-                        1))));
   }
 
   @Test
@@ -423,40 +349,6 @@ public class R4ProcedureControllerTest {
                           1,
                           10))));
     }
-  }
-
-  @Test
-  public void searchByPatientSuperman() {
-    // clark - has procedures
-    // superman - no procedures
-    DatamartProcedure dm =
-        ProcedureSamples.Datamart.create()
-            .procedure("clrks-cdw-procedure", "clark", "2005-01-21T07:57:00Z");
-    repository.save(asEntity(dm));
-    mockProcedureIdentity("clrks-procedure", "clrks-cdw-procedure");
-    Procedure.Bundle actual = controller().searchByPatientAndDate("superman", null, 1, 1);
-    Procedure procedure =
-        R4.create()
-            .procedure("clrks-procedure", "superman", dm.performedDateTime().get().toString());
-    assertThat(json(actual))
-        .isEqualTo(
-            json(
-                R4.asBundle(
-                    "http://abed.com/cool",
-                    List.of(procedure),
-                    1,
-                    link(
-                        LinkRelation.first,
-                        "http://abed.com/cool/Procedure?patient=superman",
-                        1,
-                        1),
-                    link(
-                        LinkRelation.self, "http://abed.com/cool/Procedure?patient=superman", 1, 1),
-                    link(
-                        LinkRelation.last,
-                        "http://abed.com/cool/Procedure?patient=superman",
-                        1,
-                        1))));
   }
 
   @Test

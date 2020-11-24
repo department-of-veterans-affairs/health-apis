@@ -57,12 +57,6 @@ public class Dstu2ProcedureControllerTest {
 
   Dstu2ProcedureController controller() {
     return new Dstu2ProcedureController(
-        ProcedureHack.builder()
-            .withRecordsId("clark")
-            .withoutRecordsId("superman")
-            .withRecordsDisplay("Clark Kent")
-            .withoutRecordsDisplay("Superman")
-            .build(),
         new Dstu2Bundler(
             new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool", "cool", "cool")),
         repository,
@@ -143,18 +137,6 @@ public class Dstu2ProcedureControllerTest {
   }
 
   @Test
-  public void readRawSuperman() {
-    // clark - has procedures
-    // superman - no procedures
-    DatamartProcedure dm =
-        Datamart.create().procedure("clrks-cdw-procedure", "clark", "2005-01-21T07:57:00Z");
-    repository.save(asEntity(dm));
-    mockProcedureIdentity("clrks-procedure", "clrks-cdw-procedure");
-    String json = controller().readRaw("clrks-procedure", "superman", response);
-    assertThat(toObject(json)).isEqualTo(dm);
-  }
-
-  @Test
   public void readRawThrowsNotFoundWhenDataIsMissing() {
     mockProcedureIdentity("1", "1");
     assertThrows(ResourceExceptions.NotFound.class, () -> controller().readRaw("1", "1", response));
@@ -163,23 +145,6 @@ public class Dstu2ProcedureControllerTest {
   @Test
   public void readRawThrowsNotFoundWhenIdIsUnknown() {
     assertThrows(ResourceExceptions.NotFound.class, () -> controller().readRaw("1", "1", response));
-  }
-
-  @Test
-  public void readSuperman() {
-    // clark - has procedures
-    // superman - no procedures
-    DatamartProcedure dm =
-        Datamart.create().procedure("clrks-cdw-procedure", "clark", "2005-01-21T07:57:00Z");
-    repository.save(asEntity(dm));
-    mockProcedureIdentity("clrks-procedure", "clrks-cdw-procedure");
-    Procedure actual = controller().read("clrks-procedure", "superman");
-    assertThat(json(actual))
-        .isEqualTo(
-            json(
-                Dstu2.create()
-                    .procedure(
-                        "clrks-procedure", "superman", dm.performedDateTime().get().toString())));
   }
 
   @Test
@@ -214,42 +179,6 @@ public class Dstu2ProcedureControllerTest {
                     link(LinkRelation.self, "http://fonzy.com/cool/Procedure?identifier=1", 1, 1),
                     link(
                         LinkRelation.last, "http://fonzy.com/cool/Procedure?identifier=1", 1, 1))));
-  }
-
-  @Test
-  public void searchByIdSuperman() {
-    // clark - has procedures
-    // superman - no procedures
-    DatamartProcedure dm =
-        Datamart.create().procedure("clrks-cdw-procedure", "clark", "2005-01-21T07:57:00Z");
-    repository.save(asEntity(dm));
-    mockProcedureIdentity("clrks-procedure", "clrks-cdw-procedure");
-    Bundle actual = controller().searchById("superman", "clrks-procedure", 1, 1);
-    Procedure procedure =
-        Dstu2.create()
-            .procedure("clrks-procedure", "superman", dm.performedDateTime().get().toString());
-    assertThat(json(actual))
-        .isEqualTo(
-            json(
-                Dstu2.asBundle(
-                    "http://fonzy.com/cool",
-                    List.of(procedure),
-                    1,
-                    link(
-                        LinkRelation.first,
-                        "http://fonzy.com/cool/Procedure?identifier=clrks-procedure",
-                        1,
-                        1),
-                    link(
-                        LinkRelation.self,
-                        "http://fonzy.com/cool/Procedure?identifier=clrks-procedure",
-                        1,
-                        1),
-                    link(
-                        LinkRelation.last,
-                        "http://fonzy.com/cool/Procedure?identifier=clrks-procedure",
-                        1,
-                        1))));
   }
 
   @Test
@@ -423,42 +352,6 @@ public class Dstu2ProcedureControllerTest {
                           1,
                           10))));
     }
-  }
-
-  @Test
-  public void searchByPatientSuperman() {
-    // clark - has procedures
-    // superman - no procedures
-    DatamartProcedure dm =
-        Datamart.create().procedure("clrks-cdw-procedure", "clark", "2005-01-21T07:57:00Z");
-    repository.save(asEntity(dm));
-    mockProcedureIdentity("clrks-procedure", "clrks-cdw-procedure");
-    Bundle actual = controller().searchByPatientAndDate("superman", null, 1, 1);
-    Procedure procedure =
-        Dstu2.create()
-            .procedure("clrks-procedure", "superman", dm.performedDateTime().get().toString());
-    assertThat(json(actual))
-        .isEqualTo(
-            json(
-                Dstu2.asBundle(
-                    "http://fonzy.com/cool",
-                    List.of(procedure),
-                    1,
-                    link(
-                        LinkRelation.first,
-                        "http://fonzy.com/cool/Procedure?patient=superman",
-                        1,
-                        1),
-                    link(
-                        LinkRelation.self,
-                        "http://fonzy.com/cool/Procedure?patient=superman",
-                        1,
-                        1),
-                    link(
-                        LinkRelation.last,
-                        "http://fonzy.com/cool/Procedure?patient=superman",
-                        1,
-                        1))));
   }
 
   @Test
