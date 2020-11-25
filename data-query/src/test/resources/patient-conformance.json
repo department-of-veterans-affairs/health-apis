@@ -413,18 +413,6 @@
             {
               "name" : "identifier",
               "type" : "string"
-            },
-            {
-              "name" : "name",
-              "type" : "string"
-            },
-            {
-              "name" : "birthdate",
-              "type" : "date"
-            },
-            {
-              "name" : "gender",
-              "type" : "token"
             }
           ]
         },
