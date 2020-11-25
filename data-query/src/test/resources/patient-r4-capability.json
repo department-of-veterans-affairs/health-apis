@@ -466,23 +466,7 @@
               "type" : "string"
             },
             {
-              "name" : "birthdate",
-              "type" : "date"
-            },
-            {
-              "name" : "family",
-              "type" : "string"
-            },
-            {
-              "name" : "gender",
-              "type" : "token"
-            },
-            {
               "name" : "identifier",
-              "type" : "string"
-            },
-            {
-              "name" : "name",
               "type" : "string"
             }
           ]

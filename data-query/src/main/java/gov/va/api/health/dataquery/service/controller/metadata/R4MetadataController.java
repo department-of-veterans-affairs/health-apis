@@ -180,14 +180,7 @@ class R4MetadataController {
                 .build(),
             support("Patient")
                 .profileUrl("http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient")
-                .search(
-                    Set.of(
-                        SearchParam.ID,
-                        SearchParam.FAMILY,
-                        SearchParam.BIRTH_DATE,
-                        SearchParam.NAME,
-                        SearchParam.GENDER,
-                        SearchParam.IDENTIFIER))
+                .search(Set.of(SearchParam.ID, SearchParam.IDENTIFIER))
                 .build(),
             support("Procedure")
                 .profileUrl("http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure")
