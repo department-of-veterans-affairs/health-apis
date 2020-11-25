@@ -108,12 +108,7 @@ class Dstu2MetadataController {
   private Set<SearchParam> patientSearchParams() {
     switch (properties.getStatementType()) {
       case PATIENT:
-        return ImmutableSet.of(
-            SearchParam.ID,
-            SearchParam.IDENTIFIER,
-            SearchParam.NAME,
-            SearchParam.BIRTH_DATE,
-            SearchParam.GENDER);
+        return ImmutableSet.of(SearchParam.ID, SearchParam.IDENTIFIER);
       case CLINICIAN:
         return ImmutableSet.of(
             SearchParam.BIRTH_DATE,
