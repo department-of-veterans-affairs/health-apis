@@ -37,7 +37,8 @@ public class R4MetadataControllerTest {
         JacksonConfig.createMapper()
             .readValue(
                 getClass().getResourceAsStream("/patient-r4-capability.json"),
-                CapabilityStatement.class);
+                CapabilityStatement.class)
+            .url(pageLinks.r4Url());
     try {
       assertThat(pretty(controller.read())).isEqualTo(pretty(old));
     } catch (AssertionError e) {

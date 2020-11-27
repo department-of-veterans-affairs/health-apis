@@ -76,6 +76,7 @@ class R4MetadataController {
     return CapabilityStatement.builder()
         .resourceType("CapabilityStatement")
         .id(properties.getId())
+        .url(pageLinks.r4Url())
         .version(properties.getVersion())
         .name(properties.getR4Name())
         .title(properties.getR4Name())
