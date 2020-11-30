@@ -86,6 +86,21 @@ class Dstu2MetadataController {
 
   @Autowired ReferenceSerializerProperties referenceSerializerProperties;
 
+  private Set<SearchParam> conditionSearchParams() {
+    switch (properties.getStatementType()) {
+      case PATIENT:
+      case CLINICIAN:
+        return ImmutableSet.of(
+            SearchParam.CATEGORY,
+            SearchParam.CLINICAL_STATUS,
+            SearchParam.ID,
+            SearchParam.IDENTIFIER,
+            SearchParam.PATIENT);
+      default:
+        throw noSearchParamsForConformanceStatementTypeException();
+    }
+  }
+
   private List<Contact> contact() {
     return singletonList(
         Contact.builder()
@@ -99,10 +114,44 @@ class Dstu2MetadataController {
             .build());
   }
 
+  private Set<SearchParam> diagnosticReportSearchParams() {
+    switch (properties.getStatementType()) {
+      case PATIENT:
+        // fall through
+      case CLINICIAN:
+        return ImmutableSet.of(
+            SearchParam.CATEGORY,
+            SearchParam.CODE,
+            SearchParam.DATE,
+            SearchParam.ID,
+            SearchParam.IDENTIFIER,
+            SearchParam.PATIENT);
+      default:
+        throw noSearchParamsForConformanceStatementTypeException();
+    }
+  }
+
   private IllegalArgumentException noSearchParamsForConformanceStatementTypeException() {
     throw new IllegalStateException(
         "Search parameters are not configured for conformance statement type: "
             + properties.getStatementType());
+  }
+
+  private Set<SearchParam> observationSearchParams() {
+    switch (properties.getStatementType()) {
+      case PATIENT:
+        // fall through
+      case CLINICIAN:
+        return ImmutableSet.of(
+                SearchParam.CATEGORY,
+                SearchParam.CODE,
+                SearchParam.DATE,
+                SearchParam.ID,
+                SearchParam.IDENTIFIER,
+                SearchParam.PATIENT);
+      default:
+        throw noSearchParamsForConformanceStatementTypeException();
+    }
   }
 
   private Set<SearchParam> patientSearchParams() {
@@ -118,6 +167,21 @@ class Dstu2MetadataController {
             SearchParam.ID,
             SearchParam.IDENTIFIER,
             SearchParam.NAME);
+      default:
+        throw noSearchParamsForConformanceStatementTypeException();
+    }
+  }
+
+  private Set<SearchParam> procedureSearchParams() {
+    switch (properties.getStatementType()) {
+      case PATIENT:
+        // fall through
+      case CLINICIAN:
+        return ImmutableSet.of(
+                SearchParam.DATE,
+                SearchParam.ID,
+                SearchParam.IDENTIFIER,
+                SearchParam.PATIENT);
       default:
         throw noSearchParamsForConformanceStatementTypeException();
     }
@@ -152,24 +216,11 @@ class Dstu2MetadataController {
                 .build(),
             support("Condition")
                 .documentation(CONDITION_HTML)
-                .search(
-                    ImmutableSet.of(
-                        SearchParam.CATEGORY,
-                        SearchParam.CLINICAL_STATUS,
-                        SearchParam.ID,
-                        SearchParam.IDENTIFIER,
-                        SearchParam.PATIENT))
+                .search(conditionSearchParams())
                 .build(),
             support("DiagnosticReport")
                 .documentation(DIAGNOSTICREPORT_HTML)
-                .search(
-                    ImmutableSet.of(
-                        SearchParam.CATEGORY,
-                        SearchParam.CODE,
-                        SearchParam.DATE,
-                        SearchParam.ID,
-                        SearchParam.IDENTIFIER,
-                        SearchParam.PATIENT))
+                .search(diagnosticReportSearchParams())
                 .build(),
             support("Immunization")
                 .documentation(IMMUNIZATION_HTML)
@@ -196,14 +247,7 @@ class Dstu2MetadataController {
                 .build(),
             support("Observation")
                 .documentation(OBSERVATIONRESULTS_HTML)
-                .search(
-                    ImmutableSet.of(
-                        SearchParam.CATEGORY,
-                        SearchParam.CODE,
-                        SearchParam.DATE,
-                        SearchParam.ID,
-                        SearchParam.IDENTIFIER,
-                        SearchParam.PATIENT))
+                .search(observationSearchParams())
                 .build(),
             support("Organization")
                 .documentation(ORGANIZATION_HTML)
@@ -216,12 +260,7 @@ class Dstu2MetadataController {
                 .build(),
             support("Procedure")
                 .documentation(PROCEDURE_HTML)
-                .search(
-                    ImmutableSet.of(
-                        SearchParam.DATE,
-                        SearchParam.ID,
-                        SearchParam.IDENTIFIER,
-                        SearchParam.PATIENT))
+                .search(procedureSearchParams())
                 .build())
         .map(SupportedResource::asResource)
         .filter(r -> referenceSerializerProperties.checkForResource(r.type()))
