@@ -87,18 +87,12 @@ class Dstu2MetadataController {
   @Autowired ReferenceSerializerProperties referenceSerializerProperties;
 
   private Set<SearchParam> conditionSearchParams() {
-    switch (properties.getStatementType()) {
-      case PATIENT:
-      case CLINICIAN:
-        return ImmutableSet.of(
-            SearchParam.CATEGORY,
-            SearchParam.CLINICAL_STATUS,
-            SearchParam.ID,
-            SearchParam.IDENTIFIER,
-            SearchParam.PATIENT);
-      default:
-        throw noSearchParamsForConformanceStatementTypeException();
-    }
+    return ImmutableSet.of(
+        SearchParam.CATEGORY,
+        SearchParam.CLINICAL_STATUS,
+        SearchParam.ID,
+        SearchParam.IDENTIFIER,
+        SearchParam.PATIENT);
   }
 
   private List<Contact> contact() {
@@ -115,20 +109,21 @@ class Dstu2MetadataController {
   }
 
   private Set<SearchParam> diagnosticReportSearchParams() {
-    switch (properties.getStatementType()) {
-      case PATIENT:
-        // fall through
-      case CLINICIAN:
-        return ImmutableSet.of(
-            SearchParam.CATEGORY,
-            SearchParam.CODE,
-            SearchParam.DATE,
-            SearchParam.ID,
-            SearchParam.IDENTIFIER,
-            SearchParam.PATIENT);
-      default:
-        throw noSearchParamsForConformanceStatementTypeException();
-    }
+    return ImmutableSet.of(
+        SearchParam.CATEGORY,
+        SearchParam.CODE,
+        SearchParam.DATE,
+        SearchParam.ID,
+        SearchParam.IDENTIFIER,
+        SearchParam.PATIENT);
+  }
+
+  private Set<SearchParam> idAndPatientSearchParams() {
+    return ImmutableSet.of(SearchParam.ID, SearchParam.IDENTIFIER, SearchParam.PATIENT);
+  }
+
+  private Set<SearchParam> idOnlySearchParams() {
+    return ImmutableSet.of(SearchParam.ID, SearchParam.IDENTIFIER);
   }
 
   private IllegalArgumentException noSearchParamsForConformanceStatementTypeException() {
@@ -138,20 +133,13 @@ class Dstu2MetadataController {
   }
 
   private Set<SearchParam> observationSearchParams() {
-    switch (properties.getStatementType()) {
-      case PATIENT:
-        // fall through
-      case CLINICIAN:
-        return ImmutableSet.of(
-                SearchParam.CATEGORY,
-                SearchParam.CODE,
-                SearchParam.DATE,
-                SearchParam.ID,
-                SearchParam.IDENTIFIER,
-                SearchParam.PATIENT);
-      default:
-        throw noSearchParamsForConformanceStatementTypeException();
-    }
+    return ImmutableSet.of(
+        SearchParam.CATEGORY,
+        SearchParam.CODE,
+        SearchParam.DATE,
+        SearchParam.ID,
+        SearchParam.IDENTIFIER,
+        SearchParam.PATIENT);
   }
 
   private Set<SearchParam> patientSearchParams() {
@@ -173,18 +161,8 @@ class Dstu2MetadataController {
   }
 
   private Set<SearchParam> procedureSearchParams() {
-    switch (properties.getStatementType()) {
-      case PATIENT:
-        // fall through
-      case CLINICIAN:
-        return ImmutableSet.of(
-                SearchParam.DATE,
-                SearchParam.ID,
-                SearchParam.IDENTIFIER,
-                SearchParam.PATIENT);
-      default:
-        throw noSearchParamsForConformanceStatementTypeException();
-    }
+    return ImmutableSet.of(
+        SearchParam.DATE, SearchParam.ID, SearchParam.IDENTIFIER, SearchParam.PATIENT);
   }
 
   @GetMapping
@@ -211,8 +189,7 @@ class Dstu2MetadataController {
     return Stream.of(
             support("AllergyIntolerance")
                 .documentation(ALLERGYINTOLERANCE_HTML)
-                .search(
-                    ImmutableSet.of(SearchParam.ID, SearchParam.IDENTIFIER, SearchParam.PATIENT))
+                .search(idAndPatientSearchParams())
                 .build(),
             support("Condition")
                 .documentation(CONDITION_HTML)
@@ -224,26 +201,20 @@ class Dstu2MetadataController {
                 .build(),
             support("Immunization")
                 .documentation(IMMUNIZATION_HTML)
-                .search(
-                    ImmutableSet.of(SearchParam.ID, SearchParam.IDENTIFIER, SearchParam.PATIENT))
+                .search(idAndPatientSearchParams())
                 .build(),
-            support("Location")
-                .documentation(LOCATION_HTML)
-                .search(ImmutableSet.of(SearchParam.ID, SearchParam.IDENTIFIER))
-                .build(),
+            support("Location").documentation(LOCATION_HTML).search(idOnlySearchParams()).build(),
             support("Medication")
                 .documentation(MEDICATION_HTML)
-                .search(ImmutableSet.of(SearchParam.ID, SearchParam.IDENTIFIER))
+                .search(idOnlySearchParams())
                 .build(),
             support("MedicationOrder")
                 .documentation(MEDICATIONORDER_HTML)
-                .search(
-                    ImmutableSet.of(SearchParam.ID, SearchParam.IDENTIFIER, SearchParam.PATIENT))
+                .search(idAndPatientSearchParams())
                 .build(),
             support("MedicationStatement")
                 .documentation(MEDICATIONSTATEMENT_HTML)
-                .search(
-                    ImmutableSet.of(SearchParam.ID, SearchParam.IDENTIFIER, SearchParam.PATIENT))
+                .search(idAndPatientSearchParams())
                 .build(),
             support("Observation")
                 .documentation(OBSERVATIONRESULTS_HTML)
@@ -251,12 +222,12 @@ class Dstu2MetadataController {
                 .build(),
             support("Organization")
                 .documentation(ORGANIZATION_HTML)
-                .search(ImmutableSet.of(SearchParam.ID, SearchParam.IDENTIFIER))
+                .search(idOnlySearchParams())
                 .build(),
             support("Patient").documentation(PATIENT_HTML).search(patientSearchParams()).build(),
             support("Practitioner")
                 .documentation(PRACTITIONER_HTML)
-                .search(ImmutableSet.of(SearchParam.ID, SearchParam.IDENTIFIER))
+                .search(idOnlySearchParams())
                 .build(),
             support("Procedure")
                 .documentation(PROCEDURE_HTML)
