@@ -271,7 +271,7 @@ class R4MetadataController {
     GENDER("gender", SearchParamType.token),
     GIVEN("given", SearchParamType.string),
     ID("_id", SearchParamType.string),
-    IDENTIFIER("identifier", SearchParamType.string),
+    IDENTIFIER("identifier", SearchParamType.token),
     INTENT("intent", SearchParamType.string),
     NAME("name", SearchParamType.string),
     PATIENT("patient", SearchParamType.reference),
