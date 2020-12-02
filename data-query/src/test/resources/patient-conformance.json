@@ -92,7 +92,7 @@
             },
             {
               "name" : "identifier",
-              "type" : "string"
+              "type" : "token"
             },
             {
               "name" : "patient",
@@ -130,7 +130,7 @@
             },
             {
               "name" : "identifier",
-              "type" : "string"
+              "type" : "token"
             },
             {
               "name" : "patient",
@@ -172,7 +172,7 @@
             },
             {
               "name" : "identifier",
-              "type" : "string"
+              "type" : "token"
             },
             {
               "name" : "patient",
@@ -202,7 +202,7 @@
             },
             {
               "name" : "identifier",
-              "type" : "string"
+              "type" : "token"
             },
             {
               "name" : "patient",
@@ -232,7 +232,7 @@
             },
             {
               "name" : "identifier",
-              "type" : "string"
+              "type" : "token"
             }
           ]
         },
@@ -258,7 +258,7 @@
             },
             {
               "name" : "identifier",
-              "type" : "string"
+              "type" : "token"
             }
           ]
         },
@@ -284,7 +284,7 @@
             },
             {
               "name" : "identifier",
-              "type" : "string"
+              "type" : "token"
             },
             {
               "name" : "patient",
@@ -314,7 +314,7 @@
             },
             {
               "name" : "identifier",
-              "type" : "string"
+              "type" : "token"
             },
             {
               "name" : "patient",
@@ -356,7 +356,7 @@
             },
             {
               "name" : "identifier",
-              "type" : "string"
+              "type" : "token"
             },
             {
               "name" : "patient",
@@ -386,7 +386,7 @@
             },
             {
               "name" : "identifier",
-              "type" : "string"
+              "type" : "token"
             }
           ]
         },
@@ -412,7 +412,7 @@
             },
             {
               "name" : "identifier",
-              "type" : "string"
+              "type" : "token"
             }
           ]
         },
@@ -438,7 +438,7 @@
             },
             {
               "name" : "identifier",
-              "type" : "string"
+              "type" : "token"
             }
           ]
         },
@@ -468,7 +468,7 @@
             },
             {
               "name" : "identifier",
-              "type" : "string"
+              "type" : "token"
             },
             {
               "name" : "patient",
