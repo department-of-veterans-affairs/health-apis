@@ -302,7 +302,7 @@ class Dstu2MetadataController {
   @AllArgsConstructor
   enum SearchParam {
     BIRTH_DATE("birthdate", SearchParamType.date),
-    CATEGORY("category", SearchParamType.string),
+    CATEGORY("category", SearchParamType.token),
     CLINICAL_STATUS("clinicalstatus", SearchParamType.token),
     CODE("code", SearchParamType.token),
     DATE("date", SearchParamType.date),

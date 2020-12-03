@@ -118,7 +118,7 @@
           "searchParam" : [
             {
               "name" : "category",
-              "type" : "string"
+              "type" : "token"
             },
             {
               "name" : "clinicalstatus",
@@ -156,7 +156,7 @@
           "searchParam" : [
             {
               "name" : "category",
-              "type" : "string"
+              "type" : "token"
             },
             {
               "name" : "code",
@@ -340,7 +340,7 @@
           "searchParam" : [
             {
               "name" : "category",
-              "type" : "string"
+              "type" : "token"
             },
             {
               "name" : "code",
