@@ -263,14 +263,14 @@ class R4MetadataController {
   @AllArgsConstructor
   enum SearchParam {
     BIRTH_DATE("birthdate", SearchParamType.date),
-    CATEGORY("category", SearchParamType.string),
+    CATEGORY("category", SearchParamType.token),
     CLINICAL_STATUS("clinical-status", SearchParamType.token),
     CODE("code", SearchParamType.token),
     DATE("date", SearchParamType.date),
     FAMILY("family", SearchParamType.string),
     GENDER("gender", SearchParamType.token),
     GIVEN("given", SearchParamType.string),
-    ID("_id", SearchParamType.string),
+    ID("_id", SearchParamType.token),
     IDENTIFIER("identifier", SearchParamType.token),
     INTENT("intent", SearchParamType.string),
     NAME("name", SearchParamType.string),
