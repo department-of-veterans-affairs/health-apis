@@ -309,7 +309,7 @@ class Dstu2MetadataController {
     FAMILY("family", SearchParamType.string),
     GENDER("gender", SearchParamType.token),
     GIVEN("given", SearchParamType.string),
-    ID("_id", SearchParamType.string),
+    ID("_id", SearchParamType.token),
     IDENTIFIER("identifier", SearchParamType.token),
     NAME("name", SearchParamType.string),
     PATIENT("patient", SearchParamType.reference),

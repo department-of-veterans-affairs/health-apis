@@ -88,7 +88,7 @@
           "searchParam" : [
             {
               "name" : "_id",
-              "type" : "string"
+              "type" : "token"
             },
             {
               "name" : "identifier",
@@ -126,7 +126,7 @@
             },
             {
               "name" : "_id",
-              "type" : "string"
+              "type" : "token"
             },
             {
               "name" : "identifier",
@@ -168,7 +168,7 @@
             },
             {
               "name" : "_id",
-              "type" : "string"
+              "type" : "token"
             },
             {
               "name" : "identifier",
@@ -198,7 +198,7 @@
           "searchParam" : [
             {
               "name" : "_id",
-              "type" : "string"
+              "type" : "token"
             },
             {
               "name" : "identifier",
@@ -228,7 +228,7 @@
           "searchParam" : [
             {
               "name" : "_id",
-              "type" : "string"
+              "type" : "token"
             },
             {
               "name" : "identifier",
@@ -254,7 +254,7 @@
           "searchParam" : [
             {
               "name" : "_id",
-              "type" : "string"
+              "type" : "token"
             },
             {
               "name" : "identifier",
@@ -280,7 +280,7 @@
           "searchParam" : [
             {
               "name" : "_id",
-              "type" : "string"
+              "type" : "token"
             },
             {
               "name" : "identifier",
@@ -310,7 +310,7 @@
           "searchParam" : [
             {
               "name" : "_id",
-              "type" : "string"
+              "type" : "token"
             },
             {
               "name" : "identifier",
@@ -352,7 +352,7 @@
             },
             {
               "name" : "_id",
-              "type" : "string"
+              "type" : "token"
             },
             {
               "name" : "identifier",
@@ -382,7 +382,7 @@
           "searchParam" : [
             {
               "name" : "_id",
-              "type" : "string"
+              "type" : "token"
             },
             {
               "name" : "identifier",
@@ -424,7 +424,7 @@
             },
             {
               "name" : "_id",
-              "type" : "string"
+              "type" : "token"
             },
             {
               "name" : "identifier",
@@ -454,7 +454,7 @@
           "searchParam" : [
             {
               "name" : "_id",
-              "type" : "string"
+              "type" : "token"
             },
             {
               "name" : "identifier",
@@ -484,7 +484,7 @@
             },
             {
               "name" : "_id",
-              "type" : "string"
+              "type" : "token"
             },
             {
               "name" : "identifier",

@@ -340,7 +340,7 @@
             },
             {
               "name" : "intent",
-              "type" : "string"
+              "type" : "token"
             },
             {
               "name" : "patient",
