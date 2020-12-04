@@ -87,6 +87,14 @@
           ],
           "searchParam" : [
             {
+              "name" : "_id",
+              "type" : "token"
+            },
+            {
+              "name" : "identifier",
+              "type" : "token"
+            },
+            {
               "name" : "patient",
               "type" : "reference"
             }
@@ -110,10 +118,18 @@
           "searchParam" : [
             {
               "name" : "category",
-              "type" : "string"
+              "type" : "token"
             },
             {
               "name" : "clinicalstatus",
+              "type" : "token"
+            },
+            {
+              "name" : "_id",
+              "type" : "token"
+            },
+            {
+              "name" : "identifier",
               "type" : "token"
             },
             {
@@ -140,7 +156,7 @@
           "searchParam" : [
             {
               "name" : "category",
-              "type" : "string"
+              "type" : "token"
             },
             {
               "name" : "code",
@@ -149,6 +165,14 @@
             {
               "name" : "date",
               "type" : "date"
+            },
+            {
+              "name" : "_id",
+              "type" : "token"
+            },
+            {
+              "name" : "identifier",
+              "type" : "token"
             },
             {
               "name" : "patient",
@@ -173,6 +197,14 @@
           ],
           "searchParam" : [
             {
+              "name" : "_id",
+              "type" : "token"
+            },
+            {
+              "name" : "identifier",
+              "type" : "token"
+            },
+            {
               "name" : "patient",
               "type" : "reference"
             }
@@ -185,8 +217,22 @@
           },
           "interaction" : [
             {
+              "code" : "search-type",
+              "documentation" : "Implemented per the specification"
+            },
+            {
               "code" : "read",
               "documentation" : "Implemented per the specification"
+            }
+          ],
+          "searchParam" : [
+            {
+              "name" : "_id",
+              "type" : "token"
+            },
+            {
+              "name" : "identifier",
+              "type" : "token"
             }
           ]
         },
@@ -197,8 +243,22 @@
           },
           "interaction" : [
             {
+              "code" : "search-type",
+              "documentation" : "Implemented per the specification"
+            },
+            {
               "code" : "read",
               "documentation" : "Implemented per the specification"
+            }
+          ],
+          "searchParam" : [
+            {
+              "name" : "_id",
+              "type" : "token"
+            },
+            {
+              "name" : "identifier",
+              "type" : "token"
             }
           ]
         },
@@ -218,6 +278,14 @@
             }
           ],
           "searchParam" : [
+            {
+              "name" : "_id",
+              "type" : "token"
+            },
+            {
+              "name" : "identifier",
+              "type" : "token"
+            },
             {
               "name" : "patient",
               "type" : "reference"
@@ -240,6 +308,14 @@
             }
           ],
           "searchParam" : [
+            {
+              "name" : "_id",
+              "type" : "token"
+            },
+            {
+              "name" : "identifier",
+              "type" : "token"
+            },
             {
               "name" : "patient",
               "type" : "reference"
@@ -264,7 +340,7 @@
           "searchParam" : [
             {
               "name" : "category",
-              "type" : "string"
+              "type" : "token"
             },
             {
               "name" : "code",
@@ -273,6 +349,14 @@
             {
               "name" : "date",
               "type" : "date"
+            },
+            {
+              "name" : "_id",
+              "type" : "token"
+            },
+            {
+              "name" : "identifier",
+              "type" : "token"
             },
             {
               "name" : "patient",
@@ -287,8 +371,22 @@
           },
           "interaction" : [
             {
+              "code" : "search-type",
+              "documentation" : "Implemented per the specification"
+            },
+            {
               "code" : "read",
               "documentation" : "Implemented per the specification"
+            }
+          ],
+          "searchParam" : [
+            {
+              "name" : "_id",
+              "type" : "token"
+            },
+            {
+              "name" : "identifier",
+              "type" : "token"
             }
           ]
         },
@@ -326,7 +424,11 @@
             },
             {
               "name" : "_id",
-              "type" : "string"
+              "type" : "token"
+            },
+            {
+              "name" : "identifier",
+              "type" : "token"
             },
             {
               "name" : "name",
@@ -341,8 +443,22 @@
           },
           "interaction" : [
             {
+              "code" : "search-type",
+              "documentation" : "Implemented per the specification"
+            },
+            {
               "code" : "read",
               "documentation" : "Implemented per the specification"
+            }
+          ],
+          "searchParam" : [
+            {
+              "name" : "_id",
+              "type" : "token"
+            },
+            {
+              "name" : "identifier",
+              "type" : "token"
             }
           ]
         },
@@ -365,6 +481,14 @@
             {
               "name" : "date",
               "type" : "date"
+            },
+            {
+              "name" : "_id",
+              "type" : "token"
+            },
+            {
+              "name" : "identifier",
+              "type" : "token"
             },
             {
               "name" : "patient",

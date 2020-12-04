@@ -87,6 +87,14 @@
           ],
           "searchParam" : [
             {
+              "name" : "_id",
+              "type" : "token"
+            },
+            {
+              "name" : "identifier",
+              "type" : "token"
+            },
+            {
               "name" : "patient",
               "type" : "reference"
             }
@@ -108,6 +116,22 @@
             }
           ],
           "searchParam" : [
+            {
+              "name" : "category",
+              "type" : "token"
+            },
+            {
+              "name" : "clinicalstatus",
+              "type" : "token"
+            },
+            {
+              "name" : "_id",
+              "type" : "token"
+            },
+            {
+              "name" : "identifier",
+              "type" : "token"
+            },
             {
               "name" : "patient",
               "type" : "reference"
@@ -131,6 +155,26 @@
           ],
           "searchParam" : [
             {
+              "name" : "category",
+              "type" : "token"
+            },
+            {
+              "name" : "code",
+              "type" : "token"
+            },
+            {
+              "name" : "date",
+              "type" : "date"
+            },
+            {
+              "name" : "_id",
+              "type" : "token"
+            },
+            {
+              "name" : "identifier",
+              "type" : "token"
+            },
+            {
               "name" : "patient",
               "type" : "reference"
             }
@@ -153,6 +197,14 @@
           ],
           "searchParam" : [
             {
+              "name" : "_id",
+              "type" : "token"
+            },
+            {
+              "name" : "identifier",
+              "type" : "token"
+            },
+            {
               "name" : "patient",
               "type" : "reference"
             }
@@ -165,8 +217,22 @@
           },
           "interaction" : [
             {
+              "code" : "search-type",
+              "documentation" : "Implemented per the specification"
+            },
+            {
               "code" : "read",
               "documentation" : "Implemented per the specification"
+            }
+          ],
+          "searchParam" : [
+            {
+              "name" : "_id",
+              "type" : "token"
+            },
+            {
+              "name" : "identifier",
+              "type" : "token"
             }
           ]
         },
@@ -186,6 +252,14 @@
             }
           ],
           "searchParam" : [
+            {
+              "name" : "_id",
+              "type" : "token"
+            },
+            {
+              "name" : "identifier",
+              "type" : "token"
+            },
             {
               "name" : "patient",
               "type" : "reference"
@@ -209,6 +283,14 @@
           ],
           "searchParam" : [
             {
+              "name" : "_id",
+              "type" : "token"
+            },
+            {
+              "name" : "identifier",
+              "type" : "token"
+            },
+            {
               "name" : "patient",
               "type" : "reference"
             }
@@ -231,12 +313,28 @@
           ],
           "searchParam" : [
             {
-              "name" : "patient",
-              "type" : "reference"
+              "name" : "category",
+              "type" : "token"
             },
             {
-              "name" : "category",
-              "type" : "string"
+              "name" : "code",
+              "type" : "token"
+            },
+            {
+              "name" : "date",
+              "type" : "date"
+            },
+            {
+              "name" : "_id",
+              "type" : "token"
+            },
+            {
+              "name" : "identifier",
+              "type" : "token"
+            },
+            {
+              "name" : "patient",
+              "type" : "reference"
             }
           ]
         },
@@ -258,7 +356,11 @@
           "searchParam" : [
             {
               "name" : "_id",
-              "type" : "string"
+              "type" : "token"
+            },
+            {
+              "name" : "identifier",
+              "type" : "token"
             }
           ]
         },
@@ -278,6 +380,18 @@
             }
           ],
           "searchParam" : [
+            {
+              "name" : "date",
+              "type" : "date"
+            },
+            {
+              "name" : "_id",
+              "type" : "token"
+            },
+            {
+              "name" : "identifier",
+              "type" : "token"
+            },
             {
               "name" : "patient",
               "type" : "reference"
