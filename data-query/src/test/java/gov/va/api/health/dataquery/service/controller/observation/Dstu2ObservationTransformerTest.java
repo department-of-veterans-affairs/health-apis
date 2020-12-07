@@ -236,6 +236,8 @@ public class Dstu2ObservationTransformerTest {
         .isEqualTo("Significant change down");
     assertThat(Dstu2ObservationTransformer.interpretationDisplay("DET")).isEqualTo("Detected");
     assertThat(Dstu2ObservationTransformer.interpretationDisplay("H")).isEqualTo("High");
+    assertThat(Dstu2ObservationTransformer.interpretationDisplay("H*"))
+        .isEqualTo("Critically high");
     assertThat(Dstu2ObservationTransformer.interpretationDisplay("HH"))
         .isEqualTo("Critically high");
     assertThat(Dstu2ObservationTransformer.interpretationDisplay("HU")).isEqualTo("Very high");
@@ -244,6 +246,7 @@ public class Dstu2ObservationTransformerTest {
         .isEqualTo("Insufficient evidence");
     assertThat(Dstu2ObservationTransformer.interpretationDisplay("IND")).isEqualTo("Indeterminate");
     assertThat(Dstu2ObservationTransformer.interpretationDisplay("L")).isEqualTo("Low");
+    assertThat(Dstu2ObservationTransformer.interpretationDisplay("L*")).isEqualTo("Critically low");
     assertThat(Dstu2ObservationTransformer.interpretationDisplay("LL")).isEqualTo("Critically low");
     assertThat(Dstu2ObservationTransformer.interpretationDisplay("LU")).isEqualTo("Very low");
     assertThat(Dstu2ObservationTransformer.interpretationDisplay("MS"))
