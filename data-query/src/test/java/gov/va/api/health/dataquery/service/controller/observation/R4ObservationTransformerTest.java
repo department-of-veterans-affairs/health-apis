@@ -263,6 +263,7 @@ public class R4ObservationTransformerTest {
     assertThat(R4ObservationTransformer.interpretationDisplay("EX")).isEqualTo("outside threshold");
     assertThat(R4ObservationTransformer.interpretationDisplay("EXP")).isEqualTo("Expected");
     assertThat(R4ObservationTransformer.interpretationDisplay("H")).isEqualTo("High");
+    assertThat(R4ObservationTransformer.interpretationDisplay("H*")).isEqualTo("Critical high");
     assertThat(R4ObservationTransformer.interpretationDisplay("HH")).isEqualTo("Critical high");
     assertThat(R4ObservationTransformer.interpretationDisplay("HU"))
         .isEqualTo("Significantly high");
@@ -277,6 +278,7 @@ public class R4ObservationTransformerTest {
         .isEqualTo("Insufficient evidence");
     assertThat(R4ObservationTransformer.interpretationDisplay("IND")).isEqualTo("Indeterminate");
     assertThat(R4ObservationTransformer.interpretationDisplay("L")).isEqualTo("Low");
+    assertThat(R4ObservationTransformer.interpretationDisplay("L*")).isEqualTo("Critical low");
     assertThat(R4ObservationTransformer.interpretationDisplay("LL")).isEqualTo("Critical low");
     assertThat(R4ObservationTransformer.interpretationDisplay("LU")).isEqualTo("Significantly low");
     assertThat(R4ObservationTransformer.interpretationDisplay("L<")).isEqualTo("Significantly low");

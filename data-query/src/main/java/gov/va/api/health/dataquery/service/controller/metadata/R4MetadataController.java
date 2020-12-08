@@ -99,12 +99,17 @@ class R4MetadataController {
             support("AllergyIntolerance")
                 .profileUrl(
                     "http://hl7.org/fhir/us/core/StructureDefinition/us-core-allergyintolerance")
-                .search(Set.of(SearchParam.PATIENT))
+                .search(Set.of(SearchParam.ID, SearchParam.IDENTIFIER, SearchParam.PATIENT))
                 .build(),
             support("Condition")
                 .profileUrl("http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition")
                 .search(
-                    Set.of(SearchParam.PATIENT, SearchParam.CATEGORY, SearchParam.CLINICAL_STATUS))
+                    Set.of(
+                        SearchParam.ID,
+                        SearchParam.IDENTIFIER,
+                        SearchParam.PATIENT,
+                        SearchParam.CATEGORY,
+                        SearchParam.CLINICAL_STATUS))
                 .build(),
             support("DiagnosticReport")
                 .profileUrl(
@@ -112,6 +117,7 @@ class R4MetadataController {
                 .search(
                     Set.of(
                         SearchParam.ID,
+                        SearchParam.IDENTIFIER,
                         SearchParam.PATIENT,
                         SearchParam.CATEGORY,
                         SearchParam.CODE,
@@ -120,13 +126,14 @@ class R4MetadataController {
                 .build(),
             support("Immunization")
                 .profileUrl("http://hl7.org/fhir/us/core/StructureDefinition/us-core-immunization")
-                .search(Set.of(SearchParam.PATIENT))
+                .search(Set.of(SearchParam.ID, SearchParam.IDENTIFIER, SearchParam.PATIENT))
                 .build(),
             support("Location")
                 .profileUrl("http://hl7.org/fhir/us/core/StructureDefinition/us-core-location")
                 .search(
                     Set.of(
                         SearchParam.ID,
+                        SearchParam.IDENTIFIER,
                         SearchParam.NAME,
                         SearchParam.ADDRESS,
                         SearchParam.ADDRESS_CITY,
@@ -135,11 +142,17 @@ class R4MetadataController {
                 .build(),
             support("Medication")
                 .profileUrl("http://hl7.org/fhir/us/core/StructureDefinition/us-core-medication")
+                .search(Set.of(SearchParam.ID, SearchParam.IDENTIFIER))
                 .build(),
             support("MedicationRequest")
                 .profileUrl(
                     "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationrequest")
-                .search(Set.of(SearchParam.ID, SearchParam.INTENT, SearchParam.PATIENT))
+                .search(
+                    Set.of(
+                        SearchParam.ID,
+                        SearchParam.IDENTIFIER,
+                        SearchParam.INTENT,
+                        SearchParam.PATIENT))
                 .build(),
             support("Observation")
                 .profileUrl(
@@ -147,6 +160,7 @@ class R4MetadataController {
                 .search(
                     Set.of(
                         SearchParam.ID,
+                        SearchParam.IDENTIFIER,
                         SearchParam.PATIENT,
                         SearchParam.CATEGORY,
                         SearchParam.CODE,
@@ -157,6 +171,7 @@ class R4MetadataController {
                 .search(
                     Set.of(
                         SearchParam.ID,
+                        SearchParam.IDENTIFIER,
                         SearchParam.NAME,
                         SearchParam.ADDRESS,
                         SearchParam.ADDRESS_CITY,
@@ -165,18 +180,16 @@ class R4MetadataController {
                 .build(),
             support("Patient")
                 .profileUrl("http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient")
-                .search(
-                    Set.of(
-                        SearchParam.ID,
-                        SearchParam.FAMILY,
-                        SearchParam.BIRTH_DATE,
-                        SearchParam.NAME,
-                        SearchParam.GENDER,
-                        SearchParam.GIVEN))
+                .search(Set.of(SearchParam.ID, SearchParam.IDENTIFIER))
                 .build(),
             support("Procedure")
                 .profileUrl("http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure")
-                .search(Set.of(SearchParam.ID, SearchParam.PATIENT, SearchParam.DATE))
+                .search(
+                    Set.of(
+                        SearchParam.ID,
+                        SearchParam.IDENTIFIER,
+                        SearchParam.PATIENT,
+                        SearchParam.DATE))
                 .build())
         .map(SupportedResource::asResource)
         .collect(toList());
@@ -250,15 +263,16 @@ class R4MetadataController {
   @AllArgsConstructor
   enum SearchParam {
     BIRTH_DATE("birthdate", SearchParamType.date),
-    CATEGORY("category", SearchParamType.string),
+    CATEGORY("category", SearchParamType.token),
     CLINICAL_STATUS("clinical-status", SearchParamType.token),
     CODE("code", SearchParamType.token),
     DATE("date", SearchParamType.date),
     FAMILY("family", SearchParamType.string),
     GENDER("gender", SearchParamType.token),
     GIVEN("given", SearchParamType.string),
-    ID("_id", SearchParamType.string),
-    INTENT("intent", SearchParamType.string),
+    ID("_id", SearchParamType.token),
+    IDENTIFIER("identifier", SearchParamType.token),
+    INTENT("intent", SearchParamType.token),
     NAME("name", SearchParamType.string),
     PATIENT("patient", SearchParamType.reference),
     STATUS("status", SearchParamType.token),

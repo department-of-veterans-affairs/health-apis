@@ -180,6 +180,8 @@ final class Dstu2ObservationTransformer {
         return "Detected";
       case "H":
         return "High";
+      case "H*":
+        // fall-through
       case "HH":
         return "Critically high";
       case "HU":
@@ -192,6 +194,8 @@ final class Dstu2ObservationTransformer {
         return "Indeterminate";
       case "L":
         return "Low";
+      case "L*":
+        // fall-through
       case "LL":
         return "Critically low";
       case "LU":

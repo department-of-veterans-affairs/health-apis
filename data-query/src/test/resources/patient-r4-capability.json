@@ -97,6 +97,14 @@
           ],
           "searchParam" : [
             {
+              "name" : "_id",
+              "type" : "token"
+            },
+            {
+              "name" : "identifier",
+              "type" : "token"
+            },
+            {
               "name" : "patient",
               "type" : "reference"
             }
@@ -122,11 +130,19 @@
           ],
           "searchParam" : [
             {
+              "name" : "_id",
+              "type" : "token"
+            },
+            {
               "name" : "category",
-              "type" : "string"
+              "type" : "token"
             },
             {
               "name" : "clinical-status",
+              "type" : "token"
+            },
+            {
+              "name" : "identifier",
               "type" : "token"
             },
             {
@@ -156,11 +172,11 @@
           "searchParam" : [
             {
               "name" : "_id",
-              "type" : "string"
+              "type" : "token"
             },
             {
               "name" : "category",
-              "type" : "string"
+              "type" : "token"
             },
             {
               "name" : "code",
@@ -169,6 +185,10 @@
             {
               "name" : "date",
               "type" : "date"
+            },
+            {
+              "name" : "identifier",
+              "type" : "token"
             },
             {
               "name" : "patient",
@@ -200,6 +220,14 @@
           ],
           "searchParam" : [
             {
+              "name" : "_id",
+              "type" : "token"
+            },
+            {
+              "name" : "identifier",
+              "type" : "token"
+            },
+            {
               "name" : "patient",
               "type" : "reference"
             }
@@ -226,7 +254,7 @@
           "searchParam" : [
             {
               "name" : "_id",
-              "type" : "string"
+              "type" : "token"
             },
             {
               "name" : "address",
@@ -245,6 +273,10 @@
               "type" : "string"
             },
             {
+              "name" : "identifier",
+              "type" : "token"
+            },
+            {
               "name" : "name",
               "type" : "string"
             }
@@ -255,6 +287,10 @@
           "profile" : "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medication",
           "interaction" : [
             {
+              "code" : "search-type",
+              "documentation" : "Implemented per the specification"
+            },
+            {
               "code" : "read",
               "documentation" : "Implemented per the specification"
             }
@@ -263,6 +299,16 @@
           "referencePolicy" : [
             "literal",
             "local"
+          ],
+          "searchParam" : [
+            {
+              "name" : "_id",
+              "type" : "token"
+            },
+            {
+              "name" : "identifier",
+              "type" : "token"
+            }
           ]
         },
         {
@@ -286,11 +332,15 @@
           "searchParam" : [
             {
               "name" : "_id",
-              "type" : "string"
+              "type" : "token"
+            },
+            {
+              "name" : "identifier",
+              "type" : "token"
             },
             {
               "name" : "intent",
-              "type" : "string"
+              "type" : "token"
             },
             {
               "name" : "patient",
@@ -319,11 +369,11 @@
           "searchParam" : [
             {
               "name" : "_id",
-              "type" : "string"
+              "type" : "token"
             },
             {
               "name" : "category",
-              "type" : "string"
+              "type" : "token"
             },
             {
               "name" : "code",
@@ -332,6 +382,10 @@
             {
               "name" : "date",
               "type" : "date"
+            },
+            {
+              "name" : "identifier",
+              "type" : "token"
             },
             {
               "name" : "patient",
@@ -360,7 +414,7 @@
           "searchParam" : [
             {
               "name" : "_id",
-              "type" : "string"
+              "type" : "token"
             },
             {
               "name" : "address",
@@ -377,6 +431,10 @@
             {
               "name" : "address-state",
               "type" : "string"
+            },
+            {
+              "name" : "identifier",
+              "type" : "token"
             },
             {
               "name" : "name",
@@ -405,27 +463,11 @@
           "searchParam" : [
             {
               "name" : "_id",
-              "type" : "string"
-            },
-            {
-              "name" : "birthdate",
-              "type" : "date"
-            },
-            {
-              "name" : "family",
-              "type" : "string"
-            },
-            {
-              "name" : "gender",
               "type" : "token"
             },
             {
-              "name" : "given",
-              "type" : "string"
-            },
-            {
-              "name" : "name",
-              "type" : "string"
+              "name" : "identifier",
+              "type" : "token"
             }
           ]
         },
@@ -450,11 +492,15 @@
           "searchParam" : [
             {
               "name" : "_id",
-              "type" : "string"
+              "type" : "token"
             },
             {
               "name" : "date",
               "type" : "date"
+            },
+            {
+              "name" : "identifier",
+              "type" : "token"
             },
             {
               "name" : "patient",
