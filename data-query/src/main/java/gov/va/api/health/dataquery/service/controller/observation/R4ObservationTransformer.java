@@ -192,6 +192,8 @@ public class R4ObservationTransformer {
         return "Expected";
       case "H":
         return "High";
+      case "H*":
+        // fall-through
       case "HH":
         return "Critical high";
       case "HU":
@@ -209,6 +211,8 @@ public class R4ObservationTransformer {
         return "Indeterminate";
       case "L":
         return "Low";
+      case "L*":
+        // fall-through
       case "LL":
         return "Critical low";
       case "LU":
