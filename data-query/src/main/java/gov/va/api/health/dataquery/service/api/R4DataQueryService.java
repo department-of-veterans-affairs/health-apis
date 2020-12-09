@@ -11,6 +11,7 @@ import gov.va.api.health.r4.api.MetadataApi;
 import gov.va.api.health.r4.api.ObservationApi;
 import gov.va.api.health.r4.api.OrganizationApi;
 import gov.va.api.health.r4.api.PatientApi;
+import gov.va.api.health.r4.api.PractitionerApi;
 import gov.va.api.health.r4.api.ProcedureApi;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
@@ -97,6 +98,9 @@ import javax.ws.rs.Path;
                           name = "patient/Observation.read",
                           description = "read observations"),
                       @OAuthScope(name = "patient/Patient.read", description = "read patient"),
+                      @OAuthScope(
+                          name = "patient/Practitioner.read",
+                          description = "read practitioner"),
                       @OAuthScope(name = "patient/Procedure.read", description = "read procedures"),
                       @OAuthScope(name = "offline_access", description = "offline access"),
                       @OAuthScope(name = "launch/patient", description = "patient launch"),
@@ -114,4 +118,5 @@ public interface R4DataQueryService
         ObservationApi,
         OrganizationApi,
         PatientApi,
+        PractitionerApi,
         ProcedureApi {}
