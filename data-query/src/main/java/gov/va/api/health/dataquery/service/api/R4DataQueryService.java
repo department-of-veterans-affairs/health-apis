@@ -39,6 +39,7 @@ import javax.ws.rs.Path;
               "patient/MedicationRequest.read",
               "patient/Observation.read",
               "patient/Patient.read",
+              "patient/Practitioner.read",
               "patient/Procedure.read",
               "offline_access",
               "launch/patient"

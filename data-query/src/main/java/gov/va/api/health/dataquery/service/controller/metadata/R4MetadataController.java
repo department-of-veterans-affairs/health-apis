@@ -184,7 +184,7 @@ class R4MetadataController {
                 .build(),
             support("Practitioner")
                 .profileUrl("http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner")
-                .search(Set.of(SearchParam.ID, SearchParam.IDENTIFIER))
+                .search(Set.of(SearchParam.ID))
                 .build(),
             support("Procedure")
                 .profileUrl("http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure")

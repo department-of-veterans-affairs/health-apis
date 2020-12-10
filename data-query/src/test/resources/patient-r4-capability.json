@@ -493,10 +493,6 @@
             {
               "name" : "_id",
               "type" : "token"
-            },
-            {
-              "name" : "identifier",
-              "type" : "token"
             }
           ]
         },
