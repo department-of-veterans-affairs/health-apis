@@ -4,11 +4,11 @@
   <parent>
     <groupId>gov.va.api.health</groupId>
     <artifactId>api-starter</artifactId>
-    <version>7.0.19</version>
+    <version>7.0.20</version>
     <relativePath/>
   </parent>
   <artifactId>data-query-patient-registration</artifactId>
-  <version>3.0.73-SNAPSHOT</version>
+  <version>3.0.75-SNAPSHOT</version>
   <packaging>jar</packaging>
   <properties>
     <jacoco.coverage>0.94</jacoco.coverage>
