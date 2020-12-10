@@ -111,6 +111,16 @@ class R4MetadataController {
                         SearchParam.CATEGORY,
                         SearchParam.CLINICAL_STATUS))
                 .build(),
+            support("Device")
+                .profileUrl(
+                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-implantable-device")
+                .search(
+                    Set.of(
+                        SearchParam.ID,
+                        SearchParam.IDENTIFIER,
+                        SearchParam.PATIENT,
+                        SearchParam.TYPE))
+                .build(),
             support("DiagnosticReport")
                 .profileUrl(
                     "http://hl7.org/fhir/us/core/StructureDefinition/us-core-diagnosticreport-lab")
