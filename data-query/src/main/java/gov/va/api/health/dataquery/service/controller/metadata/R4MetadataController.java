@@ -182,6 +182,11 @@ class R4MetadataController {
                 .profileUrl("http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient")
                 .search(Set.of(SearchParam.ID, SearchParam.IDENTIFIER))
                 .build(),
+            support("PractitionerRole")
+                .profileUrl(
+                    "https://build.fhir.org/ig/HL7/US-Core-R4/StructureDefinition-us-core-practitionerrole.html")
+                .search(Set.of(SearchParam.ID))
+                .build(),
             support("Procedure")
                 .profileUrl("http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure")
                 .search(

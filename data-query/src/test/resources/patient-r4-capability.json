@@ -472,6 +472,31 @@
           ]
         },
         {
+          "type" : "PractitionerRole",
+          "profile" : "https://build.fhir.org/ig/HL7/US-Core-R4/StructureDefinition-us-core-practitionerrole.html",
+          "interaction" : [
+            {
+              "code" : "search-type",
+              "documentation" : "Implemented per the specification"
+            },
+            {
+              "code" : "read",
+              "documentation" : "Implemented per the specification"
+            }
+          ],
+          "versioning" : "no-version",
+          "referencePolicy" : [
+            "literal",
+            "local"
+          ],
+          "searchParam" : [
+            {
+              "name" : "_id",
+              "type" : "token"
+            }
+          ]
+        },
+        {
           "type" : "Procedure",
           "profile" : "http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure",
           "interaction" : [
