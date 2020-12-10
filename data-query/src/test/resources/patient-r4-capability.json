@@ -473,7 +473,7 @@
         },
         {
           "type" : "Practitioner",
-          "profile" : "http://hl7.org/fhir/us/core/STU3.1.1/StructureDefinition-us-core-practitioner.html",
+          "profile" : "http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner",
           "interaction" : [
             {
               "code" : "search-type",
