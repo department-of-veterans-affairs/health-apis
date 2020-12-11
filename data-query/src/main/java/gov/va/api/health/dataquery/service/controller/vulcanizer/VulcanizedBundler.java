@@ -2,12 +2,12 @@ package gov.va.api.health.dataquery.service.controller.vulcanizer;
 
 import static java.util.stream.Collectors.toList;
 
-import gov.va.api.health.dataquery.service.controller.datamart.HasReplaceableId;
 import gov.va.api.health.r4.api.bundle.AbstractBundle;
 import gov.va.api.health.r4.api.bundle.AbstractEntry;
 import gov.va.api.health.r4.api.bundle.BundleLink;
 import gov.va.api.health.r4.api.bundle.BundleLink.LinkRelation;
 import gov.va.api.health.r4.api.resources.Resource;
+import gov.va.api.lighthouse.datamart.HasReplaceableId;
 import gov.va.api.lighthouse.vulcan.VulcanResult;
 import gov.va.api.lighthouse.vulcan.VulcanResult.Paging;
 import java.util.ArrayList;

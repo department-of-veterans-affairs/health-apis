@@ -3,7 +3,6 @@ package gov.va.api.health.dataquery.service.controller.medicationorder;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dstu2.api.DataAbsentReason;
 import gov.va.api.health.dstu2.api.DataAbsentReason.Reason;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
@@ -13,6 +12,7 @@ import gov.va.api.health.dstu2.api.datatypes.Timing;
 import gov.va.api.health.dstu2.api.elements.Reference;
 import gov.va.api.health.dstu2.api.resources.MedicationOrder;
 import gov.va.api.health.dstu2.api.resources.MedicationOrder.Status;
+import gov.va.api.lighthouse.datamart.DatamartReference;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;

@@ -2,7 +2,6 @@ package gov.va.api.health.dataquery.service.controller.condition;
 
 import gov.va.api.health.dataquery.service.controller.condition.DatamartCondition.IcdCode;
 import gov.va.api.health.dataquery.service.controller.condition.DatamartCondition.SnomedCode;
-import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dstu2.api.bundle.AbstractBundle.BundleType;
 import gov.va.api.health.dstu2.api.bundle.AbstractEntry.Search;
 import gov.va.api.health.dstu2.api.bundle.AbstractEntry.SearchMode;
@@ -15,6 +14,7 @@ import gov.va.api.health.dstu2.api.resources.Condition;
 import gov.va.api.health.dstu2.api.resources.Condition.Bundle;
 import gov.va.api.health.dstu2.api.resources.Condition.Entry;
 import gov.va.api.health.dstu2.api.resources.Condition.VerificationStatusCode;
+import gov.va.api.lighthouse.datamart.DatamartReference;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Arrays;

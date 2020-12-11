@@ -1,7 +1,5 @@
 package gov.va.api.health.dataquery.service.controller.procedure;
 
-import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
-import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dataquery.service.controller.procedure.DatamartProcedure.Status;
 import gov.va.api.health.dstu2.api.resources.Procedure;
 import gov.va.api.health.dstu2.api.resources.Procedure.Bundle;
@@ -11,6 +9,8 @@ import gov.va.api.health.r4.api.bundle.AbstractEntry;
 import gov.va.api.health.r4.api.bundle.AbstractEntry.SearchMode;
 import gov.va.api.health.r4.api.bundle.BundleLink;
 import gov.va.api.health.r4.api.bundle.BundleLink.LinkRelation;
+import gov.va.api.lighthouse.datamart.DatamartCoding;
+import gov.va.api.lighthouse.datamart.DatamartReference;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;

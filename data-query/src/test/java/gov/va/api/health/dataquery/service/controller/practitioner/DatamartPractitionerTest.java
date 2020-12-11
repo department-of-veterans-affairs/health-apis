@@ -5,8 +5,8 @@ import static java.util.Arrays.asList;
 import static java.util.Optional.empty;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
-import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
+import gov.va.api.lighthouse.datamart.DatamartCoding;
+import gov.va.api.lighthouse.datamart.DatamartReference;
 import java.time.LocalDate;
 import java.util.Optional;
 import lombok.SneakyThrows;

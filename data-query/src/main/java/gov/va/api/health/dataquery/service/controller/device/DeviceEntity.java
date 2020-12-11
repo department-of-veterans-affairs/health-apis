@@ -1,6 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.device;
 
-import gov.va.api.health.dataquery.service.controller.datamart.DatamartEntity;
+import gov.va.api.lighthouse.datamart.DatamartEntity;
 import java.time.Instant;
 import javax.persistence.Basic;
 import javax.persistence.Column;

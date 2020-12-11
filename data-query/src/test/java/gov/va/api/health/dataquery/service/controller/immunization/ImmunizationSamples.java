@@ -1,8 +1,8 @@
 package gov.va.api.health.dataquery.service.controller.immunization;
 
 import gov.va.api.health.dataquery.service.controller.R4Transformers;
-import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dataquery.service.controller.immunization.DatamartImmunization.VaccineCode;
+import gov.va.api.lighthouse.datamart.DatamartReference;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;

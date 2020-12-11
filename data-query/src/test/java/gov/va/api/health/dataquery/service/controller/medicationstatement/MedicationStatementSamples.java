@@ -2,7 +2,6 @@ package gov.va.api.health.dataquery.service.controller.medicationstatement;
 
 import static java.util.Collections.singletonList;
 
-import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dstu2.api.bundle.AbstractBundle.BundleType;
 import gov.va.api.health.dstu2.api.bundle.AbstractEntry.Search;
 import gov.va.api.health.dstu2.api.bundle.AbstractEntry.SearchMode;
@@ -14,6 +13,7 @@ import gov.va.api.health.dstu2.api.elements.Reference;
 import gov.va.api.health.dstu2.api.resources.MedicationStatement;
 import gov.va.api.health.dstu2.api.resources.MedicationStatement.Bundle;
 import gov.va.api.health.dstu2.api.resources.MedicationStatement.Entry;
+import gov.va.api.lighthouse.datamart.DatamartReference;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;

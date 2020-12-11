@@ -5,11 +5,11 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
-import gov.va.api.health.dataquery.service.controller.datamart.HasReplaceableId;
 import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
+import gov.va.api.lighthouse.datamart.DatamartReference;
+import gov.va.api.lighthouse.datamart.HasReplaceableId;
 import java.util.List;
 import java.util.Map;
 import lombok.AllArgsConstructor;

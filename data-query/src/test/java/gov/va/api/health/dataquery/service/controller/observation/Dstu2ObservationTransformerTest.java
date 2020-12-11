@@ -4,7 +4,6 @@ import static gov.va.api.health.dataquery.service.controller.observation.Dstu2Ob
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
 import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation.AntibioticComponent;
 import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation.BacteriologyComponent;
 import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation.CodeableConcept;
@@ -13,6 +12,7 @@ import gov.va.api.health.dataquery.service.controller.observation.DatamartObserv
 import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation.VitalsComponent;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
 import gov.va.api.health.dstu2.api.resources.Observation;
+import gov.va.api.lighthouse.datamart.DatamartCoding;
 import java.util.List;
 import java.util.Optional;
 import org.assertj.core.util.Lists;

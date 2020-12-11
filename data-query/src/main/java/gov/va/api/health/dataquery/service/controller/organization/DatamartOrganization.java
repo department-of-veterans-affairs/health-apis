@@ -1,8 +1,8 @@
 package gov.va.api.health.dataquery.service.controller.organization;
 
-import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
-import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
-import gov.va.api.health.dataquery.service.controller.datamart.HasReplaceableId;
+import gov.va.api.lighthouse.datamart.DatamartCoding;
+import gov.va.api.lighthouse.datamart.DatamartReference;
+import gov.va.api.lighthouse.datamart.HasReplaceableId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;

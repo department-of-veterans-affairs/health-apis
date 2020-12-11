@@ -1,13 +1,13 @@
 package gov.va.api.health.dataquery.service.controller.vulcanizer;
 
-import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
-import gov.va.api.health.dataquery.service.controller.datamart.HasReplaceableId;
 import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.health.r4.api.bundle.AbstractBundle;
 import gov.va.api.health.r4.api.bundle.AbstractEntry;
 import gov.va.api.health.r4.api.elements.Meta;
 import gov.va.api.health.r4.api.resources.Resource;
+import gov.va.api.lighthouse.datamart.DatamartReference;
+import gov.va.api.lighthouse.datamart.HasReplaceableId;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

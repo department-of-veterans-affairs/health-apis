@@ -2,8 +2,8 @@ package gov.va.api.health.dataquery.service.controller.vulcanizer;
 
 import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
-import gov.va.api.health.dataquery.service.controller.datamart.HasReplaceableId;
 import gov.va.api.health.r4.api.resources.Resource;
+import gov.va.api.lighthouse.datamart.HasReplaceableId;
 import java.util.Optional;
 import java.util.function.Function;
 import javax.servlet.http.HttpServletResponse;

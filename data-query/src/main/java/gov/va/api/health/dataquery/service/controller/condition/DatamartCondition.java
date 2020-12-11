@@ -2,8 +2,8 @@ package gov.va.api.health.dataquery.service.controller.condition;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
-import gov.va.api.health.dataquery.service.controller.datamart.HasReplaceableId;
+import gov.va.api.lighthouse.datamart.DatamartReference;
+import gov.va.api.lighthouse.datamart.HasReplaceableId;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Optional;

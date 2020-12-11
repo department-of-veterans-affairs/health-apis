@@ -1,6 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.diagnosticreport.v1;
 
-import gov.va.api.health.dataquery.service.controller.datamart.DatamartEntity;
+import gov.va.api.lighthouse.datamart.DatamartEntity;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;

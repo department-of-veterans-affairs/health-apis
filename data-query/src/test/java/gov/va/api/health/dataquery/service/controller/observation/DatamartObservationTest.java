@@ -4,13 +4,13 @@ import static gov.va.api.health.autoconfig.configuration.JacksonConfig.createMap
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
-import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation.AntibioticComponent;
 import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation.BacteriologyComponent;
 import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation.CodeableConcept;
 import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation.ReferenceRange;
 import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation.VitalsComponent;
+import gov.va.api.lighthouse.datamart.DatamartCoding;
+import gov.va.api.lighthouse.datamart.DatamartReference;
 import java.time.Instant;
 import java.util.Optional;
 import lombok.SneakyThrows;
