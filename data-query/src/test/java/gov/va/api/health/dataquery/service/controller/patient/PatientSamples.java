@@ -166,9 +166,9 @@ public class PatientSamples {
                                           .code("MR")
                                           .build()))
                               .build())
-                      .system("http://va.gov/mvi")
+                      .system("http://va.gov/mpi")
                       .value(id)
-                      .assigner(Reference.builder().display("Master Veteran Index").build())
+                      .assigner(Reference.builder().display("Master Patient Index").build())
                       .build(),
                   Identifier.builder()
                       .use(IdentifierUse.official)
@@ -363,11 +363,11 @@ public class PatientSamples {
                                           .code("MR")
                                           .build()))
                               .build())
-                      .system("http://va.gov/mvi")
+                      .system("http://va.gov/mpi")
                       .value(id)
                       .assigner(
                           gov.va.api.health.r4.api.elements.Reference.builder()
-                              .display("Master Veteran Index")
+                              .display("Master Patient Index")
                               .build())
                       .build(),
                   gov.va.api.health.r4.api.datatypes.Identifier.builder()
