@@ -427,9 +427,9 @@ final class R4PatientTransformer {
                                   .code("MR")
                                   .build()))
                       .build())
-              .system("http://va.gov/mvi")
+              .system("http://va.gov/mpi")
               .value(datamart.fullIcn())
-              .assigner(Reference.builder().display("Master Veteran Index").build())
+              .assigner(Reference.builder().display("Master Patient Index").build())
               .build());
     }
     if (isNotBlank(datamart.ssn())) {
