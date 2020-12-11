@@ -6,11 +6,11 @@ import static gov.va.api.health.dataquery.service.controller.Transformers.isBlan
 import static gov.va.api.health.dataquery.service.controller.Transformers.parseInstant;
 
 import gov.va.api.health.dataquery.service.controller.R4Transformers;
-import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.r4.api.datatypes.CodeableConcept;
 import gov.va.api.health.r4.api.datatypes.Coding;
 import gov.va.api.health.r4.api.elements.Reference;
 import gov.va.api.health.r4.api.resources.DiagnosticReport;
+import gov.va.api.lighthouse.datamart.DatamartReference;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.Builder;

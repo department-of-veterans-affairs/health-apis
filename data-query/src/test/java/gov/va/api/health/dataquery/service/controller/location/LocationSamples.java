@@ -46,7 +46,7 @@ public class LocationSamples {
                   .build())
           .physicalType(Optional.of("BLDG 146, RM W02"))
           .managingOrganization(
-              gov.va.api.health.dataquery.service.controller.datamart.DatamartReference.builder()
+              gov.va.api.lighthouse.datamart.DatamartReference.builder()
                   .type(Optional.of("Organization"))
                   .reference(Optional.of(organizationId))
                   .display(Optional.of("OLIN E. TEAGUE VET CENTER"))

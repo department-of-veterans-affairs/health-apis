@@ -4,7 +4,6 @@ import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.a
 import static gov.va.api.health.dataquery.service.controller.Transformers.asDateTimeString;
 
 import com.google.common.collect.ImmutableMap;
-import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dstu2.api.DataAbsentReason;
 import gov.va.api.health.dstu2.api.DataAbsentReason.Reason;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
@@ -14,6 +13,7 @@ import gov.va.api.health.dstu2.api.datatypes.Timing;
 import gov.va.api.health.dstu2.api.elements.Extension;
 import gov.va.api.health.dstu2.api.resources.MedicationOrder;
 import gov.va.api.health.dstu2.api.resources.MedicationOrder.Status;
+import gov.va.api.lighthouse.datamart.DatamartReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;

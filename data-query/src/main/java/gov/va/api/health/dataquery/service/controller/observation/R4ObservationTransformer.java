@@ -15,13 +15,13 @@ import static org.springframework.util.CollectionUtils.isEmpty;
 
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
 import gov.va.api.health.dataquery.service.controller.R4Transformers;
-import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.r4.api.datatypes.CodeableConcept;
 import gov.va.api.health.r4.api.datatypes.Coding;
 import gov.va.api.health.r4.api.datatypes.Quantity;
 import gov.va.api.health.r4.api.datatypes.SimpleQuantity;
 import gov.va.api.health.r4.api.elements.Reference;
 import gov.va.api.health.r4.api.resources.Observation;
+import gov.va.api.lighthouse.datamart.DatamartReference;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;

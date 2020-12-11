@@ -4,13 +4,13 @@ import static gov.va.api.health.dataquery.service.controller.R4Transformers.asRe
 import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
 import static gov.va.api.health.dataquery.service.controller.Transformers.asDateTimeString;
 
-import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.r4.api.DataAbsentReason;
 import gov.va.api.health.r4.api.datatypes.Annotation;
 import gov.va.api.health.r4.api.datatypes.CodeableConcept;
 import gov.va.api.health.r4.api.datatypes.Coding;
 import gov.va.api.health.r4.api.elements.Extension;
 import gov.va.api.health.r4.api.resources.Immunization;
+import gov.va.api.lighthouse.datamart.DatamartReference;
 import java.util.List;
 import java.util.Optional;
 import lombok.Builder;

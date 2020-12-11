@@ -1,9 +1,9 @@
 package gov.va.api.health.dataquery.service.controller.vulcanizer;
 
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
-import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
-import gov.va.api.health.dataquery.service.controller.datamart.HasReplaceableId;
 import gov.va.api.health.r4.api.resources.Resource;
+import gov.va.api.lighthouse.datamart.DatamartReference;
+import gov.va.api.lighthouse.datamart.HasReplaceableId;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;

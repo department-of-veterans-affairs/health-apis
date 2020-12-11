@@ -5,11 +5,11 @@ import static gov.va.api.health.dataquery.service.controller.Stu3Transformers.as
 import static gov.va.api.health.dataquery.service.controller.Stu3Transformers.asReference;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
-import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.stu3.api.datatypes.CodeableConcept;
 import gov.va.api.health.stu3.api.datatypes.Coding;
 import gov.va.api.health.stu3.api.elements.Reference;
+import gov.va.api.lighthouse.datamart.DatamartCoding;
+import gov.va.api.lighthouse.datamart.DatamartReference;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
