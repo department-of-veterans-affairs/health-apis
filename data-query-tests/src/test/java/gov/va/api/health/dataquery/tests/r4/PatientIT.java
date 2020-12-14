@@ -46,12 +46,13 @@ public class PatientIT {
             "Patient?name={name}&gender={gender}",
             verifier.ids().pii().name().replaceAll("\\s", ""),
             verifier.ids().pii().gender()),
-        /*
-         * These are tests for the UnsatisfiedServletRequestParameterException mapping to bad
-         * request.
-         */
-        test(400, OperationOutcome.class, "Patient?given={given}", verifier.ids().pii().given()),
-        test(400, OperationOutcome.class, "Patient/"));
+        test(
+            200,
+            Patient.Bundle.class,
+            p -> p.entry().isEmpty(),
+            "Patient?given={given}",
+            verifier.ids().pii().given()),
+        test(200, Patient.Bundle.class, p -> p.entry().isEmpty(), "Patient/"));
   }
 
   @Test
