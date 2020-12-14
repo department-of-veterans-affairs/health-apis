@@ -1,110 +1,87 @@
 package gov.va.api.health.dataquery.service.controller.patient;
 
-import static gov.va.api.health.autoconfig.logging.LogSanitizer.sanitize;
-import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
+import static gov.va.api.lighthouse.vulcan.Rules.ifParameter;
+import static gov.va.api.lighthouse.vulcan.Rules.parametersNeverSpecifiedTogether;
+import static gov.va.api.lighthouse.vulcan.Vulcan.returnNothing;
 
-import gov.va.api.health.dataquery.service.controller.CountParameter;
+import gov.va.api.health.dataquery.service.config.LinkProperties;
 import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
-import gov.va.api.health.dataquery.service.controller.PageLinks;
-import gov.va.api.health.dataquery.service.controller.Parameters;
-import gov.va.api.health.dataquery.service.controller.R4Bundler;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
+import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedBundler;
 import gov.va.api.health.ids.api.ResourceIdentity;
+import gov.va.api.health.r4.api.bundle.AbstractBundle;
+import gov.va.api.health.r4.api.bundle.AbstractEntry;
 import gov.va.api.health.r4.api.resources.Patient;
+import gov.va.api.lighthouse.vulcan.Vulcan;
+import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
+import gov.va.api.lighthouse.vulcan.VulcanResult;
+import gov.va.api.lighthouse.vulcan.mappings.Mappings;
+import gov.va.api.lighthouse.vulcan.mappings.TokenParameter;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.constraints.Min;
-import lombok.extern.slf4j.Slf4j;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Request Mappings for Patient Profile, see
- * https://build.fhir.org/ig/HL7/US-Core-R4/StructureDefinition-us-core-patient.html for
- * implementation details.
+ * Request Mappings for US-Core-R4 Patient Profile.
+ *
+ * @implSpec https://build.fhir.org/ig/HL7/US-Core-R4/StructureDefinition-us-core-patient.html
  */
-@Slf4j
-@Validated
 @RestController
-@SuppressWarnings("WeakerAccess")
+@Validated
 @RequestMapping(
     value = {"/r4/Patient"},
     produces = {"application/json", "application/fhir+json"})
+@AllArgsConstructor(onConstructor_ = @Autowired)
 public class R4PatientController {
-  private R4Bundler bundler;
+  private static final String PATIENT_IDENTIFIER_SYSTEM_ICN = "http://va.gov/mpi";
 
-  private PatientRepositoryV2 repository;
+  private static final String PATIENT_GENDER_SYSTEM = "http://hl7.org/fhir/administrative-gender";
 
-  private WitnessProtection witnessProtection;
+  private final WitnessProtection witnessProtection;
 
-  /** Autowired constructor. */
-  public R4PatientController(
-      @Autowired R4Bundler bundler,
-      @Autowired PatientRepositoryV2 repository,
-      @Autowired WitnessProtection witnessProtection) {
-    this.bundler = bundler;
-    this.repository = repository;
-    this.witnessProtection = witnessProtection;
-  }
+  private final PatientRepositoryV2 repository;
 
-  Patient.Bundle bundle(
-      MultiValueMap<String, String> parameters, List<Patient> reports, int totalRecords) {
-    PageLinks.LinkConfig linkConfig =
-        PageLinks.LinkConfig.builder()
-            .path("Patient")
-            .queryParams(parameters)
-            .page(Parameters.pageOf(parameters))
-            .recordsPerPage(Parameters.countOf(parameters))
-            .totalRecords(totalRecords)
-            .build();
-    return bundler.bundle(linkConfig, reports, Patient.Entry::new, Patient.Bundle::new);
-  }
+  private final LinkProperties linkProperties;
 
-  Patient.Bundle bundle(
-      MultiValueMap<String, String> parameters, Page<PatientEntityV2> entitiesPage) {
-    log.info("Search {} found {} results", parameters, entitiesPage.getTotalElements());
-    if (Parameters.countOf(parameters) == 0) {
-      return bundle(parameters, emptyList(), (int) entitiesPage.getTotalElements());
-    }
-    List<DatamartPatient> datamarts =
-        entitiesPage.stream()
-            .map(PatientEntityV2::asDatamartPatient)
-            .map(this::replaceReferences)
-            .collect(Collectors.toList());
-    List<Patient> fhir =
-        datamarts.stream()
-            .map(dm -> R4PatientTransformer.builder().datamart(dm).build().toFhir())
-            .collect(Collectors.toList());
-    return bundle(parameters, fhir, (int) entitiesPage.getTotalElements());
-  }
-
-  String cdwGender(String fhirGender) {
-    String cdw = GenderMapping.toCdw(fhirGender);
-    if (cdw == null) {
-      throw new IllegalArgumentException("unknown gender: " + fhirGender);
-    }
-    return cdw;
+  private VulcanConfiguration<PatientEntityV2> configuration() {
+    return VulcanConfiguration.<PatientEntityV2>forEntity(PatientEntityV2.class)
+        .paging(linkProperties.pagingConfiguration("Patient", PatientEntityV2.naturalOrder()))
+        .mappings(
+            Mappings.forEntity(PatientEntityV2.class)
+                .dateAsInstant("birthdate", "birthDate")
+                .token("gender", this::tokenGenderIsSupported, this::tokenGenderValues)
+                .token("_id", "icn", this::tokenIdentifierIsSupported, this::tokenIdentiferValues)
+                .token(
+                    "identifier",
+                    "icn",
+                    this::tokenIdentifierIsSupported,
+                    this::tokenIdentiferValues)
+                .value("name", "fullName")
+                .value("family", "lastName")
+                .get())
+        .rule(parametersNeverSpecifiedTogether("_id", "identifier"))
+        .rule(parametersNeverSpecifiedTogether("name", "family"))
+        .rule(ifParameter("birthdate").thenAlsoAtLeastOneParameterOf("name", "family"))
+        .rule(ifParameter("gender").thenAlsoAtLeastOneParameterOf("name", "family"))
+        .defaultQuery(returnNothing())
+        .build();
   }
 
   PatientEntityV2 findById(String publicId) {
     Optional<PatientEntityV2> entity = repository.findById(witnessProtection.toCdwId(publicId));
     return entity.orElseThrow(() -> new ResourceExceptions.NotFound(publicId));
-  }
-
-  PageRequest page(int page, int count) {
-    return PageRequest.of(page - 1, count == 0 ? 1 : count, PatientEntityV2.naturalOrder());
   }
 
   /** Read by id. */
@@ -141,134 +118,85 @@ public class R4PatientController {
     return p;
   }
 
-  /** Search by Birthdate+Family. */
-  @GetMapping(params = {"birthdate", "family"})
-  public Patient.Bundle searchByBirthdateAndFamily(
-      @RequestParam("birthdate") String[] birthdate,
-      @RequestParam("family") String family,
-      @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
-      @CountParameter @Min(0) int count) {
-    PatientRepositoryV2.BirthdateAndFamilySpecification spec =
-        PatientRepositoryV2.BirthdateAndFamilySpecification.builder()
-            .family(family)
-            .dates(birthdate)
-            .build();
-    log.info("Looking for {} {}", spec, sanitize(family));
-    Page<PatientEntityV2> entities = repository.findAll(spec, page(page, count));
-    return bundle(
-        Parameters.builder()
-            .add("family", family)
-            .addAll("birthdate", birthdate)
-            .add("page", page)
-            .add("_count", count)
-            .build(),
-        entities);
+  /** US-Core-R4 Patient Search Support. */
+  @GetMapping
+  public Patient.Bundle search(HttpServletRequest request) {
+    return Vulcan.forRepo(repository)
+        .config(configuration())
+        .build()
+        .search(request)
+        .map(this::toBundle);
   }
 
-  /**
-   * Search by Family+Gender. The spec indicates that gender should be system+code: GET
-   * [base]/Patient?gender={[system]}|[code] it is currently only code.
-   */
-  @GetMapping(params = {"family", "gender"})
-  public Patient.Bundle searchByFamilyAndGender(
-      @RequestParam("family") String family,
-      @RequestParam("gender") String gender,
-      @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
-      @CountParameter @Min(0) int count) {
-    return bundle(
-        Parameters.builder()
-            .add("family", family)
-            .add("gender", gender)
-            .add("page", page)
-            .add("_count", count)
-            .build(),
-        repository.findByLastNameAndGender(family, cdwGender(gender), page(page, count)));
+  // Patient doesn't have a CDWId and can't use the VulcanizedBundler
+  Patient.Bundle toBundle(VulcanResult<PatientEntityV2> result) {
+    List<Patient.Entry> entries =
+        result
+            .entities()
+            .map(PatientEntityV2::asDatamartPatient)
+            .map(this::replaceReferences)
+            .map(dm -> R4PatientTransformer.builder().datamart(dm).build().toFhir())
+            .map(
+                pat ->
+                    Patient.Entry.builder()
+                        .fullUrl(linkProperties.r4().readUrl(pat))
+                        .resource(pat)
+                        .search(
+                            AbstractEntry.Search.builder()
+                                .mode(AbstractEntry.SearchMode.match)
+                                .build())
+                        .build())
+            .collect(Collectors.toList());
+    return Patient.Bundle.builder()
+        .resourceType("Bundle")
+        .type(AbstractBundle.BundleType.searchset)
+        .total((int) result.paging().totalRecords())
+        .link(VulcanizedBundler.toLinks(result.paging()))
+        .entry(entries)
+        .build();
   }
 
-  /** Search by _id. */
-  @GetMapping(params = {"_id"})
-  public Patient.Bundle searchById(
-      @RequestParam("_id") String id,
-      @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
-      @CountParameter @Min(0) int count) {
-    return searchByIdentifier(id, page, count);
-  }
-
-  /**
-   * Search by Identifier. The spec indicates that identifier should be system+code: GET
-   * [base]/Patient?identifier={[system]}|[code] it is currently only code.
-   */
-  @GetMapping(params = {"identifier"})
-  public Patient.Bundle searchByIdentifier(
-      @RequestParam("identifier") String identifier,
-      @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
-      @CountParameter @Min(0) int count) {
-    MultiValueMap<String, String> parameters =
-        Parameters.builder()
-            .add("identifier", identifier)
-            .add("page", page)
-            .add("_count", count)
-            .build();
-    Patient resource = read(identifier);
-    int totalRecords = resource == null ? 0 : 1;
-    if (resource == null || page != 1 || count <= 0) {
-      return bundle(parameters, emptyList(), totalRecords);
+  Set<String> toCdwGender(String fhirGender) {
+    String cdw = GenderMapping.toCdw(fhirGender);
+    if (cdw == null) {
+      throw new IllegalArgumentException("Unknown gender: " + fhirGender);
     }
-    return bundle(parameters, asList(resource), totalRecords);
+    return Set.of(cdw);
   }
 
-  /** Search by Name. */
-  @GetMapping(params = {"name"})
-  public Patient.Bundle searchByName(
-      @RequestParam("name") String name,
-      @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
-      @CountParameter @Min(0) int count) {
-    return bundle(
-        Parameters.builder().add("name", name).add("page", page).add("_count", count).build(),
-        repository.findByFullName(name, page(page, count)));
+  boolean tokenGenderIsSupported(TokenParameter token) {
+    /* Supported:
+     * - GENDER_SYSTEM|SOME_CODE (assumes someone using the system is using valid codes)
+     * - GENDER_SYSTEM|
+     * - GENDER_CODE
+     * (If we support searches by SSN identifier, we will need to support SYSTEM| and |CODE)
+     */
+    return (token.hasSupportedSystem(PATIENT_GENDER_SYSTEM) && token.hasExplicitSystem())
+        || (token.hasSupportedCode("male", "female", "other", "unknown") && token.hasAnySystem());
   }
 
-  /** Search by Name+Birthdate. */
-  @GetMapping(params = {"name", "birthdate"})
-  public Patient.Bundle searchByNameAndBirthdate(
-      @RequestParam("name") String name,
-      @RequestParam("birthdate") String[] birthdate,
-      @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
-      @CountParameter @Min(0) int count) {
-    PatientRepositoryV2.NameAndBirthdateSpecification spec =
-        PatientRepositoryV2.NameAndBirthdateSpecification.builder()
-            .name(name)
-            .dates(birthdate)
-            .build();
-    log.info("Looking for {} {}", sanitize(name), spec);
-    Page<PatientEntityV2> entities = repository.findAll(spec, page(page, count));
-    return bundle(
-        Parameters.builder()
-            .add("name", name)
-            .addAll("birthdate", birthdate)
-            .add("page", page)
-            .add("_count", count)
-            .build(),
-        entities);
+  Collection<String> tokenGenderValues(TokenParameter token) {
+    return token
+        .behavior()
+        .onExplicitSystemAndExplicitCode((s, c) -> toCdwGender(c))
+        .onAnySystemAndExplicitCode(this::toCdwGender)
+        .onNoSystemAndExplicitCode(this::toCdwGender)
+        .onExplicitSystemAndAnyCode(s -> Set.of())
+        .build()
+        .execute();
   }
 
-  /**
-   * Search by Name+Gender. The spec indicates that gender should be system+code: GET
-   * [base]/Patient?gender={[system]}|[code] it is currently only code.
-   */
-  @GetMapping(params = {"name", "gender"})
-  public Patient.Bundle searchByNameAndGender(
-      @RequestParam("name") String name,
-      @RequestParam("gender") String gender,
-      @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
-      @CountParameter @Min(0) int count) {
-    return bundle(
-        Parameters.builder()
-            .add("name", name)
-            .add("gender", gender)
-            .add("page", page)
-            .add("_count", count)
-            .build(),
-        repository.findByFullNameAndGender(name, cdwGender(gender), page(page, count)));
+  Collection<String> tokenIdentiferValues(TokenParameter token) {
+    return List.of(token.code());
+  }
+
+  boolean tokenIdentifierIsSupported(TokenParameter token) {
+    /* Supported (ICN is specified or you get nothing.):
+     * - MPI_SYSTEM|ICN
+     * - ICN
+     * (If we support searches by SSN identifier, we will need to support SYSTEM| and |CODE)
+     */
+    return (token.hasSupportedSystem(PATIENT_IDENTIFIER_SYSTEM_ICN) && token.hasExplicitCode())
+        || token.hasAnySystem();
   }
 }

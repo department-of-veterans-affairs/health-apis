@@ -24,9 +24,9 @@ public class VulcanizedBundler<
         EntryT extends AbstractEntry<ResourceT>,
         BundleT extends AbstractBundle<EntryT>>
     implements Function<VulcanResult<EntityT>, BundleT> {
-
   /** The transformation process that will be applied to the results. */
   VulcanizedTransformation<EntityT, DatamartT, ResourceT> transformation;
+
   /** The bundling configuration that will be used to create the actual bundle. */
   Bundling<ResourceT, EntryT, BundleT> bundling;
 
@@ -39,6 +39,21 @@ public class VulcanizedBundler<
         .build();
   }
 
+  private static Function<String, BundleLink> toLink(BundleLink.LinkRelation relation) {
+    return url -> BundleLink.builder().relation(relation).url(url).build();
+  }
+
+  /** Transform Vulcan Paging to R4 BundleLinks. */
+  public static List<BundleLink> toLinks(Paging paging) {
+    List<BundleLink> links = new ArrayList<>(5);
+    paging.firstPageUrl().map(toLink(LinkRelation.first)).ifPresent(links::add);
+    paging.previousPageUrl().map(toLink(LinkRelation.prev)).ifPresent(links::add);
+    paging.thisPageUrl().map(toLink(LinkRelation.self)).ifPresent(links::add);
+    paging.nextPageUrl().map(toLink(LinkRelation.next)).ifPresent(links::add);
+    paging.lastPageUrl().map(toLink(LinkRelation.last)).ifPresent(links::add);
+    return links.isEmpty() ? null : links;
+  }
+
   @Override
   public BundleT apply(VulcanResult<EntityT> result) {
     List<DatamartT> datamartRecords =
@@ -49,7 +64,6 @@ public class VulcanizedBundler<
             .map(transformation.toResource())
             .map(this::toEntry)
             .collect(toList());
-
     BundleT bundle = bundling.newBundle().get();
     bundle.resourceType("Bundle");
     bundle.type(AbstractBundle.BundleType.searchset);
@@ -65,20 +79,6 @@ public class VulcanizedBundler<
     entry.fullUrl(bundling.linkProperties().r4().readUrl(resource));
     entry.search(AbstractEntry.Search.builder().mode(AbstractEntry.SearchMode.match).build());
     return entry;
-  }
-
-  private Function<String, BundleLink> toLink(BundleLink.LinkRelation relation) {
-    return url -> BundleLink.builder().relation(relation).url(url).build();
-  }
-
-  List<BundleLink> toLinks(Paging paging) {
-    List<BundleLink> links = new ArrayList<>(5);
-    paging.firstPageUrl().map(toLink(LinkRelation.first)).ifPresent(links::add);
-    paging.previousPageUrl().map(toLink(LinkRelation.prev)).ifPresent(links::add);
-    paging.thisPageUrl().map(toLink(LinkRelation.self)).ifPresent(links::add);
-    paging.nextPageUrl().map(toLink(LinkRelation.next)).ifPresent(links::add);
-    paging.lastPageUrl().map(toLink(LinkRelation.last)).ifPresent(links::add);
-    return links.isEmpty() ? null : links;
   }
 
   /**
