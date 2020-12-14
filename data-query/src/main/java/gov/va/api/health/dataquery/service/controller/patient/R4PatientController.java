@@ -61,6 +61,8 @@ public class R4PatientController {
         .mappings(
             Mappings.forEntity(PatientEntityV2.class)
                 .dateAsInstant("birthdate", "birthDate")
+                .string("name", "fullName")
+                .string("family", "lastName")
                 .token("gender", this::tokenGenderIsSupported, this::tokenGenderValues)
                 .token("_id", "icn", this::tokenIdentifierIsSupported, this::tokenIdentiferValues)
                 .token(
@@ -68,8 +70,6 @@ public class R4PatientController {
                     "icn",
                     this::tokenIdentifierIsSupported,
                     this::tokenIdentiferValues)
-                .value("name", "fullName")
-                .value("family", "lastName")
                 .get())
         .rule(parametersNeverSpecifiedTogether("_id", "identifier"))
         .rule(parametersNeverSpecifiedTogether("name", "family"))
