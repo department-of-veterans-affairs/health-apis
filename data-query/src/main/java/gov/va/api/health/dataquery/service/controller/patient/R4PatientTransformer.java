@@ -344,6 +344,22 @@ final class R4PatientTransformer {
     return date.toString();
   }
 
+  private String birthsex(String maybeBirthsex) {
+    if (isBlank(maybeBirthsex)) {
+      return null;
+    }
+    switch (maybeBirthsex) {
+      case "M":
+        return "M";
+      case "F":
+        return "F";
+      case "*Unknown at this time*":
+        return "UNK";
+      default:
+        return null;
+    }
+  }
+
   private List<Patient.PatientContact> contacts() {
     return emptyToNull(
         datamart.contact().stream().map(R4PatientTransformer::contact).collect(toList()));
@@ -392,11 +408,12 @@ final class R4PatientTransformer {
               .extension(ethnicityExtensions)
               .build());
     }
-    if (isNotBlank(datamart.gender())) {
+    String birthsex = birthsex(datamart.gender());
+    if (isNotBlank(birthsex)) {
       results.add(
           Extension.builder()
               .url("http://hl7.org/fhir/us/core/StructureDefinition/us-core-birthsex")
-              .valueCode(datamart.gender())
+              .valueCode(birthsex)
               .build());
     }
     return emptyToNull(results);

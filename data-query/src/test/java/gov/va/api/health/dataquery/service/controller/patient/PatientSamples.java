@@ -271,13 +271,6 @@ public class PatientSamples {
     static gov.va.api.health.r4.api.resources.Patient.Bundle asBundle(
         String basePath,
         Collection<gov.va.api.health.r4.api.resources.Patient> records,
-        gov.va.api.health.r4.api.bundle.BundleLink... links) {
-      return asBundle(basePath, records, records.size(), links);
-    }
-
-    static gov.va.api.health.r4.api.resources.Patient.Bundle asBundle(
-        String basePath,
-        Collection<gov.va.api.health.r4.api.resources.Patient> records,
         int totalRecords,
         gov.va.api.health.r4.api.bundle.BundleLink... links) {
       return gov.va.api.health.r4.api.resources.Patient.Bundle.builder()
