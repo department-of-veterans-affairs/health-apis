@@ -1,6 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.medication;
 
-import gov.va.api.health.dataquery.service.controller.datamart.HasReplaceableId;
+import gov.va.api.lighthouse.datamart.HasReplaceableId;
 import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

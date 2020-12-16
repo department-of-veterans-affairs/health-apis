@@ -3,7 +3,7 @@ package gov.va.api.health.dataquery.service.controller.diagnosticreport;
 import static java.util.Collections.emptySet;
 
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
-import gov.va.api.health.dataquery.service.controller.datamart.DatamartEntity;
+import gov.va.api.lighthouse.datamart.DatamartEntity;
 import java.time.Instant;
 import java.util.Set;
 import javax.persistence.Basic;

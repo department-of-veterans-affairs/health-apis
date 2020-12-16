@@ -6,7 +6,6 @@ import static gov.va.api.health.dataquery.service.controller.Transformers.asBigD
 import static gov.va.api.health.dataquery.service.controller.Transformers.asDateTimeString;
 
 import com.google.common.collect.ImmutableMap;
-import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dataquery.service.controller.medicationorder.DatamartMedicationOrder;
 import gov.va.api.health.dataquery.service.controller.medicationorder.DatamartMedicationOrder.Category;
 import gov.va.api.health.r4.api.DataAbsentReason;
@@ -19,6 +18,7 @@ import gov.va.api.health.r4.api.datatypes.Timing;
 import gov.va.api.health.r4.api.elements.Dosage;
 import gov.va.api.health.r4.api.elements.Extension;
 import gov.va.api.health.r4.api.resources.MedicationRequest;
+import gov.va.api.lighthouse.datamart.DatamartReference;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;

@@ -4,8 +4,8 @@ import static org.apache.commons.lang3.StringUtils.endsWithIgnoreCase;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
 import com.google.common.base.Splitter;
-import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.fhir.api.IsReference;
+import gov.va.api.lighthouse.datamart.DatamartReference;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;

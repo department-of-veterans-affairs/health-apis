@@ -16,6 +16,7 @@ import gov.va.api.health.dstu2.api.elements.Extension;
 import gov.va.api.health.dstu2.api.elements.Narrative;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
 import gov.va.api.health.ids.client.IdEncoder.BadId;
+import gov.va.api.lighthouse.datamart.DatamartExceptions;
 import gov.va.api.lighthouse.vulcan.InvalidRequest;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.time.Instant;
@@ -215,7 +216,7 @@ public class WebExceptionHandler {
    */
   @ExceptionHandler({
     Exception.class,
-    ResourceExceptions.InvalidDatamartPayload.class,
+    DatamartExceptions.InvalidDatamartPayload.class,
     UndeclaredThrowableException.class
   })
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)

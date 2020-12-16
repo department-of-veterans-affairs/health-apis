@@ -2,10 +2,10 @@ package gov.va.api.health.dataquery.service.controller.observation;
 
 import static java.util.Arrays.asList;
 
-import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
-import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation.Category;
 import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation.Status;
+import gov.va.api.lighthouse.datamart.DatamartCoding;
+import gov.va.api.lighthouse.datamart.DatamartReference;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Arrays;

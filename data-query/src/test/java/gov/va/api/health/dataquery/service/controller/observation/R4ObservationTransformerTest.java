@@ -5,10 +5,10 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
 import gov.va.api.health.r4.api.datatypes.CodeableConcept;
 import gov.va.api.health.r4.api.datatypes.Coding;
 import gov.va.api.health.r4.api.resources.Observation;
+import gov.va.api.lighthouse.datamart.DatamartCoding;
 import java.util.List;
 import java.util.Optional;
 import org.assertj.core.util.Lists;

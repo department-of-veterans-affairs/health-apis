@@ -2,11 +2,11 @@ package gov.va.api.health.dataquery.service.controller;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
-import gov.va.api.health.dataquery.service.controller.datamart.DatamartCoding;
-import gov.va.api.health.dataquery.service.controller.datamart.DatamartReference;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
 import gov.va.api.health.dstu2.api.elements.Reference;
+import gov.va.api.lighthouse.datamart.DatamartCoding;
+import gov.va.api.lighthouse.datamart.DatamartReference;
 import java.util.List;
 import java.util.Optional;
 import lombok.experimental.UtilityClass;
