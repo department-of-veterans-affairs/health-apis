@@ -6,6 +6,7 @@ import gov.va.api.lighthouse.datamart.DatamartReference;
 import gov.va.api.lighthouse.datamart.HasReplaceableId;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 import lombok.Builder;
@@ -28,6 +29,9 @@ public class VulcanizedTransformation<EntityT, DatamartT extends HasReplaceableI
   /** Provide a stream of Datamart references that require witness protection. */
   private final Function<DatamartT, Stream<DatamartReference>> replaceReferences;
 
+  /** Provide a specialized function for witness protection of Datamart resources. */
+  private final BiConsumer<WitnessProtection, DatamartT> specializedWitnessProtection;
+
   /** Transform a datamart object into a FHIR object. */
   private final Function<DatamartT, ResourceT> toResource;
 
@@ -39,6 +43,10 @@ public class VulcanizedTransformation<EntityT, DatamartT extends HasReplaceableI
 
   /** Updates references inline of the given record. Returns the same object as passed in. */
   public <T extends Collection<DatamartT>> T applyWitnessProtection(T datamartRecords) {
+    if (specializedWitnessProtection() != null) {
+      datamartRecords.forEach(
+          record -> specializedWitnessProtection().accept(witnessProtection(), record));
+    }
     witnessProtection().registerAndUpdateReferences(datamartRecords, replaceReferences());
     return datamartRecords;
   }
