@@ -5,24 +5,22 @@ import static gov.va.api.lighthouse.vulcan.Rules.parametersNeverSpecifiedTogethe
 import static gov.va.api.lighthouse.vulcan.Vulcan.returnNothing;
 
 import gov.va.api.health.dataquery.service.config.LinkProperties;
-import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
-import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
+import gov.va.api.health.dataquery.service.controller.vulcanizer.Bundling;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedBundler;
+import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedReader;
+import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedTransformation;
 import gov.va.api.health.ids.api.ResourceIdentity;
-import gov.va.api.health.r4.api.bundle.AbstractBundle;
-import gov.va.api.health.r4.api.bundle.AbstractEntry;
 import gov.va.api.health.r4.api.resources.Patient;
 import gov.va.api.lighthouse.vulcan.Vulcan;
 import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
-import gov.va.api.lighthouse.vulcan.VulcanResult;
 import gov.va.api.lighthouse.vulcan.mappings.Mappings;
 import gov.va.api.lighthouse.vulcan.mappings.TokenParameter;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
@@ -79,16 +77,10 @@ public class R4PatientController {
         .build();
   }
 
-  PatientEntityV2 findById(String publicId) {
-    Optional<PatientEntityV2> entity = repository.findById(witnessProtection.toCdwId(publicId));
-    return entity.orElseThrow(() -> new ResourceExceptions.NotFound(publicId));
-  }
-
   /** Read by id. */
   @GetMapping(value = {"/{publicId}"})
   public Patient read(@PathVariable("publicId") String publicId) {
-    DatamartPatient dm = replaceReferences(findById(publicId).asDatamartPatient());
-    return R4PatientTransformer.builder().datamart(dm).build().toFhir();
+    return vulcanizedReader().read(publicId);
   }
 
   /** Return the raw Datamart document for the given identifier. */
@@ -96,26 +88,7 @@ public class R4PatientController {
       value = "/{publicId}",
       headers = {"raw=true"})
   public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
-    PatientEntityV2 entityV2 = findById(publicId);
-    IncludesIcnMajig.addHeader(response, entityV2.icn());
-    return entityV2.payload();
-  }
-
-  private DatamartPatient replaceReferences(DatamartPatient p) {
-    if (p.managingOrganization().isPresent()) {
-      var publicId =
-          witnessProtection.register(
-              List.of(
-                  ResourceIdentity.builder()
-                      .system("CDW")
-                      .resource("Organization")
-                      .identifier(p.managingOrganization().get())
-                      .build()));
-      if (!publicId.isEmpty()) {
-        p.managingOrganization(Optional.of(publicId.get(0).uuid()));
-      }
-    }
-    return p;
+    return vulcanizedReader().readRaw(publicId, response);
   }
 
   /** US-Core-R4 Patient Search Support. */
@@ -125,34 +98,17 @@ public class R4PatientController {
         .config(configuration())
         .build()
         .search(request)
-        .map(this::toBundle);
+        .map(toBundle());
   }
 
-  // Patient doesn't have a CDWId and can't use the VulcanizedBundler
-  Patient.Bundle toBundle(VulcanResult<PatientEntityV2> result) {
-    List<Patient.Entry> entries =
-        result
-            .entities()
-            .map(PatientEntityV2::asDatamartPatient)
-            .map(this::replaceReferences)
-            .map(dm -> R4PatientTransformer.builder().datamart(dm).build().toFhir())
-            .map(
-                pat ->
-                    Patient.Entry.builder()
-                        .fullUrl(linkProperties.r4().readUrl(pat))
-                        .resource(pat)
-                        .search(
-                            AbstractEntry.Search.builder()
-                                .mode(AbstractEntry.SearchMode.match)
-                                .build())
-                        .build())
-            .collect(Collectors.toList());
-    return Patient.Bundle.builder()
-        .resourceType("Bundle")
-        .type(AbstractBundle.BundleType.searchset)
-        .total((int) result.paging().totalRecords())
-        .link(VulcanizedBundler.toLinks(result.paging()))
-        .entry(entries)
+  VulcanizedBundler<PatientEntityV2, DatamartPatient, Patient, Patient.Entry, Patient.Bundle>
+      toBundle() {
+    return VulcanizedBundler.forTransformation(transformation())
+        .bundling(
+            Bundling.newBundle(Patient.Bundle::new)
+                .newEntry(Patient.Entry::new)
+                .linkProperties(linkProperties)
+                .build())
         .build();
   }
 
@@ -172,7 +128,7 @@ public class R4PatientController {
      * (If we support searches by SSN identifier, we will need to support SYSTEM| and |CODE)
      */
     return (token.hasSupportedSystem(PATIENT_GENDER_SYSTEM) && token.hasExplicitSystem())
-        || (token.hasSupportedCode("male", "female", "other", "unknown") && token.hasAnySystem());
+        || (token.hasSupportedCode(Patient.Gender.values()) && token.hasAnySystem());
   }
 
   Collection<String> tokenGenderValues(TokenParameter token) {
@@ -198,5 +154,37 @@ public class R4PatientController {
      */
     return (token.hasSupportedSystem(PATIENT_IDENTIFIER_SYSTEM_ICN) && token.hasExplicitCode())
         || token.hasAnySystem();
+  }
+
+  VulcanizedTransformation<PatientEntityV2, DatamartPatient, Patient> transformation() {
+    return VulcanizedTransformation.toDatamart(PatientEntityV2::asDatamartPatient)
+        .toResource(dm -> R4PatientTransformer.builder().datamart(dm).build().toFhir())
+        .witnessProtection(witnessProtection)
+        .replaceReferences(resource -> Stream.empty())
+        .specializedWitnessProtection(
+            (wp, resource) -> {
+              if (resource.managingOrganization().isPresent()) {
+                var publicId =
+                    wp.register(
+                        List.of(
+                            ResourceIdentity.builder()
+                                .system("CDW")
+                                .resource("Organization")
+                                .identifier(resource.managingOrganization().get())
+                                .build()));
+                if (!publicId.isEmpty()) {
+                  resource.managingOrganization(Optional.ofNullable(publicId.get(0).uuid()));
+                }
+              }
+            })
+        .build();
+  }
+
+  VulcanizedReader<PatientEntityV2, DatamartPatient, Patient> vulcanizedReader() {
+    return VulcanizedReader.forTransformation(transformation())
+        .repository(repository)
+        .toPatientId(e -> Optional.of(e.icn()))
+        .toPayload(PatientEntityV2::payload)
+        .build();
   }
 }

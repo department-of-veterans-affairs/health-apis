@@ -2,7 +2,6 @@ package gov.va.api.health.dataquery.service.controller.patient;
 
 import static gov.va.api.health.dataquery.service.controller.MockRequests.paging;
 import static gov.va.api.health.dataquery.service.controller.MockRequests.requestFromUri;
-import static gov.va.api.health.dataquery.service.controller.patient.PatientSamples.json;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
@@ -128,7 +127,7 @@ public class R4PatientControllerTest {
                 BundleLink.LinkRelation.next, BASE_URL + "/Patient?_id=p1", 6, 15),
             PatientSamples.R4.link(
                 BundleLink.LinkRelation.last, BASE_URL + "/Patient?_id=p1", 9, 15));
-    assertThat(json(controller().toBundle(vr))).isEqualTo(json(expected));
+    assertThat(controller().toBundle().apply(vr)).isEqualTo(expected);
   }
 
   @ParameterizedTest

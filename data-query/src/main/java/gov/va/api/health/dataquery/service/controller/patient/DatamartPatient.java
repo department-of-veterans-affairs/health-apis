@@ -1,5 +1,7 @@
 package gov.va.api.health.dataquery.service.controller.patient;
 
+import gov.va.api.lighthouse.datamart.DatamartReference;
+import gov.va.api.lighthouse.datamart.HasReplaceableId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -13,12 +15,14 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class DatamartPatient {
+public class DatamartPatient implements HasReplaceableId {
   @Builder.Default private String objectType = "Patient";
 
   @Builder.Default private int objectVersion = 1;
 
   private String fullIcn;
+
+  private String cdwId;
 
   private String ssn;
 
@@ -60,6 +64,11 @@ public class DatamartPatient {
       address = new ArrayList<>();
     }
     return address;
+  }
+
+  @Override
+  public DatamartReference asReference() {
+    return DatamartReference.of().type(this.objectType()).reference(this.fullIcn()).build();
   }
 
   /** Lazy getter. */
