@@ -2,6 +2,7 @@ package gov.va.api.health.dataquery.service.controller.patient;
 
 import static java.util.Arrays.asList;
 
+import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.patient.DatamartPatient.Address;
 import gov.va.api.health.dataquery.service.controller.patient.DatamartPatient.MaritalStatus;
 import gov.va.api.health.dataquery.service.controller.patient.DatamartPatient.Race;
@@ -23,16 +24,33 @@ import gov.va.api.health.dstu2.api.elements.Extension;
 import gov.va.api.health.dstu2.api.elements.Reference;
 import gov.va.api.health.dstu2.api.resources.Patient;
 import gov.va.api.health.dstu2.api.resources.Patient.Gender;
+import gov.va.api.health.ids.api.Registration;
+import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.health.r4.api.bundle.AbstractBundle;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class PatientSamples {
+  public static ResourceIdentity id(String cdwId) {
+    return ResourceIdentity.builder().system("CDW").resource("PATIENT").identifier(cdwId).build();
+  }
+
+  @SneakyThrows
+  static String json(Object o) {
+    return JacksonConfig.createMapper().writerWithDefaultPrettyPrinter().writeValueAsString(o);
+  }
+
+  public static Registration registration(String cdwId, String publicId) {
+    return Registration.builder().uuid(publicId).resourceIdentities(List.of(id(cdwId))).build();
+  }
+
   @AllArgsConstructor(staticName = "create")
   public static class Datamart {
     public DatamartPatient.Contact contact() {
@@ -54,6 +72,21 @@ public class PatientSamples {
                   .build())
           .relationship("Emergency Contact")
           .build();
+    }
+
+    public PatientEntityV2 entity(DatamartPatient dm) {
+      return PatientEntityV2.builder()
+          .icn(dm.fullIcn())
+          .lastName(dm.lastName())
+          .fullName(dm.name())
+          .gender(dm.gender())
+          .birthDate(Instant.parse(dm.birthDateTime()))
+          .payload(json(dm))
+          .build();
+    }
+
+    public PatientEntityV2 entity(String icn) {
+      return entity(patient(icn));
     }
 
     public DatamartPatient patient() {
@@ -238,11 +271,12 @@ public class PatientSamples {
     static gov.va.api.health.r4.api.resources.Patient.Bundle asBundle(
         String basePath,
         Collection<gov.va.api.health.r4.api.resources.Patient> records,
+        int totalRecords,
         gov.va.api.health.r4.api.bundle.BundleLink... links) {
       return gov.va.api.health.r4.api.resources.Patient.Bundle.builder()
           .resourceType("Bundle")
           .type(AbstractBundle.BundleType.searchset)
-          .total(records.size())
+          .total(totalRecords)
           .link(asList(links))
           .entry(
               records.stream()
