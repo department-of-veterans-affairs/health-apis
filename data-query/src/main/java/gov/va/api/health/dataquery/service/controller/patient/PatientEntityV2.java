@@ -45,6 +45,12 @@ public class PatientEntityV2 implements DatamartEntity {
   @Column(name = "Gender")
   private String gender;
 
+  @Column(name = "SSN")
+  private String ssn;
+
+  @Column(name = "NPI")
+  private String npi;
+
   @Column(name = "LastUpdated")
   private Instant lastUpdated;
 
