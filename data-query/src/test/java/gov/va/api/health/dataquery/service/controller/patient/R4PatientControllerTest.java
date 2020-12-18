@@ -60,7 +60,10 @@ public class R4PatientControllerTest {
         "?given=Lucifer",
         "?_id=http://va.gov/mpi|",
         "?_id=|p1",
+        "?_id=http://hl7.org/fhir/sid/us-ssn|000-00-0000",
+        "?_id=http://hl7.org/fhir/sid/us-ssn|",
         "?identifier=http://va.gov/mpi|",
+        "?identifier=http://hl7.org/fhir/sid/us-ssn|",
         "?identifier=|p1",
         "?gender=|other&family=Morningstar"
       })
@@ -137,6 +140,7 @@ public class R4PatientControllerTest {
         "?_id=http://va.gov/mpi|p1",
         "?identifier=p1",
         "?identifier=http://va.gov/mpi|p1",
+        "?identifier=http://hl7.org/fhir/sid/us-ssn|000-00-0000",
         "?name=Lucifer Morningstar",
         "?birthdate=lt2000&name=Lucifer Morningstar",
         "?gender=male&name=Lucifer Morningstar",
