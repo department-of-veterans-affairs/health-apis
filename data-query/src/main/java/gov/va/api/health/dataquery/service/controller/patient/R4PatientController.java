@@ -45,6 +45,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class R4PatientController {
   private static final String PATIENT_IDENTIFIER_SYSTEM_ICN = "http://va.gov/mpi";
 
+  private static final String PATIENT_IDENTIFIER_SYSTEM_SSN = "http://hl7.org/fhir/sid/us-ssn";
+
   private static final String PATIENT_GENDER_SYSTEM = "http://hl7.org/fhir/administrative-gender";
 
   private final WitnessProtection witnessProtection;
@@ -62,10 +64,14 @@ public class R4PatientController {
                 .string("name", "fullName")
                 .string("family", "lastName")
                 .token("gender", this::tokenGenderIsSupported, this::tokenGenderValues)
-                .token("_id", "icn", this::tokenIdentifierIsSupported, this::tokenIdentiferValues)
+                .token(
+                    "_id",
+                    this::tokenIdentifierFieldName,
+                    this::tokenIdentifierIsSupported,
+                    this::tokenIdentiferValues)
                 .token(
                     "identifier",
-                    "icn",
+                    this::tokenIdentifierFieldName,
                     this::tokenIdentifierIsSupported,
                     this::tokenIdentiferValues)
                 .get())
@@ -146,13 +152,30 @@ public class R4PatientController {
     return List.of(token.code());
   }
 
+  Collection<String> tokenIdentifierFieldName(TokenParameter token) {
+    if (token.hasExplicitSystem()) {
+      switch (token.system()) {
+        case PATIENT_IDENTIFIER_SYSTEM_SSN:
+          return List.of("ssn");
+        case PATIENT_IDENTIFIER_SYSTEM_ICN:
+          return List.of("icn");
+        default:
+          /* If a system is not applicable (e.g. an element of type uri),
+           * then just the form [parameter]=[code] is used. */
+          break;
+      }
+    }
+    /* [code] matches irrespective of the value of the system property. */
+    return List.of("icn", "ssn");
+  }
+
   boolean tokenIdentifierIsSupported(TokenParameter token) {
-    /* Supported (ICN is specified or you get nothing.):
-     * - MPI_SYSTEM|ICN
-     * - ICN
-     * (If we support searches by SSN identifier, we will need to support SYSTEM| and |CODE)
+    /* Supported (A code is specified or you get nothing.):
+     * - SYSTEM|CODE
+     * - CODE
      */
-    return (token.hasSupportedSystem(PATIENT_IDENTIFIER_SYSTEM_ICN) && token.hasExplicitCode())
+    return (token.hasSupportedSystem(PATIENT_IDENTIFIER_SYSTEM_ICN, PATIENT_IDENTIFIER_SYSTEM_SSN)
+            && token.hasExplicitCode())
         || token.hasAnySystem();
   }
 
