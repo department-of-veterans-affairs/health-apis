@@ -69,8 +69,31 @@ public class PatientIT {
   @Test
   public void patientIdentifierSearching() {
     assumeEnvironmentIn(Environment.LOCAL);
-    verifier.verify(
-        test(200, Patient.Bundle.class, "Patient?identifier={id}", verifier.ids().patient()));
+    verifier.verifyAll(
+        test(
+            200,
+            Patient.Bundle.class,
+            p -> !p.entry().isEmpty(),
+            "Patient?identifier={id}",
+            verifier.ids().patient()),
+        test(
+            200,
+            Patient.Bundle.class,
+            p -> !p.entry().isEmpty(),
+            "Patient?identifier={ssn}",
+            verifier.ids().pii().ssn()),
+        test(
+            200,
+            Patient.Bundle.class,
+            p -> !p.entry().isEmpty(),
+            "Patient?identifier=http://va.gov/mpi|{id}",
+            verifier.ids().patient()),
+        test(
+            200,
+            Patient.Bundle.class,
+            p -> !p.entry().isEmpty(),
+            "Patient?identifier=http://hl7.org/fhir/sid/us-ssn|{ssn}",
+            verifier.ids().pii().ssn()));
   }
 
   /**
