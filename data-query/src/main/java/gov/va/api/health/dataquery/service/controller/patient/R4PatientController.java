@@ -64,15 +64,18 @@ public class R4PatientController {
                 .string("name", "fullName")
                 .string("family", "lastName")
                 .token("gender", this::tokenGenderIsSupported, this::tokenGenderValues)
+                /* _id is the logical id only, in this case ICN */
                 .token(
                     "_id",
-                    this::tokenIdentifierFieldName,
-                    this::tokenIdentifierIsSupported,
+                    "icn",
+                    token -> tokenIdentifierIsSupported(token, PATIENT_IDENTIFIER_SYSTEM_ICN),
                     this::tokenIdentiferValues)
                 .token(
                     "identifier",
                     this::tokenIdentifierFieldName,
-                    this::tokenIdentifierIsSupported,
+                    token ->
+                        tokenIdentifierIsSupported(
+                            token, PATIENT_IDENTIFIER_SYSTEM_ICN, PATIENT_IDENTIFIER_SYSTEM_SSN),
                     this::tokenIdentiferValues)
                 .get())
         .rule(parametersNeverSpecifiedTogether("_id", "identifier"))
@@ -162,20 +165,18 @@ public class R4PatientController {
         default:
           /* If a system is not applicable (e.g. an element of type uri),
            * then just the form [parameter]=[code] is used. */
-          break;
       }
     }
     /* [code] matches irrespective of the value of the system property. */
     return List.of("icn", "ssn");
   }
 
-  boolean tokenIdentifierIsSupported(TokenParameter token) {
+  boolean tokenIdentifierIsSupported(TokenParameter token, String... supportedSystems) {
     /* Supported (A code is specified or you get nothing.):
      * - SYSTEM|CODE
      * - CODE
      */
-    return (token.hasSupportedSystem(PATIENT_IDENTIFIER_SYSTEM_ICN, PATIENT_IDENTIFIER_SYSTEM_SSN)
-            && token.hasExplicitCode())
+    return (token.hasSupportedSystem(supportedSystems) && token.hasExplicitCode())
         || token.hasAnySystem();
   }
 
