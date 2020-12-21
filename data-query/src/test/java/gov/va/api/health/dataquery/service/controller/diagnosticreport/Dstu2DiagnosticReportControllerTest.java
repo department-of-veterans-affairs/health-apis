@@ -50,8 +50,7 @@ public class Dstu2DiagnosticReportControllerTest {
         new Dstu2Bundler(
             new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool", "cool", "cool")),
         WitnessProtection.builder().identityService(ids).build(),
-        repository,
-        null);
+        repository);
   }
 
   private String encode(String value) {
@@ -134,7 +133,7 @@ public class Dstu2DiagnosticReportControllerTest {
     DatamartDiagnosticReport dm = DiagnosticReportSamples.DatamartV2.create().diagnosticReport();
     repository.save(entity(dm));
     mockDiagnosticReportEntity("x", dm.cdwId());
-    assertThat(controller().read(true, "x"))
+    assertThat(controller().read("x"))
         .isEqualTo(DiagnosticReportSamples.Dstu2.create().report("x"));
   }
 
@@ -144,13 +143,13 @@ public class Dstu2DiagnosticReportControllerTest {
     DiagnosticReportEntity entity = entity(dm);
     repository.save(entity);
     mockDiagnosticReportEntity("x", dm.cdwId());
-    assertThat(object(controller().readRaw(true, "x", response))).isEqualTo(dm);
+    assertThat(object(controller().readRaw("x", response))).isEqualTo(dm);
     verify(response).addHeader("X-VA-INCLUDES-ICN", entity.icn());
   }
 
   @Test
   void readWithUnknownIdIsNotFound() {
-    assertThrows(ResourceExceptions.NotFound.class, () -> controller().read(true, "BIGoof"));
+    assertThrows(ResourceExceptions.NotFound.class, () -> controller().read("BIGoof"));
   }
 
   @Test
@@ -159,7 +158,7 @@ public class Dstu2DiagnosticReportControllerTest {
     repository.save(entity(dm));
     mockDiagnosticReportEntity("x", dm.cdwId());
     DiagnosticReport dstu2 = DiagnosticReportSamples.Dstu2.create().report("x");
-    assertThat(controller().searchById(true, "x", 1, 15))
+    assertThat(controller().searchById("x", 1, 15))
         .isEqualTo(
             DiagnosticReportSamples.Dstu2.asBundle(
                 "http://fonzy.com/cool",
@@ -188,7 +187,7 @@ public class Dstu2DiagnosticReportControllerTest {
     repository.save(entity(dm));
     mockDiagnosticReportEntity("x", dm.cdwId());
     DiagnosticReport dstu2 = DiagnosticReportSamples.Dstu2.create().report("x");
-    assertThat(json(controller().searchByIdentifier(true, "x", 1, 15)))
+    assertThat(json(controller().searchByIdentifier("x", 1, 15)))
         .isEqualTo(
             json(
                 DiagnosticReportSamples.Dstu2.asBundle(
@@ -216,7 +215,7 @@ public class Dstu2DiagnosticReportControllerTest {
   void searchByPatient() {
     Multimap<String, DiagnosticReport> diagnosticReportsByPatient = populateData();
     Collection<DiagnosticReport> diagnosticReports = diagnosticReportsByPatient.get("p0");
-    assertThat(json(controller().searchByPatient(true, "p0", 1, 15)))
+    assertThat(json(controller().searchByPatient("p0", 1, 15)))
         .isEqualTo(
             json(
                 DiagnosticReportSamples.Dstu2.asBundle(
@@ -253,7 +252,7 @@ public class Dstu2DiagnosticReportControllerTest {
             json(
                 controller()
                     .searchByPatientAndCategory(
-                        true, "p0", "LAB", new String[] {"2020-01-20T07:57:00Z"}, 1, 15)))
+                        "p0", "LAB", new String[] {"2020-01-20T07:57:00Z"}, 1, 15)))
         .isEqualTo(
             json(
                 DiagnosticReportSamples.Dstu2.asBundle(
@@ -306,7 +305,6 @@ public class Dstu2DiagnosticReportControllerTest {
             json(
                 controller()
                     .searchByPatientAndCategory(
-                        true,
                         "p0",
                         "LAB",
                         new String[] {"gt2020-01-20T07:57:00Z", "le2020-01-25T07:57:00Z"},
@@ -360,7 +358,7 @@ public class Dstu2DiagnosticReportControllerTest {
         diagnosticReportsByPatient.get("p0").stream()
             .filter(dr -> "LAB".equals(dr.category().coding().get(0).code()))
             .collect(Collectors.toList());
-    assertThat(json(controller().searchByPatientAndCategory(true, "p0", "LAB", null, 1, 15)))
+    assertThat(json(controller().searchByPatientAndCategory("p0", "LAB", null, 1, 15)))
         .isEqualTo(
             json(
                 DiagnosticReportSamples.Dstu2.asBundle(
@@ -388,7 +386,7 @@ public class Dstu2DiagnosticReportControllerTest {
   void searchByPatientAndCodeEmpty() {
     Multimap<String, DiagnosticReport> diagnosticReportsByPatient = populateData();
     Collection<DiagnosticReport> diagnosticReports = diagnosticReportsByPatient.get("p0");
-    assertThat(json(controller().searchByPatientAndCode(true, "p0", "", 1, 15)))
+    assertThat(json(controller().searchByPatientAndCode("p0", "", 1, 15)))
         .isEqualTo(
             json(
                 DiagnosticReportSamples.Dstu2.asBundle(
@@ -415,7 +413,7 @@ public class Dstu2DiagnosticReportControllerTest {
   @Test
   void searchByPatientAndCodePopulated() {
     Multimap<String, DiagnosticReport> diagnosticReportsByPatient = populateData();
-    assertThat(json(controller().searchByPatientAndCode(true, "p0", "panel", 1, 15)))
+    assertThat(json(controller().searchByPatientAndCode("p0", "panel", 1, 15)))
         .isEqualTo(
             json(
                 DiagnosticReportSamples.Dstu2.asBundle(
@@ -442,7 +440,7 @@ public class Dstu2DiagnosticReportControllerTest {
   @Test
   void searchByPatientAndInvalidCategory() {
     populateData();
-    assertThat(json(controller().searchByPatientAndCategory(true, "p0", "NOPE", null, 1, 15)))
+    assertThat(json(controller().searchByPatientAndCategory("p0", "NOPE", null, 1, 15)))
         .isEqualTo(
             json(
                 DiagnosticReportSamples.Dstu2.asBundle(
@@ -472,7 +470,7 @@ public class Dstu2DiagnosticReportControllerTest {
         DiagnosticReportSamples.DatamartV2.create().diagnosticReport();
     repository.save(entity(datamart));
     String encoded = encode("800260864479:L");
-    assertThat(json(controller().searchByIdentifier(true, "800260864479:L", 1, 0)))
+    assertThat(json(controller().searchByIdentifier("800260864479:L", 1, 0)))
         .isEqualTo(
             json(
                 DiagnosticReportSamples.Dstu2.asBundle(
