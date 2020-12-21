@@ -4,7 +4,6 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 
 import com.google.common.base.Splitter;
-import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.DateTimeParameter;
 import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
@@ -21,13 +20,11 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
 import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -36,7 +33,6 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -46,7 +42,6 @@ import org.springframework.web.bind.annotation.RestController;
  * https://www.fhir.org/guides/argonaut/r2/StructureDefinition-argo-diagnosticreport.html for
  * implementation details.
  */
-@Slf4j
 @Validated
 @RestController
 @SuppressWarnings("WeakerAccess")
@@ -60,18 +55,14 @@ public class Dstu2DiagnosticReportController {
 
   private DiagnosticReportRepository repository;
 
-  private EntityManager entityManager;
-
   /** All args constructor. */
   public Dstu2DiagnosticReportController(
       @Autowired Dstu2Bundler bundler,
       @Autowired WitnessProtection witnessProtection,
-      @Autowired DiagnosticReportRepository repository,
-      @Autowired EntityManager entityManager) {
+      @Autowired DiagnosticReportRepository repository) {
     this.bundler = bundler;
     this.witnessProtection = witnessProtection;
     this.repository = repository;
-    this.entityManager = entityManager;
   }
 
   private DiagnosticReport.Bundle bundle(
@@ -118,16 +109,10 @@ public class Dstu2DiagnosticReportController {
 
   /** Read by identifier. */
   @GetMapping(value = {"/{publicId}"})
-  public DiagnosticReport read(
-      @RequestHeader(name = "v2", defaultValue = "true") Boolean v2,
-      @PathVariable("publicId") String publicId) {
-    if (Boolean.TRUE.equals(v2)) {
-      log.info("Using v2 DiagnosticReport.");
-      DatamartDiagnosticReport dm = findById(publicId).asDatamartDiagnosticReport();
-      replaceReferences(List.of(dm));
-      return Dstu2DiagnosticReportTransformer.builder().datamart(dm).build().toFhir();
-    }
-    return v1Controller().read(publicId);
+  public DiagnosticReport read(@PathVariable("publicId") String publicId) {
+    DatamartDiagnosticReport dm = findById(publicId).asDatamartDiagnosticReport();
+    replaceReferences(List.of(dm));
+    return Dstu2DiagnosticReportTransformer.builder().datamart(dm).build().toFhir();
   }
 
   /** Return the raw Datamart document for the given identifier. */
@@ -135,19 +120,10 @@ public class Dstu2DiagnosticReportController {
   @GetMapping(
       value = {"/{publicId}"},
       headers = {"raw=true"})
-  public String readRaw(
-      @RequestHeader(name = "v2", defaultValue = "true") Boolean v2,
-      @PathVariable("publicId") String publicId,
-      HttpServletResponse response) {
-    if (Boolean.TRUE.equals(v2)) {
-      log.info("Using v2 DiagnosticReport.");
-      DiagnosticReportEntity entity = findById(publicId);
-      IncludesIcnMajig.addHeader(response, entity.icn());
-      return entity.payload();
-    }
-    return JacksonConfig.createMapper()
-        .writerWithDefaultPrettyPrinter()
-        .writeValueAsString(v1Controller().readRaw(publicId, response));
+  public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
+    DiagnosticReportEntity entity = findById(publicId);
+    IncludesIcnMajig.addHeader(response, entity.icn());
+    return entity.payload();
   }
 
   void replaceReferences(Collection<DatamartDiagnosticReport> resources) {
@@ -162,147 +138,106 @@ public class Dstu2DiagnosticReportController {
   /** Search by _id. */
   @GetMapping(params = {"_id"})
   public DiagnosticReport.Bundle searchById(
-      @RequestHeader(name = "v2", defaultValue = "true") Boolean v2,
       @RequestParam("_id") String id,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
-    return searchByIdentifier(v2, id, page, count);
+    return searchByIdentifier(id, page, count);
   }
 
   /** Search by identifier. */
   @GetMapping(params = {"identifier"})
   public DiagnosticReport.Bundle searchByIdentifier(
-      @RequestHeader(name = "v2", defaultValue = "true") Boolean v2,
       @RequestParam("identifier") String identifier,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
-    if (Boolean.TRUE.equals(v2)) {
-      log.info("Using v2 DiagnosticReport.");
-      MultiValueMap<String, String> parameters =
-          Parameters.builder()
-              .add("identifier", identifier)
-              .add("page", page)
-              .add("_count", count)
-              .build();
-      DiagnosticReport dr = read(true, identifier);
-      int totalRecords = dr == null ? 0 : 1;
-      if (dr == null || page != 1 || count <= 0) {
-        return bundle(parameters, emptyList(), totalRecords);
-      }
-      return bundle(parameters, asList(dr), totalRecords);
+    MultiValueMap<String, String> parameters =
+        Parameters.builder()
+            .add("identifier", identifier)
+            .add("page", page)
+            .add("_count", count)
+            .build();
+    DiagnosticReport dr = read(identifier);
+    int totalRecords = dr == null ? 0 : 1;
+    if (dr == null || page != 1 || count <= 0) {
+      return bundle(parameters, emptyList(), totalRecords);
     }
-    return v1Controller().searchByIdentifier(identifier, page, count);
+    return bundle(parameters, asList(dr), totalRecords);
   }
 
   /** Search by patient. */
   @GetMapping(params = {"patient"})
   public DiagnosticReport.Bundle searchByPatient(
-      @RequestHeader(name = "v2", defaultValue = "true") Boolean v2,
       @RequestParam("patient") String patient,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
-    if (Boolean.TRUE.equals(v2)) {
-      log.info("Using v2 DiagnosticReport.");
-      MultiValueMap<String, String> parameters =
-          Parameters.builder()
-              .add("patient", patient)
-              .add("page", page)
-              .add("_count", count)
-              .build();
-      String cdwId = witnessProtection.toCdwId(patient);
-      int pageParam = Parameters.pageOf(parameters);
-      int countParam = Parameters.countOf(parameters);
-      Page<DiagnosticReportEntity> entitiesPage =
-          repository.findByIcn(
-              cdwId,
-              PageRequest.of(
-                  pageParam - 1,
-                  countParam == 0 ? 1 : countParam,
-                  DiagnosticReportEntity.naturalOrder()));
-      return bundle(parameters, entitiesPage);
-    }
-    return v1Controller().searchByPatient(patient, page, count);
+    MultiValueMap<String, String> parameters =
+        Parameters.builder().add("patient", patient).add("page", page).add("_count", count).build();
+    String cdwId = witnessProtection.toCdwId(patient);
+    int pageParam = Parameters.pageOf(parameters);
+    int countParam = Parameters.countOf(parameters);
+    Page<DiagnosticReportEntity> entitiesPage =
+        repository.findByIcn(
+            cdwId,
+            PageRequest.of(
+                pageParam - 1,
+                countParam == 0 ? 1 : countParam,
+                DiagnosticReportEntity.naturalOrder()));
+    return bundle(parameters, entitiesPage);
   }
 
   /** Search by Patient+Category + Date if provided. */
   @GetMapping(params = {"patient", "category"})
   public DiagnosticReport.Bundle searchByPatientAndCategory(
-      @RequestHeader(name = "v2", defaultValue = "true") Boolean v2,
       @RequestParam("patient") String patient,
       @RequestParam("category") String category,
       @RequestParam(value = "date", required = false) @Valid @DateTimeParameter @Size(max = 2)
           String[] date,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
-    if (Boolean.TRUE.equals(v2)) {
-      log.info("Using v2 DiagnosticReport.");
-      String cdwId = witnessProtection.toCdwId(patient);
-      MultiValueMap<String, String> parameters =
-          Parameters.builder()
-              .add("patient", patient)
-              .add("category", category)
-              .addAll("date", date)
-              .add("page", page)
-              .add("_count", count)
-              .build();
-      DiagnosticReportRepository.PatientAndCategoryAndDateSpecification spec =
-          DiagnosticReportRepository.PatientAndCategoryAndDateSpecification.builder()
-              .patient(cdwId)
-              .categories(CategoryCode.forFhirCategory(category))
-              .dates(date)
-              .build();
-      Page<DiagnosticReportEntity> entitiesPage = repository.findAll(spec, page(page, count));
-      return bundle(parameters, entitiesPage);
-    }
-    return v1Controller().searchByPatientAndCategoryAndDate(patient, category, date, page, count);
+    String cdwId = witnessProtection.toCdwId(patient);
+    MultiValueMap<String, String> parameters =
+        Parameters.builder()
+            .add("patient", patient)
+            .add("category", category)
+            .addAll("date", date)
+            .add("page", page)
+            .add("_count", count)
+            .build();
+    DiagnosticReportRepository.PatientAndCategoryAndDateSpecification spec =
+        DiagnosticReportRepository.PatientAndCategoryAndDateSpecification.builder()
+            .patient(cdwId)
+            .categories(CategoryCode.forFhirCategory(category))
+            .dates(date)
+            .build();
+    Page<DiagnosticReportEntity> entitiesPage = repository.findAll(spec, page(page, count));
+    return bundle(parameters, entitiesPage);
   }
 
   /** Search by Patient+Code. */
   @GetMapping(params = {"patient", "code"})
   public DiagnosticReport.Bundle searchByPatientAndCode(
-      @RequestHeader(name = "v2", defaultValue = "true") Boolean v2,
       @RequestParam("patient") String patient,
       @RequestParam("code") String codeCsv,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
-    if (Boolean.TRUE.equals(v2)) {
-      log.info("Using v2 DiagnosticReport.");
-      String cdwId = witnessProtection.toCdwId(patient);
-      MultiValueMap<String, String> parameters =
-          Parameters.builder()
-              .add("patient", patient)
-              .add("code", codeCsv)
-              .add("page", page)
-              .add("_count", count)
-              .build();
-      Set<String> codes =
-          Splitter.on(",").trimResults().splitToList(codeCsv).stream()
-              .filter(c -> !"".equals(c))
-              .collect(Collectors.toSet());
-      DiagnosticReportRepository.PatientAndCodeAndDateSpecification spec =
-          DiagnosticReportRepository.PatientAndCodeAndDateSpecification.builder()
-              .patient(cdwId)
-              .codes(codes)
-              .build();
-      Page<DiagnosticReportEntity> entitiesPage = repository.findAll(spec, page(page, count));
-      return bundle(parameters, entitiesPage);
-    }
-    return v1Controller().searchByPatientAndCode(patient, codeCsv, page, count);
-  }
-
-  /** Search by patient. Raw Reads ONLY in V2. */
-  @GetMapping(
-      value = "/raw",
-      params = {"patient"})
-  public String searchByPatientRaw(
-      @RequestParam("patient") String patient, HttpServletResponse response) {
-    return v1Controller().searchByPatientRaw(patient, response);
-  }
-
-  private gov.va.api.health.dataquery.service.controller.diagnosticreport.v1
-          .Dstu2DiagnosticReportController
-      v1Controller() {
-    return new gov.va.api.health.dataquery.service.controller.diagnosticreport.v1
-        .Dstu2DiagnosticReportController(bundler, witnessProtection, entityManager);
+    String cdwId = witnessProtection.toCdwId(patient);
+    MultiValueMap<String, String> parameters =
+        Parameters.builder()
+            .add("patient", patient)
+            .add("code", codeCsv)
+            .add("page", page)
+            .add("_count", count)
+            .build();
+    Set<String> codes =
+        Splitter.on(",").trimResults().splitToList(codeCsv).stream()
+            .filter(c -> !"".equals(c))
+            .collect(Collectors.toSet());
+    DiagnosticReportRepository.PatientAndCodeAndDateSpecification spec =
+        DiagnosticReportRepository.PatientAndCodeAndDateSpecification.builder()
+            .patient(cdwId)
+            .codes(codes)
+            .build();
+    Page<DiagnosticReportEntity> entitiesPage = repository.findAll(spec, page(page, count));
+    return bundle(parameters, entitiesPage);
   }
 }

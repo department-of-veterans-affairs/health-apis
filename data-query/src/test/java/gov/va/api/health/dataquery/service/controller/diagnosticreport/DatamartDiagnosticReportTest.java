@@ -1,10 +1,8 @@
 package gov.va.api.health.dataquery.service.controller.diagnosticreport;
 
 import static gov.va.api.health.autoconfig.configuration.JacksonConfig.createMapper;
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import gov.va.api.health.dataquery.service.controller.diagnosticreport.v1.DatamartDiagnosticReports;
 import gov.va.api.lighthouse.datamart.DatamartReference;
 import java.util.List;
 import java.util.Optional;
@@ -12,13 +10,6 @@ import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 
 public class DatamartDiagnosticReportTest {
-  @SneakyThrows
-  public void assertReadableV1(String json) {
-    DatamartDiagnosticReports dmDr =
-        createMapper()
-            .readValue(getClass().getResourceAsStream(json), DatamartDiagnosticReports.class);
-    assertThat(dmDr).isEqualTo(sampleV1());
-  }
 
   @SneakyThrows
   public void assertReadableV2(String json) {
@@ -28,62 +19,11 @@ public class DatamartDiagnosticReportTest {
     assertThat(dmDr).isEqualTo(sampleV2());
   }
 
-  @Test
-  public void emptyReports() {
-    DatamartDiagnosticReports emptyReports = DatamartDiagnosticReports.builder().build();
-    assertThat(emptyReports.reports()).isEmpty();
-  }
-
   private DatamartReference reference(String type, String reference, String display) {
     return DatamartReference.builder()
         .type(Optional.of(type))
         .reference(Optional.of(reference))
         .display(Optional.of(display))
-        .build();
-  }
-
-  private DatamartDiagnosticReports sampleV1() {
-    DatamartDiagnosticReports.DiagnosticReport dr =
-        DatamartDiagnosticReports.DiagnosticReport.builder()
-            .identifier("111:L")
-            .sta3n("111")
-            .effectiveDateTime("2019-06-30T10:51:06Z")
-            .issuedDateTime("2019-07-01T10:51:06Z")
-            .accessionInstitutionSid("999")
-            .accessionInstitutionName("ABC-DEF")
-            .institutionSid("SURPRISE")
-            .institutionName("SURPRISE")
-            .verifyingStaffSid("SURPRISE")
-            .verifyingStaffName("SURPRISE")
-            .topographySid("777")
-            .topographyName("PLASMA")
-            .orders(
-                asList(
-                    DatamartDiagnosticReports.Order.builder()
-                        .sid("555")
-                        .display("RENAL PANEL")
-                        .build()))
-            .results(
-                asList(
-                    DatamartDiagnosticReports.Result.builder()
-                        .result("111:L")
-                        .display("ALBUMIN")
-                        .build(),
-                    DatamartDiagnosticReports.Result.builder()
-                        .result("222:L")
-                        .display("ALB/GLOB RATIO")
-                        .build(),
-                    DatamartDiagnosticReports.Result.builder()
-                        .result("333:L")
-                        .display("PROTEIN,TOTAL")
-                        .build()))
-            .build();
-    return DatamartDiagnosticReports.builder()
-        .objectType("DiagnosticReport")
-        .objectVersion(1)
-        .fullIcn("666V666")
-        .patientName("VETERAN,HERNAM MINAM")
-        .reports(asList(dr))
         .build();
   }
 
@@ -112,12 +52,6 @@ public class DatamartDiagnosticReportTest {
   @SneakyThrows
   public void unmarshalSample() {
     assertReadableV2("datamart-diagnostic-report.json");
-  }
-
-  @Test
-  @SneakyThrows
-  public void unmarshalSampleV1() {
-    assertReadableV1("datamart-diagnostic-report-v1.json");
   }
 
   @Test
