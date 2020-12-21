@@ -101,6 +101,7 @@ public final class TestIds {
     @NonNull String family;
     @NonNull String birthdate;
     @NonNull String gender;
+    @NonNull String ssn;
   }
 
   @Value

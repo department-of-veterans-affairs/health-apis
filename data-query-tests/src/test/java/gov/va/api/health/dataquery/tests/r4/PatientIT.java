@@ -46,12 +46,13 @@ public class PatientIT {
             "Patient?name={name}&gender={gender}",
             verifier.ids().pii().name().replaceAll("\\s", ""),
             verifier.ids().pii().gender()),
-        /*
-         * These are tests for the UnsatisfiedServletRequestParameterException mapping to bad
-         * request.
-         */
-        test(400, OperationOutcome.class, "Patient?given={given}", verifier.ids().pii().given()),
-        test(400, OperationOutcome.class, "Patient/"));
+        test(
+            200,
+            Patient.Bundle.class,
+            p -> p.entry().isEmpty(),
+            "Patient?given={given}",
+            verifier.ids().pii().given()),
+        test(200, Patient.Bundle.class, p -> p.entry().isEmpty(), "Patient/"));
   }
 
   @Test
@@ -68,8 +69,31 @@ public class PatientIT {
   @Test
   public void patientIdentifierSearching() {
     assumeEnvironmentIn(Environment.LOCAL);
-    verifier.verify(
-        test(200, Patient.Bundle.class, "Patient?identifier={id}", verifier.ids().patient()));
+    verifier.verifyAll(
+        test(
+            200,
+            Patient.Bundle.class,
+            p -> !p.entry().isEmpty(),
+            "Patient?identifier={id}",
+            verifier.ids().patient()),
+        test(
+            200,
+            Patient.Bundle.class,
+            p -> !p.entry().isEmpty(),
+            "Patient?identifier={ssn}",
+            verifier.ids().pii().ssn()),
+        test(
+            200,
+            Patient.Bundle.class,
+            p -> !p.entry().isEmpty(),
+            "Patient?identifier=http://va.gov/mpi|{id}",
+            verifier.ids().patient()),
+        test(
+            200,
+            Patient.Bundle.class,
+            p -> !p.entry().isEmpty(),
+            "Patient?identifier=http://hl7.org/fhir/sid/us-ssn|{ssn}",
+            verifier.ids().pii().ssn()));
   }
 
   /**

@@ -39,7 +39,6 @@ import lombok.NonNull;
 
 @Builder
 final class Dstu2PatientTransformer {
-
   @NonNull final DatamartPatient datamart;
 
   static Address address(DatamartPatient.Address address) {
@@ -344,6 +343,22 @@ final class Dstu2PatientTransformer {
     return date.toString();
   }
 
+  private String birthsex(String maybeBirthsex) {
+    if (isBlank(maybeBirthsex)) {
+      return null;
+    }
+    switch (maybeBirthsex) {
+      case "M":
+        return "M";
+      case "F":
+        return "F";
+      case "*Unknown at this time*":
+        return "UNK";
+      default:
+        return null;
+    }
+  }
+
   private List<Patient.Contact> contacts() {
     return emptyToNull(
         datamart.contact().stream().map(con -> contact(con)).collect(Collectors.toList()));
@@ -392,11 +407,12 @@ final class Dstu2PatientTransformer {
               .extension(ethnicityExtensions)
               .build());
     }
-    if (isNotBlank(datamart.gender())) {
+    String birthsex = birthsex(datamart.gender());
+    if (isNotBlank(birthsex)) {
       results.add(
           Extension.builder()
               .url("http://fhir.org/guides/argonaut/StructureDefinition/argo-birthsex")
-              .valueCode(datamart.gender())
+              .valueCode(birthsex)
               .build());
     }
     return emptyToNull(results);
