@@ -51,6 +51,9 @@ public class PatientEntityV2 implements DatamartEntity {
   @Column(name = "LastUpdated")
   private Instant lastUpdated;
 
+  @Column(name = "ManagingOrganization")
+  private String managingOrganization;
+
   @Lob
   @Column(name = "Patient")
   @Basic(fetch = FetchType.EAGER)
