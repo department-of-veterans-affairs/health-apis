@@ -63,6 +63,7 @@ public class R4PatientController {
                 .dateAsInstant("birthdate", "birthDate")
                 .string("name", "fullName")
                 .string("family", "lastName")
+                .string("organization", "managingOrganization")
                 .token("gender", this::tokenGenderIsSupported, this::tokenGenderValues)
                 /* _id is the logical id only, in this case ICN */
                 .token(

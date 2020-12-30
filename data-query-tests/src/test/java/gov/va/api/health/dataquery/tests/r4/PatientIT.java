@@ -52,6 +52,11 @@ public class PatientIT {
             p -> p.entry().isEmpty(),
             "Patient?given={given}",
             verifier.ids().pii().given()),
+        test(
+            200,
+            Patient.Bundle.class,
+            "Patient?organization={organization}",
+            verifier.ids().pii().organization()),
         test(200, Patient.Bundle.class, p -> p.entry().isEmpty(), "Patient/"));
   }
 
