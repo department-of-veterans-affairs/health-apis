@@ -102,6 +102,7 @@ public final class TestIds {
     @NonNull String birthdate;
     @NonNull String gender;
     @NonNull String ssn;
+    @NonNull String organization;
   }
 
   @Value
