@@ -82,7 +82,7 @@ public final class IncludesIcnMajig<T, B> implements ResponseBodyAdvice<Object> 
 
     String users = "";
     if (type.isInstance(payload)) {
-      users = extractIcns.apply((T) payload).collect(Collectors.joining());
+      users = extractIcns.apply((T) payload).distinct().collect(Collectors.joining(","));
     } else if (bundleType.isInstance(payload)) {
       users =
           extractResources
