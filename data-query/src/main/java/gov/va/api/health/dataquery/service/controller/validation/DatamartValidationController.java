@@ -8,7 +8,6 @@ import gov.va.api.health.autoconfig.logging.Loggable;
 import gov.va.api.health.dataquery.service.controller.allergyintolerance.DatamartAllergyIntolerance;
 import gov.va.api.health.dataquery.service.controller.condition.DatamartCondition;
 import gov.va.api.health.dataquery.service.controller.diagnosticreport.DatamartDiagnosticReport;
-import gov.va.api.health.dataquery.service.controller.diagnosticreport.v1.DatamartDiagnosticReports;
 import gov.va.api.health.dataquery.service.controller.immunization.DatamartImmunization;
 import gov.va.api.health.dataquery.service.controller.medication.DatamartMedication;
 import gov.va.api.health.dataquery.service.controller.medicationorder.DatamartMedicationOrder;
@@ -42,7 +41,6 @@ public class DatamartValidationController {
       ImmutableMap.<String, Class<?>>builder()
           .put("AllergyIntolerance", DatamartAllergyIntolerance.class)
           .put("Condition", DatamartCondition.class)
-          .put("DiagnosticReport1", DatamartDiagnosticReports.class)
           .put("DiagnosticReport2", DatamartDiagnosticReport.class)
           .put("Immunization", DatamartImmunization.class)
           .put("Medication", DatamartMedication.class)

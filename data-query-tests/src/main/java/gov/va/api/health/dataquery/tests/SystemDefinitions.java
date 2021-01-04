@@ -161,6 +161,7 @@ public final class SystemDefinitions {
                 .name("Ms. Carlita746 Kautzer186")
                 .family("Kautzer186")
                 .ssn("999-97-1769")
+                .organization("568060:I")
                 .build())
         .patient("43000199")
         .practitioner("I2-TVUBUQIWCJ6NIPURPDPGIYLLLU000000")

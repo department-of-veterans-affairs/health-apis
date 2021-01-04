@@ -147,7 +147,8 @@ public class R4PatientControllerTest {
         "?birthdate=lt2000&family=Morningstar",
         "?family=Morningstar&gender=male",
         "?family=Morningstar&gender=http://hl7.org/fhir/administrative-gender|male",
-        "?family=Morningstar&gender=http://hl7.org/fhir/administrative-gender|"
+        "?family=Morningstar&gender=http://hl7.org/fhir/administrative-gender|",
+        "?organization=va"
       })
   @SneakyThrows
   void validRequests(String query) {

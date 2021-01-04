@@ -1,14 +1,10 @@
 package gov.va.api.health.dataquery.service.controller.diagnosticreport;
 
-import static gov.va.api.health.autoconfig.configuration.JacksonConfig.createMapper;
 import static gov.va.api.health.dataquery.service.controller.Transformers.parseInstant;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
-import gov.va.api.health.dataquery.service.controller.diagnosticreport.v1.DatamartDiagnosticReports;
-import gov.va.api.health.dataquery.service.controller.diagnosticreport.v1.DiagnosticReportCrossEntity;
-import gov.va.api.health.dataquery.service.controller.diagnosticreport.v1.DiagnosticReportsEntity;
 import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.lighthouse.datamart.DatamartReference;
@@ -40,67 +36,6 @@ public class DiagnosticReportSamples {
 
   public static Registration registration(String cdwId, String publicId) {
     return Registration.builder().uuid(publicId).resourceIdentities(List.of(id(cdwId))).build();
-  }
-
-  @Builder
-  public static class DatamartV1 {
-    @Builder.Default String icn = "1011537977V693883";
-
-    @Builder.Default String reportId = "800260864479:L";
-
-    @Builder.Default String effectiveDateTime = "2009-09-24T03:15:24Z";
-
-    @Builder.Default String issuedDateTime = "2009-09-24T03:36:35Z";
-
-    @Builder.Default String performer = "655775";
-
-    @Builder.Default String performerDisplay = "MANILA-RO";
-
-    public static DatamartV1 create() {
-      return DatamartV1.builder().build();
-    }
-
-    public DiagnosticReportCrossEntity crossEntity() {
-      return DiagnosticReportCrossEntity.builder().reportId(reportId).icn(icn).build();
-    }
-
-    @SneakyThrows
-    public DiagnosticReportsEntity entity() {
-      return DiagnosticReportsEntity.builder()
-          .icn(icn)
-          .payload(createMapper().writeValueAsString(reports()))
-          .build();
-    }
-
-    @SneakyThrows
-    public DiagnosticReportsEntity entityWithNoReport() {
-      return DiagnosticReportsEntity.builder()
-          .icn(icn)
-          .payload(
-              createMapper()
-                  .writeValueAsString(DatamartDiagnosticReports.builder().fullIcn(icn).build()))
-          .build();
-    }
-
-    public DatamartDiagnosticReports.DiagnosticReport report() {
-      return DatamartDiagnosticReports.DiagnosticReport.builder()
-          .identifier(reportId)
-          .effectiveDateTime(effectiveDateTime)
-          .issuedDateTime(issuedDateTime)
-          .accessionInstitutionSid(performer)
-          .accessionInstitutionName(performerDisplay)
-          .results(
-              List.of(
-                  DatamartDiagnosticReports.Result.builder()
-                      .result("TEST")
-                      .display("1234")
-                      .build()))
-          .build();
-    }
-
-    public DatamartDiagnosticReports reports() {
-      return DatamartDiagnosticReports.builder().fullIcn(icn).reports(asList(report())).build();
-    }
   }
 
   @AllArgsConstructor(staticName = "create")
