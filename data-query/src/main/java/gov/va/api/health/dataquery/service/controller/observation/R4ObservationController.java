@@ -4,7 +4,6 @@ import static gov.va.api.lighthouse.vulcan.Rules.ifParameter;
 import static gov.va.api.lighthouse.vulcan.Rules.parametersNeverSpecifiedTogether;
 import static gov.va.api.lighthouse.vulcan.Vulcan.returnNothing;
 import gov.va.api.health.dataquery.service.config.LinkProperties;
-import gov.va.api.health.dataquery.service.controller.TokenParameter;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.Bundling;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedBundler;
@@ -12,7 +11,6 @@ import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedReade
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedTransformation;
 import gov.va.api.health.r4.api.resources.Observation;
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -43,8 +41,6 @@ import org.springframework.web.bind.annotation.RestController;
 @AllArgsConstructor(onConstructor_ = @Autowired)
 public class R4ObservationController {
 
-  private static final String PATIENT_IDENTIFIER_SYSTEM_ICN = "http://va.gov/mpi";
-
   private static final String OBSERVATION_CATEGORY_SYSTEM =
       "http://terminology.hl7.org/CodeSystem/observation-category";
 
@@ -69,16 +65,8 @@ public class R4ObservationController {
                                     "code",
                                     this::tokenCodeIsSupported,
                                     this::tokenCodeValues)
-                            .token(
-                                    "_id",
-                                    "CDWId",
-                                    token -> tokenIdentifierIsSupported(token, PATIENT_IDENTIFIER_SYSTEM_ICN),
-                                    this::tokenIdentifierValues)
-                            .token(
-                                    "identifier",
-                                    "CDWId",
-                                    token -> tokenIdentifierIsSupported(token, PATIENT_IDENTIFIER_SYSTEM_ICN),
-                                    this::tokenIdentifierValues)
+                            .value("_id", "cdwId", witnessProtection::toCdwId)
+                            .value("identifier", "cdwId", witnessProtection::toCdwId)
                             .dateAsInstant("date", "dateUtc")
                             .string("patient", "icn")
                             .get())
@@ -169,15 +157,6 @@ public class R4ObservationController {
         .build()
         .execute();
     }
-
-  Collection<String> tokenIdentifierValues(TokenParameter token) {
-    return List.of(token.code());
-  }
-
-  boolean tokenIdentifierIsSupported(TokenParameter token) {
-    return (token.hasSupportedSystem(PATIENT_IDENTIFIER_SYSTEM_ICN) && token.hasExplicitCode())
-            || token.hasAnySystem();
-  }
 
   VulcanizedTransformation<ObservationEntity, DatamartObservation, Observation> transformation(){
     return VulcanizedTransformation.toDatamart(ObservationEntity::asDatamartObservation)
