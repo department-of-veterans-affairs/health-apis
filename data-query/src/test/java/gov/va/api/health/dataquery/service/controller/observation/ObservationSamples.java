@@ -2,6 +2,7 @@ package gov.va.api.health.dataquery.service.controller.observation;
 
 import static java.util.Arrays.asList;
 
+import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation.Category;
 import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation.Status;
 import gov.va.api.lighthouse.datamart.DatamartCoding;
@@ -14,13 +15,25 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class ObservationSamples {
 
+  @SneakyThrows
+  static String json(Object o) {
+    return JacksonConfig.createMapper().writerWithDefaultPrettyPrinter().writeValueAsString(o);
+  }
+
   @AllArgsConstructor(staticName = "create")
   public static class Datamart {
+    @SneakyThrows
+    public ObservationEntity entity(String cdwId) {
+      DatamartObservation dm = observation(cdwId, "666V666");
+      return ObservationEntity.builder().payload(json(dm)).build();
+    }
+
     public DatamartObservation observation() {
       return observation("800001973863:A", "666V666");
     }

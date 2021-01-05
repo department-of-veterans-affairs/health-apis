@@ -3,6 +3,7 @@ package gov.va.api.health.dataquery.service.controller.observation;
 import static gov.va.api.lighthouse.vulcan.Rules.ifParameter;
 import static gov.va.api.lighthouse.vulcan.Rules.parametersNeverSpecifiedTogether;
 import static gov.va.api.lighthouse.vulcan.Vulcan.returnNothing;
+
 import gov.va.api.health.dataquery.service.config.LinkProperties;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.Bundling;
@@ -10,16 +11,15 @@ import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedBundl
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedReader;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedTransformation;
 import gov.va.api.health.r4.api.resources.Observation;
+import gov.va.api.lighthouse.vulcan.Vulcan;
+import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
+import gov.va.api.lighthouse.vulcan.mappings.Mappings;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import gov.va.api.lighthouse.vulcan.Vulcan;
-import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
-import gov.va.api.lighthouse.vulcan.mappings.Mappings;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -40,7 +40,6 @@ import org.springframework.web.bind.annotation.RestController;
     produces = {"application/json", "application/fhir+json"})
 @AllArgsConstructor(onConstructor_ = @Autowired)
 public class R4ObservationController {
-
   private static final String OBSERVATION_CATEGORY_SYSTEM =
       "http://terminology.hl7.org/CodeSystem/observation-category";
 
@@ -54,28 +53,22 @@ public class R4ObservationController {
 
   private VulcanConfiguration<ObservationEntity> configuration() {
     return VulcanConfiguration.<ObservationEntity>forEntity(ObservationEntity.class)
-            .paging(linkProperties.pagingConfiguration("Observation", ObservationEntity.naturalOrder()))
-            .mappings(
-                    Mappings.forEntity(ObservationEntity.class)
-                            .token(
-                                    "category",
-                                    this::tokenCategoryIsSupported,
-                                    this::tokenCategoryValues)
-                            .token(
-                                    "code",
-                                    this::tokenCodeIsSupported,
-                                    this::tokenCodeValues)
-                            .value("_id", "cdwId", witnessProtection::toCdwId)
-                            .value("identifier", "cdwId", witnessProtection::toCdwId)
-                            .dateAsInstant("date", "dateUtc")
-                            .string("patient", "icn")
-                            .get())
-            .rule(parametersNeverSpecifiedTogether("_id", "identifier"))
-            .rule(ifParameter("date").thenAlsoAtLeastOneParameterOf("category"))
-            .rule(ifParameter("category").thenAlsoAtLeastOneParameterOf("patient"))
-            .rule(ifParameter("code").thenAlsoAtLeastOneParameterOf("patient"))
-            .defaultQuery(returnNothing())
-            .build();
+        .paging(linkProperties.pagingConfiguration("Observation", ObservationEntity.naturalOrder()))
+        .mappings(
+            Mappings.forEntity(ObservationEntity.class)
+                .token("category", this::tokenCategoryIsSupported, this::tokenCategoryValues)
+                .token("code", this::tokenCodeIsSupported, this::tokenCodeValues)
+                .value("_id", "cdwId", witnessProtection::toCdwId)
+                .value("identifier", "cdwId", witnessProtection::toCdwId)
+                .dateAsInstant("date", "dateUtc")
+                .string("patient", "icn")
+                .get())
+        .rule(parametersNeverSpecifiedTogether("_id", "identifier"))
+        .rule(ifParameter("date").thenAlsoAtLeastOneParameterOf("category"))
+        .rule(ifParameter("category").thenAlsoAtLeastOneParameterOf("patient"))
+        .rule(ifParameter("code").thenAlsoAtLeastOneParameterOf("patient"))
+        .defaultQuery(returnNothing())
+        .build();
   }
 
   /** Read R4 Observation By Id. */
@@ -96,21 +89,26 @@ public class R4ObservationController {
   @GetMapping
   public Observation.Bundle search(HttpServletRequest request) {
     return Vulcan.forRepo(repository)
-            .config(configuration())
-            .build()
-            .search(request)
-            .map(toBundle());
+        .config(configuration())
+        .build()
+        .search(request)
+        .map(toBundle());
   }
 
-  VulcanizedBundler<ObservationEntity, DatamartObservation, Observation, Observation.Entry, Observation.Bundle>
-  toBundle() {
+  VulcanizedBundler<
+          ObservationEntity,
+          DatamartObservation,
+          Observation,
+          Observation.Entry,
+          Observation.Bundle>
+      toBundle() {
     return VulcanizedBundler.forTransformation(transformation())
-            .bundling(
-                    Bundling.newBundle(Observation.Bundle::new)
-                            .newEntry(Observation.Entry::new)
-                            .linkProperties(linkProperties)
-                            .build())
-            .build();
+        .bundling(
+            Bundling.newBundle(Observation.Bundle::new)
+                .newEntry(Observation.Entry::new)
+                .linkProperties(linkProperties)
+                .build())
+        .build();
   }
 
   Set<String> toCdwCategory(String fhirCategory) {
@@ -120,21 +118,6 @@ public class R4ObservationController {
     return Set.of(fhirCategory);
   }
 
-  boolean tokenCategoryIsSupported(gov.va.api.lighthouse.vulcan.mappings.TokenParameter token) {
-    return (token.hasSupportedSystem(OBSERVATION_CATEGORY_SYSTEM) && token.hasExplicitSystem())
-            || token.hasAnySystem();
-  }
-
-  Collection<String> tokenCategoryValues(gov.va.api.lighthouse.vulcan.mappings.TokenParameter token) {
-    return token
-            .behavior()
-            .onExplicitSystemAndExplicitCode((s, c) -> toCdwCategory(c))
-            .onAnySystemAndExplicitCode(this::toCdwCategory)
-            .onNoSystemAndExplicitCode(this::toCdwCategory)
-            .onExplicitSystemAndAnyCode(s -> Set.of())
-            .build()
-            .execute();
-  }
   Set<String> toCdwCode(String fhirCode) {
     if (fhirCode == null) {
       throw new IllegalArgumentException("Code is null");
@@ -142,9 +125,26 @@ public class R4ObservationController {
     return Set.of(fhirCode);
   }
 
+  boolean tokenCategoryIsSupported(gov.va.api.lighthouse.vulcan.mappings.TokenParameter token) {
+    return (token.hasSupportedSystem(OBSERVATION_CATEGORY_SYSTEM) && token.hasExplicitSystem())
+        || token.hasAnySystem();
+  }
+
+  Collection<String> tokenCategoryValues(
+      gov.va.api.lighthouse.vulcan.mappings.TokenParameter token) {
+    return token
+        .behavior()
+        .onExplicitSystemAndExplicitCode((s, c) -> toCdwCategory(c))
+        .onAnySystemAndExplicitCode(this::toCdwCategory)
+        .onNoSystemAndExplicitCode(this::toCdwCategory)
+        .onExplicitSystemAndAnyCode(s -> Set.of())
+        .build()
+        .execute();
+  }
+
   boolean tokenCodeIsSupported(gov.va.api.lighthouse.vulcan.mappings.TokenParameter token) {
     return (token.hasSupportedSystem(OBSERVATION_CODE_SYSTEM) && token.hasExplicitSystem())
-            || token.hasAnySystem();
+        || token.hasAnySystem();
   }
 
   Collection<String> tokenCodeValues(gov.va.api.lighthouse.vulcan.mappings.TokenParameter token) {
@@ -156,24 +156,25 @@ public class R4ObservationController {
         .onExplicitSystemAndAnyCode(s -> Set.of())
         .build()
         .execute();
-    }
+  }
 
-  VulcanizedTransformation<ObservationEntity, DatamartObservation, Observation> transformation(){
+  VulcanizedTransformation<ObservationEntity, DatamartObservation, Observation> transformation() {
     return VulcanizedTransformation.toDatamart(ObservationEntity::asDatamartObservation)
-            .toResource(dm -> R4ObservationTransformer.builder().datamart(dm).build().toFhir())
-            .witnessProtection(witnessProtection)
-            .replaceReferences(resource -> Stream.concat(Stream.of(
-                    resource.subject().orElse(null), resource.encounter().orElse(null)),
-                    resource.performer().stream()
-            ))
-            .build();
+        .toResource(dm -> R4ObservationTransformer.builder().datamart(dm).build().toFhir())
+        .witnessProtection(witnessProtection)
+        .replaceReferences(
+            resource ->
+                Stream.concat(
+                    Stream.of(resource.subject().orElse(null), resource.encounter().orElse(null)),
+                    resource.performer().stream()))
+        .build();
   }
 
   VulcanizedReader<ObservationEntity, DatamartObservation, Observation> vulcanizedReader() {
     return VulcanizedReader.forTransformation(transformation())
-            .repository(repository)
-            .toPatientId(e -> Optional.of(e.icn()))
-            .toPayload(ObservationEntity::payload)
-            .build();
+        .repository(repository)
+        .toPatientId(e -> Optional.of(e.icn()))
+        .toPayload(ObservationEntity::payload)
+        .build();
   }
 }
