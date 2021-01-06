@@ -78,10 +78,10 @@ public class R4ObservationControllerTest {
   void read() {
     when(ids.register(any())).thenReturn(List.of(registration("ob1", "pob1")));
     when(ids.lookup("pob1")).thenReturn(List.of(id("ob1")));
-    ObservationEntity entity = ObservationSamples.Datamart.create().entity("ob1");
+    ObservationEntity entity = ObservationSamples.Datamart.create().entity("ob1", "p1");
     when(repository.findById("ob1")).thenReturn(Optional.of(entity));
     assertThat(controller().read("pob1"))
-        .isEqualTo(ObservationSamples.R4.create().observation("ob1"));
+        .isEqualTo(ObservationSamples.R4.create().observation("ob1", "p1"));
   }
 
   @Test
@@ -127,42 +127,33 @@ public class R4ObservationControllerTest {
         VulcanResult.<ObservationEntity>builder()
             .paging(
                 paging(
-                    "http://fonzy.com/r4/Observation?identifier=o1&page=%d&_count=%d",
+                    "http://fonzy.com/r4/Observation?patient=p1&page=%d&_count=%d",
                     1, 4, 5, 6, 9, 15))
             .entities(
-                Stream.of(datamart.entity("ob1"), datamart.entity("ob2"), datamart.entity("ob3")))
+                Stream.of(
+                    datamart.entity("ob1", "p1"),
+                    datamart.entity("ob2", "p1"),
+                    datamart.entity("ob3", "p1")))
             .build();
     ObservationSamples.R4 r4 = ObservationSamples.R4.create();
     Observation.Bundle expected =
         ObservationSamples.R4.asBundle(
             "http://fonzy.com/r4",
-            List.of(r4.observation("ob1"), r4.observation("ob2"), r4.observation("ob3")),
+            List.of(
+                r4.observation("ob1", "p1"),
+                r4.observation("ob2", "p1"),
+                r4.observation("ob3", "p1")),
             999,
             ObservationSamples.R4.link(
-                BundleLink.LinkRelation.first,
-                "http://fonzy.com/r4/Observation?identifier=o1",
-                1,
-                15),
+                BundleLink.LinkRelation.first, "http://fonzy.com/r4/Observation?patient=p1", 1, 15),
             ObservationSamples.R4.link(
-                BundleLink.LinkRelation.prev,
-                "http://fonzy.com/r4/Observation?identifier=o1",
-                4,
-                15),
+                BundleLink.LinkRelation.prev, "http://fonzy.com/r4/Observation?patient=p1", 4, 15),
             ObservationSamples.R4.link(
-                BundleLink.LinkRelation.self,
-                "http://fonzy.com/r4/Observation?identifier=o1",
-                5,
-                15),
+                BundleLink.LinkRelation.self, "http://fonzy.com/r4/Observation?patient=p1", 5, 15),
             ObservationSamples.R4.link(
-                BundleLink.LinkRelation.next,
-                "http://fonzy.com/r4/Observation?identifier=o1",
-                6,
-                15),
+                BundleLink.LinkRelation.next, "http://fonzy.com/r4/Observation?patient=p1", 6, 15),
             ObservationSamples.R4.link(
-                BundleLink.LinkRelation.last,
-                "http://fonzy.com/r4/Observation?identifier=o1",
-                9,
-                15));
+                BundleLink.LinkRelation.last, "http://fonzy.com/r4/Observation?patient=p1", 9, 15));
     var applied = bundler.apply(vr);
     assertThat(applied).isEqualTo(expected);
   }
@@ -184,7 +175,8 @@ public class R4ObservationControllerTest {
     ObservationSamples.Datamart dm = ObservationSamples.Datamart.create();
     when(repository.findAll(any(Specification.class), any(Pageable.class)))
         .thenAnswer(
-            i -> new PageImpl(List.of(dm.entity("ob1")), i.getArgument(1, Pageable.class), 1));
+            i ->
+                new PageImpl(List.of(dm.entity("ob1", "p1")), i.getArgument(1, Pageable.class), 1));
     var r = requestFromUri("http://fonzy.com/r4/Observation" + query);
     var actual = controller().search(r);
     assertThat(actual.entry()).hasSize(1);

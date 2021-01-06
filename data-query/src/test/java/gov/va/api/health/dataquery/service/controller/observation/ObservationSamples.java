@@ -29,8 +29,8 @@ public class ObservationSamples {
   @AllArgsConstructor(staticName = "create")
   public static class Datamart {
     @SneakyThrows
-    public ObservationEntity entity(String cdwId) {
-      DatamartObservation dm = observation(cdwId, "666V666");
+    public ObservationEntity entity(String cdwId, String patientIcn) {
+      DatamartObservation dm = observation(cdwId, patientIcn);
       return ObservationEntity.builder().payload(json(dm)).build();
     }
 
