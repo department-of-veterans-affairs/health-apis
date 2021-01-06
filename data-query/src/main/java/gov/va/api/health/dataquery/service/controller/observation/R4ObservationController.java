@@ -14,6 +14,7 @@ import gov.va.api.health.r4.api.resources.Observation;
 import gov.va.api.lighthouse.vulcan.Vulcan;
 import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
 import gov.va.api.lighthouse.vulcan.mappings.Mappings;
+import gov.va.api.lighthouse.vulcan.mappings.TokenParameter;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
@@ -61,7 +62,7 @@ public class R4ObservationController {
                 .value("_id", "cdwId", witnessProtection::toCdwId)
                 .value("identifier", "cdwId", witnessProtection::toCdwId)
                 .dateAsInstant("date", "dateUtc")
-                .string("patient", "icn")
+                .value("patient", "icn")
                 .get())
         .rule(parametersNeverSpecifiedTogether("_id", "identifier", "patient"))
         .rule(ifParameter("date").thenAlsoAtLeastOneParameterOf("category", "code"))
@@ -125,13 +126,12 @@ public class R4ObservationController {
     return Set.of(fhirCode);
   }
 
-  boolean tokenCategoryIsSupported(gov.va.api.lighthouse.vulcan.mappings.TokenParameter token) {
+  boolean tokenCategoryIsSupported(TokenParameter token) {
     return (token.hasSupportedSystem(OBSERVATION_CATEGORY_SYSTEM) && token.hasExplicitSystem())
         || token.hasAnySystem();
   }
 
-  Collection<String> tokenCategoryValues(
-      gov.va.api.lighthouse.vulcan.mappings.TokenParameter token) {
+  Collection<String> tokenCategoryValues(TokenParameter token) {
     return token
         .behavior()
         .onExplicitSystemAndExplicitCode((s, c) -> toCdwCategory(c))
@@ -142,12 +142,12 @@ public class R4ObservationController {
         .execute();
   }
 
-  boolean tokenCodeIsSupported(gov.va.api.lighthouse.vulcan.mappings.TokenParameter token) {
+  boolean tokenCodeIsSupported(TokenParameter token) {
     return (token.hasSupportedSystem(OBSERVATION_CODE_SYSTEM) && token.hasExplicitSystem())
         || token.hasAnySystem();
   }
 
-  Collection<String> tokenCodeValues(gov.va.api.lighthouse.vulcan.mappings.TokenParameter token) {
+  Collection<String> tokenCodeValues(TokenParameter token) {
     return token
         .behavior()
         .onExplicitSystemAndExplicitCode((s, c) -> toCdwCode(c))
