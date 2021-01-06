@@ -59,10 +59,14 @@ public class R4ObservationControllerTest {
   @ValueSource(
       strings = {
         "?_id=321&identifier=123",
+        "?_id=678&patient=p1",
+        "?identifier=935&patient=p1",
         "?category=laboratory",
         "?date=2020-1-20T16:35:00Z",
         "?category=laboratory&date=2020-1-20T16:35:00Z",
-        "?code=1989-3"
+        "?code=1989-3",
+        "?code=1821-5&date=2019-7-22T10:40:00Z",
+        "?patient=p2&date=2019-7-22T10:40:00Z"
       })
   @SneakyThrows
   void invalidRequest(String query) {
@@ -171,7 +175,8 @@ public class R4ObservationControllerTest {
         "?patient=111V111",
         "?patient=111V111&category=laboratory",
         "?patient=111V111&category=laboratory&date=2020-1-20T16:35:00Z",
-        "?patient=111V111&code=1989-3"
+        "?patient=111V111&code=1989-3",
+        "?patient=111V111&code=1989-3&date=2020-1-20T16:35:00Z"
       })
   @SneakyThrows
   void validRequests(String query) {
