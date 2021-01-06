@@ -38,7 +38,7 @@ import org.springframework.data.jpa.domain.Specification;
 @ExtendWith(MockitoExtension.class)
 public class R4ObservationControllerTest {
 
-  @Mock IdentityService ids = mock(IdentityService.class);
+  @Mock IdentityService ids;
 
   HttpServletResponse response = mock(HttpServletResponse.class);
 

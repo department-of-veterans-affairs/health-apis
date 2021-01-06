@@ -15,9 +15,12 @@ import gov.va.api.lighthouse.vulcan.Vulcan;
 import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
 import gov.va.api.lighthouse.vulcan.mappings.Mappings;
 import gov.va.api.lighthouse.vulcan.mappings.TokenParameter;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -119,25 +122,52 @@ public class R4ObservationController {
     return Set.of(fhirData);
   }
 
+  private String toDatamartCategory(String category) {
+    switch (category) {
+      case "laboratory":
+        return DatamartObservation.Category.laboratory.name();
+      case "vital-signs":
+        return DatamartObservation.Category.vital_signs.name();
+      default:
+        throw new IllegalStateException("Unsupported category code value: " + category);
+    }
+  }
+
+  /**
+   * Supported Categories:
+   *
+   * <p>laboratory
+   *
+   * <p>vital-signs
+   *
+   * <p>http://terminology.hl7.org/CodeSystem/observation-category|
+   *
+   * <p>http://terminology.hl7.org/CodeSystem/observation-category|laboratory
+   *
+   * <p>http://terminology.hl7.org/CodeSystem/observation-category|vital-signs
+   */
   boolean tokenCategoryIsSupported(TokenParameter token) {
-    return (token.hasSupportedSystem(OBSERVATION_CATEGORY_SYSTEM) && token.hasExplicitSystem())
+    return (token.hasSupportedSystem(OBSERVATION_CATEGORY_SYSTEM)
+            && (token.hasAnyCode() || token.hasSupportedCode("laboratory", "vital-signs")))
         || token.hasAnySystem();
   }
 
   Collection<String> tokenCategoryValues(TokenParameter token) {
     return token
         .behavior()
-        .onExplicitSystemAndExplicitCode((s, c) -> toCdwData(c))
-        .onAnySystemAndExplicitCode(this::toCdwData)
-        .onNoSystemAndExplicitCode(this::toCdwData)
-        .onExplicitSystemAndAnyCode(s -> Set.of())
+        .onExplicitSystemAndAnyCode(
+            s ->
+                Arrays.stream(DatamartObservation.Category.values())
+                    .map(Enum::name)
+                    .collect(Collectors.toList()))
+        .onAnySystemAndExplicitCode(c -> List.of(toDatamartCategory(c)))
+        .onExplicitSystemAndExplicitCode((s, c) -> List.of(toDatamartCategory(c)))
         .build()
         .execute();
   }
 
   boolean tokenCodeIsSupported(TokenParameter token) {
-    return (token.hasSupportedSystem(OBSERVATION_CODE_SYSTEM) && token.hasExplicitSystem())
-        || token.hasAnySystem();
+    return token.hasSupportedSystem(OBSERVATION_CODE_SYSTEM) || token.hasAnySystem();
   }
 
   Collection<String> tokenCodeValues(TokenParameter token) {
@@ -145,7 +175,6 @@ public class R4ObservationController {
         .behavior()
         .onExplicitSystemAndExplicitCode((s, c) -> toCdwData(c))
         .onAnySystemAndExplicitCode(this::toCdwData)
-        .onNoSystemAndExplicitCode(this::toCdwData)
         .onExplicitSystemAndAnyCode(s -> Set.of())
         .build()
         .execute();

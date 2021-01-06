@@ -49,7 +49,7 @@ public class ObservationIT {
         test(
             200,
             Observation.Bundle.class,
-            "Observation?patient={patient}&category=laboratory,vital-signs&date={from}&date={to}",
+            "Observation?patient={patient}&category=laboratory&date={from}&date={to}",
             verifier.ids().patient(),
             verifier.ids().observations().dateRange().from(),
             verifier.ids().observations().dateRange().to()),
