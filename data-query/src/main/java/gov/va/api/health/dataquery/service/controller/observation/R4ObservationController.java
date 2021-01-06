@@ -45,11 +45,11 @@ public class R4ObservationController {
 
   private static final String OBSERVATION_CODE_SYSTEM = "http://loinc.org";
 
-  private final ObservationRepository repository;
-
-  private final WitnessProtection witnessProtection;
-
   private final LinkProperties linkProperties;
+
+  private ObservationRepository repository;
+
+  private WitnessProtection witnessProtection;
 
   private VulcanConfiguration<ObservationEntity> configuration() {
     return VulcanConfiguration.<ObservationEntity>forEntity(ObservationEntity.class)

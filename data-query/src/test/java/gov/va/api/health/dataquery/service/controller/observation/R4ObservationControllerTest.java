@@ -45,14 +45,14 @@ public class R4ObservationControllerTest {
 
   R4ObservationController controller() {
     return new R4ObservationController(
-        repository,
-        WitnessProtection.builder().identityService(ids).build(),
         LinkProperties.builder()
             .publicUrl("http://fonzy.com")
             .publicR4BasePath("r4")
             .maxPageSize(20)
             .defaultPageSize(15)
-            .build());
+            .build(),
+        repository,
+        WitnessProtection.builder().identityService(ids).build());
   }
 
   @ParameterizedTest
@@ -132,7 +132,7 @@ public class R4ObservationControllerTest {
     Observation.Bundle expected =
         ObservationSamples.R4.asBundle(
             "http://fonzy.com/r4",
-            List.of(r4.observation("pob1"), r4.observation("pob2"), r4.observation("pob3")),
+            List.of(r4.observation("ob1"), r4.observation("ob2"), r4.observation("ob3")),
             999,
             ObservationSamples.R4.link(
                 BundleLink.LinkRelation.first,
