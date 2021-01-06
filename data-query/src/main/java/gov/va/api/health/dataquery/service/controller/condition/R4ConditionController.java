@@ -32,9 +32,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Request Mappings for Condition Profile, see
- * https://build.fhir.org/ig/HL7/US-Core-R4/StructureDefinition-us-core-condition.html for
- * implementation details.
+ * Request Mappings for Condition Profile.
+ *
+ * @implSpec https://build.fhir.org/ig/HL7/US-Core-R4/StructureDefinition-us-core-condition.html
  */
 @Validated
 @RestController
@@ -134,9 +134,9 @@ public class R4ConditionController {
   private String toDatamartCategory(String category) {
     switch (category) {
       case "problem-list-item":
-        return DatamartCondition.Category.problem.toString();
+        return DatamartCondition.Category.problem.name();
       case "encounter-diagnosis":
-        return DatamartCondition.Category.diagnosis.toString();
+        return DatamartCondition.Category.diagnosis.name();
       default:
         throw new IllegalStateException("Unsupported category code value: " + category);
     }
