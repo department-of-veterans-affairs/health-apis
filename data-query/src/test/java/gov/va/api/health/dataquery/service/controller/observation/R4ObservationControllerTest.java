@@ -6,13 +6,11 @@ import static gov.va.api.health.dataquery.service.controller.practitioner.Practi
 import static gov.va.api.health.dataquery.service.controller.practitioner.PractitionerSamples.registration;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import gov.va.api.health.dataquery.service.config.LinkProperties;
-import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.r4.api.bundle.BundleLink;
@@ -94,26 +92,6 @@ public class R4ObservationControllerTest {
     when(repository.findById("ob1")).thenReturn(Optional.of(entity));
     var actual = controller().readRaw("pob1", response);
     assertThat(actual).isEqualTo("payload!");
-  }
-
-  @Test
-  void readRawThrowsNotFoundWhenDataIsMissing() {
-    assertThrows(ResourceExceptions.NotFound.class, () -> controller().readRaw("ob1", response));
-  }
-
-  @Test
-  void readRawThrowsNotFoundWhenIdIsUnknown() {
-    assertThrows(ResourceExceptions.NotFound.class, () -> controller().readRaw("ob1", response));
-  }
-
-  @Test
-  void readThrowsNotFoundWhenDataIsMissing() {
-    assertThrows(ResourceExceptions.NotFound.class, () -> controller().read("ob1"));
-  }
-
-  @Test
-  void readThrowsNotFoundWhenIdIsUnknown() {
-    assertThrows(ResourceExceptions.NotFound.class, () -> controller().readRaw("ob1", response));
   }
 
   @Test
