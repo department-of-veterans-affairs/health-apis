@@ -112,18 +112,11 @@ public class R4ObservationController {
         .build();
   }
 
-  Set<String> toCdwCategory(String fhirCategory) {
-    if (fhirCategory == null) {
-      throw new IllegalArgumentException("Category is null");
+  Set<String> toCdwData(String fhirData) {
+    if (fhirData == null) {
+      throw new IllegalArgumentException("Data is null");
     }
-    return Set.of(fhirCategory);
-  }
-
-  Set<String> toCdwCode(String fhirCode) {
-    if (fhirCode == null) {
-      throw new IllegalArgumentException("Code is null");
-    }
-    return Set.of(fhirCode);
+    return Set.of(fhirData);
   }
 
   boolean tokenCategoryIsSupported(TokenParameter token) {
@@ -134,9 +127,9 @@ public class R4ObservationController {
   Collection<String> tokenCategoryValues(TokenParameter token) {
     return token
         .behavior()
-        .onExplicitSystemAndExplicitCode((s, c) -> toCdwCategory(c))
-        .onAnySystemAndExplicitCode(this::toCdwCategory)
-        .onNoSystemAndExplicitCode(this::toCdwCategory)
+        .onExplicitSystemAndExplicitCode((s, c) -> toCdwData(c))
+        .onAnySystemAndExplicitCode(this::toCdwData)
+        .onNoSystemAndExplicitCode(this::toCdwData)
         .onExplicitSystemAndAnyCode(s -> Set.of())
         .build()
         .execute();
@@ -150,9 +143,9 @@ public class R4ObservationController {
   Collection<String> tokenCodeValues(TokenParameter token) {
     return token
         .behavior()
-        .onExplicitSystemAndExplicitCode((s, c) -> toCdwCode(c))
-        .onAnySystemAndExplicitCode(this::toCdwCode)
-        .onNoSystemAndExplicitCode(this::toCdwCode)
+        .onExplicitSystemAndExplicitCode((s, c) -> toCdwData(c))
+        .onAnySystemAndExplicitCode(this::toCdwData)
+        .onNoSystemAndExplicitCode(this::toCdwData)
         .onExplicitSystemAndAnyCode(s -> Set.of())
         .build()
         .execute();
