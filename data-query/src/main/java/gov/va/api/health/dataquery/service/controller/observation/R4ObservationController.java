@@ -48,7 +48,7 @@ public class R4ObservationController {
 
   private final LinkProperties linkProperties;
 
-  private ObservationRepository repository;
+  private final ObservationRepository repository;
 
   private WitnessProtection witnessProtection;
 
@@ -59,9 +59,9 @@ public class R4ObservationController {
             Mappings.forEntity(ObservationEntity.class)
                 .token("category", this::tokenCategoryIsSupported, this::tokenCategoryValues)
                 .token("code", this::tokenCodeIsSupported, this::tokenCodeValues)
+                .dateAsInstant("date", "dateUtc")
                 .value("_id", "cdwId", witnessProtection::toCdwId)
                 .value("identifier", "cdwId", witnessProtection::toCdwId)
-                .dateAsInstant("date", "dateUtc")
                 .value("patient", "icn")
                 .get())
         .rule(parametersNeverSpecifiedTogether("_id", "identifier", "patient"))
