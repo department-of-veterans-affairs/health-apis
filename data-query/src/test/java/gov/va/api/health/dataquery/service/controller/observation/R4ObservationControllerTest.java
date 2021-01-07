@@ -2,8 +2,8 @@ package gov.va.api.health.dataquery.service.controller.observation;
 
 import static gov.va.api.health.dataquery.service.controller.MockRequests.paging;
 import static gov.va.api.health.dataquery.service.controller.MockRequests.requestFromUri;
-import static gov.va.api.health.dataquery.service.controller.practitioner.PractitionerSamples.id;
-import static gov.va.api.health.dataquery.service.controller.practitioner.PractitionerSamples.registration;
+import static gov.va.api.health.dataquery.service.controller.observation.ObservationSamples.id;
+import static gov.va.api.health.dataquery.service.controller.observation.ObservationSamples.registration;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
@@ -100,7 +100,7 @@ public class R4ObservationControllerTest {
     ObservationEntity entity = ObservationSamples.Datamart.create().entity("ob1", "p1");
     when(repository.findById("ob1")).thenReturn(Optional.of(entity));
     assertThat(controller().read("pob1"))
-        .isEqualTo(ObservationSamples.R4.create().observation("ob1", "p1"));
+        .isEqualTo(ObservationSamples.R4.create().observation("pob1", "p1"));
   }
 
   @Test
@@ -139,9 +139,9 @@ public class R4ObservationControllerTest {
         ObservationSamples.R4.asBundle(
             "http://fonzy.com/r4",
             List.of(
-                r4.observation("ob1", "p1"),
-                r4.observation("ob2", "p1"),
-                r4.observation("ob3", "p1")),
+                r4.observation("pob1", "p1"),
+                r4.observation("pob2", "p1"),
+                r4.observation("pob3", "p1")),
             999,
             ObservationSamples.R4.link(
                 BundleLink.LinkRelation.first, "http://fonzy.com/r4/Observation?patient=p1", 1, 15),

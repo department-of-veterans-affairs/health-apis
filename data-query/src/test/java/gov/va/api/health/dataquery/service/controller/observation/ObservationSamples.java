@@ -5,6 +5,8 @@ import static java.util.Arrays.asList;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation.Category;
 import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation.Status;
+import gov.va.api.health.ids.api.Registration;
+import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.lighthouse.datamart.DatamartCoding;
 import gov.va.api.lighthouse.datamart.DatamartReference;
 import java.math.BigDecimal;
@@ -21,9 +23,21 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class ObservationSamples {
 
+  public static ResourceIdentity id(String cdwId) {
+    return ResourceIdentity.builder()
+        .system("CDW")
+        .resource("OBSERVATION")
+        .identifier(cdwId)
+        .build();
+  }
+
   @SneakyThrows
   static String json(Object o) {
     return JacksonConfig.createMapper().writerWithDefaultPrettyPrinter().writeValueAsString(o);
+  }
+
+  public static Registration registration(String cdwId, String publicId) {
+    return Registration.builder().uuid(publicId).resourceIdentities(List.of(id(cdwId))).build();
   }
 
   @AllArgsConstructor(staticName = "create")
