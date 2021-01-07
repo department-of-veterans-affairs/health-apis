@@ -62,8 +62,8 @@ public class R4ObservationControllerTest {
         "?nachos=friday",
         "?patient=p1&category=|laboratory",
         "?patient=p1&category=http://terminology.hl7.org/CodeSystem/observation-category|unknown",
-        "?patient=p1&category==http://unknown.com|",
-        "?patient=p1&category==http://unknown.com|laboratory"
+        "?patient=p1&category=http://unknown.com|",
+        "?patient=p1&category=http://unknown.com|laboratory"
       })
   @SneakyThrows
   void emptyBundle(String query) {
