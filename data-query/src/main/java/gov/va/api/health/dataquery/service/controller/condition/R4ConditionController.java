@@ -134,7 +134,7 @@ public class R4ConditionController {
       case "encounter-diagnosis":
         return DatamartCondition.Category.diagnosis.toString();
       default:
-        throw new IllegalStateException("Unsupported category code value: " + category);
+        return category;
     }
   }
 
@@ -158,10 +158,10 @@ public class R4ConditionController {
    * <p>http://terminology.hl7.org/CodeSystem/condition-category|encounter-diagnosis
    */
   private boolean tokenCategoryIsSupported(TokenParameter token) {
+    boolean codeIsSupported = token.hasSupportedCode("problem-list-item", "encounter-diagnosis");
     return (token.hasSupportedSystem(CONDITION_CATEGORY_SYSTEM)
-            && (token.hasAnyCode()
-                || token.hasSupportedCode("problem-list-item", "encounter-diagnosis")))
-        || token.hasAnySystem();
+            && (token.hasAnyCode() || codeIsSupported))
+        || (token.hasAnySystem() && codeIsSupported);
   }
 
   private Collection<String> tokenCategoryValues(TokenParameter token) {
@@ -196,9 +196,10 @@ public class R4ConditionController {
    * <p>http://terminology.hl7.org/CodeSystem/condition-clinical|inactive (becomes resolved)
    */
   private boolean tokenClinicalStatusIsSupported(TokenParameter token) {
+    boolean codeIsSupported = token.hasSupportedCode("active", "resolved", "inactive");
     return (token.hasSupportedSystem(CONDITION_CLINICAL_STATUS_SYSTEM)
-            && (token.hasAnyCode() || token.hasSupportedCode("active", "resolved", "inactive")))
-        || token.hasAnySystem();
+            && (token.hasAnyCode() || codeIsSupported))
+        || (token.hasAnySystem() && codeIsSupported);
   }
 
   private Collection<String> tokenClinicalStatusValues(TokenParameter token) {

@@ -60,11 +60,13 @@ public class R4ConditionControllerTest {
       strings = {
         "?nachos=friday",
         "?patient=p1&category=|encounter-diagnosis",
-        "?patient=p1&category=http://terminology.hl7.org/CodeSystem/condition-category|nope",
+        "?patient=p1&category=http://terminology.hl7.org/CodeSystem/condition-category|nah",
+        "?patient=p1&category=nah",
         "?patient=p1&category=http://nope.com|",
         "?patient=p1&category=http://nope.com|encounter-diagnosis",
         "?patient=p1&clinical-status=|active",
-        "?patient=p1&clinical-status=http://terminology.hl7.org/CodeSystem/condition-clinical|nope",
+        "?patient=p1&clinical-status=nah",
+        "?patient=p1&clinical-status=http://terminology.hl7.org/CodeSystem/condition-clinical|nah",
         "?patient=p1&clinical-status=http://nope.com|",
         "?patient=p1&clinical-status=http://nope.com|active"
       })
