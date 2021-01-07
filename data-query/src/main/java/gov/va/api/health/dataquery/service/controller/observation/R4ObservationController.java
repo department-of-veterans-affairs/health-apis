@@ -122,17 +122,6 @@ public class R4ObservationController {
     return Set.of(fhirData);
   }
 
-  private String toDatamartCategory(String category) {
-    switch (category) {
-      case "laboratory":
-        return DatamartObservation.Category.laboratory.name();
-      case "vital-signs":
-        return DatamartObservation.Category.vital_signs.name();
-      default:
-        throw new IllegalStateException("Unsupported category code value: " + category);
-    }
-  }
-
   /**
    * Supported Categories:
    *
@@ -160,8 +149,8 @@ public class R4ObservationController {
                 Arrays.stream(DatamartObservation.Category.values())
                     .map(Enum::name)
                     .collect(Collectors.toList()))
-        .onAnySystemAndExplicitCode(c -> List.of(toDatamartCategory(c)))
-        .onExplicitSystemAndExplicitCode((s, c) -> List.of(toDatamartCategory(c)))
+        .onAnySystemAndExplicitCode(List::of)
+        .onExplicitSystemAndExplicitCode((s, c) -> List.of(c))
         .build()
         .execute();
   }
