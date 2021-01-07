@@ -55,10 +55,6 @@ public class R4ConditionController {
 
   private LinkProperties linkProperties;
 
-  private String clinicalStatusFor(String clinicalStatusCode) {
-    return "inactive".equals(clinicalStatusCode) ? "resolved" : clinicalStatusCode;
-  }
-
   // ToDo ADD code
   // ToDo ADD onset-date
   // ToDo UPDATE _id to token
@@ -131,15 +127,21 @@ public class R4ConditionController {
    *
    * <p>health-concern not currently supported
    */
-  private String toDatamartCategory(String category) {
+  private String toDatamartCategoryValue(String category) {
     switch (category) {
       case "problem-list-item":
-        return DatamartCondition.Category.problem.name();
+        return DatamartCondition.Category.problem.toString();
       case "encounter-diagnosis":
-        return DatamartCondition.Category.diagnosis.name();
+        return DatamartCondition.Category.diagnosis.toString();
       default:
         throw new IllegalStateException("Unsupported category code value: " + category);
     }
+  }
+
+  private String toDatamartClinicalStatusValue(String clinicalStatusCode) {
+    return "inactive".equals(clinicalStatusCode)
+        ? DatamartCondition.ClinicalStatus.resolved.toString()
+        : clinicalStatusCode;
   }
 
   /**
@@ -168,10 +170,10 @@ public class R4ConditionController {
         .onExplicitSystemAndAnyCode(
             s ->
                 Arrays.stream(DatamartCondition.Category.values())
-                    .map(Enum::name)
+                    .map(Enum::toString)
                     .collect(Collectors.toList()))
-        .onExplicitSystemAndExplicitCode((s, c) -> List.of(toDatamartCategory(c)))
-        .onAnySystemAndExplicitCode(c -> List.of(toDatamartCategory(c)))
+        .onExplicitSystemAndExplicitCode((s, c) -> List.of(toDatamartCategoryValue(c)))
+        .onAnySystemAndExplicitCode(c -> List.of(toDatamartCategoryValue(c)))
         .build()
         .execute();
   }
@@ -202,9 +204,13 @@ public class R4ConditionController {
   private Collection<String> tokenClinicalStatusValues(TokenParameter token) {
     return token
         .behavior()
-        .onExplicitSystemAndAnyCode(s -> List.of("active", "resolved"))
-        .onExplicitSystemAndExplicitCode((s, c) -> List.of(clinicalStatusFor(c)))
-        .onAnySystemAndExplicitCode(c -> List.of(clinicalStatusFor(c)))
+        .onExplicitSystemAndAnyCode(
+            s ->
+                Arrays.stream(DatamartCondition.ClinicalStatus.values())
+                    .map(Enum::toString)
+                    .collect(Collectors.toList()))
+        .onExplicitSystemAndExplicitCode((s, c) -> List.of(toDatamartClinicalStatusValue(c)))
+        .onAnySystemAndExplicitCode(c -> List.of(toDatamartClinicalStatusValue(c)))
         .build()
         .execute();
   }
