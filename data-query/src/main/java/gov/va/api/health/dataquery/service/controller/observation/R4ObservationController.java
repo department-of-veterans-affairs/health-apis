@@ -15,12 +15,9 @@ import gov.va.api.lighthouse.vulcan.Vulcan;
 import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
 import gov.va.api.lighthouse.vulcan.mappings.Mappings;
 import gov.va.api.lighthouse.vulcan.mappings.TokenParameter;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -115,13 +112,6 @@ public class R4ObservationController {
         .build();
   }
 
-  Set<String> toCdwData(String fhirData) {
-    if (fhirData == null) {
-      throw new IllegalArgumentException("Data is null");
-    }
-    return Set.of(fhirData);
-  }
-
   /**
    * Supported Categories:
    *
@@ -144,11 +134,7 @@ public class R4ObservationController {
   Collection<String> tokenCategoryValues(TokenParameter token) {
     return token
         .behavior()
-        .onExplicitSystemAndAnyCode(
-            s ->
-                Arrays.stream(DatamartObservation.Category.values())
-                    .map(Enum::name)
-                    .collect(Collectors.toList()))
+        .onExplicitSystemAndAnyCode(s -> List.of("laboratory", "vital-signs"))
         .onAnySystemAndExplicitCode(List::of)
         .onExplicitSystemAndExplicitCode((s, c) -> List.of(c))
         .build()
@@ -162,9 +148,16 @@ public class R4ObservationController {
   Collection<String> tokenCodeValues(TokenParameter token) {
     return token
         .behavior()
-        .onExplicitSystemAndExplicitCode((s, c) -> toCdwData(c))
-        .onAnySystemAndExplicitCode(this::toCdwData)
-        .onExplicitSystemAndAnyCode(s -> Set.of())
+        .onExplicitSystemAndAnyCode(
+            s -> {
+              if (OBSERVATION_CODE_SYSTEM.equals(s)) {
+                return List.of(ObservationRepository.ANY_CODE_VALUE);
+              }
+              throw new IllegalStateException(
+                  "Unsupported Code System: " + s + " Cannot build ExplicitSystemSpecification.");
+            })
+        .onExplicitSystemAndExplicitCode((s, c) -> List.of(c))
+        .onAnySystemAndExplicitCode(List::of)
         .build()
         .execute();
   }

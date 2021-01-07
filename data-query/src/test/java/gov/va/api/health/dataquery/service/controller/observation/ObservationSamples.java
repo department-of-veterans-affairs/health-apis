@@ -45,7 +45,14 @@ public class ObservationSamples {
     @SneakyThrows
     public ObservationEntity entity(String cdwId, String patientIcn) {
       DatamartObservation dm = observation(cdwId, patientIcn);
-      return ObservationEntity.builder().payload(json(dm)).build();
+      return ObservationEntity.builder()
+          .cdwId(dm.cdwId())
+          .icn(dm.subject().get().reference().orElse(null))
+          .category(dm.category().name())
+          .code(dm.code().get().coding().get().code().orElse(null))
+          .dateUtc(dm.effectiveDateTime().get())
+          .payload(json(dm))
+          .build();
     }
 
     public DatamartObservation observation() {
