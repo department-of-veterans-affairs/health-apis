@@ -59,6 +59,23 @@ public class R4ObservationControllerTest {
   @ParameterizedTest
   @ValueSource(
       strings = {
+        "?nachos=friday",
+        "?patient=p1&category=|laboratory",
+        "?patient=p1&category=unknown",
+        "?patient=p1&category=http://terminology.hl7.org/CodeSystem/observation-category|unknown"
+      })
+  @SneakyThrows
+  void emptyBundle(String query) {
+    var url = "http://fonzy.com/r4/Observation" + query;
+    var request = requestFromUri(url);
+    Observation.Bundle bundle = controller().search(request);
+    assertThat(bundle.total()).isEqualTo(0);
+    assertThat(bundle.entry()).isEmpty();
+  }
+
+  @ParameterizedTest
+  @ValueSource(
+      strings = {
         "?_id=321&identifier=123",
         "?_id=678&patient=p1",
         "?identifier=935&patient=p1",
