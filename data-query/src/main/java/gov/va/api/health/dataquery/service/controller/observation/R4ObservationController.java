@@ -126,9 +126,8 @@ public class R4ObservationController {
    * <p>http://terminology.hl7.org/CodeSystem/observation-category|vital-signs
    */
   boolean tokenCategoryIsSupported(TokenParameter token) {
-    return (token.hasSupportedSystem(OBSERVATION_CATEGORY_SYSTEM)
-            && (token.hasAnyCode() || token.hasSupportedCode("laboratory", "vital-signs")))
-        || token.hasAnySystem();
+    return (token.hasSupportedSystem(OBSERVATION_CATEGORY_SYSTEM) || token.hasAnySystem())
+        && token.hasSupportedCode("laboratory", "vital-signs");
   }
 
   Collection<String> tokenCategoryValues(TokenParameter token) {
