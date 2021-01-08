@@ -138,10 +138,17 @@ public class R4ConditionController {
     }
   }
 
-  private String toDatamartClinicalStatusValue(String clinicalStatusCode) {
-    return "inactive".equals(clinicalStatusCode)
-        ? DatamartCondition.ClinicalStatus.resolved.toString()
-        : clinicalStatusCode;
+  private String toDatamartClinicalStatusValue(String clinicalStatus) {
+    switch (clinicalStatus) {
+      case "active":
+        return DatamartCondition.ClinicalStatus.active.toString();
+      case "inactive":
+        // fall-through
+      case "resolved":
+        return DatamartCondition.ClinicalStatus.resolved.toString();
+      default:
+        throw new IllegalStateException("Unsupported clinical-status value: " + clinicalStatus);
+    }
   }
 
   /**
