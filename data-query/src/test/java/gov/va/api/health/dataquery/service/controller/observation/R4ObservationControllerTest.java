@@ -60,8 +60,12 @@ public class R4ObservationControllerTest {
         "?nachos=friday",
         "?patient=p1&category=|laboratory",
         "?patient=p1&category=http://terminology.hl7.org/CodeSystem/observation-category|unknown",
+        "?patient=p1&category=unknown",
         "?patient=p1&category=http://unknown.com|",
-        "?patient=p1&category=http://unknown.com|laboratory"
+        "?patient=p1&category=http://unknown.com|laboratory",
+        "?patient=p1&code=|1983-3",
+        "?patient=p1&code=http://unknown.com|",
+        "?patient=p1&code=http://unknown.com|1989-3"
       })
   @SneakyThrows
   void emptyBundle(String query) {
@@ -167,6 +171,7 @@ public class R4ObservationControllerTest {
         "?patient=p1&category=http://terminology.hl7.org/CodeSystem/observation-category|vital-signs",
         "?patient=111V111&category=laboratory&date=2020-1-20T16:35:00Z",
         "?patient=111V111&code=1989-3",
+        "?patient=111V111&code=http://loinc.org|1989-3",
         "?patient=111V111&code=1989-3&date=2020-1-20T16:35:00Z"
       })
   @SneakyThrows
