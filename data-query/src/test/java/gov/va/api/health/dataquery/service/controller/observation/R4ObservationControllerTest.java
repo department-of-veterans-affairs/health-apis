@@ -40,8 +40,6 @@ public class R4ObservationControllerTest {
 
   @Mock IdentityService ids;
 
-  HttpServletResponse response = mock(HttpServletResponse.class);
-
   @Mock private ObservationRepository repository;
 
   R4ObservationController controller() {
@@ -108,7 +106,7 @@ public class R4ObservationControllerTest {
     when(ids.lookup("pob1")).thenReturn(List.of(id("ob1")));
     ObservationEntity entity = ObservationEntity.builder().icn("p1").payload("payload!").build();
     when(repository.findById("ob1")).thenReturn(Optional.of(entity));
-    var actual = controller().readRaw("pob1", response);
+    var actual = controller().readRaw("pob1", mock(HttpServletResponse.class));
     assertThat(actual).isEqualTo("payload!");
   }
 
