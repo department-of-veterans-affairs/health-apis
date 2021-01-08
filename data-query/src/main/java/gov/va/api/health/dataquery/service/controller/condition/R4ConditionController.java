@@ -145,7 +145,7 @@ public class R4ConditionController {
   }
 
   /**
-   * Supported Categories:
+   * Supported Categories.
    *
    * <pre>
    * problem-list-item
@@ -177,7 +177,7 @@ public class R4ConditionController {
   }
 
   /**
-   * Supported Clinical Statuses:
+   * Supported Clinical Statuses.
    *
    * <pre>
    * active
