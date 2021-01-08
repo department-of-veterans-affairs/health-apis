@@ -121,11 +121,11 @@ public class R4ConditionController {
   /**
    * Transforms category from an R4 code to a datamart code that can be searched in the database.
    *
-   * <p>Datamart: problem | diagnosis
-   *
-   * <p>R4: problem-list-item | encounter-diagnosis
-   *
-   * <p>health-concern not currently supported
+   * <pre>
+   * Datamart: problem | diagnosis
+   * R4: problem-list-item | encounter-diagnosis
+   * health-concern not currently supported
+   * </pre>
    */
   private String toDatamartCategoryValue(String category) {
     switch (category) {
@@ -134,7 +134,7 @@ public class R4ConditionController {
       case "encounter-diagnosis":
         return DatamartCondition.Category.diagnosis.toString();
       default:
-        return category;
+        throw new IllegalStateException("Unsupported category code value: " + category);
     }
   }
 
@@ -147,15 +147,13 @@ public class R4ConditionController {
   /**
    * Supported Categories:
    *
-   * <p>problem-list-item
-   *
-   * <p>encounter-diagnosis
-   *
-   * <p>http://terminology.hl7.org/CodeSystem/condition-category|
-   *
-   * <p>http://terminology.hl7.org/CodeSystem/condition-category|problem-list-item
-   *
-   * <p>http://terminology.hl7.org/CodeSystem/condition-category|encounter-diagnosis
+   * <pre>
+   * problem-list-item
+   * encounter-diagnosis
+   * http://terminology.hl7.org/CodeSystem/condition-category|
+   * http://terminology.hl7.org/CodeSystem/condition-category|problem-list-item
+   * http://terminology.hl7.org/CodeSystem/condition-category|encounter-diagnosis
+   * </pre>
    */
   private boolean tokenCategoryIsSupported(TokenParameter token) {
     boolean codeIsSupported = token.hasSupportedCode("problem-list-item", "encounter-diagnosis");
@@ -181,19 +179,15 @@ public class R4ConditionController {
   /**
    * Supported Clinical Statuses:
    *
-   * <p>active
-   *
-   * <p>resolved
-   *
-   * <p>inactive (becomes resolved)
-   *
-   * <p>http://terminology.hl7.org/CodeSystem/condition-clinical|
-   *
-   * <p>http://terminology.hl7.org/CodeSystem/condition-clinical|active
-   *
-   * <p>http://terminology.hl7.org/CodeSystem/condition-clinical|resolved
-   *
-   * <p>http://terminology.hl7.org/CodeSystem/condition-clinical|inactive (becomes resolved)
+   * <pre>
+   * active
+   * resolved
+   * inactive (becomes resolved)
+   * http://terminology.hl7.org/CodeSystem/condition-clinical|
+   * http://terminology.hl7.org/CodeSystem/condition-clinical|active
+   * http://terminology.hl7.org/CodeSystem/condition-clinical|resolved
+   * http://terminology.hl7.org/CodeSystem/condition-clinical|inactive (becomes resolved)
+   * </pre>
    */
   private boolean tokenClinicalStatusIsSupported(TokenParameter token) {
     boolean codeIsSupported = token.hasSupportedCode("active", "resolved", "inactive");
