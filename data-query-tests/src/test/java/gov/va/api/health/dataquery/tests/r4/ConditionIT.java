@@ -18,7 +18,12 @@ public class ConditionIT {
     assumeEnvironmentIn(Environment.LOCAL);
     verifier.verifyAll(
         test(200, Condition.Bundle.class, "Condition?_id={id}", verifier.ids().condition()),
-        test(404, OperationOutcome.class, "Condition?_id={id}", verifier.ids().unknown()),
+        test(
+            200,
+            Condition.Bundle.class,
+            r -> r.entry().isEmpty(),
+            "Condition?_id={id}",
+            verifier.ids().unknown()),
         test(200, Condition.Bundle.class, "Condition?identifier={id}", verifier.ids().condition()));
   }
 
