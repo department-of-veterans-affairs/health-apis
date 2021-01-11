@@ -2,8 +2,11 @@ package gov.va.api.health.dataquery.service.controller.observation;
 
 import static java.util.Arrays.asList;
 
+import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation.Category;
 import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation.Status;
+import gov.va.api.health.ids.api.Registration;
+import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.lighthouse.datamart.DatamartCoding;
 import gov.va.api.lighthouse.datamart.DatamartReference;
 import java.math.BigDecimal;
@@ -14,13 +17,44 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class ObservationSamples {
 
+  public static ResourceIdentity id(String cdwId) {
+    return ResourceIdentity.builder()
+        .system("CDW")
+        .resource("OBSERVATION")
+        .identifier(cdwId)
+        .build();
+  }
+
+  @SneakyThrows
+  static String json(Object o) {
+    return JacksonConfig.createMapper().writerWithDefaultPrettyPrinter().writeValueAsString(o);
+  }
+
+  public static Registration registration(String cdwId, String publicId) {
+    return Registration.builder().uuid(publicId).resourceIdentities(List.of(id(cdwId))).build();
+  }
+
   @AllArgsConstructor(staticName = "create")
   public static class Datamart {
+    @SneakyThrows
+    public ObservationEntity entity(String cdwId, String patientIcn) {
+      DatamartObservation dm = observation(cdwId, patientIcn);
+      return ObservationEntity.builder()
+          .cdwId(dm.cdwId())
+          .icn(dm.subject().get().reference().orElse(null))
+          .category(dm.category().name())
+          .code(dm.code().get().coding().get().code().orElse(null))
+          .dateUtc(dm.effectiveDateTime().get())
+          .payload(json(dm))
+          .build();
+    }
+
     public DatamartObservation observation() {
       return observation("800001973863:A", "666V666");
     }

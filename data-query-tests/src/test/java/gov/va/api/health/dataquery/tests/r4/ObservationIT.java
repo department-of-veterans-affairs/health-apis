@@ -18,7 +18,12 @@ public class ObservationIT {
     assumeEnvironmentIn(Environment.LOCAL);
     verifier.verifyAll(
         test(200, Observation.Bundle.class, "Observation?_id={id}", verifier.ids().observation()),
-        test(404, OperationOutcome.class, "Observation?_id={id}", verifier.ids().unknown()),
+        test(
+            200,
+            Observation.Bundle.class,
+            r -> r.entry().isEmpty(),
+            "Observation?_id={id}",
+            verifier.ids().unknown()),
         test(
             200,
             Observation.Bundle.class,
