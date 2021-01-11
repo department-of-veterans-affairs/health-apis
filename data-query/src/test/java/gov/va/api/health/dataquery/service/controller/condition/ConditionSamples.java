@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.condition;
 
+import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.condition.DatamartCondition.IcdCode;
 import gov.va.api.health.dataquery.service.controller.condition.DatamartCondition.SnomedCode;
 import gov.va.api.health.dstu2.api.bundle.AbstractBundle.BundleType;
@@ -14,6 +15,8 @@ import gov.va.api.health.dstu2.api.resources.Condition;
 import gov.va.api.health.dstu2.api.resources.Condition.Bundle;
 import gov.va.api.health.dstu2.api.resources.Condition.Entry;
 import gov.va.api.health.dstu2.api.resources.Condition.VerificationStatusCode;
+import gov.va.api.health.ids.api.Registration;
+import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.lighthouse.datamart.DatamartReference;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -23,10 +26,24 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class ConditionSamples {
+  public static ResourceIdentity id(String cdwId) {
+    return ResourceIdentity.builder().system("CDW").resource("CONDITION").identifier(cdwId).build();
+  }
+
+  @SneakyThrows
+  static String json(Object o) {
+    return JacksonConfig.createMapper().writerWithDefaultPrettyPrinter().writeValueAsString(o);
+  }
+
+  public static Registration registration(String cdwId, String publicId) {
+    return Registration.builder().uuid(publicId).resourceIdentities(List.of(id(cdwId))).build();
+  }
+
   @AllArgsConstructor(staticName = "create")
   public static class Datamart {
     public DatamartCondition condition() {
@@ -56,6 +73,20 @@ public class ConditionSamples {
           .clinicalStatus(DatamartCondition.ClinicalStatus.active)
           .onsetDateTime(Optional.of(Instant.parse("2011-06-27T05:40:00Z")))
           .abatementDateTime(Optional.of(Instant.parse("2011-06-27T01:11:00Z")))
+          .build();
+    }
+
+    public ConditionEntity entity(String cdwId, String patientIcn) {
+      return entity(condition(cdwId, patientIcn, "2011-06-27"));
+    }
+
+    public ConditionEntity entity(DatamartCondition dm) {
+      return ConditionEntity.builder()
+          .cdwId(dm.cdwId())
+          .icn(dm.patient().reference().orElse(null))
+          .category(dm.category().name())
+          .clinicalStatus(dm.clinicalStatus().name())
+          .payload(json(dm))
           .build();
     }
 
@@ -315,8 +346,12 @@ public class ConditionSamples {
       return condition("800274570575:D");
     }
 
+    public gov.va.api.health.r4.api.resources.Condition condition(String cdwId, String patientIcn) {
+      return condition(cdwId, patientIcn, "2011-06-27");
+    }
+
     public gov.va.api.health.r4.api.resources.Condition condition(String id) {
-      return condition(id, "666V666", "2011-06-27");
+      return condition(id, "666V666");
     }
 
     gov.va.api.health.r4.api.datatypes.CodeableConcept icd10Code() {
