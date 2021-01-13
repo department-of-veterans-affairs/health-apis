@@ -2,7 +2,6 @@ package gov.va.api.health.dataquery.service.controller.immunization;
 
 import gov.va.api.health.dataquery.service.controller.R4Transformers;
 import gov.va.api.health.dataquery.service.controller.immunization.DatamartImmunization.VaccineCode;
-import gov.va.api.health.r4.api.resources.Immunization;
 import gov.va.api.lighthouse.datamart.DatamartReference;
 import java.time.Instant;
 import java.util.Arrays;
@@ -232,12 +231,12 @@ public class ImmunizationSamples {
     }
 
     gov.va.api.health.r4.api.resources.Immunization immunization(String id, String patientId) {
-      return Immunization.builder()
-          .resourceType(Immunization.class.getSimpleName())
+      return gov.va.api.health.r4.api.resources.Immunization.builder()
+          .resourceType(gov.va.api.health.r4.api.resources.Immunization.class.getSimpleName())
           .id(id)
           .primarySource(Boolean.TRUE)
           .occurrenceDateTime("1997-05-09T14:21:18Z")
-          .status(Immunization.Status.completed)
+          .status(gov.va.api.health.r4.api.resources.Immunization.Status.completed)
           .vaccineCode(vaccineCode())
           .patient(reference("ZZTESTPATIENT,THOMAS THE", "Patient/" + patientId))
           .performer(performer())
@@ -246,7 +245,7 @@ public class ImmunizationSamples {
           .reaction(reactions())
           .protocolApplied(
               List.of(
-                  Immunization.ProtocolApplied.builder()
+                  gov.va.api.health.r4.api.resources.Immunization.ProtocolApplied.builder()
                       .doseNumberString("Booster")
                       .seriesDosesPositiveInt(1)
                       .build()))
