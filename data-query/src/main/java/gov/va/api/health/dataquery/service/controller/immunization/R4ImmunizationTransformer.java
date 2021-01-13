@@ -74,6 +74,23 @@ final class R4ImmunizationTransformer {
         .build();
   }
 
+  private List<Immunization.ProtocolApplied> protocolApplied(
+      Optional<DatamartImmunization.VaccinationProtocols> maybeVaccinationProtocols) {
+    if (maybeVaccinationProtocols.isEmpty()
+        || allBlank(
+            maybeVaccinationProtocols.get().series(),
+            maybeVaccinationProtocols.get().seriesDoses())) {
+      return null;
+    }
+    DatamartImmunization.VaccinationProtocols vaccinationProtocols =
+        maybeVaccinationProtocols.get();
+    return List.of(
+        Immunization.ProtocolApplied.builder()
+            .doseNumberString(vaccinationProtocols.series())
+            .seriesDosesPositiveInt(vaccinationProtocols.seriesDoses())
+            .build());
+  }
+
   Immunization toFhir() {
     return Immunization.builder()
         .resourceType(Immunization.class.getSimpleName())
@@ -94,6 +111,7 @@ final class R4ImmunizationTransformer {
         .location(asReference(datamart.location()))
         .note(note(datamart.note()))
         .reaction(reaction(datamart.reaction()))
+        .protocolApplied(protocolApplied(datamart.vaccinationProtocols()))
         .build();
   }
 }
