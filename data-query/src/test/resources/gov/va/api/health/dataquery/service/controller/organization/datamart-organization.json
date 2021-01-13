@@ -38,5 +38,9 @@
   "partOf" : {
     "reference" : "568060:I",
     "display" : "NEW AMSTERDAM VAMC"
+  },
+  "facility" : {
+    "stationNumber" : "623GB",
+    "type" : "HEALTH"
   }
 }
