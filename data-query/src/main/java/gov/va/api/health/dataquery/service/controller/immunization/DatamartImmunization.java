@@ -17,7 +17,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class DatamartImmunization implements HasReplaceableId {
-
   @Builder.Default private String objectType = "Immunization";
 
   @Builder.Default private String objectVersion = "1";
@@ -102,6 +101,14 @@ public class DatamartImmunization implements HasReplaceableId {
     /* no op */
   }
 
+  /** Lazy initialization with empty. */
+  public Optional<VaccinationProtocols> vaccinationProtocols() {
+    if (vaccinationProtocols == null) {
+      vaccinationProtocols = Optional.empty();
+    }
+    return vaccinationProtocols;
+  }
+
   public enum Status {
     completed,
     @JsonProperty("entered-in-error")
@@ -115,7 +122,6 @@ public class DatamartImmunization implements HasReplaceableId {
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
   public static class VaccinationProtocols {
-
     /* ETL script seems to look like it could be null. */
     private String series;
 
@@ -128,7 +134,6 @@ public class DatamartImmunization implements HasReplaceableId {
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
   public static class VaccineCode {
-
     private String text;
 
     private String code;
