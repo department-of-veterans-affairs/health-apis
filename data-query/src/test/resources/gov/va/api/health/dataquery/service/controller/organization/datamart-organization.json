@@ -39,7 +39,7 @@
     "reference" : "568060:I",
     "display" : "NEW AMSTERDAM VAMC"
   },
-  "facility" : {
+  "facilityId" : {
     "stationNumber" : "623GB",
     "type" : "HEALTH"
   }

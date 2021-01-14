@@ -52,7 +52,7 @@ public class DatamartOrganizationTest {
                     .reference(Optional.of("568060:I"))
                     .display(Optional.of("NEW AMSTERDAM VAMC"))
                     .build()))
-        .facility(
+        .facilityId(
             Optional.of(
                 Facility.builder().stationNumber("623GB").type(FacilityType.HEALTH).build()))
         .build();
@@ -70,7 +70,7 @@ public class DatamartOrganizationTest {
     DatamartOrganization dm = DatamartOrganization.builder().build();
     assertThat(dm.agencyId()).isEqualTo(empty());
     assertThat(dm.ediId()).isEqualTo(empty());
-    assertThat(dm.facility()).isEqualTo(empty());
+    assertThat(dm.facilityId()).isEqualTo(empty());
     assertThat(dm.npi()).isEqualTo(empty());
     assertThat(dm.partOf()).isEqualTo(empty());
     assertThat(dm.providerId()).isEqualTo(empty());
