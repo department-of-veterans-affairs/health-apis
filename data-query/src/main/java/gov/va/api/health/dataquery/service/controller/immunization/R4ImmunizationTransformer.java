@@ -3,6 +3,7 @@ package gov.va.api.health.dataquery.service.controller.immunization;
 import static gov.va.api.health.dataquery.service.controller.R4Transformers.asReference;
 import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
 import static gov.va.api.health.dataquery.service.controller.Transformers.asDateTimeString;
+import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
 
 import gov.va.api.health.r4.api.DataAbsentReason;
 import gov.va.api.health.r4.api.datatypes.Annotation;
@@ -32,7 +33,7 @@ final class R4ImmunizationTransformer {
 
   static List<Immunization.ProtocolApplied> protocolApplied(
       Optional<DatamartImmunization.VaccinationProtocols> maybeVaccinationProtocols) {
-    if (maybeVaccinationProtocols.isEmpty()
+    if (isBlank(maybeVaccinationProtocols)
         || allBlank(
             maybeVaccinationProtocols.get().series(),
             maybeVaccinationProtocols.get().seriesDoses())) {
