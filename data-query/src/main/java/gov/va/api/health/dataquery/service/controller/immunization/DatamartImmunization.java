@@ -121,9 +121,25 @@ public class DatamartImmunization implements HasReplaceableId {
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
   public static class VaccinationProtocols {
-    private String series;
+    private Optional<String> series;
 
-    private Integer seriesDoses;
+    private Optional<Integer> seriesDoses;
+
+    /** Lazy initialization with empty. */
+    public Optional<String> series() {
+      if (series == null) {
+        series = Optional.empty();
+      }
+      return series;
+    }
+
+    /** Lazy initialization with empty. */
+    public Optional<Integer> seriesDoses() {
+      if (seriesDoses == null) {
+        seriesDoses = Optional.empty();
+      }
+      return seriesDoses;
+    }
   }
 
   @Data

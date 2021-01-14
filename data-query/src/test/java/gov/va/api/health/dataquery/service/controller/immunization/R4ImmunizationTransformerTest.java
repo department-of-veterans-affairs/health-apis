@@ -48,19 +48,23 @@ public class R4ImmunizationTransformerTest {
     assertThat(
             R4ImmunizationTransformer.protocolApplied(
                 Optional.of(
-                    DatamartImmunization.VaccinationProtocols.builder().series("a").build())))
+                    DatamartImmunization.VaccinationProtocols.builder()
+                        .series(Optional.of("a"))
+                        .build())))
         .containsExactly(Immunization.ProtocolApplied.builder().doseNumberString("a").build());
     assertThat(
             R4ImmunizationTransformer.protocolApplied(
                 Optional.of(
-                    DatamartImmunization.VaccinationProtocols.builder().seriesDoses(1).build())))
+                    DatamartImmunization.VaccinationProtocols.builder()
+                        .seriesDoses(Optional.of(1))
+                        .build())))
         .containsExactly(Immunization.ProtocolApplied.builder().seriesDosesPositiveInt(1).build());
     assertThat(
             R4ImmunizationTransformer.protocolApplied(
                 Optional.of(
                     DatamartImmunization.VaccinationProtocols.builder()
-                        .series("a")
-                        .seriesDoses(1)
+                        .series(Optional.of("a"))
+                        .seriesDoses(Optional.of(1))
                         .build())))
         .containsExactly(
             Immunization.ProtocolApplied.builder()

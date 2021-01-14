@@ -65,8 +65,8 @@ public class DatamartImmunizationTest {
         .vaccinationProtocols(
             Optional.of(
                 DatamartImmunization.VaccinationProtocols.builder()
-                    .series("Booster")
-                    .seriesDoses(1)
+                    .series(Optional.of("Booster"))
+                    .seriesDoses(Optional.of(1))
                     .build()))
         .build();
   }
