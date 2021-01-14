@@ -30,6 +30,23 @@ final class R4ImmunizationTransformer {
         : null;
   }
 
+  static List<Immunization.ProtocolApplied> protocolApplied(
+      Optional<DatamartImmunization.VaccinationProtocols> maybeVaccinationProtocols) {
+    if (maybeVaccinationProtocols.isEmpty()
+        || allBlank(
+            maybeVaccinationProtocols.get().series(),
+            maybeVaccinationProtocols.get().seriesDoses())) {
+      return null;
+    }
+    DatamartImmunization.VaccinationProtocols vaccinationProtocols =
+        maybeVaccinationProtocols.get();
+    return List.of(
+        Immunization.ProtocolApplied.builder()
+            .doseNumberString(vaccinationProtocols.series())
+            .seriesDosesPositiveInt(vaccinationProtocols.seriesDoses())
+            .build());
+  }
+
   static List<Immunization.Reaction> reaction(Optional<DatamartReference> reaction) {
     return (reaction.isPresent() && reaction.get().hasDisplayOrTypeAndReference())
         ? List.of(Immunization.Reaction.builder().detail(asReference(reaction)).build())
@@ -72,23 +89,6 @@ final class R4ImmunizationTransformer {
                     .code(vaccineCode.code())
                     .build()))
         .build();
-  }
-
-  private List<Immunization.ProtocolApplied> protocolApplied(
-      Optional<DatamartImmunization.VaccinationProtocols> maybeVaccinationProtocols) {
-    if (maybeVaccinationProtocols.isEmpty()
-        || allBlank(
-            maybeVaccinationProtocols.get().series(),
-            maybeVaccinationProtocols.get().seriesDoses())) {
-      return null;
-    }
-    DatamartImmunization.VaccinationProtocols vaccinationProtocols =
-        maybeVaccinationProtocols.get();
-    return List.of(
-        Immunization.ProtocolApplied.builder()
-            .doseNumberString(vaccinationProtocols.series())
-            .seriesDosesPositiveInt(vaccinationProtocols.seriesDoses())
-            .build());
   }
 
   Immunization toFhir() {

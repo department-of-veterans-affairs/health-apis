@@ -5,7 +5,6 @@ import gov.va.api.lighthouse.datamart.DatamartReference;
 import gov.va.api.lighthouse.datamart.HasReplaceableId;
 import java.time.Instant;
 import java.util.Optional;
-import javax.validation.constraints.Min;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -122,11 +121,9 @@ public class DatamartImmunization implements HasReplaceableId {
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
   public static class VaccinationProtocols {
-    /* ETL script seems to look like it could be null. */
     private String series;
 
-    @Min(1)
-    private int seriesDoses;
+    private Integer seriesDoses;
   }
 
   @Data
