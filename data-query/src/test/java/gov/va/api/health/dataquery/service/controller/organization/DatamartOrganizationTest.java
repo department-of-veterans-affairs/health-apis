@@ -6,8 +6,8 @@ import static java.util.Optional.empty;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.dataquery.service.controller.organization.DatamartOrganization.Address;
-import gov.va.api.health.dataquery.service.controller.organization.DatamartOrganization.Facility;
-import gov.va.api.health.dataquery.service.controller.organization.DatamartOrganization.Facility.FacilityType;
+import gov.va.api.health.dataquery.service.controller.organization.DatamartOrganization.FacilityId;
+import gov.va.api.health.dataquery.service.controller.organization.DatamartOrganization.FacilityId.FacilityType;
 import gov.va.api.health.dataquery.service.controller.organization.DatamartOrganization.Telecom;
 import gov.va.api.lighthouse.datamart.DatamartCoding;
 import gov.va.api.lighthouse.datamart.DatamartReference;
@@ -54,7 +54,7 @@ public class DatamartOrganizationTest {
                     .build()))
         .facilityId(
             Optional.of(
-                Facility.builder().stationNumber("623GB").type(FacilityType.HEALTH).build()))
+                FacilityId.builder().stationNumber("623GB").type(FacilityType.HEALTH).build()))
         .build();
   }
 
