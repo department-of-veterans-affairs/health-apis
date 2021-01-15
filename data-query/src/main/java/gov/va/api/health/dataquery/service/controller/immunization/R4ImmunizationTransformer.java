@@ -33,10 +33,11 @@ final class R4ImmunizationTransformer {
 
   static List<Immunization.ProtocolApplied> protocolApplied(
       Optional<DatamartImmunization.VaccinationProtocols> maybeVaccinationProtocols) {
-    if (isBlank(maybeVaccinationProtocols)
-        || allBlank(
-            maybeVaccinationProtocols.get().series(),
-            maybeVaccinationProtocols.get().seriesDoses())) {
+    /* We don't need to check seriesDoses.
+     * DoseNumber[x] (mapped from series) is a required field,
+     * if it doesn't exist, we can't map either field,
+     * therefore ensuring one or more fields always exists. */
+    if (isBlank(maybeVaccinationProtocols) || isBlank(maybeVaccinationProtocols.get().series())) {
       return null;
     }
     DatamartImmunization.VaccinationProtocols vaccinationProtocols =
