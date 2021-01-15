@@ -45,7 +45,7 @@ public final class DatamartOrganization implements HasReplaceableId {
 
   private Optional<DatamartReference> partOf;
 
-  private Optional<Facility> facility;
+  private Optional<FacilityId> facilityId;
 
   /** Lazy initialization. */
   public Optional<String> agencyId() {
@@ -64,11 +64,11 @@ public final class DatamartOrganization implements HasReplaceableId {
   }
 
   /** Lazy initialization. */
-  public Optional<Facility> facility() {
-    if (facility == null) {
-      facility = Optional.empty();
+  public Optional<FacilityId> facilityId() {
+    if (facilityId == null) {
+      facilityId = Optional.empty();
     }
-    return facility;
+    return facilityId;
   }
 
   /** Lazy initialization. */
@@ -155,7 +155,7 @@ public final class DatamartOrganization implements HasReplaceableId {
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
-  public static final class Facility {
+  public static final class FacilityId {
     private String stationNumber;
 
     private FacilityType type;
