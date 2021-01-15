@@ -9,7 +9,6 @@ import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
 public class R4ImmunizationTransformerTest {
-
   @Test
   void empty() {
     assertThat(
@@ -37,6 +36,41 @@ public class R4ImmunizationTransformerTest {
     assertThat(
             R4ImmunizationTransformer.performer(ImmunizationSamples.Datamart.create().performer()))
         .isEqualTo(ImmunizationSamples.R4.create().performer());
+  }
+
+  @Test
+  void protocolApplied() {
+    assertThat(R4ImmunizationTransformer.protocolApplied(Optional.empty())).isNull();
+    assertThat(
+            R4ImmunizationTransformer.protocolApplied(
+                Optional.of(DatamartImmunization.VaccinationProtocols.builder().build())))
+        .isNull();
+    assertThat(
+            R4ImmunizationTransformer.protocolApplied(
+                Optional.of(
+                    DatamartImmunization.VaccinationProtocols.builder()
+                        .series(Optional.of("a"))
+                        .build())))
+        .containsExactly(Immunization.ProtocolApplied.builder().doseNumberString("a").build());
+    assertThat(
+            R4ImmunizationTransformer.protocolApplied(
+                Optional.of(
+                    DatamartImmunization.VaccinationProtocols.builder()
+                        .seriesDoses(Optional.of(1))
+                        .build())))
+        .containsExactly(Immunization.ProtocolApplied.builder().seriesDosesPositiveInt(1).build());
+    assertThat(
+            R4ImmunizationTransformer.protocolApplied(
+                Optional.of(
+                    DatamartImmunization.VaccinationProtocols.builder()
+                        .series(Optional.of("a"))
+                        .seriesDoses(Optional.of(1))
+                        .build())))
+        .containsExactly(
+            Immunization.ProtocolApplied.builder()
+                .doseNumberString("a")
+                .seriesDosesPositiveInt(1)
+                .build());
   }
 
   @Test
