@@ -44,7 +44,7 @@ final class R4ImmunizationTransformer {
         maybeVaccinationProtocols.get();
     return List.of(
         Immunization.ProtocolApplied.builder()
-            .doseNumberString(vaccinationProtocols.series().orElse(null))
+            .doseNumberString(vaccinationProtocols.series().get())
             .seriesDosesPositiveInt(vaccinationProtocols.seriesDoses().orElse(null))
             .build());
   }
