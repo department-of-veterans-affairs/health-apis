@@ -59,6 +59,44 @@ public class R4OrganizationTransformer {
             .build());
   }
 
+  static Identifier buildFacilityId(FacilityId facilityId) {
+    String facilityIdPref;
+    switch (facilityId.type()) {
+      case HEALTH:
+        facilityIdPref = "vha_";
+        break;
+      case BENEFITS:
+        facilityIdPref = "vba_";
+        break;
+      case VET_CENTER:
+        facilityIdPref = "vc_";
+        break;
+      case CEMETERY:
+        facilityIdPref = "nca_";
+        break;
+      case NONNATIONAL_CEMETERY:
+        facilityIdPref = "ncas_";
+        break;
+      default:
+        throw new IllegalStateException("Unsupported facility type: " + facilityId.type());
+    }
+    return Identifier.builder()
+        .use(Identifier.IdentifierUse.usual)
+        .type(
+            CodeableConcept.builder()
+                .coding(
+                    Collections.singletonList(
+                        Coding.builder()
+                            .system("http://terminology.hl7.org/CodeSystem/v2-0203")
+                            .code("FI")
+                            .display("Facility ID")
+                            .build()))
+                .build())
+        .system("https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-indentifier")
+        .value(facilityIdPref + facilityId.stationNumber())
+        .build();
+  }
+
   static List<Identifier> identifiers(
       Optional<String> maybeNpi, Optional<FacilityId> maybeFacility) {
     List<Identifier> results = new ArrayList<>(2);
@@ -69,40 +107,8 @@ public class R4OrganizationTransformer {
               .value(maybeNpi.get())
               .build());
     }
-    if (maybeFacility.isPresent()) {
-      String facilityIdPref;
-      switch (maybeFacility.get().type()) {
-        case HEALTH:
-          facilityIdPref = "vha_";
-          break;
-        case BENEFITS:
-          facilityIdPref = "vba_";
-          break;
-        case VET_CENTER:
-          facilityIdPref = "vc_";
-          break;
-        case CEMETERY:
-          facilityIdPref = "nca_";
-          break;
-        default:
-          facilityIdPref = "ncas_";
-      }
-      results.add(
-          Identifier.builder()
-              .use(Identifier.IdentifierUse.usual)
-              .type(
-                  CodeableConcept.builder()
-                      .coding(
-                          Collections.singletonList(
-                              Coding.builder()
-                                  .system("http://terminology.hl7.org/CodeSystem/v2-0203")
-                                  .code("FI")
-                                  .display("Facility ID")
-                                  .build()))
-                      .build())
-              .system("https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-indentifier")
-              .value(facilityIdPref + maybeFacility.get().stationNumber())
-              .build());
+    if (!isBlank(maybeFacility)) {
+      results.add(buildFacilityId(maybeFacility.get()));
     }
     if (results.isEmpty()) {
       return null;
@@ -110,7 +116,7 @@ public class R4OrganizationTransformer {
     return results;
   }
 
-  static ContactPoint telecom(DatamartOrganization.Telecom telecom) {
+  static ContactPoint telecom(Telecom telecom) {
     if (telecom == null || allBlank(telecom.system(), telecom.value())) {
       return null;
     }
@@ -120,7 +126,7 @@ public class R4OrganizationTransformer {
         .build();
   }
 
-  static ContactPoint.ContactPointSystem telecomSystem(DatamartOrganization.Telecom.System tel) {
+  static ContactPoint.ContactPointSystem telecomSystem(Telecom.System tel) {
     return convert(
         tel,
         source -> EnumSearcher.of(ContactPoint.ContactPointSystem.class).find(source.toString()));
