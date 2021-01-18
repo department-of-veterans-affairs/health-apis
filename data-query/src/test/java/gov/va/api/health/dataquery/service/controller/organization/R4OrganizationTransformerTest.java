@@ -78,6 +78,18 @@ public class R4OrganizationTransformerTest {
   }
 
   @Test
+  void buildFacilityIdentifier() {
+    assertThat(
+            R4OrganizationTransformer.buildFacilityIdentifier(
+                    DatamartOrganization.FacilityId.builder()
+                        .type(DatamartOrganization.FacilityId.FacilityType.HEALTH)
+                        .stationNumber("123")
+                        .build())
+                .value())
+        .isEqualTo("vha_123");
+  }
+
+  @Test
   void empty() {
     assertThat(
             R4OrganizationTransformer.builder()
