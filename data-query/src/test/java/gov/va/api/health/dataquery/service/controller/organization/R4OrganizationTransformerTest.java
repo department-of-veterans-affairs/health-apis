@@ -87,8 +87,8 @@ public class R4OrganizationTransformerTest {
 
   @Test
   void identifier() {
-    assertThat(R4OrganizationTransformer.identifier(Optional.empty())).isNull();
-    assertThat(R4OrganizationTransformer.identifier(Optional.of("whodis")))
+    assertThat(R4OrganizationTransformer.identifier(Optional.empty(), Optional.empty())).isNull();
+    assertThat(R4OrganizationTransformer.identifier(Optional.of("whodis"), Optional.empty()))
         .isEqualTo(
             Collections.singletonList(
                 Identifier.builder()

@@ -4,14 +4,18 @@ import static gov.va.api.health.dataquery.service.controller.Transformers.allBla
 import static gov.va.api.health.dataquery.service.controller.Transformers.convert;
 import static gov.va.api.health.dataquery.service.controller.Transformers.emptyToNull;
 import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
+import static gov.va.api.health.dataquery.service.controller.organization.DatamartOrganization.FacilityId;
 import static java.util.Arrays.asList;
 
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
 import gov.va.api.health.dataquery.service.controller.organization.DatamartOrganization.Telecom;
 import gov.va.api.health.r4.api.datatypes.Address;
+import gov.va.api.health.r4.api.datatypes.CodeableConcept;
+import gov.va.api.health.r4.api.datatypes.Coding;
 import gov.va.api.health.r4.api.datatypes.ContactPoint;
 import gov.va.api.health.r4.api.datatypes.Identifier;
 import gov.va.api.health.r4.api.resources.Organization;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -55,15 +59,55 @@ public class R4OrganizationTransformer {
             .build());
   }
 
-  static List<Identifier> identifier(Optional<String> maybeNpi) {
-    if (isBlank(maybeNpi)) {
+  static List<Identifier> identifier(
+      Optional<String> maybeNpi, Optional<FacilityId> maybeFacility) {
+    List<Identifier> results = new ArrayList<>(2);
+    if (!isBlank(maybeNpi)) {
+      results.add(
+          Identifier.builder()
+              .system("http://hl7.org/fhir/sid/us-npi")
+              .value(maybeNpi.get())
+              .build());
+    }
+    if (maybeFacility.isPresent()) {
+      String facilityIdPref;
+      switch (maybeFacility.get().type()) {
+        case HEALTH:
+          facilityIdPref = "vha_";
+          break;
+        case BENEFITS:
+          facilityIdPref = "vba_";
+          break;
+        case VET_CENTER:
+          facilityIdPref = "vc_";
+          break;
+        case CEMETERY:
+          facilityIdPref = "nca_";
+          break;
+        default:
+          facilityIdPref = "ncas_";
+      }
+      results.add(
+          Identifier.builder()
+              .use(Identifier.IdentifierUse.usual)
+              .type(
+                  CodeableConcept.builder()
+                      .coding(
+                          Collections.singletonList(
+                              Coding.builder()
+                                  .system("http://terminology.hl7.org/CodeSystem/v2-0203")
+                                  .code("FI")
+                                  .display("Facility ID")
+                                  .build()))
+                      .build())
+              .system("https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-indentifier")
+              .value(facilityIdPref + maybeFacility.get().stationNumber())
+              .build());
+    }
+    if (results.isEmpty()) {
       return null;
     }
-    return Collections.singletonList(
-        Identifier.builder()
-            .system("http://hl7.org/fhir/sid/us-npi")
-            .value(maybeNpi.get())
-            .build());
+    return results;
   }
 
   static ContactPoint telecom(DatamartOrganization.Telecom telecom) {
@@ -91,7 +135,7 @@ public class R4OrganizationTransformer {
     return Organization.builder()
         .resourceType("Organization")
         .id(datamart.cdwId())
-        .identifier(identifier(datamart.npi()))
+        .identifier(identifier(datamart.npi(), datamart.facilityId()))
         .active(datamart.active())
         .name(datamart.name())
         .telecom(telecoms(datamart.telecom()))
