@@ -6,6 +6,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.organization.DatamartOrganization.Telecom.System;
 import gov.va.api.health.r4.api.datatypes.Address;
+import gov.va.api.health.r4.api.datatypes.CodeableConcept;
+import gov.va.api.health.r4.api.datatypes.Coding;
 import gov.va.api.health.r4.api.datatypes.ContactPoint;
 import gov.va.api.health.r4.api.datatypes.ContactPoint.ContactPointSystem;
 import gov.va.api.health.r4.api.datatypes.Identifier;
@@ -86,14 +88,70 @@ public class R4OrganizationTransformerTest {
   }
 
   @Test
-  void identifier() {
-    assertThat(R4OrganizationTransformer.identifier(Optional.empty(), Optional.empty())).isNull();
-    assertThat(R4OrganizationTransformer.identifier(Optional.of("whodis"), Optional.empty()))
+  void identifiers() {
+    assertThat(R4OrganizationTransformer.identifiers(Optional.empty(), Optional.empty())).isNull();
+    assertThat(R4OrganizationTransformer.identifiers(Optional.of("whodis"), Optional.empty()))
         .isEqualTo(
             Collections.singletonList(
                 Identifier.builder()
                     .system("http://hl7.org/fhir/sid/us-npi")
                     .value("whodis")
+                    .build()));
+    assertThat(
+            R4OrganizationTransformer.identifiers(
+                Optional.of("whodis"),
+                Optional.of(
+                    DatamartOrganization.FacilityId.builder()
+                        .type(DatamartOrganization.FacilityId.FacilityType.HEALTH)
+                        .stationNumber("123")
+                        .build())))
+        .isEqualTo(
+            List.of(
+                Identifier.builder()
+                    .system("http://hl7.org/fhir/sid/us-npi")
+                    .value("whodis")
+                    .build(),
+                Identifier.builder()
+                    .use(Identifier.IdentifierUse.usual)
+                    .type(
+                        CodeableConcept.builder()
+                            .coding(
+                                Collections.singletonList(
+                                    Coding.builder()
+                                        .system("http://terminology.hl7.org/CodeSystem/v2-0203")
+                                        .code("FI")
+                                        .display("Facility ID")
+                                        .build()))
+                            .build())
+                    .system(
+                        "https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-indentifier")
+                    .value("vha_123")
+                    .build()));
+    assertThat(
+            R4OrganizationTransformer.identifiers(
+                Optional.empty(),
+                Optional.of(
+                    DatamartOrganization.FacilityId.builder()
+                        .type(DatamartOrganization.FacilityId.FacilityType.HEALTH)
+                        .stationNumber("123")
+                        .build())))
+        .isEqualTo(
+            Collections.singletonList(
+                Identifier.builder()
+                    .use(Identifier.IdentifierUse.usual)
+                    .type(
+                        CodeableConcept.builder()
+                            .coding(
+                                Collections.singletonList(
+                                    Coding.builder()
+                                        .system("http://terminology.hl7.org/CodeSystem/v2-0203")
+                                        .code("FI")
+                                        .display("Facility ID")
+                                        .build()))
+                            .build())
+                    .system(
+                        "https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-indentifier")
+                    .value("vha_123")
                     .build()));
   }
 

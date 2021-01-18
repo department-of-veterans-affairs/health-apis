@@ -59,7 +59,7 @@ public class R4OrganizationTransformer {
             .build());
   }
 
-  static List<Identifier> identifier(
+  static List<Identifier> identifiers(
       Optional<String> maybeNpi, Optional<FacilityId> maybeFacility) {
     List<Identifier> results = new ArrayList<>(2);
     if (!isBlank(maybeNpi)) {
@@ -135,7 +135,7 @@ public class R4OrganizationTransformer {
     return Organization.builder()
         .resourceType("Organization")
         .id(datamart.cdwId())
-        .identifier(identifier(datamart.npi(), datamart.facilityId()))
+        .identifier(identifiers(datamart.npi(), datamart.facilityId()))
         .active(datamart.active())
         .name(datamart.name())
         .telecom(telecoms(datamart.telecom()))
