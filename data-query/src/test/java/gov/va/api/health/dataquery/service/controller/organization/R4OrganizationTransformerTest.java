@@ -105,28 +105,24 @@ public class R4OrganizationTransformerTest {
                         .type(DatamartOrganization.FacilityId.FacilityType.HEALTH)
                         .stationNumber("123")
                         .build())))
-        .isEqualTo(
-            List.of(
-                Identifier.builder()
-                    .system("http://hl7.org/fhir/sid/us-npi")
-                    .value("whodis")
-                    .build(),
-                Identifier.builder()
-                    .use(Identifier.IdentifierUse.usual)
-                    .type(
-                        CodeableConcept.builder()
-                            .coding(
-                                Collections.singletonList(
-                                    Coding.builder()
-                                        .system("http://terminology.hl7.org/CodeSystem/v2-0203")
-                                        .code("FI")
-                                        .display("Facility ID")
-                                        .build()))
-                            .build())
-                    .system(
-                        "https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-indentifier")
-                    .value("vha_123")
-                    .build()));
+        .containsExactlyInAnyOrder(
+            Identifier.builder().system("http://hl7.org/fhir/sid/us-npi").value("whodis").build(),
+            Identifier.builder()
+                .use(Identifier.IdentifierUse.usual)
+                .type(
+                    CodeableConcept.builder()
+                        .coding(
+                            Collections.singletonList(
+                                Coding.builder()
+                                    .system("http://terminology.hl7.org/CodeSystem/v2-0203")
+                                    .code("FI")
+                                    .display("Facility ID")
+                                    .build()))
+                        .build())
+                .system(
+                    "https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-indentifier")
+                .value("vha_123")
+                .build());
     assertThat(
             R4OrganizationTransformer.identifiers(
                 Optional.empty(),

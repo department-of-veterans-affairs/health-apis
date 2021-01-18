@@ -59,7 +59,7 @@ public class R4OrganizationTransformer {
             .build());
   }
 
-  static Identifier buildFacilityId(FacilityId facilityId) {
+  static Identifier buildFacilityIdentifier(FacilityId facilityId) {
     String facilityIdPref;
     switch (facilityId.type()) {
       case HEALTH:
@@ -108,7 +108,7 @@ public class R4OrganizationTransformer {
               .build());
     }
     if (!isBlank(maybeFacility)) {
-      results.add(buildFacilityId(maybeFacility.get()));
+      results.add(buildFacilityIdentifier(maybeFacility.get()));
     }
     if (results.isEmpty()) {
       return null;
