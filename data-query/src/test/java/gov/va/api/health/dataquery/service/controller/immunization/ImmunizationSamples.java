@@ -53,8 +53,8 @@ public class ImmunizationSamples {
           .vaccinationProtocols(
               Optional.of(
                   DatamartImmunization.VaccinationProtocols.builder()
-                      .series("Booster")
-                      .seriesDoses(1)
+                      .series(Optional.of("Booster"))
+                      .seriesDoses(Optional.of(1))
                       .build()))
           .build();
     }
@@ -243,6 +243,12 @@ public class ImmunizationSamples {
           .location(reference("ZZGOLD PRIMARY CARE", "Location/358359"))
           .note(note())
           .reaction(reactions())
+          .protocolApplied(
+              List.of(
+                  gov.va.api.health.r4.api.resources.Immunization.ProtocolApplied.builder()
+                      .doseNumberString("Booster")
+                      .seriesDosesPositiveInt(1)
+                      .build()))
           .build();
     }
 

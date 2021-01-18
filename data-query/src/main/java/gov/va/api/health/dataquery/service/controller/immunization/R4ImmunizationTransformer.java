@@ -3,6 +3,7 @@ package gov.va.api.health.dataquery.service.controller.immunization;
 import static gov.va.api.health.dataquery.service.controller.R4Transformers.asReference;
 import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
 import static gov.va.api.health.dataquery.service.controller.Transformers.asDateTimeString;
+import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
 
 import gov.va.api.health.r4.api.DataAbsentReason;
 import gov.va.api.health.r4.api.datatypes.Annotation;
@@ -28,6 +29,24 @@ final class R4ImmunizationTransformer {
     return maybePerformer.isPresent()
         ? List.of(Immunization.Performer.builder().actor(asReference(maybePerformer)).build())
         : null;
+  }
+
+  static List<Immunization.ProtocolApplied> protocolApplied(
+      Optional<DatamartImmunization.VaccinationProtocols> maybeVaccinationProtocols) {
+    /* We don't need to check seriesDoses.
+     * DoseNumber[x] (mapped from series) is a required field,
+     * if it doesn't exist, we can't map either field,
+     * therefore ensuring one or more fields always exists. */
+    if (isBlank(maybeVaccinationProtocols) || isBlank(maybeVaccinationProtocols.get().series())) {
+      return null;
+    }
+    DatamartImmunization.VaccinationProtocols vaccinationProtocols =
+        maybeVaccinationProtocols.get();
+    return List.of(
+        Immunization.ProtocolApplied.builder()
+            .doseNumberString(vaccinationProtocols.series().get())
+            .seriesDosesPositiveInt(vaccinationProtocols.seriesDoses().orElse(null))
+            .build());
   }
 
   static List<Immunization.Reaction> reaction(Optional<DatamartReference> reaction) {
@@ -94,6 +113,7 @@ final class R4ImmunizationTransformer {
         .location(asReference(datamart.location()))
         .note(note(datamart.note()))
         .reaction(reaction(datamart.reaction()))
+        .protocolApplied(protocolApplied(datamart.vaccinationProtocols()))
         .build();
   }
 }

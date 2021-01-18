@@ -5,7 +5,6 @@ import gov.va.api.lighthouse.datamart.DatamartReference;
 import gov.va.api.lighthouse.datamart.HasReplaceableId;
 import java.time.Instant;
 import java.util.Optional;
-import javax.validation.constraints.Min;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,7 +16,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class DatamartImmunization implements HasReplaceableId {
-
   @Builder.Default private String objectType = "Immunization";
 
   @Builder.Default private String objectVersion = "1";
@@ -102,6 +100,14 @@ public class DatamartImmunization implements HasReplaceableId {
     /* no op */
   }
 
+  /** Lazy initialization with empty. */
+  public Optional<VaccinationProtocols> vaccinationProtocols() {
+    if (vaccinationProtocols == null) {
+      vaccinationProtocols = Optional.empty();
+    }
+    return vaccinationProtocols;
+  }
+
   public enum Status {
     completed,
     @JsonProperty("entered-in-error")
@@ -115,12 +121,25 @@ public class DatamartImmunization implements HasReplaceableId {
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
   public static class VaccinationProtocols {
+    private Optional<String> series;
 
-    /* ETL script seems to look like it could be null. */
-    private String series;
+    private Optional<Integer> seriesDoses;
 
-    @Min(1)
-    private int seriesDoses;
+    /** Lazy initialization with empty. */
+    public Optional<String> series() {
+      if (series == null) {
+        series = Optional.empty();
+      }
+      return series;
+    }
+
+    /** Lazy initialization with empty. */
+    public Optional<Integer> seriesDoses() {
+      if (seriesDoses == null) {
+        seriesDoses = Optional.empty();
+      }
+      return seriesDoses;
+    }
   }
 
   @Data
@@ -128,7 +147,6 @@ public class DatamartImmunization implements HasReplaceableId {
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
   public static class VaccineCode {
-
     private String text;
 
     private String code;
