@@ -2,8 +2,10 @@ package gov.va.api.health.dataquery.service.controller.organization;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
+import gov.va.api.health.dataquery.service.controller.organization.DatamartOrganization.FacilityId;
 import gov.va.api.health.dataquery.service.controller.organization.DatamartOrganization.Telecom.System;
 import gov.va.api.health.r4.api.datatypes.Address;
 import gov.va.api.health.r4.api.datatypes.CodeableConcept;
@@ -15,10 +17,22 @@ import gov.va.api.health.r4.api.resources.Organization;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 public class R4OrganizationTransformerTest {
+  static Stream<Arguments> buildFacilityIdentifier() {
+    return Stream.of(
+        arguments("123", FacilityId.FacilityType.HEALTH, "vha_123"),
+        arguments("456", FacilityId.FacilityType.BENEFITS, "vba_456"),
+        arguments("789", FacilityId.FacilityType.VET_CENTER, "vc_789"),
+        arguments("135", FacilityId.FacilityType.CEMETERY, "nca_135"),
+        arguments("246", FacilityId.FacilityType.NONNATIONAL_CEMETERY, "ncas_246"));
+  }
 
   @Test
   public void address() {
@@ -77,16 +91,31 @@ public class R4OrganizationTransformerTest {
                     .build()));
   }
 
-  @Test
-  void buildFacilityIdentifier() {
-    assertThat(
-            R4OrganizationTransformer.buildFacilityIdentifier(
-                    DatamartOrganization.FacilityId.builder()
-                        .type(DatamartOrganization.FacilityId.FacilityType.HEALTH)
-                        .stationNumber("123")
-                        .build())
-                .value())
-        .isEqualTo("vha_123");
+  @ParameterizedTest
+  @MethodSource
+  void buildFacilityIdentifier(
+      String stationNumber, FacilityId.FacilityType facilityType, String expectedValue) {
+    DatamartOrganization.FacilityId facilityId =
+        FacilityId.builder().stationNumber(stationNumber).type(facilityType).build();
+    var expected =
+        Identifier.builder()
+            .use(Identifier.IdentifierUse.usual)
+            .type(
+                CodeableConcept.builder()
+                    .coding(
+                        Collections.singletonList(
+                            Coding.builder()
+                                .system("http://terminology.hl7.org/CodeSystem/v2-0203")
+                                .code("FI")
+                                .display("Facility ID")
+                                .build()))
+                    .build())
+            .system("https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-indentifier")
+            .value(expectedValue)
+            .build();
+    assertThat(R4OrganizationTransformer.buildFacilityIdentifier(facilityId).value())
+        .isEqualTo(expected.value());
+    assertThat(R4OrganizationTransformer.buildFacilityIdentifier(facilityId)).isEqualTo(expected);
   }
 
   @Test
