@@ -26,6 +26,12 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 public class R4OrganizationTransformerTest {
   static Stream<Arguments> buildFacilityIdentifier() {
+    /*
+     * arguments(
+     * Station Number: Facility's station number,
+     * Facility Type: enum value for facility type,
+     * Facility ID: expected Facility ID generated)
+     * */
     return Stream.of(
         arguments("123", FacilityId.FacilityType.HEALTH, "vha_123"),
         arguments("456", FacilityId.FacilityType.BENEFITS, "vba_456"),
@@ -113,8 +119,6 @@ public class R4OrganizationTransformerTest {
             .system("https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-indentifier")
             .value(expectedValue)
             .build();
-    assertThat(R4OrganizationTransformer.buildFacilityIdentifier(facilityId).value())
-        .isEqualTo(expected.value());
     assertThat(R4OrganizationTransformer.buildFacilityIdentifier(facilityId)).isEqualTo(expected);
   }
 
