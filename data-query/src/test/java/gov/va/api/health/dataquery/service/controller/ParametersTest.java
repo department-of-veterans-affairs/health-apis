@@ -88,7 +88,7 @@ public class ParametersTest {
     params.set("_id", "xxx");
     params.set("identifier", "123");
     params.add("identifier", "456");
-    assertThat(Parameters.identiferOf(params)).isEqualTo("123");
-    assertThat(Parameters.identiferOf(new LinkedMultiValueMap<>())).isNull();
+    assertThat(Parameters.identifierOf(params)).isEqualTo("123");
+    assertThat(Parameters.identifierOf(new LinkedMultiValueMap<>())).isNull();
   }
 }
