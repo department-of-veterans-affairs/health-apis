@@ -92,7 +92,7 @@ public class R4OrganizationTransformer {
                             .display("Facility ID")
                             .build()))
                 .build())
-        .system("https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-indentifier")
+        .system("https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-identifier")
         .value(facilityIdPref + facilityId.stationNumber())
         .build();
   }

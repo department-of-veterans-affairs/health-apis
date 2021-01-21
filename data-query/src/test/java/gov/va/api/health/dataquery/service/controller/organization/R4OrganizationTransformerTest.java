@@ -116,7 +116,7 @@ public class R4OrganizationTransformerTest {
                                 .display("Facility ID")
                                 .build()))
                     .build())
-            .system("https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-indentifier")
+            .system("https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-identifier")
             .value(expectedValue)
             .build();
     assertThat(R4OrganizationTransformer.buildFacilityIdentifier(facilityId)).isEqualTo(expected);
@@ -165,7 +165,7 @@ public class R4OrganizationTransformerTest {
                                     .build()))
                         .build())
                 .system(
-                    "https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-indentifier")
+                    "https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-identifier")
                 .value("vha_123")
                 .build());
     assertThat(
@@ -191,7 +191,7 @@ public class R4OrganizationTransformerTest {
                                         .build()))
                             .build())
                     .system(
-                        "https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-indentifier")
+                        "https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-identifier")
                     .value("vha_123")
                     .build()));
   }

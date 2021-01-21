@@ -34,7 +34,7 @@ public class Parameters {
   }
 
   /** Return null or the first 'identifier' value. */
-  public static String identiferOf(@NonNull MultiValueMap<String, String> parameters) {
+  public static String identifierOf(@NonNull MultiValueMap<String, String> parameters) {
     return parameters.getFirst("identifier");
   }
 

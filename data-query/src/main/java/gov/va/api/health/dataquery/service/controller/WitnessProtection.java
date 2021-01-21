@@ -152,7 +152,7 @@ public class WitnessProtection {
   public String toCdwId(String publicId) {
     MultiValueMap<String, String> publicParameters = Parameters.forIdentity(publicId);
     MultiValueMap<String, String> cdwParameters = replacePublicIdsWithCdwIds(publicParameters);
-    return Parameters.identiferOf(cdwParameters);
+    return Parameters.identifierOf(cdwParameters);
   }
 
   /** Lookup and convert the given public ID to a ResourceIdentity. */
