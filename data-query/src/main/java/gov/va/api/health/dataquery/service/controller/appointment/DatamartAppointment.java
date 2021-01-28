@@ -43,11 +43,13 @@ public class DatamartAppointment implements HasReplaceableId {
   private List<DatamartReference> participant;
 
   public Optional<String> appointmentType() {
-    return lazyGetter(appointmentType);
+    appointmentType = lazyGetter(appointmentType);
+    return appointmentType;
   }
 
   public Optional<String> comment() {
-    return lazyGetter(comment);
+    comment = lazyGetter(comment);
+    return comment;
   }
 
   private <T> Optional<T> lazyGetter(Optional<T> value) {

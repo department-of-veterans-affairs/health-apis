@@ -12,7 +12,7 @@ public class DatamartAppointmentTest {
 
   @SneakyThrows
   @ParameterizedTest
-  @ValueSource(strings = {"datamart-appointment-v1.json"})
+  @ValueSource(strings = {"datamart-appointment.json"})
   void assertReadable(String file) {
     DatamartAppointment sample =
         JacksonConfig.createMapper()
