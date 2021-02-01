@@ -15,13 +15,13 @@ public class AppointmentSamples {
     public DatamartAppointment appointment() {
       return DatamartAppointment.builder()
           .cdwId("1600021515962")
-          .serviceCategory("SURGERY")
+          .serviceCategory(Optional.of("SURGERY"))
           .serviceType("OTOLARYNGOLOGY/ENT")
           .appointmentType(Optional.of("WALKIN"))
-          .description("Walk-In Visit")
-          .start(Instant.parse("2020-11-25T08:00:00Z"))
-          .end(Instant.parse("2020-11-25T08:20:00Z"))
-          .minutesDuration(20)
+          .description(Optional.of("Walk-In Visit"))
+          .start(Optional.of(Instant.parse("2020-11-25T08:00:00Z")))
+          .end(Optional.of(Instant.parse("2020-11-25T08:20:00Z")))
+          .minutesDuration(Optional.of(20))
           .created("2020-11-24")
           .comment(
               Optional.of(

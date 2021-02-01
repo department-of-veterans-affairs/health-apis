@@ -1,14 +1,18 @@
 package gov.va.api.health.dataquery.service.controller.appointment;
 
-import gov.va.api.lighthouse.datamart.DatamartEntity;
+import gov.va.api.lighthouse.datamart.CompositeCdwId;
+import gov.va.api.lighthouse.datamart.CompositeIdDatamartEntity;
+import java.math.BigInteger;
 import java.time.Instant;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.IdClass;
 import javax.persistence.Lob;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,15 +28,22 @@ import org.springframework.data.domain.Sort;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class AppointmentEntity implements DatamartEntity {
+@IdClass(CompositeCdwId.class)
+public class AppointmentEntity implements CompositeIdDatamartEntity {
+
+  @Transient
+  private final CompositeCdwId compositeCdwId =
+      new CompositeCdwId(cdwIdNumber(), cdwIdResourceCode());
 
   @Id
-  @Column(name = "CDWId")
+  @Column(name = "CdwIdNumber")
   @EqualsAndHashCode.Include
-  private String cdwId;
+  private BigInteger cdwIdNumber;
 
-  @Column(name = "ApptType")
-  private String apptType;
+  @Id
+  @Column(name = "CdwIdResourceCode")
+  @EqualsAndHashCode.Include
+  private char cdwIdResourceCode;
 
   @Column(name = "PatientFullICN")
   private String icn;
