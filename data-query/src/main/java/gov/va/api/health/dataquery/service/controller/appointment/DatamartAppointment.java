@@ -22,9 +22,15 @@ public class DatamartAppointment implements HasReplaceableId {
 
   private String cdwId;
 
+  private Optional<String> status;
+
+  private Optional<String> cancellationReason;
+
   private Optional<String> serviceCategory;
 
   private String serviceType;
+
+  private Optional<String> specialty;
 
   private Optional<String> appointmentType;
 
@@ -40,6 +46,8 @@ public class DatamartAppointment implements HasReplaceableId {
 
   private Optional<String> comment;
 
+  private Optional<String> basedOn;
+
   private List<DatamartReference> participant;
 
   public Optional<String> appointmentType() {
@@ -47,9 +55,24 @@ public class DatamartAppointment implements HasReplaceableId {
     return appointmentType;
   }
 
+  public Optional<String> basedOn() {
+    basedOn = lazyGetter(basedOn);
+    return basedOn;
+  }
+
+  public Optional<String> cancellationReason() {
+    cancellationReason = lazyGetter(cancellationReason);
+    return cancellationReason;
+  }
+
   public Optional<String> comment() {
     comment = lazyGetter(comment);
     return comment;
+  }
+
+  public Optional<String> description() {
+    description = lazyGetter(description);
+    return description;
   }
 
   public Optional<Instant> end() {
@@ -74,8 +97,18 @@ public class DatamartAppointment implements HasReplaceableId {
     return serviceCategory;
   }
 
+  public Optional<String> specialty() {
+    specialty = lazyGetter(specialty);
+    return specialty;
+  }
+
   public Optional<Instant> start() {
     start = lazyGetter(start);
     return start;
+  }
+
+  public Optional<String> status() {
+    status = lazyGetter(status);
+    return status;
   }
 }
