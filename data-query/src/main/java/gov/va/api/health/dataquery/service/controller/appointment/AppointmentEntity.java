@@ -12,7 +12,6 @@ import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.Lob;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,11 +29,6 @@ import org.springframework.data.domain.Sort;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @IdClass(CompositeCdwId.class)
 public class AppointmentEntity implements CompositeIdDatamartEntity {
-
-  @Transient
-  private final CompositeCdwId compositeCdwId =
-      new CompositeCdwId(cdwIdNumber(), cdwIdResourceCode());
-
   @Id
   @Column(name = "CdwIdNumber")
   @EqualsAndHashCode.Include
@@ -68,5 +62,9 @@ public class AppointmentEntity implements CompositeIdDatamartEntity {
 
   DatamartAppointment asDatamartAppointment() {
     return deserializeDatamart(payload, DatamartAppointment.class);
+  }
+
+  public CompositeCdwId compositeCdwId() {
+    return new CompositeCdwId(cdwIdNumber(), cdwIdResourceCode());
   }
 }
