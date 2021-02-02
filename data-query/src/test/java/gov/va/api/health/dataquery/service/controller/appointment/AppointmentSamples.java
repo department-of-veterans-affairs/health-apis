@@ -15,8 +15,11 @@ public class AppointmentSamples {
     public DatamartAppointment appointment() {
       return DatamartAppointment.builder()
           .cdwId("1600021515962")
+          .status(Optional.of("NT-CO"))
+          .cancellationReason(Optional.empty())
           .serviceCategory(Optional.of("SURGERY"))
           .serviceType("OTOLARYNGOLOGY/ENT")
+          .specialty(Optional.empty())
           .appointmentType(Optional.of("WALKIN"))
           .description(Optional.of("Walk-In Visit"))
           .start(Optional.of(Instant.parse("2020-11-25T08:00:00Z")))
@@ -28,6 +31,7 @@ public class AppointmentSamples {
                   "LS 11/20/2020 PID 11/25/2020 5-DAY RTC PER DR STEELE "
                       + "F2F FOR 40-MIN OK TO SCHEDULE @0800 FOR 40-MIN PER DR STEELE "
                       + "TO SEE RESIDENT"))
+          .basedOn(Optional.empty())
           .participant(
               List.of(
                   DatamartReference.builder()
