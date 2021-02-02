@@ -11,7 +11,7 @@
   <version>3.0.94-SNAPSHOT</version>
   <packaging>jar</packaging>
   <properties>
-    <datamart-starter.version>1.0.0</datamart-starter.version>
+    <datamart-starter.version>1.0.2</datamart-starter.version>
     <fall-risk.version>1.0.29</fall-risk.version>
     <fhir-resources.version>5.0.17</fhir-resources.version>
     <guava.version>29.0-jre</guava.version>
