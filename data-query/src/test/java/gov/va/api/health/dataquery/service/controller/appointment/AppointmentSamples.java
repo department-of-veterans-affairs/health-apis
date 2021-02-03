@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.appointment;
 
+import gov.va.api.health.r4.api.resources.Appointment;
 import gov.va.api.lighthouse.datamart.DatamartReference;
 import java.time.Instant;
 import java.util.List;
@@ -45,6 +46,13 @@ public class AppointmentSamples {
                       .display(Optional.of("PATIENT,FHIRAPPTT JR"))
                       .build()))
           .build();
+    }
+  }
+
+  @AllArgsConstructor(staticName = "create")
+  public static class R4 {
+    public Appointment appointment() {
+      return null;
     }
   }
 }
