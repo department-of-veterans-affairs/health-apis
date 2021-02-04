@@ -26,7 +26,7 @@ public class AppointmentSamples {
       return DatamartAppointment.builder()
           .cdwId("1600021515962:A")
           //.status(Optional.of("NT-CO"))
-          .cancellationReason(Optional.of("SCHEDULING CONFLICT/ERROR"))
+          .cancelationReason(Optional.of("SCHEDULING CONFLICT/ERROR"))
           .serviceCategory(Optional.of("SURGERY"))
           .serviceType("OTOLARYNGOLOGY/ENT")
           .specialty(Optional.of("Surgery-Cardiac surgery"))
