@@ -16,7 +16,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Builder
 final class R4AppointmentTransformer {
   private static final Set<String> SUPPORTED_PARTICIPANT_TYPES = Set.of("Location", "Patient");
@@ -76,6 +78,12 @@ final class R4AppointmentTransformer {
 
   CodeableConcept cancelationReason(Optional<String> maybeCancelationReason) {
     if (isBlank(maybeCancelationReason)) {
+      return null;
+    }
+    var lookUpCode = CANCELLATION_REASON_MAPPINGS.get(
+            maybeCancelationReason.get().toLowerCase());
+    if(lookUpCode == null){
+      log.warn("Appointment.cancelationReason value: {} not found.", maybeCancelationReason.get());
       return null;
     }
     return CodeableConcept.builder()
