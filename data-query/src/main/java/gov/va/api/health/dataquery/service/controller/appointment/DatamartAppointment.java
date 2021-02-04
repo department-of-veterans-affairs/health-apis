@@ -24,7 +24,7 @@ public class DatamartAppointment implements HasReplaceableId {
 
   private Optional<String> status;
 
-  private Optional<String> cancellationReason;
+  private Optional<String> cancelationReason;
 
   private Optional<String> serviceCategory;
 
@@ -60,9 +60,9 @@ public class DatamartAppointment implements HasReplaceableId {
     return basedOn;
   }
 
-  public Optional<String> cancellationReason() {
-    cancellationReason = lazyGetter(cancellationReason);
-    return cancellationReason;
+  public Optional<String> cancelationReason() {
+    cancelationReason = lazyGetter(cancelationReason);
+    return cancelationReason;
   }
 
   public Optional<String> comment() {
