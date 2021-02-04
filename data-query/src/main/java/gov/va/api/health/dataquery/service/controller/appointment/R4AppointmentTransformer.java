@@ -8,6 +8,7 @@ import gov.va.api.health.r4.api.resources.Appointment;
 import gov.va.api.lighthouse.datamart.DatamartReference;
 import lombok.Builder;
 import lombok.NonNull;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -128,8 +129,16 @@ final class R4AppointmentTransformer {
   }
 
   Appointment.Participant participant(DatamartReference dmReference) {
+    if(Transformers.isBlank(dmReference)) {
+      return null;
+    }
+    // We only understand Appointment Participants that are Locations or Patients at this time.
+    if(dmReference.type().isPresent() && !(StringUtils.equals(dmReference.type().get(), "Location") || StringUtils.equals(dmReference.type().get(), "Patient"))) {
+      return null;
+    }
     return Appointment.Participant.builder()
             .actor(R4Transformers.asReference(dmReference))
+            .status(Appointment.ParticipationStatus.accepted)
             .build();
   }
 

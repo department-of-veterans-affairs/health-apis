@@ -1,7 +1,7 @@
 package gov.va.api.health.dataquery.service.controller.appointment;
 
 import gov.va.api.health.r4.api.resources.Appointment;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -53,7 +53,6 @@ public class R4AppointmentTransformerTest {
 
   @Test
   void appointment() {
-    // TODO: Create AppointmentSamples.R4
     assertThat(tx(AppointmentSamples.Datamart.create().appointment()).toFhir())
             .isEqualTo(AppointmentSamples.R4.create().appointment());
   }
