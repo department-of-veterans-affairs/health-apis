@@ -80,9 +80,8 @@ final class R4AppointmentTransformer {
     if (isBlank(maybeCancelationReason)) {
       return null;
     }
-    var lookUpCode = CANCELLATION_REASON_MAPPINGS.get(
-            maybeCancelationReason.get().toLowerCase());
-    if(lookUpCode == null){
+    var lookUpCode = CANCELLATION_REASON_MAPPINGS.get(maybeCancelationReason.get().toLowerCase());
+    if (lookUpCode == null) {
       log.warn("Appointment.cancelationReason value: {} not found.", maybeCancelationReason.get());
       return null;
     }

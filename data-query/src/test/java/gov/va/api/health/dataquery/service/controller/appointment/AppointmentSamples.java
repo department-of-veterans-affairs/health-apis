@@ -26,7 +26,8 @@ public class AppointmentSamples {
           .cancelationReason(Optional.of("OTHER"))
           .serviceCategory(Optional.of("SURGERY"))
           .serviceType("OTOLARYNGOLOGY/ENT")
-          .specialty(Optional.of("Surgery-Cardiac surgery"))
+          .status(Optional.of("NT-CO"))
+          .specialty(Optional.of("SURGERY"))
           .appointmentType(Optional.of("WALKIN"))
           .description(Optional.of("Walk-In Visit"))
           .start(Optional.of(Instant.parse("2020-11-25T08:00:00Z")))
@@ -43,13 +44,13 @@ public class AppointmentSamples {
               List.of(
                   DatamartReference.builder()
                       .type(Optional.of("Location"))
-                      .reference(Optional.of("43841:L"))
-                      .display(Optional.of("MENTAL HEALTH SERVICES"))
+                      .reference(Optional.of("800157972"))
+                      .display(Optional.of("SAC ENT RESIDENT 2"))
                       .build(),
                   DatamartReference.builder()
                       .type(Optional.of("Patient"))
-                      .reference(Optional.of("1017283180V801730"))
-                      .display(Optional.of("Frankenpatient, Victor"))
+                      .reference(Optional.of("802095909"))
+                      .display(Optional.of("PATIENT,FHIRAPPTT JR"))
                       .build()))
           .build();
     }
@@ -150,11 +151,11 @@ public class AppointmentSamples {
     private List<Appointment.Participant> participants() {
       return List.of(
           Appointment.Participant.builder()
-              .actor(reference("MENTAL HEALTH SERVICES", "Location/43841:L"))
+              .actor(reference("SAC ENT RESIDENT 2", "Location/800157972"))
               .status(Appointment.ParticipationStatus.accepted)
               .build(),
           Appointment.Participant.builder()
-              .actor(reference("Frankenpatient, Victor", "Patient/1017283180V801730"))
+              .actor(reference("PATIENT,FHIRAPPTT JR", "Patient/802095909"))
               .status(Appointment.ParticipationStatus.accepted)
               .build());
     }
@@ -201,10 +202,10 @@ public class AppointmentSamples {
                   List.of(
                       Coding.builder()
                           .system("http://hl7.org/fhir/ValueSet/c80-practice-codes")
-                          .code("Surgery-Cardiac surgery")
-                          .display("Surgery-Cardiac surgery")
+                          .code("SURGERY")
+                          .display("SURGERY")
                           .build()))
-              .text("Surgery-Cardiac surgery")
+              .text("SURGERY")
               .build());
     }
   }
