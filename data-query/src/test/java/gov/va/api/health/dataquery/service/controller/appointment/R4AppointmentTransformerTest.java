@@ -1,15 +1,26 @@
 package gov.va.api.health.dataquery.service.controller.appointment;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import gov.va.api.health.dataquery.service.controller.R4Transformers;
 import gov.va.api.health.r4.api.resources.Appointment;
 import gov.va.api.lighthouse.datamart.DatamartReference;
-import org.junit.jupiter.api.Test;
-
 import java.util.List;
 import java.util.Optional;
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
 
 public class R4AppointmentTransformerTest {
+  @Test
+  void appointment() {
+    assertThat(tx(AppointmentSamples.Datamart.create().appointment()).toFhir())
+        .isEqualTo(AppointmentSamples.R4.create().appointment());
+  }
+
+  @Test
+  void empty() {
+    assertThat(tx(DatamartAppointment.builder().build()).toFhir())
+        .isEqualTo(Appointment.builder().resourceType("Appointment").build());
+  }
 
   @Test
   void participant() {
@@ -77,18 +88,6 @@ public class R4AppointmentTransformerTest {
                                 .build()))
                     .status(Appointment.ParticipationStatus.accepted)
                     .build()));
-  }
-
-  @Test
-  void appointment() {
-    assertThat(tx(AppointmentSamples.Datamart.create().appointment()).toFhir())
-        .isEqualTo(AppointmentSamples.R4.create().appointment());
-  }
-
-  @Test
-  void empty() {
-    assertThat(tx(DatamartAppointment.builder().build()).toFhir())
-        .isEqualTo(Appointment.builder().resourceType("Appointment").build());
   }
 
   R4AppointmentTransformer tx(DatamartAppointment dm) {
