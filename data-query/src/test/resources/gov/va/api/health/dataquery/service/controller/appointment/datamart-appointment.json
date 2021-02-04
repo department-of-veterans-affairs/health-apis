@@ -1,7 +1,7 @@
 {
   "cdwId" : "1600021515962",
   "status" : "NT-CO",
-  "cancellationReason" : "OTHER",
+  "cancelationReason" : "OTHER",
   "serviceCategory" : "SURGERY",
   "serviceType" : "OTOLARYNGOLOGY/ENT",
   "specialty" : "SURGERY",
