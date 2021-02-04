@@ -1,7 +1,5 @@
 package gov.va.api.health.dataquery.service.controller.appointment;
 
-import gov.va.api.health.dataquery.service.controller.condition.DatamartCondition;
-import gov.va.api.health.dataquery.service.controller.condition.R4ConditionTransformer;
 import gov.va.api.health.r4.api.resources.Appointment;
 import org.junit.Test;
 

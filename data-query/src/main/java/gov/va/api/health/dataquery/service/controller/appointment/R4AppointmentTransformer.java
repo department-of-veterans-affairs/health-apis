@@ -137,7 +137,7 @@ final class R4AppointmentTransformer {
     return Appointment.builder()
         .resourceType("Appointment")
         .id(dm.cdwId())
-        //.status() This should be an enum in DatamartAppointment
+        //.status()
         .cancelationReason(cancelationReason(dm.cancellationReason()))
         .serviceCategory(serviceCategory(dm.serviceCategory()))
         .serviceType(serviceType(dm.serviceType()))

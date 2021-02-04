@@ -54,5 +54,14 @@ public class AppointmentSamples {
     public Appointment appointment() {
       return null;
     }
+    /**
+     * { "cdwId": "1600020898859:A", "status": "NT-CO", "cancellationReason": null,
+     * "serviceCategory": "MEDICINE", "serviceType": "EMERGENCY DEPT", "specialty": null,
+     * "appointmentType": "WALKIN", "description": "Unscheduled Visit", "start":
+     * "2020-11-19T01:28:00Z", "end": "2020-11-19T01:48:00Z", "minutesDuration": 20, "created":
+     * "2020-11-19", "comment": null, "basedOn": null, "participant": [ { "type": "Location",
+     * "reference": "43841:L", "display": "MENTAL HEALTH SERVICES" }, { "type": "Patient",
+     * "reference": "1017283180V801730", "display": "Frankenpatient, Victor" } ] }
+     */
   }
 }
