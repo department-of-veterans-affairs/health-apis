@@ -147,7 +147,7 @@ final class R4AppointmentTransformer {
         .resourceType("Appointment")
         .id(dm.cdwId())
         //.status()
-        .cancelationReason(cancelationReason(dm.cancellationReason()))
+        .cancelationReason(cancelationReason(dm.cancelationReason()))
         .serviceCategory(serviceCategory(dm.serviceCategory()))
         .serviceType(serviceType(dm.serviceType()))
         .specialty(specialty(dm.specialty()))
