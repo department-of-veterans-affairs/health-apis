@@ -1,27 +1,30 @@
 package gov.va.api.health.dataquery.service.controller.appointment;
 
 import gov.va.api.health.dataquery.service.controller.R4Transformers;
-import gov.va.api.health.dataquery.service.controller.Transformers;
 import gov.va.api.health.r4.api.datatypes.CodeableConcept;
 import gov.va.api.health.r4.api.datatypes.Coding;
 import gov.va.api.health.r4.api.resources.Appointment;
 import gov.va.api.lighthouse.datamart.DatamartReference;
 import lombok.Builder;
 import lombok.NonNull;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-import static gov.va.api.health.dataquery.service.controller.Transformers.*;
+import static gov.va.api.health.dataquery.service.controller.Transformers.asDateTimeString;
+import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
 
 @Builder
 final class R4AppointmentTransformer {
+
   @NonNull private final DatamartAppointment dm;
 
+  private final Set<String> SUPPORTED_PARTICIPANT_TYPES = Set.of("Location", "Patient");
+
   CodeableConcept cancelationReason(Optional<String> maybeCancelationReason) {
-    if (Transformers.isBlank(maybeCancelationReason)) {
+    if (isBlank(maybeCancelationReason)) {
       return null;
     }
     return CodeableConcept.builder()
@@ -37,7 +40,7 @@ final class R4AppointmentTransformer {
   }
 
   List<CodeableConcept> serviceCategory(Optional<String> maybeServiceCategory) {
-    if (Transformers.isBlank(maybeServiceCategory)) {
+    if (isBlank(maybeServiceCategory)) {
       return null;
     }
     return List.of(
@@ -54,7 +57,7 @@ final class R4AppointmentTransformer {
   }
 
   List<CodeableConcept> serviceType(String serviceType) {
-    if (Transformers.isBlank(serviceType)) {
+    if (isBlank(serviceType)) {
       return null;
     }
     return List.of(
@@ -71,14 +74,14 @@ final class R4AppointmentTransformer {
   }
 
   Integer minutesDuration(Optional<Integer> maybeMinutesDuration) {
-    if (Transformers.isBlank(maybeMinutesDuration)) {
+    if (isBlank(maybeMinutesDuration)) {
       return null;
     }
     return maybeMinutesDuration.get();
   }
 
   List<CodeableConcept> specialty(Optional<String> maybeSpecialty) {
-    if (Transformers.isBlank(maybeSpecialty)) {
+    if (isBlank(maybeSpecialty)) {
       return null;
     }
     return List.of(
@@ -95,7 +98,7 @@ final class R4AppointmentTransformer {
   }
 
   CodeableConcept appointmentType(Optional<String> maybeAppointmentType) {
-    if (Transformers.isBlank(maybeAppointmentType)) {
+    if (isBlank(maybeAppointmentType)) {
       return null;
     }
     return CodeableConcept.builder()
@@ -111,42 +114,69 @@ final class R4AppointmentTransformer {
   }
 
   String description(Optional<String> maybeDescription) {
-    if (Transformers.isBlank(maybeDescription)) {
+    if (isBlank(maybeDescription)) {
       return null;
     }
     return maybeDescription.get();
   }
 
   String comment(Optional<String> maybeComment) {
-    if (Transformers.isBlank(maybeComment)) {
+    if (isBlank(maybeComment)) {
       return null;
     }
     return maybeComment.get();
   }
 
-  List<Appointment.Participant> participants(List<DatamartReference> dmParticipants) {
-      return dmParticipants.stream().map(this::participant).collect(Collectors.toList());
+  List<Appointment.Participant> participants(List<DatamartReference> dmParticipants, String cdwId) {
+    if(isBlank(cdwId)) {
+      return null;
+    }
+    // If the appointment is from the WAITLIST TABLE(cdwId = 123456:W) status is tentative
+    // If the appointment is from the APPOINTMENT TABLE(cdwId = 123456:A) status is accepted
+    var cdwIdParts = cdwId.split(":", -1);
+    if(cdwIdParts.length != 2) {
+      return null;
+    }
+    Appointment.ParticipationStatus participationStatus;
+    switch (cdwIdParts[1]) {
+      case "W":
+        participationStatus = Appointment.ParticipationStatus.tentative;
+        break;
+      case "A":
+        participationStatus = Appointment.ParticipationStatus.accepted;
+        break;
+      default:
+        return null;
+    }
+
+    return dmParticipants.stream().map(p -> participant(p, participationStatus)).collect(Collectors.toList());
   }
 
-  Appointment.Participant participant(DatamartReference dmReference) {
-    if(Transformers.isBlank(dmReference)) {
+  boolean isSupportedParticipant(DatamartReference r) {
+    return !(isBlank(r))
+        && r.hasTypeAndReference()
+        && SUPPORTED_PARTICIPANT_TYPES.contains(r.type().get());
+  }
+
+  Appointment.Participant participant(DatamartReference dmReference, Appointment.ParticipationStatus participationStatus) {
+    if (isBlank(dmReference)) {
       return null;
     }
     // We only understand Appointment Participants that are Locations or Patients at this time.
-    if(dmReference.type().isPresent() && !(StringUtils.equals(dmReference.type().get(), "Location") || StringUtils.equals(dmReference.type().get(), "Patient"))) {
+    if (!isSupportedParticipant(dmReference)) {
       return null;
     }
     return Appointment.Participant.builder()
-            .actor(R4Transformers.asReference(dmReference))
-            .status(Appointment.ParticipationStatus.accepted)
-            .build();
+        .actor(R4Transformers.asReference(dmReference))
+        .status(participationStatus)
+        .build();
   }
 
   Appointment toFhir() {
     return Appointment.builder()
         .resourceType("Appointment")
         .id(dm.cdwId())
-        //.status()
+        // .status()
         .cancelationReason(cancelationReason(dm.cancelationReason()))
         .serviceCategory(serviceCategory(dm.serviceCategory()))
         .serviceType(serviceType(dm.serviceType()))
@@ -158,7 +188,7 @@ final class R4AppointmentTransformer {
         .minutesDuration(minutesDuration(dm.minutesDuration()))
         .created(dm.created())
         .comment(comment(dm.comment()))
-        .participant(participants(dm.participant()))
+        .participant(participants(dm.participant(), dm.cdwId()))
         .build();
   }
 }
