@@ -23,10 +23,11 @@ public class AppointmentSamples {
     public DatamartAppointment appointment() {
       return DatamartAppointment.builder()
           .cdwId("1600021515962:A")
-          .cancelationReason(Optional.of("SCHEDULING CONFLICT/ERROR"))
+          .cancelationReason(Optional.of("OTHER"))
           .serviceCategory(Optional.of("SURGERY"))
           .serviceType("OTOLARYNGOLOGY/ENT")
-          .specialty(Optional.of("Surgery-Cardiac surgery"))
+          .status(Optional.of("INPATIENT APPOINTMENT"))
+          .specialty(Optional.of("SURGERY"))
           .appointmentType(Optional.of("WALKIN"))
           .description(Optional.of("Walk-In Visit"))
           .start(Optional.of(Instant.parse("2020-11-25T08:00:00Z")))
@@ -38,18 +39,18 @@ public class AppointmentSamples {
                   "LS 11/20/2020 PID 11/25/2020 5-DAY RTC PER DR STEELE "
                       + "F2F FOR 40-MIN OK TO SCHEDULE @0800 FOR 40-MIN PER DR STEELE "
                       + "TO SEE RESIDENT"))
-          .basedOn(Optional.of("SCHEDULING CONFLICT/ERROR"))
+          .basedOn(Optional.of("OTHER"))
           .participant(
               List.of(
                   DatamartReference.builder()
                       .type(Optional.of("Location"))
-                      .reference(Optional.of("43841:L"))
-                      .display(Optional.of("MENTAL HEALTH SERVICES"))
+                      .reference(Optional.of("800157972"))
+                      .display(Optional.of("SAC ENT RESIDENT 2"))
                       .build(),
                   DatamartReference.builder()
                       .type(Optional.of("Patient"))
-                      .reference(Optional.of("1017283180V801730"))
-                      .display(Optional.of("Frankenpatient, Victor"))
+                      .reference(Optional.of("802095909"))
+                      .display(Optional.of("PATIENT,FHIRAPPTT JR"))
                       .build()))
           .build();
     }
@@ -98,9 +99,8 @@ public class AppointmentSamples {
       return Appointment.builder()
           .resourceType("Appointment")
           .id(id)
+          .status(Appointment.AppointmentStatus.fulfilled)
           .cancelationReason(cancelationReason())
-          .serviceCategory(serviceCategory())
-          .serviceType(serviceType())
           .specialty(specialty())
           .appointmentType(appointmentType())
           .description("Walk-In Visit")
@@ -126,7 +126,6 @@ public class AppointmentSamples {
               List.of(
                   Coding.builder()
                       .system("http://terminology.hl7.org/CodeSystem/v2-0276")
-                      .code("WALKIN")
                       .display("WALKIN")
                       .build()))
           .text("WALKIN")
@@ -140,21 +139,20 @@ public class AppointmentSamples {
                   Coding.builder()
                       .system(
                           "http://terminology.hl7.org/CodeSystem/appointment-cancellation-reason")
-                      .code("SCHEDULING CONFLICT/ERROR")
-                      .display("SCHEDULING CONFLICT/ERROR")
+                      .display("OTHER")
                       .build()))
-          .text("SCHEDULING CONFLICT/ERROR")
+          .text("OTHER")
           .build();
     }
 
     private List<Appointment.Participant> participants() {
       return List.of(
           Appointment.Participant.builder()
-              .actor(reference("MENTAL HEALTH SERVICES", "Location/43841:L"))
+              .actor(reference("SAC ENT RESIDENT 2", "Location/800157972"))
               .status(Appointment.ParticipationStatus.accepted)
               .build(),
           Appointment.Participant.builder()
-              .actor(reference("Frankenpatient, Victor", "Patient/1017283180V801730"))
+              .actor(reference("PATIENT,FHIRAPPTT JR", "Patient/802095909"))
               .status(Appointment.ParticipationStatus.accepted)
               .build());
     }
@@ -166,34 +164,6 @@ public class AppointmentSamples {
           .build();
     }
 
-    private List<CodeableConcept> serviceCategory() {
-      return List.of(
-          CodeableConcept.builder()
-              .coding(
-                  List.of(
-                      Coding.builder()
-                          .system("http://terminology.hl7.org/CodeSystem/service-category")
-                          .code("SURGERY")
-                          .display("SURGERY")
-                          .build()))
-              .text("SURGERY")
-              .build());
-    }
-
-    private List<CodeableConcept> serviceType() {
-      return List.of(
-          CodeableConcept.builder()
-              .coding(
-                  List.of(
-                      Coding.builder()
-                          .system("http://terminology.hl7.org/CodeSystem/service-type")
-                          .code("OTOLARYNGOLOGY/ENT")
-                          .display("OTOLARYNGOLOGY/ENT")
-                          .build()))
-              .text("OTOLARYNGOLOGY/ENT")
-              .build());
-    }
-
     private List<CodeableConcept> specialty() {
       return List.of(
           CodeableConcept.builder()
@@ -201,10 +171,9 @@ public class AppointmentSamples {
                   List.of(
                       Coding.builder()
                           .system("http://hl7.org/fhir/ValueSet/c80-practice-codes")
-                          .code("Surgery-Cardiac surgery")
-                          .display("Surgery-Cardiac surgery")
+                          .display("SURGERY")
                           .build()))
-              .text("Surgery-Cardiac surgery")
+              .text("SURGERY")
               .build());
     }
   }
