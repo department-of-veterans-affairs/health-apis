@@ -2,61 +2,24 @@ package gov.va.api.health.dataquery.service.controller.appointment;
 
 import static gov.va.api.health.dataquery.service.controller.Transformers.asDateTimeString;
 import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
-import static java.util.Map.entry;
 
 import gov.va.api.health.dataquery.service.controller.R4Transformers;
 import gov.va.api.health.r4.api.datatypes.CodeableConcept;
 import gov.va.api.health.r4.api.datatypes.Coding;
 import gov.va.api.health.r4.api.resources.Appointment;
 import gov.va.api.lighthouse.datamart.DatamartReference;
+import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
+@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 @Builder
 final class R4AppointmentTransformer {
   private static final Set<String> SUPPORTED_PARTICIPANT_TYPES = Set.of("Location", "Patient");
-
-  private static final Map<String, String> CANCELLATION_REASON_MAPPINGS =
-      Map.ofEntries(
-          entry("patient", "pat"),
-          entry("patient: canceled via automated reminder system", "pat-crs"),
-          entry("patient: canceled via patient portal", "pat-cpp"),
-          entry("patient: deceased", "pat-dec"),
-          entry("patient: feeling better", "pat-fb"),
-          entry("patient: lack of transportation", "pat-lt"),
-          entry("patient: member terminated", "pat-mt"),
-          entry("patient: moved", "pat-mv"),
-          entry("patient: pregnant", "pat-preg"),
-          entry("patient: scheduled from wait list", "pat-swl"),
-          entry("patient: unhappy/changed provider", "pat-ucp"),
-          entry("provider", "prov"),
-          entry("provider: personal", "prov-pers"),
-          entry("provider: discharged", "prov-dch"),
-          entry("provider: edu/meeting", "prov-edu"),
-          entry("provider: hospitalized", "prov-hosp"),
-          entry("provider: labs out of acceptable range", "prov-labs"),
-          entry("provider: mri screening form marked do not proceed", "prov-mri"),
-          entry("provider: oncology treatment plan changes", "prov-onc"),
-          entry("equipment maintenance/repair", "maint"),
-          entry("prep/med incomplete", "meds-inc"),
-          entry("other", "other"),
-          entry("other: cms therapy cap service not authorized", "oth-cms"),
-          entry("other: error", "oth-err"),
-          entry("other: financial", "oth-fin"),
-          entry("other: improper iv access/infiltrate iv", "oth-iv"),
-          entry("other: no interpreter available", "oth-int"),
-          entry("other: prep/med/results unavailable", "oth-mu"),
-          entry("other: room/resource maintenance", "oth-room"),
-          entry("other: schedule order error", "oth-oerr"),
-          entry("other: silent walk in error", "oth-swie"),
-          entry("other: weather", "oth-weath"));
 
   @NonNull private final DatamartAppointment dm;
 
@@ -80,19 +43,12 @@ final class R4AppointmentTransformer {
     if (isBlank(maybeCancelationReason)) {
       return null;
     }
-    var lookUpCode = CANCELLATION_REASON_MAPPINGS.get(maybeCancelationReason.get().toLowerCase());
-    if (lookUpCode == null) {
-      log.warn("Appointment.cancelationReason value: {} not found.", maybeCancelationReason.get());
-      return null;
-    }
     return CodeableConcept.builder()
         .coding(
             List.of(
                 Coding.builder()
                     .system("http://terminology.hl7.org/CodeSystem/appointment-cancellation-reason")
-                    .code(
-                        CANCELLATION_REASON_MAPPINGS.get(
-                            maybeCancelationReason.get().toLowerCase()))
+                    .code(maybeCancelationReason.get())
                     .display(maybeCancelationReason.get())
                     .build()))
         .text(maybeCancelationReason.get())
@@ -126,6 +82,27 @@ final class R4AppointmentTransformer {
     return maybeMinutesDuration.get();
   }
 
+  String parseCdwIdResourceCode(String cdwId) {
+    var cdwIdParts = cdwId.split(":", -1);
+    if (cdwIdParts.length != 2) {
+      return null;
+    }
+    return cdwIdParts[1];
+  }
+
+  Appointment.AppointmentStatus parseTimes(Optional<Instant> start, Optional<Instant> end) {
+    if (start.isEmpty() && end.isEmpty()) {
+      return Appointment.AppointmentStatus.booked;
+    }
+    if (start.isPresent() && end.isEmpty()) {
+      return Appointment.AppointmentStatus.arrived;
+    }
+    if (start.isPresent() && end.isPresent()) {
+      return Appointment.AppointmentStatus.fulfilled;
+    }
+    return null;
+  }
+
   Appointment.Participant participant(
       DatamartReference dmReference, Appointment.ParticipationStatus participationStatus) {
     if (isBlank(dmReference)) {
@@ -147,12 +124,12 @@ final class R4AppointmentTransformer {
     }
     // If the appointment is from the WAITLIST TABLE(cdwId = 123456:W) status is tentative
     // If the appointment is from the APPOINTMENT TABLE(cdwId = 123456:A) status is accepted
-    var cdwIdParts = cdwId.split(":", -1);
-    if (cdwIdParts.length != 2) {
+    String cdwIdResourceCode = parseCdwIdResourceCode(cdwId);
+    if (cdwIdResourceCode == null) {
       return null;
     }
     Appointment.ParticipationStatus participationStatus;
-    switch (cdwIdParts[1]) {
+    switch (cdwIdResourceCode) {
       case "W":
         participationStatus = Appointment.ParticipationStatus.tentative;
         break;
@@ -218,10 +195,59 @@ final class R4AppointmentTransformer {
             .build());
   }
 
+  /**
+   * Business Logic Rules for determining status from CDW's datamart.status String.
+   *
+   * <ul>
+   *   <li>cdwId resource code = 'W' -> waitlist
+   *   <li>"NO SHOW" -> noshow
+   *   <li>"CANCELLED BY CLINIC" -> cancelled
+   *   <li>"NO-SHOW & AUTO RE-BOOK" -> noshow
+   *   <li>"CANCELLED BY CLINIC & AUTO RE-BOOK" -> cancelled
+   *   <li>"INPATIENT APPOINTMENT" -> use checkin times, either arrived, booked, fulfilled
+   *   <li>"CANCELLED BY PATIENT" -> cancelled
+   *   <li>"CANCELLED BY PATIENT & AUTO-REBOOK" -> cancelled
+   *   <li>"NO ACTION TAKEN" -> use checkin times, either arrived, booked, fulfilled
+   *   <li>null -> use checkin times, either arrived, booked, fulfilled
+   * </ul>
+   */
+  Appointment.AppointmentStatus status(
+      String cdwId, Optional<Instant> start, Optional<Instant> end, Optional<String> status) {
+    if (isBlank(cdwId)) {
+      return null;
+    }
+    String cdwIdResourceCode = parseCdwIdResourceCode(cdwId);
+    if (cdwIdResourceCode == null) {
+      return null;
+    }
+    if (cdwIdResourceCode.equals("W")) {
+      return Appointment.AppointmentStatus.waitlist;
+    }
+    if (status.isEmpty()) {
+      return parseTimes(start, end);
+    }
+    switch (status.get()) {
+      case "NO SHOW":
+      case "NO-SHOW & AUTO RE-BOOK":
+        return Appointment.AppointmentStatus.noshow;
+      case "CANCELLED BY PATIENT":
+      case "CANCELLED BY PATIENT & AUTO-REBOOK":
+      case "CANCELLED BY CLINIC":
+      case "CANCELLED BY CLINIC & AUTO RE-BOOK":
+        return Appointment.AppointmentStatus.cancelled;
+      case "INPATIENT APPOINTMENT":
+      case "NO ACTION TAKEN":
+        return parseTimes(start, end);
+      default:
+        return null;
+    }
+  }
+
   Appointment toFhir() {
     return Appointment.builder()
         .resourceType("Appointment")
         .id(dm.cdwId())
+        .status(status(dm.cdwId(), dm.start(), dm.end(), dm.status()))
         .cancelationReason(cancelationReason(dm.cancelationReason()))
         .serviceCategory(serviceCategory(dm.serviceCategory()))
         .serviceType(serviceType(dm.serviceType()))
