@@ -32,7 +32,6 @@ final class R4AppointmentTransformer {
             List.of(
                 Coding.builder()
                     .system("http://terminology.hl7.org/CodeSystem/v2-0276")
-                    .code(maybeAppointmentType.get())
                     .display(maybeAppointmentType.get())
                     .build()))
         .text(maybeAppointmentType.get())
@@ -48,7 +47,6 @@ final class R4AppointmentTransformer {
             List.of(
                 Coding.builder()
                     .system("http://terminology.hl7.org/CodeSystem/appointment-cancellation-reason")
-                    .code(maybeCancelationReason.get())
                     .display(maybeCancelationReason.get())
                     .build()))
         .text(maybeCancelationReason.get())
@@ -154,7 +152,6 @@ final class R4AppointmentTransformer {
                 List.of(
                     Coding.builder()
                         .system("http://terminology.hl7.org/CodeSystem/service-category")
-                        .code(maybeServiceCategory.get())
                         .display(maybeServiceCategory.get())
                         .build()))
             .text(maybeServiceCategory.get())
@@ -171,7 +168,6 @@ final class R4AppointmentTransformer {
                 List.of(
                     Coding.builder()
                         .system("http://terminology.hl7.org/CodeSystem/service-type")
-                        .code(serviceType)
                         .display(serviceType)
                         .build()))
             .text(serviceType)
@@ -188,7 +184,6 @@ final class R4AppointmentTransformer {
                 List.of(
                     Coding.builder()
                         .system("http://hl7.org/fhir/ValueSet/c80-practice-codes")
-                        .code(maybeSpecialty.get())
                         .display(maybeSpecialty.get())
                         .build()))
             .text(maybeSpecialty.get())

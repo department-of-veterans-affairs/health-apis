@@ -128,7 +128,6 @@ public class AppointmentSamples {
               List.of(
                   Coding.builder()
                       .system("http://terminology.hl7.org/CodeSystem/v2-0276")
-                      .code("WALKIN")
                       .display("WALKIN")
                       .build()))
           .text("WALKIN")
@@ -142,7 +141,6 @@ public class AppointmentSamples {
                   Coding.builder()
                       .system(
                           "http://terminology.hl7.org/CodeSystem/appointment-cancellation-reason")
-                      .code("OTHER")
                       .display("OTHER")
                       .build()))
           .text("OTHER")
@@ -175,7 +173,6 @@ public class AppointmentSamples {
                   List.of(
                       Coding.builder()
                           .system("http://terminology.hl7.org/CodeSystem/service-category")
-                          .code("SURGERY")
                           .display("SURGERY")
                           .build()))
               .text("SURGERY")
@@ -189,7 +186,6 @@ public class AppointmentSamples {
                   List.of(
                       Coding.builder()
                           .system("http://terminology.hl7.org/CodeSystem/service-type")
-                          .code("OTOLARYNGOLOGY/ENT")
                           .display("OTOLARYNGOLOGY/ENT")
                           .build()))
               .text("OTOLARYNGOLOGY/ENT")
@@ -203,7 +199,6 @@ public class AppointmentSamples {
                   List.of(
                       Coding.builder()
                           .system("http://hl7.org/fhir/ValueSet/c80-practice-codes")
-                          .code("SURGERY")
                           .display("SURGERY")
                           .build()))
               .text("SURGERY")
