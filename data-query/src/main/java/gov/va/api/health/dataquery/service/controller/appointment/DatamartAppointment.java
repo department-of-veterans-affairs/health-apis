@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.appointment;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import gov.va.api.lighthouse.datamart.DatamartReference;
 import gov.va.api.lighthouse.datamart.HasReplaceableId;
 import java.time.Instant;
@@ -21,6 +22,8 @@ public class DatamartAppointment implements HasReplaceableId {
   @Builder.Default private String objectVersion = "1";
 
   private String cdwId;
+
+  @JsonIgnore private String rawCdwId;
 
   private Optional<String> status;
 
@@ -110,5 +113,15 @@ public class DatamartAppointment implements HasReplaceableId {
   public Optional<String> status() {
     status = lazyGetter(status);
     return status;
+  }
+
+  /** Overwrite the builder to save the rawCdwId to the dm object. */
+  public static class DatamartAppointmentBuilder {
+    /** Overwrite the builder to save the rawCdwId to the dm object. */
+    public DatamartAppointmentBuilder cdwId(String cdwId) {
+      this.cdwId = cdwId;
+      this.rawCdwId = cdwId;
+      return this;
+    }
   }
 }

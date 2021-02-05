@@ -10,6 +10,7 @@ import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedBundl
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedReader;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedTransformation;
 import gov.va.api.health.r4.api.resources.Appointment;
+import gov.va.api.lighthouse.datamart.CompositeCdwId;
 import gov.va.api.lighthouse.vulcan.Vulcan;
 import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
 import gov.va.api.lighthouse.vulcan.mappings.Mappings;
@@ -88,7 +89,13 @@ public class R4AppointmentController {
 
   VulcanizedTransformation<AppointmentEntity, DatamartAppointment, Appointment> transformation() {
     return VulcanizedTransformation.toDatamart(AppointmentEntity::asDatamartAppointment)
-        .toResource(dm -> R4AppointmentTransformer.builder().dm(dm).build().toFhir())
+        .toResource(
+            dm ->
+                R4AppointmentTransformer.builder()
+                    .compositeCdwId(CompositeCdwId.fromCdwId(witnessProtection.toCdwId(dm.cdwId())))
+                    .dm(dm)
+                    .build()
+                    .toFhir())
         .witnessProtection(witnessProtection)
         .replaceReferences(resource -> resource.participant().stream())
         .build();
