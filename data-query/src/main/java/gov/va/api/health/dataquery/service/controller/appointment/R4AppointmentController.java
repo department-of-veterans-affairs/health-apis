@@ -97,8 +97,8 @@ public class R4AppointmentController {
   VulcanizedReader<AppointmentEntity, DatamartAppointment, Appointment> vulcanizedReader() {
     return VulcanizedReader.<AppointmentEntity, DatamartAppointment, Appointment>forTransformation(
             transformation())
-        .repository(repository)
-        .toPatientId(e -> Optional.of(e.cdwId()))
+        .compositeIdRepository(repository)
+        .toPatientId(e -> Optional.of(e.icn()))
         .toPayload(AppointmentEntity::payload)
         .build();
   }

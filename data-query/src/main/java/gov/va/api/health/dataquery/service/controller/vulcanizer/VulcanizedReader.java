@@ -3,6 +3,7 @@ package gov.va.api.health.dataquery.service.controller.vulcanizer;
 import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.r4.api.resources.Resource;
+import gov.va.api.lighthouse.datamart.CompositeCdwId;
 import gov.va.api.lighthouse.datamart.HasReplaceableId;
 import java.util.Optional;
 import java.util.function.Function;
@@ -19,6 +20,8 @@ public class VulcanizedReader<
   VulcanizedTransformation<EntityT, DatamartT, ResourceT> transformation;
   /** The repository for the resource. */
   CrudRepository<EntityT, String> repository;
+
+  CrudRepository<EntityT, CompositeCdwId> compositeIdRepository;
   /**
    * This function will be applied to the resource. If an ID is returned (non-empty), the response
    * header will be updated to indicate which patient the records applies to.
@@ -36,7 +39,12 @@ public class VulcanizedReader<
 
   private EntityT find(String publicId) {
     String cdwId = transformation.witnessProtection().toCdwId(publicId);
-    Optional<EntityT> entity = repository.findById(cdwId);
+    Optional<EntityT> entity;
+    if (compositeIdRepository != null) {
+      entity = compositeIdRepository.findById(CompositeCdwId.fromCdwId(cdwId));
+    } else {
+      entity = repository.findById(cdwId);
+    }
     entity.orElseThrow(() -> new ResourceExceptions.NotFound(publicId));
     return entity.get();
   }
