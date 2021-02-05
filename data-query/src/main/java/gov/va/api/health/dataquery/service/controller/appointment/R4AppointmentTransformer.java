@@ -109,7 +109,6 @@ final class R4AppointmentTransformer {
     }
     // If the appointment is from the WAITLIST TABLE(cdwId = 123456:W) status is tentative
     // If the appointment is from the APPOINTMENT TABLE(cdwId = 123456:A) status is accepted
-
     String cdwIdResourceCode = cdwIdResourceCodeFrom(cdwId);
     if (cdwIdResourceCode == null) {
       return null;
