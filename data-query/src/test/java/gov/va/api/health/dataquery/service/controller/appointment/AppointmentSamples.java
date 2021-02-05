@@ -101,8 +101,6 @@ public class AppointmentSamples {
           .id(id)
           .status(Appointment.AppointmentStatus.fulfilled)
           .cancelationReason(cancelationReason())
-          .serviceCategory(serviceCategory())
-          .serviceType(serviceType())
           .specialty(specialty())
           .appointmentType(appointmentType())
           .description("Walk-In Visit")
@@ -164,32 +162,6 @@ public class AppointmentSamples {
           .display(display)
           .reference(ref)
           .build();
-    }
-
-    private List<CodeableConcept> serviceCategory() {
-      return List.of(
-          CodeableConcept.builder()
-              .coding(
-                  List.of(
-                      Coding.builder()
-                          .system("http://terminology.hl7.org/CodeSystem/service-category")
-                          .display("SURGERY")
-                          .build()))
-              .text("SURGERY")
-              .build());
-    }
-
-    private List<CodeableConcept> serviceType() {
-      return List.of(
-          CodeableConcept.builder()
-              .coding(
-                  List.of(
-                      Coding.builder()
-                          .system("http://terminology.hl7.org/CodeSystem/service-type")
-                          .display("OTOLARYNGOLOGY/ENT")
-                          .build()))
-              .text("OTOLARYNGOLOGY/ENT")
-              .build());
     }
 
     private List<CodeableConcept> specialty() {

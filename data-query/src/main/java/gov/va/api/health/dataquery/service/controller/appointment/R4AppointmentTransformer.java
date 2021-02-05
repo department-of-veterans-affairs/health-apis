@@ -53,6 +53,14 @@ final class R4AppointmentTransformer {
         .build();
   }
 
+  String cdwIdResourceCodeFrom(String cdwId) {
+    var cdwIdParts = cdwId.split(":", -1);
+    if (cdwIdParts.length != 2) {
+      return null;
+    }
+    return cdwIdParts[1];
+  }
+
   String comment(Optional<String> maybeComment) {
     if (isBlank(maybeComment)) {
       return null;
@@ -80,27 +88,6 @@ final class R4AppointmentTransformer {
     return maybeMinutesDuration.get();
   }
 
-  String parseCdwIdResourceCode(String cdwId) {
-    var cdwIdParts = cdwId.split(":", -1);
-    if (cdwIdParts.length != 2) {
-      return null;
-    }
-    return cdwIdParts[1];
-  }
-
-  Appointment.AppointmentStatus parseTimes(Optional<Instant> start, Optional<Instant> end) {
-    if (start.isEmpty() && end.isEmpty()) {
-      return Appointment.AppointmentStatus.booked;
-    }
-    if (start.isPresent() && end.isEmpty()) {
-      return Appointment.AppointmentStatus.arrived;
-    }
-    if (start.isPresent() && end.isPresent()) {
-      return Appointment.AppointmentStatus.fulfilled;
-    }
-    return null;
-  }
-
   Appointment.Participant participant(
       DatamartReference dmReference, Appointment.ParticipationStatus participationStatus) {
     if (isBlank(dmReference)) {
@@ -122,7 +109,7 @@ final class R4AppointmentTransformer {
     }
     // If the appointment is from the WAITLIST TABLE(cdwId = 123456:W) status is tentative
     // If the appointment is from the APPOINTMENT TABLE(cdwId = 123456:A) status is accepted
-    String cdwIdResourceCode = parseCdwIdResourceCode(cdwId);
+    String cdwIdResourceCode = cdwIdResourceCodeFrom(cdwId);
     if (cdwIdResourceCode == null) {
       return null;
     }
@@ -140,38 +127,6 @@ final class R4AppointmentTransformer {
     return dmParticipants.stream()
         .map(p -> participant(p, participationStatus))
         .collect(Collectors.toList());
-  }
-
-  List<CodeableConcept> serviceCategory(Optional<String> maybeServiceCategory) {
-    if (isBlank(maybeServiceCategory)) {
-      return null;
-    }
-    return List.of(
-        CodeableConcept.builder()
-            .coding(
-                List.of(
-                    Coding.builder()
-                        .system("http://terminology.hl7.org/CodeSystem/service-category")
-                        .display(maybeServiceCategory.get())
-                        .build()))
-            .text(maybeServiceCategory.get())
-            .build());
-  }
-
-  List<CodeableConcept> serviceType(String serviceType) {
-    if (isBlank(serviceType)) {
-      return null;
-    }
-    return List.of(
-        CodeableConcept.builder()
-            .coding(
-                List.of(
-                    Coding.builder()
-                        .system("http://terminology.hl7.org/CodeSystem/service-type")
-                        .display(serviceType)
-                        .build()))
-            .text(serviceType)
-            .build());
   }
 
   List<CodeableConcept> specialty(Optional<String> maybeSpecialty) {
@@ -211,7 +166,7 @@ final class R4AppointmentTransformer {
     if (isBlank(cdwId)) {
       return null;
     }
-    String cdwIdResourceCode = parseCdwIdResourceCode(cdwId);
+    String cdwIdResourceCode = cdwIdResourceCodeFrom(cdwId);
     if (cdwIdResourceCode == null) {
       return null;
     }
@@ -219,7 +174,7 @@ final class R4AppointmentTransformer {
       return Appointment.AppointmentStatus.waitlist;
     }
     if (status.isEmpty()) {
-      return parseTimes(start, end);
+      return statusFromStartAndEndTime(start, end);
     }
     switch (status.get()) {
       case "NO SHOW":
@@ -232,10 +187,24 @@ final class R4AppointmentTransformer {
         return Appointment.AppointmentStatus.cancelled;
       case "INPATIENT APPOINTMENT":
       case "NO ACTION TAKEN":
-        return parseTimes(start, end);
+        return statusFromStartAndEndTime(start, end);
       default:
         return null;
     }
+  }
+
+  Appointment.AppointmentStatus statusFromStartAndEndTime(
+      Optional<Instant> start, Optional<Instant> end) {
+    if (start.isEmpty() && end.isEmpty()) {
+      return Appointment.AppointmentStatus.booked;
+    }
+    if (start.isPresent() && end.isEmpty()) {
+      return Appointment.AppointmentStatus.arrived;
+    }
+    if (start.isPresent() && end.isPresent()) {
+      return Appointment.AppointmentStatus.fulfilled;
+    }
+    return null;
   }
 
   Appointment toFhir() {
@@ -244,8 +213,6 @@ final class R4AppointmentTransformer {
         .id(dm.cdwId())
         .status(status(dm.cdwId(), dm.start(), dm.end(), dm.status()))
         .cancelationReason(cancelationReason(dm.cancelationReason()))
-        .serviceCategory(serviceCategory(dm.serviceCategory()))
-        .serviceType(serviceType(dm.serviceType()))
         .specialty(specialty(dm.specialty()))
         .appointmentType(appointmentType(dm.appointmentType()))
         .description(description(dm.description()))

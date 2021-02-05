@@ -26,8 +26,8 @@ public class R4AppointmentTransformerTest {
   @Test
   void parseCdwIdCode() {
     var tx = R4AppointmentTransformer.builder().dm(DatamartAppointment.builder().build()).build();
-    assertThat(tx.parseCdwIdResourceCode("123:A:WTF")).isNull();
-    assertThat(tx.parseCdwIdResourceCode("123:A")).isEqualTo("A");
+    assertThat(tx.cdwIdResourceCodeFrom("123:A:WTF")).isNull();
+    assertThat(tx.cdwIdResourceCodeFrom("123:A")).isEqualTo("A");
   }
 
   @Test
