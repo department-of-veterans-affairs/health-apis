@@ -20,7 +20,10 @@ public class VulcanizedReader<
   VulcanizedTransformation<EntityT, DatamartT, ResourceT> transformation;
   /** The repository for the resource. */
   CrudRepository<EntityT, String> repository;
-
+  /**
+   * The compositeId repository for the resource. Use this instead of repository if the resource has
+   * composite ids.
+   */
   CrudRepository<EntityT, CompositeCdwId> compositeIdRepository;
   /**
    * This function will be applied to the resource. If an ID is returned (non-empty), the response

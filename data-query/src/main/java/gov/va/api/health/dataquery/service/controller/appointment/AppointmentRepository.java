@@ -19,8 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(isolation = Isolation.READ_UNCOMMITTED)
 public interface AppointmentRepository
     extends PagingAndSortingRepository<AppointmentEntity, CompositeCdwId>,
-        JpaSpecificationExecutor<AppointmentEntity>,
-        JpaRepository<AppointmentEntity, CompositeCdwId> {
+        JpaSpecificationExecutor<AppointmentEntity> {
   @Value
   @RequiredArgsConstructor(staticName = "of")
   class PatientSpecification implements Specification<AppointmentEntity> {
