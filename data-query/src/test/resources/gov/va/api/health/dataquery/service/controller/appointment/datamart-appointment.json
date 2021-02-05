@@ -1,10 +1,10 @@
 {
-  "cdwId" : "1600021515962",
-  "status" : "NT-CO",
-  "cancelationReason" : "OTHER",
+  "cdwId" : "1600021515962:A",
+  "status" : "",
+  "cancelationReason" : "SCHEDULING CONFLICT/ERROR",
   "serviceCategory" : "SURGERY",
   "serviceType" : "OTOLARYNGOLOGY/ENT",
-  "specialty" : "SURGERY",
+  "specialty" : "Surgery-Cardiac surgery",
   "appointmentType" : "WALKIN",
   "description" : "Walk-In Visit",
   "start" : "2020-11-25T08:00:00Z",
@@ -12,17 +12,17 @@
   "minutesDuration" : 20,
   "created" : "2020-11-24",
   "comment" : "LS 11/20/2020 PID 11/25/2020 5-DAY RTC PER DR STEELE F2F FOR 40-MIN OK TO SCHEDULE @0800 FOR 40-MIN PER DR STEELE TO SEE RESIDENT",
-  "basedOn" : "OTHER",
+  "basedOn" : "SCHEDULING CONFLICT/ERROR",
   "participant" : [
     {
       "type" : "Location",
-      "reference" : "800157972",
-      "display" : "SAC ENT RESIDENT 2"
+      "reference" : "43841:L",
+      "display" : "MENTAL HEALTH SERVICES"
     },
     {
       "type" : "Patient",
-      "reference" : "802095909",
-      "display" : "PATIENT,FHIRAPPTT JR"
+      "reference" : "1017283180V801730",
+      "display" : "Frankenpatient, Victor"
     }
   ]
 }
