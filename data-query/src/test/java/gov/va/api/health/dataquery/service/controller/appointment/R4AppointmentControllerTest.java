@@ -35,7 +35,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
-@Slf4j
 @Execution(ExecutionMode.CONCURRENT)
 @ExtendWith(MockitoExtension.class)
 public class R4AppointmentControllerTest {
@@ -66,11 +65,11 @@ public class R4AppointmentControllerTest {
 
   @Test
   void read() {
-    when(ids.register(any())).thenReturn(List.of(registration("1:A", "pc1")));
-    when(ids.lookup("pc1")).thenReturn(List.of(id("1:A")));
+    when(ids.register(any())).thenReturn(List.of(registration("1:A", "10:A")));
+    when(ids.lookup("10:A")).thenReturn(List.of(id("1:A")));
     AppointmentEntity entity = AppointmentSamples.Datamart.create().entity("1", "A", "p1");
     when(repository.findById(CompositeCdwId.fromCdwId("1:A"))).thenReturn(Optional.of(entity));
-    assertThat(controller().read("pc1"))
+    assertThat(controller().read("10:A"))
         .isEqualTo(AppointmentSamples.R4.create().appointment("1:A", "p1"));
   }
 
