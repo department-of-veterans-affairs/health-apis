@@ -25,8 +25,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @Execution(ExecutionMode.CONCURRENT)
 @ExtendWith(MockitoExtension.class)
 public class R4AppointmentControllerTest {
-  private static final String BASE_URL = "http://fonzy.com/r4";
-
   @Mock IdentityService ids;
 
   @Mock AppointmentRepository repository;

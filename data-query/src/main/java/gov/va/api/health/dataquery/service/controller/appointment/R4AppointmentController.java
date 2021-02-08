@@ -3,6 +3,7 @@ package gov.va.api.health.dataquery.service.controller.appointment;
 import static gov.va.api.lighthouse.vulcan.Vulcan.returnNothing;
 
 import gov.va.api.health.dataquery.service.config.LinkProperties;
+import gov.va.api.health.dataquery.service.controller.CompositeCdwIds;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.Bundling;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedBundler;
@@ -105,7 +106,7 @@ public class R4AppointmentController {
         .<AppointmentEntity, DatamartAppointment, Appointment, CompositeCdwId>forTransformation(
             transformation())
         .repository(repository)
-        .toPrimaryKey(CompositeCdwId::fromCdwId)
+        .toPrimaryKey(CompositeCdwIds::requireCompositeIdStringFormat)
         .toPatientId(e -> Optional.of(e.icn()))
         .toPayload(AppointmentEntity::payload)
         .build();

@@ -40,13 +40,7 @@ public class VulcanizedReader<
 
   private EntityT find(String publicId) {
     String cdwId = transformation.witnessProtection().toCdwId(publicId);
-    PkT pk;
-    try {
-      pk = toPrimaryKey.apply(cdwId);
-    } catch (IllegalArgumentException e) {
-      throw new ResourceExceptions.NotFound(publicId);
-    }
-    Optional<EntityT> entity = repository.findById(pk);
+    Optional<EntityT> entity = repository.findById(toPrimaryKey.apply(cdwId));
     entity.orElseThrow(() -> new ResourceExceptions.NotFound(publicId));
     return entity.get();
   }
