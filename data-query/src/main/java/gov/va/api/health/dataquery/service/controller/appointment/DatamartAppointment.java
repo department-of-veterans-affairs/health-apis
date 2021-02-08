@@ -23,8 +23,6 @@ public class DatamartAppointment implements HasReplaceableId {
 
   private String cdwId;
 
-  @JsonIgnore private String rawCdwId;
-
   private Optional<String> status;
 
   private Optional<String> cancelationReason;
@@ -113,15 +111,5 @@ public class DatamartAppointment implements HasReplaceableId {
   public Optional<String> status() {
     status = lazyGetter(status);
     return status;
-  }
-
-  /** Overwrite the builder to save the rawCdwId to the dm object. */
-  public static class DatamartAppointmentBuilder {
-    /** Overwrite the builder to save the rawCdwId to the dm object. */
-    public DatamartAppointmentBuilder cdwId(String cdwId) {
-      this.cdwId = cdwId;
-      this.rawCdwId = cdwId;
-      return this;
-    }
   }
 }
