@@ -10,6 +10,7 @@ import lombok.Value;
 @Builder(toBuilder = true)
 public final class TestIds {
   @NonNull String allergyIntolerance;
+  @NonNull String appointment;
   @NonNull String condition;
   @NonNull String device;
   @NonNull String diagnosticReport;
