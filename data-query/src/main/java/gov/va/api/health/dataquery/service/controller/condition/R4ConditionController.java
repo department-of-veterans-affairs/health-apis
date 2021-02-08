@@ -86,7 +86,7 @@ public class R4ConditionController {
   /** Read Condition by id. */
   @GetMapping(value = {"/{publicId}"})
   public Condition read(@PathVariable("publicId") String publicId) {
-    return vulcanizedReader().read(Function.identity(), publicId);
+    return vulcanizedReader().read(publicId);
   }
 
   /** Get raw DatamartCondition by id. */
@@ -94,7 +94,7 @@ public class R4ConditionController {
       value = {"/{publicId}"},
       headers = {"raw=true"})
   public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
-    return vulcanizedReader().readRaw(Function.identity(), publicId, response);
+    return vulcanizedReader().readRaw(publicId, response);
   }
 
   /** US-Core-R4 Condition Search Support. */
@@ -232,6 +232,7 @@ public class R4ConditionController {
         .<ConditionEntity, DatamartCondition, Condition, String>forTransformation(transformation())
         .repository(repository)
         .toPatientId(e -> Optional.of(e.icn()))
+            .toPrimaryKey(Function.identity())
         .toPayload(ConditionEntity::payload)
         .build();
   }

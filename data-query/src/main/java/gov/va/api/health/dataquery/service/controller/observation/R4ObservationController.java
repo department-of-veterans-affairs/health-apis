@@ -76,7 +76,7 @@ public class R4ObservationController {
   /** Read R4 Observation By Id. */
   @GetMapping(value = "/{publicId}")
   public Observation read(@PathVariable("publicId") String publicId) {
-    return vulcanizedReader().read(Function.identity(), publicId);
+    return vulcanizedReader().read(publicId);
   }
 
   /** Return the raw datamart document for the given Observation Id. */
@@ -84,7 +84,7 @@ public class R4ObservationController {
       value = "/{publicId}",
       headers = {"raw=true"})
   public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
-    return vulcanizedReader().readRaw(Function.identity(), publicId, response);
+    return vulcanizedReader().readRaw(publicId, response);
   }
 
   /** R4 Observation Search Support. */
@@ -182,6 +182,7 @@ public class R4ObservationController {
             transformation())
         .repository(repository)
         .toPatientId(e -> Optional.of(e.icn()))
+            .toPrimaryKey(Function.identity())
         .toPayload(ObservationEntity::payload)
         .build();
   }

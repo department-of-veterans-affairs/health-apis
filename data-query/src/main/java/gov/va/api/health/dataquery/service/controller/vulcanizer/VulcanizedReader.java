@@ -28,6 +28,11 @@ public class VulcanizedReader<
   /** This function is used to extract the raw payload from the entity. */
   Function<EntityT, String> toPayload;
 
+  /**
+   * This function is used to convert a decoded cdwId into the primary key type.
+   */
+  Function<String, PkT> toPrimaryKey;
+
   public static <EntityT, DatamartT extends HasReplaceableId, ResourceT extends Resource, PkT>
       VulcanizedReaderBuilder<EntityT, DatamartT, ResourceT, PkT> forTransformation(
           VulcanizedTransformation<EntityT, DatamartT, ResourceT> transformation) {
@@ -35,7 +40,7 @@ public class VulcanizedReader<
         .transformation(transformation);
   }
 
-  private EntityT find(Function<String, PkT> toPrimaryKey, String publicId) {
+  private EntityT find(String publicId) {
     String cdwId = transformation.witnessProtection().toCdwId(publicId);
     Optional<EntityT> entity = repository.findById(toPrimaryKey.apply(cdwId));
     entity.orElseThrow(() -> new ResourceExceptions.NotFound(publicId));
@@ -43,8 +48,8 @@ public class VulcanizedReader<
   }
 
   /** Perform a read for the given public ID and transform the results. */
-  public ResourceT read(Function<String, PkT> toPrimaryKey, String publicId) {
-    EntityT entity = find(toPrimaryKey, publicId);
+  public ResourceT read(String publicId) {
+    EntityT entity = find(publicId);
     DatamartT datamart = transformation.toDatamart().apply(entity);
     return transformation.toResource().apply(transformation.applyWitnessProtection(datamart));
   }
@@ -53,9 +58,8 @@ public class VulcanizedReader<
    * Perform a raw read for the given public ID. The response headers will be updated if a patient
    * ID is associated with results.
    */
-  public String readRaw(
-      Function<String, PkT> toPrimaryKey, String publicId, HttpServletResponse response) {
-    EntityT entity = find(toPrimaryKey, publicId);
+  public String readRaw(String publicId, HttpServletResponse response) {
+    EntityT entity = find(publicId);
     Optional<String> patientId = toPatientId.apply(entity);
     if (patientId.isPresent()) {
       IncludesIcnMajig.addHeader(response, patientId.get());

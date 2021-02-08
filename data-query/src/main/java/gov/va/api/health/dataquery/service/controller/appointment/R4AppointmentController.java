@@ -1,6 +1,5 @@
 package gov.va.api.health.dataquery.service.controller.appointment;
 
-import static gov.va.api.lighthouse.vulcan.Rules.parametersNeverSpecifiedTogether;
 import static gov.va.api.lighthouse.vulcan.Vulcan.returnNothing;
 
 import gov.va.api.health.dataquery.service.config.LinkProperties;
@@ -42,7 +41,6 @@ public class R4AppointmentController {
     return VulcanConfiguration.forEntity(AppointmentEntity.class)
         .paging(linkProperties.pagingConfiguration("Appointment", AppointmentEntity.naturalOrder()))
         .mappings(Mappings.forEntity(AppointmentEntity.class).value("patient", "icn").get())
-        .rule(parametersNeverSpecifiedTogether("_id", "identifier", "patient"))
         .defaultQuery(returnNothing())
         .build();
   }
@@ -50,7 +48,7 @@ public class R4AppointmentController {
   /** Read Appointment by id. */
   @GetMapping(value = {"/{publicId}"})
   public Appointment read(@PathVariable("publicId") String publicId) {
-    return vulcanizedReader().read(CompositeCdwId::fromCdwId, publicId);
+    return vulcanizedReader().read(publicId);
   }
 
   /** Read Raw DatamartAppointment by id. */
@@ -58,7 +56,7 @@ public class R4AppointmentController {
       value = {"/{publicId}"},
       headers = {"raw=true"})
   public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
-    return vulcanizedReader().readRaw(CompositeCdwId::fromCdwId, publicId, response);
+    return vulcanizedReader().readRaw(publicId, response);
   }
 
   /** US-Core-R4 Appointment Search Support. */
@@ -107,6 +105,7 @@ public class R4AppointmentController {
         .<AppointmentEntity, DatamartAppointment, Appointment, CompositeCdwId>forTransformation(
             transformation())
         .repository(repository)
+        .toPrimaryKey(CompositeCdwId::fromCdwId)
         .toPatientId(e -> Optional.of(e.icn()))
         .toPayload(AppointmentEntity::payload)
         .build();

@@ -76,14 +76,14 @@ public class VulcanizedR4DiagnosticReportController {
 
   @GetMapping(value = "/{publicId}")
   public DiagnosticReport read(@PathVariable("publicId") String publicId) {
-    return vulcanizedReader().read(Function.identity(), publicId);
+    return vulcanizedReader().read(publicId);
   }
 
   @GetMapping(
       value = {"/{publicId}"},
       headers = {"raw=true"})
   public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
-    return vulcanizedReader().readRaw(Function.identity(), publicId, response);
+    return vulcanizedReader().readRaw(publicId, response);
   }
 
   /** Search support. */
@@ -177,6 +177,7 @@ public class VulcanizedR4DiagnosticReportController {
             forTransformation(transformation())
         .repository(repository)
         .toPatientId(e -> Optional.of(e.icn()))
+            .toPrimaryKey(Function.identity())
         .toPayload(DiagnosticReportEntity::payload)
         .build();
   }

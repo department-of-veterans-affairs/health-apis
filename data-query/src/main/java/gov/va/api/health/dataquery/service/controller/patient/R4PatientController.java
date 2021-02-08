@@ -91,7 +91,7 @@ public class R4PatientController {
   /** Read by id. */
   @GetMapping(value = {"/{publicId}"})
   public Patient read(@PathVariable("publicId") String publicId) {
-    return vulcanizedReader().read(Function.identity(), publicId);
+    return vulcanizedReader().read(publicId);
   }
 
   /** Return the raw Datamart document for the given identifier. */
@@ -99,7 +99,7 @@ public class R4PatientController {
       value = "/{publicId}",
       headers = {"raw=true"})
   public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
-    return vulcanizedReader().readRaw(Function.identity(), publicId, response);
+    return vulcanizedReader().readRaw(publicId, response);
   }
 
   /** US-Core-R4 Patient Search Support. */
@@ -211,6 +211,7 @@ public class R4PatientController {
             transformation())
         .repository(repository)
         .toPatientId(e -> Optional.of(e.icn()))
+            .toPrimaryKey(Function.identity())
         .toPayload(PatientEntityV2::payload)
         .build();
   }

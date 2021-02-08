@@ -64,14 +64,14 @@ public class R4PractitionerRoleController {
 
   @GetMapping(value = {"/{publicId}"})
   public PractitionerRole read(@PathVariable("publicId") String publicId) {
-    return vulcanizedReader().read(Function.identity(), publicId);
+    return vulcanizedReader().read(publicId);
   }
 
   @GetMapping(
       value = {"/{publicId}"},
       headers = {"raw=true"})
   public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
-    return vulcanizedReader().readRaw(Function.identity(), publicId, response);
+    return vulcanizedReader().readRaw(publicId, response);
   }
 
   /** Search support. */
@@ -122,6 +122,7 @@ public class R4PractitionerRoleController {
             transformation())
         .repository(repository)
         .toPatientId(e -> Optional.empty())
+            .toPrimaryKey(Function.identity())
         .toPayload(PractitionerEntity::payload)
         .build();
   }
