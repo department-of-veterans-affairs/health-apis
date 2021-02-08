@@ -41,7 +41,12 @@ public class R4AppointmentController {
   private VulcanConfiguration<AppointmentEntity> configuration() {
     return VulcanConfiguration.forEntity(AppointmentEntity.class)
         .paging(linkProperties.pagingConfiguration("Appointment", AppointmentEntity.naturalOrder()))
-        .mappings(Mappings.forEntity(AppointmentEntity.class).value("patient", "icn").get())
+        .mappings(
+            Mappings.forEntity(AppointmentEntity.class)
+                .dateAsInstant("_lastUpdated", "lastUpdated")
+                .value("patient", "icn")
+                .value("location", "locationSid")
+                .get())
         .defaultQuery(returnNothing())
         .build();
   }
