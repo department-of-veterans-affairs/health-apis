@@ -232,7 +232,7 @@ public class R4ConditionController {
         .<ConditionEntity, DatamartCondition, Condition, String>forTransformation(transformation())
         .repository(repository)
         .toPatientId(e -> Optional.of(e.icn()))
-            .toPrimaryKey(Function.identity())
+        .toPrimaryKey(Function.identity())
         .toPayload(ConditionEntity::payload)
         .build();
   }

@@ -122,7 +122,7 @@ public class R4PractitionerRoleController {
             transformation())
         .repository(repository)
         .toPatientId(e -> Optional.empty())
-            .toPrimaryKey(Function.identity())
+        .toPrimaryKey(Function.identity())
         .toPayload(PractitionerEntity::payload)
         .build();
   }

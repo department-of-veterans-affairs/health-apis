@@ -28,9 +28,7 @@ public class VulcanizedReader<
   /** This function is used to extract the raw payload from the entity. */
   Function<EntityT, String> toPayload;
 
-  /**
-   * This function is used to convert a decoded cdwId into the primary key type.
-   */
+  /** This function is used to convert a decoded cdwId into the primary key type. */
   Function<String, PkT> toPrimaryKey;
 
   public static <EntityT, DatamartT extends HasReplaceableId, ResourceT extends Resource, PkT>
@@ -42,7 +40,13 @@ public class VulcanizedReader<
 
   private EntityT find(String publicId) {
     String cdwId = transformation.witnessProtection().toCdwId(publicId);
-    Optional<EntityT> entity = repository.findById(toPrimaryKey.apply(cdwId));
+    PkT pk;
+    try {
+      pk = toPrimaryKey.apply(cdwId);
+    } catch (IllegalArgumentException e) {
+      throw new ResourceExceptions.NotFound(publicId);
+    }
+    Optional<EntityT> entity = repository.findById(pk);
     entity.orElseThrow(() -> new ResourceExceptions.NotFound(publicId));
     return entity.get();
   }

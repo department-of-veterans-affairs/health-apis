@@ -177,7 +177,7 @@ public class VulcanizedR4DiagnosticReportController {
             forTransformation(transformation())
         .repository(repository)
         .toPatientId(e -> Optional.of(e.icn()))
-            .toPrimaryKey(Function.identity())
+        .toPrimaryKey(Function.identity())
         .toPayload(DiagnosticReportEntity::payload)
         .build();
   }

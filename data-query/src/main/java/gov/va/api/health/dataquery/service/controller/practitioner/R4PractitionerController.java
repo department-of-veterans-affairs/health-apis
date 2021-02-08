@@ -112,7 +112,7 @@ public class R4PractitionerController {
             transformation())
         .repository(repository)
         .toPatientId(e -> Optional.empty())
-            .toPrimaryKey(Function.identity())
+        .toPrimaryKey(Function.identity())
         .toPayload(PractitionerEntity::payload)
         .build();
   }

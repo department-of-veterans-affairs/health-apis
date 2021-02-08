@@ -211,7 +211,7 @@ public class R4PatientController {
             transformation())
         .repository(repository)
         .toPatientId(e -> Optional.of(e.icn()))
-            .toPrimaryKey(Function.identity())
+        .toPrimaryKey(Function.identity())
         .toPayload(PatientEntityV2::payload)
         .build();
   }

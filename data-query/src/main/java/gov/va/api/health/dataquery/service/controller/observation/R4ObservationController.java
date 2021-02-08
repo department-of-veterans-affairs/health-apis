@@ -182,7 +182,7 @@ public class R4ObservationController {
             transformation())
         .repository(repository)
         .toPatientId(e -> Optional.of(e.icn()))
-            .toPrimaryKey(Function.identity())
+        .toPrimaryKey(Function.identity())
         .toPayload(ObservationEntity::payload)
         .build();
   }
