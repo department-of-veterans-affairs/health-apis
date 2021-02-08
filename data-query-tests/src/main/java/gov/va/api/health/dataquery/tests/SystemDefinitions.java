@@ -63,6 +63,7 @@ public final class SystemDefinitions {
     /* IDS encoded with secret production key */
     return TestIds.builder()
         .allergyIntolerance("I2-5XYSWFRZ637QKNR6IIRKYHA5RY000000")
+        .appointment("I2-QYVFG3F52MD3OLBWXGNWQKKDSHYF5LBYF37PCUVMSAYJDA3APFPQ0000")
         .condition("I2-FOBJ7YQOH3RIQ5UZ6TRM32ZSQA000000")
         .device("I2-DPWVDPSF36SDG527A43QRGHKUXGYPOSK5NV4TNM3Q42CMVQNMLTA0000")
         .diagnosticReport("I2-3ACWF6E3HPG6GLOSVWR2CIQNPI000000")
@@ -139,6 +140,7 @@ public final class SystemDefinitions {
     /* IDS encoded with key: data-query */
     return TestIds.builder()
         .allergyIntolerance("I2-6PEP3VSTE3TIHUPLHXRZBG4QTY000000")
+        .appointment("I2-RMGLRGG52CQKO2KO52OYBL2RI65DWSLFBV42AFTA5IJE5FY5KG3Q0000")
         .condition("I2-NHQ2GKYCVNIOUULQCYTK2K6EQ4000000")
         .device("I2-AOYGP5JUXUWROIZELSHGKBFLTYWOKJHDYXYAVDHF2FTF3AM6DWNA0000")
         .diagnosticReport("I2-NVJU4EWW3YBUEM2EFYP6VYA4JM000000")
@@ -211,6 +213,7 @@ public final class SystemDefinitions {
     /* IDS encoded with secret production key */
     return TestIds.builder()
         .allergyIntolerance("I2-A6U4FCERBNSVAFYF6CMUOOHMBPJOJFVSJAWGW5TYE3EOC6TQ2OBQ0000")
+        .appointment("I2-SLRRT64GFGJAJGX62Q55NSQV44VEE4ZBB7U7YZQVVGKJGQ4653IQ0000")
         .condition("I2-H7TWOL6IPU27YRF3OKZIUJM5D27UCDVBMBWSONEYQ66OTFL4OVYQ0000")
         .device("I2-7BCIBSTZTRZXRVPHRX63LJIYZFF22ELRZXHNXTPW6C6PKG2NFBJA0000")
         .diagnosticReport("I2-M2QUOOXL3O73NUZCB7HEOVQ2GAGQFOATAYXW5FMU3I57IYQDE6RQ0000")
