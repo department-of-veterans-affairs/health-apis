@@ -96,7 +96,7 @@ public class R4AppointmentController {
         .toResource(
             dm ->
                 R4AppointmentTransformer.builder()
-                    .compositeCdwId(CompositeCdwId.fromCdwId(dm.cdwId()))
+                    .compositeCdwId(CompositeCdwId.fromCdwId(witnessProtection.toCdwId(dm.cdwId())))
                     .dm(dm)
                     .build()
                     .toFhir())
