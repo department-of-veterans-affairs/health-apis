@@ -25,6 +25,7 @@ final class R4AppointmentTransformer {
   private static final Set<String> SUPPORTED_PARTICIPANT_TYPES = Set.of("Location", "Patient");
 
   @NonNull private final DatamartAppointment dm;
+
   @NonNull private final CompositeCdwId compositeCdwId;
 
   CodeableConcept appointmentType(Optional<String> maybeAppointmentType) {
@@ -71,10 +72,18 @@ final class R4AppointmentTransformer {
     return maybeDescription.get();
   }
 
+  boolean isAppointment() {
+    return compositeCdwId.cdwIdResourceCode() == 'A';
+  }
+
   boolean isSupportedParticipant(DatamartReference r) {
     return !isBlank(r)
         && r.hasTypeAndReference()
         && SUPPORTED_PARTICIPANT_TYPES.contains(r.type().get());
+  }
+
+  boolean isWaitlist() {
+    return compositeCdwId.cdwIdResourceCode() == 'W';
   }
 
   Integer minutesDuration(Optional<Integer> maybeMinutesDuration) {
@@ -109,15 +118,12 @@ final class R4AppointmentTransformer {
     // If the appointment is from the WAITLIST TABLE(cdwId = 123456:W) status is tentative
     // If the appointment is from the APPOINTMENT TABLE(cdwId = 123456:A) status is accepted
     Appointment.ParticipationStatus participationStatus;
-    switch (compositeCdwId.cdwIdResourceCode()) {
-      case 'W':
-        participationStatus = Appointment.ParticipationStatus.tentative;
-        break;
-      case 'A':
-        participationStatus = Appointment.ParticipationStatus.accepted;
-        break;
-      default:
-        return null;
+    if (isWaitlist()) {
+      participationStatus = Appointment.ParticipationStatus.tentative;
+    } else if (isAppointment()) {
+      participationStatus = Appointment.ParticipationStatus.accepted;
+    } else {
+      return null;
     }
     return dmParticipants.stream()
         .map(p -> participant(p, participationStatus))
@@ -165,7 +171,7 @@ final class R4AppointmentTransformer {
     if (allBlank(end, status)) {
       return null;
     }
-    if (compositeCdwId.cdwIdResourceCode() == 'W') {
+    if (isWaitlist()) {
       return Appointment.AppointmentStatus.waitlist;
     }
     if (status.isEmpty()) {

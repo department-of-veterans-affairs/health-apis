@@ -14,6 +14,7 @@ import gov.va.api.lighthouse.vulcan.Vulcan;
 import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
 import gov.va.api.lighthouse.vulcan.mappings.Mappings;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -54,14 +55,14 @@ public class R4PractitionerController {
 
   @GetMapping(value = "/{publicId}")
   public Practitioner read(@PathVariable("publicId") String publicId) {
-    return vulcanizedReader().read(publicId);
+    return vulcanizedReader().read(Function.identity(), publicId);
   }
 
   @GetMapping(
       value = "/{publicId}",
       headers = {"raw=true"})
   public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
-    return vulcanizedReader().readRaw(publicId, response);
+    return vulcanizedReader().readRaw(Function.identity(), publicId, response);
   }
 
   /** Search support. */
@@ -104,8 +105,11 @@ public class R4PractitionerController {
         .build();
   }
 
-  VulcanizedReader<PractitionerEntity, DatamartPractitioner, Practitioner> vulcanizedReader() {
-    return VulcanizedReader.forTransformation(transformation())
+  VulcanizedReader<PractitionerEntity, DatamartPractitioner, Practitioner, String>
+      vulcanizedReader() {
+    return VulcanizedReader
+        .<PractitionerEntity, DatamartPractitioner, Practitioner, String>forTransformation(
+            transformation())
         .repository(repository)
         .toPatientId(e -> Optional.empty())
         .toPayload(PractitionerEntity::payload)

@@ -50,7 +50,7 @@ public class R4AppointmentController {
   /** Read Appointment by id. */
   @GetMapping(value = {"/{publicId}"})
   public Appointment read(@PathVariable("publicId") String publicId) {
-    return vulcanizedReader().read(publicId);
+    return vulcanizedReader().read(CompositeCdwId::fromCdwId, publicId);
   }
 
   /** Read Raw DatamartAppointment by id. */
@@ -58,7 +58,7 @@ public class R4AppointmentController {
       value = {"/{publicId}"},
       headers = {"raw=true"})
   public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
-    return vulcanizedReader().readRaw(publicId, response);
+    return vulcanizedReader().readRaw(CompositeCdwId::fromCdwId, publicId, response);
   }
 
   /** US-Core-R4 Appointment Search Support. */
@@ -92,7 +92,7 @@ public class R4AppointmentController {
         .toResource(
             dm ->
                 R4AppointmentTransformer.builder()
-                    .compositeCdwId(CompositeCdwId.fromCdwId(witnessProtection.toCdwId(dm.cdwId())))
+                    .compositeCdwId(CompositeCdwId.fromCdwId(dm.cdwId()))
                     .dm(dm)
                     .build()
                     .toFhir())
@@ -101,10 +101,12 @@ public class R4AppointmentController {
         .build();
   }
 
-  VulcanizedReader<AppointmentEntity, DatamartAppointment, Appointment> vulcanizedReader() {
-    return VulcanizedReader.<AppointmentEntity, DatamartAppointment, Appointment>forTransformation(
+  VulcanizedReader<AppointmentEntity, DatamartAppointment, Appointment, CompositeCdwId>
+      vulcanizedReader() {
+    return VulcanizedReader
+        .<AppointmentEntity, DatamartAppointment, Appointment, CompositeCdwId>forTransformation(
             transformation())
-        .compositeIdRepository(repository)
+        .repository(repository)
         .toPatientId(e -> Optional.of(e.icn()))
         .toPayload(AppointmentEntity::payload)
         .build();

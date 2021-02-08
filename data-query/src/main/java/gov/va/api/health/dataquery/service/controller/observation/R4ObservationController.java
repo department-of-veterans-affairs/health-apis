@@ -18,6 +18,7 @@ import gov.va.api.lighthouse.vulcan.mappings.TokenParameter;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -75,7 +76,7 @@ public class R4ObservationController {
   /** Read R4 Observation By Id. */
   @GetMapping(value = "/{publicId}")
   public Observation read(@PathVariable("publicId") String publicId) {
-    return vulcanizedReader().read(publicId);
+    return vulcanizedReader().read(Function.identity(), publicId);
   }
 
   /** Return the raw datamart document for the given Observation Id. */
@@ -83,7 +84,7 @@ public class R4ObservationController {
       value = "/{publicId}",
       headers = {"raw=true"})
   public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
-    return vulcanizedReader().readRaw(publicId, response);
+    return vulcanizedReader().readRaw(Function.identity(), publicId, response);
   }
 
   /** R4 Observation Search Support. */
@@ -175,8 +176,10 @@ public class R4ObservationController {
         .build();
   }
 
-  VulcanizedReader<ObservationEntity, DatamartObservation, Observation> vulcanizedReader() {
-    return VulcanizedReader.forTransformation(transformation())
+  VulcanizedReader<ObservationEntity, DatamartObservation, Observation, String> vulcanizedReader() {
+    return VulcanizedReader
+        .<ObservationEntity, DatamartObservation, Observation, String>forTransformation(
+            transformation())
         .repository(repository)
         .toPatientId(e -> Optional.of(e.icn()))
         .toPayload(ObservationEntity::payload)

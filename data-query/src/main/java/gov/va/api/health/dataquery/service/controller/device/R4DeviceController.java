@@ -18,6 +18,7 @@ import gov.va.api.lighthouse.vulcan.mappings.TokenParameter;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -67,12 +68,12 @@ public class R4DeviceController {
 
   @GetMapping(value = "/{publicId}")
   public Device read(@PathVariable("publicId") String publicId) {
-    return vulcanizedReader().read(publicId);
+    return vulcanizedReader().read(Function.identity(), publicId);
   }
 
   @GetMapping(value = "/{publicId}", headers = "raw=true")
   public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
-    return vulcanizedReader().readRaw(publicId, response);
+    return vulcanizedReader().readRaw(Function.identity(), publicId, response);
   }
 
   /** US-Core-R4 Implantable Device Search Support. */
@@ -121,8 +122,9 @@ public class R4DeviceController {
         .build();
   }
 
-  VulcanizedReader<DeviceEntity, DatamartDevice, Device> vulcanizedReader() {
-    return VulcanizedReader.forTransformation(transformation())
+  VulcanizedReader<DeviceEntity, DatamartDevice, Device, String> vulcanizedReader() {
+    return VulcanizedReader.<DeviceEntity, DatamartDevice, Device, String>forTransformation(
+            transformation())
         .repository(repository)
         .toPatientId(e -> Optional.of(e.icn()))
         .toPayload(DeviceEntity::payload)

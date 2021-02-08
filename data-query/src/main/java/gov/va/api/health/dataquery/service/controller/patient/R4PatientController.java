@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -90,7 +91,7 @@ public class R4PatientController {
   /** Read by id. */
   @GetMapping(value = {"/{publicId}"})
   public Patient read(@PathVariable("publicId") String publicId) {
-    return vulcanizedReader().read(publicId);
+    return vulcanizedReader().read(Function.identity(), publicId);
   }
 
   /** Return the raw Datamart document for the given identifier. */
@@ -98,7 +99,7 @@ public class R4PatientController {
       value = "/{publicId}",
       headers = {"raw=true"})
   public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
-    return vulcanizedReader().readRaw(publicId, response);
+    return vulcanizedReader().readRaw(Function.identity(), publicId, response);
   }
 
   /** US-Core-R4 Patient Search Support. */
@@ -205,8 +206,9 @@ public class R4PatientController {
         .build();
   }
 
-  VulcanizedReader<PatientEntityV2, DatamartPatient, Patient> vulcanizedReader() {
-    return VulcanizedReader.forTransformation(transformation())
+  VulcanizedReader<PatientEntityV2, DatamartPatient, Patient, String> vulcanizedReader() {
+    return VulcanizedReader.<PatientEntityV2, DatamartPatient, Patient, String>forTransformation(
+            transformation())
         .repository(repository)
         .toPatientId(e -> Optional.of(e.icn()))
         .toPayload(PatientEntityV2::payload)

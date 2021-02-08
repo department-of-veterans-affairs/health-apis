@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
@@ -85,7 +86,7 @@ public class R4ConditionController {
   /** Read Condition by id. */
   @GetMapping(value = {"/{publicId}"})
   public Condition read(@PathVariable("publicId") String publicId) {
-    return vulcanizedReader().read(publicId);
+    return vulcanizedReader().read(Function.identity(), publicId);
   }
 
   /** Get raw DatamartCondition by id. */
@@ -93,7 +94,7 @@ public class R4ConditionController {
       value = {"/{publicId}"},
       headers = {"raw=true"})
   public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
-    return vulcanizedReader().readRaw(publicId, response);
+    return vulcanizedReader().readRaw(Function.identity(), publicId, response);
   }
 
   /** US-Core-R4 Condition Search Support. */
@@ -226,9 +227,9 @@ public class R4ConditionController {
         .build();
   }
 
-  VulcanizedReader<ConditionEntity, DatamartCondition, Condition> vulcanizedReader() {
-    return VulcanizedReader.<ConditionEntity, DatamartCondition, Condition>forTransformation(
-            transformation())
+  VulcanizedReader<ConditionEntity, DatamartCondition, Condition, String> vulcanizedReader() {
+    return VulcanizedReader
+        .<ConditionEntity, DatamartCondition, Condition, String>forTransformation(transformation())
         .repository(repository)
         .toPatientId(e -> Optional.of(e.icn()))
         .toPayload(ConditionEntity::payload)

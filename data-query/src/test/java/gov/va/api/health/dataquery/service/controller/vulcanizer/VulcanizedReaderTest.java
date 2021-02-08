@@ -36,7 +36,7 @@ class VulcanizedReaderTest {
   void readRawReturnsPayloadAndNoneHeaderForNoPatientId() {
     when(ids.lookup("pf1")).thenReturn(List.of(Ids.id("WHATEVER", "f1")));
     when(repo.findById("f1")).thenReturn(Optional.of(new FooEntity("f1", "p1")));
-    var payload = reader(e -> Optional.empty()).readRaw("pf1", response);
+    var payload = reader(e -> Optional.empty()).readRaw(Function.identity(), "pf1", response);
     assertThat(payload).isEqualTo("payload:f1:p1");
     verify(response).addHeader(IncludesIcnMajig.INCLUDES_ICN_HEADER, "NONE");
   }
@@ -45,7 +45,7 @@ class VulcanizedReaderTest {
   void readRawReturnsPayloadAndPatientIdHeader() {
     when(ids.lookup("pf1")).thenReturn(List.of(Ids.id("WHATEVER", "f1")));
     when(repo.findById("f1")).thenReturn(Optional.of(new FooEntity("f1", "p1")));
-    var payload = reader().readRaw("pf1", response);
+    var payload = reader().readRaw(Function.identity(), "pf1", response);
     assertThat(payload).isEqualTo("payload:f1:p1");
     verify(response).addHeader(IncludesIcnMajig.INCLUDES_ICN_HEADER, "p1");
   }
@@ -54,7 +54,8 @@ class VulcanizedReaderTest {
   void readRawThrowsNotFound() {
     when(ids.lookup("pf1")).thenReturn(List.of(Ids.id("WHATEVER", "f1")));
     when(repo.findById("f1")).thenReturn(Optional.empty());
-    assertThatExceptionOfType(NotFound.class).isThrownBy(() -> reader().readRaw("pf1", response));
+    assertThatExceptionOfType(NotFound.class)
+        .isThrownBy(() -> reader().readRaw(Function.identity(), "pf1", response));
   }
 
   @Test
@@ -63,7 +64,7 @@ class VulcanizedReaderTest {
         .thenReturn(List.of(Ids.registration("WHATEVER", "p1", "protected-p1")));
     when(ids.lookup("pf1")).thenReturn(List.of(Ids.id("WHATEVER", "f1")));
     when(repo.findById("f1")).thenReturn(Optional.of(new FooEntity("f1", "p1")));
-    FooResource resource = reader().read("pf1");
+    FooResource resource = reader().read(Function.identity(), "pf1");
     assertThat(resource).isEqualTo(FooResource.builder().id("f1").ref("protected-p1").build());
   }
 
@@ -71,16 +72,17 @@ class VulcanizedReaderTest {
   void readThrowsNotFound() {
     when(ids.lookup("pf1")).thenReturn(List.of(Ids.id("WHATEVER", "f1")));
     when(repo.findById("f1")).thenReturn(Optional.empty());
-    assertThatExceptionOfType(NotFound.class).isThrownBy(() -> reader().read("pf1"));
+    assertThatExceptionOfType(NotFound.class)
+        .isThrownBy(() -> reader().read(Function.identity(), "pf1"));
   }
 
-  VulcanizedReader<FooEntity, FooDatamart, FooResource> reader() {
+  VulcanizedReader<FooEntity, FooDatamart, FooResource, String> reader() {
     return reader(e -> Optional.of(e.ref()));
   }
 
-  private VulcanizedReader<FooEntity, FooDatamart, FooResource> reader(
+  private VulcanizedReader<FooEntity, FooDatamart, FooResource, String> reader(
       Function<FooEntity, Optional<String>> toPatientId) {
-    return VulcanizedReader.forTransformation(
+    return VulcanizedReader.<FooEntity, FooDatamart, FooResource, String>forTransformation(
             VulcanizedTransformation.toDatamart(FooEntity::toDatamart)
                 .toResource(FooDatamart::toResource)
                 .witnessProtection(WitnessProtection.builder().identityService(ids).build())

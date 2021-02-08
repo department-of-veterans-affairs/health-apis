@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -75,14 +76,14 @@ public class VulcanizedR4DiagnosticReportController {
 
   @GetMapping(value = "/{publicId}")
   public DiagnosticReport read(@PathVariable("publicId") String publicId) {
-    return vulcanizedReader().read(publicId);
+    return vulcanizedReader().read(Function.identity(), publicId);
   }
 
   @GetMapping(
       value = {"/{publicId}"},
       headers = {"raw=true"})
   public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
-    return vulcanizedReader().readRaw(publicId, response);
+    return vulcanizedReader().readRaw(Function.identity(), publicId, response);
   }
 
   /** Search support. */
@@ -169,9 +170,11 @@ public class VulcanizedR4DiagnosticReportController {
         .build();
   }
 
-  VulcanizedReader<DiagnosticReportEntity, DatamartDiagnosticReport, DiagnosticReport>
+  VulcanizedReader<DiagnosticReportEntity, DatamartDiagnosticReport, DiagnosticReport, String>
       vulcanizedReader() {
-    return VulcanizedReader.forTransformation(transformation())
+    return VulcanizedReader
+        .<DiagnosticReportEntity, DatamartDiagnosticReport, DiagnosticReport, String>
+            forTransformation(transformation())
         .repository(repository)
         .toPatientId(e -> Optional.of(e.icn()))
         .toPayload(DiagnosticReportEntity::payload)
