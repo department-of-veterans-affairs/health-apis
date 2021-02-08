@@ -13,12 +13,12 @@ import org.springframework.data.repository.CrudRepository;
 /** Provides standard read and read raw capability for resources. */
 @Builder
 public class VulcanizedReader<
-    EntityT, DatamartT extends HasReplaceableId, ResourceT extends Resource> {
+    EntityT, DatamartT extends HasReplaceableId, ResourceT extends Resource, PkT> {
 
   /** The transformation process that will be applied to the results. */
   VulcanizedTransformation<EntityT, DatamartT, ResourceT> transformation;
   /** The repository for the resource. */
-  CrudRepository<EntityT, String> repository;
+  CrudRepository<EntityT, PkT> repository;
   /**
    * This function will be applied to the resource. If an ID is returned (non-empty), the response
    * header will be updated to indicate which patient the records applies to.
@@ -28,15 +28,19 @@ public class VulcanizedReader<
   /** This function is used to extract the raw payload from the entity. */
   Function<EntityT, String> toPayload;
 
-  public static <EntityT, DatamartT extends HasReplaceableId, ResourceT extends Resource>
-      VulcanizedReaderBuilder<EntityT, DatamartT, ResourceT> forTransformation(
+  /** This function is used to convert a decoded cdwId into the primary key type. */
+  Function<String, PkT> toPrimaryKey;
+
+  public static <EntityT, DatamartT extends HasReplaceableId, ResourceT extends Resource, PkT>
+      VulcanizedReaderBuilder<EntityT, DatamartT, ResourceT, PkT> forTransformation(
           VulcanizedTransformation<EntityT, DatamartT, ResourceT> transformation) {
-    return VulcanizedReader.<EntityT, DatamartT, ResourceT>builder().transformation(transformation);
+    return VulcanizedReader.<EntityT, DatamartT, ResourceT, PkT>builder()
+        .transformation(transformation);
   }
 
   private EntityT find(String publicId) {
     String cdwId = transformation.witnessProtection().toCdwId(publicId);
-    Optional<EntityT> entity = repository.findById(cdwId);
+    Optional<EntityT> entity = repository.findById(toPrimaryKey.apply(cdwId));
     entity.orElseThrow(() -> new ResourceExceptions.NotFound(publicId));
     return entity.get();
   }

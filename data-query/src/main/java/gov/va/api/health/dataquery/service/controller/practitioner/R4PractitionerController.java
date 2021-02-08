@@ -14,6 +14,7 @@ import gov.va.api.lighthouse.vulcan.Vulcan;
 import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
 import gov.va.api.lighthouse.vulcan.mappings.Mappings;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -104,10 +105,14 @@ public class R4PractitionerController {
         .build();
   }
 
-  VulcanizedReader<PractitionerEntity, DatamartPractitioner, Practitioner> vulcanizedReader() {
-    return VulcanizedReader.forTransformation(transformation())
+  VulcanizedReader<PractitionerEntity, DatamartPractitioner, Practitioner, String>
+      vulcanizedReader() {
+    return VulcanizedReader
+        .<PractitionerEntity, DatamartPractitioner, Practitioner, String>forTransformation(
+            transformation())
         .repository(repository)
         .toPatientId(e -> Optional.empty())
+        .toPrimaryKey(Function.identity())
         .toPayload(PractitionerEntity::payload)
         .build();
   }

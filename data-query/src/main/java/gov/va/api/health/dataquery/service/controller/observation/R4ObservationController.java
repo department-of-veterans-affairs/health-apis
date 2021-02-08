@@ -18,6 +18,7 @@ import gov.va.api.lighthouse.vulcan.mappings.TokenParameter;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -175,10 +176,13 @@ public class R4ObservationController {
         .build();
   }
 
-  VulcanizedReader<ObservationEntity, DatamartObservation, Observation> vulcanizedReader() {
-    return VulcanizedReader.forTransformation(transformation())
+  VulcanizedReader<ObservationEntity, DatamartObservation, Observation, String> vulcanizedReader() {
+    return VulcanizedReader
+        .<ObservationEntity, DatamartObservation, Observation, String>forTransformation(
+            transformation())
         .repository(repository)
         .toPatientId(e -> Optional.of(e.icn()))
+        .toPrimaryKey(Function.identity())
         .toPayload(ObservationEntity::payload)
         .build();
   }

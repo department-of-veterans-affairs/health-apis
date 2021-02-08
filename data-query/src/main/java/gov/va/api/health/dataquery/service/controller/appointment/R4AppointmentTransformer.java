@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.appointment;
 
+import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
 import static gov.va.api.health.dataquery.service.controller.Transformers.asDateTimeString;
 import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
 
@@ -7,9 +8,11 @@ import gov.va.api.health.dataquery.service.controller.R4Transformers;
 import gov.va.api.health.r4.api.datatypes.CodeableConcept;
 import gov.va.api.health.r4.api.datatypes.Coding;
 import gov.va.api.health.r4.api.resources.Appointment;
+import gov.va.api.lighthouse.datamart.CompositeCdwId;
 import gov.va.api.lighthouse.datamart.DatamartReference;
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -22,6 +25,8 @@ final class R4AppointmentTransformer {
   private static final Set<String> SUPPORTED_PARTICIPANT_TYPES = Set.of("Location", "Patient");
 
   @NonNull private final DatamartAppointment dm;
+
+  @NonNull private final CompositeCdwId compositeCdwId;
 
   CodeableConcept appointmentType(Optional<String> maybeAppointmentType) {
     if (isBlank(maybeAppointmentType)) {
@@ -53,14 +58,6 @@ final class R4AppointmentTransformer {
         .build();
   }
 
-  String cdwIdResourceCodeFrom(String cdwId) {
-    var cdwIdParts = cdwId.split(":", -1);
-    if (cdwIdParts.length != 2) {
-      return null;
-    }
-    return cdwIdParts[1];
-  }
-
   String comment(Optional<String> maybeComment) {
     if (isBlank(maybeComment)) {
       return null;
@@ -75,10 +72,18 @@ final class R4AppointmentTransformer {
     return maybeDescription.get();
   }
 
+  boolean isAppointment() {
+    return compositeCdwId.cdwIdResourceCode() == 'A';
+  }
+
   boolean isSupportedParticipant(DatamartReference r) {
     return !isBlank(r)
         && r.hasTypeAndReference()
         && SUPPORTED_PARTICIPANT_TYPES.contains(r.type().get());
+  }
+
+  boolean isWaitlist() {
+    return compositeCdwId.cdwIdResourceCode() == 'W';
   }
 
   Integer minutesDuration(Optional<Integer> maybeMinutesDuration) {
@@ -103,29 +108,26 @@ final class R4AppointmentTransformer {
         .build();
   }
 
-  List<Appointment.Participant> participants(List<DatamartReference> dmParticipants, String cdwId) {
-    if (isBlank(cdwId)) {
+  List<Appointment.Participant> participants(List<DatamartReference> dmParticipants) {
+    if (isBlank(compositeCdwId.cdwIdResourceCode())) {
+      return null;
+    }
+    if (isBlank(dmParticipants)) {
       return null;
     }
     // If the appointment is from the WAITLIST TABLE(cdwId = 123456:W) status is tentative
     // If the appointment is from the APPOINTMENT TABLE(cdwId = 123456:A) status is accepted
-    String cdwIdResourceCode = cdwIdResourceCodeFrom(cdwId);
-    if (cdwIdResourceCode == null) {
-      return null;
-    }
     Appointment.ParticipationStatus participationStatus;
-    switch (cdwIdResourceCode) {
-      case "W":
-        participationStatus = Appointment.ParticipationStatus.tentative;
-        break;
-      case "A":
-        participationStatus = Appointment.ParticipationStatus.accepted;
-        break;
-      default:
-        return null;
+    if (isWaitlist()) {
+      participationStatus = Appointment.ParticipationStatus.tentative;
+    } else if (isAppointment()) {
+      participationStatus = Appointment.ParticipationStatus.accepted;
+    } else {
+      return null;
     }
     return dmParticipants.stream()
         .map(p -> participant(p, participationStatus))
+        .filter(Objects::nonNull)
         .collect(Collectors.toList());
   }
 
@@ -162,15 +164,14 @@ final class R4AppointmentTransformer {
    * </ul>
    */
   Appointment.AppointmentStatus status(
-      String cdwId, Optional<Instant> start, Optional<Instant> end, Optional<String> status) {
-    if (isBlank(cdwId)) {
+      Optional<Instant> start, Optional<Instant> end, Optional<String> status) {
+    if (isBlank(compositeCdwId.cdwIdResourceCode())) {
       return null;
     }
-    String cdwIdResourceCode = cdwIdResourceCodeFrom(cdwId);
-    if (cdwIdResourceCode == null) {
+    if (allBlank(end, status)) {
       return null;
     }
-    if (cdwIdResourceCode.equals("W")) {
+    if (isWaitlist()) {
       return Appointment.AppointmentStatus.waitlist;
     }
     if (status.isEmpty()) {
@@ -211,7 +212,7 @@ final class R4AppointmentTransformer {
     return Appointment.builder()
         .resourceType("Appointment")
         .id(dm.cdwId())
-        .status(status(dm.cdwId(), dm.start(), dm.end(), dm.status()))
+        .status(status(dm.start(), dm.end(), dm.status()))
         .cancelationReason(cancelationReason(dm.cancelationReason()))
         .specialty(specialty(dm.specialty()))
         .appointmentType(appointmentType(dm.appointmentType()))
@@ -221,7 +222,7 @@ final class R4AppointmentTransformer {
         .minutesDuration(minutesDuration(dm.minutesDuration()))
         .created(dm.created())
         .comment(comment(dm.comment()))
-        .participant(participants(dm.participant(), dm.cdwId()))
+        .participant(participants(dm.participant()))
         .build();
   }
 }

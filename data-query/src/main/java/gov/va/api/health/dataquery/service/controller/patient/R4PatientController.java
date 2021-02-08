@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -205,10 +206,12 @@ public class R4PatientController {
         .build();
   }
 
-  VulcanizedReader<PatientEntityV2, DatamartPatient, Patient> vulcanizedReader() {
-    return VulcanizedReader.forTransformation(transformation())
+  VulcanizedReader<PatientEntityV2, DatamartPatient, Patient, String> vulcanizedReader() {
+    return VulcanizedReader.<PatientEntityV2, DatamartPatient, Patient, String>forTransformation(
+            transformation())
         .repository(repository)
         .toPatientId(e -> Optional.of(e.icn()))
+        .toPrimaryKey(Function.identity())
         .toPayload(PatientEntityV2::payload)
         .build();
   }

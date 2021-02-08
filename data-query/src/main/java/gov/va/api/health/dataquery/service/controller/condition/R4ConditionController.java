@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
@@ -226,11 +227,12 @@ public class R4ConditionController {
         .build();
   }
 
-  VulcanizedReader<ConditionEntity, DatamartCondition, Condition> vulcanizedReader() {
-    return VulcanizedReader.<ConditionEntity, DatamartCondition, Condition>forTransformation(
-            transformation())
+  VulcanizedReader<ConditionEntity, DatamartCondition, Condition, String> vulcanizedReader() {
+    return VulcanizedReader
+        .<ConditionEntity, DatamartCondition, Condition, String>forTransformation(transformation())
         .repository(repository)
         .toPatientId(e -> Optional.of(e.icn()))
+        .toPrimaryKey(Function.identity())
         .toPayload(ConditionEntity::payload)
         .build();
   }

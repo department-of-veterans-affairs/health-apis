@@ -74,13 +74,13 @@ class VulcanizedReaderTest {
     assertThatExceptionOfType(NotFound.class).isThrownBy(() -> reader().read("pf1"));
   }
 
-  VulcanizedReader<FooEntity, FooDatamart, FooResource> reader() {
+  VulcanizedReader<FooEntity, FooDatamart, FooResource, String> reader() {
     return reader(e -> Optional.of(e.ref()));
   }
 
-  private VulcanizedReader<FooEntity, FooDatamart, FooResource> reader(
+  private VulcanizedReader<FooEntity, FooDatamart, FooResource, String> reader(
       Function<FooEntity, Optional<String>> toPatientId) {
-    return VulcanizedReader.forTransformation(
+    return VulcanizedReader.<FooEntity, FooDatamart, FooResource, String>forTransformation(
             VulcanizedTransformation.toDatamart(FooEntity::toDatamart)
                 .toResource(FooDatamart::toResource)
                 .witnessProtection(WitnessProtection.builder().identityService(ids).build())
@@ -88,6 +88,7 @@ class VulcanizedReaderTest {
                 .build())
         .toPayload(FooEntity::payload)
         .toPatientId(toPatientId)
+        .toPrimaryKey(Function.identity())
         .repository(repo)
         .build();
   }
