@@ -1,6 +1,5 @@
 package gov.va.api.health.dataquery.service.controller.appointment;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import gov.va.api.lighthouse.datamart.DatamartReference;
 import gov.va.api.lighthouse.datamart.HasReplaceableId;
 import java.time.Instant;
