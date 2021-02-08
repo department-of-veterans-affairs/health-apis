@@ -75,7 +75,7 @@ public class R4AppointmentControllerTest {
 
   @Test
   void readRaw() {
-    when(ids.lookup("pc1")).thenReturn(List.of(id("1:A")));
+    when(ids.lookup("10:A")).thenReturn(List.of(id("1:A")));
     AppointmentEntity entity =
         AppointmentEntity.builder()
             .cdwIdNumber(new BigInteger("1"))
@@ -84,7 +84,7 @@ public class R4AppointmentControllerTest {
             .payload("payload")
             .build();
     when(repository.findById(CompositeCdwId.fromCdwId("1:A"))).thenReturn(Optional.of(entity));
-    assertThat(controller().readRaw("pc1", mock(HttpServletResponse.class))).isEqualTo("payload");
+    assertThat(controller().readRaw("10:A", mock(HttpServletResponse.class))).isEqualTo("payload");
   }
 
   @Test
