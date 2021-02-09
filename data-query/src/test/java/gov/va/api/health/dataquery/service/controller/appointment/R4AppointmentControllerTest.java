@@ -22,7 +22,6 @@ import java.util.Optional;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
@@ -65,17 +64,17 @@ public class R4AppointmentControllerTest {
 
   @Test
   void read() {
-    when(ids.register(any())).thenReturn(List.of(registration("1:A", "10:A")));
-    when(ids.lookup("10:A")).thenReturn(List.of(id("1:A")));
+    when(ids.register(any())).thenReturn(List.of(registration("1:A", "pa1")));
+    when(ids.lookup("pa1")).thenReturn(List.of(id("1:A")));
     AppointmentEntity entity = AppointmentSamples.Datamart.create().entity("1", "A", "p1");
     when(repository.findById(CompositeCdwId.fromCdwId("1:A"))).thenReturn(Optional.of(entity));
-    assertThat(controller().read("10:A"))
-        .isEqualTo(AppointmentSamples.R4.create().appointment("1:A", "p1"));
+    assertThat(controller().read("pa1"))
+        .isEqualTo(AppointmentSamples.R4.create().appointment("pa1", "p1"));
   }
 
   @Test
   void readRaw() {
-    when(ids.lookup("10:A")).thenReturn(List.of(id("1:A")));
+    when(ids.lookup("pa1")).thenReturn(List.of(id("1:A")));
     AppointmentEntity entity =
         AppointmentEntity.builder()
             .cdwIdNumber(new BigInteger("1"))
@@ -84,7 +83,7 @@ public class R4AppointmentControllerTest {
             .payload("payload")
             .build();
     when(repository.findById(CompositeCdwId.fromCdwId("1:A"))).thenReturn(Optional.of(entity));
-    assertThat(controller().readRaw("10:A", mock(HttpServletResponse.class))).isEqualTo("payload");
+    assertThat(controller().readRaw("pa1", mock(HttpServletResponse.class))).isEqualTo("payload");
   }
 
   @Test
@@ -143,7 +142,7 @@ public class R4AppointmentControllerTest {
       })
   @SneakyThrows
   void validRequests(String query) {
-    when(ids.register(any())).thenReturn(List.of(AppointmentSamples.registration("1:A", "10:A")));
+    when(ids.register(any())).thenReturn(List.of(registration("1:A", "10:A")));
     AppointmentSamples.Datamart dm = AppointmentSamples.Datamart.create();
     when(repository.findAll(any(Specification.class), any(Pageable.class)))
         .thenAnswer(
