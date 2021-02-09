@@ -8,12 +8,10 @@ import gov.va.api.health.r4.api.resources.Appointment;
 import gov.va.api.health.r4.api.resources.OperationOutcome;
 import gov.va.api.health.sentinel.Environment;
 import lombok.experimental.Delegate;
-import org.junit.jupiter.api.Test;
 
 public class AppointmentIT {
   @Delegate ResourceVerifier verifier = ResourceVerifier.r4();
-
-  @Test
+  
   public void advanced() {
     assumeEnvironmentIn(Environment.LOCAL);
     verifier.verifyAll(
@@ -31,7 +29,6 @@ public class AppointmentIT {
             verifier.ids().appointment()));
   }
 
-  @Test
   public void basic() {
 
     verifier.verifyAll(
@@ -44,7 +41,6 @@ public class AppointmentIT {
             verifier.ids().patient()));
   }
 
-  @Test
   public void searchNotMe() {
 
     assumeEnvironmentNotIn(Environment.LOCAL);
