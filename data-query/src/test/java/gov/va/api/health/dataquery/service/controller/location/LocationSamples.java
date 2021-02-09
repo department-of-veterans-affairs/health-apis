@@ -24,8 +24,8 @@ public class LocationSamples {
   public static final String LOCATION_ADDRESS_POSTAL_CODE = "76504";
 
   @AllArgsConstructor(staticName = "create")
-  static final class Datamart {
-    DatamartLocation location() {
+  public static final class Datamart {
+    public DatamartLocation location() {
       return location("123", "456");
     }
 
@@ -144,101 +144,6 @@ public class LocationSamples {
   }
 
   @AllArgsConstructor(staticName = "create")
-  static final class Stu3 {
-    static gov.va.api.health.stu3.api.resources.Location.Bundle asBundle(
-        String baseUrl,
-        Collection<gov.va.api.health.stu3.api.resources.Location> locations,
-        gov.va.api.health.stu3.api.bundle.BundleLink... links) {
-      return gov.va.api.health.stu3.api.resources.Location.Bundle.builder()
-          .resourceType("Bundle")
-          .type(gov.va.api.health.stu3.api.bundle.AbstractBundle.BundleType.searchset)
-          .total(locations.size())
-          .link(Arrays.asList(links))
-          .entry(
-              locations.stream()
-                  .map(
-                      c ->
-                          gov.va.api.health.stu3.api.resources.Location.Entry.builder()
-                              .fullUrl(baseUrl + "/Location/" + c.id())
-                              .resource(c)
-                              .search(
-                                  gov.va.api.health.stu3.api.bundle.AbstractEntry.Search.builder()
-                                      .mode(
-                                          gov.va.api.health.stu3.api.bundle.AbstractEntry.SearchMode
-                                              .match)
-                                      .build())
-                              .build())
-                  .collect(Collectors.toList()))
-          .build();
-    }
-
-    static gov.va.api.health.stu3.api.bundle.BundleLink link(
-        gov.va.api.health.stu3.api.bundle.BundleLink.LinkRelation rel,
-        String base,
-        int page,
-        int count) {
-      return gov.va.api.health.stu3.api.bundle.BundleLink.builder()
-          .relation(rel)
-          .url(base + "&page=" + page + "&_count=" + count)
-          .build();
-    }
-
-    gov.va.api.health.stu3.api.resources.Location location(String id, String organizationId) {
-      return gov.va.api.health.stu3.api.resources.Location.builder()
-          .resourceType("Location")
-          .id(id)
-          .address(
-              gov.va.api.health.stu3.api.resources.Location.LocationAddress.builder()
-                  .line(asList(LOCATION_ADDRESS_STREET))
-                  .city(LOCATION_ADDRESS_CITY)
-                  .state(LOCATION_ADDRESS_STATE)
-                  .postalCode(LOCATION_ADDRESS_POSTAL_CODE)
-                  .text(
-                      Stream.of(
-                              LOCATION_ADDRESS_STREET,
-                              LOCATION_ADDRESS_CITY,
-                              LOCATION_ADDRESS_STATE,
-                              LOCATION_ADDRESS_POSTAL_CODE)
-                          .collect(Collectors.joining(" ")))
-                  .build())
-          .description("BLDG 146, RM W02")
-          .managingOrganization(
-              gov.va.api.health.stu3.api.elements.Reference.builder()
-                  .reference("Organization/" + organizationId)
-                  .display("OLIN E. TEAGUE VET CENTER")
-                  .build())
-          .mode(gov.va.api.health.stu3.api.resources.Location.Mode.instance)
-          .name(LOCATION_NAME)
-          .physicalType(
-              gov.va.api.health.stu3.api.datatypes.CodeableConcept.builder()
-                  .coding(
-                      asList(
-                          gov.va.api.health.stu3.api.datatypes.Coding.builder()
-                              .display("BLDG 146, RM W02")
-                              .build()))
-                  .build())
-          .status(gov.va.api.health.stu3.api.resources.Location.Status.active)
-          .telecom(
-              asList(
-                  gov.va.api.health.stu3.api.datatypes.ContactPoint.builder()
-                      .system(
-                          gov.va.api.health.stu3.api.datatypes.ContactPoint.ContactPointSystem
-                              .phone)
-                      .value("254-743-2867")
-                      .build()))
-          .type(
-              gov.va.api.health.stu3.api.datatypes.CodeableConcept.builder()
-                  .coding(
-                      asList(
-                          gov.va.api.health.stu3.api.datatypes.Coding.builder()
-                              .display("PSYCHIATRY CLINIC")
-                              .build()))
-                  .build())
-          .build();
-    }
-  }
-
-  @AllArgsConstructor(staticName = "create")
   static final class R4 {
     static gov.va.api.health.r4.api.resources.Location.Bundle asBundle(
         String baseUrl,
@@ -334,6 +239,101 @@ public class LocationSamples {
                                   .display("PSYCHIATRY CLINIC")
                                   .build()))
                       .build()))
+          .build();
+    }
+  }
+
+  @AllArgsConstructor(staticName = "create")
+  static final class Stu3 {
+    static gov.va.api.health.stu3.api.resources.Location.Bundle asBundle(
+        String baseUrl,
+        Collection<gov.va.api.health.stu3.api.resources.Location> locations,
+        gov.va.api.health.stu3.api.bundle.BundleLink... links) {
+      return gov.va.api.health.stu3.api.resources.Location.Bundle.builder()
+          .resourceType("Bundle")
+          .type(gov.va.api.health.stu3.api.bundle.AbstractBundle.BundleType.searchset)
+          .total(locations.size())
+          .link(Arrays.asList(links))
+          .entry(
+              locations.stream()
+                  .map(
+                      c ->
+                          gov.va.api.health.stu3.api.resources.Location.Entry.builder()
+                              .fullUrl(baseUrl + "/Location/" + c.id())
+                              .resource(c)
+                              .search(
+                                  gov.va.api.health.stu3.api.bundle.AbstractEntry.Search.builder()
+                                      .mode(
+                                          gov.va.api.health.stu3.api.bundle.AbstractEntry.SearchMode
+                                              .match)
+                                      .build())
+                              .build())
+                  .collect(Collectors.toList()))
+          .build();
+    }
+
+    static gov.va.api.health.stu3.api.bundle.BundleLink link(
+        gov.va.api.health.stu3.api.bundle.BundleLink.LinkRelation rel,
+        String base,
+        int page,
+        int count) {
+      return gov.va.api.health.stu3.api.bundle.BundleLink.builder()
+          .relation(rel)
+          .url(base + "&page=" + page + "&_count=" + count)
+          .build();
+    }
+
+    gov.va.api.health.stu3.api.resources.Location location(String id, String organizationId) {
+      return gov.va.api.health.stu3.api.resources.Location.builder()
+          .resourceType("Location")
+          .id(id)
+          .address(
+              gov.va.api.health.stu3.api.resources.Location.LocationAddress.builder()
+                  .line(asList(LOCATION_ADDRESS_STREET))
+                  .city(LOCATION_ADDRESS_CITY)
+                  .state(LOCATION_ADDRESS_STATE)
+                  .postalCode(LOCATION_ADDRESS_POSTAL_CODE)
+                  .text(
+                      Stream.of(
+                              LOCATION_ADDRESS_STREET,
+                              LOCATION_ADDRESS_CITY,
+                              LOCATION_ADDRESS_STATE,
+                              LOCATION_ADDRESS_POSTAL_CODE)
+                          .collect(Collectors.joining(" ")))
+                  .build())
+          .description("BLDG 146, RM W02")
+          .managingOrganization(
+              gov.va.api.health.stu3.api.elements.Reference.builder()
+                  .reference("Organization/" + organizationId)
+                  .display("OLIN E. TEAGUE VET CENTER")
+                  .build())
+          .mode(gov.va.api.health.stu3.api.resources.Location.Mode.instance)
+          .name(LOCATION_NAME)
+          .physicalType(
+              gov.va.api.health.stu3.api.datatypes.CodeableConcept.builder()
+                  .coding(
+                      asList(
+                          gov.va.api.health.stu3.api.datatypes.Coding.builder()
+                              .display("BLDG 146, RM W02")
+                              .build()))
+                  .build())
+          .status(gov.va.api.health.stu3.api.resources.Location.Status.active)
+          .telecom(
+              asList(
+                  gov.va.api.health.stu3.api.datatypes.ContactPoint.builder()
+                      .system(
+                          gov.va.api.health.stu3.api.datatypes.ContactPoint.ContactPointSystem
+                              .phone)
+                      .value("254-743-2867")
+                      .build()))
+          .type(
+              gov.va.api.health.stu3.api.datatypes.CodeableConcept.builder()
+                  .coding(
+                      asList(
+                          gov.va.api.health.stu3.api.datatypes.Coding.builder()
+                              .display("PSYCHIATRY CLINIC")
+                              .build()))
+                  .build())
           .build();
     }
   }
