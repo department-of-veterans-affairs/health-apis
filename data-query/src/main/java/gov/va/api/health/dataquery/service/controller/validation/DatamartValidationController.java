@@ -6,14 +6,19 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableMap;
 import gov.va.api.health.autoconfig.logging.Loggable;
 import gov.va.api.health.dataquery.service.controller.allergyintolerance.DatamartAllergyIntolerance;
+import gov.va.api.health.dataquery.service.controller.appointment.DatamartAppointment;
 import gov.va.api.health.dataquery.service.controller.condition.DatamartCondition;
+import gov.va.api.health.dataquery.service.controller.device.DatamartDevice;
 import gov.va.api.health.dataquery.service.controller.diagnosticreport.DatamartDiagnosticReport;
 import gov.va.api.health.dataquery.service.controller.immunization.DatamartImmunization;
+import gov.va.api.health.dataquery.service.controller.location.DatamartLocation;
 import gov.va.api.health.dataquery.service.controller.medication.DatamartMedication;
 import gov.va.api.health.dataquery.service.controller.medicationorder.DatamartMedicationOrder;
 import gov.va.api.health.dataquery.service.controller.medicationstatement.DatamartMedicationStatement;
 import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation;
+import gov.va.api.health.dataquery.service.controller.organization.DatamartOrganization;
 import gov.va.api.health.dataquery.service.controller.patient.DatamartPatient;
+import gov.va.api.health.dataquery.service.controller.practitioner.DatamartPractitioner;
 import gov.va.api.health.dataquery.service.controller.procedure.DatamartProcedure;
 import java.util.Map;
 import javax.validation.ConstraintViolationException;
@@ -37,17 +42,27 @@ import org.springframework.web.bind.annotation.RestController;
     produces = {"application/json"})
 public class DatamartValidationController {
 
+  /** Datamart resources that are supported for validation. */
+  // find src/main/java -name "Datamart*java" \
+  //   | sed -s 's|.*/Datamart\(.*\).java|\1|' \
+  //   | grep -v 'ValidationController' \
+  //   | sort | sed 's/\(.*\)/.put("\1",Datamart\1.class)/'
   private static Map<String, Class<?>> datamartResources =
       ImmutableMap.<String, Class<?>>builder()
           .put("AllergyIntolerance", DatamartAllergyIntolerance.class)
+          .put("Appointment", DatamartAppointment.class)
           .put("Condition", DatamartCondition.class)
+          .put("Device", DatamartDevice.class)
           .put("DiagnosticReport2", DatamartDiagnosticReport.class)
           .put("Immunization", DatamartImmunization.class)
+          .put("Location", DatamartLocation.class)
           .put("Medication", DatamartMedication.class)
           .put("MedicationOrder", DatamartMedicationOrder.class)
           .put("MedicationStatement", DatamartMedicationStatement.class)
           .put("Observation", DatamartObservation.class)
+          .put("Organization", DatamartOrganization.class)
           .put("Patient", DatamartPatient.class)
+          .put("Practitioner", DatamartPractitioner.class)
           .put("Procedure", DatamartProcedure.class)
           .build();
 
