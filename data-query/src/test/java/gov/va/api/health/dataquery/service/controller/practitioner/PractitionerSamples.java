@@ -39,7 +39,7 @@ public class PractitionerSamples {
   }
 
   @AllArgsConstructor(staticName = "create")
-  static class Datamart {
+  public static class Datamart {
 
     @SneakyThrows
     public PractitionerEntity entity(String cdwId, String locCdwId, String orgCdwId) {
@@ -214,89 +214,6 @@ public class PractitionerSamples {
   }
 
   @AllArgsConstructor(staticName = "create")
-  public static class Stu3 {
-    static gov.va.api.health.stu3.api.resources.Practitioner.Bundle asBundle(
-        String baseUrl,
-        Collection<gov.va.api.health.stu3.api.resources.Practitioner> practitioners,
-        gov.va.api.health.stu3.api.bundle.BundleLink... links) {
-      return gov.va.api.health.stu3.api.resources.Practitioner.Bundle.builder()
-          .resourceType("Bundle")
-          .type(gov.va.api.health.stu3.api.bundle.AbstractBundle.BundleType.searchset)
-          .total(practitioners.size())
-          .link(asList(links))
-          .entry(
-              practitioners.stream()
-                  .map(
-                      c ->
-                          gov.va.api.health.stu3.api.resources.Practitioner.Entry.builder()
-                              .fullUrl(baseUrl + "/Practitioner/" + c.id())
-                              .resource(c)
-                              .search(
-                                  gov.va.api.health.stu3.api.bundle.AbstractEntry.Search.builder()
-                                      .mode(
-                                          gov.va.api.health.stu3.api.bundle.AbstractEntry.SearchMode
-                                              .match)
-                                      .build())
-                              .build())
-                  .collect(Collectors.toList()))
-          .build();
-    }
-
-    public static gov.va.api.health.stu3.api.bundle.BundleLink link(
-        gov.va.api.health.stu3.api.bundle.BundleLink.LinkRelation rel,
-        String base,
-        int page,
-        int count) {
-      return gov.va.api.health.stu3.api.bundle.BundleLink.builder()
-          .relation(rel)
-          .url(base + "&page=" + page + "&_count=" + count)
-          .build();
-    }
-
-    public gov.va.api.health.stu3.api.resources.Practitioner practitioner() {
-      return practitioner("1234");
-    }
-
-    public gov.va.api.health.stu3.api.resources.Practitioner practitioner(String id) {
-      return gov.va.api.health.stu3.api.resources.Practitioner.builder()
-          .resourceType("Practitioner")
-          .id(id)
-          .identifier(
-              singletonList(
-                  gov.va.api.health.stu3.api.resources.Practitioner.PractitionerIdentifier.builder()
-                      .system("http://hl7.org/fhir/sid/us-npi")
-                      .value("1234567")
-                      .build()))
-          .active(true)
-          .name(
-              gov.va.api.health.stu3.api.resources.Practitioner.PractitionerHumanName.builder()
-                  .family("Joe")
-                  .given(List.of("Johnson"))
-                  .build())
-          .gender(gov.va.api.health.stu3.api.resources.Practitioner.Gender.male)
-          .birthDate("1970-11-14")
-          .address(
-              List.of(
-                  gov.va.api.health.stu3.api.datatypes.Address.builder()
-                      .line(List.of("111 MacGyver Viaduct"))
-                      .city("Anchorage")
-                      .state("Alaska")
-                      .postalCode("99501")
-                      .build()))
-          .telecom(
-              List.of(
-                  gov.va.api.health.stu3.api.datatypes.ContactPoint.builder()
-                      .use(gov.va.api.health.stu3.api.datatypes.ContactPoint.ContactPointUse.mobile)
-                      .value("123-456-1234")
-                      .system(
-                          gov.va.api.health.stu3.api.datatypes.ContactPoint.ContactPointSystem
-                              .phone)
-                      .build()))
-          .build();
-    }
-  }
-
-  @AllArgsConstructor(staticName = "create")
   public static class R4 {
 
     static gov.va.api.health.r4.api.resources.Practitioner.Bundle asBundle(
@@ -384,6 +301,89 @@ public class PractitionerSamples {
                       .value("123-456-1234")
                       .system(
                           gov.va.api.health.r4.api.datatypes.ContactPoint.ContactPointSystem.phone)
+                      .build()))
+          .build();
+    }
+  }
+
+  @AllArgsConstructor(staticName = "create")
+  public static class Stu3 {
+    static gov.va.api.health.stu3.api.resources.Practitioner.Bundle asBundle(
+        String baseUrl,
+        Collection<gov.va.api.health.stu3.api.resources.Practitioner> practitioners,
+        gov.va.api.health.stu3.api.bundle.BundleLink... links) {
+      return gov.va.api.health.stu3.api.resources.Practitioner.Bundle.builder()
+          .resourceType("Bundle")
+          .type(gov.va.api.health.stu3.api.bundle.AbstractBundle.BundleType.searchset)
+          .total(practitioners.size())
+          .link(asList(links))
+          .entry(
+              practitioners.stream()
+                  .map(
+                      c ->
+                          gov.va.api.health.stu3.api.resources.Practitioner.Entry.builder()
+                              .fullUrl(baseUrl + "/Practitioner/" + c.id())
+                              .resource(c)
+                              .search(
+                                  gov.va.api.health.stu3.api.bundle.AbstractEntry.Search.builder()
+                                      .mode(
+                                          gov.va.api.health.stu3.api.bundle.AbstractEntry.SearchMode
+                                              .match)
+                                      .build())
+                              .build())
+                  .collect(Collectors.toList()))
+          .build();
+    }
+
+    public static gov.va.api.health.stu3.api.bundle.BundleLink link(
+        gov.va.api.health.stu3.api.bundle.BundleLink.LinkRelation rel,
+        String base,
+        int page,
+        int count) {
+      return gov.va.api.health.stu3.api.bundle.BundleLink.builder()
+          .relation(rel)
+          .url(base + "&page=" + page + "&_count=" + count)
+          .build();
+    }
+
+    public gov.va.api.health.stu3.api.resources.Practitioner practitioner() {
+      return practitioner("1234");
+    }
+
+    public gov.va.api.health.stu3.api.resources.Practitioner practitioner(String id) {
+      return gov.va.api.health.stu3.api.resources.Practitioner.builder()
+          .resourceType("Practitioner")
+          .id(id)
+          .identifier(
+              singletonList(
+                  gov.va.api.health.stu3.api.resources.Practitioner.PractitionerIdentifier.builder()
+                      .system("http://hl7.org/fhir/sid/us-npi")
+                      .value("1234567")
+                      .build()))
+          .active(true)
+          .name(
+              gov.va.api.health.stu3.api.resources.Practitioner.PractitionerHumanName.builder()
+                  .family("Joe")
+                  .given(List.of("Johnson"))
+                  .build())
+          .gender(gov.va.api.health.stu3.api.resources.Practitioner.Gender.male)
+          .birthDate("1970-11-14")
+          .address(
+              List.of(
+                  gov.va.api.health.stu3.api.datatypes.Address.builder()
+                      .line(List.of("111 MacGyver Viaduct"))
+                      .city("Anchorage")
+                      .state("Alaska")
+                      .postalCode("99501")
+                      .build()))
+          .telecom(
+              List.of(
+                  gov.va.api.health.stu3.api.datatypes.ContactPoint.builder()
+                      .use(gov.va.api.health.stu3.api.datatypes.ContactPoint.ContactPointUse.mobile)
+                      .value("123-456-1234")
+                      .system(
+                          gov.va.api.health.stu3.api.datatypes.ContactPoint.ContactPointSystem
+                              .phone)
                       .build()))
           .build();
     }

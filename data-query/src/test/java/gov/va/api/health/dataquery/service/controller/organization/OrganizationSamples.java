@@ -30,7 +30,7 @@ public class OrganizationSamples {
   public static final String ORGANIZATION_ADDRESS_POSTAL_CODE = "44444-4160";
 
   @AllArgsConstructor(staticName = "create")
-  static class Datamart {
+  public static class Datamart {
 
     public DatamartOrganization organization() {
       return organization("1234");
