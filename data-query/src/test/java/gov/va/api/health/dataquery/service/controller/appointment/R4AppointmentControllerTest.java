@@ -91,9 +91,9 @@ public class R4AppointmentControllerTest {
     when(ids.register(any()))
         .thenReturn(
             List.of(
-                registration("1:A", "10:A"),
-                registration("2:A", "20:A"),
-                registration("3:A", "30:A")));
+                registration("1:A", "pa1"),
+                registration("2:A", "pa2"),
+                registration("3:A", "pa3")));
     var bundler = controller().toBundle();
     AppointmentSamples.Datamart datamart = AppointmentSamples.Datamart.create();
     var vr =
@@ -113,9 +113,9 @@ public class R4AppointmentControllerTest {
         AppointmentSamples.R4.asBundle(
             "http://fonzy.com/r4",
             List.of(
-                r4.appointment("10:A", "p1"),
-                r4.appointment("20:A", "p1"),
-                r4.appointment("30:A", "p1")),
+                r4.appointment("pa1", "p1"),
+                r4.appointment("pa2", "p1"),
+                r4.appointment("pa3", "p1")),
             999,
             AppointmentSamples.R4.link(
                 BundleLink.LinkRelation.first, "http://fonzy.com/r4/Appointment?patient=p1", 1, 15),
@@ -142,7 +142,7 @@ public class R4AppointmentControllerTest {
       })
   @SneakyThrows
   void validRequests(String query) {
-    when(ids.register(any())).thenReturn(List.of(registration("1:A", "10:A")));
+    when(ids.register(any())).thenReturn(List.of(registration("1:A", "pa1")));
     AppointmentSamples.Datamart dm = AppointmentSamples.Datamart.create();
     when(repository.findAll(any(Specification.class), any(Pageable.class)))
         .thenAnswer(
