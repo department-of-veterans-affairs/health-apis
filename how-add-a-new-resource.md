@@ -19,7 +19,7 @@
 1. Add synthetic data
     1. Add JPA entity and repository to DQ.
     1. Add test data to Synthetic DB.
-        1. **Deploy** Synthetic DB updates
+    1. **Deploy** Synthetic DB updates
 1. Add database support
     1. Add resource controller with readRaw support.
         1. Add ITs
@@ -47,6 +47,6 @@
         1. Update `DataQueryScopes`
     1. **Deploy**
 1. Publicize new resource
-    1. Update OpenAPI
-    1. **Deploy**
+    1. Update OpenAPI in `DataQueryService`
     1. Update documentation prose
+    1. **Deploy**
