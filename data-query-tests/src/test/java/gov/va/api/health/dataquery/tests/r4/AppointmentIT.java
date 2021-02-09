@@ -1,5 +1,7 @@
 package gov.va.api.health.dataquery.tests.r4;
 
+import static gov.va.api.health.sentinel.Environment.LAB;
+import static gov.va.api.health.sentinel.Environment.STAGING_LAB;
 import static gov.va.api.health.sentinel.EnvironmentAssumptions.assumeEnvironmentIn;
 import static gov.va.api.health.sentinel.EnvironmentAssumptions.assumeEnvironmentNotIn;
 
@@ -8,6 +10,7 @@ import gov.va.api.health.r4.api.resources.Appointment;
 import gov.va.api.health.r4.api.resources.OperationOutcome;
 import gov.va.api.health.sentinel.Environment;
 import lombok.experimental.Delegate;
+import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
 
 public class AppointmentIT {
@@ -15,7 +18,7 @@ public class AppointmentIT {
 
   @Test
   public void advanced() {
-    assumeEnvironmentIn(Environment.LOCAL);
+    assumeEnvironmentIn(STAGING_LAB, LAB);
     verifier.verifyAll(
         test(200, Appointment.Bundle.class, "Appointment?_id={id}", verifier.ids().appointment()),
         test(
@@ -33,7 +36,7 @@ public class AppointmentIT {
 
   @Test
   public void basic() {
-
+    assumeEnvironmentIn(STAGING_LAB, LAB);
     verifier.verifyAll(
         test(200, Appointment.class, "Appointment/{id}", verifier.ids().appointment()),
         test(404, OperationOutcome.class, "Appointment/{id}", verifier.ids().unknown()),
@@ -46,9 +49,7 @@ public class AppointmentIT {
 
   @Test
   public void searchNotMe() {
-
-    assumeEnvironmentNotIn(Environment.LOCAL);
-
+    assumeEnvironmentIn(STAGING_LAB, LAB);
     verifier.verifyAll(
         test(
             403,
