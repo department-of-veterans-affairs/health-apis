@@ -1,8 +1,7 @@
 package gov.va.api.health.dataquery.tests.r4;
 
-import static gov.va.api.health.sentinel.Environment.LAB;
-import static gov.va.api.health.sentinel.Environment.STAGING_LAB;
-import static gov.va.api.health.sentinel.EnvironmentAssumptions.assumeEnvironmentIn;
+import static gov.va.api.health.sentinel.Environment.LOCAL;
+import static gov.va.api.health.sentinel.EnvironmentAssumptions.assumeEnvironmentNotIn;
 
 import gov.va.api.health.dataquery.tests.ResourceVerifier;
 import gov.va.api.health.r4.api.resources.Appointment;
@@ -15,7 +14,6 @@ public class AppointmentIT {
 
   @Test
   public void advanced() {
-    assumeEnvironmentIn(STAGING_LAB, LAB);
     verifier.verifyAll(
         test(200, Appointment.Bundle.class, "Appointment?_id={id}", verifier.ids().appointment()),
         test(
@@ -33,7 +31,6 @@ public class AppointmentIT {
 
   @Test
   public void basic() {
-    assumeEnvironmentIn(STAGING_LAB, LAB);
     verifier.verifyAll(
         test(200, Appointment.class, "Appointment/{id}", verifier.ids().appointment()),
         test(404, OperationOutcome.class, "Appointment/{id}", verifier.ids().unknown()),
@@ -46,7 +43,7 @@ public class AppointmentIT {
 
   @Test
   public void searchNotMe() {
-    assumeEnvironmentIn(STAGING_LAB, LAB);
+    assumeEnvironmentNotIn(LOCAL);
     verifier.verifyAll(
         test(
             403,
