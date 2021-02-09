@@ -47,6 +47,6 @@
         1. Update `DataQueryScopes`
     1. **Deploy**
 1. Publicize new resource
+    1. Update _Health API > Veterans Health API (FHIR)_ header documentation on the Dev Portal.
     1. Update OpenAPI in `DataQueryService`
-    1. Update documentation prose
     1. **Deploy**
