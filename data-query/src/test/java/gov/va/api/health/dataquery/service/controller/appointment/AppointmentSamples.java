@@ -1,6 +1,8 @@
 package gov.va.api.health.dataquery.service.controller.appointment;
 
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
+import gov.va.api.health.ids.api.Registration;
+import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.health.r4.api.bundle.AbstractBundle;
 import gov.va.api.health.r4.api.bundle.AbstractEntry;
 import gov.va.api.health.r4.api.bundle.BundleLink;
@@ -22,9 +24,21 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class AppointmentSamples {
 
+  public static ResourceIdentity id(String cdwId) {
+    return ResourceIdentity.builder()
+        .system("CDW")
+        .resource("APPOINTMENT")
+        .identifier(cdwId)
+        .build();
+  }
+
   @SneakyThrows
   static String json(Object o) {
     return JacksonConfig.createMapper().writerWithDefaultPrettyPrinter().writeValueAsString(o);
+  }
+
+  public static Registration registration(String cdwId, String publicId) {
+    return Registration.builder().uuid(publicId).resourceIdentities(List.of(id(cdwId))).build();
   }
 
   @AllArgsConstructor(staticName = "create")
