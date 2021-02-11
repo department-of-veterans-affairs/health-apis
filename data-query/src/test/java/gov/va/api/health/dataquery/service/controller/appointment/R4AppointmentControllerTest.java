@@ -7,8 +7,7 @@ import static gov.va.api.health.dataquery.service.controller.appointment.Appoint
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import gov.va.api.health.dataquery.service.config.LinkProperties;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
@@ -149,7 +148,8 @@ public class R4AppointmentControllerTest {
   @ParameterizedTest
   @ValueSource(
       strings = {
-        "?_id=publica1",
+        "?_id=pa1",
+        "?identifier=pa1",
         "?patient=111V111",
         "?patient=p1&location=orlando",
         "?patient=p1&_lastUpdated=2020-1-20T16:35:00Z",
@@ -159,6 +159,7 @@ public class R4AppointmentControllerTest {
   @SneakyThrows
   void validRequests(String query) {
     when(ids.register(any())).thenReturn(List.of(registration("1:A", "pa1")));
+    lenient().when(ids.lookup(any())).thenReturn(List.of(id("1:A")));
     AppointmentSamples.Datamart dm = AppointmentSamples.Datamart.create();
     when(repository.findAll(any(Specification.class), any(Pageable.class)))
         .thenAnswer(
