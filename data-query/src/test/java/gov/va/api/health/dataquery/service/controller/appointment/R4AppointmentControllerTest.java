@@ -148,8 +148,6 @@ public class R4AppointmentControllerTest {
   @ParameterizedTest
   @ValueSource(
       strings = {
-        "?_id=pa1",
-        "?identifier=pa1",
         "?patient=111V111",
         "?patient=p1&location=orlando",
         "?patient=p1&_lastUpdated=2020-1-20T16:35:00Z",
@@ -159,7 +157,27 @@ public class R4AppointmentControllerTest {
   @SneakyThrows
   void validRequests(String query) {
     when(ids.register(any())).thenReturn(List.of(registration("1:A", "pa1")));
-    lenient().when(ids.lookup(any())).thenReturn(List.of(id("1:A")));
+    AppointmentSamples.Datamart dm = AppointmentSamples.Datamart.create();
+    when(repository.findAll(any(Specification.class), any(Pageable.class)))
+        .thenAnswer(
+            i ->
+                new PageImpl(
+                    List.of(dm.entity("1", "A", "p1")), i.getArgument(1, Pageable.class), 1));
+    var r = requestFromUri("http://fonzy.com/r4/Appointment" + query);
+    var actual = controller().search(r);
+    assertThat(actual.entry()).hasSize(1);
+  }
+
+  @ParameterizedTest
+  @ValueSource(
+      strings = {
+        "?_id=pa1",
+        "?identifier=pa1",
+      })
+  @SneakyThrows
+  void validRequestsWithIds(String query) {
+    when(ids.register(any())).thenReturn(List.of(registration("1:A", "pa1")));
+    when(ids.lookup(any())).thenReturn(List.of(id("1:A")));
     AppointmentSamples.Datamart dm = AppointmentSamples.Datamart.create();
     when(repository.findAll(any(Specification.class), any(Pageable.class)))
         .thenAnswer(
