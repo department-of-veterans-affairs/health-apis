@@ -19,6 +19,7 @@ public class DataQueryIdsCodebookSupplier implements CodebookSupplier {
                 Mapping.of("UNKNOWN", "U"),
                 /* Data Query Resources */
                 Mapping.of("ALLERGY_INTOLERANCE", "AI"),
+                Mapping.of("APPOINTMENT", "AP"),
                 Mapping.of("CONDITION", "CO"),
                 Mapping.of("DEVICE", "DV"),
                 Mapping.of("DIAGNOSTIC_REPORT", "DR"),
