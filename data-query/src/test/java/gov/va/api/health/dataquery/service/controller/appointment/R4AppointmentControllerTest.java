@@ -134,6 +134,7 @@ public class R4AppointmentControllerTest {
   @ParameterizedTest
   @ValueSource(
       strings = {
+        "?_id=publica1",
         "?patient=111V111",
         "?patient=p1&location=orlando",
         "?patient=p1&_lastUpdated=2020-1-20T16:35:00Z",
