@@ -5,6 +5,7 @@ import static gov.va.api.health.dataquery.service.controller.MockRequests.reques
 import static gov.va.api.health.dataquery.service.controller.appointment.AppointmentSamples.id;
 import static gov.va.api.health.dataquery.service.controller.appointment.AppointmentSamples.registration;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -15,6 +16,7 @@ import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.r4.api.bundle.BundleLink;
 import gov.va.api.health.r4.api.resources.Appointment;
 import gov.va.api.lighthouse.datamart.CompositeCdwId;
+import gov.va.api.lighthouse.vulcan.InvalidRequest;
 import gov.va.api.lighthouse.vulcan.VulcanResult;
 import java.math.BigInteger;
 import java.util.List;
@@ -60,6 +62,19 @@ public class R4AppointmentControllerTest {
     Appointment.Bundle bundle = controller().search(request);
     assertThat(bundle.total()).isEqualTo(0);
     assertThat(bundle.entry()).isEmpty();
+  }
+
+  @ParameterizedTest
+  @ValueSource(
+      strings = {
+        "?_id=a1&identifier=a2",
+        "?_id=a1&patient=p1",
+        "?identifier=a1&patient=p1",
+      })
+  @SneakyThrows
+  void invalidRequest(String query) {
+    var r = requestFromUri("http://fonzy.com/r4/Appointment" + query);
+    assertThatExceptionOfType(InvalidRequest.class).isThrownBy(() -> controller().search(r));
   }
 
   @Test
