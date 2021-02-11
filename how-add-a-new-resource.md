@@ -22,12 +22,13 @@
     1. **Deploy** Synthetic DB updates
 1. Add database support
     1. Add resource controller with readRaw support.
-        1. Add ITs
+        1. Add ITs to `RawIT`
     1. Update magic patient scopes to grant new resource type.
     1. Update deployment ingress/alb definitions.
     1. **Deploy** to allow testing CDW interaction.
 1. Add read support
     1. Add ICN Majig to DQ.
+    1. Update DQ codebook `DataQueryIdsCodebookSupplier`.
     1. Create Transformer
     1. Add read support
         1. Add ITs
@@ -43,6 +44,7 @@
     1. **Deploy**
 1. Add machine-to-machine integration support
     1. Update metadata
+    1. Update well-known/smart-configuration via deployment unit `DQ_WELL_KNOWN_SCOPES`
     1. Add crawler support
         1. Update `DataQueryScopes`
     1. **Deploy**
