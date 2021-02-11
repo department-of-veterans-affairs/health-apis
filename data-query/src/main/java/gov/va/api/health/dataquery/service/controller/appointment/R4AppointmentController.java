@@ -41,7 +41,12 @@ public class R4AppointmentController {
   private VulcanConfiguration<AppointmentEntity> configuration() {
     return VulcanConfiguration.forEntity(AppointmentEntity.class)
         .paging(linkProperties.pagingConfiguration("Appointment", AppointmentEntity.naturalOrder()))
-        .mappings(Mappings.forEntity(AppointmentEntity.class).value("patient", "icn").get())
+        .mappings(
+            Mappings.forEntity(AppointmentEntity.class)
+                .dateAsInstant("_lastUpdated", "lastUpdated")
+                .value("patient", "icn")
+                .value("location", "locationSid")
+                .get())
         .defaultQuery(returnNothing())
         .build();
   }
@@ -87,14 +92,9 @@ public class R4AppointmentController {
   }
 
   VulcanizedTransformation<AppointmentEntity, DatamartAppointment, Appointment> transformation() {
-    return VulcanizedTransformation.toDatamart(AppointmentEntity::asDatamartAppointment)
-        .toResource(
-            dm ->
-                R4AppointmentTransformer.builder()
-                    .compositeCdwId(CompositeCdwId.fromCdwId(witnessProtection.toCdwId(dm.cdwId())))
-                    .dm(dm)
-                    .build()
-                    .toFhir())
+    var state = new StatefulTransformation();
+    return VulcanizedTransformation.toDatamart(state::asDatamartAppointment)
+        .toResource(state::toAppointment)
         .witnessProtection(witnessProtection)
         .replaceReferences(resource -> resource.participant().stream())
         .build();
@@ -110,5 +110,26 @@ public class R4AppointmentController {
         .toPatientId(e -> Optional.of(e.icn()))
         .toPayload(AppointmentEntity::payload)
         .build();
+  }
+
+  /**
+   * During the transformation process from database entity to FHIR record, we will need the
+   * original CDW ID to properly detect the type of a appointment, which is encoded in it's ID.
+   */
+  private static class StatefulTransformation {
+    private CompositeCdwId compositeCdwId;
+
+    DatamartAppointment asDatamartAppointment(AppointmentEntity entity) {
+      compositeCdwId = CompositeCdwId.fromCdwId(entity.cdwId());
+      return entity.asDatamartAppointment();
+    }
+
+    Appointment toAppointment(DatamartAppointment witness) {
+      return R4AppointmentTransformer.builder()
+          .compositeCdwId(compositeCdwId)
+          .dm(witness)
+          .build()
+          .toFhir();
+    }
   }
 }
