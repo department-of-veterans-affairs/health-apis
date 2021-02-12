@@ -1,7 +1,6 @@
 package gov.va.api.health.dataquery.tests.r4;
 
-import static gov.va.api.health.sentinel.Environment.LAB;
-import static gov.va.api.health.sentinel.Environment.STAGING_LAB;
+import static gov.va.api.health.sentinel.Environment.*;
 import static gov.va.api.health.sentinel.EnvironmentAssumptions.assumeEnvironmentIn;
 
 import gov.va.api.health.dataquery.tests.ResourceVerifier;
@@ -33,7 +32,7 @@ public class AppointmentIT {
 
   @Test
   public void basic() {
-    assumeEnvironmentIn(STAGING_LAB, LAB);
+    assumeEnvironmentIn(LOCAL, STAGING_LAB, LAB);
     verifier.verifyAll(
         test(200, Appointment.class, "Appointment/{id}", verifier.ids().appointment()),
         test(404, OperationOutcome.class, "Appointment/{id}", verifier.ids().unknown()),
@@ -41,7 +40,23 @@ public class AppointmentIT {
             200,
             Appointment.Bundle.class,
             "Appointment?patient={patient}",
-            verifier.ids().patient()));
+            verifier.ids().patient()),
+        test(
+            200,
+            Appointment.Bundle.class,
+            "Appointment?location={location}",
+            verifier.ids().appointments().location()),
+        test(
+            200,
+            Appointment.Bundle.class,
+            "Appointment?_lastUpdated={lastUpdated}",
+            verifier.ids().appointments().lastUpdated()),
+        test(
+            200,
+            Appointment.Bundle.class,
+            r -> r.entry().isEmpty(),
+            "Appointment?_lastUpdated={lastUpdatedEmpty}",
+            verifier.ids().appointments().lastUpdatedEmpty()));
   }
 
   @Test

@@ -34,6 +34,15 @@ public final class TestIds {
   @NonNull Procedures procedures;
   @NonNull Organizations organizations;
   @NonNull Practitioners practitioners;
+  @NonNull Appointments appointments;
+
+  @Value
+  @Builder
+  public static class Appointments {
+    @NonNull String lastUpdatedEmpty;
+    @NonNull String lastUpdated;
+    @NonNull String location;
+  }
 
   @Value
   @Builder
