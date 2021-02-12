@@ -64,6 +64,7 @@ public final class SystemDefinitions {
     return TestIds.builder()
         .allergyIntolerance("I2-5XYSWFRZ637QKNR6IIRKYHA5RY000000")
         .appointment("I2-QYVFG3F52MD3OLBWXGNWQKKDSHYF5LBYF37PCUVMSAYJDA3APFPQ0000")
+        .appointments(localAndLabAppointments())
         .condition("I2-FOBJ7YQOH3RIQ5UZ6TRM32ZSQA000000")
         .device("I2-DPWVDPSF36SDG527A43QRGHKUXGYPOSK5NV4TNM3Q42CMVQNMLTA0000")
         .diagnosticReport("I2-3ACWF6E3HPG6GLOSVWR2CIQNPI000000")
@@ -99,6 +100,14 @@ public final class SystemDefinitions {
         .r4DataQuery(serviceDefinition("r4", url, 8090, null, "/r4/"))
         .internalDataQuery(serviceDefinition("internal", url, 8090, null, "/"))
         .publicIds(localIds())
+        .build();
+  }
+
+  private static TestIds.Appointments localAndLabAppointments() {
+    return TestIds.Appointments.builder()
+        .location("I2-K7WNFKZA3JCXL3CLT6D2HP7RRU000000")
+        .lastUpdatedEmpty("gt2020")
+        .lastUpdated("le2020")
         .build();
   }
 
@@ -141,6 +150,7 @@ public final class SystemDefinitions {
     return TestIds.builder()
         .allergyIntolerance("I2-6PEP3VSTE3TIHUPLHXRZBG4QTY000000")
         .appointment("I2-RMGLRGG52CQKO2KO52OYBL2RI65DWSLFBV42AFTA5IJE5FY5KG3Q0000")
+        .appointments(localAndLabAppointments())
         .condition("I2-NHQ2GKYCVNIOUULQCYTK2K6EQ4000000")
         .device("I2-AOYGP5JUXUWROIZELSHGKBFLTYWOKJHDYXYAVDHF2FTF3AM6DWNA0000")
         .diagnosticReport("I2-NVJU4EWW3YBUEM2EFYP6VYA4JM000000")
