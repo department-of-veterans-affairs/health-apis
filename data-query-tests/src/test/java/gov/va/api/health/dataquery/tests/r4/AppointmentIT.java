@@ -9,6 +9,7 @@ import static gov.va.api.health.sentinel.EnvironmentAssumptions.assumeEnvironmen
 import gov.va.api.health.dataquery.tests.ResourceVerifier;
 import gov.va.api.health.r4.api.resources.Appointment;
 import gov.va.api.health.r4.api.resources.OperationOutcome;
+import java.time.Year;
 import lombok.experimental.Delegate;
 import org.junit.jupiter.api.Test;
 
@@ -35,7 +36,7 @@ public class AppointmentIT {
 
   @Test
   public void basic() {
-    assumeEnvironmentIn(STAGING_LAB, LAB, LOCAL);
+    assumeEnvironmentIn(LOCAL, STAGING_LAB, LAB);
     verifier.verifyAll(
         test(200, Appointment.class, "Appointment/{id}", verifier.ids().appointment()),
         test(404, OperationOutcome.class, "Appointment/{id}", verifier.ids().unknown()),
@@ -43,7 +44,26 @@ public class AppointmentIT {
             200,
             Appointment.Bundle.class,
             "Appointment?patient={patient}",
-            verifier.ids().patient()));
+            verifier.ids().patient()),
+        test(
+            200,
+            Appointment.Bundle.class,
+            "Appointment?patient={patient}&location={location}",
+            verifier.ids().patient(),
+            verifier.ids().appointments().location()),
+        test(
+            200,
+            Appointment.Bundle.class,
+            "Appointment?patient={patient}&location={location}&_lastUpdated={lastUpdated}",
+            verifier.ids().patient(),
+            verifier.ids().appointments().location(),
+            verifier.ids().appointments().lastUpdated()),
+        test(
+            200,
+            Appointment.Bundle.class,
+            "Appointment?patient={patient}&_lastUpdated={lastUpdated}",
+            verifier.ids().patient(),
+            verifier.ids().appointments().lastUpdated()));
   }
 
   @Test
@@ -55,5 +75,32 @@ public class AppointmentIT {
             OperationOutcome.class,
             "Appointment?patient={patient}",
             verifier.ids().unknown()));
+  }
+
+  @Test
+  void systemScopes() {
+    assumeEnvironmentIn(LOCAL);
+    verifier.verifyAll(
+        test(
+            200,
+            Appointment.Bundle.class,
+            "Appointment?location={location}",
+            verifier.ids().appointments().location()),
+        test(
+            200,
+            Appointment.Bundle.class,
+            "Appointment?_lastUpdated={lastUpdated}",
+            verifier.ids().appointments().lastUpdated()),
+        test(
+            200,
+            Appointment.Bundle.class,
+            "Appointment?location={location}&_lastUpdated={lastUpdated}",
+            verifier.ids().appointments().location(),
+            verifier.ids().appointments().lastUpdated()),
+        test(
+            200,
+            Appointment.Bundle.class,
+            r -> r.entry().isEmpty(),
+            "Appointment?_lastUpdated=gt" + Year.now().plusYears(1).toString()));
   }
 }
