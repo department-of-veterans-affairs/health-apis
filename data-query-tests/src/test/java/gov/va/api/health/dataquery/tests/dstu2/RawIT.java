@@ -69,6 +69,11 @@ public class RawIT {
   }
 
   @Test
+  public void locationRaw() {
+    assertFhirObject("Location", verifier.ids().location());
+  }
+
+  @Test
   public void medicationOrderRaw() {
     assertFhirObject("MedicationOrder", verifier.ids().medicationOrder());
   }
@@ -89,8 +94,18 @@ public class RawIT {
   }
 
   @Test
+  public void organizationRaw() {
+    assertFhirObject("Organization", verifier.ids().organization());
+  }
+
+  @Test
   public void patientRaw() {
     assertFhirObject("Patient", verifier.ids().patient());
+  }
+
+  @Test
+  public void practitionerRaw() {
+    assertFhirObject("Practitioner", verifier.ids().practitioner());
   }
 
   @Test

@@ -39,13 +39,7 @@ public class RawIT {
   @SneakyThrows
   public void assertFhirObject(String resourceName, String publicId) {
     // Verify it is a raw response from the correct resource
-    String fhirObjectType =
-        readRaw(resourceName, publicId)
-            .jsonPath()
-            .using(JsonPathConfig.jsonPathConfig().charset("UTF-8"))
-            .get("objectType")
-            .toString();
-    assertThat(fhirObjectType).isEqualTo(resourceName);
+    assertFhirObject(resourceName, resourceName, publicId);
   }
 
   @SneakyThrows
@@ -73,16 +67,7 @@ public class RawIT {
   @Test
   @SneakyThrows
   public void diagnosticReportRaw() {
-    // objectType is not returned in a raw diagnosticReport read, so we'll make sure it has an
-    // identifier instead
-    Response response = readRaw("DiagnosticReport", verifier.ids().diagnosticReport());
-    String resourceIdentifier =
-        response
-            .jsonPath()
-            .using(JsonPathConfig.jsonPathConfig().charset("UTF-8"))
-            .get("cdwId")
-            .toString();
-    assertThat(resourceIdentifier).isNotBlank();
+    assertFhirObject("DiagnosticReport", verifier.ids().diagnosticReport());
   }
 
   @Test
