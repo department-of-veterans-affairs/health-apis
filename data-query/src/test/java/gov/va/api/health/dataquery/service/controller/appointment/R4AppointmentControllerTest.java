@@ -42,21 +42,6 @@ public class R4AppointmentControllerTest {
 
   @Mock AppointmentRepository repository;
 
-  @Test
-  void publicIdToCdwIdNumber() {
-    when(ids.lookup("pl1")).thenReturn(List.of(id("123:L")));
-    assertThat(controller().publicIdToCdwIdNumber("pl1")).isEqualTo(123);
-
-    when(ids.lookup("pl2")).thenReturn(List.of(id("53421")));
-    assertThat(controller().publicIdToCdwIdNumber("pl2")).isNull();
-
-    when(ids.lookup("pl3"))
-        .thenReturn(
-            List.of(
-                id((BigInteger.valueOf(Integer.MAX_VALUE).add(BigInteger.ONE)).toString() + ":L")));
-    assertThat(controller().publicIdToCdwIdNumber("pl3")).isNull();
-  }
-
   R4AppointmentController controller() {
     return new R4AppointmentController(
         WitnessProtection.builder().identityService(ids).build(),
@@ -70,7 +55,7 @@ public class R4AppointmentControllerTest {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {"?nope=unknown", "?_id=badpa1", "?identifier=badpa1"})
+  @ValueSource(strings = {"?nope=unknown", "?_id=badpa1", "?identifier=badpa1", "?location=badLoc"})
   @SneakyThrows
   void emptyBundle(String query) {
     var url = "http://fonzy.com/r4/Appointment";
@@ -87,6 +72,19 @@ public class R4AppointmentControllerTest {
   void invalidRequest(String query) {
     var r = requestFromUri("http://fonzy.com/r4/Appointment" + query);
     assertThatExceptionOfType(InvalidRequest.class).isThrownBy(() -> controller().search(r));
+  }
+
+  @Test
+  void publicIdToCdwIdNumber() {
+    when(ids.lookup("pl1")).thenReturn(List.of(id("123:L")));
+    assertThat(controller().publicIdToCdwIdNumber("pl1")).isEqualTo(123);
+    when(ids.lookup("pl2")).thenReturn(List.of(id("53421")));
+    assertThat(controller().publicIdToCdwIdNumber("pl2")).isNull();
+    when(ids.lookup("pl3"))
+        .thenReturn(
+            List.of(
+                id((BigInteger.valueOf(Integer.MAX_VALUE).add(BigInteger.ONE)).toString() + ":L")));
+    assertThat(controller().publicIdToCdwIdNumber("pl3")).isNull();
   }
 
   @Test
