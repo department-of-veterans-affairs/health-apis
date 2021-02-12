@@ -84,6 +84,7 @@ public class R4AppointmentControllerTest {
     when(ids.lookup("pl2")).thenReturn(List.of(id("53421")));
     assertThatExceptionOfType(CircuitBreaker.class)
         .isThrownBy(() -> controller().publicIdToCdwIdNumber("pl2"));
+
     when(ids.lookup("pl3"))
         .thenReturn(
             List.of(

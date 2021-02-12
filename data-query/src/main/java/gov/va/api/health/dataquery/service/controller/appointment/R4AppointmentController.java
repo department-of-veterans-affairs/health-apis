@@ -77,6 +77,7 @@ public class R4AppointmentController {
       return CompositeCdwId.fromCdwId(witnessProtection.toCdwId(publicId))
           .cdwIdNumber()
           .intValueExact();
+
     } catch (IllegalArgumentException | ArithmeticException e) {
       throw CircuitBreaker.noResultsWillBeFound("location", publicId, "Unknown ID.");
     }

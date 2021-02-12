@@ -39,7 +39,6 @@ public final class TestIds {
   @Value
   @Builder
   public static class Appointments {
-    @NonNull String lastUpdatedEmpty;
     @NonNull String lastUpdated;
     @NonNull String location;
   }

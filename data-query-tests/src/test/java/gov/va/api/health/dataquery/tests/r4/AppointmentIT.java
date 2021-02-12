@@ -9,6 +9,7 @@ import static gov.va.api.health.sentinel.EnvironmentAssumptions.assumeEnvironmen
 import gov.va.api.health.dataquery.tests.ResourceVerifier;
 import gov.va.api.health.r4.api.resources.Appointment;
 import gov.va.api.health.r4.api.resources.OperationOutcome;
+import java.time.Year;
 import lombok.experimental.Delegate;
 import org.junit.jupiter.api.Test;
 
@@ -70,6 +71,12 @@ public class AppointmentIT {
         test(
             200,
             Appointment.Bundle.class,
+            "Appointment?patient={patient}&_lastUpdated={lastUpdated}",
+            verifier.ids().patient(),
+            verifier.ids().appointments().lastUpdated()),
+        test(
+            200,
+            Appointment.Bundle.class,
             "Appointment?location={location}&_lastUpdated={lastUpdated}",
             verifier.ids().appointments().location(),
             verifier.ids().appointments().lastUpdated()),
@@ -77,8 +84,7 @@ public class AppointmentIT {
             200,
             Appointment.Bundle.class,
             r -> r.entry().isEmpty(),
-            "Appointment?_lastUpdated={lastUpdatedEmpty}",
-            verifier.ids().appointments().lastUpdatedEmpty()));
+            "Appointment?_lastUpdated=gt" + Year.now().plusYears(1).toString()));
   }
 
   @Test

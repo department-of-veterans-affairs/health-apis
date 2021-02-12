@@ -106,7 +106,6 @@ public final class SystemDefinitions {
   private static TestIds.Appointments localAndLabAppointments() {
     return TestIds.Appointments.builder()
         .location("I2-K7WNFKZA3JCXL3CLT6D2HP7RRU000000")
-        .lastUpdatedEmpty("gt3000")
         .lastUpdated("le2020")
         .build();
   }
