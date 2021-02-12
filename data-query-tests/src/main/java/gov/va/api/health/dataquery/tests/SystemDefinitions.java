@@ -59,12 +59,19 @@ public final class SystemDefinitions {
         .build();
   }
 
+  private static TestIds.Appointments labAppointments() {
+    return TestIds.Appointments.builder()
+        .location("I2-4KG3N5YUSPTWD3DAFMLMRL5V5U000000")
+        .lastUpdated("le2020")
+        .build();
+  }
+
   private static TestIds labIds() {
     /* IDS encoded with secret production key */
     return TestIds.builder()
         .allergyIntolerance("I2-5XYSWFRZ637QKNR6IIRKYHA5RY000000")
-        .appointment("I2-QYVFG3F52MD3OLBWXGNWQKKDSHYF5LBYF37PCUVMSAYJDA3APFPQ0000")
-        .appointments(localAndLabAppointments())
+        .appointment("I2-V7QE6HNG7MXDOIEWC534Y3HRYWKJGRCGJSVDZW7YDHXR7RMD2FWA0000")
+        .appointments(labAppointments())
         .condition("I2-FOBJ7YQOH3RIQ5UZ6TRM32ZSQA000000")
         .device("I2-DPWVDPSF36SDG527A43QRGHKUXGYPOSK5NV4TNM3Q42CMVQNMLTA0000")
         .diagnosticReport("I2-3ACWF6E3HPG6GLOSVWR2CIQNPI000000")
@@ -103,13 +110,6 @@ public final class SystemDefinitions {
         .build();
   }
 
-  private static TestIds.Appointments localAndLabAppointments() {
-    return TestIds.Appointments.builder()
-        .location("I2-K7WNFKZA3JCXL3CLT6D2HP7RRU000000")
-        .lastUpdated("le2020")
-        .build();
-  }
-
   private static TestIds.Locations localAndLabLocations() {
     return TestIds.Locations.builder()
         .name("VISUAL IMPAIRMENT SVCS OUTPATIENT REHAB (VISOR)")
@@ -144,12 +144,19 @@ public final class SystemDefinitions {
     return Procedures.builder().fromDate("ge2009").onDate("ge2009").toDate("le2010").build();
   }
 
+  private static TestIds.Appointments localAppointments() {
+    return TestIds.Appointments.builder()
+        .location("I2-K7WNFKZA3JCXL3CLT6D2HP7RRU000000")
+        .lastUpdated("le2020")
+        .build();
+  }
+
   private static TestIds localIds() {
     /* IDS encoded with key: data-query */
     return TestIds.builder()
         .allergyIntolerance("I2-6PEP3VSTE3TIHUPLHXRZBG4QTY000000")
         .appointment("I2-RMGLRGG52CQKO2KO52OYBL2RI65DWSLFBV42AFTA5IJE5FY5KG3Q0000")
-        .appointments(localAndLabAppointments())
+        .appointments(localAppointments())
         .condition("I2-NHQ2GKYCVNIOUULQCYTK2K6EQ4000000")
         .device("I2-AOYGP5JUXUWROIZELSHGKBFLTYWOKJHDYXYAVDHF2FTF3AM6DWNA0000")
         .diagnosticReport("I2-NVJU4EWW3YBUEM2EFYP6VYA4JM000000")
@@ -283,7 +290,6 @@ public final class SystemDefinitions {
         .given("SAID R")
         .npi("http://hl7.org/fhir/sid/us-npi|1013904481")
         .specialty("http://hl7.org/fhir/practitioner-specialty|xxx")
-        // Valid ID will need to be added when test is available
         .build();
   }
 
