@@ -215,6 +215,13 @@ public final class SystemDefinitions {
         .build();
   }
 
+  private static TestIds.Appointments productionAppointments() {
+    return TestIds.Appointments.builder()
+        .location("I2-XPW2ECZK2LTNSPLNVKISWC5QZABOVEBZD5V2CKFRVEPAU5CNZMJQ0000")
+        .lastUpdated("le2020")
+        .build();
+  }
+
   private static Procedures productionIdProcedures() {
     return Procedures.builder().fromDate("ge2009").onDate("ge2009").toDate("le2014").build();
   }
@@ -230,6 +237,7 @@ public final class SystemDefinitions {
     return TestIds.builder()
         .allergyIntolerance("I2-A6U4FCERBNSVAFYF6CMUOOHMBPJOJFVSJAWGW5TYE3EOC6TQ2OBQ0000")
         .appointment("I2-SLRRT64GFGJAJGX62Q55NSQV44VEE4ZBB7U7YZQVVGKJGQ4653IQ0000")
+        .appointments(productionAppointments())
         .condition("I2-H7TWOL6IPU27YRF3OKZIUJM5D27UCDVBMBWSONEYQ66OTFL4OVYQ0000")
         .device("I2-7BCIBSTZTRZXRVPHRX63LJIYZFF22ELRZXHNXTPW6C6PKG2NFBJA0000")
         .diagnosticReport("I2-M2QUOOXL3O73NUZCB7HEOVQ2GAGQFOATAYXW5FMU3I57IYQDE6RQ0000")
