@@ -43,7 +43,7 @@ public class AppointmentEntity implements CompositeIdDatamartEntity {
   private String icn;
 
   @Column(name = "LocationSID")
-  private String locationSid;
+  private Integer locationSid;
 
   @Column(name = "LastUpdated")
   private Instant lastUpdated;
