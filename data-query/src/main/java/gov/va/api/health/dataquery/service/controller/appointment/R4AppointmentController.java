@@ -12,6 +12,7 @@ import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedReade
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedTransformation;
 import gov.va.api.health.r4.api.resources.Appointment;
 import gov.va.api.lighthouse.datamart.CompositeCdwId;
+import gov.va.api.lighthouse.vulcan.CircuitBreaker;
 import gov.va.api.lighthouse.vulcan.Vulcan;
 import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
 import gov.va.api.lighthouse.vulcan.mappings.Mappings;
@@ -46,7 +47,8 @@ public class R4AppointmentController {
         .mappings(
             Mappings.forEntity(AppointmentEntity.class)
                 .dateAsInstant("_lastUpdated", "lastUpdated")
-                .value("location", "locationSid")
+                .value("patient", "icn")
+                .value("location", "locationSid", this::publicIdToCdwIdNumber)
                 .values("_id", this::loadCdwId)
                 .values("identifier", this::loadCdwId)
                 .value("patient", "icn")
@@ -67,6 +69,17 @@ public class R4AppointmentController {
           compositeCdwId.cdwIdResourceCode());
     } catch (IllegalArgumentException e) {
       return Map.of();
+    }
+  }
+
+  Integer publicIdToCdwIdNumber(String publicId) {
+    try {
+      return CompositeCdwId.fromCdwId(witnessProtection.toCdwId(publicId))
+          .cdwIdNumber()
+          .intValueExact();
+
+    } catch (IllegalArgumentException | ArithmeticException e) {
+      throw CircuitBreaker.noResultsWillBeFound("location", publicId, "Unknown ID.");
     }
   }
 
