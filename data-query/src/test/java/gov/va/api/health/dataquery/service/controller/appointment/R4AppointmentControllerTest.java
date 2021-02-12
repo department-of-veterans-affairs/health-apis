@@ -54,10 +54,12 @@ public class R4AppointmentControllerTest {
             .build());
   }
 
-  @Test
-  void emptyBundle() {
-    var url = "http://fonzy.com/r4/Appointment?nope=unknown";
-    var request = requestFromUri(url);
+  @ParameterizedTest
+  @ValueSource(strings = {"?nope=unknown", "?_id=badpa1", "?identifier=badpa1"})
+  @SneakyThrows
+  void emptyBundle(String query) {
+    var url = "http://fonzy.com/r4/Appointment";
+    var request = requestFromUri(url + query);
     Appointment.Bundle bundle = controller().search(request);
     assertThat(bundle.total()).isEqualTo(0);
     assertThat(bundle.entry()).isEmpty();
@@ -65,11 +67,7 @@ public class R4AppointmentControllerTest {
 
   @ParameterizedTest
   @ValueSource(
-      strings = {
-        "?_id=a1&identifier=a2",
-        "?_id=a1&patient=p1",
-        "?identifier=a1&patient=p1",
-      })
+      strings = {"?_id=a1&identifier=a2", "?_id=a1&patient=p1", "?identifier=a1&patient=p1"})
   @SneakyThrows
   void invalidRequest(String query) {
     var r = requestFromUri("http://fonzy.com/r4/Appointment" + query);
@@ -152,7 +150,7 @@ public class R4AppointmentControllerTest {
         "?patient=p1&location=orlando",
         "?patient=p1&_lastUpdated=2020-1-20T16:35:00Z",
         "?location=miami&_lastUpdated=2020-1-20T16:35:00Z",
-        "?patient=p1&location=westpalm&_lastUpdated=2020-1-20T16:35:00Z",
+        "?patient=p1&location=westpalm&_lastUpdated=2020-1-20T16:35:00Z"
       })
   @SneakyThrows
   void validRequests(String query) {
@@ -169,11 +167,7 @@ public class R4AppointmentControllerTest {
   }
 
   @ParameterizedTest
-  @ValueSource(
-      strings = {
-        "?_id=pa1",
-        "?identifier=pa1",
-      })
+  @ValueSource(strings = {"?_id=pa1", "?identifier=pa1"})
   @SneakyThrows
   void validRequestsWithIds(String query) {
     when(ids.register(any())).thenReturn(List.of(registration("1:A", "pa1")));
