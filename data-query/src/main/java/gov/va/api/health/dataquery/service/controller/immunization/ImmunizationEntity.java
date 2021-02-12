@@ -1,6 +1,8 @@
 package gov.va.api.health.dataquery.service.controller.immunization;
 
+import gov.va.api.health.dataquery.service.controller.DatamartSupport;
 import gov.va.api.lighthouse.datamart.DatamartEntity;
+import gov.va.api.lighthouse.datamart.Payload;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -42,6 +44,15 @@ public class ImmunizationEntity implements DatamartEntity {
   }
 
   DatamartImmunization asDatamartImmunization() {
-    return deserializeDatamart(payload, DatamartImmunization.class);
+    return toPayload().deserialize();
+  }
+
+  @Override
+  public Payload<DatamartImmunization> toPayload() {
+    return Payload.ofType(DatamartImmunization.class)
+        .json(payload())
+        .cdwId(cdwId())
+        .mapper(DatamartSupport.mapper())
+        .build();
   }
 }

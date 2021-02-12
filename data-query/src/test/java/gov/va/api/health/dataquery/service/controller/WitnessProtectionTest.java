@@ -16,12 +16,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.springframework.util.MultiValueMap;
 
 public class WitnessProtectionTest {
   IdentityService ids = mock(IdentityService.class);
   WitnessProtection wp = new WitnessProtection(ids);
 
+  @SuppressWarnings("OptionalGetWithoutIsPresent")
   @Test
   public void registerAndUpdateModifiesReferences() {
     when(ids.register(Mockito.any()))
@@ -88,39 +88,13 @@ public class WitnessProtectionTest {
   }
 
   @Test
-  public void replacePublicIdsWithCdwIdsReplacesValues() {
-    when(ids.lookup("x"))
-        .thenReturn(
-            List.of(
-                ResourceIdentity.builder().system("CDW").resource("X").identifier("XXX").build()));
-    MultiValueMap<String, String> actual =
-        wp.replacePublicIdsWithCdwIds(Parameters.forIdentity("x"));
-    assertThat(actual).isEqualTo(Parameters.forIdentity("XXX"));
-  }
-
-  @Test
-  public void replacePublicIdsWithCdwIdsThrowsSearchFailedIfIdsFails() {
-    when(ids.lookup(Mockito.any())).thenThrow(new IdentityService.LookupFailed("x", "x"));
-    assertThrows(
-        ResourceExceptions.SearchFailed.class,
-        () -> wp.replacePublicIdsWithCdwIds(Parameters.forIdentity("x")));
-  }
-
-  @Test
-  public void replacePublicIdsWithCdwIdsThrowsUnknownIdentityIfIdsFails() {
-    when(ids.lookup(Mockito.any())).thenThrow(new IdentityService.UnknownIdentity("x"));
-    assertThrows(
-        ResourceExceptions.UnknownIdentityInSearchParameter.class,
-        () -> wp.replacePublicIdsWithCdwIds(Parameters.forIdentity("x")));
-  }
-
-  @Test
   public void toCdwId() {
     when(ids.lookup("x"))
         .thenReturn(
             List.of(
                 ResourceIdentity.builder().system("CDW").resource("X").identifier("XXX").build()));
     assertThat(wp.toCdwId("x")).isEqualTo("XXX");
+    assertThat(wp.toCdwId("not-registered")).isEqualTo("not-registered");
   }
 
   @Test

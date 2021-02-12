@@ -1,6 +1,8 @@
 package gov.va.api.health.dataquery.service.controller.patient;
 
+import gov.va.api.health.dataquery.service.controller.DatamartSupport;
 import gov.va.api.lighthouse.datamart.DatamartEntity;
+import gov.va.api.lighthouse.datamart.Payload;
 import java.time.Instant;
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -64,11 +66,20 @@ public class PatientEntityV2 implements DatamartEntity {
   }
 
   DatamartPatient asDatamartPatient() {
-    return deserializeDatamart(payload, DatamartPatient.class);
+    return toPayload().deserialize();
   }
 
   @Override
   public String cdwId() {
     return icn();
+  }
+
+  @Override
+  public Payload<DatamartPatient> toPayload() {
+    return Payload.ofType(DatamartPatient.class)
+        .json(payload())
+        .cdwId(cdwId())
+        .mapper(DatamartSupport.mapper())
+        .build();
   }
 }

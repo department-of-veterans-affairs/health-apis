@@ -1,6 +1,8 @@
 package gov.va.api.health.dataquery.service.controller.practitioner;
 
+import gov.va.api.health.dataquery.service.controller.DatamartSupport;
 import gov.va.api.lighthouse.datamart.DatamartEntity;
+import gov.va.api.lighthouse.datamart.Payload;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -49,7 +51,7 @@ public class PractitionerEntity implements DatamartEntity {
 
   /** Deserialize payload. */
   public DatamartPractitioner asDatamartPractitioner() {
-    DatamartPractitioner dm = deserializeDatamart(payload, DatamartPractitioner.class);
+    DatamartPractitioner dm = toPayload().deserialize();
 
     if (dm.practitionerRole().isPresent()) {
       dm.practitionerRole()
@@ -60,5 +62,14 @@ public class PractitionerEntity implements DatamartEntity {
     }
 
     return dm;
+  }
+
+  @Override
+  public Payload<DatamartPractitioner> toPayload() {
+    return Payload.ofType(DatamartPractitioner.class)
+        .json(payload())
+        .cdwId(cdwId())
+        .mapper(DatamartSupport.mapper())
+        .build();
   }
 }

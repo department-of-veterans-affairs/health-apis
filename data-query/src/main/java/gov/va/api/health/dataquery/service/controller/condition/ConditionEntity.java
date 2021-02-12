@@ -1,6 +1,8 @@
 package gov.va.api.health.dataquery.service.controller.condition;
 
+import gov.va.api.health.dataquery.service.controller.DatamartSupport;
 import gov.va.api.lighthouse.datamart.DatamartEntity;
+import gov.va.api.lighthouse.datamart.Payload;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -67,6 +69,15 @@ public class ConditionEntity implements DatamartEntity {
   }
 
   DatamartCondition asDatamartCondition() {
-    return deserializeDatamart(payload, DatamartCondition.class);
+    return toPayload().deserialize();
+  }
+
+  @Override
+  public Payload<DatamartCondition> toPayload() {
+    return Payload.ofType(DatamartCondition.class)
+        .json(payload())
+        .cdwId(cdwId())
+        .mapper(DatamartSupport.mapper())
+        .build();
   }
 }

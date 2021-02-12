@@ -1,6 +1,8 @@
 package gov.va.api.health.dataquery.service.controller.procedure;
 
+import gov.va.api.health.dataquery.service.controller.DatamartSupport;
 import gov.va.api.lighthouse.datamart.DatamartEntity;
+import gov.va.api.lighthouse.datamart.Payload;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -45,6 +47,15 @@ public class ProcedureEntity implements DatamartEntity {
   }
 
   DatamartProcedure asDatamartProcedure() {
-    return deserializeDatamart(payload, DatamartProcedure.class);
+    return toPayload().deserialize();
+  }
+
+  @Override
+  public Payload<DatamartProcedure> toPayload() {
+    return Payload.ofType(DatamartProcedure.class)
+        .json(payload())
+        .cdwId(cdwId())
+        .mapper(DatamartSupport.mapper())
+        .build();
   }
 }

@@ -11,11 +11,11 @@
   <version>3.0.107-SNAPSHOT</version>
   <packaging>jar</packaging>
   <properties>
-    <datamart-starter.version>1.0.3</datamart-starter.version>
+    <datamart-starter.version>2.0.1</datamart-starter.version>
     <fall-risk.version>1.0.29</fall-risk.version>
     <fhir-resources.version>5.0.18</fhir-resources.version>
     <guava.version>29.0-jre</guava.version>
-    <health-apis-ids.version>3.0.5</health-apis-ids.version>
+    <health-apis-ids.version>3.0.6-SNAPSHOT</health-apis-ids.version>
     <mssql-jdbc.version>7.4.1.jre8</mssql-jdbc.version>
     <swagger-maven-plugin.version>2.1.1</swagger-maven-plugin.version>
     <vulcan.version>1.0.2</vulcan.version>

@@ -2,8 +2,10 @@ package gov.va.api.health.dataquery.service.controller.diagnosticreport;
 
 import static java.util.Collections.emptySet;
 
+import gov.va.api.health.dataquery.service.controller.DatamartSupport;
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
 import gov.va.api.lighthouse.datamart.DatamartEntity;
+import gov.va.api.lighthouse.datamart.Payload;
 import java.time.Instant;
 import java.util.Set;
 import javax.persistence.Basic;
@@ -59,7 +61,16 @@ public class DiagnosticReportEntity implements DatamartEntity {
   }
 
   DatamartDiagnosticReport asDatamartDiagnosticReport() {
-    return deserializeDatamart(payload, DatamartDiagnosticReport.class);
+    return toPayload().deserialize();
+  }
+
+  @Override
+  public Payload<DatamartDiagnosticReport> toPayload() {
+    return Payload.ofType(DatamartDiagnosticReport.class)
+        .json(payload())
+        .cdwId(cdwId())
+        .mapper(DatamartSupport.mapper())
+        .build();
   }
 
   public enum CategoryCode {
