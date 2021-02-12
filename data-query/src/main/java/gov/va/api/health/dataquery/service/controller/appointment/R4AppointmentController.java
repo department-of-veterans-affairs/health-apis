@@ -56,13 +56,18 @@ public class R4AppointmentController {
         .build();
   }
 
-  private Map<String, ?> loadCdwId(String cdwId) {
-    CompositeCdwId compositeCdwId = CompositeCdwId.fromCdwId(witnessProtection.toCdwId(cdwId));
-    return Map.of(
-        "cdwIdNumber",
-        compositeCdwId.cdwIdNumber(),
-        "cdwIdResourceCode",
-        compositeCdwId.cdwIdResourceCode());
+  private Map<String, ?> loadCdwId(String publicId) {
+    String cdwId = witnessProtection.toCdwId(publicId);
+    try {
+      CompositeCdwId compositeCdwId = CompositeCdwId.fromCdwId(cdwId);
+      return Map.of(
+          "cdwIdNumber",
+          compositeCdwId.cdwIdNumber(),
+          "cdwIdResourceCode",
+          compositeCdwId.cdwIdResourceCode());
+    } catch (IllegalArgumentException e) {
+      return Map.of();
+    }
   }
 
   /** Read Appointment by id. */
