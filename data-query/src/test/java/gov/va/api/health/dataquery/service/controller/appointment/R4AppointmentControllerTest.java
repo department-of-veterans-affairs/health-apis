@@ -7,7 +7,9 @@ import static gov.va.api.health.dataquery.service.controller.appointment.Appoint
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import gov.va.api.health.dataquery.service.config.LinkProperties;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
@@ -15,6 +17,7 @@ import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.r4.api.bundle.BundleLink;
 import gov.va.api.health.r4.api.resources.Appointment;
 import gov.va.api.lighthouse.datamart.CompositeCdwId;
+import gov.va.api.lighthouse.vulcan.CircuitBreaker;
 import gov.va.api.lighthouse.vulcan.InvalidRequest;
 import gov.va.api.lighthouse.vulcan.VulcanResult;
 import java.math.BigInteger;
@@ -79,12 +82,14 @@ public class R4AppointmentControllerTest {
     when(ids.lookup("pl1")).thenReturn(List.of(id("123:L")));
     assertThat(controller().publicIdToCdwIdNumber("pl1")).isEqualTo(123);
     when(ids.lookup("pl2")).thenReturn(List.of(id("53421")));
-    assertThat(controller().publicIdToCdwIdNumber("pl2")).isNull();
+    assertThatExceptionOfType(CircuitBreaker.class)
+        .isThrownBy(() -> controller().publicIdToCdwIdNumber("pl2"));
     when(ids.lookup("pl3"))
         .thenReturn(
             List.of(
                 id((BigInteger.valueOf(Integer.MAX_VALUE).add(BigInteger.ONE)).toString() + ":L")));
-    assertThat(controller().publicIdToCdwIdNumber("pl3")).isNull();
+    assertThatExceptionOfType(CircuitBreaker.class)
+        .isThrownBy(() -> controller().publicIdToCdwIdNumber("pl3"));
   }
 
   @Test
@@ -109,6 +114,18 @@ public class R4AppointmentControllerTest {
             .build();
     when(repository.findById(CompositeCdwId.fromCdwId("1:A"))).thenReturn(Optional.of(entity));
     assertThat(controller().readRaw("pa1", mock(HttpServletResponse.class))).isEqualTo("payload");
+  }
+
+  void request(String query) {
+    AppointmentSamples.Datamart dm = AppointmentSamples.Datamart.create();
+    when(repository.findAll(any(Specification.class), any(Pageable.class)))
+        .thenAnswer(
+            i ->
+                new PageImpl(
+                    List.of(dm.entity("1", "A", "p1")), i.getArgument(1, Pageable.class), 1));
+    var r = requestFromUri("http://fonzy.com/r4/Appointment" + query);
+    var actual = controller().search(r);
+    assertThat(actual.entry()).hasSize(1);
   }
 
   @Test
@@ -159,24 +176,27 @@ public class R4AppointmentControllerTest {
   @ParameterizedTest
   @ValueSource(
       strings = {
+        "?location=ploc1",
+        "?patient=p1&location=ploc1",
+        "?location=ploc1&_lastUpdated=2020-1-20T16:35:00Z",
+        "?patient=p1&location=ploc1&_lastUpdated=2020-1-20T16:35:00Z"
+      })
+  void validRequestWithLocationIds(String query) {
+    when(ids.register(any())).thenReturn(List.of(registration("1:L", "ploc1")));
+    when(ids.lookup(eq("ploc1"))).thenReturn(List.of(id("1:L")));
+    request(query);
+  }
+
+  @ParameterizedTest
+  @ValueSource(
+      strings = {
         "?patient=111V111",
-        "?patient=p1&location=orlando",
-        "?patient=p1&_lastUpdated=2020-1-20T16:35:00Z",
-        "?location=miami&_lastUpdated=2020-1-20T16:35:00Z",
-        "?patient=p1&location=westpalm&_lastUpdated=2020-1-20T16:35:00Z"
+        "?_lastUpdated=2020-1-20T16:35:00Z",
+        "?patient=p1&_lastUpdated=2020-1-20T16:35:00Z"
       })
   @SneakyThrows
   void validRequests(String query) {
-    when(ids.register(any())).thenReturn(List.of(registration("1:A", "pa1")));
-    AppointmentSamples.Datamart dm = AppointmentSamples.Datamart.create();
-    when(repository.findAll(any(Specification.class), any(Pageable.class)))
-        .thenAnswer(
-            i ->
-                new PageImpl(
-                    List.of(dm.entity("1", "A", "p1")), i.getArgument(1, Pageable.class), 1));
-    var r = requestFromUri("http://fonzy.com/r4/Appointment" + query);
-    var actual = controller().search(r);
-    assertThat(actual.entry()).hasSize(1);
+    request(query);
   }
 
   @ParameterizedTest
@@ -184,15 +204,7 @@ public class R4AppointmentControllerTest {
   @SneakyThrows
   void validRequestsWithIds(String query) {
     when(ids.register(any())).thenReturn(List.of(registration("1:A", "pa1")));
-    when(ids.lookup(any())).thenReturn(List.of(id("1:A")));
-    AppointmentSamples.Datamart dm = AppointmentSamples.Datamart.create();
-    when(repository.findAll(any(Specification.class), any(Pageable.class)))
-        .thenAnswer(
-            i ->
-                new PageImpl(
-                    List.of(dm.entity("1", "A", "p1")), i.getArgument(1, Pageable.class), 1));
-    var r = requestFromUri("http://fonzy.com/r4/Appointment" + query);
-    var actual = controller().search(r);
-    assertThat(actual.entry()).hasSize(1);
+    when(ids.lookup(eq("pa1"))).thenReturn(List.of(id("1:A")));
+    request(query);
   }
 }
