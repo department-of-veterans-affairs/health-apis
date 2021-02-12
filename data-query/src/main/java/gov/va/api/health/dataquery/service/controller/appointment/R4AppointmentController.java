@@ -45,10 +45,16 @@ public class R4AppointmentController {
             Mappings.forEntity(AppointmentEntity.class)
                 .dateAsInstant("_lastUpdated", "lastUpdated")
                 .value("patient", "icn")
-                .value("location", "locationSid")
+                .value("location", "locationSid", this::publicIdToCdwIdNumber)
                 .get())
         .defaultQuery(returnNothing())
         .build();
+  }
+
+  private Integer publicIdToCdwIdNumber(String publicLocationId) {
+    return CompositeCdwId.fromCdwId(witnessProtection.toCdwId(publicLocationId))
+        .cdwIdNumber()
+        .intValueExact();
   }
 
   /** Read Appointment by id. */
