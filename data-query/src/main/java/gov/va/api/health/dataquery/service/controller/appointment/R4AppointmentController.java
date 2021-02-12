@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.appointment;
 
+import static gov.va.api.lighthouse.vulcan.Rules.parametersNeverSpecifiedTogether;
 import static gov.va.api.lighthouse.vulcan.Vulcan.returnNothing;
 
 import gov.va.api.health.dataquery.service.config.LinkProperties;
@@ -11,9 +12,11 @@ import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedReade
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedTransformation;
 import gov.va.api.health.r4.api.resources.Appointment;
 import gov.va.api.lighthouse.datamart.CompositeCdwId;
+import gov.va.api.lighthouse.vulcan.CircuitBreaker;
 import gov.va.api.lighthouse.vulcan.Vulcan;
 import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
 import gov.va.api.lighthouse.vulcan.mappings.Mappings;
+import java.util.Map;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -45,10 +48,39 @@ public class R4AppointmentController {
             Mappings.forEntity(AppointmentEntity.class)
                 .dateAsInstant("_lastUpdated", "lastUpdated")
                 .value("patient", "icn")
-                .value("location", "locationSid")
+                .value("location", "locationSid", this::publicIdToCdwIdNumber)
+                .values("_id", this::loadCdwId)
+                .values("identifier", this::loadCdwId)
+                .value("patient", "icn")
                 .get())
+        .rule(parametersNeverSpecifiedTogether("_id", "identifier", "patient"))
         .defaultQuery(returnNothing())
         .build();
+  }
+
+  private Map<String, ?> loadCdwId(String publicId) {
+    String cdwId = witnessProtection.toCdwId(publicId);
+    try {
+      CompositeCdwId compositeCdwId = CompositeCdwId.fromCdwId(cdwId);
+      return Map.of(
+          "cdwIdNumber",
+          compositeCdwId.cdwIdNumber(),
+          "cdwIdResourceCode",
+          compositeCdwId.cdwIdResourceCode());
+    } catch (IllegalArgumentException e) {
+      return Map.of();
+    }
+  }
+
+  Integer publicIdToCdwIdNumber(String publicId) {
+    try {
+      return CompositeCdwId.fromCdwId(witnessProtection.toCdwId(publicId))
+          .cdwIdNumber()
+          .intValueExact();
+
+    } catch (IllegalArgumentException | ArithmeticException e) {
+      throw CircuitBreaker.noResultsWillBeFound("location", publicId, "Unknown ID.");
+    }
   }
 
   /** Read Appointment by id. */

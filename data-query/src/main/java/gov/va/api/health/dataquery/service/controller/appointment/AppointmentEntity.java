@@ -45,11 +45,7 @@ public class AppointmentEntity implements CompositeIdDatamartEntity {
   private String icn;
 
   @Column(name = "LocationSID")
-  private String locationSid;
-
-  //  This column is not working in cdw
-  //  @Column(name = "DateUTC")
-  //  private Instant dateUtc;
+  private Integer locationSid;
 
   @Column(name = "LastUpdated")
   private Instant lastUpdated;
