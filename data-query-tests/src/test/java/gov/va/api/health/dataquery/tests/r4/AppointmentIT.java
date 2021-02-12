@@ -48,19 +48,9 @@ public class AppointmentIT {
         test(
             200,
             Appointment.Bundle.class,
-            "Appointment?location={location}",
-            verifier.ids().appointments().location()),
-        test(
-            200,
-            Appointment.Bundle.class,
             "Appointment?patient={patient}&location={location}",
             verifier.ids().patient(),
             verifier.ids().appointments().location()),
-        test(
-            200,
-            Appointment.Bundle.class,
-            "Appointment?_lastUpdated={lastUpdated}",
-            verifier.ids().appointments().lastUpdated()),
         test(
             200,
             Appointment.Bundle.class,
@@ -73,6 +63,33 @@ public class AppointmentIT {
             Appointment.Bundle.class,
             "Appointment?patient={patient}&_lastUpdated={lastUpdated}",
             verifier.ids().patient(),
+            verifier.ids().appointments().lastUpdated()));
+  }
+
+  @Test
+  public void searchNotMe() {
+    assumeEnvironmentNotIn(LOCAL);
+    verifier.verifyAll(
+        test(
+            403,
+            OperationOutcome.class,
+            "Appointment?patient={patient}",
+            verifier.ids().unknown()));
+  }
+
+  @Test
+  void systemScopes() {
+    assumeEnvironmentIn(LOCAL);
+    verifier.verifyAll(
+        test(
+            200,
+            Appointment.Bundle.class,
+            "Appointment?location={location}",
+            verifier.ids().appointments().location()),
+        test(
+            200,
+            Appointment.Bundle.class,
+            "Appointment?_lastUpdated={lastUpdated}",
             verifier.ids().appointments().lastUpdated()),
         test(
             200,
@@ -85,16 +102,5 @@ public class AppointmentIT {
             Appointment.Bundle.class,
             r -> r.entry().isEmpty(),
             "Appointment?_lastUpdated=gt" + Year.now().plusYears(1).toString()));
-  }
-
-  @Test
-  public void searchNotMe() {
-    assumeEnvironmentNotIn(LOCAL);
-    verifier.verifyAll(
-        test(
-            403,
-            OperationOutcome.class,
-            "Appointment?patient={patient}",
-            verifier.ids().unknown()));
   }
 }
