@@ -49,7 +49,26 @@ public class AppointmentIT {
         test(
             200,
             Appointment.Bundle.class,
+            "Appointment?patient={patient}&location={location}",
+            verifier.ids().patient(),
+            verifier.ids().appointments().location()),
+        test(
+            200,
+            Appointment.Bundle.class,
             "Appointment?_lastUpdated={lastUpdated}",
+            verifier.ids().appointments().lastUpdated()),
+        test(
+            200,
+            Appointment.Bundle.class,
+            "Appointment?patient={patient}&location={location}&_lastUpdated={lastUpdated}",
+            verifier.ids().patient(),
+            verifier.ids().appointments().location(),
+            verifier.ids().appointments().lastUpdated()),
+        test(
+            200,
+            Appointment.Bundle.class,
+            "Appointment?location={location}&_lastUpdated={lastUpdated}",
+            verifier.ids().appointments().location(),
             verifier.ids().appointments().lastUpdated()),
         test(
             200,

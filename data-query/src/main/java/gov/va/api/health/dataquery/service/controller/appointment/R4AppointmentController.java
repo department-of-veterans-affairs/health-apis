@@ -11,6 +11,7 @@ import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedReade
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedTransformation;
 import gov.va.api.health.r4.api.resources.Appointment;
 import gov.va.api.lighthouse.datamart.CompositeCdwId;
+import gov.va.api.lighthouse.datamart.DatamartExceptions;
 import gov.va.api.lighthouse.vulcan.Vulcan;
 import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
 import gov.va.api.lighthouse.vulcan.mappings.Mappings;
@@ -51,10 +52,16 @@ public class R4AppointmentController {
         .build();
   }
 
-  private Integer publicIdToCdwIdNumber(String publicLocationId) {
-    return CompositeCdwId.fromCdwId(witnessProtection.toCdwId(publicLocationId))
-        .cdwIdNumber()
-        .intValueExact();
+  Integer publicIdToCdwIdNumber(String publicId) {
+    Integer cdwIdNumber;
+    try {
+      cdwIdNumber = CompositeCdwId.fromCdwId(witnessProtection.toCdwId(publicId))
+              .cdwIdNumber()
+              .intValueExact();
+    } catch (IllegalArgumentException | ArithmeticException e) {
+      return null;
+    }
+    return cdwIdNumber;
   }
 
   /** Read Appointment by id. */
