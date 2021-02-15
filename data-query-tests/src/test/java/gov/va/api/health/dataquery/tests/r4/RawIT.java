@@ -1,4 +1,4 @@
-package gov.va.api.health.dataquery.tests.dstu2;
+package gov.va.api.health.dataquery.tests.r4;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test;
  */
 @Slf4j
 public class RawIT {
-  @Delegate ResourceVerifier verifier = ResourceVerifier.dstu2();
+  @Delegate ResourceVerifier verifier = ResourceVerifier.r4();
 
   RequestSpecification raw =
       RestAssured.given()
@@ -31,16 +31,28 @@ public class RawIT {
     assertFhirObject("AllergyIntolerance", verifier.ids().allergyIntolerance());
   }
 
+  @Test
+  public void appointmentRaw() {
+    assertFhirObject("Appointment", verifier.ids().appointment());
+  }
+
   @SneakyThrows
   public void assertFhirObject(String resourceName, String publicId) {
     // Verify it is a raw response from the correct resource
+    assertFhirObject(resourceName, resourceName, publicId);
+  }
+
+  @SneakyThrows
+  public void assertFhirObject(
+      String r4ResourceName, String datamartResourceName, String publicId) {
+    // Verify it is a raw response as an old resource type from an r4 resource
     String fhirObjectType =
-        readRaw(resourceName, publicId)
+        readRaw(r4ResourceName, publicId)
             .jsonPath()
             .using(JsonPathConfig.jsonPathConfig().charset("UTF-8"))
             .get("objectType")
             .toString();
-    assertThat(fhirObjectType).isEqualTo(resourceName);
+    assertThat(fhirObjectType).isEqualTo(datamartResourceName);
   }
 
   @Test
@@ -49,18 +61,14 @@ public class RawIT {
   }
 
   @Test
+  public void deviceRaw() {
+    assertFhirObject("Device", verifier.ids().device());
+  }
+
+  @Test
   @SneakyThrows
   public void diagnosticReportRaw() {
-    // objectType is not returned in a raw diagnosticReport read, so we'll make sure it has an
-    // identifier instead
-    Response response = readRaw("DiagnosticReport", verifier.ids().diagnosticReport());
-    String resourceIdentifier =
-        response
-            .jsonPath()
-            .using(JsonPathConfig.jsonPathConfig().charset("UTF-8"))
-            .get("cdwId")
-            .toString();
-    assertThat(resourceIdentifier).isNotBlank();
+    assertFhirObject("DiagnosticReport", verifier.ids().diagnosticReport());
   }
 
   @Test
@@ -74,18 +82,19 @@ public class RawIT {
   }
 
   @Test
-  public void medicationOrderRaw() {
-    assertFhirObject("MedicationOrder", verifier.ids().medicationOrder());
-  }
-
-  @Test
   public void medicationRaw() {
     assertFhirObject("Medication", verifier.ids().medication());
   }
 
   @Test
-  public void medicationStatementRaw() {
-    assertFhirObject("MedicationStatement", verifier.ids().medicationStatement());
+  public void medicationRequestOrderRaw() {
+    assertFhirObject("MedicationRequest", "MedicationOrder", verifier.ids().medicationOrder());
+  }
+
+  @Test
+  public void medicationRequestStatementRaw() {
+    assertFhirObject(
+        "MedicationRequest", "MedicationStatement", verifier.ids().medicationStatement());
   }
 
   @Test
@@ -106,6 +115,11 @@ public class RawIT {
   @Test
   public void practitionerRaw() {
     assertFhirObject("Practitioner", verifier.ids().practitioner());
+  }
+
+  @Test
+  public void practitionerRoleRaw() {
+    assertFhirObject("PractitionerRole", "Practitioner", verifier.ids().practitioner());
   }
 
   @Test
