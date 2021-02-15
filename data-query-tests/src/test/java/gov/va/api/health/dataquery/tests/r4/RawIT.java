@@ -43,7 +43,8 @@ public class RawIT {
   }
 
   @SneakyThrows
-  public void assertFhirObject(String oldResourceName, String r4ResourceName, String publicId) {
+  public void assertFhirObject(
+      String r4ResourceName, String datamartResourceName, String publicId) {
     // Verify it is a raw response as an old resource type from an r4 resource
     String fhirObjectType =
         readRaw(r4ResourceName, publicId)
@@ -51,7 +52,7 @@ public class RawIT {
             .using(JsonPathConfig.jsonPathConfig().charset("UTF-8"))
             .get("objectType")
             .toString();
-    assertThat(fhirObjectType).isEqualTo(oldResourceName);
+    assertThat(fhirObjectType).isEqualTo(datamartResourceName);
   }
 
   @Test
@@ -87,13 +88,13 @@ public class RawIT {
 
   @Test
   public void medicationRequestOrderRaw() {
-    assertFhirObject("MedicationOrder", "MedicationRequest", verifier.ids().medicationOrder());
+    assertFhirObject("MedicationRequest", "MedicationOrder", verifier.ids().medicationOrder());
   }
 
   @Test
   public void medicationRequestStatementRaw() {
     assertFhirObject(
-        "MedicationStatement", "MedicationRequest", verifier.ids().medicationStatement());
+        "MedicationRequest", "MedicationStatement", verifier.ids().medicationStatement());
   }
 
   @Test
@@ -118,7 +119,7 @@ public class RawIT {
 
   @Test
   public void practitionerRoleRaw() {
-    assertFhirObject("Practitioner", "PractitionerRole", verifier.ids().practitioner());
+    assertFhirObject("PractitionerRole", "Practitioner", verifier.ids().practitioner());
   }
 
   @Test
