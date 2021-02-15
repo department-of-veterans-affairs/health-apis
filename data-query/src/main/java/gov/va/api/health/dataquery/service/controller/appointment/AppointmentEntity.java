@@ -1,7 +1,9 @@
 package gov.va.api.health.dataquery.service.controller.appointment;
 
+import gov.va.api.health.dataquery.service.controller.DatamartSupport;
 import gov.va.api.lighthouse.datamart.CompositeCdwId;
 import gov.va.api.lighthouse.datamart.CompositeIdDatamartEntity;
+import gov.va.api.lighthouse.datamart.Payload;
 import java.math.BigInteger;
 import java.time.Instant;
 import javax.persistence.Basic;
@@ -58,10 +60,20 @@ public class AppointmentEntity implements CompositeIdDatamartEntity {
   }
 
   DatamartAppointment asDatamartAppointment() {
-    return deserializeDatamart(payload, DatamartAppointment.class);
+    return toPayload().deserialize();
   }
 
+  @Override
   public CompositeCdwId compositeCdwId() {
     return new CompositeCdwId(cdwIdNumber(), cdwIdResourceCode());
+  }
+
+  @Override
+  public Payload<DatamartAppointment> toPayload() {
+    return Payload.ofType(DatamartAppointment.class)
+        .json(payload())
+        .cdwId(cdwId())
+        .mapper(DatamartSupport.mapper())
+        .build();
   }
 }

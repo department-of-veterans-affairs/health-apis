@@ -1,6 +1,8 @@
 package gov.va.api.health.dataquery.service.controller.observation;
 
+import gov.va.api.health.dataquery.service.controller.DatamartSupport;
 import gov.va.api.lighthouse.datamart.DatamartEntity;
+import gov.va.api.lighthouse.datamart.Payload;
 import java.time.Instant;
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -52,6 +54,15 @@ public class ObservationEntity implements DatamartEntity {
   }
 
   DatamartObservation asDatamartObservation() {
-    return deserializeDatamart(payload, DatamartObservation.class);
+    return toPayload().deserialize();
+  }
+
+  @Override
+  public Payload<DatamartObservation> toPayload() {
+    return Payload.ofType(DatamartObservation.class)
+        .json(payload())
+        .cdwId(cdwId())
+        .mapper(DatamartSupport.mapper())
+        .build();
   }
 }
