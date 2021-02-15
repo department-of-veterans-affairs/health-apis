@@ -20,6 +20,7 @@ public class DataQueryScopes {
         "patient/Observation.read",
         "patient/Patient.read",
         "patient/Procedure.read",
+        "system/Appointment.read",
         "openid",
         "profile",
         "offline_access",
