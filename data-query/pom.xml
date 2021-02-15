@@ -4,18 +4,18 @@
   <parent>
     <groupId>gov.va.api.health</groupId>
     <artifactId>service-starter</artifactId>
-    <version>7.0.20</version>
+    <version>7.0.21</version>
     <relativePath/>
   </parent>
   <artifactId>data-query</artifactId>
-  <version>3.0.114-SNAPSHOT</version>
+  <version>3.0.114</version>
   <packaging>jar</packaging>
   <properties>
     <datamart-starter.version>1.0.3</datamart-starter.version>
     <fall-risk.version>1.0.29</fall-risk.version>
     <fhir-resources.version>5.0.20</fhir-resources.version>
     <guava.version>29.0-jre</guava.version>
-    <health-apis-ids.version>3.0.5</health-apis-ids.version>
+    <health-apis-ids.version>3.0.6</health-apis-ids.version>
     <mssql-jdbc.version>7.4.1.jre8</mssql-jdbc.version>
     <swagger-maven-plugin.version>2.1.1</swagger-maven-plugin.version>
     <vulcan.version>1.0.5</vulcan.version>
