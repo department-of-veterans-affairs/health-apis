@@ -1,6 +1,7 @@
 package gov.va.api.health.dataquery.service.api;
 
 import gov.va.api.health.r4.api.AllergyIntoleranceApi;
+import gov.va.api.health.r4.api.AppointmentApi;
 import gov.va.api.health.r4.api.ConditionApi;
 import gov.va.api.health.r4.api.DeviceApi;
 import gov.va.api.health.r4.api.DiagnosticReportApi;
@@ -34,6 +35,7 @@ import javax.ws.rs.Path;
             name = "OauthFlow",
             scopes = {
               "patient/AllergyIntolerance.read",
+              "patient/Appointment.read",
               "patient/Condition.read",
               "patient/Device.read",
               "patient/DiagnosticReport.read",
@@ -86,6 +88,9 @@ import javax.ws.rs.Path;
                       @OAuthScope(
                           name = "patient/AllergyIntolerance.read",
                           description = "read allergy intolerances"),
+                      @OAuthScope(
+                          name = "patient/Appointment.read",
+                          description = "read appointments"),
                       @OAuthScope(name = "patient/Condition.read", description = "read conditions"),
                       @OAuthScope(name = "patient/Device.read", description = "read devices"),
                       @OAuthScope(
@@ -117,6 +122,7 @@ import javax.ws.rs.Path;
 @Path("/")
 public interface R4DataQueryService
     extends AllergyIntoleranceApi,
+        AppointmentApi,
         ConditionApi,
         DeviceApi,
         DiagnosticReportApi,
