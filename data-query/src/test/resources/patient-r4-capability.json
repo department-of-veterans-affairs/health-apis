@@ -111,6 +111,47 @@
           ]
         },
         {
+          "type" : "Appointment",
+          "profile" : "https://www.hl7.org/fhir/appointment.html",
+          "interaction" : [
+            {
+              "code" : "search-type",
+              "documentation" : "Implemented per the specification"
+            },
+            {
+              "code" : "read",
+              "documentation" : "Implemented per the specification"
+            }
+          ],
+          "versioning" : "no-version",
+          "referencePolicy" : [
+            "literal",
+            "local"
+          ],
+          "searchParam" : [
+            {
+              "name" : "_id",
+              "type" : "token"
+            },
+            {
+              "name" : "_lastUpdated",
+              "type" : "date"
+            },
+            {
+              "name" : "identifier",
+              "type" : "token"
+            },
+            {
+              "name" : "location",
+              "type" : "reference"
+            },
+            {
+              "name" : "patient",
+              "type" : "reference"
+            }
+          ]
+        },
+        {
           "type" : "Condition",
           "profile" : "http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition",
           "interaction" : [

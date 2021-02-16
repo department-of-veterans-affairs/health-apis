@@ -101,6 +101,16 @@ class R4MetadataController {
                     "http://hl7.org/fhir/us/core/StructureDefinition/us-core-allergyintolerance")
                 .search(Set.of(SearchParam.ID, SearchParam.IDENTIFIER, SearchParam.PATIENT))
                 .build(),
+            support("Appointment")
+                .profileUrl("https://www.hl7.org/fhir/appointment.html")
+                .search(
+                    Set.of(
+                        SearchParam.ID,
+                        SearchParam.IDENTIFIER,
+                        SearchParam.PATIENT,
+                        SearchParam.LOCATION,
+                        SearchParam.LAST_UPDATED))
+                .build(),
             support("Condition")
                 .profileUrl("http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition")
                 .search(
@@ -292,6 +302,8 @@ class R4MetadataController {
     ID("_id", SearchParamType.token),
     IDENTIFIER("identifier", SearchParamType.token),
     INTENT("intent", SearchParamType.token),
+    LAST_UPDATED("_lastUpdated", SearchParamType.date),
+    LOCATION("location", SearchParamType.reference),
     NAME("name", SearchParamType.string),
     PATIENT("patient", SearchParamType.reference),
     STATUS("status", SearchParamType.token),
