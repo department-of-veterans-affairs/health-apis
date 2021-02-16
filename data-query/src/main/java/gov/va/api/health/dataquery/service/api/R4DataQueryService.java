@@ -35,7 +35,7 @@ import javax.ws.rs.Path;
             name = "OauthFlow",
             scopes = {
               "patient/AllergyIntolerance.read",
-              "patient/Appointment.read",
+              "system/Appointment.read",
               "patient/Condition.read",
               "patient/Device.read",
               "patient/DiagnosticReport.read",
@@ -89,7 +89,7 @@ import javax.ws.rs.Path;
                           name = "patient/AllergyIntolerance.read",
                           description = "read allergy intolerances"),
                       @OAuthScope(
-                          name = "patient/Appointment.read",
+                          name = "system/Appointment.read",
                           description = "read appointments"),
                       @OAuthScope(name = "patient/Condition.read", description = "read conditions"),
                       @OAuthScope(name = "patient/Device.read", description = "read devices"),
