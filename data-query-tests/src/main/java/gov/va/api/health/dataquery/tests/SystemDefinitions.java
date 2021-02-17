@@ -63,6 +63,8 @@ public final class SystemDefinitions {
     return TestIds.Appointments.builder()
         .location("I2-4KG3N5YUSPTWD3DAFMLMRL5V5U000000")
         .lastUpdated("le2020")
+        //Frankenpatient
+        .oauthPatient("1017283180V801730")
         .build();
   }
 

@@ -179,6 +179,16 @@ setupForAutomation() {
 
   # This is an optional, and discouraged flag.
   [ -n "$SENTINEL_CRAWLER_IGNORES" ] && addToSystemProperties "crawler.ignores" "$SENTINEL_CRAWLER_IGNORES"
+
+  setUpOauthTest
+}
+
+setUpOauthTest() {
+  if [ -n "${OAUTH_AUD:-}" ]; then addToSystemProperties "system-oauth-robot.aud" "${OAUTH_AUD}"; fi
+  if [ -n "${OAUTH_TOKEN_URL:-}" ]; then addToSystemProperties "system-oauth-robot.token-url" "${OAUTH_TOKEN_URL}"; fi
+  if [ -n "${OAUTH_SCOPES:-}" ]; then addToSystemProperties "system-oauth-robot.scopes-csv" "${OAUTH_SCOPES}"; fi
+  addToSystemProperties "system-oauth-robot.client-id" "${OAUTH_CLIENT_ID}"
+  addToSystemProperties "system-oauth-robot.client-secret" "${OAUTH_CLIENT_SECRET}"
 }
 
 ARGS=$(getopt -n $(basename ${0}) \
