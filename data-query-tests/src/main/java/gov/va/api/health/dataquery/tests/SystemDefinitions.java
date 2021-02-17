@@ -63,7 +63,7 @@ public final class SystemDefinitions {
     return TestIds.Appointments.builder()
         .location("I2-4KG3N5YUSPTWD3DAFMLMRL5V5U000000")
         .lastUpdated("le2020")
-        //Frankenpatient
+        // Frankenpatient
         .oauthPatient("1017283180V801730")
         .build();
   }
@@ -149,6 +149,8 @@ public final class SystemDefinitions {
   private static TestIds.Appointments localAppointments() {
     return TestIds.Appointments.builder()
         .location("I2-K7WNFKZA3JCXL3CLT6D2HP7RRU000000")
+        .oauthPatient("1017283180V801730")
+        .lastUpdated("le2020")
         .lastUpdated("le2020")
         .build();
   }

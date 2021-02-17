@@ -5,17 +5,15 @@ import static gov.va.api.health.sentinel.Environment.LOCAL;
 import static gov.va.api.health.sentinel.Environment.STAGING_LAB;
 import static gov.va.api.health.sentinel.EnvironmentAssumptions.assumeEnvironmentIn;
 import static gov.va.api.health.sentinel.EnvironmentAssumptions.assumeEnvironmentNotIn;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import gov.va.api.health.dataquery.tests.Oauth;
 import gov.va.api.health.dataquery.tests.ResourceVerifier;
 import gov.va.api.health.dataquery.tests.SystemDefinitions;
 import gov.va.api.health.r4.api.resources.Appointment;
 import gov.va.api.health.r4.api.resources.OperationOutcome;
+import gov.va.api.health.sentinel.*;
 import java.time.Year;
 import java.util.List;
-
-import gov.va.api.health.sentinel.*;
 import lombok.experimental.Delegate;
 import org.junit.jupiter.api.Test;
 
@@ -72,23 +70,12 @@ public class AppointmentIT {
             verifier.ids().appointments().lastUpdated()));
   }
 
-  @Test
-  public void searchNotMe() {
-    assumeEnvironmentNotIn(LOCAL);
-    verifier.verifyAll(
-        test(
-            403,
-            OperationOutcome.class,
-            "Appointment?patient={patient}",
-            verifier.ids().unknown()));
-  }
-
   /**
-   * Test searching that would typically requires a token. We don't have a kong locally here, so we
-   * can ignore the token.
+   * Searching that would typically requires a clinician-scoped token. We don't have a kong local,
+   * so we can ignore the token.
    */
   @Test
-  void systemScopesLocal() {
+  void clinicianSearching() {
     assumeEnvironmentIn(LOCAL);
     verifier.verifyAll(
         test(
@@ -146,5 +133,16 @@ public class AppointmentIT {
         token,
         "Observation?patient={icn}",
         verifier.ids().appointments().oauthPatient());
+  }
+
+  @Test
+  public void searchNotMe() {
+    assumeEnvironmentNotIn(LOCAL);
+    verifier.verifyAll(
+        test(
+            403,
+            OperationOutcome.class,
+            "Appointment?patient={patient}",
+            verifier.ids().unknown()));
   }
 }
