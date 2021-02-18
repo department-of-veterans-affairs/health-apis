@@ -231,7 +231,7 @@ public final class SystemDefinitions {
   }
 
   /*
-   * NOTES: 
+   * NOTES:
    * - Organization: The following Organization is real (Orlando VAMC).
    * - Practitioner: The following is a real Practitioner working at the Orlando VAMC.
    *     If test breaks, they may no longer work at the Orlando VAMC and will need to be replaced.
