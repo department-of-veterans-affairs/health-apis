@@ -221,6 +221,7 @@ public final class SystemDefinitions {
   private static TestIds.Appointments productionAppointments() {
     return TestIds.Appointments.builder()
         .location("I2-XPW2ECZK2LTNSPLNVKISWC5QZABOVEBZD5V2CKFRVEPAU5CNZMJQ0000")
+        .oauthPatient("1017283180V801730")
         .lastUpdated("le2020")
         .build();
   }
