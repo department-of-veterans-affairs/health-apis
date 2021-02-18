@@ -41,6 +41,7 @@ public final class TestIds {
   public static class Appointments {
     @NonNull String lastUpdated;
     @NonNull String location;
+    @NonNull String oauthPatient;
   }
 
   @Value
