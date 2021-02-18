@@ -1,19 +1,19 @@
 package gov.va.api.health.dataquery.service.controller;
 
-import gov.va.api.health.fhir.api.FhirDateTimeParameters;
+import gov.va.api.health.fhir.api.FhirDateTimeParameter;
+import java.io.Serializable;
 import java.time.Instant;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Predicate;
-import lombok.EqualsAndHashCode;
 import lombok.Value;
 
 @Value
-@EqualsAndHashCode(callSuper = true)
-public class DateTimeParameters extends FhirDateTimeParameters {
+public class JpaDateTimeParameter implements Serializable {
+  private FhirDateTimeParameter parameter;
 
-  public DateTimeParameters(String paramString) {
-    super(paramString);
+  public JpaDateTimeParameter(String paramString) {
+    parameter = new FhirDateTimeParameter(paramString);
   }
 
   /**
@@ -21,9 +21,9 @@ public class DateTimeParameters extends FhirDateTimeParameters {
    * of the JPA entity property/column. The criteria builder will be used to create the predicates.
    */
   public Predicate toInstantPredicate(Expression<Instant> field, CriteriaBuilder criteriaBuilder) {
-    Instant lowerBound = lowerBound();
-    Instant upperBound = upperBound();
-    switch (prefix()) {
+    Instant lowerBound = parameter.lowerBound();
+    Instant upperBound = parameter.upperBound();
+    switch (parameter.prefix()) {
       case EQ:
         return criteriaBuilder.and(
             criteriaBuilder.greaterThanOrEqualTo(field, lowerBound),
@@ -47,7 +47,7 @@ public class DateTimeParameters extends FhirDateTimeParameters {
       case AP:
         throw new UnsupportedOperationException("AP search prefix not implemented");
       default:
-        throw new IllegalArgumentException("Unknown search prefix: " + prefix());
+        throw new IllegalArgumentException("Unknown search prefix: " + parameter.prefix());
     }
   }
 
@@ -57,9 +57,9 @@ public class DateTimeParameters extends FhirDateTimeParameters {
    */
   public Predicate toPredicate(
       Expression<? extends Number> field, CriteriaBuilder criteriaBuilder) {
-    long lowerBound = lowerBound().toEpochMilli();
-    long upperBound = upperBound().toEpochMilli();
-    switch (prefix()) {
+    long lowerBound = parameter.lowerBound().toEpochMilli();
+    long upperBound = parameter.upperBound().toEpochMilli();
+    switch (parameter.prefix()) {
       case EQ:
         return criteriaBuilder.and(
             criteriaBuilder.ge(field, lowerBound), criteriaBuilder.le(field, upperBound));
@@ -79,7 +79,7 @@ public class DateTimeParameters extends FhirDateTimeParameters {
       case AP:
         throw new UnsupportedOperationException("AP search prefix not implemented");
       default:
-        throw new IllegalArgumentException("Unknown search prefix: " + prefix());
+        throw new IllegalArgumentException("Unknown search prefix: " + parameter.prefix());
     }
   }
 }

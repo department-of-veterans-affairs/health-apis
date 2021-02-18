@@ -1,7 +1,7 @@
 package gov.va.api.health.dataquery.service.controller.patient;
 
 import gov.va.api.health.autoconfig.logging.Loggable;
-import gov.va.api.health.dataquery.service.controller.DateTimeParameters;
+import gov.va.api.health.dataquery.service.controller.JpaDateTimeParameter;
 import java.util.ArrayList;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -47,15 +47,15 @@ public interface PatientRepositoryV2
   class NameAndBirthdateSpecification implements Specification<PatientEntityV2> {
     String name;
 
-    DateTimeParameters date1;
+    JpaDateTimeParameter date1;
 
-    DateTimeParameters date2;
+    JpaDateTimeParameter date2;
 
     @Builder
     private NameAndBirthdateSpecification(String name, String[] dates) {
       this.name = name;
-      date1 = (dates == null || dates.length < 1) ? null : new DateTimeParameters(dates[0]);
-      date2 = (dates == null || dates.length < 2) ? null : new DateTimeParameters(dates[1]);
+      date1 = (dates == null || dates.length < 1) ? null : new JpaDateTimeParameter(dates[0]);
+      date2 = (dates == null || dates.length < 2) ? null : new JpaDateTimeParameter(dates[1]);
     }
 
     @Override
@@ -77,17 +77,17 @@ public interface PatientRepositoryV2
 
   @Value
   class BirthdateAndFamilySpecification implements Specification<PatientEntityV2> {
-    DateTimeParameters date1;
+    JpaDateTimeParameter date1;
 
-    DateTimeParameters date2;
+    JpaDateTimeParameter date2;
 
     String family;
 
     @Builder
     private BirthdateAndFamilySpecification(String family, String[] dates) {
       this.family = family;
-      date1 = (dates == null || dates.length < 1) ? null : new DateTimeParameters(dates[0]);
-      date2 = (dates == null || dates.length < 2) ? null : new DateTimeParameters(dates[1]);
+      date1 = (dates == null || dates.length < 1) ? null : new JpaDateTimeParameter(dates[0]);
+      date2 = (dates == null || dates.length < 2) ? null : new JpaDateTimeParameter(dates[1]);
     }
 
     @Override
