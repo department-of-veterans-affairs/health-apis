@@ -51,7 +51,7 @@ final class R4AppointmentTransformer {
         .coding(
             List.of(
                 Coding.builder()
-                    .system("http://terminology.hl7.org/CodeSystem/appointment-cancellation-reason")
+                    .system("system=http://www.va.gov/Terminology/VistADefinedTerms/2.98-16")
                     .display(maybeCancelationReason.get())
                     .build()))
         .text(maybeCancelationReason.get())

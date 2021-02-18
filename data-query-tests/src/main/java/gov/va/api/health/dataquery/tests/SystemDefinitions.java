@@ -221,6 +221,7 @@ public final class SystemDefinitions {
   private static TestIds.Appointments productionAppointments() {
     return TestIds.Appointments.builder()
         .location("I2-XPW2ECZK2LTNSPLNVKISWC5QZABOVEBZD5V2CKFRVEPAU5CNZMJQ0000")
+        .oauthPatient("1017283180V801730")
         .lastUpdated("le2020")
         .build();
   }
@@ -230,7 +231,7 @@ public final class SystemDefinitions {
   }
 
   /*
-   * NOTES:
+   * NOTES: 
    * - Organization: The following Organization is real (Orlando VAMC).
    * - Practitioner: The following is a real Practitioner working at the Orlando VAMC.
    *     If test breaks, they may no longer work at the Orlando VAMC and will need to be replaced.

@@ -184,8 +184,7 @@ public class AppointmentSamples {
           .coding(
               List.of(
                   Coding.builder()
-                      .system(
-                          "http://terminology.hl7.org/CodeSystem/appointment-cancellation-reason")
+                      .system("system=http://www.va.gov/Terminology/VistADefinedTerms/2.98-16")
                       .display("OTHER")
                       .build()))
           .text("OTHER")
