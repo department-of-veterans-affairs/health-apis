@@ -184,7 +184,7 @@ public class AppointmentSamples {
           .coding(
               List.of(
                   Coding.builder()
-                      .system("system=http://www.va.gov/Terminology/VistADefinedTerms/2.98-16")
+                      .system("http://www.va.gov/Terminology/VistADefinedTerms/2.98-16")
                       .display("OTHER")
                       .build()))
           .text("OTHER")
