@@ -151,7 +151,6 @@ public final class SystemDefinitions {
         .location("I2-K7WNFKZA3JCXL3CLT6D2HP7RRU000000")
         .oauthPatient("1017283180V801730")
         .lastUpdated("le2020")
-        .lastUpdated("le2020")
         .build();
   }
 
