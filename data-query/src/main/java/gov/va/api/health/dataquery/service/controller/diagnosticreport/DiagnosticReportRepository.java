@@ -4,7 +4,7 @@ import static gov.va.api.health.dataquery.service.controller.Transformers.allBla
 import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
 
 import gov.va.api.health.autoconfig.logging.Loggable;
-import gov.va.api.health.dataquery.service.controller.DateTimeParameters;
+import gov.va.api.health.dataquery.service.controller.JpaDateTimeParameter;
 import gov.va.api.health.dataquery.service.controller.diagnosticreport.DiagnosticReportEntity.CategoryCode;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,9 +35,9 @@ public interface DiagnosticReportRepository
   @AllArgsConstructor(staticName = "of")
   class DateSpecification implements Specification<DiagnosticReportEntity> {
 
-    DateTimeParameters date1;
+    JpaDateTimeParameter date1;
 
-    DateTimeParameters date2;
+    JpaDateTimeParameter date2;
 
     @Override
     public Predicate toPredicate(
@@ -63,17 +63,17 @@ public interface DiagnosticReportRepository
 
     Set<CategoryCode> categories;
 
-    DateTimeParameters date1;
+    JpaDateTimeParameter date1;
 
-    DateTimeParameters date2;
+    JpaDateTimeParameter date2;
 
     @Builder
     private PatientAndCategoryAndDateSpecification(
         String patient, Set<CategoryCode> categories, String[] dates) {
       this.patient = patient;
       this.categories = categories;
-      date1 = (dates == null || dates.length < 1) ? null : new DateTimeParameters(dates[0]);
-      date2 = (dates == null || dates.length < 2) ? null : new DateTimeParameters(dates[1]);
+      date1 = (dates == null || dates.length < 1) ? null : new JpaDateTimeParameter(dates[0]);
+      date2 = (dates == null || dates.length < 2) ? null : new JpaDateTimeParameter(dates[1]);
     }
 
     @Override
@@ -108,16 +108,16 @@ public interface DiagnosticReportRepository
 
     Set<String> codes;
 
-    DateTimeParameters date1;
+    JpaDateTimeParameter date1;
 
-    DateTimeParameters date2;
+    JpaDateTimeParameter date2;
 
     @Builder
     private PatientAndCodeAndDateSpecification(String patient, Set<String> codes, String[] dates) {
       this.patient = patient;
       this.codes = codes;
-      date1 = (dates == null || dates.length < 1) ? null : new DateTimeParameters(dates[0]);
-      date2 = (dates == null || dates.length < 2) ? null : new DateTimeParameters(dates[1]);
+      date1 = (dates == null || dates.length < 1) ? null : new JpaDateTimeParameter(dates[0]);
+      date2 = (dates == null || dates.length < 2) ? null : new JpaDateTimeParameter(dates[1]);
     }
 
     @Override

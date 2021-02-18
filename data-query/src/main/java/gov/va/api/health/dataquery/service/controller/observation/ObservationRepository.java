@@ -1,7 +1,7 @@
 package gov.va.api.health.dataquery.service.controller.observation;
 
 import gov.va.api.health.autoconfig.logging.Loggable;
-import gov.va.api.health.dataquery.service.controller.DateTimeParameters;
+import gov.va.api.health.dataquery.service.controller.JpaDateTimeParameter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -158,15 +158,15 @@ public interface ObservationRepository
 
     String patient;
 
-    DateTimeParameters date1;
+    JpaDateTimeParameter date1;
 
-    DateTimeParameters date2;
+    JpaDateTimeParameter date2;
 
     @Builder
     private PatientAndDateSpecification(String patient, String[] dates) {
       this.patient = patient;
-      date1 = (dates == null || dates.length < 1) ? null : new DateTimeParameters(dates[0]);
-      date2 = (dates == null || dates.length < 2) ? null : new DateTimeParameters(dates[1]);
+      date1 = (dates == null || dates.length < 1) ? null : new JpaDateTimeParameter(dates[0]);
+      date2 = (dates == null || dates.length < 2) ? null : new JpaDateTimeParameter(dates[1]);
     }
 
     @Override
