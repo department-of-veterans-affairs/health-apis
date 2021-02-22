@@ -18,9 +18,14 @@ import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
 import gov.va.api.lighthouse.vulcan.mappings.Mappings;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.function.Supplier;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,12 +39,13 @@ import org.springframework.web.bind.annotation.RestController;
     value = {"/r4/Appointment"},
     produces = {"application/json", "application/fhir+json"})
 @AllArgsConstructor(onConstructor_ = @Autowired)
+@Slf4j
 public class R4AppointmentController {
-  private WitnessProtection witnessProtection;
+  private final WitnessProtection witnessProtection;
 
-  private AppointmentRepository repository;
+  private final AppointmentRepository repository;
 
-  private LinkProperties linkProperties;
+  private final LinkProperties linkProperties;
 
   private VulcanConfiguration<AppointmentEntity> configuration() {
     return VulcanConfiguration.forEntity(AppointmentEntity.class)
@@ -149,19 +155,50 @@ public class R4AppointmentController {
    * original CDW ID to properly detect the type of a appointment, which is encoded in it's ID.
    */
   private static class StatefulTransformation {
-    private CompositeCdwId compositeCdwId;
+
+    /**
+     * We're tracking the pair of entity-to-appointment as this thread safe queue. We're not using a
+     * map here because we know the DatamartAppointment.cdwId will be mutated along the way and we
+     * cannot safe use the CDW ID or the entire appointment object as map key. We only will
+     * transform each entity/appointment once, so we will remove entries as they are processed to
+     * keep sequential searching to a minimum.
+     */
+    private final Queue<State> states = new ConcurrentLinkedQueue<>();
 
     DatamartAppointment asDatamartAppointment(AppointmentEntity entity) {
-      compositeCdwId = CompositeCdwId.fromCdwId(entity.cdwId());
-      return entity.asDatamartAppointment();
+      DatamartAppointment payload = entity.asDatamartAppointment();
+      states.add(State.of(entity, payload));
+      return payload;
+    }
+
+    private Supplier<IllegalStateException> missingStateException(DatamartAppointment witness) {
+      return () ->
+          new IllegalStateException(
+              "Attempting to convert datamart appointment with missing state entry: "
+                  + witness.cdwId());
     }
 
     Appointment toAppointment(DatamartAppointment witness) {
+      State state =
+          states.stream()
+              .filter(s -> s.payload().equals(witness))
+              .findFirst()
+              .orElseThrow(missingStateException(witness));
+      states.remove(state);
+      CompositeCdwId witnessCompositeId = state.entity().compositeCdwId();
+
       return R4AppointmentTransformer.builder()
-          .compositeCdwId(compositeCdwId)
+          .compositeCdwId(witnessCompositeId)
           .dm(witness)
           .build()
           .toFhir();
+    }
+
+    @AllArgsConstructor(staticName = "of")
+    @Getter
+    private static class State {
+      private final AppointmentEntity entity;
+      private final DatamartAppointment payload;
     }
   }
 }
