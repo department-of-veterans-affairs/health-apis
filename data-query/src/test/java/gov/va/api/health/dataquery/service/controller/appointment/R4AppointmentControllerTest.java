@@ -3,6 +3,7 @@ package gov.va.api.health.dataquery.service.controller.appointment;
 import static gov.va.api.health.dataquery.service.controller.MockRequests.paging;
 import static gov.va.api.health.dataquery.service.controller.MockRequests.requestFromUri;
 import static gov.va.api.health.dataquery.service.controller.appointment.AppointmentSamples.id;
+import static gov.va.api.health.dataquery.service.controller.appointment.AppointmentSamples.json;
 import static gov.va.api.health.dataquery.service.controller.appointment.AppointmentSamples.registration;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -16,6 +17,8 @@ import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.r4.api.bundle.BundleLink;
 import gov.va.api.health.r4.api.resources.Appointment;
+import gov.va.api.health.r4.api.resources.Appointment.AppointmentStatus;
+import gov.va.api.health.r4.api.resources.Appointment.ParticipationStatus;
 import gov.va.api.lighthouse.datamart.CompositeCdwId;
 import gov.va.api.lighthouse.vulcan.CircuitBreaker;
 import gov.va.api.lighthouse.vulcan.InvalidRequest;
@@ -134,7 +137,7 @@ public class R4AppointmentControllerTest {
     when(ids.register(any()))
         .thenReturn(
             List.of(
-                registration("1:A", "pa1"),
+                registration("1:W", "pa1"),
                 registration("2:A", "pa2"),
                 registration("3:A", "pa3")));
     var bundler = controller().toBundle();
@@ -147,18 +150,18 @@ public class R4AppointmentControllerTest {
                     1, 4, 5, 6, 9, 15))
             .entities(
                 Stream.of(
-                    datamart.entity("1", "A", "p1"),
+                    datamart.entity("1", "W", "p1"),
                     datamart.entity("2", "A", "p1"),
                     datamart.entity("3", "A", "p1")))
             .build();
     AppointmentSamples.R4 r4 = AppointmentSamples.R4.create();
+    Appointment waitlisted = r4.appointment("pa1", "p1");
+    waitlisted.status(AppointmentStatus.waitlist);
+    waitlisted.participant().forEach(p -> p.status(ParticipationStatus.tentative));
     Appointment.Bundle expected =
         AppointmentSamples.R4.asBundle(
             "http://fonzy.com/r4",
-            List.of(
-                r4.appointment("pa1", "p1"),
-                r4.appointment("pa2", "p1"),
-                r4.appointment("pa3", "p1")),
+            List.of(waitlisted, r4.appointment("pa2", "p1"), r4.appointment("pa3", "p1")),
             999,
             AppointmentSamples.R4.link(
                 BundleLink.LinkRelation.first, "http://fonzy.com/r4/Appointment?patient=p1", 1, 15),
@@ -171,7 +174,7 @@ public class R4AppointmentControllerTest {
             AppointmentSamples.R4.link(
                 BundleLink.LinkRelation.last, "http://fonzy.com/r4/Appointment?patient=p1", 9, 15));
     var applied = bundler.apply(vr);
-    assertThat(applied).isEqualTo(expected);
+    assertThat(json(applied)).isEqualTo(json(expected));
   }
 
   @ParameterizedTest
