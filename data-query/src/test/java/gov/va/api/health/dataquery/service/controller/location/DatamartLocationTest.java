@@ -47,6 +47,7 @@ public class DatamartLocationTest {
                     .stationNumber("623GB")
                     .type(FacilityId.FacilityType.HEALTH)
                     .build()))
+        .locationIen(Optional.of("692"))
         .build();
   }
 
@@ -55,6 +56,7 @@ public class DatamartLocationTest {
     DatamartLocation dm = DatamartLocation.builder().build();
     assertThat(dm.description()).isEqualTo(empty());
     assertThat(dm.facilityId()).isEqualTo(empty());
+    assertThat(dm.locationIen()).isEqualTo(empty());
     assertThat(dm.type()).isEqualTo(empty());
     assertThat(dm.physicalType()).isEqualTo(empty());
   }

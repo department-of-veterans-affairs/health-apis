@@ -21,5 +21,6 @@
   "facilityId" : {
     "stationNumber" : "623GB",
     "type" : "HEALTH"
-  }
+  },
+  "locationIen" : "692"
 }

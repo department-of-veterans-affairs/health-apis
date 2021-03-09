@@ -39,6 +39,8 @@ public final class DatamartLocation implements HasReplaceableId {
 
   private Optional<FacilityId> facilityId;
 
+  private Optional<String> locationIen;
+
   /** Lazy initialization. */
   public Optional<String> description() {
     if (description == null) {
@@ -53,6 +55,14 @@ public final class DatamartLocation implements HasReplaceableId {
       facilityId = Optional.empty();
     }
     return facilityId;
+  }
+
+  /** Lazy initialization. */
+  public Optional<String> locationIen() {
+    if (locationIen == null) {
+      locationIen = Optional.empty();
+    }
+    return locationIen;
   }
 
   /** Lazy initialization. */
