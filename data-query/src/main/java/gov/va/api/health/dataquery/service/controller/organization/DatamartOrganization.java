@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.organization;
 
+import gov.va.api.health.dataquery.service.controller.FacilityId;
 import gov.va.api.lighthouse.datamart.DatamartCoding;
 import gov.va.api.lighthouse.datamart.DatamartReference;
 import gov.va.api.lighthouse.datamart.HasReplaceableId;
@@ -148,24 +149,6 @@ public final class DatamartOrganization implements HasReplaceableId {
     public enum System {
       phone,
       fax
-    }
-  }
-
-  @Data
-  @Builder
-  @NoArgsConstructor(access = AccessLevel.PRIVATE)
-  @AllArgsConstructor(access = AccessLevel.PRIVATE)
-  public static final class FacilityId {
-    private String stationNumber;
-
-    private FacilityType type;
-
-    public enum FacilityType {
-      HEALTH,
-      BENEFITS,
-      VET_CENTER,
-      CEMETERY,
-      NONNATIONAL_CEMETERY
     }
   }
 }

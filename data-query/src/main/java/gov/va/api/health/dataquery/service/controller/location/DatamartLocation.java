@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.location;
 
+import gov.va.api.health.dataquery.service.controller.FacilityId;
 import gov.va.api.lighthouse.datamart.DatamartReference;
 import gov.va.api.lighthouse.datamart.HasReplaceableId;
 import java.util.Optional;
@@ -35,6 +36,8 @@ public final class DatamartLocation implements HasReplaceableId {
   private Optional<String> physicalType;
 
   private DatamartReference managingOrganization;
+  
+  private Optional<FacilityId> facilityId;
 
   /** Lazy initialization. */
   public Optional<String> description() {
@@ -44,6 +47,14 @@ public final class DatamartLocation implements HasReplaceableId {
     return description;
   }
 
+  /** Lazy initialization. */
+  public Optional<FacilityId> facilityId() {
+    if (facilityId == null) {
+      facilityId = Optional.empty();
+    }
+    return facilityId;
+  }
+  
   /** Lazy initialization. */
   public Optional<String> physicalType() {
     if (physicalType == null) {
