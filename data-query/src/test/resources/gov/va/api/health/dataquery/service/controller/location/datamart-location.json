@@ -17,5 +17,9 @@
   "managingOrganization" : {
     "reference" : "390026:I",
     "display" : "OLIN E. TEAGUE VET CENTER"
+  },
+  "facilityId" : {
+    "stationNumber" : "623GB",
+    "type" : "HEALTH"
   }
 }
