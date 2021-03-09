@@ -4,10 +4,10 @@ import static gov.va.api.health.dataquery.service.controller.Transformers.allBla
 import static gov.va.api.health.dataquery.service.controller.Transformers.convert;
 import static gov.va.api.health.dataquery.service.controller.Transformers.emptyToNull;
 import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
-import static gov.va.api.health.dataquery.service.controller.organization.DatamartOrganization.FacilityId;
 import static java.util.Arrays.asList;
 
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
+import gov.va.api.health.dataquery.service.controller.FacilityId;
 import gov.va.api.health.dataquery.service.controller.organization.DatamartOrganization.Telecom;
 import gov.va.api.health.r4.api.datatypes.Address;
 import gov.va.api.health.r4.api.datatypes.CodeableConcept;

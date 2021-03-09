@@ -53,7 +53,10 @@ public class DatamartOrganizationTest {
                     .build()))
         .facilityId(
             Optional.of(
-                FacilityId.builder().stationNumber("623GB").type(FacilityId.FacilityType.HEALTH).build()))
+                FacilityId.builder()
+                    .stationNumber("623GB")
+                    .type(FacilityId.FacilityType.HEALTH)
+                    .build()))
         .build();
   }
 

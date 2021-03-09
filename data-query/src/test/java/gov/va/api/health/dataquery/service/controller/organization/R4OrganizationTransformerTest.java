@@ -1,11 +1,12 @@
 package gov.va.api.health.dataquery.service.controller.organization;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
-import gov.va.api.health.dataquery.service.controller.organization.DatamartOrganization.FacilityId;
+import gov.va.api.health.dataquery.service.controller.FacilityId;
 import gov.va.api.health.dataquery.service.controller.organization.DatamartOrganization.Telecom.System;
 import gov.va.api.health.r4.api.datatypes.Address;
 import gov.va.api.health.r4.api.datatypes.CodeableConcept;
@@ -101,7 +102,7 @@ public class R4OrganizationTransformerTest {
   @MethodSource
   void buildFacilityIdentifier(
       String stationNumber, FacilityId.FacilityType facilityType, String expectedValue) {
-    DatamartOrganization.FacilityId facilityId =
+    FacilityId facilityId =
         FacilityId.builder().stationNumber(stationNumber).type(facilityType).build();
     var expected =
         Identifier.builder()
@@ -146,8 +147,8 @@ public class R4OrganizationTransformerTest {
             R4OrganizationTransformer.identifiers(
                 Optional.of("whodis"),
                 Optional.of(
-                    DatamartOrganization.FacilityId.builder()
-                        .type(DatamartOrganization.FacilityId.FacilityType.HEALTH)
+                    FacilityId.builder()
+                        .type(FacilityId.FacilityType.HEALTH)
                         .stationNumber("123")
                         .build())))
         .containsExactlyInAnyOrder(
@@ -172,8 +173,8 @@ public class R4OrganizationTransformerTest {
             R4OrganizationTransformer.identifiers(
                 Optional.empty(),
                 Optional.of(
-                    DatamartOrganization.FacilityId.builder()
-                        .type(DatamartOrganization.FacilityId.FacilityType.HEALTH)
+                    FacilityId.builder()
+                        .type(FacilityId.FacilityType.HEALTH)
                         .stationNumber("123")
                         .build())))
         .isEqualTo(
@@ -235,7 +236,7 @@ public class R4OrganizationTransformerTest {
 
   @Test
   void telecoms() {
-    assertThat(R4OrganizationTransformer.telecoms(Collections.EMPTY_LIST)).isNull();
+    assertThat(R4OrganizationTransformer.telecoms(emptyList())).isNull();
     assertThat(
             R4OrganizationTransformer.telecoms(
                 List.of(

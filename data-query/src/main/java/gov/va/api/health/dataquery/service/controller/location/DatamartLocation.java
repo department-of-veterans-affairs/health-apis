@@ -36,7 +36,7 @@ public final class DatamartLocation implements HasReplaceableId {
   private Optional<String> physicalType;
 
   private DatamartReference managingOrganization;
-  
+
   private Optional<FacilityId> facilityId;
 
   /** Lazy initialization. */
@@ -54,7 +54,7 @@ public final class DatamartLocation implements HasReplaceableId {
     }
     return facilityId;
   }
-  
+
   /** Lazy initialization. */
   public Optional<String> physicalType() {
     if (physicalType == null) {

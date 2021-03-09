@@ -11,6 +11,15 @@ import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 
 public class DatamartLocationTest {
+  @SneakyThrows
+  private static void assertReadable(String json) {
+    DatamartLocation dm =
+        createMapper()
+            .readValue(
+                DatamartLocationTest.class.getResourceAsStream(json), DatamartLocation.class);
+    assertThat(dm).isEqualTo(sample());
+  }
+
   private static DatamartLocation sample() {
     return DatamartLocation.builder()
         .cdwId("1000200441:L")
@@ -39,15 +48,6 @@ public class DatamartLocationTest {
                     .type(FacilityId.FacilityType.HEALTH)
                     .build()))
         .build();
-  }
-
-  @SneakyThrows
-  private static void assertReadable(String json) {
-    DatamartLocation dm =
-        createMapper()
-            .readValue(
-                DatamartLocationTest.class.getResourceAsStream(json), DatamartLocation.class);
-    assertThat(dm).isEqualTo(sample());
   }
 
   @Test
