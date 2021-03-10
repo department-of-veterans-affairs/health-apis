@@ -55,6 +55,22 @@ public class R4LocationTransformerTest {
   }
 
   @Test
+  void clinicIdentifier() {
+    FacilityId facility =
+        FacilityId.builder().stationNumber("623GB").type(FacilityId.FacilityType.HEALTH).build();
+    String clinic = "3049";
+    assertThat(tx().clinicIdentifier(null, null)).isNull();
+    assertThat(tx().clinicIdentifier(facility, null)).isNull();
+    assertThat(tx().clinicIdentifier(null, clinic)).isNull();
+    assertThat(tx().clinicIdentifier(facility, clinic))
+        .isEqualTo(
+            Identifier.builder()
+                .system("https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-clinic-identifier")
+                .value("vha_623GB_3049")
+                .build());
+  }
+
+  @Test
   void empty() {
     assertThat(tx().toFhir())
         .isEqualTo(
@@ -76,22 +92,6 @@ public class R4LocationTransformerTest {
         .isEqualTo(
             CodeableConcept.builder()
                 .coding(List.of(Coding.builder().display("x").build()))
-                .build());
-  }
-
-  @Test
-  void clinicIdentifier() {
-    FacilityId facility =
-        FacilityId.builder().stationNumber("623GB").type(FacilityId.FacilityType.HEALTH).build();
-    String clinic = "3049";
-    assertThat(tx().clinicIdentifier(null, null)).isNull();
-    assertThat(tx().clinicIdentifier(facility, null)).isNull();
-    assertThat(tx().clinicIdentifier(null, clinic)).isNull();
-    assertThat(tx().clinicIdentifier(facility, clinic))
-        .isEqualTo(
-            Identifier.builder()
-                .system("https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-clinic-identifier")
-                .value("vha_623GB_3049")
                 .build());
   }
 

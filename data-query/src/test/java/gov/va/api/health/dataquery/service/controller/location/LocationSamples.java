@@ -76,8 +76,7 @@ public class LocationSamples {
           .total(locations.size())
           .link(Arrays.asList(links))
           .entry(
-              locations
-                  .stream()
+              locations.stream()
                   .map(
                       c ->
                           gov.va.api.health.dstu2.api.resources.Location.Entry.builder()
@@ -166,8 +165,7 @@ public class LocationSamples {
           .total(totalRecords)
           .link(Arrays.asList(links))
           .entry(
-              locations
-                  .stream()
+              locations.stream()
                   .map(
                       c ->
                           gov.va.api.health.r4.api.resources.Location.Entry.builder()
@@ -289,8 +287,7 @@ public class LocationSamples {
           .total(locations.size())
           .link(Arrays.asList(links))
           .entry(
-              locations
-                  .stream()
+              locations.stream()
                   .map(
                       c ->
                           gov.va.api.health.stu3.api.resources.Location.Entry.builder()

@@ -50,13 +50,6 @@ public class R4LocationTransformer {
         .build();
   }
 
-  List<Identifier> identifiers(Optional<FacilityId> maybeFacilityId, Optional<String> maybeIen) {
-    return emptyToNull(
-        asList(
-            facilityIdentifier(maybeFacilityId.orElse(null)),
-            clinicIdentifier(maybeFacilityId.orElse(null), maybeIen.orElse(null))));
-  }
-
   Identifier clinicIdentifier(FacilityId facilityId, String clinicId) {
     if (facilityId == null || clinicId == null) {
       return null;
@@ -65,18 +58,24 @@ public class R4LocationTransformer {
         .system("https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-clinic-identifier")
         .value(facilityPrefix(facilityId) + facilityId.stationNumber() + "_" + clinicId)
         .build();
+    // .use(Identifier.IdentifierUse.usual)
+    // .type(
+    // CodeableConcept.builder()
+    // .coding(
+    // List.of(
+    // Coding.builder()
+    // .system("http://terminology.hl7.org/CodeSystem/v2-0203")
+    // .code("FI")
+    // .display("Facility ID")
+    // .build()))
+    // .build())
+  }
 
-    //    .use(Identifier.IdentifierUse.usual)
-    //    .type(
-    //        CodeableConcept.builder()
-    //            .coding(
-    //                List.of(
-    //                    Coding.builder()
-    //                        .system("http://terminology.hl7.org/CodeSystem/v2-0203")
-    //                        .code("FI")
-    //                        .display("Facility ID")
-    //                        .build()))
-    //            .build())
+  List<Identifier> identifiers(Optional<FacilityId> maybeFacilityId, Optional<String> maybeIen) {
+    return emptyToNull(
+        asList(
+            facilityIdentifier(maybeFacilityId.orElse(null)),
+            clinicIdentifier(maybeFacilityId.orElse(null), maybeIen.orElse(null))));
   }
 
   CodeableConcept physicalType(Optional<String> maybePhysicalType) {
