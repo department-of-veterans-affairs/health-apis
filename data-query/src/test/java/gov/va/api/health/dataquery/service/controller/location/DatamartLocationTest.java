@@ -4,12 +4,22 @@ import static gov.va.api.health.autoconfig.configuration.JacksonConfig.createMap
 import static java.util.Optional.empty;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import gov.va.api.health.dataquery.service.controller.FacilityId;
 import gov.va.api.lighthouse.datamart.DatamartReference;
 import java.util.Optional;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 
 public class DatamartLocationTest {
+  @SneakyThrows
+  private static void assertReadable(String json) {
+    DatamartLocation dm =
+        createMapper()
+            .readValue(
+                DatamartLocationTest.class.getResourceAsStream(json), DatamartLocation.class);
+    assertThat(dm).isEqualTo(sample());
+  }
+
   private static DatamartLocation sample() {
     return DatamartLocation.builder()
         .cdwId("1000200441:L")
@@ -31,20 +41,22 @@ public class DatamartLocationTest {
                 .reference(Optional.of("390026:I"))
                 .display(Optional.of("OLIN E. TEAGUE VET CENTER"))
                 .build())
+        .facilityId(
+            Optional.of(
+                FacilityId.builder()
+                    .stationNumber("623GB")
+                    .type(FacilityId.FacilityType.HEALTH)
+                    .build()))
+        .locationIen(Optional.of("692"))
         .build();
-  }
-
-  @SneakyThrows
-  private void assertReadable(String json) {
-    DatamartLocation dm =
-        createMapper().readValue(getClass().getResourceAsStream(json), DatamartLocation.class);
-    assertThat(dm).isEqualTo(sample());
   }
 
   @Test
   public void lazy() {
     DatamartLocation dm = DatamartLocation.builder().build();
     assertThat(dm.description()).isEqualTo(empty());
+    assertThat(dm.facilityId()).isEqualTo(empty());
+    assertThat(dm.locationIen()).isEqualTo(empty());
     assertThat(dm.type()).isEqualTo(empty());
     assertThat(dm.physicalType()).isEqualTo(empty());
   }
