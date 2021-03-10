@@ -21,8 +21,13 @@ import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 
 public class R4OrganizationTransformerTest {
+  @SneakyThrows
+  static String json(Object o) {
+    return JacksonConfig.createMapper().writerWithDefaultPrettyPrinter().writeValueAsString(o);
+  }
+
   @Test
-  public void address() {
+  void address() {
     assertThat(R4OrganizationTransformer.address(null)).isNull();
     assertThat(
             R4OrganizationTransformer.address(
@@ -150,11 +155,6 @@ public class R4OrganizationTransformerTest {
                         "https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-identifier")
                     .value("vha_123")
                     .build()));
-  }
-
-  @SneakyThrows
-  String json(Object o) {
-    return JacksonConfig.createMapper().writerWithDefaultPrettyPrinter().writeValueAsString(o);
   }
 
   @Test

@@ -14,7 +14,6 @@ import gov.va.api.health.r4.api.elements.Reference;
 import gov.va.api.lighthouse.datamart.DatamartCoding;
 import gov.va.api.lighthouse.datamart.DatamartReference;
 import java.time.Instant;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -108,31 +107,6 @@ public class R4TransformersTest {
     assertThat(asReference((DatamartReference) null)).isNull();
   }
 
-  @MethodSource
-  @ParameterizedTest
-  void facilityIdentifier(
-      String stationNumber, FacilityId.FacilityType facilityType, String expectedValue) {
-    FacilityId facilityId =
-        FacilityId.builder().stationNumber(stationNumber).type(facilityType).build();
-    var expected =
-        Identifier.builder()
-            .use(Identifier.IdentifierUse.usual)
-            .type(
-                CodeableConcept.builder()
-                    .coding(
-                        List.of(
-                            Coding.builder()
-                                .system("http://terminology.hl7.org/CodeSystem/v2-0203")
-                                .code("FI")
-                                .display("Facility ID")
-                                .build()))
-                    .build())
-            .system("https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-identifier")
-            .value(expectedValue)
-            .build();
-    assertThat(R4Transformers.facilityIdentifier(facilityId)).isEqualTo(expected);
-  }
-
   @Test
   void coding() {
     assertThat(asCoding(Optional.empty())).isNull();
@@ -156,6 +130,31 @@ public class R4TransformersTest {
     assertThat(textOrElseDisplay(" ", Coding.builder().display("d").build())).isEqualTo("d");
     assertThat(textOrElseDisplay(null, Coding.builder().display("d").build())).isEqualTo("d");
     assertThat(textOrElseDisplay(null, Coding.builder().build())).isNull();
+  }
+
+  @MethodSource
+  @ParameterizedTest
+  void facilityIdentifier(
+      String stationNumber, FacilityId.FacilityType facilityType, String expectedValue) {
+    FacilityId facilityId =
+        FacilityId.builder().stationNumber(stationNumber).type(facilityType).build();
+    var expected =
+        Identifier.builder()
+            .use(Identifier.IdentifierUse.usual)
+            .type(
+                CodeableConcept.builder()
+                    .coding(
+                        List.of(
+                            Coding.builder()
+                                .system("http://terminology.hl7.org/CodeSystem/v2-0203")
+                                .code("FI")
+                                .display("Facility ID")
+                                .build()))
+                    .build())
+            .system("https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-identifier")
+            .value(expectedValue)
+            .build();
+    assertThat(R4Transformers.facilityIdentifier(facilityId)).isEqualTo(expected);
   }
 
   @Test

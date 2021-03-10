@@ -2,8 +2,10 @@ package gov.va.api.health.dataquery.service.controller.location;
 
 import static java.util.Arrays.asList;
 
+import gov.va.api.health.dataquery.service.controller.FacilityId;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -51,6 +53,12 @@ public class LocationSamples {
                   .reference(Optional.of(organizationId))
                   .display(Optional.of("OLIN E. TEAGUE VET CENTER"))
                   .build())
+          .facilityId(
+              Optional.of(
+                  FacilityId.builder()
+                      .stationNumber("623GB")
+                      .type(FacilityId.FacilityType.HEALTH)
+                      .build()))
           .build();
     }
   }
@@ -192,6 +200,24 @@ public class LocationSamples {
       return gov.va.api.health.r4.api.resources.Location.builder()
           .resourceType("Location")
           .id(id)
+          .identifier(
+              List.of(
+                  gov.va.api.health.r4.api.datatypes.Identifier.builder()
+                      .use(gov.va.api.health.r4.api.datatypes.Identifier.IdentifierUse.usual)
+                      .type(
+                          gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()
+                              .coding(
+                                  List.of(
+                                      gov.va.api.health.r4.api.datatypes.Coding.builder()
+                                          .system("http://terminology.hl7.org/CodeSystem/v2-0203")
+                                          .code("FI")
+                                          .display("Facility ID")
+                                          .build()))
+                              .build())
+                      .system(
+                          "https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-identifier")
+                      .value("vha_623GB")
+                      .build()))
           .address(
               gov.va.api.health.r4.api.datatypes.Address.builder()
                   .line(asList(LOCATION_ADDRESS_STREET))
