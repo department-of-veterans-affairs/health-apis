@@ -15,9 +15,11 @@ Options
 Secrets Configuration
  This bash file is sourced and expected to set the following variables
  - KEYSTORE_PASSWORD
- - DATAQUERY_DB_URL, DATAQUERY_DB_USER, DATAQUERY_DB_PASSWORD
 
  These may optionally be provided
+ - DATAQUERY_DB_PASSWORD
+ - DATAQUERY_DB_URL
+ - DATAQUERY_DB_USER
  - IDS_ENCODING_KEY
  - IDS_PATIENT_ID_PATTERN
  - WEB_EXCEPTION_KEY
@@ -53,9 +55,9 @@ echo "Loading secrets: $SECRETS"
 
 MISSING_SECRETS=false
 [ -z "$KEYSTORE_PASSWORD" ] && echo "Missing configuration: KEYSTORE_PASSWORD" && MISSING_SECRETS=true
-[ -z "$DATAQUERY_DB_URL" ] && echo "Missing configuration: DATAQUERY_DB_URL" && MISSING_SECRETS=true
-[ -z "$DATAQUERY_DB_USER" ] && echo "Missing configuration: DATAQUERY_DB_USER" && MISSING_SECRETS=true
-[ -z "$DATAQUERY_DB_PASSWORD" ] && echo "Missing configuration: DATAQUERY_DB_PASSWORD" && MISSING_SECRETS=true
+[ -z "$DATAQUERY_DB_PASSWORD" ] && DATAQUERY_DB_PASSWORD='<YourStrong!Passw0rd>'
+[ -z "$DATAQUERY_DB_URL" ] && DATAQUERY_DB_URL='jdbc:sqlserver://localhost:1433;database=dq;sendStringParametersAsUnicode=false'
+[ -z "$DATAQUERY_DB_USER" ] && DATAQUERY_DB_USER='SA'
 [ -z "$IDS_ENCODING_KEY" ] && IDS_ENCODING_KEY=data-query
 [ -z "$IDS_PATIENT_ID_PATTERN" ] && IDS_PATIENT_ID_PATTERN="[0-9]+(V[0-9]{6})?"
 [ -z "$WEB_EXCEPTION_KEY" ] && WEB_EXCEPTION_KEY="-shanktopus-for-the-win-"
