@@ -12,6 +12,14 @@ import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
 public class R4LocationTransformerTest {
+  private static R4LocationTransformer tx() {
+    return tx(DatamartLocation.builder().build());
+  }
+
+  private static R4LocationTransformer tx(DatamartLocation dm) {
+    return R4LocationTransformer.builder().datamart(dm).build();
+  }
+
   @Test
   void address() {
     assertThat(tx().address(null)).isNull();
@@ -87,14 +95,6 @@ public class R4LocationTransformerTest {
                     .system(ContactPoint.ContactPointSystem.phone)
                     .value("x")
                     .build()));
-  }
-
-  private R4LocationTransformer tx() {
-    return tx(DatamartLocation.builder().build());
-  }
-
-  private R4LocationTransformer tx(DatamartLocation dm) {
-    return R4LocationTransformer.builder().datamart(dm).build();
   }
 
   @Test

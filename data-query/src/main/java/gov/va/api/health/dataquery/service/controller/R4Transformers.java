@@ -5,6 +5,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import gov.va.api.health.r4.api.datatypes.CodeableConcept;
 import gov.va.api.health.r4.api.datatypes.Coding;
+import gov.va.api.health.r4.api.datatypes.Identifier;
 import gov.va.api.health.r4.api.elements.Reference;
 import gov.va.api.lighthouse.datamart.DatamartCoding;
 import gov.va.api.lighthouse.datamart.DatamartReference;
@@ -82,6 +83,48 @@ public class R4Transformers {
     return Reference.builder()
         .display(maybeReference.display().orElse(null))
         .reference(path.orElse(null))
+        .build();
+  }
+
+  /** Convert facility ID to Identifier. */
+  public static Identifier facilityIdentifier(FacilityId facilityId) {
+    if (facilityId == null) {
+      return null;
+    }
+    String facilityIdPref;
+    switch (facilityId.type()) {
+      case HEALTH:
+        facilityIdPref = "vha_";
+        break;
+      case BENEFITS:
+        facilityIdPref = "vba_";
+        break;
+      case VET_CENTER:
+        facilityIdPref = "vc_";
+        break;
+      case CEMETERY:
+        facilityIdPref = "nca_";
+        break;
+      case NONNATIONAL_CEMETERY:
+        facilityIdPref = "ncas_";
+        break;
+      default:
+        throw new IllegalStateException("Unsupported facility type: " + facilityId.type());
+    }
+    return Identifier.builder()
+        .use(Identifier.IdentifierUse.usual)
+        .type(
+            CodeableConcept.builder()
+                .coding(
+                    List.of(
+                        Coding.builder()
+                            .system("http://terminology.hl7.org/CodeSystem/v2-0203")
+                            .code("FI")
+                            .display("Facility ID")
+                            .build()))
+                .build())
+        .system("https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-identifier")
+        .value(facilityIdPref + facilityId.stationNumber())
         .build();
   }
 

@@ -1,17 +1,21 @@
 package gov.va.api.health.dataquery.service.controller.location;
 
 import static gov.va.api.health.dataquery.service.controller.R4Transformers.asReference;
+import static gov.va.api.health.dataquery.service.controller.R4Transformers.facilityIdentifier;
 import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
 import static gov.va.api.health.dataquery.service.controller.Transformers.convert;
 import static gov.va.api.health.dataquery.service.controller.Transformers.emptyToNull;
 import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
+import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
+import gov.va.api.health.dataquery.service.controller.FacilityId;
 import gov.va.api.health.r4.api.datatypes.Address;
 import gov.va.api.health.r4.api.datatypes.CodeableConcept;
 import gov.va.api.health.r4.api.datatypes.Coding;
 import gov.va.api.health.r4.api.datatypes.ContactPoint;
+import gov.va.api.health.r4.api.datatypes.Identifier;
 import gov.va.api.health.r4.api.resources.Location;
 import java.util.List;
 import java.util.Objects;
@@ -45,6 +49,10 @@ public class R4LocationTransformer {
         .build();
   }
 
+  List<Identifier> identifiers(Optional<FacilityId> maybeFacilityId) {
+    return emptyToNull(asList(facilityIdentifier(maybeFacilityId.orElse(null))));
+  }
+
   CodeableConcept physicalType(Optional<String> maybePhysicalType) {
     if (isBlank(maybePhysicalType)) {
       return null;
@@ -69,15 +77,14 @@ public class R4LocationTransformer {
             .build());
   }
 
-  /** Transform DatamartLocation to US-Core R4 Location. */
-  public Location toFhir() {
+  Location toFhir() {
     return Location.builder()
-        .resourceType("Location")
         .id(datamart.cdwId())
-        .mode(Location.Mode.instance)
+        .identifier(identifiers(datamart.facilityId()))
         .status(status(datamart.status()))
         .name(datamart.name())
         .description(datamart.description().orElse(null))
+        .mode(Location.Mode.instance)
         .type(types(datamart.type()))
         .telecom(telecoms(datamart.telecom()))
         .address(address(datamart.address()))

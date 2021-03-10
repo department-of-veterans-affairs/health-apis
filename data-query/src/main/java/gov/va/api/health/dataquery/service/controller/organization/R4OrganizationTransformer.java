@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.organization;
 
+import static gov.va.api.health.dataquery.service.controller.R4Transformers.facilityIdentifier;
 import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
 import static gov.va.api.health.dataquery.service.controller.Transformers.convert;
 import static gov.va.api.health.dataquery.service.controller.Transformers.emptyToNull;
@@ -10,8 +11,6 @@ import gov.va.api.health.dataquery.service.controller.EnumSearcher;
 import gov.va.api.health.dataquery.service.controller.FacilityId;
 import gov.va.api.health.dataquery.service.controller.organization.DatamartOrganization.Telecom;
 import gov.va.api.health.r4.api.datatypes.Address;
-import gov.va.api.health.r4.api.datatypes.CodeableConcept;
-import gov.va.api.health.r4.api.datatypes.Coding;
 import gov.va.api.health.r4.api.datatypes.ContactPoint;
 import gov.va.api.health.r4.api.datatypes.Identifier;
 import gov.va.api.health.r4.api.resources.Organization;
@@ -59,44 +58,6 @@ public class R4OrganizationTransformer {
             .build());
   }
 
-  static Identifier buildFacilityIdentifier(FacilityId facilityId) {
-    String facilityIdPref;
-    switch (facilityId.type()) {
-      case HEALTH:
-        facilityIdPref = "vha_";
-        break;
-      case BENEFITS:
-        facilityIdPref = "vba_";
-        break;
-      case VET_CENTER:
-        facilityIdPref = "vc_";
-        break;
-      case CEMETERY:
-        facilityIdPref = "nca_";
-        break;
-      case NONNATIONAL_CEMETERY:
-        facilityIdPref = "ncas_";
-        break;
-      default:
-        throw new IllegalStateException("Unsupported facility type: " + facilityId.type());
-    }
-    return Identifier.builder()
-        .use(Identifier.IdentifierUse.usual)
-        .type(
-            CodeableConcept.builder()
-                .coding(
-                    Collections.singletonList(
-                        Coding.builder()
-                            .system("http://terminology.hl7.org/CodeSystem/v2-0203")
-                            .code("FI")
-                            .display("Facility ID")
-                            .build()))
-                .build())
-        .system("https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-identifier")
-        .value(facilityIdPref + facilityId.stationNumber())
-        .build();
-  }
-
   static List<Identifier> identifiers(
       Optional<String> maybeNpi, Optional<FacilityId> maybeFacility) {
     List<Identifier> results = new ArrayList<>(2);
@@ -108,12 +69,9 @@ public class R4OrganizationTransformer {
               .build());
     }
     if (!isBlank(maybeFacility)) {
-      results.add(buildFacilityIdentifier(maybeFacility.get()));
+      results.add(facilityIdentifier(maybeFacility.get()));
     }
-    if (results.isEmpty()) {
-      return null;
-    }
-    return results;
+    return emptyToNull(results);
   }
 
   static ContactPoint telecom(Telecom telecom) {
@@ -139,7 +97,6 @@ public class R4OrganizationTransformer {
 
   Organization toFhir() {
     return Organization.builder()
-        .resourceType("Organization")
         .id(datamart.cdwId())
         .identifier(identifiers(datamart.npi(), datamart.facilityId()))
         .active(datamart.active())
