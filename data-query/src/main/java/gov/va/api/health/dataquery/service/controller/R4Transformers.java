@@ -91,26 +91,6 @@ public class R4Transformers {
     if (facilityId == null) {
       return null;
     }
-    String facilityIdPref;
-    switch (facilityId.type()) {
-      case HEALTH:
-        facilityIdPref = "vha_";
-        break;
-      case BENEFITS:
-        facilityIdPref = "vba_";
-        break;
-      case VET_CENTER:
-        facilityIdPref = "vc_";
-        break;
-      case CEMETERY:
-        facilityIdPref = "nca_";
-        break;
-      case NONNATIONAL_CEMETERY:
-        facilityIdPref = "ncas_";
-        break;
-      default:
-        throw new IllegalStateException("Unsupported facility type: " + facilityId.type());
-    }
     return Identifier.builder()
         .use(Identifier.IdentifierUse.usual)
         .type(
@@ -124,8 +104,29 @@ public class R4Transformers {
                             .build()))
                 .build())
         .system("https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-identifier")
-        .value(facilityIdPref + facilityId.stationNumber())
+        .value(facilityPrefix(facilityId) + facilityId.stationNumber())
         .build();
+  }
+
+  /** Convert facility ID to prefix. */
+  public static String facilityPrefix(FacilityId facilityId) {
+    if (facilityId == null) {
+      return null;
+    }
+    switch (facilityId.type()) {
+      case HEALTH:
+        return "vha_";
+      case BENEFITS:
+        return "vba_";
+      case VET_CENTER:
+        return "vc_";
+      case CEMETERY:
+        return "nca_";
+      case NONNATIONAL_CEMETERY:
+        return "ncas_";
+      default:
+        throw new IllegalStateException("Unsupported facility type: " + facilityId.type());
+    }
   }
 
   /**

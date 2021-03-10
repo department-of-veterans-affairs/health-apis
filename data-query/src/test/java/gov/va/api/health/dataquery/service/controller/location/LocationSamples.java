@@ -59,6 +59,7 @@ public class LocationSamples {
                       .stationNumber("623GB")
                       .type(FacilityId.FacilityType.HEALTH)
                       .build()))
+          .locationIen(Optional.of("3049"))
           .build();
     }
   }
@@ -75,7 +76,8 @@ public class LocationSamples {
           .total(locations.size())
           .link(Arrays.asList(links))
           .entry(
-              locations.stream()
+              locations
+                  .stream()
                   .map(
                       c ->
                           gov.va.api.health.dstu2.api.resources.Location.Entry.builder()
@@ -164,7 +166,8 @@ public class LocationSamples {
           .total(totalRecords)
           .link(Arrays.asList(links))
           .entry(
-              locations.stream()
+              locations
+                  .stream()
                   .map(
                       c ->
                           gov.va.api.health.r4.api.resources.Location.Entry.builder()
@@ -217,6 +220,11 @@ public class LocationSamples {
                       .system(
                           "https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-identifier")
                       .value("vha_623GB")
+                      .build(),
+                  gov.va.api.health.r4.api.datatypes.Identifier.builder()
+                      .system(
+                          "https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-clinic-identifier")
+                      .value("vha_623GB_3049")
                       .build()))
           .address(
               gov.va.api.health.r4.api.datatypes.Address.builder()
@@ -281,7 +289,8 @@ public class LocationSamples {
           .total(locations.size())
           .link(Arrays.asList(links))
           .entry(
-              locations.stream()
+              locations
+                  .stream()
                   .map(
                       c ->
                           gov.va.api.health.stu3.api.resources.Location.Entry.builder()

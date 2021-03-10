@@ -2,6 +2,7 @@ package gov.va.api.health.dataquery.service.controller.location;
 
 import static gov.va.api.health.dataquery.service.controller.R4Transformers.asReference;
 import static gov.va.api.health.dataquery.service.controller.R4Transformers.facilityIdentifier;
+import static gov.va.api.health.dataquery.service.controller.R4Transformers.facilityPrefix;
 import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
 import static gov.va.api.health.dataquery.service.controller.Transformers.convert;
 import static gov.va.api.health.dataquery.service.controller.Transformers.emptyToNull;
@@ -49,8 +50,33 @@ public class R4LocationTransformer {
         .build();
   }
 
-  List<Identifier> identifiers(Optional<FacilityId> maybeFacilityId) {
-    return emptyToNull(asList(facilityIdentifier(maybeFacilityId.orElse(null))));
+  List<Identifier> identifiers(Optional<FacilityId> maybeFacilityId, Optional<String> maybeIen) {
+    return emptyToNull(
+        asList(
+            facilityIdentifier(maybeFacilityId.orElse(null)),
+            clinicIdentifier(maybeFacilityId.orElse(null), maybeIen.orElse(null))));
+  }
+
+  Identifier clinicIdentifier(FacilityId facilityId, String clinicId) {
+    if (facilityId == null || clinicId == null) {
+      return null;
+    }
+    return Identifier.builder()
+        .system("https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-clinic-identifier")
+        .value(facilityPrefix(facilityId) + facilityId.stationNumber() + "_" + clinicId)
+        .build();
+
+    //    .use(Identifier.IdentifierUse.usual)
+    //    .type(
+    //        CodeableConcept.builder()
+    //            .coding(
+    //                List.of(
+    //                    Coding.builder()
+    //                        .system("http://terminology.hl7.org/CodeSystem/v2-0203")
+    //                        .code("FI")
+    //                        .display("Facility ID")
+    //                        .build()))
+    //            .build())
   }
 
   CodeableConcept physicalType(Optional<String> maybePhysicalType) {
@@ -80,7 +106,7 @@ public class R4LocationTransformer {
   Location toFhir() {
     return Location.builder()
         .id(datamart.cdwId())
-        .identifier(identifiers(datamart.facilityId()))
+        .identifier(identifiers(datamart.facilityId(), datamart.locationIen()))
         .status(status(datamart.status()))
         .name(datamart.name())
         .description(datamart.description().orElse(null))
