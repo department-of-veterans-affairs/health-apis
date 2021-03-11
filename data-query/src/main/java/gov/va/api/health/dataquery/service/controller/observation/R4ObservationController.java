@@ -58,8 +58,8 @@ public class R4ObservationController {
         .paging(linkProperties.pagingConfiguration("Observation", ObservationEntity.naturalOrder()))
         .mappings(
             Mappings.forEntity(ObservationEntity.class)
-                .token("category", this::tokenCategoryIsSupported, this::tokenCategoryValues)
-                .token("code", this::tokenCodeIsSupported, this::tokenCodeValues)
+                .tokenList("category", this::tokenCategoryIsSupported, this::tokenCategoryValues)
+                .tokenList("code", this::tokenCodeIsSupported, this::tokenCodeValues)
                 .dateAsInstant("date", "dateUtc")
                 .value("_id", "cdwId", witnessProtection::toCdwId)
                 .value("identifier", "cdwId", witnessProtection::toCdwId)
