@@ -60,7 +60,7 @@ public class R4LocationTransformerTest {
         FacilityId.builder().stationNumber("623GB").type(FacilityId.FacilityType.HEALTH).build();
     String clinic = "3049";
     assertThat(tx().clinicIdentifier(null, null)).isNull();
-    assertThat(tx().clinicIdentifier(facility, null)).isNull();
+    assertThat(tx().clinicIdentifier(facility, " ")).isNull();
     assertThat(tx().clinicIdentifier(null, clinic)).isNull();
     assertThat(tx().clinicIdentifier(facility, clinic))
         .isEqualTo(

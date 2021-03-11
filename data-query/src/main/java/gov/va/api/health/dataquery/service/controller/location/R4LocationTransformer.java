@@ -1,8 +1,8 @@
 package gov.va.api.health.dataquery.service.controller.location;
 
+import static gov.va.api.health.dataquery.service.controller.FacilityTransformers.facilityIdentifier;
+import static gov.va.api.health.dataquery.service.controller.FacilityTransformers.fapiClinicId;
 import static gov.va.api.health.dataquery.service.controller.R4Transformers.asReference;
-import static gov.va.api.health.dataquery.service.controller.R4Transformers.facilityIdentifier;
-import static gov.va.api.health.dataquery.service.controller.R4Transformers.facilityPrefix;
 import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
 import static gov.va.api.health.dataquery.service.controller.Transformers.convert;
 import static gov.va.api.health.dataquery.service.controller.Transformers.emptyToNull;
@@ -51,12 +51,13 @@ public class R4LocationTransformer {
   }
 
   Identifier clinicIdentifier(FacilityId facilityId, String clinicId) {
-    if (facilityId == null || clinicId == null) {
+    String fapiClinicId = fapiClinicId(facilityId, clinicId);
+    if (isBlank(fapiClinicId)) {
       return null;
     }
     return Identifier.builder()
         .system("https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-clinic-identifier")
-        .value(facilityPrefix(facilityId) + facilityId.stationNumber() + "_" + clinicId)
+        .value(fapiClinicId)
         .build();
   }
 

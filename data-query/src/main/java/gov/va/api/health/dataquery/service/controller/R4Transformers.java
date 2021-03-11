@@ -5,7 +5,6 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import gov.va.api.health.r4.api.datatypes.CodeableConcept;
 import gov.va.api.health.r4.api.datatypes.Coding;
-import gov.va.api.health.r4.api.datatypes.Identifier;
 import gov.va.api.health.r4.api.elements.Reference;
 import gov.va.api.lighthouse.datamart.DatamartCoding;
 import gov.va.api.lighthouse.datamart.DatamartReference;
@@ -84,49 +83,6 @@ public class R4Transformers {
         .display(maybeReference.display().orElse(null))
         .reference(path.orElse(null))
         .build();
-  }
-
-  /** Convert facility ID to Identifier. */
-  public static Identifier facilityIdentifier(FacilityId facilityId) {
-    if (facilityId == null) {
-      return null;
-    }
-    return Identifier.builder()
-        .use(Identifier.IdentifierUse.usual)
-        .type(
-            CodeableConcept.builder()
-                .coding(
-                    List.of(
-                        Coding.builder()
-                            .system("http://terminology.hl7.org/CodeSystem/v2-0203")
-                            .code("FI")
-                            .display("Facility ID")
-                            .build()))
-                .build())
-        .system("https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-identifier")
-        .value(facilityPrefix(facilityId) + facilityId.stationNumber())
-        .build();
-  }
-
-  /** Convert facility ID to prefix. */
-  public static String facilityPrefix(FacilityId facilityId) {
-    if (facilityId == null) {
-      return null;
-    }
-    switch (facilityId.type()) {
-      case HEALTH:
-        return "vha_";
-      case BENEFITS:
-        return "vba_";
-      case VET_CENTER:
-        return "vc_";
-      case CEMETERY:
-        return "nca_";
-      case NONNATIONAL_CEMETERY:
-        return "ncas_";
-      default:
-        throw new IllegalStateException("Unsupported facility type: " + facilityId.type());
-    }
   }
 
   /**
