@@ -5,39 +5,18 @@ import static gov.va.api.health.dataquery.service.controller.R4Transformers.asCo
 import static gov.va.api.health.dataquery.service.controller.R4Transformers.asReference;
 import static gov.va.api.health.dataquery.service.controller.R4Transformers.textOrElseDisplay;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import gov.va.api.health.r4.api.datatypes.CodeableConcept;
 import gov.va.api.health.r4.api.datatypes.Coding;
-import gov.va.api.health.r4.api.datatypes.Identifier;
 import gov.va.api.health.r4.api.elements.Reference;
 import gov.va.api.lighthouse.datamart.DatamartCoding;
 import gov.va.api.lighthouse.datamart.DatamartReference;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 
 public class R4TransformersTest {
-  static Stream<Arguments> facilityIdentifier() {
-    /*
-     * arguments(
-     * Station Number: Facility's station number,
-     * Facility Type: enum value for facility type,
-     * Facility ID: expected Facility ID generated)
-     */
-    return Stream.of(
-        arguments("123", FacilityId.FacilityType.HEALTH, "vha_123"),
-        arguments("456", FacilityId.FacilityType.BENEFITS, "vba_456"),
-        arguments("789", FacilityId.FacilityType.VET_CENTER, "vc_789"),
-        arguments("135", FacilityId.FacilityType.CEMETERY, "nca_135"),
-        arguments("246", FacilityId.FacilityType.NONNATIONAL_CEMETERY, "ncas_246"));
-  }
-
   @Test
   void asCodeableConceptWrappingReturnsNullIfCodingCannotBeConverted() {
     assertThat(asCodeableConceptWrapping(DatamartCoding.builder().build())).isNull();
@@ -130,31 +109,6 @@ public class R4TransformersTest {
     assertThat(textOrElseDisplay(" ", Coding.builder().display("d").build())).isEqualTo("d");
     assertThat(textOrElseDisplay(null, Coding.builder().display("d").build())).isEqualTo("d");
     assertThat(textOrElseDisplay(null, Coding.builder().build())).isNull();
-  }
-
-  @MethodSource
-  @ParameterizedTest
-  void facilityIdentifier(
-      String stationNumber, FacilityId.FacilityType facilityType, String expectedValue) {
-    FacilityId facilityId =
-        FacilityId.builder().stationNumber(stationNumber).type(facilityType).build();
-    var expected =
-        Identifier.builder()
-            .use(Identifier.IdentifierUse.usual)
-            .type(
-                CodeableConcept.builder()
-                    .coding(
-                        List.of(
-                            Coding.builder()
-                                .system("http://terminology.hl7.org/CodeSystem/v2-0203")
-                                .code("FI")
-                                .display("Facility ID")
-                                .build()))
-                    .build())
-            .system("https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-identifier")
-            .value(expectedValue)
-            .build();
-    assertThat(R4Transformers.facilityIdentifier(facilityId)).isEqualTo(expected);
   }
 
   @Test

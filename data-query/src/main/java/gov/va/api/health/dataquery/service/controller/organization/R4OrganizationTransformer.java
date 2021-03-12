@@ -1,6 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.organization;
 
-import static gov.va.api.health.dataquery.service.controller.R4Transformers.facilityIdentifier;
+import static gov.va.api.health.dataquery.service.controller.FacilityTransformers.facilityIdentifier;
 import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
 import static gov.va.api.health.dataquery.service.controller.Transformers.convert;
 import static gov.va.api.health.dataquery.service.controller.Transformers.emptyToNull;
