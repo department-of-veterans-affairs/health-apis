@@ -11,7 +11,7 @@
   <version>3.0.126-SNAPSHOT</version>
   <packaging>jar</packaging>
   <properties>
-    <fhir-resources.version>5.0.20</fhir-resources.version>
+    <fhir-resources.version>6.0.7-SNAPSHOT</fhir-resources.version>
     <health-apis-ids.version>3.0.3</health-apis-ids.version>
     <selenium.version>3.141.59</selenium.version>
     <sentinel.skipLaunch>false</sentinel.skipLaunch>
@@ -54,6 +54,12 @@
       <groupId>gov.va.api.health</groupId>
       <artifactId>sentinel</artifactId>
       <version>${project.parent.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>gov.va.api.health</groupId>
+      <artifactId>test-support</artifactId>
+      <version>${fhir-resources.version}</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>com.h2database</groupId>
