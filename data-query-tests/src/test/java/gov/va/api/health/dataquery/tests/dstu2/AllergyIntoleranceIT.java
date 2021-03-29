@@ -3,15 +3,19 @@ package gov.va.api.health.dataquery.tests.dstu2;
 import static gov.va.api.health.sentinel.EnvironmentAssumptions.assumeEnvironmentIn;
 import static gov.va.api.health.sentinel.EnvironmentAssumptions.assumeEnvironmentNotIn;
 
-import gov.va.api.health.dataquery.tests.ResourceVerifier;
+import gov.va.api.health.dataquery.tests.DataQueryResourceVerifier;
+import gov.va.api.health.dataquery.tests.TestIds;
 import gov.va.api.health.dstu2.api.resources.AllergyIntolerance;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
+import gov.va.api.health.fhir.testsupport.ResourceVerifier;
 import gov.va.api.health.sentinel.Environment;
 import lombok.experimental.Delegate;
 import org.junit.jupiter.api.Test;
 
 public class AllergyIntoleranceIT {
-  @Delegate ResourceVerifier verifier = ResourceVerifier.dstu2();
+  @Delegate ResourceVerifier verifier = DataQueryResourceVerifier.dstu2();
+
+  TestIds testIds = DataQueryResourceVerifier.ids();
 
   @Test
   public void advanced() {
@@ -21,29 +25,26 @@ public class AllergyIntoleranceIT {
             200,
             AllergyIntolerance.Bundle.class,
             "AllergyIntolerance?_id={id}",
-            verifier.ids().allergyIntolerance()),
-        test(404, OperationOutcome.class, "AllergyIntolerance?_id={id}", verifier.ids().unknown()),
+            testIds.allergyIntolerance()),
+        test(404, OperationOutcome.class, "AllergyIntolerance?_id={id}", testIds.unknown()),
         test(
             200,
             AllergyIntolerance.Bundle.class,
             "AllergyIntolerance?identifier={id}",
-            verifier.ids().allergyIntolerance()));
+            testIds.allergyIntolerance()));
   }
 
   @Test
   public void basic() {
     verifier.verifyAll(
         test(
-            200,
-            AllergyIntolerance.class,
-            "AllergyIntolerance/{id}",
-            verifier.ids().allergyIntolerance()),
-        test(404, OperationOutcome.class, "AllergyIntolerance/{id}", verifier.ids().unknown()),
+            200, AllergyIntolerance.class, "AllergyIntolerance/{id}", testIds.allergyIntolerance()),
+        test(404, OperationOutcome.class, "AllergyIntolerance/{id}", testIds.unknown()),
         test(
             200,
             AllergyIntolerance.Bundle.class,
             "AllergyIntolerance?patient={patient}",
-            verifier.ids().patient()));
+            testIds.patient()));
   }
 
   @Test
@@ -54,6 +55,6 @@ public class AllergyIntoleranceIT {
             403,
             OperationOutcome.class,
             "AllergyIntolerance?patient={patient}",
-            verifier.ids().unknown()));
+            testIds.unknown()));
   }
 }

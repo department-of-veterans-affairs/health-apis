@@ -3,7 +3,9 @@ package gov.va.api.health.dataquery.tests.dstu2;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
-import gov.va.api.health.dataquery.tests.ResourceVerifier;
+import gov.va.api.health.dataquery.tests.DataQueryResourceVerifier;
+import gov.va.api.health.dataquery.tests.TestIds;
+import gov.va.api.health.fhir.testsupport.ResourceVerifier;
 import io.restassured.RestAssured;
 import io.restassured.path.json.config.JsonPathConfig;
 import io.restassured.response.Response;
@@ -19,16 +21,18 @@ import org.junit.jupiter.api.Test;
  */
 @Slf4j
 public class RawIT {
-  @Delegate ResourceVerifier verifier = ResourceVerifier.dstu2();
+  @Delegate ResourceVerifier verifier = DataQueryResourceVerifier.dstu2();
+
+  TestIds testIds = DataQueryResourceVerifier.ids();
 
   RequestSpecification raw =
       RestAssured.given()
-          .spec(verifier.dataQuery().service().requestSpecification())
+          .spec(verifier.testClient().service().requestSpecification())
           .headers(ImmutableMap.of("raw", System.getProperty("raw-token", "true")));
 
   @Test
   public void allergyIntoleranceRaw() {
-    assertFhirObject("AllergyIntolerance", verifier.ids().allergyIntolerance());
+    assertFhirObject("AllergyIntolerance", testIds.allergyIntolerance());
   }
 
   @SneakyThrows
@@ -45,7 +49,7 @@ public class RawIT {
 
   @Test
   public void conditionRaw() {
-    assertFhirObject("Condition", verifier.ids().condition());
+    assertFhirObject("Condition", testIds.condition());
   }
 
   @Test
@@ -53,7 +57,7 @@ public class RawIT {
   public void diagnosticReportRaw() {
     // objectType is not returned in a raw diagnosticReport read, so we'll make sure it has an
     // identifier instead
-    Response response = readRaw("DiagnosticReport", verifier.ids().diagnosticReport());
+    Response response = readRaw("DiagnosticReport", testIds.diagnosticReport());
     String resourceIdentifier =
         response
             .jsonPath()
@@ -65,57 +69,57 @@ public class RawIT {
 
   @Test
   public void immunizationRaw() {
-    assertFhirObject("Immunization", verifier.ids().immunization());
+    assertFhirObject("Immunization", testIds.immunization());
   }
 
   @Test
   public void locationRaw() {
-    assertFhirObject("Location", verifier.ids().location());
+    assertFhirObject("Location", testIds.location());
   }
 
   @Test
   public void medicationOrderRaw() {
-    assertFhirObject("MedicationOrder", verifier.ids().medicationOrder());
+    assertFhirObject("MedicationOrder", testIds.medicationOrder());
   }
 
   @Test
   public void medicationRaw() {
-    assertFhirObject("Medication", verifier.ids().medication());
+    assertFhirObject("Medication", testIds.medication());
   }
 
   @Test
   public void medicationStatementRaw() {
-    assertFhirObject("MedicationStatement", verifier.ids().medicationStatement());
+    assertFhirObject("MedicationStatement", testIds.medicationStatement());
   }
 
   @Test
   public void observationRaw() {
-    assertFhirObject("Observation", verifier.ids().observation());
+    assertFhirObject("Observation", testIds.observation());
   }
 
   @Test
   public void organizationRaw() {
-    assertFhirObject("Organization", verifier.ids().organization());
+    assertFhirObject("Organization", testIds.organization());
   }
 
   @Test
   public void patientRaw() {
-    assertFhirObject("Patient", verifier.ids().patient());
+    assertFhirObject("Patient", testIds.patient());
   }
 
   @Test
   public void practitionerRaw() {
-    assertFhirObject("Practitioner", verifier.ids().practitioner());
+    assertFhirObject("Practitioner", testIds.practitioner());
   }
 
   @Test
   public void procedureRaw() {
-    assertFhirObject("Procedure", verifier.ids().procedure());
+    assertFhirObject("Procedure", testIds.procedure());
   }
 
   @SneakyThrows
   public Response readRaw(String resourceName, String publicId) {
-    String path = verifier.dataQuery().service().apiPath() + resourceName + "/" + publicId;
+    String path = verifier.testClient().service().apiPath() + resourceName + "/" + publicId;
     log.info("Verify raw response for {}, with [{}]", path, publicId);
     Response response = raw.get(path);
     assertThat(response.getStatusCode()).isEqualTo(200);
