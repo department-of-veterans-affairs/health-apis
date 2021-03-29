@@ -59,7 +59,6 @@
       <groupId>gov.va.api.health</groupId>
       <artifactId>test-support</artifactId>
       <version>${fhir-resources.version}</version>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>com.h2database</groupId>
