@@ -8,14 +8,14 @@
     <relativePath/>
   </parent>
   <artifactId>data-query</artifactId>
-  <version>3.0.126-SNAPSHOT</version>
+  <version>3.0.126</version>
   <packaging>jar</packaging>
   <properties>
     <datamart-starter.version>2.0.1</datamart-starter.version>
     <fall-risk.version>1.0.29</fall-risk.version>
-    <fhir-resources.version>6.0.6</fhir-resources.version>
+    <fhir-resources.version>6.0.9</fhir-resources.version>
     <guava.version>29.0-jre</guava.version>
-    <health-apis-ids.version>3.0.6</health-apis-ids.version>
+    <health-apis-ids.version>3.0.11</health-apis-ids.version>
     <mssql-jdbc.version>7.4.1.jre8</mssql-jdbc.version>
     <swagger-maven-plugin.version>2.1.1</swagger-maven-plugin.version>
     <vulcan.version>1.0.5</vulcan.version>
