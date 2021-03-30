@@ -3,15 +3,19 @@ package gov.va.api.health.dataquery.tests.dstu2;
 import static gov.va.api.health.sentinel.EnvironmentAssumptions.assumeEnvironmentIn;
 import static gov.va.api.health.sentinel.EnvironmentAssumptions.assumeEnvironmentNotIn;
 
-import gov.va.api.health.dataquery.tests.ResourceVerifier;
+import gov.va.api.health.dataquery.tests.DataQueryResourceVerifier;
+import gov.va.api.health.dataquery.tests.TestIds;
 import gov.va.api.health.dstu2.api.resources.DiagnosticReport;
 import gov.va.api.health.dstu2.api.resources.OperationOutcome;
+import gov.va.api.health.fhir.testsupport.ResourceVerifier;
 import gov.va.api.health.sentinel.Environment;
 import lombok.experimental.Delegate;
 import org.junit.jupiter.api.Test;
 
 public class DiagnosticReportIT {
-  @Delegate ResourceVerifier verifier = ResourceVerifier.dstu2();
+  @Delegate ResourceVerifier verifier = DataQueryResourceVerifier.dstu2();
+
+  TestIds testIds = DataQueryResourceVerifier.ids();
 
   @Test
   public void advanced() {
@@ -21,18 +25,14 @@ public class DiagnosticReportIT {
             200,
             DiagnosticReport.Bundle.class,
             "DiagnosticReport?_id={id}",
-            verifier.ids().diagnosticReport()),
-        test(404, OperationOutcome.class, "DiagnosticReport?_id={id}", verifier.ids().unknown()),
+            testIds.diagnosticReport()),
+        test(404, OperationOutcome.class, "DiagnosticReport?_id={id}", testIds.unknown()),
         test(
             200,
             DiagnosticReport.Bundle.class,
             "DiagnosticReport?identifier={id}",
-            verifier.ids().diagnosticReport()),
-        test(
-            404,
-            OperationOutcome.class,
-            "DiagnosticReport?identifier={id}",
-            verifier.ids().unknown()));
+            testIds.diagnosticReport()),
+        test(404, OperationOutcome.class, "DiagnosticReport?identifier={id}", testIds.unknown()));
   }
 
   @Test
@@ -42,151 +42,143 @@ public class DiagnosticReportIT {
             200,
             DiagnosticReport.Bundle.class,
             "DiagnosticReport?patient={patient}&category=LAB",
-            verifier.ids().patient()),
+            testIds.patient()),
         test(
             200,
             DiagnosticReport.Bundle.class,
             "DiagnosticReport?patient={patient}&code={loinc1}",
-            verifier.ids().patient(),
-            verifier.ids().diagnosticReports().loinc1()),
+            testIds.patient(),
+            testIds.diagnosticReports().loinc1()),
         test(
             200,
             DiagnosticReport.Bundle.class,
             "DiagnosticReport?patient={patient}&code={loinc1},{badLoinc}",
-            verifier.ids().patient(),
-            verifier.ids().diagnosticReports().loinc1(),
-            verifier.ids().diagnosticReports().badLoinc()),
+            testIds.patient(),
+            testIds.diagnosticReports().loinc1(),
+            testIds.diagnosticReports().badLoinc()),
         test(
             200,
             DiagnosticReport.Bundle.class,
             "DiagnosticReport?patient={patient}&code={loinc1},{loinc2}",
-            verifier.ids().patient(),
-            verifier.ids().diagnosticReports().loinc1(),
-            verifier.ids().diagnosticReports().loinc2()),
+            testIds.patient(),
+            testIds.diagnosticReports().loinc1(),
+            testIds.diagnosticReports().loinc2()),
         test(
             200,
             DiagnosticReport.Bundle.class,
             "DiagnosticReport?patient={patient}&category=LAB&date={onDate}",
-            verifier.ids().patient(),
-            verifier.ids().diagnosticReports().onDate()),
+            testIds.patient(),
+            testIds.diagnosticReports().onDate()),
         test(
             200,
             DiagnosticReport.Bundle.class,
             "DiagnosticReport?patient={patient}&category=LAB&date={fromDate}&date={toDate}",
-            verifier.ids().patient(),
-            verifier.ids().diagnosticReports().fromDate(),
-            verifier.ids().diagnosticReports().toDate()),
+            testIds.patient(),
+            testIds.diagnosticReports().fromDate(),
+            testIds.diagnosticReports().toDate()),
         test(
             200,
             DiagnosticReport.Bundle.class,
             "DiagnosticReport?patient={patient}&category=LAB&date={dateYear}",
-            verifier.ids().patient(),
-            verifier.ids().diagnosticReports().dateYear()),
+            testIds.patient(),
+            testIds.diagnosticReports().dateYear()),
         test(
             200,
             DiagnosticReport.Bundle.class,
             "DiagnosticReport?patient={patient}&category=LAB&date={dateYearMonth}",
-            verifier.ids().patient(),
-            verifier.ids().diagnosticReports().dateYearMonth()),
+            testIds.patient(),
+            testIds.diagnosticReports().dateYearMonth()),
         test(
             200,
             DiagnosticReport.Bundle.class,
             "DiagnosticReport?patient={patient}&category=LAB&date={dateYearMonthDay}",
-            verifier.ids().patient(),
-            verifier.ids().diagnosticReports().dateYearMonthDay()),
+            testIds.patient(),
+            testIds.diagnosticReports().dateYearMonthDay()),
         test(
             400,
             OperationOutcome.class,
             "DiagnosticReport?patient={patient}&category=LAB&date={dateYearMonthDayHour}",
-            verifier.ids().patient(),
-            verifier.ids().diagnosticReports().dateYearMonthDayHour()),
+            testIds.patient(),
+            testIds.diagnosticReports().dateYearMonthDayHour()),
         test(
             400,
             OperationOutcome.class,
             "DiagnosticReport?patient={patient}&category=LAB&date={dateYearMonthDayHourMinute}",
-            verifier.ids().patient(),
-            verifier.ids().diagnosticReports().dateYearMonthDayHourMinute()),
+            testIds.patient(),
+            testIds.diagnosticReports().dateYearMonthDayHourMinute()),
         test(
             400,
             OperationOutcome.class,
             "DiagnosticReport?patient={patient}&category=LAB&date={dateYearMonthDayHourMinuteSecond}",
-            verifier.ids().patient(),
-            verifier.ids().diagnosticReports().dateYearMonthDayHourMinuteSecond()),
+            testIds.patient(),
+            testIds.diagnosticReports().dateYearMonthDayHourMinuteSecond()),
         test(
             200,
             DiagnosticReport.Bundle.class,
             "DiagnosticReport?patient={patient}&category=LAB&date={dateYearMonthDayHourMinuteSecondTimezone}",
-            verifier.ids().patient(),
-            verifier.ids().diagnosticReports().dateYearMonthDayHourMinuteSecondTimezone()),
+            testIds.patient(),
+            testIds.diagnosticReports().dateYearMonthDayHourMinuteSecondTimezone()),
         test(
             200,
             DiagnosticReport.Bundle.class,
             "DiagnosticReport?patient={patient}&category=LAB&date={dateYearMonthDayHourMinuteSecondZulu}",
-            verifier.ids().patient(),
-            verifier.ids().diagnosticReports().dateYearMonthDayHourMinuteSecondZulu()),
+            testIds.patient(),
+            testIds.diagnosticReports().dateYearMonthDayHourMinuteSecondZulu()),
         test(
             200,
             DiagnosticReport.Bundle.class,
             "DiagnosticReport?patient={patient}&category=LAB&date={dateGreaterThan}",
-            verifier.ids().patient(),
-            verifier.ids().diagnosticReports().dateGreaterThan()),
+            testIds.patient(),
+            testIds.diagnosticReports().dateGreaterThan()),
         test(
             200,
             DiagnosticReport.Bundle.class,
             "DiagnosticReport?patient={patient}&category=LAB&date={dateNotEqual}",
-            verifier.ids().patient(),
-            verifier.ids().diagnosticReports().dateNotEqual()),
+            testIds.patient(),
+            testIds.diagnosticReports().dateNotEqual()),
         test(
             200,
             DiagnosticReport.Bundle.class,
             "DiagnosticReport?patient={patient}&category=LAB&date={dateStartsWith}",
-            verifier.ids().patient(),
-            verifier.ids().diagnosticReports().dateStartsWith()),
+            testIds.patient(),
+            testIds.diagnosticReports().dateStartsWith()),
         test(
             200,
             DiagnosticReport.Bundle.class,
             "DiagnosticReport?patient={patient}&category=LAB&date={dateNoPrefix}",
-            verifier.ids().patient(),
-            verifier.ids().diagnosticReports().dateNoPrefix()),
+            testIds.patient(),
+            testIds.diagnosticReports().dateNoPrefix()),
         test(
             200,
             DiagnosticReport.Bundle.class,
             "DiagnosticReport?patient={patient}&category=LAB&date={dateEqual}",
-            verifier.ids().patient(),
-            verifier.ids().diagnosticReports().dateEqual()),
+            testIds.patient(),
+            testIds.diagnosticReports().dateEqual()),
         test(
             200,
             DiagnosticReport.Bundle.class,
             "DiagnosticReport?patient={patient}&category=LAB&date={dateLessOrEqual}",
-            verifier.ids().patient(),
-            verifier.ids().diagnosticReports().dateLessOrEqual()),
+            testIds.patient(),
+            testIds.diagnosticReports().dateLessOrEqual()),
         test(
             200,
             DiagnosticReport.Bundle.class,
             "DiagnosticReport?patient={patient}&category=LAB&date={dateLessThan}",
-            verifier.ids().patient(),
-            verifier.ids().diagnosticReports().dateLessThan()),
-        test(
-            200,
-            DiagnosticReport.class,
-            "DiagnosticReport/{id}",
-            verifier.ids().diagnosticReport()),
-        test(404, OperationOutcome.class, "DiagnosticReport/{id}", verifier.ids().unknown()),
+            testIds.patient(),
+            testIds.diagnosticReports().dateLessThan()),
+        test(200, DiagnosticReport.class, "DiagnosticReport/{id}", testIds.diagnosticReport()),
+        test(404, OperationOutcome.class, "DiagnosticReport/{id}", testIds.unknown()),
         test(
             200,
             DiagnosticReport.Bundle.class,
             "DiagnosticReport?patient={patient}",
-            verifier.ids().patient()));
+            testIds.patient()));
   }
 
   @Test
   public void searchNotMe() {
     assumeEnvironmentNotIn(Environment.LOCAL);
     verifier.verifyAll(
-        test(
-            403,
-            OperationOutcome.class,
-            "DiagnosticReport?patient={patient}",
-            verifier.ids().unknown()));
+        test(403, OperationOutcome.class, "DiagnosticReport?patient={patient}", testIds.unknown()));
   }
 }

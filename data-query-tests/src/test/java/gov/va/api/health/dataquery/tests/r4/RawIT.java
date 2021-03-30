@@ -3,7 +3,9 @@ package gov.va.api.health.dataquery.tests.r4;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
-import gov.va.api.health.dataquery.tests.ResourceVerifier;
+import gov.va.api.health.dataquery.tests.DataQueryResourceVerifier;
+import gov.va.api.health.dataquery.tests.TestIds;
+import gov.va.api.health.fhir.testsupport.ResourceVerifier;
 import io.restassured.RestAssured;
 import io.restassured.path.json.config.JsonPathConfig;
 import io.restassured.response.Response;
@@ -19,21 +21,23 @@ import org.junit.jupiter.api.Test;
  */
 @Slf4j
 public class RawIT {
-  @Delegate ResourceVerifier verifier = ResourceVerifier.r4();
+  @Delegate ResourceVerifier verifier = DataQueryResourceVerifier.r4();
+
+  TestIds testIds = DataQueryResourceVerifier.ids();
 
   RequestSpecification raw =
       RestAssured.given()
-          .spec(verifier.dataQuery().service().requestSpecification())
+          .spec(verifier.testClient().service().requestSpecification())
           .headers(ImmutableMap.of("raw", System.getProperty("raw-token", "true")));
 
   @Test
   public void allergyIntoleranceRaw() {
-    assertFhirObject("AllergyIntolerance", verifier.ids().allergyIntolerance());
+    assertFhirObject("AllergyIntolerance", testIds.allergyIntolerance());
   }
 
   @Test
   public void appointmentRaw() {
-    assertFhirObject("Appointment", verifier.ids().appointment());
+    assertFhirObject("Appointment", testIds.appointment());
   }
 
   @SneakyThrows
@@ -57,79 +61,78 @@ public class RawIT {
 
   @Test
   public void conditionRaw() {
-    assertFhirObject("Condition", verifier.ids().condition());
+    assertFhirObject("Condition", testIds.condition());
   }
 
   @Test
   public void deviceRaw() {
-    assertFhirObject("Device", verifier.ids().device());
+    assertFhirObject("Device", testIds.device());
   }
 
   @Test
   @SneakyThrows
   public void diagnosticReportRaw() {
-    assertFhirObject("DiagnosticReport", verifier.ids().diagnosticReport());
+    assertFhirObject("DiagnosticReport", testIds.diagnosticReport());
   }
 
   @Test
   public void immunizationRaw() {
-    assertFhirObject("Immunization", verifier.ids().immunization());
+    assertFhirObject("Immunization", testIds.immunization());
   }
 
   @Test
   public void locationRaw() {
-    assertFhirObject("Location", verifier.ids().location());
+    assertFhirObject("Location", testIds.location());
   }
 
   @Test
   public void medicationRaw() {
-    assertFhirObject("Medication", verifier.ids().medication());
+    assertFhirObject("Medication", testIds.medication());
   }
 
   @Test
   public void medicationRequestOrderRaw() {
-    assertFhirObject("MedicationRequest", "MedicationOrder", verifier.ids().medicationOrder());
+    assertFhirObject("MedicationRequest", "MedicationOrder", testIds.medicationOrder());
   }
 
   @Test
   public void medicationRequestStatementRaw() {
-    assertFhirObject(
-        "MedicationRequest", "MedicationStatement", verifier.ids().medicationStatement());
+    assertFhirObject("MedicationRequest", "MedicationStatement", testIds.medicationStatement());
   }
 
   @Test
   public void observationRaw() {
-    assertFhirObject("Observation", verifier.ids().observation());
+    assertFhirObject("Observation", testIds.observation());
   }
 
   @Test
   public void organizationRaw() {
-    assertFhirObject("Organization", verifier.ids().organization());
+    assertFhirObject("Organization", testIds.organization());
   }
 
   @Test
   public void patientRaw() {
-    assertFhirObject("Patient", verifier.ids().patient());
+    assertFhirObject("Patient", testIds.patient());
   }
 
   @Test
   public void practitionerRaw() {
-    assertFhirObject("Practitioner", verifier.ids().practitioner());
+    assertFhirObject("Practitioner", testIds.practitioner());
   }
 
   @Test
   public void practitionerRoleRaw() {
-    assertFhirObject("PractitionerRole", "Practitioner", verifier.ids().practitioner());
+    assertFhirObject("PractitionerRole", "Practitioner", testIds.practitioner());
   }
 
   @Test
   public void procedureRaw() {
-    assertFhirObject("Procedure", verifier.ids().procedure());
+    assertFhirObject("Procedure", testIds.procedure());
   }
 
   @SneakyThrows
   public Response readRaw(String resourceName, String publicId) {
-    String path = verifier.dataQuery().service().apiPath() + resourceName + "/" + publicId;
+    String path = verifier.testClient().service().apiPath() + resourceName + "/" + publicId;
     log.info("Verify raw response for {}, with [{}]", path, publicId);
     Response response = raw.get(path);
     assertThat(response.getStatusCode()).isEqualTo(200);
