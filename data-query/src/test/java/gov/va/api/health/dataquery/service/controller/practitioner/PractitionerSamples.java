@@ -46,6 +46,7 @@ public class PractitionerSamples {
       DatamartPractitioner dm = practitioner(cdwId);
       return PractitionerEntity.builder()
           .cdwId(cdwId)
+          .npi("1234567")
           .familyName("Joe")
           .givenName("Johnson")
           .payload(json(dm))
