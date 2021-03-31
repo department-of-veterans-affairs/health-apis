@@ -21,10 +21,12 @@ import gov.va.api.health.dataquery.service.controller.patient.DatamartPatient;
 import gov.va.api.health.dataquery.service.controller.practitioner.DatamartPractitioner;
 import gov.va.api.health.dataquery.service.controller.procedure.DatamartProcedure;
 import java.util.Map;
-import javax.validation.ConstraintViolationException;
+import java.util.stream.Collectors;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -40,6 +42,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(
     value = {"/datamart/validation"},
     produces = {"application/json"})
+@Slf4j
 public class DatamartValidationController {
 
   /** Datamart resources that are supported for validation. */
@@ -72,19 +75,55 @@ public class DatamartValidationController {
   @Loggable(arguments = false)
   @PostMapping()
   @SneakyThrows
-  public Object validation(@RequestBody String payload) {
+  public ResponseEntity<Object> validation(@RequestBody String payload) {
+    log.info("Validating Datamart payload");
 
-    JsonNode jsonNode = createMapper().readTree(payload);
-    String objectType = jsonNode.get("objectType").asText();
+    JsonNode jsonNode;
+    try {
+      jsonNode = createMapper().readTree(payload);
+    } catch (Exception e) {
+      return ResponseEntity.badRequest().body("Cannot parse JSON payload: " + e.getMessage());
+    }
+
+    JsonNode objectTypeNode = jsonNode.get("objectType");
+    if (objectTypeNode == null) {
+      return ResponseEntity.badRequest().body("Missing \"objectType\" node.");
+    }
+
+    String objectType = objectTypeNode.asText();
     if ("DiagnosticReport".equals(objectType)) {
       objectType = objectType.concat(jsonNode.get("objectVersion").asText());
     }
-    Object datamartObject =
-        createMapper().convertValue(jsonNode, datamartResources.get(objectType));
-    var violations = validator.validate(datamartObject);
-    if (!violations.isEmpty()) {
-      throw new ConstraintViolationException("Payload is not valid,", violations);
+
+    Class<?> classType = datamartResources.get(objectType);
+    if (classType == null) {
+      return ResponseEntity.badRequest()
+          .body(String.format("Unknown object type \"%s\".", objectType));
     }
-    return datamartObject;
+
+    Object datamartObject;
+    try {
+      datamartObject = createMapper().convertValue(jsonNode, classType);
+    } catch (Exception e) {
+      return ResponseEntity.badRequest()
+          .body(
+              String.format(
+                  "Cannot parse objectType \"%s\" as %s: %s",
+                  objectType, classType, e.getMessage()));
+    }
+    try {
+      var violations = validator.validate(datamartObject);
+      if (!violations.isEmpty()) {
+        var errors =
+            violations.stream()
+                .map(v -> v.getPropertyPath() + " " + v.getMessage())
+                .collect(Collectors.joining("\n"));
+
+        return ResponseEntity.badRequest().body("Validation errors:\n" + errors);
+      }
+    } catch (Exception e) {
+      return ResponseEntity.badRequest().body("Failed to validate: " + e.getMessage());
+    }
+    return ResponseEntity.ok(datamartObject);
   }
 }
