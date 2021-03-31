@@ -67,7 +67,8 @@ public class AppointmentIT {
         test(
             200,
             Appointment.Bundle.class,
-            "Appointment?date={date}",
+            "Appointment?patient={patient}&date={date}",
+            testIds.patient(),
             testIds.appointments().date()));
   }
 
