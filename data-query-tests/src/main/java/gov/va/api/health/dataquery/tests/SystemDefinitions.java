@@ -137,7 +137,7 @@ public final class SystemDefinitions {
     return TestIds.Practitioners.builder()
         .family("LASTNAME")
         .given("FIRSTNAME A.")
-        .npi("http://hl7.org/fhir/sid/us-npi|1932127842")
+        .npi("1932127842")
         .specialty("http://hl7.org/fhir/practitioner-specialty|207Q00000X")
         .build();
   }
@@ -300,7 +300,7 @@ public final class SystemDefinitions {
     return TestIds.Practitioners.builder()
         .family("ACOSTA")
         .given("SAID R")
-        .npi("http://hl7.org/fhir/sid/us-npi|1013904481")
+        .npi("1013904481")
         .specialty("http://hl7.org/fhir/practitioner-specialty|xxx")
         .build();
   }

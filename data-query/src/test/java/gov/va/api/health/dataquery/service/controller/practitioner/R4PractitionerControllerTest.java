@@ -71,6 +71,16 @@ public class R4PractitionerControllerTest {
   }
 
   @Test
+  void readByNpi() {
+    when(ids.register(any())).thenReturn(List.of(registration("pr1", "ppr1")));
+    PractitionerEntity entity = PractitionerSamples.Datamart.create().entity("pr1", "loc1", "org1");
+    when(repository.findByNpi("1234567", Pageable.unpaged()))
+        .thenReturn(new PageImpl(List.of(entity)));
+    assertThat(controller().read("npi-1234567"))
+        .isEqualTo(PractitionerSamples.R4.create().practitioner("ppr1"));
+  }
+
+  @Test
   void readRaw() {
     HttpServletResponse response = mock(HttpServletResponse.class);
     when(ids.lookup("ppr1")).thenReturn(List.of(id("pr1")));

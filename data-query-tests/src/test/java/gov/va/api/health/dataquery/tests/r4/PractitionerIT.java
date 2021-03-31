@@ -20,6 +20,7 @@ public class PractitionerIT {
   public void basic() {
     verifier.verifyAll(
         test(200, Practitioner.class, "Practitioner/{id}", testIds.practitioner()),
+        test(200, Practitioner.class, "Practitioner/npi-{npi}", testIds.practitioners().npi()),
         test(404, OperationOutcome.class, "Practitioner/{id}", testIds.unknown()));
   }
 
