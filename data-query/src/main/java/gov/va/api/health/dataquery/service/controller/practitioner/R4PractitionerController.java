@@ -4,6 +4,7 @@ import static gov.va.api.lighthouse.vulcan.Rules.atLeastOneParameterOf;
 import static gov.va.api.lighthouse.vulcan.Vulcan.returnNothing;
 
 import gov.va.api.health.dataquery.service.config.LinkProperties;
+import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.Bundling;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedBundler;
@@ -13,6 +14,7 @@ import gov.va.api.health.r4.api.resources.Practitioner;
 import gov.va.api.lighthouse.vulcan.Vulcan;
 import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
 import gov.va.api.lighthouse.vulcan.mappings.Mappings;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -20,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -53,9 +56,24 @@ public class R4PractitionerController {
         .build();
   }
 
+  /** Read Support. */
   @GetMapping(value = "/{publicId}")
   public Practitioner read(@PathVariable("publicId") String publicId) {
+    if (publicId.length() > 4 && publicId.startsWith("npi-")) {
+      return readByNpi(publicId.substring(4));
+    }
     return vulcanizedReader().read(publicId);
+  }
+
+  private Practitioner readByNpi(String npi) {
+    PractitionerEntity entity =
+        repository.findByNpi(npi, Pageable.unpaged()).stream()
+            .filter(Objects::nonNull)
+            .findFirst()
+            .orElseThrow(() -> new ResourceExceptions.NotFound("NPI: " + npi));
+    DatamartPractitioner dm = transformation().toDatamart().apply(entity);
+    transformation().applyWitnessProtection(dm);
+    return transformation().toResource().apply(dm);
   }
 
   @GetMapping(

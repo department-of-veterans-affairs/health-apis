@@ -32,7 +32,7 @@ public class PractitionerIT {
         test(
             200,
             Practitioner.Bundle.class,
-            "Practitioner?identifier={npi}",
+            "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|{npi}",
             DataQueryResourceVerifier.ids().practitioners().npi()));
   }
 

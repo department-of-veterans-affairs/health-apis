@@ -42,7 +42,7 @@ public class PractitionerRoleIT {
         test(
             200,
             PractitionerRole.Bundle.class,
-            "PractitionerRole?practitioner.identifier={npi}",
+            "PractitionerRole?practitioner.identifier=http://hl7.org/fhir/sid/us-npi|{npi}",
             DataQueryResourceVerifier.ids().practitioners().npi()),
         test(
             501,
