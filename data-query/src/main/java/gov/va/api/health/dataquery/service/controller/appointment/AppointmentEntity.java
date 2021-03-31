@@ -47,6 +47,9 @@ public class AppointmentEntity implements CompositeIdDatamartEntity {
   @Column(name = "LocationSID")
   private Integer locationSid;
 
+  @Column(name = "DateUTC")
+  private Instant date;
+
   @Column(name = "LastUpdated")
   private Instant lastUpdated;
 
