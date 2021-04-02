@@ -61,6 +61,7 @@ public final class SystemDefinitions {
 
   private static TestIds.Appointments labAppointments() {
     return TestIds.Appointments.builder()
+        .date("le2020")
         .location("I2-4KG3N5YUSPTWD3DAFMLMRL5V5U000000")
         .lastUpdated("le2020")
         // Frankenpatient
@@ -148,6 +149,7 @@ public final class SystemDefinitions {
 
   private static TestIds.Appointments localAppointments() {
     return TestIds.Appointments.builder()
+        .date("le2020")
         .location("I2-K7WNFKZA3JCXL3CLT6D2HP7RRU000000")
         .oauthPatient("1017283180V801730")
         .lastUpdated("le2020")
@@ -220,6 +222,7 @@ public final class SystemDefinitions {
 
   private static TestIds.Appointments productionAppointments() {
     return TestIds.Appointments.builder()
+        .date("le2020")
         .location("I2-XPW2ECZK2LTNSPLNVKISWC5QZABOVEBZD5V2CKFRVEPAU5CNZMJQ0000")
         .oauthPatient("1017283180V801730")
         .lastUpdated("le2020")

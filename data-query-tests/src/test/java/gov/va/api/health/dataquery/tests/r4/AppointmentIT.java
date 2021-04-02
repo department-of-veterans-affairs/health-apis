@@ -63,7 +63,13 @@ public class AppointmentIT {
             Appointment.Bundle.class,
             "Appointment?patient={patient}&_lastUpdated={lastUpdated}",
             testIds.patient(),
-            testIds.appointments().lastUpdated()));
+            testIds.appointments().lastUpdated()),
+        test(
+            200,
+            Appointment.Bundle.class,
+            "Appointment?patient={patient}&date={date}",
+            testIds.patient(),
+            testIds.appointments().date()));
   }
 
   /**
