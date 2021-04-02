@@ -2,17 +2,28 @@ package gov.va.api.health.dataquery.service.controller.organization;
 
 import static java.util.Arrays.asList;
 
+import gov.va.api.health.autoconfig.configuration.JacksonConfig;
+import gov.va.api.health.dataquery.service.controller.FacilityId;
+import gov.va.api.health.ids.api.Registration;
+import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.health.r4.api.bundle.BundleLink;
+import gov.va.api.health.r4.api.datatypes.Address;
+import gov.va.api.health.r4.api.datatypes.CodeableConcept;
+import gov.va.api.health.r4.api.datatypes.Coding;
+import gov.va.api.health.r4.api.datatypes.ContactPoint;
+import gov.va.api.health.r4.api.datatypes.Identifier;
 import gov.va.api.health.r4.api.resources.Organization;
 import gov.va.api.lighthouse.datamart.DatamartCoding;
 import gov.va.api.lighthouse.datamart.DatamartReference;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
+import lombok.SneakyThrows;
 
 public class OrganizationSamples {
 
@@ -29,8 +40,40 @@ public class OrganizationSamples {
 
   public static final String ORGANIZATION_ADDRESS_POSTAL_CODE = "44444-4160";
 
+  public static ResourceIdentity id(String cdwId) {
+    return ResourceIdentity.builder()
+        .system("CDW")
+        .resource("ORGANIZATION")
+        .identifier(cdwId)
+        .build();
+  }
+
+  @SneakyThrows
+  static String json(Object o) {
+    return JacksonConfig.createMapper().writerWithDefaultPrettyPrinter().writeValueAsString(o);
+  }
+
+  public static Registration registration(String cdwId, String publicId) {
+    return Registration.builder().uuid(publicId).resourceIdentities(List.of(id(cdwId))).build();
+  }
+
   @AllArgsConstructor(staticName = "create")
   public static class Datamart {
+
+    public OrganizationEntity entity(String id) {
+      return OrganizationEntity.builder()
+          .cdwId(id)
+          .npi("1205983228")
+          .name(ORGANIZATION_NAME)
+          .street(ORGANIZATION_ADDRESS_LINE_ONE + " " + ORGANIZATION_ADDRESS_LINE_TWO)
+          .city(ORGANIZATION_ADDRESS_CITY)
+          .state(ORGANIZATION_ADDRESS_STATE)
+          .postalCode(ORGANIZATION_ADDRESS_POSTAL_CODE)
+          .facilityType("HEALTH")
+          .stationNumber("123")
+          .payload(json(organization(id)))
+          .build();
+    }
 
     public DatamartOrganization organization() {
       return organization("1234");
@@ -45,6 +88,12 @@ public class OrganizationSamples {
           .ediId(Optional.of("36273"))
           .agencyId(Optional.of("other"))
           .active(true)
+          .facilityId(
+              Optional.of(
+                  FacilityId.builder()
+                      .type(FacilityId.FacilityType.HEALTH)
+                      .stationNumber("123")
+                      .build()))
           .type(
               Optional.of(
                   DatamartCoding.builder()
@@ -226,37 +275,51 @@ public class OrganizationSamples {
     }
 
     gov.va.api.health.r4.api.resources.Organization organization(String id) {
-      return gov.va.api.health.r4.api.resources.Organization.builder()
+      return Organization.builder()
           .resourceType("Organization")
           .id(id)
           .identifier(
               asList(
-                  gov.va.api.health.r4.api.datatypes.Identifier.builder()
+                  Identifier.builder()
                       .system("http://hl7.org/fhir/sid/us-npi")
                       .value("1205983228")
+                      .build(),
+                  Identifier.builder()
+                      .use(Identifier.IdentifierUse.usual)
+                      .type(
+                          CodeableConcept.builder()
+                              .text("Facility ID")
+                              .coding(
+                                  asList(
+                                      Coding.builder()
+                                          .system("http://terminology.hl7.org/CodeSystem/v2-0203")
+                                          .code("FI")
+                                          .display("Facility ID")
+                                          .build()))
+                              .build())
+                      .system(
+                          "https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-identifier")
+                      .value("vha_123")
                       .build()))
           .active(true)
           .name(ORGANIZATION_NAME)
           .telecom(
               asList(
-                  gov.va.api.health.r4.api.datatypes.ContactPoint.builder()
-                      .system(
-                          gov.va.api.health.r4.api.datatypes.ContactPoint.ContactPointSystem.phone)
+                  ContactPoint.builder()
+                      .system(ContactPoint.ContactPointSystem.phone)
                       .value("(800) 555-7710")
                       .build(),
-                  gov.va.api.health.r4.api.datatypes.ContactPoint.builder()
-                      .system(
-                          gov.va.api.health.r4.api.datatypes.ContactPoint.ContactPointSystem.fax)
+                  ContactPoint.builder()
+                      .system(ContactPoint.ContactPointSystem.fax)
                       .value("800-555-7720")
                       .build(),
-                  gov.va.api.health.r4.api.datatypes.ContactPoint.builder()
-                      .system(
-                          gov.va.api.health.r4.api.datatypes.ContactPoint.ContactPointSystem.phone)
+                  ContactPoint.builder()
+                      .system(ContactPoint.ContactPointSystem.phone)
                       .value("800-555-7730")
                       .build()))
           .address(
               asList(
-                  gov.va.api.health.r4.api.datatypes.Address.builder()
+                  Address.builder()
                       .line(asList(ORGANIZATION_ADDRESS_LINE_ONE, ORGANIZATION_ADDRESS_LINE_TWO))
                       .text(
                           Stream.of(

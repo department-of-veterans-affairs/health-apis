@@ -1,310 +1,163 @@
 package gov.va.api.health.dataquery.service.controller.organization;
 
-import static java.util.Collections.emptyList;
-import static org.apache.commons.lang3.StringUtils.trimToEmpty;
-import static org.apache.commons.lang3.StringUtils.trimToNull;
+import static gov.va.api.health.dataquery.service.controller.MockRequests.paging;
+import static gov.va.api.health.dataquery.service.controller.MockRequests.requestFromUri;
+import static gov.va.api.health.dataquery.service.controller.organization.OrganizationSamples.id;
+import static gov.va.api.health.dataquery.service.controller.organization.OrganizationSamples.json;
+import static gov.va.api.health.dataquery.service.controller.organization.OrganizationSamples.registration;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import gov.va.api.health.autoconfig.configuration.JacksonConfig;
-import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
-import gov.va.api.health.dataquery.service.controller.R4Bundler;
-import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
+import gov.va.api.health.dataquery.service.config.LinkProperties;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.ids.api.IdentityService;
-import gov.va.api.health.ids.api.Registration;
-import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.health.r4.api.bundle.BundleLink;
 import gov.va.api.health.r4.api.resources.Organization;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.Collection;
+import gov.va.api.lighthouse.vulcan.InvalidRequest;
+import gov.va.api.lighthouse.vulcan.VulcanResult;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 
-@DataJpaTest
-@ExtendWith(SpringExtension.class)
+@ExtendWith(MockitoExtension.class)
 public class R4OrganizationControllerTest {
-  private final IdentityService ids = mock(IdentityService.class);
+  @Mock IdentityService ids;
+  @Mock OrganizationRepository repository;
 
-  @Autowired OrganizationRepository repository;
-
-  @SneakyThrows
-  private static OrganizationEntity asEntity(DatamartOrganization dm) {
-    return OrganizationEntity.builder()
-        .cdwId(dm.cdwId())
-        .npi(dm.npi().orElse(null))
-        .name(dm.name())
-        .street(
-            trimToNull(trimToEmpty(dm.address().line1()) + " " + trimToEmpty(dm.address().line2())))
-        .city(dm.address().city())
-        .state(dm.address().state())
-        .postalCode(dm.address().postalCode())
-        .payload(JacksonConfig.createMapper().writeValueAsString(dm))
-        .build();
-  }
-
-  @SneakyThrows
-  private static String asJson(Object o) {
-    return JacksonConfig.createMapper().writerWithDefaultPrettyPrinter().writeValueAsString(o);
-  }
-
-  @SneakyThrows
-  private DatamartOrganization asObject(String json) {
-    return JacksonConfig.createMapper().readValue(json, DatamartOrganization.class);
-  }
-
-  private Organization.Bundle bundleOf(
-      String queryString, Collection<Organization> resources, int page, int count) {
-    return OrganizationSamples.R4.asBundle(
-        "http://fonzy.com/cool",
-        resources,
-        resources.size(),
-        OrganizationSamples.R4.link(
-            BundleLink.LinkRelation.first,
-            "http://fonzy.com/cool/Organization?" + queryString,
-            page,
-            count),
-        OrganizationSamples.R4.link(
-            BundleLink.LinkRelation.self,
-            "http://fonzy.com/cool/Organization?" + queryString,
-            page,
-            count),
-        OrganizationSamples.R4.link(
-            BundleLink.LinkRelation.last,
-            "http://fonzy.com/cool/Organization?" + queryString,
-            page,
-            count));
-  }
-
-  private R4OrganizationController controller() {
+  R4OrganizationController controller() {
     return new R4OrganizationController(
-        new R4Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool", "cool", "cool")),
+        LinkProperties.builder()
+            .publicUrl("http://fonzy.com")
+            .publicR4BasePath("r4")
+            .publicStu3BasePath("stu3")
+            .publicDstu2BasePath("dstu2")
+            .maxPageSize(20)
+            .defaultPageSize(15)
+            .build(),
         repository,
         WitnessProtection.builder().identityService(ids).build());
   }
 
-  private String encode(String value) {
-    return URLEncoder.encode(value, StandardCharsets.UTF_8);
-  }
-
-  private void mockOrganizationIdentity(String publicId, String cdwId) {
-    ResourceIdentity resourceIdentity =
-        ResourceIdentity.builder().system("CDW").resource("ORGANIZATION").identifier(cdwId).build();
-    when(ids.lookup(publicId)).thenReturn(List.of(resourceIdentity));
-    when(ids.register(any()))
-        .thenReturn(
-            List.of(
-                Registration.builder()
-                    .uuid(publicId)
-                    .resourceIdentities(List.of(resourceIdentity))
-                    .build()));
+  @SneakyThrows
+  @ParameterizedTest
+  @ValueSource(strings = {"?_id=321&identifier=123"})
+  void invalidRequest(String query) {
+    var r = requestFromUri("http://fonzy.com/r4/Organization" + query);
+    assertThatExceptionOfType(InvalidRequest.class).isThrownBy(() -> controller().search(r));
   }
 
   @Test
   void read() {
-    DatamartOrganization dm = OrganizationSamples.Datamart.create().organization();
-    repository.save(asEntity(dm));
-    mockOrganizationIdentity("x", dm.cdwId());
-    Organization actual = controller().read("x");
-    assertThat(actual).isEqualTo(OrganizationSamples.R4.create().organization("x"));
+    when(ids.register(any())).thenReturn(List.of(registration("or1", "por1")));
+    when(ids.lookup("por1")).thenReturn(List.of(id("or1")));
+    var entity = OrganizationSamples.Datamart.create().entity("or1");
+    when(repository.findById("or1")).thenReturn(Optional.of(entity));
+    assertThat(json(controller().read("por1")))
+        .isEqualTo(json(OrganizationSamples.R4.create().organization("por1")));
   }
 
   @Test
   void readRaw() {
     HttpServletResponse response = mock(HttpServletResponse.class);
-    DatamartOrganization dm = OrganizationSamples.Datamart.create().organization();
-    mockOrganizationIdentity("x", dm.cdwId());
-    repository.save(asEntity(dm));
-    DatamartOrganization actual = asObject(controller().readRaw("x", response));
-    assertThat(actual).isEqualTo(dm);
-    verify(response).addHeader("X-VA-INCLUDES-ICN", "NONE");
+    when(ids.lookup("por1")).thenReturn(List.of(id("or1")));
+    var entity = OrganizationEntity.builder().cdwId("or1").payload("payload!").build();
+    when(repository.findById("or1")).thenReturn(Optional.of(entity));
+    var actual = controller().readRaw("por1", response);
+    assertThat(actual).isEqualTo("payload!");
   }
 
   @Test
-  void readThrowsNotFoundWhenDataIsMissing() {
-    mockOrganizationIdentity("x", "24");
-    assertThrows(ResourceExceptions.NotFound.class, () -> controller().read("x"));
+  void toBundle() {
+    when(ids.register(any()))
+        .thenReturn(
+            List.of(
+                registration("or1", "por1"),
+                registration("or2", "por2"),
+                registration("or3", "por3")));
+    var bundler = controller().toBundle();
+    var datamart = OrganizationSamples.Datamart.create();
+    var vr =
+        VulcanResult.<OrganizationEntity>builder()
+            .paging(
+                paging(
+                    "http://fonzy.com/r4/Organization?identifier=o1&page=%d&_count=%d",
+                    1, 4, 5, 6, 9, 15))
+            .entities(
+                Stream.of(datamart.entity("or1"), datamart.entity("or2"), datamart.entity("or3")))
+            .build();
+    var r4 = OrganizationSamples.R4.create();
+    Organization.Bundle expected =
+        r4.asBundle(
+            "http://fonzy.com/r4",
+            List.of(r4.organization("por1"), r4.organization("por2"), r4.organization("por3")),
+            999,
+            r4.link(
+                BundleLink.LinkRelation.first,
+                "http://fonzy.com/r4/Organization?identifier=o1",
+                1,
+                15),
+            r4.link(
+                BundleLink.LinkRelation.prev,
+                "http://fonzy.com/r4/Organization?identifier=o1",
+                4,
+                15),
+            r4.link(
+                BundleLink.LinkRelation.self,
+                "http://fonzy.com/r4/Organization?identifier=o1",
+                5,
+                15),
+            r4.link(
+                BundleLink.LinkRelation.next,
+                "http://fonzy.com/r4/Organization?identifier=o1",
+                6,
+                15),
+            r4.link(
+                BundleLink.LinkRelation.last,
+                "http://fonzy.com/r4/Organization?identifier=o1",
+                9,
+                15));
+    var applied = bundler.apply(vr);
+    assertThat(applied).isEqualTo(expected);
   }
 
-  @Test
-  void readThrowsNotFoundWhenIdIsUnknown() {
-    assertThrows(ResourceExceptions.NotFound.class, () -> controller().read("x"));
-  }
-
-  @Test
-  void searchByAddress() {
-    String addressStreet =
-        Stream.of(
-                OrganizationSamples.ORGANIZATION_ADDRESS_LINE_ONE,
-                OrganizationSamples.ORGANIZATION_ADDRESS_LINE_TWO)
-            .collect(Collectors.joining(" "));
-    DatamartOrganization dm = OrganizationSamples.Datamart.create().organization();
-    repository.save(asEntity(dm));
-    Organization.Bundle actual =
-        controller().searchByAddress(addressStreet, null, null, null, 1, 15);
-    assertThat(asJson(actual))
-        .isEqualTo(
-            asJson(
-                bundleOf(
-                    "address=" + encode(addressStreet),
-                    List.of(OrganizationSamples.R4.create().organization()),
-                    1,
-                    15)));
-  }
-
-  @Test
-  void searchByAddressCity() {
-    String city = OrganizationSamples.ORGANIZATION_ADDRESS_CITY;
-    DatamartOrganization dm = OrganizationSamples.Datamart.create().organization();
-    repository.save(asEntity(dm));
-    Organization.Bundle actual = controller().searchByAddress(null, city, null, null, 1, 15);
-    assertThat(asJson(actual))
-        .isEqualTo(
-            asJson(
-                bundleOf(
-                    "address-city=" + encode(city),
-                    List.of(OrganizationSamples.R4.create().organization()),
-                    1,
-                    15)));
-  }
-
-  @Test
-  void searchByAddressPostalCode() {
-    String postalCode = OrganizationSamples.ORGANIZATION_ADDRESS_POSTAL_CODE;
-    DatamartOrganization dm = OrganizationSamples.Datamart.create().organization();
-    repository.save(asEntity(dm));
-    Organization.Bundle actual = controller().searchByAddress(null, null, null, postalCode, 1, 15);
-    assertThat(asJson(actual))
-        .isEqualTo(
-            asJson(
-                bundleOf(
-                    "address-postalcode=" + postalCode,
-                    List.of(OrganizationSamples.R4.create().organization()),
-                    1,
-                    15)));
-  }
-
-  @Test
-  void searchByAddressState() {
-    String state = OrganizationSamples.ORGANIZATION_ADDRESS_STATE;
-    DatamartOrganization dm = OrganizationSamples.Datamart.create().organization();
-    repository.save(asEntity(dm));
-    Organization.Bundle actual = controller().searchByAddress(null, null, state, null, 1, 15);
-    assertThat(asJson(actual))
-        .isEqualTo(
-            asJson(
-                bundleOf(
-                    "address-state=" + state,
-                    List.of(OrganizationSamples.R4.create().organization()),
-                    1,
-                    15)));
-  }
-
-  @Test
-  void searchByAddressThrowsMissingSearchParametersWhenAllParamsAreNull() {
-    assertThrows(
-        ResourceExceptions.MissingSearchParameters.class,
-        () -> controller().searchByAddress(null, null, null, null, 1, 15));
-  }
-
-  @Test
-  void searchById() {
-    DatamartOrganization dm = OrganizationSamples.Datamart.create().organization();
-    mockOrganizationIdentity("x", dm.cdwId());
-    repository.save(asEntity(dm));
-    Organization.Bundle actual = controller().searchById("x", 1, 1);
-    assertThat(asJson(actual))
-        .isEqualTo(
-            asJson(
-                bundleOf(
-                    "identifier=x",
-                    List.of(OrganizationSamples.R4.create().organization("x")),
-                    1,
-                    1)));
-  }
-
-  @Test
-  void searchByIdentifier() {
-    DatamartOrganization dm = OrganizationSamples.Datamart.create().organization();
-    mockOrganizationIdentity("x", dm.cdwId());
-    repository.save(asEntity(dm));
-    Organization.Bundle actual = controller().searchByIdentifier("x", 1, 1);
-    assertThat(asJson(actual))
-        .isEqualTo(
-            asJson(
-                bundleOf(
-                    "identifier=x",
-                    List.of(OrganizationSamples.R4.create().organization("x")),
-                    1,
-                    1)));
-  }
-
-  @Test
-  void searchByIdentifierWithCount0() {
-    DatamartOrganization dm = OrganizationSamples.Datamart.create().organization();
-    mockOrganizationIdentity("x", dm.cdwId());
-    repository.save(asEntity(dm));
-    Organization.Bundle actual = controller().searchByIdentifier("x", 1, 0);
-    assertThat(asJson(actual))
-        .isEqualTo(
-            asJson(
-                OrganizationSamples.R4.asBundle(
-                    "http://fonzy.com/cool",
-                    emptyList(),
-                    1,
-                    OrganizationSamples.R4.link(
-                        BundleLink.LinkRelation.self,
-                        "http://fonzy.com/cool/Organization?identifier=x",
-                        1,
-                        0))));
-  }
-
-  @Test
-  void searchByName() {
-    String name = OrganizationSamples.ORGANIZATION_NAME;
-    DatamartOrganization dm = OrganizationSamples.Datamart.create().organization();
-    repository.save(asEntity(dm));
-    Organization.Bundle actual = controller().searchByName(name, 1, 15);
-    assertThat(asJson(actual))
-        .isEqualTo(
-            asJson(
-                bundleOf(
-                    "name=" + encode(name),
-                    List.of(OrganizationSamples.R4.create().organization()),
-                    1,
-                    15)));
-  }
-
-  @Test
-  void searchByNameWithCount0() {
-    String name = OrganizationSamples.ORGANIZATION_NAME;
-    DatamartOrganization dm = OrganizationSamples.Datamart.create().organization();
-    repository.save(asEntity(dm));
-    Organization.Bundle actual = controller().searchByName(name, 1, 0);
-    assertThat(asJson(actual))
-        .isEqualTo(
-            asJson(
-                OrganizationSamples.R4.asBundle(
-                    "http://fonzy.com/cool",
-                    emptyList(),
-                    1,
-                    OrganizationSamples.R4.link(
-                        BundleLink.LinkRelation.self,
-                        "http://fonzy.com/cool/Organization?name=" + encode(name),
-                        1,
-                        0))));
+  @ParameterizedTest
+  @ValueSource(
+      strings = {
+        "?_id=or1",
+        "?identifier=or1",
+        "?name=NEW+AMSTERDAM+CBOC",
+        "?address=10+MONROE+AVE,+SUITE+6B+PO+BOX+4160",
+        "?address-city=NEW+AMSTERDAM",
+        "?address-state=OH",
+        "?address-postalcode=44444-4160",
+        "?address=10+MONROE+AVE,+SUITE+6B+PO+BOX+4160&address-city=NEW+AMSTERDAM",
+        "?address=10+MONROE+AVE,+SUITE+6B+PO+BOX+4160&address-city=NEW+AMSTERDAM&address-state=OH",
+        "?address=10+MONROE+AVE,+SUITE+6B+PO+BOX+4160&address-city=NEW+AMSTERDAM&"
+            + "address-state=OH&address-postalcode=44444-4160"
+      })
+  @SneakyThrows
+  void validRequest(String query) {
+    when(ids.register(any())).thenReturn(List.of(OrganizationSamples.registration("or1", "por1")));
+    var dm = OrganizationSamples.Datamart.create();
+    when(repository.findAll(any(Specification.class), any(Pageable.class)))
+        .thenAnswer(
+            i -> new PageImpl(List.of(dm.entity("or1")), i.getArgument(1, Pageable.class), 1));
+    var request = requestFromUri("http://fonzy.com/r4/Organization" + query);
+    var actual = controller().search(request);
+    assertThat(actual.entry()).hasSize(1);
   }
 }
