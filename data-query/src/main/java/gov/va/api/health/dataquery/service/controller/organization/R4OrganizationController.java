@@ -13,6 +13,9 @@ import gov.va.api.health.r4.api.resources.Organization;
 import gov.va.api.lighthouse.vulcan.Vulcan;
 import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
 import gov.va.api.lighthouse.vulcan.mappings.Mappings;
+import gov.va.api.lighthouse.vulcan.mappings.TokenParameter;
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -38,6 +41,9 @@ import org.springframework.web.bind.annotation.RestController;
     produces = {"application/json", "application/fhir+json"})
 @AllArgsConstructor(onConstructor_ = @Autowired)
 public class R4OrganizationController {
+  private static final String FAPI_IDENTIFIER_SYSTEM =
+      "https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-identifier";
+
   private final LinkProperties linkProperties;
 
   private OrganizationRepository repository;
@@ -55,7 +61,11 @@ public class R4OrganizationController {
                 .string("address-state", "state")
                 .string("address-postalcode", "postalCode")
                 .value("_id", "cdwId", witnessProtection::toCdwId)
-                .value("identifier", "cdwId", witnessProtection::toCdwId)
+                .token(
+                    "identifier",
+                    this::tokenIdentifierColumns,
+                    this::tokenIdentifierIsSupported,
+                    this::tokenIdentifierValues)
                 .string("name", "name")
                 .get())
         .rule(parametersNeverSpecifiedTogether("_id", "identifier"))
@@ -112,6 +122,38 @@ public class R4OrganizationController {
                 .linkProperties(linkProperties)
                 .build())
         .build();
+  }
+
+  private Collection<String> tokenIdentifierColumns(TokenParameter token) {
+    return token
+        .behavior()
+        .onAnySystemAndExplicitCode(c -> List.of("cdwId", "facilityType", "stationNumber"))
+        .onExplicitSystemAndExplicitCode((s, c) -> List.of("facilityType", "stationNumber"))
+        .build()
+        .execute();
+  }
+
+  /**
+   * Supported Identifiers:
+   *
+   * <p>I3-1a2b3c4d
+   *
+   * <p>vha_123
+   *
+   * <p>https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-identifier|vha_123
+   */
+  private boolean tokenIdentifierIsSupported(TokenParameter token) {
+    return token.hasSupportedSystem(FAPI_IDENTIFIER_SYSTEM) || token.hasAnySystem();
+  }
+
+  /** Determine the collection of values to search for a given token. */
+  private Collection<String> tokenIdentifierValues(TokenParameter token) {
+    return token
+        .behavior()
+        .onAnySystemAndExplicitCode(List::of)
+        .onExplicitSystemAndExplicitCode((s, c) -> List.of(c))
+        .build()
+        .execute();
   }
 
   VulcanizedTransformation<OrganizationEntity, DatamartOrganization, Organization>

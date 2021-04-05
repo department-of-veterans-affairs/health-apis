@@ -49,19 +49,6 @@ public class FacilityTransformers {
     if (id == null || isBlank(id.stationNumber()) || isBlank(id.type())) {
       return null;
     }
-    switch (id.type()) {
-      case HEALTH:
-        return "vha_" + id.stationNumber();
-      case BENEFITS:
-        return "vba_" + id.stationNumber();
-      case VET_CENTER:
-        return "vc_" + id.stationNumber();
-      case CEMETERY:
-        return "nca_" + id.stationNumber();
-      case NONNATIONAL_CEMETERY:
-        return "nca_s" + id.stationNumber();
-      default:
-        throw new IllegalStateException("Unsupported facility type: " + id.type());
-    }
+    return id.toString();
   }
 }
