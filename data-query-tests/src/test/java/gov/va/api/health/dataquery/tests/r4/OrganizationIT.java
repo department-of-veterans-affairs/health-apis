@@ -1,10 +1,13 @@
 package gov.va.api.health.dataquery.tests.r4;
 
+import static gov.va.api.health.sentinel.EnvironmentAssumptions.assumeEnvironmentIn;
+
 import gov.va.api.health.dataquery.tests.DataQueryResourceVerifier;
 import gov.va.api.health.dataquery.tests.TestIds;
 import gov.va.api.health.fhir.testsupport.ResourceVerifier;
 import gov.va.api.health.r4.api.resources.OperationOutcome;
 import gov.va.api.health.r4.api.resources.Organization;
+import gov.va.api.health.sentinel.Environment;
 import java.util.function.Predicate;
 import lombok.experimental.Delegate;
 import org.junit.jupiter.api.Test;
@@ -23,12 +26,6 @@ public class OrganizationIT {
             bundleIsNotEmpty(),
             "Organization?_id={id}",
             testIds.organization()),
-        test(
-            200,
-            Organization.Bundle.class,
-            bundleIsNotEmpty().negate(),
-            "Organization?_id={id}",
-            testIds.unknown()),
         test(
             200,
             Organization.Bundle.class,
@@ -76,5 +73,17 @@ public class OrganizationIT {
 
   private Predicate<Organization.Bundle> bundleIsNotEmpty() {
     return bundle -> !bundle.entry().isEmpty();
+  }
+
+  @Test
+  void local() {
+    assumeEnvironmentIn(Environment.LOCAL);
+    verify(
+        test(
+            200,
+            Organization.Bundle.class,
+            bundleIsNotEmpty().negate(),
+            "Organization?_id={id}",
+            testIds.unknown()));
   }
 }
