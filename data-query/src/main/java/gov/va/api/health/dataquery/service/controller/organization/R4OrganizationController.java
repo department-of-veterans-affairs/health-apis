@@ -4,6 +4,7 @@ import static gov.va.api.lighthouse.vulcan.Rules.parametersNeverSpecifiedTogethe
 import static gov.va.api.lighthouse.vulcan.Vulcan.returnNothing;
 
 import gov.va.api.health.dataquery.service.config.LinkProperties;
+import gov.va.api.health.dataquery.service.controller.FacilityId;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.Bundling;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedBundler;
@@ -15,7 +16,7 @@ import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
 import gov.va.api.lighthouse.vulcan.mappings.Mappings;
 import gov.va.api.lighthouse.vulcan.mappings.TokenParameter;
 import java.util.Collection;
-import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -49,6 +50,27 @@ public class R4OrganizationController {
   private OrganizationRepository repository;
 
   private WitnessProtection witnessProtection;
+
+  private Map<String, String> columnMappings(TokenParameter token) {
+    if (token == null || token.code() == null) {
+      return Map.of();
+    }
+    // Facility IDs
+    try {
+      FacilityId facilityId = FacilityId.from(token.code());
+      return Map.of(
+          "facilityType",
+          facilityId.type().toString(),
+          "stationNumber",
+          facilityId.stationNumber());
+    } catch (IllegalArgumentException e) {
+      if (FAPI_IDENTIFIER_SYSTEM.equals(token.system())) {
+        return Map.of();
+      }
+    }
+    // I2 or I3
+    return Map.of("cdwId", witnessProtection.toCdwId(token.code()));
+  }
 
   private VulcanConfiguration<OrganizationEntity> configuration() {
     return VulcanConfiguration.forEntity(OrganizationEntity.class)
@@ -125,12 +147,7 @@ public class R4OrganizationController {
   }
 
   private Collection<String> tokenIdentifierColumns(TokenParameter token) {
-    return token
-        .behavior()
-        .onAnySystemAndExplicitCode(c -> List.of("cdwId", "facilityType", "stationNumber"))
-        .onExplicitSystemAndExplicitCode((s, c) -> List.of("facilityType", "stationNumber"))
-        .build()
-        .execute();
+    return columnMappings(token).keySet();
   }
 
   /**
@@ -148,12 +165,7 @@ public class R4OrganizationController {
 
   /** Determine the collection of values to search for a given token. */
   private Collection<String> tokenIdentifierValues(TokenParameter token) {
-    return token
-        .behavior()
-        .onAnySystemAndExplicitCode(List::of)
-        .onExplicitSystemAndExplicitCode((s, c) -> List.of(c))
-        .build()
-        .execute();
+    return columnMappings(token).values();
   }
 
   VulcanizedTransformation<OrganizationEntity, DatamartOrganization, Organization>
