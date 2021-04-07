@@ -11,13 +11,14 @@ import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedBundl
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedReader;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedTransformation;
 import gov.va.api.health.r4.api.resources.Organization;
+import gov.va.api.lighthouse.vulcan.Specifications;
 import gov.va.api.lighthouse.vulcan.Vulcan;
 import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
 import gov.va.api.lighthouse.vulcan.mappings.Mappings;
+import gov.va.api.lighthouse.vulcan.mappings.SpecificationSelector;
 import gov.va.api.lighthouse.vulcan.mappings.TokenParameter;
-import java.util.Collection;
-import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
@@ -51,27 +52,6 @@ public class R4OrganizationController {
 
   private WitnessProtection witnessProtection;
 
-  private Map<String, String> columnMappings(TokenParameter token) {
-    if (token == null || token.code() == null) {
-      return Map.of();
-    }
-    // Facility IDs
-    try {
-      FacilityId facilityId = FacilityId.from(token.code());
-      return Map.of(
-          "facilityType",
-          facilityId.type().toString(),
-          "stationNumber",
-          facilityId.stationNumber());
-    } catch (IllegalArgumentException e) {
-      if (FAPI_IDENTIFIER_SYSTEM.equals(token.system())) {
-        return Map.of();
-      }
-    }
-    // I2 or I3
-    return Map.of("cdwId", witnessProtection.toCdwId(token.code()));
-  }
-
   private VulcanConfiguration<OrganizationEntity> configuration() {
     return VulcanConfiguration.forEntity(OrganizationEntity.class)
         .paging(
@@ -83,11 +63,8 @@ public class R4OrganizationController {
                 .string("address-state", "state")
                 .string("address-postalcode", "postalCode")
                 .value("_id", "cdwId", witnessProtection::toCdwId)
-                .token(
-                    "identifier",
-                    this::tokenIdentifierColumns,
-                    this::tokenIdentifierIsSupported,
-                    this::tokenIdentifierValues)
+                .tokens(
+                    "identifier", this::tokenIdentifierIsSupported, this::tokenIdentifierSelector)
                 .string("name", "name")
                 .get())
         .rule(parametersNeverSpecifiedTogether("_id", "identifier"))
@@ -146,10 +123,6 @@ public class R4OrganizationController {
         .build();
   }
 
-  private Collection<String> tokenIdentifierColumns(TokenParameter token) {
-    return columnMappings(token).keySet();
-  }
-
   /**
    * Supported Identifiers:
    *
@@ -163,9 +136,29 @@ public class R4OrganizationController {
     return token.hasSupportedSystem(FAPI_IDENTIFIER_SYSTEM) || token.hasAnySystem();
   }
 
-  /** Determine the collection of values to search for a given token. */
-  private Collection<String> tokenIdentifierValues(TokenParameter token) {
-    return columnMappings(token).values();
+  /** Use a token value to determine which database columns to select from. */
+  private SpecificationSelector<OrganizationEntity> tokenIdentifierSelector(TokenParameter token) {
+    if (token == null || token.code() == null) {
+      return SpecificationSelector.<OrganizationEntity>builder().build();
+    }
+    // Facility IDs
+    try {
+      FacilityId facilityId = FacilityId.from(token.code());
+      System.out.println(facilityId.type().toString() + " " + facilityId.stationNumber());
+      return SpecificationSelector.<OrganizationEntity>builder()
+          .selector("facilityType", Set.of(facilityId.type().toString()))
+          .selector("stationNumber", Set.of(facilityId.stationNumber()))
+          .collector(Specifications.all())
+          .build();
+    } catch (IllegalArgumentException e) {
+      if (FAPI_IDENTIFIER_SYSTEM.equals(token.system())) {
+        return SpecificationSelector.<OrganizationEntity>builder().build();
+      }
+    }
+    // I2 or I3
+    return SpecificationSelector.<OrganizationEntity>builder()
+        .selector("cdwId", Set.of(witnessProtection.toCdwId(token.code())))
+        .build();
   }
 
   VulcanizedTransformation<OrganizationEntity, DatamartOrganization, Organization>

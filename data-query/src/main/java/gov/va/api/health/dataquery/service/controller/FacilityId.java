@@ -30,7 +30,7 @@ public final class FacilityId {
     }
     return FacilityId.builder()
         .type(type)
-        .stationNumber(id.substring(type.fapiPrefix().length() - 1))
+        .stationNumber(id.substring(type.fapiPrefix().length()))
         .build();
   }
 
