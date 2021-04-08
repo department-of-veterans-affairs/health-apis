@@ -18,7 +18,7 @@
     <health-apis-ids.version>3.0.11</health-apis-ids.version>
     <mssql-jdbc.version>7.4.1.jre8</mssql-jdbc.version>
     <swagger-maven-plugin.version>2.1.1</swagger-maven-plugin.version>
-    <vulcan.version>1.0.6</vulcan.version>
+    <vulcan.version>1.0.6-SNAPSHOT</vulcan.version>
   </properties>
   <dependencies>
     <dependency>

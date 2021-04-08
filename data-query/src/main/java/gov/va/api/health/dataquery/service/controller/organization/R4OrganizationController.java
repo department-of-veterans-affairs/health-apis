@@ -12,6 +12,7 @@ import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedBundl
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedReader;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedTransformation;
 import gov.va.api.health.r4.api.resources.Organization;
+import gov.va.api.lighthouse.vulcan.CircuitBreaker;
 import gov.va.api.lighthouse.vulcan.Specifications;
 import gov.va.api.lighthouse.vulcan.Vulcan;
 import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
@@ -155,10 +156,12 @@ public class R4OrganizationController {
         .behavior()
         .onExplicitSystemAndExplicitCode(
             (system, code) -> {
-              if (FAPI_IDENTIFIER_SYSTEM.equals(system)) {
-                return selectFacilityId(code);
+              var facilityId = selectFacilityId(code);
+              if (facilityId == null) {
+                throw CircuitBreaker.noResultsWillBeFound(
+                    "identifier", code, "Invalid facilityId.");
               }
-              return null;
+              return facilityId;
             })
         .onAnySystemAndExplicitCode(
             code ->
