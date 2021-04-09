@@ -36,6 +36,7 @@ import org.springframework.data.jpa.domain.Specification;
 @ExtendWith(MockitoExtension.class)
 public class R4OrganizationControllerTest {
   @Mock IdentityService ids;
+
   @Mock OrganizationRepository repository;
 
   R4OrganizationController controller() {
@@ -50,6 +51,20 @@ public class R4OrganizationControllerTest {
             .build(),
         repository,
         WitnessProtection.builder().identityService(ids).build());
+  }
+
+  @ParameterizedTest
+  @ValueSource(
+      strings = {
+        "?identifier=https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-identifier|",
+        "?identifier=|vha_123"
+      })
+  void emptyBundle(String query) {
+    var url = "http://fonzy.com/r4/Organization" + query;
+    var request = requestFromUri(url);
+    var bundle = controller().search(request);
+    assertThat(bundle.total()).isEqualTo(0);
+    assertThat(bundle.entry()).isEmpty();
   }
 
   @SneakyThrows
@@ -139,6 +154,9 @@ public class R4OrganizationControllerTest {
       strings = {
         "?_id=or1",
         "?identifier=or1",
+        "?identifier=vha_123",
+        "?identifier=https://api.va.gov/services/"
+            + "fhir/v0/r4/NamingSystem/va-facility-identifier|vha_123",
         "?name=NEW+AMSTERDAM+CBOC",
         "?address=10+MONROE+AVE,+SUITE+6B+PO+BOX+4160",
         "?address-city=NEW+AMSTERDAM",

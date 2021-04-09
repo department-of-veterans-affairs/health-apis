@@ -15,8 +15,6 @@ import gov.va.api.lighthouse.vulcan.Vulcan;
 import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
 import gov.va.api.lighthouse.vulcan.mappings.Mappings;
 import gov.va.api.lighthouse.vulcan.mappings.TokenParameter;
-import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -24,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -58,7 +57,7 @@ public class R4DeviceController {
                 .value("_id", "cdwId", witnessProtection::toCdwId)
                 .value("identifier", "cdwId", witnessProtection::toCdwId)
                 .value("patient", "icn")
-                .token("type", this::tokenTypeIsSupported, this::tokenTypeValues)
+                .tokens("type", this::tokenTypeIsSupported, this::tokenTypeSpecification)
                 .get())
         .defaultQuery(returnNothing())
         .rule(parametersNeverSpecifiedTogether("patient", "_id", "identifier"))
@@ -103,14 +102,14 @@ public class R4DeviceController {
         || (token.hasSupportedSystem(DEVICE_TYPE_SYSTEM) && token.hasAnyCode());
   }
 
-  Collection<String> tokenTypeValues(TokenParameter token) {
+  private Specification<DeviceEntity> tokenTypeSpecification(TokenParameter token) {
     /*
      * There are no values of type that are searchable. All devices are "53350007", if the
      * token is supported, then we effectively "select all". By returning no values, the token
      * mapping will abstain from contributing to any additional where clauses. We rely on `patient`
      * clause to find all records for this patient.
      */
-    return List.of();
+    return null;
   }
 
   VulcanizedTransformation<DeviceEntity, DatamartDevice, Device> transformation() {

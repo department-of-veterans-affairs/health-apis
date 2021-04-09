@@ -36,6 +36,12 @@ public class OrganizationIT {
             200,
             Organization.Bundle.class,
             bundleIsNotEmpty(),
+            "Organization?identifier=https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-identifier|{facilityId}",
+            testIds.organizations().facilityId()),
+        test(
+            200,
+            Organization.Bundle.class,
+            bundleIsNotEmpty(),
             "Organization?name={name}",
             testIds.organizations().name()),
         test(

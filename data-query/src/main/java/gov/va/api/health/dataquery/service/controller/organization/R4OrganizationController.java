@@ -1,18 +1,23 @@
 package gov.va.api.health.dataquery.service.controller.organization;
 
 import static gov.va.api.lighthouse.vulcan.Rules.parametersNeverSpecifiedTogether;
+import static gov.va.api.lighthouse.vulcan.Specifications.select;
 import static gov.va.api.lighthouse.vulcan.Vulcan.returnNothing;
 
 import gov.va.api.health.dataquery.service.config.LinkProperties;
+import gov.va.api.health.dataquery.service.controller.FacilityId;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.Bundling;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedBundler;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedReader;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedTransformation;
 import gov.va.api.health.r4.api.resources.Organization;
+import gov.va.api.lighthouse.vulcan.CircuitBreaker;
+import gov.va.api.lighthouse.vulcan.Specifications;
 import gov.va.api.lighthouse.vulcan.Vulcan;
 import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
 import gov.va.api.lighthouse.vulcan.mappings.Mappings;
+import gov.va.api.lighthouse.vulcan.mappings.TokenParameter;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -20,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -38,6 +44,9 @@ import org.springframework.web.bind.annotation.RestController;
     produces = {"application/json", "application/fhir+json"})
 @AllArgsConstructor(onConstructor_ = @Autowired)
 public class R4OrganizationController {
+  private static final String FAPI_IDENTIFIER_SYSTEM =
+      "https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-identifier";
+
   private final LinkProperties linkProperties;
 
   private OrganizationRepository repository;
@@ -55,7 +64,10 @@ public class R4OrganizationController {
                 .string("address-state", "state")
                 .string("address-postalcode", "postalCode")
                 .value("_id", "cdwId", witnessProtection::toCdwId)
-                .value("identifier", "cdwId", witnessProtection::toCdwId)
+                .tokens(
+                    "identifier",
+                    this::tokenIdentifierIsSupported,
+                    this::tokenIdentifierSpecification)
                 .string("name", "name")
                 .get())
         .rule(parametersNeverSpecifiedTogether("_id", "identifier"))
@@ -98,6 +110,16 @@ public class R4OrganizationController {
         .map(toBundle());
   }
 
+  private Specification<OrganizationEntity> selectFacilityId(String maybeFacilityId) {
+    try {
+      var facilityId = FacilityId.from(maybeFacilityId);
+      return Specifications.<OrganizationEntity>select("facilityType", facilityId.type().toString())
+          .and(select("stationNumber", facilityId.stationNumber()));
+    } catch (IllegalArgumentException e) {
+      return null;
+    }
+  }
+
   VulcanizedBundler<
           OrganizationEntity,
           DatamartOrganization,
@@ -112,6 +134,41 @@ public class R4OrganizationController {
                 .linkProperties(linkProperties)
                 .build())
         .build();
+  }
+
+  /**
+   * Supported Identifiers:
+   *
+   * <p>I3-1a2b3c4d
+   *
+   * <p>vha_123
+   *
+   * <p>https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-identifier|vha_123
+   */
+  private boolean tokenIdentifierIsSupported(TokenParameter token) {
+    return (token.hasSupportedSystem(FAPI_IDENTIFIER_SYSTEM) && token.hasExplicitCode())
+        || token.hasAnySystem();
+  }
+
+  /** Use a token value to determine which database columns to select from. */
+  private Specification<OrganizationEntity> tokenIdentifierSpecification(TokenParameter token) {
+    return token
+        .behavior()
+        .onExplicitSystemAndExplicitCode(
+            (system, code) -> {
+              var facilityId = selectFacilityId(code);
+              if (facilityId == null) {
+                throw CircuitBreaker.noResultsWillBeFound(
+                    "identifier", code, "Invalid facilityId.");
+              }
+              return facilityId;
+            })
+        .onAnySystemAndExplicitCode(
+            code ->
+                Specifications.<OrganizationEntity>select("cdwId", witnessProtection.toCdwId(code))
+                    .or(selectFacilityId(code)))
+        .build()
+        .execute();
   }
 
   VulcanizedTransformation<OrganizationEntity, DatamartOrganization, Organization>

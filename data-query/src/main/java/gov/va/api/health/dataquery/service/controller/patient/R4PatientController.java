@@ -12,20 +12,20 @@ import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedReade
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedTransformation;
 import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.health.r4.api.resources.Patient;
+import gov.va.api.lighthouse.vulcan.Specifications;
 import gov.va.api.lighthouse.vulcan.Vulcan;
 import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
 import gov.va.api.lighthouse.vulcan.mappings.Mappings;
 import gov.va.api.lighthouse.vulcan.mappings.TokenParameter;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -65,20 +65,17 @@ public class R4PatientController {
                 .string("name", "fullName")
                 .string("family", "lastName")
                 .string("organization", "managingOrganization")
-                .token("gender", this::tokenGenderIsSupported, this::tokenGenderValues)
-                /* _id is the logical id only, in this case ICN */
-                .token(
+                .tokens("gender", this::tokenGenderIsSupported, this::tokenGenderSpecification)
+                .tokens(
                     "_id",
-                    "icn",
                     token -> tokenIdentifierIsSupported(token, PATIENT_IDENTIFIER_SYSTEM_ICN),
-                    this::tokenIdentiferValues)
-                .token(
+                    token -> tokenIdSpecification(token.code()))
+                .tokens(
                     "identifier",
-                    this::tokenIdentifierFieldName,
                     token ->
                         tokenIdentifierIsSupported(
                             token, PATIENT_IDENTIFIER_SYSTEM_ICN, PATIENT_IDENTIFIER_SYSTEM_SSN),
-                    this::tokenIdentiferValues)
+                    this::tokenIdentiferSpecification)
                 .get())
         .rule(parametersNeverSpecifiedTogether("_id", "identifier"))
         .rule(parametersNeverSpecifiedTogether("name", "family"))
@@ -123,12 +120,12 @@ public class R4PatientController {
         .build();
   }
 
-  Set<String> toCdwGender(String fhirGender) {
+  String toCdwGender(String fhirGender) {
     String cdw = GenderMapping.toCdw(fhirGender);
     if (cdw == null) {
       throw new IllegalArgumentException("Unknown gender: " + fhirGender);
     }
-    return Set.of(cdw);
+    return cdw;
   }
 
   boolean tokenGenderIsSupported(TokenParameter token) {
@@ -142,35 +139,41 @@ public class R4PatientController {
         || (token.hasSupportedCode(Patient.Gender.values()) && token.hasAnySystem());
   }
 
-  Collection<String> tokenGenderValues(TokenParameter token) {
+  Specification<PatientEntityV2> tokenGenderSpecification(TokenParameter token) {
     return token
         .behavior()
-        .onExplicitSystemAndExplicitCode((s, c) -> toCdwGender(c))
-        .onAnySystemAndExplicitCode(this::toCdwGender)
-        .onNoSystemAndExplicitCode(this::toCdwGender)
-        .onExplicitSystemAndAnyCode(s -> Set.of())
+        .onExplicitSystemAndExplicitCode(
+            (s, c) -> Specifications.<PatientEntityV2>select("gender", toCdwGender(c)))
+        .onAnySystemAndExplicitCode(
+            c -> Specifications.<PatientEntityV2>select("gender", toCdwGender(c)))
+        .onExplicitSystemAndAnyCode(s -> Specification.where(null))
         .build()
         .execute();
   }
 
-  Collection<String> tokenIdentiferValues(TokenParameter token) {
-    return List.of(token.code());
+  private Specification<PatientEntityV2> tokenIdSpecification(String id) {
+    return Specifications.<PatientEntityV2>select("icn", id);
   }
 
-  Collection<String> tokenIdentifierFieldName(TokenParameter token) {
-    if (token.hasExplicitSystem()) {
-      switch (token.system()) {
-        case PATIENT_IDENTIFIER_SYSTEM_SSN:
-          return List.of("ssn");
-        case PATIENT_IDENTIFIER_SYSTEM_ICN:
-          return List.of("icn");
-        default:
-          /* If a system is not applicable (e.g. an element of type uri),
-           * then just the form [parameter]=[code] is used. */
-      }
-    }
-    /* [code] matches irrespective of the value of the system property. */
-    return List.of("icn", "ssn");
+  Specification<PatientEntityV2> tokenIdentiferSpecification(TokenParameter token) {
+    return token
+        .behavior()
+        .onExplicitSystemAndExplicitCode(
+            (system, code) -> {
+              switch (system) {
+                case PATIENT_IDENTIFIER_SYSTEM_ICN:
+                  return tokenIdSpecification(code);
+                case PATIENT_IDENTIFIER_SYSTEM_SSN:
+                  return Specifications.<PatientEntityV2>select("ssn", code);
+                default:
+                  throw new IllegalStateException("Unknown Identifier System: " + system);
+              }
+            })
+        .onAnySystemAndExplicitCode(
+            code ->
+                tokenIdSpecification(code).or(Specifications.<PatientEntityV2>select("ssn", code)))
+        .build()
+        .execute();
   }
 
   boolean tokenIdentifierIsSupported(TokenParameter token, String... supportedSystems) {

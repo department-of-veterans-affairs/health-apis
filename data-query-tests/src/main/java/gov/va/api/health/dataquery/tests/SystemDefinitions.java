@@ -129,6 +129,7 @@ public final class SystemDefinitions {
         .addressCity("NEW AMSTERDAM")
         .addressState("OH")
         .addressPostalCode("44444-4160")
+        .facilityId("vha_442")
         .name("NEW AMSTERDAM CBOC")
         .npi("http://hl7.org/fhir/sid/us-npi|1205983228")
         .build();
@@ -290,6 +291,7 @@ public final class SystemDefinitions {
         .addressCity("ORLANDO")
         .addressState("FL")
         .addressPostalCode("32827")
+        .facilityId("vha_675")
         .name("LAKE BALDWIN VAMC")
         .npi("http://hl7.org/fhir/sid/us-npi|1558796409")
         .build();
