@@ -205,12 +205,17 @@ public class R4DiagnosticReportController {
             .add("page", page)
             .add("_count", count)
             .build();
-    DiagnosticReport dr = read(identifier);
-    int totalRecords = dr == null ? 0 : 1;
-    if (dr == null || page != 1 || count <= 0) {
+    DiagnosticReport resource;
+    try {
+      resource = read(identifier);
+    } catch (ResourceExceptions.NotFound e) {
+      resource = null;
+    }
+    int totalRecords = resource == null ? 0 : 1;
+    if (resource == null || page != 1 || count <= 0) {
       return bundle(parameters, emptyList(), totalRecords);
     }
-    return bundle(parameters, List.of(dr), totalRecords);
+    return bundle(parameters, List.of(resource), totalRecords);
   }
 
   /** Search resource by patient. */

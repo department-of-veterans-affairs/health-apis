@@ -1,6 +1,5 @@
 package gov.va.api.health.dataquery.tests.r4;
 
-import static gov.va.api.health.sentinel.EnvironmentAssumptions.assumeEnvironmentIn;
 import static gov.va.api.health.sentinel.EnvironmentAssumptions.assumeEnvironmentNotIn;
 
 import gov.va.api.health.dataquery.tests.DataQueryResourceVerifier;
@@ -18,24 +17,28 @@ public class ImmunizationIT {
   TestIds testIds = DataQueryResourceVerifier.ids();
 
   @Test
-  public void advanced() {
-    assumeEnvironmentIn(Environment.LOCAL);
-    verifier.verifyAll(
+  public void basic() {
+    verifyAll(
+        test(200, Immunization.class, "Immunization/{id}", testIds.immunization()),
+        test(404, OperationOutcome.class, "Immunization/{id}", testIds.unknown()));
+  }
+
+  @Test
+  public void search() {
+    verifyAll(
         test(200, Immunization.Bundle.class, "Immunization?_id={id}", testIds.immunization()),
-        test(404, OperationOutcome.class, "Immunization?_id={id}", testIds.unknown()),
+        test(
+            200,
+            Immunization.Bundle.class,
+            b -> b.entry().isEmpty(),
+            "Immunization?_id={id}",
+            testIds.unknown()),
+        test(200, Immunization.Bundle.class, "Immunization?patient={patient}", testIds.patient()),
         test(
             200,
             Immunization.Bundle.class,
             "Immunization?identifier={id}",
             testIds.immunization()));
-  }
-
-  @Test
-  public void basic() {
-    verifier.verifyAll(
-        test(200, Immunization.class, "Immunization/{id}", testIds.immunization()),
-        test(404, OperationOutcome.class, "Immunization/{id}", testIds.unknown()),
-        test(200, Immunization.Bundle.class, "Immunization?patient={patient}", testIds.patient()));
   }
 
   @Test

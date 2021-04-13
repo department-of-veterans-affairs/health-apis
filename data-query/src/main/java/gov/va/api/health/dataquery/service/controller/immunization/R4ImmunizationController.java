@@ -149,7 +149,12 @@ public class R4ImmunizationController {
             .add("page", page)
             .add("_count", count)
             .build();
-    Immunization resource = read(identifier);
+    Immunization resource;
+    try {
+      resource = read(identifier);
+    } catch (ResourceExceptions.NotFound e) {
+      resource = null;
+    }
     int totalRecords = resource == null ? 0 : 1;
     if (resource == null || page != 1 || count <= 0) {
       return bundle(parameters, emptyList(), totalRecords);
