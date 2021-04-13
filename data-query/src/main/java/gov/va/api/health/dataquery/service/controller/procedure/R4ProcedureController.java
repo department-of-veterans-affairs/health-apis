@@ -8,6 +8,7 @@ import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.R4Bundler;
+import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions.NotFound;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.procedure.ProcedureRepository.PatientAndDateSpecification;
@@ -116,7 +117,12 @@ public class R4ProcedureController {
       @RequestParam("_id") String publicId,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
-    Procedure resource = read(publicId, icnHeader);
+    Procedure resource;
+    try {
+      resource = read(publicId, icnHeader);
+    } catch (ResourceExceptions.NotFound e) {
+      resource = null;
+    }
     return bundle(
         Parameters.builder()
             .add("identifier", publicId)

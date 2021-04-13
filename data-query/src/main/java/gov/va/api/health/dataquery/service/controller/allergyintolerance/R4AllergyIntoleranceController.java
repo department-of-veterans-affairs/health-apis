@@ -126,7 +126,12 @@ public class R4AllergyIntoleranceController {
             .add("page", page)
             .add("_count", count)
             .build();
-    AllergyIntolerance resource = read(identifier);
+    AllergyIntolerance resource;
+    try {
+      resource = read(identifier);
+    } catch (ResourceExceptions.NotFound e) {
+      resource = null;
+    }
     int totalRecords = resource == null ? 0 : 1;
     if (resource == null || page != 1 || count <= 0) {
       return bundle(parameters, emptyList(), totalRecords);

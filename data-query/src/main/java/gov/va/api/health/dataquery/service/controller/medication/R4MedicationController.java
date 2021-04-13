@@ -97,7 +97,12 @@ public class R4MedicationController {
       @RequestParam("_id") String id,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
-    Medication resource = read(id);
+    Medication resource;
+    try {
+      resource = read(id);
+    } catch (ResourceExceptions.NotFound e) {
+      resource = null;
+    }
     return bundle(
         Parameters.builder().add("identifier", id).add("page", page).add("_count", count).build(),
         resource == null || count == 0 ? emptyList() : List.of(resource),

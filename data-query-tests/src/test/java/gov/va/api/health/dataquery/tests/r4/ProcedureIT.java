@@ -1,6 +1,5 @@
 package gov.va.api.health.dataquery.tests.r4;
 
-import static gov.va.api.health.sentinel.EnvironmentAssumptions.assumeEnvironmentIn;
 import static gov.va.api.health.sentinel.EnvironmentAssumptions.assumeEnvironmentNotIn;
 
 import gov.va.api.health.dataquery.tests.DataQueryResourceVerifier;
@@ -18,17 +17,23 @@ public class ProcedureIT {
   TestIds testIds = DataQueryResourceVerifier.ids();
 
   @Test
-  public void advanced() {
-    assumeEnvironmentIn(Environment.LOCAL);
-    verifier.verifyAll(
-        test(200, Procedure.Bundle.class, "Procedure?_id={id}", testIds.procedure()),
-        test(404, OperationOutcome.class, "Procedure?_id={id}", testIds.unknown()),
-        test(200, Procedure.Bundle.class, "Procedure?identifier={id}", testIds.procedure()));
+  public void read() {
+    verifyAll(
+        test(200, Procedure.class, "Procedure/{id}", testIds.procedure()),
+        test(404, OperationOutcome.class, "Procedure/{id}", testIds.unknown()));
   }
 
   @Test
-  public void basic() {
-    verifier.verifyAll(
+  public void search() {
+    verifyAll(
+        test(200, Procedure.Bundle.class, "Procedure?_id={id}", testIds.procedure()),
+        test(
+            200,
+            Procedure.Bundle.class,
+            b -> b.entry().isEmpty(),
+            "Procedure?_id={id}",
+            testIds.unknown()),
+        test(200, Procedure.Bundle.class, "Procedure?identifier={id}", testIds.procedure()),
         test(
             200,
             Procedure.Bundle.class,
@@ -42,8 +47,6 @@ public class ProcedureIT {
             testIds.patient(),
             testIds.procedures().fromDate(),
             testIds.procedures().toDate()),
-        test(200, Procedure.class, "Procedure/{id}", testIds.procedure()),
-        test(404, OperationOutcome.class, "Procedure/{id}", testIds.unknown()),
         test(200, Procedure.Bundle.class, "Procedure?patient={patient}", testIds.patient()));
   }
 

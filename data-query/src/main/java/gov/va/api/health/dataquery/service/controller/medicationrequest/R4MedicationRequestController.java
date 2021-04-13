@@ -252,7 +252,12 @@ public class R4MedicationRequestController {
       @CountParameter @Min(0) int count) {
     MultiValueMap<String, String> parameters =
         Parameters.builder().add("identifier", id).add("page", page).add("_count", count).build();
-    MedicationRequest resource = read(id);
+    MedicationRequest resource;
+    try {
+      resource = read(id);
+    } catch (ResourceExceptions.NotFound e) {
+      resource = null;
+    }
     int totalRecords = resource == null ? 0 : 1;
     if (resource == null || page != 1 || count <= 0) {
       return bundle(parameters, emptyList(), totalRecords);

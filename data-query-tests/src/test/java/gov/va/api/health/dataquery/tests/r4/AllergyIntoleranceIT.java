@@ -1,6 +1,5 @@
 package gov.va.api.health.dataquery.tests.r4;
 
-import static gov.va.api.health.sentinel.EnvironmentAssumptions.assumeEnvironmentIn;
 import static gov.va.api.health.sentinel.EnvironmentAssumptions.assumeEnvironmentNotIn;
 
 import gov.va.api.health.dataquery.tests.DataQueryResourceVerifier;
@@ -18,29 +17,32 @@ public class AllergyIntoleranceIT {
   TestIds testIds = DataQueryResourceVerifier.ids();
 
   @Test
-  public void advanced() {
-    assumeEnvironmentIn(Environment.LOCAL);
-    verifier.verifyAll(
+  public void read() {
+    verifyAll(
+        test(
+            200, AllergyIntolerance.class, "AllergyIntolerance/{id}", testIds.allergyIntolerance()),
+        test(404, OperationOutcome.class, "AllergyIntolerance/{id}", testIds.unknown()));
+  }
+
+  @Test
+  public void search() {
+    verifyAll(
         test(
             200,
             AllergyIntolerance.Bundle.class,
             "AllergyIntolerance?_id={id}",
             testIds.allergyIntolerance()),
-        test(404, OperationOutcome.class, "AllergyIntolerance?_id={id}", testIds.unknown()),
+        test(
+            200,
+            AllergyIntolerance.Bundle.class,
+            b -> b.entry().isEmpty(),
+            "AllergyIntolerance?_id={id}",
+            testIds.unknown()),
         test(
             200,
             AllergyIntolerance.Bundle.class,
             "AllergyIntolerance?identifier={id}",
-            testIds.allergyIntolerance()));
-  }
-
-  @Test
-  public void basic() {
-
-    verifier.verifyAll(
-        test(
-            200, AllergyIntolerance.class, "AllergyIntolerance/{id}", testIds.allergyIntolerance()),
-        test(404, OperationOutcome.class, "AllergyIntolerance/{id}", testIds.unknown()),
+            testIds.allergyIntolerance()),
         test(
             200,
             AllergyIntolerance.Bundle.class,
@@ -50,9 +52,7 @@ public class AllergyIntoleranceIT {
 
   @Test
   public void searchNotMe() {
-
     assumeEnvironmentNotIn(Environment.LOCAL);
-
     verifier.verifyAll(
         test(
             403,

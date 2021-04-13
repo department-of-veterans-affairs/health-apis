@@ -1,6 +1,5 @@
 package gov.va.api.health.dataquery.tests.r4;
 
-import static gov.va.api.health.sentinel.EnvironmentAssumptions.assumeEnvironmentIn;
 import static gov.va.api.health.sentinel.EnvironmentAssumptions.assumeEnvironmentNotIn;
 
 import gov.va.api.health.dataquery.tests.DataQueryResourceVerifier;
@@ -18,18 +17,42 @@ public class DiagnosticReportIT {
   TestIds testIds = DataQueryResourceVerifier.ids();
 
   @Test
-  public void basic() {
+  public void read() {
     verifier.verifyAll(
-        // Reads
         test(200, DiagnosticReport.class, "DiagnosticReport/{id}", testIds.diagnosticReport()),
-        test(404, OperationOutcome.class, "DiagnosticReport/{id}", testIds.unknown()),
-        // Search By Patient
+        test(404, OperationOutcome.class, "DiagnosticReport/{id}", testIds.unknown()));
+  }
+
+  @Test
+  public void search() {
+    verifyAll( // Search By Id
+        test(
+            200,
+            DiagnosticReport.Bundle.class,
+            "DiagnosticReport?_id={id}",
+            testIds.diagnosticReport()),
+        test(
+            200,
+            DiagnosticReport.Bundle.class,
+            b -> b.entry().isEmpty(),
+            "DiagnosticReport?_id={id}",
+            testIds.unknown()),
+        test(
+            200,
+            DiagnosticReport.Bundle.class,
+            "DiagnosticReport?identifier={id}",
+            testIds.diagnosticReport()),
+        test(
+            200,
+            DiagnosticReport.Bundle.class,
+            b -> b.entry().isEmpty(),
+            "DiagnosticReport?identifier={id}",
+            testIds.unknown()), // Search By Patient
         test(
             200,
             DiagnosticReport.Bundle.class,
             "DiagnosticReport?patient={patient}",
-            testIds.patient()),
-        // Search By Patient and Category (and Date)
+            testIds.patient()), // Search By Patient and Category (and Date)
         test(
             200,
             DiagnosticReport.Bundle.class,
@@ -137,8 +160,7 @@ public class DiagnosticReportIT {
             DiagnosticReport.Bundle.class,
             "DiagnosticReport?patient={patient}&category=LAB&date={dateLessThan}",
             testIds.patient(),
-            testIds.diagnosticReports().dateLessThan()),
-        // Search By Patient and Code (and Date)
+            testIds.diagnosticReports().dateLessThan()), // Search By Patient and Code (and Date)
         test(
             200,
             DiagnosticReport.Bundle.class,
@@ -162,31 +184,12 @@ public class DiagnosticReportIT {
             "DiagnosticReport?patient={patient}&code=&date={fromDate}&date={toDate}",
             testIds.patient(),
             testIds.diagnosticReports().fromDate(),
-            testIds.diagnosticReports().toDate()),
-        // Search By Patient and Status
+            testIds.diagnosticReports().toDate()), // Search By Patient and Status
         test(
             200,
             DiagnosticReport.Bundle.class,
             "DiagnosticReport?patient={patient}&status=final",
             testIds.patient()));
-  }
-
-  @Test
-  public void searchByIdentifier() {
-    assumeEnvironmentIn(Environment.LOCAL);
-    verifier.verifyAll(
-        test(
-            200,
-            DiagnosticReport.Bundle.class,
-            "DiagnosticReport?_id={id}",
-            testIds.diagnosticReport()),
-        test(404, OperationOutcome.class, "DiagnosticReport?_id={id}", testIds.unknown()),
-        test(
-            200,
-            DiagnosticReport.Bundle.class,
-            "DiagnosticReport?identifier={id}",
-            testIds.diagnosticReport()),
-        test(404, OperationOutcome.class, "DiagnosticReport?identifier={id}", testIds.unknown()));
   }
 
   @Test
