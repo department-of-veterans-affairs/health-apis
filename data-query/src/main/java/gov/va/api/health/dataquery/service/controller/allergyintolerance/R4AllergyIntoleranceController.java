@@ -8,6 +8,7 @@ import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.R4Bundler;
+import gov.va.api.health.dataquery.service.controller.R4Controllers;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.r4.api.resources.AllergyIntolerance;
@@ -126,17 +127,14 @@ public class R4AllergyIntoleranceController {
             .add("page", page)
             .add("_count", count)
             .build();
-    AllergyIntolerance resource;
-    try {
-      resource = read(identifier);
-    } catch (ResourceExceptions.NotFound e) {
-      resource = null;
-    }
-    int totalRecords = resource == null ? 0 : 1;
-    if (resource == null || page != 1 || count <= 0) {
-      return bundle(parameters, emptyList(), totalRecords);
-    }
-    return bundle(parameters, asList(resource), totalRecords);
+    return R4Controllers.searchById(
+        identifier,
+        this::read,
+        r ->
+            bundle(
+                parameters,
+                r == null || page != 1 || count <= 0 ? emptyList() : asList(r),
+                r == null ? 0 : 1));
   }
 
   /** Search by patient. */
