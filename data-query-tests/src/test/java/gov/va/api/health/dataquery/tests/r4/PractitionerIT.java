@@ -17,17 +17,24 @@ public class PractitionerIT {
   TestIds testIds = DataQueryResourceVerifier.ids();
 
   @Test
-  public void basic() {
+  public void malformed() {
+    assumeEnvironmentIn(Environment.LOCAL);
     verifier.verifyAll(
+        test(400, OperationOutcome.class, "Practitioner/"),
+        test(400, OperationOutcome.class, "Practitioner?nonsense=abc"));
+  }
+
+  @Test
+  public void read() {
+    verifyAll(
         test(200, Practitioner.class, "Practitioner/{id}", testIds.practitioner()),
         test(200, Practitioner.class, "Practitioner/npi-{npi}", testIds.practitioners().npi()),
         test(404, OperationOutcome.class, "Practitioner/{id}", testIds.unknown()));
   }
 
   @Test
-  public void local() {
-    assumeEnvironmentIn(Environment.LOCAL);
-    verifier.verifyAll(
+  public void search() {
+    verifyAll(
         test(200, Practitioner.Bundle.class, "Practitioner?_id={id}", testIds.practitioner()),
         test(
             200,
@@ -35,13 +42,5 @@ public class PractitionerIT {
             p -> p.entry().isEmpty(),
             "Practitioner?_id={id}",
             testIds.unknown()));
-  }
-
-  @Test
-  public void malformed() {
-    assumeEnvironmentIn(Environment.LOCAL);
-    verifier.verifyAll(
-        test(400, OperationOutcome.class, "Practitioner/"),
-        test(400, OperationOutcome.class, "Practitioner?nonsense=abc"));
   }
 }
