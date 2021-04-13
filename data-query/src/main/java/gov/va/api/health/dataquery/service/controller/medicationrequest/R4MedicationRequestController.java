@@ -1,6 +1,7 @@
 package gov.va.api.health.dataquery.service.controller.medicationrequest;
 
 import static gov.va.api.health.autoconfig.logging.LogSanitizer.sanitize;
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 
 import gov.va.api.health.dataquery.service.controller.CountParameter;
@@ -8,6 +9,7 @@ import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.R4Bundler;
+import gov.va.api.health.dataquery.service.controller.R4Controllers;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.medicationorder.DatamartMedicationOrder;
@@ -252,17 +254,14 @@ public class R4MedicationRequestController {
       @CountParameter @Min(0) int count) {
     MultiValueMap<String, String> parameters =
         Parameters.builder().add("identifier", id).add("page", page).add("_count", count).build();
-    MedicationRequest resource;
-    try {
-      resource = read(id);
-    } catch (ResourceExceptions.NotFound e) {
-      resource = null;
-    }
-    int totalRecords = resource == null ? 0 : 1;
-    if (resource == null || page != 1 || count <= 0) {
-      return bundle(parameters, emptyList(), totalRecords);
-    }
-    return bundle(parameters, List.of(resource), totalRecords);
+    return R4Controllers.searchById(
+        id,
+        this::read,
+        r ->
+            bundle(
+                parameters,
+                r == null || page != 1 || count <= 0 ? emptyList() : asList(r),
+                r == null ? 0 : 1));
   }
 
   /** Search by patient. */

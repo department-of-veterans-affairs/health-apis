@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.diagnosticreport;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.apache.logging.log4j.util.Strings.isNotBlank;
 
@@ -10,6 +11,7 @@ import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.R4Bundler;
+import gov.va.api.health.dataquery.service.controller.R4Controllers;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.TokenParameter;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
@@ -205,17 +207,14 @@ public class R4DiagnosticReportController {
             .add("page", page)
             .add("_count", count)
             .build();
-    DiagnosticReport resource;
-    try {
-      resource = read(identifier);
-    } catch (ResourceExceptions.NotFound e) {
-      resource = null;
-    }
-    int totalRecords = resource == null ? 0 : 1;
-    if (resource == null || page != 1 || count <= 0) {
-      return bundle(parameters, emptyList(), totalRecords);
-    }
-    return bundle(parameters, List.of(resource), totalRecords);
+    return R4Controllers.searchById(
+        identifier,
+        this::read,
+        r ->
+            bundle(
+                parameters,
+                r == null || page != 1 || count <= 0 ? emptyList() : asList(r),
+                r == null ? 0 : 1));
   }
 
   /** Search resource by patient. */
