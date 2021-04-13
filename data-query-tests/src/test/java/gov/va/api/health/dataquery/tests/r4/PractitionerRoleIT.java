@@ -1,6 +1,5 @@
 package gov.va.api.health.dataquery.tests.r4;
 
-
 import gov.va.api.health.dataquery.tests.DataQueryResourceVerifier;
 import gov.va.api.health.dataquery.tests.TestIds;
 import gov.va.api.health.fhir.testsupport.ResourceVerifier;
