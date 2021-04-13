@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.procedure;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 
 import gov.va.api.health.dataquery.service.controller.CountParameter;
@@ -8,7 +9,7 @@ import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.R4Bundler;
-import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
+import gov.va.api.health.dataquery.service.controller.R4Controllers;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions.NotFound;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.procedure.ProcedureRepository.PatientAndDateSpecification;
@@ -117,20 +118,20 @@ public class R4ProcedureController {
       @RequestParam("_id") String publicId,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
-    Procedure resource;
-    try {
-      resource = read(publicId, icnHeader);
-    } catch (ResourceExceptions.NotFound e) {
-      resource = null;
-    }
-    return bundle(
+    MultiValueMap<String, String> parameters =
         Parameters.builder()
             .add("identifier", publicId)
             .add("page", page)
             .add("_count", count)
-            .build(),
-        resource == null || count == 0 ? emptyList() : List.of(resource),
-        resource == null ? 0 : 1);
+            .build();
+    return R4Controllers.searchById(
+        publicId,
+        id -> read(id, icnHeader),
+        r ->
+            bundle(
+                parameters,
+                r == null || page != 1 || count <= 0 ? emptyList() : asList(r),
+                r == null ? 0 : 1));
   }
 
   /** Search by Identifier. */
