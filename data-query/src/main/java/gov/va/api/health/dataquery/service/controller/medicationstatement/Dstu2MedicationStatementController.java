@@ -164,7 +164,6 @@ public class Dstu2MedicationStatementController {
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
     String icn = witnessProtection.toCdwId(patient);
-    log.info("Looking for {} ({})", patient, icn);
     return bundle(
         Parameters.builder().add("patient", patient).add("page", page).add("_count", count).build(),
         count,

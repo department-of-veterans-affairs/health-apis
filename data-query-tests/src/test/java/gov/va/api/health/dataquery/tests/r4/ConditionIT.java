@@ -1,6 +1,5 @@
 package gov.va.api.health.dataquery.tests.r4;
 
-import static gov.va.api.health.sentinel.EnvironmentAssumptions.assumeEnvironmentIn;
 import static gov.va.api.health.sentinel.EnvironmentAssumptions.assumeEnvironmentNotIn;
 
 import gov.va.api.health.dataquery.tests.DataQueryResourceVerifier;
@@ -18,9 +17,15 @@ public class ConditionIT {
   TestIds testIds = DataQueryResourceVerifier.ids();
 
   @Test
-  public void advanced() {
-    assumeEnvironmentIn(Environment.LOCAL);
-    verifier.verifyAll(
+  void read() {
+    verifyAll(
+        test(200, Condition.class, "Condition/{id}", testIds.condition()),
+        test(404, OperationOutcome.class, "Condition/{id}", testIds.unknown()));
+  }
+
+  @Test
+  public void search() {
+    verifyAll(
         test(200, Condition.Bundle.class, "Condition?_id={id}", testIds.condition()),
         test(
             200,
@@ -28,12 +33,7 @@ public class ConditionIT {
             r -> r.entry().isEmpty(),
             "Condition?_id={id}",
             testIds.unknown()),
-        test(200, Condition.Bundle.class, "Condition?identifier={id}", testIds.condition()));
-  }
-
-  @Test
-  public void basic() {
-    verifier.verifyAll(
+        test(200, Condition.Bundle.class, "Condition?identifier={id}", testIds.condition()),
         test(
             200,
             Condition.Bundle.class,
@@ -54,8 +54,6 @@ public class ConditionIT {
             Condition.Bundle.class,
             "Condition?patient={patient}&clinical-status=http://terminology.hl7.org/CodeSystem/condition-clinical|active,resolved",
             testIds.patient()),
-        test(200, Condition.class, "Condition/{id}", testIds.condition()),
-        test(404, OperationOutcome.class, "Condition/{id}", testIds.unknown()),
         test(200, Condition.Bundle.class, "Condition?patient={patient}", testIds.patient()));
   }
 
