@@ -12,7 +12,7 @@ import org.springframework.util.MultiValueMap;
 
 public class R4Controllers {
 
-  /** . */
+  /** Perform a search by ID using a resources "read" function. */
   public static <R extends Resource, E extends AbstractEntry<R>, B extends AbstractBundle<E>>
       B searchById(
           MultiValueMap<String, String> parameters,
