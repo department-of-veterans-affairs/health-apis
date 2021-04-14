@@ -18,10 +18,20 @@ public class LocationIT {
     verifyAll(
         // Search by _id
         test(200, Location.Bundle.class, "Location?_id={id}", testIds.location()),
-        test(404, OperationOutcome.class, "Location?_id={id}", testIds.unknown()),
+        test(
+            200,
+            Location.Bundle.class,
+            b -> b.entry().isEmpty(),
+            "Location?_id={id}",
+            testIds.unknown()),
         // Search by identifier
         test(200, Location.Bundle.class, "Location?identifier={id}", testIds.location()),
-        test(404, OperationOutcome.class, "Location?identifier={id}", testIds.unknown()),
+        test(
+            200,
+            Location.Bundle.class,
+            b -> b.entry().isEmpty(),
+            "Location?identifier={id}",
+            testIds.unknown()),
         // Search by name
         test(200, Location.Bundle.class, "Location?name={name}", testIds.locations().name()),
         // Search by address

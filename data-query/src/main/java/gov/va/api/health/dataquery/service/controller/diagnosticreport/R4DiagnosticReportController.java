@@ -1,6 +1,5 @@
 package gov.va.api.health.dataquery.service.controller.diagnosticreport;
 
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.apache.logging.log4j.util.Strings.isNotBlank;
 
@@ -208,13 +207,11 @@ public class R4DiagnosticReportController {
             .add("_count", count)
             .build();
     return R4Controllers.searchById(
-        identifier,
+        parameters,
         this::read,
-        r ->
-            bundle(
-                parameters,
-                r == null || page != 1 || count <= 0 ? emptyList() : asList(r),
-                r == null ? 0 : 1));
+        (R4Controllers.BundleBuilder<
+                DiagnosticReport, DiagnosticReport.Entry, DiagnosticReport.Bundle>)
+            this::bundle);
   }
 
   /** Search resource by patient. */

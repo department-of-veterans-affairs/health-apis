@@ -1,6 +1,5 @@
 package gov.va.api.health.dataquery.service.controller.procedure;
 
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 
 import gov.va.api.health.dataquery.service.controller.CountParameter;
@@ -124,14 +123,7 @@ public class R4ProcedureController {
             .add("page", page)
             .add("_count", count)
             .build();
-    return R4Controllers.searchById(
-        publicId,
-        id -> read(id, icnHeader),
-        r ->
-            bundle(
-                parameters,
-                r == null || page != 1 || count <= 0 ? emptyList() : asList(r),
-                r == null ? 0 : 1));
+    return R4Controllers.searchById(parameters, id -> read(id, icnHeader), this::bundle);
   }
 
   /** Search by Identifier. */

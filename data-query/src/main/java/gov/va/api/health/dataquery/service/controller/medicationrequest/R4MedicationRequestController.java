@@ -1,7 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.medicationrequest;
 
 import static gov.va.api.health.autoconfig.logging.LogSanitizer.sanitize;
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 
 import gov.va.api.health.dataquery.service.controller.CountParameter;
@@ -255,13 +254,11 @@ public class R4MedicationRequestController {
     MultiValueMap<String, String> parameters =
         Parameters.builder().add("identifier", id).add("page", page).add("_count", count).build();
     return R4Controllers.searchById(
-        id,
+        parameters,
         this::read,
-        r ->
-            bundle(
-                parameters,
-                r == null || page != 1 || count <= 0 ? emptyList() : asList(r),
-                r == null ? 0 : 1));
+        (R4Controllers.BundleBuilder<
+                MedicationRequest, MedicationRequest.Entry, ? extends MedicationRequest.Bundle>)
+            this::bundle);
   }
 
   /** Search by patient. */

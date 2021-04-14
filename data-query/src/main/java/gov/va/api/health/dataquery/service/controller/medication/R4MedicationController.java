@@ -1,8 +1,5 @@
 package gov.va.api.health.dataquery.service.controller.medication;
 
-import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
-
 import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
@@ -101,14 +98,7 @@ public class R4MedicationController {
       @CountParameter @Min(0) int count) {
     MultiValueMap<String, String> parameters =
         Parameters.builder().add("identifier", id).add("page", page).add("_count", count).build();
-    return R4Controllers.searchById(
-        id,
-        this::read,
-        r ->
-            bundle(
-                parameters,
-                r == null || page != 1 || count <= 0 ? emptyList() : asList(r),
-                r == null ? 0 : 1));
+    return R4Controllers.searchById(parameters, this::read, this::bundle);
   }
 
   /** Search by Identifier. */

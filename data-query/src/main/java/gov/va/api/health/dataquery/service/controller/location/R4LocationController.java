@@ -8,6 +8,7 @@ import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.R4Bundler;
+import gov.va.api.health.dataquery.service.controller.R4Controllers;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.r4.api.resources.Location;
@@ -164,12 +165,10 @@ public class R4LocationController {
             .add("page", page)
             .add("_count", count)
             .build();
-    Location resource = read(publicId);
-    List<Location> records = resource == null ? emptyList() : List.of(resource);
-    if (count == 0) {
-      return bundle(parameters, emptyList(), records.size());
-    }
-    return bundle(parameters, records, records.size());
+    return R4Controllers.searchById(
+        parameters,
+        this::read,
+        (R4Controllers.BundleBuilder<Location, Location.Entry, Location.Bundle>) this::bundle);
   }
 
   /** Search for resource by name. */

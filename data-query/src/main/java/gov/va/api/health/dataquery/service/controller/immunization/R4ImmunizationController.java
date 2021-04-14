@@ -1,6 +1,5 @@
 package gov.va.api.health.dataquery.service.controller.immunization;
 
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 
 import gov.va.api.health.dataquery.service.controller.CountParameter;
@@ -151,13 +150,10 @@ public class R4ImmunizationController {
             .add("_count", count)
             .build();
     return R4Controllers.searchById(
-        identifier,
+        parameters,
         this::read,
-        r ->
-            bundle(
-                parameters,
-                r == null || page != 1 || count <= 0 ? emptyList() : asList(r),
-                r == null ? 0 : 1));
+        (R4Controllers.BundleBuilder<Immunization, Immunization.Entry, Immunization.Bundle>)
+            this::bundle);
   }
 
   /** Search by patient. */
