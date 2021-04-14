@@ -29,14 +29,15 @@ exit 1
 main() {
   local args
   if ! args=$(getopt \
-    -l "debug" \
-    -o "" -- "$@")
+    -l "debug,name:" \
+    -o "n:" -- "$@")
   then usage; fi
   eval set -- "$args"
   while true
   do
     case "$1" in
       --debug) DEBUG=true;;
+      -n|--name) CONTAINER_NAME="${2}";;
       --) shift; break;;
     esac
     shift
