@@ -351,7 +351,8 @@ class Dstu2MetadataController {
     private ResourceInteraction readable() {
       return ResourceInteraction.builder()
           .code(ResourceInteractionCode.read)
-          .documentation(properties.getResourceDocumentation())
+          .documentation(
+              properties.getResourceDocumentation() + " See http://hl7.org/fhir/DSTU2/http.html")
           .build();
     }
 
@@ -367,7 +368,8 @@ class Dstu2MetadataController {
     private ResourceInteraction searchable() {
       return ResourceInteraction.builder()
           .code(ResourceInteractionCode.search_type)
-          .documentation(properties.getResourceDocumentation())
+          .documentation(
+              properties.getResourceDocumentation() + " See http://hl7.org/fhir/DSTU2/http.html")
           .build();
     }
   }

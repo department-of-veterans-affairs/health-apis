@@ -41,7 +41,7 @@ class MetadataSamples {
                         + " supports SMART-on-FHIR. See the SMART-on-FHIR docs for the"
                         + " extension that would go with such a server.")
                 .build())
-        .resourceDocumentation("Implemented per the specification")
+        .resourceDocumentation("Implemented per the specification.")
         .build();
   }
 
