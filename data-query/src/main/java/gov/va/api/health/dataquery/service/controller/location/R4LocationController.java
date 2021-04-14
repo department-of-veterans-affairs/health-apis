@@ -67,7 +67,7 @@ public class R4LocationController {
         Location.Bundle::new);
   }
 
-  private Location.Bundle bundle(
+  private Location.Bundle bundleEntities(
       MultiValueMap<String, String> parameters, int count, Page<LocationEntity> entitiesPage) {
     if (count == 0) {
       return bundle(parameters, emptyList(), (int) entitiesPage.getTotalElements());
@@ -141,7 +141,7 @@ public class R4LocationController {
             .postalCode(postalCode)
             .build();
     Page<LocationEntity> entitiesPage = repository.findAll(spec, page(page, count));
-    return bundle(parameters, count, entitiesPage);
+    return bundleEntities(parameters, count, entitiesPage);
   }
 
   /** Search for resource by _id. */
@@ -165,10 +165,7 @@ public class R4LocationController {
             .add("page", page)
             .add("_count", count)
             .build();
-    return R4Controllers.searchById(
-        parameters,
-        this::read,
-        (R4Controllers.BundleBuilder<Location, Location.Entry, Location.Bundle>) this::bundle);
+    return R4Controllers.searchById(parameters, this::read, this::bundle);
   }
 
   /** Search for resource by name. */
@@ -180,6 +177,6 @@ public class R4LocationController {
     MultiValueMap<String, String> parameters =
         Parameters.builder().add("name", name).add("page", page).add("_count", count).build();
     Page<LocationEntity> entitiesPage = repository.findByName(name, page(page, count));
-    return bundle(parameters, count, entitiesPage);
+    return bundleEntities(parameters, count, entitiesPage);
   }
 }

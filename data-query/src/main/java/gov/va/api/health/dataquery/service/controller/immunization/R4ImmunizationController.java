@@ -75,7 +75,7 @@ public class R4ImmunizationController {
         Immunization.Bundle::new);
   }
 
-  private Immunization.Bundle bundle(
+  private Immunization.Bundle bundleEntities(
       MultiValueMap<String, String> parameters, int count, Page<ImmunizationEntity> entities) {
     if (count == 0) {
       return bundle(parameters, emptyList(), (int) entities.getTotalElements());
@@ -149,11 +149,7 @@ public class R4ImmunizationController {
             .add("page", page)
             .add("_count", count)
             .build();
-    return R4Controllers.searchById(
-        parameters,
-        this::read,
-        (R4Controllers.BundleBuilder<Immunization, Immunization.Entry, Immunization.Bundle>)
-            this::bundle);
+    return R4Controllers.searchById(parameters, this::read, this::bundle);
   }
 
   /** Search by patient. */
@@ -163,7 +159,7 @@ public class R4ImmunizationController {
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
     String icn = witnessProtection.toCdwId(patient);
-    return bundle(
+    return bundleEntities(
         Parameters.builder().add("patient", patient).add("page", page).add("_count", count).build(),
         count,
         repository.findByIcn(

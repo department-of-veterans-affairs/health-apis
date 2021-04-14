@@ -100,7 +100,7 @@ public class R4DiagnosticReportController {
         linkConfig, diagnosticReports, DiagnosticReport.Entry::new, DiagnosticReport.Bundle::new);
   }
 
-  DiagnosticReport.Bundle bundle(
+  DiagnosticReport.Bundle bundleEntities(
       MultiValueMap<String, String> parameters, Page<DiagnosticReportEntity> entitiesPage) {
     if (Parameters.countOf(parameters) <= 0) {
       return bundle(parameters, emptyList(), (int) entitiesPage.getTotalElements());
@@ -206,12 +206,7 @@ public class R4DiagnosticReportController {
             .add("page", page)
             .add("_count", count)
             .build();
-    return R4Controllers.searchById(
-        parameters,
-        this::read,
-        (R4Controllers.BundleBuilder<
-                DiagnosticReport, DiagnosticReport.Entry, DiagnosticReport.Bundle>)
-            this::bundle);
+    return R4Controllers.searchById(parameters, this::read, this::bundle);
   }
 
   /** Search resource by patient. */
@@ -232,7 +227,7 @@ public class R4DiagnosticReportController {
                 pageParam - 1,
                 countParam == 0 ? 1 : countParam,
                 DiagnosticReportEntity.naturalOrder()));
-    return bundle(parameters, entitiesPage);
+    return bundleEntities(parameters, entitiesPage);
   }
 
   /** Search resource by patient and category (and date if provided). */
@@ -266,7 +261,7 @@ public class R4DiagnosticReportController {
             .dates(date)
             .build();
     Page<DiagnosticReportEntity> entitiesPage = repository.findAll(spec, page(page, count));
-    return bundle(parameters, entitiesPage);
+    return bundleEntities(parameters, entitiesPage);
   }
 
   /** Search resources by patient and code (and date if provided). */
@@ -306,7 +301,7 @@ public class R4DiagnosticReportController {
             .dates(date)
             .build();
     Page<DiagnosticReportEntity> entitiesPage = repository.findAll(spec, page(page, count));
-    return bundle(parameters, entitiesPage);
+    return bundleEntities(parameters, entitiesPage);
   }
 
   /** Search resource by patient and status. */
@@ -345,7 +340,7 @@ public class R4DiagnosticReportController {
                 pageParam - 1,
                 countParam == 0 ? 1 : countParam,
                 DiagnosticReportEntity.naturalOrder()));
-    return bundle(parameters, entitiesPage);
+    return bundleEntities(parameters, entitiesPage);
   }
 
   private Boolean statusFinal(List<TokenParameter> codeTokens) {

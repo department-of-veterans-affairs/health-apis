@@ -101,7 +101,7 @@ public class R4MedicationRequestController {
         linkConfig, reports, MedicationRequest.Entry::new, MedicationRequest.Bundle::new);
   }
 
-  private MedicationRequest.Bundle bundle(
+  private MedicationRequest.Bundle bundleMixedResources(
       MultiValueMap<String, String> parameters, List<MedicationRequest> reports, int totalRecords) {
     return bundle(parameters, reports, totalRecords, -1);
   }
@@ -140,7 +140,7 @@ public class R4MedicationRequestController {
             PageRequest.of(page - 1, count == 0 ? 1 : count, MedicationOrderEntity.naturalOrder()));
     int totalRecords = (int) medicationOrderEntities.getTotalElements();
     if (count == 0) {
-      return bundle(parameters, emptyList(), totalRecords);
+      return bundleMixedResources(parameters, emptyList(), totalRecords);
     }
     List<DatamartMedicationOrder> datamartMedicationOrders =
         medicationOrderEntities
@@ -149,7 +149,7 @@ public class R4MedicationRequestController {
             .collect(Collectors.toList());
     replaceReferencesMedicationOrder(datamartMedicationOrders);
     List<MedicationRequest> fhir = medRequestsFromMedOrders(datamartMedicationOrders);
-    return bundle(parameters, fhir, totalRecords);
+    return bundleMixedResources(parameters, fhir, totalRecords);
   }
 
   MedicationRequest.Bundle medicationStatementsForPatient(
@@ -161,7 +161,7 @@ public class R4MedicationRequestController {
                 page - 1, count == 0 ? 1 : count, MedicationStatementEntity.naturalOrder()));
     int totalRecords = (int) medicationStatementEntities.getTotalElements();
     if (count == 0) {
-      return bundle(parameters, emptyList(), totalRecords);
+      return bundleMixedResources(parameters, emptyList(), totalRecords);
     }
     List<DatamartMedicationStatement> datamartMedicationStatements =
         medicationStatementEntities
@@ -170,7 +170,7 @@ public class R4MedicationRequestController {
             .collect(Collectors.toList());
     replaceReferencesMedicationStatement(datamartMedicationStatements);
     List<MedicationRequest> fhir = medRequestsFromMedStatements(datamartMedicationStatements);
-    return bundle(parameters, fhir, totalRecords);
+    return bundleMixedResources(parameters, fhir, totalRecords);
   }
 
   SearchContext newSearchContext(String patient, int page, int count) {
@@ -253,12 +253,7 @@ public class R4MedicationRequestController {
       @CountParameter @Min(0) int count) {
     MultiValueMap<String, String> parameters =
         Parameters.builder().add("identifier", id).add("page", page).add("_count", count).build();
-    return R4Controllers.searchById(
-        parameters,
-        this::read,
-        (R4Controllers.BundleBuilder<
-                MedicationRequest, MedicationRequest.Entry, ? extends MedicationRequest.Bundle>)
-            this::bundle);
+    return R4Controllers.searchById(parameters, this::read, this::bundleMixedResources);
   }
 
   /** Search by patient. */
@@ -269,7 +264,7 @@ public class R4MedicationRequestController {
       @CountParameter @Min(0) int count) {
     SearchContext ctx = newSearchContext(patient, page, count);
     if (count == 0) {
-      return bundle(ctx.parameters(), emptyList(), ctx.totalPages());
+      return bundleMixedResources(ctx.parameters(), emptyList(), ctx.totalPages());
     }
     log.info("Looking for {} ({})", patient, ctx.toCdwId());
     if (ctx.lastPageWithMedicationStatement() >= page) {
@@ -285,7 +280,7 @@ public class R4MedicationRequestController {
           ctx.totalRecords(),
           ctx.totalPages());
     }
-    return bundle(ctx.parameters(), emptyList(), ctx.totalPages());
+    return bundleMixedResources(ctx.parameters(), emptyList(), ctx.totalPages());
   }
 
   /** Search by patient and intent. */
@@ -316,7 +311,7 @@ public class R4MedicationRequestController {
     } else if ("plan".equals(intent)) {
       return medicationStatementsForPatient(parameters, icn, page, count);
     } else {
-      return bundle(parameters, emptyList(), 0);
+      return bundleMixedResources(parameters, emptyList(), 0);
     }
   }
 
