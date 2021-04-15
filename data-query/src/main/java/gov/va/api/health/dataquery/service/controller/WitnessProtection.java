@@ -5,6 +5,7 @@ import gov.va.api.health.dataquery.service.controller.ResourceExceptions.NotFoun
 import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.api.IdentitySubstitution;
 import gov.va.api.health.ids.api.ResourceIdentity;
+import gov.va.api.health.ids.client.IdEncoder;
 import gov.va.api.lighthouse.datamart.DatamartReference;
 import gov.va.api.lighthouse.datamart.HasReplaceableId;
 import gov.va.api.lighthouse.datamart.ResourceNameTranslation;
@@ -74,7 +75,11 @@ public class WitnessProtection extends IdentitySubstitution<DatamartReference> {
   /** Lookup and convert the given public ID to a CDW id. */
   @Loggable(arguments = false)
   public String toCdwId(String publicId) {
-    return privateIdOf("CDW", publicId).orElse(publicId);
+    try {
+      return privateIdOf("CDW", publicId).orElse(publicId);
+    } catch (IdEncoder.BadId whatever) {
+      return publicId;
+    }
   }
 
   /**
