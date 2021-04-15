@@ -41,7 +41,20 @@ class MetadataSamples {
                         + " supports SMART-on-FHIR. See the SMART-on-FHIR docs for the"
                         + " extension that would go with such a server.")
                 .build())
-        .resourceDocumentation("Implemented per the specification.")
+        .r4(
+            MetadataProperties.VersionSpecificProperties.builder()
+                .id("fhir-r4-conformance")
+                .name("VA Lighthouse FHIR R4")
+                .resourceDocumentation(
+                    "Implemented per the specification. See http://hl7.org/fhir/R4/http.html")
+                .build())
+        .dstu2(
+            MetadataProperties.VersionSpecificProperties.builder()
+                .id("dtu2-conformance")
+                .name("VA Lighthouse FHIR")
+                .resourceDocumentation(
+                    "Implemented per the specification. See http://hl7.org/fhir/DSTU2/http.html")
+                .build())
         .build();
   }
 

@@ -30,6 +30,8 @@ public class MetadataProperties {
   private String description;
   private String softwareName;
   private boolean productionUse;
+  private VersionSpecificProperties r4;
+  private VersionSpecificProperties dstu2;
   /**
    * This is specific to DSTU2, STU3, or R4 and not used across versions. It is also specific to the
    * implementation itself and hard coded.
@@ -65,5 +67,16 @@ public class MetadataProperties {
     private String managementEndpoint;
     private String revocationEndpoint;
     private String description;
+  }
+
+  @Data
+  @Builder
+  @NoArgsConstructor
+  @AllArgsConstructor
+  @Accessors(fluent = false)
+  public static class VersionSpecificProperties {
+    private String id;
+    private String name;
+    private String resourceDocumentation;
   }
 }

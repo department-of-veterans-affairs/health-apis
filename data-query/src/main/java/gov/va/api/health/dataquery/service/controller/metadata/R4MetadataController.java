@@ -350,8 +350,7 @@ class R4MetadataController {
     private ResourceInteraction readable() {
       return ResourceInteraction.builder()
           .code(TypeRestfulInteraction.read)
-          .documentation(
-              properties.getResourceDocumentation() + " See http://hl7.org/fhir/R4/http.html")
+          .documentation(properties.getR4().getResourceDocumentation())
           .build();
     }
 
@@ -369,8 +368,7 @@ class R4MetadataController {
     private ResourceInteraction searchable() {
       return ResourceInteraction.builder()
           .code(TypeRestfulInteraction.search_type)
-          .documentation(
-              properties.getResourceDocumentation() + " See http://hl7.org/fhir/R4/http.html")
+          .documentation(properties.getR4().getResourceDocumentation())
           .build();
     }
   }
