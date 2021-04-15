@@ -59,6 +59,7 @@ public class LocationSamples {
                       .stationNumber("623GB")
                       .type(FacilityId.FacilityType.HEALTH)
                       .build()))
+          .locationIen(Optional.of("3049"))
           .build();
     }
   }
@@ -217,6 +218,11 @@ public class LocationSamples {
                       .system(
                           "https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-identifier")
                       .value("vha_623GB")
+                      .build(),
+                  gov.va.api.health.r4.api.datatypes.Identifier.builder()
+                      .system(
+                          "https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-clinic-identifier")
+                      .value("vha_623GB_3049")
                       .build()))
           .address(
               gov.va.api.health.r4.api.datatypes.Address.builder()

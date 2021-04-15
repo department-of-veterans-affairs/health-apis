@@ -1,31 +1,35 @@
 package gov.va.api.health.dataquery.service.controller.organization;
 
-import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
-import static java.util.Collections.emptyList;
+import static gov.va.api.lighthouse.vulcan.Rules.parametersNeverSpecifiedTogether;
+import static gov.va.api.lighthouse.vulcan.Specifications.select;
+import static gov.va.api.lighthouse.vulcan.Vulcan.returnNothing;
 
-import gov.va.api.health.dataquery.service.controller.CountParameter;
-import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
-import gov.va.api.health.dataquery.service.controller.PageLinks;
-import gov.va.api.health.dataquery.service.controller.Parameters;
-import gov.va.api.health.dataquery.service.controller.R4Bundler;
-import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
+import gov.va.api.health.dataquery.service.config.LinkProperties;
+import gov.va.api.health.dataquery.service.controller.FacilityId;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
+import gov.va.api.health.dataquery.service.controller.vulcanizer.Bundling;
+import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedBundler;
+import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedReader;
+import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedTransformation;
 import gov.va.api.health.r4.api.resources.Organization;
-import java.util.List;
-import java.util.stream.Collectors;
+import gov.va.api.lighthouse.vulcan.CircuitBreaker;
+import gov.va.api.lighthouse.vulcan.Specifications;
+import gov.va.api.lighthouse.vulcan.Vulcan;
+import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
+import gov.va.api.lighthouse.vulcan.mappings.Mappings;
+import gov.va.api.lighthouse.vulcan.mappings.TokenParameter;
+import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Stream;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.util.MultiValueMap;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -38,144 +42,141 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(
     value = {"/r4/Organization"},
     produces = {"application/json", "application/fhir+json"})
-@AllArgsConstructor(onConstructor = @__({@Autowired}))
+@AllArgsConstructor(onConstructor_ = @Autowired)
 public class R4OrganizationController {
-  private R4Bundler bundler;
+  private static final String FAPI_IDENTIFIER_SYSTEM =
+      "https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-identifier";
+
+  private final LinkProperties linkProperties;
+
   private OrganizationRepository repository;
+
   private WitnessProtection witnessProtection;
 
-  private static PageRequest page(int page, int count) {
-    return PageRequest.of(page - 1, count == 0 ? 1 : count, OrganizationEntity.naturalOrder());
+  private VulcanConfiguration<OrganizationEntity> configuration() {
+    return VulcanConfiguration.forEntity(OrganizationEntity.class)
+        .paging(
+            linkProperties.pagingConfiguration("Organization", OrganizationEntity.naturalOrder()))
+        .mappings(
+            Mappings.forEntity(OrganizationEntity.class)
+                .string("address", "street")
+                .string("address-city", "city")
+                .string("address-state", "state")
+                .string("address-postalcode", "postalCode")
+                .value("_id", "cdwId", witnessProtection::toCdwId)
+                .tokens(
+                    "identifier",
+                    this::tokenIdentifierIsSupported,
+                    this::tokenIdentifierSpecification)
+                .string("name", "name")
+                .get())
+        .rule(parametersNeverSpecifiedTogether("_id", "identifier"))
+        .defaultQuery(returnNothing())
+        .build();
   }
 
-  private Organization.Bundle bundle(
-      MultiValueMap<String, String> parameters, List<Organization> records, int totalRecords) {
-    return bundler.bundle(
-        PageLinks.LinkConfig.builder()
-            .path("Organization")
-            .queryParams(parameters)
-            .page(Parameters.pageOf(parameters))
-            .recordsPerPage(Parameters.countOf(parameters))
-            .totalRecords(totalRecords)
-            .build(),
-        records,
-        Organization.Entry::new,
-        Organization.Bundle::new);
-  }
-
-  private Organization.Bundle bundle(
-      MultiValueMap<String, String> parameters, int count, Page<OrganizationEntity> entitiesPage) {
-    if (count == 0) {
-      return bundle(parameters, emptyList(), (int) entitiesPage.getTotalElements());
-    }
-    List<DatamartOrganization> datamarts =
-        entitiesPage.stream()
-            .map(OrganizationEntity::asDatamartOrganization)
-            .collect(Collectors.toList());
-    witnessProtection.registerAndUpdateReferences(datamarts, resource -> Stream.empty());
-    List<Organization> records =
-        datamarts.stream()
-            .map(dm -> R4OrganizationTransformer.builder().datamart(dm).build().toFhir())
-            .collect(Collectors.toList());
-    return bundle(parameters, records, (int) entitiesPage.getTotalElements());
-  }
-
-  private OrganizationEntity findById(String publicId) {
-    return repository
-        .findById(witnessProtection.toCdwId(publicId))
-        .orElseThrow(() -> new ResourceExceptions.NotFound(publicId));
-  }
-
-  /** Get resource by id. */
+  /** Read Support. */
   @GetMapping(value = "/{publicId}")
   public Organization read(@PathVariable("publicId") String publicId) {
-    DatamartOrganization dm = findById(publicId).asDatamartOrganization();
-    witnessProtection.registerAndUpdateReferences(List.of(dm), resource -> Stream.empty());
-    return R4OrganizationTransformer.builder().datamart(dm).build().toFhir();
+    return reader().read(publicId);
   }
 
-  /** Get raw datamart resource by id. */
+  /** Read Raw Datamart Payload Support. */
   @GetMapping(
       value = "/{publicId}",
       headers = {"raw=true"})
   public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
-    IncludesIcnMajig.addHeaderForNoPatients(response);
-    return findById(publicId).payload();
+    return reader().readRaw(publicId, response);
   }
 
-  /** Search for resource by address. */
+  VulcanizedReader<OrganizationEntity, DatamartOrganization, Organization, String> reader() {
+    return VulcanizedReader
+        .<OrganizationEntity, DatamartOrganization, Organization, String>forTransformation(
+            transformation())
+        .repository(repository)
+        .toPatientId(e -> Optional.empty())
+        .toPrimaryKey(Function.identity())
+        .toPayload(OrganizationEntity::payload)
+        .build();
+  }
+
+  /** Search Support. */
   @GetMapping
-  public Organization.Bundle searchByAddress(
-      @RequestParam(value = "address", required = false) String address,
-      @RequestParam(value = "address-city", required = false) String city,
-      @RequestParam(value = "address-state", required = false) String state,
-      @RequestParam(value = "address-postalcode", required = false) String postalCode,
-      @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
-      @CountParameter @Min(0) int count) {
-    if (allBlank(address, city, state, postalCode)) {
-      throw new ResourceExceptions.MissingSearchParameters(
-          String.format(
-              "At least one of %s must be specified",
-              List.of("address", "address-city", "address-state", "address-postalcode")));
+  public Organization.Bundle search(HttpServletRequest request) {
+    return Vulcan.forRepo(repository)
+        .config(configuration())
+        .build()
+        .search(request)
+        .map(toBundle());
+  }
+
+  private Specification<OrganizationEntity> selectFacilityId(String maybeFacilityId) {
+    try {
+      var facilityId = FacilityId.from(maybeFacilityId);
+      return Specifications.<OrganizationEntity>select("facilityType", facilityId.type().toString())
+          .and(select("stationNumber", facilityId.stationNumber()));
+    } catch (IllegalArgumentException e) {
+      return null;
     }
-    MultiValueMap<String, String> parameters =
-        Parameters.builder()
-            .addIgnoreNull("address", address)
-            .addIgnoreNull("address-city", city)
-            .addIgnoreNull("address-state", state)
-            .addIgnoreNull("address-postalcode", postalCode)
-            .add("page", page)
-            .add("_count", count)
-            .build();
-    OrganizationRepository.AddressSpecification spec =
-        OrganizationRepository.AddressSpecification.builder()
-            .address(address)
-            .city(city)
-            .state(state)
-            .postalCode(postalCode)
-            .build();
-    Page<OrganizationEntity> entitiesPage = repository.findAll(spec, page(page, count));
-    return bundle(parameters, count, entitiesPage);
   }
 
-  /** Search for resource by _id. */
-  @GetMapping(params = {"_id"})
-  public Organization.Bundle searchById(
-      @RequestParam("_id") String publicId,
-      @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
-      @CountParameter @Min(0) int count) {
-    return searchByIdentifier(publicId, page, count);
+  VulcanizedBundler<
+          OrganizationEntity,
+          DatamartOrganization,
+          Organization,
+          Organization.Entry,
+          Organization.Bundle>
+      toBundle() {
+    return VulcanizedBundler.forTransformation(transformation())
+        .bundling(
+            Bundling.newBundle(Organization.Bundle::new)
+                .newEntry(Organization.Entry::new)
+                .linkProperties(linkProperties)
+                .build())
+        .build();
   }
 
-  /** Search for resource by identifier. */
-  @GetMapping(params = {"identifier"})
-  public Organization.Bundle searchByIdentifier(
-      @RequestParam("identifier") String publicId,
-      @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
-      @CountParameter @Min(0) int count) {
-    MultiValueMap<String, String> parameters =
-        Parameters.builder()
-            .add("identifier", publicId)
-            .add("page", page)
-            .add("_count", count)
-            .build();
-    Organization resource = read(publicId);
-    List<Organization> records = resource == null ? emptyList() : List.of(resource);
-    if (count == 0) {
-      return bundle(parameters, emptyList(), records.size());
-    }
-    return bundle(parameters, records, records.size());
+  /**
+   * Supported Identifiers:
+   *
+   * <p>I3-1a2b3c4d
+   *
+   * <p>vha_123
+   *
+   * <p>https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-identifier|vha_123
+   */
+  private boolean tokenIdentifierIsSupported(TokenParameter token) {
+    return (token.hasSupportedSystem(FAPI_IDENTIFIER_SYSTEM) && token.hasExplicitCode())
+        || token.hasAnySystem();
   }
 
-  /** Search for resource by name. */
-  @GetMapping(params = {"name"})
-  public Organization.Bundle searchByName(
-      @RequestParam("name") String name,
-      @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
-      @CountParameter @Min(0) int count) {
-    MultiValueMap<String, String> parameters =
-        Parameters.builder().add("name", name).add("page", page).add("_count", count).build();
-    Page<OrganizationEntity> entitiesPage = repository.findByName(name, page(page, count));
-    return bundle(parameters, count, entitiesPage);
+  /** Use a token value to determine which database columns to select from. */
+  private Specification<OrganizationEntity> tokenIdentifierSpecification(TokenParameter token) {
+    return token
+        .behavior()
+        .onExplicitSystemAndExplicitCode(
+            (system, code) -> {
+              var facilityId = selectFacilityId(code);
+              if (facilityId == null) {
+                throw CircuitBreaker.noResultsWillBeFound(
+                    "identifier", code, "Invalid facilityId.");
+              }
+              return facilityId;
+            })
+        .onAnySystemAndExplicitCode(
+            code ->
+                Specifications.<OrganizationEntity>select("cdwId", witnessProtection.toCdwId(code))
+                    .or(selectFacilityId(code)))
+        .build()
+        .execute();
+  }
+
+  VulcanizedTransformation<OrganizationEntity, DatamartOrganization, Organization>
+      transformation() {
+    return VulcanizedTransformation.toDatamart(OrganizationEntity::asDatamartOrganization)
+        .toResource(dm -> R4OrganizationTransformer.builder().datamart(dm).build().toFhir())
+        .witnessProtection(witnessProtection)
+        .replaceReferences(resource -> Stream.empty())
+        .build();
   }
 }

@@ -61,6 +61,7 @@ public final class SystemDefinitions {
 
   private static TestIds.Appointments labAppointments() {
     return TestIds.Appointments.builder()
+        .date("le2020")
         .location("I2-4KG3N5YUSPTWD3DAFMLMRL5V5U000000")
         .lastUpdated("le2020")
         // Frankenpatient
@@ -128,6 +129,7 @@ public final class SystemDefinitions {
         .addressCity("NEW AMSTERDAM")
         .addressState("OH")
         .addressPostalCode("44444-4160")
+        .facilityId("vha_442")
         .name("NEW AMSTERDAM CBOC")
         .npi("http://hl7.org/fhir/sid/us-npi|1205983228")
         .build();
@@ -137,7 +139,7 @@ public final class SystemDefinitions {
     return TestIds.Practitioners.builder()
         .family("LASTNAME")
         .given("FIRSTNAME A.")
-        .npi("http://hl7.org/fhir/sid/us-npi|1932127842")
+        .npi("1932127842")
         .specialty("http://hl7.org/fhir/practitioner-specialty|207Q00000X")
         .build();
   }
@@ -148,6 +150,7 @@ public final class SystemDefinitions {
 
   private static TestIds.Appointments localAppointments() {
     return TestIds.Appointments.builder()
+        .date("le2020")
         .location("I2-K7WNFKZA3JCXL3CLT6D2HP7RRU000000")
         .oauthPatient("1017283180V801730")
         .lastUpdated("le2020")
@@ -220,6 +223,7 @@ public final class SystemDefinitions {
 
   private static TestIds.Appointments productionAppointments() {
     return TestIds.Appointments.builder()
+        .date("le2020")
         .location("I2-XPW2ECZK2LTNSPLNVKISWC5QZABOVEBZD5V2CKFRVEPAU5CNZMJQ0000")
         .oauthPatient("1017283180V801730")
         .lastUpdated("le2020")
@@ -287,6 +291,7 @@ public final class SystemDefinitions {
         .addressCity("ORLANDO")
         .addressState("FL")
         .addressPostalCode("32827")
+        .facilityId("vha_675")
         .name("LAKE BALDWIN VAMC")
         .npi("http://hl7.org/fhir/sid/us-npi|1558796409")
         .build();
@@ -300,7 +305,7 @@ public final class SystemDefinitions {
     return TestIds.Practitioners.builder()
         .family("ACOSTA")
         .given("SAID R")
-        .npi("http://hl7.org/fhir/sid/us-npi|1013904481")
+        .npi("1013904481")
         .specialty("http://hl7.org/fhir/practitioner-specialty|xxx")
         .build();
   }

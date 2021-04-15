@@ -2,7 +2,7 @@ package gov.va.api.health.dataquery.tests.dstu2;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import gov.va.api.health.dataquery.tests.ResourceVerifier;
+import gov.va.api.health.dataquery.tests.DataQueryResourceVerifier;
 import gov.va.api.health.dataquery.tests.TestClients;
 import io.restassured.RestAssured;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +20,8 @@ public class Dstu2OpenApiIT {
     log.info("Verify {}openapi.json is valid (200)", apiPath());
     assertThat(
             RestAssured.given()
-                .spec(ResourceVerifier.dstu2().dataQuery().service().requestSpecification())
+                .spec(
+                    DataQueryResourceVerifier.dstu2().testClient().service().requestSpecification())
                 .get(apiPath() + "openapi.json")
                 .statusCode())
         .isEqualTo(200);

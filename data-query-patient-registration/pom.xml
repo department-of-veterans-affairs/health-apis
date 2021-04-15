@@ -8,10 +8,9 @@
     <relativePath/>
   </parent>
   <artifactId>data-query-patient-registration</artifactId>
-  <version>3.0.125-SNAPSHOT</version>
+  <version>3.0.142-SNAPSHOT</version>
   <packaging>jar</packaging>
   <properties>
-    <jacoco.coverage>0.94</jacoco.coverage>
     <!-- DYNAMO DB AND AWS SDK VERSION NUMBERS ARE MATCHED -->
     <!-- Consult dependency tree to see which version of the SDK the local db uses -->
     <dynamo-db-local.version>1.13.2</dynamo-db-local.version>

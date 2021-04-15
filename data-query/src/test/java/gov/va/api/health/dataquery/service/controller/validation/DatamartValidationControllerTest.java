@@ -60,6 +60,6 @@ public class DatamartValidationControllerTest {
   @ParameterizedTest
   @MethodSource
   public void supports(Object datamartObject) {
-    assertThat(controller.validation(json(datamartObject))).isEqualTo(datamartObject);
+    assertThat(controller.validation(json(datamartObject)).getBody()).isEqualTo(datamartObject);
   }
 }

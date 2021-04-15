@@ -1,9 +1,10 @@
 package gov.va.api.health.dataquery.tests.r4;
 
-import static gov.va.api.health.sentinel.EnvironmentAssumptions.assumeEnvironmentIn;
 import static gov.va.api.health.sentinel.EnvironmentAssumptions.assumeEnvironmentNotIn;
 
-import gov.va.api.health.dataquery.tests.ResourceVerifier;
+import gov.va.api.health.dataquery.tests.DataQueryResourceVerifier;
+import gov.va.api.health.dataquery.tests.TestIds;
+import gov.va.api.health.fhir.testsupport.ResourceVerifier;
 import gov.va.api.health.r4.api.resources.MedicationRequest;
 import gov.va.api.health.r4.api.resources.OperationOutcome;
 import gov.va.api.health.sentinel.Environment;
@@ -11,67 +12,65 @@ import lombok.experimental.Delegate;
 import org.junit.jupiter.api.Test;
 
 public class MedicationRequestIT {
-  @Delegate ResourceVerifier verifier = ResourceVerifier.r4();
+  @Delegate ResourceVerifier verifier = DataQueryResourceVerifier.r4();
+
+  TestIds testIds = DataQueryResourceVerifier.ids();
 
   @Test
-  public void advanced() {
-    assumeEnvironmentIn(Environment.LOCAL);
-    verifier.verifyAll(
-        test(
-            200,
-            MedicationRequest.Bundle.class,
-            "MedicationRequest?_id={id}",
-            verifier.ids().medicationOrder()),
-        test(
-            200,
-            MedicationRequest.Bundle.class,
-            "MedicationRequest?_id={id}",
-            verifier.ids().medicationStatement()),
-        test(404, OperationOutcome.class, "MedicationRequest?_id={id}", verifier.ids().unknown()),
-        test(
-            200,
-            MedicationRequest.Bundle.class,
-            "MedicationRequest?identifier={id}",
-            verifier.ids().medicationOrder()),
-        test(
-            200,
-            MedicationRequest.Bundle.class,
-            "MedicationRequest?identifier={id}",
-            verifier.ids().medicationStatement()));
+  public void read() {
+    verifyAll(
+        // MedicationRequest Public Id
+        test(200, MedicationRequest.class, "MedicationRequest/{id}", testIds.medicationOrder()),
+        test(200, MedicationRequest.class, "MedicationRequest/{id}", testIds.medicationStatement()),
+        test(404, OperationOutcome.class, "MedicationRequest/{id}", testIds.unknown()));
   }
 
   @Test
-  public void basic() {
-    verifier.verifyAll(
+  public void search() {
+    verifyAll(
+        test(
+            200,
+            MedicationRequest.Bundle.class,
+            "MedicationRequest?_id={id}",
+            testIds.medicationOrder()),
+        test(
+            200,
+            MedicationRequest.Bundle.class,
+            "MedicationRequest?_id={id}",
+            testIds.medicationStatement()),
+        test(
+            200,
+            MedicationRequest.Bundle.class,
+            b -> b.entry().isEmpty(),
+            "MedicationRequest?_id={id}",
+            testIds.unknown()),
+        test(
+            200,
+            MedicationRequest.Bundle.class,
+            "MedicationRequest?identifier={id}",
+            testIds.medicationOrder()),
+        test(
+            200,
+            MedicationRequest.Bundle.class,
+            "MedicationRequest?identifier={id}",
+            testIds.medicationStatement()),
         // Patient And Intent
         test(
             200,
             MedicationRequest.Bundle.class,
             "MedicationRequest?patient={patient}&intent=order",
-            verifier.ids().patient()),
+            testIds.patient()),
         test(
             200,
             MedicationRequest.Bundle.class,
             "MedicationRequest?patient={patient}&intent=plan",
-            verifier.ids().patient()),
-        // MedicationRequest Public Id
-        test(
-            200,
-            MedicationRequest.class,
-            "MedicationRequest/{id}",
-            verifier.ids().medicationOrder()),
-        test(
-            200,
-            MedicationRequest.class,
-            "MedicationRequest/{id}",
-            verifier.ids().medicationStatement()),
-        test(404, OperationOutcome.class, "MedicationRequest/{id}", verifier.ids().unknown()),
+            testIds.patient()),
         // Patient Icn
         test(
             200,
             MedicationRequest.Bundle.class,
             "MedicationRequest?patient={patient}",
-            verifier.ids().patient()));
+            testIds.patient()));
   }
 
   @Test
@@ -79,9 +78,6 @@ public class MedicationRequestIT {
     assumeEnvironmentNotIn(Environment.LOCAL);
     verifier.verifyAll(
         test(
-            403,
-            OperationOutcome.class,
-            "MedicationRequest?patient={patient}",
-            verifier.ids().unknown()));
+            403, OperationOutcome.class, "MedicationRequest?patient={patient}", testIds.unknown()));
   }
 }

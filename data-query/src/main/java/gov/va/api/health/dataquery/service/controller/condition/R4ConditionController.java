@@ -11,6 +11,7 @@ import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedBundl
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedReader;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedTransformation;
 import gov.va.api.health.r4.api.resources.Condition;
+import gov.va.api.lighthouse.vulcan.Specifications;
 import gov.va.api.lighthouse.vulcan.Vulcan;
 import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
 import gov.va.api.lighthouse.vulcan.mappings.Mappings;
@@ -26,6 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -66,7 +68,8 @@ public class R4ConditionController {
         .paging(linkProperties.pagingConfiguration("Condition", ConditionEntity.naturalOrder()))
         .mappings(
             Mappings.forEntity(ConditionEntity.class)
-                .token("category", this::tokenCategoryIsSupported, this::tokenCategoryValues)
+                .tokens(
+                    "category", this::tokenCategoryIsSupported, this::tokenCategorySpecification)
                 .tokenList(
                     "clinical-status",
                     "clinicalStatus",
@@ -170,16 +173,22 @@ public class R4ConditionController {
         || (token.hasAnySystem() && codeIsSupported);
   }
 
-  private Collection<String> tokenCategoryValues(TokenParameter token) {
+  private Specification<ConditionEntity> tokenCategorySpecification(TokenParameter token) {
     return token
         .behavior()
         .onExplicitSystemAndAnyCode(
-            s ->
-                Arrays.stream(DatamartCondition.Category.values())
-                    .map(Enum::toString)
-                    .collect(Collectors.toList()))
-        .onExplicitSystemAndExplicitCode((s, c) -> List.of(toDatamartCategoryValue(c)))
-        .onAnySystemAndExplicitCode(c -> List.of(toDatamartCategoryValue(c)))
+            s -> {
+              var values =
+                  Arrays.stream(DatamartCondition.Category.values())
+                      .map(Enum::toString)
+                      .collect(Collectors.toList());
+              return Specifications.<ConditionEntity>selectInList("category", values);
+            })
+        .onExplicitSystemAndExplicitCode(
+            (s, c) ->
+                Specifications.<ConditionEntity>select("category", toDatamartCategoryValue(c)))
+        .onAnySystemAndExplicitCode(
+            c -> Specifications.<ConditionEntity>select("category", toDatamartCategoryValue(c)))
         .build()
         .execute();
   }

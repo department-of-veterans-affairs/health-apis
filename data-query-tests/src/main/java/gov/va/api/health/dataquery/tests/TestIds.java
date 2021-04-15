@@ -39,6 +39,7 @@ public final class TestIds {
   @Value
   @Builder
   public static class Appointments {
+    @NonNull String date;
     @NonNull String lastUpdated;
     @NonNull String location;
     @NonNull String oauthPatient;
@@ -99,6 +100,7 @@ public final class TestIds {
     @NonNull String addressCity;
     @NonNull String addressState;
     @NonNull String addressPostalCode;
+    @NonNull String facilityId;
     @NonNull String name;
     @NonNull String npi;
   }

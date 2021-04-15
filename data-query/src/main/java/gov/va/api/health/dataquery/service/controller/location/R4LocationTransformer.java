@@ -1,7 +1,8 @@
 package gov.va.api.health.dataquery.service.controller.location;
 
+import static gov.va.api.health.dataquery.service.controller.FacilityTransformers.facilityIdentifier;
+import static gov.va.api.health.dataquery.service.controller.FacilityTransformers.fapiClinicId;
 import static gov.va.api.health.dataquery.service.controller.R4Transformers.asReference;
-import static gov.va.api.health.dataquery.service.controller.R4Transformers.facilityIdentifier;
 import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
 import static gov.va.api.health.dataquery.service.controller.Transformers.convert;
 import static gov.va.api.health.dataquery.service.controller.Transformers.emptyToNull;
@@ -49,8 +50,22 @@ public class R4LocationTransformer {
         .build();
   }
 
-  List<Identifier> identifiers(Optional<FacilityId> maybeFacilityId) {
-    return emptyToNull(asList(facilityIdentifier(maybeFacilityId.orElse(null))));
+  Identifier clinicIdentifier(FacilityId facilityId, String clinicId) {
+    String fapiClinicId = fapiClinicId(facilityId, clinicId);
+    if (isBlank(fapiClinicId)) {
+      return null;
+    }
+    return Identifier.builder()
+        .system("https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-clinic-identifier")
+        .value(fapiClinicId)
+        .build();
+  }
+
+  List<Identifier> identifiers(Optional<FacilityId> maybeFacilityId, Optional<String> maybeIen) {
+    return emptyToNull(
+        asList(
+            facilityIdentifier(maybeFacilityId.orElse(null)),
+            clinicIdentifier(maybeFacilityId.orElse(null), maybeIen.orElse(null))));
   }
 
   CodeableConcept physicalType(Optional<String> maybePhysicalType) {
@@ -80,7 +95,7 @@ public class R4LocationTransformer {
   Location toFhir() {
     return Location.builder()
         .id(datamart.cdwId())
-        .identifier(identifiers(datamart.facilityId()))
+        .identifier(identifiers(datamart.facilityId(), datamart.locationIen()))
         .status(status(datamart.status()))
         .name(datamart.name())
         .description(datamart.description().orElse(null))
