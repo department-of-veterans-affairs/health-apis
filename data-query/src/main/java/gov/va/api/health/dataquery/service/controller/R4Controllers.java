@@ -3,6 +3,7 @@ package gov.va.api.health.dataquery.service.controller;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 
+import gov.va.api.health.ids.client.IdEncoder;
 import gov.va.api.health.r4.api.bundle.AbstractBundle;
 import gov.va.api.health.r4.api.bundle.AbstractEntry;
 import gov.va.api.health.r4.api.resources.Resource;
@@ -21,7 +22,7 @@ public class R4Controllers {
     R resource;
     try {
       resource = read.apply(Parameters.identifierOf(parameters));
-    } catch (ResourceExceptions.NotFound e) {
+    } catch (ResourceExceptions.NotFound | IdEncoder.BadId e) {
       resource = null;
     }
     List<R> entries =
