@@ -169,9 +169,9 @@ class Dstu2MetadataController {
   Conformance read() {
     return Conformance.builder()
         .resourceType("Conformance")
-        .id(properties.getId())
+        .id(properties.getDstu2().getId())
         .version(properties.getVersion())
-        .name(properties.getDstu2Name())
+        .name(properties.getDstu2().getName())
         .publisher(properties.getPublisher())
         .contact(contact())
         .date(properties.getPublicationDate())

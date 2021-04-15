@@ -19,10 +19,7 @@ import org.springframework.context.annotation.Configuration;
 @AllArgsConstructor
 @Builder
 public class MetadataProperties {
-  private String id;
   private String version;
-  private String dstu2Name;
-  private String r4Name;
   private String publisher;
   private StatementType statementType;
   private ContactProperties contact;
