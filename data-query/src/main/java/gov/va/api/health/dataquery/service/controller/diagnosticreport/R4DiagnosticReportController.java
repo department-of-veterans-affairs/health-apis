@@ -10,6 +10,7 @@ import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.R4Bundler;
+import gov.va.api.health.dataquery.service.controller.R4Controllers;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.TokenParameter;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
@@ -99,7 +100,7 @@ public class R4DiagnosticReportController {
         linkConfig, diagnosticReports, DiagnosticReport.Entry::new, DiagnosticReport.Bundle::new);
   }
 
-  DiagnosticReport.Bundle bundle(
+  DiagnosticReport.Bundle bundleEntities(
       MultiValueMap<String, String> parameters, Page<DiagnosticReportEntity> entitiesPage) {
     if (Parameters.countOf(parameters) <= 0) {
       return bundle(parameters, emptyList(), (int) entitiesPage.getTotalElements());
@@ -205,12 +206,7 @@ public class R4DiagnosticReportController {
             .add("page", page)
             .add("_count", count)
             .build();
-    DiagnosticReport dr = read(identifier);
-    int totalRecords = dr == null ? 0 : 1;
-    if (dr == null || page != 1 || count <= 0) {
-      return bundle(parameters, emptyList(), totalRecords);
-    }
-    return bundle(parameters, List.of(dr), totalRecords);
+    return R4Controllers.searchById(parameters, this::read, this::bundle);
   }
 
   /** Search resource by patient. */
@@ -231,7 +227,7 @@ public class R4DiagnosticReportController {
                 pageParam - 1,
                 countParam == 0 ? 1 : countParam,
                 DiagnosticReportEntity.naturalOrder()));
-    return bundle(parameters, entitiesPage);
+    return bundleEntities(parameters, entitiesPage);
   }
 
   /** Search resource by patient and category (and date if provided). */
@@ -265,7 +261,7 @@ public class R4DiagnosticReportController {
             .dates(date)
             .build();
     Page<DiagnosticReportEntity> entitiesPage = repository.findAll(spec, page(page, count));
-    return bundle(parameters, entitiesPage);
+    return bundleEntities(parameters, entitiesPage);
   }
 
   /** Search resources by patient and code (and date if provided). */
@@ -305,7 +301,7 @@ public class R4DiagnosticReportController {
             .dates(date)
             .build();
     Page<DiagnosticReportEntity> entitiesPage = repository.findAll(spec, page(page, count));
-    return bundle(parameters, entitiesPage);
+    return bundleEntities(parameters, entitiesPage);
   }
 
   /** Search resource by patient and status. */
@@ -344,7 +340,7 @@ public class R4DiagnosticReportController {
                 pageParam - 1,
                 countParam == 0 ? 1 : countParam,
                 DiagnosticReportEntity.naturalOrder()));
-    return bundle(parameters, entitiesPage);
+    return bundleEntities(parameters, entitiesPage);
   }
 
   private Boolean statusFinal(List<TokenParameter> codeTokens) {

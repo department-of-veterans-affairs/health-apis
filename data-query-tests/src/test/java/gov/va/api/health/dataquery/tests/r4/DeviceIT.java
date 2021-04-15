@@ -1,6 +1,5 @@
 package gov.va.api.health.dataquery.tests.r4;
 
-import static gov.va.api.health.sentinel.EnvironmentAssumptions.assumeEnvironmentIn;
 import static gov.va.api.health.sentinel.EnvironmentAssumptions.assumeEnvironmentNotIn;
 
 import gov.va.api.health.dataquery.tests.DataQueryResourceVerifier;
@@ -18,22 +17,15 @@ public class DeviceIT {
   TestIds testIds = DataQueryResourceVerifier.ids();
 
   @Test
-  public void basic() {
-    verifier.verifyAll(
+  public void read() {
+    verifyAll(
         test(200, Device.class, "Device/{id}", testIds.device()),
-        test(404, OperationOutcome.class, "Device/{id}", testIds.unknown()),
-        test(200, Device.Bundle.class, "Device?patient={patientIcn}", testIds.patient()),
-        test(
-            200,
-            Device.Bundle.class,
-            "Device?patient={patientIcn}&type=http://snomed.info/sct|53350007",
-            testIds.patient()));
+        test(404, OperationOutcome.class, "Device/{id}", testIds.unknown()));
   }
 
   @Test
-  void searchByIdentifier() {
-    assumeEnvironmentIn(Environment.LOCAL);
-    verifier.verifyAll(
+  void search() {
+    verifyAll(
         test(200, Device.Bundle.class, "Device?_id={id}", testIds.device()),
         test(
             200,
@@ -47,13 +39,18 @@ public class DeviceIT {
             Device.Bundle.class,
             d -> d.entry().isEmpty(),
             "Device?identifier={id}",
-            testIds.unknown()));
+            testIds.unknown()),
+        test(200, Device.Bundle.class, "Device?patient={patientIcn}", testIds.patient()),
+        test(
+            200,
+            Device.Bundle.class,
+            "Device?patient={patientIcn}&type=http://snomed.info/sct|53350007",
+            testIds.patient()));
   }
 
   @Test
   void searchNotMe() {
     assumeEnvironmentNotIn(Environment.LOCAL);
-    verifier.verifyAll(
-        test(403, OperationOutcome.class, "Device?patient={patient}", testIds.unknown()));
+    verifyAll(test(403, OperationOutcome.class, "Device?patient={patient}", testIds.unknown()));
   }
 }

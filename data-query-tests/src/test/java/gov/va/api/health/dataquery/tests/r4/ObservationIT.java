@@ -1,6 +1,5 @@
 package gov.va.api.health.dataquery.tests.r4;
 
-import static gov.va.api.health.sentinel.EnvironmentAssumptions.assumeEnvironmentIn;
 import static gov.va.api.health.sentinel.EnvironmentAssumptions.assumeEnvironmentNotIn;
 
 import gov.va.api.health.dataquery.tests.DataQueryResourceVerifier;
@@ -18,9 +17,16 @@ public class ObservationIT {
   TestIds testIds = DataQueryResourceVerifier.ids();
 
   @Test
-  public void advanced() {
-    assumeEnvironmentIn(Environment.LOCAL);
-    verifier.verifyAll(
+  void read() {
+    verifyAll(
+        test(200, Observation.class, "Observation/{id}", testIds.observation()),
+        test(404, OperationOutcome.class, "Observation/{id}", testIds.unknown()));
+  }
+
+  @Test
+  void search() {
+    verifyAll(
+        // ID and Identifier
         test(200, Observation.Bundle.class, "Observation?_id={id}", testIds.observation()),
         test(
             200,
@@ -28,12 +34,7 @@ public class ObservationIT {
             r -> r.entry().isEmpty(),
             "Observation?_id={id}",
             testIds.unknown()),
-        test(200, Observation.Bundle.class, "Observation?identifier={id}", testIds.observation()));
-  }
-
-  @Test
-  public void basic() {
-    verifier.verifyAll(
+        test(200, Observation.Bundle.class, "Observation?identifier={id}", testIds.observation()),
         // Patient And Category
         test(
             200,
@@ -104,9 +105,6 @@ public class ObservationIT {
             testIds.patient(),
             testIds.observations().loinc1(),
             testIds.observations().badLoinc()),
-        // Observation Public Id
-        test(200, Observation.class, "Observation/{id}", testIds.observation()),
-        test(404, OperationOutcome.class, "Observation/{id}", testIds.unknown()),
         // Patient Icn
         test(200, Observation.Bundle.class, "Observation?patient={patient}", testIds.patient()));
   }
@@ -114,7 +112,7 @@ public class ObservationIT {
   @Test
   public void searchNotMe() {
     assumeEnvironmentNotIn(Environment.LOCAL);
-    verifier.verifyAll(
+    verifyAll(
         test(403, OperationOutcome.class, "Observation?patient={patient}", testIds.unknown()));
   }
 }
