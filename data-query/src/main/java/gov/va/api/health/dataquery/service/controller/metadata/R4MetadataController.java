@@ -66,7 +66,7 @@ class R4MetadataController {
 
   private Implementation implementation() {
     return Implementation.builder()
-        .description(properties.getR4Name())
+        .description(properties.getR4().getName())
         .url(pageLinks.r4Url())
         .build();
   }
@@ -75,10 +75,10 @@ class R4MetadataController {
   CapabilityStatement read() {
     return CapabilityStatement.builder()
         .resourceType("CapabilityStatement")
-        .id(properties.getId())
+        .id(properties.getR4().getId())
         .version(properties.getVersion())
-        .name(properties.getR4Name())
-        .title(properties.getR4Name())
+        .name(properties.getR4().getName())
+        .title(properties.getR4().getName())
         .publisher(properties.getPublisher())
         .status(Status.active)
         .implementation(implementation())
@@ -350,7 +350,7 @@ class R4MetadataController {
     private ResourceInteraction readable() {
       return ResourceInteraction.builder()
           .code(TypeRestfulInteraction.read)
-          .documentation(properties.getResourceDocumentation())
+          .documentation(properties.getR4().getResourceDocumentation())
           .build();
     }
 
@@ -368,7 +368,7 @@ class R4MetadataController {
     private ResourceInteraction searchable() {
       return ResourceInteraction.builder()
           .code(TypeRestfulInteraction.search_type)
-          .documentation(properties.getResourceDocumentation())
+          .documentation(properties.getR4().getResourceDocumentation())
           .build();
     }
   }

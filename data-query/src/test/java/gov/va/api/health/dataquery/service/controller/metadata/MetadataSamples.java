@@ -10,10 +10,7 @@ class MetadataSamples {
   @SuppressWarnings("deprecation")
   static MetadataProperties conformanceStatementProperties() {
     return MetadataProperties.builder()
-        .id("lighthouse-va-fhir-conformance")
         .version("1.4.0")
-        .dstu2Name("VA Lighthouse FHIR")
-        .r4Name("VA Lighthouse FHIR R4")
         .productionUse(true)
         .publisher("Lighthouse Team")
         .contact(
@@ -41,7 +38,20 @@ class MetadataSamples {
                         + " supports SMART-on-FHIR. See the SMART-on-FHIR docs for the"
                         + " extension that would go with such a server.")
                 .build())
-        .resourceDocumentation("Implemented per the specification")
+        .r4(
+            MetadataProperties.VersionSpecificProperties.builder()
+                .id("lighthouse-va-fhir-conformance")
+                .name("VA Lighthouse FHIR R4")
+                .resourceDocumentation(
+                    "Implemented per the specification. See http://hl7.org/fhir/R4/http.html")
+                .build())
+        .dstu2(
+            MetadataProperties.VersionSpecificProperties.builder()
+                .id("lighthouse-va-fhir-conformance")
+                .name("VA Lighthouse FHIR")
+                .resourceDocumentation(
+                    "Implemented per the specification. See http://hl7.org/fhir/DSTU2/http.html")
+                .build())
         .build();
   }
 

@@ -78,11 +78,11 @@
           "interaction" : [
             {
               "code" : "search-type",
-              "documentation" : "Implemented per the specification"
+              "documentation" : "Implemented per the specification. See http://hl7.org/fhir/DSTU2/http.html"
             },
             {
               "code" : "read",
-              "documentation" : "Implemented per the specification"
+              "documentation" : "Implemented per the specification. See http://hl7.org/fhir/DSTU2/http.html"
             }
           ],
           "searchParam" : [
@@ -108,11 +108,11 @@
           "interaction" : [
             {
               "code" : "search-type",
-              "documentation" : "Implemented per the specification"
+              "documentation" : "Implemented per the specification. See http://hl7.org/fhir/DSTU2/http.html"
             },
             {
               "code" : "read",
-              "documentation" : "Implemented per the specification"
+              "documentation" : "Implemented per the specification. See http://hl7.org/fhir/DSTU2/http.html"
             }
           ],
           "searchParam" : [
@@ -146,11 +146,11 @@
           "interaction" : [
             {
               "code" : "search-type",
-              "documentation" : "Implemented per the specification"
+              "documentation" : "Implemented per the specification. See http://hl7.org/fhir/DSTU2/http.html"
             },
             {
               "code" : "read",
-              "documentation" : "Implemented per the specification"
+              "documentation" : "Implemented per the specification. See http://hl7.org/fhir/DSTU2/http.html"
             }
           ],
           "searchParam" : [
@@ -188,11 +188,11 @@
           "interaction" : [
             {
               "code" : "search-type",
-              "documentation" : "Implemented per the specification"
+              "documentation" : "Implemented per the specification. See http://hl7.org/fhir/DSTU2/http.html"
             },
             {
               "code" : "read",
-              "documentation" : "Implemented per the specification"
+              "documentation" : "Implemented per the specification. See http://hl7.org/fhir/DSTU2/http.html"
             }
           ],
           "searchParam" : [
@@ -218,11 +218,11 @@
           "interaction" : [
             {
               "code" : "search-type",
-              "documentation" : "Implemented per the specification"
+              "documentation" : "Implemented per the specification. See http://hl7.org/fhir/DSTU2/http.html"
             },
             {
               "code" : "read",
-              "documentation" : "Implemented per the specification"
+              "documentation" : "Implemented per the specification. See http://hl7.org/fhir/DSTU2/http.html"
             }
           ],
           "searchParam" : [
@@ -244,11 +244,11 @@
           "interaction" : [
             {
               "code" : "search-type",
-              "documentation" : "Implemented per the specification"
+              "documentation" : "Implemented per the specification. See http://hl7.org/fhir/DSTU2/http.html"
             },
             {
               "code" : "read",
-              "documentation" : "Implemented per the specification"
+              "documentation" : "Implemented per the specification. See http://hl7.org/fhir/DSTU2/http.html"
             }
           ],
           "searchParam" : [
@@ -270,11 +270,11 @@
           "interaction" : [
             {
               "code" : "search-type",
-              "documentation" : "Implemented per the specification"
+              "documentation" : "Implemented per the specification. See http://hl7.org/fhir/DSTU2/http.html"
             },
             {
               "code" : "read",
-              "documentation" : "Implemented per the specification"
+              "documentation" : "Implemented per the specification. See http://hl7.org/fhir/DSTU2/http.html"
             }
           ],
           "searchParam" : [
@@ -300,11 +300,11 @@
           "interaction" : [
             {
               "code" : "search-type",
-              "documentation" : "Implemented per the specification"
+              "documentation" : "Implemented per the specification. See http://hl7.org/fhir/DSTU2/http.html"
             },
             {
               "code" : "read",
-              "documentation" : "Implemented per the specification"
+              "documentation" : "Implemented per the specification. See http://hl7.org/fhir/DSTU2/http.html"
             }
           ],
           "searchParam" : [
@@ -330,11 +330,11 @@
           "interaction" : [
             {
               "code" : "search-type",
-              "documentation" : "Implemented per the specification"
+              "documentation" : "Implemented per the specification. See http://hl7.org/fhir/DSTU2/http.html"
             },
             {
               "code" : "read",
-              "documentation" : "Implemented per the specification"
+              "documentation" : "Implemented per the specification. See http://hl7.org/fhir/DSTU2/http.html"
             }
           ],
           "searchParam" : [
@@ -372,11 +372,11 @@
           "interaction" : [
             {
               "code" : "search-type",
-              "documentation" : "Implemented per the specification"
+              "documentation" : "Implemented per the specification. See http://hl7.org/fhir/DSTU2/http.html"
             },
             {
               "code" : "read",
-              "documentation" : "Implemented per the specification"
+              "documentation" : "Implemented per the specification. See http://hl7.org/fhir/DSTU2/http.html"
             }
           ],
           "searchParam" : [
@@ -398,11 +398,11 @@
           "interaction" : [
             {
               "code" : "search-type",
-              "documentation" : "Implemented per the specification"
+              "documentation" : "Implemented per the specification. See http://hl7.org/fhir/DSTU2/http.html"
             },
             {
               "code" : "read",
-              "documentation" : "Implemented per the specification"
+              "documentation" : "Implemented per the specification. See http://hl7.org/fhir/DSTU2/http.html"
             }
           ],
           "searchParam" : [
@@ -444,11 +444,11 @@
           "interaction" : [
             {
               "code" : "search-type",
-              "documentation" : "Implemented per the specification"
+              "documentation" : "Implemented per the specification. See http://hl7.org/fhir/DSTU2/http.html"
             },
             {
               "code" : "read",
-              "documentation" : "Implemented per the specification"
+              "documentation" : "Implemented per the specification. See http://hl7.org/fhir/DSTU2/http.html"
             }
           ],
           "searchParam" : [
@@ -470,11 +470,11 @@
           "interaction" : [
             {
               "code" : "search-type",
-              "documentation" : "Implemented per the specification"
+              "documentation" : "Implemented per the specification. See http://hl7.org/fhir/DSTU2/http.html"
             },
             {
               "code" : "read",
-              "documentation" : "Implemented per the specification"
+              "documentation" : "Implemented per the specification. See http://hl7.org/fhir/DSTU2/http.html"
             }
           ],
           "searchParam" : [
