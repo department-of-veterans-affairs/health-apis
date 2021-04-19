@@ -14,7 +14,15 @@ public class LocationIT {
   TestIds testIds = DataQueryResourceVerifier.ids();
 
   @Test
-  void advanced() {
+  void read() {
+    verifyAll(
+        // Read
+        test(200, Location.class, "Location/{id}", testIds.location()),
+        test(404, OperationOutcome.class, "Location/{id}", testIds.unknown()));
+  }
+
+  @Test
+  void search() {
     verifyAll(
         // Search by _id
         test(200, Location.Bundle.class, "Location?_id={id}", testIds.location()),
@@ -58,13 +66,5 @@ public class LocationIT {
             Location.Bundle.class,
             "Location?address-postalcode={zip}",
             testIds.locations().addressPostalCode()));
-  }
-
-  @Test
-  void basic() {
-    verifyAll(
-        // Read
-        test(200, Location.class, "Location/{id}", testIds.location()),
-        test(404, OperationOutcome.class, "Location/{id}", testIds.unknown()));
   }
 }

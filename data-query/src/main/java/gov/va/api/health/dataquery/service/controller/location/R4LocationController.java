@@ -54,10 +54,10 @@ public class R4LocationController {
                 .value("_id", "cdwId", witnessProtection::toCdwId)
                 .value("identifier", "cdwId", witnessProtection::toCdwId)
                 .value("name")
-                .value("address")
-                .value("address-city")
-                .value("address-state")
-                .value("address-postalcode")
+                .string("address", "street")
+                .string("address-city", "city")
+                .string("address-state", "state")
+                .string("address-postalcode", "postalCode")
                 .get())
         .defaultQuery(returnNothing())
         .rule(parametersNeverSpecifiedTogether("_id", "identifier"))
@@ -65,13 +65,13 @@ public class R4LocationController {
         .build();
   }
 
-  /** Get resource by id. */
+  /** Read Support. */
   @GetMapping(value = {"/{publicId}"})
   public Location read(@PathVariable("publicId") String publicId) {
     return vulcanizedReader().read(publicId);
   }
 
-  /** Get raw datamart resource by id. */
+  /** Read Raw Datamart Payload Support. */
   @GetMapping(
       value = "/{publicId}",
       headers = {"raw=true"})
