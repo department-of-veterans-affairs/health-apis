@@ -2,7 +2,10 @@ package gov.va.api.health.dataquery.service.controller.location;
 
 import static java.util.Arrays.asList;
 
+import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.FacilityId;
+import gov.va.api.health.ids.api.Registration;
+import gov.va.api.health.ids.api.ResourceIdentity;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -10,6 +13,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
@@ -25,8 +29,38 @@ public class LocationSamples {
 
   public static final String LOCATION_ADDRESS_POSTAL_CODE = "76504";
 
+  public static ResourceIdentity id(String cdwId) {
+    return ResourceIdentity.builder().system("CDW").resource("LOCATION").identifier(cdwId).build();
+  }
+
+  @SneakyThrows
+  static String json(Object o) {
+    return JacksonConfig.createMapper().writerWithDefaultPrettyPrinter().writeValueAsString(o);
+  }
+
+  public static Registration registration(String cdwId, String publicId) {
+    return Registration.builder().uuid(publicId).resourceIdentities(List.of(id(cdwId))).build();
+  }
+
   @AllArgsConstructor(staticName = "create")
   public static final class Datamart {
+
+    public LocationEntity entity(String id) {
+      return LocationEntity.builder()
+          .cdwId(id)
+          .name(LOCATION_NAME)
+          .street(LOCATION_ADDRESS_STREET)
+          .city(LOCATION_ADDRESS_CITY)
+          .state(LOCATION_ADDRESS_STATE)
+          .postalCode(LOCATION_ADDRESS_POSTAL_CODE)
+          .payload(json(location(id)))
+          .build();
+    }
+
+    public DatamartLocation location(String id) {
+      return location(id, "456");
+    }
+
     public DatamartLocation location() {
       return location("123", "456");
     }
