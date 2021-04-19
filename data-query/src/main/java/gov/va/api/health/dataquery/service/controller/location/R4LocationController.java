@@ -72,7 +72,9 @@ public class R4LocationController {
   }
 
   /** Get raw datamart resource by id. */
-  @GetMapping(value = "/{publicId}")
+  @GetMapping(
+      value = "/{publicId}",
+      headers = {"raw=true"})
   public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
     return vulcanizedReader().readRaw(publicId, response);
   }
