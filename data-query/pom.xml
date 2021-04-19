@@ -8,7 +8,7 @@
     <relativePath/>
   </parent>
   <artifactId>data-query</artifactId>
-  <version>3.0.137-SNAPSHOT</version>
+  <version>3.0.144-SNAPSHOT</version>
   <packaging>jar</packaging>
   <properties>
     <datamart-starter.version>2.0.1</datamart-starter.version>
@@ -17,7 +17,8 @@
     <guava.version>29.0-jre</guava.version>
     <health-apis-ids.version>3.0.11</health-apis-ids.version>
     <mssql-jdbc.version>7.4.1.jre8</mssql-jdbc.version>
-    <swagger-maven-plugin.version>2.1.1</swagger-maven-plugin.version>
+    <swagger-maven-plugin.version>2.1.7</swagger-maven-plugin.version>
+    <talos.version>0.0.4</talos.version>
     <vulcan.version>1.0.7</vulcan.version>
   </properties>
   <dependencies>
@@ -25,11 +26,6 @@
       <groupId>gov.va.api.lighthouse</groupId>
       <artifactId>lighthouse-starter-datamart</artifactId>
       <version>${datamart-starter.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>gov.va.api.lighthouse</groupId>
-      <artifactId>vulcan</artifactId>
-      <version>${vulcan.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
@@ -49,11 +45,6 @@
     <dependency>
       <groupId>gov.va.api.health</groupId>
       <artifactId>argonaut-stu3</artifactId>
-      <version>${fhir-resources.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>gov.va.api.health</groupId>
-      <artifactId>us-core-r4</artifactId>
       <version>${fhir-resources.version}</version>
     </dependency>
     <dependency>
@@ -106,6 +97,21 @@
       <artifactId>jaxb-runtime</artifactId>
       <version>2.3.0-b170127.1453</version>
     </dependency>
+    <dependency>
+      <groupId>gov.va.api.lighthouse</groupId>
+      <artifactId>talos</artifactId>
+      <version>${talos.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>gov.va.api.health</groupId>
+      <artifactId>us-core-r4</artifactId>
+      <version>${fhir-resources.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>gov.va.api.lighthouse</groupId>
+      <artifactId>vulcan</artifactId>
+      <version>${vulcan.version}</version>
+    </dependency>
   </dependencies>
   <build>
     <plugins>
@@ -147,29 +153,6 @@
               <outputFormat>JSON</outputFormat>
               <prettyPrint>true</prettyPrint>
             </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <executions>
-          <execution>
-            <phase>compile</phase>
-            <configuration>
-              <target>
-                <!--
-                  Sadness here.
-                  Swagger is ignore @JsonProperty annotations on enums. This big bit of sadness changes generated swagger _ to - in enums.
-                -->
-                <replaceregexp byline="true" file="${project.build.outputDirectory}/dstu2-openapi.json" flags="g" match="([a-z])_([a-z])" replace="\1-\2"/>
-                <replaceregexp byline="true" file="${project.build.outputDirectory}/dstu2-openapi.json" flags="g" match="(,|\[) &quot;_([a-z])" replace="\1 &quot;\2"/>
-                <replaceregexp byline="true" file="${project.build.outputDirectory}/r4-openapi.json" flags="g" match="([a-z])_([a-z])" replace="\1-\2"/>
-                <replaceregexp byline="true" file="${project.build.outputDirectory}/r4-openapi.json" flags="g" match="(,|\[) &quot;_([a-z])" replace="\1 &quot;\2"/>
-              </target>
-            </configuration>
-            <goals>
-              <goal>run</goal>
-            </goals>
           </execution>
         </executions>
       </plugin>

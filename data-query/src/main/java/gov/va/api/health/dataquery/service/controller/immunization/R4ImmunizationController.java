@@ -1,6 +1,5 @@
 package gov.va.api.health.dataquery.service.controller.immunization;
 
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 
 import gov.va.api.health.dataquery.service.controller.CountParameter;
@@ -8,6 +7,7 @@ import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.R4Bundler;
+import gov.va.api.health.dataquery.service.controller.R4Controllers;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.r4.api.resources.Immunization;
@@ -75,7 +75,7 @@ public class R4ImmunizationController {
         Immunization.Bundle::new);
   }
 
-  private Immunization.Bundle bundle(
+  private Immunization.Bundle bundleEntities(
       MultiValueMap<String, String> parameters, int count, Page<ImmunizationEntity> entities) {
     if (count == 0) {
       return bundle(parameters, emptyList(), (int) entities.getTotalElements());
@@ -149,12 +149,7 @@ public class R4ImmunizationController {
             .add("page", page)
             .add("_count", count)
             .build();
-    Immunization resource = read(identifier);
-    int totalRecords = resource == null ? 0 : 1;
-    if (resource == null || page != 1 || count <= 0) {
-      return bundle(parameters, emptyList(), totalRecords);
-    }
-    return bundle(parameters, asList(resource), totalRecords);
+    return R4Controllers.searchById(parameters, this::read, this::bundle);
   }
 
   /** Search by patient. */
@@ -164,8 +159,7 @@ public class R4ImmunizationController {
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
     String icn = witnessProtection.toCdwId(patient);
-    log.info("Looking for {} ({})", patient, icn);
-    return bundle(
+    return bundleEntities(
         Parameters.builder().add("patient", patient).add("page", page).add("_count", count).build(),
         count,
         repository.findByIcn(

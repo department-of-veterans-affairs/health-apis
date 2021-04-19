@@ -45,7 +45,7 @@ public class LatestResourceEtlStatusIT {
                     .request(Method.GET, svc.urlWithApiPath() + path))
             .expectValid(Health.class);
 
-    Instant time = health.details.time;
+    Instant time = health.details().time();
     assertThat(time).isNotNull();
     return time;
   }

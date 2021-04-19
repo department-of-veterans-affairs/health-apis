@@ -1,6 +1,5 @@
 package gov.va.api.health.dataquery.tests.r4;
 
-import static gov.va.api.health.sentinel.EnvironmentAssumptions.assumeEnvironmentIn;
 import static gov.va.api.health.sentinel.EnvironmentAssumptions.assumeEnvironmentNotIn;
 
 import gov.va.api.health.dataquery.tests.DataQueryResourceVerifier;
@@ -18,9 +17,17 @@ public class MedicationRequestIT {
   TestIds testIds = DataQueryResourceVerifier.ids();
 
   @Test
-  public void advanced() {
-    assumeEnvironmentIn(Environment.LOCAL);
-    verifier.verifyAll(
+  public void read() {
+    verifyAll(
+        // MedicationRequest Public Id
+        test(200, MedicationRequest.class, "MedicationRequest/{id}", testIds.medicationOrder()),
+        test(200, MedicationRequest.class, "MedicationRequest/{id}", testIds.medicationStatement()),
+        test(404, OperationOutcome.class, "MedicationRequest/{id}", testIds.unknown()));
+  }
+
+  @Test
+  public void search() {
+    verifyAll(
         test(
             200,
             MedicationRequest.Bundle.class,
@@ -31,7 +38,12 @@ public class MedicationRequestIT {
             MedicationRequest.Bundle.class,
             "MedicationRequest?_id={id}",
             testIds.medicationStatement()),
-        test(404, OperationOutcome.class, "MedicationRequest?_id={id}", testIds.unknown()),
+        test(
+            200,
+            MedicationRequest.Bundle.class,
+            b -> b.entry().isEmpty(),
+            "MedicationRequest?_id={id}",
+            testIds.unknown()),
         test(
             200,
             MedicationRequest.Bundle.class,
@@ -41,12 +53,7 @@ public class MedicationRequestIT {
             200,
             MedicationRequest.Bundle.class,
             "MedicationRequest?identifier={id}",
-            testIds.medicationStatement()));
-  }
-
-  @Test
-  public void basic() {
-    verifier.verifyAll(
+            testIds.medicationStatement()),
         // Patient And Intent
         test(
             200,
@@ -58,10 +65,6 @@ public class MedicationRequestIT {
             MedicationRequest.Bundle.class,
             "MedicationRequest?patient={patient}&intent=plan",
             testIds.patient()),
-        // MedicationRequest Public Id
-        test(200, MedicationRequest.class, "MedicationRequest/{id}", testIds.medicationOrder()),
-        test(200, MedicationRequest.class, "MedicationRequest/{id}", testIds.medicationStatement()),
-        test(404, OperationOutcome.class, "MedicationRequest/{id}", testIds.unknown()),
         // Patient Icn
         test(
             200,

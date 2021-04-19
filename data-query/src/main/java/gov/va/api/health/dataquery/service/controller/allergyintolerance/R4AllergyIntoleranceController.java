@@ -1,6 +1,5 @@
 package gov.va.api.health.dataquery.service.controller.allergyintolerance;
 
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 
 import gov.va.api.health.dataquery.service.controller.CountParameter;
@@ -8,6 +7,7 @@ import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.R4Bundler;
+import gov.va.api.health.dataquery.service.controller.R4Controllers;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.r4.api.resources.AllergyIntolerance;
@@ -126,12 +126,7 @@ public class R4AllergyIntoleranceController {
             .add("page", page)
             .add("_count", count)
             .build();
-    AllergyIntolerance resource = read(identifier);
-    int totalRecords = resource == null ? 0 : 1;
-    if (resource == null || page != 1 || count <= 0) {
-      return bundle(parameters, emptyList(), totalRecords);
-    }
-    return bundle(parameters, asList(resource), totalRecords);
+    return R4Controllers.searchById(parameters, this::read, this::bundle);
   }
 
   /** Search by patient. */
