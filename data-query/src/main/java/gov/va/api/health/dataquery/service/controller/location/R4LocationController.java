@@ -104,7 +104,7 @@ public class R4LocationController {
     return VulcanizedTransformation.toDatamart(LocationEntity::asDatamartLocation)
         .toResource(dm -> R4LocationTransformer.builder().datamart(dm).build().toFhir())
         .witnessProtection(witnessProtection)
-        .replaceReferences(x -> Stream.empty())
+        .replaceReferences(resource -> Stream.of(resource.managingOrganization()))
         .build();
   }
 
@@ -112,7 +112,7 @@ public class R4LocationController {
     return VulcanizedReader.<LocationEntity, DatamartLocation, Location, String>forTransformation(
             transformation())
         .repository(repository)
-        .toPatientId(e -> Optional.of(e.cdwId()))
+        .toPatientId(e -> Optional.empty())
         .toPrimaryKey(Function.identity())
         .toPayload(LocationEntity::payload)
         .build();
