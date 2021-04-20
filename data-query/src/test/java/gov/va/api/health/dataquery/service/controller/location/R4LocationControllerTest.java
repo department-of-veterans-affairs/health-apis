@@ -104,7 +104,8 @@ public class R4LocationControllerTest {
         "?address=1901+VETERANS+MEMORIAL+DRIVE",
         "?address-city=TEMPLE",
         "?address-state=TEXAS",
-        "?address-postalcode=76504"
+        "?address-postalcode=76504",
+        "?address=1901+VETERANS+MEMORIAL+DRIVE&address-state=TEXAS&address-postalcode=76504"
       })
   @SneakyThrows
   void validRequests(String query) {
