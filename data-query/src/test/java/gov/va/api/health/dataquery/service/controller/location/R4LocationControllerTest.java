@@ -1,293 +1,121 @@
 package gov.va.api.health.dataquery.service.controller.location;
 
-import static java.util.Collections.emptyList;
+import static gov.va.api.health.dataquery.service.controller.MockRequests.requestFromUri;
+import static gov.va.api.health.dataquery.service.controller.location.LocationSamples.id;
+import static gov.va.api.health.dataquery.service.controller.location.LocationSamples.json;
+import static gov.va.api.health.dataquery.service.controller.location.LocationSamples.registration;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import gov.va.api.health.autoconfig.configuration.JacksonConfig;
-import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
-import gov.va.api.health.dataquery.service.controller.R4Bundler;
+import gov.va.api.health.dataquery.service.config.LinkProperties;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.ids.api.IdentityService;
-import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
-import gov.va.api.health.r4.api.bundle.BundleLink;
-import gov.va.api.health.r4.api.resources.Location;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.Collection;
+import gov.va.api.lighthouse.vulcan.InvalidRequest;
 import java.util.List;
+import java.util.Optional;
 import javax.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 
-@DataJpaTest
-@ExtendWith(SpringExtension.class)
+@ExtendWith(MockitoExtension.class)
 public class R4LocationControllerTest {
-  private final IdentityService ids = mock(IdentityService.class);
+  @Mock IdentityService ids;
 
-  @Autowired LocationRepository repository;
-
-  @SneakyThrows
-  private static LocationEntity asEntity(DatamartLocation dm) {
-    return LocationEntity.builder()
-        .cdwId(dm.cdwId())
-        .name(dm.name())
-        .street(dm.address().line1())
-        .city(dm.address().city())
-        .state(dm.address().state())
-        .postalCode(dm.address().postalCode())
-        .payload(JacksonConfig.createMapper().writeValueAsString(dm))
-        .build();
-  }
-
-  @SneakyThrows
-  private static String asJson(Object o) {
-    return JacksonConfig.createMapper().writerWithDefaultPrettyPrinter().writeValueAsString(o);
-  }
-
-  @SneakyThrows
-  private DatamartLocation asObject(String json) {
-    return JacksonConfig.createMapper().readValue(json, DatamartLocation.class);
-  }
-
-  private Location.Bundle bundleOf(
-      String queryString, Collection<Location> resources, int page, int count) {
-    return LocationSamples.R4.asBundle(
-        "http://fonzy.com/cool",
-        resources,
-        resources.size(),
-        LocationSamples.R4.link(
-            BundleLink.LinkRelation.first,
-            "http://fonzy.com/cool/Location?" + queryString,
-            page,
-            count),
-        LocationSamples.R4.link(
-            BundleLink.LinkRelation.self,
-            "http://fonzy.com/cool/Location?" + queryString,
-            page,
-            count),
-        LocationSamples.R4.link(
-            BundleLink.LinkRelation.last,
-            "http://fonzy.com/cool/Location?" + queryString,
-            page,
-            count));
-  }
+  @Mock LocationRepository repository;
 
   private R4LocationController controller() {
     return new R4LocationController(
-        new R4Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool", "cool", "cool")),
+        LinkProperties.builder()
+            .publicUrl("http://fonzy.com")
+            .publicR4BasePath("r4")
+            .publicStu3BasePath("stu3")
+            .publicDstu2BasePath("dstu2")
+            .maxPageSize(20)
+            .defaultPageSize(15)
+            .build(),
         repository,
         WitnessProtection.builder().identityService(ids).build());
   }
 
-  private String encode(String value) {
-    return URLEncoder.encode(value, StandardCharsets.UTF_8);
+  @SneakyThrows
+  @ParameterizedTest
+  @ValueSource(strings = {"?_id=321&identifier=123"})
+  void invalidRequest(String query) {
+    var r = requestFromUri("http://fonzy.com/r4/Location" + query);
+    assertThatExceptionOfType(InvalidRequest.class).isThrownBy(() -> controller().search(r));
   }
 
   private void mockLocationIdentity(String publicId, String cdwId) {
-    ResourceIdentity resourceIdentity =
-        ResourceIdentity.builder().system("CDW").resource("LOCATION").identifier(cdwId).build();
+    ResourceIdentity resourceIdentity = id(cdwId);
     when(ids.lookup(publicId)).thenReturn(List.of(resourceIdentity));
-    when(ids.register(any()))
-        .thenReturn(
-            List.of(
-                Registration.builder()
-                    .uuid(publicId)
-                    .resourceIdentities(List.of(resourceIdentity))
-                    .build()));
   }
 
   @Test
   void read() {
-    DatamartLocation dm = LocationSamples.Datamart.create().location();
-    mockLocationIdentity("x", dm.cdwId());
-    repository.save(asEntity(dm));
-    Location actual = controller().read("x");
-    assertThat(actual).isEqualTo(LocationSamples.R4.create().location("x"));
+    when(ids.register(any())).thenReturn(List.of(registration("loc1", "ploc1")));
+    when(ids.lookup("ploc1")).thenReturn(List.of(id("loc1")));
+    var entity = LocationSamples.Datamart.create().entity("ploc1");
+    when(repository.findById("loc1")).thenReturn(Optional.of(entity));
+    assertThat(json(controller().read("ploc1")))
+        .isEqualTo(json(LocationSamples.R4.create().location("ploc1")));
   }
 
   @Test
   void readRaw() {
     HttpServletResponse response = mock(HttpServletResponse.class);
-    DatamartLocation dm = LocationSamples.Datamart.create().location();
-    mockLocationIdentity("x", dm.cdwId());
-    repository.save(asEntity(dm));
-    DatamartLocation actual = asObject(controller().readRaw("x", response));
-    assertThat(actual).isEqualTo(dm);
-    verify(response).addHeader("X-VA-INCLUDES-ICN", "NONE");
+    when(ids.lookup("ploc1")).thenReturn(List.of(id("loc1")));
+    var entity = LocationEntity.builder().cdwId("loc1").payload("payload!").build();
+    when(repository.findById("loc1")).thenReturn(Optional.of(entity));
+    var actual = controller().readRaw("ploc1", response);
+    assertThat(actual).isEqualTo("payload!");
   }
 
   @Test
   void readThrowsNotFoundWhenDataIsMissing() {
-    mockLocationIdentity("x", "24");
-    assertThrows(ResourceExceptions.NotFound.class, () -> controller().read("x"));
+    mockLocationIdentity("ploc1", "24");
+    assertThrows(ResourceExceptions.NotFound.class, () -> controller().read("ploc1"));
   }
 
   @Test
   void readThrowsNotFoundWhenIdIsUnknown() {
-    assertThrows(ResourceExceptions.NotFound.class, () -> controller().read("x"));
+    assertThrows(ResourceExceptions.NotFound.class, () -> controller().read("ploc1"));
   }
 
-  @Test
-  void searchByAddress() {
-    String addressStreet = LocationSamples.LOCATION_ADDRESS_STREET;
-    DatamartLocation dm = LocationSamples.Datamart.create().location();
-    repository.save(asEntity(dm));
-    Location.Bundle actual = controller().searchByAddress(addressStreet, null, null, null, 1, 15);
-    assertThat(asJson(actual))
-        .isEqualTo(
-            asJson(
-                bundleOf(
-                    "address=" + encode(addressStreet),
-                    List.of(LocationSamples.R4.create().location()),
-                    1,
-                    15)));
-  }
-
-  @Test
-  void searchByAddressCity() {
-    String city = LocationSamples.LOCATION_ADDRESS_CITY;
-    DatamartLocation dm = LocationSamples.Datamart.create().location();
-    repository.save(asEntity(dm));
-    Location.Bundle actual = controller().searchByAddress(null, city, null, null, 1, 15);
-    assertThat(asJson(actual))
-        .isEqualTo(
-            asJson(
-                bundleOf(
-                    "address-city=" + city,
-                    List.of(LocationSamples.R4.create().location()),
-                    1,
-                    15)));
-  }
-
-  @Test
-  void searchByAddressPostalCode() {
-    String postalCode = LocationSamples.LOCATION_ADDRESS_POSTAL_CODE;
-    DatamartLocation dm = LocationSamples.Datamart.create().location();
-    repository.save(asEntity(dm));
-    Location.Bundle actual = controller().searchByAddress(null, null, null, postalCode, 1, 15);
-    assertThat(asJson(actual))
-        .isEqualTo(
-            asJson(
-                bundleOf(
-                    "address-postalcode=" + postalCode,
-                    List.of(LocationSamples.R4.create().location()),
-                    1,
-                    15)));
-  }
-
-  @Test
-  void searchByAddressState() {
-    String state = LocationSamples.LOCATION_ADDRESS_STATE;
-    DatamartLocation dm = LocationSamples.Datamart.create().location();
-    repository.save(asEntity(dm));
-    Location.Bundle actual = controller().searchByAddress(null, null, state, null, 1, 15);
-    assertThat(asJson(actual))
-        .isEqualTo(
-            asJson(
-                bundleOf(
-                    "address-state=" + state,
-                    List.of(LocationSamples.R4.create().location()),
-                    1,
-                    15)));
-  }
-
-  @Test
-  void searchByAddressThrowsMissingSearchParametersWhenAllParamsAreNull() {
-    assertThrows(
-        ResourceExceptions.MissingSearchParameters.class,
-        () -> controller().searchByAddress(null, null, null, null, 1, 15));
-  }
-
-  @Test
-  void searchById() {
-    DatamartLocation dm = LocationSamples.Datamart.create().location();
-    mockLocationIdentity("x", dm.cdwId());
-    repository.save(asEntity(dm));
-    Location.Bundle actual = controller().searchById("x", 1, 1);
-    assertThat(asJson(actual))
-        .isEqualTo(
-            asJson(
-                bundleOf(
-                    "identifier=x", List.of(LocationSamples.R4.create().location("x")), 1, 1)));
-  }
-
-  @Test
-  void searchByIdentifier() {
-    DatamartLocation dm = LocationSamples.Datamart.create().location();
-    mockLocationIdentity("x", dm.cdwId());
-    repository.save(asEntity(dm));
-    Location.Bundle actual = controller().searchByIdentifier("x", 1, 1);
-    assertThat(asJson(actual))
-        .isEqualTo(
-            asJson(
-                bundleOf(
-                    "identifier=x", List.of(LocationSamples.R4.create().location("x")), 1, 1)));
-  }
-
-  @Test
-  void searchByIdentifierWithCount0() {
-    DatamartLocation dm = LocationSamples.Datamart.create().location();
-    mockLocationIdentity("x", dm.cdwId());
-    repository.save(asEntity(dm));
-    Location.Bundle actual = controller().searchByIdentifier("x", 1, 0);
-    assertThat(asJson(actual))
-        .isEqualTo(
-            asJson(
-                LocationSamples.R4.asBundle(
-                    "http://fonzy.com/cool",
-                    emptyList(),
-                    1,
-                    LocationSamples.R4.link(
-                        BundleLink.LinkRelation.self,
-                        "http://fonzy.com/cool/Location?identifier=x",
-                        1,
-                        0))));
-  }
-
-  @Test
-  void searchByName() {
-    String name = LocationSamples.LOCATION_NAME;
-    DatamartLocation dm = LocationSamples.Datamart.create().location();
-    repository.save(asEntity(dm));
-    Location.Bundle actual = controller().searchByName(name, 1, 15);
-    assertThat(asJson(actual))
-        .isEqualTo(
-            asJson(
-                bundleOf(
-                    "name=" + encode(name),
-                    List.of(LocationSamples.R4.create().location()),
-                    1,
-                    15)));
-  }
-
-  @Test
-  void searchByNameWithCount0() {
-    String name = LocationSamples.LOCATION_NAME;
-    DatamartLocation dm = LocationSamples.Datamart.create().location();
-    repository.save(asEntity(dm));
-    Location.Bundle actual = controller().searchByName(name, 1, 0);
-    assertThat(asJson(actual))
-        .isEqualTo(
-            asJson(
-                LocationSamples.R4.asBundle(
-                    "http://fonzy.com/cool",
-                    emptyList(),
-                    1,
-                    LocationSamples.R4.link(
-                        BundleLink.LinkRelation.self,
-                        "http://fonzy.com/cool/Location?name=" + encode(name),
-                        1,
-                        0))));
+  @ParameterizedTest
+  @ValueSource(
+      strings = {
+        "?_id=loc1",
+        "?identifier=loc1",
+        "?name=TEM+MH+PSO+TRS+IND93EH",
+        "?address=1901+VETERANS+MEMORIAL+DRIVE",
+        "?address-city=TEMPLE",
+        "?address-state=TEXAS",
+        "?address-postalcode=76504",
+        "?address=1901+VETERANS+MEMORIAL+DRIVE&address-state=TEXAS&address-postalcode=76504"
+      })
+  @SneakyThrows
+  void validRequests(String query) {
+    when(ids.register(any())).thenReturn(List.of(registration("loc1", "ploc1")));
+    var dm = LocationSamples.Datamart.create();
+    when(repository.findAll(any(Specification.class), any(Pageable.class)))
+        .thenAnswer(
+            i -> new PageImpl(List.of(dm.entity("loc1")), i.getArgument(1, Pageable.class), 1));
+    var request = requestFromUri("http://fonzy.com/r4/Location" + query);
+    var actual = controller().search(request);
+    assertThat(actual.entry()).hasSize(1);
   }
 }
