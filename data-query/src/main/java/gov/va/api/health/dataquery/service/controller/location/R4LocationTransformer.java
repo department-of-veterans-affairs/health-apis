@@ -1,22 +1,17 @@
 package gov.va.api.health.dataquery.service.controller.location;
 
-import static gov.va.api.health.dataquery.service.controller.FacilityTransformers.facilityIdentifier;
-import static gov.va.api.health.dataquery.service.controller.FacilityTransformers.fapiClinicId;
 import static gov.va.api.health.dataquery.service.controller.R4Transformers.asReference;
 import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
 import static gov.va.api.health.dataquery.service.controller.Transformers.convert;
 import static gov.va.api.health.dataquery.service.controller.Transformers.emptyToNull;
 import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
-import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
-import gov.va.api.health.dataquery.service.controller.FacilityId;
 import gov.va.api.health.r4.api.datatypes.Address;
 import gov.va.api.health.r4.api.datatypes.CodeableConcept;
 import gov.va.api.health.r4.api.datatypes.Coding;
 import gov.va.api.health.r4.api.datatypes.ContactPoint;
-import gov.va.api.health.r4.api.datatypes.Identifier;
 import gov.va.api.health.r4.api.resources.Location;
 import java.util.List;
 import java.util.Objects;
@@ -50,24 +45,6 @@ public class R4LocationTransformer {
         .build();
   }
 
-  Identifier clinicIdentifier(FacilityId facilityId, String clinicId) {
-    String fapiClinicId = fapiClinicId(facilityId, clinicId);
-    if (isBlank(fapiClinicId)) {
-      return null;
-    }
-    return Identifier.builder()
-        .system("https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-clinic-identifier")
-        .value(fapiClinicId)
-        .build();
-  }
-
-  List<Identifier> identifiers(Optional<FacilityId> maybeFacilityId, Optional<String> maybeIen) {
-    return emptyToNull(
-        asList(
-            facilityIdentifier(maybeFacilityId.orElse(null)),
-            clinicIdentifier(maybeFacilityId.orElse(null), maybeIen.orElse(null))));
-  }
-
   CodeableConcept physicalType(Optional<String> maybePhysicalType) {
     if (isBlank(maybePhysicalType)) {
       return null;
@@ -95,7 +72,7 @@ public class R4LocationTransformer {
   Location toFhir() {
     return Location.builder()
         .id(datamart.cdwId())
-        .identifier(identifiers(datamart.facilityId(), datamart.locationIen()))
+        //        .identifier(identifiers(datamart.facilityId(), datamart.locationIen()))
         .status(status(datamart.status()))
         .name(datamart.name())
         .description(datamart.description().orElse(null))
