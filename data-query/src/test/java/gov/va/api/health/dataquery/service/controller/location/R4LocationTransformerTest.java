@@ -2,10 +2,12 @@ package gov.va.api.health.dataquery.service.controller.location;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import gov.va.api.health.dataquery.service.controller.FacilityId;
 import gov.va.api.health.r4.api.datatypes.Address;
 import gov.va.api.health.r4.api.datatypes.CodeableConcept;
 import gov.va.api.health.r4.api.datatypes.Coding;
 import gov.va.api.health.r4.api.datatypes.ContactPoint;
+import gov.va.api.health.r4.api.datatypes.Identifier;
 import gov.va.api.health.r4.api.resources.Location;
 import java.util.List;
 import java.util.Optional;
@@ -49,6 +51,22 @@ public class R4LocationTransformerTest {
                 .state("y")
                 .postalCode("z")
                 .text("w x y z")
+                .build());
+  }
+
+  @Test
+  void clinicIdentifier() {
+    FacilityId facility =
+        FacilityId.builder().stationNumber("623GB").type(FacilityId.FacilityType.HEALTH).build();
+    String clinic = "3049";
+    assertThat(tx().clinicIdentifier(null, null)).isNull();
+    assertThat(tx().clinicIdentifier(facility, " ")).isNull();
+    assertThat(tx().clinicIdentifier(null, clinic)).isNull();
+    assertThat(tx().clinicIdentifier(facility, clinic))
+        .isEqualTo(
+            Identifier.builder()
+                .system("https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-clinic-identifier")
+                .value("vha_623GB_3049")
                 .build());
   }
 
