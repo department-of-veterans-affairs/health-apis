@@ -1,6 +1,5 @@
 package gov.va.api.health.dataquery.service.controller.location;
 
-import static gov.va.api.health.dataquery.service.controller.FacilityTransformers.facilityIdentifier;
 import static gov.va.api.health.dataquery.service.controller.FacilityTransformers.fapiClinicId;
 import static gov.va.api.health.dataquery.service.controller.R4Transformers.asReference;
 import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
@@ -63,9 +62,7 @@ public class R4LocationTransformer {
 
   List<Identifier> identifiers(Optional<FacilityId> maybeFacilityId, Optional<String> maybeIen) {
     return emptyToNull(
-        asList(
-            facilityIdentifier(maybeFacilityId.orElse(null)),
-            clinicIdentifier(maybeFacilityId.orElse(null), maybeIen.orElse(null))));
+        asList(clinicIdentifier(maybeFacilityId.orElse(null), maybeIen.orElse(null))));
   }
 
   CodeableConcept physicalType(Optional<String> maybePhysicalType) {
