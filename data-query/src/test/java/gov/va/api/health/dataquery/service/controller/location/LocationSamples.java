@@ -235,6 +235,29 @@ public class LocationSamples {
       return gov.va.api.health.r4.api.resources.Location.builder()
           .resourceType("Location")
           .id(id)
+          .identifier(
+              List.of(
+                  gov.va.api.health.r4.api.datatypes.Identifier.builder()
+                      .use(gov.va.api.health.r4.api.datatypes.Identifier.IdentifierUse.usual)
+                      .type(
+                          gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()
+                              .coding(
+                                  List.of(
+                                      gov.va.api.health.r4.api.datatypes.Coding.builder()
+                                          .system("http://terminology.hl7.org/CodeSystem/v2-0203")
+                                          .code("FI")
+                                          .display("Facility ID")
+                                          .build()))
+                              .build())
+                      .system(
+                          "https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-identifier")
+                      .value("vha_623GB")
+                      .build(),
+                  gov.va.api.health.r4.api.datatypes.Identifier.builder()
+                      .system(
+                          "https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-clinic-identifier")
+                      .value("vha_623GB_3049")
+                      .build()))
           .address(
               gov.va.api.health.r4.api.datatypes.Address.builder()
                   .line(asList(LOCATION_ADDRESS_STREET))
