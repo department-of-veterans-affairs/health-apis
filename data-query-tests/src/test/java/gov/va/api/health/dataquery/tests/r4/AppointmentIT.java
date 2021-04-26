@@ -16,7 +16,6 @@ import gov.va.api.health.r4.api.resources.OperationOutcome;
 import gov.va.api.health.sentinel.AccessTokens;
 import gov.va.api.health.sentinel.Environment;
 import java.time.Year;
-import java.util.List;
 import lombok.experimental.Delegate;
 import org.junit.jupiter.api.Test;
 
