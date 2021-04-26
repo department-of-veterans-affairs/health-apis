@@ -110,7 +110,7 @@ public class AppointmentIT {
   @Test
   void oauthFlow() {
     assumeEnvironmentIn(Environment.STAGING_LAB, Environment.LAB);
-    String token = AccessTokens.get().forSystemScopes(List.of("system/Appointment.read"));
+    String token = AccessTokens.get().forSystemScopes("system/Appointment.read");
     var sd = SystemDefinitions.systemDefinition().r4DataQuery();
     // Valid Token
     Oauth.test(
