@@ -10,7 +10,7 @@ public class DataQueryScopes {
   public static List<String> labResources() {
     return Arrays.asList(
         "patient/AllergyIntolerance.read",
-        "system/Appointment.read",
+        "patient/Appointment.read",
         "patient/Condition.read",
         "patient/Device.read",
         "patient/DiagnosticReport.read",
