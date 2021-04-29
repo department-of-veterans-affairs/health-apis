@@ -125,13 +125,13 @@ public final class SystemDefinitions {
 
   private static TestIds.Organizations localAndLabOrganizations() {
     return TestIds.Organizations.builder()
-        .addressStreet("10 MONROE AVE, SUITE 6B PO BOX 4160")
-        .addressCity("NEW AMSTERDAM")
-        .addressState("OH")
-        .addressPostalCode("44444-4160")
+        .addressStreet("2360 E PERSHING BLVD")
+        .addressCity("CHEYENNE")
+        .addressState("WY")
+        .addressPostalCode("82001-5356")
         .facilityId("vha_442")
-        .name("NEW AMSTERDAM CBOC")
-        .npi("http://hl7.org/fhir/sid/us-npi|1205983228")
+        .name("CHEYENNE VA MEDICAL")
+        .npi("http://hl7.org/fhir/sid/us-npi|1164471991")
         .build();
   }
 
