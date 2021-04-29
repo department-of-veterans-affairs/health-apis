@@ -81,6 +81,9 @@ public final class TestIds {
     @NonNull String addressCity;
     @NonNull String addressState;
     @NonNull String addressPostalCode;
+    @NonNull String faciltyType;
+    @NonNull String locationIen;
+    @NonNull String stationNumber;
   }
 
   @Value

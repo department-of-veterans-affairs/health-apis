@@ -2,18 +2,23 @@ package gov.va.api.health.dataquery.service.controller.location;
 
 import static gov.va.api.lighthouse.vulcan.Rules.forbidUnknownParameters;
 import static gov.va.api.lighthouse.vulcan.Rules.parametersNeverSpecifiedTogether;
+import static gov.va.api.lighthouse.vulcan.Specifications.select;
 import static gov.va.api.lighthouse.vulcan.Vulcan.returnNothing;
 
 import gov.va.api.health.dataquery.service.config.LinkProperties;
+import gov.va.api.health.dataquery.service.controller.FacilityId;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.Bundling;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedBundler;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedReader;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedTransformation;
 import gov.va.api.health.r4.api.resources.Location;
+import gov.va.api.lighthouse.vulcan.CircuitBreaker;
+import gov.va.api.lighthouse.vulcan.Specifications;
 import gov.va.api.lighthouse.vulcan.Vulcan;
 import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
 import gov.va.api.lighthouse.vulcan.mappings.Mappings;
+import gov.va.api.lighthouse.vulcan.mappings.TokenParameter;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -21,6 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -40,6 +46,9 @@ import org.springframework.web.bind.annotation.RestController;
 @AllArgsConstructor(onConstructor = @__({@Autowired}))
 public class R4LocationController {
 
+  private static final String CAPI_IDENTIFIER_SYSTEM =
+      "https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-clinic-identifier";
+
   private final LinkProperties linkProperties;
 
   private LocationRepository repository;
@@ -52,7 +61,10 @@ public class R4LocationController {
         .mappings(
             Mappings.forEntity(LocationEntity.class)
                 .value("_id", "cdwId", witnessProtection::toCdwId)
-                .value("identifier", "cdwId", witnessProtection::toCdwId)
+                .tokens(
+                    "identifier",
+                    this::tokenIdentifierIsSupported,
+                    this::tokenIdentifierSpecification)
                 .value("name")
                 .string("address", "street")
                 .string("address-city", "city")
@@ -89,6 +101,18 @@ public class R4LocationController {
         .map(toBundle());
   }
 
+  private Specification<LocationEntity> selectFacilityId(String maybeClinicId) {
+    try {
+      var locationIen = maybeClinicId.substring(maybeClinicId.lastIndexOf("_") + 1);
+      var facilityId = FacilityId.from(maybeClinicId.substring(0, maybeClinicId.lastIndexOf("_")));
+      return Specifications.<LocationEntity>select("facilityType", facilityId.type().toString())
+          .and(select("stationNumber", facilityId.stationNumber()))
+          .and(select("locationIen", locationIen));
+    } catch (IllegalArgumentException e) {
+      return null;
+    }
+  }
+
   VulcanizedBundler<LocationEntity, DatamartLocation, Location, Location.Entry, Location.Bundle>
       toBundle() {
     return VulcanizedBundler.forTransformation(transformation())
@@ -98,6 +122,30 @@ public class R4LocationController {
                 .linkProperties(linkProperties)
                 .build())
         .build();
+  }
+
+  private boolean tokenIdentifierIsSupported(TokenParameter token) {
+    return (token.hasSupportedSystem(CAPI_IDENTIFIER_SYSTEM) && token.hasExplicitCode())
+        || token.hasAnySystem();
+  }
+
+  private Specification<LocationEntity> tokenIdentifierSpecification(TokenParameter token) {
+    return token
+        .behavior()
+        .onExplicitSystemAndExplicitCode(
+            (system, code) -> {
+              var facilityId = selectFacilityId(code);
+              if (facilityId == null) {
+                throw CircuitBreaker.noResultsWillBeFound("identifier", code, "Invalid facilityId");
+              }
+              return facilityId;
+            })
+        .onAnySystemAndExplicitCode(
+            code ->
+                Specifications.<LocationEntity>select("cdwId", witnessProtection.toCdwId(code))
+                    .or(selectFacilityId(code)))
+        .build()
+        .execute();
   }
 
   VulcanizedTransformation<LocationEntity, DatamartLocation, Location> transformation() {

@@ -37,6 +37,21 @@ public class LocationIT {
         test(
             200,
             Location.Bundle.class,
+            "Location?identifier={type}_{number}_{ien}",
+            testIds.locations().faciltyType(),
+            testIds.locations().stationNumber(),
+            testIds.locations().locationIen()),
+        test(
+            200,
+            Location.Bundle.class,
+            b -> b.entry().isEmpty(),
+            "Location?identifier={type}_{number}_{ien}",
+            testIds.locations().faciltyType(),
+            testIds.locations().stationNumber(),
+            "1234"),
+        test(
+            200,
+            Location.Bundle.class,
             b -> b.entry().isEmpty(),
             "Location?identifier={id}",
             testIds.unknown()),

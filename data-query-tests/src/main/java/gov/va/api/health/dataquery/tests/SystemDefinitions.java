@@ -120,6 +120,9 @@ public final class SystemDefinitions {
         .addressCity("LYONS")
         .addressState("NJ")
         .addressPostalCode("07939")
+        .faciltyType("vha")
+        .locationIen("3485")
+        .stationNumber("688")
         .build();
   }
 
