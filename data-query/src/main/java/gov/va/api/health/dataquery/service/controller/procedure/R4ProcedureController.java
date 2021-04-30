@@ -52,7 +52,7 @@ public class R4ProcedureController {
         .paging(linkProperties.pagingConfiguration("Procedure", ProcedureEntity.naturalOrder()))
         .mappings(
             Mappings.forEntity(ProcedureEntity.class)
-                .dateAsInstant("date", "dateUtc")
+                .dateAsInstant("date", "performedOnEpochTime")
                 .value("_id", "cdwId", witnessProtection::toCdwId)
                 .value("identifier", "cdwId", witnessProtection::toCdwId)
                 .value("patient", "icn")
