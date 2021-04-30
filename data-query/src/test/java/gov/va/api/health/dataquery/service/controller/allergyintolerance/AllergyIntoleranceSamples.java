@@ -2,6 +2,9 @@ package gov.va.api.health.dataquery.service.controller.allergyintolerance;
 
 import static java.util.Arrays.asList;
 
+import gov.va.api.health.autoconfig.configuration.JacksonConfig;
+import gov.va.api.health.ids.api.Registration;
+import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.lighthouse.datamart.DatamartCoding;
 import gov.va.api.lighthouse.datamart.DatamartReference;
 import java.time.Instant;
@@ -11,14 +14,36 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class AllergyIntoleranceSamples {
+  public static ResourceIdentity id(String cdwId) {
+    return ResourceIdentity.builder()
+        .system("CDW")
+        .resource("ALLERGY_INTOLERANCE")
+        .identifier(cdwId)
+        .build();
+  }
+
+  @SneakyThrows
+  public static String json(Object obj) {
+    return JacksonConfig.createMapper().writerWithDefaultPrettyPrinter().writeValueAsString(obj);
+  }
+
+  public static Registration registration(String cdwId, String publicId) {
+    return Registration.builder().uuid(publicId).resourceIdentities(List.of(id(cdwId))).build();
+  }
+
   @AllArgsConstructor(staticName = "create")
   public static class Datamart {
+    public DatamartAllergyIntolerance allergyIntolerance(String cdwId, String patient) {
+      return allergyIntolerance(cdwId, patient, "1234", "12345");
+    }
+
     public DatamartAllergyIntolerance allergyIntolerance() {
-      return allergyIntolerance("800001608621", "666V666", "1234", "12345");
+      return allergyIntolerance("800001608621", "666V666");
     }
 
     public DatamartAllergyIntolerance allergyIntolerance(
@@ -58,6 +83,19 @@ public class AllergyIntoleranceSamples {
 
     public Optional<DatamartAllergyIntolerance.Substance> emptySubstance() {
       return Optional.of(DatamartAllergyIntolerance.Substance.builder().build());
+    }
+
+    @SneakyThrows
+    public AllergyIntoleranceEntity entity(DatamartAllergyIntolerance dm) {
+      return AllergyIntoleranceEntity.builder()
+          .cdwId(dm.cdwId())
+          .icn(dm.patient().reference().get())
+          .payload(JacksonConfig.createMapper().writeValueAsString(dm))
+          .build();
+    }
+
+    public AllergyIntoleranceEntity entity(String cdwId, String patient) {
+      return entity(allergyIntolerance(cdwId, patient));
     }
 
     public Optional<DatamartAllergyIntolerance.Substance> fullyPopulatedSubstance() {
@@ -317,8 +355,13 @@ public class AllergyIntoleranceSamples {
           .build();
     }
 
+    public gov.va.api.health.r4.api.resources.AllergyIntolerance allergyIntolerance(
+        String publicId, String patientIcn) {
+      return allergyIntolerance(publicId, patientIcn, "1234", "12345");
+    }
+
     public gov.va.api.health.r4.api.resources.AllergyIntolerance allergyIntolerance() {
-      return allergyIntolerance("800001608621", "666V666", "1234", "12345");
+      return allergyIntolerance("800001608621", "666V666");
     }
 
     public gov.va.api.health.r4.api.resources.AllergyIntolerance allergyIntolerance(

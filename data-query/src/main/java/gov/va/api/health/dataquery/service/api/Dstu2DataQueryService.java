@@ -60,7 +60,10 @@ import javax.ws.rs.Path;
     servers = {
       @Server(
           url = "https://sandbox-api.va.gov/services/fhir/v0/argonaut/data-query/",
-          description = "Sandbox")
+          description = "Sandbox"),
+      @Server(
+          url = "https://api.va.gov/services/fhir/v0/argonaut/data-query/",
+          description = "Production")
     },
     externalDocs =
         @ExternalDocumentation(
