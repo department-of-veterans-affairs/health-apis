@@ -105,6 +105,11 @@ public class R4LocationController {
     try {
       var locationIen = maybeClinicId.substring(maybeClinicId.lastIndexOf("_") + 1);
       var facilityId = FacilityId.from(maybeClinicId.substring(0, maybeClinicId.lastIndexOf("_")));
+      if (locationIen == null
+          || facilityId == null
+          || (facilityId.type() == null || facilityId.stationNumber() == null)) {
+        throw new IllegalArgumentException();
+      }
       return Specifications.<LocationEntity>select("facilityType", facilityId.type().toString())
           .and(select("stationNumber", facilityId.stationNumber()))
           .and(select("locationIen", locationIen));

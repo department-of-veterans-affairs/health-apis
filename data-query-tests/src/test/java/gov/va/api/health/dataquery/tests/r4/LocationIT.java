@@ -33,7 +33,6 @@ public class LocationIT {
             "Location?_id={id}",
             testIds.unknown()),
         // Search by identifier
-        test(200, Location.Bundle.class, "Location?identifier={id}", testIds.location()),
         test(
             200,
             Location.Bundle.class,
@@ -49,12 +48,6 @@ public class LocationIT {
             testIds.locations().faciltyType(),
             testIds.locations().stationNumber(),
             "1234"),
-        test(
-            200,
-            Location.Bundle.class,
-            b -> b.entry().isEmpty(),
-            "Location?identifier={id}",
-            testIds.unknown()),
         // Search by name
         test(200, Location.Bundle.class, "Location?name={name}", testIds.locations().name()),
         // Search by address
