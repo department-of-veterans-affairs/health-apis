@@ -1,41 +1,31 @@
 package gov.va.api.health.dataquery.service.controller.procedure;
 
-import static java.util.Collections.emptyList;
+import static gov.va.api.lighthouse.vulcan.Rules.ifParameter;
+import static gov.va.api.lighthouse.vulcan.Rules.parametersNeverSpecifiedTogether;
+import static gov.va.api.lighthouse.vulcan.Vulcan.returnNothing;
 
-import gov.va.api.health.dataquery.service.controller.CountParameter;
-import gov.va.api.health.dataquery.service.controller.DateTimeParameter;
-import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
-import gov.va.api.health.dataquery.service.controller.PageLinks;
-import gov.va.api.health.dataquery.service.controller.Parameters;
-import gov.va.api.health.dataquery.service.controller.R4Bundler;
-import gov.va.api.health.dataquery.service.controller.R4Controllers;
-import gov.va.api.health.dataquery.service.controller.ResourceExceptions.NotFound;
+import gov.va.api.health.dataquery.service.config.LinkProperties;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
-import gov.va.api.health.dataquery.service.controller.procedure.ProcedureRepository.PatientAndDateSpecification;
+import gov.va.api.health.dataquery.service.controller.vulcanizer.Bundling;
+import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedBundler;
+import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedReader;
+import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedTransformation;
 import gov.va.api.health.r4.api.resources.Procedure;
-import gov.va.api.health.r4.api.resources.Procedure.Bundle;
-import java.util.Collection;
-import java.util.List;
+import gov.va.api.lighthouse.vulcan.Vulcan;
+import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
+import gov.va.api.lighthouse.vulcan.mappings.Mappings;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.function.Function;
 import java.util.stream.Stream;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -43,7 +33,6 @@ import org.springframework.web.bind.annotation.RestController;
  * https://build.fhir.org/ig/HL7/US-Core-R4/StructureDefinition-us-core-procedure.html for
  * implementation details.
  */
-@Slf4j
 @Builder
 @Validated
 @RestController
@@ -52,134 +41,83 @@ import org.springframework.web.bind.annotation.RestController;
     value = {"/r4/Procedure"},
     produces = {"application/json", "application/fhir+json"})
 public class R4ProcedureController {
+  private final LinkProperties linkProperties;
 
-  private R4Bundler bundler;
+  private final ProcedureRepository repository;
 
-  private ProcedureRepository repository;
+  private final WitnessProtection witnessProtection;
 
-  private WitnessProtection witnessProtection;
-
-  private Bundle bundle(
-      MultiValueMap<String, String> parameters, List<Procedure> reports, int totalRecords) {
-    log.info("Search {} found {} results", parameters, totalRecords);
-    return bundler.bundle(
-        PageLinks.LinkConfig.builder()
-            .path("Procedure")
-            .queryParams(parameters)
-            .page(Parameters.pageOf(parameters))
-            .recordsPerPage(Parameters.countOf(parameters))
-            .totalRecords(totalRecords)
-            .build(),
-        reports,
-        Procedure.Entry::new,
-        Procedure.Bundle::new);
-  }
-
-  ProcedureEntity findById(String publicId) {
-    Optional<ProcedureEntity> entity = repository.findById(witnessProtection.toCdwId(publicId));
-    return entity.orElseThrow(() -> new NotFound(publicId));
+  private VulcanConfiguration<ProcedureEntity> configuration() {
+    return VulcanConfiguration.forEntity(ProcedureEntity.class)
+        .paging(linkProperties.pagingConfiguration("Procedure", ProcedureEntity.naturalOrder()))
+        .mappings(
+            Mappings.forEntity(ProcedureEntity.class)
+                .dateAsInstant("date", "dateUtc")
+                .value("_id", "cdwId", witnessProtection::toCdwId)
+                .value("identifier", "cdwId", witnessProtection::toCdwId)
+                .value("patient", "icn")
+                .get())
+        .rule(parametersNeverSpecifiedTogether("_id", "identifier", "patient"))
+        .rule(ifParameter("date").thenAlsoAtLeastOneParameterOf("patient"))
+        .defaultQuery(returnNothing())
+        .build();
   }
 
   /** Read by id. */
   @GetMapping(value = {"/{publicId}"})
-  public Procedure read(
-      @PathVariable("publicId") String publicId,
-      @RequestHeader(value = "X-VA-ICN", required = false) String icnHeader) {
-    DatamartProcedure procedure = findById(publicId).asDatamartProcedure();
-    replaceReferences(List.of(procedure));
-    Procedure fhir = transform(procedure);
-    return fhir;
+  public Procedure read(@PathVariable("publicId") String publicId) {
+    return reader().read(publicId);
   }
 
-  /** Return the raw Datamart document for the given identifier. */
+  /** Read Raw Datamart Payload Support. */
   @GetMapping(
       value = {"/{publicId}"},
       headers = {"raw=true"})
-  public String readRaw(
-      @PathVariable("publicId") String publicId,
-      @RequestHeader(value = "X-VA-ICN", required = false) String icnHeader,
-      HttpServletResponse response) {
-    ProcedureEntity entity = findById(publicId);
-    IncludesIcnMajig.addHeader(response, IncludesIcnMajig.encodeHeaderValue(entity.icn()));
-    return entity.payload();
+  public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
+    return reader().readRaw(publicId, response);
   }
 
-  Collection<DatamartProcedure> replaceReferences(Collection<DatamartProcedure> resources) {
-    witnessProtection.registerAndUpdateReferences(
-        resources, resource -> Stream.of(resource.patient(), resource.location().orElse(null)));
-    return resources;
+  VulcanizedReader<ProcedureEntity, DatamartProcedure, Procedure, String> reader() {
+    return VulcanizedReader
+        .<ProcedureEntity, DatamartProcedure, Procedure, String>forTransformation(transformation())
+        .repository(repository)
+        .toPatientId(e -> Optional.empty())
+        .toPrimaryKey(Function.identity())
+        .toPayload(ProcedureEntity::payload)
+        .build();
   }
 
-  /** Search by _id. */
-  @GetMapping(params = {"_id"})
-  public Procedure.Bundle searchById(
-      @RequestHeader(value = "X-VA-ICN", required = false) String icnHeader,
-      @RequestParam("_id") String publicId,
-      @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
-      @CountParameter @Min(0) int count) {
-    MultiValueMap<String, String> parameters =
-        Parameters.builder()
-            .add("identifier", publicId)
-            .add("page", page)
-            .add("_count", count)
-            .build();
-    return R4Controllers.searchById(parameters, id -> read(id, icnHeader), this::bundle);
+  /** Search Support. */
+  @GetMapping
+  public Procedure.Bundle search(HttpServletRequest request) {
+    return Vulcan.forRepo(repository)
+        .config(configuration())
+        .build()
+        .search(request)
+        .map(toBundle());
   }
 
-  /** Search by Identifier. */
-  @GetMapping(params = {"identifier"})
-  public Procedure.Bundle searchByIdentifier(
-      @RequestHeader(value = "X-VA-ICN", required = false) String icnHeader,
-      @RequestParam("identifier") String id,
-      @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
-      @CountParameter @Min(0) int count) {
-    return searchById(icnHeader, id, page, count);
+  VulcanizedBundler<
+          ProcedureEntity, DatamartProcedure, Procedure, Procedure.Entry, Procedure.Bundle>
+      toBundle() {
+    return VulcanizedBundler.forTransformation(transformation())
+        .bundling(
+            Bundling.newBundle(Procedure.Bundle::new)
+                .newEntry(Procedure.Entry::new)
+                .linkProperties(linkProperties)
+                .build())
+        .build();
   }
 
-  /** Search by patient and date if provided. */
-  @GetMapping(params = {"patient"})
-  public Procedure.Bundle searchByPatientAndDate(
-      @RequestParam("patient") String patient,
-      @RequestParam(value = "date", required = false) @Valid @DateTimeParameter @Size(max = 2)
-          String[] date,
-      @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
-      @CountParameter @Min(0) int count) {
-    String icn = witnessProtection.toCdwId(patient);
-    PatientAndDateSpecification spec =
-        PatientAndDateSpecification.builder().patient(icn).dates(date).build();
-    log.info("Looking for {} ({}) {}", patient, icn, spec);
-    Page<ProcedureEntity> pageOfProcedures =
-        repository.findAll(
-            spec, PageRequest.of(page - 1, count == 0 ? 1 : count, ProcedureEntity.naturalOrder()));
-    Bundle bundle;
-    MultiValueMap<String, String> parameters =
-        Parameters.builder()
-            .add("patient", patient)
-            .addAll("date", date)
-            .add("page", page)
-            .add("_count", count)
-            .build();
-    log.info("Search {} found {} results", parameters, pageOfProcedures.getTotalElements());
-    if (count == 0) {
-      bundle = bundle(parameters, emptyList(), (int) pageOfProcedures.getTotalElements());
-    } else {
-      bundle =
-          bundle(
-              parameters,
-              replaceReferences(
-                      pageOfProcedures
-                          .get()
-                          .map(ProcedureEntity::asDatamartProcedure)
-                          .collect(Collectors.toList()))
-                  .stream()
-                  .map(this::transform)
-                  .collect(Collectors.toList()),
-              (int) pageOfProcedures.getTotalElements());
-    }
-    return bundle;
-  }
-
-  Procedure transform(DatamartProcedure dm) {
-    return R4ProcedureTransformer.builder().datamart(dm).build().toFhir();
+  VulcanizedTransformation<ProcedureEntity, DatamartProcedure, Procedure> transformation() {
+    return VulcanizedTransformation.toDatamart(ProcedureEntity::asDatamartProcedure)
+        .toResource(dm -> R4ProcedureTransformer.builder().datamart(dm).build().toFhir())
+        .witnessProtection(witnessProtection)
+        .replaceReferences(
+            resource ->
+                Stream.concat(
+                    Stream.of(resource.patient(), resource.location().orElse(null)),
+                    resource.encounter().stream()))
+        .build();
   }
 }
