@@ -57,7 +57,7 @@ public class LatestResourceEtlStatusController {
 
   ResponseEntity<Health> resourceStatusHealth(Instant now) {
     hasCachedResourceStatus.set(true);
-    Instant tooLongAgo = now.minus(36, ChronoUnit.HOURS);
+    Instant tooLongAgo = now.minus(28, ChronoUnit.HOURS);
     Iterable<LatestResourceEtlStatusEntity> entities = repository.findAll();
     List<Health> statusDetails =
         Streams.stream(entities).map(e -> toHealth(e, tooLongAgo)).collect(Collectors.toList());
