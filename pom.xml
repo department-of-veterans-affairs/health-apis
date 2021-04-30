@@ -7,7 +7,7 @@
     <version>7.0.24</version>
   </parent>
   <artifactId>data-query-parent</artifactId>
-  <version>3.0.153</version>
+  <version>3.0.154-SNAPSHOT</version>
   <packaging>pom</packaging>
   <modules>
     <module>data-query-ids-mapping</module>
