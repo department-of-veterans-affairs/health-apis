@@ -11,8 +11,10 @@ import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedBundl
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedReader;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedTransformation;
 import gov.va.api.health.r4.api.resources.Procedure;
+import gov.va.api.lighthouse.vulcan.InvalidRequest;
 import gov.va.api.lighthouse.vulcan.Vulcan;
 import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
+import gov.va.api.lighthouse.vulcan.mappings.DateMapping;
 import gov.va.api.lighthouse.vulcan.mappings.Mappings;
 import java.util.Optional;
 import java.util.function.Function;
@@ -52,7 +54,50 @@ public class R4ProcedureController {
         .paging(linkProperties.pagingConfiguration("Procedure", ProcedureEntity.naturalOrder()))
         .mappings(
             Mappings.forEntity(ProcedureEntity.class)
-                .dateAsInstant("date", "performedOnEpochTime")
+                .date(
+                    "date",
+                    "performedOnEpochTime",
+                    (DateMapping.PredicateFactory<Long>)
+                        (date, field, criteriaBuilder) -> {
+                          final DateMapping.DateApproximation approximation =
+                              DateMapping.defaultGraduatedApproximation();
+                          switch (date.operator()) {
+                            case EQ:
+                              return criteriaBuilder.and(
+                                  criteriaBuilder.greaterThanOrEqualTo(
+                                      field, date.upperBound().toEpochMilli()),
+                                  criteriaBuilder.lessThanOrEqualTo(
+                                      field, date.upperBound().toEpochMilli()));
+                            case NE:
+                              return criteriaBuilder.or(
+                                  criteriaBuilder.lessThan(field, date.lowerBound().toEpochMilli()),
+                                  criteriaBuilder.greaterThan(
+                                      field, date.upperBound().toEpochMilli()));
+                            case GT:
+                            case SA:
+                              return criteriaBuilder.greaterThan(
+                                  field, date.upperBound().toEpochMilli());
+                            case LT:
+                            case EB:
+                              return criteriaBuilder.lessThan(
+                                  field, date.lowerBound().toEpochMilli());
+                            case GE:
+                              return criteriaBuilder.greaterThanOrEqualTo(
+                                  field, date.lowerBound().toEpochMilli());
+                            case LE:
+                              return criteriaBuilder.lessThanOrEqualTo(
+                                  field, date.upperBound().toEpochMilli());
+                            case AP:
+                              return criteriaBuilder.and(
+                                  criteriaBuilder.greaterThanOrEqualTo(
+                                      field, approximation.expandLowerBound(date).toEpochMilli()),
+                                  criteriaBuilder.lessThanOrEqualTo(
+                                      field, approximation.expandUpperBound(date).toEpochMilli()));
+                            default:
+                              throw new InvalidRequest(
+                                  "Unknown date search operator: " + date.operator());
+                          }
+                        })
                 .value("_id", "cdwId", witnessProtection::toCdwId)
                 .value("identifier", "cdwId", witnessProtection::toCdwId)
                 .value("patient", "icn")
