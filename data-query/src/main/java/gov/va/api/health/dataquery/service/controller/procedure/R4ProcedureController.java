@@ -81,7 +81,7 @@ public class R4ProcedureController {
     return VulcanizedReader
         .<ProcedureEntity, DatamartProcedure, Procedure, String>forTransformation(transformation())
         .repository(repository)
-        .toPatientId(e -> Optional.empty())
+        .toPatientId(e -> Optional.of(e.icn()))
         .toPrimaryKey(Function.identity())
         .toPayload(ProcedureEntity::payload)
         .build();
