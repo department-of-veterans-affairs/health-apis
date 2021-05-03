@@ -121,6 +121,9 @@ public final class SystemDefinitions {
         .addressState("NJ")
         .addressPostalCode("07939")
         .clinicIdentifier("vha_688_3485")
+        .fullClinicIdentifier(
+            "https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-clinic-identifier|vha_688_3485")
+        .unknownClinicIdentifier("vha_123_4567")
         .build();
   }
 
@@ -279,6 +282,9 @@ public final class SystemDefinitions {
         .addressState("FL")
         .addressStreet("13000 BRUCE B DOWNS BLVD")
         .clinicIdentifier("vha_688_3485")
+        .fullClinicIdentifier(
+            "https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-clinic-identifier|vha_688_3485")
+        .unknownClinicIdentifier("vha_123_4567")
         .build();
   }
 

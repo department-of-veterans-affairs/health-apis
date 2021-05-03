@@ -43,14 +43,21 @@ public class LocationIT {
         test(
             200,
             Location.Bundle.class,
+            b -> !b.entry().isEmpty(),
             "Location?identifier={identifier}",
             testIds.locations().clinicIdentifier()),
         test(
             200,
             Location.Bundle.class,
+            b -> !b.entry().isEmpty(),
+            "Location?identifier={identifier}",
+            testIds.locations().fullClinicIdentifier()),
+        test(
+            200,
+            Location.Bundle.class,
             b -> b.entry().isEmpty(),
             "Location?identifier={identifier}",
-            "vha_123_4567"),
+            testIds.locations().unknownClinicIdentifier()),
         // Search by name
         test(200, Location.Bundle.class, "Location?name={name}", testIds.locations().name()),
         // Search by address

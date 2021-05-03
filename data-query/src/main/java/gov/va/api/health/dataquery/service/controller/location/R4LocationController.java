@@ -43,10 +43,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(
     value = {"/r4/Location"},
     produces = {"application/json", "application/fhir+json"})
-@AllArgsConstructor(onConstructor = @__({@Autowired}))
+@AllArgsConstructor(onConstructor_ = @Autowired)
 public class R4LocationController {
 
-  private static final String CAPI_IDENTIFIER_SYSTEM =
+  private static final String FAPI_CLINIC_IDENTIFIER_SYSTEM =
       "https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-clinic-identifier";
 
   private final LinkProperties linkProperties;
@@ -132,7 +132,7 @@ public class R4LocationController {
   }
 
   private boolean tokenIdentifierIsSupported(TokenParameter token) {
-    return (token.hasSupportedSystem(CAPI_IDENTIFIER_SYSTEM) && token.hasExplicitCode())
+    return (token.hasSupportedSystem(FAPI_CLINIC_IDENTIFIER_SYSTEM) && token.hasExplicitCode())
         || token.hasAnySystem();
   }
 
