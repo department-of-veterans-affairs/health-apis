@@ -120,9 +120,7 @@ public final class SystemDefinitions {
         .addressCity("LYONS")
         .addressState("NJ")
         .addressPostalCode("07939")
-        .faciltyType("vha")
-        .locationIen("3485")
-        .stationNumber("688")
+        .clinicIdentifier("vha_688_3485")
         .build();
   }
 
@@ -280,6 +278,7 @@ public final class SystemDefinitions {
         .addressPostalCode("33612-4745")
         .addressState("FL")
         .addressStreet("13000 BRUCE B DOWNS BLVD")
+        .clinicIdentifier("vha_688_3485")
         .build();
   }
 

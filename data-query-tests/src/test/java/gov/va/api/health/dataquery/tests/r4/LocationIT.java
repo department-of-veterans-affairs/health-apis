@@ -33,21 +33,24 @@ public class LocationIT {
             "Location?_id={id}",
             testIds.unknown()),
         // Search by identifier
-        test(
-            200,
-            Location.Bundle.class,
-            "Location?identifier={type}_{number}_{ien}",
-            testIds.locations().faciltyType(),
-            testIds.locations().stationNumber(),
-            testIds.locations().locationIen()),
+        test(200, Location.Bundle.class, "Location?identifier={id}", testIds.location()),
         test(
             200,
             Location.Bundle.class,
             b -> b.entry().isEmpty(),
-            "Location?identifier={type}_{number}_{ien}",
-            testIds.locations().faciltyType(),
-            testIds.locations().stationNumber(),
-            "1234"),
+            "Location?identifier={id}",
+            testIds.unknown()),
+        test(
+            200,
+            Location.Bundle.class,
+            "Location?identifier={identifier}",
+            testIds.locations().clinicIdentifier()),
+        test(
+            200,
+            Location.Bundle.class,
+            b -> b.entry().isEmpty(),
+            "Location?identifier={identifier}",
+            "vha_123_4567"),
         // Search by name
         test(200, Location.Bundle.class, "Location?name={name}", testIds.locations().name()),
         // Search by address

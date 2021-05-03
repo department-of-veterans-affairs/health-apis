@@ -113,6 +113,7 @@ public class R4LocationControllerTest {
   @ValueSource(
       strings = {
         "?_id=loc1",
+        "?identifier=loc1",
         "?identifier=https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-clinic-identifier|vha_xxx_yyyy",
         "?name=TEM+MH+PSO+TRS+IND93EH",
         "?address=1901+VETERANS+MEMORIAL+DRIVE",

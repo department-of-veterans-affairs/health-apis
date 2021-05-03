@@ -103,8 +103,11 @@ public class R4LocationController {
 
   private Specification<LocationEntity> selectClinicId(String maybeClinicId) {
     try {
-      var locationIen = maybeClinicId.substring(maybeClinicId.lastIndexOf("_") + 1);
+      if (!maybeClinicId.contains("_")) {
+        return null;
+      }
       var facilityId = FacilityId.from(maybeClinicId.substring(0, maybeClinicId.lastIndexOf("_")));
+      var locationIen = maybeClinicId.substring(maybeClinicId.lastIndexOf("_") + 1);
       Specification<LocationEntity> spec =
           Specifications.<LocationEntity>select("facilityType", facilityId.type().toString())
               .and(select("stationNumber", facilityId.stationNumber()));
@@ -112,7 +115,7 @@ public class R4LocationController {
         return null;
       }
       return spec.and(select("locationIen", locationIen));
-    } catch (IllegalArgumentException | StringIndexOutOfBoundsException e) {
+    } catch (IllegalArgumentException e) {
       return null;
     }
   }
@@ -138,11 +141,11 @@ public class R4LocationController {
         .behavior()
         .onExplicitSystemAndExplicitCode(
             (system, code) -> {
-              var clinicId = selectClinicId(code);
-              if (clinicId == null) {
-                throw CircuitBreaker.noResultsWillBeFound("identifier", code, "Invalid facilityId");
+              var clinicIdSpec = selectClinicId(code);
+              if (clinicIdSpec == null) {
+                throw CircuitBreaker.noResultsWillBeFound("identifier", code, "Invalid clinicId");
               }
-              return clinicId;
+              return clinicIdSpec;
             })
         .onAnySystemAndExplicitCode(
             code ->
