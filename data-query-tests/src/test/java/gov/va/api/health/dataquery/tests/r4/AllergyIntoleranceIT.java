@@ -8,6 +8,7 @@ import gov.va.api.health.fhir.testsupport.ResourceVerifier;
 import gov.va.api.health.r4.api.resources.AllergyIntolerance;
 import gov.va.api.health.r4.api.resources.OperationOutcome;
 import gov.va.api.health.sentinel.Environment;
+import java.util.function.Predicate;
 import lombok.experimental.Delegate;
 import org.junit.jupiter.api.Test;
 
@@ -15,6 +16,10 @@ public class AllergyIntoleranceIT {
   @Delegate ResourceVerifier verifier = DataQueryResourceVerifier.r4();
 
   TestIds testIds = DataQueryResourceVerifier.ids();
+
+  private Predicate<AllergyIntolerance.Bundle> bundleIsNotEmpty() {
+    return bundle -> !bundle.entry().isEmpty();
+  }
 
   @Test
   public void read() {
@@ -30,22 +35,25 @@ public class AllergyIntoleranceIT {
         test(
             200,
             AllergyIntolerance.Bundle.class,
+            bundleIsNotEmpty(),
             "AllergyIntolerance?_id={id}",
             testIds.allergyIntolerance()),
         test(
             200,
             AllergyIntolerance.Bundle.class,
-            b -> b.entry().isEmpty(),
+            bundleIsNotEmpty().negate(),
             "AllergyIntolerance?_id={id}",
             testIds.unknown()),
         test(
             200,
             AllergyIntolerance.Bundle.class,
+            bundleIsNotEmpty(),
             "AllergyIntolerance?identifier={id}",
             testIds.allergyIntolerance()),
         test(
             200,
             AllergyIntolerance.Bundle.class,
+            bundleIsNotEmpty(),
             "AllergyIntolerance?patient={patient}",
             testIds.patient()));
   }

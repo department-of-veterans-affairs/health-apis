@@ -58,7 +58,14 @@ public class R4AllergyIntoleranceControllerTest {
 
   @ParameterizedTest
   @ValueSource(
-      strings = {"?patient=p1&_id=123", "?patient=p1&identifier=123", "?_id=123&identifier=456"})
+      strings = {
+        "?patient=p1&_id=123",
+        "?patient=p1&identifier=123",
+        "?_id=123&identifier=456",
+        "?patient:RelatedPerson=p1",
+        "?patient=RelatedPerson/p1",
+        "?patient=http://fonzy.com/r4/RelatedPerson/p1"
+      })
   @SneakyThrows
   void invalidRequests(String query) {
     var request = requestFromUri("http://fonzy.com/r4/AllergyIntolerance" + query);
@@ -141,7 +148,15 @@ public class R4AllergyIntoleranceControllerTest {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {"?_id=pd1", "?identifier=pd1", "?patient=p1"})
+  @ValueSource(
+      strings = {
+        "?_id=pd1",
+        "?identifier=pd1",
+        "?patient=p1",
+        "?patient=Patient/p1",
+        "?patient=http://fonzy.com/r4/Patient/p1",
+        "?patient:Patient=p1"
+      })
   void validRequests(String query) {
     when(ids.register(any()))
         .thenReturn(
