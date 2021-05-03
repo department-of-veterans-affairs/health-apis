@@ -101,19 +101,18 @@ public class R4LocationController {
         .map(toBundle());
   }
 
-  private Specification<LocationEntity> selectFacilityId(String maybeClinicId) {
+  private Specification<LocationEntity> selectClinicId(String maybeClinicId) {
     try {
       var locationIen = maybeClinicId.substring(maybeClinicId.lastIndexOf("_") + 1);
       var facilityId = FacilityId.from(maybeClinicId.substring(0, maybeClinicId.lastIndexOf("_")));
-      if (locationIen == null
-          || facilityId == null
-          || (facilityId.type() == null || facilityId.stationNumber() == null)) {
-        throw new IllegalArgumentException();
+      Specification<LocationEntity> spec =
+          Specifications.<LocationEntity>select("facilityType", facilityId.type().toString())
+              .and(select("stationNumber", facilityId.stationNumber()));
+      if (spec == null) {
+        return null;
       }
-      return Specifications.<LocationEntity>select("facilityType", facilityId.type().toString())
-          .and(select("stationNumber", facilityId.stationNumber()))
-          .and(select("locationIen", locationIen));
-    } catch (IllegalArgumentException e) {
+      return spec.and(select("locationIen", locationIen));
+    } catch (IllegalArgumentException | StringIndexOutOfBoundsException e) {
       return null;
     }
   }
@@ -139,16 +138,16 @@ public class R4LocationController {
         .behavior()
         .onExplicitSystemAndExplicitCode(
             (system, code) -> {
-              var facilityId = selectFacilityId(code);
-              if (facilityId == null) {
+              var clinicId = selectClinicId(code);
+              if (clinicId == null) {
                 throw CircuitBreaker.noResultsWillBeFound("identifier", code, "Invalid facilityId");
               }
-              return facilityId;
+              return clinicId;
             })
         .onAnySystemAndExplicitCode(
             code ->
                 Specifications.<LocationEntity>select("cdwId", witnessProtection.toCdwId(code))
-                    .or(selectFacilityId(code)))
+                    .or(selectClinicId(code)))
         .build()
         .execute();
   }
