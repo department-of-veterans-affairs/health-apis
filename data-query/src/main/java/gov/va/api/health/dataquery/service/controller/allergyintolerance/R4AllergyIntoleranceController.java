@@ -10,10 +10,14 @@ import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedBundl
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedReader;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedTransformation;
 import gov.va.api.health.r4.api.resources.AllergyIntolerance;
+import gov.va.api.lighthouse.vulcan.InvalidRequest;
+import gov.va.api.lighthouse.vulcan.Rule;
 import gov.va.api.lighthouse.vulcan.Vulcan;
 import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
 import gov.va.api.lighthouse.vulcan.mappings.Mappings;
+import gov.va.api.lighthouse.vulcan.mappings.ReferenceParameter;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
@@ -53,11 +57,34 @@ public class R4AllergyIntoleranceController {
             Mappings.forEntity(AllergyIntoleranceEntity.class)
                 .value("_id", "cdwId", witnessProtection::toCdwId)
                 .value("identifier", "cdwId", witnessProtection::toCdwId)
-                .value("patient", "icn")
+                .reference(
+                    "patient",
+                    "icn",
+                    referencePatientSupportedResourceTypes(),
+                    "Patient",
+                    this::referencePatientIsSupported,
+                    this::referencePatientValues)
                 .get())
         .defaultQuery(returnNothing())
         .rule(parametersNeverSpecifiedTogether("patient", "_id", "identifier"))
+        .rule(forbidUnknownResourceModifiersOnPatientParameter())
         .build();
+  }
+
+  private Rule forbidUnknownResourceModifiersOnPatientParameter() {
+    return (ctx) -> {
+      var patientParamWithModifier = "patient:";
+      ctx.request().getParameterMap().keySet().stream()
+          .filter(param -> param.contains(patientParamWithModifier))
+          .map(param -> param.substring(patientParamWithModifier.length()))
+          .forEach(
+              modifier -> {
+                if (!referencePatientSupportedResourceTypes().contains(modifier)) {
+                  throw InvalidRequest.because(
+                      "Modifier not allowed for patient reference searches: " + modifier);
+                }
+              });
+    };
   }
 
   /** Read Support. */
@@ -72,6 +99,23 @@ public class R4AllergyIntoleranceController {
       headers = {"raw=true"})
   public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
     return vulcanizedReader().readRaw(publicId, response);
+  }
+
+  private boolean referencePatientIsSupported(ReferenceParameter reference) {
+    // Only support R4 Patient Read urls
+    if (reference.url().isPresent()) {
+      var allowedUrl = linkProperties.r4().readUrl("Patient", reference.publicId());
+      return reference.url().get().equals(allowedUrl);
+    }
+    return "PATIENT".equalsIgnoreCase(reference.type());
+  }
+
+  private Set<String> referencePatientSupportedResourceTypes() {
+    return Set.of("Patient");
+  }
+
+  private String referencePatientValues(ReferenceParameter reference) {
+    return reference.publicId();
   }
 
   /** Search Support. */
