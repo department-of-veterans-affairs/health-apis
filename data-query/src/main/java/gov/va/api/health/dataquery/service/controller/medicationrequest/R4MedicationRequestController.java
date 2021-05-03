@@ -4,7 +4,6 @@ import static gov.va.api.health.autoconfig.logging.LogSanitizer.sanitize;
 import static java.util.Collections.emptyList;
 
 import gov.va.api.health.dataquery.service.controller.CountParameter;
-import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.R4Bundler;
@@ -18,17 +17,21 @@ import gov.va.api.health.dataquery.service.controller.medicationorder.Medication
 import gov.va.api.health.dataquery.service.controller.medicationstatement.DatamartMedicationStatement;
 import gov.va.api.health.dataquery.service.controller.medicationstatement.MedicationStatementEntity;
 import gov.va.api.health.dataquery.service.controller.medicationstatement.MedicationStatementRepository;
+import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedReader;
+import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedTransformation;
 import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.health.r4.api.resources.MedicationRequest;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.Min;
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -177,52 +180,18 @@ public class R4MedicationRequestController {
     return new SearchContext(patient, count, page);
   }
 
-  /** Read by identifier. */
+  /** Read Support. */
   @GetMapping(value = {"/{publicId}"})
   public MedicationRequest read(@PathVariable("publicId") String publicId) {
-    ResourceIdentity resourceIdentity = witnessProtection.toResourceIdentity(publicId);
-    switch (resourceIdentity.resource()) {
-      case "MEDICATION_ORDER":
-        return readMedicationOrder(publicId);
-      case "MEDICATION_STATEMENT":
-        return readMedicationStatement(publicId);
-      default:
-        throw new ResourceExceptions.NotFound(publicId);
-    }
+    return vulcanizedReaderFor(publicId).read(publicId);
   }
 
-  MedicationRequest readMedicationOrder(String publicId) {
-    DatamartMedicationOrder medicationOrder =
-        findByIdMedicationOrderEntity(publicId).asDatamartMedicationOrder();
-    replaceReferencesMedicationOrder(List.of(medicationOrder));
-    return transformMedicationOrderToMedicationRequest(medicationOrder);
-  }
-
-  MedicationRequest readMedicationStatement(String publicId) {
-    DatamartMedicationStatement medicationStatement =
-        findByIdMedicationStatementEntity(publicId).asDatamartMedicationStatement();
-    replaceReferencesMedicationStatement(List.of(medicationStatement));
-    return transformMedicationStatementToMedicationRequest(medicationStatement);
-  }
-
-  /** Read by id, raw data. */
+  /** Read Raw Datamart Payload Support. */
   @GetMapping(
       value = {"/{publicId}"},
       headers = {"raw=true"})
   public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
-    ResourceIdentity resourceIdentity = witnessProtection.toResourceIdentity(publicId);
-    switch (resourceIdentity.resource()) {
-      case "MEDICATION_ORDER":
-        MedicationOrderEntity orderEntity = findByIdMedicationOrderEntity(publicId);
-        IncludesIcnMajig.addHeader(response, orderEntity.icn());
-        return orderEntity.payload();
-      case "MEDICATION_STATEMENT":
-        MedicationStatementEntity statementEntity = findByIdMedicationStatementEntity(publicId);
-        IncludesIcnMajig.addHeader(response, statementEntity.icn());
-        return statementEntity.payload();
-      default:
-        throw new ResourceExceptions.NotFound(publicId);
-    }
+    return vulcanizedReaderFor(publicId).readRaw(publicId, response);
   }
 
   void replaceReferencesMedicationOrder(Collection<DatamartMedicationOrder> resources) {
@@ -330,6 +299,18 @@ public class R4MedicationRequestController {
         .toFhir();
   }
 
+  private VulcanizedReader<?, ?, MedicationRequest, String> vulcanizedReaderFor(String publicId) {
+    ResourceIdentity resourceIdentity = witnessProtection.toResourceIdentity(publicId);
+    switch (resourceIdentity.resource()) {
+      case "MEDICATION_ORDER":
+        return new MedicationOrderSupport().vulcanizedReader();
+      case "MEDICATION_STATEMENT":
+        return new MedicationStatementSupport().vulcanizedReader();
+      default:
+        throw new ResourceExceptions.NotFound(publicId);
+    }
+  }
+
   @lombok.Value
   class SearchContext {
     String patient;
@@ -382,10 +363,11 @@ public class R4MedicationRequestController {
     }
   }
 
-  @lombok.Value
+  @lombok.Data
   @AllArgsConstructor
+  @NoArgsConstructor
   class MedicationOrderSupport {
-    SearchContext ctx;
+    private SearchContext ctx;
 
     Page<MedicationOrderEntity> medicationOrderEntities() {
       return medicationOrderRepository.findByIcn(
@@ -417,6 +399,22 @@ public class R4MedicationRequestController {
       return medRequestsFromMedOrders(datamartMedicationOrders);
     }
 
+    VulcanizedTransformation<MedicationOrderEntity, DatamartMedicationOrder, MedicationRequest>
+        transformation() {
+      return VulcanizedTransformation.toDatamart(MedicationOrderEntity::asDatamartMedicationOrder)
+          .toResource(
+              dm ->
+                  R4MedicationRequestFromMedicationOrderTransformer.builder()
+                      .datamart(dm)
+                      .build()
+                      .toFhir())
+          .witnessProtection(witnessProtection)
+          .replaceReferences(
+              resource ->
+                  Stream.of(resource.medication(), resource.patient(), resource.prescriber()))
+          .build();
+    }
+
     void updateCategory(DatamartMedicationOrder datamartMedicationOrder) {
       if (medOrderOutpatientCategoryPattern.matcher(datamartMedicationOrder.cdwId()).matches()) {
         datamartMedicationOrder.category(Category.OUTPATIENT);
@@ -426,12 +424,25 @@ public class R4MedicationRequestController {
         datamartMedicationOrder.category(Category.INPATIENT);
       }
     }
+
+    VulcanizedReader<MedicationOrderEntity, DatamartMedicationOrder, MedicationRequest, String>
+        vulcanizedReader() {
+      return VulcanizedReader
+          .<MedicationOrderEntity, DatamartMedicationOrder, MedicationRequest, String>
+              forTransformation(transformation())
+          .repository(medicationOrderRepository)
+          .toPatientId(e -> Optional.of(e.icn()))
+          .toPrimaryKey(Function.identity())
+          .toPayload(MedicationOrderEntity::payload)
+          .build();
+    }
   }
 
-  @lombok.Value
+  @lombok.Data
   @AllArgsConstructor
+  @NoArgsConstructor
   class MedicationStatementSupport {
-    SearchContext ctx;
+    private SearchContext ctx;
 
     Page<MedicationStatementEntity> medicationStatementEntities() {
       return medicationStatementRepository.findByIcn(
@@ -456,6 +467,35 @@ public class R4MedicationRequestController {
               .collect(Collectors.toList());
       replaceReferencesMedicationStatement(datamartMedicationStatements);
       return medRequestsFromMedStatements(datamartMedicationStatements);
+    }
+
+    VulcanizedTransformation<
+            MedicationStatementEntity, DatamartMedicationStatement, MedicationRequest>
+        transformation() {
+      return VulcanizedTransformation.toDatamart(
+              MedicationStatementEntity::asDatamartMedicationStatement)
+          .toResource(
+              dm ->
+                  R4MedicationRequestFromMedicationStatementTransformer.builder()
+                      .datamart(dm)
+                      .build()
+                      .toFhir())
+          .witnessProtection(witnessProtection)
+          .replaceReferences(resource -> Stream.of(resource.medication(), resource.patient()))
+          .build();
+    }
+
+    VulcanizedReader<
+            MedicationStatementEntity, DatamartMedicationStatement, MedicationRequest, String>
+        vulcanizedReader() {
+      return VulcanizedReader
+          .<MedicationStatementEntity, DatamartMedicationStatement, MedicationRequest, String>
+              forTransformation(transformation())
+          .repository(medicationStatementRepository)
+          .toPatientId(e -> Optional.of(e.icn()))
+          .toPrimaryKey(Function.identity())
+          .toPayload(MedicationStatementEntity::payload)
+          .build();
     }
   }
 }

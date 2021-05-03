@@ -1,12 +1,11 @@
 package gov.va.api.health.dataquery.service.controller.medicationrequest;
 
+import static gov.va.api.health.dataquery.service.controller.allergyintolerance.AllergyIntoleranceSamples.registration;
 import static gov.va.api.health.dataquery.service.controller.medicationrequest.MedicationRequestSamples.R4.outpatientCategory;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.LinkedHashMultimap;
@@ -14,7 +13,6 @@ import com.google.common.collect.Multimap;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
 import gov.va.api.health.dataquery.service.controller.R4Bundler;
-import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.medicationorder.DatamartMedicationOrder;
 import gov.va.api.health.dataquery.service.controller.medicationorder.DatamartMedicationOrder.Category;
@@ -33,6 +31,7 @@ import gov.va.api.health.r4.api.resources.MedicationRequest;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletResponse;
@@ -42,6 +41,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -52,7 +52,11 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 public class R4MedicationRequestControllerTest {
   HttpServletResponse response = mock(HttpServletResponse.class);
 
-  private IdentityService ids = mock(IdentityService.class);
+  @Mock IdentityService ids;
+
+  @Mock MedicationStatementRepository medStatementRepository;
+
+  @Mock MedicationOrderRepository medOrderRepository;
 
   @Autowired private MedicationOrderRepository medicationOrderRepository;
 
@@ -65,6 +69,16 @@ public class R4MedicationRequestControllerTest {
         arguments("123:FP", Category.OUTPATIENT),
         arguments("123:I", Category.INPATIENT),
         arguments("123:FPI", Category.INPATIENT));
+  }
+
+  R4MedicationRequestController _controller() {
+    return new R4MedicationRequestController(
+        new R4Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool", "cool", "cool")),
+        medOrderRepository,
+        medStatementRepository,
+        WitnessProtection.builder().identityService(ids).build(),
+        ".*:(O|FP)",
+        ".*:(I|FPI)");
   }
 
   @SneakyThrows
@@ -223,74 +237,48 @@ public class R4MedicationRequestControllerTest {
   }
 
   @Test
-  public void read() {
-    DatamartMedicationOrder dm = MedicationOrderSamples.Datamart.create().medicationOrder();
-    medicationOrderRepository.save(asMedicationOrderEntity(dm));
-    mockMedicationOrderIdentity("1", dm.cdwId());
-    MedicationRequest actual = controller().read("1");
-    assertThat(json(actual))
+  public void readMedOrder() {
+    when(ids.register(any()))
+        .thenReturn(List.of(MedicationOrderSamples.registration("mo1", "pmo1")));
+    when(ids.lookup("pmo1")).thenReturn(List.of(MedicationOrderSamples.id("mo1")));
+    var entity = MedicationOrderSamples.Datamart.create().entity("mo1", "p1");
+    when(medOrderRepository.findById("mo1")).thenReturn(Optional.of(entity));
+    assertThat(_controller().read("pmo1"))
         .isEqualTo(
-            json(
-                MedicationRequestSamples.R4
-                    .create()
-                    .medicationRequestFromMedicationOrder("1", outpatientCategory())));
-    DatamartMedicationStatement dms =
-        MedicationStatementSamples.Datamart.create().medicationStatement();
-    medicationStatementRepository.save(asMedicationStatementEntity(dms));
-    mockMedicationStatementIdentity("2", dms.cdwId());
-    actual = controller().read("2");
-    assertThat(json(actual))
+            MedicationRequestSamples.R4
+                .create()
+                .medicationRequestFromMedicationOrder("pmo1", "p1"));
+  }
+
+  @Test
+  public void readMedStatement() {
+    when(ids.register(any()))
+        .thenReturn(List.of(MedicationStatementSamples.registration("ms1", "pms1")));
+    when(ids.lookup("pms1")).thenReturn(List.of(MedicationStatementSamples.id("ms1")));
+    var entity = MedicationStatementSamples.Datamart.create().entity("ms1", "p1");
+    when(medStatementRepository.findById("ms1")).thenReturn(Optional.of(entity));
+    assertThat(_controller().read("pms1"))
         .isEqualTo(
-            json(
-                MedicationRequestSamples.R4
-                    .create()
-                    .medicationRequestFromMedicationStatement("2")));
+            MedicationRequestSamples.R4
+                .create()
+                .medicationRequestFromMedicationStatement("pms1", "p1"));
   }
 
   @Test
-  public void readExceptionTest() {
-    mockNonMedicationTypeIdentity();
-    assertThrows(ResourceExceptions.NotFound.class, () -> controller().read("41"));
-  }
-
-  @Test
-  public void readRawExceptionTest() {
-    mockNonMedicationTypeIdentity();
-    assertThrows(ResourceExceptions.NotFound.class, () -> controller().readRaw("41", response));
-  }
-
-  @Test
-  public void readRawOrderTest() {
-    DatamartMedicationOrder dmo = MedicationOrderSamples.Datamart.create().medicationOrder();
-    MedicationOrderEntity medicationOrderEntity = asMedicationOrderEntity(dmo);
-    medicationOrderRepository.save(medicationOrderEntity);
-    mockMedicationOrderIdentity("1", dmo.cdwId());
-    String actual = controller().readRaw("1", response);
-    assertThat(toMedicationOrderObject(actual)).isEqualTo(dmo);
-    verify(response).addHeader("X-VA-INCLUDES-ICN", medicationOrderEntity.icn());
+  public void readRawMedOrderTest() {
+    when(ids.lookup("pmo1")).thenReturn(List.of(MedicationOrderSamples.id("mo1")));
+    var entity = MedicationOrderEntity.builder().cdwId("mo1").icn("p1").payload("payload").build();
+    when(medOrderRepository.findById("mo1")).thenReturn(Optional.of(entity));
+    assertThat(_controller().readRaw("pmo1", mock(HttpServletResponse.class))).isEqualTo("payload");
   }
 
   @Test
   public void readRawStatementTest() {
-    DatamartMedicationStatement dms =
-        MedicationStatementSamples.Datamart.create().medicationStatement();
-    MedicationStatementEntity medicationStatementEntity = asMedicationStatementEntity(dms);
-    medicationStatementRepository.save(medicationStatementEntity);
-    mockMedicationStatementIdentity("1", dms.cdwId());
-    String actual = controller().readRaw("1", response);
-    assertThat(toMedicationStatementObject(actual)).isEqualTo(dms);
-    verify(response).addHeader("X-VA-INCLUDES-ICN", medicationStatementEntity.icn());
-  }
-
-  @Test
-  public void readRawThrowsNotFoundWhenDataIsMissing() {
-    mockMedicationOrderIdentity("1", "1");
-    assertThrows(ResourceExceptions.NotFound.class, () -> controller().readRaw("1", response));
-  }
-
-  @Test
-  public void readRawThrowsNotFoundWhenIdIsUnknown() {
-    assertThrows(ResourceExceptions.NotFound.class, () -> controller().readRaw("1", response));
+    when(ids.lookup("pms1")).thenReturn(List.of(MedicationStatementSamples.id("ms1")));
+    var entity =
+        MedicationStatementEntity.builder().cdwId("ms1").icn("p1").payload("payload").build();
+    when(medStatementRepository.findById("ms1")).thenReturn(Optional.of(entity));
+    assertThat(_controller().readRaw("pms1", mock(HttpServletResponse.class))).isEqualTo("payload");
   }
 
   @Test
