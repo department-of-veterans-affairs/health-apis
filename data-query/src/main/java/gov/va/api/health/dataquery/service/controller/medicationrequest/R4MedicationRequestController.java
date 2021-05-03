@@ -21,7 +21,6 @@ import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedReade
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedTransformation;
 import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.health.r4.api.resources.MedicationRequest;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -109,32 +108,6 @@ public class R4MedicationRequestController {
     return bundle(parameters, reports, totalRecords, -1);
   }
 
-  MedicationOrderEntity findByIdMedicationOrderEntity(String publicId) {
-    Optional<MedicationOrderEntity> entity =
-        medicationOrderRepository.findById(witnessProtection.toCdwId(publicId));
-    return entity.orElseThrow(() -> new ResourceExceptions.NotFound(publicId));
-  }
-
-  MedicationStatementEntity findByIdMedicationStatementEntity(String publicId) {
-    Optional<MedicationStatementEntity> entity =
-        medicationStatementRepository.findById(witnessProtection.toCdwId(publicId));
-    return entity.orElseThrow(() -> new ResourceExceptions.NotFound(publicId));
-  }
-
-  List<MedicationRequest> medRequestsFromMedOrders(
-      List<DatamartMedicationOrder> datamartMedicationOrders) {
-    return datamartMedicationOrders.stream()
-        .map(this::transformMedicationOrderToMedicationRequest)
-        .collect(Collectors.toList());
-  }
-
-  List<MedicationRequest> medRequestsFromMedStatements(
-      List<DatamartMedicationStatement> datamartMedicationStatements) {
-    return datamartMedicationStatements.stream()
-        .map(this::transformMedicationStatementToMedicationRequest)
-        .collect(Collectors.toList());
-  }
-
   MedicationRequest.Bundle medicationOrdersForPatient(
       MultiValueMap<String, String> parameters, String icn, int page, int count) {
     Page<MedicationOrderEntity> medicationOrderEntities =
@@ -145,13 +118,14 @@ public class R4MedicationRequestController {
     if (count == 0) {
       return bundleMixedResources(parameters, emptyList(), totalRecords);
     }
-    List<DatamartMedicationOrder> datamartMedicationOrders =
+    var vulcanizedTransformation = new MedicationOrderSupport().transformation();
+    List<MedicationRequest> fhir =
         medicationOrderEntities
             .get()
-            .map(MedicationOrderEntity::asDatamartMedicationOrder)
+            .map(vulcanizedTransformation.toDatamart())
+            .peek(vulcanizedTransformation::applyWitnessProtection)
+            .map(vulcanizedTransformation.toResource())
             .collect(Collectors.toList());
-    replaceReferencesMedicationOrder(datamartMedicationOrders);
-    List<MedicationRequest> fhir = medRequestsFromMedOrders(datamartMedicationOrders);
     return bundleMixedResources(parameters, fhir, totalRecords);
   }
 
@@ -166,13 +140,14 @@ public class R4MedicationRequestController {
     if (count == 0) {
       return bundleMixedResources(parameters, emptyList(), totalRecords);
     }
-    List<DatamartMedicationStatement> datamartMedicationStatements =
+    var vulcanizedTransformation = new MedicationStatementSupport().transformation();
+    List<MedicationRequest> fhir =
         medicationStatementEntities
             .get()
-            .map(MedicationStatementEntity::asDatamartMedicationStatement)
+            .map(vulcanizedTransformation.toDatamart())
+            .peek(vulcanizedTransformation::applyWitnessProtection)
+            .map(vulcanizedTransformation.toResource())
             .collect(Collectors.toList());
-    replaceReferencesMedicationStatement(datamartMedicationStatements);
-    List<MedicationRequest> fhir = medRequestsFromMedStatements(datamartMedicationStatements);
     return bundleMixedResources(parameters, fhir, totalRecords);
   }
 
@@ -192,17 +167,6 @@ public class R4MedicationRequestController {
       headers = {"raw=true"})
   public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
     return vulcanizedReaderFor(publicId).readRaw(publicId, response);
-  }
-
-  void replaceReferencesMedicationOrder(Collection<DatamartMedicationOrder> resources) {
-    witnessProtection.registerAndUpdateReferences(
-        resources,
-        resource -> Stream.of(resource.medication(), resource.patient(), resource.prescriber()));
-  }
-
-  void replaceReferencesMedicationStatement(Collection<DatamartMedicationStatement> resources) {
-    witnessProtection.registerAndUpdateReferences(
-        resources, resource -> Stream.of(resource.medication(), resource.patient()));
   }
 
   /** Search R4 MedicationRequest by _id. */
@@ -284,21 +248,6 @@ public class R4MedicationRequestController {
     }
   }
 
-  MedicationRequest transformMedicationOrderToMedicationRequest(DatamartMedicationOrder dm) {
-    return R4MedicationRequestFromMedicationOrderTransformer.builder()
-        .datamart(dm)
-        .build()
-        .toFhir();
-  }
-
-  MedicationRequest transformMedicationStatementToMedicationRequest(
-      DatamartMedicationStatement dm) {
-    return R4MedicationRequestFromMedicationStatementTransformer.builder()
-        .datamart(dm)
-        .build()
-        .toFhir();
-  }
-
   private VulcanizedReader<?, ?, MedicationRequest, String> vulcanizedReaderFor(String publicId) {
     ResourceIdentity resourceIdentity = witnessProtection.toResourceIdentity(publicId);
     switch (resourceIdentity.resource()) {
@@ -313,15 +262,15 @@ public class R4MedicationRequestController {
 
   @lombok.Value
   class SearchContext {
-    String patient;
+    private String patient;
 
-    int count;
+    private int count;
 
-    int page;
+    private int page;
 
-    MedicationOrderSupport medicationOrderSupport;
+    private MedicationOrderSupport medicationOrderSupport;
 
-    MedicationStatementSupport medicationStatementSupport;
+    private MedicationStatementSupport medicationStatementSupport;
 
     SearchContext(String patient, int count, int page) {
       this.patient = patient;
@@ -389,14 +338,13 @@ public class R4MedicationRequestController {
     }
 
     List<MedicationRequest> search() {
-      List<DatamartMedicationOrder> datamartMedicationOrders =
-          medicationOrderEntities()
-              .get()
-              .map(MedicationOrderEntity::asDatamartMedicationOrder)
-              .peek(this::updateCategory)
-              .collect(Collectors.toList());
-      replaceReferencesMedicationOrder(datamartMedicationOrders);
-      return medRequestsFromMedOrders(datamartMedicationOrders);
+      return medicationOrderEntities()
+          .get()
+          .map(transformation().toDatamart())
+          .peek(this::updateCategory)
+          .peek(dm -> transformation().applyWitnessProtection(dm))
+          .map(transformation().toResource())
+          .collect(Collectors.toList());
     }
 
     VulcanizedTransformation<MedicationOrderEntity, DatamartMedicationOrder, MedicationRequest>
@@ -460,13 +408,12 @@ public class R4MedicationRequestController {
     }
 
     List<MedicationRequest> search() {
-      List<DatamartMedicationStatement> datamartMedicationStatements =
-          medicationStatementEntities()
-              .get()
-              .map(MedicationStatementEntity::asDatamartMedicationStatement)
-              .collect(Collectors.toList());
-      replaceReferencesMedicationStatement(datamartMedicationStatements);
-      return medRequestsFromMedStatements(datamartMedicationStatements);
+      return medicationStatementEntities()
+          .get()
+          .map(transformation().toDatamart())
+          .peek(dm -> transformation().applyWitnessProtection(dm))
+          .map(transformation().toResource())
+          .collect(Collectors.toList());
     }
 
     VulcanizedTransformation<
