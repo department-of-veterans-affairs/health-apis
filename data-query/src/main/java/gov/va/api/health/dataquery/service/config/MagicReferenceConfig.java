@@ -221,7 +221,7 @@ public class MagicReferenceConfig {
               gov.va.api.health.r4.api.DataAbsentReason.Reason.unsupported);
         }
       } catch (NoSuchFieldException e) {
-        // Do nothing
+        log.info("encountered unknown field: {}", name);
       }
       return null;
     }
