@@ -6,14 +6,14 @@ import gov.va.api.health.dataquery.service.config.DataQueryJacksonMapper;
 import gov.va.api.health.dataquery.service.config.MagicReferenceConfig;
 import gov.va.api.health.dataquery.service.config.ReferenceSerializerProperties;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
-import gov.va.api.health.dataquery.service.controller.observation.R4ObservationTransformer.Mode;
+import gov.va.api.health.dataquery.service.controller.observation.Dstu2ObservationTransformer.Mode;
+import gov.va.api.health.dstu2.api.resources.Observation;
 import gov.va.api.health.ids.client.EncodedIdFormat;
 import gov.va.api.health.ids.client.EncodingIdentityServiceClient;
 import gov.va.api.health.ids.client.EncryptingIdEncoder;
 import gov.va.api.health.ids.client.EncryptingIdEncoder.BinaryRepresentations;
 import gov.va.api.health.ids.client.EncryptingIdEncoder.EncryptionMechanisms;
 import gov.va.api.health.ids.client.EncryptingIdEncoder.UrlSafeEncodings;
-import gov.va.api.health.r4.api.resources.Observation;
 import gov.va.api.lighthouse.datamart.DatamartReference;
 import java.io.File;
 import java.util.List;
@@ -25,7 +25,7 @@ import lombok.SneakyThrows;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-public class AppleObservationSamples {
+public class AppleDstu2ObservationSamples {
   ObjectMapper mapper =
       new DataQueryJacksonMapper(
               new MagicReferenceConfig(
@@ -65,8 +65,8 @@ public class AppleObservationSamples {
     var mode = Mode.values()[ordinal];
 
     DatamartObservation dm = loadDatamart();
-    R4ObservationTransformer tx =
-        R4ObservationTransformer.builder().datamart(dm).mode(mode).build();
+    Dstu2ObservationTransformer tx =
+        Dstu2ObservationTransformer.builder().datamart(dm).mode(mode).build();
     Observation observation = tx.toFhir();
 
     save(mode, observation, "");
@@ -87,7 +87,7 @@ public class AppleObservationSamples {
         .writerWithDefaultPrettyPrinter()
         .writeValue(
             new File(
-                "apple/sample-r4-"
+                "apple/sample-dstu2-"
                     + mode.toString().toLowerCase(Locale.ENGLISH).replace('_', '-')
                     + suffix
                     + ".json"),

@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.observation;
 
+import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asCodeableConceptWrapping;
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asCoding;
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asReference;
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.textOrElseDisplay;
@@ -13,13 +14,20 @@ import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 import static org.apache.commons.lang3.StringUtils.upperCase;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
+import gov.va.api.health.dataquery.service.controller.Dstu2Transformers;
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
+import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation.Category;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
 import gov.va.api.health.dstu2.api.datatypes.Quantity;
 import gov.va.api.health.dstu2.api.datatypes.SimpleQuantity;
 import gov.va.api.health.dstu2.api.elements.Reference;
 import gov.va.api.health.dstu2.api.resources.Observation;
+import gov.va.api.health.dstu2.api.resources.Observation.ObservationBuilder;
+import gov.va.api.health.dstu2.api.resources.Observation.ObservationRelated;
+import gov.va.api.health.dstu2.api.resources.Observation.Status;
+import gov.va.api.health.dstu2.api.resources.Observation.Type;
+import gov.va.api.health.dstu2.api.resources.Resource;
 import gov.va.api.lighthouse.datamart.DatamartReference;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +35,7 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
@@ -34,6 +43,9 @@ import lombok.extern.slf4j.Slf4j;
 @Builder
 final class Dstu2ObservationTransformer {
   @NonNull final DatamartObservation datamart;
+  @Default Mode mode = Mode.CURRENT;
+
+  @Default List<Observation> externalObservations = new ArrayList<>();
 
   static CodeableConcept category(DatamartObservation.Category category) {
     Coding coding = categoryCoding(category);
@@ -327,11 +339,68 @@ final class Dstu2ObservationTransformer {
     return emptyToNull(results);
   }
 
+  private List<Resource> containedResources() {
+    if (mode == Mode.CURRENT) {
+      return null;
+    }
+    if (datamart.antibioticComponents().isEmpty()) {
+      return null;
+    }
+    var prefix = mode == Mode.CONTAINED_MEMBERS ? "#" : datamart.cdwId();
+
+    int id = 1;
+
+    for (var c : datamart.antibioticComponents()) {
+      ObservationBuilder record =
+          Observation.builder()
+              .id(prefix + id)
+              .status(Status._final)
+              .category(category(Category.laboratory))
+              .code(codeableConcept(c.code()))
+              .subject(Dstu2Transformers.asReference(datamart.subject()))
+              .valueCodeableConcept(asCodeableConceptWrapping(c.valueCodeableConcept()));
+      if (mode == Mode.EXTERNAL_MEMBERS) {
+        record
+            .effectiveDateTime(asDateTimeString(datamart.effectiveDateTime()))
+            .issued(asDateTimeString(datamart.issued()))
+            .performer(performers(datamart.performer()));
+      }
+
+      externalObservations.add(record.build());
+
+      id++;
+    }
+    return null;
+  }
+
+  private List<ObservationRelated> hasMembers() {
+    if (mode == Mode.CURRENT) {
+      return null;
+    }
+    if (datamart.antibioticComponents().isEmpty()) {
+      return null;
+    }
+    var prefix = mode == Mode.CONTAINED_MEMBERS ? "#" : datamart.cdwId();
+    List<ObservationRelated> refs = new ArrayList<>(datamart.antibioticComponents().size());
+    int id = 1;
+
+    for (var c : datamart.antibioticComponents()) {
+      refs.add(
+          ObservationRelated.builder()
+              .type(Type.has_member)
+              .target(Reference.builder().reference(prefix + id).build())
+              .build());
+      id++;
+    }
+    return refs;
+  }
+
   Observation toFhir() {
     /*
      * Specimen reference is omitted since we do not support the a specimen resource and
      * do not want dead links
      */
+    containedResources();
     return Observation.builder()
         .resourceType("Observation")
         .id(datamart.cdwId())
@@ -348,6 +417,13 @@ final class Dstu2ObservationTransformer {
         .comments(datamart.comment())
         .referenceRange(referenceRanges(datamart.referenceRange()))
         .component(components())
+        .related(hasMembers())
         .build();
+  }
+
+  public enum Mode {
+    CURRENT,
+    EXTERNAL_MEMBERS,
+    CONTAINED_MEMBERS
   }
 }
