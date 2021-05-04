@@ -172,13 +172,13 @@ public class R4ObservationControllerTest {
         "?patient=p1&category=http://terminology.hl7.org/CodeSystem/observation-category|laboratory",
         "?patient=p1&category=http://terminology.hl7.org/CodeSystem/observation-category|vital-signs",
         "?patient=p1&category=http://terminology.hl7.org/CodeSystem/observation-category|laboratory,http://terminology.hl7.org/CodeSystem/observation-category|vital-signs",
-        "?patient=111V111&category=laboratory&date=2020-1-20T16:35:00Z",
+        "?patient=111V111&category=laboratory&date=2020-01-20T16:35:00Z",
         "?patient=111V111&code=1989-3",
         "?patient=111V111&code=1989-3,1974-1",
         "?patient=111V111&code=http://loinc.org|",
         "?patient=111V111&code=http://loinc.org|1989-3",
         "?patient=111V111&code=http://loinc.org|1989-3,http://loinc.org|1974-1",
-        "?patient=111V111&code=1989-3&date=2020-1-20T16:35:00Z"
+        "?patient=111V111&code=1989-3&date=2020-01-20T16:35:00Z"
       })
   @SneakyThrows
   void validRequests(String query) {
