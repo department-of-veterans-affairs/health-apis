@@ -30,7 +30,6 @@ import java.util.stream.Stream;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.Min;
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -118,7 +117,8 @@ public class R4MedicationRequestController {
     if (count == 0) {
       return bundleMixedResources(parameters, emptyList(), totalRecords);
     }
-    var vulcanizedTransformation = new MedicationOrderSupport().transformation();
+    var ctx = newSearchContext(icn, page, count);
+    var vulcanizedTransformation = ctx.medicationOrderSupport().transformation();
     List<MedicationRequest> fhir =
         medicationOrderEntities
             .get()
@@ -140,7 +140,9 @@ public class R4MedicationRequestController {
     if (count == 0) {
       return bundleMixedResources(parameters, emptyList(), totalRecords);
     }
-    var vulcanizedTransformation = new MedicationStatementSupport().transformation();
+    var ctx = newSearchContext(icn, page, count);
+    var vulcanizedTransformation = ctx.medicationStatementSupport().transformation();
+
     List<MedicationRequest> fhir =
         medicationStatementEntities
             .get()
@@ -250,11 +252,12 @@ public class R4MedicationRequestController {
 
   private VulcanizedReader<?, ?, MedicationRequest, String> vulcanizedReaderFor(String publicId) {
     ResourceIdentity resourceIdentity = witnessProtection.toResourceIdentity(publicId);
+    SearchContext ctx = newSearchContext(publicId, 1, 1);
     switch (resourceIdentity.resource()) {
       case "MEDICATION_ORDER":
-        return new MedicationOrderSupport().vulcanizedReader();
+        return ctx.medicationOrderSupport().vulcanizedReader();
       case "MEDICATION_STATEMENT":
-        return new MedicationStatementSupport().vulcanizedReader();
+        return ctx.medicationStatementSupport().vulcanizedReader();
       default:
         throw new ResourceExceptions.NotFound(publicId);
     }
@@ -312,11 +315,10 @@ public class R4MedicationRequestController {
     }
   }
 
-  @lombok.Data
+  @lombok.Value
   @AllArgsConstructor
-  @NoArgsConstructor
   class MedicationOrderSupport {
-    private SearchContext ctx;
+    SearchContext ctx;
 
     Page<MedicationOrderEntity> medicationOrderEntities() {
       return medicationOrderRepository.findByIcn(
@@ -386,11 +388,10 @@ public class R4MedicationRequestController {
     }
   }
 
-  @lombok.Data
+  @lombok.Value
   @AllArgsConstructor
-  @NoArgsConstructor
   class MedicationStatementSupport {
-    private SearchContext ctx;
+    SearchContext ctx;
 
     Page<MedicationStatementEntity> medicationStatementEntities() {
       return medicationStatementRepository.findByIcn(
