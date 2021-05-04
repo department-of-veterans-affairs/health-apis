@@ -207,11 +207,12 @@ public class R4MedicationRequestController {
 
   private VulcanizedReader<?, ?, MedicationRequest, String> vulcanizedReaderFor(String publicId) {
     ResourceIdentity resourceIdentity = witnessProtection.toResourceIdentity(publicId);
+    SearchContext ctx = newSearchContext(publicId, 1, 1);
     switch (resourceIdentity.resource()) {
       case "MEDICATION_ORDER":
-        return new MedicationOrderSupport().vulcanizedReader();
+        return ctx.medicationOrderSupport().vulcanizedReader();
       case "MEDICATION_STATEMENT":
-        return new MedicationStatementSupport().vulcanizedReader();
+        return ctx.medicationStatementSupport().vulcanizedReader();
       default:
         throw new ResourceExceptions.NotFound(publicId);
     }
