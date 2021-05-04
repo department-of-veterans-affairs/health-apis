@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.observation;
 
+import static gov.va.api.health.dataquery.service.controller.R4Transformers.asCodeableConceptWrapping;
 import static gov.va.api.health.dataquery.service.controller.R4Transformers.asCoding;
 import static gov.va.api.health.dataquery.service.controller.R4Transformers.asReference;
 import static gov.va.api.health.dataquery.service.controller.R4Transformers.textOrElseDisplay;
@@ -8,6 +9,7 @@ import static gov.va.api.health.dataquery.service.controller.Transformers.asDate
 import static gov.va.api.health.dataquery.service.controller.Transformers.emptyToNull;
 import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
 import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 import static org.apache.commons.lang3.StringUtils.upperCase;
@@ -15,20 +17,24 @@ import static org.springframework.util.CollectionUtils.isEmpty;
 
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
 import gov.va.api.health.dataquery.service.controller.R4Transformers;
+import gov.va.api.health.dataquery.service.controller.observation.DatamartObservation.Category;
 import gov.va.api.health.r4.api.datatypes.CodeableConcept;
 import gov.va.api.health.r4.api.datatypes.Coding;
 import gov.va.api.health.r4.api.datatypes.Quantity;
 import gov.va.api.health.r4.api.datatypes.SimpleQuantity;
 import gov.va.api.health.r4.api.elements.Reference;
 import gov.va.api.health.r4.api.resources.Observation;
+import gov.va.api.health.r4.api.resources.Observation.ObservationBuilder;
+import gov.va.api.health.r4.api.resources.Observation.ObservationStatus;
+import gov.va.api.health.r4.api.resources.Resource;
 import gov.va.api.lighthouse.datamart.DatamartReference;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
@@ -36,6 +42,10 @@ import lombok.extern.slf4j.Slf4j;
 @Builder
 public class R4ObservationTransformer {
   @NonNull private final DatamartObservation datamart;
+
+  @Default Mode mode = Mode.CURRENT;
+
+  @Default List<Observation> externalObservations = new ArrayList<>();
 
   static List<CodeableConcept> category(DatamartObservation.Category category) {
     Coding coding = categoryCoding(category);
@@ -275,7 +285,7 @@ public class R4ObservationTransformer {
       return null;
     } else {
       List<Reference> results =
-          performers.stream().map(R4Transformers::asReference).collect(Collectors.toList());
+          performers.stream().map(R4Transformers::asReference).collect(toList());
       return emptyToNull(results);
     }
   }
@@ -332,6 +342,9 @@ public class R4ObservationTransformer {
   }
 
   private List<Observation.Component> components() {
+    if (mode != Mode.CURRENT) {
+      return null;
+    }
     List<Observation.Component> results =
         new ArrayList<>(
             datamart.vitalsComponents().size() + datamart.antibioticComponents().size() + 2);
@@ -339,7 +352,7 @@ public class R4ObservationTransformer {
         emptyToNull(
             datamart.vitalsComponents().stream()
                 .map(R4ObservationTransformer::component)
-                .collect(Collectors.toList()));
+                .collect(toList()));
     if (vitals != null) {
       results.addAll(vitals);
     }
@@ -347,13 +360,70 @@ public class R4ObservationTransformer {
         emptyToNull(
             datamart.antibioticComponents().stream()
                 .map(R4ObservationTransformer::component)
-                .collect(Collectors.toList()));
+                .collect(toList()));
     if (antibiotics != null) {
       results.addAll(antibiotics);
     }
     results.add(component(datamart.mycobacteriologyComponents().orElse(null)));
     results.add(component(datamart.bacteriologyComponents().orElse(null)));
     return emptyToNull(results);
+  }
+
+  private List<Resource> containedResources() {
+    if (mode == Mode.CURRENT) {
+      return null;
+    }
+    if (datamart.antibioticComponents().isEmpty()) {
+      return null;
+    }
+    List<Resource> refs = new ArrayList<>(datamart.antibioticComponents().size());
+    var prefix = mode == Mode.CONTAINED_MEMBERS ? "#" : datamart.cdwId();
+
+    int id = 1;
+
+    for (var c : datamart.antibioticComponents()) {
+      ObservationBuilder record =
+          Observation.builder()
+              .id(prefix + id)
+              .status(ObservationStatus._final)
+              .category(category(Category.laboratory))
+              .code(codeableConcept(c.code()))
+              .subject(asReference(datamart.subject()))
+              .valueCodeableConcept(asCodeableConceptWrapping(c.valueCodeableConcept()));
+      if (mode == Mode.EXTERNAL_MEMBERS) {
+        record
+            .effectiveDateTime(asDateTimeString(datamart.effectiveDateTime()))
+            .issued(asDateTimeString(datamart.issued()))
+            .performer(performers(datamart.performer()));
+      }
+
+      if (mode == Mode.EXTERNAL_MEMBERS) {
+        externalObservations.add(record.build());
+      } else {
+        refs.add(record.build());
+      }
+
+      id++;
+    }
+    return mode == Mode.CONTAINED_MEMBERS ? refs : null;
+  }
+
+  private List<Reference> hasMembers() {
+    if (mode == Mode.CURRENT) {
+      return null;
+    }
+    if (datamart.antibioticComponents().isEmpty()) {
+      return null;
+    }
+    var prefix = mode == Mode.CONTAINED_MEMBERS ? "#" : datamart.cdwId();
+    List<Reference> refs = new ArrayList<>(datamart.antibioticComponents().size());
+    int id = 1;
+
+    for (var c : datamart.antibioticComponents()) {
+      refs.add(Reference.builder().type("Observation").reference(prefix + id).build());
+      id++;
+    }
+    return refs;
   }
 
   Observation toFhir() {
@@ -376,6 +446,14 @@ public class R4ObservationTransformer {
         .interpretation(interpretation(datamart.interpretation()))
         .referenceRange(referenceRanges(datamart.referenceRange()))
         .component(components())
+        .hasMember(hasMembers())
+        .contained(containedResources())
         .build();
+  }
+
+  public enum Mode {
+    CURRENT,
+    EXTERNAL_MEMBERS,
+    CONTAINED_MEMBERS
   }
 }

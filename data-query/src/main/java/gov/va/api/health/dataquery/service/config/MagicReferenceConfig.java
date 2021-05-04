@@ -115,7 +115,7 @@ public class MagicReferenceConfig {
       if (StringUtils.isBlank(reference)) {
         return null;
       }
-      if (reference.startsWith("http")) {
+      if (reference.startsWith("http") || reference.startsWith("#")) {
         return reference;
       }
       if (reference.startsWith("/")) {

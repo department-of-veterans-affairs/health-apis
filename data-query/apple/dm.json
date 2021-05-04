@@ -1,0 +1,46 @@
+{
+  "objectType": "Observation",
+  "objectVersion": "1",
+  "cdwId": "1200014475792:P",
+  "status": "final",
+  "category": "laboratory",
+  "code": {
+    "text": "PARASITOLOGY 99VA4:544:6-1"
+  },
+  "subject": {
+    "type": "Patient",
+    "reference": "1011541120V777259",
+    "display": "ZZTESTPATIENT,ELEVEN"
+  },
+  "effectiveDateTime": "2019-06-26T15:56:37Z",
+  "issued": "2019-10-11T04:00:00Z",
+  "performer": [
+    {
+      "type": "Organization",
+      "reference": "108848:I",
+      "display": "COLUMBIA, SC VAMC"
+    }
+  ],
+  "comment": "PARASITE EGGS SEEN \r",
+  "specimen": {
+    "type": "Specimen",
+    "reference": "1200000141",
+    "display": "FECES"
+  },
+  "antibioticComponents": [
+    {
+      "valueCodeableConcept": {
+        "system": "http://snomed.info/sct",
+        "code": "4597",
+        "display": "TRICHURIS TRICHIURA"
+      }
+    },
+    {
+      "valueCodeableConcept": {
+        "system": "http://snomed.info/sct",
+        "code": "4522",
+        "display": "ASCARIS, NOS"
+      }
+    }
+  ]
+}
