@@ -4,7 +4,9 @@ import gov.va.api.health.dataquery.tests.DataQueryResourceVerifier;
 import gov.va.api.health.dataquery.tests.TestIds;
 import gov.va.api.health.fhir.testsupport.ResourceVerifier;
 import gov.va.api.health.r4.api.resources.Location;
+import gov.va.api.health.r4.api.resources.Location.Bundle;
 import gov.va.api.health.r4.api.resources.OperationOutcome;
+import java.util.function.Predicate;
 import lombok.experimental.Delegate;
 import org.junit.jupiter.api.Test;
 
@@ -12,6 +14,10 @@ public class LocationIT {
   @Delegate private final ResourceVerifier verifier = DataQueryResourceVerifier.r4();
 
   TestIds testIds = DataQueryResourceVerifier.ids();
+
+  private Predicate<Bundle> bundleIsNotEmpty() {
+    return bundle -> !bundle.entry().isEmpty();
+  }
 
   @Test
   void read() {
@@ -29,7 +35,7 @@ public class LocationIT {
         test(
             200,
             Location.Bundle.class,
-            b -> b.entry().isEmpty(),
+            bundleIsNotEmpty().negate(),
             "Location?_id={id}",
             testIds.unknown()),
         // Search by identifier
@@ -50,8 +56,8 @@ public class LocationIT {
             200,
             Location.Bundle.class,
             b -> !b.entry().isEmpty(),
-            "Location?identifier={identifier}",
-            testIds.locations().fullClinicIdentifier()),
+            "Location?identifier=https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-clinic-identifier|{identifier}",
+            testIds.locations().clinicIdentifier()),
         test(
             200,
             Location.Bundle.class,
