@@ -315,6 +315,9 @@ final class Dstu2ObservationTransformer {
   }
 
   private List<Observation.ObservationComponent> components() {
+    if (mode != Mode.CURRENT) {
+      return null;
+    }
     List<Observation.ObservationComponent> results =
         new ArrayList<>(
             datamart.vitalsComponents().size() + datamart.antibioticComponents().size() + 2);
