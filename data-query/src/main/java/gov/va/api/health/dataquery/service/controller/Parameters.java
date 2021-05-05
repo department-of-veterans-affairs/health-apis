@@ -2,8 +2,6 @@ package gov.va.api.health.dataquery.service.controller;
 
 import java.util.Arrays;
 import java.util.List;
-
-import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import org.springframework.util.CollectionUtils;
@@ -15,12 +13,6 @@ import org.springframework.util.MultiValueMap;
 public class Parameters {
 
   private final MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-
-  public static Parameters copyOf(MultiValueMap<String, String> parameters) {
-    var p = Parameters.builder();
-    parameters.forEach(p::addAll);
-    return p;
-  }
 
   /** Return first '_count' value or the default. */
   public static int countOf(@NonNull MultiValueMap<String, String> parameters) {
