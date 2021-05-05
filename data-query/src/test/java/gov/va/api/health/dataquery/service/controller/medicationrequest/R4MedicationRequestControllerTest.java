@@ -74,6 +74,7 @@ public class R4MedicationRequestControllerTest {
   R4MedicationRequestController _controller() {
     return new R4MedicationRequestController(
         new R4Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool", "cool", "cool")),
+        null,
         medOrderRepository,
         medStatementRepository,
         WitnessProtection.builder().identityService(ids).build(),
@@ -102,6 +103,7 @@ public class R4MedicationRequestControllerTest {
   R4MedicationRequestController controller() {
     return new R4MedicationRequestController(
         new R4Bundler(new ConfigurableBaseUrlPageLinks("http://abed.com", "cool", "cool", "cool")),
+        null,
         medicationOrderRepository,
         medicationStatementRepository,
         WitnessProtection.builder().identityService(ids).build(),
@@ -142,7 +144,7 @@ public class R4MedicationRequestControllerTest {
   @Test
   public void nonexistingSearchByPatientTest() {
     Multimap<String, MedicationRequest> medicationRequestByPatient = populateData();
-    assertThat(json(controller().searchByPatient("nada", 8, 10)))
+    assertThat(json(controller().searchByPatient(null, "nada", 8, 10)))
         .isEqualTo(
             json(
                 MedicationRequestSamples.R4.asBundle(
@@ -169,8 +171,8 @@ public class R4MedicationRequestControllerTest {
   @Test
   public void numberOfRequestsIsStatementsAndOrdersAdded() {
     Multimap<String, MedicationRequest> medicationRequestByPatient = populateData();
-    MedicationRequest.Bundle medReqBundleFirst = controller().searchByPatient("p0", 1, 15);
-    MedicationRequest.Bundle medReqBundleLast = controller().searchByPatient("p0", 2, 15);
+    MedicationRequest.Bundle medReqBundleFirst = controller().searchByPatient(null, "p0", 1, 15);
+    MedicationRequest.Bundle medReqBundleLast = controller().searchByPatient(null, "p0", 2, 15);
     List<MedicationRequest> medicationRequestsTotal =
         medicationRequestByPatient.get("p0").stream().collect(Collectors.toList());
     assertThat(medReqBundleFirst.total()).isEqualTo(medicationRequestsTotal.size());
@@ -340,7 +342,7 @@ public class R4MedicationRequestControllerTest {
                         .contains(mr.intent(MedicationRequest.Intent.plan)))
             .collect(Collectors.toList());
     var p0 = medicationRequestByPatient.get("p0").stream().collect(Collectors.toList());
-    assertThat(json(controller().searchByPatient("p0", 1, 10)))
+    assertThat(json(controller().searchByPatient(null, "p0", 1, 10)))
         .isEqualTo(
             json(
                 MedicationRequestSamples.R4.asBundle(
@@ -375,7 +377,7 @@ public class R4MedicationRequestControllerTest {
                         .get("p0")
                         .contains(mr.intent(MedicationRequest.Intent.order)))
             .collect(Collectors.toList());
-    assertThat(json(controller().searchByPatient("p0", 2, 10)))
+    assertThat(json(controller().searchByPatient(null, "p0", 2, 10)))
         .isEqualTo(
             json(
                 MedicationRequestSamples.R4.asBundle(
@@ -546,7 +548,7 @@ public class R4MedicationRequestControllerTest {
     DatamartMedicationOrder dm = MedicationOrderSamples.Datamart.create().medicationOrder();
     medicationOrderRepository.save(asMedicationOrderEntity(dm));
     mockMedicationOrderIdentity("1", dm.cdwId());
-    MedicationRequest.Bundle actual = controller().searchByPatient("1", 1, 0);
+    MedicationRequest.Bundle actual = controller().searchByPatient(null, "1", 1, 0);
     assertThat(json(actual))
         .isEqualTo(
             json(
