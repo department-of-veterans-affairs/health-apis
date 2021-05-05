@@ -43,25 +43,25 @@ public class LocationIT {
         test(
             200,
             Location.Bundle.class,
-            b -> b.entry().isEmpty(),
+            bundleIsNotEmpty().negate(),
             "Location?identifier={id}",
             testIds.unknown()),
         test(
             200,
             Location.Bundle.class,
-            b -> !b.entry().isEmpty(),
+            bundleIsNotEmpty(),
             "Location?identifier={identifier}",
             testIds.locations().clinicIdentifier()),
         test(
             200,
             Location.Bundle.class,
-            b -> !b.entry().isEmpty(),
+            bundleIsNotEmpty(),
             "Location?identifier=https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-clinic-identifier|{identifier}",
             testIds.locations().clinicIdentifier()),
         test(
             200,
             Location.Bundle.class,
-            b -> b.entry().isEmpty(),
+            bundleIsNotEmpty().negate(),
             "Location?identifier={identifier}",
             testIds.locations().unknownClinicIdentifier()),
         // Search by name
