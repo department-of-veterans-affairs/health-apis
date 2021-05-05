@@ -13,16 +13,19 @@ import org.junit.jupiter.api.Test;
 public class LocationIT {
   @Delegate private final ResourceVerifier verifier = DataQueryResourceVerifier.r4();
 
-  TestIds testIds = DataQueryResourceVerifier.ids();
+  private final TestIds testIds = DataQueryResourceVerifier.ids();
 
-  private Predicate<Bundle> bundleIsNotEmpty() {
+  private static Predicate<Bundle> bundleIsEmpty() {
+    return bundle -> bundle.entry().isEmpty();
+  }
+
+  private static Predicate<Bundle> bundleIsNotEmpty() {
     return bundle -> !bundle.entry().isEmpty();
   }
 
   @Test
   void read() {
     verifyAll(
-        // Read
         test(200, Location.class, "Location/{id}", testIds.location()),
         test(404, OperationOutcome.class, "Location/{id}", testIds.unknown()));
   }
@@ -30,61 +33,54 @@ public class LocationIT {
   @Test
   void search() {
     verifyAll(
-        // Search by _id
         test(200, Location.Bundle.class, "Location?_id={id}", testIds.location()),
         test(
             200,
             Location.Bundle.class,
-            bundleIsNotEmpty().negate(),
-            "Location?_id={id}",
+            bundleIsEmpty(),
+            "Location?_id={unknown}",
             testIds.unknown()),
-        // Search by identifier
         test(200, Location.Bundle.class, "Location?identifier={id}", testIds.location()),
         test(
             200,
             Location.Bundle.class,
-            bundleIsNotEmpty().negate(),
-            "Location?identifier={id}",
+            bundleIsEmpty(),
+            "Location?identifier={unknown}",
             testIds.unknown()),
         test(
             200,
             Location.Bundle.class,
             bundleIsNotEmpty(),
-            "Location?identifier={identifier}",
+            "Location?identifier={clinicId}",
             testIds.locations().clinicIdentifier()),
         test(
             200,
             Location.Bundle.class,
             bundleIsNotEmpty(),
-            "Location?identifier=https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-clinic-identifier|{identifier}",
+            "Location?identifier=https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-clinic-identifier|{clinicId}",
             testIds.locations().clinicIdentifier()),
         test(
             200,
             Location.Bundle.class,
-            bundleIsNotEmpty().negate(),
-            "Location?identifier={identifier}",
+            bundleIsEmpty(),
+            "Location?identifier={unknown}",
             testIds.locations().unknownClinicIdentifier()),
-        // Search by name
         test(200, Location.Bundle.class, "Location?name={name}", testIds.locations().name()),
-        // Search by address
         test(
             200,
             Location.Bundle.class,
             "Location?address={street}",
             testIds.locations().addressStreet()),
-        // Search by address-city
         test(
             200,
             Location.Bundle.class,
             "Location?address-city={city}",
             testIds.locations().addressCity()),
-        // Search by address-state
         test(
             200,
             Location.Bundle.class,
             "Location?address-state={state}",
             testIds.locations().addressState()),
-        // Search by address-postalcode
         test(
             200,
             Location.Bundle.class,

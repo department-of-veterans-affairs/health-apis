@@ -11,6 +11,7 @@ import static java.util.Collections.singletonList;
 
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
 import gov.va.api.health.dataquery.service.controller.FacilityId;
+import gov.va.api.health.dataquery.service.controller.FacilityTransformers;
 import gov.va.api.health.r4.api.datatypes.Address;
 import gov.va.api.health.r4.api.datatypes.CodeableConcept;
 import gov.va.api.health.r4.api.datatypes.Coding;
@@ -55,7 +56,7 @@ public class R4LocationTransformer {
       return null;
     }
     return Identifier.builder()
-        .system("https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-clinic-identifier")
+        .system(FacilityTransformers.FAPI_CLINIC_IDENTIFIER_SYSTEM)
         .value(fapiClinicId)
         .build();
   }

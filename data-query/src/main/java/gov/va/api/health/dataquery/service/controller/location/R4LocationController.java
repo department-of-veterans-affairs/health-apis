@@ -7,6 +7,7 @@ import static gov.va.api.lighthouse.vulcan.Vulcan.returnNothing;
 
 import gov.va.api.health.dataquery.service.config.LinkProperties;
 import gov.va.api.health.dataquery.service.controller.FacilityId;
+import gov.va.api.health.dataquery.service.controller.FacilityTransformers;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.Bundling;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedBundler;
@@ -45,10 +46,6 @@ import org.springframework.web.bind.annotation.RestController;
     produces = {"application/json", "application/fhir+json"})
 @AllArgsConstructor(onConstructor_ = @Autowired)
 public class R4LocationController {
-
-  private static final String FAPI_CLINIC_IDENTIFIER_SYSTEM =
-      "https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-clinic-identifier";
-
   private final LinkProperties linkProperties;
 
   private LocationRepository repository;
@@ -77,23 +74,20 @@ public class R4LocationController {
         .build();
   }
 
-  /** Read Support. */
   @GetMapping(value = {"/{publicId}"})
-  public Location read(@PathVariable("publicId") String publicId) {
+  Location read(@PathVariable("publicId") String publicId) {
     return vulcanizedReader().read(publicId);
   }
 
-  /** Read Raw Datamart Payload Support. */
   @GetMapping(
       value = "/{publicId}",
       headers = {"raw=true"})
-  public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
+  String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
     return vulcanizedReader().readRaw(publicId, response);
   }
 
-  /** Search support. */
   @GetMapping
-  public Location.Bundle search(HttpServletRequest request) {
+  Location.Bundle search(HttpServletRequest request) {
     return Vulcan.forRepo(repository)
         .config(configuration())
         .build()
@@ -132,7 +126,8 @@ public class R4LocationController {
   }
 
   private boolean tokenIdentifierIsSupported(TokenParameter token) {
-    return (token.hasSupportedSystem(FAPI_CLINIC_IDENTIFIER_SYSTEM) && token.hasExplicitCode())
+    return (token.hasSupportedSystem(FacilityTransformers.FAPI_CLINIC_IDENTIFIER_SYSTEM)
+            && token.hasExplicitCode())
         || token.hasAnySystem();
   }
 

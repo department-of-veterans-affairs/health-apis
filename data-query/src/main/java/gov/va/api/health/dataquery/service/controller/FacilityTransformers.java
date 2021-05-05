@@ -10,6 +10,12 @@ import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class FacilityTransformers {
+  public static final String FAPI_IDENTIFIER_SYSTEM =
+      "https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-identifier";
+
+  public static final String FAPI_CLINIC_IDENTIFIER_SYSTEM =
+      "https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-clinic-identifier";
+
   /** Convert facility ID to Identifier. */
   public static Identifier facilityIdentifier(FacilityId id) {
     String fapiId = fapiFacilityId(id);
@@ -28,7 +34,7 @@ public class FacilityTransformers {
                             .display("Facility ID")
                             .build()))
                 .build())
-        .system("https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-identifier")
+        .system(FAPI_IDENTIFIER_SYSTEM)
         .value(fapiId)
         .build();
   }
