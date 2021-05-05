@@ -20,7 +20,7 @@ public class LocationIT {
   }
 
   private static Predicate<Bundle> bundleIsNotEmpty() {
-    return bundle -> !bundle.entry().isEmpty();
+    return bundleIsEmpty().negate();
   }
 
   @Test
