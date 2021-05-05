@@ -4,19 +4,28 @@ import gov.va.api.health.dataquery.tests.DataQueryResourceVerifier;
 import gov.va.api.health.dataquery.tests.TestIds;
 import gov.va.api.health.fhir.testsupport.ResourceVerifier;
 import gov.va.api.health.r4.api.resources.Location;
+import gov.va.api.health.r4.api.resources.Location.Bundle;
 import gov.va.api.health.r4.api.resources.OperationOutcome;
+import java.util.function.Predicate;
 import lombok.experimental.Delegate;
 import org.junit.jupiter.api.Test;
 
 public class LocationIT {
   @Delegate private final ResourceVerifier verifier = DataQueryResourceVerifier.r4();
 
-  TestIds testIds = DataQueryResourceVerifier.ids();
+  private final TestIds testIds = DataQueryResourceVerifier.ids();
+
+  private static Predicate<Bundle> bundleIsEmpty() {
+    return bundle -> bundle.entry().isEmpty();
+  }
+
+  private static Predicate<Bundle> bundleIsNotEmpty() {
+    return bundleIsEmpty().negate();
+  }
 
   @Test
   void read() {
     verifyAll(
-        // Read
         test(200, Location.class, "Location/{id}", testIds.location()),
         test(404, OperationOutcome.class, "Location/{id}", testIds.unknown()));
   }
@@ -24,43 +33,54 @@ public class LocationIT {
   @Test
   void search() {
     verifyAll(
-        // Search by _id
         test(200, Location.Bundle.class, "Location?_id={id}", testIds.location()),
         test(
             200,
             Location.Bundle.class,
-            b -> b.entry().isEmpty(),
-            "Location?_id={id}",
+            bundleIsEmpty(),
+            "Location?_id={unknown}",
             testIds.unknown()),
-        // Search by identifier
         test(200, Location.Bundle.class, "Location?identifier={id}", testIds.location()),
         test(
             200,
             Location.Bundle.class,
-            b -> b.entry().isEmpty(),
-            "Location?identifier={id}",
+            bundleIsEmpty(),
+            "Location?identifier={unknown}",
             testIds.unknown()),
-        // Search by name
+        test(
+            200,
+            Location.Bundle.class,
+            bundleIsNotEmpty(),
+            "Location?identifier={clinicId}",
+            testIds.locations().clinicIdentifier()),
+        test(
+            200,
+            Location.Bundle.class,
+            bundleIsNotEmpty(),
+            "Location?identifier=https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-clinic-identifier|{clinicId}",
+            testIds.locations().clinicIdentifier()),
+        test(
+            200,
+            Location.Bundle.class,
+            bundleIsEmpty(),
+            "Location?identifier={unknown}",
+            testIds.locations().unknownClinicIdentifier()),
         test(200, Location.Bundle.class, "Location?name={name}", testIds.locations().name()),
-        // Search by address
         test(
             200,
             Location.Bundle.class,
             "Location?address={street}",
             testIds.locations().addressStreet()),
-        // Search by address-city
         test(
             200,
             Location.Bundle.class,
             "Location?address-city={city}",
             testIds.locations().addressCity()),
-        // Search by address-state
         test(
             200,
             Location.Bundle.class,
             "Location?address-state={state}",
             testIds.locations().addressState()),
-        // Search by address-postalcode
         test(
             200,
             Location.Bundle.class,
