@@ -5,11 +5,9 @@ import static gov.va.api.lighthouse.vulcan.Vulcan.returnNothing;
 import static java.util.Collections.emptyList;
 
 import gov.va.api.health.dataquery.service.config.LinkProperties;
-import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.R4Bundler;
-import gov.va.api.health.dataquery.service.controller.R4Controllers;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.medicationorder.DatamartMedicationOrder;
@@ -39,12 +37,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.constraints.Min;
-
-import gov.va.api.lighthouse.vulcan.mappings.TokenParameter;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -55,7 +49,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -64,7 +57,6 @@ import org.springframework.web.bind.annotation.RestController;
  * implementation details.
  */
 @SuppressWarnings({"WeakerAccess", "EnhancedSwitchMigration"})
-@Slf4j
 @Validated
 @RestController
 @RequestMapping(
@@ -139,6 +131,16 @@ public class R4MedicationRequestController {
     return newContext(publicId, 1, 1).determineVulcanizedReader().readRaw(publicId, response);
   }
 
+  private String resourceTypeForId(String publicId) {
+    try {
+      ResourceIdentity resourceIdentity = witnessProtection.toResourceIdentity(publicId);
+      return ResourceNameTranslation.get().identityServiceToFhir(resourceIdentity.resource());
+    } catch (IdEncoder.BadId e) {
+      // Don't throw. Searches will return an empty bundle and reads will 404.
+      return "undetermined";
+    }
+  }
+
   /** Search Support. */
   @GetMapping
   public MedicationRequest.Bundle search(HttpServletRequest request) {
@@ -156,11 +158,7 @@ public class R4MedicationRequestController {
             .orElse(null);
     var page = Parameters.pageOf(parameters);
     var count = Parameters.countOf(parameters);
-    MedicationRequestContext ctx =
-        newContext(
-            publicId,
-            page,
-            count == 0 ? 1 : count);
+    MedicationRequestContext ctx = newContext(publicId, page, count == 0 ? 1 : count);
     var results = ctx.combinedVulcanResultsFor(request);
     if (count == 0) {
       /* -1 tells the bundler to automatically determine paging instead of manually (see below) */
@@ -168,16 +166,6 @@ public class R4MedicationRequestController {
     }
     return bundle(
         parameters, results.medicationRequests(), results.totalRecords(), results.totalPages());
-  }
-
-  private String resourceTypeForId(String publicId) {
-    try {
-    ResourceIdentity resourceIdentity = witnessProtection.toResourceIdentity(publicId);
-    return ResourceNameTranslation.get().identityServiceToFhir(resourceIdentity.resource());
-    } catch (IdEncoder.BadId e) {
-      // Don't throw. Searches will return an empty bundle and reads will 404.
-      return "undetermined";
-    }
   }
 
   private String toCdwId(String expectedResourceType, String publicId) {
@@ -216,21 +204,6 @@ public class R4MedicationRequestController {
       this.page = page;
       medicationOrderSupport = new MedicationOrderSupport(this);
       medicationStatementSupport = new MedicationStatementSupport(this);
-    }
-
-    public VulcanizedReader<?, ?, MedicationRequest, String> determineVulcanizedReader() {
-      switch (resourceTypeForId(publicId())) {
-        case "MedicationOrder":
-          return medicationOrderSupport().vulcanizedReader();
-        case "MedicationStatement":
-          return medicationStatementSupport().vulcanizedReader();
-        default:
-          throw new ResourceExceptions.NotFound(publicId());
-      }
-    }
-
-    private int lastPageWithMedicationStatement(int medicationStatementResultCount) {
-      return (int) Math.ceil((double) medicationStatementResultCount / count());
     }
 
     public MedicationRequestResults combinedVulcanResultsFor(HttpServletRequest request) {
@@ -278,6 +251,21 @@ public class R4MedicationRequestController {
           .build();
     }
 
+    public VulcanizedReader<?, ?, MedicationRequest, String> determineVulcanizedReader() {
+      switch (resourceTypeForId(publicId())) {
+        case "MedicationOrder":
+          return medicationOrderSupport().vulcanizedReader();
+        case "MedicationStatement":
+          return medicationStatementSupport().vulcanizedReader();
+        default:
+          throw new ResourceExceptions.NotFound(publicId());
+      }
+    }
+
+    private int lastPageWithMedicationStatement(int medicationStatementResultCount) {
+      return (int) Math.ceil((double) medicationStatementResultCount / count());
+    }
+
     private int totalPages(int medicationStatementLastPage, int medicationOrderCount) {
       return (int)
           (medicationStatementLastPage + Math.ceil(medicationOrderCount / (double) count()));
@@ -315,7 +303,6 @@ public class R4MedicationRequestController {
     List<MedicationRequest> transform(Page<MedicationOrderEntity> page) {
       return page.stream()
           .map(transformation().toDatamart())
-          .peek(this::updateCategory)
           .peek(dm -> transformation().applyWitnessProtection(dm))
           .map(transformation().toResource())
           .collect(Collectors.toList());
@@ -323,7 +310,12 @@ public class R4MedicationRequestController {
 
     VulcanizedTransformation<MedicationOrderEntity, DatamartMedicationOrder, MedicationRequest>
         transformation() {
-      return VulcanizedTransformation.toDatamart(MedicationOrderEntity::asDatamartMedicationOrder)
+      return VulcanizedTransformation.<MedicationOrderEntity, DatamartMedicationOrder>toDatamart(
+              entity -> {
+                var dm = entity.asDatamartMedicationOrder();
+                updateCategory(dm);
+                return dm;
+              })
           .toResource(
               dm ->
                   R4MedicationRequestFromMedicationOrderTransformer.builder()

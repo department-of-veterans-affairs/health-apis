@@ -1,38 +1,28 @@
 package gov.va.api.health.dataquery.service.controller.medicationrequest;
 
-import static gov.va.api.health.dataquery.service.controller.allergyintolerance.AllergyIntoleranceSamples.registration;
-import static gov.va.api.health.dataquery.service.controller.medicationrequest.MedicationRequestSamples.R4.outpatientCategory;
+import static gov.va.api.health.dataquery.service.controller.MockRequests.requestFromUri;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.google.common.collect.LinkedHashMultimap;
-import com.google.common.collect.Multimap;
-import gov.va.api.health.autoconfig.configuration.JacksonConfig;
+import gov.va.api.health.dataquery.service.config.LinkProperties;
 import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
 import gov.va.api.health.dataquery.service.controller.R4Bundler;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
-import gov.va.api.health.dataquery.service.controller.medicationorder.DatamartMedicationOrder;
-import gov.va.api.health.dataquery.service.controller.medicationorder.DatamartMedicationOrder.Category;
 import gov.va.api.health.dataquery.service.controller.medicationorder.MedicationOrderEntity;
 import gov.va.api.health.dataquery.service.controller.medicationorder.MedicationOrderRepository;
 import gov.va.api.health.dataquery.service.controller.medicationorder.MedicationOrderSamples;
-import gov.va.api.health.dataquery.service.controller.medicationstatement.DatamartMedicationStatement;
 import gov.va.api.health.dataquery.service.controller.medicationstatement.MedicationStatementEntity;
 import gov.va.api.health.dataquery.service.controller.medicationstatement.MedicationStatementRepository;
 import gov.va.api.health.dataquery.service.controller.medicationstatement.MedicationStatementSamples;
 import gov.va.api.health.ids.api.IdentityService;
-import gov.va.api.health.ids.api.Registration;
-import gov.va.api.health.ids.api.ResourceIdentity;
-import gov.va.api.health.r4.api.bundle.BundleLink;
-import gov.va.api.health.r4.api.resources.MedicationRequest;
-import java.util.ArrayList;
-import java.util.Collections;
+import gov.va.api.lighthouse.vulcan.InvalidRequest;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
@@ -41,69 +31,35 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 
-@DataJpaTest
-@ExtendWith(SpringExtension.class)
+@ExtendWith(MockitoExtension.class)
 public class R4MedicationRequestControllerTest {
-  HttpServletResponse response = mock(HttpServletResponse.class);
-
   @Mock IdentityService ids;
 
-  @Mock MedicationStatementRepository medStatementRepository;
+  @Mock MedicationStatementRepository medicationStatementRepository;
 
-  @Mock MedicationOrderRepository medOrderRepository;
-
-  @Autowired private MedicationOrderRepository medicationOrderRepository;
-
-  @Autowired private MedicationStatementRepository medicationStatementRepository;
+  @Mock MedicationOrderRepository medicationOrderRepository;
 
   static Stream<Arguments> updateMedicationOrderCategory() {
     return Stream.of(
-        arguments("123", Category.UNKNOWN),
-        arguments("123:O", Category.OUTPATIENT),
-        arguments("123:FP", Category.OUTPATIENT),
-        arguments("123:I", Category.INPATIENT),
-        arguments("123:FPI", Category.INPATIENT));
+        arguments("123", null),
+        arguments("123:P", null),
+        arguments("123:O", "outpatient"),
+        arguments("123:FP", "outpatient"),
+        arguments("123:I", "inpatient"),
+        arguments("123:FPI", "inpatient"));
   }
 
   R4MedicationRequestController _controller() {
     return new R4MedicationRequestController(
-        new R4Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool", "cool", "cool")),
-        null,
-        medOrderRepository,
-        medStatementRepository,
-        WitnessProtection.builder().identityService(ids).build(),
-        ".*:(O|FP)",
-        ".*:(I|FPI)");
-  }
-
-  @SneakyThrows
-  private MedicationOrderEntity asMedicationOrderEntity(DatamartMedicationOrder dm) {
-    return MedicationOrderEntity.builder()
-        .cdwId(dm.cdwId())
-        .icn(dm.patient().reference().get())
-        .payload(JacksonConfig.createMapper().writeValueAsString(dm))
-        .build();
-  }
-
-  @SneakyThrows
-  private MedicationStatementEntity asMedicationStatementEntity(DatamartMedicationStatement dm) {
-    return MedicationStatementEntity.builder()
-        .cdwId(dm.cdwId())
-        .icn(dm.patient().reference().get())
-        .payload(JacksonConfig.createMapper().writeValueAsString(dm))
-        .build();
-  }
-
-  R4MedicationRequestController controller() {
-    return new R4MedicationRequestController(
-        new R4Bundler(new ConfigurableBaseUrlPageLinks("http://abed.com", "cool", "cool", "cool")),
-        null,
+        new R4Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "dstu2", "stu3", "r4")),
+        LinkProperties.builder().defaultPageSize(15).build(),
         medicationOrderRepository,
         medicationStatementRepository,
         WitnessProtection.builder().identityService(ids).build(),
@@ -111,131 +67,61 @@ public class R4MedicationRequestControllerTest {
         ".*:(I|FPI)");
   }
 
+  @ParameterizedTest
+  @ValueSource(strings = {"?nachos=friday", "?patient=p1&intent=ew-david"})
   @SneakyThrows
-  String json(Object o) {
-    return JacksonConfig.createMapper().writerWithDefaultPrettyPrinter().writeValueAsString(o);
+  void emptyBundle(String query) {
+    var url = "http://fonzy.com/r4/MedicationRequest" + query;
+    var request = requestFromUri(url);
+    var bundle = _controller().search(request);
+    assertThat(bundle.total()).isEqualTo(0);
+    assertThat(bundle.entry()).isEmpty();
   }
 
-  public void mockMedicationOrderIdentity(String publicId, String cdwId) {
-    mockResourceIdentity("MEDICATION_ORDER", publicId, cdwId);
-  }
-
-  public void mockMedicationStatementIdentity(String publicId, String cdwId) {
-    mockResourceIdentity("MEDICATION_STATEMENT", publicId, cdwId);
-  }
-
-  public void mockNonMedicationTypeIdentity() {
-    mockResourceIdentity("NON_MS_MO", "41", "non_cdwId");
-  }
-
-  public void mockResourceIdentity(String resourceType, String publicId, String cdwId) {
-    ResourceIdentity resourceIdentity =
-        ResourceIdentity.builder().identifier(cdwId).resource(resourceType).system("CDW").build();
-    when(ids.lookup(publicId)).thenReturn(List.of(resourceIdentity));
-    when(ids.register(Mockito.any()))
-        .thenReturn(
-            List.of(
-                Registration.builder()
-                    .uuid(publicId)
-                    .resourceIdentities(List.of(resourceIdentity))
-                    .build()));
-  }
-
-  @Test
-  public void nonexistingSearchByPatientTest() {
-    Multimap<String, MedicationRequest> medicationRequestByPatient = populateData();
-    assertThat(json(controller().searchByPatient(null, "nada", 8, 10)))
-        .isEqualTo(
-            json(
-                MedicationRequestSamples.R4.asBundle(
-                    "http://abed.com/cool",
-                    Collections.emptyList(),
-                    0,
-                    MedicationRequestSamples.R4.link(
-                        BundleLink.LinkRelation.first,
-                        "http://abed.com/cool/MedicationRequest?patient=nada",
-                        1,
-                        10),
-                    MedicationRequestSamples.R4.link(
-                        BundleLink.LinkRelation.self,
-                        "http://abed.com/cool/MedicationRequest?patient=nada",
-                        8,
-                        10),
-                    MedicationRequestSamples.R4.link(
-                        BundleLink.LinkRelation.last,
-                        "http://abed.com/cool/MedicationRequest?patient=nada",
-                        1,
-                        10))));
+  @ParameterizedTest
+  @ValueSource(
+      strings = {"?patient=p1&_id=123", "?patient=p1&identifier=123", "?_id=123&identifier=456"})
+  @SneakyThrows
+  void invalidRequests(String query) {
+    var request = requestFromUri("http://fonzy.com/r4/MedicationRequest" + query);
+    assertThatExceptionOfType(InvalidRequest.class).isThrownBy(() -> _controller().search(request));
   }
 
   @Test
   public void numberOfRequestsIsStatementsAndOrdersAdded() {
-    Multimap<String, MedicationRequest> medicationRequestByPatient = populateData();
-    MedicationRequest.Bundle medReqBundleFirst = controller().searchByPatient(null, "p0", 1, 15);
-    MedicationRequest.Bundle medReqBundleLast = controller().searchByPatient(null, "p0", 2, 15);
-    List<MedicationRequest> medicationRequestsTotal =
-        medicationRequestByPatient.get("p0").stream().collect(Collectors.toList());
-    assertThat(medReqBundleFirst.total()).isEqualTo(medicationRequestsTotal.size());
-    assertThat(medReqBundleLast.total()).isEqualTo(medicationRequestsTotal.size());
-  }
-
-  private Multimap<String, MedicationRequest> populateData() {
-    var fhir = MedicationRequestSamples.R4.create();
-    var datamartMedicationOrder = MedicationOrderSamples.Datamart.create();
-    var datamartMedicationStatement = MedicationStatementSamples.Datamart.create();
-    var medicationRequestByPatient = LinkedHashMultimap.<String, MedicationRequest>create();
-    var registrations = new ArrayList<Registration>(30);
-    // We need to start at 10 because ordering is based on the publicId as a string and not a
-    // number.
-    // Therefore 9010 would come before 902.
-    for (int i = 10; i < 25; i++) {
-      var patientId = "p" + i % 2;
-      var cdwId = "" + i;
-      var publicId = "9" + i;
-      var dms = datamartMedicationStatement.medicationStatement(cdwId, patientId);
-      medicationStatementRepository.save(asMedicationStatementEntity(dms));
-      var medicationRequestFromMedicationStatement =
-          fhir.medicationRequestFromMedicationStatement(publicId, patientId);
-      medicationRequestByPatient.put(patientId, medicationRequestFromMedicationStatement);
-      ResourceIdentity resourceIdentity =
-          ResourceIdentity.builder()
-              .identifier(cdwId)
-              .resource("MEDICATION_STATEMENT")
-              .system("CDW")
-              .build();
-      Registration registration =
-          Registration.builder()
-              .uuid(publicId)
-              .resourceIdentities(List.of(resourceIdentity))
-              .build();
-      registrations.add(registration);
-      when(ids.lookup(publicId)).thenReturn(List.of(resourceIdentity));
-    }
-    for (int j = 25; j < 40; j++) {
-      var patientId = "p" + j % 2;
-      var cdwId = "" + j;
-      var publicId = "9" + j;
-      var dmo = datamartMedicationOrder.medicationOrder(cdwId, patientId);
-      medicationOrderRepository.save(asMedicationOrderEntity(dmo));
-      var medicationRequestFromMedicationOrder =
-          fhir.medicationRequestFromMedicationOrder(publicId, patientId);
-      medicationRequestByPatient.put(patientId, medicationRequestFromMedicationOrder);
-      ResourceIdentity resourceIdentity =
-          ResourceIdentity.builder()
-              .identifier(cdwId)
-              .resource("MEDICATION_ORDER")
-              .system("CDW")
-              .build();
-      Registration registration =
-          Registration.builder()
-              .uuid(publicId)
-              .resourceIdentities(List.of(resourceIdentity))
-              .build();
-      registrations.add(registration);
-      when(ids.lookup(publicId)).thenReturn(List.of(resourceIdentity));
-    }
-    when(ids.register(any())).thenReturn(registrations);
-    return medicationRequestByPatient;
+    when(ids.register(any()))
+        .thenReturn(
+            List.of(
+                MedicationOrderSamples.registration("mo1", "pmr1"),
+                MedicationOrderSamples.registration("mo2", "pmr2"),
+                MedicationStatementSamples.registration("ms1", "pmr3")));
+    var modm = MedicationOrderSamples.Datamart.create();
+    var msdm = MedicationStatementSamples.Datamart.create();
+    when(medicationOrderRepository.count(any(Specification.class))).thenReturn(2L);
+    when(medicationStatementRepository.count(any(Specification.class))).thenReturn(1L);
+    when(medicationOrderRepository.findAll(any(Specification.class), any(Pageable.class)))
+        .thenAnswer(
+            i ->
+                new PageImpl(
+                    List.of(modm.entity("mo1", "p1"), modm.entity("mo2", "p1")),
+                    i.getArgument(1, Pageable.class),
+                    2));
+    when(medicationStatementRepository.findAll(any(Specification.class), any(Pageable.class)))
+        .thenAnswer(
+            i ->
+                new PageImpl(
+                    List.of(msdm.entity("ms1", "p1")), i.getArgument(1, Pageable.class), 2));
+    // Medication Statements
+    var request = requestFromUri("http://fonzy.com/r4/MedicationRequest?patient=p1");
+    var actual = _controller().search(request);
+    assertThat(actual.total()).isEqualTo(3);
+    assertThat(actual.entry().stream().map(e -> e.resource().id())).containsExactly("pmr3");
+    // Medication Orders
+    request = requestFromUri("http://fonzy.com/r4/MedicationRequest?patient=p1&page=2");
+    actual = _controller().search(request);
+    assertThat(actual.total()).isEqualTo(3);
+    assertThat(actual.entry().stream().map(e -> e.resource().id()))
+        .containsExactlyInAnyOrder("pmr1", "pmr2");
   }
 
   @Test
@@ -244,7 +130,7 @@ public class R4MedicationRequestControllerTest {
         .thenReturn(List.of(MedicationOrderSamples.registration("mo1", "pmo1")));
     when(ids.lookup("pmo1")).thenReturn(List.of(MedicationOrderSamples.id("mo1")));
     var entity = MedicationOrderSamples.Datamart.create().entity("mo1", "p1");
-    when(medOrderRepository.findById("mo1")).thenReturn(Optional.of(entity));
+    when(medicationOrderRepository.findById("mo1")).thenReturn(Optional.of(entity));
     assertThat(_controller().read("pmo1"))
         .isEqualTo(
             MedicationRequestSamples.R4
@@ -258,7 +144,7 @@ public class R4MedicationRequestControllerTest {
         .thenReturn(List.of(MedicationStatementSamples.registration("ms1", "pms1")));
     when(ids.lookup("pms1")).thenReturn(List.of(MedicationStatementSamples.id("ms1")));
     var entity = MedicationStatementSamples.Datamart.create().entity("ms1", "p1");
-    when(medStatementRepository.findById("ms1")).thenReturn(Optional.of(entity));
+    when(medicationStatementRepository.findById("ms1")).thenReturn(Optional.of(entity));
     assertThat(_controller().read("pms1"))
         .isEqualTo(
             MedicationRequestSamples.R4
@@ -270,7 +156,7 @@ public class R4MedicationRequestControllerTest {
   public void readRawMedOrderTest() {
     when(ids.lookup("pmo1")).thenReturn(List.of(MedicationOrderSamples.id("mo1")));
     var entity = MedicationOrderEntity.builder().cdwId("mo1").icn("p1").payload("payload").build();
-    when(medOrderRepository.findById("mo1")).thenReturn(Optional.of(entity));
+    when(medicationOrderRepository.findById("mo1")).thenReturn(Optional.of(entity));
     assertThat(_controller().readRaw("pmo1", mock(HttpServletResponse.class))).isEqualTo("payload");
   }
 
@@ -279,315 +165,66 @@ public class R4MedicationRequestControllerTest {
     when(ids.lookup("pms1")).thenReturn(List.of(MedicationStatementSamples.id("ms1")));
     var entity =
         MedicationStatementEntity.builder().cdwId("ms1").icn("p1").payload("payload").build();
-    when(medStatementRepository.findById("ms1")).thenReturn(Optional.of(entity));
+    when(medicationStatementRepository.findById("ms1")).thenReturn(Optional.of(entity));
     assertThat(_controller().readRaw("pms1", mock(HttpServletResponse.class))).isEqualTo("payload");
-  }
-
-  @Test
-  public void searchById() {
-    DatamartMedicationOrder dm = MedicationOrderSamples.Datamart.create().medicationOrder();
-    medicationOrderRepository.save(asMedicationOrderEntity(dm));
-    mockMedicationOrderIdentity("1", dm.cdwId());
-    MedicationRequest.Bundle actual = controller().searchById("1", 1, 1);
-    MedicationRequest medicationRequest =
-        MedicationRequestSamples.R4
-            .create()
-            .medicationRequestFromMedicationOrder(
-                "1", dm.patient().reference().get(), outpatientCategory());
-    assertThat(json(actual))
-        .isEqualTo(
-            json(
-                MedicationRequestSamples.R4.asBundle(
-                    "http://abed.com/cool",
-                    List.of(medicationRequest),
-                    1,
-                    MedicationRequestSamples.R4.link(
-                        BundleLink.LinkRelation.first,
-                        "http://abed.com/cool/MedicationRequest?identifier=1",
-                        1,
-                        1),
-                    MedicationRequestSamples.R4.link(
-                        BundleLink.LinkRelation.self,
-                        "http://abed.com/cool/MedicationRequest?identifier=1",
-                        1,
-                        1),
-                    MedicationRequestSamples.R4.link(
-                        BundleLink.LinkRelation.last,
-                        "http://abed.com/cool/MedicationRequest?identifier=1",
-                        1,
-                        1))));
-  }
-
-  @Test
-  public void searchByIdentifier() {
-    DatamartMedicationOrder dm = MedicationOrderSamples.Datamart.create().medicationOrder();
-    medicationOrderRepository.save(asMedicationOrderEntity(dm));
-    mockMedicationOrderIdentity("1", dm.cdwId());
-    MedicationRequest.Bundle actual = controller().searchByIdentifier("1", 1, 1);
-    validateSearchByIdResult(dm, actual, true);
-    // Invalid search params
-    MedicationRequest.Bundle invalidActual = controller().searchByIdentifier("1", 14, 1);
-    validateSearchByIdResult(dm, invalidActual, false);
-  }
-
-  @Test
-  public void searchByPatient() {
-    Multimap<String, MedicationRequest> medicationRequestByPatient = populateData();
-    List<MedicationRequest> medicationRequests =
-        medicationRequestByPatient.get("p0").stream()
-            .filter(
-                mr ->
-                    medicationRequestByPatient
-                        .get("p0")
-                        .contains(mr.intent(MedicationRequest.Intent.plan)))
-            .collect(Collectors.toList());
-    var p0 = medicationRequestByPatient.get("p0").stream().collect(Collectors.toList());
-    assertThat(json(controller().searchByPatient(null, "p0", 1, 10)))
-        .isEqualTo(
-            json(
-                MedicationRequestSamples.R4.asBundle(
-                    "http://abed.com/cool",
-                    medicationRequests,
-                    p0.size(),
-                    MedicationRequestSamples.R4.link(
-                        BundleLink.LinkRelation.first,
-                        "http://abed.com/cool/MedicationRequest?patient=p0",
-                        1,
-                        10),
-                    MedicationRequestSamples.R4.link(
-                        BundleLink.LinkRelation.self,
-                        "http://abed.com/cool/MedicationRequest?patient=p0",
-                        1,
-                        10),
-                    MedicationRequestSamples.R4.link(
-                        BundleLink.LinkRelation.next,
-                        "http://abed.com/cool/MedicationRequest?patient=p0",
-                        2,
-                        10),
-                    MedicationRequestSamples.R4.link(
-                        BundleLink.LinkRelation.last,
-                        "http://abed.com/cool/MedicationRequest?patient=p0",
-                        2,
-                        10))));
-    medicationRequests =
-        medicationRequestByPatient.get("p0").stream()
-            .filter(
-                mr ->
-                    medicationRequestByPatient
-                        .get("p0")
-                        .contains(mr.intent(MedicationRequest.Intent.order)))
-            .collect(Collectors.toList());
-    assertThat(json(controller().searchByPatient(null, "p0", 2, 10)))
-        .isEqualTo(
-            json(
-                MedicationRequestSamples.R4.asBundle(
-                    "http://abed.com/cool",
-                    medicationRequests,
-                    p0.size(),
-                    MedicationRequestSamples.R4.link(
-                        BundleLink.LinkRelation.first,
-                        "http://abed.com/cool/MedicationRequest?patient=p0",
-                        1,
-                        10),
-                    MedicationRequestSamples.R4.link(
-                        BundleLink.LinkRelation.prev,
-                        "http://abed.com/cool/MedicationRequest?patient=p0",
-                        1,
-                        10),
-                    MedicationRequestSamples.R4.link(
-                        BundleLink.LinkRelation.self,
-                        "http://abed.com/cool/MedicationRequest?patient=p0",
-                        2,
-                        10),
-                    MedicationRequestSamples.R4.link(
-                        BundleLink.LinkRelation.last,
-                        "http://abed.com/cool/MedicationRequest?patient=p0",
-                        2,
-                        10))));
-  }
-
-  @Test
-  public void searchByPatientAndIntent() {
-    Multimap<String, MedicationRequest> medicationRequestByPatientAndIntent = populateData();
-    List<MedicationRequest> medicationRequests =
-        medicationRequestByPatientAndIntent.get("p0").stream()
-            .filter(
-                mr ->
-                    medicationRequestByPatientAndIntent
-                        .get("p0")
-                        .contains(mr.intent(MedicationRequest.Intent.order)))
-            .collect(Collectors.toList());
-    assertThat(json(controller().searchByPatientAndIntent("p0", "order", 1, 10)))
-        .isEqualTo(
-            json(
-                MedicationRequestSamples.R4.asBundle(
-                    "http://abed.com/cool",
-                    medicationRequests,
-                    medicationRequests.size(),
-                    MedicationRequestSamples.R4.link(
-                        BundleLink.LinkRelation.first,
-                        "http://abed.com/cool/MedicationRequest?intent=order&patient=p0",
-                        1,
-                        10),
-                    MedicationRequestSamples.R4.link(
-                        BundleLink.LinkRelation.self,
-                        "http://abed.com/cool/MedicationRequest?intent=order&patient=p0",
-                        1,
-                        10),
-                    MedicationRequestSamples.R4.link(
-                        BundleLink.LinkRelation.last,
-                        "http://abed.com/cool/MedicationRequest?intent=order&patient=p0",
-                        1,
-                        10))));
-    medicationRequests =
-        medicationRequestByPatientAndIntent.get("p0").stream()
-            .filter(
-                mr ->
-                    medicationRequestByPatientAndIntent
-                        .get("p0")
-                        .contains(mr.intent(MedicationRequest.Intent.plan)))
-            .collect(Collectors.toList());
-    assertThat(json(controller().searchByPatientAndIntent("p0", "plan", 1, 10)))
-        .isEqualTo(
-            json(
-                MedicationRequestSamples.R4.asBundle(
-                    "http://abed.com/cool",
-                    medicationRequests,
-                    medicationRequests.size(),
-                    MedicationRequestSamples.R4.link(
-                        BundleLink.LinkRelation.first,
-                        "http://abed.com/cool/MedicationRequest?intent=plan&patient=p0",
-                        1,
-                        10),
-                    MedicationRequestSamples.R4.link(
-                        BundleLink.LinkRelation.self,
-                        "http://abed.com/cool/MedicationRequest?intent=plan&patient=p0",
-                        1,
-                        10),
-                    MedicationRequestSamples.R4.link(
-                        BundleLink.LinkRelation.last,
-                        "http://abed.com/cool/MedicationRequest?intent=plan&patient=p0",
-                        1,
-                        10))));
-    // Intent != order and != plan should return empty
-    assertThat(json(controller().searchByPatientAndIntent("p0", "proposal", 1, 10)))
-        .isEqualTo(
-            json(
-                MedicationRequestSamples.R4.asBundle(
-                    "http://abed.com/cool",
-                    Collections.emptyList(),
-                    0,
-                    MedicationRequestSamples.R4.link(
-                        BundleLink.LinkRelation.first,
-                        "http://abed.com/cool/MedicationRequest?intent=proposal&patient=p0",
-                        1,
-                        10),
-                    MedicationRequestSamples.R4.link(
-                        BundleLink.LinkRelation.self,
-                        "http://abed.com/cool/MedicationRequest?intent=proposal&patient=p0",
-                        1,
-                        10),
-                    MedicationRequestSamples.R4.link(
-                        BundleLink.LinkRelation.last,
-                        "http://abed.com/cool/MedicationRequest?intent=proposal&patient=p0",
-                        1,
-                        10))));
-  }
-
-  @SneakyThrows
-  private DatamartMedicationOrder toMedicationOrderObject(String json) {
-    return JacksonConfig.createMapper().readValue(json, DatamartMedicationOrder.class);
-  }
-
-  @SneakyThrows
-  private DatamartMedicationStatement toMedicationStatementObject(String json) {
-    return JacksonConfig.createMapper().readValue(json, DatamartMedicationStatement.class);
   }
 
   @ParameterizedTest
   @MethodSource
-  void updateMedicationOrderCategory(String cdwId, Category expectedCategory) {
-    var mo = MedicationOrderSamples.Datamart.create().medicationOrder(cdwId, "x");
-    controller().newSearchContext("x", 1, 2).medicationOrderSupport().updateCategory(mo);
-    assertThat(mo.category()).isEqualTo(expectedCategory);
+  void updateMedicationOrderCategory(String cdwId, String expectedCategory) {
+    when(ids.register(any()))
+        .thenReturn(List.of(MedicationOrderSamples.registration(cdwId, "pmo1")));
+    when(ids.lookup("pmo1")).thenReturn(List.of(MedicationOrderSamples.id(cdwId)));
+    var entity = MedicationOrderSamples.Datamart.create().entity(cdwId, "p1");
+    when(medicationOrderRepository.findById(cdwId)).thenReturn(Optional.of(entity));
+    assertThat(
+            Optional.ofNullable(_controller().read("pmo1").category())
+                .map(c -> c.get(0).coding().get(0).code())
+                .orElse(null))
+        .isEqualTo(expectedCategory);
   }
 
-  private void validateSearchByIdResult(
-      DatamartMedicationOrder dm, MedicationRequest.Bundle actual, boolean validSearchParams) {
-    MedicationRequest medicationOrder =
-        MedicationRequestSamples.R4
-            .create()
-            .medicationRequestFromMedicationOrder(
-                "1", dm.patient().reference().get(), outpatientCategory());
-    assertThat(json(actual))
-        .isEqualTo(
-            json(
-                MedicationRequestSamples.R4.asBundle(
-                    "http://abed.com/cool",
-                    validSearchParams ? List.of(medicationOrder) : Collections.emptyList(),
-                    1,
-                    MedicationRequestSamples.R4.link(
-                        BundleLink.LinkRelation.first,
-                        "http://abed.com/cool/MedicationRequest?identifier=1",
-                        1,
-                        1),
-                    MedicationRequestSamples.R4.link(
-                        BundleLink.LinkRelation.self,
-                        "http://abed.com/cool/MedicationRequest?identifier=1",
-                        validSearchParams ? 1 : 14,
-                        1),
-                    MedicationRequestSamples.R4.link(
-                        BundleLink.LinkRelation.last,
-                        "http://abed.com/cool/MedicationRequest?identifier=1",
-                        1,
-                        1))));
-  }
-
-  @Test
-  public void zeroCountBundleTest() {
-    DatamartMedicationOrder dm = MedicationOrderSamples.Datamart.create().medicationOrder();
-    medicationOrderRepository.save(asMedicationOrderEntity(dm));
-    mockMedicationOrderIdentity("1", dm.cdwId());
-    MedicationRequest.Bundle actual = controller().searchByPatient(null, "1", 1, 0);
-    assertThat(json(actual))
-        .isEqualTo(
-            json(
-                MedicationRequestSamples.R4.asBundle(
-                    "http://abed.com/cool",
-                    Collections.emptyList(),
-                    0,
-                    MedicationRequestSamples.R4.link(
-                        BundleLink.LinkRelation.self,
-                        "http://abed.com/cool/MedicationRequest?patient=1",
-                        1,
-                        0))));
-  }
-
-  @Test
-  public void zeroCountSearchesTest() {
-    assertThat(json(controller().searchByPatientAndIntent("p0", "plan", 1, 0)))
-        .isEqualTo(
-            json(
-                MedicationRequestSamples.R4.asBundle(
-                    "http://abed.com/cool",
-                    Collections.emptyList(),
-                    0,
-                    MedicationRequestSamples.R4.link(
-                        BundleLink.LinkRelation.self,
-                        "http://abed.com/cool/MedicationRequest?intent=plan&patient=p0",
-                        1,
-                        0))));
-    assertThat(json(controller().searchByPatientAndIntent("p0", "order", 1, 0)))
-        .isEqualTo(
-            json(
-                MedicationRequestSamples.R4.asBundle(
-                    "http://abed.com/cool",
-                    Collections.emptyList(),
-                    0,
-                    MedicationRequestSamples.R4.link(
-                        BundleLink.LinkRelation.self,
-                        "http://abed.com/cool/MedicationRequest?intent=order&patient=p0",
-                        1,
-                        0))));
+  @ParameterizedTest
+  @ValueSource(
+      strings = {
+        "?_id=pmr1",
+        "?identifier=pmr1",
+        "?patient=p1",
+        "?patient=p1&intent=order",
+        "?patient=p1&intent=plan"
+      })
+  void validRequests(String query) {
+    lenient()
+        .when(ids.register(any()))
+        .thenReturn(
+            List.of(
+                MedicationOrderSamples.registration("mo1", "pmr1"),
+                MedicationOrderSamples.registration("mo2", "pmr2"),
+                MedicationStatementSamples.registration("ms1", "pmr3"),
+                MedicationStatementSamples.registration("ms2", "pmr4")));
+    lenient().when(ids.lookup("pmr1")).thenReturn(List.of(MedicationOrderSamples.id("mo1")));
+    var modm = MedicationOrderSamples.Datamart.create();
+    var msdm = MedicationStatementSamples.Datamart.create();
+    lenient().when(medicationOrderRepository.count(any(Specification.class))).thenReturn(2L);
+    lenient().when(medicationStatementRepository.count(any(Specification.class))).thenReturn(2L);
+    lenient()
+        .when(medicationOrderRepository.findAll(any(Specification.class), any(Pageable.class)))
+        .thenAnswer(
+            i ->
+                new PageImpl(
+                    List.of(modm.entity("mo1", "p1"), modm.entity("mo2", "p1")),
+                    i.getArgument(1, Pageable.class),
+                    2));
+    lenient()
+        .when(medicationStatementRepository.findAll(any(Specification.class), any(Pageable.class)))
+        .thenAnswer(
+            i ->
+                new PageImpl(
+                    List.of(msdm.entity("ms1", "p1"), msdm.entity("ms2", "p1")),
+                    i.getArgument(1, Pageable.class),
+                    2));
+    var request = requestFromUri("http://fonzy.com/r4/MedicationRequest" + query);
+    var actual = _controller().search(request);
+    assertThat(actual.entry()).hasSize(2);
   }
 }
