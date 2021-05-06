@@ -17,8 +17,6 @@ import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
 import gov.va.api.lighthouse.vulcan.mappings.Mappings;
 import gov.va.api.lighthouse.vulcan.mappings.TokenParameter;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -70,11 +68,10 @@ public class R4ConditionController {
             Mappings.forEntity(ConditionEntity.class)
                 .tokens(
                     "category", this::tokenCategoryIsSupported, this::tokenCategorySpecification)
-                .tokenList(
+                .tokens(
                     "clinical-status",
-                    "clinicalStatus",
                     this::tokenClinicalStatusIsSupported,
-                    this::tokenClinicalStatusValues)
+                    this::tokenClinicalStatusSpecification)
                 .value("_id", "cdwId", witnessProtection::toCdwId)
                 .value("identifier", "cdwId", witnessProtection::toCdwId)
                 .value("patient", "icn")
@@ -213,16 +210,25 @@ public class R4ConditionController {
         || (token.hasAnySystem() && codeIsSupported);
   }
 
-  private Collection<String> tokenClinicalStatusValues(TokenParameter token) {
+  private Specification<ConditionEntity> tokenClinicalStatusSpecification(TokenParameter token) {
     return token
         .behavior()
         .onExplicitSystemAndAnyCode(
-            s ->
-                Arrays.stream(DatamartCondition.ClinicalStatus.values())
-                    .map(Enum::toString)
-                    .collect(Collectors.toList()))
-        .onExplicitSystemAndExplicitCode((s, c) -> List.of(toDatamartClinicalStatusValue(c)))
-        .onAnySystemAndExplicitCode(c -> List.of(toDatamartClinicalStatusValue(c)))
+            s -> {
+              var codes =
+                  Arrays.stream(DatamartCondition.ClinicalStatus.values())
+                      .map(Enum::toString)
+                      .collect(Collectors.toList());
+              return Specifications.<ConditionEntity>selectInList("clinicalStatus", codes);
+            })
+        .onExplicitSystemAndExplicitCode(
+            (s, c) ->
+                Specifications.<ConditionEntity>select(
+                    "clinicalStatus", toDatamartClinicalStatusValue(c)))
+        .onAnySystemAndExplicitCode(
+            c ->
+                Specifications.<ConditionEntity>select(
+                    "clinicalStatus", toDatamartClinicalStatusValue(c)))
         .build()
         .execute();
   }
