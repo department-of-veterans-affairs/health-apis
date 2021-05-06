@@ -41,9 +41,8 @@ import org.springframework.web.bind.annotation.RestController;
     value = {"/stu3/Organization"},
     produces = {"application/json", "application/fhir+json"})
 @SuppressWarnings("WeakerAccess")
-@AllArgsConstructor(onConstructor = @__({@Autowired}))
+@AllArgsConstructor(onConstructor_ = @Autowired)
 public class Stu3OrganizationController {
-
   private Stu3Bundler bundler;
 
   private OrganizationRepository repository;

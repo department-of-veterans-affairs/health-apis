@@ -51,6 +51,20 @@ public class R4LocationControllerTest {
         WitnessProtection.builder().identityService(ids).build());
   }
 
+  @ParameterizedTest
+  @ValueSource(
+      strings = {
+        "?identifier=https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-clinic-identifier|",
+        "?identifier=|vha_123_4567"
+      })
+  void emptyBundle(String query) {
+    var url = "http://fonzy.com/r4/Location" + query;
+    var request = requestFromUri(url);
+    var bundle = controller().search(request);
+    assertThat(bundle.total()).isEqualTo(0);
+    assertThat(bundle.entry()).isEmpty();
+  }
+
   @SneakyThrows
   @ParameterizedTest
   @ValueSource(strings = {"?_id=321&identifier=123"})
@@ -100,6 +114,7 @@ public class R4LocationControllerTest {
       strings = {
         "?_id=loc1",
         "?identifier=loc1",
+        "?identifier=https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-clinic-identifier|vha_xxx_yyyy",
         "?name=TEM+MH+PSO+TRS+IND93EH",
         "?address=1901+VETERANS+MEMORIAL+DRIVE",
         "?address-city=TEMPLE",
