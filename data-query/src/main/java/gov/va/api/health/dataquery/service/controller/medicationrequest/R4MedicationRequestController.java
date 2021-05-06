@@ -197,24 +197,24 @@ public class R4MedicationRequestController {
   @Builder
   @lombok.Value
   static class MedicationRequestResults {
-    private int totalRecords;
+    int totalRecords;
 
-    private int totalPages;
+    int totalPages;
 
-    private List<MedicationRequest> medicationRequests;
+    List<MedicationRequest> medicationRequests;
   }
 
   @lombok.Value
   class MedicationRequestContext {
-    private String publicId;
+    String publicId;
 
-    private int count;
+    int count;
 
-    private int page;
+    int page;
 
-    private MedicationOrderSupport medicationOrderSupport;
+    MedicationOrderSupport medicationOrderSupport;
 
-    private MedicationStatementSupport medicationStatementSupport;
+    MedicationStatementSupport medicationStatementSupport;
 
     MedicationRequestContext(String publicId, int count, int page) {
       this.publicId = publicId;
@@ -293,7 +293,7 @@ public class R4MedicationRequestController {
   @lombok.Value
   @AllArgsConstructor
   class MedicationOrderSupport {
-    private MedicationRequestContext ctx;
+    MedicationRequestContext ctx;
 
     VulcanConfiguration<MedicationOrderEntity> configuration() {
       return vulcanConfigurationFor(
@@ -364,7 +364,7 @@ public class R4MedicationRequestController {
   @lombok.Value
   @AllArgsConstructor
   class MedicationStatementSupport {
-    private MedicationRequestContext ctx;
+    MedicationRequestContext ctx;
 
     VulcanConfiguration<MedicationStatementEntity> configuration() {
       return vulcanConfigurationFor(
