@@ -22,6 +22,7 @@ import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedTrans
 import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.health.ids.client.IdEncoder;
 import gov.va.api.health.r4.api.resources.MedicationRequest;
+import gov.va.api.lighthouse.datamart.DatamartEntity;
 import gov.va.api.lighthouse.datamart.ResourceNameTranslation;
 import gov.va.api.lighthouse.vulcan.CircuitBreaker;
 import gov.va.api.lighthouse.vulcan.RequestContext;
@@ -43,6 +44,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
@@ -176,6 +178,22 @@ public class R4MedicationRequestController {
         "id", publicId, "publicId provided is not a " + expectedResourceType);
   }
 
+  private <EntityT extends DatamartEntity> VulcanConfiguration<EntityT> vulcanConfigurationFor(
+      String resourceType, Class<EntityT> entityClass, Sort sortBy, String intent) {
+    return VulcanConfiguration.forEntity(entityClass)
+        .paging(linkProperties.pagingConfiguration(resourceType, sortBy))
+        .mappings(
+            Mappings.forEntity(entityClass)
+                .value("_id", "cdwId", s -> toCdwId(resourceType, s))
+                .value("identifier", "cdwId", s -> toCdwId(resourceType, s))
+                .tokens("intent", t -> intent.equals(t.code()), t -> null)
+                .value("patient", "icn")
+                .get())
+        .defaultQuery(returnNothing())
+        .rule(parametersNeverSpecifiedTogether("_id", "identifier", "patient"))
+        .build();
+  }
+
   @Builder
   @lombok.Value
   static class MedicationRequestResults {
@@ -278,20 +296,11 @@ public class R4MedicationRequestController {
     private MedicationRequestContext ctx;
 
     VulcanConfiguration<MedicationOrderEntity> configuration() {
-      return VulcanConfiguration.forEntity(MedicationOrderEntity.class)
-          .paging(
-              linkProperties.pagingConfiguration(
-                  "MedicationOrder", MedicationOrderEntity.naturalOrder()))
-          .mappings(
-              Mappings.forEntity(MedicationOrderEntity.class)
-                  .value("_id", "cdwId", s -> toCdwId("MedicationOrder", s))
-                  .value("identifier", "cdwId", s -> toCdwId("MedicationOrder", s))
-                  .tokens("intent", t -> "order".equals(t.code()), t -> null)
-                  .value("patient", "icn")
-                  .get())
-          .defaultQuery(returnNothing())
-          .rule(parametersNeverSpecifiedTogether("_id", "identifier", "patient"))
-          .build();
+      return vulcanConfigurationFor(
+          "MedicationOrder",
+          MedicationOrderEntity.class,
+          MedicationOrderEntity.naturalOrder(),
+          "order");
     }
 
     public int databaseRecordCount(RequestContext<MedicationOrderEntity> requestContext) {
@@ -358,20 +367,11 @@ public class R4MedicationRequestController {
     private MedicationRequestContext ctx;
 
     VulcanConfiguration<MedicationStatementEntity> configuration() {
-      return VulcanConfiguration.forEntity(MedicationStatementEntity.class)
-          .paging(
-              linkProperties.pagingConfiguration(
-                  "MedicationStatement", MedicationStatementEntity.naturalOrder()))
-          .mappings(
-              Mappings.forEntity(MedicationStatementEntity.class)
-                  .value("_id", "cdwId", s -> toCdwId("MedicationStatement", s))
-                  .value("identifier", "cdwId", s -> toCdwId("MedicationStatement", s))
-                  .tokens("intent", t -> "plan".equals(t.code()), t -> null)
-                  .value("patient", "icn")
-                  .get())
-          .defaultQuery(returnNothing())
-          .rule(parametersNeverSpecifiedTogether("_id", "identifier", "patient"))
-          .build();
+      return vulcanConfigurationFor(
+          "MedicationStatement",
+          MedicationStatementEntity.class,
+          MedicationStatementEntity.naturalOrder(),
+          "plan");
     }
 
     public int databaseRecordCount(RequestContext<MedicationStatementEntity> requestContext) {
