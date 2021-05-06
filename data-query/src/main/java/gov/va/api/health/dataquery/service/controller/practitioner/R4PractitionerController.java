@@ -2,6 +2,7 @@ package gov.va.api.health.dataquery.service.controller.practitioner;
 
 import static gov.va.api.lighthouse.vulcan.Rules.atLeastOneParameterOf;
 import static gov.va.api.lighthouse.vulcan.Vulcan.returnNothing;
+import static org.apache.commons.lang3.StringUtils.startsWithIgnoreCase;
 
 import gov.va.api.health.dataquery.service.config.LinkProperties;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
@@ -59,7 +60,7 @@ public class R4PractitionerController {
   /** Read Support. */
   @GetMapping(value = "/{publicId}")
   public Practitioner read(@PathVariable("publicId") String publicId) {
-    if (publicId.length() > 4 && publicId.startsWith("npi-")) {
+    if (publicId.length() > 4 && startsWithIgnoreCase(publicId, "npi-")) {
       return readByNpi(publicId.substring(4));
     }
     return vulcanizedReader().read(publicId);

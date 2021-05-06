@@ -2,6 +2,7 @@ package gov.va.api.health.dataquery.service.controller.medicationorder;
 
 import static java.util.Arrays.asList;
 
+import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.medicationorder.DatamartMedicationOrder.Category;
 import gov.va.api.health.dstu2.api.bundle.AbstractBundle;
 import gov.va.api.health.dstu2.api.bundle.AbstractEntry;
@@ -13,6 +14,8 @@ import gov.va.api.health.dstu2.api.datatypes.Timing;
 import gov.va.api.health.dstu2.api.elements.Reference;
 import gov.va.api.health.dstu2.api.resources.MedicationOrder;
 import gov.va.api.health.dstu2.api.resources.MedicationOrder.Status;
+import gov.va.api.health.ids.api.Registration;
+import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.lighthouse.datamart.DatamartReference;
 import java.time.Instant;
 import java.util.Collection;
@@ -20,14 +23,30 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class MedicationOrderSamples {
+  public static ResourceIdentity id(String cdwId) {
+    return ResourceIdentity.builder()
+        .system("CDW")
+        .resource("MEDICATION_ORDER")
+        .identifier(cdwId)
+        .build();
+  }
+
+  public static Registration registration(String cdwId, String publicId) {
+    return Registration.builder().uuid(publicId).resourceIdentities(List.of(id(cdwId))).build();
+  }
+
+  @SneakyThrows
+  String json(Object o) {
+    return JacksonConfig.createMapper().writerWithDefaultPrettyPrinter().writeValueAsString(o);
+  }
 
   @AllArgsConstructor(staticName = "create")
   public static class Datamart {
-
     DatamartMedicationOrder.DispenseRequest dispenseRequest() {
       return DatamartMedicationOrder.DispenseRequest.builder()
           .numberOfRepeatsAllowed(Optional.of(1))
@@ -62,6 +81,14 @@ public class MedicationOrderSamples {
               .doseQuantityValue(Optional.of(1.0))
               .doseQuantityUnit(Optional.of("TAB"))
               .build());
+    }
+
+    public MedicationOrderEntity entity(String cdwId, String patientId) {
+      return MedicationOrderEntity.builder()
+          .cdwId(cdwId)
+          .icn(patientId)
+          .payload(json(medicationOrder(cdwId, patientId)))
+          .build();
     }
 
     public DatamartMedicationOrder medicationOrder() {
@@ -105,7 +132,6 @@ public class MedicationOrderSamples {
 
   @AllArgsConstructor(staticName = "create")
   public static class Dstu2 {
-
     static MedicationOrder.Bundle asBundle(
         String basePath,
         Collection<MedicationOrder> records,
