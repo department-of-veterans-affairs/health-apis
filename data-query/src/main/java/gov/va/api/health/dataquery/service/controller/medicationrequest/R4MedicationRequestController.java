@@ -1,13 +1,13 @@
 package gov.va.api.health.dataquery.service.controller.medicationrequest;
 
-import static gov.va.api.health.autoconfig.logging.LogSanitizer.sanitize;
+import static gov.va.api.lighthouse.vulcan.Rules.parametersNeverSpecifiedTogether;
+import static gov.va.api.lighthouse.vulcan.Vulcan.returnNothing;
 import static java.util.Collections.emptyList;
 
-import gov.va.api.health.dataquery.service.controller.CountParameter;
+import gov.va.api.health.dataquery.service.config.LinkProperties;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.R4Bundler;
-import gov.va.api.health.dataquery.service.controller.R4Controllers;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.medicationorder.DatamartMedicationOrder;
@@ -20,27 +20,37 @@ import gov.va.api.health.dataquery.service.controller.medicationstatement.Medica
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedReader;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedTransformation;
 import gov.va.api.health.ids.api.ResourceIdentity;
+import gov.va.api.health.ids.client.IdEncoder;
 import gov.va.api.health.r4.api.resources.MedicationRequest;
+import gov.va.api.lighthouse.datamart.DatamartEntity;
+import gov.va.api.lighthouse.datamart.ResourceNameTranslation;
+import gov.va.api.lighthouse.vulcan.CircuitBreaker;
+import gov.va.api.lighthouse.vulcan.RequestContext;
+import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
+import gov.va.api.lighthouse.vulcan.mappings.Mappings;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.constraints.Min;
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import lombok.Builder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -50,13 +60,14 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @SuppressWarnings({"WeakerAccess", "EnhancedSwitchMigration"})
 @Validated
-@Slf4j
 @RestController
 @RequestMapping(
     value = {"/r4/MedicationRequest"},
     produces = {"application/json", "application/fhir+json"})
 public class R4MedicationRequestController {
   private final R4Bundler bundler;
+
+  private final LinkProperties linkProperties;
 
   private final MedicationOrderRepository medicationOrderRepository;
 
@@ -71,12 +82,14 @@ public class R4MedicationRequestController {
   /** R4 MedicationRequest Constructor. */
   public R4MedicationRequestController(
       @Autowired R4Bundler bundler,
+      @Autowired LinkProperties linkProperties,
       @Autowired MedicationOrderRepository medicationOrderRepository,
       @Autowired MedicationStatementRepository medicationStatementRepository,
       @Autowired WitnessProtection witnessProtection,
       @Value("${pattern.outpatient}") String patternOutpatient,
       @Value("${pattern.inpatient}") String patternInpatient) {
     this.bundler = bundler;
+    this.linkProperties = linkProperties;
     this.medicationOrderRepository = medicationOrderRepository;
     this.medicationStatementRepository = medicationStatementRepository;
     this.witnessProtection = witnessProtection;
@@ -102,65 +115,14 @@ public class R4MedicationRequestController {
         linkConfig, reports, MedicationRequest.Entry::new, MedicationRequest.Bundle::new);
   }
 
-  private MedicationRequest.Bundle bundleMixedResources(
-      MultiValueMap<String, String> parameters, List<MedicationRequest> reports, int totalRecords) {
-    return bundle(parameters, reports, totalRecords, -1);
-  }
-
-  MedicationRequest.Bundle medicationOrdersForPatient(
-      MultiValueMap<String, String> parameters, String icn, int page, int count) {
-    Page<MedicationOrderEntity> medicationOrderEntities =
-        medicationOrderRepository.findByIcn(
-            icn,
-            PageRequest.of(page - 1, count == 0 ? 1 : count, MedicationOrderEntity.naturalOrder()));
-    int totalRecords = (int) medicationOrderEntities.getTotalElements();
-    if (count == 0) {
-      return bundleMixedResources(parameters, emptyList(), totalRecords);
-    }
-    var ctx = newSearchContext(icn, page, count);
-    var vulcanizedTransformation = ctx.medicationOrderSupport().transformation();
-    List<MedicationRequest> fhir =
-        medicationOrderEntities
-            .get()
-            .map(vulcanizedTransformation.toDatamart())
-            .peek(vulcanizedTransformation::applyWitnessProtection)
-            .map(vulcanizedTransformation.toResource())
-            .collect(Collectors.toList());
-    return bundleMixedResources(parameters, fhir, totalRecords);
-  }
-
-  MedicationRequest.Bundle medicationStatementsForPatient(
-      MultiValueMap<String, String> parameters, String icn, int page, int count) {
-    Page<MedicationStatementEntity> medicationStatementEntities =
-        medicationStatementRepository.findByIcn(
-            icn,
-            PageRequest.of(
-                page - 1, count == 0 ? 1 : count, MedicationStatementEntity.naturalOrder()));
-    int totalRecords = (int) medicationStatementEntities.getTotalElements();
-    if (count == 0) {
-      return bundleMixedResources(parameters, emptyList(), totalRecords);
-    }
-    var ctx = newSearchContext(icn, page, count);
-    var vulcanizedTransformation = ctx.medicationStatementSupport().transformation();
-
-    List<MedicationRequest> fhir =
-        medicationStatementEntities
-            .get()
-            .map(vulcanizedTransformation.toDatamart())
-            .peek(vulcanizedTransformation::applyWitnessProtection)
-            .map(vulcanizedTransformation.toResource())
-            .collect(Collectors.toList());
-    return bundleMixedResources(parameters, fhir, totalRecords);
-  }
-
-  SearchContext newSearchContext(String patient, int page, int count) {
-    return new SearchContext(patient, count, page);
+  MedicationRequestContext newContext(String patient, int page, int count) {
+    return new MedicationRequestContext(patient, count, page);
   }
 
   /** Read Support. */
   @GetMapping(value = {"/{publicId}"})
   public MedicationRequest read(@PathVariable("publicId") String publicId) {
-    return vulcanizedReaderFor(publicId).read(publicId);
+    return newContext(publicId, 1, 1).determineVulcanizedReader().read(publicId);
   }
 
   /** Read Raw Datamart Payload Support. */
@@ -168,182 +130,188 @@ public class R4MedicationRequestController {
       value = {"/{publicId}"},
       headers = {"raw=true"})
   public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
-    return vulcanizedReaderFor(publicId).readRaw(publicId, response);
+    return newContext(publicId, 1, 1).determineVulcanizedReader().readRaw(publicId, response);
   }
 
-  /** Search R4 MedicationRequest by _id. */
-  @GetMapping(params = {"_id"})
-  public MedicationRequest.Bundle searchById(
-      @RequestParam("_id") String id,
-      @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
-      @CountParameter @Min(0) int count) {
-    return searchByIdentifier(id, page, count);
+  private String resourceTypeForId(String publicId) {
+    try {
+      ResourceIdentity resourceIdentity = witnessProtection.toResourceIdentity(publicId);
+      return ResourceNameTranslation.get().identityServiceToFhir(resourceIdentity.resource());
+    } catch (IdEncoder.BadId e) {
+      // Don't throw. Searches will return an empty bundle and reads will 404.
+      return "undetermined";
+    }
   }
 
-  /** Search R4 MedicationRequest by identifier. */
-  @GetMapping(params = {"identifier"})
-  public MedicationRequest.Bundle searchByIdentifier(
-      @RequestParam("identifier") String id,
-      @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
-      @CountParameter @Min(0) int count) {
-    MultiValueMap<String, String> parameters =
-        Parameters.builder().add("identifier", id).add("page", page).add("_count", count).build();
-    return R4Controllers.searchById(parameters, this::read, this::bundleMixedResources);
-  }
-
-  /** Search by patient. */
-  @GetMapping(params = {"patient"})
-  public MedicationRequest.Bundle searchByPatient(
-      @RequestParam("patient") String patient,
-      @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
-      @CountParameter @Min(0) int count) {
-    SearchContext ctx = newSearchContext(patient, page, count);
+  /** Search Support. */
+  @GetMapping
+  public MedicationRequest.Bundle search(HttpServletRequest request) {
+    MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
+    request.getParameterMap().forEach((key, value) -> parameters.addAll(key, Arrays.asList(value)));
+    parameters.addIfAbsent("page", "1");
+    parameters.addIfAbsent("_count", "" + linkProperties.getDefaultPageSize());
+    var publicId =
+        Stream.of(
+                parameters.getFirst("patient"),
+                parameters.getFirst("_id"),
+                Parameters.identifierOf(parameters))
+            .filter(Objects::nonNull)
+            .findFirst()
+            .orElse(null);
+    var page = Parameters.pageOf(parameters);
+    var count = Parameters.countOf(parameters);
+    MedicationRequestContext ctx = newContext(publicId, page, count == 0 ? 1 : count);
+    var results = ctx.combinedVulcanResultsFor(request);
     if (count == 0) {
-      return bundleMixedResources(ctx.parameters(), emptyList(), ctx.totalPages());
+      /* -1 tells the bundler to automatically determine paging instead of manually (see below) */
+      return bundle(parameters, emptyList(), results.totalRecords(), -1);
     }
-    log.info("Looking for {} ({})", patient, ctx.toCdwId());
-    if (ctx.lastPageWithMedicationStatement() >= page) {
-      return bundle(
-          ctx.parameters(),
-          ctx.medicationStatementSupport().search(),
-          ctx.totalRecords(),
-          ctx.totalPages());
-    } else if (ctx.medicationOrderSupport().numMedicationOrdersForPatient() > 0) {
-      return bundle(
-          ctx.parameters(),
-          ctx.medicationOrderSupport().search(),
-          ctx.totalRecords(),
-          ctx.totalPages());
-    }
-    return bundleMixedResources(ctx.parameters(), emptyList(), ctx.totalPages());
+    return bundle(
+        parameters, results.medicationRequests(), results.totalRecords(), results.totalPages());
   }
 
-  /** Search by patient and intent. */
-  @GetMapping(params = {"patient", "intent"})
-  public MedicationRequest.Bundle searchByPatientAndIntent(
-      @RequestParam("patient") String patient,
-      @RequestParam("intent") String intent,
-      @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
-      @CountParameter @Min(0) int count) {
-    String icn = witnessProtection.toCdwId(patient);
-    log.info(
-        "Looking for patient: {} ({}), intent: {} .",
-        sanitize(patient),
-        sanitize(icn),
-        sanitize(intent));
-    MultiValueMap<String, String> parameters =
-        Parameters.builder()
-            .add("patient", patient)
-            .add("intent", intent)
-            .add("page", page)
-            .add("_count", count)
-            .build();
-    // Only return if the intent is type order or plan. Otherwise return an empty bundle.
-    // If the intent == plan then it is a MedicationStatement
-    // If the intent == order then it is a MedicationOrder
-    if ("order".equals(intent)) {
-      return medicationOrdersForPatient(parameters, icn, page, count);
-    } else if ("plan".equals(intent)) {
-      return medicationStatementsForPatient(parameters, icn, page, count);
-    } else {
-      return bundleMixedResources(parameters, emptyList(), 0);
+  private String toCdwId(String expectedResourceType, String publicId) {
+    if (expectedResourceType.equals(resourceTypeForId(publicId))) {
+      return witnessProtection.toCdwId(publicId);
     }
+    throw CircuitBreaker.noResultsWillBeFound(
+        "id", publicId, "publicId provided is not a " + expectedResourceType);
   }
 
-  private VulcanizedReader<?, ?, MedicationRequest, String> vulcanizedReaderFor(String publicId) {
-    ResourceIdentity resourceIdentity = witnessProtection.toResourceIdentity(publicId);
-    SearchContext ctx = newSearchContext(publicId, 1, 1);
-    switch (resourceIdentity.resource()) {
-      case "MEDICATION_ORDER":
-        return ctx.medicationOrderSupport().vulcanizedReader();
-      case "MEDICATION_STATEMENT":
-        return ctx.medicationStatementSupport().vulcanizedReader();
-      default:
-        throw new ResourceExceptions.NotFound(publicId);
-    }
+  private <EntityT extends DatamartEntity> VulcanConfiguration<EntityT> vulcanConfigurationFor(
+      String resourceType, Class<EntityT> entityClass, Sort sortBy, String intent) {
+    return VulcanConfiguration.forEntity(entityClass)
+        .paging(linkProperties.pagingConfiguration(resourceType, sortBy))
+        .mappings(
+            Mappings.forEntity(entityClass)
+                .value("_id", "cdwId", s -> toCdwId(resourceType, s))
+                .value("identifier", "cdwId", s -> toCdwId(resourceType, s))
+                .tokens("intent", t -> intent.equals(t.code()), t -> null)
+                .value("patient", "icn")
+                .get())
+        .defaultQuery(returnNothing())
+        .rule(parametersNeverSpecifiedTogether("_id", "identifier", "patient"))
+        .build();
+  }
+
+  @Builder
+  @lombok.Value
+  static class MedicationRequestResults {
+    int totalRecords;
+
+    int totalPages;
+
+    List<MedicationRequest> medicationRequests;
   }
 
   @lombok.Value
-  class SearchContext {
-    private String patient;
+  class MedicationRequestContext {
+    String publicId;
 
-    private int count;
+    int count;
 
-    private int page;
+    int page;
 
-    private MedicationOrderSupport medicationOrderSupport;
+    MedicationOrderSupport medicationOrderSupport;
 
-    private MedicationStatementSupport medicationStatementSupport;
+    MedicationStatementSupport medicationStatementSupport;
 
-    SearchContext(String patient, int count, int page) {
-      this.patient = patient;
+    MedicationRequestContext(String publicId, int count, int page) {
+      this.publicId = publicId;
       this.count = count;
       this.page = page;
       medicationOrderSupport = new MedicationOrderSupport(this);
       medicationStatementSupport = new MedicationStatementSupport(this);
     }
 
-    int lastPageWithMedicationStatement() {
-      return (int)
-          Math.ceil(
-              (double) medicationStatementSupport().numMedicationStatementsForPatient() / count());
-    }
-
-    MultiValueMap<String, String> parameters() {
-      return Parameters.builder()
-          .add("patient", patient())
-          .add("page", page())
-          .add("_count", count())
+    public MedicationRequestResults combinedVulcanResultsFor(HttpServletRequest request) {
+      RequestContext<MedicationOrderEntity> medOrdRequestContext =
+          RequestContext.forConfig(medicationOrderSupport().configuration())
+              .request(request)
+              .build();
+      RequestContext<MedicationStatementEntity> medStaRequestContext =
+          RequestContext.forConfig(medicationStatementSupport().configuration())
+              .request(request)
+              .build();
+      int medOrdCount = medicationOrderSupport().databaseRecordCount(medOrdRequestContext);
+      int medStaCount = medicationStatementSupport().databaseRecordCount(medStaRequestContext);
+      int medStaLastPage = lastPageWithMedicationStatement(medStaCount);
+      int totalPages = totalPages(medStaLastPage, medOrdCount);
+      boolean mixedResults = medOrdCount != 0 && medStaCount != 0;
+      if (medStaLastPage >= page()) {
+        var results =
+            medicationStatementRepository.findAll(
+                medStaRequestContext.specification(),
+                PageRequest.of(page() - 1, count(), MedicationStatementEntity.naturalOrder()));
+        return MedicationRequestResults.builder()
+            .totalRecords(medOrdCount + medStaCount)
+            .totalPages(totalPages)
+            .medicationRequests(medicationStatementSupport().transform(results))
+            .build();
+      } else if (medOrdCount > 0) {
+        var results =
+            medicationOrderRepository.findAll(
+                medOrdRequestContext.specification(),
+                PageRequest.of(
+                    (mixedResults ? page() - medStaLastPage : page()) - 1,
+                    count(),
+                    MedicationOrderEntity.naturalOrder()));
+        return MedicationRequestResults.builder()
+            .totalRecords(medOrdCount + medStaCount)
+            .totalPages(totalPages)
+            .medicationRequests(medicationOrderSupport().transform(results))
+            .build();
+      }
+      return MedicationRequestResults.builder()
+          .totalRecords(0)
+          .totalPages(totalPages)
+          .medicationRequests(emptyList())
           .build();
     }
 
-    String toCdwId() {
-      return witnessProtection.toCdwId(patient);
+    public VulcanizedReader<?, ?, MedicationRequest, String> determineVulcanizedReader() {
+      switch (resourceTypeForId(publicId())) {
+        case "MedicationOrder":
+          return medicationOrderSupport().vulcanizedReader();
+        case "MedicationStatement":
+          return medicationStatementSupport().vulcanizedReader();
+        default:
+          throw new ResourceExceptions.NotFound(publicId());
+      }
     }
 
-    int totalPages() {
+    private int lastPageWithMedicationStatement(int medicationStatementResultCount) {
+      return (int) Math.ceil((double) medicationStatementResultCount / count());
+    }
+
+    private int totalPages(int medicationStatementLastPage, int medicationOrderCount) {
       return (int)
-          (lastPageWithMedicationStatement()
-              + Math.ceil(
-                  medicationOrderSupport().numMedicationOrdersForPatient() / (double) count()));
-    }
-
-    int totalRecords() {
-      int statements = (int) medicationStatementSupport.numMedicationStatementsForPatient();
-      int orders = (int) medicationOrderSupport.numMedicationOrdersForPatient();
-      return statements + orders;
+          (medicationStatementLastPage + Math.ceil(medicationOrderCount / (double) count()));
     }
   }
 
   @lombok.Value
   @AllArgsConstructor
   class MedicationOrderSupport {
-    SearchContext ctx;
+    MedicationRequestContext ctx;
 
-    Page<MedicationOrderEntity> medicationOrderEntities() {
-      return medicationOrderRepository.findByIcn(
-          ctx().toCdwId(),
-          PageRequest.of(
-              medicationOrderPage(), ctx().count(), MedicationOrderEntity.naturalOrder()));
+    VulcanConfiguration<MedicationOrderEntity> configuration() {
+      return vulcanConfigurationFor(
+          "MedicationOrder",
+          MedicationOrderEntity.class,
+          MedicationOrderEntity.naturalOrder(),
+          "order");
     }
 
-    int medicationOrderPage() {
-      return ctx().page() - ctx().lastPageWithMedicationStatement() - 1;
+    public int databaseRecordCount(RequestContext<MedicationOrderEntity> requestContext) {
+      return requestContext.abortSearch()
+          ? 0
+          : (int) medicationOrderRepository.count(requestContext.specification());
     }
 
-    MedicationOrderRepository.PatientSpecification medicationOrderPatientSpec() {
-      return MedicationOrderRepository.PatientSpecification.of(ctx().toCdwId());
-    }
-
-    long numMedicationOrdersForPatient() {
-      return medicationOrderRepository.count(medicationOrderPatientSpec());
-    }
-
-    List<MedicationRequest> search() {
-      return medicationOrderEntities()
-          .get()
+    List<MedicationRequest> transform(Page<MedicationOrderEntity> page) {
+      return page.stream()
           .map(transformation().toDatamart())
-          .peek(this::updateCategory)
           .peek(dm -> transformation().applyWitnessProtection(dm))
           .map(transformation().toResource())
           .collect(Collectors.toList());
@@ -351,7 +319,12 @@ public class R4MedicationRequestController {
 
     VulcanizedTransformation<MedicationOrderEntity, DatamartMedicationOrder, MedicationRequest>
         transformation() {
-      return VulcanizedTransformation.toDatamart(MedicationOrderEntity::asDatamartMedicationOrder)
+      return VulcanizedTransformation.<MedicationOrderEntity, DatamartMedicationOrder>toDatamart(
+              entity -> {
+                var dm = entity.asDatamartMedicationOrder();
+                updateCategory(dm);
+                return dm;
+              })
           .toResource(
               dm ->
                   R4MedicationRequestFromMedicationOrderTransformer.builder()
@@ -391,26 +364,24 @@ public class R4MedicationRequestController {
   @lombok.Value
   @AllArgsConstructor
   class MedicationStatementSupport {
-    SearchContext ctx;
+    MedicationRequestContext ctx;
 
-    Page<MedicationStatementEntity> medicationStatementEntities() {
-      return medicationStatementRepository.findByIcn(
-          ctx().toCdwId(),
-          PageRequest.of(
-              ctx().page() - 1, ctx().count(), MedicationStatementEntity.naturalOrder()));
+    VulcanConfiguration<MedicationStatementEntity> configuration() {
+      return vulcanConfigurationFor(
+          "MedicationStatement",
+          MedicationStatementEntity.class,
+          MedicationStatementEntity.naturalOrder(),
+          "plan");
     }
 
-    MedicationStatementRepository.PatientSpecification medicationStatementPatientSpec() {
-      return MedicationStatementRepository.PatientSpecification.of(ctx().toCdwId());
+    public int databaseRecordCount(RequestContext<MedicationStatementEntity> requestContext) {
+      return requestContext.abortSearch()
+          ? 0
+          : (int) medicationStatementRepository.count(requestContext.specification());
     }
 
-    long numMedicationStatementsForPatient() {
-      return medicationStatementRepository.count(medicationStatementPatientSpec());
-    }
-
-    List<MedicationRequest> search() {
-      return medicationStatementEntities()
-          .get()
+    List<MedicationRequest> transform(Page<MedicationStatementEntity> results) {
+      return results.stream()
           .map(transformation().toDatamart())
           .peek(dm -> transformation().applyWitnessProtection(dm))
           .map(transformation().toResource())
