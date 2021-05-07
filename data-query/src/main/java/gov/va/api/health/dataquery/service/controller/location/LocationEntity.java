@@ -60,7 +60,7 @@ public class LocationEntity implements DatamartEntity {
   private Integer managingOrgIdNumber;
 
   @Column(name = "ManagingOrgResourceCode", nullable = true)
-  private String managingOrgResourceCode;
+  private Character managingOrgResourceCode;
 
   @Lob
   @Column(name = "Location")
