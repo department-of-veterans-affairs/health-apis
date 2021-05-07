@@ -10,7 +10,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.google.common.base.Splitter;
 import gov.va.api.health.dataquery.service.config.LinkProperties;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.diagnosticreport.DiagnosticReportSamples.DatamartV2;
@@ -160,32 +159,10 @@ class R4DiagnosticReportControllerTest {
   }
 
   @ParameterizedTest
-  @CsvSource({
-    "LAB,CH+MB",
-    "CH,CH",
-    "MB,MB",
-    "http://terminology.hl7.org/CodeSystem/v2-0074|LAB,CH+MB",
-    "http://terminology.hl7.org/CodeSystem/v2-0074|CH,CH",
-    "http://terminology.hl7.org/CodeSystem/v2-0074|MB,MB",
-    "http://terminology.hl7.org/CodeSystem/v2-0074|,CH+MB"
-  })
-  void tokenCategoryValues(String parameterValue, String expected) {
-    var token = TokenParameter.parse("category", parameterValue);
-    assertThat(controller().tokenCategoryValues(token))
-        .containsExactlyInAnyOrderElementsOf(Splitter.on('+').splitToList(expected));
-  }
-
-  @ParameterizedTest
   @CsvSource({"panel,true", "http://nope|panel,false", "|panel,false", "nope,false"})
   void tokenCodeIsSupported(String parameterValue, boolean expectedSupport) {
     var token = TokenParameter.parse("code", parameterValue);
     assertThat(controller().tokenCodeIsSupported(token)).isEqualTo(expectedSupport);
-  }
-
-  @Test
-  void tokenCodeValues() {
-    var token = TokenParameter.parse("code", "panel");
-    assertThat(controller().tokenCodeValues(token)).containsExactly("panel");
   }
 
   @ParameterizedTest
@@ -205,27 +182,23 @@ class R4DiagnosticReportControllerTest {
   @ParameterizedTest
   @ValueSource(
       strings = {
-        "final",
-        "http://hl7.org/fhir/diagnostic-report-status|final",
-      })
-  void tokenStatusValues(String parameterValue) {
-    var token = TokenParameter.parse("status", parameterValue);
-    assertThat(controller().tokenStatusValues(token)).isEmpty();
-  }
-
-  @ParameterizedTest
-  @ValueSource(
-      strings = {
         "?_id=pdr1",
         "?identifier=pdr1",
         "?patient=p1",
         "?patient=p1&category=LAB",
+        "?patient=p1&category=CH",
+        "?patient=p1&category=MB",
+        "?patient=p1&category=http://terminology.hl7.org/CodeSystem/v2-0074|LAB",
+        "?patient=p1&category=http://terminology.hl7.org/CodeSystem/v2-0074|CH",
+        "?patient=p1&category=http://terminology.hl7.org/CodeSystem/v2-0074|MB",
+        "?patient=p1&category=http://terminology.hl7.org/CodeSystem/v2-0074|",
         "?patient=p1&category=LAB&date=2005",
         "?patient=p1&category=LAB&date=gt2005&date=lt2006",
         "?patient=p1&code=panel",
         "?patient=p1&code=panel&date=2005",
         "?patient=p1&code=panel&date=gt2005&date=lt2006",
-        "?patient=p1&status=final"
+        "?patient=p1&status=final",
+        "?patient=p1&status=http://hl7.org/fhir/diagnostic-report-status|final"
       })
   @SneakyThrows
   void validRequests(String query) {
