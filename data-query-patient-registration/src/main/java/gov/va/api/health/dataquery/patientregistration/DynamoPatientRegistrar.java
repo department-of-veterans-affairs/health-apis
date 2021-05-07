@@ -48,7 +48,7 @@ public class DynamoPatientRegistrar implements PatientRegistrar {
   @Override
   @Async
   public CompletableFuture<PatientRegistration> register(String icn) {
-    log.info("Registering {}", icn);
+    log.info("Registering {}", icn.replace('\n', '_').replace('\r', '_'));
 
     long now = Instant.now().toEpochMilli();
 

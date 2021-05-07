@@ -6,6 +6,7 @@ import static gov.va.api.health.dataquery.service.controller.Transformers.asBigD
 import static gov.va.api.health.dataquery.service.controller.Transformers.asDateTimeString;
 
 import com.google.common.collect.ImmutableMap;
+import gov.va.api.health.autoconfig.logging.LogSanitizer;
 import gov.va.api.health.dataquery.service.controller.medicationorder.DatamartMedicationOrder;
 import gov.va.api.health.dataquery.service.controller.medicationorder.DatamartMedicationOrder.Category;
 import gov.va.api.health.r4.api.DataAbsentReason;
@@ -180,7 +181,7 @@ public class R4MedicationRequestFromMedicationOrderTransformer {
     }
     MedicationRequest.Status mapped = STATUS_VALUES.get(status.trim());
     if (mapped == null) {
-      log.warn("Cannot map status value: {}", status);
+      log.warn("Cannot map status value: {}", LogSanitizer.sanitize(status));
     }
     return mapped;
   }
