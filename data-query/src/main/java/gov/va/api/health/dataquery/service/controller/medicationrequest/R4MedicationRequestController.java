@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.medicationrequest;
 
+import static gov.va.api.lighthouse.vulcan.Rules.ifParameter;
 import static gov.va.api.lighthouse.vulcan.Rules.parametersNeverSpecifiedTogether;
 import static gov.va.api.lighthouse.vulcan.Vulcan.returnNothing;
 import static java.util.Collections.emptyList;
@@ -8,6 +9,7 @@ import gov.va.api.health.dataquery.service.config.LinkProperties;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.R4Bundler;
+import gov.va.api.health.dataquery.service.controller.R4Controllers;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.medicationorder.DatamartMedicationOrder;
@@ -28,10 +30,12 @@ import gov.va.api.lighthouse.vulcan.CircuitBreaker;
 import gov.va.api.lighthouse.vulcan.RequestContext;
 import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
 import gov.va.api.lighthouse.vulcan.mappings.Mappings;
+import gov.va.api.lighthouse.vulcan.mappings.TokenParameter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -65,6 +69,9 @@ import org.springframework.web.bind.annotation.RestController;
     value = {"/r4/MedicationRequest"},
     produces = {"application/json", "application/fhir+json"})
 public class R4MedicationRequestController {
+  public static final String MEDICATION_REQUEST_INTENT_SYSTEM =
+      "http://hl7.org/fhir/CodeSystem/medicationrequest-intent";
+
   private final R4Bundler bundler;
 
   private final LinkProperties linkProperties;
@@ -178,6 +185,22 @@ public class R4MedicationRequestController {
         "id", publicId, "publicId provided is not a " + expectedResourceType);
   }
 
+  /**
+   * Supported Intents:
+   *
+   * <p>- code
+   *
+   * <p>- http://hl7.org/fhir/CodeSystem/medicationrequest-intent|
+   *
+   * <p>- http://hl7.org/fhir/CodeSystem/medicationrequest-intent|code
+   */
+  private boolean tokenIntentIsSupported(TokenParameter token, String supportedIntent) {
+    var hasSupportedCode = token.hasSupportedCode(supportedIntent);
+    return (token.hasSupportedSystem(MEDICATION_REQUEST_INTENT_SYSTEM)
+            && (token.hasAnyCode() || hasSupportedCode))
+        || (token.hasAnySystem() && hasSupportedCode);
+  }
+
   private <EntityT extends DatamartEntity> VulcanConfiguration<EntityT> vulcanConfigurationFor(
       String resourceType, Class<EntityT> entityClass, Sort sortBy, String intent) {
     return VulcanConfiguration.forEntity(entityClass)
@@ -186,11 +209,18 @@ public class R4MedicationRequestController {
             Mappings.forEntity(entityClass)
                 .value("_id", "cdwId", s -> toCdwId(resourceType, s))
                 .value("identifier", "cdwId", s -> toCdwId(resourceType, s))
-                .tokens("intent", t -> intent.equals(t.code()), t -> null)
-                .value("patient", "icn")
+                .tokens("intent", t -> tokenIntentIsSupported(t, intent), t -> null)
+                .reference(
+                    "patient",
+                    "icn",
+                    Set.of("Patient"),
+                    "Patient",
+                    r -> R4Controllers.referencePatientIsSupported(r, linkProperties),
+                    R4Controllers::referencePatientValues)
                 .get())
         .defaultQuery(returnNothing())
         .rule(parametersNeverSpecifiedTogether("_id", "identifier", "patient"))
+        .rule(ifParameter("patient").thenAllowOnlyKnownModifiers("identifier"))
         .build();
   }
 
