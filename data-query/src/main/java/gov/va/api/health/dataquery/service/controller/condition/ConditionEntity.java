@@ -28,11 +28,9 @@ import org.springframework.data.domain.Sort;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class ConditionEntity implements DatamartEntity {
   @Column(name = "CdwIdNumber")
-  @EqualsAndHashCode.Include
   private BigInteger cdwIdNumber;
 
   @Column(name = "CdwIdResourceCode")
-  @EqualsAndHashCode.Include
   private char cdwIdResourceCode;
 
   @Id
