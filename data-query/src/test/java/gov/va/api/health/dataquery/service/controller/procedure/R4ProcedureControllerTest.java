@@ -87,10 +87,10 @@ public class R4ProcedureControllerTest {
         "?_id=pr1",
         "?identifier=pr1",
         "?patient=p1",
-        "?patient=p1&date=2020-1-20T16:35:00Z",
-        "?patient=p1&date=gt2020-1-20",
-        "?patient=p1&date=2020-1-20T16:35:00Z&date=2020-2-20T16:35:00Z",
-        "?patient=p1&date=gt2020-1-20&date=lt2020-2-20T"
+        "?patient=p1&date=le2009",
+        "?patient=p1&date=gt2020",
+        "?patient=p1&date=2003&date=2007",
+        "?patient=p1&date=gt2004&date=lt2006"
       })
   @SneakyThrows
   void validRequests(String query) {
