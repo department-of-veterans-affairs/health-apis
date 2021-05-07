@@ -3,8 +3,8 @@ package gov.va.api.health.dataquery.service.controller.diagnosticreport;
 import static gov.va.api.lighthouse.vulcan.Rules.atLeastOneParameterOf;
 import static gov.va.api.lighthouse.vulcan.Rules.ifParameter;
 import static gov.va.api.lighthouse.vulcan.Rules.parametersNeverSpecifiedTogether;
+import static gov.va.api.lighthouse.vulcan.Specifications.strings;
 import static gov.va.api.lighthouse.vulcan.Vulcan.returnNothing;
-import static java.util.stream.Collectors.toList;
 
 import gov.va.api.health.dataquery.service.config.LinkProperties;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
@@ -14,13 +14,12 @@ import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedBundl
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedReader;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedTransformation;
 import gov.va.api.health.r4.api.resources.DiagnosticReport;
+import gov.va.api.lighthouse.vulcan.Specifications;
 import gov.va.api.lighthouse.vulcan.Vulcan;
 import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
 import gov.va.api.lighthouse.vulcan.mappings.Mappings;
 import gov.va.api.lighthouse.vulcan.mappings.ReferenceParameter;
 import gov.va.api.lighthouse.vulcan.mappings.TokenParameter;
-import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -29,6 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -70,9 +70,10 @@ public class R4DiagnosticReportController {
                     this::referencePatientIsSupported,
                     this::referencePatientValues)
                 .dateAsInstant("date", "dateUtc")
-                .tokenList("code", this::tokenCodeIsSupported, this::tokenCodeValues)
-                .tokenList("category", this::tokenCategoryIsSupported, this::tokenCategoryValues)
-                .tokenList("status", this::tokenStatusIsSupported, this::tokenStatusValues)
+                .tokens("code", this::tokenCodeIsSupported, this::tokenCodeSpecifications)
+                .tokens(
+                    "category", this::tokenCategoryIsSupported, this::tokenCategorySpecification)
+                .tokens("status", this::tokenStatusIsSupported, this::tokenStatusSpecification)
                 .get())
         .defaultQuery(returnNothing())
         .rule(atLeastOneParameterOf("patient", "_id", "identifier"))
@@ -146,18 +147,27 @@ public class R4DiagnosticReportController {
     return true;
   }
 
-  Collection<String> tokenCategoryValues(TokenParameter token) {
+  Specification<DiagnosticReportEntity> tokenCategorySpecification(TokenParameter token) {
     return token
         .behavior()
-        .onExplicitSystemAndExplicitCode((s, c) -> CategoryCode.forFhirCategory(c))
-        .onAnySystemAndExplicitCode(CategoryCode::forFhirCategory)
-        .onNoSystemAndExplicitCode(CategoryCode::forFhirCategory)
-        .onExplicitSystemAndAnyCode(s -> Set.of(CategoryCode.CH, CategoryCode.MB))
+        .onExplicitSystemAndExplicitCode(
+            (s, c) ->
+                Specifications.<DiagnosticReportEntity>select(
+                    "category", CategoryCode.forFhirCategory(c).toString()))
+        .onAnySystemAndExplicitCode(
+            c ->
+                Specifications.<DiagnosticReportEntity>select(
+                    "category", CategoryCode.forFhirCategory(c).toString()))
+        .onNoSystemAndExplicitCode(
+            c ->
+                Specifications.<DiagnosticReportEntity>select(
+                    "category", CategoryCode.forFhirCategory(c).toString()))
+        .onExplicitSystemAndAnyCode(
+            s ->
+                Specifications.<DiagnosticReportEntity>selectInList(
+                    "category", strings(CategoryCode.CH, CategoryCode.MB)))
         .build()
-        .execute()
-        .stream()
-        .map(CategoryCode::toString)
-        .collect(toList());
+        .execute();
   }
 
   boolean tokenCodeIsSupported(TokenParameter token) {
@@ -165,8 +175,12 @@ public class R4DiagnosticReportController {
         && !token.hasExplicitSystem();
   }
 
-  Collection<String> tokenCodeValues(TokenParameter token) {
-    return token.behavior().onAnySystemAndExplicitCode(List::of).build().execute();
+  Specification<DiagnosticReportEntity> tokenCodeSpecifications(TokenParameter token) {
+    return token
+        .behavior()
+        .onAnySystemAndExplicitCode(c -> Specifications.<DiagnosticReportEntity>select("code", c))
+        .build()
+        .execute();
   }
 
   boolean tokenStatusIsSupported(TokenParameter token) {
@@ -174,14 +188,14 @@ public class R4DiagnosticReportController {
         && (token.hasSupportedSystem(DR_STATUS_SYSTEM) || token.hasAnySystem());
   }
 
-  Collection<String> tokenStatusValues(TokenParameter token) {
+  Specification<DiagnosticReportEntity> tokenStatusSpecification(TokenParameter token) {
     /*
      * There are no values of status that are searchable. All diagnostic reports are "final", if the
      * token is supported, then we effectively "select all". By returning no values, the token
      * mapping will abstain from contributing to any additional where clauses. We rely on `patient`
      * clause to find all records for this patient.
      */
-    return List.of();
+    return null;
   }
 
   VulcanizedTransformation<DiagnosticReportEntity, DatamartDiagnosticReport, DiagnosticReport>
