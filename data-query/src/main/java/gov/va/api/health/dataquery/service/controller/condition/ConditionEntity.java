@@ -19,27 +19,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Sort;
 
-/**
- * Datamart Condition representing the following table.
- *
- * <pre>
- * CREATE TABLE [app].[Condition](
- *  [CDWId] [varchar](50) NOT NULL,
- *  [CdwIdNumber] [bigint] NOT NULL,
- *  [CdwIdResourceCode] [char](1) NULL,
- *  [PatientFullICN] [varchar](50) NOT NULL,
- *  [AsserterCDWId] [int] NULL,
- *  [Category] [varchar](50) NULL,
- *  [ClinicalStatus] [varchar](50) NULL,
- *  [DateRecorded] [datetime2](0) NULL,
- *  [EncounterCDWId] [bigint] NULL,
- *  [OnSet] [datetime2](0) NULL,
- *  [Condition] [varchar](max) NULL,
- *  [ETLBatchId] [int] NULL,
- *  [ETLCreateDate] [datetime2](0) NULL,
- *  [ETLEditDate] [datetime2](0) NULL,
- * </pre>
- */
 @Data
 @Entity
 @Builder
