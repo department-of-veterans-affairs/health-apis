@@ -3,6 +3,7 @@ package gov.va.api.health.dataquery.service.controller.diagnosticreport;
 import static gov.va.api.lighthouse.vulcan.Rules.atLeastOneParameterOf;
 import static gov.va.api.lighthouse.vulcan.Rules.ifParameter;
 import static gov.va.api.lighthouse.vulcan.Rules.parametersNeverSpecifiedTogether;
+import static gov.va.api.lighthouse.vulcan.Specifications.strings;
 import static gov.va.api.lighthouse.vulcan.Vulcan.returnNothing;
 
 import gov.va.api.health.dataquery.service.config.LinkProperties;
@@ -164,7 +165,7 @@ public class R4DiagnosticReportController {
         .onExplicitSystemAndAnyCode(
             s ->
                 Specifications.<DiagnosticReportEntity>selectInList(
-                    "category", Set.of(CategoryCode.CH.toString(), CategoryCode.MB.toString())))
+                    "category", strings(CategoryCode.CH, CategoryCode.MB)))
         .build()
         .execute();
   }

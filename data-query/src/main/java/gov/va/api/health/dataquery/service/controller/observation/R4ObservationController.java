@@ -2,6 +2,7 @@ package gov.va.api.health.dataquery.service.controller.observation;
 
 import static gov.va.api.lighthouse.vulcan.Rules.ifParameter;
 import static gov.va.api.lighthouse.vulcan.Rules.parametersNeverSpecifiedTogether;
+import static gov.va.api.lighthouse.vulcan.Specifications.strings;
 import static gov.va.api.lighthouse.vulcan.Vulcan.returnNothing;
 
 import gov.va.api.health.dataquery.service.config.LinkProperties;
@@ -16,7 +17,6 @@ import gov.va.api.lighthouse.vulcan.Vulcan;
 import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
 import gov.va.api.lighthouse.vulcan.mappings.Mappings;
 import gov.va.api.lighthouse.vulcan.mappings.TokenParameter;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -142,7 +142,7 @@ public class R4ObservationController {
         .onExplicitSystemAndAnyCode(
             s ->
                 Specifications.<ObservationEntity>selectInList(
-                    "category", List.of("laboratory", "vital-signs")))
+                    "category", strings("laboratory", "vital-signs")))
         .onAnySystemAndExplicitCode(c -> Specifications.<ObservationEntity>select("category", c))
         .onExplicitSystemAndExplicitCode(
             (s, c) -> Specifications.<ObservationEntity>select("category", c))
