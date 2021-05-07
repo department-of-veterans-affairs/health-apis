@@ -5,6 +5,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.InvalidParameterException;
 import java.util.List;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletResponse;
@@ -12,7 +13,6 @@ import lombok.Builder;
 import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.MethodParameter;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.server.ServerHttpRequest;
@@ -43,7 +43,7 @@ public final class IncludesIcnMajig<T, B> implements ResponseBodyAdvice<Object> 
   private final Function<T, Stream<String>> extractIcns;
 
   /** Add the X-VA-INCLUDES-ICN header if it does not already exist. */
-  public static void addHeader(ServerHttpResponse serverHttpResponse, String usersCsv) {
+  public static void addHeader(@NonNull ServerHttpResponse serverHttpResponse, String usersCsv) {
     List<String> includesIcnHeaders = serverHttpResponse.getHeaders().get(INCLUDES_ICN_HEADER);
     if (includesIcnHeaders == null || includesIcnHeaders.isEmpty()) {
       serverHttpResponse.getHeaders().add(INCLUDES_ICN_HEADER, usersCsv);
@@ -74,32 +74,34 @@ public final class IncludesIcnMajig<T, B> implements ResponseBodyAdvice<Object> 
       Class<? extends HttpMessageConverter<?>> unused3,
       ServerHttpRequest unused4,
       ServerHttpResponse serverHttpResponse) {
-
     // In the case where extractIcns is null, let Kong deal with it
     if (extractIcns == null) {
       return payload;
     }
-
-    String users = "";
+    String users;
+    Pattern patientIcnRegex = Pattern.compile("^([0-9V]+)$");
     if (type.isInstance(payload)) {
-      users = extractIcns.apply((T) payload).distinct().collect(Collectors.joining(","));
+      users =
+          extractIcns
+              .apply((T) payload)
+              .distinct()
+              .peek(icn -> verifyPatientIcn(patientIcnRegex, icn))
+              .collect(Collectors.joining(","));
     } else if (bundleType.isInstance(payload)) {
       users =
           extractResources
               .apply((B) payload)
-              .flatMap(resource -> extractIcns.apply(resource))
+              .flatMap(extractIcns)
               .distinct()
+              .peek(icn -> verifyPatientIcn(patientIcnRegex, icn))
               .collect(Collectors.joining(","));
     } else {
       throw new InvalidParameterException("Payload type does not match ControllerAdvice type.");
     }
-
     if (users.isBlank()) {
       users = "NONE";
     }
-
     addHeader(serverHttpResponse, users);
-
     return payload;
   }
 
@@ -108,5 +110,12 @@ public final class IncludesIcnMajig<T, B> implements ResponseBodyAdvice<Object> 
       MethodParameter methodParameter, Class<? extends HttpMessageConverter<?>> unused) {
     return type.equals(methodParameter.getParameterType())
         || bundleType.equals(methodParameter.getParameterType());
+  }
+
+  private void verifyPatientIcn(Pattern patientIcnPattern, String maybeIcn) {
+    if (!patientIcnPattern.matcher(maybeIcn).matches()) {
+      throw new IllegalArgumentException(
+          "ICN was invalid and could not be added to " + INCLUDES_ICN_HEADER);
+    }
   }
 }
