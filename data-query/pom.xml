@@ -8,7 +8,7 @@
     <relativePath/>
   </parent>
   <artifactId>data-query</artifactId>
-  <version>3.0.163-SNAPSHOT</version>
+  <version>3.0.163</version>
   <packaging>jar</packaging>
   <properties>
     <datamart-starter.version>2.0.1</datamart-starter.version>
@@ -19,7 +19,7 @@
     <mssql-jdbc.version>7.4.1.jre8</mssql-jdbc.version>
     <swagger-maven-plugin.version>2.1.7</swagger-maven-plugin.version>
     <talos.version>0.0.4</talos.version>
-    <vulcan.version>1.0.11</vulcan.version>
+    <vulcan.version>1.0.12</vulcan.version>
   </properties>
   <dependencies>
     <dependency>
