@@ -34,6 +34,8 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 public final class IncludesIcnMajig<T, B> implements ResponseBodyAdvice<Object> {
   public static final String INCLUDES_ICN_HEADER = "X-VA-INCLUDES-ICN";
 
+  public static final Pattern PATIENT_ICN_PATTERN = Pattern.compile("^([0-9V]+)$");
+
   private final Class<T> type;
 
   private final Class<B> bundleType;
@@ -79,13 +81,12 @@ public final class IncludesIcnMajig<T, B> implements ResponseBodyAdvice<Object> 
       return payload;
     }
     String users;
-    Pattern patientIcnRegex = Pattern.compile("^([0-9V]+)$");
     if (type.isInstance(payload)) {
       users =
           extractIcns
               .apply((T) payload)
               .distinct()
-              .peek(icn -> verifyPatientIcn(patientIcnRegex, icn))
+              .peek(this::verifyPatientIcn)
               .collect(Collectors.joining(","));
     } else if (bundleType.isInstance(payload)) {
       users =
@@ -93,7 +94,7 @@ public final class IncludesIcnMajig<T, B> implements ResponseBodyAdvice<Object> 
               .apply((B) payload)
               .flatMap(extractIcns)
               .distinct()
-              .peek(icn -> verifyPatientIcn(patientIcnRegex, icn))
+              .peek(this::verifyPatientIcn)
               .collect(Collectors.joining(","));
     } else {
       throw new InvalidParameterException("Payload type does not match ControllerAdvice type.");
@@ -112,8 +113,8 @@ public final class IncludesIcnMajig<T, B> implements ResponseBodyAdvice<Object> 
         || bundleType.equals(methodParameter.getParameterType());
   }
 
-  private void verifyPatientIcn(Pattern patientIcnPattern, String maybeIcn) {
-    if (!patientIcnPattern.matcher(maybeIcn).matches()) {
+  private void verifyPatientIcn(String maybeIcn) {
+    if (!PATIENT_ICN_PATTERN.matcher(maybeIcn).matches()) {
       throw new IllegalArgumentException(
           "ICN was invalid and could not be added to " + INCLUDES_ICN_HEADER);
     }
