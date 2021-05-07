@@ -3,6 +3,7 @@ package gov.va.api.health.dataquery.service.controller.condition;
 import gov.va.api.health.dataquery.service.controller.DatamartSupport;
 import gov.va.api.lighthouse.datamart.DatamartEntity;
 import gov.va.api.lighthouse.datamart.Payload;
+import java.math.BigInteger;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -24,6 +25,8 @@ import org.springframework.data.domain.Sort;
  * <pre>
  * CREATE TABLE [app].[Condition](
  *  [CDWId] [varchar](50) NOT NULL,
+ *  [CdwIdNumber] [bigint] NOT NULL,
+ *  [CdwIdResourceCode] [char](1) NULL,
  *  [PatientFullICN] [varchar](50) NOT NULL,
  *  [AsserterCDWId] [int] NULL,
  *  [Category] [varchar](50) NULL,
@@ -45,6 +48,14 @@ import org.springframework.data.domain.Sort;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class ConditionEntity implements DatamartEntity {
+  @Column(name = "CdwIdNumber")
+  @EqualsAndHashCode.Include
+  private BigInteger cdwIdNumber;
+
+  @Column(name = "CdwIdResourceCode")
+  @EqualsAndHashCode.Include
+  private char cdwIdResourceCode;
+
   @Id
   @Column(name = "CDWId")
   @EqualsAndHashCode.Include
