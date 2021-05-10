@@ -5,7 +5,7 @@ import static gov.va.api.lighthouse.vulcan.Rules.parametersNeverSpecifiedTogethe
 import static gov.va.api.lighthouse.vulcan.Vulcan.returnNothing;
 
 import gov.va.api.health.dataquery.service.config.LinkProperties;
-import gov.va.api.health.dataquery.service.controller.R4Controllers;
+import gov.va.api.health.dataquery.service.controller.R4PatientReferenceMapping;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.Bundling;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedBundler;
@@ -16,7 +16,6 @@ import gov.va.api.lighthouse.vulcan.Vulcan;
 import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
 import gov.va.api.lighthouse.vulcan.mappings.Mappings;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
@@ -56,13 +55,9 @@ public class R4AllergyIntoleranceController {
             Mappings.forEntity(AllergyIntoleranceEntity.class)
                 .value("_id", "cdwId", witnessProtection::toCdwId)
                 .value("identifier", "cdwId", witnessProtection::toCdwId)
-                .reference(
-                    "patient",
-                    "icn",
-                    Set.of("Patient"),
-                    "Patient",
-                    r -> R4Controllers.referencePatientIsSupported(r, linkProperties),
-                    R4Controllers::referencePatientValues)
+                .add(
+                    R4PatientReferenceMapping.<AllergyIntoleranceEntity>forLinks(linkProperties)
+                        .get())
                 .get())
         .defaultQuery(returnNothing())
         .rule(parametersNeverSpecifiedTogether("patient", "_id", "identifier"))

@@ -9,7 +9,7 @@ import gov.va.api.health.dataquery.service.config.LinkProperties;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.R4Bundler;
-import gov.va.api.health.dataquery.service.controller.R4Controllers;
+import gov.va.api.health.dataquery.service.controller.R4PatientReferenceMapping;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.medicationorder.DatamartMedicationOrder;
@@ -35,7 +35,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -210,13 +209,7 @@ public class R4MedicationRequestController {
                 .value("_id", "cdwId", s -> toCdwId(resourceType, s))
                 .value("identifier", "cdwId", s -> toCdwId(resourceType, s))
                 .tokens("intent", t -> tokenIntentIsSupported(t, intent), t -> null)
-                .reference(
-                    "patient",
-                    "icn",
-                    Set.of("Patient"),
-                    "Patient",
-                    r -> R4Controllers.referencePatientIsSupported(r, linkProperties),
-                    R4Controllers::referencePatientValues)
+                .add(R4PatientReferenceMapping.<EntityT>forLinks(linkProperties).get())
                 .get())
         .defaultQuery(returnNothing())
         .rule(parametersNeverSpecifiedTogether("_id", "identifier", "patient"))
