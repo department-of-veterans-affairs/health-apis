@@ -1,371 +1,158 @@
 package gov.va.api.health.dataquery.service.controller.procedure;
 
-import static gov.va.api.health.dataquery.service.controller.procedure.ProcedureSamples.R4.link;
+import static gov.va.api.health.dataquery.service.controller.MockRequests.paging;
+import static gov.va.api.health.dataquery.service.controller.MockRequests.requestFromUri;
+import static gov.va.api.health.dataquery.service.controller.procedure.ProcedureSamples.id;
+import static gov.va.api.health.dataquery.service.controller.procedure.ProcedureSamples.registration;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.collect.LinkedHashMultimap;
-import com.google.common.collect.Multimap;
-import gov.va.api.health.autoconfig.configuration.JacksonConfig;
-import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
-import gov.va.api.health.dataquery.service.controller.R4Bundler;
-import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
+import gov.va.api.health.dataquery.service.config.LinkProperties;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
-import gov.va.api.health.dataquery.service.controller.procedure.ProcedureSamples.R4;
 import gov.va.api.health.ids.api.IdentityService;
-import gov.va.api.health.ids.api.Registration;
-import gov.va.api.health.ids.api.ResourceIdentity;
-import gov.va.api.health.r4.api.bundle.BundleLink.LinkRelation;
+import gov.va.api.health.r4.api.bundle.BundleLink;
 import gov.va.api.health.r4.api.resources.Procedure;
-import java.util.ArrayList;
-import java.util.Collections;
+import gov.va.api.lighthouse.vulcan.InvalidRequest;
+import gov.va.api.lighthouse.vulcan.VulcanResult;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
+import java.util.stream.Stream;
 import javax.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
-import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 
-@DataJpaTest
-@ExtendWith(SpringExtension.class)
+@ExtendWith(MockitoExtension.class)
 public class R4ProcedureControllerTest {
-  HttpServletResponse response = mock(HttpServletResponse.class);
 
-  private IdentityService ids = mock(IdentityService.class);
+  @Mock IdentityService ids;
 
-  @Autowired private ProcedureRepository repository;
-
-  @SneakyThrows
-  private ProcedureEntity asEntity(DatamartProcedure dm) {
-    return ProcedureEntity.builder()
-        .cdwId(dm.cdwId())
-        .icn(dm.patient().reference().get())
-        .performedOnEpochTime(dm.performedDateTime().get().toEpochMilli())
-        .payload(JacksonConfig.createMapper().writeValueAsString(dm))
-        .build();
-  }
+  @Mock private ProcedureRepository repository;
 
   R4ProcedureController controller() {
     return new R4ProcedureController(
-        new R4Bundler(new ConfigurableBaseUrlPageLinks("http://abed.com", "cool", "cool", "cool")),
+        LinkProperties.builder()
+            .publicUrl("http://fonzy.com")
+            .publicR4BasePath("r4")
+            .publicStu3BasePath("stu3")
+            .publicDstu2BasePath("dstu2")
+            .maxPageSize(20)
+            .defaultPageSize(15)
+            .build(),
         repository,
         WitnessProtection.builder().identityService(ids).build());
   }
 
+  @ParameterizedTest
+  @ValueSource(
+      strings = {
+        "?_id=321&identifier=123",
+        "?_id=678&patient=p1",
+        "?identifier=935&patient=p1",
+        "?date=gt2020",
+        "?patient=p1&date=nope"
+      })
   @SneakyThrows
-  String json(Object o) {
-    return JacksonConfig.createMapper().writerWithDefaultPrettyPrinter().writeValueAsString(o);
-  }
-
-  public void mockProcedureIdentity(String publicId, String cdwId) {
-    ResourceIdentity resourceIdentity =
-        ResourceIdentity.builder().system("CDW").resource("PROCEDURE").identifier(cdwId).build();
-    when(ids.lookup(publicId)).thenReturn(List.of(resourceIdentity));
-    when(ids.register(Mockito.any()))
-        .thenReturn(
-            List.of(
-                Registration.builder()
-                    .uuid(publicId)
-                    .resourceIdentities(List.of(resourceIdentity))
-                    .build()));
-  }
-
-  private Multimap<String, gov.va.api.health.r4.api.resources.Procedure> populateData() {
-    var fhir = ProcedureSamples.R4.create();
-    var datamart = ProcedureSamples.Datamart.create();
-    var procedureByPatient =
-        LinkedHashMultimap.<String, gov.va.api.health.r4.api.resources.Procedure>create();
-    var registrations = new ArrayList<Registration>(10);
-    for (int i = 0; i < 10; i++) {
-      String patientId = "p" + i % 2;
-      String cdwId = "" + i;
-      String publicId = "90" + i;
-      String date = "2005-01-1" + i + "T07:57:00Z";
-      var dm = datamart.procedure(cdwId, patientId, date);
-      repository.save(asEntity(dm));
-      var procedure = fhir.procedure(publicId, patientId, date);
-      procedureByPatient.put(patientId, procedure);
-      ResourceIdentity resourceIdentity =
-          ResourceIdentity.builder().system("CDW").resource("PROCEDURE").identifier(cdwId).build();
-      Registration registration =
-          Registration.builder()
-              .uuid(publicId)
-              .resourceIdentities(List.of(resourceIdentity))
-              .build();
-      registrations.add(registration);
-      when(ids.lookup(publicId)).thenReturn(List.of(resourceIdentity));
-    }
-    when(ids.register(Mockito.any())).thenReturn(registrations);
-    return procedureByPatient;
+  void invalidRequest(String query) {
+    var r = requestFromUri("http://fonzy.com/r4/Procedure" + query);
+    assertThatExceptionOfType(InvalidRequest.class).isThrownBy(() -> controller().search(r));
   }
 
   @Test
   public void read() {
-    DatamartProcedure dm = ProcedureSamples.Datamart.create().procedure();
-    repository.save(asEntity(dm));
-    mockProcedureIdentity("1", dm.cdwId());
-    Procedure actual = controller().read("1", "1");
-    assertThat(json(actual))
-        .isEqualTo(
-            json(
-                ProcedureSamples.R4
-                    .create()
-                    .procedure(
-                        "1",
-                        dm.patient().reference().get(),
-                        dm.performedDateTime().get().toString())));
+    when(ids.register(any())).thenReturn(List.of(registration("pr1", "ppr1")));
+    when(ids.lookup("ppr1")).thenReturn(List.of(id("pr1")));
+    ProcedureEntity entity = ProcedureSamples.Datamart.create().entity("pr1", "p1");
+    when(repository.findById("pr1")).thenReturn(Optional.of(entity));
+    assertThat(controller().read("ppr1"))
+        .isEqualTo(ProcedureSamples.R4.create().procedure("ppr1", "p1", "2008-01-02T06:00:00Z"));
   }
 
   @Test
   public void readRaw() {
-    DatamartProcedure dm = ProcedureSamples.Datamart.create().procedure();
-    ProcedureEntity entity = asEntity(dm);
-    repository.save(entity);
-    mockProcedureIdentity("1", dm.cdwId());
-    String json = controller().readRaw("1", "1", response);
-    assertThat(toObject(json)).isEqualTo(dm);
-    verify(response).addHeader("X-VA-INCLUDES-ICN", entity.icn());
+    when(ids.lookup("ppr1")).thenReturn(List.of(id("pr1")));
+    ProcedureEntity entity = ProcedureEntity.builder().icn("p1").payload("payload!").build();
+    when(repository.findById("pr1")).thenReturn(Optional.of(entity));
+    var actual = controller().readRaw("ppr1", mock(HttpServletResponse.class));
+    assertThat(actual).isEqualTo("payload!");
   }
 
   @Test
-  public void readRawThrowsNotFoundWhenDataIsMissing() {
-    mockProcedureIdentity("1", "1");
-    assertThrows(ResourceExceptions.NotFound.class, () -> controller().readRaw("1", "1", response));
+  void toBundle() {
+    when(ids.register(any()))
+        .thenReturn(
+            List.of(
+                registration("pr1", "ppr1"),
+                registration("pr2", "ppr2"),
+                registration("pr3", "ppr3")));
+    var bundler = controller().toBundle();
+    var datamart = ProcedureSamples.Datamart.create();
+    var vr =
+        VulcanResult.<ProcedureEntity>builder()
+            .paging(
+                paging(
+                    "http://fonzy.com/r4/Procedure?patient=p1&page=%d&_count=%d",
+                    1, 4, 5, 6, 9, 15))
+            .entities(
+                Stream.of(
+                    datamart.entity("pr1", "p1"),
+                    datamart.entity("pr2", "p1"),
+                    datamart.entity("pr3", "p1")))
+            .build();
+    ProcedureSamples.R4 r4 = ProcedureSamples.R4.create();
+    Procedure.Bundle expected =
+        r4.asBundle(
+            "http://fonzy.com/r4",
+            List.of(
+                r4.procedure("ppr1", "p1", "2008-01-02T06:00:00Z"),
+                r4.procedure("ppr2", "p1", "2008-01-02T06:00:00Z"),
+                r4.procedure("ppr3", "p1", "2008-01-02T06:00:00Z")),
+            999,
+            r4.link(
+                BundleLink.LinkRelation.first, "http://fonzy.com/r4/Procedure?patient=p1", 1, 15),
+            r4.link(
+                BundleLink.LinkRelation.prev, "http://fonzy.com/r4/Procedure?patient=p1", 4, 15),
+            r4.link(
+                BundleLink.LinkRelation.self, "http://fonzy.com/r4/Procedure?patient=p1", 5, 15),
+            r4.link(
+                BundleLink.LinkRelation.next, "http://fonzy.com/r4/Procedure?patient=p1", 6, 15),
+            r4.link(
+                BundleLink.LinkRelation.last, "http://fonzy.com/r4/Procedure?patient=p1", 9, 15));
+    var applied = bundler.apply(vr);
+    assertThat(applied).isEqualTo(expected);
   }
 
-  @Test
-  public void readRawThrowsNotFoundWhenIdIsUnknown() {
-    assertThrows(ResourceExceptions.NotFound.class, () -> controller().readRaw("1", "1", response));
-  }
-
-  @Test
-  public void readThrowsNotFoundWhenDataIsMissing() {
-    mockProcedureIdentity("1", "1");
-    assertThrows(ResourceExceptions.NotFound.class, () -> controller().read("1", "1"));
-  }
-
-  @Test
-  public void readThrowsNotFoundWhenIdIsUnknown() {
-    assertThrows(ResourceExceptions.NotFound.class, () -> controller().read("1", "1"));
-  }
-
-  @Test
-  public void searchById() {
-    DatamartProcedure dm = ProcedureSamples.Datamart.create().procedure();
-    repository.save(asEntity(dm));
-    mockProcedureIdentity("1", dm.cdwId());
-    Procedure.Bundle actual = controller().searchById("1", "1", 1, 1);
-    Procedure procedure =
-        R4.create()
-            .procedure(
-                "1", dm.patient().reference().get(), dm.performedDateTime().get().toString());
-    assertThat(json(actual))
-        .isEqualTo(
-            json(
-                R4.asBundle(
-                    "http://abed.com/cool",
-                    List.of(procedure),
-                    1,
-                    link(LinkRelation.first, "http://abed.com/cool/Procedure?identifier=1", 1, 1),
-                    link(LinkRelation.self, "http://abed.com/cool/Procedure?identifier=1", 1, 1),
-                    link(LinkRelation.last, "http://abed.com/cool/Procedure?identifier=1", 1, 1))));
-  }
-
-  @Test
-  public void searchByIdentifier() {
-    DatamartProcedure dm = ProcedureSamples.Datamart.create().procedure();
-    repository.save(asEntity(dm));
-    mockProcedureIdentity("1", dm.cdwId());
-    Procedure.Bundle actual = controller().searchByIdentifier("1", "1", 1, 1);
-    Procedure procedure =
-        R4.create()
-            .procedure(
-                "1", dm.patient().reference().get(), dm.performedDateTime().get().toString());
-    assertThat(json(actual))
-        .isEqualTo(
-            json(
-                R4.asBundle(
-                    "http://abed.com/cool",
-                    List.of(procedure),
-                    1,
-                    link(LinkRelation.first, "http://abed.com/cool/Procedure?identifier=1", 1, 1),
-                    link(LinkRelation.self, "http://abed.com/cool/Procedure?identifier=1", 1, 1),
-                    link(LinkRelation.last, "http://abed.com/cool/Procedure?identifier=1", 1, 1))));
-  }
-
-  @Test
-  public void searchByPatientAndDateNoDates() {
-    Multimap<String, Procedure> procedureByPatient = populateData();
-    assertThat(json(controller().searchByPatientAndDate("p0", null, 1, 10)))
-        .isEqualTo(
-            json(
-                R4.asBundle(
-                    "http://abed.com/cool",
-                    procedureByPatient.get("p0"),
-                    procedureByPatient.get("p0").size(),
-                    link(LinkRelation.first, "http://abed.com/cool/Procedure?patient=p0", 1, 10),
-                    link(LinkRelation.self, "http://abed.com/cool/Procedure?patient=p0", 1, 10),
-                    link(LinkRelation.last, "http://abed.com/cool/Procedure?patient=p0", 1, 10))));
-  }
-
-  @Test
-  public void searchByPatientAndDateOneDate() {
-    Multimap<String, Procedure> procedureByPatient = populateData();
-    // Procedure Dates for p0:
-    // 2005-01-10T07:57:00Z
-    // 2005-01-12T07:57:00Z
-    // 2005-01-14T07:57:00Z
-    // 2005-01-16T07:57:00Z
-    // 2005-01-18T07:57:00Z
-    Multimap<String, String> testDates = LinkedHashMultimap.create();
-    testDates.putAll(
-        "gt2004",
-        List.of(
-            "2005-01-10T07:57:00Z",
-            "2005-01-12T07:57:00Z",
-            "2005-01-14T07:57:00Z",
-            "2005-01-16T07:57:00Z",
-            "2005-01-18T07:57:00Z"));
-    testDates.putAll("eq2005-01-14", List.of("2005-01-14T07:57:00Z"));
-    testDates.putAll(
-        "ne2005-01-14",
-        List.of(
-            "2005-01-10T07:57:00Z",
-            "2005-01-12T07:57:00Z",
-            "2005-01-16T07:57:00Z",
-            "2005-01-18T07:57:00Z"));
-    testDates.putAll(
-        "le2005-01-14",
-        List.of("2005-01-10T07:57:00Z", "2005-01-12T07:57:00Z", "2005-01-14T07:57:00Z"));
-    testDates.putAll("lt2005-01-14", List.of("2005-01-10T07:57:00Z", "2005-01-12T07:57:00Z"));
-    testDates.putAll("eb2005-01-14", List.of("2005-01-10T07:57:00Z", "2005-01-12T07:57:00Z"));
-    testDates.putAll(
-        "ge2005-01-14",
-        List.of("2005-01-14T07:57:00Z", "2005-01-16T07:57:00Z", "2005-01-18T07:57:00Z"));
-    testDates.putAll("gt2005-01-14", List.of("2005-01-16T07:57:00Z", "2005-01-18T07:57:00Z"));
-    testDates.putAll("sa2005-01-14", List.of("2005-01-16T07:57:00Z", "2005-01-18T07:57:00Z"));
-    for (var date : testDates.keySet()) {
-      List<Procedure> resources =
-          procedureByPatient.get("p0").stream()
-              .filter(p -> testDates.get(date).contains(p.performedDateTime()))
-              .collect(Collectors.toList());
-      assertThat(json(controller().searchByPatientAndDate("p0", new String[] {date}, 1, 10)))
-          .isEqualTo(
-              json(
-                  R4.asBundle(
-                      "http://abed.com/cool",
-                      resources,
-                      resources.size(),
-                      link(
-                          LinkRelation.first,
-                          "http://abed.com/cool/Procedure?date=" + date + "&patient=p0",
-                          1,
-                          10),
-                      link(
-                          LinkRelation.self,
-                          "http://abed.com/cool/Procedure?date=" + date + "&patient=p0",
-                          1,
-                          10),
-                      link(
-                          LinkRelation.last,
-                          "http://abed.com/cool/Procedure?date=" + date + "&patient=p0",
-                          1,
-                          10))));
-    }
-  }
-
-  @Test
-  public void searchByPatientAndDateTwoDates() {
-    /*
-     * The single date test verifies correct working of the different prefixes, like gt. So for two
-     * date fields, we do not have to exhaustively test combinations.
-     */
-    Multimap<String, Procedure> procedureByPatient = populateData();
-    // Procedure Dates for p0:
-    // 2005-01-10T07:57:00Z
-    // 2005-01-12T07:57:00Z
-    // 2005-01-14T07:57:00Z
-    // 2005-01-16T07:57:00Z
-    // 2005-01-18T07:57:00Z
-    Multimap<Pair<String, String>, String> testDates = LinkedHashMultimap.create();
-    testDates.putAll(
-        Pair.of("gt2004", "lt2006"),
-        List.of(
-            "2005-01-10T07:57:00Z",
-            "2005-01-12T07:57:00Z",
-            "2005-01-14T07:57:00Z",
-            "2005-01-16T07:57:00Z",
-            "2005-01-18T07:57:00Z"));
-    testDates.putAll(Pair.of("gt2005-01-13", "lt2005-01-15"), List.of("2005-01-14T07:57:00Z"));
-    for (var date : testDates.keySet()) {
-      List<Procedure> resources =
-          procedureByPatient.get("p0").stream()
-              .filter(p -> testDates.get(date).contains(p.performedDateTime()))
-              .collect(Collectors.toList());
-      assertThat(
-              json(
-                  controller()
-                      .searchByPatientAndDate(
-                          "p0", new String[] {date.getLeft(), date.getRight()}, 1, 10)))
-          .isEqualTo(
-              json(
-                  R4.asBundle(
-                      "http://abed.com/cool",
-                      resources,
-                      resources.size(),
-                      link(
-                          LinkRelation.first,
-                          "http://abed.com/cool/Procedure?date="
-                              + date.getLeft()
-                              + "&date="
-                              + date.getRight()
-                              + "&patient=p0",
-                          1,
-                          10),
-                      link(
-                          LinkRelation.self,
-                          "http://abed.com/cool/Procedure?date="
-                              + date.getLeft()
-                              + "&date="
-                              + date.getRight()
-                              + "&patient=p0",
-                          1,
-                          10),
-                      link(
-                          LinkRelation.last,
-                          "http://abed.com/cool/Procedure?date="
-                              + date.getLeft()
-                              + "&date="
-                              + date.getRight()
-                              + "&patient=p0",
-                          1,
-                          10))));
-    }
-  }
-
-  @Test
-  public void searchByPatientWithCount0() {
-    Multimap<String, Procedure> procedureByPatient = populateData();
-    assertThat(json(controller().searchByPatientAndDate("p0", null, 1, 0)))
-        .isEqualTo(
-            json(
-                R4.asBundle(
-                    "http://abed.com/cool",
-                    Collections.emptyList(),
-                    procedureByPatient.get("p0").size(),
-                    link(LinkRelation.self, "http://abed.com/cool/Procedure?patient=p0", 1, 0))));
-  }
-
+  @ParameterizedTest
+  @ValueSource(
+      strings = {
+        "?_id=pr1",
+        "?identifier=pr1",
+        "?patient=p1",
+        "?patient=p1&date=2009",
+        "?patient=p1&date=gt2020",
+        "?patient=p1&date=2003&date=2007",
+        "?patient=p1&date=gt2004&date=lt2006"
+      })
   @SneakyThrows
-  private DatamartProcedure toObject(String json) {
-    return JacksonConfig.createMapper().readValue(json, DatamartProcedure.class);
+  void validRequests(String query) {
+    when(ids.register(any())).thenReturn(List.of(registration("pr1", "ppr1")));
+    ProcedureSamples.Datamart dm = ProcedureSamples.Datamart.create();
+    when(repository.findAll(any(Specification.class), any(Pageable.class)))
+        .thenAnswer(
+            i ->
+                new PageImpl(List.of(dm.entity("pr1", "p1")), i.getArgument(1, Pageable.class), 1));
+    var r = requestFromUri("http://fonzy.com/r4/Procedure" + query);
+    var actual = controller().search(r);
+    assertThat(actual.entry()).hasSize(1);
   }
 }
