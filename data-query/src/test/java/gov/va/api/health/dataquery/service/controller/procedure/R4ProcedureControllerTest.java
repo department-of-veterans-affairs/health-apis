@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.procedure;
 
+import static gov.va.api.health.dataquery.service.controller.MockRequests.paging;
 import static gov.va.api.health.dataquery.service.controller.MockRequests.requestFromUri;
 import static gov.va.api.health.dataquery.service.controller.procedure.ProcedureSamples.id;
 import static gov.va.api.health.dataquery.service.controller.procedure.ProcedureSamples.registration;
@@ -12,9 +13,13 @@ import static org.mockito.Mockito.when;
 import gov.va.api.health.dataquery.service.config.LinkProperties;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.ids.api.IdentityService;
+import gov.va.api.health.r4.api.bundle.BundleLink;
+import gov.va.api.health.r4.api.resources.Procedure;
 import gov.va.api.lighthouse.vulcan.InvalidRequest;
+import gov.va.api.lighthouse.vulcan.VulcanResult;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 import javax.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
@@ -54,7 +59,8 @@ public class R4ProcedureControllerTest {
         "?_id=321&identifier=123",
         "?_id=678&patient=p1",
         "?identifier=935&patient=p1",
-        "?date=2020-1-20T16:35:00Z"
+        "?date=gt2020",
+        "?patient=p1&date=nope"
       })
   @SneakyThrows
   void invalidRequest(String query) {
@@ -81,13 +87,58 @@ public class R4ProcedureControllerTest {
     assertThat(actual).isEqualTo("payload!");
   }
 
+  @Test
+  void toBundle() {
+    when(ids.register(any()))
+        .thenReturn(
+            List.of(
+                registration("pr1", "ppr1"),
+                registration("pr2", "ppr2"),
+                registration("pr3", "ppr3")));
+    var bundler = controller().toBundle();
+    var datamart = ProcedureSamples.Datamart.create();
+    var vr =
+        VulcanResult.<ProcedureEntity>builder()
+            .paging(
+                paging(
+                    "http://fonzy.com/r4/Procedure?patient=p1&page=%d&_count=%d",
+                    1, 4, 5, 6, 9, 15))
+            .entities(
+                Stream.of(
+                    datamart.entity("pr1", "p1"),
+                    datamart.entity("pr2", "p1"),
+                    datamart.entity("pr3", "p1")))
+            .build();
+    ProcedureSamples.R4 r4 = ProcedureSamples.R4.create();
+    Procedure.Bundle expected =
+        r4.asBundle(
+            "http://fonzy.com/r4",
+            List.of(
+                r4.procedure("ppr1", "p1", "2008-01-02T06:00:00Z"),
+                r4.procedure("ppr2", "p1", "2008-01-02T06:00:00Z"),
+                r4.procedure("ppr3", "p1", "2008-01-02T06:00:00Z")),
+            999,
+            r4.link(
+                BundleLink.LinkRelation.first, "http://fonzy.com/r4/Procedure?patient=p1", 1, 15),
+            r4.link(
+                BundleLink.LinkRelation.prev, "http://fonzy.com/r4/Procedure?patient=p1", 4, 15),
+            r4.link(
+                BundleLink.LinkRelation.self, "http://fonzy.com/r4/Procedure?patient=p1", 5, 15),
+            r4.link(
+                BundleLink.LinkRelation.next, "http://fonzy.com/r4/Procedure?patient=p1", 6, 15),
+            r4.link(
+                BundleLink.LinkRelation.last, "http://fonzy.com/r4/Procedure?patient=p1", 9, 15));
+    var applied = bundler.apply(vr);
+    assertThat(applied).isEqualTo(expected);
+  }
+
   @ParameterizedTest
   @ValueSource(
       strings = {
         "?_id=pr1",
         "?identifier=pr1",
         "?patient=p1",
-        "?patient=p1&date=le2009",
+        "?patient=p1&date=2009",
         "?patient=p1&date=gt2020",
         "?patient=p1&date=2003&date=2007",
         "?patient=p1&date=gt2004&date=lt2006"

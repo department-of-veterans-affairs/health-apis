@@ -17,7 +17,7 @@ public class ProcedureIT {
 
   TestIds testIds = DataQueryResourceVerifier.ids();
 
-  private Predicate<Procedure.Bundle> bundleIsNotEmpty() {
+  private Predicate<Procedure.Bundle> bundleHasResults() {
     return bundle -> !bundle.entry().isEmpty();
   }
 
@@ -35,26 +35,26 @@ public class ProcedureIT {
         test(
             200,
             Procedure.Bundle.class,
-            bundleIsNotEmpty().negate(),
+            bundleHasResults().negate(),
             "Procedure?_id={id}",
             testIds.unknown()),
         test(
             200,
             Procedure.Bundle.class,
-            bundleIsNotEmpty(),
+            bundleHasResults(),
             "Procedure?identifier={id}",
             testIds.procedure()),
         test(
             200,
             Procedure.Bundle.class,
-            bundleIsNotEmpty(),
+            bundleHasResults(),
             "Procedure?patient={patient}&date={onDate}",
             testIds.patient(),
             testIds.procedures().onDate()),
         test(
             200,
             Procedure.Bundle.class,
-            bundleIsNotEmpty(),
+            bundleHasResults(),
             "Procedure?patient={patient}&date={fromDate}&date={toDate}",
             testIds.patient(),
             testIds.procedures().fromDate(),
@@ -62,7 +62,7 @@ public class ProcedureIT {
         test(
             200,
             Procedure.Bundle.class,
-            bundleIsNotEmpty(),
+            bundleHasResults(),
             "Procedure?patient={patient}",
             testIds.patient()));
   }
