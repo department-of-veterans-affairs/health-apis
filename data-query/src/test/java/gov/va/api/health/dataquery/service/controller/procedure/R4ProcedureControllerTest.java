@@ -54,13 +54,27 @@ public class R4ProcedureControllerTest {
   }
 
   @ParameterizedTest
+  @ValueSource(strings = {"?nachos=friday", "?patient:identifier=p1"})
+  @SneakyThrows
+  void emptyBundle(String query) {
+    var url = "http://fonzy.com/r4/Procedure" + query;
+    var request = requestFromUri(url);
+    var bundle = controller().search(request);
+    assertThat(bundle.total()).isEqualTo(0);
+    assertThat(bundle.entry()).isEmpty();
+  }
+
+  @ParameterizedTest
   @ValueSource(
       strings = {
         "?_id=321&identifier=123",
         "?_id=678&patient=p1",
         "?identifier=935&patient=p1",
         "?date=gt2020",
-        "?patient=p1&date=nope"
+        "?patient=p1&date=nope",
+        "?patient:RelatedPerson=p1",
+        "?patient=RelatedPerson/p1",
+        "?patient=http://fonzy.com/r4/RelatedPerson/p1"
       })
   @SneakyThrows
   void invalidRequest(String query) {
@@ -138,6 +152,10 @@ public class R4ProcedureControllerTest {
         "?_id=pr1",
         "?identifier=pr1",
         "?patient=p1",
+        "?patient=Patient/p1",
+        "?patient=http://fonzy.com/r4/Patient/p1",
+        "?patient:Patient=p1",
+        "?patient=Patient/p1&date=le2009",
         "?patient=p1&date=2009",
         "?patient=p1&date=gt2020",
         "?patient=p1&date=2003&date=2007",

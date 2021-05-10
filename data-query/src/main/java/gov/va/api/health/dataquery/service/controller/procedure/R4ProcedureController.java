@@ -1,11 +1,11 @@
 package gov.va.api.health.dataquery.service.controller.procedure;
 
-import static gov.va.api.lighthouse.vulcan.Rules.atLeastOneParameterOf;
 import static gov.va.api.lighthouse.vulcan.Rules.ifParameter;
 import static gov.va.api.lighthouse.vulcan.Rules.parametersNeverSpecifiedTogether;
 import static gov.va.api.lighthouse.vulcan.Vulcan.returnNothing;
 
 import gov.va.api.health.dataquery.service.config.LinkProperties;
+import gov.va.api.health.dataquery.service.controller.R4PatientReferenceMapping;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.Bundling;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedBundler;
@@ -56,10 +56,9 @@ public class R4ProcedureController {
                 .dateAsLongMilliseconds("date", "performedOnEpochTime")
                 .value("_id", "cdwId", witnessProtection::toCdwId)
                 .value("identifier", "cdwId", witnessProtection::toCdwId)
-                .value("patient", "icn")
+                .add(R4PatientReferenceMapping.<ProcedureEntity>forLinks(linkProperties).get())
                 .get())
         .rule(parametersNeverSpecifiedTogether("_id", "identifier", "patient"))
-        .rule(atLeastOneParameterOf("_id", "identifier", "patient"))
         .rule(ifParameter("date").thenAlsoAtLeastOneParameterOf("patient"))
         .defaultQuery(returnNothing())
         .build();
