@@ -79,6 +79,8 @@ public class R4MedicationRequestControllerTest {
         "?patient=p1&intent=ew-david",
         "?patient=p1&intent=|order",
         "?patient=p1&intent=|plan",
+        "?patient=p1&intent=http://intent.org|order",
+        "?patient=p1&intent=http://intent.org|plan",
         "?patient=p1&intent=http://intent.org|",
         "?patient=p1&intent=http://hl7.org/fhir/CodeSystem/medicationrequest-intent|ew-david"
       })
