@@ -60,6 +60,7 @@ public class R4ProcedureController {
                 .get())
         .rule(parametersNeverSpecifiedTogether("_id", "identifier", "patient"))
         .rule(ifParameter("date").thenAlsoAtLeastOneParameterOf("patient"))
+        .rule(ifParameter("patient").thenAllowOnlyKnownModifiers("identifier"))
         .defaultQuery(returnNothing())
         .build();
   }
