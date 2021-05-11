@@ -70,13 +70,14 @@ public class R4PractitionerControllerTest {
         .isEqualTo(PractitionerSamples.R4.create().practitioner("ppr1"));
   }
 
-  @Test
-  void readByNpi() {
+  @ParameterizedTest
+  @ValueSource(strings = {"npi-1234567", "NPI-1234567"})
+  void readByNpi(String npi) {
     when(ids.register(any())).thenReturn(List.of(registration("pr1", "ppr1")));
     PractitionerEntity entity = PractitionerSamples.Datamart.create().entity("pr1", "loc1", "org1");
     when(repository.findByNpi("1234567", Pageable.unpaged()))
         .thenReturn(new PageImpl(List.of(entity)));
-    assertThat(controller().read("npi-1234567"))
+    assertThat(controller().read(npi))
         .isEqualTo(PractitionerSamples.R4.create().practitioner("ppr1"));
   }
 

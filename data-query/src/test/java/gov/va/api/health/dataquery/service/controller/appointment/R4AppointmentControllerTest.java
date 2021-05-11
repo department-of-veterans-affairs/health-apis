@@ -182,8 +182,8 @@ public class R4AppointmentControllerTest {
       strings = {
         "?location=ploc1",
         "?patient=p1&location=ploc1",
-        "?location=ploc1&_lastUpdated=2020-1-20T16:35:00Z",
-        "?patient=p1&location=ploc1&_lastUpdated=2020-1-20T16:35:00Z"
+        "?location=ploc1&_lastUpdated=2020-01-20T16:35:00Z",
+        "?patient=p1&location=ploc1&_lastUpdated=2020-01-20T16:35:00Z"
       })
   void validRequestWithLocationIds(String query) {
     when(ids.register(any())).thenReturn(List.of(registration("1:L", "ploc1")));
@@ -195,8 +195,8 @@ public class R4AppointmentControllerTest {
   @ValueSource(
       strings = {
         "?patient=111V111",
-        "?_lastUpdated=2020-1-20T16:35:00Z",
-        "?patient=p1&_lastUpdated=2020-1-20T16:35:00Z"
+        "?_lastUpdated=2020-01-20T16:35:00Z",
+        "?patient=p1&_lastUpdated=2020-01-20T16:35:00Z"
       })
   @SneakyThrows
   void validRequests(String query) {

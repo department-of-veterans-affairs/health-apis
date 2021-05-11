@@ -3,6 +3,7 @@ package gov.va.api.health.dataquery.service.controller.condition;
 import gov.va.api.health.dataquery.service.controller.DatamartSupport;
 import gov.va.api.lighthouse.datamart.DatamartEntity;
 import gov.va.api.lighthouse.datamart.Payload;
+import java.math.BigInteger;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -18,25 +19,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Sort;
 
-/**
- * Datamart Condition representing the following table.
- *
- * <pre>
- * CREATE TABLE [app].[Condition](
- *  [CDWId] [varchar](50) NOT NULL,
- *  [PatientFullICN] [varchar](50) NOT NULL,
- *  [AsserterCDWId] [int] NULL,
- *  [Category] [varchar](50) NULL,
- *  [ClinicalStatus] [varchar](50) NULL,
- *  [DateRecorded] [datetime2](0) NULL,
- *  [EncounterCDWId] [bigint] NULL,
- *  [OnSet] [datetime2](0) NULL,
- *  [Condition] [varchar](max) NULL,
- *  [ETLBatchId] [int] NULL,
- *  [ETLCreateDate] [datetime2](0) NULL,
- *  [ETLEditDate] [datetime2](0) NULL,
- * </pre>
- */
 @Data
 @Entity
 @Builder
@@ -45,6 +27,12 @@ import org.springframework.data.domain.Sort;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class ConditionEntity implements DatamartEntity {
+  @Column(name = "CdwIdNumber")
+  private BigInteger cdwIdNumber;
+
+  @Column(name = "CdwIdResourceCode")
+  private char cdwIdResourceCode;
+
   @Id
   @Column(name = "CDWId")
   @EqualsAndHashCode.Include

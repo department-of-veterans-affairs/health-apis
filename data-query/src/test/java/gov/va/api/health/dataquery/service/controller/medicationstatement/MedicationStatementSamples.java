@@ -2,6 +2,7 @@ package gov.va.api.health.dataquery.service.controller.medicationstatement;
 
 import static java.util.Collections.singletonList;
 
+import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dstu2.api.bundle.AbstractBundle.BundleType;
 import gov.va.api.health.dstu2.api.bundle.AbstractEntry.Search;
 import gov.va.api.health.dstu2.api.bundle.AbstractEntry.SearchMode;
@@ -13,6 +14,8 @@ import gov.va.api.health.dstu2.api.elements.Reference;
 import gov.va.api.health.dstu2.api.resources.MedicationStatement;
 import gov.va.api.health.dstu2.api.resources.MedicationStatement.Bundle;
 import gov.va.api.health.dstu2.api.resources.MedicationStatement.Entry;
+import gov.va.api.health.ids.api.Registration;
+import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.lighthouse.datamart.DatamartReference;
 import java.time.Instant;
 import java.util.Arrays;
@@ -21,13 +24,39 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class MedicationStatementSamples {
 
+  public static ResourceIdentity id(String cdwId) {
+    return ResourceIdentity.builder()
+        .system("CDW")
+        .resource("MEDICATION_STATEMENT")
+        .identifier(cdwId)
+        .build();
+  }
+
+  public static Registration registration(String cdwId, String publicId) {
+    return Registration.builder().uuid(publicId).resourceIdentities(List.of(id(cdwId))).build();
+  }
+
+  @SneakyThrows
+  String json(Object o) {
+    return JacksonConfig.createMapper().writerWithDefaultPrettyPrinter().writeValueAsString(o);
+  }
+
   @AllArgsConstructor(staticName = "create")
   public static class Datamart {
+
+    public MedicationStatementEntity entity(String cdwId, String patientId) {
+      return MedicationStatementEntity.builder()
+          .cdwId(cdwId)
+          .icn(patientId)
+          .payload(json(medicationStatement(cdwId, patientId)))
+          .build();
+    }
 
     public DatamartMedicationStatement medicationStatement() {
       return medicationStatement("800008482786", "666V666");

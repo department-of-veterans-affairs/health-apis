@@ -1,6 +1,5 @@
 package gov.va.api.health.dataquery.service.controller.location;
 
-import static gov.va.api.health.dataquery.service.controller.FacilityTransformers.facilityIdentifier;
 import static gov.va.api.health.dataquery.service.controller.FacilityTransformers.fapiClinicId;
 import static gov.va.api.health.dataquery.service.controller.R4Transformers.asReference;
 import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
@@ -12,6 +11,7 @@ import static java.util.Collections.singletonList;
 
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
 import gov.va.api.health.dataquery.service.controller.FacilityId;
+import gov.va.api.health.dataquery.service.controller.FacilityTransformers;
 import gov.va.api.health.r4.api.datatypes.Address;
 import gov.va.api.health.r4.api.datatypes.CodeableConcept;
 import gov.va.api.health.r4.api.datatypes.Coding;
@@ -56,16 +56,14 @@ public class R4LocationTransformer {
       return null;
     }
     return Identifier.builder()
-        .system("https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-clinic-identifier")
+        .system(FacilityTransformers.FAPI_CLINIC_IDENTIFIER_SYSTEM)
         .value(fapiClinicId)
         .build();
   }
 
   List<Identifier> identifiers(Optional<FacilityId> maybeFacilityId, Optional<String> maybeIen) {
     return emptyToNull(
-        asList(
-            facilityIdentifier(maybeFacilityId.orElse(null)),
-            clinicIdentifier(maybeFacilityId.orElse(null), maybeIen.orElse(null))));
+        asList(clinicIdentifier(maybeFacilityId.orElse(null), maybeIen.orElse(null))));
   }
 
   CodeableConcept physicalType(Optional<String> maybePhysicalType) {

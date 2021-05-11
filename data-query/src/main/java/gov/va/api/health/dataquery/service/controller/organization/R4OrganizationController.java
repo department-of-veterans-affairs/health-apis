@@ -6,6 +6,7 @@ import static gov.va.api.lighthouse.vulcan.Vulcan.returnNothing;
 
 import gov.va.api.health.dataquery.service.config.LinkProperties;
 import gov.va.api.health.dataquery.service.controller.FacilityId;
+import gov.va.api.health.dataquery.service.controller.FacilityTransformers;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.Bundling;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedBundler;
@@ -44,9 +45,6 @@ import org.springframework.web.bind.annotation.RestController;
     produces = {"application/json", "application/fhir+json"})
 @AllArgsConstructor(onConstructor_ = @Autowired)
 public class R4OrganizationController {
-  private static final String FAPI_IDENTIFIER_SYSTEM =
-      "https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-identifier";
-
   private final LinkProperties linkProperties;
 
   private OrganizationRepository repository;
@@ -137,7 +135,7 @@ public class R4OrganizationController {
   }
 
   /**
-   * Supported Identifiers:
+   * Supported identifiers:
    *
    * <p>I3-1a2b3c4d
    *
@@ -146,7 +144,8 @@ public class R4OrganizationController {
    * <p>https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-identifier|vha_123
    */
   private boolean tokenIdentifierIsSupported(TokenParameter token) {
-    return (token.hasSupportedSystem(FAPI_IDENTIFIER_SYSTEM) && token.hasExplicitCode())
+    return (token.hasSupportedSystem(FacilityTransformers.FAPI_IDENTIFIER_SYSTEM)
+            && token.hasExplicitCode())
         || token.hasAnySystem();
   }
 

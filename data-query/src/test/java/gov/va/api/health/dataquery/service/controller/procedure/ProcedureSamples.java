@@ -1,9 +1,12 @@
 package gov.va.api.health.dataquery.service.controller.procedure;
 
+import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.procedure.DatamartProcedure.Status;
 import gov.va.api.health.dstu2.api.resources.Procedure;
 import gov.va.api.health.dstu2.api.resources.Procedure.Bundle;
 import gov.va.api.health.dstu2.api.resources.Procedure.Entry;
+import gov.va.api.health.ids.api.Registration;
+import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.health.r4.api.bundle.AbstractBundle.BundleType;
 import gov.va.api.health.r4.api.bundle.AbstractEntry;
 import gov.va.api.health.r4.api.bundle.AbstractEntry.SearchMode;
@@ -18,12 +21,37 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class ProcedureSamples {
+
+  public static ResourceIdentity id(String cdwId) {
+    return ResourceIdentity.builder().system("CDW").resource("PROCEDURE").identifier(cdwId).build();
+  }
+
+  @SneakyThrows
+  static String json(Object o) {
+    return JacksonConfig.createMapper().writerWithDefaultPrettyPrinter().writeValueAsString(o);
+  }
+
+  public static Registration registration(String cdwId, String publicId) {
+    return Registration.builder().uuid(publicId).resourceIdentities(List.of(id(cdwId))).build();
+  }
+
   @AllArgsConstructor(staticName = "create")
   public static class Datamart {
+
+    public ProcedureEntity entity(String id, String patientIcn) {
+      DatamartProcedure dm = procedure(id, patientIcn, "2008-01-02T06:00:00Z");
+      return ProcedureEntity.builder()
+          .cdwId(dm.cdwId())
+          .icn(dm.patient().reference().orElse(null))
+          .performedOnEpochTime(dm.performedDateTime().get().toEpochMilli())
+          .payload(json(dm))
+          .build();
+    }
 
     public DatamartProcedure procedure() {
       return procedure("1000000719261", "1004476237V111282", "2008-01-02T06:00:00Z");
