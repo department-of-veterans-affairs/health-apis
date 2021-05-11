@@ -41,7 +41,7 @@ import org.springframework.web.bind.annotation.RestController;
     value = {"/stu3/Location"},
     produces = {"application/json", "application/fhir+json"})
 @SuppressWarnings("WeakerAccess")
-@AllArgsConstructor(onConstructor = @__({@Autowired}))
+@AllArgsConstructor(onConstructor_ = @Autowired)
 public class Stu3LocationController {
   private Stu3Bundler bundler;
 

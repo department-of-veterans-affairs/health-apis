@@ -120,18 +120,20 @@ public final class SystemDefinitions {
         .addressCity("LYONS")
         .addressState("NJ")
         .addressPostalCode("07939")
+        .clinicIdentifier("vha_688_3485")
+        .unknownClinicIdentifier("vha_555_5555")
         .build();
   }
 
   private static TestIds.Organizations localAndLabOrganizations() {
     return TestIds.Organizations.builder()
-        .addressStreet("10 MONROE AVE, SUITE 6B PO BOX 4160")
-        .addressCity("NEW AMSTERDAM")
-        .addressState("OH")
-        .addressPostalCode("44444-4160")
+        .addressStreet("2360 E PERSHING BLVD")
+        .addressCity("CHEYENNE")
+        .addressState("WY")
+        .addressPostalCode("82001-5356")
         .facilityId("vha_442")
-        .name("NEW AMSTERDAM CBOC")
-        .npi("http://hl7.org/fhir/sid/us-npi|1205983228")
+        .name("CHEYENNE VA MEDICAL")
+        .npi("http://hl7.org/fhir/sid/us-npi|1164471991")
         .build();
   }
 
@@ -231,7 +233,7 @@ public final class SystemDefinitions {
   }
 
   private static Procedures productionIdProcedures() {
-    return Procedures.builder().fromDate("ge2009").onDate("ge2009").toDate("le2014").build();
+    return Procedures.builder().fromDate("ge2009").onDate("ge2009").toDate("le2018").build();
   }
 
   /*
@@ -277,6 +279,8 @@ public final class SystemDefinitions {
         .addressPostalCode("33612-4745")
         .addressState("FL")
         .addressStreet("13000 BRUCE B DOWNS BLVD")
+        .clinicIdentifier("vha_688_3485")
+        .unknownClinicIdentifier("vha_555_5555")
         .build();
   }
 

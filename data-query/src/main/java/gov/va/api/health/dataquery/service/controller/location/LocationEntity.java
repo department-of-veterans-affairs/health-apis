@@ -47,6 +47,21 @@ public class LocationEntity implements DatamartEntity {
   @Column(name = "PostalCode", nullable = true)
   private String postalCode;
 
+  @Column(name = "StationNumber", nullable = true)
+  private String stationNumber;
+
+  @Column(name = "FacilityType", nullable = true)
+  private String facilityType;
+
+  @Column(name = "LocationIen", nullable = true)
+  private String locationIen;
+
+  @Column(name = "ManagingOrgIdNumber", nullable = true)
+  private Integer managingOrgIdNumber;
+
+  @Column(name = "ManagingOrgResourceCode", nullable = true)
+  private Character managingOrgResourceCode;
+
   @Lob
   @Column(name = "Location")
   @Basic(fetch = FetchType.EAGER)

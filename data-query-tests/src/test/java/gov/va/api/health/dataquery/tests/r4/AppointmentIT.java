@@ -13,9 +13,9 @@ import gov.va.api.health.dataquery.tests.TestIds;
 import gov.va.api.health.fhir.testsupport.ResourceVerifier;
 import gov.va.api.health.r4.api.resources.Appointment;
 import gov.va.api.health.r4.api.resources.OperationOutcome;
-import gov.va.api.health.sentinel.*;
+import gov.va.api.health.sentinel.AccessTokens;
+import gov.va.api.health.sentinel.Environment;
 import java.time.Year;
-import java.util.List;
 import lombok.experimental.Delegate;
 import org.junit.jupiter.api.Test;
 
@@ -109,7 +109,7 @@ public class AppointmentIT {
   @Test
   void oauthFlow() {
     assumeEnvironmentIn(Environment.STAGING_LAB, Environment.LAB);
-    String token = Oauth.exchangeToken(List.of("system/Appointment.read"));
+    String token = AccessTokens.get().forSystemScopes("system/Appointment.read");
     var sd = SystemDefinitions.systemDefinition().r4DataQuery();
     // Valid Token
     Oauth.test(

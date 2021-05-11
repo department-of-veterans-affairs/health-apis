@@ -1,33 +1,37 @@
 package gov.va.api.health.dataquery.service.controller.location;
 
-import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
-import static java.util.Collections.emptyList;
+import static gov.va.api.lighthouse.vulcan.Rules.forbidUnknownParameters;
+import static gov.va.api.lighthouse.vulcan.Rules.parametersNeverSpecifiedTogether;
+import static gov.va.api.lighthouse.vulcan.Specifications.select;
+import static gov.va.api.lighthouse.vulcan.Vulcan.returnNothing;
 
-import gov.va.api.health.dataquery.service.controller.CountParameter;
-import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
-import gov.va.api.health.dataquery.service.controller.PageLinks;
-import gov.va.api.health.dataquery.service.controller.Parameters;
-import gov.va.api.health.dataquery.service.controller.R4Bundler;
-import gov.va.api.health.dataquery.service.controller.R4Controllers;
-import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
+import gov.va.api.health.dataquery.service.config.LinkProperties;
+import gov.va.api.health.dataquery.service.controller.FacilityId;
+import gov.va.api.health.dataquery.service.controller.FacilityTransformers;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
+import gov.va.api.health.dataquery.service.controller.vulcanizer.Bundling;
+import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedBundler;
+import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedReader;
+import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedTransformation;
 import gov.va.api.health.r4.api.resources.Location;
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
+import gov.va.api.lighthouse.vulcan.CircuitBreaker;
+import gov.va.api.lighthouse.vulcan.Specifications;
+import gov.va.api.lighthouse.vulcan.Vulcan;
+import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
+import gov.va.api.lighthouse.vulcan.mappings.Mappings;
+import gov.va.api.lighthouse.vulcan.mappings.TokenParameter;
+import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Stream;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.util.MultiValueMap;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -40,143 +44,127 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(
     value = {"/r4/Location"},
     produces = {"application/json", "application/fhir+json"})
-@AllArgsConstructor(onConstructor = @__({@Autowired}))
+@AllArgsConstructor(onConstructor_ = @Autowired)
 public class R4LocationController {
-  private R4Bundler bundler;
+  private final LinkProperties linkProperties;
 
   private LocationRepository repository;
 
   private WitnessProtection witnessProtection;
 
-  private static PageRequest page(int page, int count) {
-    return PageRequest.of(page - 1, count == 0 ? 1 : count, LocationEntity.naturalOrder());
+  private VulcanConfiguration<LocationEntity> configuration() {
+    return VulcanConfiguration.forEntity(LocationEntity.class)
+        .paging(linkProperties.pagingConfiguration("Location", LocationEntity.naturalOrder()))
+        .mappings(
+            Mappings.forEntity(LocationEntity.class)
+                .value("_id", "cdwId", witnessProtection::toCdwId)
+                .tokens(
+                    "identifier",
+                    this::tokenIdentifierIsSupported,
+                    this::tokenIdentifierSpecification)
+                .value("name")
+                .string("address", "street")
+                .string("address-city", "city")
+                .string("address-state", "state")
+                .string("address-postalcode", "postalCode")
+                .get())
+        .defaultQuery(returnNothing())
+        .rule(parametersNeverSpecifiedTogether("_id", "identifier"))
+        .rule(forbidUnknownParameters())
+        .build();
   }
 
-  private Location.Bundle bundle(
-      MultiValueMap<String, String> parameters, List<Location> records, int totalRecords) {
-    return bundler.bundle(
-        PageLinks.LinkConfig.builder()
-            .path("Location")
-            .queryParams(parameters)
-            .page(Parameters.pageOf(parameters))
-            .recordsPerPage(Parameters.countOf(parameters))
-            .totalRecords(totalRecords)
-            .build(),
-        records,
-        Location.Entry::new,
-        Location.Bundle::new);
+  @GetMapping(value = {"/{publicId}"})
+  Location read(@PathVariable("publicId") String publicId) {
+    return vulcanizedReader().read(publicId);
   }
 
-  private Location.Bundle bundleEntities(
-      MultiValueMap<String, String> parameters, int count, Page<LocationEntity> entitiesPage) {
-    if (count == 0) {
-      return bundle(parameters, emptyList(), (int) entitiesPage.getTotalElements());
-    }
-    List<DatamartLocation> datamarts =
-        entitiesPage.stream().map(LocationEntity::asDatamartLocation).collect(Collectors.toList());
-    replaceReferences(datamarts);
-    List<Location> records =
-        datamarts.stream()
-            .map(dm -> R4LocationTransformer.builder().datamart(dm).build().toFhir())
-            .collect(Collectors.toList());
-    return bundle(parameters, records, (int) entitiesPage.getTotalElements());
-  }
-
-  private LocationEntity entityById(String publicId) {
-    String cdwId = witnessProtection.toCdwId(publicId);
-    return repository.findById(cdwId).orElseThrow(() -> new ResourceExceptions.NotFound(publicId));
-  }
-
-  /** Get resource by id. */
-  @GetMapping(value = "/{publicId}")
-  public Location read(@PathVariable("publicId") String publicId) {
-    DatamartLocation dm = entityById(publicId).asDatamartLocation();
-    replaceReferences(List.of(dm));
-    return R4LocationTransformer.builder().datamart(dm).build().toFhir();
-  }
-
-  /** Get raw datamart resource by id. */
   @GetMapping(
       value = "/{publicId}",
       headers = {"raw=true"})
-  public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
-    IncludesIcnMajig.addHeaderForNoPatients(response);
-    return entityById(publicId).payload();
+  String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
+    return vulcanizedReader().readRaw(publicId, response);
   }
 
-  private void replaceReferences(Collection<DatamartLocation> resources) {
-    witnessProtection.registerAndUpdateReferences(
-        resources, resource -> Stream.of(resource.managingOrganization()));
-  }
-
-  /** Search for resource by address. */
   @GetMapping
-  public Location.Bundle searchByAddress(
-      @RequestParam(value = "address", required = false) String address,
-      @RequestParam(value = "address-city", required = false) String city,
-      @RequestParam(value = "address-state", required = false) String state,
-      @RequestParam(value = "address-postalcode", required = false) String postalCode,
-      @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
-      @CountParameter @Min(0) int count) {
-    if (allBlank(address, city, state, postalCode)) {
-      throw new ResourceExceptions.MissingSearchParameters(
-          String.format(
-              "At least one of %s must be specified",
-              List.of("address", "address-city", "address-state", "address-postalcode")));
+  Location.Bundle search(HttpServletRequest request) {
+    return Vulcan.forRepo(repository)
+        .config(configuration())
+        .build()
+        .search(request)
+        .map(toBundle());
+  }
+
+  private Specification<LocationEntity> selectClinicId(String maybeClinicId) {
+    try {
+      if (!maybeClinicId.contains("_")) {
+        return null;
+      }
+      var facilityId = FacilityId.from(maybeClinicId.substring(0, maybeClinicId.lastIndexOf("_")));
+      var locationIen = maybeClinicId.substring(maybeClinicId.lastIndexOf("_") + 1);
+      Specification<LocationEntity> spec =
+          Specifications.<LocationEntity>select("facilityType", facilityId.type().toString())
+              .and(select("stationNumber", facilityId.stationNumber()));
+      if (spec == null) {
+        return null;
+      }
+      return spec.and(select("locationIen", locationIen));
+    } catch (IllegalArgumentException e) {
+      return null;
     }
-    MultiValueMap<String, String> parameters =
-        Parameters.builder()
-            .addIgnoreNull("address", address)
-            .addIgnoreNull("address-city", city)
-            .addIgnoreNull("address-state", state)
-            .addIgnoreNull("address-postalcode", postalCode)
-            .add("page", page)
-            .add("_count", count)
-            .build();
-    LocationRepository.AddressSpecification spec =
-        LocationRepository.AddressSpecification.builder()
-            .address(address)
-            .city(city)
-            .state(state)
-            .postalCode(postalCode)
-            .build();
-    Page<LocationEntity> entitiesPage = repository.findAll(spec, page(page, count));
-    return bundleEntities(parameters, count, entitiesPage);
   }
 
-  /** Search for resource by _id. */
-  @GetMapping(params = {"_id"})
-  public Location.Bundle searchById(
-      @RequestParam("_id") String publicId,
-      @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
-      @CountParameter @Min(0) int count) {
-    return searchByIdentifier(publicId, page, count);
+  VulcanizedBundler<LocationEntity, DatamartLocation, Location, Location.Entry, Location.Bundle>
+      toBundle() {
+    return VulcanizedBundler.forTransformation(transformation())
+        .bundling(
+            Bundling.newBundle(Location.Bundle::new)
+                .newEntry(Location.Entry::new)
+                .linkProperties(linkProperties)
+                .build())
+        .build();
   }
 
-  /** Search for resource by identifier. */
-  @GetMapping(params = {"identifier"})
-  public Location.Bundle searchByIdentifier(
-      @RequestParam("identifier") String publicId,
-      @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
-      @CountParameter @Min(0) int count) {
-    MultiValueMap<String, String> parameters =
-        Parameters.builder()
-            .add("identifier", publicId)
-            .add("page", page)
-            .add("_count", count)
-            .build();
-    return R4Controllers.searchById(parameters, this::read, this::bundle);
+  private boolean tokenIdentifierIsSupported(TokenParameter token) {
+    return (token.hasSupportedSystem(FacilityTransformers.FAPI_CLINIC_IDENTIFIER_SYSTEM)
+            && token.hasExplicitCode())
+        || token.hasAnySystem();
   }
 
-  /** Search for resource by name. */
-  @GetMapping(params = {"name"})
-  public Location.Bundle searchByName(
-      @RequestParam("name") String name,
-      @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
-      @CountParameter @Min(0) int count) {
-    MultiValueMap<String, String> parameters =
-        Parameters.builder().add("name", name).add("page", page).add("_count", count).build();
-    Page<LocationEntity> entitiesPage = repository.findByName(name, page(page, count));
-    return bundleEntities(parameters, count, entitiesPage);
+  private Specification<LocationEntity> tokenIdentifierSpecification(TokenParameter token) {
+    return token
+        .behavior()
+        .onExplicitSystemAndExplicitCode(
+            (system, code) -> {
+              var clinicIdSpec = selectClinicId(code);
+              if (clinicIdSpec == null) {
+                throw CircuitBreaker.noResultsWillBeFound("identifier", code, "Invalid clinicId");
+              }
+              return clinicIdSpec;
+            })
+        .onAnySystemAndExplicitCode(
+            code ->
+                Specifications.<LocationEntity>select("cdwId", witnessProtection.toCdwId(code))
+                    .or(selectClinicId(code)))
+        .build()
+        .execute();
+  }
+
+  VulcanizedTransformation<LocationEntity, DatamartLocation, Location> transformation() {
+    return VulcanizedTransformation.toDatamart(LocationEntity::asDatamartLocation)
+        .toResource(dm -> R4LocationTransformer.builder().datamart(dm).build().toFhir())
+        .witnessProtection(witnessProtection)
+        .replaceReferences(resource -> Stream.of(resource.managingOrganization()))
+        .build();
+  }
+
+  VulcanizedReader<LocationEntity, DatamartLocation, Location, String> vulcanizedReader() {
+    return VulcanizedReader.<LocationEntity, DatamartLocation, Location, String>forTransformation(
+            transformation())
+        .repository(repository)
+        .toPatientId(e -> Optional.empty())
+        .toPrimaryKey(Function.identity())
+        .toPayload(LocationEntity::payload)
+        .build();
   }
 }

@@ -2,6 +2,7 @@ package gov.va.api.health.dataquery.service.controller.observation;
 
 import static gov.va.api.lighthouse.vulcan.Rules.ifParameter;
 import static gov.va.api.lighthouse.vulcan.Rules.parametersNeverSpecifiedTogether;
+import static gov.va.api.lighthouse.vulcan.Specifications.strings;
 import static gov.va.api.lighthouse.vulcan.Vulcan.returnNothing;
 
 import gov.va.api.health.dataquery.service.config.LinkProperties;
@@ -11,19 +12,20 @@ import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedBundl
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedReader;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedTransformation;
 import gov.va.api.health.r4.api.resources.Observation;
+import gov.va.api.lighthouse.vulcan.Specifications;
 import gov.va.api.lighthouse.vulcan.Vulcan;
 import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
 import gov.va.api.lighthouse.vulcan.mappings.Mappings;
 import gov.va.api.lighthouse.vulcan.mappings.TokenParameter;
-import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -58,8 +60,9 @@ public class R4ObservationController {
         .paging(linkProperties.pagingConfiguration("Observation", ObservationEntity.naturalOrder()))
         .mappings(
             Mappings.forEntity(ObservationEntity.class)
-                .tokenList("category", this::tokenCategoryIsSupported, this::tokenCategoryValues)
-                .tokenList("code", this::tokenCodeIsSupported, this::tokenCodeValues)
+                .tokens(
+                    "category", this::tokenCategoryIsSupported, this::tokenCategorySpecification)
+                .tokens("code", this::tokenCodeIsSupported, this::tokenCodeSpecification)
                 .dateAsInstant("date", "dateUtc")
                 .value("_id", "cdwId", witnessProtection::toCdwId)
                 .value("identifier", "cdwId", witnessProtection::toCdwId)
@@ -133,12 +136,16 @@ public class R4ObservationController {
         || (token.hasAnySystem() && codeIsSupported);
   }
 
-  Collection<String> tokenCategoryValues(TokenParameter token) {
+  private Specification<ObservationEntity> tokenCategorySpecification(TokenParameter token) {
     return token
         .behavior()
-        .onExplicitSystemAndAnyCode(s -> List.of("laboratory", "vital-signs"))
-        .onAnySystemAndExplicitCode(List::of)
-        .onExplicitSystemAndExplicitCode((s, c) -> List.of(c))
+        .onExplicitSystemAndAnyCode(
+            s ->
+                Specifications.<ObservationEntity>selectInList(
+                    "category", strings("laboratory", "vital-signs")))
+        .onAnySystemAndExplicitCode(c -> Specifications.<ObservationEntity>select("category", c))
+        .onExplicitSystemAndExplicitCode(
+            (s, c) -> Specifications.<ObservationEntity>select("category", c))
         .build()
         .execute();
   }
@@ -147,19 +154,22 @@ public class R4ObservationController {
     return token.hasSupportedSystem(OBSERVATION_CODE_SYSTEM) || token.hasAnySystem();
   }
 
-  Collection<String> tokenCodeValues(TokenParameter token) {
+  Specification<ObservationEntity> tokenCodeSpecification(TokenParameter token) {
     return token
         .behavior()
         .onExplicitSystemAndAnyCode(
             s -> {
               if (OBSERVATION_CODE_SYSTEM.equals(s)) {
-                return List.of(ObservationRepository.ANY_CODE_VALUE);
+                return (Specification<ObservationEntity>)
+                    ObservationRepository.CodeSpecification.of(
+                        Set.of(ObservationRepository.ANY_CODE_VALUE));
               }
               throw new IllegalStateException(
                   "Unsupported Code System: " + s + " Cannot build ExplicitSystemSpecification.");
             })
-        .onExplicitSystemAndExplicitCode((s, c) -> List.of(c))
-        .onAnySystemAndExplicitCode(List::of)
+        .onExplicitSystemAndExplicitCode(
+            (s, c) -> Specifications.<ObservationEntity>select("code", c))
+        .onAnySystemAndExplicitCode(c -> Specifications.<ObservationEntity>select("code", c))
         .build()
         .execute();
   }
