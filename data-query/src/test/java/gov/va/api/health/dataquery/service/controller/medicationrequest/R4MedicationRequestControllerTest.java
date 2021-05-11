@@ -59,7 +59,11 @@ public class R4MedicationRequestControllerTest {
   R4MedicationRequestController _controller() {
     return new R4MedicationRequestController(
         new R4Bundler(new ConfigurableBaseUrlPageLinks("http://fonzy.com", "dstu2", "stu3", "r4")),
-        LinkProperties.builder().defaultPageSize(15).build(),
+        LinkProperties.builder()
+            .publicUrl("http://fonzy.com")
+            .publicR4BasePath("r4")
+            .defaultPageSize(15)
+            .build(),
         medicationOrderRepository,
         medicationStatementRepository,
         WitnessProtection.builder().identityService(ids).build(),
@@ -68,7 +72,18 @@ public class R4MedicationRequestControllerTest {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {"?nachos=friday", "?patient=p1&intent=ew-david"})
+  @ValueSource(
+      strings = {
+        "?nachos=friday",
+        "?patient:identifier=p1",
+        "?patient=p1&intent=ew-david",
+        "?patient=p1&intent=|order",
+        "?patient=p1&intent=|plan",
+        "?patient=p1&intent=http://intent.org|order",
+        "?patient=p1&intent=http://intent.org|plan",
+        "?patient=p1&intent=http://intent.org|",
+        "?patient=p1&intent=http://hl7.org/fhir/CodeSystem/medicationrequest-intent|ew-david"
+      })
   @SneakyThrows
   void emptyBundle(String query) {
     var url = "http://fonzy.com/r4/MedicationRequest" + query;
@@ -80,7 +95,14 @@ public class R4MedicationRequestControllerTest {
 
   @ParameterizedTest
   @ValueSource(
-      strings = {"?patient=p1&_id=123", "?patient=p1&identifier=123", "?_id=123&identifier=456"})
+      strings = {
+        "?patient=p1&_id=123",
+        "?patient=p1&identifier=123",
+        "?_id=123&identifier=456",
+        "?patient:RelatedPerson=rp1",
+        "?patient=RelatedPerson/rp1",
+        "?patient=http://fonzy.com/r4/RelatedPerson/rp1"
+      })
   @SneakyThrows
   void invalidRequests(String query) {
     var request = requestFromUri("http://fonzy.com/r4/MedicationRequest" + query);
@@ -190,8 +212,14 @@ public class R4MedicationRequestControllerTest {
         "?_id=pmr1",
         "?identifier=pmr1",
         "?patient=p1",
+        "?patient:Patient=p1",
+        "?patient=Patient/p1",
+        "?patient=http://fonzy.com/r4/Patient/p1",
         "?patient=p1&intent=order",
-        "?patient=p1&intent=plan"
+        "?patient=p1&intent=plan",
+        "?patient=p1&intent=http://hl7.org/fhir/CodeSystem/medicationrequest-intent|",
+        "?patient=p1&intent=http://hl7.org/fhir/CodeSystem/medicationrequest-intent|order",
+        "?patient=p1&intent=http://hl7.org/fhir/CodeSystem/medicationrequest-intent|plan"
       })
   void validRequests(String query) {
     lenient()

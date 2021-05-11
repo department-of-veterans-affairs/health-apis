@@ -234,7 +234,7 @@ public final class SystemDefinitions {
   }
 
   private static Procedures productionIdProcedures() {
-    return Procedures.builder().fromDate("ge2009").onDate("ge2009").toDate("le2014").build();
+    return Procedures.builder().fromDate("ge2009").onDate("ge2009").toDate("le2018").build();
   }
 
   /*
