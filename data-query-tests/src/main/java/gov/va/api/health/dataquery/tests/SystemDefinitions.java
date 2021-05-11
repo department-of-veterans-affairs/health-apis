@@ -121,6 +121,7 @@ public final class SystemDefinitions {
         .addressState("NJ")
         .addressPostalCode("07939")
         .clinicIdentifier("vha_688_3485")
+        .organization("I2-Y26YDNLVGZLYDLZT6LDISQIJCU000000")
         .unknownClinicIdentifier("vha_555_5555")
         .build();
   }
@@ -280,6 +281,7 @@ public final class SystemDefinitions {
         .addressState("FL")
         .addressStreet("13000 BRUCE B DOWNS BLVD")
         .clinicIdentifier("vha_688_3485")
+        .organization("I2-Y26YDNLVGZLYDLZT6LDISQIJCU000000")
         .unknownClinicIdentifier("vha_555_5555")
         .build();
   }

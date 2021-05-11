@@ -82,6 +82,7 @@ public final class TestIds {
     @NonNull String addressState;
     @NonNull String addressPostalCode;
     @NonNull String clinicIdentifier;
+    @NonNull String organization;
     @NonNull String unknownClinicIdentifier;
   }
 

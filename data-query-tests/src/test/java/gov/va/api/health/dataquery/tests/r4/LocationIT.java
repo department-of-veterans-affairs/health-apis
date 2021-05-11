@@ -40,6 +40,18 @@ public class LocationIT {
             bundleIsEmpty(),
             "Location?_id={unknown}",
             testIds.unknown()),
+        test(
+            200,
+            Location.Bundle.class,
+            bundleIsNotEmpty(),
+            "Location?organization={organization}",
+            testIds.locations().organization()),
+        test(
+            200,
+            Location.Bundle.class,
+            bundleIsEmpty(),
+            "Location?organization={unknown}",
+            testIds.unknown()),
         test(200, Location.Bundle.class, "Location?identifier={id}", testIds.location()),
         test(
             200,
