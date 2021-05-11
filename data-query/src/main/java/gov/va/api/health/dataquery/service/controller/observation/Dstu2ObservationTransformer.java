@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.observation;
 
+import static gov.va.api.health.autoconfig.logging.LogSanitizer.sanitize;
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asCoding;
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asReference;
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.textOrElseDisplay;
@@ -13,7 +14,6 @@ import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 import static org.apache.commons.lang3.StringUtils.upperCase;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
-import gov.va.api.health.autoconfig.logging.LogSanitizer;
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
 import gov.va.api.health.dstu2.api.datatypes.CodeableConcept;
 import gov.va.api.health.dstu2.api.datatypes.Coding;
@@ -236,7 +236,7 @@ final class Dstu2ObservationTransformer {
       case "WR":
         return "Weakly reactive";
       default:
-        log.error("No display value for interpretation code '{}'.", LogSanitizer.sanitize(code));
+        log.error("No display value for interpretation code '{}'.", sanitize(code));
         return null;
     }
   }

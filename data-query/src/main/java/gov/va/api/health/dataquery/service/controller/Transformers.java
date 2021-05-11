@@ -1,10 +1,10 @@
 package gov.va.api.health.dataquery.service.controller;
 
+import static gov.va.api.health.autoconfig.logging.LogSanitizer.sanitize;
 import static org.apache.commons.lang3.StringUtils.endsWithIgnoreCase;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
 import com.google.common.base.Splitter;
-import gov.va.api.health.autoconfig.logging.LogSanitizer;
 import gov.va.api.health.fhir.api.IsReference;
 import gov.va.api.lighthouse.datamart.DatamartReference;
 import java.math.BigDecimal;
@@ -204,7 +204,7 @@ public final class Transformers {
       String zoned = endsWithIgnoreCase(instant, "Z") ? instant : instant + "Z";
       return Instant.parse(zoned);
     } catch (DateTimeParseException e) {
-      log.error("Failed to parse '{}' as instant", LogSanitizer.sanitize(instant));
+      log.error("Failed to parse '{}' as instant", sanitize(instant));
       return null;
     }
   }
