@@ -19,7 +19,7 @@ public class LocationIT {
     return bundle -> bundle.entry().isEmpty();
   }
 
-  private static Predicate<Bundle> bundleIsNotEmpty() {
+  private static Predicate<Bundle> bundleHasResults() {
     return bundleIsEmpty().negate();
   }
 
@@ -43,9 +43,8 @@ public class LocationIT {
         test(
             200,
             Location.Bundle.class,
-            bundleIsNotEmpty(),
             "Location?organization={organization}",
-            testIds.locations().organization()),
+            testIds.organization()),
         test(
             200,
             Location.Bundle.class,
@@ -62,13 +61,13 @@ public class LocationIT {
         test(
             200,
             Location.Bundle.class,
-            bundleIsNotEmpty(),
+            bundleHasResults(),
             "Location?identifier={clinicId}",
             testIds.locations().clinicIdentifier()),
         test(
             200,
             Location.Bundle.class,
-            bundleIsNotEmpty(),
+            bundleHasResults(),
             "Location?identifier=https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-clinic-identifier|{clinicId}",
             testIds.locations().clinicIdentifier()),
         test(

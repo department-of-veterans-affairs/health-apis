@@ -60,7 +60,6 @@ public class R4LocationController {
         .mappings(
             Mappings.forEntity(LocationEntity.class)
                 .value("_id", "cdwId", witnessProtection::toCdwId)
-                .values("organization", this::organizationMapping)
                 .tokens(
                     "identifier",
                     this::tokenIdentifierIsSupported,
@@ -70,6 +69,7 @@ public class R4LocationController {
                 .string("address-city", "city")
                 .string("address-state", "state")
                 .string("address-postalcode", "postalCode")
+                .values("organization", this::organizationMapping)
                 .get())
         .defaultQuery(returnNothing())
         .rule(parametersNeverSpecifiedTogether("_id", "identifier"))
@@ -78,8 +78,8 @@ public class R4LocationController {
   }
 
   private Map<String, ?> organizationMapping(String publicId) {
-    String cdwId = witnessProtection.toCdwId(publicId);
     try {
+      String cdwId = witnessProtection.toCdwId(publicId);
       CompositeCdwId compositeCdwId = CompositeCdwId.fromCdwId(cdwId);
       return Map.of(
           "managingOrgIdNumber",

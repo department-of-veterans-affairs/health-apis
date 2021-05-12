@@ -83,7 +83,6 @@ public final class TestIds {
     @NonNull String clinicIdentifier;
     @NonNull String clinicIdentifierUnknown;
     @NonNull String name;
-    @NonNull String organization;
   }
 
   @Value
