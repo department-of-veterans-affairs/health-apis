@@ -21,7 +21,6 @@ import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,7 +34,6 @@ import org.springframework.web.bind.annotation.RestController;
  * details.
  */
 @SuppressWarnings("WeakerAccess")
-@Builder
 @Validated
 @RestController
 @AllArgsConstructor(onConstructor_ = @Autowired)

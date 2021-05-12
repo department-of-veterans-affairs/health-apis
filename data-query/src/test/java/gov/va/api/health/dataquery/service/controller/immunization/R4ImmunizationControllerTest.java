@@ -7,6 +7,7 @@ import static gov.va.api.health.dataquery.service.controller.immunization.Immuni
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
@@ -19,6 +20,7 @@ import gov.va.api.lighthouse.vulcan.VulcanResult;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
+import javax.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -78,6 +80,15 @@ public class R4ImmunizationControllerTest {
     when(repository.findById("im1")).thenReturn(Optional.of(entity));
     assertThat(_controller().read("pim1"))
         .isEqualTo(ImmunizationSamples.R4.create().immunization("pim1", "p1"));
+  }
+
+  @Test
+  public void readRaw() {
+    when(ids.lookup("pim1")).thenReturn(List.of(ImmunizationSamples.id("im1")));
+    ImmunizationEntity entity = ImmunizationEntity.builder().icn("p1").payload("payload!").build();
+    when(repository.findById("im1")).thenReturn(Optional.of(entity));
+    var actual = _controller().readRaw("pim1", mock(HttpServletResponse.class));
+    assertThat(actual).isEqualTo("payload!");
   }
 
   @Test
