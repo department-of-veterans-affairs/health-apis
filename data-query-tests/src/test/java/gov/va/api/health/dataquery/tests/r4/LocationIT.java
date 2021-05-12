@@ -15,12 +15,12 @@ public class LocationIT {
 
   private final TestIds testIds = DataQueryResourceVerifier.ids();
 
-  private static Predicate<Bundle> bundleIsEmpty() {
-    return bundle -> bundle.entry().isEmpty();
-  }
-
   private static Predicate<Bundle> bundleHasResults() {
     return bundleIsEmpty().negate();
+  }
+
+  private static Predicate<Bundle> bundleIsEmpty() {
+    return bundle -> bundle.entry().isEmpty();
   }
 
   @Test
