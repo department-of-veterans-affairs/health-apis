@@ -25,6 +25,7 @@ import gov.va.api.health.dstu2.api.resources.Condition.ClinicalStatusCode;
 import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
+import gov.va.api.lighthouse.datamart.CompositeCdwId;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -51,8 +52,11 @@ public class Dstu2ConditionControllerTest {
 
   @SneakyThrows
   private ConditionEntity asEntity(DatamartCondition dm) {
+    CompositeCdwId compositeCdwId = CompositeCdwId.fromCdwId(dm.cdwId());
     return ConditionEntity.builder()
         .cdwId(dm.cdwId())
+        .cdwIdNumber(compositeCdwId.cdwIdNumber())
+        .cdwIdResourceCode(compositeCdwId.cdwIdResourceCode())
         .category(dm.category().toString())
         .clinicalStatus(dm.clinicalStatus().toString())
         .icn(dm.patient().reference().get())
@@ -62,6 +66,7 @@ public class Dstu2ConditionControllerTest {
 
   Dstu2ConditionController controller() {
     return new Dstu2ConditionController(
+        false,
         new Dstu2Bundler(
             new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool", "cool", "cool")),
         repository,
@@ -94,7 +99,7 @@ public class Dstu2ConditionControllerTest {
     for (int i = 0; i < 10; i++) {
       String dateRecorded = "2005-01-1" + i;
       String patientId = "p" + i % 2;
-      String cdwId = "cdw-" + i;
+      String cdwId = "0:" + i;
       String publicId = "public" + i;
       DatamartCondition dm = datamart.condition(cdwId, patientId, dateRecorded);
       dm.category(Category.values()[i % 2]);
@@ -127,8 +132,10 @@ public class Dstu2ConditionControllerTest {
     DatamartCondition dm = Datamart.create().condition();
     repository.save(asEntity(dm));
     mockConditionIdentity("x", dm.cdwId());
-    Condition actual = controller().read("x");
+    Condition actual = controller().read("false", "x");
     assertThat(actual).isEqualTo(ConditionSamples.Dstu2.create().condition("x"));
+    Condition compositeIdActual = controller().read("true", "x");
+    assertThat(compositeIdActual).isEqualTo(ConditionSamples.Dstu2.create().condition("x"));
   }
 
   @Test
@@ -137,31 +144,41 @@ public class Dstu2ConditionControllerTest {
     ConditionEntity entity = asEntity(dm);
     repository.save(entity);
     mockConditionIdentity("x", dm.cdwId());
-    String json = controller().readRaw("x", response);
+    String json = controller().readRaw("false", "x", response);
     assertThat(toObject(json)).isEqualTo(dm);
     verify(response).addHeader("X-VA-INCLUDES-ICN", entity.icn());
+    String compositeIdJson = controller().readRaw("false", "x", response);
+    assertThat(toObject(compositeIdJson)).isEqualTo(dm);
   }
 
   @Test
   public void readRawThrowsNotFoundWhenDataIsMissing() {
-    mockConditionIdentity("x", "x");
-    assertThrows(ResourceExceptions.NotFound.class, () -> controller().readRaw("x", response));
+    mockConditionIdentity("x", "0:x");
+    assertThrows(
+        ResourceExceptions.NotFound.class, () -> controller().readRaw("false", "x", response));
+    assertThrows(
+        ResourceExceptions.NotFound.class, () -> controller().readRaw("true", "x", response));
   }
 
   @Test
   public void readRawThrowsNotFoundWhenIdIsUnknown() {
-    assertThrows(ResourceExceptions.NotFound.class, () -> controller().readRaw("x", response));
+    assertThrows(
+        ResourceExceptions.NotFound.class, () -> controller().readRaw("false", "x", response));
+    assertThrows(
+        ResourceExceptions.NotFound.class, () -> controller().readRaw("true", "x", response));
   }
 
   @Test
   public void readThrowsNotFoundWhenDataIsMissing() {
-    mockConditionIdentity("x", "x");
-    assertThrows(ResourceExceptions.NotFound.class, () -> controller().read("x"));
+    mockConditionIdentity("x", "0:x");
+    assertThrows(ResourceExceptions.NotFound.class, () -> controller().read("false", "x"));
+    assertThrows(ResourceExceptions.NotFound.class, () -> controller().read("true", "x"));
   }
 
   @Test
   public void readThrowsNotFoundWhenIdIsUnknown() {
-    assertThrows(ResourceExceptions.NotFound.class, () -> controller().read("x"));
+    assertThrows(ResourceExceptions.NotFound.class, () -> controller().read("false", "x"));
+    assertThrows(ResourceExceptions.NotFound.class, () -> controller().read("true", "x"));
   }
 
   @Test
@@ -169,7 +186,7 @@ public class Dstu2ConditionControllerTest {
     DatamartCondition dm = Datamart.create().condition();
     repository.save(asEntity(dm));
     mockConditionIdentity("x", dm.cdwId());
-    Bundle actual = controller().searchById("x", 1, 1);
+    Bundle actual = controller().searchById("false", "x", 1, 1);
     Condition condition = Dstu2.create().condition("x");
     assertThat(json(actual))
         .isEqualTo(
@@ -189,7 +206,7 @@ public class Dstu2ConditionControllerTest {
     DatamartCondition dm = Datamart.create().condition();
     repository.save(asEntity(dm));
     mockConditionIdentity("1", dm.cdwId());
-    Bundle actual = controller().searchByIdentifier("1", 1, 1);
+    Bundle actual = controller().searchByIdentifier("false", "1", 1, 1);
     validateSearchByIdResult(dm, actual);
   }
 
@@ -198,7 +215,7 @@ public class Dstu2ConditionControllerTest {
     DatamartCondition dm = Datamart.create().condition();
     repository.save(asEntity(dm));
     mockConditionIdentity("1", dm.cdwId());
-    assertThat(json(controller().searchByIdentifier("1", 1, 0)))
+    assertThat(json(controller().searchByIdentifier("false", "1", 1, 0)))
         .isEqualTo(
             json(
                 Dstu2.asBundle(
