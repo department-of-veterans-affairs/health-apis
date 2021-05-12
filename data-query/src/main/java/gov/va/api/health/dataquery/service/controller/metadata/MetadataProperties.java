@@ -29,11 +29,6 @@ public class MetadataProperties {
   private boolean productionUse;
   private VersionSpecificProperties r4;
   private VersionSpecificProperties dstu2;
-  /**
-   * This is specific to DSTU2, STU3, or R4 and not used across versions. It is also specific to the
-   * implementation itself and hard coded.
-   */
-  @Deprecated private String fhirVersion;
 
   private SecurityProperties security;
   private String resourceDocumentation;
