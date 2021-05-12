@@ -60,7 +60,7 @@ public class R4LocationController {
         .mappings(
             Mappings.forEntity(LocationEntity.class)
                 .value("_id", "cdwId", witnessProtection::toCdwId)
-                .value("organization", this::loadOrganizationId)
+                .values("organization", this::loadOrganizationId)
                 .tokens(
                     "identifier",
                     this::tokenIdentifierIsSupported,
