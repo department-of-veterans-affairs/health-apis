@@ -1,33 +1,32 @@
 package gov.va.api.health.dataquery.service.controller.immunization;
 
-import static java.util.Collections.emptyList;
+import static gov.va.api.lighthouse.vulcan.Rules.ifParameter;
+import static gov.va.api.lighthouse.vulcan.Rules.parametersNeverSpecifiedTogether;
+import static gov.va.api.lighthouse.vulcan.Vulcan.returnNothing;
 
-import gov.va.api.health.dataquery.service.controller.CountParameter;
-import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
-import gov.va.api.health.dataquery.service.controller.PageLinks;
-import gov.va.api.health.dataquery.service.controller.Parameters;
-import gov.va.api.health.dataquery.service.controller.R4Bundler;
-import gov.va.api.health.dataquery.service.controller.R4Controllers;
-import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
+import gov.va.api.health.dataquery.service.config.LinkProperties;
+import gov.va.api.health.dataquery.service.controller.R4PatientReferenceMapping;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
+import gov.va.api.health.dataquery.service.controller.vulcanizer.Bundling;
+import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedBundler;
+import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedReader;
+import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedTransformation;
 import gov.va.api.health.r4.api.resources.Immunization;
-import java.util.Collection;
-import java.util.List;
+import gov.va.api.lighthouse.vulcan.Vulcan;
+import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
+import gov.va.api.lighthouse.vulcan.mappings.Mappings;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.function.Function;
 import java.util.stream.Stream;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.constraints.Min;
-import lombok.extern.slf4j.Slf4j;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -36,138 +35,100 @@ import org.springframework.web.bind.annotation.RestController;
  * details.
  */
 @SuppressWarnings("WeakerAccess")
-@Slf4j
+@Builder
 @Validated
 @RestController
+@AllArgsConstructor(onConstructor_ = @Autowired)
 @RequestMapping(
     value = {"/r4/Immunization"},
     produces = {"application/json", "application/fhir+json"})
 public class R4ImmunizationController {
-  R4Bundler bundler;
+  private final LinkProperties linkProperties;
 
-  private ImmunizationRepository repository;
+  private final ImmunizationRepository repository;
 
-  private WitnessProtection witnessProtection;
+  private final WitnessProtection witnessProtection;
 
-  /** R4 Immunization Constructor. */
-  public R4ImmunizationController(
-      @Autowired R4Bundler bundler,
-      @Autowired ImmunizationRepository repository,
-      @Autowired WitnessProtection witnessProtection) {
-    this.bundler = bundler;
-    this.repository = repository;
-    this.witnessProtection = witnessProtection;
+  private VulcanConfiguration<ImmunizationEntity> configuration() {
+    return VulcanConfiguration.forEntity(ImmunizationEntity.class)
+        .paging(
+            linkProperties.pagingConfiguration("Immunization", ImmunizationEntity.naturalOrder()))
+        .mappings(
+            Mappings.forEntity(ImmunizationEntity.class)
+                .value("_id", "cdwId", witnessProtection::toCdwId)
+                .value("identifier", "cdwId", witnessProtection::toCdwId)
+                .add(R4PatientReferenceMapping.<ImmunizationEntity>forLinks(linkProperties).get())
+                .get())
+        .defaultQuery(returnNothing())
+        .rule(parametersNeverSpecifiedTogether("patient", "_id", "identifier"))
+        .rule(ifParameter("patient").thenAllowOnlyKnownModifiers("identifier"))
+        .build();
   }
 
-  private Immunization.Bundle bundle(
-      MultiValueMap<String, String> parameters, List<Immunization> reports, int totalRecords) {
-    log.info("Search {} found {} results", parameters, totalRecords);
-    return bundler.bundle(
-        PageLinks.LinkConfig.builder()
-            .path("Immunization")
-            .queryParams(parameters)
-            .page(Parameters.pageOf(parameters))
-            .recordsPerPage(Parameters.countOf(parameters))
-            .totalRecords(totalRecords)
-            .build(),
-        reports,
-        Immunization.Entry::new,
-        Immunization.Bundle::new);
-  }
-
-  private Immunization.Bundle bundleEntities(
-      MultiValueMap<String, String> parameters, int count, Page<ImmunizationEntity> entities) {
-    if (count == 0) {
-      return bundle(parameters, emptyList(), (int) entities.getTotalElements());
-    }
-    return bundle(
-        parameters,
-        replaceReferences(
-                entities
-                    .get()
-                    .map(ImmunizationEntity::asDatamartImmunization)
-                    .collect(Collectors.toList()))
-            .stream()
-            .map(this::transform)
-            .collect(Collectors.toList()),
-        (int) entities.getTotalElements());
-  }
-
-  private ImmunizationEntity findEntityById(String publicId) {
-    Optional<ImmunizationEntity> entity = repository.findById(witnessProtection.toCdwId(publicId));
-    return entity.orElseThrow(() -> new ResourceExceptions.NotFound(publicId));
-  }
-
-  /** Read by id. */
+  /** Read Support. */
   @GetMapping(value = {"/{publicId}"})
   public Immunization read(@PathVariable("publicId") String publicId) {
-    DatamartImmunization dm = findEntityById(publicId).asDatamartImmunization();
-    replaceReferences(List.of(dm));
-    return R4ImmunizationTransformer.builder().datamart(dm).build().toFhir();
+    return vulcanizedReader().read(publicId);
   }
 
-  /** Get raw DatamartImmunization by id. */
+  /** Read Raw Datamart Payload Support. */
   @GetMapping(
-      value = {"/{publicId}"},
+      value = "/{publicId}",
       headers = {"raw=true"})
   public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
-    ImmunizationEntity entity = findEntityById(publicId);
-    IncludesIcnMajig.addHeader(response, entity.icn());
-    return entity.payload();
+    return vulcanizedReader().readRaw(publicId, response);
   }
 
-  Collection<DatamartImmunization> replaceReferences(Collection<DatamartImmunization> resources) {
-    witnessProtection.registerAndUpdateReferences(
-        resources,
-        resource ->
-            Stream.of(
-                resource.patient(),
-                resource.performer().orElse(null),
-                resource.requester().orElse(null),
-                resource.location().orElse(null)));
-    return resources;
+  /** Search Support. */
+  @GetMapping
+  public Immunization.Bundle search(HttpServletRequest request) {
+    return Vulcan.forRepo(repository)
+        .config(configuration())
+        .build()
+        .search(request)
+        .map(toBundle());
   }
 
-  /** Search by _id. */
-  @GetMapping(params = {"_id"})
-  public Immunization.Bundle searchById(
-      @RequestParam("_id") String publicId,
-      @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
-      @CountParameter @Min(0) int count) {
-    return searchByIdentifier(publicId, page, count);
+  VulcanizedBundler<
+          ImmunizationEntity,
+          DatamartImmunization,
+          Immunization,
+          Immunization.Entry,
+          Immunization.Bundle>
+      toBundle() {
+    return VulcanizedBundler.forTransformation(transformation())
+        .bundling(
+            Bundling.newBundle(Immunization.Bundle::new)
+                .newEntry(Immunization.Entry::new)
+                .linkProperties(linkProperties)
+                .build())
+        .build();
   }
 
-  /** Search by Identifier. */
-  @GetMapping(params = {"identifier"})
-  public Immunization.Bundle searchByIdentifier(
-      @RequestParam("identifier") String identifier,
-      @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
-      @CountParameter @Min(0) int count) {
-    MultiValueMap<String, String> parameters =
-        Parameters.builder()
-            .add("identifier", identifier)
-            .add("page", page)
-            .add("_count", count)
-            .build();
-    return R4Controllers.searchById(parameters, this::read, this::bundle);
+  private VulcanizedTransformation<ImmunizationEntity, DatamartImmunization, Immunization>
+      transformation() {
+    return VulcanizedTransformation.toDatamart(ImmunizationEntity::asDatamartImmunization)
+        .toResource(dm -> R4ImmunizationTransformer.builder().datamart(dm).build().toFhir())
+        .witnessProtection(witnessProtection)
+        .replaceReferences(
+            resource ->
+                Stream.of(
+                    resource.patient(),
+                    resource.performer().orElse(null),
+                    resource.requester().orElse(null),
+                    resource.location().orElse(null)))
+        .build();
   }
 
-  /** Search by patient. */
-  @GetMapping(params = {"patient"})
-  public Immunization.Bundle searchByPatient(
-      @RequestParam("patient") String patient,
-      @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
-      @CountParameter @Min(0) int count) {
-    String icn = witnessProtection.toCdwId(patient);
-    return bundleEntities(
-        Parameters.builder().add("patient", patient).add("page", page).add("_count", count).build(),
-        count,
-        repository.findByIcn(
-            icn,
-            PageRequest.of(page - 1, count == 0 ? 1 : count, ImmunizationEntity.naturalOrder())));
-  }
-
-  Immunization transform(DatamartImmunization dm) {
-    return R4ImmunizationTransformer.builder().datamart(dm).build().toFhir();
+  private VulcanizedReader<ImmunizationEntity, DatamartImmunization, Immunization, String>
+      vulcanizedReader() {
+    return VulcanizedReader
+        .<ImmunizationEntity, DatamartImmunization, Immunization, String>forTransformation(
+            transformation())
+        .repository(repository)
+        .toPatientId(e -> Optional.of(e.icn()))
+        .toPrimaryKey(Function.identity())
+        .toPayload(ImmunizationEntity::payload)
+        .build();
   }
 }
