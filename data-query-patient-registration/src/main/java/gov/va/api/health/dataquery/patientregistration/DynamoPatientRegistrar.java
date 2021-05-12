@@ -48,7 +48,7 @@ public class DynamoPatientRegistrar implements PatientRegistrar {
   @Override
   @Async
   public CompletableFuture<PatientRegistration> register(String icn) {
-    log.info("Registering {}", icn);
+    log.info("Registering {}", sanitize(icn));
 
     long now = Instant.now().toEpochMilli();
 
@@ -71,6 +71,13 @@ public class DynamoPatientRegistrar implements PatientRegistrar {
             .lastAccessTime(Instant.ofEpochMilli(item.getLong(Schema.LAST_ACCESS_TIME)))
             .build();
     return new AsyncResult<>(registration).completable();
+  }
+
+  private String sanitize(String s) {
+    if (s == null) {
+      return null;
+    }
+    return s.replace('\n', '_').replace('\r', '_');
   }
 
   public static class Schema {
