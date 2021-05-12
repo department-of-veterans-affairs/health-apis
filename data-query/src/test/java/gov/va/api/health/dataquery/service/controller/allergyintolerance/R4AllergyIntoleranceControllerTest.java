@@ -13,7 +13,6 @@ import static org.mockito.Mockito.when;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.config.LinkProperties;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
-import gov.va.api.health.dataquery.service.controller.device.DeviceSamples;
 import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.r4.api.bundle.BundleLink;
 import gov.va.api.lighthouse.vulcan.InvalidRequest;
@@ -161,9 +160,9 @@ public class R4AllergyIntoleranceControllerTest {
     when(ids.register(any()))
         .thenReturn(
             List.of(
-                DeviceSamples.registration("ai1", "pai1"),
-                DeviceSamples.registration("ai2", "pai2"),
-                DeviceSamples.registration("ai3", "pai3")));
+                AllergyIntoleranceSamples.registration("ai1", "pai1"),
+                AllergyIntoleranceSamples.registration("ai2", "pai2"),
+                AllergyIntoleranceSamples.registration("ai3", "pai3")));
     var dm = AllergyIntoleranceSamples.Datamart.create();
     when(repository.findAll(any(Specification.class), any(Pageable.class)))
         .thenAnswer(
