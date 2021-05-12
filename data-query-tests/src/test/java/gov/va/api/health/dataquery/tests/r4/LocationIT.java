@@ -19,7 +19,7 @@ public class LocationIT {
     return bundle -> bundle.entry().isEmpty();
   }
 
-  private static Predicate<Bundle> bundleIsNotEmpty() {
+  private static Predicate<Bundle> bundleHasResults() {
     return bundleIsEmpty().negate();
   }
 
@@ -40,6 +40,17 @@ public class LocationIT {
             bundleIsEmpty(),
             "Location?_id={unknown}",
             testIds.unknown()),
+        test(
+            200,
+            Location.Bundle.class,
+            "Location?organization={organization}",
+            testIds.organization()),
+        test(
+            200,
+            Location.Bundle.class,
+            bundleIsEmpty(),
+            "Location?organization={unknown}",
+            testIds.unknown()),
         test(200, Location.Bundle.class, "Location?identifier={id}", testIds.location()),
         test(
             200,
@@ -50,13 +61,13 @@ public class LocationIT {
         test(
             200,
             Location.Bundle.class,
-            bundleIsNotEmpty(),
+            bundleHasResults(),
             "Location?identifier={clinicId}",
             testIds.locations().clinicIdentifier()),
         test(
             200,
             Location.Bundle.class,
-            bundleIsNotEmpty(),
+            bundleHasResults(),
             "Location?identifier=https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-clinic-identifier|{clinicId}",
             testIds.locations().clinicIdentifier()),
         test(
@@ -64,7 +75,7 @@ public class LocationIT {
             Location.Bundle.class,
             bundleIsEmpty(),
             "Location?identifier={unknown}",
-            testIds.locations().unknownClinicIdentifier()),
+            testIds.locations().clinicIdentifierUnknown()),
         test(200, Location.Bundle.class, "Location?name={name}", testIds.locations().name()),
         test(
             200,

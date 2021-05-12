@@ -115,13 +115,13 @@ public final class SystemDefinitions {
 
   private static TestIds.Locations localAndLabLocations() {
     return TestIds.Locations.builder()
-        .name("VISUAL IMPAIRMENT SVCS OUTPATIENT REHAB (VISOR)")
         .addressStreet("151 KNOLLCROFT ROAD")
         .addressCity("LYONS")
         .addressState("NJ")
         .addressPostalCode("07939")
         .clinicIdentifier("vha_688_3485")
-        .unknownClinicIdentifier("vha_555_5555")
+        .clinicIdentifierUnknown("vha_555_5555")
+        .name("VISUAL IMPAIRMENT SVCS OUTPATIENT REHAB (VISOR)")
         .build();
   }
 
@@ -274,13 +274,13 @@ public final class SystemDefinitions {
 
   private static TestIds.Locations productionLocations() {
     return TestIds.Locations.builder()
-        .name("TPA PCE OR AMB SURGERY      -X")
         .addressCity("TAMPA")
         .addressPostalCode("33612-4745")
         .addressState("FL")
         .addressStreet("13000 BRUCE B DOWNS BLVD")
         .clinicIdentifier("vha_688_3485")
-        .unknownClinicIdentifier("vha_555_5555")
+        .clinicIdentifierUnknown("vha_555_5555")
+        .name("TPA PCE OR AMB SURGERY      -X")
         .build();
   }
 

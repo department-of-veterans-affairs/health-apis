@@ -14,12 +14,14 @@ import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedBundl
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedReader;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedTransformation;
 import gov.va.api.health.r4.api.resources.Location;
+import gov.va.api.lighthouse.datamart.CompositeCdwId;
 import gov.va.api.lighthouse.vulcan.CircuitBreaker;
 import gov.va.api.lighthouse.vulcan.Specifications;
 import gov.va.api.lighthouse.vulcan.Vulcan;
 import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
 import gov.va.api.lighthouse.vulcan.mappings.Mappings;
 import gov.va.api.lighthouse.vulcan.mappings.TokenParameter;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -67,11 +69,26 @@ public class R4LocationController {
                 .string("address-city", "city")
                 .string("address-state", "state")
                 .string("address-postalcode", "postalCode")
+                .values("organization", this::organizationMapping)
                 .get())
         .defaultQuery(returnNothing())
         .rule(parametersNeverSpecifiedTogether("_id", "identifier"))
         .rule(forbidUnknownParameters())
         .build();
+  }
+
+  private Map<String, ?> organizationMapping(String publicId) {
+    try {
+      String cdwId = witnessProtection.toCdwId(publicId);
+      CompositeCdwId compositeCdwId = CompositeCdwId.fromCdwId(cdwId);
+      return Map.of(
+          "managingOrgIdNumber",
+          compositeCdwId.cdwIdNumber(),
+          "managingOrgResourceCode",
+          compositeCdwId.cdwIdResourceCode());
+    } catch (IllegalArgumentException e) {
+      return Map.of();
+    }
   }
 
   @GetMapping(value = {"/{publicId}"})
