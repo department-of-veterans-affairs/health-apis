@@ -12,6 +12,7 @@ import gov.va.api.health.dataquery.service.controller.ResourceExceptions.NotFoun
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dstu2.api.resources.Condition;
 import gov.va.api.health.dstu2.api.resources.Condition.Bundle;
+import gov.va.api.lighthouse.datamart.CompositeCdwId;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -21,13 +22,16 @@ import java.util.stream.Stream;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.Min;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -45,16 +49,18 @@ import org.springframework.web.bind.annotation.RestController;
     value = {"/dstu2/Condition"},
     produces = {"application/json", "application/json+fhir", "application/fhir+json"})
 public class Dstu2ConditionController {
-
   private Dstu2Bundler bundler;
 
   private ConditionRepository repository;
 
   private WitnessProtection witnessProtection;
 
+  private boolean defaultCompositeId;
+
   /** Spring constructor. */
   @SuppressWarnings("ParameterHidesMemberVariable")
   public Dstu2ConditionController(
+      @Value(value = "${default.compositeId}") boolean defaultCompositeId,
       @Autowired Dstu2Bundler bundler,
       @Autowired ConditionRepository repository,
       @Autowired WitnessProtection witnessProtection) {
@@ -97,9 +103,29 @@ public class Dstu2ConditionController {
         (int) entities.getTotalElements());
   }
 
+  ConditionEntity findByCompositeId(String publicId) {
+    CompositeCdwId compositeCdwId;
+    try {
+      compositeCdwId = CompositeCdwId.fromCdwId(witnessProtection.toCdwId(publicId));
+    } catch (IllegalArgumentException e) {
+      throw new NotFound(publicId);
+    }
+    Optional<ConditionEntity> entity =
+        repository.findByCdwIdNumberAndCdwIdResourceCode(
+            compositeCdwId.cdwIdNumber(), compositeCdwId.cdwIdResourceCode());
+    return entity.orElseThrow(() -> new NotFound(publicId));
+  }
+
   ConditionEntity findById(String publicId) {
     Optional<ConditionEntity> entity = repository.findById(witnessProtection.toCdwId(publicId));
     return entity.orElseThrow(() -> new NotFound(publicId));
+  }
+
+  boolean isCompositeIdRequest(String compositeIdHeader) {
+    if (compositeIdHeader.isBlank()) {
+      return defaultCompositeId;
+    }
+    return BooleanUtils.isTrue(BooleanUtils.toBooleanObject(compositeIdHeader));
   }
 
   private PageRequest page(int page, int count) {
@@ -108,8 +134,16 @@ public class Dstu2ConditionController {
 
   /** Read by id. */
   @GetMapping(value = {"/{publicId}"})
-  public Condition read(@PathVariable("publicId") String publicId) {
-    DatamartCondition dm = findById(publicId).asDatamartCondition();
+  public Condition read(
+      @RequestHeader(name = "compositeId", required = false, defaultValue = "")
+          String compositeIdHeader,
+      @PathVariable("publicId") String publicId) {
+    DatamartCondition dm;
+    if (isCompositeIdRequest(compositeIdHeader)) {
+      dm = findByCompositeId(publicId).asDatamartCondition();
+    } else {
+      dm = findById(publicId).asDatamartCondition();
+    }
     replaceReferences(List.of(dm));
     return Dstu2ConditionTransformer.builder().datamart(dm).build().toFhir();
   }
@@ -118,8 +152,16 @@ public class Dstu2ConditionController {
   @GetMapping(
       value = {"/{publicId}"},
       headers = {"raw=true"})
-  public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
-    ConditionEntity entity = findById(publicId);
+  public String readRaw(
+      @RequestHeader(name = "compositeId", required = false, defaultValue = "")
+          String compositeIdHeader,
+      @PathVariable("publicId") String publicId,
+      HttpServletResponse response) {
+    ConditionEntity entity;
+    if (isCompositeIdRequest(compositeIdHeader)) {
+      entity = findByCompositeId(publicId);
+    }
+    entity = findById(publicId);
     IncludesIcnMajig.addHeader(response, entity.icn());
     return entity.payload();
   }
@@ -133,15 +175,19 @@ public class Dstu2ConditionController {
   /** Search by _id. */
   @GetMapping(params = {"_id"})
   public Condition.Bundle searchById(
+      @RequestHeader(name = "compositeId", required = false, defaultValue = "")
+          String compositeIdHeader,
       @RequestParam("_id") String publicId,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
-    return searchByIdentifier(publicId, page, count);
+    return searchByIdentifier(compositeIdHeader, publicId, page, count);
   }
 
   /** Search by Identifier. */
   @GetMapping(params = {"identifier"})
   public Condition.Bundle searchByIdentifier(
+      @RequestHeader(name = "compositeId", required = false, defaultValue = "")
+          String compositeIdHeader,
       @RequestParam("identifier") String identifier,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
@@ -151,7 +197,7 @@ public class Dstu2ConditionController {
             .add("page", page)
             .add("_count", count)
             .build();
-    Condition resource = read(identifier);
+    Condition resource = read(compositeIdHeader, identifier);
     int totalRecords = resource == null ? 0 : 1;
     if (resource == null || page != 1 || count <= 0) {
       return bundle(parameters, emptyList(), totalRecords);

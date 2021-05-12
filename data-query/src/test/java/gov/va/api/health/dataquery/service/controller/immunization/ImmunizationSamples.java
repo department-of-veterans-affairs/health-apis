@@ -1,7 +1,10 @@
 package gov.va.api.health.dataquery.service.controller.immunization;
 
+import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.R4Transformers;
 import gov.va.api.health.dataquery.service.controller.immunization.DatamartImmunization.VaccineCode;
+import gov.va.api.health.ids.api.Registration;
+import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.lighthouse.datamart.DatamartReference;
 import java.time.Instant;
 import java.util.Arrays;
@@ -10,12 +13,38 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class ImmunizationSamples {
+  public static ResourceIdentity id(String cdwId) {
+    return ResourceIdentity.builder()
+        .system("CDW")
+        .resource("IMMUNIZATION")
+        .identifier(cdwId)
+        .build();
+  }
+
+  public static Registration registration(String cdwId, String publicId) {
+    return Registration.builder().uuid(publicId).resourceIdentities(List.of(id(cdwId))).build();
+  }
+
   @AllArgsConstructor(staticName = "create")
   public static class Datamart {
+    @SneakyThrows
+    public ImmunizationEntity entity(DatamartImmunization dm) {
+      return ImmunizationEntity.builder()
+          .cdwId(dm.cdwId())
+          .icn(dm.patient().reference().get())
+          .payload(JacksonConfig.createMapper().writeValueAsString(dm))
+          .build();
+    }
+
+    public ImmunizationEntity entity(String cdwId, String patient) {
+      return entity(immunization(cdwId, patient));
+    }
+
     public DatamartImmunization immunization() {
       return immunization("1000000030337", "1011549983V753765");
     }
