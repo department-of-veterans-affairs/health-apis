@@ -25,6 +25,7 @@ import gov.va.api.health.dstu2.api.resources.Condition.ClinicalStatusCode;
 import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
+import gov.va.api.lighthouse.datamart.CompositeCdwId;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -32,8 +33,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletResponse;
-
-import gov.va.api.lighthouse.datamart.CompositeCdwId;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -56,8 +55,8 @@ public class Dstu2ConditionControllerTest {
     CompositeCdwId compositeCdwId = CompositeCdwId.fromCdwId(dm.cdwId());
     return ConditionEntity.builder()
         .cdwId(dm.cdwId())
-            .cdwIdNumber(compositeCdwId.cdwIdNumber())
-            .cdwIdResourceCode(compositeCdwId.cdwIdResourceCode())
+        .cdwIdNumber(compositeCdwId.cdwIdNumber())
+        .cdwIdResourceCode(compositeCdwId.cdwIdResourceCode())
         .category(dm.category().toString())
         .clinicalStatus(dm.clinicalStatus().toString())
         .icn(dm.patient().reference().get())
@@ -158,7 +157,7 @@ public class Dstu2ConditionControllerTest {
     assertThrows(
         ResourceExceptions.NotFound.class, () -> controller().readRaw("false", "x", response));
     assertThrows(
-            ResourceExceptions.NotFound.class, () -> controller().readRaw("true", "x", response));
+        ResourceExceptions.NotFound.class, () -> controller().readRaw("true", "x", response));
   }
 
   @Test
@@ -166,7 +165,7 @@ public class Dstu2ConditionControllerTest {
     assertThrows(
         ResourceExceptions.NotFound.class, () -> controller().readRaw("false", "x", response));
     assertThrows(
-            ResourceExceptions.NotFound.class, () -> controller().readRaw("true", "x", response));
+        ResourceExceptions.NotFound.class, () -> controller().readRaw("true", "x", response));
   }
 
   @Test

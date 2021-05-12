@@ -104,7 +104,12 @@ public class Dstu2ConditionController {
   }
 
   ConditionEntity findByCompositeId(String publicId) {
-    CompositeCdwId compositeCdwId = CompositeCdwId.fromCdwId(witnessProtection.toCdwId(publicId));
+    CompositeCdwId compositeCdwId;
+    try {
+      compositeCdwId = CompositeCdwId.fromCdwId(witnessProtection.toCdwId(publicId));
+    } catch (IllegalArgumentException e) {
+      throw new NotFound(publicId);
+    }
     Optional<ConditionEntity> entity =
         repository.findByCdwIdNumberAndCdwIdResourceCode(
             compositeCdwId.cdwIdNumber(), compositeCdwId.cdwIdResourceCode());
