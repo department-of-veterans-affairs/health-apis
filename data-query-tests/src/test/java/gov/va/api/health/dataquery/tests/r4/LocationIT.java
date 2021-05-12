@@ -76,7 +76,7 @@ public class LocationIT {
             Location.Bundle.class,
             bundleIsEmpty(),
             "Location?identifier={unknown}",
-            testIds.locations().unknownClinicIdentifier()),
+            testIds.locations().clinicIdentifierUnknown()),
         test(200, Location.Bundle.class, "Location?name={name}", testIds.locations().name()),
         test(
             200,

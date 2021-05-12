@@ -76,14 +76,14 @@ public final class TestIds {
   @Value
   @Builder
   public static class Locations {
-    @NonNull String name;
     @NonNull String addressStreet;
     @NonNull String addressCity;
     @NonNull String addressState;
     @NonNull String addressPostalCode;
     @NonNull String clinicIdentifier;
+    @NonNull String clinicIdentifierUnknown;
+    @NonNull String name;
     @NonNull String organization;
-    @NonNull String unknownClinicIdentifier;
   }
 
   @Value

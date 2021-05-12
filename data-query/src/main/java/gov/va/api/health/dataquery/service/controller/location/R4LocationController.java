@@ -60,7 +60,7 @@ public class R4LocationController {
         .mappings(
             Mappings.forEntity(LocationEntity.class)
                 .value("_id", "cdwId", witnessProtection::toCdwId)
-                .values("organization", this::loadOrganizationId)
+                .values("organization", this::organizationMapping)
                 .tokens(
                     "identifier",
                     this::tokenIdentifierIsSupported,
@@ -77,7 +77,7 @@ public class R4LocationController {
         .build();
   }
 
-  private Map<String, ?> loadOrganizationId(String publicId) {
+  private Map<String, ?> organizationMapping(String publicId) {
     String cdwId = witnessProtection.toCdwId(publicId);
     try {
       CompositeCdwId compositeCdwId = CompositeCdwId.fromCdwId(cdwId);
