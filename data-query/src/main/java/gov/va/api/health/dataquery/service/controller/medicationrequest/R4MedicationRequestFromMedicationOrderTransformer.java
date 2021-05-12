@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.medicationrequest;
 
+import static gov.va.api.health.autoconfig.logging.LogSanitizer.sanitize;
 import static gov.va.api.health.dataquery.service.controller.R4Transformers.asReference;
 import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
 import static gov.va.api.health.dataquery.service.controller.Transformers.asBigDecimal;
@@ -180,7 +181,7 @@ public class R4MedicationRequestFromMedicationOrderTransformer {
     }
     MedicationRequest.Status mapped = STATUS_VALUES.get(status.trim());
     if (mapped == null) {
-      log.warn("Cannot map status value: {}", status);
+      log.warn("Cannot map status value: {}", sanitize(status));
     }
     return mapped;
   }
