@@ -1,8 +1,10 @@
 package gov.va.api.health.dataquery.service.controller.condition;
 
 import gov.va.api.health.autoconfig.logging.Loggable;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaBuilder.In;
@@ -24,6 +26,9 @@ import org.springframework.transaction.annotation.Transactional;
 public interface ConditionRepository
     extends PagingAndSortingRepository<ConditionEntity, String>,
         JpaSpecificationExecutor<ConditionEntity> {
+  Optional<ConditionEntity> findByCdwIdNumberAndCdwIdResourceCode(
+      BigInteger cdwIdNumber, char cdwIdResourceCode);
+
   Page<ConditionEntity> findByIcn(String icn, Pageable pageable);
 
   Page<ConditionEntity> findByIcnAndCategory(String icn, String category, Pageable pageable);
@@ -41,7 +46,6 @@ public interface ConditionRepository
         Root<ConditionEntity> root,
         CriteriaQuery<?> criteriaQuery,
         CriteriaBuilder criteriaBuilder) {
-
       return criteriaBuilder.equal(root.get("category"), code().toString());
     }
   }
@@ -49,7 +53,6 @@ public interface ConditionRepository
   @RequiredArgsConstructor(staticName = "of")
   @Value
   class ClinicalStatusSpecification implements Specification<ConditionEntity> {
-
     Set<String> clinicalStatuses;
 
     @Override
@@ -89,7 +92,6 @@ public interface ConditionRepository
         Root<ConditionEntity> root,
         CriteriaQuery<?> criteriaQuery,
         CriteriaBuilder criteriaBuilder) {
-
       return criteriaBuilder.equal(root.get("icn"), icn());
     }
   }
