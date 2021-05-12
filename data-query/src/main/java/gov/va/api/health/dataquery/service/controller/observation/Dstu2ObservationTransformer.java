@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.observation;
 
+import static gov.va.api.health.autoconfig.logging.LogSanitizer.sanitize;
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asCoding;
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.asReference;
 import static gov.va.api.health.dataquery.service.controller.Dstu2Transformers.textOrElseDisplay;
@@ -235,7 +236,7 @@ final class Dstu2ObservationTransformer {
       case "WR":
         return "Weakly reactive";
       default:
-        log.error("No display value for interpretation code '{}'.", code);
+        log.error("No display value for interpretation code '{}'.", sanitize(code));
         return null;
     }
   }
