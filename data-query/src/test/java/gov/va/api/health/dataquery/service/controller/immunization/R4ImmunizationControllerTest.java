@@ -12,7 +12,6 @@ import static org.mockito.Mockito.when;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.config.LinkProperties;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
-import gov.va.api.health.dataquery.service.controller.device.DeviceSamples;
 import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.r4.api.bundle.BundleLink;
 import gov.va.api.lighthouse.vulcan.InvalidRequest;
@@ -142,9 +141,9 @@ public class R4ImmunizationControllerTest {
     when(ids.register(any()))
         .thenReturn(
             List.of(
-                DeviceSamples.registration("im1", "pim1"),
-                DeviceSamples.registration("ai2", "pai2"),
-                DeviceSamples.registration("ai3", "pai3")));
+                ImmunizationSamples.registration("im1", "pim1"),
+                ImmunizationSamples.registration("ai2", "pai2"),
+                ImmunizationSamples.registration("ai3", "pai3")));
     var dm = ImmunizationSamples.Datamart.create();
     when(repository.findAll(any(Specification.class), any(Pageable.class)))
         .thenAnswer(
