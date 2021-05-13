@@ -156,6 +156,7 @@ setupForAutomation() {
 
   SYSTEM_PROPERTIES="-Dsentinel=$SENTINEL_ENV \
     -Daccess-token=$TOKEN \
+    -Dstatic-refresh-token=${STATIC_REFRESH_TOKEN} \
     -Draw-token=$RAW_TOKEN \
     -Dbulk-token=$BULK_TOKEN \
     -D${K8S_ENVIRONMENT}.user-password=$USER_PASSWORD \
