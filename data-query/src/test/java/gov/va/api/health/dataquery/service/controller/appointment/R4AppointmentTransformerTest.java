@@ -25,7 +25,7 @@ public class R4AppointmentTransformerTest {
             .compositeCdwId(CompositeCdwId.fromCdwId("1234:A"))
             .dm(DatamartAppointment.builder().build())
             .build();
-    assertThat(tx.toFhir()).isEqualTo(Appointment.builder().resourceType("Appointment").build());
+    assertThat(tx.toFhir()).isEqualTo(Appointment.builder().build());
   }
 
   @Test
