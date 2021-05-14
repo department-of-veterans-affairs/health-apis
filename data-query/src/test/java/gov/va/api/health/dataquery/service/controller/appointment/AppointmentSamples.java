@@ -57,6 +57,7 @@ public class AppointmentSamples {
           .start(Optional.of(Instant.parse("2020-11-25T08:00:00Z")))
           .end(Optional.of(Instant.parse("2020-11-25T08:20:00Z")))
           .minutesDuration(Optional.of(20))
+          .visitSid(Optional.of(1L))
           .created("2020-11-24")
           .comment(
               Optional.of(

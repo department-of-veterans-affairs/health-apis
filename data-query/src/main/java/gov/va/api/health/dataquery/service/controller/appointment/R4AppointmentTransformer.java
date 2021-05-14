@@ -164,18 +164,18 @@ final class R4AppointmentTransformer {
    * </ul>
    */
   Appointment.AppointmentStatus status(
-      Optional<Instant> start, Optional<Instant> end, Optional<String> status) {
+      Optional<Instant> start, Optional<String> status, Optional<Long> visitSid, Instant now) {
     if (isBlank(compositeCdwId.cdwIdResourceCode())) {
       return null;
     }
-    if (allBlank(end, status)) {
+    if (allBlank(start, status)) {
       return null;
     }
     if (isWaitlist()) {
       return Appointment.AppointmentStatus.waitlist;
     }
     if (status.isEmpty()) {
-      return statusFromStartAndEndTime(start, end);
+      return statusFromStartAndVisitSid(start, visitSid, now);
     }
     switch (status.get()) {
       case "NO SHOW":
@@ -188,21 +188,21 @@ final class R4AppointmentTransformer {
         return Appointment.AppointmentStatus.cancelled;
       case "INPATIENT APPOINTMENT":
       case "NO ACTION TAKEN":
-        return statusFromStartAndEndTime(start, end);
+        return statusFromStartAndVisitSid(start, visitSid, now);
       default:
         return null;
     }
   }
 
-  Appointment.AppointmentStatus statusFromStartAndEndTime(
-      Optional<Instant> start, Optional<Instant> end) {
-    if (start.isEmpty() && end.isEmpty()) {
+  Appointment.AppointmentStatus statusFromStartAndVisitSid(
+      Optional<Instant> start, Optional<Long> visitSid, Instant now) {
+    if (start.isEmpty() || start.get().isAfter(now)) {
       return Appointment.AppointmentStatus.booked;
     }
-    if (start.isPresent() && end.isEmpty()) {
-      return Appointment.AppointmentStatus.arrived;
-    }
-    if (start.isPresent() && end.isPresent()) {
+    if (visitSid.isPresent()) {
+      if (visitSid.get() <= 0) {
+        return Appointment.AppointmentStatus.noshow;
+      }
       return Appointment.AppointmentStatus.fulfilled;
     }
     return null;
@@ -212,7 +212,7 @@ final class R4AppointmentTransformer {
     return Appointment.builder()
         .resourceType("Appointment")
         .id(dm.cdwId())
-        .status(status(dm.start(), dm.end(), dm.status()))
+        .status(status(dm.start(), dm.status(), dm.visitSid(), Instant.now()))
         .cancelationReason(cancelationReason(dm.cancelationReason()))
         .specialty(specialty(dm.specialty()))
         .appointmentType(appointmentType(dm.appointmentType()))
