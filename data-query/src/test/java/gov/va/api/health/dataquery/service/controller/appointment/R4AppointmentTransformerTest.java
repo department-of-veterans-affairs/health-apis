@@ -201,6 +201,13 @@ public class R4AppointmentTransformerTest {
         .isEqualTo(Appointment.AppointmentStatus.fulfilled);
     assertThat(
             tx.status(
+                Optional.of(startInPast),
+                Optional.of("INPATIENT APPOINTMENT"),
+                Optional.of(-1L),
+                now))
+        .isEqualTo(Appointment.AppointmentStatus.noshow);
+    assertThat(
+            tx.status(
                 Optional.of(startInPast), Optional.of("NO ACTION TAKEN"), Optional.of(1L), now))
         .isEqualTo(Appointment.AppointmentStatus.fulfilled);
     assertThat(tx.status(Optional.empty(), Optional.of("NO ACTION TAKEN"), Optional.of(-1L), now))
