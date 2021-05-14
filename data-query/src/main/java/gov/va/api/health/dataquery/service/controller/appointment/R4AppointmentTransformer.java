@@ -7,6 +7,7 @@ import static gov.va.api.health.dataquery.service.controller.Transformers.isBlan
 import gov.va.api.health.dataquery.service.controller.R4Transformers;
 import gov.va.api.health.r4.api.datatypes.CodeableConcept;
 import gov.va.api.health.r4.api.datatypes.Coding;
+import gov.va.api.health.r4.api.elements.Meta;
 import gov.va.api.health.r4.api.resources.Appointment;
 import gov.va.api.lighthouse.datamart.CompositeCdwId;
 import gov.va.api.lighthouse.datamart.DatamartReference;
@@ -84,6 +85,10 @@ final class R4AppointmentTransformer {
 
   boolean isWaitlist() {
     return compositeCdwId.cdwIdResourceCode() == 'W';
+  }
+
+  private Meta meta(Instant lastUpdated) {
+    return Meta.builder().lastUpdated(asDateTimeString(lastUpdated)).build();
   }
 
   Integer minutesDuration(Optional<Integer> maybeMinutesDuration) {
@@ -210,8 +215,8 @@ final class R4AppointmentTransformer {
 
   Appointment toFhir() {
     return Appointment.builder()
-        .resourceType("Appointment")
         .id(dm.cdwId())
+        .meta(meta(dm.lastUpdated()))
         .status(status(dm.start(), dm.end(), dm.status()))
         .cancelationReason(cancelationReason(dm.cancelationReason()))
         .specialty(specialty(dm.specialty()))
