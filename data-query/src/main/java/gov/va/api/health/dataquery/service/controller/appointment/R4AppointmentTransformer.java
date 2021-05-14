@@ -87,7 +87,10 @@ final class R4AppointmentTransformer {
     return compositeCdwId.cdwIdResourceCode() == 'W';
   }
 
-  private Meta meta(Instant lastUpdated) {
+  Meta meta(Instant lastUpdated) {
+    if (lastUpdated == null) {
+      return null;
+    }
     return Meta.builder().lastUpdated(asDateTimeString(lastUpdated)).build();
   }
 
@@ -130,7 +133,8 @@ final class R4AppointmentTransformer {
     } else {
       return null;
     }
-    return dmParticipants.stream()
+    return dmParticipants
+        .stream()
         .map(p -> participant(p, participationStatus))
         .filter(Objects::nonNull)
         .collect(Collectors.toList());
