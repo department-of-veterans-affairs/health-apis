@@ -133,8 +133,7 @@ final class R4AppointmentTransformer {
     } else {
       return null;
     }
-    return dmParticipants
-        .stream()
+    return dmParticipants.stream()
         .map(p -> participant(p, participationStatus))
         .filter(Objects::nonNull)
         .collect(Collectors.toList());
