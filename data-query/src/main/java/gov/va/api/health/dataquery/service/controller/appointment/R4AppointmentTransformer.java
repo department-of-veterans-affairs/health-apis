@@ -175,9 +175,6 @@ final class R4AppointmentTransformer {
     if (isWaitlist()) {
       return Appointment.AppointmentStatus.waitlist;
     }
-    if (status.isEmpty()) {
-      return statusFromStartAndVisitSid(start, visitSid);
-    }
     switch (status.orElse("NO ACTION TAKEN")) {
       case "NO SHOW":
       case "NO-SHOW & AUTO RE-BOOK":
