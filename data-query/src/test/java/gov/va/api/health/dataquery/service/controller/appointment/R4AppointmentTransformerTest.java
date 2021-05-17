@@ -8,7 +8,6 @@ import gov.va.api.lighthouse.datamart.CompositeCdwId;
 import gov.va.api.lighthouse.datamart.DatamartReference;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.temporal.TemporalAmount;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
