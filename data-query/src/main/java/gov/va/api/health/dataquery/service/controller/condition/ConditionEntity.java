@@ -2,7 +2,7 @@ package gov.va.api.health.dataquery.service.controller.condition;
 
 import gov.va.api.health.dataquery.service.controller.DatamartSupport;
 import gov.va.api.lighthouse.datamart.CompositeCdwId;
-import gov.va.api.lighthouse.datamart.DatamartEntity;
+import gov.va.api.lighthouse.datamart.CompositeIdDatamartEntity;
 import gov.va.api.lighthouse.datamart.Payload;
 import java.math.BigInteger;
 import javax.persistence.Basic;
@@ -29,7 +29,7 @@ import org.springframework.data.domain.Sort;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @IdClass(CompositeCdwId.class)
-public class ConditionEntity implements DatamartEntity {
+public class ConditionEntity implements CompositeIdDatamartEntity {
   @Id
   @Column(name = "CdwIdNumber")
   private BigInteger cdwIdNumber;
@@ -37,10 +37,6 @@ public class ConditionEntity implements DatamartEntity {
   @Id
   @Column(name = "CdwIdResourceCode")
   private char cdwIdResourceCode;
-
-  @Column(name = "CDWId")
-  @EqualsAndHashCode.Include
-  private String cdwId;
 
   @Column(name = "PatientFullICN")
   private String icn;
@@ -62,6 +58,11 @@ public class ConditionEntity implements DatamartEntity {
 
   DatamartCondition asDatamartCondition() {
     return toPayload().deserialize();
+  }
+
+  @Override
+  public CompositeCdwId compositeCdwId() {
+    return new CompositeCdwId(cdwIdNumber(), cdwIdResourceCode());
   }
 
   @Override

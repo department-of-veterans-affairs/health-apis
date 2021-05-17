@@ -54,7 +54,6 @@ public class Dstu2ConditionControllerTest {
   private ConditionEntity asEntity(DatamartCondition dm) {
     CompositeCdwId compositeCdwId = CompositeCdwId.fromCdwId(dm.cdwId());
     return ConditionEntity.builder()
-        .cdwId(dm.cdwId())
         .cdwIdNumber(compositeCdwId.cdwIdNumber())
         .cdwIdResourceCode(compositeCdwId.cdwIdResourceCode())
         .category(dm.category().toString())
@@ -99,9 +98,11 @@ public class Dstu2ConditionControllerTest {
     for (int i = 0; i < 10; i++) {
       String dateRecorded = "2005-01-1" + i;
       String patientId = "p" + i % 2;
-      String cdwId = "0:" + i;
+      String cdwIdNumber = String.valueOf(i);
+      String cdwIdResourceCode = "C";
       String publicId = "public" + i;
-      DatamartCondition dm = datamart.condition(cdwId, patientId, dateRecorded);
+      DatamartCondition dm =
+          datamart.condition(cdwIdNumber, cdwIdResourceCode, patientId, dateRecorded);
       dm.category(Category.values()[i % 2]);
       dm.clinicalStatus(ClinicalStatus.values()[i % 2]);
       repository.save(asEntity(dm));
@@ -114,7 +115,11 @@ public class Dstu2ConditionControllerTest {
           dm.category() == Category.problem ? fhir.problemCategory() : fhir.diagnosisCategory());
       conditionsByPatient.put(patientId, condition);
       ResourceIdentity resourceIdentity =
-          ResourceIdentity.builder().system("CDW").resource("CONDITION").identifier(cdwId).build();
+          ResourceIdentity.builder()
+              .system("CDW")
+              .resource("CONDITION")
+              .identifier(cdwIdNumber + ":" + cdwIdResourceCode)
+              .build();
       Registration registration =
           Registration.builder()
               .uuid(publicId)
