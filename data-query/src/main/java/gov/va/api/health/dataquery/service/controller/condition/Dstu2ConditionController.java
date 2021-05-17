@@ -22,7 +22,6 @@ import java.util.stream.Stream;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.Min;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -53,8 +52,6 @@ public class Dstu2ConditionController {
   private ConditionRepository repository;
 
   private WitnessProtection witnessProtection;
-
-  private boolean defaultCompositeId;
 
   /** Spring constructor. */
   @SuppressWarnings("ParameterHidesMemberVariable")
@@ -111,13 +108,6 @@ public class Dstu2ConditionController {
     }
     Optional<ConditionEntity> entity = repository.findById(compositeCdwId);
     return entity.orElseThrow(() -> new NotFound(publicId));
-  }
-
-  boolean isCompositeIdRequest(String compositeIdHeader) {
-    if (compositeIdHeader.isBlank()) {
-      return defaultCompositeId;
-    }
-    return BooleanUtils.isTrue(BooleanUtils.toBooleanObject(compositeIdHeader));
   }
 
   private PageRequest page(int page, int count) {
