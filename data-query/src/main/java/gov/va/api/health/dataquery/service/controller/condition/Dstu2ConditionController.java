@@ -22,7 +22,6 @@ import java.util.stream.Stream;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.Min;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -31,7 +30,6 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -54,8 +52,6 @@ public class Dstu2ConditionController {
   private ConditionRepository repository;
 
   private WitnessProtection witnessProtection;
-
-  private boolean defaultCompositeId;
 
   /** Spring constructor. */
   @SuppressWarnings("ParameterHidesMemberVariable")
@@ -110,22 +106,8 @@ public class Dstu2ConditionController {
     } catch (IllegalArgumentException e) {
       throw new NotFound(publicId);
     }
-    Optional<ConditionEntity> entity =
-        repository.findByCdwIdNumberAndCdwIdResourceCode(
-            compositeCdwId.cdwIdNumber(), compositeCdwId.cdwIdResourceCode());
+    Optional<ConditionEntity> entity = repository.findById(compositeCdwId);
     return entity.orElseThrow(() -> new NotFound(publicId));
-  }
-
-  ConditionEntity findById(String publicId) {
-    Optional<ConditionEntity> entity = repository.findById(witnessProtection.toCdwId(publicId));
-    return entity.orElseThrow(() -> new NotFound(publicId));
-  }
-
-  boolean isCompositeIdRequest(String compositeIdHeader) {
-    if (compositeIdHeader.isBlank()) {
-      return defaultCompositeId;
-    }
-    return BooleanUtils.isTrue(BooleanUtils.toBooleanObject(compositeIdHeader));
   }
 
   private PageRequest page(int page, int count) {
@@ -134,16 +116,9 @@ public class Dstu2ConditionController {
 
   /** Read by id. */
   @GetMapping(value = {"/{publicId}"})
-  public Condition read(
-      @RequestHeader(name = "compositeId", required = false, defaultValue = "")
-          String compositeIdHeader,
-      @PathVariable("publicId") String publicId) {
+  public Condition read(@PathVariable("publicId") String publicId) {
     DatamartCondition dm;
-    if (isCompositeIdRequest(compositeIdHeader)) {
-      dm = findByCompositeId(publicId).asDatamartCondition();
-    } else {
-      dm = findById(publicId).asDatamartCondition();
-    }
+    dm = findByCompositeId(publicId).asDatamartCondition();
     replaceReferences(List.of(dm));
     return Dstu2ConditionTransformer.builder().datamart(dm).build().toFhir();
   }
@@ -152,16 +127,9 @@ public class Dstu2ConditionController {
   @GetMapping(
       value = {"/{publicId}"},
       headers = {"raw=true"})
-  public String readRaw(
-      @RequestHeader(name = "compositeId", required = false, defaultValue = "")
-          String compositeIdHeader,
-      @PathVariable("publicId") String publicId,
-      HttpServletResponse response) {
+  public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
     ConditionEntity entity;
-    if (isCompositeIdRequest(compositeIdHeader)) {
-      entity = findByCompositeId(publicId);
-    }
-    entity = findById(publicId);
+    entity = findByCompositeId(publicId);
     IncludesIcnMajig.addHeader(response, entity.icn());
     return entity.payload();
   }
@@ -175,19 +143,15 @@ public class Dstu2ConditionController {
   /** Search by _id. */
   @GetMapping(params = {"_id"})
   public Condition.Bundle searchById(
-      @RequestHeader(name = "compositeId", required = false, defaultValue = "")
-          String compositeIdHeader,
       @RequestParam("_id") String publicId,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
-    return searchByIdentifier(compositeIdHeader, publicId, page, count);
+    return searchByIdentifier(publicId, page, count);
   }
 
   /** Search by Identifier. */
   @GetMapping(params = {"identifier"})
   public Condition.Bundle searchByIdentifier(
-      @RequestHeader(name = "compositeId", required = false, defaultValue = "")
-          String compositeIdHeader,
       @RequestParam("identifier") String identifier,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
@@ -197,7 +161,7 @@ public class Dstu2ConditionController {
             .add("page", page)
             .add("_count", count)
             .build();
-    Condition resource = read(compositeIdHeader, identifier);
+    Condition resource = read(identifier);
     int totalRecords = resource == null ? 0 : 1;
     if (resource == null || page != 1 || count <= 0) {
       return bundle(parameters, emptyList(), totalRecords);

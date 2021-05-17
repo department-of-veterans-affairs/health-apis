@@ -18,6 +18,7 @@ import gov.va.api.health.dstu2.api.resources.Condition.VerificationStatusCode;
 import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.lighthouse.datamart.DatamartReference;
+import java.math.BigInteger;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -47,12 +48,13 @@ public class ConditionSamples {
   @AllArgsConstructor(staticName = "create")
   public static class Datamart {
     public DatamartCondition condition() {
-      return condition("800274570575:D", "666V666", "2011-06-27");
+      return condition("800274570575", "D", "666V666", "2011-06-27");
     }
 
-    public DatamartCondition condition(String cdwId, String patientId, String dateRecorded) {
+    public DatamartCondition condition(
+        String cdwIdNumber, String cdwIdResourceCode, String patientId, String dateRecorded) {
       return DatamartCondition.builder()
-          .cdwId(cdwId)
+          .cdwId(cdwIdNumber + ":" + cdwIdResourceCode)
           .patient(
               DatamartReference.of()
                   .type("Patient")
@@ -76,13 +78,19 @@ public class ConditionSamples {
           .build();
     }
 
-    public ConditionEntity entity(String cdwId, String patientIcn) {
-      return entity(condition(cdwId, patientIcn, "2011-06-27"));
+    public ConditionEntity entity(String cdwIdNumber, String cdwIdResourceCode, String patientIcn) {
+      return entity(
+          condition(cdwIdNumber, cdwIdResourceCode, patientIcn, "2011-06-27"),
+          cdwIdNumber,
+          cdwIdResourceCode,
+          patientIcn);
     }
 
-    public ConditionEntity entity(DatamartCondition dm) {
+    public ConditionEntity entity(
+        DatamartCondition dm, String cdwIdNumber, String cdwIdResourceCode, String patientIcn) {
       return ConditionEntity.builder()
-          .cdwId(dm.cdwId())
+          .cdwIdNumber(new BigInteger(cdwIdNumber))
+          .cdwIdResourceCode(cdwIdResourceCode.charAt(0))
           .icn(dm.patient().reference().orElse(null))
           .category(dm.category().name())
           .clinicalStatus(dm.clinicalStatus().name())
