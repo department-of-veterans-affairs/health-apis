@@ -178,7 +178,7 @@ final class R4AppointmentTransformer {
     if (status.isEmpty()) {
       return statusFromStartAndVisitSid(start, visitSid, now);
     }
-    switch (status.get()) {
+    switch (status.orElse("NO ACTION TAKEN")) {
       case "NO SHOW":
       case "NO-SHOW & AUTO RE-BOOK":
         return Appointment.AppointmentStatus.noshow;
