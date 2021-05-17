@@ -165,7 +165,7 @@ final class R4AppointmentTransformer {
    * </ul>
    */
   Appointment.AppointmentStatus status(
-      Optional<Instant> start, Optional<String> status, Optional<Long> visitSid, Instant now) {
+      Optional<Instant> start, Optional<String> status, Optional<Long> visitSid) {
     if (isBlank(compositeCdwId.cdwIdResourceCode())) {
       return null;
     }
@@ -176,7 +176,7 @@ final class R4AppointmentTransformer {
       return Appointment.AppointmentStatus.waitlist;
     }
     if (status.isEmpty()) {
-      return statusFromStartAndVisitSid(start, visitSid, now);
+      return statusFromStartAndVisitSid(start, visitSid);
     }
     switch (status.orElse("NO ACTION TAKEN")) {
       case "NO SHOW":
@@ -189,15 +189,15 @@ final class R4AppointmentTransformer {
         return Appointment.AppointmentStatus.cancelled;
       case "INPATIENT APPOINTMENT":
       case "NO ACTION TAKEN":
-        return statusFromStartAndVisitSid(start, visitSid, now);
+        return statusFromStartAndVisitSid(start, visitSid);
       default:
         return null;
     }
   }
 
   Appointment.AppointmentStatus statusFromStartAndVisitSid(
-      Optional<Instant> start, Optional<Long> visitSid, Instant now) {
-    if (start.isEmpty() || start.get().isAfter(now)) {
+      Optional<Instant> start, Optional<Long> visitSid) {
+    if (start.isEmpty() || start.get().isAfter(Instant.now())) {
       return Appointment.AppointmentStatus.booked;
     }
     if (visitSid.isPresent()) {
@@ -213,7 +213,7 @@ final class R4AppointmentTransformer {
     return Appointment.builder()
         .resourceType("Appointment")
         .id(dm.cdwId())
-        .status(status(dm.start(), dm.status(), dm.visitSid(), Instant.now()))
+        .status(status(dm.start(), dm.status(), dm.visitSid()))
         .cancelationReason(cancelationReason(dm.cancelationReason()))
         .specialty(specialty(dm.specialty()))
         .appointmentType(appointmentType(dm.appointmentType()))
