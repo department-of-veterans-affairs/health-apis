@@ -156,11 +156,12 @@ final class R4AppointmentTransformer {
    *   <li>"CANCELLED BY CLINIC" -> cancelled
    *   <li>"NO-SHOW & AUTO RE-BOOK" -> noshow
    *   <li>"CANCELLED BY CLINIC & AUTO RE-BOOK" -> cancelled
-   *   <li>"INPATIENT APPOINTMENT" -> use checkin times, either arrived, booked, fulfilled
+   *   <li>"INPATIENT APPOINTMENT" -> use scheduled times and visit ID, either noshow, booked,
+   *       fulfilled
    *   <li>"CANCELLED BY PATIENT" -> cancelled
    *   <li>"CANCELLED BY PATIENT & AUTO-REBOOK" -> cancelled
-   *   <li>"NO ACTION TAKEN" -> use checkin times, either arrived, booked, fulfilled
-   *   <li>null -> use checkin times, either arrived, booked, fulfilled
+   *   <li>"NO ACTION TAKEN" -> use scheduled times and visit ID, either noshow, booked, fulfilled
+   *   <li>null -> use scheduled times and visit ID, either noshow, booked, fulfilled
    * </ul>
    */
   Appointment.AppointmentStatus status(
