@@ -124,7 +124,9 @@ public class R4ConditionControllerTest {
     when(ids.register(any()))
         .thenReturn(
             List.of(
-                registration("1:C", "pc1"), registration("2:C", "pc2"), registration("3:C", "pc3")));
+                registration("1:C", "pc1"),
+                registration("2:C", "pc2"),
+                registration("3:C", "pc3")));
     var bundler = controller().toBundle();
     ConditionSamples.Datamart dm = ConditionSamples.Datamart.create();
     var basePath = BASE_URL + "/Condition";

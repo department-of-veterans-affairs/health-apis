@@ -19,6 +19,7 @@ import gov.va.api.lighthouse.vulcan.Vulcan;
 import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
 import gov.va.api.lighthouse.vulcan.mappings.Mappings;
 import gov.va.api.lighthouse.vulcan.mappings.TokenParameter;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
@@ -72,8 +73,8 @@ public class R4ConditionController {
                     "clinical-status",
                     this::tokenClinicalStatusIsSupported,
                     this::tokenClinicalStatusSpecification)
-                .value("_id", "cdwId", witnessProtection::toCdwId)
-                .value("identifier", "cdwId", witnessProtection::toCdwId)
+                .value("_id", this::loadCdwId)
+                .value("identifier", this::loadCdwId)
                 .value("patient", "icn")
                 .get())
         .rule(parametersNeverSpecifiedTogether("_id", "identifier", "patient"))
@@ -81,6 +82,20 @@ public class R4ConditionController {
         .rule(ifParameter("clinical-status").thenAlsoAtLeastOneParameterOf("patient"))
         .defaultQuery(returnNothing())
         .build();
+  }
+
+  private Map<String, ?> loadCdwId(String publicId) {
+    String cdwId = witnessProtection.toCdwId(publicId);
+    try {
+      CompositeCdwId compositeCdwId = CompositeCdwId.fromCdwId(cdwId);
+      return Map.of(
+          "cdwIdNumber",
+          compositeCdwId.cdwIdNumber(),
+          "cdwIdResourceCode",
+          compositeCdwId.cdwIdResourceCode());
+    } catch (IllegalArgumentException e) {
+      return Map.of();
+    }
   }
 
   /** Read Condition by id. */

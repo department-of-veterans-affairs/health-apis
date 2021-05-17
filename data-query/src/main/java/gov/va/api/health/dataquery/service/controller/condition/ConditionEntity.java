@@ -53,7 +53,7 @@ public class ConditionEntity implements CompositeIdDatamartEntity {
   private String payload;
 
   static Sort naturalOrder() {
-    return Sort.by("cdwId").ascending();
+    return Sort.by("cdwIdNumber").ascending().and(Sort.by("cdwIdResourceCode").ascending());
   }
 
   DatamartCondition asDatamartCondition() {
