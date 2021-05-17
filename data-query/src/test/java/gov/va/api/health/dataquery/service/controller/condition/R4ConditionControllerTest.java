@@ -7,11 +7,14 @@ import static gov.va.api.health.dataquery.service.controller.condition.Condition
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import gov.va.api.health.dataquery.service.config.LinkProperties;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
+import gov.va.api.health.dataquery.service.controller.appointment.AppointmentSamples;
 import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.r4.api.bundle.BundleLink;
 import gov.va.api.health.r4.api.resources.Condition;
@@ -181,6 +184,9 @@ public class R4ConditionControllerTest {
         .thenReturn(
             List.of(
                 registration("1:C", "pc1"), registration("c2", "pc2"), registration("c3", "pc3")));
+    // this is only really needed for ID searches
+    lenient().when(ids.lookup(eq("pc1"))).thenReturn(List.of(AppointmentSamples.id("1:C")));
+
     ConditionSamples.Datamart dm = ConditionSamples.Datamart.create();
     when(repository.findAll(any(Specification.class), any(Pageable.class)))
         .thenAnswer(
