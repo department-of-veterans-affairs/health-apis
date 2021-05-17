@@ -87,11 +87,12 @@ final class R4AppointmentTransformer {
     return compositeCdwId.cdwIdResourceCode() == 'W';
   }
 
-  Meta meta(Instant lastUpdated) {
+  Meta meta(Instant dmLastUpdated) {
+    String lastUpdated = asDateTimeString(dmLastUpdated);
     if (lastUpdated == null) {
       return null;
     }
-    return Meta.builder().lastUpdated(asDateTimeString(lastUpdated)).build();
+    return Meta.builder().lastUpdated(lastUpdated).build();
   }
 
   Integer minutesDuration(Optional<Integer> maybeMinutesDuration) {
