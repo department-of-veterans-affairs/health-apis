@@ -1,6 +1,7 @@
 package gov.va.api.health.dataquery.service.controller.condition;
 
 import gov.va.api.health.dataquery.service.controller.DatamartSupport;
+import gov.va.api.lighthouse.datamart.CompositeCdwId;
 import gov.va.api.lighthouse.datamart.DatamartEntity;
 import gov.va.api.lighthouse.datamart.Payload;
 import java.math.BigInteger;
@@ -9,6 +10,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.IdClass;
 import javax.persistence.Lob;
 import javax.persistence.Table;
 import lombok.AccessLevel;
@@ -26,14 +28,16 @@ import org.springframework.data.domain.Sort;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@IdClass(CompositeCdwId.class)
 public class ConditionEntity implements DatamartEntity {
+  @Id
   @Column(name = "CdwIdNumber")
   private BigInteger cdwIdNumber;
 
+  @Id
   @Column(name = "CdwIdResourceCode")
   private char cdwIdResourceCode;
 
-  @Id
   @Column(name = "CDWId")
   @EqualsAndHashCode.Include
   private String cdwId;

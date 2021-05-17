@@ -6,19 +6,20 @@ import static gov.va.api.lighthouse.vulcan.Specifications.strings;
 import static gov.va.api.lighthouse.vulcan.Vulcan.returnNothing;
 
 import gov.va.api.health.dataquery.service.config.LinkProperties;
+import gov.va.api.health.dataquery.service.controller.CompositeCdwIds;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.Bundling;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedBundler;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedReader;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedTransformation;
 import gov.va.api.health.r4.api.resources.Condition;
+import gov.va.api.lighthouse.datamart.CompositeCdwId;
 import gov.va.api.lighthouse.vulcan.Specifications;
 import gov.va.api.lighthouse.vulcan.Vulcan;
 import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
 import gov.va.api.lighthouse.vulcan.mappings.Mappings;
 import gov.va.api.lighthouse.vulcan.mappings.TokenParameter;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -233,12 +234,14 @@ public class R4ConditionController {
         .build();
   }
 
-  VulcanizedReader<ConditionEntity, DatamartCondition, Condition, String> vulcanizedReader() {
+  VulcanizedReader<ConditionEntity, DatamartCondition, Condition, CompositeCdwId>
+      vulcanizedReader() {
     return VulcanizedReader
-        .<ConditionEntity, DatamartCondition, Condition, String>forTransformation(transformation())
+        .<ConditionEntity, DatamartCondition, Condition, CompositeCdwId>forTransformation(
+            transformation())
         .repository(repository)
         .toPatientId(e -> Optional.of(e.icn()))
-        .toPrimaryKey(Function.identity())
+        .toPrimaryKey(CompositeCdwIds::requireCompositeIdStringFormat)
         .toPayload(ConditionEntity::payload)
         .build();
   }
