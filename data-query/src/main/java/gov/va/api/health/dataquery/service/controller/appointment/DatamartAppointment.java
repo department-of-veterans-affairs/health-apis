@@ -50,7 +50,7 @@ public class DatamartAppointment implements HasReplaceableId {
 
   private List<DatamartReference> participant;
 
-  private Optional<String> visitSid;
+  private Optional<Long> visitSid;
 
   private Instant lastUpdated;
 
@@ -116,7 +116,7 @@ public class DatamartAppointment implements HasReplaceableId {
     return status;
   }
 
-  public Optional<String> visitSid() {
+  public Optional<Long> visitSid() {
     visitSid = lazyGetter(visitSid);
     return visitSid;
   }
