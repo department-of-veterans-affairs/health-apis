@@ -73,8 +73,8 @@ public class R4ConditionController {
                     "clinical-status",
                     this::tokenClinicalStatusIsSupported,
                     this::tokenClinicalStatusSpecification)
-                .value("_id", this::loadCdwId)
-                .value("identifier", this::loadCdwId)
+                .values("_id", this::loadCdwId)
+                .values("identifier", this::loadCdwId)
                 .value("patient", "icn")
                 .get())
         .rule(parametersNeverSpecifiedTogether("_id", "identifier", "patient"))
