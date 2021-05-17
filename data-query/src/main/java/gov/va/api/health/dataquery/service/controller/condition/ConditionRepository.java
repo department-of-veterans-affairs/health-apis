@@ -1,10 +1,9 @@
 package gov.va.api.health.dataquery.service.controller.condition;
 
 import gov.va.api.health.autoconfig.logging.Loggable;
-import java.math.BigInteger;
+import gov.va.api.lighthouse.datamart.CompositeCdwId;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaBuilder.In;
@@ -24,10 +23,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Loggable
 @Transactional(isolation = Isolation.READ_UNCOMMITTED)
 public interface ConditionRepository
-    extends PagingAndSortingRepository<ConditionEntity, String>,
+    extends PagingAndSortingRepository<ConditionEntity, CompositeCdwId>,
         JpaSpecificationExecutor<ConditionEntity> {
-  Optional<ConditionEntity> findByCdwIdNumberAndCdwIdResourceCode(
-      BigInteger cdwIdNumber, char cdwIdResourceCode);
 
   Page<ConditionEntity> findByIcn(String icn, Pageable pageable);
 
