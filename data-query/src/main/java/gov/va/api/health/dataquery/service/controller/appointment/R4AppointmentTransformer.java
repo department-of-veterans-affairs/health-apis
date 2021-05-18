@@ -150,7 +150,8 @@ final class R4AppointmentTransformer {
     String display = maybeServiceCategory.get();
     String code = serviceCategoryCode(maybeServiceCategory);
     if (code == null) {
-      log.warn("Appointment Service Category display value could not be mapped to a code.");
+      log.warn(
+          "Appointment Service Category display value {} could not be mapped to a code.", display);
       return null;
     }
     return List.of(
