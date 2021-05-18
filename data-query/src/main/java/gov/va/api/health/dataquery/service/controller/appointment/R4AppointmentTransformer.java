@@ -18,9 +18,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 @Builder
+@Slf4j
 final class R4AppointmentTransformer {
   private static final Set<String> SUPPORTED_PARTICIPANT_TYPES = Set.of("Location", "Patient");
 
@@ -70,6 +72,34 @@ final class R4AppointmentTransformer {
       return null;
     }
     return maybeDescription.get();
+  }
+
+  String getServiceCategoryCode(String display) {
+    String code;
+    switch (display.toUpperCase().trim()) {
+      case "MEDICINE":
+        code = "M";
+        break;
+      case "NEUROLOGY":
+        code = "N";
+        break;
+      case "NONE":
+        code = "0";
+        break;
+      case "PSYCHIATRY":
+        code = "P";
+        break;
+      case "REHAB MEDICINE":
+        code = "R";
+        break;
+      case "SURGERY":
+        code = "S";
+        break;
+      default:
+        code = null;
+        break;
+    }
+    return code;
   }
 
   boolean isAppointment() {
@@ -135,30 +165,10 @@ final class R4AppointmentTransformer {
     if (isBlank(maybeServiceCategory)) {
       return null;
     }
-    var display = maybeServiceCategory.get();
-    String code;
-    switch (display) {
-      case "MEDICINE":
-        code = "M";
-        break;
-      case "NEUROLOGY":
-        code = "N";
-        break;
-      case "NONE":
-        code = "0";
-        break;
-      case "PSYCHIATRY":
-        code = "P";
-        break;
-      case "REHAB MEDICINE":
-        code = "R";
-        break;
-      case "SURGERY":
-        code = "S";
-        break;
-      default:
-        code = null;
-        break;
+    String display = maybeServiceCategory.get();
+    String code = getServiceCategoryCode(display);
+    if (code == null) {
+      log.warn("Appointment Service Category display value could not be mapped to a code.");
     }
     return List.of(
         CodeableConcept.builder()
@@ -169,6 +179,7 @@ final class R4AppointmentTransformer {
                         .display(display)
                         .code(code)
                         .build()))
+            .text(display)
             .build());
   }
 
