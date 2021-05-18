@@ -28,7 +28,7 @@ public class R4AppointmentTransformerTest {
             .compositeCdwId(CompositeCdwId.fromCdwId("1234:A"))
             .dm(DatamartAppointment.builder().build())
             .build();
-    assertThat(tx.toFhir()).isEqualTo(Appointment.builder().build());
+    assertThat(tx.toFhir()).isEqualTo(Appointment.builder().resourceType("Appointment").build());
   }
 
   @Test
@@ -258,21 +258,7 @@ public class R4AppointmentTransformerTest {
             Appointment.builder()
                 .serviceCategory(tx.serviceCategory(Optional.of("SOMEBADDATA")))
                 .build())
-        .isEqualTo(
-            Appointment.builder()
-                .serviceCategory(
-                    List.of(
-                        CodeableConcept.builder()
-                            .coding(
-                                List.of(
-                                    Coding.builder()
-                                        .display("SOMEBADDATA")
-                                        .code(null)
-                                        .system(
-                                            "http://www.va.gov/Terminology/VistADefinedTerms/44-9")
-                                        .build()))
-                            .build()))
-                .build());
+        .isEqualTo(Appointment.builder().serviceCategory(null).build());
   }
 
   @Test
