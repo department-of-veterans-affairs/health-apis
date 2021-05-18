@@ -13,6 +13,7 @@ import gov.va.api.lighthouse.datamart.CompositeCdwId;
 import gov.va.api.lighthouse.datamart.DatamartReference;
 import java.time.Instant;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -165,11 +166,11 @@ final class R4AppointmentTransformer {
             .build());
   }
 
-  String serviceCategoryCode(Optional<String> displayOptional) {
-    if (isBlank(displayOptional)) {
+  String serviceCategoryCode(Optional<String> maybeDisplay) {
+    if (isBlank(maybeDisplay)) {
       return null;
     }
-    switch (displayOptional.get().toUpperCase().trim()) {
+    switch (maybeDisplay.get().toUpperCase(Locale.ENGLISH).trim()) {
       case "MEDICINE":
         return "M";
       case "NEUROLOGY":
