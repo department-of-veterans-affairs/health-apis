@@ -51,7 +51,7 @@ public class R4AppointmentController {
         .mappings(
             Mappings.forEntity(AppointmentEntity.class)
                 .dateAsInstant("_lastUpdated", "lastUpdated")
-                .dateAsInstant("date", "DateUTC")
+                .dateAsInstant("date", "date")
                 .value("patient", "icn")
                 .value("location", "locationSid", this::publicIdToCdwIdNumber)
                 .values("_id", this::loadCdwId)
