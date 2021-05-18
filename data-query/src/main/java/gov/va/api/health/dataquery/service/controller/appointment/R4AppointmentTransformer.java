@@ -165,28 +165,26 @@ final class R4AppointmentTransformer {
    *   <li>"CANCELLED BY CLINIC" -> cancelled
    *   <li>"NO-SHOW & AUTO RE-BOOK" -> noshow
    *   <li>"CANCELLED BY CLINIC & AUTO RE-BOOK" -> cancelled
-   *   <li>"INPATIENT APPOINTMENT" -> use checkin times, either arrived, booked, fulfilled
+   *   <li>"INPATIENT APPOINTMENT" -> use scheduled times and visit ID, either noshow, booked,
+   *       fulfilled
    *   <li>"CANCELLED BY PATIENT" -> cancelled
    *   <li>"CANCELLED BY PATIENT & AUTO-REBOOK" -> cancelled
-   *   <li>"NO ACTION TAKEN" -> use checkin times, either arrived, booked, fulfilled
-   *   <li>null -> use checkin times, either arrived, booked, fulfilled
+   *   <li>"NO ACTION TAKEN" -> use scheduled times and visit ID, either noshow, booked, fulfilled
+   *   <li>null -> use scheduled times and visit ID, either noshow, booked, fulfilled
    * </ul>
    */
   Appointment.AppointmentStatus status(
-      Optional<Instant> start, Optional<Instant> end, Optional<String> status) {
+      Optional<Instant> start, Optional<String> status, Optional<Long> visitSid) {
     if (isBlank(compositeCdwId.cdwIdResourceCode())) {
       return null;
     }
-    if (allBlank(end, status)) {
+    if (allBlank(start, status)) {
       return null;
     }
     if (isWaitlist()) {
       return Appointment.AppointmentStatus.waitlist;
     }
-    if (status.isEmpty()) {
-      return statusFromStartAndEndTime(start, end);
-    }
-    switch (status.get()) {
+    switch (status.orElse("NO ACTION TAKEN")) {
       case "NO SHOW":
       case "NO-SHOW & AUTO RE-BOOK":
         return Appointment.AppointmentStatus.noshow;
@@ -197,21 +195,21 @@ final class R4AppointmentTransformer {
         return Appointment.AppointmentStatus.cancelled;
       case "INPATIENT APPOINTMENT":
       case "NO ACTION TAKEN":
-        return statusFromStartAndEndTime(start, end);
+        return statusFromStartAndVisitSid(start, visitSid);
       default:
         return null;
     }
   }
 
-  Appointment.AppointmentStatus statusFromStartAndEndTime(
-      Optional<Instant> start, Optional<Instant> end) {
-    if (start.isEmpty() && end.isEmpty()) {
+  Appointment.AppointmentStatus statusFromStartAndVisitSid(
+      Optional<Instant> start, Optional<Long> visitSid) {
+    if (start.isEmpty() || start.get().isAfter(Instant.now())) {
       return Appointment.AppointmentStatus.booked;
     }
-    if (start.isPresent() && end.isEmpty()) {
-      return Appointment.AppointmentStatus.arrived;
-    }
-    if (start.isPresent() && end.isPresent()) {
+    if (visitSid.isPresent()) {
+      if (visitSid.get() <= 0) {
+        return Appointment.AppointmentStatus.noshow;
+      }
       return Appointment.AppointmentStatus.fulfilled;
     }
     return null;
@@ -221,7 +219,7 @@ final class R4AppointmentTransformer {
     return Appointment.builder()
         .id(dm.cdwId())
         .meta(meta(dm.lastUpdated()))
-        .status(status(dm.start(), dm.end(), dm.status()))
+        .status(status(dm.start(), dm.status(), dm.visitSid()))
         .cancelationReason(cancelationReason(dm.cancelationReason()))
         .specialty(specialty(dm.specialty()))
         .appointmentType(appointmentType(dm.appointmentType()))

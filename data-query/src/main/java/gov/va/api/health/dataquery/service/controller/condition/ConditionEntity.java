@@ -1,7 +1,8 @@
 package gov.va.api.health.dataquery.service.controller.condition;
 
 import gov.va.api.health.dataquery.service.controller.DatamartSupport;
-import gov.va.api.lighthouse.datamart.DatamartEntity;
+import gov.va.api.lighthouse.datamart.CompositeCdwId;
+import gov.va.api.lighthouse.datamart.CompositeIdDatamartEntity;
 import gov.va.api.lighthouse.datamart.Payload;
 import java.math.BigInteger;
 import javax.persistence.Basic;
@@ -9,6 +10,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.IdClass;
 import javax.persistence.Lob;
 import javax.persistence.Table;
 import lombok.AccessLevel;
@@ -26,17 +28,15 @@ import org.springframework.data.domain.Sort;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class ConditionEntity implements DatamartEntity {
+@IdClass(CompositeCdwId.class)
+public class ConditionEntity implements CompositeIdDatamartEntity {
+  @Id
   @Column(name = "CdwIdNumber")
   private BigInteger cdwIdNumber;
 
+  @Id
   @Column(name = "CdwIdResourceCode")
   private char cdwIdResourceCode;
-
-  @Id
-  @Column(name = "CDWId")
-  @EqualsAndHashCode.Include
-  private String cdwId;
 
   @Column(name = "PatientFullICN")
   private String icn;
@@ -53,11 +53,16 @@ public class ConditionEntity implements DatamartEntity {
   private String payload;
 
   static Sort naturalOrder() {
-    return Sort.by("cdwId").ascending();
+    return Sort.by("cdwIdNumber").ascending().and(Sort.by("cdwIdResourceCode").ascending());
   }
 
   DatamartCondition asDatamartCondition() {
     return toPayload().deserialize();
+  }
+
+  @Override
+  public CompositeCdwId compositeCdwId() {
+    return new CompositeCdwId(cdwIdNumber(), cdwIdResourceCode());
   }
 
   @Override
