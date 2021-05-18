@@ -74,34 +74,6 @@ final class R4AppointmentTransformer {
     return maybeDescription.get();
   }
 
-  String getServiceCategoryCode(String display) {
-    String code;
-    switch (display.toUpperCase().trim()) {
-      case "MEDICINE":
-        code = "M";
-        break;
-      case "NEUROLOGY":
-        code = "N";
-        break;
-      case "NONE":
-        code = "0";
-        break;
-      case "PSYCHIATRY":
-        code = "P";
-        break;
-      case "REHAB MEDICINE":
-        code = "R";
-        break;
-      case "SURGERY":
-        code = "S";
-        break;
-      default:
-        code = null;
-        break;
-    }
-    return code;
-  }
-
   boolean isAppointment() {
     return compositeCdwId.cdwIdResourceCode() == 'A';
   }
@@ -166,7 +138,7 @@ final class R4AppointmentTransformer {
       return null;
     }
     String display = maybeServiceCategory.get();
-    String code = getServiceCategoryCode(display);
+    String code = serviceCategoryCode(maybeServiceCategory);
     if (code == null) {
       log.warn("Appointment Service Category display value could not be mapped to a code.");
       return null;
@@ -182,6 +154,28 @@ final class R4AppointmentTransformer {
                         .build()))
             .text(display)
             .build());
+  }
+
+  String serviceCategoryCode(Optional<String> displayOptional) {
+    if (isBlank(displayOptional)) {
+      return null;
+    }
+    switch (displayOptional.get().toUpperCase().trim()) {
+      case "MEDICINE":
+        return "M";
+      case "NEUROLOGY":
+        return "N";
+      case "NONE":
+        return "0";
+      case "PSYCHIATRY":
+        return "P";
+      case "REHAB MEDICINE":
+        return "R";
+      case "SURGERY":
+        return "S";
+      default:
+        return null;
+    }
   }
 
   List<CodeableConcept> specialty(Optional<String> maybeSpecialty) {
@@ -261,7 +255,6 @@ final class R4AppointmentTransformer {
 
   Appointment toFhir() {
     return Appointment.builder()
-        .resourceType("Appointment")
         .id(dm.cdwId())
         .status(status(dm.start(), dm.status(), dm.visitSid()))
         .cancelationReason(cancelationReason(dm.cancelationReason()))
