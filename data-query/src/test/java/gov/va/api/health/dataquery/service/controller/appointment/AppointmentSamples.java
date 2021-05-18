@@ -8,6 +8,7 @@ import gov.va.api.health.r4.api.bundle.AbstractEntry;
 import gov.va.api.health.r4.api.bundle.BundleLink;
 import gov.va.api.health.r4.api.datatypes.CodeableConcept;
 import gov.va.api.health.r4.api.datatypes.Coding;
+import gov.va.api.health.r4.api.elements.Meta;
 import gov.va.api.health.r4.api.resources.Appointment;
 import gov.va.api.lighthouse.datamart.DatamartReference;
 import java.math.BigInteger;
@@ -76,6 +77,7 @@ public class AppointmentSamples {
                       .reference(Optional.of(patientIcn))
                       .display(Optional.of("PATIENT,FHIRAPPTT JR"))
                       .build()))
+          .lastUpdated(Instant.parse("2020-12-25T00:00:00Z"))
           .build();
     }
 
@@ -111,7 +113,6 @@ public class AppointmentSamples {
         int totalRecords,
         BundleLink... links) {
       return Appointment.Bundle.builder()
-          .resourceType("Bundle")
           .type(AbstractBundle.BundleType.searchset)
           .total(totalRecords)
           .link(Arrays.asList(links))
@@ -144,8 +145,8 @@ public class AppointmentSamples {
 
     public Appointment appointment(String cdwId, String patientId) {
       return Appointment.builder()
-          .resourceType("Appointment")
           .id(cdwId)
+          .meta(Meta.builder().lastUpdated("2020-12-25T00:00:00Z").build())
           .status(Appointment.AppointmentStatus.fulfilled)
           .cancelationReason(cancelationReason())
           .specialty(specialty())
