@@ -131,6 +131,47 @@ final class R4AppointmentTransformer {
         .collect(Collectors.toList());
   }
 
+  List<CodeableConcept> serviceCategory(Optional<String> maybeServiceCategory) {
+    if (isBlank(maybeServiceCategory)) {
+      return null;
+    }
+    var display = maybeServiceCategory.get();
+    String code;
+    switch (display) {
+      case "MEDICINE":
+        code = "M";
+        break;
+      case "NEUROLOGY":
+        code = "N";
+        break;
+      case "NONE":
+        code = "0";
+        break;
+      case "PSYCHIATRY":
+        code = "P";
+        break;
+      case "REHAB MEDICINE":
+        code = "R";
+        break;
+      case "SURGERY":
+        code = "S";
+        break;
+      default:
+        code = null;
+        break;
+    }
+    return List.of(
+        CodeableConcept.builder()
+            .coding(
+                List.of(
+                    Coding.builder()
+                        .system("http://www.va.gov/Terminology/VistADefinedTerms/44-9")
+                        .display(display)
+                        .code(code)
+                        .build()))
+            .build());
+  }
+
   List<CodeableConcept> specialty(Optional<String> maybeSpecialty) {
     if (isBlank(maybeSpecialty)) {
       return null;
@@ -218,6 +259,7 @@ final class R4AppointmentTransformer {
         .appointmentType(appointmentType(dm.appointmentType()))
         .description(description(dm.description()))
         .start(asDateTimeString(dm.start()))
+        .serviceCategory(serviceCategory(dm.serviceCategory()))
         .end(asDateTimeString(dm.end()))
         .minutesDuration(minutesDuration(dm.minutesDuration()))
         .created(dm.created())

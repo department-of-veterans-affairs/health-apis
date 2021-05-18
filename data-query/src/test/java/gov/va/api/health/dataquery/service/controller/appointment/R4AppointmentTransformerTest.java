@@ -3,6 +3,8 @@ package gov.va.api.health.dataquery.service.controller.appointment;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.dataquery.service.controller.R4Transformers;
+import gov.va.api.health.r4.api.datatypes.CodeableConcept;
+import gov.va.api.health.r4.api.datatypes.Coding;
 import gov.va.api.health.r4.api.resources.Appointment;
 import gov.va.api.lighthouse.datamart.CompositeCdwId;
 import gov.va.api.lighthouse.datamart.DatamartReference;
@@ -101,7 +103,6 @@ public class R4AppointmentTransformerTest {
                                 .build()))
                     .status(Appointment.ParticipationStatus.accepted)
                     .build()));
-
     tx =
         R4AppointmentTransformer.builder()
             .compositeCdwId(CompositeCdwId.fromCdwId("1234:W"))
@@ -130,6 +131,147 @@ public class R4AppointmentTransformerTest {
                                 .build()))
                     .status(Appointment.ParticipationStatus.tentative)
                     .build()));
+  }
+
+  @Test
+  void serviceCategory() {
+    var tx =
+        R4AppointmentTransformer.builder()
+            .compositeCdwId(CompositeCdwId.fromCdwId("1234:A"))
+            .dm(DatamartAppointment.builder().build())
+            .build();
+    assertThat(tx.serviceCategory(null)).isNull();
+    assertThat(
+            Appointment.builder()
+                .serviceCategory(tx.serviceCategory(Optional.of("SURGERY")))
+                .build())
+        .isEqualTo(
+            Appointment.builder()
+                .serviceCategory(
+                    List.of(
+                        CodeableConcept.builder()
+                            .coding(
+                                List.of(
+                                    Coding.builder()
+                                        .display("SURGERY")
+                                        .code("S")
+                                        .system(
+                                            "http://www.va.gov/Terminology/VistADefinedTerms/44-9")
+                                        .build()))
+                            .build()))
+                .build());
+    assertThat(
+            Appointment.builder()
+                .serviceCategory(tx.serviceCategory(Optional.of("MEDICINE")))
+                .build())
+        .isEqualTo(
+            Appointment.builder()
+                .serviceCategory(
+                    List.of(
+                        CodeableConcept.builder()
+                            .coding(
+                                List.of(
+                                    Coding.builder()
+                                        .display("MEDICINE")
+                                        .code("M")
+                                        .system(
+                                            "http://www.va.gov/Terminology/VistADefinedTerms/44-9")
+                                        .build()))
+                            .build()))
+                .build());
+    assertThat(
+            Appointment.builder()
+                .serviceCategory(tx.serviceCategory(Optional.of("NEUROLOGY")))
+                .build())
+        .isEqualTo(
+            Appointment.builder()
+                .serviceCategory(
+                    List.of(
+                        CodeableConcept.builder()
+                            .coding(
+                                List.of(
+                                    Coding.builder()
+                                        .display("NEUROLOGY")
+                                        .code("N")
+                                        .system(
+                                            "http://www.va.gov/Terminology/VistADefinedTerms/44-9")
+                                        .build()))
+                            .build()))
+                .build());
+    assertThat(
+            Appointment.builder().serviceCategory(tx.serviceCategory(Optional.of("NONE"))).build())
+        .isEqualTo(
+            Appointment.builder()
+                .serviceCategory(
+                    List.of(
+                        CodeableConcept.builder()
+                            .coding(
+                                List.of(
+                                    Coding.builder()
+                                        .display("NONE")
+                                        .code("0")
+                                        .system(
+                                            "http://www.va.gov/Terminology/VistADefinedTerms/44-9")
+                                        .build()))
+                            .build()))
+                .build());
+    assertThat(
+            Appointment.builder()
+                .serviceCategory(tx.serviceCategory(Optional.of("PSYCHIATRY")))
+                .build())
+        .isEqualTo(
+            Appointment.builder()
+                .serviceCategory(
+                    List.of(
+                        CodeableConcept.builder()
+                            .coding(
+                                List.of(
+                                    Coding.builder()
+                                        .display("PSYCHIATRY")
+                                        .code("P")
+                                        .system(
+                                            "http://www.va.gov/Terminology/VistADefinedTerms/44-9")
+                                        .build()))
+                            .build()))
+                .build());
+    assertThat(
+            Appointment.builder()
+                .serviceCategory(tx.serviceCategory(Optional.of("REHAB MEDICINE")))
+                .build())
+        .isEqualTo(
+            Appointment.builder()
+                .serviceCategory(
+                    List.of(
+                        CodeableConcept.builder()
+                            .coding(
+                                List.of(
+                                    Coding.builder()
+                                        .display("REHAB MEDICINE")
+                                        .code("R")
+                                        .system(
+                                            "http://www.va.gov/Terminology/VistADefinedTerms/44-9")
+                                        .build()))
+                            .build()))
+                .build());
+    assertThat(
+            Appointment.builder()
+                .serviceCategory(tx.serviceCategory(Optional.of("SOMEBADDATA")))
+                .build())
+        .isEqualTo(
+            Appointment.builder()
+                .serviceCategory(
+                    List.of(
+                        CodeableConcept.builder()
+                            .coding(
+                                List.of(
+                                    Coding.builder()
+                                        .display("SOMEBADDATA")
+                                        .code(null)
+                                        .system(
+                                            "http://www.va.gov/Terminology/VistADefinedTerms/44-9")
+                                        .build()))
+                            .build()))
+                .build());
   }
 
   @Test
@@ -215,7 +357,6 @@ public class R4AppointmentTransformerTest {
                 Optional.of(Instant.parse("2020-11-26T08:00:00Z")),
                 Optional.of("WTF MAN?")))
         .isEqualTo(null);
-
     tx =
         R4AppointmentTransformer.builder()
             .compositeCdwId(CompositeCdwId.fromCdwId("123:W"))
