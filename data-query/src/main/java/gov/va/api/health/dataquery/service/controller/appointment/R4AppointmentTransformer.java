@@ -150,8 +150,6 @@ final class R4AppointmentTransformer {
     String display = maybeServiceCategory.get();
     String code = serviceCategoryCode(maybeServiceCategory);
     if (code == null) {
-      log.warn(
-          "Appointment Service Category display value {} could not be mapped to a code.", display);
       return null;
     }
     return List.of(
@@ -171,7 +169,8 @@ final class R4AppointmentTransformer {
     if (isBlank(maybeDisplay)) {
       return null;
     }
-    switch (maybeDisplay.get().toUpperCase(Locale.ENGLISH).trim()) {
+    String display = maybeDisplay.get().toUpperCase(Locale.ENGLISH).trim();
+    switch (display) {
       case "MEDICINE":
         return "M";
       case "NEUROLOGY":
@@ -185,6 +184,9 @@ final class R4AppointmentTransformer {
       case "SURGERY":
         return "S";
       default:
+        log.warn(
+            "Appointment Service Category display value {} could not be mapped to a code.",
+            display);
         return null;
     }
   }
