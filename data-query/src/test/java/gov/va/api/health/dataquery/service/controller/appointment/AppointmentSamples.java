@@ -24,7 +24,6 @@ import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class AppointmentSamples {
-
   public static ResourceIdentity id(String cdwId) {
     return ResourceIdentity.builder()
         .system("CDW")
@@ -150,6 +149,7 @@ public class AppointmentSamples {
           .meta(Meta.builder().lastUpdated("2020-12-25T00:00:00Z").build())
           .status(Appointment.AppointmentStatus.fulfilled)
           .cancelationReason(cancelationReason())
+          .serviceCategory(serviceCategory())
           .specialty(specialty())
           .appointmentType(appointmentType())
           .description("Walk-In Visit")
@@ -210,6 +210,20 @@ public class AppointmentSamples {
           .display(display)
           .reference(ref)
           .build();
+    }
+
+    private List<CodeableConcept> serviceCategory() {
+      return List.of(
+          CodeableConcept.builder()
+              .coding(
+                  List.of(
+                      Coding.builder()
+                          .system("http://www.va.gov/Terminology/VistADefinedTerms/44-9")
+                          .code("S")
+                          .display("SURGERY")
+                          .build()))
+              .text("SURGERY")
+              .build());
     }
 
     private List<CodeableConcept> specialty() {
