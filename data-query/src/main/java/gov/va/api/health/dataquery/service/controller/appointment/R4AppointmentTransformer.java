@@ -185,8 +185,10 @@ final class R4AppointmentTransformer {
         return "S";
       default:
         log.warn(
-            "Appointment Service Category display value {} could not be mapped to a code.",
-            display);
+            "Appointment Service Category display value {},"
+                + " with CDW ID {} could not be mapped to a code",
+            display,
+            dm.cdwId());
         return null;
     }
   }

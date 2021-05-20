@@ -21,6 +21,22 @@ public class R4AppointmentTransformerTest {
         .isEqualTo(AppointmentSamples.R4.create().appointment());
   }
 
+  Appointment appointmentWithServiceCategory(String display, String code) {
+    return Appointment.builder()
+        .serviceCategory(
+            List.of(
+                CodeableConcept.builder()
+                    .coding(
+                        List.of(
+                            Coding.builder()
+                                .display(display)
+                                .code(code)
+                                .system("http://www.va.gov/Terminology/VistADefinedTerms/44-9")
+                                .build()))
+                    .build()))
+        .build();
+  }
+
   @Test
   void empty() {
     var tx =
@@ -146,114 +162,30 @@ public class R4AppointmentTransformerTest {
             Appointment.builder()
                 .serviceCategory(tx.serviceCategory(Optional.of("SURGERY")))
                 .build())
-        .isEqualTo(
-            Appointment.builder()
-                .serviceCategory(
-                    List.of(
-                        CodeableConcept.builder()
-                            .coding(
-                                List.of(
-                                    Coding.builder()
-                                        .display("SURGERY")
-                                        .code("S")
-                                        .system(
-                                            "http://www.va.gov/Terminology/VistADefinedTerms/44-9")
-                                        .build()))
-                            .build()))
-                .build());
+        .isEqualTo(appointmentWithServiceCategory("SURGERY", "S"));
     assertThat(
             Appointment.builder()
                 .serviceCategory(tx.serviceCategory(Optional.of("MEDICINE")))
                 .build())
-        .isEqualTo(
-            Appointment.builder()
-                .serviceCategory(
-                    List.of(
-                        CodeableConcept.builder()
-                            .coding(
-                                List.of(
-                                    Coding.builder()
-                                        .display("MEDICINE")
-                                        .code("M")
-                                        .system(
-                                            "http://www.va.gov/Terminology/VistADefinedTerms/44-9")
-                                        .build()))
-                            .build()))
-                .build());
+        .isEqualTo(appointmentWithServiceCategory("MEDICINE", "M"));
     assertThat(
             Appointment.builder()
                 .serviceCategory(tx.serviceCategory(Optional.of("NEUROLOGY")))
                 .build())
-        .isEqualTo(
-            Appointment.builder()
-                .serviceCategory(
-                    List.of(
-                        CodeableConcept.builder()
-                            .coding(
-                                List.of(
-                                    Coding.builder()
-                                        .display("NEUROLOGY")
-                                        .code("N")
-                                        .system(
-                                            "http://www.va.gov/Terminology/VistADefinedTerms/44-9")
-                                        .build()))
-                            .build()))
-                .build());
+        .isEqualTo(appointmentWithServiceCategory("NEUROLOGY", "N"));
     assertThat(
             Appointment.builder().serviceCategory(tx.serviceCategory(Optional.of("NONE"))).build())
-        .isEqualTo(
-            Appointment.builder()
-                .serviceCategory(
-                    List.of(
-                        CodeableConcept.builder()
-                            .coding(
-                                List.of(
-                                    Coding.builder()
-                                        .display("NONE")
-                                        .code("0")
-                                        .system(
-                                            "http://www.va.gov/Terminology/VistADefinedTerms/44-9")
-                                        .build()))
-                            .build()))
-                .build());
+        .isEqualTo(appointmentWithServiceCategory("NONE", "0"));
     assertThat(
             Appointment.builder()
                 .serviceCategory(tx.serviceCategory(Optional.of("PSYCHIATRY")))
                 .build())
-        .isEqualTo(
-            Appointment.builder()
-                .serviceCategory(
-                    List.of(
-                        CodeableConcept.builder()
-                            .coding(
-                                List.of(
-                                    Coding.builder()
-                                        .display("PSYCHIATRY")
-                                        .code("P")
-                                        .system(
-                                            "http://www.va.gov/Terminology/VistADefinedTerms/44-9")
-                                        .build()))
-                            .build()))
-                .build());
+        .isEqualTo(appointmentWithServiceCategory("PSYCHIATRY", "P"));
     assertThat(
             Appointment.builder()
                 .serviceCategory(tx.serviceCategory(Optional.of("REHAB MEDICINE")))
                 .build())
-        .isEqualTo(
-            Appointment.builder()
-                .serviceCategory(
-                    List.of(
-                        CodeableConcept.builder()
-                            .coding(
-                                List.of(
-                                    Coding.builder()
-                                        .display("REHAB MEDICINE")
-                                        .code("R")
-                                        .system(
-                                            "http://www.va.gov/Terminology/VistADefinedTerms/44-9")
-                                        .build()))
-                            .build()))
-                .build());
+        .isEqualTo(appointmentWithServiceCategory("REHAB MEDICINE", "R"));
     assertThat(
             Appointment.builder()
                 .serviceCategory(tx.serviceCategory(Optional.of("SOMEBADDATA")))
