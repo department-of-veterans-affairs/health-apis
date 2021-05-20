@@ -13,15 +13,18 @@ import gov.va.api.lighthouse.datamart.CompositeCdwId;
 import gov.va.api.lighthouse.datamart.DatamartReference;
 import java.time.Instant;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 
-@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+@Slf4j
 @Builder
+@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 final class R4AppointmentTransformer {
   private static final Set<String> SUPPORTED_PARTICIPANT_TYPES = Set.of("Location", "Patient");
 
@@ -140,6 +143,53 @@ final class R4AppointmentTransformer {
         .collect(Collectors.toList());
   }
 
+  List<CodeableConcept> serviceCategory(Optional<String> maybeServiceCategory) {
+    if (isBlank(maybeServiceCategory)) {
+      return null;
+    }
+    String code = serviceCategoryCode(maybeServiceCategory);
+    if (code == null) {
+      return null;
+    }
+    String display = maybeServiceCategory.get();
+    return List.of(
+        CodeableConcept.builder()
+            .coding(
+                List.of(
+                    Coding.builder()
+                        .system("http://www.va.gov/Terminology/VistADefinedTerms/44-9")
+                        .display(display)
+                        .code(code)
+                        .build()))
+            .text(display)
+            .build());
+  }
+
+  String serviceCategoryCode(Optional<String> maybeDisplay) {
+    if (isBlank(maybeDisplay)) {
+      return null;
+    }
+    String display = maybeDisplay.get().toUpperCase(Locale.ENGLISH).trim();
+    switch (display) {
+      case "MEDICINE":
+        return "M";
+      case "NEUROLOGY":
+        return "N";
+      case "NONE":
+        return "0";
+      case "PSYCHIATRY":
+        return "P";
+      case "REHAB MEDICINE":
+        return "R";
+      case "SURGERY":
+        return "S";
+      default:
+        log.warn(
+            "Appointment {} service-category '{}' cannot be mapped to code", dm.cdwId(), display);
+        return null;
+    }
+  }
+
   List<CodeableConcept> specialty(Optional<String> maybeSpecialty) {
     if (isBlank(maybeSpecialty)) {
       return null;
@@ -221,6 +271,7 @@ final class R4AppointmentTransformer {
         .meta(meta(dm.lastUpdated()))
         .status(status(dm.start(), dm.status(), dm.visitSid()))
         .cancelationReason(cancelationReason(dm.cancelationReason()))
+        .serviceCategory(serviceCategory(dm.serviceCategory()))
         .specialty(specialty(dm.specialty()))
         .appointmentType(appointmentType(dm.appointmentType()))
         .description(description(dm.description()))
