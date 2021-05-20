@@ -190,6 +190,13 @@ final class R4AppointmentTransformer {
     }
   }
 
+  List<CodeableConcept> serviceType(String serviceType) {
+    if (isBlank(serviceType)) {
+      return null;
+    }
+    return List.of(CodeableConcept.builder().text(serviceType).build());
+  }
+
   List<CodeableConcept> specialty(Optional<String> maybeSpecialty) {
     if (isBlank(maybeSpecialty)) {
       return null;
@@ -273,6 +280,7 @@ final class R4AppointmentTransformer {
         .cancelationReason(cancelationReason(dm.cancelationReason()))
         .serviceCategory(serviceCategory(dm.serviceCategory()))
         .specialty(specialty(dm.specialty()))
+        .serviceType(serviceType(dm.serviceType()))
         .appointmentType(appointmentType(dm.appointmentType()))
         .description(description(dm.description()))
         .start(asDateTimeString(dm.start()))
