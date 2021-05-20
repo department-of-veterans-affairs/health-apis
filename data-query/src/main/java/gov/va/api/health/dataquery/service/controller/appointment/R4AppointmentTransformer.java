@@ -185,9 +185,7 @@ final class R4AppointmentTransformer {
         return "S";
       default:
         log.warn(
-            "Appointment {} service-category '{}' cannot be mapped to code",
-            dm.cdwId(),
-            display);
+            "Appointment {} service-category '{}' cannot be mapped to code", dm.cdwId(), display);
         return null;
     }
   }
