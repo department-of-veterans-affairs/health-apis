@@ -149,9 +149,9 @@ public class AppointmentSamples {
           .meta(Meta.builder().lastUpdated("2020-12-25T00:00:00Z").build())
           .status(Appointment.AppointmentStatus.fulfilled)
           .cancelationReason(cancelationReason())
+          .serviceCategory(serviceCategory())
           .specialty(specialty())
           .appointmentType(appointmentType())
-          .serviceCategory(serviceCategory())
           .description("Walk-In Visit")
           .start("2020-11-25T08:00:00Z")
           .end("2020-11-25T08:20:00Z")
@@ -222,6 +222,7 @@ public class AppointmentSamples {
                           .code("S")
                           .display("SURGERY")
                           .build()))
+              .text("SURGERY")
               .build());
     }
 

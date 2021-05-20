@@ -22,9 +22,9 @@ import lombok.Builder;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
-@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-@Builder
 @Slf4j
+@Builder
+@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 final class R4AppointmentTransformer {
   private static final Set<String> SUPPORTED_PARTICIPANT_TYPES = Set.of("Location", "Patient");
 
@@ -147,11 +147,11 @@ final class R4AppointmentTransformer {
     if (isBlank(maybeServiceCategory)) {
       return null;
     }
-    String display = maybeServiceCategory.get();
     String code = serviceCategoryCode(maybeServiceCategory);
     if (code == null) {
       return null;
     }
+    String display = maybeServiceCategory.get();
     return List.of(
         CodeableConcept.builder()
             .coding(
@@ -185,10 +185,9 @@ final class R4AppointmentTransformer {
         return "S";
       default:
         log.warn(
-            "Appointment Service Category display value {},"
-                + " with CDW ID {} could not be mapped to a code",
-            display,
-            dm.cdwId());
+            "Appointment {} service-category '{}' cannot be mapped to code",
+            dm.cdwId(),
+            display);
         return null;
     }
   }
@@ -274,11 +273,11 @@ final class R4AppointmentTransformer {
         .meta(meta(dm.lastUpdated()))
         .status(status(dm.start(), dm.status(), dm.visitSid()))
         .cancelationReason(cancelationReason(dm.cancelationReason()))
+        .serviceCategory(serviceCategory(dm.serviceCategory()))
         .specialty(specialty(dm.specialty()))
         .appointmentType(appointmentType(dm.appointmentType()))
         .description(description(dm.description()))
         .start(asDateTimeString(dm.start()))
-        .serviceCategory(serviceCategory(dm.serviceCategory()))
         .end(asDateTimeString(dm.end()))
         .minutesDuration(minutesDuration(dm.minutesDuration()))
         .created(dm.created())
