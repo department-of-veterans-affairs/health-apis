@@ -40,7 +40,7 @@ final class R4AppointmentTransformer {
         .coding(
             List.of(
                 Coding.builder()
-                    .system("http://terminology.hl7.org/CodeSystem/v2-0276")
+                    .system("http://www.va.gov/Terminology/VistADefinedTerms/2.98-9.5")
                     .display(maybeAppointmentType.get())
                     .build()))
         .text(maybeAppointmentType.get())
