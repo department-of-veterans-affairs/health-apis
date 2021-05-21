@@ -150,6 +150,7 @@ public class AppointmentSamples {
           .status(Appointment.AppointmentStatus.fulfilled)
           .cancelationReason(cancelationReason())
           .serviceCategory(serviceCategory())
+          .serviceType(serviceType())
           .specialty(specialty())
           .appointmentType(appointmentType())
           .description("Walk-In Visit")
@@ -224,6 +225,10 @@ public class AppointmentSamples {
                           .build()))
               .text("SURGERY")
               .build());
+    }
+
+    private List<CodeableConcept> serviceType() {
+      return List.of(CodeableConcept.builder().text("OTOLARYNGOLOGY/ENT").build());
     }
 
     private List<CodeableConcept> specialty() {
