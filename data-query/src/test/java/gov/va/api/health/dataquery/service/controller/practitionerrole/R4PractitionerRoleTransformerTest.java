@@ -15,7 +15,7 @@ import gov.va.api.health.r4.api.datatypes.ContactPoint.ContactPointSystem;
 import gov.va.api.health.r4.api.resources.PractitionerRole;
 import java.util.List;
 import java.util.Optional;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class R4PractitionerRoleTransformerTest {
   @Test

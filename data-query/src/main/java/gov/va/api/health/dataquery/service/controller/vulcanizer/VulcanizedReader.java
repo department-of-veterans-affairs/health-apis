@@ -41,8 +41,7 @@ public class VulcanizedReader<
   private EntityT find(String publicId) {
     String cdwId = transformation.witnessProtection().toCdwId(publicId);
     Optional<EntityT> entity = repository.findById(toPrimaryKey.apply(cdwId));
-    entity.orElseThrow(() -> new ResourceExceptions.NotFound(publicId));
-    return entity.get();
+    return entity.orElseThrow(() -> new ResourceExceptions.NotFound(publicId));
   }
 
   /** Perform a read for the given public ID and transform the results. */
