@@ -235,11 +235,14 @@ final class R4AppointmentTransformer {
     if (isBlank(compositeCdwId.cdwIdResourceCode())) {
       return null;
     }
-    if (allBlank(start, status)) {
-      return null;
-    }
     if (isWaitlist()) {
       return Appointment.AppointmentStatus.waitlist;
+    }
+    if (allBlank(start, status)) {
+      return Appointment.AppointmentStatus.booked;
+    }
+    if (allBlank(status, visitSid) && !isBlank(start)) {
+      return Appointment.AppointmentStatus.booked;
     }
     switch (status.orElse("NO ACTION TAKEN")) {
       case "NO SHOW":

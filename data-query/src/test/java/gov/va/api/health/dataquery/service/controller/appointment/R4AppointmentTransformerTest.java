@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import gov.va.api.health.r4.api.datatypes.CodeableConcept;
 import gov.va.api.health.r4.api.datatypes.Coding;
 import gov.va.api.health.r4.api.resources.Appointment;
+import gov.va.api.health.r4.api.resources.Appointment.AppointmentStatus;
 import gov.va.api.lighthouse.datamart.CompositeCdwId;
 import gov.va.api.lighthouse.datamart.DatamartReference;
 import java.time.Duration;
@@ -49,7 +50,8 @@ public class R4AppointmentTransformerTest {
             .dm(DatamartAppointment.builder().build())
             .compositeCdwId(CompositeCdwId.fromCdwId("1234:A"))
             .build();
-    assertThat(tx.toFhir()).isEqualTo(Appointment.builder().build());
+    assertThat(tx.toFhir())
+        .isEqualTo(Appointment.builder().status(AppointmentStatus.booked).build());
   }
 
   @Test
