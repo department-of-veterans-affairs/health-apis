@@ -146,6 +146,8 @@ public class R4OrganizationController {
   private boolean tokenIdentifierIsSupported(TokenParameter token) {
     return (token.hasSupportedSystem(FacilityTransformers.FAPI_IDENTIFIER_SYSTEM)
             && token.hasExplicitCode())
+        || (token.hasSupportedSystem(FacilityTransformers.FAPI_IDENTIFIER_SYSTEM)
+            && token.hasAnyCode())
         || token.hasAnySystem();
   }
 
@@ -161,6 +163,16 @@ public class R4OrganizationController {
                     "identifier", code, "Invalid facilityId.");
               }
               return facilityId;
+            })
+        .onExplicitSystemAndAnyCode(
+            system -> {
+              if (FacilityTransformers.FAPI_IDENTIFIER_SYSTEM.equals(system)) {
+                return Specifications.<OrganizationEntity>selectNotNull("stationNumber");
+              }
+              if ("http://hl7.org/fhir/sid/us-npi".equals(system)) {
+                return Specifications.selectNotNull("npi");
+              }
+              throw CircuitBreaker.noResultsWillBeFound("identifier", system, "Unknown system");
             })
         .onAnySystemAndExplicitCode(
             code ->
