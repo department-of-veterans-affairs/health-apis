@@ -232,9 +232,6 @@ final class R4AppointmentTransformer {
    */
   Appointment.AppointmentStatus status(
       Optional<Instant> start, Optional<String> status, Optional<Long> visitSid) {
-    if (isBlank(compositeCdwId.cdwIdResourceCode())) {
-      return null;
-    }
     if (isWaitlist()) {
       return Appointment.AppointmentStatus.waitlist;
     }

@@ -2,18 +2,22 @@ package gov.va.api.health.dataquery.service.controller.appointment;
 
 import static gov.va.api.health.dataquery.service.controller.R4Transformers.asReference;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import gov.va.api.health.r4.api.datatypes.CodeableConcept;
 import gov.va.api.health.r4.api.datatypes.Coding;
 import gov.va.api.health.r4.api.resources.Appointment;
-import gov.va.api.health.r4.api.resources.Appointment.AppointmentStatus;
 import gov.va.api.lighthouse.datamart.CompositeCdwId;
 import gov.va.api.lighthouse.datamart.DatamartReference;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 public class R4AppointmentTransformerTest {
   static List<CodeableConcept> serviceCategory(String display, String code) {
@@ -28,6 +32,115 @@ public class R4AppointmentTransformerTest {
                         .build()))
             .text(display)
             .build());
+  }
+
+  static Stream<Arguments> status() {
+    Instant startInPast = Instant.now().minus(Duration.ofDays(2));
+    Instant startInFuture = Instant.now().plus(Duration.ofDays(2));
+    return Stream.of(
+        arguments(
+            Optional.of(startInPast),
+            Optional.empty(),
+            Optional.of(1L),
+            Appointment.AppointmentStatus.fulfilled),
+        arguments(
+            Optional.of(startInPast),
+            Optional.of("NO SHOW"),
+            Optional.of(-1L),
+            Appointment.AppointmentStatus.noshow),
+        arguments(
+            Optional.of(startInPast),
+            Optional.of("NO-SHOW & AUTO RE-BOOK"),
+            Optional.of(-1L),
+            Appointment.AppointmentStatus.noshow),
+        arguments(
+            Optional.of(startInPast),
+            Optional.of("CANCELLED BY PATIENT"),
+            Optional.of(-1L),
+            Appointment.AppointmentStatus.cancelled),
+        arguments(
+            Optional.of(startInPast),
+            Optional.of("CANCELLED BY PATIENT & AUTO-REBOOK"),
+            Optional.of(-1L),
+            Appointment.AppointmentStatus.cancelled),
+        arguments(
+            Optional.of(startInPast),
+            Optional.of("CANCELLED BY CLINIC"),
+            Optional.of(-1L),
+            Appointment.AppointmentStatus.cancelled),
+        arguments(
+            Optional.of(startInPast),
+            Optional.of("CANCELLED BY CLINIC & AUTO RE-BOOK"),
+            Optional.of(-1L),
+            Appointment.AppointmentStatus.cancelled),
+        arguments(
+            Optional.of(startInFuture),
+            Optional.of("INPATIENT APPOINTMENT"),
+            Optional.of(-1L),
+            Appointment.AppointmentStatus.booked),
+        arguments(
+            Optional.empty(),
+            Optional.of("INPATIENT APPOINTMENT"),
+            Optional.of(-1L),
+            Appointment.AppointmentStatus.booked),
+        arguments(
+            Optional.of(startInPast),
+            Optional.of("INPATIENT APPOINTMENT"),
+            Optional.of(1L),
+            Appointment.AppointmentStatus.fulfilled),
+        arguments(
+            Optional.of(startInPast),
+            Optional.of("INPATIENT APPOINTMENT"),
+            Optional.of(-1L),
+            Appointment.AppointmentStatus.noshow),
+        arguments(
+            Optional.of(startInPast),
+            Optional.of("NO ACTION TAKEN"),
+            Optional.of(1L),
+            Appointment.AppointmentStatus.fulfilled),
+        arguments(
+            Optional.empty(),
+            Optional.of("NO ACTION TAKEN"),
+            Optional.of(-1L),
+            Appointment.AppointmentStatus.booked),
+        arguments(Optional.of(startInPast), Optional.of("WTF MAN?"), Optional.empty(), null),
+        arguments(
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Appointment.AppointmentStatus.booked),
+        arguments(
+            Optional.of(startInFuture),
+            Optional.of("NO ACTION TAKEN"),
+            Optional.of(1L),
+            Appointment.AppointmentStatus.booked),
+        arguments(
+            Optional.of(startInFuture),
+            Optional.empty(),
+            Optional.empty(),
+            Appointment.AppointmentStatus.booked),
+        arguments(
+            Optional.empty(),
+            Optional.of("INPATIENT APPOINTMENT"),
+            Optional.empty(),
+            Appointment.AppointmentStatus.booked),
+        arguments(Optional.empty(), Optional.of("WTF MAN?"), Optional.empty(), null),
+        arguments(Optional.of(startInPast), Optional.of("WTF MAN?"), Optional.empty(), null),
+        arguments(
+            Optional.of(startInPast),
+            Optional.of("INPATIENT APPOINTMENT"),
+            Optional.empty(),
+            Appointment.AppointmentStatus.booked),
+        arguments(
+            Optional.of(startInPast),
+            Optional.of("INPATIENT APPOINTMENT"),
+            Optional.of(-1L),
+            Appointment.AppointmentStatus.noshow),
+        arguments(
+            Optional.of(startInPast),
+            Optional.of("INPATIENT APPOINTMENT"),
+            Optional.of(1L),
+            Appointment.AppointmentStatus.fulfilled));
   }
 
   static R4AppointmentTransformer tx(DatamartAppointment dm) {
@@ -51,7 +164,7 @@ public class R4AppointmentTransformerTest {
             .compositeCdwId(CompositeCdwId.fromCdwId("1234:A"))
             .build();
     assertThat(tx.toFhir())
-        .isEqualTo(Appointment.builder().status(AppointmentStatus.booked).build());
+        .isEqualTo(Appointment.builder().status(Appointment.AppointmentStatus.booked).build());
   }
 
   @Test
@@ -66,7 +179,7 @@ public class R4AppointmentTransformerTest {
                     .display(Optional.of("some dude"))
                     .build(),
                 Appointment.ParticipationStatus.tentative))
-        .isEqualTo(null);
+        .isNull();
     var ref =
         DatamartReference.builder()
             .type(Optional.of("Patient"))
@@ -164,88 +277,21 @@ public class R4AppointmentTransformerTest {
         .isEqualTo(serviceCategory("SURGERY", "S"));
   }
 
+  @ParameterizedTest
+  @MethodSource
+  void status(
+      Optional<Instant> startTime,
+      Optional<String> status,
+      Optional<Long> visitSid,
+      Appointment.AppointmentStatus actual) {
+    var tx = tx(DatamartAppointment.builder().cdwId("123:A").build());
+    assertThat(tx.status(startTime, status, visitSid)).isEqualTo(actual);
+  }
+
   @Test
-  void status() {
-    Instant startInPast = Instant.now().minus(Duration.ofDays(2));
+  void waitlistStatus() {
     Instant startInFuture = Instant.now().plus(Duration.ofDays(2));
     var tx = tx(DatamartAppointment.builder().cdwId("123:A").build());
-    assertThat(tx.status(Optional.of(startInPast), Optional.empty(), Optional.of(1L)))
-        .isEqualTo(Appointment.AppointmentStatus.fulfilled);
-    assertThat(tx.status(Optional.of(startInPast), Optional.of("NO SHOW"), Optional.of(-1L)))
-        .isEqualTo(Appointment.AppointmentStatus.noshow);
-    assertThat(
-            tx.status(
-                Optional.of(startInPast), Optional.of("NO-SHOW & AUTO RE-BOOK"), Optional.of(-1L)))
-        .isEqualTo(Appointment.AppointmentStatus.noshow);
-    assertThat(
-            tx.status(
-                Optional.of(startInPast), Optional.of("CANCELLED BY PATIENT"), Optional.of(-1L)))
-        .isEqualTo(Appointment.AppointmentStatus.cancelled);
-    assertThat(
-            tx.status(
-                Optional.of(startInPast),
-                Optional.of("CANCELLED BY PATIENT & AUTO-REBOOK"),
-                Optional.of(-1L)))
-        .isEqualTo(Appointment.AppointmentStatus.cancelled);
-    assertThat(
-            tx.status(
-                Optional.of(startInPast), Optional.of("CANCELLED BY CLINIC"), Optional.of(-1L)))
-        .isEqualTo(Appointment.AppointmentStatus.cancelled);
-    assertThat(
-            tx.status(
-                Optional.of(startInPast),
-                Optional.of("CANCELLED BY CLINIC & AUTO RE-BOOK"),
-                Optional.of(-1L)))
-        .isEqualTo(Appointment.AppointmentStatus.cancelled);
-    assertThat(
-            tx.status(
-                Optional.of(startInFuture), Optional.of("INPATIENT APPOINTMENT"), Optional.of(-1L)))
-        .isEqualTo(Appointment.AppointmentStatus.booked);
-    assertThat(tx.status(Optional.empty(), Optional.of("INPATIENT APPOINTMENT"), Optional.of(-1L)))
-        .isEqualTo(Appointment.AppointmentStatus.booked);
-    assertThat(
-            tx.status(
-                Optional.of(startInPast), Optional.of("INPATIENT APPOINTMENT"), Optional.of(1L)))
-        .isEqualTo(Appointment.AppointmentStatus.fulfilled);
-    assertThat(
-            tx.status(
-                Optional.of(startInPast), Optional.of("INPATIENT APPOINTMENT"), Optional.of(-1L)))
-        .isEqualTo(Appointment.AppointmentStatus.noshow);
-    assertThat(tx.status(Optional.of(startInPast), Optional.of("NO ACTION TAKEN"), Optional.of(1L)))
-        .isEqualTo(Appointment.AppointmentStatus.fulfilled);
-    assertThat(tx.status(Optional.empty(), Optional.of("NO ACTION TAKEN"), Optional.of(-1L)))
-        .isEqualTo(Appointment.AppointmentStatus.booked);
-    assertThat(
-            tx.status(
-                Optional.of(Instant.parse("2020-11-25T08:00:00Z")),
-                Optional.of("WTF MAN?"),
-                Optional.empty()))
-        .isEqualTo(null);
-    assertThat(tx.status(Optional.empty(), Optional.empty(), Optional.empty()))
-        .isEqualTo(Appointment.AppointmentStatus.booked);
-    assertThat(
-            tx.status(Optional.of(startInFuture), Optional.of("NO ACTION TAKEN"), Optional.of(1L)))
-        .isEqualTo(Appointment.AppointmentStatus.booked);
-    assertThat(tx.status(Optional.of(startInFuture), Optional.empty(), Optional.empty()))
-        .isEqualTo(Appointment.AppointmentStatus.booked);
-    assertThat(tx.status(Optional.empty(), Optional.of("INPATIENT APPOINTMENT"), Optional.empty()))
-        .isEqualTo(Appointment.AppointmentStatus.booked);
-    assertThat(tx.status(Optional.empty(), Optional.of("WTF MAN?"), Optional.empty()))
-        .isEqualTo(null);
-    assertThat(tx.status(Optional.of(startInPast), Optional.of("WTF MAN?"), Optional.empty()))
-        .isEqualTo(null);
-    assertThat(
-            tx.status(
-                Optional.of(startInPast), Optional.of("INPATIENT APPOINTMENT"), Optional.empty()))
-        .isEqualTo(Appointment.AppointmentStatus.booked);
-    assertThat(
-            tx.status(
-                Optional.of(startInPast), Optional.of("INPATIENT APPOINTMENT"), Optional.of(-1L)))
-        .isEqualTo(Appointment.AppointmentStatus.noshow);
-    assertThat(
-            tx.status(
-                Optional.of(startInPast), Optional.of("INPATIENT APPOINTMENT"), Optional.of(1L)))
-        .isEqualTo(Appointment.AppointmentStatus.fulfilled);
     tx = tx(DatamartAppointment.builder().cdwId("123:W").build());
     assertThat(tx.status(Optional.of(startInFuture), Optional.of("NO SHOW"), Optional.of(-1L)))
         .isEqualTo(Appointment.AppointmentStatus.waitlist);
