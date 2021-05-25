@@ -7,6 +7,7 @@ import static gov.va.api.lighthouse.vulcan.Vulcan.returnNothing;
 import gov.va.api.health.dataquery.service.config.LinkProperties;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.Bundling;
+import gov.va.api.health.dataquery.service.controller.vulcanizer.SystemIdColumns;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedBundler;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedReader;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedTransformation;
@@ -143,7 +144,9 @@ public class R4PatientController {
     return token
         .behavior()
         .onExplicitSystemAndExplicitCode(
-            (s, c) -> Specifications.<PatientEntityV2>select("gender", toCdwGender(c)))
+            SystemIdColumns.forEntity(PatientEntityV2.class, "gender")
+                .add(PATIENT_GENDER_SYSTEM, "gender", this::toCdwGender)
+                .forSystemAndCode())
         .onAnySystemAndExplicitCode(
             c -> Specifications.<PatientEntityV2>select("gender", toCdwGender(c)))
         .onExplicitSystemAndAnyCode(s -> Specification.where(null))
