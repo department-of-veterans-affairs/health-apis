@@ -38,109 +38,41 @@ public class R4AppointmentTransformerTest {
     Instant startInPast = Instant.now().minus(Duration.ofDays(2));
     Instant startInFuture = Instant.now().plus(Duration.ofDays(2));
     return Stream.of(
+        arguments(startInPast, null, 1L, Appointment.AppointmentStatus.fulfilled),
+        arguments(startInPast, "NO SHOW", -1L, Appointment.AppointmentStatus.noshow),
+        arguments(startInPast, "NO-SHOW & AUTO RE-BOOK", -1L, Appointment.AppointmentStatus.noshow),
         arguments(
-            Optional.of(startInPast),
-            Optional.empty(),
-            Optional.of(1L),
-            Appointment.AppointmentStatus.fulfilled),
+            startInPast, "CANCELLED BY PATIENT", -1L, Appointment.AppointmentStatus.cancelled),
         arguments(
-            Optional.of(startInPast),
-            Optional.of("NO SHOW"),
-            Optional.of(-1L),
-            Appointment.AppointmentStatus.noshow),
+            startInPast,
+            "CANCELLED BY PATIENT & AUTO-REBOOK",
+            -1L,
+            Appointment.AppointmentStatus.cancelled),
+        arguments(startInPast, "CANCELLED BY CLINIC", -1L, Appointment.AppointmentStatus.cancelled),
         arguments(
-            Optional.of(startInPast),
-            Optional.of("NO-SHOW & AUTO RE-BOOK"),
-            Optional.of(-1L),
-            Appointment.AppointmentStatus.noshow),
-        arguments(
-            Optional.of(startInPast),
-            Optional.of("CANCELLED BY PATIENT"),
-            Optional.of(-1L),
+            startInFuture,
+            "CANCELLED BY CLINIC & AUTO RE-BOOK",
+            -1L,
             Appointment.AppointmentStatus.cancelled),
         arguments(
-            Optional.of(startInPast),
-            Optional.of("CANCELLED BY PATIENT & AUTO-REBOOK"),
-            Optional.of(-1L),
-            Appointment.AppointmentStatus.cancelled),
+            startInFuture, "INPATIENT APPOINTMENT", -1L, Appointment.AppointmentStatus.booked),
+        arguments(null, "INPATIENT APPOINTMENT", -1L, Appointment.AppointmentStatus.booked),
         arguments(
-            Optional.of(startInPast),
-            Optional.of("CANCELLED BY CLINIC"),
-            Optional.of(-1L),
-            Appointment.AppointmentStatus.cancelled),
+            startInPast, "INPATIENT APPOINTMENT", 1L, Appointment.AppointmentStatus.fulfilled),
+        arguments(startInPast, "INPATIENT APPOINTMENT", -1L, Appointment.AppointmentStatus.noshow),
+        arguments(startInPast, "NO ACTION TAKEN", 1L, Appointment.AppointmentStatus.fulfilled),
+        arguments(null, "NO ACTION TAKEN", -1L, Appointment.AppointmentStatus.booked),
+        arguments(startInPast, "WTF MAN?", null, null),
+        arguments(null, null, null, Appointment.AppointmentStatus.booked),
+        arguments(startInFuture, "NO ACTION TAKEN", 1L, Appointment.AppointmentStatus.booked),
+        arguments(startInPast, null, null, Appointment.AppointmentStatus.booked),
+        arguments(null, "INPATIENT APPOINTMENT", null, Appointment.AppointmentStatus.booked),
+        arguments(null, "WTF MAN?", null, null),
+        arguments(startInPast, "WTF MAN?", null, null),
+        arguments(startInPast, "INPATIENT APPOINTMENT", null, Appointment.AppointmentStatus.booked),
+        arguments(startInPast, "INPATIENT APPOINTMENT", -1L, Appointment.AppointmentStatus.noshow),
         arguments(
-            Optional.of(startInPast),
-            Optional.of("CANCELLED BY CLINIC & AUTO RE-BOOK"),
-            Optional.of(-1L),
-            Appointment.AppointmentStatus.cancelled),
-        arguments(
-            Optional.of(startInFuture),
-            Optional.of("INPATIENT APPOINTMENT"),
-            Optional.of(-1L),
-            Appointment.AppointmentStatus.booked),
-        arguments(
-            Optional.empty(),
-            Optional.of("INPATIENT APPOINTMENT"),
-            Optional.of(-1L),
-            Appointment.AppointmentStatus.booked),
-        arguments(
-            Optional.of(startInPast),
-            Optional.of("INPATIENT APPOINTMENT"),
-            Optional.of(1L),
-            Appointment.AppointmentStatus.fulfilled),
-        arguments(
-            Optional.of(startInPast),
-            Optional.of("INPATIENT APPOINTMENT"),
-            Optional.of(-1L),
-            Appointment.AppointmentStatus.noshow),
-        arguments(
-            Optional.of(startInPast),
-            Optional.of("NO ACTION TAKEN"),
-            Optional.of(1L),
-            Appointment.AppointmentStatus.fulfilled),
-        arguments(
-            Optional.empty(),
-            Optional.of("NO ACTION TAKEN"),
-            Optional.of(-1L),
-            Appointment.AppointmentStatus.booked),
-        arguments(Optional.of(startInPast), Optional.of("WTF MAN?"), Optional.empty(), null),
-        arguments(
-            Optional.empty(),
-            Optional.empty(),
-            Optional.empty(),
-            Appointment.AppointmentStatus.booked),
-        arguments(
-            Optional.of(startInFuture),
-            Optional.of("NO ACTION TAKEN"),
-            Optional.of(1L),
-            Appointment.AppointmentStatus.booked),
-        arguments(
-            Optional.of(startInFuture),
-            Optional.empty(),
-            Optional.empty(),
-            Appointment.AppointmentStatus.booked),
-        arguments(
-            Optional.empty(),
-            Optional.of("INPATIENT APPOINTMENT"),
-            Optional.empty(),
-            Appointment.AppointmentStatus.booked),
-        arguments(Optional.empty(), Optional.of("WTF MAN?"), Optional.empty(), null),
-        arguments(Optional.of(startInPast), Optional.of("WTF MAN?"), Optional.empty(), null),
-        arguments(
-            Optional.of(startInPast),
-            Optional.of("INPATIENT APPOINTMENT"),
-            Optional.empty(),
-            Appointment.AppointmentStatus.booked),
-        arguments(
-            Optional.of(startInPast),
-            Optional.of("INPATIENT APPOINTMENT"),
-            Optional.of(-1L),
-            Appointment.AppointmentStatus.noshow),
-        arguments(
-            Optional.of(startInPast),
-            Optional.of("INPATIENT APPOINTMENT"),
-            Optional.of(1L),
-            Appointment.AppointmentStatus.fulfilled));
+            startInPast, "INPATIENT APPOINTMENT", 1L, Appointment.AppointmentStatus.fulfilled));
   }
 
   static R4AppointmentTransformer tx(DatamartAppointment dm) {
@@ -280,12 +212,14 @@ public class R4AppointmentTransformerTest {
   @ParameterizedTest
   @MethodSource
   void status(
-      Optional<Instant> startTime,
-      Optional<String> status,
-      Optional<Long> visitSid,
-      Appointment.AppointmentStatus actual) {
+      Instant startTime, String status, Long visitSid, Appointment.AppointmentStatus expected) {
     var tx = tx(DatamartAppointment.builder().cdwId("123:A").build());
-    assertThat(tx.status(startTime, status, visitSid)).isEqualTo(actual);
+    assertThat(
+            tx.status(
+                Optional.ofNullable(startTime),
+                Optional.ofNullable(status),
+                Optional.ofNullable(visitSid)))
+        .isEqualTo(expected);
   }
 
   @Test
