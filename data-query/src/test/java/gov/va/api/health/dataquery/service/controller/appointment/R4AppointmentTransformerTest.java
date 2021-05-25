@@ -221,6 +221,31 @@ public class R4AppointmentTransformerTest {
                 Optional.of("WTF MAN?"),
                 Optional.empty()))
         .isEqualTo(null);
+    assertThat(tx.status(Optional.empty(), Optional.empty(), Optional.empty()))
+        .isEqualTo(Appointment.AppointmentStatus.booked);
+    assertThat(
+            tx.status(Optional.of(startInFuture), Optional.of("NO ACTION TAKEN"), Optional.of(1L)))
+        .isEqualTo(Appointment.AppointmentStatus.booked);
+    assertThat(tx.status(Optional.of(startInFuture), Optional.empty(), Optional.empty()))
+        .isEqualTo(Appointment.AppointmentStatus.booked);
+    assertThat(tx.status(Optional.empty(), Optional.of("INPATIENT APPOINTMENT"), Optional.empty()))
+        .isEqualTo(Appointment.AppointmentStatus.booked);
+    assertThat(tx.status(Optional.empty(), Optional.of("WTF MAN?"), Optional.empty()))
+        .isEqualTo(null);
+    assertThat(tx.status(Optional.of(startInPast), Optional.of("WTF MAN?"), Optional.empty()))
+        .isEqualTo(null);
+    assertThat(
+            tx.status(
+                Optional.of(startInPast), Optional.of("INPATIENT APPOINTMENT"), Optional.empty()))
+        .isEqualTo(Appointment.AppointmentStatus.booked);
+    assertThat(
+            tx.status(
+                Optional.of(startInPast), Optional.of("INPATIENT APPOINTMENT"), Optional.of(-1L)))
+        .isEqualTo(Appointment.AppointmentStatus.noshow);
+    assertThat(
+            tx.status(
+                Optional.of(startInPast), Optional.of("INPATIENT APPOINTMENT"), Optional.of(1L)))
+        .isEqualTo(Appointment.AppointmentStatus.fulfilled);
     tx = tx(DatamartAppointment.builder().cdwId("123:W").build());
     assertThat(tx.status(Optional.of(startInFuture), Optional.of("NO SHOW"), Optional.of(-1L)))
         .isEqualTo(Appointment.AppointmentStatus.waitlist);

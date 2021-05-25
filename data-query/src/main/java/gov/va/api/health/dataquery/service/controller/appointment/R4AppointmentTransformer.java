@@ -272,7 +272,7 @@ final class R4AppointmentTransformer {
       }
       return Appointment.AppointmentStatus.fulfilled;
     }
-    return null;
+    return Appointment.AppointmentStatus.booked;
   }
 
   Appointment toFhir() {
