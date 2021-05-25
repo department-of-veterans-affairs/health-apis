@@ -9,11 +9,11 @@ import gov.va.api.health.dataquery.service.controller.FacilityId;
 import gov.va.api.health.dataquery.service.controller.FacilityTransformers;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.Bundling;
+import gov.va.api.health.dataquery.service.controller.vulcanizer.SystemIdColumns;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedBundler;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedReader;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedTransformation;
 import gov.va.api.health.r4.api.resources.Organization;
-import gov.va.api.lighthouse.vulcan.CircuitBreaker;
 import gov.va.api.lighthouse.vulcan.Specifications;
 import gov.va.api.lighthouse.vulcan.Vulcan;
 import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
@@ -155,25 +155,20 @@ public class R4OrganizationController {
   private Specification<OrganizationEntity> tokenIdentifierSpecification(TokenParameter token) {
     return token
         .behavior()
-        .onExplicitSystemAndExplicitCode(
-            (system, code) -> {
-              var facilityId = selectFacilityId(code);
-              if (facilityId == null) {
-                throw CircuitBreaker.noResultsWillBeFound(
-                    "identifier", code, "Invalid facilityId.");
-              }
-              return facilityId;
-            })
         .onExplicitSystemAndAnyCode(
-            system -> {
-              if (FacilityTransformers.FAPI_IDENTIFIER_SYSTEM.equals(system)) {
-                return Specifications.<OrganizationEntity>selectNotNull("stationNumber");
-              }
-              if ("http://hl7.org/fhir/sid/us-npi".equals(system)) {
-                return Specifications.selectNotNull("npi");
-              }
-              throw CircuitBreaker.noResultsWillBeFound("identifier", system, "Unknown system");
-            })
+            SystemIdColumns.forEntity(OrganizationEntity.class, "identifier")
+                .add(FacilityTransformers.FAPI_IDENTIFIER_SYSTEM, "stationNumber")
+                .add("http://hl7.org/fhir/sid/us-npi", "npi")
+                .forSystemOnly())
+        .onExplicitSystemAndExplicitCode(
+            SystemIdColumns.forEntity(OrganizationEntity.class, "identifier")
+                .add(
+                    FacilityTransformers.FAPI_IDENTIFIER_SYSTEM,
+                    (system, code) -> {
+                      return selectFacilityId(code);
+                    })
+                .add("http://hl7.org/fhir/sid/us-npi", "npi")
+                .forSystemAndCode())
         .onAnySystemAndExplicitCode(
             code ->
                 Specifications.<OrganizationEntity>select("cdwId", witnessProtection.toCdwId(code))
