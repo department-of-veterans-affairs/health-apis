@@ -17,6 +17,7 @@ import gov.va.api.health.r4.api.resources.Location;
 import gov.va.api.lighthouse.datamart.CompositeCdwId;
 import gov.va.api.lighthouse.vulcan.CircuitBreaker;
 import gov.va.api.lighthouse.vulcan.Specifications;
+import gov.va.api.lighthouse.vulcan.SystemIdFields;
 import gov.va.api.lighthouse.vulcan.Vulcan;
 import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
 import gov.va.api.lighthouse.vulcan.mappings.Mappings;
@@ -145,6 +146,8 @@ public class R4LocationController {
   private boolean tokenIdentifierIsSupported(TokenParameter token) {
     return (token.hasSupportedSystem(FacilityTransformers.FAPI_CLINIC_IDENTIFIER_SYSTEM)
             && token.hasExplicitCode())
+        || (token.hasSupportedSystem(FacilityTransformers.FAPI_CLINIC_IDENTIFIER_SYSTEM)
+            && token.hasAnyCode())
         || token.hasAnySystem();
   }
 
@@ -159,6 +162,11 @@ public class R4LocationController {
               }
               return clinicIdSpec;
             })
+        .onExplicitSystemAndAnyCode(
+            SystemIdFields.forEntity(LocationEntity.class)
+                .parameterName("identifier")
+                .add(FacilityTransformers.FAPI_CLINIC_IDENTIFIER_SYSTEM, "stationNumber")
+                .matchSystemOnly())
         .onAnySystemAndExplicitCode(
             code ->
                 Specifications.<LocationEntity>select("cdwId", witnessProtection.toCdwId(code))

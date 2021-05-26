@@ -52,11 +52,7 @@ public class R4LocationControllerTest {
   }
 
   @ParameterizedTest
-  @ValueSource(
-      strings = {
-        "?identifier=https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-clinic-identifier|",
-        "?identifier=|vha_123_4567"
-      })
+  @ValueSource(strings = {"?identifier=|vha_123_4567"})
   void emptyBundle(String query) {
     var url = "http://fonzy.com/r4/Location" + query;
     var request = requestFromUri(url);
@@ -114,6 +110,7 @@ public class R4LocationControllerTest {
       strings = {
         "?_id=loc1",
         "?identifier=loc1",
+        "?identifier=https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-clinic-identifier|",
         "?identifier=https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-clinic-identifier|vha_xxx_yyyy",
         "?name=TEM+MH+PSO+TRS+IND93EH",
         "?address=1901+VETERANS+MEMORIAL+DRIVE",
