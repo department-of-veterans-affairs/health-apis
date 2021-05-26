@@ -13,7 +13,7 @@ import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedTrans
 import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.health.r4.api.resources.Patient;
 import gov.va.api.lighthouse.vulcan.Specifications;
-import gov.va.api.lighthouse.vulcan.SystemIdColumns;
+import gov.va.api.lighthouse.vulcan.SystemIdFields;
 import gov.va.api.lighthouse.vulcan.Vulcan;
 import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
 import gov.va.api.lighthouse.vulcan.mappings.Mappings;
@@ -144,8 +144,8 @@ public class R4PatientController {
     return token
         .behavior()
         .onExplicitSystemAndExplicitCode(
-            SystemIdColumns.forEntity(PatientEntityV2.class)
-                .param("gender")
+            SystemIdFields.forEntity(PatientEntityV2.class)
+                .parameterName("gender")
                 .add(PATIENT_GENDER_SYSTEM, "gender", this::toCdwGender)
                 .matchSystemAndCode())
         .onAnySystemAndExplicitCode(

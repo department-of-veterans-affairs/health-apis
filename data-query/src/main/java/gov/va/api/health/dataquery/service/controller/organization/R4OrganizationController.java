@@ -14,7 +14,7 @@ import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedReade
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedTransformation;
 import gov.va.api.health.r4.api.resources.Organization;
 import gov.va.api.lighthouse.vulcan.Specifications;
-import gov.va.api.lighthouse.vulcan.SystemIdColumns;
+import gov.va.api.lighthouse.vulcan.SystemIdFields;
 import gov.va.api.lighthouse.vulcan.Vulcan;
 import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
 import gov.va.api.lighthouse.vulcan.mappings.Mappings;
@@ -156,16 +156,17 @@ public class R4OrganizationController {
     return token
         .behavior()
         .onExplicitSystemAndAnyCode(
-            SystemIdColumns.forEntity(OrganizationEntity.class)
-                .param("identifier")
+            SystemIdFields.forEntity(OrganizationEntity.class)
+                .parameterName("identifier")
                 .add(FacilityTransformers.FAPI_IDENTIFIER_SYSTEM, "stationNumber")
                 .add("http://hl7.org/fhir/sid/us-npi", "npi")
                 .matchSystemOnly())
         .onExplicitSystemAndExplicitCode(
-            SystemIdColumns.forEntity(OrganizationEntity.class)
-                .param("identifier")
-                .add(
+            SystemIdFields.forEntity(OrganizationEntity.class)
+                .parameterName("identifier")
+                .addWithCustomSystemAndCodeHandler(
                     FacilityTransformers.FAPI_IDENTIFIER_SYSTEM,
+                    "stationNumber",
                     (system, code) -> {
                       return selectFacilityId(code);
                     })
