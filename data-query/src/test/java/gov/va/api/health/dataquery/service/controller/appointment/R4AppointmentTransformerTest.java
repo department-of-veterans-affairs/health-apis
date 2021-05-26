@@ -79,9 +79,9 @@ public class R4AppointmentTransformerTest {
         arguments(null, noAction, null, booked),
         arguments(null, noAction, -1L, booked),
         arguments(null, noAction, 1L, booked),
-        arguments(null, badStatus, null, null),
-        arguments(null, badStatus, -1L, null),
-        arguments(null, badStatus, 1L, null),
+        arguments(null, badStatus, null, booked),
+        arguments(null, badStatus, -1L, booked),
+        arguments(null, badStatus, 1L, booked),
         arguments(past, null, null, booked),
         arguments(past, null, -1L, noshow),
         arguments(past, null, 1L, fulfilled),
@@ -109,9 +109,9 @@ public class R4AppointmentTransformerTest {
         arguments(past, noAction, null, booked),
         arguments(past, noAction, -1L, noshow),
         arguments(past, noAction, 1L, fulfilled),
-        arguments(past, badStatus, null, null),
-        arguments(past, badStatus, -1L, null),
-        arguments(past, badStatus, 1L, null),
+        arguments(past, badStatus, null, booked),
+        arguments(past, badStatus, -1L, booked),
+        arguments(past, badStatus, 1L, booked),
         arguments(future, null, null, booked),
         arguments(future, null, -1L, booked),
         arguments(future, null, 1L, booked),
@@ -139,9 +139,9 @@ public class R4AppointmentTransformerTest {
         arguments(future, noAction, null, booked),
         arguments(future, noAction, -1L, booked),
         arguments(future, noAction, 1L, booked),
-        arguments(future, badStatus, null, null),
-        arguments(future, badStatus, -1L, null),
-        arguments(future, badStatus, 1L, null));
+        arguments(future, badStatus, null, booked),
+        arguments(future, badStatus, -1L, booked),
+        arguments(future, badStatus, 1L, booked));
   }
 
   static R4AppointmentTransformer tx(DatamartAppointment dm) {
