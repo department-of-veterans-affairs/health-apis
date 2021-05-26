@@ -6,18 +6,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import lombok.Builder;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import lombok.Value;
 import org.springframework.data.jpa.domain.Specification;
 
 /** Provides Specification function shortcuts for simple system to field name mappings. */
-@RequiredArgsConstructor
+@Data
+@NoArgsConstructor
 public class SystemIdColumns<EntityT> {
   private final List<SystemColumnMapping<EntityT>> columns = new ArrayList<>();
-  private final String param;
+  private String param;
 
-  public static <E> SystemIdColumns<E> forEntity(Class<E> entity, String param) {
-    return new SystemIdColumns<>(param);
+  public static <E> SystemIdColumns<E> forEntity(Class<E> entity) {
+    return new SystemIdColumns<>();
   }
 
   public SystemIdColumns<EntityT> add(String system, String column) {
@@ -38,7 +42,7 @@ public class SystemIdColumns<EntityT> {
   }
 
   /** Generates BiFunction from mappings. */
-  public BiFunction<String, String, Specification<EntityT>> forSystemAndCode() {
+  public BiFunction<String, String, Specification<EntityT>> matchSystemAndCode() {
     return (system, code) -> {
       for (SystemColumnMapping<EntityT> column : columns) {
         if (column.system().equals(system)) {
@@ -50,7 +54,7 @@ public class SystemIdColumns<EntityT> {
   }
 
   /** Generates Function from mappings. */
-  public Function<String, Specification<EntityT>> forSystemOnly() {
+  public Function<String, Specification<EntityT>> matchSystemOnly() {
     return system -> {
       for (SystemColumnMapping<EntityT> column : columns) {
         if (column.system().equals(system)) {
@@ -61,9 +65,10 @@ public class SystemIdColumns<EntityT> {
     };
   }
 
-  @Data
+  @Builder
+  @Value
   public static class SystemColumnMapping<EntityT> {
-    String system;
+    @NonNull String system;
 
     String column;
 
@@ -81,27 +86,27 @@ public class SystemIdColumns<EntityT> {
     /** Creates mapping for system and column with value converter. */
     public static <E> SystemColumnMapping<E> of(
         String system, String column, Function<String, String> converter) {
-      var c = new SystemColumnMapping<E>();
-      c.system(system);
-      c.column(column);
-      c.withSystem(
-          (s) -> {
-            return Specifications.<E>selectNotNull(column);
-          });
-      c.withSystemAndCode(
-          (s, code) -> {
-            return Specifications.<E>select(column, converter.apply(code));
-          });
-      return c;
+      return SystemColumnMapping.<E>builder()
+          .system(system)
+          .column(column)
+          .withSystem(
+              (s) -> {
+                return Specifications.<E>selectNotNull(column);
+              })
+          .withSystemAndCode(
+              (s, c) -> {
+                return Specifications.<E>select(column, converter.apply(c));
+              })
+          .build();
     }
 
     /** Creates mapping with a custom function. */
     public static <E> SystemColumnMapping<E> of(
         String system, BiFunction<String, String, Specification<E>> customSystemAndCodeFunction) {
-      var c = new SystemColumnMapping<E>();
-      c.system(system);
-      c.withSystemAndCode(customSystemAndCodeFunction);
-      return c;
+      return SystemColumnMapping.<E>builder()
+          .system(system)
+          .withSystemAndCode(customSystemAndCodeFunction)
+          .build();
     }
   }
 }

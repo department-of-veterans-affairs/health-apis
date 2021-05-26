@@ -156,19 +156,21 @@ public class R4OrganizationController {
     return token
         .behavior()
         .onExplicitSystemAndAnyCode(
-            SystemIdColumns.forEntity(OrganizationEntity.class, "identifier")
+            SystemIdColumns.forEntity(OrganizationEntity.class)
+                .param("identifier")
                 .add(FacilityTransformers.FAPI_IDENTIFIER_SYSTEM, "stationNumber")
                 .add("http://hl7.org/fhir/sid/us-npi", "npi")
-                .forSystemOnly())
+                .matchSystemOnly())
         .onExplicitSystemAndExplicitCode(
-            SystemIdColumns.forEntity(OrganizationEntity.class, "identifier")
+            SystemIdColumns.forEntity(OrganizationEntity.class)
+                .param("identifier")
                 .add(
                     FacilityTransformers.FAPI_IDENTIFIER_SYSTEM,
                     (system, code) -> {
                       return selectFacilityId(code);
                     })
                 .add("http://hl7.org/fhir/sid/us-npi", "npi")
-                .forSystemAndCode())
+                .matchSystemAndCode())
         .onAnySystemAndExplicitCode(
             code ->
                 Specifications.<OrganizationEntity>select("cdwId", witnessProtection.toCdwId(code))

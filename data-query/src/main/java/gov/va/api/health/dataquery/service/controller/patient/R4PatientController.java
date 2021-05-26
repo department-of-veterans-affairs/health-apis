@@ -144,9 +144,10 @@ public class R4PatientController {
     return token
         .behavior()
         .onExplicitSystemAndExplicitCode(
-            SystemIdColumns.forEntity(PatientEntityV2.class, "gender")
+            SystemIdColumns.forEntity(PatientEntityV2.class)
+                .param("gender")
                 .add(PATIENT_GENDER_SYSTEM, "gender", this::toCdwGender)
-                .forSystemAndCode())
+                .matchSystemAndCode())
         .onAnySystemAndExplicitCode(
             c -> Specifications.<PatientEntityV2>select("gender", toCdwGender(c)))
         .onExplicitSystemAndAnyCode(s -> Specification.where(null))
