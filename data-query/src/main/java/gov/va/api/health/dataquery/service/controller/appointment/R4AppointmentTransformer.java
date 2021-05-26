@@ -1,6 +1,5 @@
 package gov.va.api.health.dataquery.service.controller.appointment;
 
-import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
 import static gov.va.api.health.dataquery.service.controller.Transformers.asDateTimeString;
 import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
 
@@ -232,12 +231,6 @@ final class R4AppointmentTransformer {
    */
   Appointment.AppointmentStatus status(
       Optional<Instant> start, Optional<String> status, Optional<Long> visitSid) {
-    if (isBlank(compositeCdwId.cdwIdResourceCode())) {
-      return null;
-    }
-    if (allBlank(start, status)) {
-      return null;
-    }
     if (isWaitlist()) {
       return Appointment.AppointmentStatus.waitlist;
     }
@@ -254,7 +247,7 @@ final class R4AppointmentTransformer {
       case "NO ACTION TAKEN":
         return statusFromStartAndVisitSid(start, visitSid);
       default:
-        return null;
+        return Appointment.AppointmentStatus.booked;
     }
   }
 
@@ -269,7 +262,7 @@ final class R4AppointmentTransformer {
       }
       return Appointment.AppointmentStatus.fulfilled;
     }
-    return null;
+    return Appointment.AppointmentStatus.booked;
   }
 
   Appointment toFhir() {

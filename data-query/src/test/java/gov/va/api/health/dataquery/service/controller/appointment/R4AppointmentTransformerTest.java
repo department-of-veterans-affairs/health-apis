@@ -2,6 +2,7 @@ package gov.va.api.health.dataquery.service.controller.appointment;
 
 import static gov.va.api.health.dataquery.service.controller.R4Transformers.asReference;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import gov.va.api.health.r4.api.datatypes.CodeableConcept;
 import gov.va.api.health.r4.api.datatypes.Coding;
@@ -12,7 +13,11 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 public class R4AppointmentTransformerTest {
   static List<CodeableConcept> serviceCategory(String display, String code) {
@@ -27,6 +32,116 @@ public class R4AppointmentTransformerTest {
                         .build()))
             .text(display)
             .build());
+  }
+
+  static Stream<Arguments> status() {
+    var now = Instant.now();
+    var past = now.minus(Duration.ofDays(2));
+    var future = now.plus(Duration.ofDays(2));
+    var noShow = "NO SHOW";
+    var noShowAuto = "NO-SHOW & AUTO RE-BOOK";
+    var cancelPat = "CANCELLED BY PATIENT";
+    var cancelPatAuto = "CANCELLED BY PATIENT & AUTO-REBOOK";
+    var cancelClin = "CANCELLED BY CLINIC";
+    var cancelClinAuto = "CANCELLED BY CLINIC & AUTO RE-BOOK";
+    var inpatient = "INPATIENT APPOINTMENT";
+    var noAction = "NO ACTION TAKEN";
+    var badStatus = "WTF MAN?";
+    var booked = Appointment.AppointmentStatus.booked;
+    var fulfilled = Appointment.AppointmentStatus.fulfilled;
+    var cancelled = Appointment.AppointmentStatus.cancelled;
+    var noshow = Appointment.AppointmentStatus.noshow;
+    return Stream.of(
+        arguments(null, null, null, booked),
+        arguments(null, null, -1L, booked),
+        arguments(null, null, 1L, booked),
+        arguments(null, noShow, null, noshow),
+        arguments(null, noShow, -1L, noshow),
+        arguments(null, noShow, 1L, noshow),
+        arguments(null, noShowAuto, null, noshow),
+        arguments(null, noShowAuto, -1L, noshow),
+        arguments(null, noShowAuto, 1L, noshow),
+        arguments(null, cancelPat, null, cancelled),
+        arguments(null, cancelPat, -1L, cancelled),
+        arguments(null, cancelPat, 1L, cancelled),
+        arguments(null, cancelPatAuto, null, cancelled),
+        arguments(null, cancelPatAuto, -1L, cancelled),
+        arguments(null, cancelPatAuto, 1L, cancelled),
+        arguments(null, cancelClin, null, cancelled),
+        arguments(null, cancelClin, -1L, cancelled),
+        arguments(null, cancelClin, 1L, cancelled),
+        arguments(null, cancelClinAuto, null, cancelled),
+        arguments(null, cancelClinAuto, -1L, cancelled),
+        arguments(null, cancelClinAuto, 1L, cancelled),
+        arguments(null, inpatient, null, booked),
+        arguments(null, inpatient, -1L, booked),
+        arguments(null, inpatient, 1L, booked),
+        arguments(null, noAction, null, booked),
+        arguments(null, noAction, -1L, booked),
+        arguments(null, noAction, 1L, booked),
+        arguments(null, badStatus, null, booked),
+        arguments(null, badStatus, -1L, booked),
+        arguments(null, badStatus, 1L, booked),
+        arguments(past, null, null, booked),
+        arguments(past, null, -1L, noshow),
+        arguments(past, null, 1L, fulfilled),
+        arguments(past, noShow, null, noshow),
+        arguments(past, noShow, -1L, noshow),
+        arguments(past, noShow, 1L, noshow),
+        arguments(past, noShowAuto, null, noshow),
+        arguments(past, noShowAuto, -1L, noshow),
+        arguments(past, noShowAuto, 1L, noshow),
+        arguments(past, cancelPat, null, cancelled),
+        arguments(past, cancelPat, -1L, cancelled),
+        arguments(past, cancelPat, 1L, cancelled),
+        arguments(past, cancelPatAuto, null, cancelled),
+        arguments(past, cancelPatAuto, -1L, cancelled),
+        arguments(past, cancelPatAuto, 1L, cancelled),
+        arguments(past, cancelClin, null, cancelled),
+        arguments(past, cancelClin, -1L, cancelled),
+        arguments(past, cancelClin, 1L, cancelled),
+        arguments(past, cancelClinAuto, null, cancelled),
+        arguments(past, cancelClinAuto, -1L, cancelled),
+        arguments(past, cancelClinAuto, 1L, cancelled),
+        arguments(past, inpatient, null, booked),
+        arguments(past, inpatient, -1L, noshow),
+        arguments(past, inpatient, 1L, fulfilled),
+        arguments(past, noAction, null, booked),
+        arguments(past, noAction, -1L, noshow),
+        arguments(past, noAction, 1L, fulfilled),
+        arguments(past, badStatus, null, booked),
+        arguments(past, badStatus, -1L, booked),
+        arguments(past, badStatus, 1L, booked),
+        arguments(future, null, null, booked),
+        arguments(future, null, -1L, booked),
+        arguments(future, null, 1L, booked),
+        arguments(future, noShow, null, noshow),
+        arguments(future, noShow, -1L, noshow),
+        arguments(future, noShow, 1L, noshow),
+        arguments(future, noShowAuto, null, noshow),
+        arguments(future, noShowAuto, -1L, noshow),
+        arguments(future, noShowAuto, 1L, noshow),
+        arguments(future, cancelPat, null, cancelled),
+        arguments(future, cancelPat, -1L, cancelled),
+        arguments(future, cancelPat, 1L, cancelled),
+        arguments(future, cancelPatAuto, null, cancelled),
+        arguments(future, cancelPatAuto, -1L, cancelled),
+        arguments(future, cancelPatAuto, 1L, cancelled),
+        arguments(future, cancelClin, null, cancelled),
+        arguments(future, cancelClin, -1L, cancelled),
+        arguments(future, cancelClin, 1L, cancelled),
+        arguments(future, cancelClinAuto, null, cancelled),
+        arguments(future, cancelClinAuto, -1L, cancelled),
+        arguments(future, cancelClinAuto, 1L, cancelled),
+        arguments(future, inpatient, null, booked),
+        arguments(future, inpatient, -1L, booked),
+        arguments(future, inpatient, 1L, booked),
+        arguments(future, noAction, null, booked),
+        arguments(future, noAction, -1L, booked),
+        arguments(future, noAction, 1L, booked),
+        arguments(future, badStatus, null, booked),
+        arguments(future, badStatus, -1L, booked),
+        arguments(future, badStatus, 1L, booked));
   }
 
   static R4AppointmentTransformer tx(DatamartAppointment dm) {
@@ -49,7 +164,8 @@ public class R4AppointmentTransformerTest {
             .dm(DatamartAppointment.builder().build())
             .compositeCdwId(CompositeCdwId.fromCdwId("1234:A"))
             .build();
-    assertThat(tx.toFhir()).isEqualTo(Appointment.builder().build());
+    assertThat(tx.toFhir())
+        .isEqualTo(Appointment.builder().status(Appointment.AppointmentStatus.booked).build());
   }
 
   @Test
@@ -64,7 +180,7 @@ public class R4AppointmentTransformerTest {
                     .display(Optional.of("some dude"))
                     .build(),
                 Appointment.ParticipationStatus.tentative))
-        .isEqualTo(null);
+        .isNull();
     var ref =
         DatamartReference.builder()
             .type(Optional.of("Patient"))
@@ -162,65 +278,23 @@ public class R4AppointmentTransformerTest {
         .isEqualTo(serviceCategory("SURGERY", "S"));
   }
 
-  @Test
-  void status() {
-    Instant startInPast = Instant.now().minus(Duration.ofDays(2));
-    Instant startInFuture = Instant.now().plus(Duration.ofDays(2));
+  @MethodSource
+  @ParameterizedTest
+  void status(
+      Instant startTime, String status, Long visitSid, Appointment.AppointmentStatus expected) {
     var tx = tx(DatamartAppointment.builder().cdwId("123:A").build());
-    assertThat(tx.status(Optional.of(startInPast), Optional.empty(), Optional.of(1L)))
-        .isEqualTo(Appointment.AppointmentStatus.fulfilled);
-    assertThat(tx.status(Optional.of(startInPast), Optional.of("NO SHOW"), Optional.of(-1L)))
-        .isEqualTo(Appointment.AppointmentStatus.noshow);
     assertThat(
             tx.status(
-                Optional.of(startInPast), Optional.of("NO-SHOW & AUTO RE-BOOK"), Optional.of(-1L)))
-        .isEqualTo(Appointment.AppointmentStatus.noshow);
-    assertThat(
-            tx.status(
-                Optional.of(startInPast), Optional.of("CANCELLED BY PATIENT"), Optional.of(-1L)))
-        .isEqualTo(Appointment.AppointmentStatus.cancelled);
-    assertThat(
-            tx.status(
-                Optional.of(startInPast),
-                Optional.of("CANCELLED BY PATIENT & AUTO-REBOOK"),
-                Optional.of(-1L)))
-        .isEqualTo(Appointment.AppointmentStatus.cancelled);
-    assertThat(
-            tx.status(
-                Optional.of(startInPast), Optional.of("CANCELLED BY CLINIC"), Optional.of(-1L)))
-        .isEqualTo(Appointment.AppointmentStatus.cancelled);
-    assertThat(
-            tx.status(
-                Optional.of(startInPast),
-                Optional.of("CANCELLED BY CLINIC & AUTO RE-BOOK"),
-                Optional.of(-1L)))
-        .isEqualTo(Appointment.AppointmentStatus.cancelled);
-    assertThat(
-            tx.status(
-                Optional.of(startInFuture), Optional.of("INPATIENT APPOINTMENT"), Optional.of(-1L)))
-        .isEqualTo(Appointment.AppointmentStatus.booked);
-    assertThat(tx.status(Optional.empty(), Optional.of("INPATIENT APPOINTMENT"), Optional.of(-1L)))
-        .isEqualTo(Appointment.AppointmentStatus.booked);
-    assertThat(
-            tx.status(
-                Optional.of(startInPast), Optional.of("INPATIENT APPOINTMENT"), Optional.of(1L)))
-        .isEqualTo(Appointment.AppointmentStatus.fulfilled);
-    assertThat(
-            tx.status(
-                Optional.of(startInPast), Optional.of("INPATIENT APPOINTMENT"), Optional.of(-1L)))
-        .isEqualTo(Appointment.AppointmentStatus.noshow);
-    assertThat(tx.status(Optional.of(startInPast), Optional.of("NO ACTION TAKEN"), Optional.of(1L)))
-        .isEqualTo(Appointment.AppointmentStatus.fulfilled);
-    assertThat(tx.status(Optional.empty(), Optional.of("NO ACTION TAKEN"), Optional.of(-1L)))
-        .isEqualTo(Appointment.AppointmentStatus.booked);
-    assertThat(
-            tx.status(
-                Optional.of(Instant.parse("2020-11-25T08:00:00Z")),
-                Optional.of("WTF MAN?"),
-                Optional.empty()))
-        .isEqualTo(null);
-    tx = tx(DatamartAppointment.builder().cdwId("123:W").build());
-    assertThat(tx.status(Optional.of(startInFuture), Optional.of("NO SHOW"), Optional.of(-1L)))
+                Optional.ofNullable(startTime),
+                Optional.ofNullable(status),
+                Optional.ofNullable(visitSid)))
+        .isEqualTo(expected);
+  }
+
+  @Test
+  void status_waitlist() {
+    var tx = tx(DatamartAppointment.builder().cdwId("123:W").build());
+    assertThat(tx.status(Optional.empty(), Optional.empty(), Optional.empty()))
         .isEqualTo(Appointment.AppointmentStatus.waitlist);
   }
 }
