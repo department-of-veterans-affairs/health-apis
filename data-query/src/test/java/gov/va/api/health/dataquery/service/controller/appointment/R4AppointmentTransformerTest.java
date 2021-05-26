@@ -7,7 +7,6 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 import gov.va.api.health.r4.api.datatypes.CodeableConcept;
 import gov.va.api.health.r4.api.datatypes.Coding;
 import gov.va.api.health.r4.api.resources.Appointment;
-import gov.va.api.health.r4.api.resources.Appointment.AppointmentStatus;
 import gov.va.api.lighthouse.datamart.CompositeCdwId;
 import gov.va.api.lighthouse.datamart.DatamartReference;
 import java.time.Duration;
@@ -36,21 +35,22 @@ public class R4AppointmentTransformerTest {
   }
 
   static Stream<Arguments> status() {
-    Instant past = Instant.now().minus(Duration.ofDays(2));
-    Instant future = Instant.now().plus(Duration.ofDays(2));
-    String noShow = "NO SHOW";
-    String noShowAuto = "NO-SHOW & AUTO RE-BOOK";
-    String cancelPat = "CANCELLED BY PATIENT";
-    String cancelPatAuto = "CANCELLED BY PATIENT & AUTO-REBOOK";
-    String cancelClin = "CANCELLED BY CLINIC";
-    String cancelClinAuto = "CANCELLED BY CLINIC & AUTO RE-BOOK";
-    String inpatient = "INPATIENT APPOINTMENT";
-    String noAction = "NO ACTION TAKEN";
-    String badStatus = "WTF MAN?";
-    AppointmentStatus booked = Appointment.AppointmentStatus.booked;
-    AppointmentStatus fulfilled = Appointment.AppointmentStatus.fulfilled;
-    AppointmentStatus cancelled = Appointment.AppointmentStatus.cancelled;
-    AppointmentStatus noshow = Appointment.AppointmentStatus.noshow;
+    var now = Instant.now();
+    var past = now.minus(Duration.ofDays(2));
+    var future = now.plus(Duration.ofDays(2));
+    var noShow = "NO SHOW";
+    var noShowAuto = "NO-SHOW & AUTO RE-BOOK";
+    var cancelPat = "CANCELLED BY PATIENT";
+    var cancelPatAuto = "CANCELLED BY PATIENT & AUTO-REBOOK";
+    var cancelClin = "CANCELLED BY CLINIC";
+    var cancelClinAuto = "CANCELLED BY CLINIC & AUTO RE-BOOK";
+    var inpatient = "INPATIENT APPOINTMENT";
+    var noAction = "NO ACTION TAKEN";
+    var badStatus = "WTF MAN?";
+    var booked = Appointment.AppointmentStatus.booked;
+    var fulfilled = Appointment.AppointmentStatus.fulfilled;
+    var cancelled = Appointment.AppointmentStatus.cancelled;
+    var noshow = Appointment.AppointmentStatus.noshow;
     return Stream.of(
         arguments(null, null, null, booked),
         arguments(null, null, -1L, booked),
