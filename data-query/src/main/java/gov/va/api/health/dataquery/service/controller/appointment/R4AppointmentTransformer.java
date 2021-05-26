@@ -1,6 +1,5 @@
 package gov.va.api.health.dataquery.service.controller.appointment;
 
-import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
 import static gov.va.api.health.dataquery.service.controller.Transformers.asDateTimeString;
 import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
 
@@ -235,12 +234,6 @@ final class R4AppointmentTransformer {
     if (isWaitlist()) {
       return Appointment.AppointmentStatus.waitlist;
     }
-    if (allBlank(start, status)) {
-      return Appointment.AppointmentStatus.booked;
-    }
-    if (allBlank(status, visitSid) && !isBlank(start)) {
-      return Appointment.AppointmentStatus.booked;
-    }
     switch (status.orElse("NO ACTION TAKEN")) {
       case "NO SHOW":
       case "NO-SHOW & AUTO RE-BOOK":
@@ -254,7 +247,7 @@ final class R4AppointmentTransformer {
       case "NO ACTION TAKEN":
         return statusFromStartAndVisitSid(start, visitSid);
       default:
-        return null;
+        return Appointment.AppointmentStatus.booked;
     }
   }
 
