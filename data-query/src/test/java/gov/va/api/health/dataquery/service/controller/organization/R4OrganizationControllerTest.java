@@ -151,8 +151,7 @@ public class R4OrganizationControllerTest {
         "?_id=or1",
         "?identifier=or1",
         "?identifier=vha_123",
-        "?identifier=https://api.va.gov/services/"
-            + "fhir/v0/r4/NamingSystem/va-facility-identifier|vha_123",
+        "?identifier=https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-identifier|vha_123",
         "?identifier=https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-identifier|",
         "?name=NEW+AMSTERDAM+CBOC",
         "?address=10+MONROE+AVE,+SUITE+6B+PO+BOX+4160",
