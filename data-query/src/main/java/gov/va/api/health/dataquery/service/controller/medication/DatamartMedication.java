@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/** Java representation of the medication entity payload. */
 @Data
 @Builder
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -56,6 +57,7 @@ public class DatamartMedication implements HasReplaceableId {
     /* no op */
   }
 
+  /** Product. */
   @Data
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -67,6 +69,7 @@ public class DatamartMedication implements HasReplaceableId {
     private String formText;
   }
 
+  /** RxNorm. */
   @Data
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)

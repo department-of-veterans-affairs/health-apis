@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Optional;
 import lombok.Builder;
 
+/** Transform a datamart medication to a Dstu2 Fhir Medication. */
 @Builder
 public class Dstu2MedicationTransformer {
 

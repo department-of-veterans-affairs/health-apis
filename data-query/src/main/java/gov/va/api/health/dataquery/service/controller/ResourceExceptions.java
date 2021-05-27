@@ -70,7 +70,6 @@ public final class ResourceExceptions {
     }
   }
 
-
   /** Your parameter is bad and you should feel bad too. */
   public static final class BadSearchParameter extends ResourcesException {
     public BadSearchParameter(MultiValueMap<String, String> parameters) {
