@@ -2,6 +2,7 @@ package gov.va.api.health.dataquery.service.controller;
 
 import gov.va.api.lighthouse.datamart.CompositeCdwId;
 
+/** Utility for working with composite cdw ids. */
 public class CompositeCdwIds {
   /**
    * Attempt to convert a cdwId into a CompositeCdwId. If conversion fails, return a NotFound

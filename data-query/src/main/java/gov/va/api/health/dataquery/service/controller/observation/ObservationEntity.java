@@ -19,6 +19,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Sort;
 
+/** Java representation of a the app.Observation database table. */
 @Data
 @Entity
 @Builder

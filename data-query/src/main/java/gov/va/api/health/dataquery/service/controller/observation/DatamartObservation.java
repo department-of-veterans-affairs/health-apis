@@ -15,6 +15,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/** Model for the Datamart Observation json payload. */
 @Data
 @Builder
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -174,6 +175,7 @@ public class DatamartObservation implements HasReplaceableId {
     return vitalsComponents;
   }
 
+  /** Category. */
   public enum Category {
     @JsonProperty("social-history")
     social_history,
@@ -187,6 +189,7 @@ public class DatamartObservation implements HasReplaceableId {
     therapy
   }
 
+  /** Status. */
   public enum Status {
     registered,
     preliminary,
@@ -199,6 +202,7 @@ public class DatamartObservation implements HasReplaceableId {
     unknown
   }
 
+  /** Antibiotic Component. */
   @Data
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -233,6 +237,7 @@ public class DatamartObservation implements HasReplaceableId {
     }
   }
 
+  /** Bacteriology Component. */
   @Data
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -271,6 +276,7 @@ public class DatamartObservation implements HasReplaceableId {
     }
   }
 
+  /** Codeable Concept. */
   @Data
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -310,6 +316,7 @@ public class DatamartObservation implements HasReplaceableId {
     }
   }
 
+  /** Quantity. */
   @Data
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -332,6 +339,7 @@ public class DatamartObservation implements HasReplaceableId {
     }
   }
 
+  /** Reference Range. */
   @Data
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -358,6 +366,7 @@ public class DatamartObservation implements HasReplaceableId {
     }
   }
 
+  /** Text. */
   @Data
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -366,6 +375,7 @@ public class DatamartObservation implements HasReplaceableId {
     private String text;
   }
 
+  /** Vitals component. */
   @Data
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)

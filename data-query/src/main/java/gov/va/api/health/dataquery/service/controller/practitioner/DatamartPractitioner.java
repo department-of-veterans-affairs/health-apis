@@ -81,14 +81,22 @@ public class DatamartPractitioner implements HasReplaceableId {
     return telecom;
   }
 
+<<<<<<< Updated upstream
   /** Gender. */
+=======
+  /** Practitioner's gender. */
+>>>>>>> Stashed changes
   public enum Gender {
     male,
     female,
     unknown
   }
 
+<<<<<<< Updated upstream
   /** Address. */
+=======
+  /** Practitioner's address. */
+>>>>>>> Stashed changes
   @Data
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -109,7 +117,11 @@ public class DatamartPractitioner implements HasReplaceableId {
     private String postalCode;
   }
 
+<<<<<<< Updated upstream
   /** Name. */
+=======
+  /** Practitioner's name. */
+>>>>>>> Stashed changes
   @Data
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -140,7 +152,11 @@ public class DatamartPractitioner implements HasReplaceableId {
     }
   }
 
+<<<<<<< Updated upstream
   /** Practitioner Role (which is an independent R4 resource). */
+=======
+  /** Practitioner's role. */
+>>>>>>> Stashed changes
   @Data
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -206,7 +222,11 @@ public class DatamartPractitioner implements HasReplaceableId {
       return specialty;
     }
 
+<<<<<<< Updated upstream
     /** Period. */
+=======
+    /** Period of time. */
+>>>>>>> Stashed changes
     @Data
     @Builder
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -233,7 +253,11 @@ public class DatamartPractitioner implements HasReplaceableId {
       }
     }
 
+<<<<<<< Updated upstream
     /** Specialty. */
+=======
+    /** Practitioner's specialty. */
+>>>>>>> Stashed changes
     @Data
     @Builder
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -301,7 +325,11 @@ public class DatamartPractitioner implements HasReplaceableId {
     }
   }
 
+<<<<<<< Updated upstream
   /** Telecom. */
+=======
+  /** Practitioner's contact information. */
+>>>>>>> Stashed changes
   @Data
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
