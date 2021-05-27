@@ -132,6 +132,7 @@ public interface Dstu2DataQueryService
     }
   }
 
+  /** Indicates a search failed. */
   class SearchFailed extends DataQueryServiceException {
     @SuppressWarnings("WeakerAccess")
     public SearchFailed(String id, String reason) {

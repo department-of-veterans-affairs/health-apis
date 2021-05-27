@@ -4,7 +4,7 @@
   <parent>
     <groupId>gov.va.api.health</groupId>
     <artifactId>health-apis-parent</artifactId>
-    <version>8.0.0-SNAPSHOT</version>
+    <version>8.0.7</version>
   </parent>
   <artifactId>data-query-parent</artifactId>
   <version>3.0.183-SNAPSHOT</version>

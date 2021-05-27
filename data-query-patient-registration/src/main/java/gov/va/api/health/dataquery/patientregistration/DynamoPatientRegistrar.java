@@ -20,6 +20,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 
+/** Performs patient registration by adding or updating entries in Dynamo. */
 @Service
 @ConditionalOnProperty(value = "dynamo-patient-registrar.enabled", havingValue = "true")
 @Slf4j
@@ -37,9 +38,9 @@ public class DynamoPatientRegistrar implements PatientRegistrar {
                 new AwsClientBuilder.EndpointConfiguration(
                     options.getEndpoint(), options.getRegion()))
             .build();
-    DynamoDB dynamoDB = new DynamoDB(client);
+    DynamoDB db = new DynamoDB(client);
 
-    table = dynamoDB.getTable(options.getTable());
+    table = db.getTable(options.getTable());
 
     this.options = options;
     log.info("Configuration: {}", options);
@@ -80,6 +81,7 @@ public class DynamoPatientRegistrar implements PatientRegistrar {
     return s.replace('\n', '_').replace('\r', '_');
   }
 
+  /** Constants for Dynamo schema. */
   public static class Schema {
 
     public static final String FIRST_ACCESS_TIME = "firstAccessTime";

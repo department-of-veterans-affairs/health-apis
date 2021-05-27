@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/** Configuration for IDS code books. */
 @Configuration
 public class IdsConfiguration {
   @Bean

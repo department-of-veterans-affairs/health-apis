@@ -28,6 +28,7 @@ public interface PageLinks {
   /** Provides direct read link for a given id, e.g. /api/stu3/Patient/123. */
   String stu3ReadLink(String resourcePath, String id);
 
+  /** Configuration details. */
   @Value
   @Builder
   final class LinkConfig {

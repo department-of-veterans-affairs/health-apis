@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.AsyncResult;
 
+/** A patient registrar that does nothing and returns a precomputed registration. */
 @Configuration
 public class NoopPatientRegistrarConfig {
 
@@ -16,6 +17,7 @@ public class NoopPatientRegistrarConfig {
     return new NoopPatientRegistrar();
   }
 
+  /** A patient registrar that does nothing. */
   public static class NoopPatientRegistrar implements PatientRegistrar {
     @Override
     public CompletableFuture<PatientRegistration> register(String icn) {
