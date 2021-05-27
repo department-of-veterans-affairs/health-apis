@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import lombok.Builder;
 
+/** Convert from datamart to DSTU2. */
 @Builder
 public class Dstu2ImmunizationTransformer {
 
