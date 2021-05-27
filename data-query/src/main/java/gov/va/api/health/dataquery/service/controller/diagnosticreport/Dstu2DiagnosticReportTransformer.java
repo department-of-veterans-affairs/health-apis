@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.NonNull;
 
+/** Transform a datamart diagnostic report to a dstu2 fhir diagnostic report. */
 @Builder
 public class Dstu2DiagnosticReportTransformer {
   @NonNull final DatamartDiagnosticReport datamart;

@@ -11,6 +11,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/** Java representation of the diagnostic report entity payload. */
 @Data
 @Builder
 @NoArgsConstructor(access = AccessLevel.PRIVATE)

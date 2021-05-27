@@ -24,6 +24,7 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+/** Interact with the database and retrieve diagnostic report entities. */
 @Loggable
 @Transactional(isolation = Isolation.READ_UNCOMMITTED)
 public interface DiagnosticReportRepository
@@ -31,6 +32,7 @@ public interface DiagnosticReportRepository
         JpaSpecificationExecutor<DiagnosticReportEntity> {
   Page<DiagnosticReportEntity> findByIcn(String icn, Pageable pageable);
 
+  /** Search by date. */
   @Value
   @AllArgsConstructor(staticName = "of")
   class DateSpecification implements Specification<DiagnosticReportEntity> {
@@ -57,6 +59,7 @@ public interface DiagnosticReportRepository
     }
   }
 
+  /** Search by patient-icn, category, and date. */
   @Value
   class PatientAndCategoryAndDateSpecification implements Specification<DiagnosticReportEntity> {
     String patient;
@@ -102,6 +105,7 @@ public interface DiagnosticReportRepository
     }
   }
 
+  /** Search by patient-icn, code, and date. */
   @Value
   class PatientAndCodeAndDateSpecification implements Specification<DiagnosticReportEntity> {
     String patient;

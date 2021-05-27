@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.NonNull;
 
+/** Transform a datamart diagnostic report to an r4 fhir diagnostic report. */
 @Builder
 public class R4DiagnosticReportTransformer {
   @NonNull final DatamartDiagnosticReport datamart;

@@ -35,6 +35,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * Request Mappings for Diagnostic Report Profile.
+ *
+ * @implSpec http://hl7.org/fhir/us/core/StructureDefinition/us-core-diagnosticreport-lab
+ */
 @Validated
 @RestController
 @SuppressWarnings("WeakerAccess")
