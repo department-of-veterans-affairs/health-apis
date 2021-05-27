@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 import lombok.Builder;
 import org.apache.commons.lang3.BooleanUtils;
 
+/** Convert from Datamart to DSTU2. */
 @Builder
 public class Dstu2PractitionerTransformer {
 

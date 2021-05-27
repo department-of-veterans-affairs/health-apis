@@ -16,6 +16,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.Builder;
 
+/** Convert from datamart from R4. */
 @Builder
 public class R4PractitionerTransformer {
   private final DatamartPractitioner datamart;

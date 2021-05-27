@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 import lombok.Builder;
 import org.apache.commons.lang3.BooleanUtils;
 
+/** Convert from datamart to STU3. */
 @Builder
 public class Stu3PractitionerTransformer {
   private final DatamartPractitioner datamart;

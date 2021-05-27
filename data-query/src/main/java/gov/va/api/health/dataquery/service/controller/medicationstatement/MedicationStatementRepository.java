@@ -23,6 +23,7 @@ public interface MedicationStatementRepository
         JpaSpecificationExecutor<MedicationStatementEntity> {
   Page<MedicationStatementEntity> findByIcn(String icn, Pageable pageable);
 
+  /** Query specifiation for search by ICN. */
   @RequiredArgsConstructor(staticName = "of")
   @Value
   class PatientSpecification implements Specification<MedicationStatementEntity> {
