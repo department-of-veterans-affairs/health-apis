@@ -10,6 +10,7 @@ import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.Value;
 
+/** Avoid usage. Use Vulcan instead.  */
 @Value
 @Builder
 public class TokenParameter {
@@ -106,6 +107,7 @@ public class TokenParameter {
     return hasExplicitSystem() && hasSupportedSystem(systems);
   }
 
+  /** Avoid usage. */
   public enum Mode {
     /** e.g. cool */
     ANY_SYSTEM_EXPLICIT_CODE,
@@ -117,6 +119,7 @@ public class TokenParameter {
     NO_SYSTEM_EXPLICIT_CODE
   }
 
+  /** Avoid usage. */
   @Value
   @Builder
   public static class Behavior<T> {
@@ -157,6 +160,7 @@ public class TokenParameter {
     }
   }
 
+  /** Avoid usage. */
   public final class BehaviorStemCell {
     public <T> Behavior.BehaviorBuilder<T> onAnySystemAndExplicitCode(Function<String, T> f) {
       return Behavior.<T>builder().token(TokenParameter.this).onAnySystemAndExplicitCode(f);

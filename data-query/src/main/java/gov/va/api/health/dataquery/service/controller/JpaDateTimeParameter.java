@@ -8,6 +8,7 @@ import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Predicate;
 import lombok.Value;
 
+/** Avoid usage. Use Vulcan instead. Support parsing FHIR date time parameters. */
 @Value
 public class JpaDateTimeParameter implements Serializable {
   private FhirDateTimeParameter parameter;
