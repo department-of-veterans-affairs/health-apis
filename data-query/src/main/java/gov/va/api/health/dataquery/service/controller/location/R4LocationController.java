@@ -55,6 +55,25 @@ public class R4LocationController {
 
   private WitnessProtection witnessProtection;
 
+  private Specification<LocationEntity> clinicIdSpec(String maybeClinicId) {
+    try {
+      if (!maybeClinicId.contains("_")) {
+        return null;
+      }
+      var facilityId = FacilityId.from(maybeClinicId.substring(0, maybeClinicId.lastIndexOf("_")));
+      var locationIen = maybeClinicId.substring(maybeClinicId.lastIndexOf("_") + 1);
+      Specification<LocationEntity> spec =
+          Specifications.<LocationEntity>select("facilityType", facilityId.type().toString())
+              .and(select("stationNumber", facilityId.stationNumber()));
+      if (spec == null) {
+        return null;
+      }
+      return spec.and(select("locationIen", locationIen));
+    } catch (IllegalArgumentException e) {
+      return null;
+    }
+  }
+
   private VulcanConfiguration<LocationEntity> configuration() {
     return VulcanConfiguration.forEntity(LocationEntity.class)
         .paging(linkProperties.pagingConfiguration("Location", LocationEntity.naturalOrder()))
@@ -113,25 +132,6 @@ public class R4LocationController {
         .map(toBundle());
   }
 
-  private Specification<LocationEntity> selectClinicId(String maybeClinicId) {
-    try {
-      if (!maybeClinicId.contains("_")) {
-        return null;
-      }
-      var facilityId = FacilityId.from(maybeClinicId.substring(0, maybeClinicId.lastIndexOf("_")));
-      var locationIen = maybeClinicId.substring(maybeClinicId.lastIndexOf("_") + 1);
-      Specification<LocationEntity> spec =
-          Specifications.<LocationEntity>select("facilityType", facilityId.type().toString())
-              .and(select("stationNumber", facilityId.stationNumber()));
-      if (spec == null) {
-        return null;
-      }
-      return spec.and(select("locationIen", locationIen));
-    } catch (IllegalArgumentException e) {
-      return null;
-    }
-  }
-
   VulcanizedBundler<LocationEntity, DatamartLocation, Location, Location.Entry, Location.Bundle>
       toBundle() {
     return VulcanizedBundler.forTransformation(transformation())
@@ -151,6 +151,15 @@ public class R4LocationController {
   private Specification<LocationEntity> tokenIdentifierSpecification(TokenParameter token) {
     return token
         .behavior()
+        .onAnySystemAndExplicitCode(
+            code ->
+                Specifications.<LocationEntity>select("cdwId", witnessProtection.toCdwId(code))
+                    .or(clinicIdSpec(code)))
+        .onExplicitSystemAndAnyCode(
+            SystemIdFields.forEntity(LocationEntity.class)
+                .parameterName("identifier")
+                .add(FacilityTransformers.FAPI_CLINIC_IDENTIFIER_SYSTEM, "stationNumber")
+                .matchSystemOnly())
         .onExplicitSystemAndExplicitCode(
             SystemIdFields.forEntity(LocationEntity.class)
                 .parameterName("identifier")
@@ -158,7 +167,7 @@ public class R4LocationController {
                     FacilityTransformers.FAPI_CLINIC_IDENTIFIER_SYSTEM,
                     "stationNumber",
                     (system, code) -> {
-                      var clinicIdSpec = selectClinicId(code);
+                      var clinicIdSpec = clinicIdSpec(code);
                       if (clinicIdSpec == null) {
                         throw CircuitBreaker.noResultsWillBeFound(
                             "identifier", code, "Invalid clinicId");
@@ -166,15 +175,6 @@ public class R4LocationController {
                       return clinicIdSpec;
                     })
                 .matchSystemAndCode())
-        .onExplicitSystemAndAnyCode(
-            SystemIdFields.forEntity(LocationEntity.class)
-                .parameterName("identifier")
-                .add(FacilityTransformers.FAPI_CLINIC_IDENTIFIER_SYSTEM, "stationNumber")
-                .matchSystemOnly())
-        .onAnySystemAndExplicitCode(
-            code ->
-                Specifications.<LocationEntity>select("cdwId", witnessProtection.toCdwId(code))
-                    .or(selectClinicId(code)))
         .build()
         .execute();
   }

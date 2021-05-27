@@ -73,6 +73,16 @@ public class R4OrganizationController {
         .build();
   }
 
+  private Specification<OrganizationEntity> facilityIdSpec(String maybeFacilityId) {
+    try {
+      var facilityId = FacilityId.from(maybeFacilityId);
+      return Specifications.<OrganizationEntity>select("facilityType", facilityId.type().toString())
+          .and(select("stationNumber", facilityId.stationNumber()));
+    } catch (IllegalArgumentException e) {
+      return null;
+    }
+  }
+
   /** Read Support. */
   @GetMapping(value = "/{publicId}")
   public Organization read(@PathVariable("publicId") String publicId) {
@@ -106,16 +116,6 @@ public class R4OrganizationController {
         .build()
         .search(request)
         .map(toBundle());
-  }
-
-  private Specification<OrganizationEntity> selectFacilityId(String maybeFacilityId) {
-    try {
-      var facilityId = FacilityId.from(maybeFacilityId);
-      return Specifications.<OrganizationEntity>select("facilityType", facilityId.type().toString())
-          .and(select("stationNumber", facilityId.stationNumber()));
-    } catch (IllegalArgumentException e) {
-      return null;
-    }
   }
 
   VulcanizedBundler<
@@ -153,6 +153,10 @@ public class R4OrganizationController {
   private Specification<OrganizationEntity> tokenIdentifierSpecification(TokenParameter token) {
     return token
         .behavior()
+        .onAnySystemAndExplicitCode(
+            code ->
+                Specifications.<OrganizationEntity>select("cdwId", witnessProtection.toCdwId(code))
+                    .or(facilityIdSpec(code)))
         .onExplicitSystemAndAnyCode(
             SystemIdFields.forEntity(OrganizationEntity.class)
                 .parameterName("identifier")
@@ -166,14 +170,10 @@ public class R4OrganizationController {
                     FacilityTransformers.FAPI_IDENTIFIER_SYSTEM,
                     "stationNumber",
                     (system, code) -> {
-                      return selectFacilityId(code);
+                      return facilityIdSpec(code);
                     })
                 .add("http://hl7.org/fhir/sid/us-npi", "npi")
                 .matchSystemAndCode())
-        .onAnySystemAndExplicitCode(
-            code ->
-                Specifications.<OrganizationEntity>select("cdwId", witnessProtection.toCdwId(code))
-                    .or(selectFacilityId(code)))
         .build()
         .execute();
   }
