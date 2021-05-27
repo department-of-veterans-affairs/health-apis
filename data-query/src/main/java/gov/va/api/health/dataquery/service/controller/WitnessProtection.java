@@ -77,7 +77,7 @@ public class WitnessProtection extends IdentitySubstitution<DatamartReference> {
   public String toCdwId(String publicId) {
     try {
       return privateIdOf("CDW", publicId).orElse(publicId);
-    } catch (IdEncoder.BadId whatever) {
+    } catch (IllegalArgumentException | IdEncoder.BadId whatever) {
       return publicId;
     }
   }
