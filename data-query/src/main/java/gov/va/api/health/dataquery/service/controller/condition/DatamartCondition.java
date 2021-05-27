@@ -119,7 +119,7 @@ public class DatamartCondition implements HasReplaceableId {
     return snomed;
   }
 
-  /** status.*/
+  /** status. */
   public enum ClinicalStatus {
     active,
     resolved
