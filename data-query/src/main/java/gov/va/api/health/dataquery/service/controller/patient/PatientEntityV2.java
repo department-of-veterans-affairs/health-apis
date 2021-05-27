@@ -19,6 +19,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Sort;
 
+/** Datamart patient model for version 2. Version 1 has been dropped. */
 @Data
 @Entity
 @Builder

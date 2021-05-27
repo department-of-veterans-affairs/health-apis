@@ -17,6 +17,7 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+/** Patient DB for version 2. Version 1 has been dropped. */
 @Loggable
 @Transactional(isolation = Isolation.READ_UNCOMMITTED)
 public interface PatientRepositoryV2
@@ -43,6 +44,7 @@ public interface PatientRepositoryV2
 
   Page<PatientEntityV2> findByLastNameAndGender(String lastName, String gender, Pageable pageable);
 
+  /** Query specification for search by name and birthdate. */
   @Value
   class NameAndBirthdateSpecification implements Specification<PatientEntityV2> {
     String name;
@@ -75,6 +77,7 @@ public interface PatientRepositoryV2
     }
   }
 
+  /** Query specification for search by birthdat and family name. */
   @Value
   class BirthdateAndFamilySpecification implements Specification<PatientEntityV2> {
     JpaDateTimeParameter date1;

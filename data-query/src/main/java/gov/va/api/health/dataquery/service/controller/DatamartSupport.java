@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import lombok.experimental.UtilityClass;
 
+/** Support methods for working with Datamart objects. */
 @UtilityClass
 public class DatamartSupport {
 
