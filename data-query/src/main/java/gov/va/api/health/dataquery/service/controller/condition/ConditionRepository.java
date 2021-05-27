@@ -20,6 +20,7 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+/** Condition DB. */
 @Loggable
 @Transactional(isolation = Isolation.READ_UNCOMMITTED)
 public interface ConditionRepository
@@ -33,6 +34,7 @@ public interface ConditionRepository
   Page<ConditionEntity> findByIcnAndClinicalStatusIn(
       String icn, Set<String> clinicalStatus, Pageable pageable);
 
+  /** Query specification for search by category and/or code. */
   @RequiredArgsConstructor(staticName = "of")
   @Value
   class CategoryCodeSpecification implements Specification<ConditionEntity> {
@@ -47,6 +49,7 @@ public interface ConditionRepository
     }
   }
 
+  /** Query specification for search by status. */
   @RequiredArgsConstructor(staticName = "of")
   @Value
   class ClinicalStatusSpecification implements Specification<ConditionEntity> {
@@ -63,6 +66,7 @@ public interface ConditionRepository
     }
   }
 
+  /** Query specification for search by category. */
   @RequiredArgsConstructor(staticName = "of")
   @Value
   class ExplicitCategorySystemSpecification implements Specification<ConditionEntity> {
@@ -79,6 +83,7 @@ public interface ConditionRepository
     }
   }
 
+  /** Query specification for search by patient. */
   @Value
   @RequiredArgsConstructor(staticName = "of")
   class PatientSpecification implements Specification<ConditionEntity> {

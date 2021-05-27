@@ -13,6 +13,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/** Datamart condition JSON model. */
 @Data
 @Builder
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -118,16 +119,19 @@ public class DatamartCondition implements HasReplaceableId {
     return snomed;
   }
 
+  /** status.*/
   public enum ClinicalStatus {
     active,
     resolved
   }
 
+  /** category. */
   public enum Category {
     diagnosis,
     problem
   }
 
+  /** ICD 9/10 code. */
   @Data
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -146,6 +150,7 @@ public class DatamartCondition implements HasReplaceableId {
     }
   }
 
+  /** SNOMED code. */
   @Data
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
