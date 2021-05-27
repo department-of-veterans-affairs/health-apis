@@ -13,6 +13,7 @@ import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedBundl
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedReader;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedTransformation;
 import gov.va.api.health.r4.api.resources.Organization;
+import gov.va.api.lighthouse.vulcan.CircuitBreaker;
 import gov.va.api.lighthouse.vulcan.Specifications;
 import gov.va.api.lighthouse.vulcan.SystemIdFields;
 import gov.va.api.lighthouse.vulcan.Vulcan;
@@ -170,7 +171,12 @@ public class R4OrganizationController {
                     FacilityTransformers.FAPI_IDENTIFIER_SYSTEM,
                     "stationNumber",
                     (system, code) -> {
-                      return facilityIdSpec(code);
+                      var facilityIdSpec = facilityIdSpec(code);
+                      if (facilityIdSpec == null) {
+                        throw CircuitBreaker.noResultsWillBeFound(
+                            "identifier", code, "Invalid facilityId.");
+                      }
+                      return facilityIdSpec;
                     })
                 .add("http://hl7.org/fhir/sid/us-npi", "npi")
                 .matchSystemAndCode())
