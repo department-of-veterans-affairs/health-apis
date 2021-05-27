@@ -145,20 +145,27 @@ public class R4LocationController {
 
   private boolean tokenIdentifierIsSupported(TokenParameter token) {
     return token.hasSupportedSystem(FacilityTransformers.FAPI_CLINIC_IDENTIFIER_SYSTEM)
-        || (token.hasAnySystem() && token.hasExplicitCode());
+        || token.hasAnySystem();
   }
 
   private Specification<LocationEntity> tokenIdentifierSpecification(TokenParameter token) {
     return token
         .behavior()
         .onExplicitSystemAndExplicitCode(
-            (system, code) -> {
-              var clinicIdSpec = selectClinicId(code);
-              if (clinicIdSpec == null) {
-                throw CircuitBreaker.noResultsWillBeFound("identifier", code, "Invalid clinicId");
-              }
-              return clinicIdSpec;
-            })
+            SystemIdFields.forEntity(LocationEntity.class)
+                .parameterName("identifier")
+                .addWithCustomSystemAndCodeHandler(
+                    FacilityTransformers.FAPI_CLINIC_IDENTIFIER_SYSTEM,
+                    "stationNumber",
+                    (system, code) -> {
+                      var clinicIdSpec = selectClinicId(code);
+                      if (clinicIdSpec == null) {
+                        throw CircuitBreaker.noResultsWillBeFound(
+                            "identifier", code, "Invalid clinicId");
+                      }
+                      return clinicIdSpec;
+                    })
+                .matchSystemAndCode())
         .onExplicitSystemAndAnyCode(
             SystemIdFields.forEntity(LocationEntity.class)
                 .parameterName("identifier")
