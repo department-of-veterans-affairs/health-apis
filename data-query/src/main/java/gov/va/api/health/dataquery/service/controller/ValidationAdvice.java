@@ -15,6 +15,7 @@ import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
+/** Validate the response before responding to the requester. */
 @Slf4j
 @ControllerAdvice
 public final class ValidationAdvice implements ResponseBodyAdvice<Object> {

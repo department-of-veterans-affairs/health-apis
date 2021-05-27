@@ -10,7 +10,7 @@ import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.Value;
 
-/** Avoid usage. Use Vulcan instead.  */
+/** Avoid usage. Use Vulcan instead. */
 @Value
 @Builder
 public class TokenParameter {

@@ -145,7 +145,6 @@ public class DatamartImmunization implements HasReplaceableId {
     }
   }
 
-
   /** VaccineCode. */
   @Data
   @Builder
