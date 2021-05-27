@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
+/** Basic metadata for bulk FHIR. */
 @Data
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)

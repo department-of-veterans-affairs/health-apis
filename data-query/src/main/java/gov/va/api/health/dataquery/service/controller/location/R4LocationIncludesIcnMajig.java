@@ -8,6 +8,7 @@ import lombok.experimental.Delegate;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
+/** same. */
 @ControllerAdvice
 public class R4LocationIncludesIcnMajig implements ResponseBodyAdvice<Object> {
   @Delegate

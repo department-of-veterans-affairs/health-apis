@@ -6,6 +6,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 
+/** Find an enum based on name or JSON property name. */
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class EnumSearcher<T extends Enum<T>> {
   private final Class<T> desiredType;

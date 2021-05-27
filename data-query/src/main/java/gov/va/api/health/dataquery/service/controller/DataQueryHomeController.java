@@ -12,6 +12,7 @@ import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+/** The toplevel root path controller for the API. */
 @SuppressWarnings("WeakerAccess")
 @Controller
 public class DataQueryHomeController {
