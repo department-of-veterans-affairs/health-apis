@@ -54,11 +54,7 @@ public class R4OrganizationControllerTest {
   }
 
   @ParameterizedTest
-  @ValueSource(
-      strings = {
-        "?identifier=https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-identifier|",
-        "?identifier=|vha_123"
-      })
+  @ValueSource(strings = {"?identifier=|vha_123"})
   void emptyBundle(String query) {
     var url = "http://fonzy.com/r4/Organization" + query;
     var request = requestFromUri(url);
@@ -155,8 +151,8 @@ public class R4OrganizationControllerTest {
         "?_id=or1",
         "?identifier=or1",
         "?identifier=vha_123",
-        "?identifier=https://api.va.gov/services/"
-            + "fhir/v0/r4/NamingSystem/va-facility-identifier|vha_123",
+        "?identifier=https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-identifier|vha_123",
+        "?identifier=https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-identifier|",
         "?name=NEW+AMSTERDAM+CBOC",
         "?address=10+MONROE+AVE,+SUITE+6B+PO+BOX+4160",
         "?address-city=NEW+AMSTERDAM",
