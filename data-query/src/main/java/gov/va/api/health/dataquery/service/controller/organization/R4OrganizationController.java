@@ -144,10 +144,8 @@ public class R4OrganizationController {
    * <p>https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-identifier|vha_123
    */
   private boolean tokenIdentifierIsSupported(TokenParameter token) {
-    return (token.hasSupportedSystem(FacilityTransformers.FAPI_IDENTIFIER_SYSTEM)
-            && token.hasExplicitCode())
-        || (token.hasSupportedSystem(FacilityTransformers.FAPI_IDENTIFIER_SYSTEM)
-            && token.hasAnyCode())
+    return token.hasSupportedSystem(
+            FacilityTransformers.FAPI_IDENTIFIER_SYSTEM, "http://hl7.org/fhir/sid/us-npi")
         || token.hasAnySystem();
   }
 
