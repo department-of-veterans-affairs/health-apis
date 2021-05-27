@@ -39,7 +39,7 @@ public class MetadataProperties {
     PATIENT
   }
 
-  /** Support Contact.*/
+  /** Support Contact. */
   @Data
   @Accessors(fluent = false)
   @NoArgsConstructor
