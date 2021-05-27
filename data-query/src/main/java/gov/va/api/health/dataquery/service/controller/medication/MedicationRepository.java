@@ -5,6 +5,7 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+/** Interact with the database and retrieve MedicationEntities. */
 @Loggable
 @Transactional(isolation = Isolation.READ_UNCOMMITTED)
 public interface MedicationRepository
