@@ -15,6 +15,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.Sort;
 
+/** Configuration public URLS. */
 @Configuration
 @EnableConfigurationProperties
 @ConfigurationProperties("data-query")
@@ -51,6 +52,7 @@ public class LinkProperties {
     return new Links<Resource>(publicUrl, publicR4BasePath);
   }
 
+  /** Generate links for a specific base URL. */
   @Accessors(fluent = true)
   public static class Links<ResourceT> {
 

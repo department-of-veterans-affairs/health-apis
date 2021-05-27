@@ -15,6 +15,7 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+/** Medication Order DB*/
 @Loggable
 @Transactional(isolation = Isolation.READ_UNCOMMITTED)
 public interface MedicationOrderRepository
@@ -22,6 +23,7 @@ public interface MedicationOrderRepository
         JpaSpecificationExecutor<MedicationOrderEntity> {
   Page<MedicationOrderEntity> findByIcn(String icn, Pageable pageable);
 
+  /** Query specification for searching by patient. */
   @RequiredArgsConstructor(staticName = "of")
   @Value
   class PatientSpecification implements Specification<MedicationOrderEntity> {

@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/** Provides the ETL status health check endpoint. */
 @Slf4j
 @RestController
 @AllArgsConstructor(onConstructor_ = @Autowired)

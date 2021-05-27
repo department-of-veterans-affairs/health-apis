@@ -12,6 +12,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+/** The DB model for ETL status. */
 @Data
 @Entity
 @Builder

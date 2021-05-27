@@ -19,6 +19,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Sort;
 
+/** Datamart organization entity model. */
 @Data
 @Entity
 @Builder

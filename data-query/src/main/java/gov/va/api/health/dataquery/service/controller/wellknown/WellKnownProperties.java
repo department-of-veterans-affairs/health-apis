@@ -10,6 +10,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
+/** Configuration for OAuth .well-known/smart-configuration endpoints. */
 @Configuration
 @EnableConfigurationProperties
 @ConfigurationProperties("well-known")

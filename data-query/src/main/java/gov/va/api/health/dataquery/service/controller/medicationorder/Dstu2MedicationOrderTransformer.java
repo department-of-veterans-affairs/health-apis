@@ -22,6 +22,7 @@ import lombok.Builder;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
+/** Convert Datamart model to DSTU2. */
 @Builder
 @Slf4j
 public class Dstu2MedicationOrderTransformer {

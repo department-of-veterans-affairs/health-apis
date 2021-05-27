@@ -7,6 +7,7 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+/** Appointment DB. */
 @Loggable
 @Transactional(isolation = Isolation.READ_UNCOMMITTED)
 public interface AppointmentRepository

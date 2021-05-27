@@ -15,6 +15,7 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+/** MedicationStatement DB. */
 @Loggable
 @Transactional(isolation = Isolation.READ_UNCOMMITTED)
 public interface MedicationStatementRepository
