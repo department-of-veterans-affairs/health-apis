@@ -8,6 +8,7 @@ import gov.va.api.health.r4.api.datatypes.Identifier;
 import java.util.List;
 import lombok.experimental.UtilityClass;
 
+/** Utility class for interacting with Facilities API ids. */
 @UtilityClass
 public class FacilityTransformers {
   public static final String FAPI_IDENTIFIER_SYSTEM =

@@ -206,7 +206,7 @@ public class DatamartPractitioner implements HasReplaceableId {
       return specialty;
     }
 
-    /** Period. */
+    /** Period of time. */
     @Data
     @Builder
     @NoArgsConstructor(access = AccessLevel.PRIVATE)

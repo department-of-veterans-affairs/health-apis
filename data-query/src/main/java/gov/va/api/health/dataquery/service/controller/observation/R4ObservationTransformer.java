@@ -32,6 +32,7 @@ import lombok.Builder;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
+/** Transform a Datamart Observation to a R4 Fhir Observation. */
 @Slf4j
 @Builder
 public class R4ObservationTransformer {

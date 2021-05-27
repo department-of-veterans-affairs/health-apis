@@ -23,6 +23,7 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+/** Interact with the database and retrieve Observation entities. */
 @Loggable
 @Transactional(isolation = Isolation.READ_UNCOMMITTED)
 public interface ObservationRepository
@@ -79,6 +80,7 @@ public interface ObservationRepository
     }
   }
 
+  /** Search by patient-icn, observation category, and date. */
   @Value
   class PatientAndCategoryAndDateSpecification implements Specification<ObservationEntity> {
     String patient;
@@ -116,6 +118,7 @@ public interface ObservationRepository
     }
   }
 
+  /** Search by patient-icn, observation code, and date. */
   @Value
   class PatientAndCodeAndDateSpecification implements Specification<ObservationEntity> {
     String patient;
@@ -153,6 +156,7 @@ public interface ObservationRepository
     }
   }
 
+  /** Perform a search by patient-icn and date. */
   @Value
   class PatientAndDateSpecification implements Specification<ObservationEntity> {
 
