@@ -31,6 +31,7 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
+/** Transform a datamart medication order to an r4 fhir medication request. */
 @Builder
 @Slf4j
 public class R4MedicationRequestFromMedicationOrderTransformer {

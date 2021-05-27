@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.function.Function;
 import org.springframework.util.MultiValueMap;
 
+/** Utilities for working with r4 controllers. */
 public class R4Controllers {
 
   /** Perform a search by ID using a resources "read" function. */
@@ -35,6 +36,7 @@ public class R4Controllers {
     return toBundle.bundle(parameters, entries, numberOfEntries);
   }
 
+  /** Defines an interface for bundling resources. */
   @FunctionalInterface
   public interface BundleBuilder<
       R extends Resource, E extends AbstractEntry<R>, B extends AbstractBundle<E>> {
