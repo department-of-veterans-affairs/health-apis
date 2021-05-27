@@ -15,6 +15,7 @@ import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedTrans
 import gov.va.api.health.r4.api.resources.Organization;
 import gov.va.api.lighthouse.vulcan.CircuitBreaker;
 import gov.va.api.lighthouse.vulcan.Specifications;
+import gov.va.api.lighthouse.vulcan.SystemIdFields;
 import gov.va.api.lighthouse.vulcan.Vulcan;
 import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
 import gov.va.api.lighthouse.vulcan.mappings.Mappings;
@@ -73,6 +74,16 @@ public class R4OrganizationController {
         .build();
   }
 
+  private Specification<OrganizationEntity> facilityIdSpec(String maybeFacilityId) {
+    try {
+      var facilityId = FacilityId.from(maybeFacilityId);
+      return Specifications.<OrganizationEntity>select("facilityType", facilityId.type().toString())
+          .and(select("stationNumber", facilityId.stationNumber()));
+    } catch (IllegalArgumentException e) {
+      return null;
+    }
+  }
+
   /** Read Support. */
   @GetMapping(value = "/{publicId}")
   public Organization read(@PathVariable("publicId") String publicId) {
@@ -108,16 +119,6 @@ public class R4OrganizationController {
         .map(toBundle());
   }
 
-  private Specification<OrganizationEntity> selectFacilityId(String maybeFacilityId) {
-    try {
-      var facilityId = FacilityId.from(maybeFacilityId);
-      return Specifications.<OrganizationEntity>select("facilityType", facilityId.type().toString())
-          .and(select("stationNumber", facilityId.stationNumber()));
-    } catch (IllegalArgumentException e) {
-      return null;
-    }
-  }
-
   VulcanizedBundler<
           OrganizationEntity,
           DatamartOrganization,
@@ -144,8 +145,8 @@ public class R4OrganizationController {
    * <p>https://api.va.gov/services/fhir/v0/r4/NamingSystem/va-facility-identifier|vha_123
    */
   private boolean tokenIdentifierIsSupported(TokenParameter token) {
-    return (token.hasSupportedSystem(FacilityTransformers.FAPI_IDENTIFIER_SYSTEM)
-            && token.hasExplicitCode())
+    return token.hasSupportedSystem(
+            FacilityTransformers.FAPI_IDENTIFIER_SYSTEM, "http://hl7.org/fhir/sid/us-npi")
         || token.hasAnySystem();
   }
 
@@ -153,19 +154,32 @@ public class R4OrganizationController {
   private Specification<OrganizationEntity> tokenIdentifierSpecification(TokenParameter token) {
     return token
         .behavior()
-        .onExplicitSystemAndExplicitCode(
-            (system, code) -> {
-              var facilityId = selectFacilityId(code);
-              if (facilityId == null) {
-                throw CircuitBreaker.noResultsWillBeFound(
-                    "identifier", code, "Invalid facilityId.");
-              }
-              return facilityId;
-            })
         .onAnySystemAndExplicitCode(
             code ->
                 Specifications.<OrganizationEntity>select("cdwId", witnessProtection.toCdwId(code))
-                    .or(selectFacilityId(code)))
+                    .or(facilityIdSpec(code)))
+        .onExplicitSystemAndAnyCode(
+            SystemIdFields.forEntity(OrganizationEntity.class)
+                .parameterName("identifier")
+                .add(FacilityTransformers.FAPI_IDENTIFIER_SYSTEM, "stationNumber")
+                .add("http://hl7.org/fhir/sid/us-npi", "npi")
+                .matchSystemOnly())
+        .onExplicitSystemAndExplicitCode(
+            SystemIdFields.forEntity(OrganizationEntity.class)
+                .parameterName("identifier")
+                .addWithCustomSystemAndCodeHandler(
+                    FacilityTransformers.FAPI_IDENTIFIER_SYSTEM,
+                    "stationNumber",
+                    (system, code) -> {
+                      var facilityIdSpec = facilityIdSpec(code);
+                      if (facilityIdSpec == null) {
+                        throw CircuitBreaker.noResultsWillBeFound(
+                            "identifier", code, "Invalid facility ID");
+                      }
+                      return facilityIdSpec;
+                    })
+                .add("http://hl7.org/fhir/sid/us-npi", "npi")
+                .matchSystemAndCode())
         .build()
         .execute();
   }

@@ -17,6 +17,7 @@ import gov.va.api.health.r4.api.resources.Location;
 import gov.va.api.lighthouse.datamart.CompositeCdwId;
 import gov.va.api.lighthouse.vulcan.CircuitBreaker;
 import gov.va.api.lighthouse.vulcan.Specifications;
+import gov.va.api.lighthouse.vulcan.SystemIdFields;
 import gov.va.api.lighthouse.vulcan.Vulcan;
 import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
 import gov.va.api.lighthouse.vulcan.mappings.Mappings;
@@ -53,6 +54,25 @@ public class R4LocationController {
   private LocationRepository repository;
 
   private WitnessProtection witnessProtection;
+
+  private Specification<LocationEntity> clinicIdSpec(String maybeClinicId) {
+    try {
+      if (!maybeClinicId.contains("_")) {
+        return null;
+      }
+      var facilityId = FacilityId.from(maybeClinicId.substring(0, maybeClinicId.lastIndexOf("_")));
+      var locationIen = maybeClinicId.substring(maybeClinicId.lastIndexOf("_") + 1);
+      Specification<LocationEntity> spec =
+          Specifications.<LocationEntity>select("facilityType", facilityId.type().toString())
+              .and(select("stationNumber", facilityId.stationNumber()));
+      if (spec == null) {
+        return null;
+      }
+      return spec.and(select("locationIen", locationIen));
+    } catch (IllegalArgumentException e) {
+      return null;
+    }
+  }
 
   private VulcanConfiguration<LocationEntity> configuration() {
     return VulcanConfiguration.forEntity(LocationEntity.class)
@@ -112,25 +132,6 @@ public class R4LocationController {
         .map(toBundle());
   }
 
-  private Specification<LocationEntity> selectClinicId(String maybeClinicId) {
-    try {
-      if (!maybeClinicId.contains("_")) {
-        return null;
-      }
-      var facilityId = FacilityId.from(maybeClinicId.substring(0, maybeClinicId.lastIndexOf("_")));
-      var locationIen = maybeClinicId.substring(maybeClinicId.lastIndexOf("_") + 1);
-      Specification<LocationEntity> spec =
-          Specifications.<LocationEntity>select("facilityType", facilityId.type().toString())
-              .and(select("stationNumber", facilityId.stationNumber()));
-      if (spec == null) {
-        return null;
-      }
-      return spec.and(select("locationIen", locationIen));
-    } catch (IllegalArgumentException e) {
-      return null;
-    }
-  }
-
   VulcanizedBundler<LocationEntity, DatamartLocation, Location, Location.Entry, Location.Bundle>
       toBundle() {
     return VulcanizedBundler.forTransformation(transformation())
@@ -143,26 +144,37 @@ public class R4LocationController {
   }
 
   private boolean tokenIdentifierIsSupported(TokenParameter token) {
-    return (token.hasSupportedSystem(FacilityTransformers.FAPI_CLINIC_IDENTIFIER_SYSTEM)
-            && token.hasExplicitCode())
+    return token.hasSupportedSystem(FacilityTransformers.FAPI_CLINIC_IDENTIFIER_SYSTEM)
         || token.hasAnySystem();
   }
 
   private Specification<LocationEntity> tokenIdentifierSpecification(TokenParameter token) {
     return token
         .behavior()
-        .onExplicitSystemAndExplicitCode(
-            (system, code) -> {
-              var clinicIdSpec = selectClinicId(code);
-              if (clinicIdSpec == null) {
-                throw CircuitBreaker.noResultsWillBeFound("identifier", code, "Invalid clinicId");
-              }
-              return clinicIdSpec;
-            })
         .onAnySystemAndExplicitCode(
             code ->
                 Specifications.<LocationEntity>select("cdwId", witnessProtection.toCdwId(code))
-                    .or(selectClinicId(code)))
+                    .or(clinicIdSpec(code)))
+        .onExplicitSystemAndAnyCode(
+            SystemIdFields.forEntity(LocationEntity.class)
+                .parameterName("identifier")
+                .add(FacilityTransformers.FAPI_CLINIC_IDENTIFIER_SYSTEM, "stationNumber")
+                .matchSystemOnly())
+        .onExplicitSystemAndExplicitCode(
+            SystemIdFields.forEntity(LocationEntity.class)
+                .parameterName("identifier")
+                .addWithCustomSystemAndCodeHandler(
+                    FacilityTransformers.FAPI_CLINIC_IDENTIFIER_SYSTEM,
+                    "stationNumber",
+                    (system, code) -> {
+                      var clinicIdSpec = clinicIdSpec(code);
+                      if (clinicIdSpec == null) {
+                        throw CircuitBreaker.noResultsWillBeFound(
+                            "identifier", code, "Invalid clinic ID");
+                      }
+                      return clinicIdSpec;
+                    })
+                .matchSystemAndCode())
         .build()
         .execute();
   }
