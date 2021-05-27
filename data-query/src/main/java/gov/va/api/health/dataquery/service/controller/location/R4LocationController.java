@@ -144,11 +144,8 @@ public class R4LocationController {
   }
 
   private boolean tokenIdentifierIsSupported(TokenParameter token) {
-    return (token.hasSupportedSystem(FacilityTransformers.FAPI_CLINIC_IDENTIFIER_SYSTEM)
-            && token.hasExplicitCode())
-        || (token.hasSupportedSystem(FacilityTransformers.FAPI_CLINIC_IDENTIFIER_SYSTEM)
-            && token.hasAnyCode())
-        || token.hasAnySystem();
+    return token.hasSupportedSystem(FacilityTransformers.FAPI_CLINIC_IDENTIFIER_SYSTEM)
+        || (token.hasAnySystem() && token.hasExplicitCode());
   }
 
   private Specification<LocationEntity> tokenIdentifierSpecification(TokenParameter token) {
