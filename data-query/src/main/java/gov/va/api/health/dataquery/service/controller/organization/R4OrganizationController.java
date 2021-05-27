@@ -174,7 +174,7 @@ public class R4OrganizationController {
                       var facilityIdSpec = facilityIdSpec(code);
                       if (facilityIdSpec == null) {
                         throw CircuitBreaker.noResultsWillBeFound(
-                            "identifier", code, "Invalid facilityId.");
+                            "identifier", code, "Invalid facility ID");
                       }
                       return facilityIdSpec;
                     })

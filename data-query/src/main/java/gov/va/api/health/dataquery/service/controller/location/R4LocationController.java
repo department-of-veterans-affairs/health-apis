@@ -170,7 +170,7 @@ public class R4LocationController {
                       var clinicIdSpec = clinicIdSpec(code);
                       if (clinicIdSpec == null) {
                         throw CircuitBreaker.noResultsWillBeFound(
-                            "identifier", code, "Invalid clinicId");
+                            "identifier", code, "Invalid clinic ID");
                       }
                       return clinicIdSpec;
                     })
