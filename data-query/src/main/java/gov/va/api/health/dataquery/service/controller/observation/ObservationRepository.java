@@ -39,6 +39,7 @@ public interface ObservationRepository
 
   Page<ObservationEntity> findByIcn(String icn, Pageable pageable);
 
+  /** Search by category. */
   @Value
   @RequiredArgsConstructor(staticName = "of")
   class CategorySpecification implements Specification<ObservationEntity> {
