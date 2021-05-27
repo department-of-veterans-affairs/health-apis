@@ -12,6 +12,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/** Datamrt JSON model. */
 @Data
 @Builder
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -78,6 +79,7 @@ public class DatamartProcedure implements HasReplaceableId {
     /* no op */
   }
 
+  /** status. */
   public enum Status {
     @JsonProperty("in-progress")
     in_progress,

@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Optional;
 import lombok.Builder;
 
+/** Convert datamart to DSUT2. */
 @Builder
 public class Dstu2ProcedureTransformer {
   private final DatamartProcedure datamart;

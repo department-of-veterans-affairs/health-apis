@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.NonNull;
 
+/** Convert datmart to DSTU2. */
 @Builder
 public final class Dstu2AllergyIntoleranceTransformer {
   @NonNull final DatamartAllergyIntolerance datamart;
