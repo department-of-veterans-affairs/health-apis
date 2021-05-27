@@ -162,6 +162,7 @@ public class ResourceDiscovery {
     String type();
   }
 
+  /** Request context. */
   @Value
   public static class Context {
     @NonNull String url;
@@ -271,6 +272,7 @@ public class ResourceDiscovery {
     }
   }
 
+  /** Fhir Version Unknown. */
   public static class UnknownFhirVersion extends RuntimeException {
     UnknownFhirVersion(String url) {
       super("Cannot determine FHIR version of metadata at " + url);

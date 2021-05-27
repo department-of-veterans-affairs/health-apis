@@ -31,6 +31,7 @@ public class Result {
     return new Summary(query, outcome);
   }
 
+  /** Enumeration of known request outcomes. */
   @SuppressWarnings("unused")
   public enum Outcome {
     OK,
@@ -40,6 +41,7 @@ public class Result {
     REQUEST_FAILED
   }
 
+  /** A summary of a result. */
   @Value
   @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
   public static class Summary {

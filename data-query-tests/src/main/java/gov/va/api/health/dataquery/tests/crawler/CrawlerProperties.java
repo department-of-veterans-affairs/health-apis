@@ -11,6 +11,7 @@ import lombok.NonNull;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
+/** Utility class for loading crawler properties or defaults. */
 @Slf4j
 @UtilityClass
 public class CrawlerProperties {
