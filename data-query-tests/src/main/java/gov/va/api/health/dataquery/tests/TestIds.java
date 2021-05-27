@@ -36,6 +36,7 @@ public final class TestIds {
   @NonNull Practitioners practitioners;
   @NonNull Appointments appointments;
 
+  /** Appointment filtering information. */
   @Value
   @Builder
   public static class Appointments {
@@ -45,6 +46,7 @@ public final class TestIds {
     @NonNull String oauthPatient;
   }
 
+  /** DiagnosticReport filtering information. */
   @Value
   @Builder
   public static class DiagnosticReports {
@@ -73,6 +75,7 @@ public final class TestIds {
     @NonNull String dateLessThan;
   }
 
+  /** Identifying information about a location. */
   @Value
   @Builder
   public static class Locations {
@@ -85,6 +88,7 @@ public final class TestIds {
     @NonNull String name;
   }
 
+  /** Observation filtering information. */
   @Value
   @Builder
   public static class Observations {
@@ -95,6 +99,7 @@ public final class TestIds {
     @NonNull String badLoinc;
   }
 
+  /** Identifying information about an organization. */
   @Value
   @Builder
   public static class Organizations {
@@ -107,6 +112,7 @@ public final class TestIds {
     @NonNull String npi;
   }
 
+  /** PII for a patient. */
   @Value
   @Builder
   public static class PersonallyIdentifiableInformation {
@@ -119,6 +125,7 @@ public final class TestIds {
     @NonNull String organization;
   }
 
+  /** Identifying information about a practitioner. */
   @Value
   @Builder
   public static class Practitioners {
@@ -128,6 +135,7 @@ public final class TestIds {
     @NonNull String specialty;
   }
 
+  /** Dates specific to known procedures. */
   @Value
   @Builder
   public static class Procedures {
@@ -136,6 +144,7 @@ public final class TestIds {
     @NonNull String toDate;
   }
 
+  /** A date range. */
   @Value
   @Builder
   @AllArgsConstructor(staticName = "of")
