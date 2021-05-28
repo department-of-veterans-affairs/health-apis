@@ -13,8 +13,8 @@
   <properties>
     <!-- DYNAMO DB AND AWS SDK VERSION NUMBERS ARE MATCHED -->
     <!-- Consult dependency tree to see which version of the SDK the local db uses -->
-    <dynamo-db-local.version>1.13.2</dynamo-db-local.version>
-    <aws-java-sdk-bom.version>1.11.780</aws-java-sdk-bom.version>
+    <dynamo-db-local.version>1.16.0</dynamo-db-local.version>
+    <aws-java-sdk-bom.version>1.11.1029</aws-java-sdk-bom.version>
   </properties>
   <dependencyManagement>
     <dependencies>
