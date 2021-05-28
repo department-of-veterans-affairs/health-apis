@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 import lombok.AllArgsConstructor;
 
+/** Create reference mapping for R4 patients. */
 @AllArgsConstructor(staticName = "forLinks")
 public class R4PatientReferenceMapping<EntityT extends DatamartEntity>
     implements Supplier<ReferenceMapping<EntityT>> {

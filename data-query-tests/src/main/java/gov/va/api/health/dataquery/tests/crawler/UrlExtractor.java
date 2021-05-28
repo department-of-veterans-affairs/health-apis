@@ -26,6 +26,7 @@ public interface UrlExtractor {
 
   Stream<String> urlsOf(Object payload);
 
+  /** Extracts urls from Dstu2 bundles. */
   class Dstu2BundleUrlExtractor implements UrlExtractor {
     @Override
     public Stream<String> urlsOf(Object payload) {
@@ -46,6 +47,7 @@ public interface UrlExtractor {
     }
   }
 
+  /** Extracts urls from R4 bundles. */
   class R4BundleUrlExtractor implements UrlExtractor {
     @Override
     public Stream<String> urlsOf(Object payload) {

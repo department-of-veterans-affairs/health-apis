@@ -19,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.NonNull;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+/** This filter intercepts requests to perform patient registration. */
 @Slf4j
 @Builder
 public class PatientRegistrationFilter extends OncePerRequestFilter {

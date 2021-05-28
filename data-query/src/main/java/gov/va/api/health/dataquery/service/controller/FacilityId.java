@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
+/** Representation of the VA facility API ID. */
 @Data
 @Builder
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -39,6 +40,7 @@ public final class FacilityId {
     return type().fapiPrefix() + stationNumber();
   }
 
+  /** The type of facility. */
   @AllArgsConstructor
   public enum FacilityType {
     HEALTH("vha_"),

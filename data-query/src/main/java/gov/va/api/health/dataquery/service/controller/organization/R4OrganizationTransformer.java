@@ -25,6 +25,7 @@ import lombok.Builder;
 import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
 
+/** R4OrganizationTransformer. */
 @Builder
 public class R4OrganizationTransformer {
   @NonNull private final DatamartOrganization datamart;

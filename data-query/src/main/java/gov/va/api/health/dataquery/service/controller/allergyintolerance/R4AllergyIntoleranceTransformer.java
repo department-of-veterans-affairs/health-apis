@@ -23,6 +23,7 @@ import java.util.Optional;
 import lombok.Builder;
 import lombok.NonNull;
 
+/** Convert datamart to R4 JSON. */
 @Builder
 public final class R4AllergyIntoleranceTransformer {
   @NonNull private final DatamartAllergyIntolerance datamart;

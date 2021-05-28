@@ -9,6 +9,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
+/** Spring configuration to load system properties for generating metadata. */
 @SuppressWarnings("DefaultAnnotationParam")
 @Configuration
 @EnableConfigurationProperties
@@ -38,6 +39,7 @@ public class MetadataProperties {
     PATIENT
   }
 
+  /** Support Contact. */
   @Data
   @Accessors(fluent = false)
   @NoArgsConstructor
@@ -48,6 +50,7 @@ public class MetadataProperties {
     private String email;
   }
 
+  /** Oauth related properties. */
   @Data
   @Accessors(fluent = false)
   @NoArgsConstructor
@@ -61,6 +64,7 @@ public class MetadataProperties {
     private String description;
   }
 
+  /** Properties that change based on the Fhir version. */
   @Data
   @Builder
   @NoArgsConstructor

@@ -12,6 +12,7 @@ import java.util.List;
 import lombok.Builder;
 import lombok.NonNull;
 
+/** Transform a datamart device to an r4 fhir device. */
 @Builder
 public class R4DeviceTransformer {
   @NonNull private final DatamartDevice datamart;

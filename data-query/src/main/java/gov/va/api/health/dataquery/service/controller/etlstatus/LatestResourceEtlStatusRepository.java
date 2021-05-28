@@ -5,6 +5,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+/** DB repository for ETL status. */
 @Loggable
 @Transactional(isolation = Isolation.READ_UNCOMMITTED)
 public interface LatestResourceEtlStatusRepository

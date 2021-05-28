@@ -11,6 +11,7 @@ import java.util.Optional;
 import lombok.Builder;
 import lombok.NonNull;
 
+/** Convert Datamart model to DSTU2. */
 @Builder
 public class Dstu2MedicationStatementTransformer {
 

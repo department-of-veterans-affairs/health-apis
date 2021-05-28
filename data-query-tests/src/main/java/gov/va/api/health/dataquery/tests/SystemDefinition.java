@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.NonNull;
 import lombok.Value;
 
+/** Defines all service definitions required for integration tests. */
 @Value
 @Builder
 public final class SystemDefinition {

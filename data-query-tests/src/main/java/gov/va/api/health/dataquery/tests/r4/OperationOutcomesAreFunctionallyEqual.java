@@ -6,6 +6,7 @@ import io.restassured.response.ResponseBody;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 
+/** R4 OperationOutcomesAreFunctionallyEqual. */
 @Slf4j
 public class OperationOutcomesAreFunctionallyEqual implements ErrorsAreFunctionallyEqual {
   /** Remove fields unique to each instance: generated ID, timestamp, and encrypted data. */

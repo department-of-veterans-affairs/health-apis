@@ -9,6 +9,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
+/** Configuration options for the Dynamo DB used for patient registration. */
 @Configuration
 @EnableConfigurationProperties
 @ConfigurationProperties("dynamo-patient-registrar")

@@ -10,6 +10,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/** Datamart location JSON model. */
 @Data
 @Builder
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -81,11 +82,13 @@ public final class DatamartLocation implements HasReplaceableId {
     return type;
   }
 
+  /** status. */
   public enum Status {
     active,
     inactive
   }
 
+  /** Address. */
   @Data
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)

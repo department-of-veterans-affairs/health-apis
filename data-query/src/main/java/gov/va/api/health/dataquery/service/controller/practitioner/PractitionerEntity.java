@@ -18,6 +18,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Sort;
 
+/** Practioner DB model. */
 @Data
 @Entity
 @Builder

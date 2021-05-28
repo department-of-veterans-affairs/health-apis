@@ -12,6 +12,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/** Datamart medication order JSON model. */
 @SuppressWarnings("OptionalAssignedToNull")
 @Data
 @Builder
@@ -85,6 +86,7 @@ public class DatamartMedicationOrder implements HasReplaceableId {
     /* no op */
   }
 
+  /** Category of order. */
   public enum Category {
     INPATIENT,
     OUTPATIENT,
@@ -93,6 +95,7 @@ public class DatamartMedicationOrder implements HasReplaceableId {
     UNKNOWN
   }
 
+  /** medication dispense request. */
   @Data
   @Builder
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -150,6 +153,7 @@ public class DatamartMedicationOrder implements HasReplaceableId {
     }
   }
 
+  /** Dosage instructions. */
   @Data
   @Builder
   @AllArgsConstructor(access = AccessLevel.PRIVATE)

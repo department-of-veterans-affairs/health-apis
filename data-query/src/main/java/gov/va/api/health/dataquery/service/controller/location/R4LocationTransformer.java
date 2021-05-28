@@ -27,6 +27,7 @@ import lombok.Builder;
 import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
 
+/** Convert datamart to R4. */
 @Builder
 public class R4LocationTransformer {
   @NonNull private final DatamartLocation datamart;

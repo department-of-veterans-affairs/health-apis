@@ -11,6 +11,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/** Datamart JSON model. */
 @Data
 @Builder
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -119,6 +120,7 @@ public class DatamartPatient implements HasReplaceableId {
     return telecom;
   }
 
+  /** Address. */
   @Data
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -143,6 +145,7 @@ public class DatamartPatient implements HasReplaceableId {
     private String country;
   }
 
+  /** Contact. */
   @Data
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -158,6 +161,7 @@ public class DatamartPatient implements HasReplaceableId {
 
     private Address address;
 
+    /** Phone. */
     @Data
     @Builder
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -171,6 +175,7 @@ public class DatamartPatient implements HasReplaceableId {
     }
   }
 
+  /** Ethnicity. */
   @Data
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -183,6 +188,7 @@ public class DatamartPatient implements HasReplaceableId {
     private String hl7;
   }
 
+  /** MaritalStatus. */
   @Data
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -195,6 +201,7 @@ public class DatamartPatient implements HasReplaceableId {
     private String code;
   }
 
+  /** Race. */
   @Data
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -205,6 +212,7 @@ public class DatamartPatient implements HasReplaceableId {
     private String abbrev;
   }
 
+  /** Telecom. */
   @Data
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)

@@ -11,6 +11,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/** Datarmart JSON model. */
 @Data
 @Builder
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -108,6 +109,7 @@ public class DatamartImmunization implements HasReplaceableId {
     return vaccinationProtocols;
   }
 
+  /** status. */
   public enum Status {
     completed,
     @JsonProperty("entered-in-error")
@@ -116,6 +118,7 @@ public class DatamartImmunization implements HasReplaceableId {
     data_absent_reason_unsupported
   }
 
+  /** VaccinationProtocols. */
   @Data
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -142,6 +145,7 @@ public class DatamartImmunization implements HasReplaceableId {
     }
   }
 
+  /** VaccineCode. */
   @Data
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)

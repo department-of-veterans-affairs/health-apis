@@ -29,6 +29,7 @@ import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.servers.Server;
 import javax.ws.rs.Path;
 
+/** R4 Swagger Definition. */
 @OpenAPIDefinition(
     security =
         @SecurityRequirement(

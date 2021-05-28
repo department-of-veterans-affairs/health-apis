@@ -10,6 +10,7 @@ import java.util.Map;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
+/** Utility for testing requests with a valid Oauth token. */
 @Slf4j
 @UtilityClass
 public class Oauth {

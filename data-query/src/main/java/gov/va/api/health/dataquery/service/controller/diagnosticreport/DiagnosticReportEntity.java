@@ -23,6 +23,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Sort;
 
+/** Java representation of the app.DiagnosticReport_V2 database table. */
 @Data
 @Entity
 @Builder
@@ -73,6 +74,7 @@ public class DiagnosticReportEntity implements DatamartEntity {
         .build();
   }
 
+  /** Datamart category code. */
   public enum CategoryCode {
     // LabChem
     CH,

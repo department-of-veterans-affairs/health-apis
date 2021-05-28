@@ -18,6 +18,7 @@ import java.util.List;
 import lombok.Builder;
 import lombok.NonNull;
 
+/** Convert datamart to DSTU2. */
 @Builder
 public class Dstu2ConditionTransformer {
 

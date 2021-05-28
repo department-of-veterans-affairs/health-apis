@@ -27,6 +27,7 @@ import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.servers.Server;
 import javax.ws.rs.Path;
 
+/** Dstu2 Swagger Definition. */
 @OpenAPIDefinition(
     security =
         @SecurityRequirement(
@@ -126,12 +127,15 @@ public interface Dstu2DataQueryService
         PatientApi,
         PractitionerApi,
         ProcedureApi {
+
+  /** Generic Data-Query Exception. */
   class DataQueryServiceException extends RuntimeException {
     DataQueryServiceException(String message) {
       super(message);
     }
   }
 
+  /** Indicates a search failed. */
   class SearchFailed extends DataQueryServiceException {
     @SuppressWarnings("WeakerAccess")
     public SearchFailed(String id, String reason) {
@@ -139,6 +143,7 @@ public interface Dstu2DataQueryService
     }
   }
 
+  /** The resource is unknown to data-query. */
   class UnknownResource extends DataQueryServiceException {
     @SuppressWarnings("WeakerAccess")
     public UnknownResource(String id) {

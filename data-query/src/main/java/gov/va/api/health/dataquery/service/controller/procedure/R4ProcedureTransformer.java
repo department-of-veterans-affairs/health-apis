@@ -12,6 +12,7 @@ import java.util.Optional;
 import lombok.Builder;
 import lombok.NonNull;
 
+/** Convert datamart to R4. */
 @Builder
 public class R4ProcedureTransformer {
   @NonNull private final DatamartProcedure datamart;

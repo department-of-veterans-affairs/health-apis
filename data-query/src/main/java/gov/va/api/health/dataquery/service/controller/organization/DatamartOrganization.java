@@ -13,6 +13,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/** Datamart JSON for Organization. */
 @Data
 @Builder
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -120,6 +121,7 @@ public final class DatamartOrganization implements HasReplaceableId {
     return type;
   }
 
+  /** Address. */
   @Data
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -136,6 +138,7 @@ public final class DatamartOrganization implements HasReplaceableId {
     private String postalCode;
   }
 
+  /** Telecom. */
   @Data
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -145,6 +148,7 @@ public final class DatamartOrganization implements HasReplaceableId {
 
     private String value;
 
+    /** System. */
     @SuppressWarnings("JavaLangClash")
     public enum System {
       phone,

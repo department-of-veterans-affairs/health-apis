@@ -10,6 +10,7 @@ import java.util.Optional;
 import lombok.Builder;
 import lombok.NonNull;
 
+/** Transform a datamart medication into an R4 fhir medication. */
 @Builder
 public class R4MedicationTransformer {
   @NonNull private final DatamartMedication datamart;

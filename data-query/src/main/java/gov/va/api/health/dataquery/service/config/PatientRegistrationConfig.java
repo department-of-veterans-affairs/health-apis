@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
+/** Configuration for patient registration interceptors. */
 @Slf4j
 @Configuration
 @ComponentScan(basePackages = {"gov.va.api.health.dataquery.patientregistration"})

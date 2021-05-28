@@ -4,7 +4,7 @@
   <parent>
     <groupId>gov.va.api.health</groupId>
     <artifactId>test-starter</artifactId>
-    <version>7.0.25</version>
+    <version>8.0.7</version>
     <relativePath/>
   </parent>
   <artifactId>data-query-tests</artifactId>
@@ -134,7 +134,7 @@
                 <argument>-Dspring.jpa.generate-ddl=false</argument>
                 <argument>-Dspring.jpa.hibernate.ddl-auto=none</argument>
                 <argument>-Dspring.jpa.properties.hibernate.globally_quoted_identifiers=false</argument>
-                <argument>-Dspring.config.location=classpath:/application.properties,file:${project.basedir}/config/secrets.properties</argument>
+                <argument>-Dspring.config.additional-location=classpath:/application.properties,optional:file:${project.basedir}/config/secrets.properties</argument>
                 <argument>org.springframework.boot.loader.PropertiesLauncher</argument>
               </arguments>
             </configuration>

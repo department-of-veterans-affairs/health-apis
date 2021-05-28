@@ -14,6 +14,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/** Datamart JSON model. */
 @Data
 @Builder
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -79,17 +80,20 @@ public class DatamartAllergyIntolerance implements HasReplaceableId {
     return substance;
   }
 
+  /** same. */
   public enum Category {
     medication,
     food
   }
 
+  /** same. */
   public enum Certainty {
     likely,
     unlikely,
     confirmed
   }
 
+  /** same. */
   public enum Status {
     active,
     unconfirmed,
@@ -101,11 +105,13 @@ public class DatamartAllergyIntolerance implements HasReplaceableId {
     entered_in_error
   }
 
+  /** same. */
   public enum Type {
     allergy,
     intolerance
   }
 
+  /** same. */
   @Data
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -152,6 +158,7 @@ public class DatamartAllergyIntolerance implements HasReplaceableId {
     }
   }
 
+  /** same. */
   @Data
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -170,6 +177,7 @@ public class DatamartAllergyIntolerance implements HasReplaceableId {
     }
   }
 
+  /** same. */
   @Data
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)

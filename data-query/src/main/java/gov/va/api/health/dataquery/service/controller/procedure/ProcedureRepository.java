@@ -15,12 +15,14 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+/** Procedure DB. */
 @Loggable
 @Transactional(isolation = Isolation.READ_UNCOMMITTED)
 public interface ProcedureRepository
     extends PagingAndSortingRepository<ProcedureEntity, String>,
         JpaSpecificationExecutor<ProcedureEntity> {
 
+  /** Query specification for searching by patient and date. */
   @Value
   class PatientAndDateSpecification implements Specification<ProcedureEntity> {
     String patient;

@@ -53,11 +53,13 @@ public class DatamartMedicationStatement implements HasReplaceableId {
     /* no op */
   }
 
+  /** Medication statement status. */
   public enum Status {
     active,
     completed
   }
 
+  /** Dosage information. */
   @Data
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)

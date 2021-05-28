@@ -18,6 +18,7 @@ import lombok.EqualsAndHashCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+/** Provides identity substitution to prevent leaking DB or internal IDs to the wild. */
 @Component
 public class WitnessProtection extends IdentitySubstitution<DatamartReference> {
 

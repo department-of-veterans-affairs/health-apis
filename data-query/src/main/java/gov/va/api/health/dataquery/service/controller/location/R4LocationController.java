@@ -63,12 +63,12 @@ public class R4LocationController {
       var facilityId = FacilityId.from(maybeClinicId.substring(0, maybeClinicId.lastIndexOf("_")));
       var locationIen = maybeClinicId.substring(maybeClinicId.lastIndexOf("_") + 1);
       Specification<LocationEntity> spec =
-          Specifications.<LocationEntity>select("facilityType", facilityId.type().toString())
-              .and(select("stationNumber", facilityId.stationNumber()));
+          Specifications.<LocationEntity>select("facilityType", facilityId.type().toString());
       if (spec == null) {
         return null;
       }
-      return spec.and(select("locationIen", locationIen));
+      return spec.and(select("locationIen", locationIen))
+          .and(select("stationNumber", facilityId.stationNumber()));
     } catch (IllegalArgumentException e) {
       return null;
     }
