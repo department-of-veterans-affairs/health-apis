@@ -15,6 +15,7 @@ import gov.va.api.health.r4.api.resources.Immunization;
 import gov.va.api.lighthouse.vulcan.Vulcan;
 import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
 import gov.va.api.lighthouse.vulcan.mappings.Mappings;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -58,8 +59,10 @@ public class R4ImmunizationController {
                 .add(R4PatientReferenceMapping.<ImmunizationEntity>forLinks(linkProperties).get())
                 .get())
         .defaultQuery(returnNothing())
-        .rule(parametersNeverSpecifiedTogether("patient", "_id", "identifier"))
-        .rule(ifParameter("patient").thenAllowOnlyKnownModifiers("identifier"))
+        .rules(
+            List.of(
+                parametersNeverSpecifiedTogether("patient", "_id", "identifier"),
+                ifParameter("patient").thenAllowOnlyKnownModifiers("identifier")))
         .build();
   }
 

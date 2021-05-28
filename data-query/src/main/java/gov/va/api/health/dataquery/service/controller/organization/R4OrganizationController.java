@@ -20,6 +20,7 @@ import gov.va.api.lighthouse.vulcan.Vulcan;
 import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
 import gov.va.api.lighthouse.vulcan.mappings.Mappings;
 import gov.va.api.lighthouse.vulcan.mappings.TokenParameter;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -69,7 +70,7 @@ public class R4OrganizationController {
                     this::tokenIdentifierSpecification)
                 .string("name", "name")
                 .get())
-        .rule(parametersNeverSpecifiedTogether("_id", "identifier"))
+        .rules(List.of(parametersNeverSpecifiedTogether("_id", "identifier")))
         .defaultQuery(returnNothing())
         .build();
   }

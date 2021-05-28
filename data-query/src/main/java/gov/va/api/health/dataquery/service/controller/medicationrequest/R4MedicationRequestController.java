@@ -212,8 +212,10 @@ public class R4MedicationRequestController {
                 .add(R4PatientReferenceMapping.<EntityT>forLinks(linkProperties).get())
                 .get())
         .defaultQuery(returnNothing())
-        .rule(parametersNeverSpecifiedTogether("_id", "identifier", "patient"))
-        .rule(ifParameter("patient").thenAllowOnlyKnownModifiers("identifier"))
+        .rules(
+            List.of(
+                parametersNeverSpecifiedTogether("_id", "identifier", "patient"),
+                ifParameter("patient").thenAllowOnlyKnownModifiers("identifier")))
         .build();
   }
 

@@ -17,6 +17,7 @@ import gov.va.api.lighthouse.vulcan.Vulcan;
 import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
 import gov.va.api.lighthouse.vulcan.mappings.Mappings;
 import gov.va.api.lighthouse.vulcan.mappings.TokenParameter;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -68,10 +69,12 @@ public class R4ObservationController {
                 .value("identifier", "cdwId", witnessProtection::toCdwId)
                 .value("patient", "icn")
                 .get())
-        .rule(parametersNeverSpecifiedTogether("_id", "identifier", "patient"))
-        .rule(ifParameter("date").thenAlsoAtLeastOneParameterOf("category", "code"))
-        .rule(ifParameter("category").thenAlsoAtLeastOneParameterOf("patient"))
-        .rule(ifParameter("code").thenAlsoAtLeastOneParameterOf("patient"))
+        .rules(
+            List.of(
+                parametersNeverSpecifiedTogether("_id", "identifier", "patient"),
+                ifParameter("date").thenAlsoAtLeastOneParameterOf("category", "code"),
+                ifParameter("category").thenAlsoAtLeastOneParameterOf("patient"),
+                ifParameter("code").thenAlsoAtLeastOneParameterOf("patient")))
         .defaultQuery(returnNothing())
         .build();
   }

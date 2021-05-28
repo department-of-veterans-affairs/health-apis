@@ -15,6 +15,7 @@ import gov.va.api.lighthouse.vulcan.Vulcan;
 import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
 import gov.va.api.lighthouse.vulcan.mappings.Mappings;
 import gov.va.api.lighthouse.vulcan.mappings.TokenParameter;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -60,8 +61,10 @@ public class R4DeviceController {
                 .tokens("type", this::tokenTypeIsSupported, this::tokenTypeSpecification)
                 .get())
         .defaultQuery(returnNothing())
-        .rule(parametersNeverSpecifiedTogether("patient", "_id", "identifier"))
-        .rule(ifParameter("type").thenAlsoAtLeastOneParameterOf("patient"))
+        .rules(
+            List.of(
+                parametersNeverSpecifiedTogether("patient", "_id", "identifier"),
+                ifParameter("type").thenAlsoAtLeastOneParameterOf("patient")))
         .build();
   }
 

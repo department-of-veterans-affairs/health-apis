@@ -22,6 +22,7 @@ import gov.va.api.lighthouse.vulcan.Vulcan;
 import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
 import gov.va.api.lighthouse.vulcan.mappings.Mappings;
 import gov.va.api.lighthouse.vulcan.mappings.TokenParameter;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
@@ -92,8 +93,9 @@ public class R4LocationController {
                 .values("organization", this::organizationMapping)
                 .get())
         .defaultQuery(returnNothing())
-        .rule(parametersNeverSpecifiedTogether("_id", "identifier"))
-        .rule(forbidUnknownParameters())
+        .rules(
+            List.of(
+                parametersNeverSpecifiedTogether("_id", "identifier"), forbidUnknownParameters()))
         .build();
   }
 
