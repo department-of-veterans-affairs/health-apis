@@ -15,6 +15,7 @@ import gov.va.api.health.r4.api.resources.Procedure;
 import gov.va.api.lighthouse.vulcan.Vulcan;
 import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
 import gov.va.api.lighthouse.vulcan.mappings.Mappings;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -58,9 +59,11 @@ public class R4ProcedureController {
                 .value("identifier", "cdwId", witnessProtection::toCdwId)
                 .add(R4PatientReferenceMapping.<ProcedureEntity>forLinks(linkProperties).get())
                 .get())
-        .rule(parametersNeverSpecifiedTogether("_id", "identifier", "patient"))
-        .rule(ifParameter("date").thenAlsoAtLeastOneParameterOf("patient"))
-        .rule(ifParameter("patient").thenAllowOnlyKnownModifiers("identifier"))
+        .rules(
+            List.of(
+                parametersNeverSpecifiedTogether("_id", "identifier", "patient"),
+                ifParameter("date").thenAlsoAtLeastOneParameterOf("patient"),
+                ifParameter("patient").thenAllowOnlyKnownModifiers("identifier")))
         .defaultQuery(returnNothing())
         .build();
   }

@@ -20,6 +20,7 @@ import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
 import gov.va.api.lighthouse.vulcan.mappings.Mappings;
 import gov.va.api.lighthouse.vulcan.mappings.ReferenceParameter;
 import gov.va.api.lighthouse.vulcan.mappings.TokenParameter;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -81,9 +82,11 @@ public class R4DiagnosticReportController {
                 .tokens("status", this::tokenStatusIsSupported, this::tokenStatusSpecification)
                 .get())
         .defaultQuery(returnNothing())
-        .rule(atLeastOneParameterOf("patient", "_id", "identifier"))
-        .rule(parametersNeverSpecifiedTogether("patient", "_id", "identifier"))
-        .rule(ifParameter("status").thenAlsoAtLeastOneParameterOf("patient"))
+        .rules(
+            List.of(
+                atLeastOneParameterOf("patient", "_id", "identifier"),
+                parametersNeverSpecifiedTogether("patient", "_id", "identifier"),
+                ifParameter("status").thenAlsoAtLeastOneParameterOf("patient")))
         .build();
   }
 

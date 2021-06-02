@@ -16,6 +16,7 @@ import gov.va.api.health.r4.api.resources.PractitionerRole;
 import gov.va.api.lighthouse.vulcan.Vulcan;
 import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
 import gov.va.api.lighthouse.vulcan.mappings.Mappings;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -58,7 +59,7 @@ public class R4PractitionerRoleController {
                 .value("_id", "cdwId", witnessProtection::toCdwId)
                 .get())
         .defaultQuery(returnNothing())
-        .rule(atLeastOneParameterOf("_id"))
+        .rules(List.of(atLeastOneParameterOf("_id")))
         .build();
   }
 

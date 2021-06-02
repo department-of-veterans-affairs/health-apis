@@ -123,9 +123,8 @@ sendMoarSpams() {
 }
 
 makeConfig data-query $PROFILE
-configValue data-query $PROFILE identityservice.url http://localhost:8089
-addValue data-query $PROFILE identityservice.encodingKey "$IDS_ENCODING_KEY"
-addValue data-query $PROFILE identityservice.patientIdPattern "$IDS_PATIENT_ID_PATTERN"
+addValue data-query $PROFILE ids-client.encoded-ids.encoding-key "$IDS_ENCODING_KEY"
+addValue data-query $PROFILE ids-client.patient-icn.id-pattern "$IDS_PATIENT_ID_PATTERN"
 configValue data-query $PROFILE data-query.public-url http://localhost:8090
 configValue data-query $PROFILE data-query.public-web-exception-key "$WEB_EXCEPTION_KEY"
 configValue data-query $PROFILE metadata.statement-type patient

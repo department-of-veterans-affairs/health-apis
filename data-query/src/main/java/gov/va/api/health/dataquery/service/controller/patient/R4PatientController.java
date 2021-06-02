@@ -77,10 +77,12 @@ public class R4PatientController {
                             token, PATIENT_IDENTIFIER_SYSTEM_ICN, PATIENT_IDENTIFIER_SYSTEM_SSN),
                     this::tokenIdentiferSpecification)
                 .get())
-        .rule(parametersNeverSpecifiedTogether("_id", "identifier"))
-        .rule(parametersNeverSpecifiedTogether("name", "family"))
-        .rule(ifParameter("birthdate").thenAlsoAtLeastOneParameterOf("name", "family"))
-        .rule(ifParameter("gender").thenAlsoAtLeastOneParameterOf("name", "family"))
+        .rules(
+            List.of(
+                parametersNeverSpecifiedTogether("_id", "identifier"),
+                parametersNeverSpecifiedTogether("name", "family"),
+                ifParameter("birthdate").thenAlsoAtLeastOneParameterOf("name", "family"),
+                ifParameter("gender").thenAlsoAtLeastOneParameterOf("name", "family")))
         .defaultQuery(returnNothing())
         .build();
   }

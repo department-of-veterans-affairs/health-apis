@@ -1,6 +1,7 @@
 package gov.va.api.health.dataquery.service.config;
 
 import gov.va.api.lighthouse.talos.PathRewriteFilter;
+import java.util.ArrayList;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -22,7 +23,7 @@ public class PathRewriteConfig {
     var registration = new FilterRegistrationBean<PathRewriteFilter>();
     registration.setOrder(Ordered.LOWEST_PRECEDENCE);
     PathRewriteFilter filter =
-        PathRewriteFilter.builder().removeLeadingPath(leadingPaths()).build();
+        PathRewriteFilter.builder().removeLeadingPath(new ArrayList<>(leadingPaths())).build();
     registration.setFilter(filter);
     registration.addUrlPatterns(filter.removeLeadingPathsAsUrlPatterns());
     log.info("PathRewriteFilter enabled with priority {}", registration.getOrder());
