@@ -112,7 +112,7 @@ public class Dstu2ConditionTransformer {
 
   private String systemOf(@NonNull IcdCode icdCode) {
     if ("10".equals(icdCode.version())) {
-      return "http://hl7.org/fhir/sid/icd-10";
+      return "http://hl7.org/fhir/sid/icd-10-cm";
     }
     if ("9".equals(icdCode.version())) {
       return "http://hl7.org/fhir/sid/icd-9-cm";

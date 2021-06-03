@@ -187,7 +187,7 @@ public class ConditionSamples {
           .coding(
               List.of(
                   Coding.builder()
-                      .system("http://hl7.org/fhir/sid/icd-10")
+                      .system("http://hl7.org/fhir/sid/icd-10-cm")
                       .code("N210")
                       .display("Calculus in bladder")
                       .build()))
@@ -368,7 +368,7 @@ public class ConditionSamples {
           .coding(
               List.of(
                   gov.va.api.health.r4.api.datatypes.Coding.builder()
-                      .system("http://hl7.org/fhir/sid/icd-10")
+                      .system("http://hl7.org/fhir/sid/icd-10-cm")
                       .code("N210")
                       .display("Calculus in bladder")
                       .build()))
