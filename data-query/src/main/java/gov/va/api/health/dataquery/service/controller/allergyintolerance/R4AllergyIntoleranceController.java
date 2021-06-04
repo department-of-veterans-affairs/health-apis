@@ -51,7 +51,7 @@ public class R4AllergyIntoleranceController {
     return VulcanConfiguration.<AllergyIntoleranceEntity>forEntity(AllergyIntoleranceEntity.class)
         .paging(
             linkProperties.pagingConfiguration(
-                "AllergyIntolerance", AllergyIntoleranceEntity.naturalOrder()))
+                "AllergyIntolerance", req -> AllergyIntoleranceEntity.naturalOrder()))
         .mappings(
             Mappings.forEntity(AllergyIntoleranceEntity.class)
                 .value("_id", "cdwId", witnessProtection::toCdwId)

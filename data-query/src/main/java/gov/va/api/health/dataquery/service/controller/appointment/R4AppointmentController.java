@@ -2,8 +2,11 @@ package gov.va.api.health.dataquery.service.controller.appointment;
 
 import static gov.va.api.lighthouse.vulcan.Rules.parametersNeverSpecifiedTogether;
 import static gov.va.api.lighthouse.vulcan.Vulcan.returnNothing;
+import static java.util.stream.Collectors.toList;
+import static java.util.Collections.reverseOrder;
 
 import gov.va.api.health.dataquery.service.config.LinkProperties;
+import gov.va.api.health.dataquery.service.config.LinkProperties.SortRequest;
 import gov.va.api.health.dataquery.service.controller.CompositeCdwIds;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.Bundling;
@@ -16,22 +19,29 @@ import gov.va.api.lighthouse.vulcan.CircuitBreaker;
 import gov.va.api.lighthouse.vulcan.Vulcan;
 import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
 import gov.va.api.lighthouse.vulcan.mappings.Mappings;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Supplier;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NonNull;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.google.common.collect.Lists;
 
 /** R4 Appointment endpoint. */
 @Validated
@@ -49,7 +59,9 @@ public class R4AppointmentController {
 
   private VulcanConfiguration<AppointmentEntity> configuration() {
     return VulcanConfiguration.forEntity(AppointmentEntity.class)
-        .paging(linkProperties.pagingConfiguration("Appointment", AppointmentEntity.naturalOrder()))
+        .paging(
+            linkProperties.pagingConfiguration(
+                "Appointment", AppointmentEntity.naturalOrder(), this::toSort))
         .mappings(
             Mappings.forEntity(AppointmentEntity.class)
                 .dateAsInstant("_lastUpdated", "lastUpdated")
@@ -63,6 +75,29 @@ public class R4AppointmentController {
         .rules(List.of(parametersNeverSpecifiedTogether("_id", "identifier", "patient")))
         .defaultQuery(returnNothing())
         .build();
+  }
+
+  private Sort toSort(SortRequest req) {
+    Map<String, String> mapping = Map.of("date", "date", "_lastUpdated", "lastUpdated");
+    List<SortRequest.Parameter> parameters =
+        req.getSorting()
+            .stream()
+            .sorted(reverseOrder())
+            .filter(p -> mapping.keySet().contains(p.getParameterName()))
+            .collect(toList());
+    if (parameters.isEmpty()) {
+      return null;
+    }
+    Sort result = AppointmentEntity.naturalOrder();
+    for (SortRequest.Parameter p : parameters) {
+      String fieldName = mapping.get(p.getParameterName());
+      if (p.getDirection() == SortRequest.Direction.ASCENDING) {
+        result = Sort.by(fieldName).ascending().and(result);
+      } else {
+        result = Sort.by(fieldName).descending().and(result);
+      }
+    }
+    return result;
   }
 
   private Map<String, ?> loadCdwId(String publicId) {
@@ -181,7 +216,8 @@ public class R4AppointmentController {
 
     Appointment toAppointment(DatamartAppointment witness) {
       State state =
-          states.stream()
+          states
+              .stream()
               .filter(s -> s.payload().equals(witness))
               .findFirst()
               .orElseThrow(missingStateException(witness));
