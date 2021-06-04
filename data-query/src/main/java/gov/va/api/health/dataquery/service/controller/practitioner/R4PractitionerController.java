@@ -50,7 +50,7 @@ public class R4PractitionerController {
     return VulcanConfiguration.forEntity(PractitionerEntity.class)
         .paging(
             linkProperties.pagingConfiguration(
-                "Practitioner", PractitionerEntity.naturalOrder(), null))
+                "Practitioner", PractitionerEntity.naturalOrder(), r -> null))
         .mappings(
             Mappings.forEntity(PractitionerEntity.class)
                 .value("_id", "cdwId", witnessProtection::toCdwId)

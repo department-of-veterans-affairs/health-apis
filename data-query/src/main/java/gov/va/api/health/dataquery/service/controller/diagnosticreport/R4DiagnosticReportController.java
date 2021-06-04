@@ -63,7 +63,7 @@ public class R4DiagnosticReportController {
     return VulcanConfiguration.forEntity(DiagnosticReportEntity.class)
         .paging(
             linkProperties.pagingConfiguration(
-                "DiagnosticReport", DiagnosticReportEntity.naturalOrder(), null))
+                "DiagnosticReport", DiagnosticReportEntity.naturalOrder(), r -> null))
         .mappings(
             Mappings.forEntity(DiagnosticReportEntity.class)
                 .value("_id", "cdwId", witnessProtection::toCdwId)

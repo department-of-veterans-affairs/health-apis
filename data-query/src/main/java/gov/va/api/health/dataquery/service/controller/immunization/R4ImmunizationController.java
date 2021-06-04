@@ -52,7 +52,7 @@ public class R4ImmunizationController {
     return VulcanConfiguration.forEntity(ImmunizationEntity.class)
         .paging(
             linkProperties.pagingConfiguration(
-                "Immunization", ImmunizationEntity.naturalOrder(), null))
+                "Immunization", ImmunizationEntity.naturalOrder(), r -> null))
         .mappings(
             Mappings.forEntity(ImmunizationEntity.class)
                 .value("_id", "cdwId", witnessProtection::toCdwId)

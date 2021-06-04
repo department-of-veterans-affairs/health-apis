@@ -66,7 +66,8 @@ public class R4ConditionController {
   private VulcanConfiguration<ConditionEntity> configuration() {
     return VulcanConfiguration.forEntity(ConditionEntity.class)
         .paging(
-            linkProperties.pagingConfiguration("Condition", ConditionEntity.naturalOrder(), null))
+            linkProperties.pagingConfiguration(
+                "Condition", ConditionEntity.naturalOrder(), r -> null))
         .mappings(
             Mappings.forEntity(ConditionEntity.class)
                 .tokens(

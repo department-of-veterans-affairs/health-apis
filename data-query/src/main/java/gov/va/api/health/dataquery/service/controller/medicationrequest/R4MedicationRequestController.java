@@ -203,7 +203,7 @@ public class R4MedicationRequestController {
   private <EntityT extends DatamartEntity> VulcanConfiguration<EntityT> vulcanConfigurationFor(
       String resourceType, Class<EntityT> entityClass, Sort sortBy, String intent) {
     return VulcanConfiguration.forEntity(entityClass)
-        .paging(linkProperties.pagingConfiguration(resourceType, sortBy, null))
+        .paging(linkProperties.pagingConfiguration(resourceType, sortBy, r -> null))
         .mappings(
             Mappings.forEntity(entityClass)
                 .value("_id", "cdwId", s -> toCdwId(resourceType, s))

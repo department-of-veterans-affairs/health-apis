@@ -52,7 +52,8 @@ public class R4DeviceController {
 
   private VulcanConfiguration<DeviceEntity> configuration() {
     return VulcanConfiguration.forEntity(DeviceEntity.class)
-        .paging(linkProperties.pagingConfiguration("Device", DeviceEntity.naturalOrder(), null))
+        .paging(
+            linkProperties.pagingConfiguration("Device", DeviceEntity.naturalOrder(), r -> null))
         .mappings(
             Mappings.forEntity(DeviceEntity.class)
                 .value("_id", "cdwId", witnessProtection::toCdwId)

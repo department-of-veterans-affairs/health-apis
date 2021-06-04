@@ -57,7 +57,7 @@ public class R4OrganizationController {
     return VulcanConfiguration.forEntity(OrganizationEntity.class)
         .paging(
             linkProperties.pagingConfiguration(
-                "Organization", OrganizationEntity.naturalOrder(), null))
+                "Organization", OrganizationEntity.naturalOrder(), r -> null))
         .mappings(
             Mappings.forEntity(OrganizationEntity.class)
                 .string("address", "street")
