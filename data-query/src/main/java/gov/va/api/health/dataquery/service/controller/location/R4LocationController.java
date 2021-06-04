@@ -77,7 +77,7 @@ public class R4LocationController {
 
   private VulcanConfiguration<LocationEntity> configuration() {
     return VulcanConfiguration.forEntity(LocationEntity.class)
-        .paging(linkProperties.pagingConfiguration("Location", LocationEntity.naturalOrder()))
+        .paging(linkProperties.pagingConfiguration("Location", LocationEntity.naturalOrder(), null))
         .mappings(
             Mappings.forEntity(LocationEntity.class)
                 .value("_id", "cdwId", witnessProtection::toCdwId)

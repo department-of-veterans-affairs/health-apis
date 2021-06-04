@@ -58,7 +58,7 @@ public class R4PatientController {
 
   private VulcanConfiguration<PatientEntityV2> configuration() {
     return VulcanConfiguration.<PatientEntityV2>forEntity(PatientEntityV2.class)
-        .paging(linkProperties.pagingConfiguration("Patient", PatientEntityV2.naturalOrder()))
+        .paging(linkProperties.pagingConfiguration("Patient", PatientEntityV2.naturalOrder(), null))
         .mappings(
             Mappings.forEntity(PatientEntityV2.class)
                 .dateAsInstant("birthdate", "birthDate")

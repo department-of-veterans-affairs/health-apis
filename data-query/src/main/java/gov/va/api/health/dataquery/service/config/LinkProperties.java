@@ -3,20 +3,15 @@ package gov.va.api.health.dataquery.service.config;
 import static gov.va.api.lighthouse.vulcan.Vulcan.useUrl;
 
 import gov.va.api.health.r4.api.resources.Resource;
-import gov.va.api.lighthouse.vulcan.Vulcan;
+import gov.va.api.lighthouse.vulcan.SortRequest;
 import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
-import gov.va.api.lighthouse.vulcan.VulcanConfiguration.PagingConfiguration;
 
-import java.util.List;
 import java.util.function.Function;
-import javax.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.Value;
 import lombok.experimental.Accessors;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -55,24 +50,6 @@ public class LinkProperties {
         .sort(sorting)
         .sortableParameters(sortableParameters)
         .build();
-  }
-
-  @Value
-  @Builder
-  public static final class SortRequest {
-    @NonNull List<Parameter> sorting;
-
-    @Value
-    @Builder
-    public static final class Parameter {
-      @NonNull String parameterName;
-      @NonNull Direction direction;
-    }
-
-    public static enum Direction {
-      ASCENDING,
-      DESCENDING
-    }
   }
 
   public Links<Resource> r4() {

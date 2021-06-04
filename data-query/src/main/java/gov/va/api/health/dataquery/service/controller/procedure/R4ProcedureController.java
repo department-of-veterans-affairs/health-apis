@@ -51,7 +51,7 @@ public class R4ProcedureController {
 
   private VulcanConfiguration<ProcedureEntity> configuration() {
     return VulcanConfiguration.forEntity(ProcedureEntity.class)
-        .paging(linkProperties.pagingConfiguration("Procedure", ProcedureEntity.naturalOrder()))
+        .paging(linkProperties.pagingConfiguration("Procedure", ProcedureEntity.naturalOrder(), null))
         .mappings(
             Mappings.forEntity(ProcedureEntity.class)
                 .dateAsLongMilliseconds("date", "performedOnEpochTime")

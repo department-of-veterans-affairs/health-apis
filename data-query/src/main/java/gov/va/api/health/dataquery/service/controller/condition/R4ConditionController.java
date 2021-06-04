@@ -65,7 +65,8 @@ public class R4ConditionController {
   // ToDo UPDATE patient to reference
   private VulcanConfiguration<ConditionEntity> configuration() {
     return VulcanConfiguration.forEntity(ConditionEntity.class)
-        .paging(linkProperties.pagingConfiguration("Condition", ConditionEntity.naturalOrder()))
+        .paging(
+            linkProperties.pagingConfiguration("Condition", ConditionEntity.naturalOrder(), null))
         .mappings(
             Mappings.forEntity(ConditionEntity.class)
                 .tokens(
