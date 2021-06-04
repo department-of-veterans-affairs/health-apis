@@ -58,7 +58,9 @@ public class R4ObservationController {
 
   private VulcanConfiguration<ObservationEntity> configuration() {
     return VulcanConfiguration.<ObservationEntity>forEntity(ObservationEntity.class)
-        .paging(linkProperties.pagingConfiguration("Observation", ObservationEntity.naturalOrder(), null))
+        .paging(
+            linkProperties.pagingConfiguration(
+                "Observation", ObservationEntity.naturalOrder(), null))
         .mappings(
             Mappings.forEntity(ObservationEntity.class)
                 .tokens(

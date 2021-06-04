@@ -5,7 +5,6 @@ import static gov.va.api.lighthouse.vulcan.Vulcan.useUrl;
 import gov.va.api.health.r4.api.resources.Resource;
 import gov.va.api.lighthouse.vulcan.SortRequest;
 import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
-
 import java.util.function.Function;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
