@@ -34,6 +34,7 @@
       <Class name="gov.va.api.health.dataquery.service.controller.practitioner.DatamartPractitioner"/>
       <Class name="gov.va.api.health.dataquery.service.controller.practitioner.DatamartPractitioner$PractitionerRole"/>
       <Class name="gov.va.api.health.dataquery.service.controller.medication.DatamartMedication"/>
+      <Class name="gov.va.api.health.dataquery.service.controller.practitionerrole.DatamartPractitionerRole"/>
     </Or>
     <Or>
       <Method name="equals"/>

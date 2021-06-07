@@ -13,7 +13,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/** Practictioner datamart JSON. */
+/** Practitioner datamart JSON. */
 @Data
 @Builder
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
