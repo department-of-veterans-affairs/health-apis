@@ -30,6 +30,24 @@ public class PractitionerIT {
             Practitioner.Bundle.class,
             p -> p.entry().isEmpty(),
             "Practitioner?_id={id}",
-            testIds.unknown()));
+            testIds.unknown()),
+        test(
+            200, Practitioner.Bundle.class, "Practitioner?identifier={id}", testIds.practitioner()),
+        test(
+            200,
+            Practitioner.Bundle.class,
+            "Practitioner?identifier={npi}",
+            testIds.practitioners().npi()),
+        test(
+            200,
+            Practitioner.Bundle.class,
+            "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|{npi}",
+            testIds.practitioners().npi()),
+        test(
+            200,
+            Practitioner.Bundle.class,
+            p -> p.entry().isEmpty(),
+            "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|{id}",
+            testIds.practitioner()));
   }
 }

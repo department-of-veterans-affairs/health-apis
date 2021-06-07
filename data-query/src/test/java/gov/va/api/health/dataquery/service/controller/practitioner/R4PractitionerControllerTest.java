@@ -53,7 +53,7 @@ public class R4PractitionerControllerTest {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {"", "?identifier=123", "?invalid=request"})
+  @ValueSource(strings = {"", "?invalid=request"})
   @SneakyThrows
   void invalidRequest(String query) {
     var r = requestFromUri("http://fonzy.com/r4/Practitioner" + query);
@@ -150,7 +150,13 @@ public class R4PractitionerControllerTest {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {"?_id=pr1"})
+  @ValueSource(
+      strings = {
+        "?_id=pr1",
+        "?identifier=pr1",
+        "?identifier=http://hl7.org/fhir/sid/us-npi|",
+        "?identifier=http://hl7.org/fhir/sid/us-npi|123"
+      })
   @SneakyThrows
   void validRequest(String query) {
     when(ids.register(any())).thenReturn(List.of(registration("pr1", "ppr1")));
