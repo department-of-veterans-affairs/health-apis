@@ -39,14 +39,14 @@ public class LinkProperties {
    * resource name, e.g. DiagnosticReport and sorting, which is defined on the Datamart entities.
    */
   public VulcanConfiguration.PagingConfiguration pagingConfiguration(
-      String resource, Sort sorting, Function<SortRequest, Sort> sortableParameters) {
+      String resource, Sort sortDefault, Function<SortRequest, Sort> sortableParameters) {
     return VulcanConfiguration.PagingConfiguration.builder()
         .baseUrlStrategy(useUrl(r4().resourceUrl(resource)))
         .pageParameter("page")
         .countParameter("_count")
         .defaultCount(defaultPageSize)
         .maxCount(maxPageSize)
-        .sort(sorting)
+        .sortDefault(sortDefault)
         .sortableParameters(sortableParameters)
         .build();
   }
