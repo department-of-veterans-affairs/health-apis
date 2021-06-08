@@ -1,10 +1,13 @@
 package gov.va.api.health.dataquery.tests.r4;
 
+import static gov.va.api.health.sentinel.EnvironmentAssumptions.assumeEnvironmentIn;
+
 import gov.va.api.health.dataquery.tests.DataQueryResourceVerifier;
 import gov.va.api.health.dataquery.tests.TestIds;
 import gov.va.api.health.fhir.testsupport.ResourceVerifier;
 import gov.va.api.health.r4.api.resources.OperationOutcome;
 import gov.va.api.health.r4.api.resources.Practitioner;
+import gov.va.api.health.sentinel.Environment;
 import lombok.experimental.Delegate;
 import org.junit.jupiter.api.Test;
 
@@ -30,7 +33,13 @@ public class PractitionerIT {
             Practitioner.Bundle.class,
             p -> p.entry().isEmpty(),
             "Practitioner?_id={id}",
-            testIds.unknown()),
+            testIds.unknown()));
+  }
+
+  @Test
+  public void searchByIdentifier() {
+    assumeEnvironmentIn(Environment.LOCAL);
+    verifyAll(
         // any system with valid id
         test(
             200, Practitioner.Bundle.class, "Practitioner?identifier={id}", testIds.practitioner()),
