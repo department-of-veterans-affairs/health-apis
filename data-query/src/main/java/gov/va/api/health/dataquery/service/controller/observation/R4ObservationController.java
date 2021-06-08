@@ -4,6 +4,7 @@ import static gov.va.api.lighthouse.vulcan.Rules.ifParameter;
 import static gov.va.api.lighthouse.vulcan.Rules.parametersNeverSpecifiedTogether;
 import static gov.va.api.lighthouse.vulcan.Specifications.strings;
 import static gov.va.api.lighthouse.vulcan.Vulcan.returnNothing;
+import static gov.va.api.lighthouse.vulcan.VulcanConfiguration.PagingConfiguration.noSortableParameters;
 
 import gov.va.api.health.dataquery.service.config.LinkProperties;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
@@ -58,7 +59,9 @@ public class R4ObservationController {
 
   private VulcanConfiguration<ObservationEntity> configuration() {
     return VulcanConfiguration.<ObservationEntity>forEntity(ObservationEntity.class)
-        .paging(linkProperties.pagingConfiguration("Observation", ObservationEntity.naturalOrder()))
+        .paging(
+            linkProperties.pagingConfiguration(
+                "Observation", ObservationEntity.naturalOrder(), noSortableParameters()))
         .mappings(
             Mappings.forEntity(ObservationEntity.class)
                 .tokens(

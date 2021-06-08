@@ -4,6 +4,7 @@ import static gov.va.api.lighthouse.vulcan.Rules.ifParameter;
 import static gov.va.api.lighthouse.vulcan.Rules.parametersNeverSpecifiedTogether;
 import static gov.va.api.lighthouse.vulcan.Specifications.strings;
 import static gov.va.api.lighthouse.vulcan.Vulcan.returnNothing;
+import static gov.va.api.lighthouse.vulcan.VulcanConfiguration.PagingConfiguration.noSortableParameters;
 
 import gov.va.api.health.dataquery.service.config.LinkProperties;
 import gov.va.api.health.dataquery.service.controller.CompositeCdwIds;
@@ -65,7 +66,9 @@ public class R4ConditionController {
   // ToDo UPDATE patient to reference
   private VulcanConfiguration<ConditionEntity> configuration() {
     return VulcanConfiguration.forEntity(ConditionEntity.class)
-        .paging(linkProperties.pagingConfiguration("Condition", ConditionEntity.naturalOrder()))
+        .paging(
+            linkProperties.pagingConfiguration(
+                "Condition", ConditionEntity.naturalOrder(), noSortableParameters()))
         .mappings(
             Mappings.forEntity(ConditionEntity.class)
                 .tokens(

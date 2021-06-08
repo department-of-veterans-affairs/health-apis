@@ -3,6 +3,7 @@ package gov.va.api.health.dataquery.service.controller.patient;
 import static gov.va.api.lighthouse.vulcan.Rules.ifParameter;
 import static gov.va.api.lighthouse.vulcan.Rules.parametersNeverSpecifiedTogether;
 import static gov.va.api.lighthouse.vulcan.Vulcan.returnNothing;
+import static gov.va.api.lighthouse.vulcan.VulcanConfiguration.PagingConfiguration.noSortableParameters;
 
 import gov.va.api.health.dataquery.service.config.LinkProperties;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
@@ -58,7 +59,9 @@ public class R4PatientController {
 
   private VulcanConfiguration<PatientEntityV2> configuration() {
     return VulcanConfiguration.<PatientEntityV2>forEntity(PatientEntityV2.class)
-        .paging(linkProperties.pagingConfiguration("Patient", PatientEntityV2.naturalOrder()))
+        .paging(
+            linkProperties.pagingConfiguration(
+                "Patient", PatientEntityV2.naturalOrder(), noSortableParameters()))
         .mappings(
             Mappings.forEntity(PatientEntityV2.class)
                 .dateAsInstant("birthdate", "birthDate")

@@ -4,6 +4,7 @@ import static gov.va.api.lighthouse.vulcan.Rules.forbidUnknownParameters;
 import static gov.va.api.lighthouse.vulcan.Rules.parametersNeverSpecifiedTogether;
 import static gov.va.api.lighthouse.vulcan.Specifications.select;
 import static gov.va.api.lighthouse.vulcan.Vulcan.returnNothing;
+import static gov.va.api.lighthouse.vulcan.VulcanConfiguration.PagingConfiguration.noSortableParameters;
 
 import gov.va.api.health.dataquery.service.config.LinkProperties;
 import gov.va.api.health.dataquery.service.controller.FacilityId;
@@ -77,7 +78,9 @@ public class R4LocationController {
 
   private VulcanConfiguration<LocationEntity> configuration() {
     return VulcanConfiguration.forEntity(LocationEntity.class)
-        .paging(linkProperties.pagingConfiguration("Location", LocationEntity.naturalOrder()))
+        .paging(
+            linkProperties.pagingConfiguration(
+                "Location", LocationEntity.naturalOrder(), noSortableParameters()))
         .mappings(
             Mappings.forEntity(LocationEntity.class)
                 .value("_id", "cdwId", witnessProtection::toCdwId)

@@ -3,7 +3,9 @@ package gov.va.api.health.dataquery.service.config;
 import static gov.va.api.lighthouse.vulcan.Vulcan.useUrl;
 
 import gov.va.api.health.r4.api.resources.Resource;
-import gov.va.api.lighthouse.vulcan.VulcanConfiguration.PagingConfiguration;
+import gov.va.api.lighthouse.vulcan.SortRequest;
+import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
+import java.util.function.Function;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,7 +27,6 @@ import org.springframework.data.domain.Sort;
 @AllArgsConstructor
 @Builder
 public class LinkProperties {
-
   private String publicUrl;
   private String publicDstu2BasePath;
   private String publicStu3BasePath;
@@ -37,14 +38,16 @@ public class LinkProperties {
    * Create standard page configuration for use for Vulcan based controllers. This is expecting a
    * resource name, e.g. DiagnosticReport and sorting, which is defined on the Datamart entities.
    */
-  public PagingConfiguration pagingConfiguration(String resource, Sort sorting) {
-    return PagingConfiguration.builder()
+  public VulcanConfiguration.PagingConfiguration pagingConfiguration(
+      String resource, Sort sortDefault, Function<SortRequest, Sort> sortableParameters) {
+    return VulcanConfiguration.PagingConfiguration.builder()
         .baseUrlStrategy(useUrl(r4().resourceUrl(resource)))
         .pageParameter("page")
         .countParameter("_count")
         .defaultCount(defaultPageSize)
         .maxCount(maxPageSize)
-        .sort(sorting)
+        .sortDefault(sortDefault)
+        .sortableParameters(sortableParameters)
         .build();
   }
 
@@ -55,7 +58,6 @@ public class LinkProperties {
   /** Generate links for a specific base URL. */
   @Accessors(fluent = true)
   public static class Links<ResourceT> {
-
     @Getter private final String baseUrl;
 
     Links(String publicUrl, String publicBasePath) {

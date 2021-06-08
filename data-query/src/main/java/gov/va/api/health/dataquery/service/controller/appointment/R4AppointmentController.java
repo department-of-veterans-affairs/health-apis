@@ -13,6 +13,7 @@ import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedTrans
 import gov.va.api.health.r4.api.resources.Appointment;
 import gov.va.api.lighthouse.datamart.CompositeCdwId;
 import gov.va.api.lighthouse.vulcan.CircuitBreaker;
+import gov.va.api.lighthouse.vulcan.SortRequest;
 import gov.va.api.lighthouse.vulcan.Vulcan;
 import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
 import gov.va.api.lighthouse.vulcan.mappings.Mappings;
@@ -27,6 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -47,9 +49,21 @@ public class R4AppointmentController {
 
   private final LinkProperties linkProperties;
 
+  private static Sort sortableParameters(SortRequest req) {
+    return req.sorting().stream()
+        .filter(p -> p.parameterName().equals("date"))
+        .findFirst()
+        .map(p -> Sort.by(p.direction(), "date").and(AppointmentEntity.naturalOrder()))
+        .orElse(null);
+  }
+
   private VulcanConfiguration<AppointmentEntity> configuration() {
     return VulcanConfiguration.forEntity(AppointmentEntity.class)
-        .paging(linkProperties.pagingConfiguration("Appointment", AppointmentEntity.naturalOrder()))
+        .paging(
+            linkProperties.pagingConfiguration(
+                "Appointment",
+                AppointmentEntity.naturalOrder(),
+                R4AppointmentController::sortableParameters))
         .mappings(
             Mappings.forEntity(AppointmentEntity.class)
                 .dateAsInstant("_lastUpdated", "lastUpdated")
@@ -84,7 +98,6 @@ public class R4AppointmentController {
       return CompositeCdwId.fromCdwId(witnessProtection.toCdwId(publicId))
           .cdwIdNumber()
           .intValueExact();
-
     } catch (IllegalArgumentException | ArithmeticException e) {
       throw CircuitBreaker.noResultsWillBeFound("location", publicId, "Unknown ID.");
     }
@@ -156,7 +169,6 @@ public class R4AppointmentController {
    * original CDW ID to properly detect the type of a appointment, which is encoded in it's ID.
    */
   private static class StatefulTransformation {
-
     /**
      * We're tracking the pair of entity-to-appointment as this thread safe queue. We're not using a
      * map here because we know the DatamartAppointment.cdwId will be mutated along the way and we
@@ -187,7 +199,6 @@ public class R4AppointmentController {
               .orElseThrow(missingStateException(witness));
       states.remove(state);
       CompositeCdwId witnessCompositeId = state.entity().compositeCdwId();
-
       return R4AppointmentTransformer.builder()
           .compositeCdwId(witnessCompositeId)
           .dm(witness)
@@ -199,6 +210,7 @@ public class R4AppointmentController {
     @Getter
     private static class State {
       private final AppointmentEntity entity;
+
       private final DatamartAppointment payload;
     }
   }

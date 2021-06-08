@@ -19,7 +19,7 @@
     <mssql-jdbc.version>9.2.1.jre15</mssql-jdbc.version>
     <swagger-maven-plugin.version>2.1.7</swagger-maven-plugin.version>
     <talos.version>1.0.0</talos.version>
-    <vulcan.version>2.0.3</vulcan.version>
+    <vulcan.version>2.0.4</vulcan.version>
   </properties>
   <dependencies>
     <dependency>
