@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.practitionerrole;
 
+import gov.va.api.health.dataquery.service.controller.practitioner.DatamartPractitioner;
 import gov.va.api.lighthouse.datamart.DatamartCoding;
 import gov.va.api.lighthouse.datamart.DatamartReference;
 import gov.va.api.lighthouse.datamart.HasReplaceableId;
@@ -30,6 +31,8 @@ public class DatamartPractitionerRole implements HasReplaceableId {
   private Optional<DatamartReference> managingOrganization;
 
   private Optional<DatamartCoding> role;
+
+  private DatamartPractitioner.Name name;
 
   private List<DatamartPractitionerRole.Specialty> specialty;
 
