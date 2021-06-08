@@ -1,8 +1,8 @@
 package gov.va.api.health.dataquery.service.controller.practitionerrole;
 
-import static gov.va.api.health.dataquery.service.config.LinkProperties.noSortableParameters;
 import static gov.va.api.lighthouse.vulcan.Rules.atLeastOneParameterOf;
 import static gov.va.api.lighthouse.vulcan.Vulcan.returnNothing;
+import static gov.va.api.lighthouse.vulcan.VulcanConfiguration.PagingConfiguration.noSortableParameters;
 
 import gov.va.api.health.dataquery.service.config.LinkProperties;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
