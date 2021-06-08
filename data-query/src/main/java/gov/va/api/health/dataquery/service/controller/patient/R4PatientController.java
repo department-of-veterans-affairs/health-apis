@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.patient;
 
+import static gov.va.api.health.dataquery.service.config.LinkProperties.noSortableParameters;
 import static gov.va.api.lighthouse.vulcan.Rules.ifParameter;
 import static gov.va.api.lighthouse.vulcan.Rules.parametersNeverSpecifiedTogether;
 import static gov.va.api.lighthouse.vulcan.Vulcan.returnNothing;
@@ -60,7 +61,7 @@ public class R4PatientController {
     return VulcanConfiguration.<PatientEntityV2>forEntity(PatientEntityV2.class)
         .paging(
             linkProperties.pagingConfiguration(
-                "Patient", PatientEntityV2.naturalOrder(), r -> null))
+                "Patient", PatientEntityV2.naturalOrder(), noSortableParameters()))
         .mappings(
             Mappings.forEntity(PatientEntityV2.class)
                 .dateAsInstant("birthdate", "birthDate")

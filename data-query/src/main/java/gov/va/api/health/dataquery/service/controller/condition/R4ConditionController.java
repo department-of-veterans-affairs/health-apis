@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.condition;
 
+import static gov.va.api.health.dataquery.service.config.LinkProperties.noSortableParameters;
 import static gov.va.api.lighthouse.vulcan.Rules.ifParameter;
 import static gov.va.api.lighthouse.vulcan.Rules.parametersNeverSpecifiedTogether;
 import static gov.va.api.lighthouse.vulcan.Specifications.strings;
@@ -67,7 +68,7 @@ public class R4ConditionController {
     return VulcanConfiguration.forEntity(ConditionEntity.class)
         .paging(
             linkProperties.pagingConfiguration(
-                "Condition", ConditionEntity.naturalOrder(), r -> null))
+                "Condition", ConditionEntity.naturalOrder(), noSortableParameters()))
         .mappings(
             Mappings.forEntity(ConditionEntity.class)
                 .tokens(

@@ -34,6 +34,10 @@ public class LinkProperties {
   private int defaultPageSize;
   private int maxPageSize;
 
+  public static Function<SortRequest, Sort> noSortableParameters() {
+    return r -> null;
+  }
+
   /**
    * Create standard page configuration for use for Vulcan based controllers. This is expecting a
    * resource name, e.g. DiagnosticReport and sorting, which is defined on the Datamart entities.

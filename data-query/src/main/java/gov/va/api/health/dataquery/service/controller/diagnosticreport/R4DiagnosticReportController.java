@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.diagnosticreport;
 
+import static gov.va.api.health.dataquery.service.config.LinkProperties.noSortableParameters;
 import static gov.va.api.lighthouse.vulcan.Rules.atLeastOneParameterOf;
 import static gov.va.api.lighthouse.vulcan.Rules.ifParameter;
 import static gov.va.api.lighthouse.vulcan.Rules.parametersNeverSpecifiedTogether;
@@ -63,7 +64,7 @@ public class R4DiagnosticReportController {
     return VulcanConfiguration.forEntity(DiagnosticReportEntity.class)
         .paging(
             linkProperties.pagingConfiguration(
-                "DiagnosticReport", DiagnosticReportEntity.naturalOrder(), r -> null))
+                "DiagnosticReport", DiagnosticReportEntity.naturalOrder(), noSortableParameters()))
         .mappings(
             Mappings.forEntity(DiagnosticReportEntity.class)
                 .value("_id", "cdwId", witnessProtection::toCdwId)

@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.allergyintolerance;
 
+import static gov.va.api.health.dataquery.service.config.LinkProperties.noSortableParameters;
 import static gov.va.api.lighthouse.vulcan.Rules.ifParameter;
 import static gov.va.api.lighthouse.vulcan.Rules.parametersNeverSpecifiedTogether;
 import static gov.va.api.lighthouse.vulcan.Vulcan.returnNothing;
@@ -51,7 +52,9 @@ public class R4AllergyIntoleranceController {
     return VulcanConfiguration.<AllergyIntoleranceEntity>forEntity(AllergyIntoleranceEntity.class)
         .paging(
             linkProperties.pagingConfiguration(
-                "AllergyIntolerance", AllergyIntoleranceEntity.naturalOrder(), r -> null))
+                "AllergyIntolerance",
+                AllergyIntoleranceEntity.naturalOrder(),
+                noSortableParameters()))
         .mappings(
             Mappings.forEntity(AllergyIntoleranceEntity.class)
                 .value("_id", "cdwId", witnessProtection::toCdwId)

@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.device;
 
+import static gov.va.api.health.dataquery.service.config.LinkProperties.noSortableParameters;
 import static gov.va.api.lighthouse.vulcan.Rules.ifParameter;
 import static gov.va.api.lighthouse.vulcan.Rules.parametersNeverSpecifiedTogether;
 import static gov.va.api.lighthouse.vulcan.Vulcan.returnNothing;
@@ -53,7 +54,8 @@ public class R4DeviceController {
   private VulcanConfiguration<DeviceEntity> configuration() {
     return VulcanConfiguration.forEntity(DeviceEntity.class)
         .paging(
-            linkProperties.pagingConfiguration("Device", DeviceEntity.naturalOrder(), r -> null))
+            linkProperties.pagingConfiguration(
+                "Device", DeviceEntity.naturalOrder(), noSortableParameters()))
         .mappings(
             Mappings.forEntity(DeviceEntity.class)
                 .value("_id", "cdwId", witnessProtection::toCdwId)

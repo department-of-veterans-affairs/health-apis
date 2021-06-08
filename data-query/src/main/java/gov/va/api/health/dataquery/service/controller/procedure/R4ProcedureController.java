@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.procedure;
 
+import static gov.va.api.health.dataquery.service.config.LinkProperties.noSortableParameters;
 import static gov.va.api.lighthouse.vulcan.Rules.ifParameter;
 import static gov.va.api.lighthouse.vulcan.Rules.parametersNeverSpecifiedTogether;
 import static gov.va.api.lighthouse.vulcan.Vulcan.returnNothing;
@@ -53,7 +54,7 @@ public class R4ProcedureController {
     return VulcanConfiguration.forEntity(ProcedureEntity.class)
         .paging(
             linkProperties.pagingConfiguration(
-                "Procedure", ProcedureEntity.naturalOrder(), r -> null))
+                "Procedure", ProcedureEntity.naturalOrder(), noSortableParameters()))
         .mappings(
             Mappings.forEntity(ProcedureEntity.class)
                 .dateAsLongMilliseconds("date", "performedOnEpochTime")

@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.organization;
 
+import static gov.va.api.health.dataquery.service.config.LinkProperties.noSortableParameters;
 import static gov.va.api.lighthouse.vulcan.Rules.parametersNeverSpecifiedTogether;
 import static gov.va.api.lighthouse.vulcan.Specifications.select;
 import static gov.va.api.lighthouse.vulcan.Vulcan.returnNothing;
@@ -57,7 +58,7 @@ public class R4OrganizationController {
     return VulcanConfiguration.forEntity(OrganizationEntity.class)
         .paging(
             linkProperties.pagingConfiguration(
-                "Organization", OrganizationEntity.naturalOrder(), r -> null))
+                "Organization", OrganizationEntity.naturalOrder(), noSortableParameters()))
         .mappings(
             Mappings.forEntity(OrganizationEntity.class)
                 .string("address", "street")

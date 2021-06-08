@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.immunization;
 
+import static gov.va.api.health.dataquery.service.config.LinkProperties.noSortableParameters;
 import static gov.va.api.lighthouse.vulcan.Rules.ifParameter;
 import static gov.va.api.lighthouse.vulcan.Rules.parametersNeverSpecifiedTogether;
 import static gov.va.api.lighthouse.vulcan.Vulcan.returnNothing;
@@ -52,7 +53,7 @@ public class R4ImmunizationController {
     return VulcanConfiguration.forEntity(ImmunizationEntity.class)
         .paging(
             linkProperties.pagingConfiguration(
-                "Immunization", ImmunizationEntity.naturalOrder(), r -> null))
+                "Immunization", ImmunizationEntity.naturalOrder(), noSortableParameters()))
         .mappings(
             Mappings.forEntity(ImmunizationEntity.class)
                 .value("_id", "cdwId", witnessProtection::toCdwId)

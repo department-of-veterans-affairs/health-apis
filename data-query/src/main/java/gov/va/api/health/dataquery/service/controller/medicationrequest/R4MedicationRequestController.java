@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.medicationrequest;
 
+import static gov.va.api.health.dataquery.service.config.LinkProperties.noSortableParameters;
 import static gov.va.api.lighthouse.vulcan.Rules.ifParameter;
 import static gov.va.api.lighthouse.vulcan.Rules.parametersNeverSpecifiedTogether;
 import static gov.va.api.lighthouse.vulcan.Vulcan.returnNothing;
@@ -203,7 +204,7 @@ public class R4MedicationRequestController {
   private <EntityT extends DatamartEntity> VulcanConfiguration<EntityT> vulcanConfigurationFor(
       String resourceType, Class<EntityT> entityClass, Sort sortBy, String intent) {
     return VulcanConfiguration.forEntity(entityClass)
-        .paging(linkProperties.pagingConfiguration(resourceType, sortBy, r -> null))
+        .paging(linkProperties.pagingConfiguration(resourceType, sortBy, noSortableParameters()))
         .mappings(
             Mappings.forEntity(entityClass)
                 .value("_id", "cdwId", s -> toCdwId(resourceType, s))

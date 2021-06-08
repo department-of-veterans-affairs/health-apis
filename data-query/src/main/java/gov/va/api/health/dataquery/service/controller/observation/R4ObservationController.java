@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.observation;
 
+import static gov.va.api.health.dataquery.service.config.LinkProperties.noSortableParameters;
 import static gov.va.api.lighthouse.vulcan.Rules.ifParameter;
 import static gov.va.api.lighthouse.vulcan.Rules.parametersNeverSpecifiedTogether;
 import static gov.va.api.lighthouse.vulcan.Specifications.strings;
@@ -60,7 +61,7 @@ public class R4ObservationController {
     return VulcanConfiguration.<ObservationEntity>forEntity(ObservationEntity.class)
         .paging(
             linkProperties.pagingConfiguration(
-                "Observation", ObservationEntity.naturalOrder(), r -> null))
+                "Observation", ObservationEntity.naturalOrder(), noSortableParameters()))
         .mappings(
             Mappings.forEntity(ObservationEntity.class)
                 .tokens(
