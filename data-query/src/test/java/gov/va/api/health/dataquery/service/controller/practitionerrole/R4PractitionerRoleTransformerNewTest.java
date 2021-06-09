@@ -82,25 +82,25 @@ public class R4PractitionerRoleTransformerNewTest {
   }
 
   @Test
-  public void nullValues() {
-    var completeNullValues = DatamartPractitionerRole.builder().build();
-    assertThat(completeNullValues).isNotNull();
-    assertThat(completeNullValues.managingOrganization()).isEqualTo(Optional.empty());
-    assertThat(completeNullValues.period()).isEqualTo(Optional.empty());
-    assertThat(completeNullValues.cdwId()).isNull();
-    assertThat(completeNullValues.npi()).isNull();
-    assertThat(completeNullValues.specialty()).isEqualTo(new ArrayList<>());
-    assertThat(completeNullValues.role()).isEqualTo(Optional.empty());
-    assertThat(completeNullValues.specialty()).isEqualTo(new ArrayList<>());
+  public void nullValuesHandled() {
+    var practitionerRoleWithNulls = DatamartPractitionerRole.builder().build();
+    assertThat(practitionerRoleWithNulls).isNotNull();
+    assertThat(practitionerRoleWithNulls.managingOrganization()).isEqualTo(Optional.empty());
+    assertThat(practitionerRoleWithNulls.period()).isEqualTo(Optional.empty());
+    assertThat(practitionerRoleWithNulls.cdwId()).isNull();
+    assertThat(practitionerRoleWithNulls.npi()).isEqualTo(Optional.empty());
+    assertThat(practitionerRoleWithNulls.specialty()).isEqualTo(new ArrayList<>());
+    assertThat(practitionerRoleWithNulls.role()).isEqualTo(Optional.empty());
+    assertThat(practitionerRoleWithNulls.specialty()).isEqualTo(new ArrayList<>());
     var period = Optional.of(DatamartPractitionerRole.Period.builder().build());
-    completeNullValues.period(period);
-    assertThat(completeNullValues).isNotNull();
-    assertThat(completeNullValues.period().get().start()).isEqualTo(Optional.empty());
-    assertThat(completeNullValues.period().get().end()).isEqualTo(Optional.empty());
+    practitionerRoleWithNulls.period(period);
+    assertThat(practitionerRoleWithNulls).isNotNull();
+    assertThat(practitionerRoleWithNulls.period().get().start()).isEqualTo(Optional.empty());
+    assertThat(practitionerRoleWithNulls.period().get().end()).isEqualTo(Optional.empty());
     var specialtyList = List.of(DatamartPractitionerRole.Specialty.builder().build());
-    completeNullValues.specialty(specialtyList);
-    var specialty = completeNullValues.specialty().get(0);
-    assertThat(completeNullValues).isNotNull();
+    practitionerRoleWithNulls.specialty(specialtyList);
+    var specialty = practitionerRoleWithNulls.specialty().get(0);
+    assertThat(practitionerRoleWithNulls).isNotNull();
     assertThat(specialty.areaOfSpecialization()).isEqualTo(Optional.empty());
     assertThat(specialty.classification()).isEqualTo(Optional.empty());
     assertThat(specialty.providerType()).isEqualTo(Optional.empty());

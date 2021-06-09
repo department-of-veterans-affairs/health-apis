@@ -67,6 +67,14 @@ public class DatamartPractitionerRole implements HasReplaceableId {
   }
 
   /** Lazy initialization. */
+  public Optional<String> npi() {
+    if (npi == null) {
+      npi = Optional.empty();
+    }
+    return npi;
+  }
+
+  /** Lazy initialization. */
   public Optional<DatamartPractitionerRole.Period> period() {
     if (period == null) {
       period = Optional.empty();

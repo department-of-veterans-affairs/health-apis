@@ -1,14 +1,17 @@
 package gov.va.api.health.dataquery.service.controller.practitionerrole;
 
 import gov.va.api.health.dataquery.service.controller.DatamartSupport;
-import gov.va.api.lighthouse.datamart.DatamartEntity;
+import gov.va.api.lighthouse.datamart.CompositeCdwId;
+import gov.va.api.lighthouse.datamart.CompositeIdDatamartEntity;
 import gov.va.api.lighthouse.datamart.Payload;
+import java.math.BigInteger;
 import java.time.Instant;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.IdClass;
 import javax.persistence.Lob;
 import javax.persistence.Table;
 import lombok.AccessLevel;
@@ -27,13 +30,19 @@ import org.springframework.data.domain.Sort;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class PractitionerRoleEntity implements DatamartEntity {
+@IdClass(CompositeCdwId.class)
+public class PractitionerRoleEntity implements CompositeIdDatamartEntity {
   @Id
-  @Column(name = "CDWID")
+  @Column(name = "CdwIdNumber")
   @EqualsAndHashCode.Include
-  private String cdwId;
+  private BigInteger cdwIdNumber;
 
-  @Column(name = "NPI", nullable = true)
+  @Id
+  @Column(name = "CdwIdResourceCode")
+  @EqualsAndHashCode.Include
+  private char cdwIdResourceCode;
+
+  @Column(name = "PractitionerNPI", nullable = true)
   private String npi;
 
   @Column(name = "Specialty", nullable = false)
@@ -59,6 +68,11 @@ public class PractitionerRoleEntity implements DatamartEntity {
 
   public DatamartPractitionerRole asDatamartPractitonerRole() {
     return toPayload().deserialize();
+  }
+
+  @Override
+  public CompositeCdwId compositeCdwId() {
+    return new CompositeCdwId(cdwIdNumber(), cdwIdResourceCode());
   }
 
   @Override
