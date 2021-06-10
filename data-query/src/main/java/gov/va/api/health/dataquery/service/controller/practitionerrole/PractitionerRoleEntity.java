@@ -45,9 +45,6 @@ public class PractitionerRoleEntity implements CompositeIdDatamartEntity {
   @Column(name = "PractitionerNPI", nullable = true)
   private String npi;
 
-  @Column(name = "Specialty", nullable = false)
-  private String specialty;
-
   @Column(name = "PractitionerFamilyName", nullable = true)
   private String familyName;
 
