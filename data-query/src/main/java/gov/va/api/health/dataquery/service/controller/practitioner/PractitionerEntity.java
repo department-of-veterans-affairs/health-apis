@@ -3,6 +3,7 @@ package gov.va.api.health.dataquery.service.controller.practitioner;
 import gov.va.api.health.dataquery.service.controller.DatamartSupport;
 import gov.va.api.lighthouse.datamart.DatamartEntity;
 import gov.va.api.lighthouse.datamart.Payload;
+import java.math.BigInteger;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -31,6 +32,12 @@ public class PractitionerEntity implements DatamartEntity {
   @Column(name = "CDWID")
   @EqualsAndHashCode.Include
   private String cdwId;
+
+  @Column(name = "CdwIdNumber")
+  private BigInteger cdwIdNumber;
+
+  @Column(name = "CdwIdResourceCode")
+  private Character cdwIdResourceCode;
 
   @Column(name = "NPI", nullable = true)
   private String npi;
