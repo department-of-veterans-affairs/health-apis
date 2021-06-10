@@ -9,7 +9,11 @@ import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
+import gov.va.api.health.dataquery.service.controller.ResourceExceptions.NotFound;
+import gov.va.api.health.dataquery.service.controller.condition.ConditionEntity;
 import gov.va.api.health.dstu2.api.resources.Practitioner;
+import gov.va.api.lighthouse.datamart.CompositeCdwId;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -39,7 +43,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class Dstu2PractitionerController {
 
   private Dstu2Bundler bundler;
-
   private PractitionerRepository repository;
 
   private WitnessProtection witnessProtection;
@@ -74,7 +77,13 @@ public class Dstu2PractitionerController {
   }
 
   PractitionerEntity findById(String publicId) {
-    Optional<PractitionerEntity> entity = repository.findById(witnessProtection.toCdwId(publicId));
+    CompositeCdwId compositeCdwId;
+    try {
+      compositeCdwId = CompositeCdwId.fromCdwId(witnessProtection.toCdwId(publicId));
+    } catch (IllegalArgumentException e) {
+      throw new NotFound(publicId);
+    }
+    Optional<PractitionerEntity> entity = repository.findById(compositeCdwId);
     return entity.orElseThrow(() -> new ResourceExceptions.NotFound(publicId));
   }
 

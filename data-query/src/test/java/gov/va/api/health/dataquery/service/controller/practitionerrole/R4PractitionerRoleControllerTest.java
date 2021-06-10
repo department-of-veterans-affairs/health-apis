@@ -153,7 +153,7 @@ public class R4PractitionerRoleControllerTest {
     when(repository.findAll(any(Specification.class), any(Pageable.class)))
         .thenAnswer(
             i ->
-                new PageImpl(
+                new PageImpl<PractitionerEntity>(
                     List.of(dm.entity("pr1", "loc1", "org1")),
                     i.getArgument(1, Pageable.class),
                     1));

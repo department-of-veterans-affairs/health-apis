@@ -7,6 +7,7 @@ import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.health.r4.api.datatypes.Identifier;
+import gov.va.api.lighthouse.datamart.CompositeCdwId;
 import gov.va.api.lighthouse.datamart.DatamartCoding;
 import gov.va.api.lighthouse.datamart.DatamartReference;
 import java.time.LocalDate;
@@ -20,7 +21,6 @@ import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class PractitionerSamples {
-
   public static ResourceIdentity id(String cdwId) {
     return ResourceIdentity.builder()
         .system("CDW")
@@ -40,12 +40,12 @@ public class PractitionerSamples {
 
   @AllArgsConstructor(staticName = "create")
   public static class Datamart {
-
     @SneakyThrows
     public PractitionerEntity entity(String cdwId, String locCdwId, String orgCdwId) {
       DatamartPractitioner dm = practitioner(cdwId);
       return PractitionerEntity.builder()
-          .cdwId(cdwId)
+          .cdwIdNumber(CompositeCdwId.fromCdwId(cdwId).cdwIdNumber())
+          .cdwIdResourceCode(CompositeCdwId.fromCdwId(cdwId).cdwIdResourceCode())
           .npi("1234567")
           .familyName("Joe")
           .givenName("Johnson")

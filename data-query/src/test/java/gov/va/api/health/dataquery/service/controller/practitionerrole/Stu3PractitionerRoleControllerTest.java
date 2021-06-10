@@ -24,6 +24,7 @@ import gov.va.api.health.stu3.api.bundle.AbstractBundle;
 import gov.va.api.health.stu3.api.bundle.BundleLink;
 import gov.va.api.health.stu3.api.resources.PractitionerRole;
 import gov.va.api.health.stu3.api.resources.PractitionerRole.Bundle;
+import gov.va.api.lighthouse.datamart.CompositeCdwId;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -45,7 +46,8 @@ public class Stu3PractitionerRoleControllerTest {
   @SneakyThrows
   private static PractitionerEntity asEntity(DatamartPractitioner dm) {
     return PractitionerEntity.builder()
-        .cdwId(dm.cdwId())
+        .cdwIdNumber(CompositeCdwId.fromCdwId(dm.cdwId()).cdwIdNumber())
+        .cdwIdResourceCode(CompositeCdwId.fromCdwId(dm.cdwId()).cdwIdResourceCode())
         .npi(dm.npi().orElse(null))
         .familyName(dm.name().family())
         .givenName(dm.name().given())

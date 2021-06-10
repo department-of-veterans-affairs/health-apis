@@ -6,6 +6,7 @@ import static gov.va.api.lighthouse.vulcan.VulcanConfiguration.PagingConfigurati
 import static org.apache.commons.lang3.StringUtils.startsWithIgnoreCase;
 
 import gov.va.api.health.dataquery.service.config.LinkProperties;
+import gov.va.api.health.dataquery.service.controller.CompositeCdwIds;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.Bundling;
@@ -13,6 +14,7 @@ import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedBundl
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedReader;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedTransformation;
 import gov.va.api.health.r4.api.resources.Practitioner;
+import gov.va.api.lighthouse.datamart.CompositeCdwId;
 import gov.va.api.lighthouse.vulcan.Specifications;
 import gov.va.api.lighthouse.vulcan.SystemIdFields;
 import gov.va.api.lighthouse.vulcan.Vulcan;
@@ -20,6 +22,7 @@ import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
 import gov.va.api.lighthouse.vulcan.mappings.Mappings;
 import gov.va.api.lighthouse.vulcan.mappings.TokenParameter;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
@@ -60,7 +63,7 @@ public class R4PractitionerController {
                 "Practitioner", PractitionerEntity.naturalOrder(), noSortableParameters()))
         .mappings(
             Mappings.forEntity(PractitionerEntity.class)
-                .value("_id", "cdwId", witnessProtection::toCdwId)
+                .values("_id", this::loadCdwId)
                 .tokens(
                     "identifier",
                     this::tokenIdentifierIsSupported,
@@ -71,9 +74,36 @@ public class R4PractitionerController {
         .build();
   }
 
-  /** Read Support. */
+  private Specification<PractitionerEntity> identifierAnySystemAndExplicitCodeSpec(String code) {
+    Specification<PractitionerEntity> npiSpec =
+        Specifications.<PractitionerEntity>select("npi", code);
+    try {
+      CompositeCdwId cdwId = CompositeCdwId.fromCdwId(witnessProtection.toCdwId(code));
+      Specification<PractitionerEntity> cdwIdSpec =
+          Specifications.<PractitionerEntity>select("cdwIdNumber", cdwId.cdwIdNumber())
+              .and(Specifications.select("cdwIdResourceCode", cdwId.cdwIdResourceCode()));
+      return npiSpec.or(cdwIdSpec);
+    } catch (IllegalArgumentException e) {
+      return npiSpec;
+    }
+  }
+
+  private Map<String, ?> loadCdwId(String publicId) {
+    String cdwId = witnessProtection.toCdwId(publicId);
+    try {
+      CompositeCdwId compositeCdwId = CompositeCdwId.fromCdwId(cdwId);
+      return Map.of(
+          "cdwIdNumber",
+          compositeCdwId.cdwIdNumber(),
+          "cdwIdResourceCode",
+          compositeCdwId.cdwIdResourceCode());
+    } catch (IllegalArgumentException e) {
+      return Map.of();
+    }
+  }
+
   @GetMapping(value = "/{publicId}")
-  public Practitioner read(@PathVariable("publicId") String publicId) {
+  Practitioner read(@PathVariable("publicId") String publicId) {
     if (publicId.length() > 4 && startsWithIgnoreCase(publicId, "npi-")) {
       return readByNpi(publicId.substring(4));
     }
@@ -94,13 +124,12 @@ public class R4PractitionerController {
   @GetMapping(
       value = "/{publicId}",
       headers = {"raw=true"})
-  public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
+  String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
     return vulcanizedReader().readRaw(publicId, response);
   }
 
-  /** Search support. */
   @GetMapping
-  public Practitioner.Bundle search(HttpServletRequest request) {
+  Practitioner.Bundle search(HttpServletRequest request) {
     return Vulcan.forRepo(repository)
         .config(configuration())
         .build()
@@ -135,10 +164,7 @@ public class R4PractitionerController {
             .add(PRACTITIONER_IDENTIFIER_SYSTEM_NPI, "npi");
     return token
         .behavior()
-        .onAnySystemAndExplicitCode(
-            code ->
-                Specifications.<PractitionerEntity>select("cdwId", witnessProtection.toCdwId(code))
-                    .or(Specifications.select("npi", code)))
+        .onAnySystemAndExplicitCode(code -> identifierAnySystemAndExplicitCodeSpec(code))
         .onExplicitSystemAndAnyCode(systemMappings.matchSystemOnly())
         .onExplicitSystemAndExplicitCode(systemMappings.matchSystemAndCode())
         .build()
@@ -159,14 +185,14 @@ public class R4PractitionerController {
         .build();
   }
 
-  VulcanizedReader<PractitionerEntity, DatamartPractitioner, Practitioner, String>
+  VulcanizedReader<PractitionerEntity, DatamartPractitioner, Practitioner, CompositeCdwId>
       vulcanizedReader() {
     return VulcanizedReader
-        .<PractitionerEntity, DatamartPractitioner, Practitioner, String>forTransformation(
+        .<PractitionerEntity, DatamartPractitioner, Practitioner, CompositeCdwId>forTransformation(
             transformation())
         .repository(repository)
         .toPatientId(e -> Optional.empty())
-        .toPrimaryKey(Function.identity())
+        .toPrimaryKey(CompositeCdwIds::requireCompositeIdStringFormat)
         .toPayload(PractitionerEntity::payload)
         .build();
   }

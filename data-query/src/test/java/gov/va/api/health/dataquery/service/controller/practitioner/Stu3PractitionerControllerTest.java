@@ -16,6 +16,7 @@ import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.health.stu3.api.bundle.BundleLink;
 import gov.va.api.health.stu3.api.resources.Practitioner;
+import gov.va.api.lighthouse.datamart.CompositeCdwId;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -41,7 +42,8 @@ public class Stu3PractitionerControllerTest {
   @SneakyThrows
   private PractitionerEntity asEntity(DatamartPractitioner dm) {
     return PractitionerEntity.builder()
-        .cdwId(dm.cdwId())
+        .cdwIdNumber(CompositeCdwId.fromCdwId(dm.cdwId()).cdwIdNumber())
+        .cdwIdResourceCode(CompositeCdwId.fromCdwId(dm.cdwId()).cdwIdResourceCode())
         .familyName("Joe")
         .givenName("Johnson")
         .npi("1234567")

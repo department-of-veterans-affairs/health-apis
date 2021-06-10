@@ -19,6 +19,7 @@ import gov.va.api.health.stu3.api.datatypes.Coding;
 import gov.va.api.health.stu3.api.datatypes.Period;
 import gov.va.api.health.stu3.api.elements.Reference;
 import gov.va.api.health.stu3.api.resources.PractitionerRole;
+import gov.va.api.lighthouse.datamart.CompositeCdwId;
 import gov.va.api.lighthouse.datamart.DatamartCoding;
 import gov.va.api.lighthouse.datamart.DatamartReference;
 import java.time.LocalDate;
@@ -56,7 +57,8 @@ public class PractitionerRoleSamples {
     public PractitionerEntity entity(String cdwId, String locCdwId, String orgCdwId) {
       DatamartPractitioner dm = practitioner(cdwId, locCdwId, orgCdwId);
       return PractitionerEntity.builder()
-          .cdwId(cdwId)
+          .cdwIdNumber(CompositeCdwId.fromCdwId(cdwId).cdwIdNumber())
+          .cdwIdResourceCode(CompositeCdwId.fromCdwId(cdwId).cdwIdResourceCode())
           .familyName("Nelson")
           .givenName("Bob")
           .payload(json(dm))

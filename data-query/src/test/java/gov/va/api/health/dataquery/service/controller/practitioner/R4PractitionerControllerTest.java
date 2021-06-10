@@ -76,7 +76,7 @@ public class R4PractitionerControllerTest {
     when(ids.register(any())).thenReturn(List.of(registration("pr1", "ppr1")));
     PractitionerEntity entity = PractitionerSamples.Datamart.create().entity("pr1", "loc1", "org1");
     when(repository.findByNpi("1234567", Pageable.unpaged()))
-        .thenReturn(new PageImpl(List.of(entity)));
+        .thenReturn(new PageImpl<PractitionerEntity>(List.of(entity)));
     assertThat(controller().read(npi))
         .isEqualTo(PractitionerSamples.R4.create().practitioner("ppr1"));
   }
@@ -164,7 +164,7 @@ public class R4PractitionerControllerTest {
     when(repository.findAll(any(Specification.class), any(Pageable.class)))
         .thenAnswer(
             i ->
-                new PageImpl(
+                new PageImpl<PractitionerEntity>(
                     List.of(dm.entity("pr1", "loc1", "org1")),
                     i.getArgument(1, Pageable.class),
                     1));
