@@ -112,7 +112,6 @@ public class R4PractitionerTransformer {
   public Practitioner toFhir() {
     return Practitioner.builder()
         .id(datamart.cdwId())
-        .resourceType("Practitioner")
         .active(datamart.active())
         .name(name(datamart.name()))
         .telecom(telecoms())

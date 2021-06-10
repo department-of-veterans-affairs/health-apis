@@ -117,7 +117,6 @@ public class Stu3PractitionerTransformer {
 
   public Practitioner toFhir() {
     return Practitioner.builder()
-        .resourceType("Practitioner")
         .id(datamart.cdwId())
         .active(BooleanUtils.isTrue(datamart.active()))
         .telecom(telecoms())

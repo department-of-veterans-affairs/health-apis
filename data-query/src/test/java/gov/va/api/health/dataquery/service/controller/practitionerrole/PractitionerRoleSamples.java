@@ -212,7 +212,6 @@ public class PractitionerRoleSamples {
 
     public PractitionerRole practitionerRole(String pubId, String pubLocId, String pubOrgId) {
       return PractitionerRole.builder()
-          .resourceType("PractitionerRole")
           .id(pubId)
           .period(Period.builder().start("1988-08-19").build())
           .practitioner(Reference.builder().reference("Practitioner/" + pubId).build())
@@ -300,7 +299,6 @@ public class PractitionerRoleSamples {
     public gov.va.api.health.r4.api.resources.PractitionerRole practitionerRole(
         String pubId, String pubOrgId, String pubLocId) {
       return gov.va.api.health.r4.api.resources.PractitionerRole.builder()
-          .resourceType("PractitionerRole")
           .id(pubId)
           .period(gov.va.api.health.r4.api.datatypes.Period.builder().start("1988-08-19").build())
           .practitioner(

@@ -161,7 +161,6 @@ final class R4PractitionerRoleTransformer {
 
   public PractitionerRole toFhir() {
     return PractitionerRole.builder()
-        .resourceType("PractitionerRole")
         .id(datamart.cdwId())
         .active(datamart.active())
         .practitioner(practitioner(datamart.cdwId()))

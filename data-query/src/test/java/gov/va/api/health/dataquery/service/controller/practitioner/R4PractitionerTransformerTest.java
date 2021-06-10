@@ -45,7 +45,6 @@ public class R4PractitionerTransformerTest {
                 .toFhir())
         .isEqualTo(
             Practitioner.builder()
-                .resourceType("Practitioner")
                 .identifier(
                     List.of(
                         Identifier.builder()

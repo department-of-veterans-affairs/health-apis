@@ -112,7 +112,6 @@ final class Stu3PractitionerRoleTransformer {
 
   public PractitionerRole toFhir() {
     return PractitionerRole.builder()
-        .resourceType("PractitionerRole")
         .id(datamart.cdwId())
         .period(period(datamart.practitionerRole()))
         .practitioner(practitioner(datamart.cdwId()))

@@ -19,7 +19,7 @@ public class Stu3PractitionerRoleTransformerTest {
                 .datamart(DatamartPractitioner.builder().build())
                 .build()
                 .toFhir())
-        .isEqualTo(PractitionerRole.builder().resourceType("PractitionerRole").build());
+        .isEqualTo(PractitionerRole.builder().build());
   }
 
   @Test

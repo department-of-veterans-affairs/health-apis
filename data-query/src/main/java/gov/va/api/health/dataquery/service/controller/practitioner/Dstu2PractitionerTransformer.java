@@ -151,7 +151,6 @@ public class Dstu2PractitionerTransformer {
 
   public Practitioner toFhir() {
     return Practitioner.builder()
-        .resourceType("Practitioner")
         .id(datamart.cdwId())
         .active(BooleanUtils.isTrue(datamart.active()))
         .name(name(datamart.name()))

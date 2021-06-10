@@ -155,7 +155,6 @@ public class PractitionerSamples {
 
     public gov.va.api.health.dstu2.api.resources.Practitioner practitioner(String id) {
       return gov.va.api.health.dstu2.api.resources.Practitioner.builder()
-          .resourceType("Practitioner")
           .id(id)
           .active(true)
           .name(
@@ -271,7 +270,6 @@ public class PractitionerSamples {
 
     public gov.va.api.health.r4.api.resources.Practitioner practitioner(String id) {
       return gov.va.api.health.r4.api.resources.Practitioner.builder()
-          .resourceType("Practitioner")
           .id(id)
           .identifier(null)
           .active(true)
@@ -356,7 +354,6 @@ public class PractitionerSamples {
 
     public gov.va.api.health.stu3.api.resources.Practitioner practitioner(String id) {
       return gov.va.api.health.stu3.api.resources.Practitioner.builder()
-          .resourceType("Practitioner")
           .id(id)
           .identifier(
               singletonList(
