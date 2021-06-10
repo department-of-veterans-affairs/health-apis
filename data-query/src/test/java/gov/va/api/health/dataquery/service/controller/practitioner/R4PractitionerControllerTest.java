@@ -15,13 +15,13 @@ import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.r4.api.bundle.BundleLink;
 import gov.va.api.health.r4.api.resources.Practitioner;
+import gov.va.api.lighthouse.datamart.CompositeCdwId;
 import gov.va.api.lighthouse.vulcan.InvalidRequest;
 import gov.va.api.lighthouse.vulcan.VulcanResult;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletResponse;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -38,7 +38,7 @@ public class R4PractitionerControllerTest {
 
   @Mock PractitionerRepository repository;
 
-  R4PractitionerController controller() {
+  R4PractitionerController _controller() {
     return new R4PractitionerController(
         LinkProperties.builder()
             .publicUrl("http://fonzy.com")
@@ -54,42 +54,42 @@ public class R4PractitionerControllerTest {
 
   @ParameterizedTest
   @ValueSource(strings = {"", "?invalid=request"})
-  @SneakyThrows
   void invalidRequest(String query) {
     var r = requestFromUri("http://fonzy.com/r4/Practitioner" + query);
-    assertThatExceptionOfType(InvalidRequest.class).isThrownBy(() -> controller().search(r));
+    assertThatExceptionOfType(InvalidRequest.class).isThrownBy(() -> _controller().search(r));
   }
 
   @Test
   void read() {
-    when(ids.register(any())).thenReturn(List.of(registration("pr1", "ppr1")));
-    when(ids.lookup("ppr1")).thenReturn(List.of(id("pr1")));
-    PractitionerEntity entity = PractitionerSamples.Datamart.create().entity("pr1", "loc1", "org1");
-    when(repository.findById("pr1")).thenReturn(Optional.of(entity));
-    assertThat(controller().read("ppr1"))
-        .isEqualTo(PractitionerSamples.R4.create().practitioner("ppr1"));
+    when(ids.register(any())).thenReturn(List.of(registration("111:S", "publicid")));
+    when(ids.lookup("publicid")).thenReturn(List.of(id("111:S")));
+    PractitionerEntity entity =
+        PractitionerSamples.Datamart.create().entity("111:S", "loc1", "org1");
+    when(repository.findById(CompositeCdwId.fromCdwId("111:S"))).thenReturn(Optional.of(entity));
+    assertThat(_controller().read("publicid"))
+        .isEqualTo(PractitionerSamples.R4.create().practitioner("publicid"));
   }
 
   @ParameterizedTest
   @ValueSource(strings = {"npi-1234567", "NPI-1234567"})
   void readByNpi(String npi) {
-    when(ids.register(any())).thenReturn(List.of(registration("pr1", "ppr1")));
-    PractitionerEntity entity = PractitionerSamples.Datamart.create().entity("pr1", "loc1", "org1");
+    when(ids.register(any())).thenReturn(List.of(registration("111:S", "publicid")));
+    PractitionerEntity entity =
+        PractitionerSamples.Datamart.create().entity("111:S", "loc1", "org1");
     when(repository.findByNpi("1234567", Pageable.unpaged()))
         .thenReturn(new PageImpl<PractitionerEntity>(List.of(entity)));
-    assertThat(controller().read(npi))
-        .isEqualTo(PractitionerSamples.R4.create().practitioner("ppr1"));
+    assertThat(_controller().read(npi))
+        .isEqualTo(PractitionerSamples.R4.create().practitioner("publicid"));
   }
 
   @Test
   void readRaw() {
     HttpServletResponse response = mock(HttpServletResponse.class);
-    when(ids.lookup("ppr1")).thenReturn(List.of(id("pr1")));
+    when(ids.lookup("publicid")).thenReturn(List.of(id("111:S")));
     PractitionerEntity entity =
         PractitionerEntity.builder().npi("12345").payload("payload!").build();
-    when(repository.findById("pr1")).thenReturn(Optional.of(entity));
-    var actual = controller().readRaw("ppr1", response);
-    assertThat(actual).isEqualTo("payload!");
+    when(repository.findById(CompositeCdwId.fromCdwId("111:S"))).thenReturn(Optional.of(entity));
+    assertThat(_controller().readRaw("publicid", response)).isEqualTo("payload!");
   }
 
   @Test
@@ -97,12 +97,12 @@ public class R4PractitionerControllerTest {
     when(ids.register(any()))
         .thenReturn(
             List.of(
-                registration("pr1", "ppr1"),
-                registration("pr2", "ppr2"),
-                registration("pr3", "ppr3")));
-    var bundler = controller().toBundle();
+                registration("111:S", "publicid1"),
+                registration("222:S", "publicid2"),
+                registration("333:S", "publicid3")));
+    var bundler = _controller().toBundle();
     PractitionerSamples.Datamart datamart = PractitionerSamples.Datamart.create();
-    var vr =
+    var<PractitionerEntity> vr =
         VulcanResult.<PractitionerEntity>builder()
             .paging(
                 paging(
@@ -110,15 +110,15 @@ public class R4PractitionerControllerTest {
                     1, 4, 5, 6, 9, 15))
             .entities(
                 Stream.of(
-                    datamart.entity("pr1", "loc1", "org1"),
-                    datamart.entity("pr2", "loc2", "org2"),
-                    datamart.entity("pr3", "loc3", "org3")))
+                    datamart.entity("111:S", "loc1", "org1"),
+                    datamart.entity("222:S", "loc2", "org2"),
+                    datamart.entity("333:S", "loc3", "org3")))
             .build();
     PractitionerSamples.R4 r4 = PractitionerSamples.R4.create();
     Practitioner.Bundle expected =
-        r4.asBundle(
+        PractitionerSamples.R4.asBundle(
             "http://fonzy.com/r4",
-            List.of(r4.practitioner("ppr1"), r4.practitioner("ppr2"), r4.practitioner("ppr3")),
+            List.of(r4.practitioner("publicid1"), r4.practitioner("publicid2"), r4.practitioner("publicid3")),
             999,
             PractitionerSamples.R4.link(
                 BundleLink.LinkRelation.first,
@@ -150,26 +150,26 @@ public class R4PractitionerControllerTest {
   }
 
   @ParameterizedTest
+  @SuppressWarnings("unchecked")
   @ValueSource(
       strings = {
-        "?_id=pr1",
-        "?identifier=pr1",
+        "?_id=111:S",
+        "?identifier=111:S",
         "?identifier=http://hl7.org/fhir/sid/us-npi|",
         "?identifier=http://hl7.org/fhir/sid/us-npi|123"
       })
-  @SneakyThrows
   void validRequest(String query) {
-    when(ids.register(any())).thenReturn(List.of(registration("pr1", "ppr1")));
+    when(ids.register(any())).thenReturn(List.of(registration("111:S", "publicid")));
     PractitionerSamples.Datamart dm = PractitionerSamples.Datamart.create();
     when(repository.findAll(any(Specification.class), any(Pageable.class)))
         .thenAnswer(
             i ->
                 new PageImpl<PractitionerEntity>(
-                    List.of(dm.entity("pr1", "loc1", "org1")),
+                    List.of(dm.entity("111:S", "loc1", "org1")),
                     i.getArgument(1, Pageable.class),
                     1));
     var r = requestFromUri("http://fonzy.com/r4/Practitioner" + query);
-    var actual = controller().search(r);
+    var actual = _controller().search(r);
     assertThat(actual.entry()).hasSize(1);
   }
 }

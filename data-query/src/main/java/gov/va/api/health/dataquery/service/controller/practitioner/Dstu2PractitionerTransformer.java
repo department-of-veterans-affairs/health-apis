@@ -19,14 +19,12 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import static java.util.stream.Collectors.toList;
 import lombok.Builder;
 import org.apache.commons.lang3.BooleanUtils;
 
-/** Convert from Datamart to DSTU2. */
 @Builder
 public class Dstu2PractitionerTransformer {
-
   private final DatamartPractitioner datamart;
 
   static Address address(DatamartPractitioner.Address address) {
@@ -92,7 +90,9 @@ public class Dstu2PractitionerTransformer {
     return Practitioner.PractitionerRole.builder()
         .location(
             emptyToNull(
-                source.location().stream()
+                source
+                    .location()
+                    .stream()
                     .map(loc -> asReference(loc))
                     .collect(Collectors.toList())))
         .role(asCodeableConceptWrapping(source.role()))
@@ -137,7 +137,9 @@ public class Dstu2PractitionerTransformer {
 
   List<Practitioner.PractitionerRole> practitionerRoles() {
     return emptyToNull(
-        datamart.practitionerRole().stream()
+        datamart
+            .practitionerRole()
+            .stream()
             .map(rol -> practitionerRole(rol))
             .collect(Collectors.toList()));
   }
@@ -147,11 +149,10 @@ public class Dstu2PractitionerTransformer {
         datamart.telecom().stream().map(tel -> telecom(tel)).collect(Collectors.toList()));
   }
 
-  /** Convert the datamart structure to FHIR compliant structure. */
   public Practitioner toFhir() {
     return Practitioner.builder()
-        .id(datamart.cdwId())
         .resourceType("Practitioner")
+        .id(datamart.cdwId())
         .active(BooleanUtils.isTrue(datamart.active()))
         .name(name(datamart.name()))
         .telecom(telecoms())

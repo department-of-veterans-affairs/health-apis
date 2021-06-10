@@ -16,7 +16,7 @@ import gov.va.api.health.dataquery.service.controller.practitioner.PractitionerR
 import gov.va.api.health.stu3.api.resources.PractitionerRole;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import static java.util.stream.Collectors.toList;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.Min;

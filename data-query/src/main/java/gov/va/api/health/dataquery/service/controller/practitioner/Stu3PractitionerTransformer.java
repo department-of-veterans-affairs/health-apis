@@ -15,11 +15,10 @@ import gov.va.api.health.stu3.api.resources.Practitioner;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import static java.util.stream.Collectors.toList;
 import lombok.Builder;
 import org.apache.commons.lang3.BooleanUtils;
 
-/** Convert from datamart to STU3. */
 @Builder
 public class Stu3PractitionerTransformer {
   private final DatamartPractitioner datamart;
@@ -116,11 +115,10 @@ public class Stu3PractitionerTransformer {
         datamart.telecom().stream().map(tel -> telecom(tel)).collect(Collectors.toList()));
   }
 
-  /** Convert the datamart structure to FHIR compliant structure. */
   public Practitioner toFhir() {
     return Practitioner.builder()
-        .id(datamart.cdwId())
         .resourceType("Practitioner")
+        .id(datamart.cdwId())
         .active(BooleanUtils.isTrue(datamart.active()))
         .telecom(telecoms())
         .address(addresses())

@@ -120,7 +120,8 @@ public class PractitionerSamples {
           .total(practitioners.size())
           .link(asList(links))
           .entry(
-              practitioners.stream()
+              practitioners
+                  .stream()
                   .map(
                       c ->
                           gov.va.api.health.dstu2.api.resources.Practitioner.Entry.builder()
@@ -235,7 +236,8 @@ public class PractitionerSamples {
           .total(totalRecords)
           .link(asList(links))
           .entry(
-              practitioners.stream()
+              practitioners
+                  .stream()
                   .map(
                       c ->
                           gov.va.api.health.r4.api.resources.Practitioner.Entry.builder()
@@ -319,7 +321,8 @@ public class PractitionerSamples {
           .total(practitioners.size())
           .link(asList(links))
           .entry(
-              practitioners.stream()
+              practitioners
+                  .stream()
                   .map(
                       c ->
                           gov.va.api.health.stu3.api.resources.Practitioner.Entry.builder()
