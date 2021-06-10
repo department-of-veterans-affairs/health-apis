@@ -308,7 +308,7 @@ public final class SystemDefinitions {
   private static TestIds.Practitioners productionPractitioners() {
     return TestIds.Practitioners.builder()
         .family("ACOSTA")
-        .given("SAID R")
+        .given("SAID")
         .npi("1013904481")
         .specialty("http://hl7.org/fhir/practitioner-specialty|xxx")
         .build();
