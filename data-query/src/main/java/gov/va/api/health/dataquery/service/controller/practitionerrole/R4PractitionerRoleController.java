@@ -20,6 +20,7 @@ import gov.va.api.lighthouse.vulcan.Vulcan;
 import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
 import gov.va.api.lighthouse.vulcan.mappings.Mappings;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
@@ -56,13 +57,20 @@ public class R4PractitionerRoleController {
         .paging(
             linkProperties.pagingConfiguration(
                 "PractitionerRole", PractitionerEntity.naturalOrder(), noSortableParameters()))
-        .mappings(
-            Mappings.forEntity(PractitionerEntity.class)
-                .value("_id", "cdwId", witnessProtection::toCdwId)
-                .get())
+        .mappings(Mappings.forEntity(PractitionerEntity.class).values("_id", this::loadCdwId).get())
         .defaultQuery(returnNothing())
         .rules(List.of(atLeastOneParameterOf("_id")))
         .build();
+  }
+
+  private Map<String, ?> loadCdwId(String publicId) {
+    try {
+      CompositeCdwId cdwId = CompositeCdwId.fromCdwId(witnessProtection.toCdwId(publicId));
+      return Map.of(
+          "cdwIdNumber", cdwId.cdwIdNumber(), "cdwIdResourceCode", cdwId.cdwIdResourceCode());
+    } catch (IllegalArgumentException e) {
+      return Map.of();
+    }
   }
 
   @GetMapping(value = {"/{publicId}"})
@@ -110,7 +118,9 @@ public class R4PractitionerRoleController {
         .replaceReferences(
             resource ->
                 Stream.concat(
-                    resource.practitionerRole().stream()
+                    resource
+                        .practitionerRole()
+                        .stream()
                         .map(role -> role.managingOrganization().orElse(null)),
                     resource.practitionerRole().stream().flatMap(role -> role.location().stream())))
         .build();

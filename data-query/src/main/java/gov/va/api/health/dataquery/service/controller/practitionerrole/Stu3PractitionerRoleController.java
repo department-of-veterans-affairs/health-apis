@@ -9,7 +9,6 @@ import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
-import gov.va.api.health.dataquery.service.controller.ResourceExceptions.NotFound;
 import gov.va.api.health.dataquery.service.controller.Stu3Bundler;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.practitioner.DatamartPractitioner;
@@ -75,35 +74,31 @@ public class Stu3PractitionerRoleController {
   }
 
   private PractitionerEntity entityById(String publicId) {
-    CompositeCdwId compositeCdwId;
     try {
-      compositeCdwId = CompositeCdwId.fromCdwId(witnessProtection.toCdwId(publicId));
+      CompositeCdwId compositeCdwId = CompositeCdwId.fromCdwId(witnessProtection.toCdwId(publicId));
+      Optional<PractitionerEntity> entity = repository.findById(compositeCdwId);
+      return entity.orElseThrow(() -> new ResourceExceptions.NotFound(publicId));
     } catch (IllegalArgumentException e) {
-      throw new NotFound(publicId);
+      throw new ResourceExceptions.NotFound(publicId);
     }
-    Optional<PractitionerEntity> entity = repository.findById(compositeCdwId);
-    return entity.orElseThrow(() -> new ResourceExceptions.NotFound(publicId));
   }
 
-  /** Read by id. */
   @GetMapping(value = {"/{publicId}"})
-  public PractitionerRole read(@PathVariable("publicId") String publicId) {
+  PractitionerRole read(@PathVariable("publicId") String publicId) {
     PractitionerEntity entity = entityById(publicId);
     return Iterables.getOnlyElement(transform(Stream.of(entity)));
   }
 
-  /** Read raw. */
   @GetMapping(
       value = {"/{publicId}"},
       headers = {"raw=true"})
-  public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
+  String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
     IncludesIcnMajig.addHeaderForNoPatients(response);
     return entityById(publicId).payload();
   }
 
-  /** Search by _id. */
   @GetMapping(params = {"_id"})
-  public PractitionerRole.Bundle searchById(
+  PractitionerRole.Bundle searchById(
       @RequestParam("_id") String publicId,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
@@ -118,18 +113,16 @@ public class Stu3PractitionerRoleController {
         resource == null ? 0 : 1);
   }
 
-  /** Search by Identifier. */
   @GetMapping(params = {"identifier"})
-  public PractitionerRole.Bundle searchByIdentifier(
+  PractitionerRole.Bundle searchByIdentifier(
       @RequestParam("identifier") String publicId,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
     return searchById(publicId, page, count);
   }
 
-  /** Search by name. */
   @GetMapping(params = {"practitioner.family", "given"})
-  public PractitionerRole.Bundle searchByName(
+  PractitionerRole.Bundle searchByName(
       @RequestParam("practitioner.family") String family,
       @RequestParam("given") String given,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
@@ -150,9 +143,8 @@ public class Stu3PractitionerRoleController {
     return bundle(parameters, transform(entitiesPage.get()), (int) entitiesPage.getTotalElements());
   }
 
-  /** Search by NPI. */
   @GetMapping(params = {"practitioner.identifier"})
-  public PractitionerRole.Bundle searchByNpi(
+  PractitionerRole.Bundle searchByNpi(
       @RequestParam("practitioner.identifier") String systemAndCode,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
@@ -181,10 +173,9 @@ public class Stu3PractitionerRoleController {
     return bundle(parameters, transform(entitiesPage.get()), (int) entitiesPage.getTotalElements());
   }
 
-  /** Search by specialty. */
   @SuppressWarnings("unused")
   @GetMapping(params = {"specialty"})
-  public PractitionerRole.Bundle searchBySpecialty(
+  PractitionerRole.Bundle searchBySpecialty(
       @RequestParam("specialty") String specialty,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
@@ -198,10 +189,13 @@ public class Stu3PractitionerRoleController {
         datamarts,
         resource ->
             Stream.concat(
-                resource.practitionerRole().stream()
+                resource
+                    .practitionerRole()
+                    .stream()
                     .map(role -> role.managingOrganization().orElse(null)),
                 resource.practitionerRole().stream().flatMap(role -> role.location().stream())));
-    return datamarts.stream()
+    return datamarts
+        .stream()
         .map(dm -> Stu3PractitionerRoleTransformer.builder().datamart(dm).build().toFhir())
         .collect(toList());
   }

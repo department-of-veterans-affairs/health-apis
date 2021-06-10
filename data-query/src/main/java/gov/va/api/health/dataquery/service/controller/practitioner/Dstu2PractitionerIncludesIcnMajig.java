@@ -8,7 +8,6 @@ import lombok.experimental.Delegate;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
-/** Dstu2PractitionerIncludesIcnMajig. */
 @ControllerAdvice
 public class Dstu2PractitionerIncludesIcnMajig implements ResponseBodyAdvice<Object> {
   @Delegate

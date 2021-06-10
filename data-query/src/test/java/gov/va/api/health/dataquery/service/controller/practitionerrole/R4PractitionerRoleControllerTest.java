@@ -14,10 +14,8 @@ import gov.va.api.health.dataquery.service.config.LinkProperties;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.practitioner.PractitionerEntity;
 import gov.va.api.health.dataquery.service.controller.practitioner.PractitionerRepository;
-import gov.va.api.health.dataquery.service.controller.practitionerrole.PractitionerRoleSamples.Datamart;
-import gov.va.api.health.dataquery.service.controller.practitionerrole.PractitionerRoleSamples.R4;
 import gov.va.api.health.ids.api.IdentityService;
-import gov.va.api.health.r4.api.bundle.BundleLink.LinkRelation;
+import gov.va.api.health.r4.api.bundle.BundleLink;
 import gov.va.api.health.r4.api.resources.PractitionerRole;
 import gov.va.api.lighthouse.datamart.CompositeCdwId;
 import gov.va.api.lighthouse.vulcan.InvalidRequest;
@@ -26,7 +24,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletResponse;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -43,7 +40,7 @@ public class R4PractitionerRoleControllerTest {
 
   @Mock PractitionerRepository repository;
 
-  R4PractitionerRoleController controller() {
+  R4PractitionerRoleController _controller() {
     return new R4PractitionerRoleController(
         WitnessProtection.builder().identityService(ids).build(),
         LinkProperties.builder()
@@ -59,43 +56,44 @@ public class R4PractitionerRoleControllerTest {
 
   @ParameterizedTest
   @ValueSource(strings = {"", "?unknownparam=123"})
-  @SneakyThrows
-  public void invalidRequests(String query) {
+  void invalidRequests(String query) {
     var r = requestFromUri("http://fonzy.com/r4/PractitionerRole" + query);
-    assertThatExceptionOfType(InvalidRequest.class).isThrownBy(() -> controller().search(r));
+    assertThatExceptionOfType(InvalidRequest.class).isThrownBy(() -> _controller().search(r));
   }
 
   @Test
   void read() {
-    when(ids.register(any())).thenReturn(List.of(registration("pr1", "ppr1")));
-    when(ids.lookup("ppr1")).thenReturn(List.of(id("pr1")));
-    PractitionerEntity entity = Datamart.create().entity("pr1", "loc1", "org1");
-    when(repository.findById(CompositeCdwId.fromCdwId("pr1"))).thenReturn(Optional.of(entity));
-    assertThat(controller().read("ppr1"))
-        .isEqualTo(PractitionerRoleSamples.R4.create().practitionerRole("ppr1", "org1", "loc1"));
+    when(ids.register(any())).thenReturn(List.of(registration("111:S", "publicid")));
+    when(ids.lookup("publicid")).thenReturn(List.of(id("111:S")));
+    PractitionerEntity entity =
+        PractitionerRoleSamples.Datamart.create().entity("111:S", "loc1", "org1");
+    when(repository.findById(CompositeCdwId.fromCdwId("111:S"))).thenReturn(Optional.of(entity));
+    assertThat(_controller().read("publicid"))
+        .isEqualTo(
+            PractitionerRoleSamples.R4.create().practitionerRole("publicid", "org1", "loc1"));
   }
 
   @Test
   void readRaw() {
     HttpServletResponse response = mock(HttpServletResponse.class);
-    when(ids.lookup("ppr1")).thenReturn(List.of(id("pr1")));
+    when(ids.lookup("publicid")).thenReturn(List.of(id("111:S")));
     PractitionerEntity entity =
         PractitionerEntity.builder().npi("12345").payload("payload!").build();
-    when(repository.findById(CompositeCdwId.fromCdwId("pr1"))).thenReturn(Optional.of(entity));
-    assertThat(controller().readRaw("ppr1", response)).isEqualTo("payload!");
+    when(repository.findById(CompositeCdwId.fromCdwId("111:S"))).thenReturn(Optional.of(entity));
+    assertThat(_controller().readRaw("publicid", response)).isEqualTo("payload!");
   }
 
   @Test
-  public void toBundle() {
+  void toBundle() {
     when(ids.register(any()))
         .thenReturn(
             List.of(
-                registration("pr1", "ppr1"),
-                registration("pr2", "ppr2"),
-                registration("pr3", "ppr3")));
-    var bundler = controller().toBundle();
-    Datamart datamart = Datamart.create();
-    var vr =
+                registration("111:S", "publicid1"),
+                registration("222:S", "publicid2"),
+                registration("333:S", "publicid3")));
+    var bundler = _controller().toBundle();
+    PractitionerRoleSamples.Datamart datamart = PractitionerRoleSamples.Datamart.create();
+    var<PractitionerEntity> vr =
         VulcanResult.<PractitionerEntity>builder()
             .paging(
                 paging(
@@ -103,41 +101,41 @@ public class R4PractitionerRoleControllerTest {
                     1, 4, 5, 6, 9, 15))
             .entities(
                 Stream.of(
-                    datamart.entity("pr1", "loc1", "org1"),
-                    datamart.entity("pr2", "loc2", "org2"),
-                    datamart.entity("pr3", "loc3", "org3")))
+                    datamart.entity("111:S", "loc1", "org1"),
+                    datamart.entity("222:S", "loc2", "org2"),
+                    datamart.entity("333:S", "loc3", "org3")))
             .build();
-    R4 r4 = R4.create();
+    PractitionerRoleSamples.R4 r4 = PractitionerRoleSamples.R4.create();
     PractitionerRole.Bundle expected =
-        R4.asBundle(
+        PractitionerRoleSamples.R4.asBundle(
             "http://fonzy.com/r4",
             List.of(
-                r4.practitionerRole("ppr1", "org1", "loc1"),
-                r4.practitionerRole("ppr2", "org2", "loc2"),
-                r4.practitionerRole("ppr3", "org3", "loc3")),
+                r4.practitionerRole("publicid1", "org1", "loc1"),
+                r4.practitionerRole("publicid2", "org2", "loc2"),
+                r4.practitionerRole("publicid3", "org3", "loc3")),
             999,
-            R4.link(
-                LinkRelation.first,
+            PractitionerRoleSamples.R4.link(
+                BundleLink.LinkRelation.first,
                 "http://fonzy.com/r4/PractitionerRole?practitioner.identifier=pr1",
                 1,
                 15),
-            R4.link(
-                LinkRelation.prev,
+            PractitionerRoleSamples.R4.link(
+                BundleLink.LinkRelation.prev,
                 "http://fonzy.com/r4/PractitionerRole?practitioner.identifier=pr1",
                 4,
                 15),
-            R4.link(
-                LinkRelation.self,
+            PractitionerRoleSamples.R4.link(
+                BundleLink.LinkRelation.self,
                 "http://fonzy.com/r4/PractitionerRole?practitioner.identifier=pr1",
                 5,
                 15),
-            R4.link(
-                LinkRelation.next,
+            PractitionerRoleSamples.R4.link(
+                BundleLink.LinkRelation.next,
                 "http://fonzy.com/r4/PractitionerRole?practitioner.identifier=pr1",
                 6,
                 15),
-            R4.link(
-                LinkRelation.last,
+            PractitionerRoleSamples.R4.link(
+                BundleLink.LinkRelation.last,
                 "http://fonzy.com/r4/PractitionerRole?practitioner.identifier=pr1",
                 9,
                 15));
@@ -146,20 +144,20 @@ public class R4PractitionerRoleControllerTest {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {"?_id=pr1"})
-  @SneakyThrows
-  public void validRequests(String query) {
-    when(ids.register(any())).thenReturn(List.of(registration("pr1", "ppr1")));
-    Datamart dm = Datamart.create();
+  @SuppressWarnings("unchecked")
+  @ValueSource(strings = {"?_id=111:S"})
+  void validRequests(String query) {
+    when(ids.register(any())).thenReturn(List.of(registration("111:S", "publicid")));
+    PractitionerRoleSamples.Datamart dm = PractitionerRoleSamples.Datamart.create();
     when(repository.findAll(any(Specification.class), any(Pageable.class)))
         .thenAnswer(
             i ->
                 new PageImpl<PractitionerEntity>(
-                    List.of(dm.entity("pr1", "loc1", "org1")),
+                    List.of(dm.entity("111:S", "loc1", "org1")),
                     i.getArgument(1, Pageable.class),
                     1));
     var r = requestFromUri("http://fonzy.com/r4/PractitionerRole" + query);
-    var actual = controller().search(r);
+    var actual = _controller().search(r);
     assertThat(actual.entry()).hasSize(1);
   }
 }

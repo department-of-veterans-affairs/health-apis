@@ -16,7 +16,6 @@ import org.springframework.test.web.servlet.MockMvc;
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(controllers = {DataQueryHomeController.class})
 public class DataQueryHomeControllerTest {
-
   @Autowired private MockMvc mvc;
 
   @Test

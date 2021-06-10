@@ -88,14 +88,10 @@ public class R4PractitionerController {
   }
 
   private Map<String, ?> loadCdwId(String publicId) {
-    String cdwId = witnessProtection.toCdwId(publicId);
     try {
-      CompositeCdwId compositeCdwId = CompositeCdwId.fromCdwId(cdwId);
+      CompositeCdwId cdwId = CompositeCdwId.fromCdwId(witnessProtection.toCdwId(publicId));
       return Map.of(
-          "cdwIdNumber",
-          compositeCdwId.cdwIdNumber(),
-          "cdwIdResourceCode",
-          compositeCdwId.cdwIdResourceCode());
+          "cdwIdNumber", cdwId.cdwIdNumber(), "cdwIdResourceCode", cdwId.cdwIdResourceCode());
     } catch (IllegalArgumentException e) {
       return Map.of();
     }
@@ -111,7 +107,9 @@ public class R4PractitionerController {
 
   private Practitioner readByNpi(String npi) {
     PractitionerEntity entity =
-        repository.findByNpi(npi, Pageable.unpaged()).stream()
+        repository
+            .findByNpi(npi, Pageable.unpaged())
+            .stream()
             .filter(Objects::nonNull)
             .findFirst()
             .orElseThrow(() -> new ResourceExceptions.NotFound("NPI: " + npi));
@@ -178,7 +176,9 @@ public class R4PractitionerController {
         .replaceReferences(
             resource ->
                 Stream.concat(
-                    resource.practitionerRole().stream()
+                    resource
+                        .practitionerRole()
+                        .stream()
                         .map(role -> role.managingOrganization().orElse(null)),
                     resource.practitionerRole().stream().flatMap(role -> role.location().stream())))
         .build();
