@@ -2,6 +2,7 @@ package gov.va.api.health.dataquery.service.controller.practitioner;
 
 import static gov.va.api.lighthouse.vulcan.Rules.atLeastOneParameterOf;
 import static gov.va.api.lighthouse.vulcan.Vulcan.returnNothing;
+import static gov.va.api.lighthouse.vulcan.VulcanConfiguration.PagingConfiguration.noSortableParameters;
 import static org.apache.commons.lang3.StringUtils.startsWithIgnoreCase;
 
 import gov.va.api.health.dataquery.service.config.LinkProperties;
@@ -12,9 +13,12 @@ import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedBundl
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedReader;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedTransformation;
 import gov.va.api.health.r4.api.resources.Practitioner;
+import gov.va.api.lighthouse.vulcan.Specifications;
+import gov.va.api.lighthouse.vulcan.SystemIdFields;
 import gov.va.api.lighthouse.vulcan.Vulcan;
 import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
 import gov.va.api.lighthouse.vulcan.mappings.Mappings;
+import gov.va.api.lighthouse.vulcan.mappings.TokenParameter;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -25,6 +29,7 @@ import javax.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -40,6 +45,8 @@ import org.springframework.web.bind.annotation.RestController;
     produces = {"application/json", "application/fhir+json"})
 @AllArgsConstructor(onConstructor_ = @Autowired)
 public class R4PractitionerController {
+  private static final String PRACTITIONER_IDENTIFIER_SYSTEM_NPI = "http://hl7.org/fhir/sid/us-npi";
+
   private final LinkProperties linkProperties;
 
   private PractitionerRepository repository;
@@ -49,13 +56,18 @@ public class R4PractitionerController {
   private VulcanConfiguration<PractitionerEntity> configuration() {
     return VulcanConfiguration.forEntity(PractitionerEntity.class)
         .paging(
-            linkProperties.pagingConfiguration("Practitioner", PractitionerEntity.naturalOrder()))
+            linkProperties.pagingConfiguration(
+                "Practitioner", PractitionerEntity.naturalOrder(), noSortableParameters()))
         .mappings(
             Mappings.forEntity(PractitionerEntity.class)
                 .value("_id", "cdwId", witnessProtection::toCdwId)
+                .tokens(
+                    "identifier",
+                    this::tokenIdentifierIsSupported,
+                    this::tokenIdentifierSpecification)
                 .get())
         .defaultQuery(returnNothing())
-        .rules(List.of(atLeastOneParameterOf("_id")))
+        .rules(List.of(atLeastOneParameterOf("_id", "identifier")))
         .build();
   }
 
@@ -110,6 +122,27 @@ public class R4PractitionerController {
                 .linkProperties(linkProperties)
                 .build())
         .build();
+  }
+
+  private boolean tokenIdentifierIsSupported(TokenParameter token) {
+    return token.hasSupportedSystem(PRACTITIONER_IDENTIFIER_SYSTEM_NPI) || token.hasAnySystem();
+  }
+
+  private Specification<PractitionerEntity> tokenIdentifierSpecification(TokenParameter token) {
+    var systemMappings =
+        SystemIdFields.forEntity(PractitionerEntity.class)
+            .parameterName("identifier")
+            .add(PRACTITIONER_IDENTIFIER_SYSTEM_NPI, "npi");
+    return token
+        .behavior()
+        .onAnySystemAndExplicitCode(
+            code ->
+                Specifications.<PractitionerEntity>select("cdwId", witnessProtection.toCdwId(code))
+                    .or(Specifications.select("npi", code)))
+        .onExplicitSystemAndAnyCode(systemMappings.matchSystemOnly())
+        .onExplicitSystemAndExplicitCode(systemMappings.matchSystemAndCode())
+        .build()
+        .execute();
   }
 
   VulcanizedTransformation<PractitionerEntity, DatamartPractitioner, Practitioner>

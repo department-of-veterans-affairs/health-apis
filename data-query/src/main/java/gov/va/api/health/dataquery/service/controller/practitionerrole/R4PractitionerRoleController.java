@@ -2,6 +2,7 @@ package gov.va.api.health.dataquery.service.controller.practitionerrole;
 
 import static gov.va.api.lighthouse.vulcan.Rules.atLeastOneParameterOf;
 import static gov.va.api.lighthouse.vulcan.Vulcan.returnNothing;
+import static gov.va.api.lighthouse.vulcan.VulcanConfiguration.PagingConfiguration.noSortableParameters;
 
 import gov.va.api.health.dataquery.service.config.LinkProperties;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
@@ -53,7 +54,7 @@ public class R4PractitionerRoleController {
     return VulcanConfiguration.forEntity(PractitionerEntity.class)
         .paging(
             linkProperties.pagingConfiguration(
-                "PractitionerRole", PractitionerEntity.naturalOrder()))
+                "PractitionerRole", PractitionerEntity.naturalOrder(), noSortableParameters()))
         .mappings(
             Mappings.forEntity(PractitionerEntity.class)
                 .value("_id", "cdwId", witnessProtection::toCdwId)
