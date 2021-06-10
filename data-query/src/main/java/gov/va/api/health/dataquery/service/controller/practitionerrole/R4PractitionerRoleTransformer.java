@@ -53,9 +53,7 @@ final class R4PractitionerRoleTransformer {
       return null;
     }
     return emptyToNull(
-        maybeRole.get().location().stream()
-            .map(loc -> asReference(loc))
-            .collect(Collectors.toList()));
+        maybeRole.get().location().stream().map(loc -> asReference(loc)).collect(toList()));
   }
 
   private static Reference organization(Optional<DatamartPractitioner.PractitionerRole> maybeRole) {
@@ -93,10 +91,13 @@ final class R4PractitionerRoleTransformer {
       return null;
     }
     List<CodeableConcept> specialties =
-        maybeRole.get().specialty().stream()
+        maybeRole
+            .get()
+            .specialty()
+            .stream()
             .filter(Objects::nonNull)
             .map(s -> specialty(s))
-            .collect(Collectors.toList());
+            .collect(toList());
     return emptyToNull(specialties);
   }
 
@@ -152,10 +153,11 @@ final class R4PractitionerRoleTransformer {
       return null;
     }
     List<ContactPoint> contactPoints =
-        telecoms.stream()
+        telecoms
+            .stream()
             .filter(Objects::nonNull)
             .map(telecom -> telecom(telecom))
-            .collect(Collectors.toList());
+            .collect(toList());
     return emptyToNull(contactPoints);
   }
 

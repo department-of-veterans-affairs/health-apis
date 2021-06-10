@@ -89,12 +89,7 @@ public class Dstu2PractitionerTransformer {
     }
     return Practitioner.PractitionerRole.builder()
         .location(
-            emptyToNull(
-                source
-                    .location()
-                    .stream()
-                    .map(loc -> asReference(loc))
-                    .collect(Collectors.toList())))
+            emptyToNull(source.location().stream().map(loc -> asReference(loc)).collect(toList())))
         .role(asCodeableConceptWrapping(source.role()))
         .managingOrganization(asReference(source.managingOrganization()))
         .healthcareService(healthcareServices(source.healthCareService()))
@@ -126,8 +121,7 @@ public class Dstu2PractitionerTransformer {
   }
 
   private List<Address> addresses() {
-    return emptyToNull(
-        datamart.address().stream().map(adr -> address(adr)).collect(Collectors.toList()));
+    return emptyToNull(datamart.address().stream().map(adr -> address(adr)).collect(toList()));
   }
 
   Practitioner.Gender gender(DatamartPractitioner.Gender source) {
@@ -137,16 +131,11 @@ public class Dstu2PractitionerTransformer {
 
   List<Practitioner.PractitionerRole> practitionerRoles() {
     return emptyToNull(
-        datamart
-            .practitionerRole()
-            .stream()
-            .map(rol -> practitionerRole(rol))
-            .collect(Collectors.toList()));
+        datamart.practitionerRole().stream().map(rol -> practitionerRole(rol)).collect(toList()));
   }
 
   List<ContactPoint> telecoms() {
-    return emptyToNull(
-        datamart.telecom().stream().map(tel -> telecom(tel)).collect(Collectors.toList()));
+    return emptyToNull(datamart.telecom().stream().map(tel -> telecom(tel)).collect(toList()));
   }
 
   public Practitioner toFhir() {

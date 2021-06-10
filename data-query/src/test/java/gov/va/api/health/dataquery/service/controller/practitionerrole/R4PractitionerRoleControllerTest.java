@@ -19,6 +19,7 @@ import gov.va.api.health.dataquery.service.controller.practitionerrole.Practitio
 import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.r4.api.bundle.BundleLink.LinkRelation;
 import gov.va.api.health.r4.api.resources.PractitionerRole;
+import gov.va.api.lighthouse.datamart.CompositeCdwId;
 import gov.va.api.lighthouse.vulcan.InvalidRequest;
 import gov.va.api.lighthouse.vulcan.VulcanResult;
 import java.util.List;
@@ -69,7 +70,7 @@ public class R4PractitionerRoleControllerTest {
     when(ids.register(any())).thenReturn(List.of(registration("pr1", "ppr1")));
     when(ids.lookup("ppr1")).thenReturn(List.of(id("pr1")));
     PractitionerEntity entity = Datamart.create().entity("pr1", "loc1", "org1");
-    when(repository.findById("pr1")).thenReturn(Optional.of(entity));
+    when(repository.findById(CompositeCdwId.fromCdwId("pr1"))).thenReturn(Optional.of(entity));
     assertThat(controller().read("ppr1"))
         .isEqualTo(PractitionerRoleSamples.R4.create().practitionerRole("ppr1", "org1", "loc1"));
   }
@@ -80,7 +81,7 @@ public class R4PractitionerRoleControllerTest {
     when(ids.lookup("ppr1")).thenReturn(List.of(id("pr1")));
     PractitionerEntity entity =
         PractitionerEntity.builder().npi("12345").payload("payload!").build();
-    when(repository.findById("pr1")).thenReturn(Optional.of(entity));
+    when(repository.findById(CompositeCdwId.fromCdwId("pr1"))).thenReturn(Optional.of(entity));
     assertThat(controller().readRaw("ppr1", response)).isEqualTo("payload!");
   }
 

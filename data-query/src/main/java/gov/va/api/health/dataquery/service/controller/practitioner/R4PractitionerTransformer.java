@@ -84,7 +84,7 @@ public class R4PractitionerTransformer {
 
   private List<Address> addresses() {
     return emptyToNull(
-        datamart.address().stream().map(adr -> address(adr)).collect(Collectors.toList()));
+        datamart.address().stream().map(adr -> address(adr)).collect(toList()));
   }
 
   Practitioner.GenderCode gender(DatamartPractitioner.Gender providedGender) {
@@ -105,10 +105,9 @@ public class R4PractitionerTransformer {
 
   List<ContactPoint> telecoms() {
     return emptyToNull(
-        datamart.telecom().stream().map(tel -> telecom(tel)).collect(Collectors.toList()));
+        datamart.telecom().stream().map(tel -> telecom(tel)).collect(toList()));
   }
 
-  /** Converts from a datamart practitioner to a Fhir Practitioner. */
   public Practitioner toFhir() {
     return Practitioner.builder()
         .id(datamart.cdwId())

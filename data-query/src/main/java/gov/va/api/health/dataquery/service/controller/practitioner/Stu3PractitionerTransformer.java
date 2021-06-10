@@ -106,13 +106,11 @@ public class Stu3PractitionerTransformer {
   }
 
   private List<Address> addresses() {
-    return emptyToNull(
-        datamart.address().stream().map(adr -> address(adr)).collect(Collectors.toList()));
+    return emptyToNull(datamart.address().stream().map(adr -> address(adr)).collect(toList()));
   }
 
   List<ContactPoint> telecoms() {
-    return emptyToNull(
-        datamart.telecom().stream().map(tel -> telecom(tel)).collect(Collectors.toList()));
+    return emptyToNull(datamart.telecom().stream().map(tel -> telecom(tel)).collect(toList()));
   }
 
   public Practitioner toFhir() {

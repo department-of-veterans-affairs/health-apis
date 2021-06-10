@@ -10,10 +10,13 @@ import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.Stu3Bundler;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
+import gov.va.api.health.dataquery.service.controller.ResourceExceptions.NotFound;
 import gov.va.api.health.dataquery.service.controller.practitioner.DatamartPractitioner;
 import gov.va.api.health.dataquery.service.controller.practitioner.PractitionerEntity;
 import gov.va.api.health.dataquery.service.controller.practitioner.PractitionerRepository;
 import gov.va.api.health.stu3.api.resources.PractitionerRole;
+import gov.va.api.lighthouse.datamart.CompositeCdwId;
+
 import java.util.List;
 import java.util.Optional;
 import static java.util.stream.Collectors.toList;
@@ -73,7 +76,13 @@ public class Stu3PractitionerRoleController {
   }
 
   private PractitionerEntity entityById(String publicId) {
-    Optional<PractitionerEntity> entity = repository.findById(witnessProtection.toCdwId(publicId));
+    CompositeCdwId compositeCdwId;
+    try {
+      compositeCdwId = CompositeCdwId.fromCdwId(witnessProtection.toCdwId(publicId));
+    } catch (IllegalArgumentException e) {
+      throw new NotFound(publicId);
+    }
+    Optional<PractitionerEntity> entity = repository.findById(compositeCdwId);
     return entity.orElseThrow(() -> new ResourceExceptions.NotFound(publicId));
   }
 
@@ -185,16 +194,19 @@ public class Stu3PractitionerRoleController {
 
   private List<PractitionerRole> transform(Stream<PractitionerEntity> entities) {
     List<DatamartPractitioner> datamarts =
-        entities.map(PractitionerEntity::asDatamartPractitioner).collect(Collectors.toList());
+        entities.map(PractitionerEntity::asDatamartPractitioner).collect(toList());
     witnessProtection.registerAndUpdateReferences(
         datamarts,
         resource ->
             Stream.concat(
-                resource.practitionerRole().stream()
+                resource
+                    .practitionerRole()
+                    .stream()
                     .map(role -> role.managingOrganization().orElse(null)),
                 resource.practitionerRole().stream().flatMap(role -> role.location().stream())));
-    return datamarts.stream()
+    return datamarts
+        .stream()
         .map(dm -> Stu3PractitionerRoleTransformer.builder().datamart(dm).build().toFhir())
-        .collect(Collectors.toList());
+        .collect(toList());
   }
 }
