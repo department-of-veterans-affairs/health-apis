@@ -3,6 +3,7 @@ package gov.va.api.health.dataquery.service.controller.practitioner;
 import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
 import static gov.va.api.health.dataquery.service.controller.Transformers.emptyToNull;
 import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.toList;
 
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
 import gov.va.api.health.r4.api.datatypes.Address;
@@ -13,7 +14,6 @@ import gov.va.api.health.r4.api.resources.Practitioner;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import static java.util.stream.Collectors.toList;
 import lombok.Builder;
 
 /** Convert from datamart from R4. */
@@ -83,8 +83,7 @@ public class R4PractitionerTransformer {
   }
 
   private List<Address> addresses() {
-    return emptyToNull(
-        datamart.address().stream().map(adr -> address(adr)).collect(toList()));
+    return emptyToNull(datamart.address().stream().map(adr -> address(adr)).collect(toList()));
   }
 
   Practitioner.GenderCode gender(DatamartPractitioner.Gender providedGender) {
@@ -104,8 +103,7 @@ public class R4PractitionerTransformer {
   }
 
   List<ContactPoint> telecoms() {
-    return emptyToNull(
-        datamart.telecom().stream().map(tel -> telecom(tel)).collect(toList()));
+    return emptyToNull(datamart.telecom().stream().map(tel -> telecom(tel)).collect(toList()));
   }
 
   public Practitioner toFhir() {

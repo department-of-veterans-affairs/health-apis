@@ -8,6 +8,7 @@ import static gov.va.api.health.dataquery.service.controller.Transformers.emptyT
 import static gov.va.api.health.dataquery.service.controller.Transformers.ifPresent;
 import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
 import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toList;
 
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
 import gov.va.api.health.dstu2.api.datatypes.Address;
@@ -19,7 +20,6 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import static java.util.stream.Collectors.toList;
 import lombok.Builder;
 import org.apache.commons.lang3.BooleanUtils;
 

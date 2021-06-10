@@ -5,6 +5,7 @@ import static gov.va.api.health.dataquery.service.controller.R4Transformers.asRe
 import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
 import static gov.va.api.health.dataquery.service.controller.Transformers.emptyToNull;
 import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
+import static java.util.stream.Collectors.toList;
 
 import gov.va.api.health.dataquery.service.controller.practitioner.DatamartPractitioner;
 import gov.va.api.health.r4.api.datatypes.CodeableConcept;
@@ -19,7 +20,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import static java.util.stream.Collectors.toList;
 import lombok.Builder;
 import lombok.NonNull;
 
@@ -91,10 +91,7 @@ final class R4PractitionerRoleTransformer {
       return null;
     }
     List<CodeableConcept> specialties =
-        maybeRole
-            .get()
-            .specialty()
-            .stream()
+        maybeRole.get().specialty().stream()
             .filter(Objects::nonNull)
             .map(s -> specialty(s))
             .collect(toList());
@@ -153,8 +150,7 @@ final class R4PractitionerRoleTransformer {
       return null;
     }
     List<ContactPoint> contactPoints =
-        telecoms
-            .stream()
+        telecoms.stream()
             .filter(Objects::nonNull)
             .map(telecom -> telecom(telecom))
             .collect(toList());

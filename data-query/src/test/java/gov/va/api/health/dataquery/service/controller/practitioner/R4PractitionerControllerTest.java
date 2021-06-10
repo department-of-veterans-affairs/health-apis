@@ -118,7 +118,10 @@ public class R4PractitionerControllerTest {
     Practitioner.Bundle expected =
         PractitionerSamples.R4.asBundle(
             "http://fonzy.com/r4",
-            List.of(r4.practitioner("publicid1"), r4.practitioner("publicid2"), r4.practitioner("publicid3")),
+            List.of(
+                r4.practitioner("publicid1"),
+                r4.practitioner("publicid2"),
+                r4.practitioner("publicid3")),
             999,
             PractitionerSamples.R4.link(
                 BundleLink.LinkRelation.first,

@@ -1,21 +1,21 @@
 package gov.va.api.health.dataquery.service.controller.practitioner;
 
 import static java.util.Collections.emptyList;
+import static java.util.stream.Collectors.toList;
 
 import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
+import gov.va.api.health.dataquery.service.controller.ResourceExceptions.NotFound;
 import gov.va.api.health.dataquery.service.controller.Stu3Bundler;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
-import gov.va.api.health.dataquery.service.controller.ResourceExceptions.NotFound;
 import gov.va.api.health.stu3.api.resources.Practitioner;
 import gov.va.api.lighthouse.datamart.CompositeCdwId;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import static java.util.stream.Collectors.toList;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.Min;
@@ -104,9 +104,7 @@ public class Stu3PractitionerController {
         resources,
         resource ->
             Stream.concat(
-                resource
-                    .practitionerRole()
-                    .stream()
+                resource.practitionerRole().stream()
                     .map(role -> role.managingOrganization().orElse(null)),
                 resource.practitionerRole().stream().flatMap(role -> role.location().stream())));
     return resources;
@@ -186,8 +184,7 @@ public class Stu3PractitionerController {
     List<DatamartPractitioner> datamarts =
         entities.map(PractitionerEntity::asDatamartPractitioner).collect(toList());
     replaceReferences(datamarts);
-    return datamarts
-        .stream()
+    return datamarts.stream()
         .map(dm -> Stu3PractitionerTransformer.builder().datamart(dm).build().toFhir())
         .collect(toList());
   }

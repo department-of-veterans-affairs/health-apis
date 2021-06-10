@@ -4,6 +4,8 @@ import static gov.va.api.health.dataquery.service.controller.Stu3Transformers.as
 import static gov.va.api.health.dataquery.service.controller.Stu3Transformers.asReference;
 import static gov.va.api.health.dataquery.service.controller.Transformers.emptyToNull;
 import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
+import static java.util.stream.Collectors.toList;
+
 import gov.va.api.health.dataquery.service.controller.practitioner.DatamartPractitioner;
 import gov.va.api.health.stu3.api.datatypes.CodeableConcept;
 import gov.va.api.health.stu3.api.datatypes.Coding;
@@ -14,7 +16,6 @@ import gov.va.api.lighthouse.datamart.DatamartReference;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import static java.util.stream.Collectors.toList;
 import lombok.Builder;
 import lombok.NonNull;
 
