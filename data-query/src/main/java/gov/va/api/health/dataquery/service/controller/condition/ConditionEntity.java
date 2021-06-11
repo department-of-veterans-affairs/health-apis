@@ -32,10 +32,12 @@ import org.springframework.data.domain.Sort;
 @IdClass(CompositeCdwId.class)
 public class ConditionEntity implements CompositeIdDatamartEntity {
   @Id
+  @EqualsAndHashCode.Include
   @Column(name = "CdwIdNumber")
   private BigInteger cdwIdNumber;
 
   @Id
+  @EqualsAndHashCode.Include
   @Column(name = "CdwIdResourceCode")
   private char cdwIdResourceCode;
 
