@@ -63,24 +63,23 @@ public class R4PractitionerRoleControllerTest {
 
   @Test
   void read() {
-    when(ids.register(any())).thenReturn(List.of(registration("111:S", "publicid")));
-    when(ids.lookup("publicid")).thenReturn(List.of(id("111:S")));
+    when(ids.register(any())).thenReturn(List.of(registration("111:S", "I2-111")));
+    when(ids.lookup("I2-111")).thenReturn(List.of(id("111:S")));
     PractitionerEntity entity =
         PractitionerRoleSamples.Datamart.create().entity("111:S", "loc1", "org1");
     when(repository.findById(CompositeCdwId.fromCdwId("111:S"))).thenReturn(Optional.of(entity));
-    assertThat(_controller().read("publicid"))
-        .isEqualTo(
-            PractitionerRoleSamples.R4.create().practitionerRole("publicid", "org1", "loc1"));
+    assertThat(_controller().read("I2-111"))
+        .isEqualTo(PractitionerRoleSamples.R4.create().practitionerRole("I2-111", "org1", "loc1"));
   }
 
   @Test
   void readRaw() {
     HttpServletResponse response = mock(HttpServletResponse.class);
-    when(ids.lookup("publicid")).thenReturn(List.of(id("111:S")));
+    when(ids.lookup("I2-111")).thenReturn(List.of(id("111:S")));
     PractitionerEntity entity =
         PractitionerEntity.builder().npi("12345").payload("payload!").build();
     when(repository.findById(CompositeCdwId.fromCdwId("111:S"))).thenReturn(Optional.of(entity));
-    assertThat(_controller().readRaw("publicid", response)).isEqualTo("payload!");
+    assertThat(_controller().readRaw("I2-111", response)).isEqualTo("payload!");
   }
 
   @Test
@@ -88,9 +87,9 @@ public class R4PractitionerRoleControllerTest {
     when(ids.register(any()))
         .thenReturn(
             List.of(
-                registration("111:S", "publicid1"),
-                registration("222:S", "publicid2"),
-                registration("333:S", "publicid3")));
+                registration("111:S", "I2-111"),
+                registration("222:S", "I2-222"),
+                registration("333:S", "I2-333")));
     var bundler = _controller().toBundle();
     PractitionerRoleSamples.Datamart datamart = PractitionerRoleSamples.Datamart.create();
     var vr =
@@ -110,9 +109,9 @@ public class R4PractitionerRoleControllerTest {
         PractitionerRoleSamples.R4.asBundle(
             "http://fonzy.com/r4",
             List.of(
-                r4.practitionerRole("publicid1", "org1", "loc1"),
-                r4.practitionerRole("publicid2", "org2", "loc2"),
-                r4.practitionerRole("publicid3", "org3", "loc3")),
+                r4.practitionerRole("I2-111", "org1", "loc1"),
+                r4.practitionerRole("I2-222", "org2", "loc2"),
+                r4.practitionerRole("I2-333", "org3", "loc3")),
             999,
             PractitionerRoleSamples.R4.link(
                 BundleLink.LinkRelation.first,
@@ -147,7 +146,7 @@ public class R4PractitionerRoleControllerTest {
   @SuppressWarnings("unchecked")
   @ValueSource(strings = {"?_id=111:S"})
   void validRequests(String query) {
-    when(ids.register(any())).thenReturn(List.of(registration("111:S", "publicid")));
+    when(ids.register(any())).thenReturn(List.of(registration("111:S", "I2-111")));
     PractitionerRoleSamples.Datamart dm = PractitionerRoleSamples.Datamart.create();
     when(repository.findAll(any(Specification.class), any(Pageable.class)))
         .thenAnswer(

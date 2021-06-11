@@ -61,35 +61,35 @@ public class R4PractitionerControllerTest {
 
   @Test
   void read() {
-    when(ids.register(any())).thenReturn(List.of(registration("111:S", "publicid")));
-    when(ids.lookup("publicid")).thenReturn(List.of(id("111:S")));
+    when(ids.register(any())).thenReturn(List.of(registration("111:S", "I2-111")));
+    when(ids.lookup("I2-111")).thenReturn(List.of(id("111:S")));
     PractitionerEntity entity =
         PractitionerSamples.Datamart.create().entity("111:S", "loc1", "org1");
     when(repository.findById(CompositeCdwId.fromCdwId("111:S"))).thenReturn(Optional.of(entity));
-    assertThat(_controller().read("publicid"))
-        .isEqualTo(PractitionerSamples.R4.create().practitioner("publicid"));
+    assertThat(_controller().read("I2-111"))
+        .isEqualTo(PractitionerSamples.R4.create().practitioner("I2-111"));
   }
 
   @ParameterizedTest
   @ValueSource(strings = {"npi-1234567", "NPI-1234567"})
   void readByNpi(String npi) {
-    when(ids.register(any())).thenReturn(List.of(registration("111:S", "publicid")));
+    when(ids.register(any())).thenReturn(List.of(registration("111:S", "I2-111")));
     PractitionerEntity entity =
         PractitionerSamples.Datamart.create().entity("111:S", "loc1", "org1");
     when(repository.findByNpi("1234567", Pageable.unpaged()))
         .thenReturn(new PageImpl<PractitionerEntity>(List.of(entity)));
     assertThat(_controller().read(npi))
-        .isEqualTo(PractitionerSamples.R4.create().practitioner("publicid"));
+        .isEqualTo(PractitionerSamples.R4.create().practitioner("I2-111"));
   }
 
   @Test
   void readRaw() {
     HttpServletResponse response = mock(HttpServletResponse.class);
-    when(ids.lookup("publicid")).thenReturn(List.of(id("111:S")));
+    when(ids.lookup("I2-111")).thenReturn(List.of(id("111:S")));
     PractitionerEntity entity =
         PractitionerEntity.builder().npi("12345").payload("payload!").build();
     when(repository.findById(CompositeCdwId.fromCdwId("111:S"))).thenReturn(Optional.of(entity));
-    assertThat(_controller().readRaw("publicid", response)).isEqualTo("payload!");
+    assertThat(_controller().readRaw("I2-111", response)).isEqualTo("payload!");
   }
 
   @Test
@@ -97,9 +97,9 @@ public class R4PractitionerControllerTest {
     when(ids.register(any()))
         .thenReturn(
             List.of(
-                registration("111:S", "publicid1"),
-                registration("222:S", "publicid2"),
-                registration("333:S", "publicid3")));
+                registration("111:S", "I2-111"),
+                registration("222:S", "I2-222"),
+                registration("333:S", "I2-333")));
     var bundler = _controller().toBundle();
     PractitionerSamples.Datamart datamart = PractitionerSamples.Datamart.create();
     var vr =
@@ -119,9 +119,7 @@ public class R4PractitionerControllerTest {
         PractitionerSamples.R4.asBundle(
             "http://fonzy.com/r4",
             List.of(
-                r4.practitioner("publicid1"),
-                r4.practitioner("publicid2"),
-                r4.practitioner("publicid3")),
+                r4.practitioner("I2-111"), r4.practitioner("I2-222"), r4.practitioner("I2-333")),
             999,
             PractitionerSamples.R4.link(
                 BundleLink.LinkRelation.first,
@@ -162,7 +160,7 @@ public class R4PractitionerControllerTest {
         "?identifier=http://hl7.org/fhir/sid/us-npi|123"
       })
   void validRequest(String query) {
-    when(ids.register(any())).thenReturn(List.of(registration("111:S", "publicid")));
+    when(ids.register(any())).thenReturn(List.of(registration("111:S", "I2-111")));
     PractitionerSamples.Datamart dm = PractitionerSamples.Datamart.create();
     when(repository.findAll(any(Specification.class), any(Pageable.class)))
         .thenAnswer(
