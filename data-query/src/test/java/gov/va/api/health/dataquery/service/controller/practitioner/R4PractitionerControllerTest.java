@@ -61,7 +61,6 @@ public class R4PractitionerControllerTest {
         "?name=harry&family=potter",
         "?name=harry&given=harry"
       })
-  @SneakyThrows
   void invalidRequest(String query) {
     var r = requestFromUri("http://fonzy.com/r4/Practitioner" + query);
     assertThatExceptionOfType(InvalidRequest.class).isThrownBy(() -> _controller().search(r));
