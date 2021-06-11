@@ -87,6 +87,8 @@ public class R4PractitionerTransformerTest {
 
   @Test
   void telecom() {
+    assertThat(R4PractitionerTransformer.telecomSystem(null)).isNull();
+    assertThat(R4PractitionerTransformer.telecomUse(null)).isNull();
     assertThat(R4PractitionerTransformer.telecom(null)).isNull();
     assertThat(
             R4PractitionerTransformer.telecom(
