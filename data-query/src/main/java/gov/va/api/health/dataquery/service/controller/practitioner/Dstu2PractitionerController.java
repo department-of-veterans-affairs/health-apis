@@ -75,8 +75,8 @@ public class Dstu2PractitionerController {
 
   PractitionerEntity findById(String publicId) {
     try {
-      CompositeCdwId compositeCdwId = CompositeCdwId.fromCdwId(witnessProtection.toCdwId(publicId));
-      Optional<PractitionerEntity> entity = repository.findById(compositeCdwId);
+      Optional<PractitionerEntity> entity =
+          repository.findById(CompositeCdwId.fromCdwId(witnessProtection.toCdwId(publicId)));
       return entity.orElseThrow(() -> new ResourceExceptions.NotFound(publicId));
     } catch (IllegalArgumentException e) {
       throw new ResourceExceptions.NotFound(publicId);

@@ -15,7 +15,6 @@
     <fall-risk.version>2.0.0</fall-risk.version>
     <fhir-resources.version>7.0.6-SNAPSHOT</fhir-resources.version>
     <guava.version>30.1.1-jre</guava.version>
-    <jacoco.coverage>0.94</jacoco.coverage>
     <health-apis-ids.version>4.0.3</health-apis-ids.version>
     <mssql-jdbc.version>9.2.1.jre15</mssql-jdbc.version>
     <swagger-maven-plugin.version>2.1.7</swagger-maven-plugin.version>
