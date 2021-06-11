@@ -118,9 +118,7 @@ public class R4PractitionerRoleController {
         .replaceReferences(
             resource ->
                 Stream.concat(
-                    resource
-                        .practitionerRole()
-                        .stream()
+                    resource.practitionerRole().stream()
                         .map(role -> role.managingOrganization().orElse(null)),
                     resource.practitionerRole().stream().flatMap(role -> role.location().stream())))
         .build();

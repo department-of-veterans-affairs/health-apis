@@ -105,7 +105,7 @@ public class R4PractitionerTransformer {
     return emptyToNull(datamart.telecom().stream().map(tel -> telecom(tel)).collect(toList()));
   }
 
-  public Practitioner toFhir() {
+  Practitioner toFhir() {
     return Practitioner.builder()
         .id(datamart.cdwId())
         .active(datamart.active())

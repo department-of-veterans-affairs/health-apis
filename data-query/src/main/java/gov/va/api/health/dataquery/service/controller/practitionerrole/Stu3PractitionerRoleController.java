@@ -189,13 +189,10 @@ public class Stu3PractitionerRoleController {
         datamarts,
         resource ->
             Stream.concat(
-                resource
-                    .practitionerRole()
-                    .stream()
+                resource.practitionerRole().stream()
                     .map(role -> role.managingOrganization().orElse(null)),
                 resource.practitionerRole().stream().flatMap(role -> role.location().stream())));
-    return datamarts
-        .stream()
+    return datamarts.stream()
         .map(dm -> Stu3PractitionerRoleTransformer.builder().datamart(dm).build().toFhir())
         .collect(toList());
   }

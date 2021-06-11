@@ -100,9 +100,7 @@ public class Stu3PractitionerController {
         resources,
         resource ->
             Stream.concat(
-                resource
-                    .practitionerRole()
-                    .stream()
+                resource.practitionerRole().stream()
                     .map(role -> role.managingOrganization().orElse(null)),
                 resource.practitionerRole().stream().flatMap(role -> role.location().stream())));
     return resources;
@@ -179,8 +177,7 @@ public class Stu3PractitionerController {
     List<DatamartPractitioner> datamarts =
         entities.map(PractitionerEntity::asDatamartPractitioner).collect(toList());
     replaceReferences(datamarts);
-    return datamarts
-        .stream()
+    return datamarts.stream()
         .map(dm -> Stu3PractitionerTransformer.builder().datamart(dm).build().toFhir())
         .collect(toList());
   }

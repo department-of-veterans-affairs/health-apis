@@ -183,7 +183,6 @@ public class PractitionerRoleSamples {
     static PractitionerRole.Bundle asBundle(
         String baseUrl, Collection<PractitionerRole> roles, BundleLink... links) {
       return PractitionerRole.Bundle.builder()
-          .resourceType("Bundle")
           .type(AbstractBundle.BundleType.searchset)
           .total(roles.size())
           .link(asList(links))
@@ -265,7 +264,6 @@ public class PractitionerRoleSamples {
         int totalRecords,
         gov.va.api.health.r4.api.bundle.BundleLink... links) {
       return gov.va.api.health.r4.api.resources.PractitionerRole.Bundle.builder()
-          .resourceType("Bundle")
           .type(BundleType.searchset)
           .total(totalRecords)
           .link(asList(links))

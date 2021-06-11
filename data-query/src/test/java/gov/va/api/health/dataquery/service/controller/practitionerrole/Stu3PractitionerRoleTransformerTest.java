@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 
 public class Stu3PractitionerRoleTransformerTest {
   @Test
-  public void empty() {
+  void empty() {
     assertThat(
             Stu3PractitionerRoleTransformer.builder()
                 .datamart(DatamartPractitioner.builder().build())
@@ -23,7 +23,7 @@ public class Stu3PractitionerRoleTransformerTest {
   }
 
   @Test
-  public void otherEmpty() {
+  void otherEmpty() {
     assertThat(
             Stu3PractitionerRoleTransformer.specialty(
                 Optional.of(DatamartPractitioner.PractitionerRole.builder().build())))
@@ -46,7 +46,7 @@ public class Stu3PractitionerRoleTransformerTest {
   }
 
   @Test
-  public void specialty() {
+  void specialty() {
     // x12 code used first
     assertThat(
             Stu3PractitionerRoleTransformer.specialty(

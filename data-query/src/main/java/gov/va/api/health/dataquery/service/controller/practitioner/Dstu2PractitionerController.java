@@ -105,9 +105,7 @@ public class Dstu2PractitionerController {
         resources,
         resource ->
             Stream.concat(
-                resource
-                    .practitionerRole()
-                    .stream()
+                resource.practitionerRole().stream()
                     .map(role -> role.managingOrganization().orElse(null)),
                 resource.practitionerRole().stream().flatMap(role -> role.location().stream())));
     return resources;

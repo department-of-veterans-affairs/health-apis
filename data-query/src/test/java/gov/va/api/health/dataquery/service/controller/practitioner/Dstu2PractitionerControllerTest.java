@@ -108,27 +108,27 @@ public class Dstu2PractitionerControllerTest {
 
   @Test
   void read() {
-    String publicId = "abc";
-    String cdwId = "123";
-    String orgPubId = "def";
-    String orgCdwId = "456";
-    String locPubId = "ghi";
-    String locCdwId = "789";
+    String publicId = "I2-abc";
+    String cdwId = "111:S";
+    String orgPubId = "I2-def";
+    String orgCdwId = "222:O";
+    String locPubId = "I2-ghi";
+    String locCdwId = "333:L";
     DatamartPractitioner dm = PractitionerSamples.Datamart.create().practitioner();
     repository.save(asEntity(dm));
     _mockPractitionerIdentity(publicId, cdwId, orgPubId, orgCdwId, locPubId, locCdwId);
-    Practitioner actual = _controller().read("1234");
-    assertThat(actual).isEqualTo(PractitionerSamples.Dstu2.create().practitioner("1234"));
+    Practitioner actual = _controller().read("123:S");
+    assertThat(actual).isEqualTo(PractitionerSamples.Dstu2.create().practitioner("123:S"));
   }
 
   @Test
   void readRaw() {
-    String publicId = "abc";
-    String cdwId = "123";
-    String orgPubId = "def";
-    String orgCdwId = "456";
-    String locPubId = "ghi";
-    String locCdwId = "789";
+    String publicId = "I2-abc";
+    String cdwId = "123:S";
+    String orgPubId = "I2-def";
+    String orgCdwId = "456:O";
+    String locPubId = "I2-ghi";
+    String locCdwId = "789:L";
     _mockPractitionerIdentity(publicId, cdwId, orgPubId, orgCdwId, locPubId, locCdwId);
     HttpServletResponse servletResponse = mock(HttpServletResponse.class);
     DatamartPractitioner dm = PractitionerSamples.Datamart.create().practitioner(cdwId);
@@ -162,12 +162,12 @@ public class Dstu2PractitionerControllerTest {
 
   @Test
   void searchById() {
-    String publicId = "abc";
-    String cdwId = "123";
-    String orgPubId = "def";
-    String orgCdwId = "456";
-    String locPubId = "ghi";
-    String locCdwId = "789";
+    String publicId = "I2-abc";
+    String cdwId = "123:S";
+    String orgPubId = "I2-def";
+    String orgCdwId = "456:O";
+    String locPubId = "I2-ghi";
+    String locCdwId = "789:L";
     _mockPractitionerIdentity(publicId, cdwId, orgPubId, orgCdwId, locPubId, locCdwId);
     DatamartPractitioner dm = PractitionerSamples.Datamart.create().practitioner(cdwId);
     repository.save(asEntity(dm));
@@ -180,29 +180,29 @@ public class Dstu2PractitionerControllerTest {
                     List.of(PractitionerSamples.Dstu2.create().practitioner(publicId)),
                     PractitionerSamples.Dstu2.link(
                         LinkRelation.first,
-                        "http://fonzy.com/cool/Practitioner?identifier=abc",
+                        "http://fonzy.com/cool/Practitioner?identifier=I2-abc",
                         1,
                         1),
                     PractitionerSamples.Dstu2.link(
                         LinkRelation.self,
-                        "http://fonzy.com/cool/Practitioner?identifier=abc",
+                        "http://fonzy.com/cool/Practitioner?identifier=I2-abc",
                         1,
                         1),
                     PractitionerSamples.Dstu2.link(
                         LinkRelation.last,
-                        "http://fonzy.com/cool/Practitioner?identifier=abc",
+                        "http://fonzy.com/cool/Practitioner?identifier=I2-abc",
                         1,
                         1))));
   }
 
   @Test
   void searchByIdentifier() {
-    String publicId = "abc";
-    String cdwId = "123";
-    String orgPubId = "def";
-    String orgCdwId = "456";
-    String locPubId = "ghi";
-    String locCdwId = "789";
+    String publicId = "I2-abc";
+    String cdwId = "123:S";
+    String orgPubId = "I2-def";
+    String orgCdwId = "456:O";
+    String locPubId = "I2-ghi";
+    String locCdwId = "789:L";
     DatamartPractitioner dm = PractitionerSamples.Datamart.create().practitioner(cdwId);
     repository.save(asEntity(dm));
     _mockPractitionerIdentity(publicId, cdwId, orgPubId, orgCdwId, locPubId, locCdwId);
@@ -215,17 +215,17 @@ public class Dstu2PractitionerControllerTest {
                     List.of(PractitionerSamples.Dstu2.create().practitioner(publicId)),
                     PractitionerSamples.Dstu2.link(
                         LinkRelation.first,
-                        "http://fonzy.com/cool/Practitioner?identifier=abc",
+                        "http://fonzy.com/cool/Practitioner?identifier=I2-abc",
                         1,
                         1),
                     PractitionerSamples.Dstu2.link(
                         LinkRelation.self,
-                        "http://fonzy.com/cool/Practitioner?identifier=abc",
+                        "http://fonzy.com/cool/Practitioner?identifier=I2-abc",
                         1,
                         1),
                     PractitionerSamples.Dstu2.link(
                         LinkRelation.last,
-                        "http://fonzy.com/cool/Practitioner?identifier=abc",
+                        "http://fonzy.com/cool/Practitioner?identifier=I2-abc",
                         1,
                         1))));
   }

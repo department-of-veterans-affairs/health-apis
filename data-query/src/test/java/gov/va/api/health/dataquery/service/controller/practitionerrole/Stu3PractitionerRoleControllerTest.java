@@ -59,15 +59,23 @@ public class Stu3PractitionerRoleControllerTest {
     return JacksonConfig.createMapper().writerWithDefaultPrettyPrinter().writeValueAsString(o);
   }
 
+  @SneakyThrows
+  static DatamartPractitioner asObject(String json) {
+    return JacksonConfig.createMapper().readValue(json, DatamartPractitioner.class);
+  }
+
   static PractitionerRole.Bundle emptyBundle(String linkBase) {
     return PractitionerRole.Bundle.builder()
-        .resourceType("Bundle")
         .type(AbstractBundle.BundleType.searchset)
         .total(1)
         .link(
             asList(PractitionerRoleSamples.Stu3.link(BundleLink.LinkRelation.self, linkBase, 1, 0)))
         .entry(emptyList())
         .build();
+  }
+
+  static String encode(String value) {
+    return URLEncoder.encode(value, StandardCharsets.UTF_8);
   }
 
   void _addMockIdentities(
@@ -109,21 +117,12 @@ public class Stu3PractitionerRoleControllerTest {
                     .build()));
   }
 
-  @SneakyThrows
-  static DatamartPractitioner asObject(String json) {
-    return JacksonConfig.createMapper().readValue(json, DatamartPractitioner.class);
-  }
-
   private Stu3PractitionerRoleController _controller() {
     return new Stu3PractitionerRoleController(
         new Stu3Bundler(
             new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool", "cool", "cool")),
         repository,
         WitnessProtection.builder().identityService(ids).build());
-  }
-
-  static String encode(String value) {
-    return URLEncoder.encode(value, StandardCharsets.UTF_8);
   }
 
   @Test

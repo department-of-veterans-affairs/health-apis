@@ -93,7 +93,7 @@ public class R4PractitionerRoleControllerTest {
                 registration("333:S", "publicid3")));
     var bundler = _controller().toBundle();
     PractitionerRoleSamples.Datamart datamart = PractitionerRoleSamples.Datamart.create();
-    var<PractitionerEntity> vr =
+    var vr =
         VulcanResult.<PractitionerEntity>builder()
             .paging(
                 paging(
