@@ -53,6 +53,7 @@ public class Stu3PractitionerTransformer {
   }
 
   private static List<Practitioner.PractitionerIdentifier> identifiers(Optional<String> npi) {
+    // TODO is unknown the correct value to populate in case of missing NPI?
     return asList(
         Practitioner.PractitionerIdentifier.builder()
             .system("http://hl7.org/fhir/sid/us-npi")
