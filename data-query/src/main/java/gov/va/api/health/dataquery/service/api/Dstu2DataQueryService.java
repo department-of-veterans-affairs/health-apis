@@ -16,7 +16,6 @@ import gov.va.api.health.dstu2.api.PractitionerApi;
 import gov.va.api.health.dstu2.api.ProcedureApi;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
-import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.security.OAuthFlow;
@@ -93,7 +92,6 @@ import javax.ws.rs.Path;
   @SecurityScheme(
       name = "OauthFlowSandbox",
       type = SecuritySchemeType.OAUTH2,
-      in = SecuritySchemeIn.HEADER,
       flows =
           @OAuthFlows(
               authorizationCode =
@@ -138,7 +136,6 @@ import javax.ws.rs.Path;
   @SecurityScheme(
       name = "OauthFlowProduction",
       type = SecuritySchemeType.OAUTH2,
-      in = SecuritySchemeIn.HEADER,
       flows =
           @OAuthFlows(
               authorizationCode =
