@@ -27,7 +27,7 @@ public class Stu3PractitionerRoleTransformerTest {
     assertThat(
             Stu3PractitionerRoleTransformer.specialty(
                 Optional.of(DatamartPractitioner.PractitionerRole.builder().build())))
-        .isNull();
+        .isEmpty();
 
     assertThat(Stu3PractitionerRoleTransformer.specialty(" ")).isNull();
 
@@ -65,14 +65,23 @@ public class Stu3PractitionerRoleTransformerTest {
                                     .build()))
                         .build())))
         .isEqualTo(
-            CodeableConcept.builder()
-                .coding(
-                    List.of(
-                        Coding.builder()
-                            .system("http://nucc.org/provider-taxonomy")
-                            .code("x2")
-                            .build()))
-                .build());
+            List.of(
+                CodeableConcept.builder()
+                    .coding(
+                        List.of(
+                            Coding.builder()
+                                .system("http://nucc.org/provider-taxonomy")
+                                .code("v1")
+                                .build()))
+                    .build(),
+                CodeableConcept.builder()
+                    .coding(
+                        List.of(
+                            Coding.builder()
+                                .system("http://nucc.org/provider-taxonomy")
+                                .code("x2")
+                                .build()))
+                    .build()));
 
     // if no x12 code, use va code
     assertThat(
@@ -82,22 +91,20 @@ public class Stu3PractitionerRoleTransformerTest {
                         .specialty(
                             asList(
                                 DatamartPractitioner.PractitionerRole.Specialty.builder()
-                                    .specialtyCode(Optional.of("s1"))
-                                    .build(),
-                                DatamartPractitioner.PractitionerRole.Specialty.builder()
                                     .vaCode(Optional.of("v2"))
                                     .specialtyCode(Optional.of("s2"))
                                     .build()))
                         .build())))
         .isEqualTo(
-            CodeableConcept.builder()
-                .coding(
-                    List.of(
-                        Coding.builder()
-                            .system("http://nucc.org/provider-taxonomy")
-                            .code("v2")
-                            .build()))
-                .build());
+            List.of(
+                CodeableConcept.builder()
+                    .coding(
+                        List.of(
+                            Coding.builder()
+                                .system("http://nucc.org/provider-taxonomy")
+                                .code("v2")
+                                .build()))
+                    .build()));
 
     // if no x12 code or va code, use specialty code
     assertThat(
@@ -112,13 +119,14 @@ public class Stu3PractitionerRoleTransformerTest {
                                     .build()))
                         .build())))
         .isEqualTo(
-            CodeableConcept.builder()
-                .coding(
-                    List.of(
-                        Coding.builder()
-                            .system("http://nucc.org/provider-taxonomy")
-                            .code("s2")
-                            .build()))
-                .build());
+            List.of(
+                CodeableConcept.builder()
+                    .coding(
+                        List.of(
+                            Coding.builder()
+                                .system("http://nucc.org/provider-taxonomy")
+                                .code("s2")
+                                .build()))
+                    .build()));
   }
 }

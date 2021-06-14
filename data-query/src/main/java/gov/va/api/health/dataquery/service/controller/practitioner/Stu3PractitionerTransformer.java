@@ -53,13 +53,10 @@ public class Stu3PractitionerTransformer {
   }
 
   private static List<Practitioner.PractitionerIdentifier> identifiers(Optional<String> npi) {
-    if (isBlank(npi)) {
-      return null;
-    }
     return asList(
         Practitioner.PractitionerIdentifier.builder()
             .system("http://hl7.org/fhir/sid/us-npi")
-            .value(npi.get())
+            .value(npi.orElse("Unknown"))
             .build());
   }
 

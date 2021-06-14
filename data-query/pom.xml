@@ -13,7 +13,7 @@
   <properties>
     <datamart-starter.version>3.0.0</datamart-starter.version>
     <fall-risk.version>2.0.0</fall-risk.version>
-    <fhir-resources.version>7.0.7</fhir-resources.version>
+    <fhir-resources.version>7.0.8-SNAPSHOT</fhir-resources.version>
     <guava.version>30.1.1-jre</guava.version>
     <health-apis-ids.version>4.0.3</health-apis-ids.version>
     <mssql-jdbc.version>9.2.1.jre15</mssql-jdbc.version>
