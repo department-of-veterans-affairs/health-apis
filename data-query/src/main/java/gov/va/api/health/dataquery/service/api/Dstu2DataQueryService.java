@@ -96,7 +96,7 @@ import javax.ws.rs.Path;
       in = SecuritySchemeIn.HEADER,
       flows =
           @OAuthFlows(
-              implicit =
+              authorizationCode =
                   @OAuthFlow(
                       authorizationUrl = "https://sandbox-api.va.gov/oauth2/authorization",
                       tokenUrl = "https://sandbox-api.va.gov/services/fhir/v0/dstu2/token",
@@ -141,7 +141,7 @@ import javax.ws.rs.Path;
       in = SecuritySchemeIn.HEADER,
       flows =
           @OAuthFlows(
-              implicit =
+              authorizationCode =
                   @OAuthFlow(
                       authorizationUrl = "https://api.va.gov/oauth2/authorization",
                       tokenUrl = "https://api.va.gov/services/fhir/v0/dstu2/token",
