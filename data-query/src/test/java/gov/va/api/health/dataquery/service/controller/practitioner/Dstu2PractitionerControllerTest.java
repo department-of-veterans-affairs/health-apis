@@ -6,6 +6,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.Lists;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
 import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
@@ -26,8 +27,6 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-
-import com.google.common.collect.Lists;
 
 @DataJpaTest
 @ExtendWith(SpringExtension.class)
@@ -105,42 +104,6 @@ public class Dstu2PractitionerControllerTest {
   }
 
   @Test
-  void read_migrate() {
-    String publicIdNoSuffix = "I2-abc";
-    String cdwIdNoSuffix = "123";
-    String publicIdSuffix = "I2-abcS";
-    String cdwIdSuffix = "123:S";
-    DatamartPractitioner dm = PractitionerSamples.Datamart.create().practitioner(cdwIdSuffix);
-    repository.save(asEntity(dm));
-    _registerMockIdentities(
-        idReg("PRACTITIONER", publicIdNoSuffix, cdwIdNoSuffix),
-        idReg("PRACTITIONER", publicIdSuffix, cdwIdSuffix),
-        idReg("LOCATION", "I2-ghi", "789:L"),
-        idReg("ORGANIZATION", "I2-def", "456:O"));
-    Practitioner actual = _controller().read(publicIdNoSuffix);
-    assertThat(actual).isEqualTo(PractitionerSamples.Dstu2.create().practitioner(publicIdSuffix));
-  }
-
-  @Test
-  void readRaw_migrate() {
-    String publicIdNoSuffix = "I2-abc";
-    String cdwIdNoSuffix = "123";
-    String publicIdSuffix = "I2-abcS";
-    String cdwIdSuffix = "123:S";
-    _registerMockIdentities(
-        idReg("PRACTITIONER", publicIdNoSuffix, cdwIdNoSuffix),
-        idReg("PRACTITIONER", publicIdSuffix, cdwIdSuffix),
-        idReg("LOCATION", "I2-ghi", "789:L"),
-        idReg("ORGANIZATION", "I2-def", "456:O"));
-    HttpServletResponse servletResponse = mock(HttpServletResponse.class);
-    DatamartPractitioner dm = PractitionerSamples.Datamart.create().practitioner(cdwIdSuffix);
-    repository.save(asEntity(dm));
-    String json = _controller().readRaw(publicIdNoSuffix, servletResponse);
-    assertThat(toObject(json)).isEqualTo(dm);
-    verify(servletResponse).addHeader("X-VA-INCLUDES-ICN", "NONE");
-  }
-
-  @Test
   void readRaw() {
     String publicId = "I2-abc";
     String cdwId = "123:S";
@@ -175,6 +138,25 @@ public class Dstu2PractitionerControllerTest {
   }
 
   @Test
+  void readRaw_migrate() {
+    String publicIdNoSuffix = "I2-abc";
+    String cdwIdNoSuffix = "123";
+    String publicIdSuffix = "I2-abcS";
+    String cdwIdSuffix = "123:S";
+    _registerMockIdentities(
+        idReg("PRACTITIONER", publicIdNoSuffix, cdwIdNoSuffix),
+        idReg("PRACTITIONER", publicIdSuffix, cdwIdSuffix),
+        idReg("LOCATION", "I2-ghi", "789:L"),
+        idReg("ORGANIZATION", "I2-def", "456:O"));
+    HttpServletResponse servletResponse = mock(HttpServletResponse.class);
+    DatamartPractitioner dm = PractitionerSamples.Datamart.create().practitioner(cdwIdSuffix);
+    repository.save(asEntity(dm));
+    String json = _controller().readRaw(publicIdNoSuffix, servletResponse);
+    assertThat(toObject(json)).isEqualTo(dm);
+    verify(servletResponse).addHeader("X-VA-INCLUDES-ICN", "NONE");
+  }
+
+  @Test
   void readThrowsNotFoundWhenDataIsMissing() {
     _registerMockIdentities(
         idReg("PRACTITIONER", "x", "x"),
@@ -186,6 +168,23 @@ public class Dstu2PractitionerControllerTest {
   @Test
   void readThrowsNotFoundWhenIdIsUnknown() {
     assertThrows(ResourceExceptions.NotFound.class, () -> _controller().read("x"));
+  }
+
+  @Test
+  void read_migrate() {
+    String publicIdNoSuffix = "I2-abc";
+    String cdwIdNoSuffix = "123";
+    String publicIdSuffix = "I2-abcS";
+    String cdwIdSuffix = "123:S";
+    DatamartPractitioner dm = PractitionerSamples.Datamart.create().practitioner(cdwIdSuffix);
+    repository.save(asEntity(dm));
+    _registerMockIdentities(
+        idReg("PRACTITIONER", publicIdNoSuffix, cdwIdNoSuffix),
+        idReg("PRACTITIONER", publicIdSuffix, cdwIdSuffix),
+        idReg("LOCATION", "I2-ghi", "789:L"),
+        idReg("ORGANIZATION", "I2-def", "456:O"));
+    Practitioner actual = _controller().read(publicIdNoSuffix);
+    assertThat(actual).isEqualTo(PractitionerSamples.Dstu2.create().practitioner(publicIdSuffix));
   }
 
   @Test
