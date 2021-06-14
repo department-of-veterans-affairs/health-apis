@@ -7,22 +7,22 @@ import org.junit.jupiter.api.Test;
 
 public class Stu3PractitionerTransformerTest {
   @Test
-  void address() {
+  public void address() {
     assertThat(Stu3PractitionerTransformer.address(null)).isNull();
   }
 
   @Test
-  void empty() {
+  public void empty() {
     assertThat(
             Stu3PractitionerTransformer.builder()
                 .datamart(DatamartPractitioner.builder().build())
                 .build()
                 .toFhir())
-        .isEqualTo(Practitioner.builder().build());
+        .isEqualTo(Practitioner.builder().resourceType("Practitioner").build());
   }
 
   @Test
-  void telecom() {
+  public void telecom() {
     assertThat(Stu3PractitionerTransformer.telecom(null)).isNull();
   }
 }

@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 
 public class PractitionerRoleIncludesIcnMajigTest {
   @Test
-  void r4() {
+  public void r4() {
     ExtractIcnValidator.builder()
         .majig(new R4PractitionerRoleIncludesIcnMajig())
         .body(PractitionerRole.builder().id("123").build())
@@ -17,7 +17,7 @@ public class PractitionerRoleIncludesIcnMajigTest {
   }
 
   @Test
-  void stu3() {
+  public void stu3() {
     ExtractIcnValidator.builder()
         .majig(new Stu3PractitionerRoleIncludesIcnMajig())
         .body(gov.va.api.health.stu3.api.resources.PractitionerRole.builder().id("123").build())
