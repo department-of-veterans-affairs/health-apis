@@ -15,7 +15,6 @@ import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.r4.api.bundle.BundleLink;
 import gov.va.api.health.r4.api.resources.Practitioner;
-
 import gov.va.api.lighthouse.vulcan.InvalidRequest;
 import gov.va.api.lighthouse.vulcan.VulcanResult;
 import java.util.List;
@@ -75,7 +74,6 @@ public class R4PractitionerControllerTest {
     when(repository.findById("pr1")).thenReturn(Optional.of(entity));
     assertThat(controller().read("ppr1"))
         .isEqualTo(PractitionerSamples.R4.create().practitioner("ppr1"));
-
   }
 
   @ParameterizedTest
@@ -128,7 +126,6 @@ public class R4PractitionerControllerTest {
         r4.asBundle(
             "http://fonzy.com/r4",
             List.of(r4.practitioner("ppr1"), r4.practitioner("ppr2"), r4.practitioner("ppr3")),
-
             999,
             PractitionerSamples.R4.link(
                 BundleLink.LinkRelation.first,
@@ -160,7 +157,6 @@ public class R4PractitionerControllerTest {
   }
 
   @ParameterizedTest
-
   @ValueSource(
       strings = {
         "?_id=pr1",

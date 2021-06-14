@@ -7,7 +7,6 @@ import static gov.va.api.lighthouse.vulcan.VulcanConfiguration.PagingConfigurati
 import static org.apache.commons.lang3.StringUtils.startsWithIgnoreCase;
 
 import gov.va.api.health.dataquery.service.config.LinkProperties;
-
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.Bundling;
@@ -15,7 +14,6 @@ import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedBundl
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedReader;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedTransformation;
 import gov.va.api.health.r4.api.resources.Practitioner;
-
 import gov.va.api.lighthouse.vulcan.Specifications;
 import gov.va.api.lighthouse.vulcan.SystemIdFields;
 import gov.va.api.lighthouse.vulcan.Vulcan;
@@ -23,11 +21,10 @@ import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
 import gov.va.api.lighthouse.vulcan.mappings.Mappings;
 import gov.va.api.lighthouse.vulcan.mappings.TokenParameter;
 import java.util.List;
-
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -85,7 +82,6 @@ public class R4PractitionerController {
   }
 
   /** Read Support. */
-
   @GetMapping(value = "/{publicId}")
   public Practitioner read(@PathVariable("publicId") String publicId) {
     if (publicId.length() > 4 && startsWithIgnoreCase(publicId, "npi-")) {
