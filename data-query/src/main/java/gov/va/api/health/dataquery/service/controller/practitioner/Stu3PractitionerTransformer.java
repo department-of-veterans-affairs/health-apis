@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.Builder;
-import org.apache.commons.lang3.BooleanUtils;
 
 /** Convert from datamart to STU3. */
 @Builder
@@ -61,16 +60,17 @@ public class Stu3PractitionerTransformer {
             .build());
   }
 
-  static Practitioner.PractitionerHumanName name(DatamartPractitioner.Name source) {
+  static List<Practitioner.PractitionerHumanName> name(DatamartPractitioner.Name source) {
     if (source == null || isBlank(source.family())) {
       return null;
     }
-    return Practitioner.PractitionerHumanName.builder()
-        .family(source.family())
-        .given(nameList(Optional.ofNullable(source.given())))
-        .suffix(nameList(source.suffix()))
-        .prefix(nameList(source.prefix()))
-        .build();
+    return List.of(
+        Practitioner.PractitionerHumanName.builder()
+            .family(source.family())
+            .given(nameList(Optional.ofNullable(source.given())))
+            .suffix(nameList(source.suffix()))
+            .prefix(nameList(source.prefix()))
+            .build());
   }
 
   static List<String> nameList(Optional<String> source) {
@@ -119,7 +119,7 @@ public class Stu3PractitionerTransformer {
     return Practitioner.builder()
         .id(datamart.cdwId())
         .resourceType("Practitioner")
-        .active(BooleanUtils.isTrue(datamart.active()))
+        .active(datamart.active())
         .telecom(telecoms())
         .address(addresses())
         .gender(gender(datamart.gender()))

@@ -363,10 +363,11 @@ public class PractitionerSamples {
                       .build()))
           .active(true)
           .name(
-              gov.va.api.health.stu3.api.resources.Practitioner.PractitionerHumanName.builder()
-                  .family("Joe")
-                  .given(List.of("Johnson"))
-                  .build())
+              List.of(
+                  gov.va.api.health.stu3.api.resources.Practitioner.PractitionerHumanName.builder()
+                      .family("Joe")
+                      .given(List.of("Johnson"))
+                      .build()))
           .gender(gov.va.api.health.stu3.api.resources.Practitioner.Gender.male)
           .birthDate("1970-11-14")
           .address(
