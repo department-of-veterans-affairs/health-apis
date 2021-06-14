@@ -13,10 +13,7 @@ Options
      --secrets-conf <file> The configuration file with secrets!
 
 Secrets Configuration
- This bash file is sourced and expected to set the following variables
- - KEYSTORE_PASSWORD
-
- These may optionally be provided
+ This bash file is sourced. These may optionally be provided
  - DATAQUERY_DB_PASSWORD
  - DATAQUERY_DB_URL
  - DATAQUERY_DB_USER
@@ -54,7 +51,6 @@ echo "Loading secrets: $SECRETS"
 . $SECRETS
 
 MISSING_SECRETS=false
-[ -z "$KEYSTORE_PASSWORD" ] && echo "Missing configuration: KEYSTORE_PASSWORD" && MISSING_SECRETS=true
 [ -z "$DATAQUERY_DB_PASSWORD" ] && DATAQUERY_DB_PASSWORD='<YourStrong!Passw0rd>'
 [ -z "$DATAQUERY_DB_URL" ] && DATAQUERY_DB_URL='jdbc:sqlserver://localhost:1433;database=dq;sendStringParametersAsUnicode=false'
 [ -z "$DATAQUERY_DB_USER" ] && DATAQUERY_DB_USER='SA'
