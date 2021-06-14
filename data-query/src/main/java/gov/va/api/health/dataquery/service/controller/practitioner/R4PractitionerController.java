@@ -1,6 +1,7 @@
 package gov.va.api.health.dataquery.service.controller.practitioner;
 
 import static gov.va.api.lighthouse.vulcan.Rules.atLeastOneParameterOf;
+import static gov.va.api.lighthouse.vulcan.Rules.parametersNeverSpecifiedTogether;
 import static gov.va.api.lighthouse.vulcan.Vulcan.returnNothing;
 import static gov.va.api.lighthouse.vulcan.VulcanConfiguration.PagingConfiguration.noSortableParameters;
 import static org.apache.commons.lang3.StringUtils.startsWithIgnoreCase;
@@ -22,6 +23,7 @@ import gov.va.api.lighthouse.vulcan.mappings.TokenParameter;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
@@ -65,9 +67,17 @@ public class R4PractitionerController {
                     "identifier",
                     this::tokenIdentifierIsSupported,
                     this::tokenIdentifierSpecification)
+                .string("given", "givenName")
+                .string("family", "familyName")
+                .string("name", f -> Set.of("familyName", "givenName"))
                 .get())
         .defaultQuery(returnNothing())
-        .rules(List.of(atLeastOneParameterOf("_id", "identifier")))
+        .rules(
+            List.of(
+                atLeastOneParameterOf("_id", "identifier", "name", "given", "family"),
+                parametersNeverSpecifiedTogether("identifier", "_id"),
+                parametersNeverSpecifiedTogether("name", "given"),
+                parametersNeverSpecifiedTogether("name", "family")))
         .build();
   }
 

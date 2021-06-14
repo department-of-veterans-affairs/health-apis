@@ -53,8 +53,14 @@ public class R4PractitionerControllerTest {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {"", "?invalid=request"})
-  @SneakyThrows
+  @ValueSource(
+      strings = {
+        "",
+        "?_id=foo&identifier=bar",
+        "?invalid=request",
+        "?name=harry&family=potter",
+        "?name=harry&given=harry"
+      })
   void invalidRequest(String query) {
     var r = requestFromUri("http://fonzy.com/r4/Practitioner" + query);
     assertThatExceptionOfType(InvalidRequest.class).isThrownBy(() -> controller().search(r));
@@ -75,6 +81,7 @@ public class R4PractitionerControllerTest {
   void readByNpi(String npi) {
     when(ids.register(any())).thenReturn(List.of(registration("pr1", "ppr1")));
     PractitionerEntity entity = PractitionerSamples.Datamart.create().entity("pr1", "loc1", "org1");
+
     when(repository.findByNpi("1234567", Pageable.unpaged()))
         .thenReturn(new PageImpl(List.of(entity)));
     assertThat(controller().read(npi))
@@ -155,7 +162,11 @@ public class R4PractitionerControllerTest {
         "?_id=pr1",
         "?identifier=pr1",
         "?identifier=http://hl7.org/fhir/sid/us-npi|",
-        "?identifier=http://hl7.org/fhir/sid/us-npi|123"
+        "?identifier=http://hl7.org/fhir/sid/us-npi|123",
+        "?family=potter",
+        "?given=harry",
+        "?name=harry",
+        "?name=potter"
       })
   @SneakyThrows
   void validRequest(String query) {
