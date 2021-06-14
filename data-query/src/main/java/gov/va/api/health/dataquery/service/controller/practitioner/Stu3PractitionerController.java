@@ -1,7 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.practitioner;
 
 import static java.util.Collections.emptyList;
-import static java.util.stream.Collectors.toList;
 
 import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
@@ -11,10 +10,10 @@ import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.Stu3Bundler;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.stu3.api.resources.Practitioner;
-import gov.va.api.lighthouse.datamart.CompositeCdwId;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.Min;
@@ -69,26 +68,23 @@ public class Stu3PractitionerController {
   }
 
   private PractitionerEntity findById(String publicId) {
-    try {
-      Optional<PractitionerEntity> entity =
-          repository.findById(CompositeCdwId.fromCdwId(witnessProtection.toCdwId(publicId)));
-      return entity.orElseThrow(() -> new ResourceExceptions.NotFound(publicId));
-    } catch (IllegalArgumentException e) {
-      throw new ResourceExceptions.NotFound(publicId);
-    }
+    Optional<PractitionerEntity> entity = repository.findById(witnessProtection.toCdwId(publicId));
+    return entity.orElseThrow(() -> new ResourceExceptions.NotFound(publicId));
   }
 
+  /** Read by id. */
   @GetMapping(value = {"/{publicId}"})
-  Practitioner read(@PathVariable("publicId") String publicId) {
+  public Practitioner read(@PathVariable("publicId") String publicId) {
     DatamartPractitioner practitioner = findById(publicId).asDatamartPractitioner();
     replaceReferences(List.of(practitioner));
     return transform(practitioner);
   }
 
+  /** Read raw. */
   @GetMapping(
       value = {"/{publicId}"},
       headers = {"raw=true"})
-  String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
+  public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
     PractitionerEntity entity = findById(publicId);
     IncludesIcnMajig.addHeaderForNoPatients(response);
     return entity.payload();
@@ -106,8 +102,9 @@ public class Stu3PractitionerController {
     return resources;
   }
 
+  /** Search by family and given name. */
   @GetMapping(params = {"family", "given"})
-  Practitioner.Bundle searchByFamilyAndGiven(
+  public Practitioner.Bundle searchByFamilyAndGiven(
       @RequestParam("family") String family,
       @RequestParam("given") String given,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
@@ -127,8 +124,9 @@ public class Stu3PractitionerController {
     return bundle(parameters, transform(entitiesPage.get()), (int) entitiesPage.getTotalElements());
   }
 
+  /** Search by _id. */
   @GetMapping(params = {"_id"})
-  Practitioner.Bundle searchById(
+  public Practitioner.Bundle searchById(
       @RequestParam("_id") String publicId,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
@@ -143,8 +141,9 @@ public class Stu3PractitionerController {
         resource == null ? 0 : 1);
   }
 
+  /** Search by NPI. */
   @GetMapping(params = {"identifier"})
-  Practitioner.Bundle searchByNpi(
+  public Practitioner.Bundle searchByNpi(
       @RequestParam("identifier") String systemAndCode,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
@@ -175,11 +174,11 @@ public class Stu3PractitionerController {
 
   private List<Practitioner> transform(Stream<PractitionerEntity> entities) {
     List<DatamartPractitioner> datamarts =
-        entities.map(PractitionerEntity::asDatamartPractitioner).collect(toList());
+        entities.map(PractitionerEntity::asDatamartPractitioner).collect(Collectors.toList());
     replaceReferences(datamarts);
     return datamarts.stream()
         .map(dm -> Stu3PractitionerTransformer.builder().datamart(dm).build().toFhir())
-        .collect(toList());
+        .collect(Collectors.toList());
   }
 
   Practitioner transform(DatamartPractitioner dm) {

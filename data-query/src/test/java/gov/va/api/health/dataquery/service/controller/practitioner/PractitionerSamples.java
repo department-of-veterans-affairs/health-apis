@@ -1,6 +1,5 @@
 package gov.va.api.health.dataquery.service.controller.practitioner;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 
@@ -8,7 +7,6 @@ import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.health.r4.api.datatypes.Identifier;
-import gov.va.api.lighthouse.datamart.CompositeCdwId;
 import gov.va.api.lighthouse.datamart.DatamartCoding;
 import gov.va.api.lighthouse.datamart.DatamartReference;
 import java.time.LocalDate;
@@ -22,6 +20,7 @@ import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class PractitionerSamples {
+
   public static ResourceIdentity id(String cdwId) {
     return ResourceIdentity.builder()
         .system("CDW")
@@ -41,12 +40,12 @@ public class PractitionerSamples {
 
   @AllArgsConstructor(staticName = "create")
   public static class Datamart {
+
     @SneakyThrows
     public PractitionerEntity entity(String cdwId, String locCdwId, String orgCdwId) {
       DatamartPractitioner dm = practitioner(cdwId);
       return PractitionerEntity.builder()
-          .cdwIdNumber(CompositeCdwId.fromCdwId(cdwId).cdwIdNumber())
-          .cdwIdResourceCode(CompositeCdwId.fromCdwId(cdwId).cdwIdResourceCode())
+          .cdwId(cdwId)
           .npi("1234567")
           .familyName("Joe")
           .givenName("Johnson")
@@ -55,11 +54,10 @@ public class PractitionerSamples {
     }
 
     public DatamartPractitioner practitioner() {
-      return practitioner("123:S");
+      return practitioner("1234");
     }
 
     public DatamartPractitioner practitioner(String cdwId) {
-      checkArgument(cdwId.endsWith(":S"));
       return DatamartPractitioner.builder()
           .cdwId(cdwId)
           .active(true)
@@ -117,6 +115,7 @@ public class PractitionerSamples {
         Collection<gov.va.api.health.dstu2.api.resources.Practitioner> practitioners,
         gov.va.api.health.dstu2.api.bundle.BundleLink... links) {
       return gov.va.api.health.dstu2.api.resources.Practitioner.Bundle.builder()
+          .resourceType("Bundle")
           .type(gov.va.api.health.dstu2.api.bundle.AbstractBundle.BundleType.searchset)
           .total(practitioners.size())
           .link(asList(links))
@@ -150,11 +149,12 @@ public class PractitionerSamples {
     }
 
     public gov.va.api.health.dstu2.api.resources.Practitioner practitioner() {
-      return practitioner("123:S");
+      return practitioner("1234");
     }
 
     public gov.va.api.health.dstu2.api.resources.Practitioner practitioner(String id) {
       return gov.va.api.health.dstu2.api.resources.Practitioner.builder()
+          .resourceType("Practitioner")
           .id(id)
           .active(true)
           .name(
@@ -216,6 +216,7 @@ public class PractitionerSamples {
 
   @AllArgsConstructor(staticName = "create")
   public static class R4 {
+
     static gov.va.api.health.r4.api.resources.Practitioner.Bundle asBundle(
         String basePath,
         Collection<gov.va.api.health.r4.api.resources.Practitioner> practitioners,
@@ -229,6 +230,7 @@ public class PractitionerSamples {
         int totalRecords,
         gov.va.api.health.r4.api.bundle.BundleLink... links) {
       return gov.va.api.health.r4.api.resources.Practitioner.Bundle.builder()
+          .resourceType("Bundle")
           .type(gov.va.api.health.r4.api.bundle.AbstractBundle.BundleType.searchset)
           .total(totalRecords)
           .link(asList(links))
@@ -262,11 +264,12 @@ public class PractitionerSamples {
     }
 
     public gov.va.api.health.r4.api.resources.Practitioner practitioner() {
-      return practitioner("123:S");
+      return practitioner("1234");
     }
 
     public gov.va.api.health.r4.api.resources.Practitioner practitioner(String id) {
       return gov.va.api.health.r4.api.resources.Practitioner.builder()
+          .resourceType("Practitioner")
           .id(id)
           .identifier(null)
           .active(true)
@@ -311,6 +314,7 @@ public class PractitionerSamples {
         Collection<gov.va.api.health.stu3.api.resources.Practitioner> practitioners,
         gov.va.api.health.stu3.api.bundle.BundleLink... links) {
       return gov.va.api.health.stu3.api.resources.Practitioner.Bundle.builder()
+          .resourceType("Bundle")
           .type(gov.va.api.health.stu3.api.bundle.AbstractBundle.BundleType.searchset)
           .total(practitioners.size())
           .link(asList(links))
@@ -344,11 +348,12 @@ public class PractitionerSamples {
     }
 
     public gov.va.api.health.stu3.api.resources.Practitioner practitioner() {
-      return practitioner("123:S");
+      return practitioner("1234");
     }
 
     public gov.va.api.health.stu3.api.resources.Practitioner practitioner(String id) {
       return gov.va.api.health.stu3.api.resources.Practitioner.builder()
+          .resourceType("Practitioner")
           .id(id)
           .identifier(
               singletonList(

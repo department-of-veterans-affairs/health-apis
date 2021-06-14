@@ -7,7 +7,6 @@ import static gov.va.api.health.dataquery.service.controller.Transformers.ifPres
 import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
-import static java.util.stream.Collectors.toList;
 
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
 import gov.va.api.health.stu3.api.datatypes.Address;
@@ -16,9 +15,11 @@ import gov.va.api.health.stu3.api.resources.Practitioner;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.Builder;
 import org.apache.commons.lang3.BooleanUtils;
 
+/** Convert from datamart to STU3. */
 @Builder
 public class Stu3PractitionerTransformer {
   private final DatamartPractitioner datamart;
@@ -106,16 +107,20 @@ public class Stu3PractitionerTransformer {
   }
 
   private List<Address> addresses() {
-    return emptyToNull(datamart.address().stream().map(adr -> address(adr)).collect(toList()));
+    return emptyToNull(
+        datamart.address().stream().map(adr -> address(adr)).collect(Collectors.toList()));
   }
 
   List<ContactPoint> telecoms() {
-    return emptyToNull(datamart.telecom().stream().map(tel -> telecom(tel)).collect(toList()));
+    return emptyToNull(
+        datamart.telecom().stream().map(tel -> telecom(tel)).collect(Collectors.toList()));
   }
 
-  Practitioner toFhir() {
+  /** Convert the datamart structure to FHIR compliant structure. */
+  public Practitioner toFhir() {
     return Practitioner.builder()
         .id(datamart.cdwId())
+        .resourceType("Practitioner")
         .active(BooleanUtils.isTrue(datamart.active()))
         .telecom(telecoms())
         .address(addresses())

@@ -13,17 +13,17 @@ import org.junit.jupiter.api.Test;
 
 public class Stu3PractitionerRoleTransformerTest {
   @Test
-  void empty() {
+  public void empty() {
     assertThat(
             Stu3PractitionerRoleTransformer.builder()
                 .datamart(DatamartPractitioner.builder().build())
                 .build()
                 .toFhir())
-        .isEqualTo(PractitionerRole.builder().build());
+        .isEqualTo(PractitionerRole.builder().resourceType("PractitionerRole").build());
   }
 
   @Test
-  void otherEmpty() {
+  public void otherEmpty() {
     assertThat(
             Stu3PractitionerRoleTransformer.specialty(
                 Optional.of(DatamartPractitioner.PractitionerRole.builder().build())))
@@ -46,7 +46,7 @@ public class Stu3PractitionerRoleTransformerTest {
   }
 
   @Test
-  void specialty() {
+  public void specialty() {
     // x12 code used first
     assertThat(
             Stu3PractitionerRoleTransformer.specialty(

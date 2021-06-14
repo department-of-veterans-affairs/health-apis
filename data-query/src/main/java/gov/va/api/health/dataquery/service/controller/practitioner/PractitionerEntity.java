@@ -1,8 +1,7 @@
 package gov.va.api.health.dataquery.service.controller.practitioner;
 
 import gov.va.api.health.dataquery.service.controller.DatamartSupport;
-import gov.va.api.lighthouse.datamart.CompositeCdwId;
-import gov.va.api.lighthouse.datamart.CompositeIdDatamartEntity;
+import gov.va.api.lighthouse.datamart.DatamartEntity;
 import gov.va.api.lighthouse.datamart.Payload;
 import java.math.BigInteger;
 import javax.persistence.Basic;
@@ -10,7 +9,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
-import javax.persistence.IdClass;
 import javax.persistence.Lob;
 import javax.persistence.Table;
 import lombok.AccessLevel;
@@ -21,57 +19,57 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Sort;
 
+/** Practioner DB model. */
 @Data
 @Entity
 @Builder
-@IdClass(CompositeCdwId.class)
 @Table(name = "Practitioner", schema = "app")
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class PractitionerEntity implements CompositeIdDatamartEntity {
+public class PractitionerEntity implements DatamartEntity {
   @Id
+  @Column(name = "CDWID")
   @EqualsAndHashCode.Include
+  private String cdwId;
+
   @Column(name = "CdwIdNumber")
   private BigInteger cdwIdNumber;
 
-  @Id
-  @EqualsAndHashCode.Include
   @Column(name = "CdwIdResourceCode")
-  private char cdwIdResourceCode;
+  private Character cdwIdResourceCode;
 
-  @Column(name = "NPI")
+  @Column(name = "NPI", nullable = true)
   private String npi;
 
-  @Column(name = "FamilyName")
+  @Column(name = "FamilyName", nullable = true)
   private String familyName;
 
-  @Column(name = "GivenName")
+  @Column(name = "GivenName", nullable = true)
   private String givenName;
 
   @Lob
-  @Column(name = "Practitioner")
   @Basic(fetch = FetchType.EAGER)
+  @Column(name = "Practitioner")
   private String payload;
 
   public static Sort naturalOrder() {
-    return Sort.by("cdwIdNumber").ascending().and(Sort.by("cdwIdResourceCode").ascending());
+    return Sort.by("cdwId").ascending();
   }
 
   /** Deserialize payload. */
   public DatamartPractitioner asDatamartPractitioner() {
     DatamartPractitioner dm = toPayload().deserialize();
-    dm.practitionerRole()
-        .ifPresent(
-            pr -> pr.managingOrganization().ifPresent(mo -> mo.typeIfMissing("Organization")));
-    dm.practitionerRole()
-        .ifPresent(pr -> pr.location().forEach(loc -> loc.typeIfMissing("Location")));
-    return dm;
-  }
 
-  @Override
-  public CompositeCdwId compositeCdwId() {
-    return new CompositeCdwId(cdwIdNumber(), cdwIdResourceCode());
+    if (dm.practitionerRole().isPresent()) {
+      dm.practitionerRole()
+          .get()
+          .managingOrganization()
+          .ifPresent(mo -> mo.typeIfMissing("Organization"));
+      dm.practitionerRole().get().location().forEach(loc -> loc.typeIfMissing("Location"));
+    }
+
+    return dm;
   }
 
   @Override
