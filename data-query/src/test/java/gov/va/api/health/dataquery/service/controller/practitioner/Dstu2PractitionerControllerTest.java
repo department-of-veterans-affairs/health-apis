@@ -2,10 +2,12 @@ package gov.va.api.health.dataquery.service.controller.practitioner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
@@ -82,7 +84,7 @@ public class Dstu2PractitionerControllerTest {
     for (Registration reg : regs) {
       when(ids.lookup(reg.uuid())).thenReturn(reg.resourceIdentities());
     }
-    when(ids.register(Mockito.any())).thenReturn(Lists.newArrayList(regs));
+    when(ids.register(any())).thenReturn(ImmutableList.copyOf(regs));
   }
 
   @Test
