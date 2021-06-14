@@ -19,12 +19,16 @@ import gov.va.api.health.ids.api.ResourceIdentity;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
+
+import org.assertj.core.util.Arrays;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import com.google.common.collect.Lists;
 
 @DataJpaTest
 @ExtendWith(SpringExtension.class)
@@ -98,6 +102,22 @@ public class Dstu2PractitionerControllerTest {
                     .build()));
   }
 
+  void registerMockIdentities(Registration... regs) {
+    for (Registration reg : regs) {
+      when(ids.lookup(reg.uuid())).thenReturn(reg.resourceIdentities());
+    }
+    when(ids.register(Mockito.any())).thenReturn(Lists.newArrayList(regs));
+  }
+
+  static Registration idReg(String type, String pubId, String cdwId) {
+    return Registration.builder()
+        .uuid(pubId)
+        .resourceIdentities(
+            List.of(
+                ResourceIdentity.builder().system("CDW").resource(type).identifier(cdwId).build()))
+        .build();
+  }
+
   @Test
   public void read() {
     String publicId = "abc";
@@ -111,6 +131,23 @@ public class Dstu2PractitionerControllerTest {
     mockPractitionerIdentity(publicId, cdwId, orgPubId, orgCdwId, locPubId, locCdwId);
     Practitioner actual = controller().read("1234");
     assertThat(actual).isEqualTo(PractitionerSamples.Dstu2.create().practitioner("1234"));
+  }
+
+  @Test
+  void read_migrate() {
+    String publicIdNoSuffix = "I2-abc";
+    String cdwIdNoSuffix = "123";
+    String publicIdSuffix = "I2-abcS";
+    String cdwIdSuffix = "123:S";
+    DatamartPractitioner dm = PractitionerSamples.Datamart.create().practitioner(cdwIdSuffix);
+    repository.save(asEntity(dm));
+    registerMockIdentities(
+        idReg("PRACTITIONER", publicIdNoSuffix, cdwIdNoSuffix),
+        idReg("PRACTITIONER", publicIdSuffix, cdwIdSuffix),
+        idReg("LOCATION", "I2-ghi", "789:L"),
+        idReg("ORGANIZATION", "I2-def", "456:O"));
+    Practitioner actual = controller().read(publicIdNoSuffix);
+    assertThat(actual).isEqualTo(PractitionerSamples.Dstu2.create().practitioner(publicIdSuffix));
   }
 
   @Test
@@ -139,6 +176,29 @@ public class Dstu2PractitionerControllerTest {
   @Test
   public void readRawThrowsNotFoundWhenIdIsUnknown() {
     assertThrows(ResourceExceptions.NotFound.class, () -> controller().readRaw("x", response));
+  }
+
+  @Test
+  void readRaw_migrate() {
+    String publicIdNoSuffix = "I2-abc";
+    String cdwIdNoSuffix = "123";
+    String publicIdSuffix = "I2-abcS";
+    String cdwIdSuffix = "123:S";
+    String orgPubId = "I2-def";
+    String orgCdwId = "456:O";
+    String locPubId = "I2-ghi";
+    String locCdwId = "789:L";
+    registerMockIdentities(
+        idReg("PRACTITIONER", publicIdNoSuffix, cdwIdNoSuffix),
+        idReg("PRACTITIONER", publicIdSuffix, cdwIdSuffix),
+        idReg("LOCATION", "I2-ghi", "789:L"),
+        idReg("ORGANIZATION", "I2-def", "456:O"));
+    HttpServletResponse servletResponse = mock(HttpServletResponse.class);
+    DatamartPractitioner dm = PractitionerSamples.Datamart.create().practitioner(cdwIdSuffix);
+    repository.save(asEntity(dm));
+    String json = controller().readRaw(publicIdNoSuffix, servletResponse);
+    assertThat(toObject(json)).isEqualTo(dm);
+    verify(servletResponse).addHeader("X-VA-INCLUDES-ICN", "NONE");
   }
 
   @Test
