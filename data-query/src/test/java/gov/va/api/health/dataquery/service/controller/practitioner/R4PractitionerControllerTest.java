@@ -15,6 +15,7 @@ import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.r4.api.bundle.BundleLink;
 import gov.va.api.health.r4.api.resources.Practitioner;
+
 import gov.va.api.lighthouse.vulcan.InvalidRequest;
 import gov.va.api.lighthouse.vulcan.VulcanResult;
 import java.util.List;
@@ -53,8 +54,14 @@ public class R4PractitionerControllerTest {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {"", "?invalid=request"})
-  @SneakyThrows
+  @ValueSource(
+      strings = {
+        "",
+        "?_id=foo&identifier=bar",
+        "?invalid=request",
+        "?name=harry&family=potter",
+        "?name=harry&given=harry"
+      })
   void invalidRequest(String query) {
     var r = requestFromUri("http://fonzy.com/r4/Practitioner" + query);
     assertThatExceptionOfType(InvalidRequest.class).isThrownBy(() -> controller().search(r));
@@ -68,6 +75,7 @@ public class R4PractitionerControllerTest {
     when(repository.findById("pr1")).thenReturn(Optional.of(entity));
     assertThat(controller().read("ppr1"))
         .isEqualTo(PractitionerSamples.R4.create().practitioner("ppr1"));
+
   }
 
   @ParameterizedTest
@@ -75,6 +83,7 @@ public class R4PractitionerControllerTest {
   void readByNpi(String npi) {
     when(ids.register(any())).thenReturn(List.of(registration("pr1", "ppr1")));
     PractitionerEntity entity = PractitionerSamples.Datamart.create().entity("pr1", "loc1", "org1");
+
     when(repository.findByNpi("1234567", Pageable.unpaged()))
         .thenReturn(new PageImpl(List.of(entity)));
     assertThat(controller().read(npi))
@@ -119,6 +128,7 @@ public class R4PractitionerControllerTest {
         r4.asBundle(
             "http://fonzy.com/r4",
             List.of(r4.practitioner("ppr1"), r4.practitioner("ppr2"), r4.practitioner("ppr3")),
+
             999,
             PractitionerSamples.R4.link(
                 BundleLink.LinkRelation.first,
@@ -150,12 +160,17 @@ public class R4PractitionerControllerTest {
   }
 
   @ParameterizedTest
+
   @ValueSource(
       strings = {
         "?_id=pr1",
         "?identifier=pr1",
         "?identifier=http://hl7.org/fhir/sid/us-npi|",
-        "?identifier=http://hl7.org/fhir/sid/us-npi|123"
+        "?identifier=http://hl7.org/fhir/sid/us-npi|123",
+        "?family=potter",
+        "?given=harry",
+        "?name=harry",
+        "?name=potter"
       })
   @SneakyThrows
   void validRequest(String query) {
