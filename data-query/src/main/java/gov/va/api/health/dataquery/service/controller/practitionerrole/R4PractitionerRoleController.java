@@ -5,7 +5,6 @@ import static gov.va.api.lighthouse.vulcan.Vulcan.returnNothing;
 import static gov.va.api.lighthouse.vulcan.VulcanConfiguration.PagingConfiguration.noSortableParameters;
 
 import gov.va.api.health.dataquery.service.config.LinkProperties;
-import gov.va.api.health.dataquery.service.controller.CompositeCdwIds;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.practitioner.DatamartPractitioner;
 import gov.va.api.health.dataquery.service.controller.practitioner.PractitionerEntity;
@@ -15,13 +14,12 @@ import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedBundl
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedReader;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedTransformation;
 import gov.va.api.health.r4.api.resources.PractitionerRole;
-import gov.va.api.lighthouse.datamart.CompositeCdwId;
 import gov.va.api.lighthouse.vulcan.Vulcan;
 import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
 import gov.va.api.lighthouse.vulcan.mappings.Mappings;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -50,43 +48,37 @@ public class R4PractitionerRoleController {
 
   private final LinkProperties linkProperties;
 
-  private final PractitionerRepository repository;
+  private PractitionerRepository repository;
 
   private VulcanConfiguration<PractitionerEntity> configuration() {
     return VulcanConfiguration.forEntity(PractitionerEntity.class)
         .paging(
             linkProperties.pagingConfiguration(
                 "PractitionerRole", PractitionerEntity.naturalOrder(), noSortableParameters()))
-        .mappings(Mappings.forEntity(PractitionerEntity.class).values("_id", this::loadCdwId).get())
+        .mappings(
+            Mappings.forEntity(PractitionerEntity.class)
+                .value("_id", "cdwId", witnessProtection::toCdwId)
+                .get())
         .defaultQuery(returnNothing())
         .rules(List.of(atLeastOneParameterOf("_id")))
         .build();
   }
 
-  private Map<String, ?> loadCdwId(String publicId) {
-    try {
-      CompositeCdwId cdwId = CompositeCdwId.fromCdwId(witnessProtection.toCdwId(publicId));
-      return Map.of(
-          "cdwIdNumber", cdwId.cdwIdNumber(), "cdwIdResourceCode", cdwId.cdwIdResourceCode());
-    } catch (IllegalArgumentException e) {
-      return Map.of();
-    }
-  }
-
   @GetMapping(value = {"/{publicId}"})
-  PractitionerRole read(@PathVariable("publicId") String publicId) {
+  public PractitionerRole read(@PathVariable("publicId") String publicId) {
     return vulcanizedReader().read(publicId);
   }
 
   @GetMapping(
       value = {"/{publicId}"},
       headers = {"raw=true"})
-  String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
+  public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
     return vulcanizedReader().readRaw(publicId, response);
   }
 
+  /** Search support. */
   @GetMapping
-  PractitionerRole.Bundle search(HttpServletRequest request) {
+  public PractitionerRole.Bundle search(HttpServletRequest request) {
     return Vulcan.forRepo(repository)
         .config(configuration())
         .build()
@@ -124,14 +116,15 @@ public class R4PractitionerRoleController {
         .build();
   }
 
-  VulcanizedReader<PractitionerEntity, DatamartPractitioner, PractitionerRole, CompositeCdwId>
+  /** Build VulcanizedReader. */
+  public VulcanizedReader<PractitionerEntity, DatamartPractitioner, PractitionerRole, String>
       vulcanizedReader() {
     return VulcanizedReader
-        .<PractitionerEntity, DatamartPractitioner, PractitionerRole, CompositeCdwId>
-            forTransformation(transformation())
+        .<PractitionerEntity, DatamartPractitioner, PractitionerRole, String>forTransformation(
+            transformation())
         .repository(repository)
         .toPatientId(e -> Optional.empty())
-        .toPrimaryKey(CompositeCdwIds::requireCompositeIdStringFormat)
+        .toPrimaryKey(Function.identity())
         .toPayload(PractitionerEntity::payload)
         .build();
   }

@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 
 public class R4PractitionerTransformerTest {
   @Test
-  void address() {
+  public void address() {
     assertThat(R4PractitionerTransformer.address(null)).isNull();
     assertThat(
             R4PractitionerTransformer.address(
@@ -37,7 +37,7 @@ public class R4PractitionerTransformerTest {
   }
 
   @Test
-  void empty() {
+  public void empty() {
     assertThat(
             R4PractitionerTransformer.builder()
                 .datamart(DatamartPractitioner.builder().build())
@@ -45,6 +45,7 @@ public class R4PractitionerTransformerTest {
                 .toFhir())
         .isEqualTo(
             Practitioner.builder()
+                .resourceType("Practitioner")
                 .identifier(
                     List.of(
                         Identifier.builder()
@@ -55,7 +56,7 @@ public class R4PractitionerTransformerTest {
   }
 
   @Test
-  void gender() {
+  public void gender() {
     R4PractitionerTransformer transformer = R4PractitionerTransformer.builder().build();
     assertThat(transformer.gender(null)).isNull();
     assertThat(transformer.gender(DatamartPractitioner.Gender.male))
@@ -65,7 +66,7 @@ public class R4PractitionerTransformerTest {
   }
 
   @Test
-  void name() {
+  public void name() {
     assertThat(R4PractitionerTransformer.name(null)).isNull();
     assertThat(
             R4PractitionerTransformer.name(
@@ -86,9 +87,7 @@ public class R4PractitionerTransformerTest {
   }
 
   @Test
-  void telecom() {
-    assertThat(R4PractitionerTransformer.telecomSystem(null)).isNull();
-    assertThat(R4PractitionerTransformer.telecomUse(null)).isNull();
+  public void telecom() {
     assertThat(R4PractitionerTransformer.telecom(null)).isNull();
     assertThat(
             R4PractitionerTransformer.telecom(
@@ -110,7 +109,7 @@ public class R4PractitionerTransformerTest {
   }
 
   @Test
-  void toFhir() {
+  public void toFhir() {
     assertThat(
             R4PractitionerTransformer.builder()
                 .datamart(PractitionerSamples.Datamart.create().practitioner())

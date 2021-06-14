@@ -4,9 +4,14 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.dataquery.service.controller.practitioner.DatamartPractitioner;
+import gov.va.api.health.dataquery.service.controller.practitioner.DatamartPractitioner.Telecom.System;
+import gov.va.api.health.dataquery.service.controller.practitioner.DatamartPractitioner.Telecom.Use;
+import gov.va.api.health.dataquery.service.controller.practitionerrole.PractitionerRoleSamples.Datamart;
+import gov.va.api.health.dataquery.service.controller.practitionerrole.PractitionerRoleSamples.R4;
 import gov.va.api.health.r4.api.datatypes.CodeableConcept;
 import gov.va.api.health.r4.api.datatypes.Coding;
 import gov.va.api.health.r4.api.datatypes.ContactPoint;
+import gov.va.api.health.r4.api.datatypes.ContactPoint.ContactPointSystem;
 import gov.va.api.health.r4.api.resources.PractitionerRole;
 import java.util.List;
 import java.util.Optional;
@@ -14,17 +19,17 @@ import org.junit.jupiter.api.Test;
 
 public class R4PractitionerRoleTransformerTest {
   @Test
-  void empty() {
+  public void empty() {
     assertThat(
             R4PractitionerRoleTransformer.builder()
                 .datamart(DatamartPractitioner.builder().build())
                 .build()
                 .toFhir())
-        .isEqualTo(PractitionerRole.builder().build());
+        .isEqualTo(PractitionerRole.builder().resourceType("PractitionerRole").build());
   }
 
   @Test
-  void otherEmpty() {
+  public void otherEmpty() {
     assertThat(
             R4PractitionerRoleTransformer.specialty(
                 Optional.of(DatamartPractitioner.PractitionerRole.builder().build())))
@@ -49,7 +54,7 @@ public class R4PractitionerRoleTransformerTest {
   }
 
   @Test
-  void specialty() {
+  public void specialty() {
     // x12 code used first, then vaCode, then specialty code
     assertThat(
             R4PractitionerRoleTransformer.specialty(
@@ -102,49 +107,43 @@ public class R4PractitionerRoleTransformerTest {
   }
 
   @Test
-  void telecom() {
+  public void telecom() {
     List<DatamartPractitioner.Telecom> phoneAndEmail =
         List.of(
             DatamartPractitioner.Telecom.builder()
-                .system(DatamartPractitioner.Telecom.System.phone)
+                .system(System.phone)
                 .value("333-333-3333")
-                .use(DatamartPractitioner.Telecom.Use.work)
+                .use(Use.work)
                 .build(),
             DatamartPractitioner.Telecom.builder()
-                .system(DatamartPractitioner.Telecom.System.email)
+                .system(System.email)
                 .value("foo@example.com")
-                .use(DatamartPractitioner.Telecom.Use.work)
+                .use(Use.work)
                 .build(),
             DatamartPractitioner.Telecom.builder()
-                .system(DatamartPractitioner.Telecom.System.fax)
+                .system(System.fax)
                 .value("444-444-4444")
-                .use(DatamartPractitioner.Telecom.Use.work)
+                .use(Use.work)
                 .build(),
             DatamartPractitioner.Telecom.builder()
-                .system(DatamartPractitioner.Telecom.System.pager)
+                .system(System.pager)
                 .value("5-555")
-                .use(DatamartPractitioner.Telecom.Use.work)
+                .use(Use.work)
                 .build());
 
     assertThat(R4PractitionerRoleTransformer.telecoms(phoneAndEmail))
         .isEqualTo(
             List.of(
                 ContactPoint.builder()
-                    .system(ContactPoint.ContactPointSystem.phone)
+                    .system(ContactPointSystem.phone)
                     .value("333-333-3333")
                     .build(),
                 ContactPoint.builder()
-                    .system(ContactPoint.ContactPointSystem.email)
+                    .system(ContactPointSystem.email)
                     .value("foo@example.com")
                     .build(),
-                ContactPoint.builder()
-                    .system(ContactPoint.ContactPointSystem.fax)
-                    .value("444-444-4444")
-                    .build(),
-                ContactPoint.builder()
-                    .system(ContactPoint.ContactPointSystem.pager)
-                    .value("5-555")
-                    .build()));
+                ContactPoint.builder().system(ContactPointSystem.fax).value("444-444-4444").build(),
+                ContactPoint.builder().system(ContactPointSystem.pager).value("5-555").build()));
 
     List<DatamartPractitioner.Telecom> nullSystem =
         List.of(DatamartPractitioner.Telecom.builder().system(null).value("333-333-3333").build());
@@ -153,13 +152,12 @@ public class R4PractitionerRoleTransformerTest {
   }
 
   @Test
-  void toFhir() {
+  public void toFhir() {
     assertThat(
             R4PractitionerRoleTransformer.builder()
-                .datamart(
-                    PractitionerRoleSamples.Datamart.create().practitioner("999", "998", "997"))
+                .datamart(Datamart.create().practitioner("999", "998", "997"))
                 .build()
                 .toFhir())
-        .isEqualTo(PractitionerRoleSamples.R4.create().practitionerRole("999", "997", "998"));
+        .isEqualTo(R4.create().practitionerRole("999", "997", "998"));
   }
 }
