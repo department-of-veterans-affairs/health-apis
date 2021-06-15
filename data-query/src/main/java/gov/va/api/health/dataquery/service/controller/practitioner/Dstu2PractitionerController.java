@@ -74,7 +74,11 @@ public class Dstu2PractitionerController {
   }
 
   PractitionerEntity findById(String publicId) {
-    Optional<PractitionerEntity> entity = repository.findById(witnessProtection.toCdwId(publicId));
+    String cdwId = witnessProtection.toCdwId(publicId);
+    Optional<PractitionerEntity> entity = repository.findById(cdwId);
+    if (!entity.isPresent() && !cdwId.endsWith(":S")) {
+      entity = repository.findById(cdwId + ":S");
+    }
     return entity.orElseThrow(() -> new ResourceExceptions.NotFound(publicId));
   }
 
