@@ -4,6 +4,8 @@ import static gov.va.api.health.dataquery.service.controller.Stu3Transformers.as
 import static gov.va.api.health.dataquery.service.controller.Stu3Transformers.asReference;
 import static gov.va.api.health.dataquery.service.controller.Transformers.emptyToNull;
 import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
+import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.toList;
 
 import gov.va.api.health.dataquery.service.controller.practitioner.DatamartPractitioner;
 import gov.va.api.health.stu3.api.datatypes.CodeableConcept;
@@ -14,8 +16,8 @@ import gov.va.api.health.stu3.api.resources.PractitionerRole;
 import gov.va.api.lighthouse.datamart.DatamartReference;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.NonNull;
 
@@ -23,11 +25,11 @@ import lombok.NonNull;
 final class Stu3PractitionerRoleTransformer {
   @NonNull private final DatamartPractitioner datamart;
 
-  private static CodeableConcept code(Optional<DatamartPractitioner.PractitionerRole> role) {
+  private static List<CodeableConcept> code(Optional<DatamartPractitioner.PractitionerRole> role) {
     if (role.isEmpty()) {
       return null;
     }
-    return asCodeableConceptWrapping(role.get().role());
+    return emptyToNull(asList(asCodeableConceptWrapping(role.get().role())));
   }
 
   static List<Reference> healthCareService(Optional<DatamartPractitioner.PractitionerRole> role) {
@@ -46,7 +48,7 @@ final class Stu3PractitionerRoleTransformer {
       return null;
     }
     return emptyToNull(
-        role.get().location().stream().map(loc -> asReference(loc)).collect(Collectors.toList()));
+        role.get().location().stream().map(loc -> asReference(loc)).collect(toList()));
   }
 
   private static Reference organization(Optional<DatamartPractitioner.PractitionerRole> role) {
@@ -78,24 +80,25 @@ final class Stu3PractitionerRoleTransformer {
             .build());
   }
 
-  static CodeableConcept specialty(Optional<DatamartPractitioner.PractitionerRole> role) {
-    if (role.isEmpty()) {
+  static List<CodeableConcept> specialty(Optional<DatamartPractitioner.PractitionerRole> role) {
+    if (isBlank(role)) {
       return null;
     }
-    for (DatamartPractitioner.PractitionerRole.Specialty specialty : role.get().specialty()) {
-      if (!isBlank(specialty.x12Code())) {
-        return specialty(specialty.x12Code().get());
-      }
-    }
-    for (DatamartPractitioner.PractitionerRole.Specialty specialty : role.get().specialty()) {
-      if (!isBlank(specialty.vaCode())) {
-        return specialty(specialty.vaCode().get());
-      }
-    }
-    for (DatamartPractitioner.PractitionerRole.Specialty specialty : role.get().specialty()) {
-      if (!isBlank(specialty.specialtyCode())) {
-        return specialty(specialty.specialtyCode().get());
-      }
+
+    return emptyToNull(
+        role.get().specialty().stream()
+            .map(Stu3PractitionerRoleTransformer::specialty)
+            .filter(Objects::nonNull)
+            .collect(toList()));
+  }
+
+  static CodeableConcept specialty(DatamartPractitioner.PractitionerRole.Specialty dmSpecialty) {
+    if (!isBlank(dmSpecialty.x12Code())) {
+      return specialty(dmSpecialty.x12Code().get());
+    } else if (!isBlank(dmSpecialty.vaCode())) {
+      return specialty(dmSpecialty.vaCode().get());
+    } else if (!isBlank(dmSpecialty.specialtyCode())) {
+      return specialty(dmSpecialty.specialtyCode().get());
     }
     return null;
   }
@@ -111,10 +114,8 @@ final class Stu3PractitionerRoleTransformer {
         .build();
   }
 
-  /** Convert datamart structure to FHIR. */
   public PractitionerRole toFhir() {
     return PractitionerRole.builder()
-        .resourceType("PractitionerRole")
         .id(datamart.cdwId())
         .period(period(datamart.practitionerRole()))
         .practitioner(practitioner(datamart.cdwId()))

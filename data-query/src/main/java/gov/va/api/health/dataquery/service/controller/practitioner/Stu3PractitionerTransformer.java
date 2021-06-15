@@ -7,19 +7,19 @@ import static gov.va.api.health.dataquery.service.controller.Transformers.ifPres
 import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toList;
 
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
 import gov.va.api.health.stu3.api.datatypes.Address;
 import gov.va.api.health.stu3.api.datatypes.ContactPoint;
+import gov.va.api.health.stu3.api.datatypes.HumanName;
+import gov.va.api.health.stu3.api.datatypes.Identifier;
 import gov.va.api.health.stu3.api.resources.Practitioner;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import lombok.Builder;
-import org.apache.commons.lang3.BooleanUtils;
 
-/** Convert from datamart to STU3. */
 @Builder
 public class Stu3PractitionerTransformer {
   private final DatamartPractitioner datamart;
@@ -52,27 +52,26 @@ public class Stu3PractitionerTransformer {
         source, gender -> EnumSearcher.of(Practitioner.Gender.class).find(gender.toString()));
   }
 
-  private static List<Practitioner.PractitionerIdentifier> identifiers(Optional<String> npi) {
-    if (isBlank(npi)) {
-      return null;
-    }
+  private static List<Identifier> identifiers(Optional<String> npi) {
+    // TODO is unknown the correct value to populate in case of missing NPI?
     return asList(
-        Practitioner.PractitionerIdentifier.builder()
+        Identifier.builder()
             .system("http://hl7.org/fhir/sid/us-npi")
-            .value(npi.get())
+            .value(npi.orElse("Unknown"))
             .build());
   }
 
-  static Practitioner.PractitionerHumanName name(DatamartPractitioner.Name source) {
+  static List<HumanName> name(DatamartPractitioner.Name source) {
     if (source == null || isBlank(source.family())) {
       return null;
     }
-    return Practitioner.PractitionerHumanName.builder()
-        .family(source.family())
-        .given(nameList(Optional.ofNullable(source.given())))
-        .suffix(nameList(source.suffix()))
-        .prefix(nameList(source.prefix()))
-        .build();
+    return List.of(
+        HumanName.builder()
+            .family(source.family())
+            .given(nameList(Optional.ofNullable(source.given())))
+            .suffix(nameList(source.suffix()))
+            .prefix(nameList(source.prefix()))
+            .build());
   }
 
   static List<String> nameList(Optional<String> source) {
@@ -107,21 +106,17 @@ public class Stu3PractitionerTransformer {
   }
 
   private List<Address> addresses() {
-    return emptyToNull(
-        datamart.address().stream().map(adr -> address(adr)).collect(Collectors.toList()));
+    return emptyToNull(datamart.address().stream().map(adr -> address(adr)).collect(toList()));
   }
 
   List<ContactPoint> telecoms() {
-    return emptyToNull(
-        datamart.telecom().stream().map(tel -> telecom(tel)).collect(Collectors.toList()));
+    return emptyToNull(datamart.telecom().stream().map(tel -> telecom(tel)).collect(toList()));
   }
 
-  /** Convert the datamart structure to FHIR compliant structure. */
-  public Practitioner toFhir() {
+  Practitioner toFhir() {
     return Practitioner.builder()
         .id(datamart.cdwId())
-        .resourceType("Practitioner")
-        .active(BooleanUtils.isTrue(datamart.active()))
+        .active(datamart.active())
         .telecom(telecoms())
         .address(addresses())
         .gender(gender(datamart.gender()))

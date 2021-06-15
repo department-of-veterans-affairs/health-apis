@@ -1,14 +1,14 @@
 package gov.va.api.health.dataquery.tests.r4;
 
-import static gov.va.api.health.sentinel.EnvironmentAssumptions.assumeEnvironmentIn;
 
 import gov.va.api.health.dataquery.tests.DataQueryResourceVerifier;
 import gov.va.api.health.dataquery.tests.TestIds;
 import gov.va.api.health.fhir.testsupport.ResourceVerifier;
 import gov.va.api.health.r4.api.resources.OperationOutcome;
 import gov.va.api.health.r4.api.resources.Practitioner;
-import gov.va.api.health.sentinel.Environment;
+import java.util.function.Predicate;
 import lombok.experimental.Delegate;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 
 public class PractitionerIT {
@@ -16,8 +16,12 @@ public class PractitionerIT {
 
   TestIds testIds = DataQueryResourceVerifier.ids();
 
+  static Predicate<Practitioner.Bundle> bundleHasResults() {
+    return bundle -> !bundle.entry().isEmpty();
+  }
+
   @Test
-  public void read() {
+  void read() {
     verifyAll(
         test(200, Practitioner.class, "Practitioner/{id}", testIds.practitioner()),
         test(200, Practitioner.class, "Practitioner/npi-{npi}", testIds.practitioners().npi()),
@@ -25,67 +29,146 @@ public class PractitionerIT {
   }
 
   @Test
-  public void search() {
+  void search() {
     verifyAll(
         test(200, Practitioner.Bundle.class, "Practitioner?_id={id}", testIds.practitioner()),
         test(
             200,
             Practitioner.Bundle.class,
-            p -> p.entry().isEmpty(),
+            bundleHasResults().negate(),
             "Practitioner?_id={id}",
             testIds.unknown()));
   }
 
   @Test
-  public void searchByIdentifier() {
-    assumeEnvironmentIn(Environment.LOCAL);
+  void searchByIdentifier() {
     verifyAll(
-        // any system with valid id
-        test(
-            200, Practitioner.Bundle.class, "Practitioner?identifier={id}", testIds.practitioner()),
-        // any system with valid npi
         test(
             200,
             Practitioner.Bundle.class,
+            bundleHasResults(),
+            "Practitioner?identifier={id}",
+            testIds.practitioner()),
+        test(
+            200,
+            Practitioner.Bundle.class,
+            bundleHasResults(),
             "Practitioner?identifier={npi}",
             testIds.practitioners().npi()),
-        // any system with unknown id
         test(
             200,
             Practitioner.Bundle.class,
-            p -> p.entry().isEmpty(),
+            bundleHasResults().negate(),
             "Practitioner?identifier={id}",
             testIds.unknown()),
-        // npi system with valid npi
         test(
             200,
             Practitioner.Bundle.class,
+            bundleHasResults(),
             "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|{npi}",
             testIds.practitioners().npi()),
-        // npi system with valid I2
         test(
             200,
             Practitioner.Bundle.class,
-            p -> p.entry().isEmpty(),
+            bundleHasResults().negate(),
             "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|{id}",
             testIds.practitioner()),
-        // npi system with unknown value
         test(
             200,
             Practitioner.Bundle.class,
+            bundleHasResults().negate(),
             "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|{npi}",
             testIds.unknown()),
-        // npi system with any code
         test(
             200,
             Practitioner.Bundle.class,
+            bundleHasResults(),
             "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|"),
-        // empty system with valid npi
         test(
             200,
             Practitioner.Bundle.class,
-            p -> p.entry().isEmpty(),
+            bundleHasResults().negate(),
             "Practitioner?identifier=|{npi}",
+            testIds.unknown()));
+  }
+
+  @Test
+  void searchByName() {
+    // Grab subset of family/given names for startsWith tests
+    String startFamily = StringUtils.substring(testIds.practitioners().family(), 0, 3);
+    String startGiven = StringUtils.substring(testIds.practitioners().given(), 0, 3);
+    verifyAll(
+        test(
+            200,
+            Practitioner.Bundle.class,
+            bundleHasResults(),
+            "Practitioner?given={given}",
+            testIds.practitioners().given()),
+        test(
+            200,
+            Practitioner.Bundle.class,
+            bundleHasResults(),
+            "Practitioner?family={family}",
+            testIds.practitioners().family()),
+        test(
+            200,
+            Practitioner.Bundle.class,
+            bundleHasResults(),
+            "Practitioner?name={given}",
+            testIds.practitioners().given()),
+        test(
+            200,
+            Practitioner.Bundle.class,
+            bundleHasResults(),
+            "Practitioner?name={family}",
+            testIds.practitioners().family()),
+        test(
+            200,
+            Practitioner.Bundle.class,
+            bundleHasResults(),
+            "Practitioner?given={given}",
+            startGiven),
+        test(
+            200,
+            Practitioner.Bundle.class,
+            bundleHasResults(),
+            "Practitioner?family={family}",
+            startFamily),
+        test(
+            200,
+            Practitioner.Bundle.class,
+            bundleHasResults(),
+            "Practitioner?name={given}",
+            startGiven),
+        test(
+            200,
+            Practitioner.Bundle.class,
+            bundleHasResults(),
+            "Practitioner?name={family}",
+            startFamily),
+        test(
+            200,
+            Practitioner.Bundle.class,
+            bundleHasResults().negate(),
+            "Practitioner?given={given}",
+            testIds.unknown()),
+        test(
+            200,
+            Practitioner.Bundle.class,
+            bundleHasResults().negate(),
+            "Practitioner?family={family}",
+            testIds.unknown()),
+        test(
+            200,
+            Practitioner.Bundle.class,
+            bundleHasResults().negate(),
+            "Practitioner?name={given}",
+            testIds.unknown()),
+        test(
+            200,
+            Practitioner.Bundle.class,
+            bundleHasResults().negate(),
+            "Practitioner?name={family}",
             testIds.unknown()));
   }
 }

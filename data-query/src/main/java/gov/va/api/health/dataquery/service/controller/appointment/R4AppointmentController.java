@@ -72,7 +72,6 @@ public class R4AppointmentController {
                 .value("location", "locationSid", this::publicIdToCdwIdNumber)
                 .values("_id", this::loadCdwId)
                 .values("identifier", this::loadCdwId)
-                .value("patient", "icn")
                 .get())
         .rules(List.of(parametersNeverSpecifiedTogether("_id", "identifier", "patient")))
         .defaultQuery(returnNothing())

@@ -19,6 +19,7 @@ import gov.va.api.health.stu3.api.datatypes.Coding;
 import gov.va.api.health.stu3.api.datatypes.Period;
 import gov.va.api.health.stu3.api.elements.Reference;
 import gov.va.api.health.stu3.api.resources.PractitionerRole;
+import gov.va.api.lighthouse.datamart.CompositeCdwId;
 import gov.va.api.lighthouse.datamart.DatamartCoding;
 import gov.va.api.lighthouse.datamart.DatamartReference;
 import java.time.LocalDate;
@@ -56,7 +57,8 @@ public class PractitionerRoleSamples {
     public PractitionerEntity entity(String cdwId, String locCdwId, String orgCdwId) {
       DatamartPractitioner dm = practitioner(cdwId, locCdwId, orgCdwId);
       return PractitionerEntity.builder()
-          .cdwId(cdwId)
+          .cdwIdNumber(CompositeCdwId.fromCdwId(cdwId).cdwIdNumber())
+          .cdwIdResourceCode(CompositeCdwId.fromCdwId(cdwId).cdwIdResourceCode())
           .familyName("Nelson")
           .givenName("Bob")
           .payload(json(dm))
@@ -181,7 +183,6 @@ public class PractitionerRoleSamples {
     static PractitionerRole.Bundle asBundle(
         String baseUrl, Collection<PractitionerRole> roles, BundleLink... links) {
       return PractitionerRole.Bundle.builder()
-          .resourceType("Bundle")
           .type(AbstractBundle.BundleType.searchset)
           .total(roles.size())
           .link(asList(links))
@@ -210,7 +211,6 @@ public class PractitionerRoleSamples {
 
     public PractitionerRole practitionerRole(String pubId, String pubLocId, String pubOrgId) {
       return PractitionerRole.builder()
-          .resourceType("PractitionerRole")
           .id(pubId)
           .period(Period.builder().start("1988-08-19").build())
           .practitioner(Reference.builder().reference("Practitioner/" + pubId).build())
@@ -220,24 +220,50 @@ public class PractitionerRoleSamples {
                   .display("CHEYENNE VA MEDICAL")
                   .build())
           .code(
-              CodeableConcept.builder()
-                  .coding(
-                      asList(
-                          Coding.builder()
-                              .system("rpcmm")
-                              .code("37")
-                              .display("PSYCHOLOGIST")
-                              .build()))
-                  .build())
+              List.of(
+                  CodeableConcept.builder()
+                      .coding(
+                          asList(
+                              Coding.builder()
+                                  .system("rpcmm")
+                                  .code("37")
+                                  .display("PSYCHOLOGIST")
+                                  .build()))
+                      .build()))
           .specialty(
-              CodeableConcept.builder()
-                  .coding(
-                      List.of(
-                          Coding.builder()
-                              .system("http://nucc.org/provider-taxonomy")
-                              .code("207Q00000X")
-                              .build()))
-                  .build())
+              List.of(
+                  CodeableConcept.builder()
+                      .coding(
+                          List.of(
+                              Coding.builder()
+                                  .system("http://nucc.org/provider-taxonomy")
+                                  .code("V111500")
+                                  .build()))
+                      .build(),
+                  CodeableConcept.builder()
+                      .coding(
+                          List.of(
+                              Coding.builder()
+                                  .system("http://nucc.org/provider-taxonomy")
+                                  .code("V111000")
+                                  .build()))
+                      .build(),
+                  CodeableConcept.builder()
+                      .coding(
+                          List.of(
+                              Coding.builder()
+                                  .system("http://nucc.org/provider-taxonomy")
+                                  .code("V110900")
+                                  .build()))
+                      .build(),
+                  CodeableConcept.builder()
+                      .coding(
+                          List.of(
+                              Coding.builder()
+                                  .system("http://nucc.org/provider-taxonomy")
+                                  .code("207Q00000X")
+                                  .build()))
+                      .build()))
           .location(
               asList(
                   Reference.builder()
@@ -264,7 +290,6 @@ public class PractitionerRoleSamples {
         int totalRecords,
         gov.va.api.health.r4.api.bundle.BundleLink... links) {
       return gov.va.api.health.r4.api.resources.PractitionerRole.Bundle.builder()
-          .resourceType("Bundle")
           .type(BundleType.searchset)
           .total(totalRecords)
           .link(asList(links))
@@ -298,7 +323,6 @@ public class PractitionerRoleSamples {
     public gov.va.api.health.r4.api.resources.PractitionerRole practitionerRole(
         String pubId, String pubOrgId, String pubLocId) {
       return gov.va.api.health.r4.api.resources.PractitionerRole.builder()
-          .resourceType("PractitionerRole")
           .id(pubId)
           .period(gov.va.api.health.r4.api.datatypes.Period.builder().start("1988-08-19").build())
           .practitioner(

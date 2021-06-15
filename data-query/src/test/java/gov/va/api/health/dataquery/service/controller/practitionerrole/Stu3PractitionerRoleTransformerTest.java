@@ -13,17 +13,17 @@ import org.junit.jupiter.api.Test;
 
 public class Stu3PractitionerRoleTransformerTest {
   @Test
-  public void empty() {
+  void empty() {
     assertThat(
             Stu3PractitionerRoleTransformer.builder()
                 .datamart(DatamartPractitioner.builder().build())
                 .build()
                 .toFhir())
-        .isEqualTo(PractitionerRole.builder().resourceType("PractitionerRole").build());
+        .isEqualTo(PractitionerRole.builder().build());
   }
 
   @Test
-  public void otherEmpty() {
+  void otherEmpty() {
     assertThat(
             Stu3PractitionerRoleTransformer.specialty(
                 Optional.of(DatamartPractitioner.PractitionerRole.builder().build())))
@@ -46,7 +46,7 @@ public class Stu3PractitionerRoleTransformerTest {
   }
 
   @Test
-  public void specialty() {
+  void specialty() {
     // x12 code used first
     assertThat(
             Stu3PractitionerRoleTransformer.specialty(
@@ -65,14 +65,23 @@ public class Stu3PractitionerRoleTransformerTest {
                                     .build()))
                         .build())))
         .isEqualTo(
-            CodeableConcept.builder()
-                .coding(
-                    List.of(
-                        Coding.builder()
-                            .system("http://nucc.org/provider-taxonomy")
-                            .code("x2")
-                            .build()))
-                .build());
+            List.of(
+                CodeableConcept.builder()
+                    .coding(
+                        List.of(
+                            Coding.builder()
+                                .system("http://nucc.org/provider-taxonomy")
+                                .code("v1")
+                                .build()))
+                    .build(),
+                CodeableConcept.builder()
+                    .coding(
+                        List.of(
+                            Coding.builder()
+                                .system("http://nucc.org/provider-taxonomy")
+                                .code("x2")
+                                .build()))
+                    .build()));
 
     // if no x12 code, use va code
     assertThat(
@@ -82,22 +91,20 @@ public class Stu3PractitionerRoleTransformerTest {
                         .specialty(
                             asList(
                                 DatamartPractitioner.PractitionerRole.Specialty.builder()
-                                    .specialtyCode(Optional.of("s1"))
-                                    .build(),
-                                DatamartPractitioner.PractitionerRole.Specialty.builder()
                                     .vaCode(Optional.of("v2"))
                                     .specialtyCode(Optional.of("s2"))
                                     .build()))
                         .build())))
         .isEqualTo(
-            CodeableConcept.builder()
-                .coding(
-                    List.of(
-                        Coding.builder()
-                            .system("http://nucc.org/provider-taxonomy")
-                            .code("v2")
-                            .build()))
-                .build());
+            List.of(
+                CodeableConcept.builder()
+                    .coding(
+                        List.of(
+                            Coding.builder()
+                                .system("http://nucc.org/provider-taxonomy")
+                                .code("v2")
+                                .build()))
+                    .build()));
 
     // if no x12 code or va code, use specialty code
     assertThat(
@@ -112,13 +119,14 @@ public class Stu3PractitionerRoleTransformerTest {
                                     .build()))
                         .build())))
         .isEqualTo(
-            CodeableConcept.builder()
-                .coding(
-                    List.of(
-                        Coding.builder()
-                            .system("http://nucc.org/provider-taxonomy")
-                            .code("s2")
-                            .build()))
-                .build());
+            List.of(
+                CodeableConcept.builder()
+                    .coding(
+                        List.of(
+                            Coding.builder()
+                                .system("http://nucc.org/provider-taxonomy")
+                                .code("s2")
+                                .build()))
+                    .build()));
   }
 }

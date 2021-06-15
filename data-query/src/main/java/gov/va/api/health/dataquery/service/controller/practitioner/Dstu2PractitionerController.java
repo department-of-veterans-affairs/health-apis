@@ -2,6 +2,7 @@ package gov.va.api.health.dataquery.service.controller.practitioner;
 
 import static java.util.Collections.emptyList;
 
+import gov.va.api.health.dataquery.service.controller.CompositeCdwIds;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
 import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
@@ -37,7 +38,6 @@ import org.springframework.web.bind.annotation.RestController;
     value = {"/dstu2/Practitioner"},
     produces = {"application/json", "application/json+fhir", "application/fhir+json"})
 public class Dstu2PractitionerController {
-
   private Dstu2Bundler bundler;
 
   private PractitionerRepository repository;
@@ -74,23 +74,28 @@ public class Dstu2PractitionerController {
   }
 
   PractitionerEntity findById(String publicId) {
-    Optional<PractitionerEntity> entity = repository.findById(witnessProtection.toCdwId(publicId));
+    String cdwId = witnessProtection.toCdwId(publicId);
+    Optional<PractitionerEntity> entity =
+        CompositeCdwIds.optionalFromCdwId(cdwId).map(i -> repository.findById(i).orElse(null));
+    if (!entity.isPresent() && !cdwId.endsWith(":S")) {
+      entity =
+          CompositeCdwIds.optionalFromCdwId(cdwId + ":S")
+              .map(i -> repository.findById(i).orElse(null));
+    }
     return entity.orElseThrow(() -> new ResourceExceptions.NotFound(publicId));
   }
 
-  /** Read by id. */
   @GetMapping(value = {"/{publicId}"})
-  public Practitioner read(@PathVariable("publicId") String publicId) {
+  Practitioner read(@PathVariable("publicId") String publicId) {
     DatamartPractitioner practitioner = findById(publicId).asDatamartPractitioner();
     replaceReferences(List.of(practitioner));
     return transform(practitioner);
   }
 
-  /** Read by id. */
   @GetMapping(
       value = {"/{publicId}"},
       headers = {"raw=true"})
-  public String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
+  String readRaw(@PathVariable("publicId") String publicId, HttpServletResponse response) {
     PractitionerEntity entity = findById(publicId);
     IncludesIcnMajig.addHeaderForNoPatients(response);
     return entity.payload();
@@ -108,9 +113,8 @@ public class Dstu2PractitionerController {
     return resources;
   }
 
-  /** Search by _id. */
   @GetMapping(params = {"_id"})
-  public Practitioner.Bundle searchById(
+  Practitioner.Bundle searchById(
       @RequestParam("_id") String id,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {
@@ -121,9 +125,8 @@ public class Dstu2PractitionerController {
         resource == null ? 0 : 1);
   }
 
-  /** Search by Identifier. */
   @GetMapping(params = {"identifier"})
-  public Practitioner.Bundle searchByIdentifier(
+  Practitioner.Bundle searchByIdentifier(
       @RequestParam("identifier") String id,
       @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
       @CountParameter @Min(0) int count) {

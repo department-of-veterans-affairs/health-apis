@@ -5,6 +5,7 @@ import static gov.va.api.health.dataquery.service.controller.R4Transformers.asRe
 import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
 import static gov.va.api.health.dataquery.service.controller.Transformers.emptyToNull;
 import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
+import static java.util.stream.Collectors.toList;
 
 import gov.va.api.health.dataquery.service.controller.practitioner.DatamartPractitioner;
 import gov.va.api.health.r4.api.datatypes.CodeableConcept;
@@ -19,7 +20,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.NonNull;
 
@@ -53,9 +53,7 @@ final class R4PractitionerRoleTransformer {
       return null;
     }
     return emptyToNull(
-        maybeRole.get().location().stream()
-            .map(loc -> asReference(loc))
-            .collect(Collectors.toList()));
+        maybeRole.get().location().stream().map(loc -> asReference(loc)).collect(toList()));
   }
 
   private static Reference organization(Optional<DatamartPractitioner.PractitionerRole> maybeRole) {
@@ -96,7 +94,7 @@ final class R4PractitionerRoleTransformer {
         maybeRole.get().specialty().stream()
             .filter(Objects::nonNull)
             .map(s -> specialty(s))
-            .collect(Collectors.toList());
+            .collect(toList());
     return emptyToNull(specialties);
   }
 
@@ -155,13 +153,12 @@ final class R4PractitionerRoleTransformer {
         telecoms.stream()
             .filter(Objects::nonNull)
             .map(telecom -> telecom(telecom))
-            .collect(Collectors.toList());
+            .collect(toList());
     return emptyToNull(contactPoints);
   }
 
   public PractitionerRole toFhir() {
     return PractitionerRole.builder()
-        .resourceType("PractitionerRole")
         .id(datamart.cdwId())
         .active(datamart.active())
         .practitioner(practitioner(datamart.cdwId()))

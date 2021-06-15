@@ -388,7 +388,7 @@ public class OrganizationSamples {
           .id(id)
           .identifier(
               asList(
-                  gov.va.api.health.stu3.api.resources.Organization.OrganizationIdentifier.builder()
+                  gov.va.api.health.stu3.api.datatypes.Identifier.builder()
                       .system("http://hl7.org/fhir/sid/us-npi")
                       .value("1205983228")
                       .build()))
@@ -426,7 +426,7 @@ public class OrganizationSamples {
                       .build()))
           .address(
               asList(
-                  gov.va.api.health.stu3.api.resources.Organization.OrganizationAddress.builder()
+                  gov.va.api.health.stu3.api.datatypes.Address.builder()
                       .line(asList(ORGANIZATION_ADDRESS_LINE_ONE, ORGANIZATION_ADDRESS_LINE_TWO))
                       .text(
                           Stream.of(
