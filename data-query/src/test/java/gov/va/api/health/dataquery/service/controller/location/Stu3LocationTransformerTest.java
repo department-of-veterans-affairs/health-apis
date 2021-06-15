@@ -3,6 +3,7 @@ package gov.va.api.health.dataquery.service.controller.location;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import gov.va.api.health.stu3.api.datatypes.Address;
 import gov.va.api.health.stu3.api.datatypes.CodeableConcept;
 import gov.va.api.health.stu3.api.datatypes.Coding;
 import gov.va.api.health.stu3.api.datatypes.ContactPoint;
@@ -25,26 +26,21 @@ public class Stu3LocationTransformerTest {
         .isNull();
     assertThat(
             Stu3LocationTransformer.address(DatamartLocation.Address.builder().line1("w").build()))
-        .isEqualTo(Location.LocationAddress.builder().line(asList("w")).text("w").build());
+        .isEqualTo(Address.builder().line(asList("w")).text("w").build());
     assertThat(
             Stu3LocationTransformer.address(DatamartLocation.Address.builder().city("x").build()))
-        .isEqualTo(Location.LocationAddress.builder().city("x").text("x").build());
+        .isEqualTo(Address.builder().city("x").text("x").build());
     assertThat(
             Stu3LocationTransformer.address(DatamartLocation.Address.builder().state("y").build()))
-        .isEqualTo(Location.LocationAddress.builder().state("y").text("y").build());
+        .isEqualTo(Address.builder().state("y").text("y").build());
     assertThat(
             Stu3LocationTransformer.address(
                 DatamartLocation.Address.builder().postalCode("z").build()))
-        .isEqualTo(Location.LocationAddress.builder().postalCode("z").text("z").build());
+        .isEqualTo(Address.builder().postalCode("z").text("z").build());
     assertThat(
             Stu3LocationTransformer.address(
                 DatamartLocation.Address.builder().line1("w").postalCode("z").build()))
-        .isEqualTo(
-            Location.LocationAddress.builder()
-                .line(asList("w"))
-                .postalCode("z")
-                .text("w z")
-                .build());
+        .isEqualTo(Address.builder().line(asList("w")).postalCode("z").text("w z").build());
     assertThat(
             Stu3LocationTransformer.address(
                 DatamartLocation.Address.builder()
@@ -54,7 +50,7 @@ public class Stu3LocationTransformerTest {
                     .postalCode("z")
                     .build()))
         .isEqualTo(
-            Location.LocationAddress.builder()
+            Address.builder()
                 .line(asList("w"))
                 .city("x")
                 .state("y")
