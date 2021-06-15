@@ -4,6 +4,7 @@ import static gov.va.api.health.dataquery.service.controller.Stu3Transformers.as
 import static gov.va.api.health.dataquery.service.controller.Stu3Transformers.asReference;
 import static gov.va.api.health.dataquery.service.controller.Transformers.emptyToNull;
 import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
+import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 
 import gov.va.api.health.dataquery.service.controller.practitioner.DatamartPractitioner;
@@ -28,7 +29,7 @@ final class Stu3PractitionerRoleTransformer {
     if (role.isEmpty()) {
       return null;
     }
-    return List.of(asCodeableConceptWrapping(role.get().role()));
+    return emptyToNull(asList(asCodeableConceptWrapping(role.get().role())));
   }
 
   static List<Reference> healthCareService(Optional<DatamartPractitioner.PractitionerRole> role) {
@@ -84,10 +85,11 @@ final class Stu3PractitionerRoleTransformer {
       return null;
     }
 
-    return role.get().specialty().stream()
-        .map(Stu3PractitionerRoleTransformer::specialty)
-        .filter(Objects::nonNull)
-        .collect(toList());
+    return emptyToNull(
+        role.get().specialty().stream()
+            .map(Stu3PractitionerRoleTransformer::specialty)
+            .filter(Objects::nonNull)
+            .collect(toList()));
   }
 
   static CodeableConcept specialty(DatamartPractitioner.PractitionerRole.Specialty dmSpecialty) {
