@@ -357,14 +357,14 @@ public class PractitionerSamples {
           .id(id)
           .identifier(
               singletonList(
-                  gov.va.api.health.stu3.api.resources.Practitioner.PractitionerIdentifier.builder()
+                  gov.va.api.health.stu3.api.datatypes.Identifier.builder()
                       .system("http://hl7.org/fhir/sid/us-npi")
                       .value("1234567")
                       .build()))
           .active(true)
           .name(
               List.of(
-                  gov.va.api.health.stu3.api.resources.Practitioner.PractitionerHumanName.builder()
+                  gov.va.api.health.stu3.api.datatypes.HumanName.builder()
                       .family("Joe")
                       .given(List.of("Johnson"))
                       .build()))

@@ -11,6 +11,8 @@ import static java.util.Collections.singletonList;
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
 import gov.va.api.health.stu3.api.datatypes.Address;
 import gov.va.api.health.stu3.api.datatypes.ContactPoint;
+import gov.va.api.health.stu3.api.datatypes.HumanName;
+import gov.va.api.health.stu3.api.datatypes.Identifier;
 import gov.va.api.health.stu3.api.resources.Practitioner;
 import java.time.LocalDate;
 import java.util.List;
@@ -51,21 +53,21 @@ public class Stu3PractitionerTransformer {
         source, gender -> EnumSearcher.of(Practitioner.Gender.class).find(gender.toString()));
   }
 
-  private static List<Practitioner.PractitionerIdentifier> identifiers(Optional<String> npi) {
+  private static List<Identifier> identifiers(Optional<String> npi) {
     // TODO is unknown the correct value to populate in case of missing NPI?
     return asList(
-        Practitioner.PractitionerIdentifier.builder()
+        Identifier.builder()
             .system("http://hl7.org/fhir/sid/us-npi")
             .value(npi.orElse("Unknown"))
             .build());
   }
 
-  static List<Practitioner.PractitionerHumanName> name(DatamartPractitioner.Name source) {
+  static List<HumanName> name(DatamartPractitioner.Name source) {
     if (source == null || isBlank(source.family())) {
       return null;
     }
     return List.of(
-        Practitioner.PractitionerHumanName.builder()
+        HumanName.builder()
             .family(source.family())
             .given(nameList(Optional.ofNullable(source.given())))
             .suffix(nameList(source.suffix()))
