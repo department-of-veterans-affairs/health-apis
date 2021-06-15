@@ -27,7 +27,7 @@ public class Stu3PractitionerRoleTransformerTest {
     assertThat(
             Stu3PractitionerRoleTransformer.specialty(
                 Optional.of(DatamartPractitioner.PractitionerRole.builder().build())))
-        .isEmpty();
+        .isNull();
 
     assertThat(Stu3PractitionerRoleTransformer.specialty(" ")).isNull();
 
