@@ -8,7 +8,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
 import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
@@ -25,7 +24,6 @@ import javax.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
