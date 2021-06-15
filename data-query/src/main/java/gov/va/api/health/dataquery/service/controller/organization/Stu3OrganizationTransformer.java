@@ -8,7 +8,9 @@ import static gov.va.api.health.dataquery.service.controller.Transformers.isBlan
 import static java.util.Arrays.asList;
 
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
+import gov.va.api.health.stu3.api.datatypes.Address;
 import gov.va.api.health.stu3.api.datatypes.ContactPoint;
+import gov.va.api.health.stu3.api.datatypes.Identifier;
 import gov.va.api.health.stu3.api.resources.Organization;
 import java.util.List;
 import java.util.Objects;
@@ -23,7 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 final class Stu3OrganizationTransformer {
   @NonNull private final DatamartOrganization datamart;
 
-  static List<Organization.OrganizationAddress> addresses(DatamartOrganization.Address address) {
+  static List<Address> addresses(DatamartOrganization.Address address) {
     if (address == null
         || allBlank(
             address.line1(),
@@ -34,7 +36,7 @@ final class Stu3OrganizationTransformer {
       return null;
     }
     return asList(
-        Organization.OrganizationAddress.builder()
+        Address.builder()
             .line(emptyToNull(asList(address.line1(), address.line2())))
             .city(address.city())
             .state(address.state())
@@ -52,15 +54,12 @@ final class Stu3OrganizationTransformer {
             .build());
   }
 
-  static List<Organization.OrganizationIdentifier> identifier(Optional<String> npi) {
+  static List<Identifier> identifier(Optional<String> npi) {
     if (isBlank(npi)) {
       return null;
     }
     return asList(
-        Organization.OrganizationIdentifier.builder()
-            .system("http://hl7.org/fhir/sid/us-npi")
-            .value(npi.get())
-            .build());
+        Identifier.builder().system("http://hl7.org/fhir/sid/us-npi").value(npi.get()).build());
   }
 
   static ContactPoint telecom(DatamartOrganization.Telecom telecom) {

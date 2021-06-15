@@ -220,24 +220,50 @@ public class PractitionerRoleSamples {
                   .display("CHEYENNE VA MEDICAL")
                   .build())
           .code(
-              CodeableConcept.builder()
-                  .coding(
-                      asList(
-                          Coding.builder()
-                              .system("rpcmm")
-                              .code("37")
-                              .display("PSYCHOLOGIST")
-                              .build()))
-                  .build())
+              List.of(
+                  CodeableConcept.builder()
+                      .coding(
+                          asList(
+                              Coding.builder()
+                                  .system("rpcmm")
+                                  .code("37")
+                                  .display("PSYCHOLOGIST")
+                                  .build()))
+                      .build()))
           .specialty(
-              CodeableConcept.builder()
-                  .coding(
-                      List.of(
-                          Coding.builder()
-                              .system("http://nucc.org/provider-taxonomy")
-                              .code("207Q00000X")
-                              .build()))
-                  .build())
+              List.of(
+                  CodeableConcept.builder()
+                      .coding(
+                          List.of(
+                              Coding.builder()
+                                  .system("http://nucc.org/provider-taxonomy")
+                                  .code("V111500")
+                                  .build()))
+                      .build(),
+                  CodeableConcept.builder()
+                      .coding(
+                          List.of(
+                              Coding.builder()
+                                  .system("http://nucc.org/provider-taxonomy")
+                                  .code("V111000")
+                                  .build()))
+                      .build(),
+                  CodeableConcept.builder()
+                      .coding(
+                          List.of(
+                              Coding.builder()
+                                  .system("http://nucc.org/provider-taxonomy")
+                                  .code("V110900")
+                                  .build()))
+                      .build(),
+                  CodeableConcept.builder()
+                      .coding(
+                          List.of(
+                              Coding.builder()
+                                  .system("http://nucc.org/provider-taxonomy")
+                                  .code("207Q00000X")
+                                  .build()))
+                      .build()))
           .location(
               asList(
                   Reference.builder()
