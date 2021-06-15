@@ -3,6 +3,7 @@ package gov.va.api.health.dataquery.service.controller.practitioner;
 import static gov.va.api.health.dataquery.service.controller.Transformers.allBlank;
 import static gov.va.api.health.dataquery.service.controller.Transformers.emptyToNull;
 import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.toList;
 
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
 import gov.va.api.health.r4.api.datatypes.Address;
@@ -13,10 +14,8 @@ import gov.va.api.health.r4.api.resources.Practitioner;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import lombok.Builder;
 
-/** Convert from datamart from R4. */
 @Builder
 public class R4PractitionerTransformer {
   private final DatamartPractitioner datamart;
@@ -83,8 +82,7 @@ public class R4PractitionerTransformer {
   }
 
   private List<Address> addresses() {
-    return emptyToNull(
-        datamart.address().stream().map(adr -> address(adr)).collect(Collectors.toList()));
+    return emptyToNull(datamart.address().stream().map(adr -> address(adr)).collect(toList()));
   }
 
   Practitioner.GenderCode gender(DatamartPractitioner.Gender providedGender) {
@@ -104,15 +102,12 @@ public class R4PractitionerTransformer {
   }
 
   List<ContactPoint> telecoms() {
-    return emptyToNull(
-        datamart.telecom().stream().map(tel -> telecom(tel)).collect(Collectors.toList()));
+    return emptyToNull(datamart.telecom().stream().map(tel -> telecom(tel)).collect(toList()));
   }
 
-  /** Converts from a datamart practitioner to a Fhir Practitioner. */
-  public Practitioner toFhir() {
+  Practitioner toFhir() {
     return Practitioner.builder()
         .id(datamart.cdwId())
-        .resourceType("Practitioner")
         .active(datamart.active())
         .name(name(datamart.name()))
         .telecom(telecoms())

@@ -114,10 +114,8 @@ final class Stu3PractitionerRoleTransformer {
         .build();
   }
 
-  /** Convert datamart structure to FHIR. */
   public PractitionerRole toFhir() {
     return PractitionerRole.builder()
-        .resourceType("PractitionerRole")
         .id(datamart.cdwId())
         .period(period(datamart.practitionerRole()))
         .practitioner(practitioner(datamart.cdwId()))

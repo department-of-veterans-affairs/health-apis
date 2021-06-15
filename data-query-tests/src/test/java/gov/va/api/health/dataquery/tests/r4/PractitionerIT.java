@@ -18,12 +18,12 @@ public class PractitionerIT {
 
   TestIds testIds = DataQueryResourceVerifier.ids();
 
-  private Predicate<Practitioner.Bundle> bundleHasResults() {
+  static Predicate<Practitioner.Bundle> bundleHasResults() {
     return bundle -> !bundle.entry().isEmpty();
   }
 
   @Test
-  public void read() {
+  void read() {
     verifyAll(
         test(200, Practitioner.class, "Practitioner/{id}", testIds.practitioner()),
         test(200, Practitioner.class, "Practitioner/npi-{npi}", testIds.practitioners().npi()),
@@ -31,7 +31,7 @@ public class PractitionerIT {
   }
 
   @Test
-  public void search() {
+  void search() {
     verifyAll(
         test(200, Practitioner.Bundle.class, "Practitioner?_id={id}", testIds.practitioner()),
         test(
@@ -43,8 +43,7 @@ public class PractitionerIT {
   }
 
   @Test
-  public void searchByIdentifier() {
-    assumeEnvironmentIn(Environment.LOCAL);
+  void searchByIdentifier() {
     verifyAll(
         test(
             200,
@@ -96,7 +95,7 @@ public class PractitionerIT {
   }
 
   @Test
-  public void searchByName() {
+  void searchByName() {
     // Grab subset of family/given names for startsWith tests
     String startFamily = StringUtils.substring(testIds.practitioners().family(), 0, 3);
     String startGiven = StringUtils.substring(testIds.practitioners().given(), 0, 3);

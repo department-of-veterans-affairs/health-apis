@@ -8,6 +8,7 @@ import static gov.va.api.health.dataquery.service.controller.Transformers.emptyT
 import static gov.va.api.health.dataquery.service.controller.Transformers.ifPresent;
 import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
 import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toList;
 
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
 import gov.va.api.health.dstu2.api.datatypes.Address;
@@ -19,14 +20,11 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import lombok.Builder;
 import org.apache.commons.lang3.BooleanUtils;
 
-/** Convert from Datamart to DSTU2. */
 @Builder
 public class Dstu2PractitionerTransformer {
-
   private final DatamartPractitioner datamart;
 
   static Address address(DatamartPractitioner.Address address) {
@@ -91,10 +89,7 @@ public class Dstu2PractitionerTransformer {
     }
     return Practitioner.PractitionerRole.builder()
         .location(
-            emptyToNull(
-                source.location().stream()
-                    .map(loc -> asReference(loc))
-                    .collect(Collectors.toList())))
+            emptyToNull(source.location().stream().map(loc -> asReference(loc)).collect(toList())))
         .role(asCodeableConceptWrapping(source.role()))
         .managingOrganization(asReference(source.managingOrganization()))
         .healthcareService(healthcareServices(source.healthCareService()))
@@ -126,8 +121,7 @@ public class Dstu2PractitionerTransformer {
   }
 
   private List<Address> addresses() {
-    return emptyToNull(
-        datamart.address().stream().map(adr -> address(adr)).collect(Collectors.toList()));
+    return emptyToNull(datamart.address().stream().map(adr -> address(adr)).collect(toList()));
   }
 
   Practitioner.Gender gender(DatamartPractitioner.Gender source) {
@@ -137,21 +131,16 @@ public class Dstu2PractitionerTransformer {
 
   List<Practitioner.PractitionerRole> practitionerRoles() {
     return emptyToNull(
-        datamart.practitionerRole().stream()
-            .map(rol -> practitionerRole(rol))
-            .collect(Collectors.toList()));
+        datamart.practitionerRole().stream().map(rol -> practitionerRole(rol)).collect(toList()));
   }
 
   List<ContactPoint> telecoms() {
-    return emptyToNull(
-        datamart.telecom().stream().map(tel -> telecom(tel)).collect(Collectors.toList()));
+    return emptyToNull(datamart.telecom().stream().map(tel -> telecom(tel)).collect(toList()));
   }
 
-  /** Convert the datamart structure to FHIR compliant structure. */
-  public Practitioner toFhir() {
+  Practitioner toFhir() {
     return Practitioner.builder()
         .id(datamart.cdwId())
-        .resourceType("Practitioner")
         .active(BooleanUtils.isTrue(datamart.active()))
         .name(name(datamart.name()))
         .telecom(telecoms())
