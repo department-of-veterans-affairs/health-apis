@@ -85,7 +85,7 @@ public class PractitionerIT {
             "Practitioner?identifier=|{npi}",
             testIds.unknown()));
 
-    // time out:
+    // times out:
     // test(200,Practitioner.Bundle.class,bundleHasResults(),"Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|")
   }
 
