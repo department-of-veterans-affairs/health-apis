@@ -4,7 +4,9 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
+import gov.va.api.health.stu3.api.datatypes.Address;
 import gov.va.api.health.stu3.api.datatypes.ContactPoint;
+import gov.va.api.health.stu3.api.datatypes.Identifier;
 import gov.va.api.health.stu3.api.resources.Organization;
 import java.util.Optional;
 import lombok.SneakyThrows;
@@ -27,36 +29,27 @@ public class Stu3OrganizationTransformerTest {
     assertThat(
             Stu3OrganizationTransformer.addresses(
                 DatamartOrganization.Address.builder().line1("v").build()))
-        .isEqualTo(
-            asList(Organization.OrganizationAddress.builder().line(asList("v")).text("v").build()));
+        .isEqualTo(asList(Address.builder().line(asList("v")).text("v").build()));
     assertThat(
             Stu3OrganizationTransformer.addresses(
                 DatamartOrganization.Address.builder().line2("w").build()))
-        .isEqualTo(
-            asList(Organization.OrganizationAddress.builder().line(asList("w")).text("w").build()));
+        .isEqualTo(asList(Address.builder().line(asList("w")).text("w").build()));
     assertThat(
             Stu3OrganizationTransformer.addresses(
                 DatamartOrganization.Address.builder().city("x").build()))
-        .isEqualTo(asList(Organization.OrganizationAddress.builder().city("x").text("x").build()));
+        .isEqualTo(asList(Address.builder().city("x").text("x").build()));
     assertThat(
             Stu3OrganizationTransformer.addresses(
                 DatamartOrganization.Address.builder().state("y").build()))
-        .isEqualTo(asList(Organization.OrganizationAddress.builder().state("y").text("y").build()));
+        .isEqualTo(asList(Address.builder().state("y").text("y").build()));
     assertThat(
             Stu3OrganizationTransformer.addresses(
                 DatamartOrganization.Address.builder().postalCode("z").build()))
-        .isEqualTo(
-            asList(Organization.OrganizationAddress.builder().postalCode("z").text("z").build()));
+        .isEqualTo(asList(Address.builder().postalCode("z").text("z").build()));
     assertThat(
             Stu3OrganizationTransformer.addresses(
                 DatamartOrganization.Address.builder().line1("v").postalCode("z").build()))
-        .isEqualTo(
-            asList(
-                Organization.OrganizationAddress.builder()
-                    .line(asList("v"))
-                    .postalCode("z")
-                    .text("v z")
-                    .build()));
+        .isEqualTo(asList(Address.builder().line(asList("v")).postalCode("z").text("v z").build()));
     assertThat(
             Stu3OrganizationTransformer.addresses(
                 DatamartOrganization.Address.builder()
@@ -68,7 +61,7 @@ public class Stu3OrganizationTransformerTest {
                     .build()))
         .isEqualTo(
             asList(
-                Organization.OrganizationAddress.builder()
+                Address.builder()
                     .line(asList("1111 Test Ln", "Apt 1L"))
                     .city("Delta")
                     .state("ZZ")
@@ -93,7 +86,7 @@ public class Stu3OrganizationTransformerTest {
     assertThat(Stu3OrganizationTransformer.identifier(Optional.of("abc")))
         .isEqualTo(
             asList(
-                Organization.OrganizationIdentifier.builder()
+                Identifier.builder()
                     .system("http://hl7.org/fhir/sid/us-npi")
                     .value("abc")
                     .build()));

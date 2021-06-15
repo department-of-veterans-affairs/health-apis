@@ -11,13 +11,14 @@ import static java.util.Collections.singletonList;
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
 import gov.va.api.health.stu3.api.datatypes.Address;
 import gov.va.api.health.stu3.api.datatypes.ContactPoint;
+import gov.va.api.health.stu3.api.datatypes.HumanName;
+import gov.va.api.health.stu3.api.datatypes.Identifier;
 import gov.va.api.health.stu3.api.resources.Practitioner;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.Builder;
-import org.apache.commons.lang3.BooleanUtils;
 
 /** Convert from datamart to STU3. */
 @Builder
@@ -52,27 +53,26 @@ public class Stu3PractitionerTransformer {
         source, gender -> EnumSearcher.of(Practitioner.Gender.class).find(gender.toString()));
   }
 
-  private static List<Practitioner.PractitionerIdentifier> identifiers(Optional<String> npi) {
-    if (isBlank(npi)) {
-      return null;
-    }
+  private static List<Identifier> identifiers(Optional<String> npi) {
+    // TODO is unknown the correct value to populate in case of missing NPI?
     return asList(
-        Practitioner.PractitionerIdentifier.builder()
+        Identifier.builder()
             .system("http://hl7.org/fhir/sid/us-npi")
-            .value(npi.get())
+            .value(npi.orElse("Unknown"))
             .build());
   }
 
-  static Practitioner.PractitionerHumanName name(DatamartPractitioner.Name source) {
+  static List<HumanName> name(DatamartPractitioner.Name source) {
     if (source == null || isBlank(source.family())) {
       return null;
     }
-    return Practitioner.PractitionerHumanName.builder()
-        .family(source.family())
-        .given(nameList(Optional.ofNullable(source.given())))
-        .suffix(nameList(source.suffix()))
-        .prefix(nameList(source.prefix()))
-        .build();
+    return List.of(
+        HumanName.builder()
+            .family(source.family())
+            .given(nameList(Optional.ofNullable(source.given())))
+            .suffix(nameList(source.suffix()))
+            .prefix(nameList(source.prefix()))
+            .build());
   }
 
   static List<String> nameList(Optional<String> source) {
@@ -121,7 +121,7 @@ public class Stu3PractitionerTransformer {
     return Practitioner.builder()
         .id(datamart.cdwId())
         .resourceType("Practitioner")
-        .active(BooleanUtils.isTrue(datamart.active()))
+        .active(datamart.active())
         .telecom(telecoms())
         .address(addresses())
         .gender(gender(datamart.gender()))

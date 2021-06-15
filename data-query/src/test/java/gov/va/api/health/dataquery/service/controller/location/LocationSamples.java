@@ -338,7 +338,7 @@ public class LocationSamples {
           .resourceType("Location")
           .id(id)
           .address(
-              gov.va.api.health.stu3.api.resources.Location.LocationAddress.builder()
+              gov.va.api.health.stu3.api.datatypes.Address.builder()
                   .line(asList(LOCATION_ADDRESS_STREET))
                   .city(LOCATION_ADDRESS_CITY)
                   .state(LOCATION_ADDRESS_STATE)

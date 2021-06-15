@@ -7,6 +7,7 @@ import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
+import gov.va.api.health.stu3.api.datatypes.Address;
 import gov.va.api.health.stu3.api.datatypes.CodeableConcept;
 import gov.va.api.health.stu3.api.datatypes.Coding;
 import gov.va.api.health.stu3.api.datatypes.ContactPoint;
@@ -24,14 +25,14 @@ import org.apache.commons.lang3.StringUtils;
 final class Stu3LocationTransformer {
   @NonNull private final DatamartLocation datamart;
 
-  static Location.LocationAddress address(DatamartLocation.Address address) {
+  static Address address(DatamartLocation.Address address) {
     if (address == null) {
       return null;
     }
     if (allBlank(address.line1(), address.city(), address.state(), address.postalCode())) {
       return null;
     }
-    return Location.LocationAddress.builder()
+    return Address.builder()
         .line(emptyToNull(asList(address.line1())))
         .city(address.city())
         .state(address.state())
