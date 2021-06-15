@@ -4,10 +4,10 @@
   <parent>
     <groupId>gov.va.api.health</groupId>
     <artifactId>health-apis-parent</artifactId>
-    <version>8.0.20</version>
+    <version>8.0.21</version>
   </parent>
   <artifactId>data-query-parent</artifactId>
-  <version>3.0.199-SNAPSHOT</version>
+  <version>3.0.200-SNAPSHOT</version>
   <packaging>pom</packaging>
   <modules>
     <module>data-query-ids-mapping</module>
