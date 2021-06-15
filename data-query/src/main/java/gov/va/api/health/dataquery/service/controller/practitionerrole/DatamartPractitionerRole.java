@@ -1,6 +1,5 @@
 package gov.va.api.health.dataquery.service.controller.practitionerrole;
 
-import gov.va.api.health.dataquery.service.controller.practitioner.DatamartPractitioner;
 import gov.va.api.lighthouse.datamart.DatamartCoding;
 import gov.va.api.lighthouse.datamart.DatamartReference;
 import gov.va.api.lighthouse.datamart.HasReplaceableId;
@@ -26,17 +25,13 @@ public class DatamartPractitionerRole implements HasReplaceableId {
 
   private String cdwId;
 
-  private Optional<String> npi;
-
   private Optional<DatamartReference> managingOrganization;
+
+  private Optional<DatamartReference> practitioner;
 
   private Optional<DatamartCoding> role;
 
-  private DatamartPractitioner.Name name;
-
   private List<DatamartPractitionerRole.Specialty> specialty;
-
-  private Optional<DatamartPractitionerRole.Period> period;
 
   private List<DatamartReference> location;
 
@@ -67,19 +62,11 @@ public class DatamartPractitionerRole implements HasReplaceableId {
   }
 
   /** Lazy initialization. */
-  public Optional<String> npi() {
-    if (npi == null) {
-      npi = Optional.empty();
+  public Optional<DatamartReference> practitioner() {
+    if (practitioner == null) {
+      practitioner = Optional.empty();
     }
-    return npi;
-  }
-
-  /** Lazy initialization. */
-  public Optional<DatamartPractitionerRole.Period> period() {
-    if (period == null) {
-      period = Optional.empty();
-    }
-    return period;
+    return practitioner;
   }
 
   /** Lazy initialization. */

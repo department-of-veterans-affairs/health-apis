@@ -42,14 +42,20 @@ public class PractitionerRoleEntity implements CompositeIdDatamartEntity {
   @EqualsAndHashCode.Include
   private char cdwIdResourceCode;
 
-  @Column(name = "PractitionerNPI", nullable = true)
-  private String npi;
+  @Column(name = "PractitionerIdNumber")
+  private BigInteger idNumber;
+
+  @Column(name = "PractitionerResourceCode")
+  private char resourceCode;
+
+  @Column(name = "PractitionerGivenName", nullable = true)
+  private String givenName;
 
   @Column(name = "PractitionerFamilyName", nullable = true)
   private String familyName;
 
-  @Column(name = "PractitionerGivenName", nullable = true)
-  private String givenName;
+  @Column(name = "Active")
+  private Boolean active;
 
   @Column(name = "LastUpdated", nullable = false)
   private Instant lastUpdated;

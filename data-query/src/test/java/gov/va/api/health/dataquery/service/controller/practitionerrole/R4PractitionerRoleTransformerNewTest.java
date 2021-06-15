@@ -8,7 +8,6 @@ import gov.va.api.health.r4.api.datatypes.ContactPoint;
 import gov.va.api.health.r4.api.resources.PractitionerRole;
 import gov.va.api.lighthouse.datamart.DatamartCoding;
 import gov.va.api.lighthouse.datamart.DatamartReference;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -34,32 +33,15 @@ public class R4PractitionerRoleTransformerNewTest {
                 .type(Optional.of("Location"))
                 .display(Optional.of("Display"))
                 .build());
-    var localDate = LocalDate.now();
-    var period =
-        DatamartPractitionerRole.Period.builder()
-            .start(Optional.of(localDate))
-            .end(Optional.of(localDate.plusDays(1)))
-            .build();
     var complete =
         DatamartPractitionerRole.builder()
             .cdwId("123")
-            .npi(Optional.of("npi"))
-            .managingOrganization(Optional.of(DatamartReference.builder().build()))
             .role(Optional.of(DatamartCoding.builder().build()))
             .specialty(specialtyList)
-            .period(Optional.of(period))
             .location(locationList)
             .healthCareService(Optional.of("Some Service"))
             .build();
     assertThat(complete).isNotNull();
-    assertThat(complete.managingOrganization()).isNotNull();
-    assertThat(complete.period().get()).isEqualTo(period);
-    assertThat(complete.period().get().start()).isEqualTo(Optional.of(localDate));
-    assertThat(complete.period().get().end()).isEqualTo(Optional.of(localDate.plusDays(1)));
-    assertThat(complete.cdwId()).isEqualTo("123");
-    assertThat(complete.npi().get()).isEqualTo("npi");
-    assertThat(complete.specialty()).isEqualTo(specialtyList);
-    assertThat(complete.role()).isEqualTo(Optional.of(DatamartCoding.builder().build()));
     var specialty = specialtyList.get(0);
     assertThat(specialty.areaOfSpecialization()).isEqualTo(Optional.of("area"));
     assertThat(specialty.classification()).isEqualTo(Optional.of("class"));
@@ -85,18 +67,11 @@ public class R4PractitionerRoleTransformerNewTest {
   public void nullValuesHandled() {
     var practitionerRoleWithNulls = DatamartPractitionerRole.builder().build();
     assertThat(practitionerRoleWithNulls).isNotNull();
-    assertThat(practitionerRoleWithNulls.managingOrganization()).isEqualTo(Optional.empty());
-    assertThat(practitionerRoleWithNulls.period()).isEqualTo(Optional.empty());
     assertThat(practitionerRoleWithNulls.cdwId()).isNull();
-    assertThat(practitionerRoleWithNulls.npi()).isEqualTo(Optional.empty());
     assertThat(practitionerRoleWithNulls.specialty()).isEqualTo(new ArrayList<>());
     assertThat(practitionerRoleWithNulls.role()).isEqualTo(Optional.empty());
     assertThat(practitionerRoleWithNulls.specialty()).isEqualTo(new ArrayList<>());
-    var period = Optional.of(DatamartPractitionerRole.Period.builder().build());
-    practitionerRoleWithNulls.period(period);
-    assertThat(practitionerRoleWithNulls).isNotNull();
-    assertThat(practitionerRoleWithNulls.period().get().start()).isEqualTo(Optional.empty());
-    assertThat(practitionerRoleWithNulls.period().get().end()).isEqualTo(Optional.empty());
+    assertThat(practitionerRoleWithNulls.practitioner()).isEqualTo(Optional.empty());
     var specialtyList = List.of(DatamartPractitionerRole.Specialty.builder().build());
     practitionerRoleWithNulls.specialty(specialtyList);
     var specialty = practitionerRoleWithNulls.specialty().get(0);
