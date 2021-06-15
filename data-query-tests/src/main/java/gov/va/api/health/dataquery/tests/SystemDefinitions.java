@@ -263,7 +263,7 @@ public final class SystemDefinitions {
         .organization("I2-U2YS4YSMVOGA4TNVOJB3RXVIQRQR7OXTDMFNC24L4YSKJKXSTCZA0000")
         .organizations(productionOrganizations())
         .patient("1011537977V693883")
-        .practitioner("I2-6NVSMKEGQKNB3KRDXBGE7NRIEY000000")
+        .practitioner("I2-A5Q24JYL4AQKD664ASIIGBVYQUXVWZRBWWGVFCS7IBU27TJIZBFQ0000")
         .practitioners(productionPractitioners())
         .procedure("I2-XOBUUJIJHDENC4YDKPK524H6QC4SEIGNLQQROOTB3W52KMFUEW6Q0000")
         .procedures(productionIdProcedures())
