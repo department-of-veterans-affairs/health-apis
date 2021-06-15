@@ -9,12 +9,12 @@ import org.junit.jupiter.api.Test;
 
 public class Stu3PractitionerTransformerTest {
   @Test
-  public void address() {
+  void address() {
     assertThat(Stu3PractitionerTransformer.address(null)).isNull();
   }
 
   @Test
-  public void empty() {
+  void empty() {
     assertThat(
             Stu3PractitionerTransformer.builder()
                 .datamart(DatamartPractitioner.builder().build())
@@ -22,7 +22,6 @@ public class Stu3PractitionerTransformerTest {
                 .toFhir())
         .isEqualTo(
             Practitioner.builder()
-                .resourceType("Practitioner")
                 .identifier(
                     List.of(
                         Identifier.builder()
@@ -33,7 +32,7 @@ public class Stu3PractitionerTransformerTest {
   }
 
   @Test
-  public void telecom() {
+  void telecom() {
     assertThat(Stu3PractitionerTransformer.telecom(null)).isNull();
   }
 }

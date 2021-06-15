@@ -41,7 +41,6 @@ public class Dstu2PractitionerControllerTest {
   static PractitionerEntity asEntity(DatamartPractitioner dm) {
     CompositeCdwId cdwId = CompositeCdwId.fromCdwId(dm.cdwId());
     return PractitionerEntity.builder()
-        .cdwId(dm.cdwId())
         .cdwIdNumber(cdwId.cdwIdNumber())
         .cdwIdResourceCode(cdwId.cdwIdResourceCode())
         .familyName("Joe")
