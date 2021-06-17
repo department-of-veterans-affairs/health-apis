@@ -22,6 +22,8 @@ import gov.va.api.health.stu3.api.resources.PractitionerRole;
 import gov.va.api.lighthouse.datamart.CompositeCdwId;
 import gov.va.api.lighthouse.datamart.DatamartCoding;
 import gov.va.api.lighthouse.datamart.DatamartReference;
+import java.math.BigInteger;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
@@ -174,6 +176,66 @@ public class PractitionerRoleSamples {
                                   .build()))
                       .healthCareService(Optional.of("MEDICAL SERVICE"))
                       .build()))
+          .build();
+    }
+
+    public DatamartPractitionerRole practitionerRole(
+        BigInteger cdwIdNumber, char cdwIdResourceCode, String given, String family) {
+      String cdwId = cdwIdNumber.toString() + ":" + cdwIdResourceCode;
+      return DatamartPractitionerRole.builder()
+          .cdwId(cdwId)
+          .practitioner(
+              Optional.of(
+                  DatamartReference.builder()
+                      .type(Optional.of("Practitioner"))
+                      .reference(Optional.of(cdwId))
+                      .display(Optional.of(family + "," + given))
+                      .build()))
+          .role(
+              Optional.of(
+                  DatamartCoding.builder()
+                      .system(Optional.of("http://hl7.org/fhir/practitioner-role"))
+                      .code(Optional.of("PHISICIAN"))
+                      .display(Optional.of("PSYCHOLOGIST"))
+                      .build()))
+          .specialty(
+              List.of(
+                  DatamartPractitionerRole.Specialty.builder()
+                      .providerType(Optional.of("Physicians (M.D. and D.O.)"))
+                      .classification(Optional.of("Physician/Osteopath"))
+                      .areaOfSpecialization(Optional.of("Internal Medicine"))
+                      .vaCode(Optional.of("V111500"))
+                      .x12Code(Optional.of("207Q00000X"))
+                      .specialtyCode(Optional.of("66"))
+                      .build()))
+          .location(
+              List.of(
+                  DatamartReference.builder()
+                      .type(Optional.of("Location"))
+                      .reference(Optional.of("43829:L"))
+                      .display(Optional.of("Some fancy clinic"))
+                      .build()))
+          .healthCareService(Optional.of("MEDICAL SERVICE"))
+          .build();
+    }
+
+    public PractitionerRoleEntity roleEntity(
+        BigInteger cdwIdNumber,
+        char cdwIdResourceCode,
+        BigInteger idNumber,
+        String given,
+        String family) {
+      DatamartPractitionerRole dm = practitionerRole(cdwIdNumber, cdwIdResourceCode, given, family);
+      return PractitionerRoleEntity.builder()
+          .cdwIdNumber(cdwIdNumber)
+          .cdwIdResourceCode(cdwIdResourceCode)
+          .idNumber(idNumber)
+          .givenName(given)
+          .familyName(family)
+          .resourceCode(cdwIdResourceCode)
+          .active(true)
+          .lastUpdated(Instant.now())
+          .payload(json(dm))
           .build();
     }
   }

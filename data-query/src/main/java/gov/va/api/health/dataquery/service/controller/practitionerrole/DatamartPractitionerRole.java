@@ -3,7 +3,6 @@ package gov.va.api.health.dataquery.service.controller.practitionerrole;
 import gov.va.api.lighthouse.datamart.DatamartCoding;
 import gov.va.api.lighthouse.datamart.DatamartReference;
 import gov.va.api.lighthouse.datamart.HasReplaceableId;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -83,33 +82,6 @@ public class DatamartPractitionerRole implements HasReplaceableId {
       specialty = new ArrayList<>();
     }
     return specialty;
-  }
-
-  /** Period of time. */
-  @Data
-  @Builder
-  @NoArgsConstructor(access = AccessLevel.PRIVATE)
-  @AllArgsConstructor(access = AccessLevel.PRIVATE)
-  public static final class Period {
-    private Optional<LocalDate> start;
-
-    private Optional<LocalDate> end;
-
-    /** Lazy initialization. */
-    public Optional<LocalDate> end() {
-      if (end == null) {
-        end = Optional.empty();
-      }
-      return end;
-    }
-
-    /** Lazy initialization. */
-    public Optional<LocalDate> start() {
-      if (start == null) {
-        start = Optional.empty();
-      }
-      return start;
-    }
   }
 
   /** Specialty. */

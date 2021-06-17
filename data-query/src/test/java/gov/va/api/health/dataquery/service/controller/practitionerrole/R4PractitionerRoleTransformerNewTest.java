@@ -70,6 +70,9 @@ public class R4PractitionerRoleTransformerNewTest {
     assertThat(practitionerRoleWithNulls.cdwId()).isNull();
     assertThat(practitionerRoleWithNulls.specialty()).isEqualTo(new ArrayList<>());
     assertThat(practitionerRoleWithNulls.role()).isEqualTo(Optional.empty());
+    assertThat(practitionerRoleWithNulls.healthCareService()).isEqualTo(Optional.empty());
+    assertThat(practitionerRoleWithNulls.location()).isEqualTo(List.of());
+    assertThat(practitionerRoleWithNulls.managingOrganization()).isEqualTo(Optional.empty());
     assertThat(practitionerRoleWithNulls.specialty()).isEqualTo(new ArrayList<>());
     assertThat(practitionerRoleWithNulls.practitioner()).isEqualTo(Optional.empty());
     var specialtyList = List.of(DatamartPractitionerRole.Specialty.builder().build());
