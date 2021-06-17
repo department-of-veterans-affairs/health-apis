@@ -60,13 +60,7 @@ public class PractitionerEntity implements CompositeIdDatamartEntity {
 
   /** Deserialize payload. */
   public DatamartPractitioner asDatamartPractitioner() {
-    DatamartPractitioner dm = toPayload().deserialize();
-    dm.practitionerRole()
-        .ifPresent(
-            pr -> pr.managingOrganization().ifPresent(mo -> mo.typeIfMissing("Organization")));
-    dm.practitionerRole()
-        .ifPresent(pr -> pr.location().forEach(loc -> loc.typeIfMissing("Location")));
-    return dm;
+    return toPayload().deserialize();
   }
 
   @Override

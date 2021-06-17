@@ -3,7 +3,6 @@ package gov.va.api.health.dataquery.service.controller.location;
 import gov.va.api.health.dataquery.service.controller.DatamartSupport;
 import gov.va.api.lighthouse.datamart.DatamartEntity;
 import gov.va.api.lighthouse.datamart.Payload;
-import java.util.Optional;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -73,12 +72,7 @@ public class LocationEntity implements DatamartEntity {
   }
 
   DatamartLocation asDatamartLocation() {
-    DatamartLocation dm = toPayload().deserialize();
-    if (dm.managingOrganization() != null && dm.managingOrganization().type().isEmpty()) {
-      // Hack... make sure reference type is populated
-      dm.managingOrganization().type(Optional.of("Organization"));
-    }
-    return dm;
+    return toPayload().deserialize();
   }
 
   @Override
