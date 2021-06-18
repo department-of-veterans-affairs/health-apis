@@ -180,10 +180,17 @@ public class PractitionerRoleSamples {
     }
 
     public DatamartPractitionerRole practitionerRole(
-        BigInteger cdwIdNumber, char cdwIdResourceCode, String given, String family) {
-      String cdwId = cdwIdNumber.toString() + ":" + cdwIdResourceCode;
+        BigInteger cdwIdNumber, String given, String family) {
+      String cdwId = cdwIdNumber.toString() + ":P";
       return DatamartPractitionerRole.builder()
           .cdwId(cdwId)
+          .managingOrganization(
+              Optional.of(
+                  DatamartReference.builder()
+                      .type(Optional.of("Organization"))
+                      .reference(Optional.of("123456:I"))
+                      .display(Optional.of("SOME VA MEDICAL CENTER"))
+                      .build()))
           .practitioner(
               Optional.of(
                   DatamartReference.builder()
@@ -192,11 +199,11 @@ public class PractitionerRoleSamples {
                       .display(Optional.of(family + "," + given))
                       .build()))
           .role(
-              Optional.of(
+              asList(
                   DatamartCoding.builder()
-                      .system(Optional.of("http://hl7.org/fhir/practitioner-role"))
-                      .code(Optional.of("PHISICIAN"))
-                      .display(Optional.of("PSYCHOLOGIST"))
+                      .system(Optional.of("rpcmm"))
+                      .code(Optional.of("1"))
+                      .display(Optional.of("OPTOMETRIST"))
                       .build()))
           .specialty(
               List.of(
@@ -205,15 +212,33 @@ public class PractitionerRoleSamples {
                       .classification(Optional.of("Physician/Osteopath"))
                       .areaOfSpecialization(Optional.of("Internal Medicine"))
                       .vaCode(Optional.of("V111500"))
+                      .build(),
+                  DatamartPractitionerRole.Specialty.builder()
+                      .providerType(Optional.of("Physicians (M.D. and D.O.)"))
+                      .classification(Optional.of("Physician/Osteopath"))
+                      .areaOfSpecialization(Optional.of("General Practice"))
+                      .vaCode(Optional.of("V111000"))
+                      .build(),
+                  DatamartPractitionerRole.Specialty.builder()
+                      .providerType(Optional.of("Physicians (M.D. and D.O.)"))
+                      .classification(Optional.of("Physician/Osteopath"))
+                      .areaOfSpecialization(Optional.of("Family Practice"))
+                      .vaCode(Optional.of("V110900"))
+                      .build(),
+                  DatamartPractitionerRole.Specialty.builder()
+                      .providerType(Optional.of("Allopathic & Osteopathic Physicians"))
+                      .classification(Optional.of("Family Medicine"))
+                      .vaCode(Optional.of("V180700"))
                       .x12Code(Optional.of("207Q00000X"))
-                      .specialtyCode(Optional.of("66"))
                       .build()))
           .location(
               List.of(
                   DatamartReference.builder()
                       .type(Optional.of("Location"))
-                      .reference(Optional.of("43829:L"))
-                      .display(Optional.of("Some fancy clinic"))
+                      .reference(Optional.of("12345:L"))
+                      .display(
+                          Optional.of(
+                              "VISUAL IMPAIRMENT SERVICES OUTPATIENT REHABILITATION (VISOR)"))
                       .build()))
           .healthCareService(Optional.of("MEDICAL SERVICE"))
           .build();
@@ -225,7 +250,7 @@ public class PractitionerRoleSamples {
         BigInteger idNumber,
         String given,
         String family) {
-      DatamartPractitionerRole dm = practitionerRole(cdwIdNumber, cdwIdResourceCode, given, family);
+      DatamartPractitionerRole dm = practitionerRole(cdwIdNumber, given, family);
       return PractitionerRoleEntity.builder()
           .cdwIdNumber(cdwIdNumber)
           .cdwIdResourceCode(cdwIdResourceCode)

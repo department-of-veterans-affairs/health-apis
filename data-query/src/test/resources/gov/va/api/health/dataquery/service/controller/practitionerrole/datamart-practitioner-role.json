@@ -9,14 +9,16 @@
   },
   "practitioner" : {
     "type" : "Practitioner",
-    "reference" : "123456:S",
+    "reference" : "123456:P",
     "display" : "LAST,FIRST"
   },
-  "role" : {
-    "system" : "rpcmm",
-    "code" : "1",
-    "display" : "OPTOMETRIST"
-  },
+  "role" : [
+    {
+      "system" : "rpcmm",
+      "code" : "1",
+      "display" : "OPTOMETRIST"
+    }
+  ],
   "specialty" : [
     {
       "providerType" : "Physicians (M.D. and D.O.)",

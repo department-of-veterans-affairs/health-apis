@@ -48,10 +48,10 @@ public class PractitionerRoleEntity implements CompositeIdDatamartEntity {
   @Column(name = "PractitionerResourceCode")
   private char resourceCode;
 
-  @Column(name = "PractitionerGivenName", nullable = true)
+  @Column(name = "PractitionerGivenName")
   private String givenName;
 
-  @Column(name = "PractitionerFamilyName", nullable = true)
+  @Column(name = "PractitionerFamilyName")
   private String familyName;
 
   @Column(name = "Active")

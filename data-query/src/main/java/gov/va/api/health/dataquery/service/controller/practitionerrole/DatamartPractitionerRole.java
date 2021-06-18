@@ -28,7 +28,7 @@ public class DatamartPractitionerRole implements HasReplaceableId {
 
   private Optional<DatamartReference> practitioner;
 
-  private Optional<DatamartCoding> role;
+  private List<DatamartCoding> role;
 
   private List<DatamartPractitionerRole.Specialty> specialty;
 
@@ -69,9 +69,9 @@ public class DatamartPractitionerRole implements HasReplaceableId {
   }
 
   /** Lazy initialization. */
-  public Optional<DatamartCoding> role() {
+  public List<DatamartCoding> role() {
     if (role == null) {
-      role = Optional.empty();
+      role = new ArrayList<>();
     }
     return role;
   }

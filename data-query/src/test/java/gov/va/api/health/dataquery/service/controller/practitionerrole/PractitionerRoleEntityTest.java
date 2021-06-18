@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 public class PractitionerRoleEntityTest {
 
   @Test
-  public void practitionerRoleEntity() {
+  void practitionerRoleEntity() {
     var cdwIdNumber = BigInteger.valueOf(111);
     var cdwIdResourceCode = 'S';
     var idNumber = BigInteger.valueOf(1234);

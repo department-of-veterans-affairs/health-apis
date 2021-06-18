@@ -9,6 +9,7 @@ import gov.va.api.health.r4.api.datatypes.ContactPoint;
 import gov.va.api.health.r4.api.resources.PractitionerRole;
 import gov.va.api.lighthouse.datamart.DatamartCoding;
 import gov.va.api.lighthouse.datamart.DatamartReference;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -16,87 +17,22 @@ import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 
 public class DatamartPractitionerRoleTest {
-  private static DatamartPractitionerRole sample() {
-    return DatamartPractitionerRole.builder()
-        .objectType("PractitionerRole")
-        .objectVersion(1)
-        .cdwId("123456:P")
-        .managingOrganization(
-            Optional.of(
-                DatamartReference.builder()
-                    .type(Optional.of("Organization"))
-                    .reference(Optional.of("123456:I"))
-                    .display(Optional.of("SOME VA MEDICAL CENTER"))
-                    .build()))
-        .practitioner(
-            Optional.of(
-                DatamartReference.builder()
-                    .type(Optional.of("Practitioner"))
-                    .reference(Optional.of("123456:S"))
-                    .display(Optional.of("LAST,FIRST"))
-                    .build()))
-        .role(
-            Optional.of(
-                DatamartCoding.builder()
-                    .system(Optional.of("rpcmm"))
-                    .code(Optional.of("1"))
-                    .display(Optional.of("OPTOMETRIST"))
-                    .build()))
-        .specialty(
-            asList(
-                DatamartPractitionerRole.Specialty.builder()
-                    .providerType(Optional.of("Physicians (M.D. and D.O.)"))
-                    .classification(Optional.of("Physician/Osteopath"))
-                    .areaOfSpecialization(Optional.of("Internal Medicine"))
-                    .vaCode(Optional.of("V111500"))
-                    .x12Code(Optional.empty())
-                    .build(),
-                DatamartPractitionerRole.Specialty.builder()
-                    .providerType(Optional.of("Physicians (M.D. and D.O.)"))
-                    .classification(Optional.of("Physician/Osteopath"))
-                    .areaOfSpecialization(Optional.of("General Practice"))
-                    .vaCode(Optional.of("V111000"))
-                    .x12Code(Optional.empty())
-                    .build(),
-                DatamartPractitionerRole.Specialty.builder()
-                    .providerType(Optional.of("Physicians (M.D. and D.O.)"))
-                    .classification(Optional.of("Physician/Osteopath"))
-                    .areaOfSpecialization(Optional.of("Family Practice"))
-                    .vaCode(Optional.of("V110900"))
-                    .x12Code(Optional.empty())
-                    .build(),
-                DatamartPractitionerRole.Specialty.builder()
-                    .providerType(Optional.of("Allopathic & Osteopathic Physicians"))
-                    .classification(Optional.of("Family Medicine"))
-                    .areaOfSpecialization(Optional.empty())
-                    .vaCode(Optional.of("V180700"))
-                    .x12Code(Optional.of("207Q00000X"))
-                    .specialtyCode(Optional.empty())
-                    .build()))
-        .location(
-            asList(
-                DatamartReference.builder()
-                    .type(Optional.of("Location"))
-                    .reference(Optional.of("12345:L"))
-                    .display(
-                        Optional.of("VISUAL IMPAIRMENT SERVICES OUTPATIENT REHABILITATION (VISOR)"))
-                    .build()))
-        .healthCareService(Optional.of("MEDICAL SERVICE"))
-        .build();
-  }
 
   @SneakyThrows
   @Test
-  public void assertReadable() {
+  void assertReadable() {
     String json = "datamart-practitioner-role.json";
     DatamartPractitionerRole dm =
         createMapper()
             .readValue(getClass().getResourceAsStream(json), DatamartPractitionerRole.class);
-    assertThat(dm).isEqualTo(sample());
+    assertThat(dm)
+        .isEqualTo(
+            PractitionerRoleSamples.Datamart.create()
+                .practitionerRole(BigInteger.valueOf(123456), "FIRST", "LAST"));
   }
 
   @Test
-  public void completePractitionerRole() {
+  void completePractitionerRole() {
     var specialtyValue =
         DatamartPractitionerRole.Specialty.builder()
             .vaCode(Optional.of("v1"))
@@ -117,7 +53,7 @@ public class DatamartPractitionerRoleTest {
     var complete =
         DatamartPractitionerRole.builder()
             .cdwId("123")
-            .role(Optional.of(DatamartCoding.builder().build()))
+            .role(asList(DatamartCoding.builder().build()))
             .specialty(specialtyList)
             .location(locationList)
             .healthCareService(Optional.of("Some Service"))
@@ -135,7 +71,7 @@ public class DatamartPractitionerRoleTest {
   }
 
   @Test
-  public void empty() {
+  void empty() {
     assertThat(
             R4PractitionerRoleTransformer.builder()
                 .datamart(DatamartPractitioner.builder().build())
@@ -145,12 +81,12 @@ public class DatamartPractitionerRoleTest {
   }
 
   @Test
-  public void nullValuesHandled() {
+  void nullValuesHandled() {
     var practitionerRoleWithNulls = DatamartPractitionerRole.builder().build();
     assertThat(practitionerRoleWithNulls).isNotNull();
     assertThat(practitionerRoleWithNulls.cdwId()).isNull();
     assertThat(practitionerRoleWithNulls.specialty()).isEqualTo(new ArrayList<>());
-    assertThat(practitionerRoleWithNulls.role()).isEqualTo(Optional.empty());
+    assertThat(practitionerRoleWithNulls.role()).isEqualTo(List.of());
     assertThat(practitionerRoleWithNulls.healthCareService()).isEqualTo(Optional.empty());
     assertThat(practitionerRoleWithNulls.location()).isEqualTo(List.of());
     assertThat(practitionerRoleWithNulls.managingOrganization()).isEqualTo(Optional.empty());
@@ -169,14 +105,14 @@ public class DatamartPractitionerRoleTest {
   }
 
   @Test
-  public void otherEmpty() {
+  void otherEmpty() {
     assertThat(DatamartPractitionerRole.builder().build()).isNotNull();
     assertThat(DatamartPractitionerRole.builder().healthCareService(Optional.of(" ")).build())
         .isNotNull();
   }
 
   @Test
-  public void specialty() {
+  void specialty() {
     var pr =
         DatamartPractitionerRole.builder()
             .specialty(
@@ -198,7 +134,7 @@ public class DatamartPractitionerRoleTest {
   }
 
   @Test
-  public void telecom() {
+  void telecom() {
     List<DatamartPractitioner.Telecom> phoneAndEmail =
         List.of(
             DatamartPractitioner.Telecom.builder()
@@ -247,7 +183,7 @@ public class DatamartPractitionerRoleTest {
   }
 
   @Test
-  public void toFhir() {
+  void toFhir() {
     assertThat(
             R4PractitionerRoleTransformer.builder()
                 .datamart(
