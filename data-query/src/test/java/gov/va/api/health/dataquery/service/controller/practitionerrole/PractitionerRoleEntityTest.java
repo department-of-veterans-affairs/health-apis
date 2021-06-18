@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.math.BigInteger;
 import org.junit.jupiter.api.Test;
 
-public class R4PractitionerRoleControllerNewTest {
+public class PractitionerRoleEntityTest {
 
   @Test
   public void practitionerRoleEntity() {

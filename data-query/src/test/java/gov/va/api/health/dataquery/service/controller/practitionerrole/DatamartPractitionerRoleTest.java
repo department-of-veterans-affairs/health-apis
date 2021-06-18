@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.practitionerrole;
 
+import static gov.va.api.health.autoconfig.configuration.JacksonConfig.createMapper;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -11,9 +12,89 @@ import gov.va.api.lighthouse.datamart.DatamartReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 
-public class R4PractitionerRoleTransformerNewTest {
+public class DatamartPractitionerRoleTest {
+  private static DatamartPractitionerRole sample() {
+    return DatamartPractitionerRole.builder()
+        .objectType("PractitionerRole")
+        .objectVersion(1)
+        .cdwId("123456:P")
+        .managingOrganization(
+            Optional.of(
+                DatamartReference.builder()
+                    .type(Optional.of("Organization"))
+                    .reference(Optional.of("123456:I"))
+                    .display(Optional.of("SOME VA MEDICAL CENTER"))
+                    .build()))
+        .practitioner(
+            Optional.of(
+                DatamartReference.builder()
+                    .type(Optional.of("Practitioner"))
+                    .reference(Optional.of("123456:S"))
+                    .display(Optional.of("LAST,FIRST"))
+                    .build()))
+        .role(
+            Optional.of(
+                DatamartCoding.builder()
+                    .system(Optional.of("rpcmm"))
+                    .code(Optional.of("1"))
+                    .display(Optional.of("OPTOMETRIST"))
+                    .build()))
+        .specialty(
+            asList(
+                DatamartPractitionerRole.Specialty.builder()
+                    .providerType(Optional.of("Physicians (M.D. and D.O.)"))
+                    .classification(Optional.of("Physician/Osteopath"))
+                    .areaOfSpecialization(Optional.of("Internal Medicine"))
+                    .vaCode(Optional.of("V111500"))
+                    .x12Code(Optional.empty())
+                    .build(),
+                DatamartPractitionerRole.Specialty.builder()
+                    .providerType(Optional.of("Physicians (M.D. and D.O.)"))
+                    .classification(Optional.of("Physician/Osteopath"))
+                    .areaOfSpecialization(Optional.of("General Practice"))
+                    .vaCode(Optional.of("V111000"))
+                    .x12Code(Optional.empty())
+                    .build(),
+                DatamartPractitionerRole.Specialty.builder()
+                    .providerType(Optional.of("Physicians (M.D. and D.O.)"))
+                    .classification(Optional.of("Physician/Osteopath"))
+                    .areaOfSpecialization(Optional.of("Family Practice"))
+                    .vaCode(Optional.of("V110900"))
+                    .x12Code(Optional.empty())
+                    .build(),
+                DatamartPractitionerRole.Specialty.builder()
+                    .providerType(Optional.of("Allopathic & Osteopathic Physicians"))
+                    .classification(Optional.of("Family Medicine"))
+                    .areaOfSpecialization(Optional.empty())
+                    .vaCode(Optional.of("V180700"))
+                    .x12Code(Optional.of("207Q00000X"))
+                    .specialtyCode(Optional.empty())
+                    .build()))
+        .location(
+            asList(
+                DatamartReference.builder()
+                    .type(Optional.of("Location"))
+                    .reference(Optional.of("12345:L"))
+                    .display(
+                        Optional.of("VISUAL IMPAIRMENT SERVICES OUTPATIENT REHABILITATION (VISOR)"))
+                    .build()))
+        .healthCareService(Optional.of("MEDICAL SERVICE"))
+        .build();
+  }
+
+  @SneakyThrows
+  @Test
+  public void assertReadable() {
+    String json = "datamart-practitioner-role.json";
+    DatamartPractitionerRole dm =
+        createMapper()
+            .readValue(getClass().getResourceAsStream(json), DatamartPractitionerRole.class);
+    assertThat(dm).isEqualTo(sample());
+  }
+
   @Test
   public void completePractitionerRole() {
     var specialtyValue =

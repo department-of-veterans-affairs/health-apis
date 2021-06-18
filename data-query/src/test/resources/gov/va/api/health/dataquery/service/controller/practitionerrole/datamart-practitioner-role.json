@@ -1,0 +1,59 @@
+{
+  "objectType" : "PractitionerRole",
+  "objectVersion" : "1",
+  "cdwId" : "123456:P",
+  "managingOrganization" : {
+    "type" : "Organization",
+    "reference" : "123456:I",
+    "display" : "SOME VA MEDICAL CENTER"
+  },
+  "practitioner" : {
+    "type" : "Practitioner",
+    "reference" : "123456:S",
+    "display" : "LAST,FIRST"
+  },
+  "role" : {
+    "system" : "rpcmm",
+    "code" : "1",
+    "display" : "OPTOMETRIST"
+  },
+  "specialty" : [
+    {
+      "providerType" : "Physicians (M.D. and D.O.)",
+      "classification" : "Physician/Osteopath",
+      "areaOfSpecialization" : "Internal Medicine",
+      "vaCode" : "V111500",
+      "x12Code" : null
+    },
+    {
+      "providerType" : "Physicians (M.D. and D.O.)",
+      "classification" : "Physician/Osteopath",
+      "areaOfSpecialization" : "General Practice",
+      "vaCode" : "V111000",
+      "x12Code" : null
+    },
+    {
+      "providerType" : "Physicians (M.D. and D.O.)",
+      "classification" : "Physician/Osteopath",
+      "areaOfSpecialization" : "Family Practice",
+      "vaCode" : "V110900",
+      "x12Code" : null
+    },
+    {
+      "providerType" : "Allopathic & Osteopathic Physicians",
+      "classification" : "Family Medicine",
+      "areaOfSpecialization" : null,
+      "vaCode" : "V180700",
+      "x12Code" : "207Q00000X",
+      "specialtyCode" : null
+    }
+  ],
+  "location" : [
+    {
+      "type" : "Location",
+      "reference" : "12345:L",
+      "display" : "VISUAL IMPAIRMENT SERVICES OUTPATIENT REHABILITATION (VISOR)"
+    }
+  ],
+  "healthCareService" : "MEDICAL SERVICE"
+}
