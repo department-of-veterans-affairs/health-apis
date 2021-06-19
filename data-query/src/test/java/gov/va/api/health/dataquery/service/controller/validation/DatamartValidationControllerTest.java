@@ -17,19 +17,26 @@ import gov.va.api.health.dataquery.service.controller.observation.ObservationSam
 import gov.va.api.health.dataquery.service.controller.organization.OrganizationSamples;
 import gov.va.api.health.dataquery.service.controller.patient.PatientSamples;
 import gov.va.api.health.dataquery.service.controller.practitioner.PractitionerSamples;
+import gov.va.api.health.dataquery.service.controller.practitionerrole.PractitionerRoleSamples;
 import gov.va.api.health.dataquery.service.controller.procedure.ProcedureSamples;
 import java.util.List;
 import java.util.stream.Stream;
 import lombok.SneakyThrows;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.springframework.http.ResponseEntity;
 
 public class DatamartValidationControllerTest {
-
   private DatamartValidationController controller = new DatamartValidationController();
 
-  public static Stream<Arguments> supports() {
+  @SneakyThrows
+  static String json(Object o) {
+    return JacksonConfig.createMapper().writerWithDefaultPrettyPrinter().writeValueAsString(o);
+  }
+
+  static Stream<Arguments> supports() {
     return List.of(
             AllergyIntoleranceSamples.Datamart.create().allergyIntolerance(),
             AppointmentSamples.Datamart.create().appointment(),
@@ -45,21 +52,38 @@ public class DatamartValidationControllerTest {
             OrganizationSamples.Datamart.create().organization(),
             PatientSamples.Datamart.create().patient(),
             PractitionerSamples.Datamart.create().practitioner(),
-            ProcedureSamples.Datamart.create().procedure()
-            //
-            )
+            PractitionerRoleSamples.Datamart.create().practitionerRole(),
+            ProcedureSamples.Datamart.create().procedure())
         .stream()
         .map(Arguments::of);
   }
 
-  @SneakyThrows
-  private String json(Object o) {
-    return JacksonConfig.createMapper().writerWithDefaultPrettyPrinter().writeValueAsString(o);
+  @Test
+  void cannotParseJson() {
+    assertThat(controller.validation("notjson"))
+        .isEqualTo(
+            ResponseEntity.badRequest()
+                .body(
+                    "Cannot parse JSON payload: Unrecognized token 'notjson': was expecting"
+                        + " (JSON String, Number, Array, Object or token 'null', 'true' or 'false')\n"
+                        + " at [Source: (String)\"notjson\"; line: 1, column: 8]"));
   }
 
-  @ParameterizedTest
+  @Test
+  void missingObjectType() {
+    assertThat(controller.validation("{}"))
+        .isEqualTo(ResponseEntity.badRequest().body("Missing \"objectType\" node."));
+  }
+
   @MethodSource
-  public void supports(Object datamartObject) {
+  @ParameterizedTest
+  void supports(Object datamartObject) {
     assertThat(controller.validation(json(datamartObject)).getBody()).isEqualTo(datamartObject);
+  }
+
+  @Test
+  void unknownObjectType() {
+    assertThat(controller.validation("{\"objectType\":\"foobar\"}"))
+        .isEqualTo(ResponseEntity.badRequest().body("Unknown object type \"foobar\"."));
   }
 }

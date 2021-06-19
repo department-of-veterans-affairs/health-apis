@@ -6,8 +6,8 @@
   -->
   <Match>
     <Or>
-    <Class name="gov.va.api.health.dataquery.service.controller.patient.Dstu2PatientTransformer"/>
-    <Class name="gov.va.api.health.dataquery.service.controller.patient.R4PatientTransformer"/>
+      <Class name="gov.va.api.health.dataquery.service.controller.patient.Dstu2PatientTransformer"/>
+      <Class name="gov.va.api.health.dataquery.service.controller.patient.R4PatientTransformer"/>
     </Or>
     <Method name="deceased"/>
     <Bug pattern="NP_BOOLEAN_RETURN_NULL"/>
@@ -27,13 +27,14 @@
       <Class name="gov.va.api.health.dataquery.service.controller.allergyintolerance.DatamartAllergyIntolerance"/>
       <Class name="gov.va.api.health.dataquery.service.controller.allergyintolerance.DatamartAllergyIntolerance$Reaction"/>
       <Class name="gov.va.api.health.dataquery.service.controller.diagnosticreport.DatamartDiagnosticReport"/>
+      <Class name="gov.va.api.health.dataquery.service.controller.medication.DatamartMedication"/>
       <Class name="gov.va.api.health.dataquery.service.controller.medicationorder.DatamartMedicationOrder"/>
       <Class name="gov.va.api.health.dataquery.service.controller.observation.DatamartObservation"/>
       <Class name="gov.va.api.health.dataquery.service.controller.organization.DatamartOrganization"/>
       <Class name="gov.va.api.health.dataquery.service.controller.patient.DatamartPatient"/>
       <Class name="gov.va.api.health.dataquery.service.controller.practitioner.DatamartPractitioner"/>
       <Class name="gov.va.api.health.dataquery.service.controller.practitioner.DatamartPractitioner$PractitionerRole"/>
-      <Class name="gov.va.api.health.dataquery.service.controller.medication.DatamartMedication"/>
+      <Class name="gov.va.api.health.dataquery.service.controller.practitionerrole.DatamartPractitionerRole"/>
     </Or>
     <Or>
       <Method name="equals"/>
@@ -41,63 +42,25 @@
     </Or>
   </Match>
   <!--
-    The 'searchBy...' methods in the controller creates the 'query' and a 'totalRecordsQuery' named parameter
-    prepared JPQL statements. Through this use of JPQL named statements, the JDBC driver will prevent SQL
-    injection by escaping the parameters received, preventing malicious code from ever being executed.
-  -->
-  <Match>
-    <Class name="gov.va.api.health.dataquery.service.controller.patient.Dstu2PatientController"/>
-    <Or>
-      <Method name="jpaQueryForEntities"/>
-      <Method name="jpaQueryForTotalRecords"/>
-    </Or>
-    <Bug pattern="SQL_INJECTION_JPA"/>
-  </Match>
-  <!--
-    This lombok generated builder accepts an array which is ultimated given to the PatientAndDateSpecification
-    constructor. This constructor processes the array to store individual fields. The array is not stored
-    directly.
+    These classes accept an array but do not store it.
   -->
   <Match>
     <Or>
+      <Class name="gov.va.api.health.dataquery.service.controller.observation.ObservationRepository$PatientAndCodeAndDateSpecification"/>
       <Class name="gov.va.api.health.dataquery.service.controller.diagnosticreport.DiagnosticReportRepository$PatientAndCategoryAndDateSpecification$PatientAndCategoryAndDateSpecificationBuilder"/>
       <Class name="gov.va.api.health.dataquery.service.controller.diagnosticreport.DiagnosticReportRepository$PatientAndCodeAndDateSpecification$PatientAndCodeAndDateSpecificationBuilder"/>
+      <Class name="gov.va.api.health.dataquery.service.controller.observation.ObservationRepository$PatientAndCategoryAndDateSpecification"/>
       <Class name="gov.va.api.health.dataquery.service.controller.observation.ObservationRepository$PatientAndCategoryAndDateSpecification$PatientAndCategoryAndDateSpecificationBuilder"/>
       <Class name="gov.va.api.health.dataquery.service.controller.observation.ObservationRepository$PatientAndCodeAndDateSpecification$PatientAndCodeAndDateSpecificationBuilder"/>
       <Class name="gov.va.api.health.dataquery.service.controller.observation.ObservationRepository$PatientAndDateSpecification$PatientAndDateSpecificationBuilder"/>
-      <Class name="gov.va.api.health.dataquery.service.controller.patient.PatientSearchRepository$NameAndBirthdateSpecification$NameAndBirthdateSpecificationBuilder"/>
       <Class name="gov.va.api.health.dataquery.service.controller.patient.PatientRepositoryV2$BirthdateAndFamilySpecification$BirthdateAndFamilySpecificationBuilder"/>
       <Class name="gov.va.api.health.dataquery.service.controller.patient.PatientRepositoryV2$NameAndBirthdateSpecification$NameAndBirthdateSpecificationBuilder"/>
+      <Class name="gov.va.api.health.dataquery.service.controller.patient.PatientSearchRepository$NameAndBirthdateSpecification$NameAndBirthdateSpecificationBuilder"/>
       <Class name="gov.va.api.health.dataquery.service.controller.procedure.ProcedureRepository$PatientAndDateSpecification$PatientAndDateSpecificationBuilder"/>
     </Or>
-    <Bug pattern="EI_EXPOSE_REP2"/>
-  </Match>
-
-  <!--
-  This lombok generated builder accepts an array which is ultimately given to the PatientAndDateSpecification
-  constructor. This constructor processes the array to store individual fields. The array is not stored
-  directly.
-  -->
-  <Match>
     <Or>
-      <Class name="gov.va.api.health.dataquery.service.controller.observation.ObservationRepository$PatientAndCategoryAndDateSpecification"/>
-      <Class name="gov.va.api.health.dataquery.service.controller.observation.ObservationRepository$PatientAndCodeAndDateSpecification"/>
+      <Bug pattern="EI_EXPOSE_REP"/>
+      <Bug pattern="EI_EXPOSE_REP2"/>
     </Or>
-    <Bug pattern="EI_EXPOSE_REP"/>
   </Match>
-
-  <!--
-    These fields are going through parameter validation and will not have CRLF characters.
-  -->
-  <Match>
-    <Class name="gov.va.api.health.dataquery.service.controller.procedure.Dstu2ProcedureController"/>
-    <Method name="searchByPatientAndDate"/>
-    <Bug pattern="CRLF_INJECTION_LOGS"/>
-  </Match>
-  <Match>
-    <Class name="gov.va.api.health.dataquery.service.controller.procedure.R4ProcedureController"/>
-    <Method name="searchByPatientAndDate"/>
-    <Bug pattern="CRLF_INJECTION_LOGS"/>
-  </Match>
-
 </FindBugsFilter>

@@ -113,9 +113,11 @@ public class R4PractitionerTransformerTest {
   void toFhir() {
     assertThat(
             R4PractitionerTransformer.builder()
-                .datamart(PractitionerSamples.Datamart.create().practitioner())
+                .datamart(
+                    PractitionerSamples.Datamart.create()
+                        .practitioner("111:S", "unused:I", "unused:L"))
                 .build()
                 .toFhir())
-        .isEqualTo(PractitionerSamples.R4.create().practitioner());
+        .isEqualTo(PractitionerSamples.R4.create().practitioner("111:S"));
   }
 }

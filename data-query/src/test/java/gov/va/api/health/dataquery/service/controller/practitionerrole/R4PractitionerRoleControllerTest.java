@@ -2,19 +2,21 @@ package gov.va.api.health.dataquery.service.controller.practitionerrole;
 
 import static gov.va.api.health.dataquery.service.controller.MockRequests.paging;
 import static gov.va.api.health.dataquery.service.controller.MockRequests.requestFromUri;
-import static gov.va.api.health.dataquery.service.controller.practitionerrole.PractitionerRoleSamples.id;
-import static gov.va.api.health.dataquery.service.controller.practitionerrole.PractitionerRoleSamples.registration;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.ImmutableList;
 import gov.va.api.health.dataquery.service.config.LinkProperties;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.practitioner.PractitionerEntity;
 import gov.va.api.health.dataquery.service.controller.practitioner.PractitionerRepository;
+import gov.va.api.health.dataquery.service.controller.practitioner.PractitionerSamples;
 import gov.va.api.health.ids.api.IdentityService;
+import gov.va.api.health.ids.api.Registration;
+import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.health.r4.api.bundle.BundleLink;
 import gov.va.api.health.r4.api.resources.PractitionerRole;
 import gov.va.api.lighthouse.datamart.CompositeCdwId;
@@ -25,20 +27,26 @@ import java.util.Optional;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.Mockito;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
-@ExtendWith(MockitoExtension.class)
 public class R4PractitionerRoleControllerTest {
-  @Mock IdentityService ids;
+  IdentityService ids = mock(IdentityService.class);
 
-  @Mock PractitionerRepository repository;
+  PractitionerRepository repository = mock(PractitionerRepository.class);
+
+  static Registration idReg(String type, String pubId, String cdwId) {
+    return Registration.builder()
+        .uuid(pubId)
+        .resourceIdentities(
+            List.of(
+                ResourceIdentity.builder().system("CDW").resource(type).identifier(cdwId).build()))
+        .build();
+  }
 
   R4PractitionerRoleController _controller() {
     return new R4PractitionerRoleController(
@@ -54,6 +62,13 @@ public class R4PractitionerRoleControllerTest {
         repository);
   }
 
+  void _registerMockIdentities(Registration... regs) {
+    for (Registration reg : regs) {
+      when(ids.lookup(reg.uuid())).thenReturn(reg.resourceIdentities());
+    }
+    when(ids.register(Mockito.any())).thenReturn(ImmutableList.copyOf(regs));
+  }
+
   @ParameterizedTest
   @ValueSource(strings = {"", "?unknownparam=123"})
   void invalidRequests(String query) {
@@ -63,35 +78,67 @@ public class R4PractitionerRoleControllerTest {
 
   @Test
   void read() {
-    when(ids.register(any())).thenReturn(List.of(registration("111:S", "I2-111")));
-    when(ids.lookup("I2-111")).thenReturn(List.of(id("111:S")));
+    String publicId = "I2-111";
+    String cdwId = "111:S";
+    String orgPubId = "I2-222";
+    String orgCdwId = "222:I";
+    String locPubId = "I2-333";
+    String locCdwId = "333:L";
+    _registerMockIdentities(
+        idReg("PRACTITIONER", publicId, cdwId),
+        idReg("ORGANIZATION", orgPubId, orgCdwId),
+        idReg("LOCATION", locPubId, locCdwId));
     PractitionerEntity entity =
-        PractitionerRoleSamples.Datamart.create().entity("111:S", "loc1", "org1");
-    when(repository.findById(CompositeCdwId.fromCdwId("111:S"))).thenReturn(Optional.of(entity));
-    assertThat(_controller().read("I2-111"))
-        .isEqualTo(PractitionerRoleSamples.R4.create().practitionerRole("I2-111", "org1", "loc1"));
+        PractitionerSamples.Datamart.create().entity(cdwId, orgCdwId, locCdwId);
+    when(repository.findById(CompositeCdwId.fromCdwId(cdwId))).thenReturn(Optional.of(entity));
+    assertThat(_controller().read(publicId))
+        .isEqualTo(
+            PractitionerRoleSamples.R4.create().practitionerRole(publicId, orgPubId, locPubId));
   }
 
   @Test
   void readRaw() {
+    String publicId = "I2-111";
+    String cdwId = "111:S";
+    _registerMockIdentities(idReg("PRACTITIONER", publicId, cdwId));
     HttpServletResponse response = mock(HttpServletResponse.class);
-    when(ids.lookup("I2-111")).thenReturn(List.of(id("111:S")));
-    PractitionerEntity entity =
-        PractitionerEntity.builder().npi("12345").payload("payload!").build();
-    when(repository.findById(CompositeCdwId.fromCdwId("111:S"))).thenReturn(Optional.of(entity));
-    assertThat(_controller().readRaw("I2-111", response)).isEqualTo("payload!");
+    PractitionerEntity entity = PractitionerEntity.builder().npi("12345").payload("{}").build();
+    when(repository.findById(CompositeCdwId.fromCdwId(cdwId))).thenReturn(Optional.of(entity));
+    assertThat(_controller().readRaw(publicId, response)).isEqualTo("{}");
   }
 
   @Test
   void toBundle() {
-    when(ids.register(any()))
-        .thenReturn(
-            List.of(
-                registration("111:S", "I2-111"),
-                registration("222:S", "I2-222"),
-                registration("333:S", "I2-333")));
+    String pubId1 = "I2-111S";
+    String cdwId1 = "111:S";
+    String pubId2 = "I2-222S";
+    String cdwId2 = "222:S";
+    String pubId3 = "I2-333S";
+    String cdwId3 = "333:S";
+    String orgPubId1 = "I2-111I";
+    String orgCdwId1 = "111:I";
+    String orgPubId2 = "I2-222I";
+    String orgCdwId2 = "222:I";
+    String orgPubId3 = "I2-333I";
+    String orgCdwId3 = "333:I";
+    String locPubId1 = "I2-111L";
+    String locCdwId1 = "111:L";
+    String locPubId2 = "I2-222L";
+    String locCdwId2 = "222:L";
+    String locPubId3 = "I2-333L";
+    String locCdwId3 = "333:L";
+    _registerMockIdentities(
+        idReg("PRACTITIONER", pubId1, cdwId1),
+        idReg("PRACTITIONER", pubId2, cdwId2),
+        idReg("PRACTITIONER", pubId3, cdwId3),
+        idReg("ORGANIZATION", orgPubId1, orgCdwId1),
+        idReg("ORGANIZATION", orgPubId2, orgCdwId2),
+        idReg("ORGANIZATION", orgPubId3, orgCdwId3),
+        idReg("LOCATION", locPubId1, locCdwId1),
+        idReg("LOCATION", locPubId2, locCdwId2),
+        idReg("LOCATION", locPubId3, locCdwId3));
     var bundler = _controller().toBundle();
-    PractitionerRoleSamples.Datamart datamart = PractitionerRoleSamples.Datamart.create();
+    PractitionerSamples.Datamart datamart = PractitionerSamples.Datamart.create();
     var vr =
         VulcanResult.<PractitionerEntity>builder()
             .paging(
@@ -100,18 +147,18 @@ public class R4PractitionerRoleControllerTest {
                     1, 4, 5, 6, 9, 15))
             .entities(
                 Stream.of(
-                    datamart.entity("111:S", "loc1", "org1"),
-                    datamart.entity("222:S", "loc2", "org2"),
-                    datamart.entity("333:S", "loc3", "org3")))
+                    datamart.entity(cdwId1, orgCdwId1, locCdwId1),
+                    datamart.entity(cdwId2, orgCdwId2, locCdwId2),
+                    datamart.entity(cdwId3, orgCdwId3, locCdwId3)))
             .build();
     PractitionerRoleSamples.R4 r4 = PractitionerRoleSamples.R4.create();
     PractitionerRole.Bundle expected =
         PractitionerRoleSamples.R4.asBundle(
             "http://fonzy.com/r4",
             List.of(
-                r4.practitionerRole("I2-111", "org1", "loc1"),
-                r4.practitionerRole("I2-222", "org2", "loc2"),
-                r4.practitionerRole("I2-333", "org3", "loc3")),
+                r4.practitionerRole(pubId1, orgPubId1, locPubId1),
+                r4.practitionerRole(pubId2, orgPubId2, locPubId2),
+                r4.practitionerRole(pubId3, orgPubId3, locPubId3)),
             999,
             PractitionerRoleSamples.R4.link(
                 BundleLink.LinkRelation.first,
@@ -146,13 +193,16 @@ public class R4PractitionerRoleControllerTest {
   @SuppressWarnings("unchecked")
   @ValueSource(strings = {"?_id=111:S"})
   void validRequests(String query) {
-    when(ids.register(any())).thenReturn(List.of(registration("111:S", "I2-111")));
-    PractitionerRoleSamples.Datamart dm = PractitionerRoleSamples.Datamart.create();
+    _registerMockIdentities(
+        idReg("PRACTITIONER", "I2-111", "111:S"),
+        idReg("ORGANIZATION", "I2-222", "222:I"),
+        idReg("LOCATION", "I2-333", "333:L"));
+    PractitionerSamples.Datamart dm = PractitionerSamples.Datamart.create();
     when(repository.findAll(any(Specification.class), any(Pageable.class)))
         .thenAnswer(
             i ->
                 new PageImpl<PractitionerEntity>(
-                    List.of(dm.entity("111:S", "loc1", "org1")),
+                    List.of(dm.entity("111:S", "222:I", "333:L")),
                     i.getArgument(1, Pageable.class),
                     1));
     var r = requestFromUri("http://fonzy.com/r4/PractitionerRole" + query);

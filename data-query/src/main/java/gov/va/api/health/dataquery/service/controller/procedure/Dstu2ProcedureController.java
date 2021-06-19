@@ -1,5 +1,6 @@
 package gov.va.api.health.dataquery.service.controller.procedure;
 
+import static gov.va.api.health.autoconfig.logging.LogSanitizer.sanitize;
 import static java.util.Collections.emptyList;
 
 import gov.va.api.health.dataquery.service.controller.CountParameter;
@@ -147,7 +148,7 @@ public class Dstu2ProcedureController {
     String icn = witnessProtection.toCdwId(patient);
     PatientAndDateSpecification spec =
         PatientAndDateSpecification.builder().patient(icn).dates(date).build();
-    log.info("Looking for {} ({}) {}", patient, icn, spec);
+    log.info("Looking for {} ({}) {}", sanitize(patient), sanitize(icn), spec);
     Page<ProcedureEntity> pageOfProcedures =
         repository.findAll(
             spec, PageRequest.of(page - 1, count == 0 ? 1 : count, ProcedureEntity.naturalOrder()));

@@ -1,13 +1,10 @@
 package gov.va.api.health.dataquery.service.controller.practitioner;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
-import gov.va.api.health.r4.api.datatypes.Identifier;
 import gov.va.api.lighthouse.datamart.CompositeCdwId;
 import gov.va.api.lighthouse.datamart.DatamartCoding;
 import gov.va.api.lighthouse.datamart.DatamartReference;
@@ -42,27 +39,58 @@ public class PractitionerSamples {
   @AllArgsConstructor(staticName = "create")
   public static class Datamart {
     @SneakyThrows
-    public PractitionerEntity entity(String cdwId, String locCdwId, String orgCdwId) {
-      DatamartPractitioner dm = practitioner(cdwId);
+    public PractitionerEntity entity(String cdwId, String orgCdwId, String locCdwId) {
+      DatamartPractitioner dm = practitioner(cdwId, orgCdwId, locCdwId);
       return PractitionerEntity.builder()
           .cdwIdNumber(CompositeCdwId.fromCdwId(cdwId).cdwIdNumber())
           .cdwIdResourceCode(CompositeCdwId.fromCdwId(cdwId).cdwIdResourceCode())
-          .npi("1234567")
-          .familyName("Joe")
-          .givenName("Johnson")
+          .npi(dm.npi().get())
+          .familyName(dm.name().family())
+          .givenName(dm.name().given())
           .payload(json(dm))
           .build();
     }
 
     public DatamartPractitioner practitioner() {
-      return practitioner("123:S");
+      return practitioner("111:S", "222:I", "333:L");
     }
 
-    public DatamartPractitioner practitioner(String cdwId) {
+    public DatamartPractitioner practitioner(String cdwId, String orgCdwId, String locCdwId) {
       checkArgument(cdwId.endsWith(":S"));
+      checkArgument(orgCdwId.endsWith(":I"));
+      checkArgument(locCdwId.endsWith(":L"));
       return DatamartPractitioner.builder()
           .cdwId(cdwId)
+          .npi(Optional.of("1234567890"))
           .active(true)
+          .name(DatamartPractitioner.Name.builder().family("NELSON").given("BOB").build())
+          .telecom(
+              List.of(
+                  DatamartPractitioner.Telecom.builder()
+                      .use(DatamartPractitioner.Telecom.Use.mobile)
+                      .system(DatamartPractitioner.Telecom.System.phone)
+                      .value("123-456-7890")
+                      .build(),
+                  DatamartPractitioner.Telecom.builder()
+                      .use(DatamartPractitioner.Telecom.Use.mobile)
+                      .system(DatamartPractitioner.Telecom.System.phone)
+                      .value("111-222-3333")
+                      .build(),
+                  DatamartPractitioner.Telecom.builder()
+                      .use(DatamartPractitioner.Telecom.Use.mobile)
+                      .system(DatamartPractitioner.Telecom.System.pager)
+                      .value("444-555-6666")
+                      .build(),
+                  DatamartPractitioner.Telecom.builder()
+                      .use(DatamartPractitioner.Telecom.Use.mobile)
+                      .system(DatamartPractitioner.Telecom.System.fax)
+                      .value("777-888-9999")
+                      .build(),
+                  DatamartPractitioner.Telecom.builder()
+                      .use(DatamartPractitioner.Telecom.Use.mobile)
+                      .system(DatamartPractitioner.Telecom.System.email)
+                      .value("bob.nelson@www.creedthoughts.gov.www/creedthoughts")
+                      .build()))
           .address(
               List.of(
                   DatamartPractitioner.Address.builder()
@@ -71,40 +99,62 @@ public class PractitionerSamples {
                       .state("Alaska")
                       .postalCode("99501")
                       .build()))
-          .name(DatamartPractitioner.Name.builder().family("Joe").given("Johnson").build())
-          .birthDate(Optional.of(LocalDate.parse("1970-11-14")))
           .gender(DatamartPractitioner.Gender.male)
-          .npi(Optional.of("1234567"))
+          .birthDate(Optional.of(LocalDate.parse("1970-11-14")))
           .practitionerRole(
               Optional.of(
                   DatamartPractitioner.PractitionerRole.builder()
-                      .healthCareService(Optional.of("medical"))
-                      .location(
-                          singletonList(
-                              DatamartReference.builder()
-                                  .display(Optional.of("test"))
-                                  .type(Optional.of("Location"))
-                                  .build()))
                       .managingOrganization(
                           Optional.of(
                               DatamartReference.builder()
-                                  .display(Optional.of("test"))
                                   .type(Optional.of("Organization"))
+                                  .reference(Optional.of(orgCdwId))
+                                  .display(Optional.of("SOME VA MEDICAL CENTER"))
                                   .build()))
                       .role(
                           Optional.of(
                               DatamartCoding.builder()
-                                  .system(Optional.of("test"))
-                                  .display(Optional.of("test"))
-                                  .code(Optional.of("test"))
+                                  .code(Optional.of("1"))
+                                  .display(Optional.of("OPTOMETRIST"))
+                                  .system(Optional.of("rpcmm"))
                                   .build()))
-                      .build()))
-          .telecom(
-              List.of(
-                  DatamartPractitioner.Telecom.builder()
-                      .use(DatamartPractitioner.Telecom.Use.mobile)
-                      .system(DatamartPractitioner.Telecom.System.phone)
-                      .value("123-456-1234")
+                      .specialty(
+                          List.of(
+                              DatamartPractitioner.PractitionerRole.Specialty.builder()
+                                  .providerType(Optional.of("Physicians (M.D. and D.O.)"))
+                                  .classification(Optional.of("Physician/Osteopath"))
+                                  .areaOfSpecialization(Optional.of("Internal Medicine"))
+                                  .vaCode(Optional.of("V111500"))
+                                  .build(),
+                              DatamartPractitioner.PractitionerRole.Specialty.builder()
+                                  .providerType(Optional.of("Physicians (M.D. and D.O.)"))
+                                  .classification(Optional.of("Physician/Osteopath"))
+                                  .areaOfSpecialization(Optional.of("General Practice"))
+                                  .vaCode(Optional.of("V111000"))
+                                  .build(),
+                              DatamartPractitioner.PractitionerRole.Specialty.builder()
+                                  .providerType(Optional.of("Physicians (M.D. and D.O.)"))
+                                  .classification(Optional.of("Physician/Osteopath"))
+                                  .areaOfSpecialization(Optional.of("Family Practice"))
+                                  .vaCode(Optional.of("V110900"))
+                                  .build(),
+                              DatamartPractitioner.PractitionerRole.Specialty.builder()
+                                  .providerType(Optional.of("Allopathic & Osteopathic Physicians"))
+                                  .classification(Optional.of("Family Medicine"))
+                                  .vaCode(Optional.of("V180700"))
+                                  .x12Code(Optional.of("207Q00000X"))
+                                  .build()))
+                      .period(Optional.empty())
+                      .location(
+                          List.of(
+                              DatamartReference.builder()
+                                  .type(Optional.of("Location"))
+                                  .reference(Optional.of(locCdwId))
+                                  .display(
+                                      Optional.of(
+                                          "VISUAL IMPAIRMENT SERVICES OUTPATIENT REHABILITATION (VISOR)"))
+                                  .build()))
+                      .healthCareService(Optional.of("MEDICAL SERVICE"))
                       .build()))
           .build();
     }
@@ -119,7 +169,7 @@ public class PractitionerSamples {
       return gov.va.api.health.dstu2.api.resources.Practitioner.Bundle.builder()
           .type(gov.va.api.health.dstu2.api.bundle.AbstractBundle.BundleType.searchset)
           .total(practitioners.size())
-          .link(asList(links))
+          .link(List.of(links))
           .entry(
               practitioners.stream()
                   .map(
@@ -150,17 +200,18 @@ public class PractitionerSamples {
     }
 
     public gov.va.api.health.dstu2.api.resources.Practitioner practitioner() {
-      return practitioner("123:S");
+      return practitioner("111:S", "222:I", "333:L");
     }
 
-    public gov.va.api.health.dstu2.api.resources.Practitioner practitioner(String id) {
+    public gov.va.api.health.dstu2.api.resources.Practitioner practitioner(
+        String id, String orgId, String locId) {
       return gov.va.api.health.dstu2.api.resources.Practitioner.builder()
           .id(id)
           .active(true)
           .name(
               gov.va.api.health.dstu2.api.datatypes.HumanName.builder()
-                  .family(List.of("Joe"))
-                  .given(List.of("Johnson"))
+                  .family(List.of("NELSON"))
+                  .given(List.of("BOB"))
                   .build())
           .gender(gov.va.api.health.dstu2.api.resources.Practitioner.Gender.male)
           .birthDate("1970-11-14")
@@ -177,36 +228,70 @@ public class PractitionerSamples {
                   gov.va.api.health.dstu2.api.datatypes.ContactPoint.builder()
                       .use(
                           gov.va.api.health.dstu2.api.datatypes.ContactPoint.ContactPointUse.mobile)
-                      .value("123-456-1234")
+                      .value("123-456-7890")
                       .system(
                           gov.va.api.health.dstu2.api.datatypes.ContactPoint.ContactPointSystem
                               .phone)
+                      .build(),
+                  gov.va.api.health.dstu2.api.datatypes.ContactPoint.builder()
+                      .use(
+                          gov.va.api.health.dstu2.api.datatypes.ContactPoint.ContactPointUse.mobile)
+                      .value("111-222-3333")
+                      .system(
+                          gov.va.api.health.dstu2.api.datatypes.ContactPoint.ContactPointSystem
+                              .phone)
+                      .build(),
+                  gov.va.api.health.dstu2.api.datatypes.ContactPoint.builder()
+                      .use(
+                          gov.va.api.health.dstu2.api.datatypes.ContactPoint.ContactPointUse.mobile)
+                      .value("444-555-6666")
+                      .system(
+                          gov.va.api.health.dstu2.api.datatypes.ContactPoint.ContactPointSystem
+                              .pager)
+                      .build(),
+                  gov.va.api.health.dstu2.api.datatypes.ContactPoint.builder()
+                      .use(
+                          gov.va.api.health.dstu2.api.datatypes.ContactPoint.ContactPointUse.mobile)
+                      .value("777-888-9999")
+                      .system(
+                          gov.va.api.health.dstu2.api.datatypes.ContactPoint.ContactPointSystem.fax)
+                      .build(),
+                  gov.va.api.health.dstu2.api.datatypes.ContactPoint.builder()
+                      .use(
+                          gov.va.api.health.dstu2.api.datatypes.ContactPoint.ContactPointUse.mobile)
+                      .value("bob.nelson@www.creedthoughts.gov.www/creedthoughts")
+                      .system(
+                          gov.va.api.health.dstu2.api.datatypes.ContactPoint.ContactPointSystem
+                              .email)
                       .build()))
           .practitionerRole(
-              singletonList(
+              List.of(
                   gov.va.api.health.dstu2.api.resources.Practitioner.PractitionerRole.builder()
                       .location(
-                          singletonList(
+                          List.of(
                               gov.va.api.health.dstu2.api.elements.Reference.builder()
-                                  .display("test")
+                                  .reference("Location/" + locId)
+                                  .display(
+                                      "VISUAL IMPAIRMENT SERVICES OUTPATIENT REHABILITATION (VISOR)")
                                   .build()))
                       .healthcareService(
-                          singletonList(
+                          List.of(
                               gov.va.api.health.dstu2.api.elements.Reference.builder()
-                                  .display("medical")
+                                  .display("MEDICAL SERVICE")
                                   .build()))
                       .managingOrganization(
                           gov.va.api.health.dstu2.api.elements.Reference.builder()
-                              .display("test")
+                              .reference("Organization/" + orgId)
+                              .display("SOME VA MEDICAL CENTER")
                               .build())
                       .role(
                           gov.va.api.health.dstu2.api.datatypes.CodeableConcept.builder()
                               .coding(
-                                  singletonList(
+                                  List.of(
                                       gov.va.api.health.dstu2.api.datatypes.Coding.builder()
-                                          .code("test")
-                                          .display("test")
-                                          .system("test")
+                                          .code("1")
+                                          .display("OPTOMETRIST")
+                                          .system("rpcmm")
                                           .build()))
                               .build())
                       .build()))
@@ -231,7 +316,7 @@ public class PractitionerSamples {
       return gov.va.api.health.r4.api.resources.Practitioner.Bundle.builder()
           .type(gov.va.api.health.r4.api.bundle.AbstractBundle.BundleType.searchset)
           .total(totalRecords)
-          .link(asList(links))
+          .link(List.of(links))
           .entry(
               practitioners.stream()
                   .map(
@@ -268,21 +353,20 @@ public class PractitionerSamples {
     public gov.va.api.health.r4.api.resources.Practitioner practitioner(String id) {
       return gov.va.api.health.r4.api.resources.Practitioner.builder()
           .id(id)
-          .identifier(null)
           .active(true)
           .name(
               List.of(
                   gov.va.api.health.r4.api.datatypes.HumanName.builder()
-                      .family("Joe")
-                      .given(List.of("Johnson"))
+                      .family("NELSON")
+                      .given(List.of("BOB"))
                       .build()))
           .gender(gov.va.api.health.r4.api.resources.Practitioner.GenderCode.male)
           .birthDate("1970-11-14")
           .identifier(
               List.of(
-                  Identifier.builder()
+                  gov.va.api.health.r4.api.datatypes.Identifier.builder()
                       .system("http://hl7.org/fhir/sid/us-npi")
-                      .value("1234567")
+                      .value("1234567890")
                       .build()))
           .address(
               List.of(
@@ -296,9 +380,33 @@ public class PractitionerSamples {
               List.of(
                   gov.va.api.health.r4.api.datatypes.ContactPoint.builder()
                       .use(gov.va.api.health.r4.api.datatypes.ContactPoint.ContactPointUse.mobile)
-                      .value("123-456-1234")
+                      .value("123-456-7890")
                       .system(
                           gov.va.api.health.r4.api.datatypes.ContactPoint.ContactPointSystem.phone)
+                      .build(),
+                  gov.va.api.health.r4.api.datatypes.ContactPoint.builder()
+                      .use(gov.va.api.health.r4.api.datatypes.ContactPoint.ContactPointUse.mobile)
+                      .value("111-222-3333")
+                      .system(
+                          gov.va.api.health.r4.api.datatypes.ContactPoint.ContactPointSystem.phone)
+                      .build(),
+                  gov.va.api.health.r4.api.datatypes.ContactPoint.builder()
+                      .use(gov.va.api.health.r4.api.datatypes.ContactPoint.ContactPointUse.mobile)
+                      .value("444-555-6666")
+                      .system(
+                          gov.va.api.health.r4.api.datatypes.ContactPoint.ContactPointSystem.pager)
+                      .build(),
+                  gov.va.api.health.r4.api.datatypes.ContactPoint.builder()
+                      .use(gov.va.api.health.r4.api.datatypes.ContactPoint.ContactPointUse.mobile)
+                      .value("777-888-9999")
+                      .system(
+                          gov.va.api.health.r4.api.datatypes.ContactPoint.ContactPointSystem.fax)
+                      .build(),
+                  gov.va.api.health.r4.api.datatypes.ContactPoint.builder()
+                      .use(gov.va.api.health.r4.api.datatypes.ContactPoint.ContactPointUse.mobile)
+                      .value("bob.nelson@www.creedthoughts.gov.www/creedthoughts")
+                      .system(
+                          gov.va.api.health.r4.api.datatypes.ContactPoint.ContactPointSystem.email)
                       .build()))
           .build();
     }
@@ -313,7 +421,7 @@ public class PractitionerSamples {
       return gov.va.api.health.stu3.api.resources.Practitioner.Bundle.builder()
           .type(gov.va.api.health.stu3.api.bundle.AbstractBundle.BundleType.searchset)
           .total(practitioners.size())
-          .link(asList(links))
+          .link(List.of(links))
           .entry(
               practitioners.stream()
                   .map(
@@ -351,17 +459,17 @@ public class PractitionerSamples {
       return gov.va.api.health.stu3.api.resources.Practitioner.builder()
           .id(id)
           .identifier(
-              singletonList(
+              List.of(
                   gov.va.api.health.stu3.api.datatypes.Identifier.builder()
                       .system("http://hl7.org/fhir/sid/us-npi")
-                      .value("1234567")
+                      .value("1234567890")
                       .build()))
           .active(true)
           .name(
               List.of(
                   gov.va.api.health.stu3.api.datatypes.HumanName.builder()
-                      .family("Joe")
-                      .given(List.of("Johnson"))
+                      .family("NELSON")
+                      .given(List.of("BOB"))
                       .build()))
           .gender(gov.va.api.health.stu3.api.resources.Practitioner.Gender.male)
           .birthDate("1970-11-14")
@@ -377,10 +485,37 @@ public class PractitionerSamples {
               List.of(
                   gov.va.api.health.stu3.api.datatypes.ContactPoint.builder()
                       .use(gov.va.api.health.stu3.api.datatypes.ContactPoint.ContactPointUse.mobile)
-                      .value("123-456-1234")
+                      .value("123-456-7890")
                       .system(
                           gov.va.api.health.stu3.api.datatypes.ContactPoint.ContactPointSystem
                               .phone)
+                      .build(),
+                  gov.va.api.health.stu3.api.datatypes.ContactPoint.builder()
+                      .use(gov.va.api.health.stu3.api.datatypes.ContactPoint.ContactPointUse.mobile)
+                      .value("111-222-3333")
+                      .system(
+                          gov.va.api.health.stu3.api.datatypes.ContactPoint.ContactPointSystem
+                              .phone)
+                      .build(),
+                  gov.va.api.health.stu3.api.datatypes.ContactPoint.builder()
+                      .use(gov.va.api.health.stu3.api.datatypes.ContactPoint.ContactPointUse.mobile)
+                      .value("444-555-6666")
+                      .system(
+                          gov.va.api.health.stu3.api.datatypes.ContactPoint.ContactPointSystem
+                              .pager)
+                      .build(),
+                  gov.va.api.health.stu3.api.datatypes.ContactPoint.builder()
+                      .use(gov.va.api.health.stu3.api.datatypes.ContactPoint.ContactPointUse.mobile)
+                      .value("777-888-9999")
+                      .system(
+                          gov.va.api.health.stu3.api.datatypes.ContactPoint.ContactPointSystem.fax)
+                      .build(),
+                  gov.va.api.health.stu3.api.datatypes.ContactPoint.builder()
+                      .use(gov.va.api.health.stu3.api.datatypes.ContactPoint.ContactPointUse.mobile)
+                      .value("bob.nelson@www.creedthoughts.gov.www/creedthoughts")
+                      .system(
+                          gov.va.api.health.stu3.api.datatypes.ContactPoint.ContactPointSystem
+                              .email)
                       .build()))
           .build();
     }

@@ -1,0 +1,56 @@
+{
+  "objectType" : "PractitionerRole",
+  "objectVersion" : "1",
+  "cdwId" : "12345:P",
+  "managingOrganization" : {
+    "type" : "Organization",
+    "reference" : "12345:I",
+    "display" : "SOME VA MEDICAL CENTER"
+  },
+  "practitioner" : {
+    "type" : "Practitioner",
+    "reference" : "12345:S",
+    "display" : "NELSON,BOB"
+  },
+  "role" : [
+    {
+      "system" : "rpcmm",
+      "code" : "1",
+      "display" : "OPTOMETRIST"
+    }
+  ],
+  "specialty" : [
+    {
+      "providerType" : "Physicians (M.D. and D.O.)",
+      "classification" : "Physician/Osteopath",
+      "areaOfSpecialization" : "Internal Medicine",
+      "vaCode" : "V111500"
+    },
+    {
+      "providerType" : "Physicians (M.D. and D.O.)",
+      "classification" : "Physician/Osteopath",
+      "areaOfSpecialization" : "General Practice",
+      "vaCode" : "V111000"
+    },
+    {
+      "providerType" : "Physicians (M.D. and D.O.)",
+      "classification" : "Physician/Osteopath",
+      "areaOfSpecialization" : "Family Practice",
+      "vaCode" : "V110900"
+    },
+    {
+      "providerType" : "Allopathic & Osteopathic Physicians",
+      "classification" : "Family Medicine",
+      "vaCode" : "V180700",
+      "x12Code" : "207Q00000X"
+    }
+  ],
+  "location" : [
+    {
+      "type" : "Location",
+      "reference" : "12345:L",
+      "display" : "VISUAL IMPAIRMENT SERVICES OUTPATIENT REHABILITATION (VISOR)"
+    }
+  ],
+  "healthCareService" : "MEDICAL SERVICE"
+}
