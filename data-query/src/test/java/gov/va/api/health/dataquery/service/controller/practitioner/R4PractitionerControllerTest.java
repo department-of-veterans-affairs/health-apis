@@ -23,20 +23,16 @@ import java.util.Optional;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
-@ExtendWith(MockitoExtension.class)
 public class R4PractitionerControllerTest {
-  @Mock IdentityService ids;
+  IdentityService ids = mock(IdentityService.class);
 
-  @Mock PractitionerRepository repository;
+  PractitionerRepository repository = mock(PractitionerRepository.class);
 
   R4PractitionerController _controller() {
     return new R4PractitionerController(
@@ -71,19 +67,19 @@ public class R4PractitionerControllerTest {
     when(ids.register(any())).thenReturn(List.of(registration("111:S", "I2-111")));
     when(ids.lookup("I2-111")).thenReturn(List.of(id("111:S")));
     PractitionerEntity entity =
-        PractitionerSamples.Datamart.create().entity("111:S", "loc1", "org1");
+        PractitionerSamples.Datamart.create().entity("111:S", "222:I", "333:L");
     when(repository.findById(CompositeCdwId.fromCdwId("111:S"))).thenReturn(Optional.of(entity));
     assertThat(_controller().read("I2-111"))
         .isEqualTo(PractitionerSamples.R4.create().practitioner("I2-111"));
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {"npi-1234567", "NPI-1234567"})
+  @ValueSource(strings = {"npi-1234567890", "NPI-1234567890"})
   void readByNpi(String npi) {
     when(ids.register(any())).thenReturn(List.of(registration("111:S", "I2-111")));
     PractitionerEntity entity =
-        PractitionerSamples.Datamart.create().entity("111:S", "loc1", "org1");
-    when(repository.findByNpi("1234567", Pageable.unpaged()))
+        PractitionerSamples.Datamart.create().entity("111:S", "222:I", "333:L");
+    when(repository.findByNpi("1234567890", Pageable.unpaged()))
         .thenReturn(new PageImpl<PractitionerEntity>(List.of(entity)));
     assertThat(_controller().read(npi))
         .isEqualTo(PractitionerSamples.R4.create().practitioner("I2-111"));
@@ -93,10 +89,9 @@ public class R4PractitionerControllerTest {
   void readRaw() {
     HttpServletResponse response = mock(HttpServletResponse.class);
     when(ids.lookup("I2-111")).thenReturn(List.of(id("111:S")));
-    PractitionerEntity entity =
-        PractitionerEntity.builder().npi("12345").payload("payload!").build();
+    PractitionerEntity entity = PractitionerEntity.builder().npi("12345").payload("{}").build();
     when(repository.findById(CompositeCdwId.fromCdwId("111:S"))).thenReturn(Optional.of(entity));
-    assertThat(_controller().readRaw("I2-111", response)).isEqualTo("payload!");
+    assertThat(_controller().readRaw("I2-111", response)).isEqualTo("{}");
   }
 
   @Test
@@ -117,9 +112,9 @@ public class R4PractitionerControllerTest {
                     1, 4, 5, 6, 9, 15))
             .entities(
                 Stream.of(
-                    datamart.entity("111:S", "loc1", "org1"),
-                    datamart.entity("222:S", "loc2", "org2"),
-                    datamart.entity("333:S", "loc3", "org3")))
+                    datamart.entity("111:S", "111:I", "111:L"),
+                    datamart.entity("222:S", "222:I", "222:L"),
+                    datamart.entity("333:S", "333:I", "333:L")))
             .build();
     PractitionerSamples.R4 r4 = PractitionerSamples.R4.create();
     Practitioner.Bundle expected =
@@ -177,7 +172,7 @@ public class R4PractitionerControllerTest {
         .thenAnswer(
             i ->
                 new PageImpl<PractitionerEntity>(
-                    List.of(dm.entity("111:S", "loc1", "org1")),
+                    List.of(dm.entity("111:S", "222:I", "333:L")),
                     i.getArgument(1, Pageable.class),
                     1));
     var r = requestFromUri("http://fonzy.com/r4/Practitioner" + query);

@@ -4,11 +4,12 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.ImmutableList;
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLinks;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
@@ -17,6 +18,7 @@ import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.practitioner.DatamartPractitioner;
 import gov.va.api.health.dataquery.service.controller.practitioner.PractitionerEntity;
 import gov.va.api.health.dataquery.service.controller.practitioner.PractitionerRepository;
+import gov.va.api.health.dataquery.service.controller.practitioner.PractitionerSamples;
 import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
@@ -78,43 +80,13 @@ public class Stu3PractitionerRoleControllerTest {
     return URLEncoder.encode(value, StandardCharsets.UTF_8);
   }
 
-  void _addMockIdentities(
-      String pracPubId,
-      String pracCdwId,
-      String locPubId,
-      String locCdwId,
-      String orgPubId,
-      String orgCdwId) {
-    ResourceIdentity pracResource =
-        ResourceIdentity.builder()
-            .system("CDW")
-            .resource("PRACTITIONER")
-            .identifier(pracCdwId)
-            .build();
-    ResourceIdentity locResource =
-        ResourceIdentity.builder().system("CDW").resource("LOCATION").identifier(locCdwId).build();
-    ResourceIdentity orgResource =
-        ResourceIdentity.builder()
-            .system("CDW")
-            .resource("ORGANIZATION")
-            .identifier(orgCdwId)
-            .build();
-    when(ids.lookup(pracPubId)).thenReturn(List.of(pracResource));
-    when(ids.register(any()))
-        .thenReturn(
+  static Registration idReg(String type, String pubId, String cdwId) {
+    return Registration.builder()
+        .uuid(pubId)
+        .resourceIdentities(
             List.of(
-                Registration.builder()
-                    .uuid(pracPubId)
-                    .resourceIdentities(List.of(pracResource))
-                    .build(),
-                Registration.builder()
-                    .uuid(locPubId)
-                    .resourceIdentities(List.of(locResource))
-                    .build(),
-                Registration.builder()
-                    .uuid(orgPubId)
-                    .resourceIdentities(List.of(orgResource))
-                    .build()));
+                ResourceIdentity.builder().system("CDW").resource(type).identifier(cdwId).build()))
+        .build();
   }
 
   private Stu3PractitionerRoleController _controller() {
@@ -125,36 +97,49 @@ public class Stu3PractitionerRoleControllerTest {
         WitnessProtection.builder().identityService(ids).build());
   }
 
+  void _registerMockIdentities(Registration... regs) {
+    for (Registration reg : regs) {
+      when(ids.lookup(reg.uuid())).thenReturn(reg.resourceIdentities());
+    }
+    when(ids.register(any())).thenReturn(ImmutableList.copyOf(regs));
+  }
+
   @Test
   void read() {
     String publicId = "I2-111";
     String cdwId = "111:S";
-    String locPubId = "I2-222";
-    String locCdwId = "222:L";
-    String orgPubId = "I2-333";
-    String orgCdwId = "333:O";
-    _addMockIdentities(publicId, cdwId, locPubId, locCdwId, orgPubId, orgCdwId);
+    String orgPubId = "I2-222";
+    String orgCdwId = "222:I";
+    String locPubId = "I2-333";
+    String locCdwId = "333:L";
+    _registerMockIdentities(
+        idReg("PRACTITIONER", publicId, cdwId),
+        idReg("ORGANIZATION", orgPubId, orgCdwId),
+        idReg("LOCATION", locPubId, locCdwId));
     DatamartPractitioner dm =
-        PractitionerRoleSamples.Datamart.create().practitioner(cdwId, locCdwId, orgCdwId);
+        PractitionerSamples.Datamart.create().practitioner(cdwId, orgCdwId, locCdwId);
     repository.save(asEntity(dm));
     PractitionerRole actual = _controller().read(publicId);
     assertThat(actual)
         .isEqualTo(
-            PractitionerRoleSamples.Stu3.create().practitionerRole(publicId, locPubId, orgPubId));
+            PractitionerRoleSamples.Stu3.create().practitionerRole(publicId, orgPubId, locPubId));
   }
 
   @Test
   void readRaw() {
     String publicId = "I2-111";
     String cdwId = "111:S";
-    String locPubId = "I2-222";
-    String locCdwId = "222:L";
-    String orgPubId = "I2-333";
-    String orgCdwId = "333:O";
-    _addMockIdentities(publicId, cdwId, locPubId, locCdwId, orgPubId, orgCdwId);
+    String orgPubId = "I2-222";
+    String orgCdwId = "222:I";
+    String locPubId = "I2-333";
+    String locCdwId = "333:L";
+    _registerMockIdentities(
+        idReg("PRACTITIONER", publicId, cdwId),
+        idReg("ORGANIZATION", orgPubId, orgCdwId),
+        idReg("LOCATION", locPubId, locCdwId));
     HttpServletResponse servletResponse = mock(HttpServletResponse.class);
     DatamartPractitioner dm =
-        PractitionerRoleSamples.Datamart.create().practitioner(cdwId, locCdwId, orgCdwId);
+        PractitionerSamples.Datamart.create().practitioner(cdwId, orgCdwId, locCdwId);
     repository.save(asEntity(dm));
     String json = _controller().readRaw(publicId, servletResponse);
     assertThat(asObject(json)).isEqualTo(dm);
@@ -163,7 +148,10 @@ public class Stu3PractitionerRoleControllerTest {
 
   @Test
   void readRawThrowsNotFoundWhenDataIsMissing() {
-    _addMockIdentities("x", "x", "y", "y", "z", "z");
+    _registerMockIdentities(
+        idReg("PRACTITIONER", "x", "x"),
+        idReg("ORGANIZATION", "y", "y"),
+        idReg("LOCATION", "z", "z"));
     assertThrows(
         ResourceExceptions.NotFound.class,
         () -> _controller().readRaw("x", mock(HttpServletResponse.class)));
@@ -178,7 +166,10 @@ public class Stu3PractitionerRoleControllerTest {
 
   @Test
   void readThrowsNotFoundWhenDataIsMissing() {
-    _addMockIdentities("x", "x", "y", "y", "z", "z");
+    _registerMockIdentities(
+        idReg("PRACTITIONER", "x", "x"),
+        idReg("ORGANIZATION", "y", "y"),
+        idReg("LOCATION", "z", "z"));
     assertThrows(ResourceExceptions.NotFound.class, () -> _controller().read("x"));
   }
 
@@ -194,10 +185,13 @@ public class Stu3PractitionerRoleControllerTest {
     String locPubId = "I2-222";
     String locCdwId = "222:L";
     String orgPubId = "I2-333";
-    String orgCdwId = "333:O";
-    _addMockIdentities(publicId, cdwId, locPubId, locCdwId, orgPubId, orgCdwId);
+    String orgCdwId = "333:I";
+    _registerMockIdentities(
+        idReg("PRACTITIONER", publicId, cdwId),
+        idReg("ORGANIZATION", orgPubId, orgCdwId),
+        idReg("LOCATION", locPubId, locCdwId));
     DatamartPractitioner dm =
-        PractitionerRoleSamples.Datamart.create().practitioner(cdwId, locCdwId, orgCdwId);
+        PractitionerSamples.Datamart.create().practitioner(cdwId, orgCdwId, locCdwId);
     repository.save(asEntity(dm));
     assertThat(asJson(_controller().searchById(publicId, 1, 0)))
         .isEqualTo(
@@ -209,7 +203,7 @@ public class Stu3PractitionerRoleControllerTest {
                     "http://fonzy.com/cool",
                     List.of(
                         PractitionerRoleSamples.Stu3.create()
-                            .practitionerRole(publicId, locPubId, orgPubId)),
+                            .practitionerRole(publicId, orgPubId, locPubId)),
                     PractitionerRoleSamples.Stu3.link(
                         BundleLink.LinkRelation.first,
                         "http://fonzy.com/cool/PractitionerRole?identifier=" + publicId,
@@ -231,13 +225,16 @@ public class Stu3PractitionerRoleControllerTest {
   void searchByIdentifier() {
     String publicId = "I2-111";
     String cdwId = "111:S";
-    String locPubId = "I2-222";
-    String locCdwId = "222:L";
-    String orgPubId = "I2-333";
-    String orgCdwId = "333:O";
-    _addMockIdentities(publicId, cdwId, locPubId, locCdwId, orgPubId, orgCdwId);
+    String orgPubId = "I2-222";
+    String orgCdwId = "222:I";
+    String locPubId = "I2-333";
+    String locCdwId = "333:L";
+    _registerMockIdentities(
+        idReg("PRACTITIONER", publicId, cdwId),
+        idReg("ORGANIZATION", orgPubId, orgCdwId),
+        idReg("LOCATION", locPubId, locCdwId));
     DatamartPractitioner dm =
-        PractitionerRoleSamples.Datamart.create().practitioner(cdwId, locCdwId, orgCdwId);
+        PractitionerSamples.Datamart.create().practitioner(cdwId, orgCdwId, locCdwId);
     repository.save(asEntity(dm));
     assertThat(asJson(_controller().searchByIdentifier(publicId, 1, 0)))
         .isEqualTo(
@@ -249,7 +246,7 @@ public class Stu3PractitionerRoleControllerTest {
                     "http://fonzy.com/cool",
                     List.of(
                         PractitionerRoleSamples.Stu3.create()
-                            .practitionerRole(publicId, locPubId, orgPubId)),
+                            .practitionerRole(publicId, orgPubId, locPubId)),
                     PractitionerRoleSamples.Stu3.link(
                         BundleLink.LinkRelation.first,
                         "http://fonzy.com/cool/PractitionerRole?identifier=" + publicId,
@@ -269,17 +266,20 @@ public class Stu3PractitionerRoleControllerTest {
 
   @Test
   void searchByName() {
-    String family = "Nelson";
-    String given = "Bob";
     String publicId = "I2-111";
     String cdwId = "111:S";
-    String locPubId = "I2-222";
-    String locCdwId = "222:L";
-    String orgPubId = "I2-333";
-    String orgCdwId = "333:O";
-    _addMockIdentities(publicId, cdwId, locPubId, locCdwId, orgPubId, orgCdwId);
+    String orgPubId = "I2-222";
+    String orgCdwId = "222:I";
+    String locPubId = "I2-333";
+    String locCdwId = "333:L";
+    String family = "NELSON";
+    String given = "BOB";
+    _registerMockIdentities(
+        idReg("PRACTITIONER", publicId, cdwId),
+        idReg("ORGANIZATION", orgPubId, orgCdwId),
+        idReg("LOCATION", locPubId, locCdwId));
     DatamartPractitioner dm =
-        PractitionerRoleSamples.Datamart.create().practitioner(cdwId, locCdwId, orgCdwId);
+        PractitionerSamples.Datamart.create().practitioner(cdwId, orgCdwId, locCdwId);
     repository.save(asEntity(dm));
     assertThat(asJson(_controller().searchByName(family, given, 1, 0)))
         .isEqualTo(
@@ -295,7 +295,7 @@ public class Stu3PractitionerRoleControllerTest {
                     "http://fonzy.com/cool",
                     List.of(
                         PractitionerRoleSamples.Stu3.create()
-                            .practitionerRole(publicId, locPubId, orgPubId)),
+                            .practitionerRole(publicId, orgPubId, locPubId)),
                     PractitionerRoleSamples.Stu3.link(
                         BundleLink.LinkRelation.first,
                         String.format(
@@ -321,16 +321,19 @@ public class Stu3PractitionerRoleControllerTest {
 
   @Test
   void searchByNpi() {
-    String systemAndCode = "http://hl7.org/fhir/sid/us-npi|12345";
+    String systemAndCode = "http://hl7.org/fhir/sid/us-npi|1234567890";
     String publicId = "I2-111";
     String cdwId = "111:S";
-    String locPubId = "I2-222";
-    String locCdwId = "222:L";
-    String orgPubId = "I2-333";
-    String orgCdwId = "333:O";
-    _addMockIdentities(publicId, cdwId, locPubId, locCdwId, orgPubId, orgCdwId);
+    String orgPubId = "I2-222";
+    String orgCdwId = "222:I";
+    String locPubId = "I2-333";
+    String locCdwId = "333:L";
+    _registerMockIdentities(
+        idReg("PRACTITIONER", publicId, cdwId),
+        idReg("ORGANIZATION", orgPubId, orgCdwId),
+        idReg("LOCATION", locPubId, locCdwId));
     DatamartPractitioner dm =
-        PractitionerRoleSamples.Datamart.create().practitioner(cdwId, locCdwId, orgCdwId);
+        PractitionerSamples.Datamart.create().practitioner(cdwId, orgCdwId, locCdwId);
     repository.save(asEntity(dm));
     assertThat(asJson(_controller().searchByNpi(systemAndCode, 1, 0)))
         .isEqualTo(
@@ -345,7 +348,7 @@ public class Stu3PractitionerRoleControllerTest {
                     "http://fonzy.com/cool",
                     List.of(
                         PractitionerRoleSamples.Stu3.create()
-                            .practitionerRole(publicId, locPubId, orgPubId)),
+                            .practitionerRole(publicId, orgPubId, locPubId)),
                     PractitionerRoleSamples.Stu3.link(
                         BundleLink.LinkRelation.first,
                         "http://fonzy.com/cool/PractitionerRole?practitioner.identifier="

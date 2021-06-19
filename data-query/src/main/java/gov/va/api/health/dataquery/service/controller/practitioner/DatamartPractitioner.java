@@ -13,7 +13,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/** Practitioner datamart JSON. */
 @Data
 @Builder
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -88,7 +87,6 @@ public class DatamartPractitioner implements HasReplaceableId {
     unknown
   }
 
-  /** Address. */
   @Data
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -109,7 +107,6 @@ public class DatamartPractitioner implements HasReplaceableId {
     private String postalCode;
   }
 
-  /** Name. */
   @Data
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -140,7 +137,6 @@ public class DatamartPractitioner implements HasReplaceableId {
     }
   }
 
-  /** Practitioner Role (which is an independent R4 resource). */
   @Data
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -206,7 +202,6 @@ public class DatamartPractitioner implements HasReplaceableId {
       return specialty;
     }
 
-    /** Period of time. */
     @Data
     @Builder
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -233,7 +228,6 @@ public class DatamartPractitioner implements HasReplaceableId {
       }
     }
 
-    /** Specialty. */
     @Data
     @Builder
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -301,7 +295,6 @@ public class DatamartPractitioner implements HasReplaceableId {
     }
   }
 
-  /** Telecom. */
   @Data
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -313,7 +306,6 @@ public class DatamartPractitioner implements HasReplaceableId {
 
     private Use use;
 
-    /** System. */
     @SuppressWarnings("JavaLangClash")
     public enum System {
       phone,
@@ -322,7 +314,6 @@ public class DatamartPractitioner implements HasReplaceableId {
       email
     }
 
-    /** Use. */
     public enum Use {
       work,
       home,

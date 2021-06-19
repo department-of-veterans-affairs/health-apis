@@ -12,7 +12,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/** PractitionerRole datamart JSON. */
 @Data
 @Builder
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -84,7 +83,6 @@ public class DatamartPractitionerRole implements HasReplaceableId {
     return specialty;
   }
 
-  /** Specialty. */
   @Data
   @Builder
   @NoArgsConstructor(access = AccessLevel.PRIVATE)

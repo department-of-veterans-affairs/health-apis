@@ -19,6 +19,7 @@ import gov.va.api.health.dataquery.service.controller.observation.DatamartObserv
 import gov.va.api.health.dataquery.service.controller.organization.DatamartOrganization;
 import gov.va.api.health.dataquery.service.controller.patient.DatamartPatient;
 import gov.va.api.health.dataquery.service.controller.practitioner.DatamartPractitioner;
+import gov.va.api.health.dataquery.service.controller.practitionerrole.DatamartPractitionerRole;
 import gov.va.api.health.dataquery.service.controller.procedure.DatamartProcedure;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -44,7 +45,6 @@ import org.springframework.web.bind.annotation.RestController;
     produces = {"application/json"})
 @Slf4j
 public class DatamartValidationController {
-
   /** Datamart resources that are supported for validation. */
   // find src/main/java -name "Datamart*java" \
   //   | sed -s 's|.*/Datamart\(.*\).java|\1|' \
@@ -66,6 +66,7 @@ public class DatamartValidationController {
           .put("Organization", DatamartOrganization.class)
           .put("Patient", DatamartPatient.class)
           .put("Practitioner", DatamartPractitioner.class)
+          .put("PractitionerRole", DatamartPractitionerRole.class)
           .put("Procedure", DatamartProcedure.class)
           .build();
 

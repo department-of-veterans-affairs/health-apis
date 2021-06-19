@@ -1,32 +1,13 @@
 package gov.va.api.health.dataquery.service.controller.practitionerrole;
 
-import static java.util.Arrays.asList;
+import static com.google.common.base.Preconditions.checkArgument;
 
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
-import gov.va.api.health.dataquery.service.controller.practitioner.DatamartPractitioner;
-import gov.va.api.health.dataquery.service.controller.practitioner.PractitionerEntity;
-import gov.va.api.health.ids.api.Registration;
-import gov.va.api.health.ids.api.ResourceIdentity;
-import gov.va.api.health.r4.api.bundle.AbstractBundle.BundleType;
-import gov.va.api.health.r4.api.bundle.AbstractEntry.SearchMode;
-import gov.va.api.health.r4.api.datatypes.ContactPoint;
-import gov.va.api.health.r4.api.datatypes.ContactPoint.ContactPointSystem;
-import gov.va.api.health.stu3.api.bundle.AbstractBundle;
-import gov.va.api.health.stu3.api.bundle.AbstractEntry;
-import gov.va.api.health.stu3.api.bundle.BundleLink;
-import gov.va.api.health.stu3.api.datatypes.CodeableConcept;
-import gov.va.api.health.stu3.api.datatypes.Coding;
-import gov.va.api.health.stu3.api.datatypes.Period;
-import gov.va.api.health.stu3.api.elements.Reference;
-import gov.va.api.health.stu3.api.resources.PractitionerRole;
 import gov.va.api.lighthouse.datamart.CompositeCdwId;
 import gov.va.api.lighthouse.datamart.DatamartCoding;
 import gov.va.api.lighthouse.datamart.DatamartReference;
-import java.math.BigInteger;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -36,170 +17,58 @@ import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class PractitionerRoleSamples {
-  public static ResourceIdentity id(String cdwId) {
-    return ResourceIdentity.builder()
-        .system("CDW")
-        .resource("PRACTITIONER")
-        .identifier(cdwId)
-        .build();
-  }
-
   @SneakyThrows
-  static String json(Object o) {
+  private static String json(Object o) {
     return JacksonConfig.createMapper().writerWithDefaultPrettyPrinter().writeValueAsString(o);
   }
 
-  public static Registration registration(String cdwId, String publicId) {
-    return Registration.builder().uuid(publicId).resourceIdentities(List.of(id(cdwId))).build();
-  }
-
   @AllArgsConstructor(staticName = "create")
-  static class Datamart {
-    @SneakyThrows
-    public PractitionerEntity entity(String cdwId, String locCdwId, String orgCdwId) {
-      DatamartPractitioner dm = practitioner(cdwId, locCdwId, orgCdwId);
-      return PractitionerEntity.builder()
+  public static final class Datamart {
+    public PractitionerRoleEntity entity(
+        String cdwId, String pracCdwId, String orgCdwId, String locCdwId) {
+      DatamartPractitionerRole dm = practitionerRole(cdwId, pracCdwId, orgCdwId, locCdwId);
+      String name = dm.practitioner().get().display().get();
+      return PractitionerRoleEntity.builder()
           .cdwIdNumber(CompositeCdwId.fromCdwId(cdwId).cdwIdNumber())
           .cdwIdResourceCode(CompositeCdwId.fromCdwId(cdwId).cdwIdResourceCode())
-          .familyName("Nelson")
-          .givenName("Bob")
+          .practitionerIdNumber(CompositeCdwId.fromCdwId(pracCdwId).cdwIdNumber())
+          .practitionerResourceCode(CompositeCdwId.fromCdwId(pracCdwId).cdwIdResourceCode())
+          .givenName(name.substring(name.indexOf(",") + 1))
+          .familyName(name.substring(0, name.indexOf(",")))
+          .active(true)
+          .lastUpdated(Instant.now())
           .payload(json(dm))
           .build();
     }
 
-    public DatamartPractitioner practitioner(String cdwId, String locCdwId, String orgCdwId) {
-      return DatamartPractitioner.builder()
-          .cdwId(cdwId)
-          .npi(Optional.of("12345"))
-          .active(true)
-          .name(
-              DatamartPractitioner.Name.builder()
-                  .family("Nelson")
-                  .given("Bob")
-                  .prefix(Optional.of("Dr."))
-                  .suffix(Optional.of("PhD"))
-                  .build())
-          .telecom(
-              List.of(
-                  DatamartPractitioner.Telecom.builder()
-                      .use(DatamartPractitioner.Telecom.Use.mobile)
-                      .system(DatamartPractitioner.Telecom.System.phone)
-                      .value("123-456-7890")
-                      .build(),
-                  DatamartPractitioner.Telecom.builder()
-                      .use(DatamartPractitioner.Telecom.Use.work)
-                      .system(DatamartPractitioner.Telecom.System.phone)
-                      .value("111-222-3333")
-                      .build(),
-                  DatamartPractitioner.Telecom.builder()
-                      .use(DatamartPractitioner.Telecom.Use.home)
-                      .system(DatamartPractitioner.Telecom.System.pager)
-                      .value("444-555-6666")
-                      .build(),
-                  DatamartPractitioner.Telecom.builder()
-                      .use(DatamartPractitioner.Telecom.Use.work)
-                      .system(DatamartPractitioner.Telecom.System.fax)
-                      .value("777-888-9999")
-                      .build(),
-                  DatamartPractitioner.Telecom.builder()
-                      .use(DatamartPractitioner.Telecom.Use.work)
-                      .system(DatamartPractitioner.Telecom.System.email)
-                      .value("bob.nelson@www.creedthoughts.gov.www/creedthoughts")
-                      .build()))
-          .address(
-              List.of(
-                  DatamartPractitioner.Address.builder()
-                      .temp(true)
-                      .line1("111 MacGyver Viaduct")
-                      .line3("Under the bridge")
-                      .city("Anchorage")
-                      .state("Alaska")
-                      .postalCode("99501")
-                      .build()))
-          .gender(DatamartPractitioner.Gender.male)
-          .birthDate(Optional.of(LocalDate.parse("1970-11-14")))
-          .practitionerRole(
-              Optional.of(
-                  DatamartPractitioner.PractitionerRole.builder()
-                      .managingOrganization(
-                          Optional.of(
-                              DatamartReference.builder()
-                                  .type(Optional.of("Organization"))
-                                  .reference(Optional.of(orgCdwId))
-                                  .display(Optional.of("CHEYENNE VA MEDICAL"))
-                                  .build()))
-                      .role(
-                          Optional.of(
-                              DatamartCoding.builder()
-                                  .system(Optional.of("rpcmm"))
-                                  .display(Optional.of("PSYCHOLOGIST"))
-                                  .code(Optional.of("37"))
-                                  .build()))
-                      .specialty(
-                          asList(
-                              DatamartPractitioner.PractitionerRole.Specialty.builder()
-                                  .providerType(Optional.of("Physicians (M.D. and D.O.)"))
-                                  .classification(Optional.of("Physician/Osteopath"))
-                                  .areaOfSpecialization(Optional.of("Internal Medicine"))
-                                  .vaCode(Optional.of("V111500"))
-                                  .build(),
-                              DatamartPractitioner.PractitionerRole.Specialty.builder()
-                                  .providerType(Optional.of("Physicians (M.D. and D.O.)"))
-                                  .classification(Optional.of("Physician/Osteopath"))
-                                  .areaOfSpecialization(Optional.of("General Practice"))
-                                  .vaCode(Optional.of("V111000"))
-                                  .specialtyCode(Optional.of("207KI0005X"))
-                                  .build(),
-                              DatamartPractitioner.PractitionerRole.Specialty.builder()
-                                  .providerType(Optional.of("Physicians (M.D. and D.O.)"))
-                                  .classification(Optional.of("Physician/Osteopath"))
-                                  .areaOfSpecialization(Optional.of("Family Practice"))
-                                  .vaCode(Optional.of("V110900"))
-                                  .build(),
-                              DatamartPractitioner.PractitionerRole.Specialty.builder()
-                                  .providerType(Optional.of("Allopathic & Osteopathic Physicians"))
-                                  .classification(Optional.of("Family Medicine"))
-                                  .vaCode(Optional.of("V180700"))
-                                  .x12Code(Optional.of("207Q00000X"))
-                                  .build()))
-                      .period(
-                          Optional.of(
-                              DatamartPractitioner.PractitionerRole.Period.builder()
-                                  .start(Optional.of(LocalDate.parse("1988-08-19")))
-                                  .build()))
-                      .location(
-                          Collections.singletonList(
-                              DatamartReference.builder()
-                                  .type(Optional.of("Location"))
-                                  .reference(Optional.of(locCdwId))
-                                  .display(Optional.of("CHEY MEDICAL"))
-                                  .build()))
-                      .healthCareService(Optional.of("MEDICAL SERVICE"))
-                      .build()))
-          .build();
+    public DatamartPractitionerRole practitionerRole() {
+      return practitionerRole("111:P", "222:S", "333:I", "444:L");
     }
 
     public DatamartPractitionerRole practitionerRole(
-        BigInteger cdwIdNumber, String given, String family) {
-      String cdwId = cdwIdNumber.toString() + ":P";
+        String cdwId, String pracCdwId, String orgCdwId, String locCdwId) {
+      checkArgument(cdwId.endsWith(":P"));
+      checkArgument(pracCdwId.endsWith(":S"));
+      checkArgument(orgCdwId.endsWith(":I"));
+      checkArgument(locCdwId.endsWith(":L"));
       return DatamartPractitionerRole.builder()
           .cdwId(cdwId)
           .managingOrganization(
               Optional.of(
                   DatamartReference.builder()
                       .type(Optional.of("Organization"))
-                      .reference(Optional.of("123456:I"))
+                      .reference(Optional.of(orgCdwId))
                       .display(Optional.of("SOME VA MEDICAL CENTER"))
                       .build()))
           .practitioner(
               Optional.of(
                   DatamartReference.builder()
                       .type(Optional.of("Practitioner"))
-                      .reference(Optional.of(cdwId))
-                      .display(Optional.of(family + "," + given))
+                      .reference(Optional.of(pracCdwId))
+                      .display(Optional.of("NELSON,BOB"))
                       .build()))
           .role(
-              asList(
+              List.of(
                   DatamartCoding.builder()
                       .system(Optional.of("rpcmm"))
                       .code(Optional.of("1"))
@@ -235,7 +104,7 @@ public class PractitionerRoleSamples {
               List.of(
                   DatamartReference.builder()
                       .type(Optional.of("Location"))
-                      .reference(Optional.of("12345:L"))
+                      .reference(Optional.of(locCdwId))
                       .display(
                           Optional.of(
                               "VISUAL IMPAIRMENT SERVICES OUTPATIENT REHABILITATION (VISOR)"))
@@ -243,121 +112,117 @@ public class PractitionerRoleSamples {
           .healthCareService(Optional.of("MEDICAL SERVICE"))
           .build();
     }
-
-    public PractitionerRoleEntity roleEntity(
-        BigInteger cdwIdNumber,
-        char cdwIdResourceCode,
-        BigInteger idNumber,
-        String given,
-        String family) {
-      DatamartPractitionerRole dm = practitionerRole(cdwIdNumber, given, family);
-      return PractitionerRoleEntity.builder()
-          .cdwIdNumber(cdwIdNumber)
-          .cdwIdResourceCode(cdwIdResourceCode)
-          .idNumber(idNumber)
-          .givenName(given)
-          .familyName(family)
-          .resourceCode(cdwIdResourceCode)
-          .active(true)
-          .lastUpdated(Instant.now())
-          .payload(json(dm))
-          .build();
-    }
   }
 
   @AllArgsConstructor(staticName = "create")
   public static class Stu3 {
-    static PractitionerRole.Bundle asBundle(
-        String baseUrl, Collection<PractitionerRole> roles, BundleLink... links) {
-      return PractitionerRole.Bundle.builder()
-          .type(AbstractBundle.BundleType.searchset)
+    static gov.va.api.health.stu3.api.resources.PractitionerRole.Bundle asBundle(
+        String baseUrl,
+        Collection<gov.va.api.health.stu3.api.resources.PractitionerRole> roles,
+        gov.va.api.health.stu3.api.bundle.BundleLink... links) {
+      return gov.va.api.health.stu3.api.resources.PractitionerRole.Bundle.builder()
+          .type(gov.va.api.health.stu3.api.bundle.AbstractBundle.BundleType.searchset)
           .total(roles.size())
-          .link(asList(links))
+          .link(List.of(links))
           .entry(
               roles.stream()
                   .map(
                       c ->
-                          PractitionerRole.Entry.builder()
+                          gov.va.api.health.stu3.api.resources.PractitionerRole.Entry.builder()
                               .fullUrl(baseUrl + "/PractitionerRole/" + c.id())
                               .resource(c)
                               .search(
-                                  AbstractEntry.Search.builder()
-                                      .mode(AbstractEntry.SearchMode.match)
+                                  gov.va.api.health.stu3.api.bundle.AbstractEntry.Search.builder()
+                                      .mode(
+                                          gov.va.api.health.stu3.api.bundle.AbstractEntry.SearchMode
+                                              .match)
                                       .build())
                               .build())
                   .collect(Collectors.toList()))
           .build();
     }
 
-    public static BundleLink link(BundleLink.LinkRelation rel, String base, int page, int count) {
-      return BundleLink.builder()
+    public static gov.va.api.health.stu3.api.bundle.BundleLink link(
+        gov.va.api.health.stu3.api.bundle.BundleLink.LinkRelation rel,
+        String base,
+        int page,
+        int count) {
+      return gov.va.api.health.stu3.api.bundle.BundleLink.builder()
           .relation(rel)
           .url(base + "&page=" + page + "&_count=" + count)
           .build();
     }
 
-    public PractitionerRole practitionerRole(String pubId, String pubLocId, String pubOrgId) {
-      return PractitionerRole.builder()
+    public gov.va.api.health.stu3.api.resources.PractitionerRole practitionerRole(
+        String pubId, String orgPubId, String locPubId) {
+      return gov.va.api.health.stu3.api.resources.PractitionerRole.builder()
           .id(pubId)
-          .period(Period.builder().start("1988-08-19").build())
-          .practitioner(Reference.builder().reference("Practitioner/" + pubId).build())
+          // .period(gov.va.api.health.stu3.api.datatypes.Period.builder().start("1988-08-19").build())
+          .practitioner(
+              gov.va.api.health.stu3.api.elements.Reference.builder()
+                  .reference("Practitioner/" + pubId)
+                  .build())
           .organization(
-              Reference.builder()
-                  .reference("Organization/" + pubOrgId)
-                  .display("CHEYENNE VA MEDICAL")
+              gov.va.api.health.stu3.api.elements.Reference.builder()
+                  .reference("Organization/" + orgPubId)
+                  .display("SOME VA MEDICAL CENTER")
                   .build())
           .code(
               List.of(
-                  CodeableConcept.builder()
+                  gov.va.api.health.stu3.api.datatypes.CodeableConcept.builder()
                       .coding(
-                          asList(
-                              Coding.builder()
+                          List.of(
+                              gov.va.api.health.stu3.api.datatypes.Coding.builder()
                                   .system("rpcmm")
-                                  .code("37")
-                                  .display("PSYCHOLOGIST")
+                                  .code("1")
+                                  .display("OPTOMETRIST")
                                   .build()))
                       .build()))
           .specialty(
               List.of(
-                  CodeableConcept.builder()
+                  gov.va.api.health.stu3.api.datatypes.CodeableConcept.builder()
                       .coding(
                           List.of(
-                              Coding.builder()
+                              gov.va.api.health.stu3.api.datatypes.Coding.builder()
                                   .system("http://nucc.org/provider-taxonomy")
                                   .code("V111500")
                                   .build()))
                       .build(),
-                  CodeableConcept.builder()
+                  gov.va.api.health.stu3.api.datatypes.CodeableConcept.builder()
                       .coding(
                           List.of(
-                              Coding.builder()
+                              gov.va.api.health.stu3.api.datatypes.Coding.builder()
                                   .system("http://nucc.org/provider-taxonomy")
                                   .code("V111000")
                                   .build()))
                       .build(),
-                  CodeableConcept.builder()
+                  gov.va.api.health.stu3.api.datatypes.CodeableConcept.builder()
                       .coding(
                           List.of(
-                              Coding.builder()
+                              gov.va.api.health.stu3.api.datatypes.Coding.builder()
                                   .system("http://nucc.org/provider-taxonomy")
                                   .code("V110900")
                                   .build()))
                       .build(),
-                  CodeableConcept.builder()
+                  gov.va.api.health.stu3.api.datatypes.CodeableConcept.builder()
                       .coding(
                           List.of(
-                              Coding.builder()
+                              gov.va.api.health.stu3.api.datatypes.Coding.builder()
                                   .system("http://nucc.org/provider-taxonomy")
                                   .code("207Q00000X")
                                   .build()))
                       .build()))
           .location(
-              asList(
-                  Reference.builder()
-                      .reference("Location/" + pubLocId)
-                      .display("CHEY MEDICAL")
+              List.of(
+                  gov.va.api.health.stu3.api.elements.Reference.builder()
+                      .reference("Location/" + locPubId)
+                      .display("VISUAL IMPAIRMENT SERVICES OUTPATIENT REHABILITATION (VISOR)")
                       .build()))
-          .healthcareService(asList(Reference.builder().display("MEDICAL SERVICE").build()))
+          .healthcareService(
+              List.of(
+                  gov.va.api.health.stu3.api.elements.Reference.builder()
+                      .display("MEDICAL SERVICE")
+                      .build()))
           .build();
     }
   }
@@ -377,9 +242,9 @@ public class PractitionerRoleSamples {
         int totalRecords,
         gov.va.api.health.r4.api.bundle.BundleLink... links) {
       return gov.va.api.health.r4.api.resources.PractitionerRole.Bundle.builder()
-          .type(BundleType.searchset)
+          .type(gov.va.api.health.r4.api.bundle.AbstractBundle.BundleType.searchset)
           .total(totalRecords)
-          .link(asList(links))
+          .link(List.of(links))
           .entry(
               records.stream()
                   .map(
@@ -389,7 +254,9 @@ public class PractitionerRoleSamples {
                               .resource(c)
                               .search(
                                   gov.va.api.health.r4.api.bundle.AbstractEntry.Search.builder()
-                                      .mode(SearchMode.match)
+                                      .mode(
+                                          gov.va.api.health.r4.api.bundle.AbstractEntry.SearchMode
+                                              .match)
                                       .build())
                               .build())
                   .collect(Collectors.toList()))
@@ -408,10 +275,9 @@ public class PractitionerRoleSamples {
     }
 
     public gov.va.api.health.r4.api.resources.PractitionerRole practitionerRole(
-        String pubId, String pubOrgId, String pubLocId) {
+        String pubId, String orgPubId, String locPubId) {
       return gov.va.api.health.r4.api.resources.PractitionerRole.builder()
           .id(pubId)
-          .period(gov.va.api.health.r4.api.datatypes.Period.builder().start("1988-08-19").build())
           .practitioner(
               gov.va.api.health.r4.api.elements.Reference.builder()
                   .reference("Practitioner/" + pubId)
@@ -419,25 +285,25 @@ public class PractitionerRoleSamples {
           .active(true)
           .organization(
               gov.va.api.health.r4.api.elements.Reference.builder()
-                  .reference("Organization/" + pubOrgId)
-                  .display("CHEYENNE VA MEDICAL")
+                  .reference("Organization/" + orgPubId)
+                  .display("SOME VA MEDICAL CENTER")
                   .build())
           .code(
-              asList(
+              List.of(
                   gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()
                       .coding(
-                          asList(
+                          List.of(
                               gov.va.api.health.r4.api.datatypes.Coding.builder()
                                   .system("rpcmm")
-                                  .code("37")
-                                  .display("PSYCHOLOGIST")
+                                  .code("1")
+                                  .display("OPTOMETRIST")
                                   .build()))
                       .build()))
           .specialty(
-              asList(
+              List.of(
                   gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()
                       .coding(
-                          asList(
+                          List.of(
                               gov.va.api.health.r4.api.datatypes.Coding.builder()
                                   .system("http://nucc.org/provider-taxonomy")
                                   .code("V111500")
@@ -445,7 +311,7 @@ public class PractitionerRoleSamples {
                       .build(),
                   gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()
                       .coding(
-                          asList(
+                          List.of(
                               gov.va.api.health.r4.api.datatypes.Coding.builder()
                                   .system("http://nucc.org/provider-taxonomy")
                                   .code("V111000")
@@ -453,7 +319,7 @@ public class PractitionerRoleSamples {
                       .build(),
                   gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()
                       .coding(
-                          asList(
+                          List.of(
                               gov.va.api.health.r4.api.datatypes.Coding.builder()
                                   .system("http://nucc.org/provider-taxonomy")
                                   .code("V110900")
@@ -461,42 +327,47 @@ public class PractitionerRoleSamples {
                       .build(),
                   gov.va.api.health.r4.api.datatypes.CodeableConcept.builder()
                       .coding(
-                          asList(
+                          List.of(
                               gov.va.api.health.r4.api.datatypes.Coding.builder()
                                   .system("http://nucc.org/provider-taxonomy")
                                   .code("207Q00000X")
                                   .build()))
                       .build()))
           .location(
-              asList(
+              List.of(
                   gov.va.api.health.r4.api.elements.Reference.builder()
-                      .reference("Location/" + pubLocId)
-                      .display("CHEY MEDICAL")
+                      .reference("Location/" + locPubId)
+                      .display("VISUAL IMPAIRMENT SERVICES OUTPATIENT REHABILITATION (VISOR)")
                       .build()))
           .telecom(
-              asList(
-                  ContactPoint.builder()
-                      .system(ContactPointSystem.phone)
+              List.of(
+                  gov.va.api.health.r4.api.datatypes.ContactPoint.builder()
+                      .system(
+                          gov.va.api.health.r4.api.datatypes.ContactPoint.ContactPointSystem.phone)
                       .value("123-456-7890")
                       .build(),
-                  ContactPoint.builder()
-                      .system(ContactPointSystem.phone)
+                  gov.va.api.health.r4.api.datatypes.ContactPoint.builder()
+                      .system(
+                          gov.va.api.health.r4.api.datatypes.ContactPoint.ContactPointSystem.phone)
                       .value("111-222-3333")
                       .build(),
-                  ContactPoint.builder()
-                      .system(ContactPointSystem.pager)
+                  gov.va.api.health.r4.api.datatypes.ContactPoint.builder()
+                      .system(
+                          gov.va.api.health.r4.api.datatypes.ContactPoint.ContactPointSystem.pager)
                       .value("444-555-6666")
                       .build(),
-                  ContactPoint.builder()
-                      .system(ContactPointSystem.fax)
+                  gov.va.api.health.r4.api.datatypes.ContactPoint.builder()
+                      .system(
+                          gov.va.api.health.r4.api.datatypes.ContactPoint.ContactPointSystem.fax)
                       .value("777-888-9999")
                       .build(),
-                  ContactPoint.builder()
-                      .system(ContactPointSystem.email)
+                  gov.va.api.health.r4.api.datatypes.ContactPoint.builder()
+                      .system(
+                          gov.va.api.health.r4.api.datatypes.ContactPoint.ContactPointSystem.email)
                       .value("bob.nelson@www.creedthoughts.gov.www/creedthoughts")
                       .build()))
           .healthcareService(
-              asList(
+              List.of(
                   gov.va.api.health.r4.api.elements.Reference.builder()
                       .display("MEDICAL SERVICE")
                       .build()))

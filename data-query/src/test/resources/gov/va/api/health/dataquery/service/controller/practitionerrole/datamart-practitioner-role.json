@@ -1,16 +1,16 @@
 {
   "objectType" : "PractitionerRole",
   "objectVersion" : "1",
-  "cdwId" : "123456:P",
+  "cdwId" : "12345:P",
   "managingOrganization" : {
     "type" : "Organization",
-    "reference" : "123456:I",
+    "reference" : "12345:I",
     "display" : "SOME VA MEDICAL CENTER"
   },
   "practitioner" : {
     "type" : "Practitioner",
-    "reference" : "123456:P",
-    "display" : "LAST,FIRST"
+    "reference" : "12345:S",
+    "display" : "NELSON,BOB"
   },
   "role" : [
     {
@@ -24,30 +24,25 @@
       "providerType" : "Physicians (M.D. and D.O.)",
       "classification" : "Physician/Osteopath",
       "areaOfSpecialization" : "Internal Medicine",
-      "vaCode" : "V111500",
-      "x12Code" : null
+      "vaCode" : "V111500"
     },
     {
       "providerType" : "Physicians (M.D. and D.O.)",
       "classification" : "Physician/Osteopath",
       "areaOfSpecialization" : "General Practice",
-      "vaCode" : "V111000",
-      "x12Code" : null
+      "vaCode" : "V111000"
     },
     {
       "providerType" : "Physicians (M.D. and D.O.)",
       "classification" : "Physician/Osteopath",
       "areaOfSpecialization" : "Family Practice",
-      "vaCode" : "V110900",
-      "x12Code" : null
+      "vaCode" : "V110900"
     },
     {
       "providerType" : "Allopathic & Osteopathic Physicians",
       "classification" : "Family Medicine",
-      "areaOfSpecialization" : null,
       "vaCode" : "V180700",
-      "x12Code" : "207Q00000X",
-      "specialtyCode" : null
+      "x12Code" : "207Q00000X"
     }
   ],
   "location" : [

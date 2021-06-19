@@ -22,15 +22,14 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Sort;
 
-/** PractionerRole DB model. */
 @Data
 @Entity
 @Builder
+@IdClass(CompositeCdwId.class)
 @Table(name = "PractitionerRole", schema = "app")
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@IdClass(CompositeCdwId.class)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class PractitionerRoleEntity implements CompositeIdDatamartEntity {
   @Id
   @Column(name = "CdwIdNumber")
@@ -43,10 +42,10 @@ public class PractitionerRoleEntity implements CompositeIdDatamartEntity {
   private char cdwIdResourceCode;
 
   @Column(name = "PractitionerIdNumber")
-  private BigInteger idNumber;
+  private BigInteger practitionerIdNumber;
 
   @Column(name = "PractitionerResourceCode")
-  private char resourceCode;
+  private char practitionerResourceCode;
 
   @Column(name = "PractitionerGivenName")
   private String givenName;
@@ -57,7 +56,7 @@ public class PractitionerRoleEntity implements CompositeIdDatamartEntity {
   @Column(name = "Active")
   private Boolean active;
 
-  @Column(name = "LastUpdated", nullable = false)
+  @Column(name = "LastUpdated")
   private Instant lastUpdated;
 
   @Lob
@@ -66,7 +65,7 @@ public class PractitionerRoleEntity implements CompositeIdDatamartEntity {
   private String payload;
 
   public static Sort naturalOrder() {
-    return Sort.by("cdwId").ascending();
+    return Sort.by("cdwIdNumber").ascending().and(Sort.by("cdwIdResourceCode").ascending());
   }
 
   public DatamartPractitionerRole asDatamartPractitonerRole() {
