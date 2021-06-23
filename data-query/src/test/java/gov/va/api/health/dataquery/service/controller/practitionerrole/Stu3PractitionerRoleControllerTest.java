@@ -234,8 +234,6 @@ public class Stu3PractitionerRoleControllerTest {
         idReg("PRACTITIONER", pracPubId, pracCdwId),
         idReg("ORGANIZATION", orgPubId, orgCdwId),
         idReg("LOCATION", locPubId, locCdwId));
-    //  DatamartPractitioner dm =
-    //     PractitionerSamples.Datamart.create().practitioner(cdwId, orgCdwId, locCdwId);
     repository.save(
         PractitionerRoleSamples.Datamart.create()
             .entity(pracRoleCdwId, pracCdwId, orgCdwId, locCdwId));
