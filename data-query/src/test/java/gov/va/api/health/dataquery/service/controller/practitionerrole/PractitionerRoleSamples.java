@@ -1,6 +1,7 @@
 package gov.va.api.health.dataquery.service.controller.practitionerrole;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.stream.Collectors.toList;
 
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.lighthouse.datamart.CompositeCdwId;
@@ -10,7 +11,6 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import static java.util.stream.Collectors.toList;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
@@ -126,8 +126,7 @@ public class PractitionerRoleSamples {
           .total(roles.size())
           .link(List.of(links))
           .entry(
-              roles
-                  .stream()
+              roles.stream()
                   .map(
                       c ->
                           gov.va.api.health.stu3.api.resources.PractitionerRole.Entry.builder()
@@ -248,8 +247,7 @@ public class PractitionerRoleSamples {
           .total(totalRecords)
           .link(List.of(links))
           .entry(
-              records
-                  .stream()
+              records.stream()
                   .map(
                       c ->
                           gov.va.api.health.r4.api.resources.PractitionerRole.Entry.builder()

@@ -10,7 +10,6 @@ import gov.va.api.health.stu3.api.datatypes.CodeableConcept;
 import gov.va.api.health.stu3.api.datatypes.Coding;
 import gov.va.api.health.stu3.api.elements.Reference;
 import gov.va.api.health.stu3.api.resources.PractitionerRole;
-import gov.va.api.lighthouse.datamart.DatamartReference;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -40,8 +39,7 @@ final class Stu3PractitionerRoleTransformer {
 
   static List<CodeableConcept> specialty(DatamartPractitionerRole role) {
     return emptyToNull(
-        role.specialty()
-            .stream()
+        role.specialty().stream()
             .map(Stu3PractitionerRoleTransformer::specialty)
             .filter(Objects::nonNull)
             .collect(toList()));

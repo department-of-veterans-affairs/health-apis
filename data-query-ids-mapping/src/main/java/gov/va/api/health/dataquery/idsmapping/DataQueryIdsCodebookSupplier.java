@@ -32,7 +32,7 @@ public class DataQueryIdsCodebookSupplier implements CodebookSupplier {
                 Mapping.of("ORGANIZATION", "OG"),
                 Mapping.of("PATIENT", "PA"),
                 Mapping.of("PRACTITIONER", "PC"),
-				Mapping.of("PRACTITIONER_ROLE", "PO"),
+                Mapping.of("PRACTITIONER_ROLE", "PO"),
                 Mapping.of("PROCEDURE", "PR")))
         .build();
   }
