@@ -35,7 +35,7 @@ public class PractitionerRoleSamples {
           .practitionerResourceCode(CompositeCdwId.fromCdwId(pracCdwId).cdwIdResourceCode())
           .givenName(name.substring(name.indexOf(",") + 1))
           .familyName(name.substring(0, name.indexOf(",")))
-          .npi("1234567890")
+          .npi(dm.npi().get())
           .active(true)
           .lastUpdated(Instant.now())
           .payload(json(dm))
@@ -68,6 +68,7 @@ public class PractitionerRoleSamples {
                       .reference(Optional.of(pracCdwId))
                       .display(Optional.of("NELSON,BOB"))
                       .build()))
+          .npi(Optional.of("1234567890"))
           .role(
               List.of(
                   DatamartCoding.builder()

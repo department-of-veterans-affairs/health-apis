@@ -30,6 +30,7 @@ public class DatamartPractitionerRoleTest {
     var practitionerRoleWithNulls = DatamartPractitionerRole.builder().build();
     assertThat(practitionerRoleWithNulls).isNotNull();
     assertThat(practitionerRoleWithNulls.cdwId()).isNull();
+    assertThat(practitionerRoleWithNulls.npi()).isEqualTo(Optional.empty());
     assertThat(practitionerRoleWithNulls.specialty()).isEqualTo(new ArrayList<>());
     assertThat(practitionerRoleWithNulls.role()).isEqualTo(List.of());
     assertThat(practitionerRoleWithNulls.healthCareService()).isEqualTo(Optional.empty());

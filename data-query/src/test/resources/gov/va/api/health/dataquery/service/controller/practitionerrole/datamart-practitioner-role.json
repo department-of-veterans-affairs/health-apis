@@ -12,6 +12,7 @@
     "reference" : "12345:S",
     "display" : "NELSON,BOB"
   },
+  "npi" : "1234567890",
   "role" : [
     {
       "system" : "rpcmm",
