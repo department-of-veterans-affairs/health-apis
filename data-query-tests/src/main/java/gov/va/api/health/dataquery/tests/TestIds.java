@@ -23,6 +23,7 @@ public final class TestIds {
   @NonNull String organization;
   @NonNull String patient;
   @NonNull String practitioner;
+  @NonNull String practitionerRole;
   @NonNull String procedure;
   @NonNull String unknown;
   @NonNull String uuid;
