@@ -2,7 +2,6 @@ package gov.va.api.health.dataquery.service.controller.practitionerrole;
 
 import gov.va.api.health.autoconfig.logging.Loggable;
 import gov.va.api.lighthouse.datamart.CompositeCdwId;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -18,5 +17,5 @@ public interface PractitionerRoleRepository
   Page<PractitionerRoleEntity> findByFamilyNameAndGivenName(
       String familyName, String givenName, Pageable pageable);
 
-  // Page<PractitionerRoleEntity> findByNpi(String npi, Pageable pageable);
+  Page<PractitionerRoleEntity> findByNpi(String npi, Pageable pageable);
 }

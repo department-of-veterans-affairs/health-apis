@@ -2,10 +2,7 @@ package gov.va.api.health.dataquery.service.controller.practitionerrole;
 
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
-
 import com.google.common.collect.Iterables;
-
-import gov.va.api.health.dataquery.service.config.LinkProperties;
 import gov.va.api.health.dataquery.service.controller.CompositeCdwIds;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
@@ -14,10 +11,7 @@ import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.Stu3Bundler;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
-import gov.va.api.health.dataquery.service.controller.practitioner.DatamartPractitioner;
-import gov.va.api.health.dataquery.service.controller.practitioner.PractitionerRepository;
 import gov.va.api.health.stu3.api.resources.PractitionerRole;
-import gov.va.api.lighthouse.datamart.CompositeCdwId;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -172,7 +166,6 @@ public class Stu3PractitionerRoleController {
     return bundle(parameters, transform(entitiesPage.get()), (int) entitiesPage.getTotalElements());
   }
 
-  @SuppressWarnings("unused")
   @GetMapping(params = {"specialty"})
   PractitionerRole.Bundle searchBySpecialty(
       @RequestParam("specialty") String specialty,
