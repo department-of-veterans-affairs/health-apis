@@ -93,7 +93,9 @@ public class R4PractitionerRoleControllerTest {
     when(repository.findById(CompositeCdwId.fromCdwId(cdwId))).thenReturn(Optional.of(entity));
     assertThat(_controller().read(publicId))
         .isEqualTo(
-            PractitionerRoleSamples.R4.create().practitionerRole(publicId, orgPubId, locPubId));
+            PractitionerRoleSamples.R4
+                .create()
+                .practitionerRole(publicId, publicId, orgPubId, locPubId));
   }
 
   @Test
@@ -156,9 +158,9 @@ public class R4PractitionerRoleControllerTest {
         PractitionerRoleSamples.R4.asBundle(
             "http://fonzy.com/r4",
             List.of(
-                r4.practitionerRole(pubId1, orgPubId1, locPubId1),
-                r4.practitionerRole(pubId2, orgPubId2, locPubId2),
-                r4.practitionerRole(pubId3, orgPubId3, locPubId3)),
+                r4.practitionerRole(pubId1, pubId1, orgPubId1, locPubId1),
+                r4.practitionerRole(pubId2, pubId2, orgPubId2, locPubId2),
+                r4.practitionerRole(pubId3, pubId3, orgPubId3, locPubId3)),
             999,
             PractitionerRoleSamples.R4.link(
                 BundleLink.LinkRelation.first,

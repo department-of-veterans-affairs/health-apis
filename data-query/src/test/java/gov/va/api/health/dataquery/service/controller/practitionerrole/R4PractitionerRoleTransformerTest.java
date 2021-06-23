@@ -161,6 +161,9 @@ public class R4PractitionerRoleTransformerTest {
                     PractitionerSamples.Datamart.create().practitioner("111:S", "222:I", "333:L"))
                 .build()
                 .toFhir())
-        .isEqualTo(PractitionerRoleSamples.R4.create().practitionerRole("111:S", "222:I", "333:L"));
+        .isEqualTo(
+            PractitionerRoleSamples.R4
+                .create()
+                .practitionerRole("111:S", "111:S", "222:I", "333:L"));
   }
 }
