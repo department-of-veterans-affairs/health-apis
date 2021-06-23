@@ -3,8 +3,6 @@ package gov.va.api.health.dataquery.service.controller.practitionerrole;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import gov.va.api.health.dataquery.service.controller.practitioner.DatamartPractitioner;
-import gov.va.api.health.dataquery.service.controller.practitioner.PractitionerSamples;
 import gov.va.api.health.r4.api.datatypes.CodeableConcept;
 import gov.va.api.health.r4.api.datatypes.Coding;
 import gov.va.api.health.r4.api.datatypes.ContactPoint;
@@ -14,11 +12,15 @@ import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
 public class R4PractitionerRoleTransformerTest {
+  private static R4PractitionerRoleTransformer transformer(DatamartPractitionerRole dm) {
+    return R4PractitionerRoleTransformer.builder().datamart(dm).build();
+  }
+
   @Test
   void empty() {
     assertThat(
             R4PractitionerRoleTransformer.builder()
-                .datamart(DatamartPractitioner.builder().build())
+                .datamart(DatamartPractitionerRole.builder().build())
                 .build()
                 .toFhir())
         .isEqualTo(PractitionerRole.builder().build());
@@ -26,26 +28,14 @@ public class R4PractitionerRoleTransformerTest {
 
   @Test
   void otherEmpty() {
-    assertThat(
-            R4PractitionerRoleTransformer.specialty(
-                Optional.of(DatamartPractitioner.PractitionerRole.builder().build())))
-        .isNull();
-
-    DatamartPractitioner.PractitionerRole.Specialty emptySpecialty =
-        DatamartPractitioner.PractitionerRole.Specialty.builder().x12Code(Optional.of(" ")).build();
+    assertThat(transformer(DatamartPractitionerRole.builder().build()).specialties()).isNull();
+    DatamartPractitionerRole.Specialty emptySpecialty =
+        DatamartPractitionerRole.Specialty.builder().x12Code(Optional.of(" ")).build();
     assertThat(R4PractitionerRoleTransformer.specialty(emptySpecialty)).isNull();
-
     assertThat(
-            R4PractitionerRoleTransformer.period(
-                Optional.of(DatamartPractitioner.PractitionerRole.builder().build())))
-        .isNull();
-
-    assertThat(
-            R4PractitionerRoleTransformer.healthcareService(
-                Optional.of(
-                    DatamartPractitioner.PractitionerRole.builder()
-                        .healthCareService(Optional.of(" "))
-                        .build())))
+            transformer(
+                    DatamartPractitionerRole.builder().healthCareService(Optional.of(" ")).build())
+                .healthcareService())
         .isNull();
   }
 
@@ -53,27 +43,24 @@ public class R4PractitionerRoleTransformerTest {
   void specialty() {
     // x12 code used first, then vaCode, then specialty code
     assertThat(
-            R4PractitionerRoleTransformer.specialty(
-                Optional.of(
-                    DatamartPractitioner.PractitionerRole.builder()
+            transformer(
+                    DatamartPractitionerRole.builder()
                         .specialty(
-                            asList(
-                                // use x12
-                                DatamartPractitioner.PractitionerRole.Specialty.builder()
+                            asList( // use x12
+                                DatamartPractitionerRole.Specialty.builder()
                                     .vaCode(Optional.of("v1"))
                                     .x12Code(Optional.of("x1"))
                                     .specialtyCode(Optional.of("s1"))
-                                    .build(),
-                                // use va
-                                DatamartPractitioner.PractitionerRole.Specialty.builder()
+                                    .build(), // use va
+                                DatamartPractitionerRole.Specialty.builder()
                                     .vaCode(Optional.of("v2"))
                                     .specialtyCode(Optional.of("s2"))
-                                    .build(),
-                                // use specialty
-                                DatamartPractitioner.PractitionerRole.Specialty.builder()
+                                    .build(), // use specialty
+                                DatamartPractitionerRole.Specialty.builder()
                                     .specialtyCode(Optional.of("s3"))
                                     .build()))
-                        .build())))
+                        .build())
+                .specialties())
         .isEqualTo(
             List.of(
                 CodeableConcept.builder()
@@ -104,30 +91,31 @@ public class R4PractitionerRoleTransformerTest {
 
   @Test
   void telecom() {
-    List<DatamartPractitioner.Telecom> phoneAndEmail =
+    List<DatamartPractitionerRole.Telecom> phoneAndEmail =
         List.of(
-            DatamartPractitioner.Telecom.builder()
-                .system(DatamartPractitioner.Telecom.System.phone)
+            DatamartPractitionerRole.Telecom.builder()
+                .system(DatamartPractitionerRole.Telecom.System.phone)
                 .value("333-333-3333")
-                .use(DatamartPractitioner.Telecom.Use.work)
+                .use(DatamartPractitionerRole.Telecom.Use.work)
                 .build(),
-            DatamartPractitioner.Telecom.builder()
-                .system(DatamartPractitioner.Telecom.System.email)
+            DatamartPractitionerRole.Telecom.builder()
+                .system(DatamartPractitionerRole.Telecom.System.email)
                 .value("foo@example.com")
-                .use(DatamartPractitioner.Telecom.Use.work)
+                .use(DatamartPractitionerRole.Telecom.Use.work)
                 .build(),
-            DatamartPractitioner.Telecom.builder()
-                .system(DatamartPractitioner.Telecom.System.fax)
+            DatamartPractitionerRole.Telecom.builder()
+                .system(DatamartPractitionerRole.Telecom.System.fax)
                 .value("444-444-4444")
-                .use(DatamartPractitioner.Telecom.Use.work)
+                .use(DatamartPractitionerRole.Telecom.Use.work)
                 .build(),
-            DatamartPractitioner.Telecom.builder()
-                .system(DatamartPractitioner.Telecom.System.pager)
+            DatamartPractitionerRole.Telecom.builder()
+                .system(DatamartPractitionerRole.Telecom.System.pager)
                 .value("5-555")
-                .use(DatamartPractitioner.Telecom.Use.work)
+                .use(DatamartPractitionerRole.Telecom.Use.work)
                 .build());
-
-    assertThat(R4PractitionerRoleTransformer.telecoms(phoneAndEmail))
+    assertThat(
+            transformer(DatamartPractitionerRole.builder().telecom(phoneAndEmail).build())
+                .telecoms())
         .isEqualTo(
             List.of(
                 ContactPoint.builder()
@@ -146,10 +134,17 @@ public class R4PractitionerRoleTransformerTest {
                     .system(ContactPoint.ContactPointSystem.pager)
                     .value("5-555")
                     .build()));
-
-    List<DatamartPractitioner.Telecom> nullSystem =
-        List.of(DatamartPractitioner.Telecom.builder().system(null).value("333-333-3333").build());
-    assertThat(R4PractitionerRoleTransformer.telecoms(nullSystem))
+    assertThat(
+            transformer(
+                    DatamartPractitionerRole.builder()
+                        .telecom(
+                            List.of(
+                                DatamartPractitionerRole.Telecom.builder()
+                                    .system(null)
+                                    .value("333-333-3333")
+                                    .build()))
+                        .build())
+                .telecoms())
         .isEqualTo(List.of(ContactPoint.builder().system(null).value("333-333-3333").build()));
   }
 
@@ -158,9 +153,13 @@ public class R4PractitionerRoleTransformerTest {
     assertThat(
             R4PractitionerRoleTransformer.builder()
                 .datamart(
-                    PractitionerSamples.Datamart.create().practitioner("111:S", "222:I", "333:L"))
+                    PractitionerRoleSamples.Datamart.create()
+                        .practitionerRole("111:P", "222:S", "333:I", "444:L"))
                 .build()
                 .toFhir())
-        .isEqualTo(PractitionerRoleSamples.R4.create().practitionerRole("111:S", "222:I", "333:L"));
+        .isEqualTo(
+            PractitionerRoleSamples.R4
+                .create()
+                .practitionerRole("111:P", "222:S", "333:I", "444:L"));
   }
 }

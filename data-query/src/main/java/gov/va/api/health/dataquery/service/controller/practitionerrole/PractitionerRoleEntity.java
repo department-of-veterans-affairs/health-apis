@@ -53,6 +53,9 @@ public class PractitionerRoleEntity implements CompositeIdDatamartEntity {
   @Column(name = "PractitionerFamilyName")
   private String familyName;
 
+  @Column(name = "PractitionerNPI")
+  private String npi;
+
   @Column(name = "Active")
   private Boolean active;
 
