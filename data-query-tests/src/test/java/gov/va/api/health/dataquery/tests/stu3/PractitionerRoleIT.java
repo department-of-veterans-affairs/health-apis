@@ -16,7 +16,11 @@ public class PractitionerRoleIT {
   @Test
   void advanced() {
     verifier.verifyAll(
-        test(200, PractitionerRole.Bundle.class, "PractitionerRole?_id={id}", ids.practitionerRole()),
+        test(
+            200,
+            PractitionerRole.Bundle.class,
+            "PractitionerRole?_id={id}",
+            ids.practitionerRole()),
         test(404, OperationOutcome.class, "PractitionerRole?_id={id}", ids.unknown()),
         test(
             200,
