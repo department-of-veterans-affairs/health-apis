@@ -4,17 +4,13 @@ import static gov.va.api.health.dataquery.service.controller.Stu3Transformers.as
 import static gov.va.api.health.dataquery.service.controller.Stu3Transformers.asReference;
 import static gov.va.api.health.dataquery.service.controller.Transformers.emptyToNull;
 import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
-import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 
-import gov.va.api.health.dataquery.service.controller.practitioner.DatamartPractitioner;
 import gov.va.api.health.stu3.api.datatypes.CodeableConcept;
 import gov.va.api.health.stu3.api.datatypes.Coding;
-import gov.va.api.health.stu3.api.datatypes.Period;
 import gov.va.api.health.stu3.api.elements.Reference;
 import gov.va.api.health.stu3.api.resources.PractitionerRole;
 import gov.va.api.lighthouse.datamart.DatamartReference;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -23,53 +19,23 @@ import lombok.NonNull;
 
 @Builder
 final class Stu3PractitionerRoleTransformer {
-  @NonNull private final DatamartPractitioner datamart;
+  @NonNull private final DatamartPractitionerRole datamart;
 
-  private static List<CodeableConcept> code(Optional<DatamartPractitioner.PractitionerRole> role) {
-    if (role.isEmpty()) {
-      return null;
-    }
-    return emptyToNull(asList(asCodeableConceptWrapping(role.get().role())));
+  private static List<CodeableConcept> code(DatamartPractitionerRole role) {
+    return emptyToNull(
+        role.role().stream().map(r -> asCodeableConceptWrapping(r)).collect(toList()));
   }
 
-  static List<Reference> healthCareService(Optional<DatamartPractitioner.PractitionerRole> role) {
-    if (role.isEmpty()) {
-      return null;
-    }
-    Optional<String> service = role.get().healthCareService();
+  static List<Reference> healthCareService(DatamartPractitionerRole role) {
+    Optional<String> service = role.healthCareService();
     if (isBlank(service)) {
       return null;
     }
     return List.of(Reference.builder().display(service.get()).build());
   }
 
-  private static List<Reference> locations(Optional<DatamartPractitioner.PractitionerRole> role) {
-    if (role.isEmpty()) {
-      return null;
-    }
-    return emptyToNull(
-        role.get().location().stream().map(loc -> asReference(loc)).collect(toList()));
-  }
-
-  private static Reference organization(Optional<DatamartPractitioner.PractitionerRole> role) {
-    if (role.isEmpty()) {
-      return null;
-    }
-    return asReference(role.get().managingOrganization());
-  }
-
-  static Period period(Optional<DatamartPractitioner.PractitionerRole> role) {
-    if (role.isEmpty()) {
-      return null;
-    }
-    Optional<DatamartPractitioner.PractitionerRole.Period> period = role.get().period();
-    if (period.isEmpty()) {
-      return null;
-    }
-    return Period.builder()
-        .start(period.get().start().map(LocalDate::toString).orElse(null))
-        .end(period.get().end().map(LocalDate::toString).orElse(null))
-        .build();
+  private static List<Reference> locations(DatamartPractitionerRole role) {
+    return emptyToNull(role.location().stream().map(loc -> asReference(loc)).collect(toList()));
   }
 
   private static Reference practitioner(String cdwId) {
@@ -80,19 +46,16 @@ final class Stu3PractitionerRoleTransformer {
             .build());
   }
 
-  static List<CodeableConcept> specialty(Optional<DatamartPractitioner.PractitionerRole> role) {
-    if (isBlank(role)) {
-      return null;
-    }
-
+  static List<CodeableConcept> specialty(DatamartPractitionerRole role) {
     return emptyToNull(
-        role.get().specialty().stream()
+        role.specialty()
+            .stream()
             .map(Stu3PractitionerRoleTransformer::specialty)
             .filter(Objects::nonNull)
             .collect(toList()));
   }
 
-  static CodeableConcept specialty(DatamartPractitioner.PractitionerRole.Specialty dmSpecialty) {
+  static CodeableConcept specialty(DatamartPractitionerRole.Specialty dmSpecialty) {
     if (!isBlank(dmSpecialty.x12Code())) {
       return specialty(dmSpecialty.x12Code().get());
     } else if (!isBlank(dmSpecialty.vaCode())) {
@@ -117,13 +80,12 @@ final class Stu3PractitionerRoleTransformer {
   public PractitionerRole toFhir() {
     return PractitionerRole.builder()
         .id(datamart.cdwId())
-        .period(period(datamart.practitionerRole()))
         .practitioner(practitioner(datamart.cdwId()))
-        .organization(organization(datamart.practitionerRole()))
-        .code(code(datamart.practitionerRole()))
-        .specialty(specialty(datamart.practitionerRole()))
-        .location(locations(datamart.practitionerRole()))
-        .healthcareService(healthCareService(datamart.practitionerRole()))
+        .organization(asReference(datamart.managingOrganization()))
+        .code(code(datamart))
+        .specialty(specialty(datamart))
+        .location(locations(datamart))
+        .healthcareService(healthCareService(datamart))
         .build();
   }
 }

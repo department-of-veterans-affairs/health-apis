@@ -4,6 +4,9 @@ import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 
 import com.google.common.collect.Iterables;
+
+import gov.va.api.health.dataquery.service.config.LinkProperties;
+import gov.va.api.health.dataquery.service.controller.CompositeCdwIds;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.IncludesIcnMajig;
 import gov.va.api.health.dataquery.service.controller.PageLinks;
@@ -12,7 +15,6 @@ import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.Stu3Bundler;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.practitioner.DatamartPractitioner;
-import gov.va.api.health.dataquery.service.controller.practitioner.PractitionerEntity;
 import gov.va.api.health.dataquery.service.controller.practitioner.PractitionerRepository;
 import gov.va.api.health.stu3.api.resources.PractitionerRole;
 import gov.va.api.lighthouse.datamart.CompositeCdwId;
@@ -44,16 +46,16 @@ import org.springframework.web.bind.annotation.RestController;
     value = "/stu3/PractitionerRole",
     produces = {"application/json", "application/fhir+json"})
 @SuppressWarnings("WeakerAccess")
-@AllArgsConstructor(onConstructor = @__({@Autowired}))
+@AllArgsConstructor(onConstructor_ = @Autowired)
 public class Stu3PractitionerRoleController {
   private Stu3Bundler bundler;
 
-  private PractitionerRepository repository;
+  private PractitionerRoleRepository repository;
 
   private WitnessProtection witnessProtection;
 
   private static PageRequest page(int page, int count) {
-    return PageRequest.of(page - 1, count == 0 ? 1 : count, PractitionerEntity.naturalOrder());
+    return PageRequest.of(page - 1, count == 0 ? 1 : count, PractitionerRoleEntity.naturalOrder());
   }
 
   private PractitionerRole.Bundle bundle(
@@ -73,19 +75,16 @@ public class Stu3PractitionerRoleController {
         PractitionerRole.Bundle::new);
   }
 
-  private PractitionerEntity entityById(String publicId) {
-    try {
-      Optional<PractitionerEntity> entity =
-          repository.findById(CompositeCdwId.fromCdwId(witnessProtection.toCdwId(publicId)));
-      return entity.orElseThrow(() -> new ResourceExceptions.NotFound(publicId));
-    } catch (IllegalArgumentException e) {
-      throw new ResourceExceptions.NotFound(publicId);
-    }
+  private PractitionerRoleEntity entityById(String publicId) {
+    String cdwId = witnessProtection.toCdwId(publicId);
+    Optional<PractitionerRoleEntity> entity =
+        CompositeCdwIds.optionalFromCdwId(cdwId).map(i -> repository.findById(i).orElse(null));
+    return entity.orElseThrow(() -> new ResourceExceptions.NotFound(publicId));
   }
 
   @GetMapping(value = {"/{publicId}"})
   PractitionerRole read(@PathVariable("publicId") String publicId) {
-    PractitionerEntity entity = entityById(publicId);
+    PractitionerRoleEntity entity = entityById(publicId);
     return Iterables.getOnlyElement(transform(Stream.of(entity)));
   }
 
@@ -135,7 +134,7 @@ public class Stu3PractitionerRoleController {
             .add("_count", count)
             .build();
 
-    Page<PractitionerEntity> entitiesPage =
+    Page<PractitionerRoleEntity> entitiesPage =
         repository.findByFamilyNameAndGivenName(family, given, page(page, count));
     if (count == 0) {
       return bundle(parameters, emptyList(), (int) entitiesPage.getTotalElements());
@@ -166,7 +165,7 @@ public class Stu3PractitionerRoleController {
     }
 
     String npi = systemAndCode.substring(delimiterIndex + 1);
-    Page<PractitionerEntity> entitiesPage = repository.findByNpi(npi, page(page, count));
+    Page<PractitionerRoleEntity> entitiesPage = repository.findByNpi(npi, page(page, count));
     if (count == 0) {
       return bundle(parameters, emptyList(), (int) entitiesPage.getTotalElements());
     }
@@ -182,17 +181,19 @@ public class Stu3PractitionerRoleController {
     throw new ResourceExceptions.NotImplemented("not-implemented");
   }
 
-  private List<PractitionerRole> transform(Stream<PractitionerEntity> entities) {
-    List<DatamartPractitioner> datamarts =
-        entities.map(PractitionerEntity::asDatamartPractitioner).collect(toList());
+  private List<PractitionerRole> transform(Stream<PractitionerRoleEntity> entities) {
+    List<DatamartPractitionerRole> datamarts =
+        entities.map(PractitionerRoleEntity::asDatamartPractitionerRole).collect(toList());
     witnessProtection.registerAndUpdateReferences(
         datamarts,
         resource ->
             Stream.concat(
-                resource.practitionerRole().stream()
-                    .map(role -> role.managingOrganization().orElse(null)),
-                resource.practitionerRole().stream().flatMap(role -> role.location().stream())));
-    return datamarts.stream()
+                Stream.of(
+                    resource.managingOrganization().orElse(null),
+                    resource.practitioner().orElse(null)),
+                resource.location().stream()));
+    return datamarts
+        .stream()
         .map(dm -> Stu3PractitionerRoleTransformer.builder().datamart(dm).build().toFhir())
         .collect(toList());
   }
