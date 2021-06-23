@@ -9,7 +9,7 @@ public class PractitionerRoleEntityTest {
   void asDatamartPractitonerRole() {
     PractitionerRoleEntity entity =
         PractitionerRoleSamples.Datamart.create().entity("111:P", "222:S", "333:I", "444:L");
-    assertThat(entity.asDatamartPractitonerRole())
+    assertThat(entity.asDatamartPractitionerRole())
         .isEqualTo(
             PractitionerRoleSamples.Datamart.create()
                 .practitionerRole("111:P", "222:S", "333:I", "444:L"));

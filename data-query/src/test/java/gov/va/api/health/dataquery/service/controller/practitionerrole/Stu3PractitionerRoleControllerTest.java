@@ -16,8 +16,6 @@ import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.Stu3Bundler;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.practitioner.DatamartPractitioner;
-import gov.va.api.health.dataquery.service.controller.practitioner.PractitionerEntity;
-import gov.va.api.health.dataquery.service.controller.practitioner.PractitionerRepository;
 import gov.va.api.health.dataquery.service.controller.practitioner.PractitionerSamples;
 import gov.va.api.health.ids.api.IdentityService;
 import gov.va.api.health.ids.api.Registration;
@@ -40,13 +38,13 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @DataJpaTest
 @ExtendWith(SpringExtension.class)
 public class Stu3PractitionerRoleControllerTest {
-  @Autowired private PractitionerRepository repository;
+  @Autowired private PractitionerRoleRepository repository;
 
   private IdentityService ids = mock(IdentityService.class);
 
   @SneakyThrows
-  static PractitionerEntity asEntity(DatamartPractitioner dm) {
-    return PractitionerEntity.builder()
+  static PractitionerRoleEntity asEntity(DatamartPractitioner dm) {
+    return PractitionerRoleEntity.builder()
         .cdwIdNumber(CompositeCdwId.fromCdwId(dm.cdwId()).cdwIdNumber())
         .cdwIdResourceCode(CompositeCdwId.fromCdwId(dm.cdwId()).cdwIdResourceCode())
         .npi(dm.npi().orElse(null))
