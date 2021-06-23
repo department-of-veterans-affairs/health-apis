@@ -2,6 +2,7 @@ package gov.va.api.health.dataquery.service.controller.practitionerrole;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+
 import gov.va.api.health.stu3.api.datatypes.CodeableConcept;
 import gov.va.api.health.stu3.api.datatypes.Coding;
 import gov.va.api.health.stu3.api.resources.PractitionerRole;

@@ -10,7 +10,7 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import static java.util.stream.Collectors.toList;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
@@ -35,6 +35,7 @@ public class PractitionerRoleSamples {
           .practitionerResourceCode(CompositeCdwId.fromCdwId(pracCdwId).cdwIdResourceCode())
           .givenName(name.substring(name.indexOf(",") + 1))
           .familyName(name.substring(0, name.indexOf(",")))
+          .npi("1234567890")
           .active(true)
           .lastUpdated(Instant.now())
           .payload(json(dm))
@@ -125,7 +126,8 @@ public class PractitionerRoleSamples {
           .total(roles.size())
           .link(List.of(links))
           .entry(
-              roles.stream()
+              roles
+                  .stream()
                   .map(
                       c ->
                           gov.va.api.health.stu3.api.resources.PractitionerRole.Entry.builder()
@@ -138,7 +140,7 @@ public class PractitionerRoleSamples {
                                               .match)
                                       .build())
                               .build())
-                  .collect(Collectors.toList()))
+                  .collect(toList()))
           .build();
     }
 
@@ -154,13 +156,13 @@ public class PractitionerRoleSamples {
     }
 
     public gov.va.api.health.stu3.api.resources.PractitionerRole practitionerRole(
-        String pubId, String orgPubId, String locPubId) {
+        String pubId, String pracPubId, String orgPubId, String locPubId) {
       return gov.va.api.health.stu3.api.resources.PractitionerRole.builder()
           .id(pubId)
-          // .period(gov.va.api.health.stu3.api.datatypes.Period.builder().start("1988-08-19").build())
           .practitioner(
               gov.va.api.health.stu3.api.elements.Reference.builder()
-                  .reference("Practitioner/" + pubId)
+                  .reference("Practitioner/" + pracPubId)
+                  .display("NELSON,BOB")
                   .build())
           .organization(
               gov.va.api.health.stu3.api.elements.Reference.builder()
@@ -246,7 +248,8 @@ public class PractitionerRoleSamples {
           .total(totalRecords)
           .link(List.of(links))
           .entry(
-              records.stream()
+              records
+                  .stream()
                   .map(
                       c ->
                           gov.va.api.health.r4.api.resources.PractitionerRole.Entry.builder()
@@ -259,7 +262,7 @@ public class PractitionerRoleSamples {
                                               .match)
                                       .build())
                               .build())
-                  .collect(Collectors.toList()))
+                  .collect(toList()))
           .build();
     }
 
@@ -275,12 +278,12 @@ public class PractitionerRoleSamples {
     }
 
     public gov.va.api.health.r4.api.resources.PractitionerRole practitionerRole(
-        String pubId, String orgPubId, String locPubId) {
+        String pubId, String pracPubId, String orgPubId, String locPubId) {
       return gov.va.api.health.r4.api.resources.PractitionerRole.builder()
           .id(pubId)
           .practitioner(
               gov.va.api.health.r4.api.elements.Reference.builder()
-                  .reference("Practitioner/" + pubId)
+                  .reference("Practitioner/" + pracPubId)
                   .build())
           .active(true)
           .organization(

@@ -2,6 +2,7 @@ package gov.va.api.health.dataquery.service.controller.practitionerrole;
 
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
+
 import com.google.common.collect.Iterables;
 import gov.va.api.health.dataquery.service.controller.CompositeCdwIds;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
@@ -185,8 +186,7 @@ public class Stu3PractitionerRoleController {
                     resource.managingOrganization().orElse(null),
                     resource.practitioner().orElse(null)),
                 resource.location().stream()));
-    return datamarts
-        .stream()
+    return datamarts.stream()
         .map(dm -> Stu3PractitionerRoleTransformer.builder().datamart(dm).build().toFhir())
         .collect(toList());
   }

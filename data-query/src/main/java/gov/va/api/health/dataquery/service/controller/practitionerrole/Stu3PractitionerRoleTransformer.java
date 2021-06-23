@@ -38,14 +38,6 @@ final class Stu3PractitionerRoleTransformer {
     return emptyToNull(role.location().stream().map(loc -> asReference(loc)).collect(toList()));
   }
 
-  private static Reference practitioner(String cdwId) {
-    return asReference(
-        DatamartReference.builder()
-            .type(Optional.of("Practitioner"))
-            .reference(Optional.ofNullable(cdwId))
-            .build());
-  }
-
   static List<CodeableConcept> specialty(DatamartPractitionerRole role) {
     return emptyToNull(
         role.specialty()
@@ -80,7 +72,7 @@ final class Stu3PractitionerRoleTransformer {
   public PractitionerRole toFhir() {
     return PractitionerRole.builder()
         .id(datamart.cdwId())
-        .practitioner(practitioner(datamart.cdwId()))
+        .practitioner(asReference(datamart.practitioner()))
         .organization(asReference(datamart.managingOrganization()))
         .code(code(datamart))
         .specialty(specialty(datamart))
