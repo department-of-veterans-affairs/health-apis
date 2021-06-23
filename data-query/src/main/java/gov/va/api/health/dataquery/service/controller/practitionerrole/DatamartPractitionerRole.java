@@ -29,6 +29,8 @@ public class DatamartPractitionerRole implements HasReplaceableId {
 
   private Optional<DatamartReference> practitioner;
 
+  private Optional<String> npi;
+
   private List<DatamartCoding> role;
 
   private List<DatamartPractitionerRole.Specialty> specialty;
@@ -61,6 +63,14 @@ public class DatamartPractitionerRole implements HasReplaceableId {
       managingOrganization = Optional.empty();
     }
     return managingOrganization;
+  }
+
+  /** Lazy initialization. */
+  public Optional<String> npi() {
+    if (npi == null) {
+      npi = Optional.empty();
+    }
+    return npi;
   }
 
   /** Lazy initialization. */
