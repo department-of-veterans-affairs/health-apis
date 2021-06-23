@@ -16,13 +16,13 @@ public class PractitionerRoleIT {
   @Test
   public void basic() {
     verifier.verifyAll(
-        test(200, PractitionerRole.class, "PractitionerRole/{id}", testIds.practitioner()),
+        test(200, PractitionerRole.class, "PractitionerRole/{id}", testIds.practitionerRole()),
         test(404, OperationOutcome.class, "PractitionerRole/{id}", testIds.unknown()),
         // search by _id
         test(
             200,
             PractitionerRole.Bundle.class,
             "PractitionerRole?_id={id}",
-            testIds.practitioner()));
+            testIds.practitionerRole()));
   }
 }

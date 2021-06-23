@@ -122,7 +122,7 @@ public class RawIT {
 
   @Test
   public void practitionerRoleRaw() {
-    assertFhirObject("PractitionerRole", "Practitioner", testIds.practitioner());
+    assertFhirObject("PractitionerRole", "PractitionerRole", testIds.practitionerRole());
   }
 
   @Test
