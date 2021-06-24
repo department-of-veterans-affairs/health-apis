@@ -53,6 +53,9 @@ public class PractitionerRoleEntity implements CompositeIdDatamartEntity {
   @Column(name = "PractitionerFamilyName")
   private String familyName;
 
+  @Column(name = "PractitionerNPI")
+  private String npi;
+
   @Column(name = "Active")
   private Boolean active;
 
@@ -68,7 +71,7 @@ public class PractitionerRoleEntity implements CompositeIdDatamartEntity {
     return Sort.by("cdwIdNumber").ascending().and(Sort.by("cdwIdResourceCode").ascending());
   }
 
-  public DatamartPractitionerRole asDatamartPractitonerRole() {
+  public DatamartPractitionerRole asDatamartPractitionerRole() {
     return toPayload().deserialize();
   }
 

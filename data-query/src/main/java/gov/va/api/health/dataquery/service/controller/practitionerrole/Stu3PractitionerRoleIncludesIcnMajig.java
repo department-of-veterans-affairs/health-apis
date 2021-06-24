@@ -8,7 +8,6 @@ import lombok.experimental.Delegate;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
-/** How to retrieve patient icn from a practitioner role response (Spoiler Alert: you dont). */
 @ControllerAdvice
 public class Stu3PractitionerRoleIncludesIcnMajig implements ResponseBodyAdvice<Object> {
   @Delegate

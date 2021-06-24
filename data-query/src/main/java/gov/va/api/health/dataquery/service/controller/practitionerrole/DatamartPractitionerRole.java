@@ -23,9 +23,11 @@ public class DatamartPractitionerRole implements HasReplaceableId {
 
   private String cdwId;
 
-  private Optional<DatamartReference> managingOrganization;
-
   private Optional<DatamartReference> practitioner;
+
+  private Optional<String> npi;
+
+  private Optional<DatamartReference> managingOrganization;
 
   private List<DatamartCoding> role;
 
@@ -57,6 +59,14 @@ public class DatamartPractitionerRole implements HasReplaceableId {
       managingOrganization = Optional.empty();
     }
     return managingOrganization;
+  }
+
+  /** Lazy initialization. */
+  public Optional<String> npi() {
+    if (npi == null) {
+      npi = Optional.empty();
+    }
+    return npi;
   }
 
   /** Lazy initialization. */

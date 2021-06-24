@@ -3,7 +3,6 @@ package gov.va.api.health.dataquery.service.controller.practitionerrole;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import gov.va.api.health.dataquery.service.controller.practitioner.DatamartPractitioner;
 import gov.va.api.health.stu3.api.datatypes.CodeableConcept;
 import gov.va.api.health.stu3.api.datatypes.Coding;
 import gov.va.api.health.stu3.api.resources.PractitionerRole;
@@ -16,7 +15,7 @@ public class Stu3PractitionerRoleTransformerTest {
   void empty() {
     assertThat(
             Stu3PractitionerRoleTransformer.builder()
-                .datamart(DatamartPractitioner.builder().build())
+                .datamart(DatamartPractitionerRole.builder().build())
                 .build()
                 .toFhir())
         .isEqualTo(PractitionerRole.builder().build());
@@ -25,23 +24,12 @@ public class Stu3PractitionerRoleTransformerTest {
   @Test
   void otherEmpty() {
     assertThat(
-            Stu3PractitionerRoleTransformer.specialty(
-                Optional.of(DatamartPractitioner.PractitionerRole.builder().build())))
+            Stu3PractitionerRoleTransformer.specialty(DatamartPractitionerRole.builder().build()))
         .isNull();
-
     assertThat(Stu3PractitionerRoleTransformer.specialty(" ")).isNull();
-
-    assertThat(
-            Stu3PractitionerRoleTransformer.period(
-                Optional.of(DatamartPractitioner.PractitionerRole.builder().build())))
-        .isNull();
-
     assertThat(
             Stu3PractitionerRoleTransformer.healthCareService(
-                Optional.of(
-                    DatamartPractitioner.PractitionerRole.builder()
-                        .healthCareService(Optional.of(" "))
-                        .build())))
+                DatamartPractitionerRole.builder().healthCareService(Optional.of(" ")).build()))
         .isNull();
   }
 
@@ -50,20 +38,19 @@ public class Stu3PractitionerRoleTransformerTest {
     // x12 code used first
     assertThat(
             Stu3PractitionerRoleTransformer.specialty(
-                Optional.of(
-                    DatamartPractitioner.PractitionerRole.builder()
-                        .specialty(
-                            asList(
-                                DatamartPractitioner.PractitionerRole.Specialty.builder()
-                                    .vaCode(Optional.of("v1"))
-                                    .specialtyCode(Optional.of("s1"))
-                                    .build(),
-                                DatamartPractitioner.PractitionerRole.Specialty.builder()
-                                    .x12Code(Optional.of("x2"))
-                                    .vaCode(Optional.of("v2"))
-                                    .specialtyCode(Optional.of("s2"))
-                                    .build()))
-                        .build())))
+                DatamartPractitionerRole.builder()
+                    .specialty(
+                        asList(
+                            DatamartPractitionerRole.Specialty.builder()
+                                .vaCode(Optional.of("v1"))
+                                .specialtyCode(Optional.of("s1"))
+                                .build(),
+                            DatamartPractitionerRole.Specialty.builder()
+                                .x12Code(Optional.of("x2"))
+                                .vaCode(Optional.of("v2"))
+                                .specialtyCode(Optional.of("s2"))
+                                .build()))
+                    .build()))
         .isEqualTo(
             List.of(
                 CodeableConcept.builder()
@@ -86,15 +73,14 @@ public class Stu3PractitionerRoleTransformerTest {
     // if no x12 code, use va code
     assertThat(
             Stu3PractitionerRoleTransformer.specialty(
-                Optional.of(
-                    DatamartPractitioner.PractitionerRole.builder()
-                        .specialty(
-                            asList(
-                                DatamartPractitioner.PractitionerRole.Specialty.builder()
-                                    .vaCode(Optional.of("v2"))
-                                    .specialtyCode(Optional.of("s2"))
-                                    .build()))
-                        .build())))
+                DatamartPractitionerRole.builder()
+                    .specialty(
+                        asList(
+                            DatamartPractitionerRole.Specialty.builder()
+                                .vaCode(Optional.of("v2"))
+                                .specialtyCode(Optional.of("s2"))
+                                .build()))
+                    .build()))
         .isEqualTo(
             List.of(
                 CodeableConcept.builder()
@@ -109,15 +95,14 @@ public class Stu3PractitionerRoleTransformerTest {
     // if no x12 code or va code, use specialty code
     assertThat(
             Stu3PractitionerRoleTransformer.specialty(
-                Optional.of(
-                    DatamartPractitioner.PractitionerRole.builder()
-                        .specialty(
-                            asList(
-                                DatamartPractitioner.PractitionerRole.Specialty.builder().build(),
-                                DatamartPractitioner.PractitionerRole.Specialty.builder()
-                                    .specialtyCode(Optional.of("s2"))
-                                    .build()))
-                        .build())))
+                DatamartPractitionerRole.builder()
+                    .specialty(
+                        asList(
+                            DatamartPractitionerRole.Specialty.builder().build(),
+                            DatamartPractitionerRole.Specialty.builder()
+                                .specialtyCode(Optional.of("s2"))
+                                .build()))
+                    .build()))
         .isEqualTo(
             List.of(
                 CodeableConcept.builder()
