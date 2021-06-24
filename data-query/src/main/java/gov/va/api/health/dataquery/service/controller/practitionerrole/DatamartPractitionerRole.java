@@ -25,6 +25,8 @@ public class DatamartPractitionerRole implements HasReplaceableId {
 
   private Optional<DatamartReference> practitioner;
 
+  private Boolean active;
+
   private Optional<String> npi;
 
   private Optional<DatamartReference> managingOrganization;
@@ -34,6 +36,8 @@ public class DatamartPractitionerRole implements HasReplaceableId {
   private List<DatamartPractitionerRole.Specialty> specialty;
 
   private List<DatamartReference> location;
+
+  private List<Telecom> telecom;
 
   private Optional<String> healthCareService;
 
@@ -91,6 +95,14 @@ public class DatamartPractitionerRole implements HasReplaceableId {
       specialty = new ArrayList<>();
     }
     return specialty;
+  }
+
+  /** Lazy initialization. */
+  public List<Telecom> telecom() {
+    if (telecom == null) {
+      telecom = new ArrayList<>();
+    }
+    return telecom;
   }
 
   @Data
@@ -156,6 +168,40 @@ public class DatamartPractitionerRole implements HasReplaceableId {
         x12Code = Optional.empty();
       }
       return x12Code;
+    }
+  }
+
+  @Data
+  @Builder
+  @NoArgsConstructor(access = AccessLevel.PRIVATE)
+  @AllArgsConstructor(access = AccessLevel.PRIVATE)
+  public static final class Telecom {
+    private System system;
+
+    private Optional<Use> use;
+
+    private String value;
+
+    /** Lazy initialization. */
+    public Optional<Use> use() {
+      if (use == null) {
+        use = Optional.empty();
+      }
+      return use;
+    }
+
+    @SuppressWarnings("JavaLangClash")
+    public enum System {
+      phone,
+      fax,
+      pager,
+      email
+    }
+
+    public enum Use {
+      home,
+      work,
+      mobile
     }
   }
 }
