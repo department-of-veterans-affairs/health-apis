@@ -3,7 +3,6 @@ package gov.va.api.health.dataquery.service.controller.practitionerrole;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-
 import gov.va.api.health.r4.api.datatypes.CodeableConcept;
 import gov.va.api.health.r4.api.datatypes.Coding;
 import gov.va.api.health.r4.api.datatypes.ContactPoint;
@@ -39,7 +38,6 @@ public class R4PractitionerRoleTransformerTest {
             transformer(
                     DatamartPractitionerRole.builder().healthCareService(Optional.of(" ")).build())
                 .healthcareService())
-
         .isNull();
   }
 
@@ -49,22 +47,18 @@ public class R4PractitionerRoleTransformerTest {
     assertThat(
             transformer(
                     DatamartPractitionerRole.builder()
-
                         .specialty(
                             asList( // use x12
                                 DatamartPractitionerRole.Specialty.builder()
-
                                     .vaCode(Optional.of("v1"))
                                     .x12Code(Optional.of("x1"))
                                     .specialtyCode(Optional.of("s1"))
                                     .build(), // use va
                                 DatamartPractitionerRole.Specialty.builder()
-
                                     .vaCode(Optional.of("v2"))
                                     .specialtyCode(Optional.of("s2"))
                                     .build(), // use specialty
                                 DatamartPractitionerRole.Specialty.builder()
-
                                     .specialtyCode(Optional.of("s3"))
                                     .build()))
                         .build())
@@ -104,22 +98,22 @@ public class R4PractitionerRoleTransformerTest {
             DatamartPractitionerRole.Telecom.builder()
                 .system(DatamartPractitionerRole.Telecom.System.phone)
                 .value("333-333-3333")
-                .use(DatamartPractitionerRole.Telecom.Use.work)
+                .use(Optional.of(DatamartPractitionerRole.Telecom.Use.work))
                 .build(),
             DatamartPractitionerRole.Telecom.builder()
                 .system(DatamartPractitionerRole.Telecom.System.email)
                 .value("foo@example.com")
-                .use(DatamartPractitionerRole.Telecom.Use.work)
+                .use(Optional.of(DatamartPractitionerRole.Telecom.Use.work))
                 .build(),
             DatamartPractitionerRole.Telecom.builder()
                 .system(DatamartPractitionerRole.Telecom.System.fax)
                 .value("444-444-4444")
-                .use(DatamartPractitionerRole.Telecom.Use.work)
+                .use(Optional.of(DatamartPractitionerRole.Telecom.Use.work))
                 .build(),
             DatamartPractitionerRole.Telecom.builder()
                 .system(DatamartPractitionerRole.Telecom.System.pager)
                 .value("5-555")
-                .use(DatamartPractitionerRole.Telecom.Use.work)
+                .use(Optional.of(DatamartPractitionerRole.Telecom.Use.work))
                 .build());
     assertThat(
             transformer(DatamartPractitionerRole.builder().telecom(phoneAndEmail).build())

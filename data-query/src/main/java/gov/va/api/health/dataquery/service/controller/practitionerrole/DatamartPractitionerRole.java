@@ -23,9 +23,6 @@ public class DatamartPractitionerRole implements HasReplaceableId {
 
   private String cdwId;
 
-  private Boolean active;
-
-
   private Optional<DatamartReference> practitioner;
 
   private Boolean active;

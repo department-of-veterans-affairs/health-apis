@@ -11,7 +11,6 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
@@ -116,27 +115,27 @@ public class PractitionerRoleSamples {
           .telecom(
               List.of(
                   DatamartPractitionerRole.Telecom.builder()
-                      .use(DatamartPractitionerRole.Telecom.Use.mobile)
+                      .use(Optional.of(DatamartPractitionerRole.Telecom.Use.mobile))
                       .system(DatamartPractitionerRole.Telecom.System.phone)
                       .value("123-456-7890")
                       .build(),
                   DatamartPractitionerRole.Telecom.builder()
-                      .use(DatamartPractitionerRole.Telecom.Use.mobile)
+                      .use(Optional.of(DatamartPractitionerRole.Telecom.Use.mobile))
                       .system(DatamartPractitionerRole.Telecom.System.phone)
                       .value("111-222-3333")
                       .build(),
                   DatamartPractitionerRole.Telecom.builder()
-                      .use(DatamartPractitionerRole.Telecom.Use.mobile)
+                      .use(Optional.of(DatamartPractitionerRole.Telecom.Use.mobile))
                       .system(DatamartPractitionerRole.Telecom.System.pager)
                       .value("444-555-6666")
                       .build(),
                   DatamartPractitionerRole.Telecom.builder()
-                      .use(DatamartPractitionerRole.Telecom.Use.mobile)
+                      .use(Optional.of(DatamartPractitionerRole.Telecom.Use.mobile))
                       .system(DatamartPractitionerRole.Telecom.System.fax)
                       .value("777-888-9999")
                       .build(),
                   DatamartPractitionerRole.Telecom.builder()
-                      .use(DatamartPractitionerRole.Telecom.Use.mobile)
+                      .use(Optional.of(DatamartPractitionerRole.Telecom.Use.mobile))
                       .system(DatamartPractitionerRole.Telecom.System.email)
                       .value("bob.nelson@www.creedthoughts.gov.www/creedthoughts")
                       .build()))
@@ -188,7 +187,6 @@ public class PractitionerRoleSamples {
         String pubId, String pracPubId, String orgPubId, String locPubId) {
       return gov.va.api.health.stu3.api.resources.PractitionerRole.builder()
           .id(pubId)
-
           .practitioner(
               gov.va.api.health.stu3.api.elements.Reference.builder()
                   .reference("Practitioner/" + pracPubId)

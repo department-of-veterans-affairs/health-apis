@@ -110,7 +110,7 @@ public class R4PractitionerRoleController {
 
   VulcanizedTransformation<PractitionerRoleEntity, DatamartPractitionerRole, PractitionerRole>
       transformation() {
-    return VulcanizedTransformation.toDatamart(PractitionerRoleEntity::asDatamartPractitonerRole)
+    return VulcanizedTransformation.toDatamart(PractitionerRoleEntity::asDatamartPractitionerRole)
         .toResource(dm -> R4PractitionerRoleTransformer.builder().datamart(dm).build().toFhir())
         .witnessProtection(witnessProtection)
         .replaceReferences(
