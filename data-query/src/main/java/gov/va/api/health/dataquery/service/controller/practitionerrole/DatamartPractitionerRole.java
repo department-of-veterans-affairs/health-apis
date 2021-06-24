@@ -200,6 +200,7 @@ public class DatamartPractitionerRole implements HasReplaceableId {
 
     public enum Use {
       home,
+      work,
       mobile
     }
   }
