@@ -71,7 +71,7 @@ public class PractitionerRoleEntity implements CompositeIdDatamartEntity {
     return Sort.by("cdwIdNumber").ascending().and(Sort.by("cdwIdResourceCode").ascending());
   }
 
-  public DatamartPractitionerRole asDatamartPractitonerRole() {
+  public DatamartPractitionerRole asDatamartPractitionerRole() {
     return toPayload().deserialize();
   }
 

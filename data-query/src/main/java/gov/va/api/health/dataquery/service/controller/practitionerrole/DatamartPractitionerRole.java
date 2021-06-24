@@ -25,11 +25,14 @@ public class DatamartPractitionerRole implements HasReplaceableId {
 
   private Boolean active;
 
-  private Optional<DatamartReference> managingOrganization;
 
   private Optional<DatamartReference> practitioner;
 
+  private Boolean active;
+
   private Optional<String> npi;
+
+  private Optional<DatamartReference> managingOrganization;
 
   private List<DatamartCoding> role;
 
@@ -178,9 +181,17 @@ public class DatamartPractitionerRole implements HasReplaceableId {
   public static final class Telecom {
     private System system;
 
+    private Optional<Use> use;
+
     private String value;
 
-    private Use use;
+    /** Lazy initialization. */
+    public Optional<Use> use() {
+      if (use == null) {
+        use = Optional.empty();
+      }
+      return use;
+    }
 
     @SuppressWarnings("JavaLangClash")
     public enum System {
@@ -191,8 +202,8 @@ public class DatamartPractitionerRole implements HasReplaceableId {
     }
 
     public enum Use {
-      work,
       home,
+      work,
       mobile
     }
   }

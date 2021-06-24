@@ -3,6 +3,7 @@ package gov.va.api.health.dataquery.service.controller.practitionerrole;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
+
 import gov.va.api.health.r4.api.datatypes.CodeableConcept;
 import gov.va.api.health.r4.api.datatypes.Coding;
 import gov.va.api.health.r4.api.datatypes.ContactPoint;
@@ -31,11 +32,14 @@ public class R4PractitionerRoleTransformerTest {
     assertThat(transformer(DatamartPractitionerRole.builder().build()).specialties()).isNull();
     DatamartPractitionerRole.Specialty emptySpecialty =
         DatamartPractitionerRole.Specialty.builder().x12Code(Optional.of(" ")).build();
+
     assertThat(R4PractitionerRoleTransformer.specialty(emptySpecialty)).isNull();
+
     assertThat(
             transformer(
                     DatamartPractitionerRole.builder().healthCareService(Optional.of(" ")).build())
                 .healthcareService())
+
         .isNull();
   }
 
@@ -45,18 +49,22 @@ public class R4PractitionerRoleTransformerTest {
     assertThat(
             transformer(
                     DatamartPractitionerRole.builder()
+
                         .specialty(
                             asList( // use x12
                                 DatamartPractitionerRole.Specialty.builder()
+
                                     .vaCode(Optional.of("v1"))
                                     .x12Code(Optional.of("x1"))
                                     .specialtyCode(Optional.of("s1"))
                                     .build(), // use va
                                 DatamartPractitionerRole.Specialty.builder()
+
                                     .vaCode(Optional.of("v2"))
                                     .specialtyCode(Optional.of("s2"))
                                     .build(), // use specialty
                                 DatamartPractitionerRole.Specialty.builder()
+
                                     .specialtyCode(Optional.of("s3"))
                                     .build()))
                         .build())

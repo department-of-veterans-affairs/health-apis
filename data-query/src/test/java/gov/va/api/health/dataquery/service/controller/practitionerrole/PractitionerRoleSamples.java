@@ -1,6 +1,7 @@
 package gov.va.api.health.dataquery.service.controller.practitionerrole;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.stream.Collectors.toList;
 
 import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.lighthouse.datamart.CompositeCdwId;
@@ -10,7 +11,7 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
@@ -35,6 +36,7 @@ public class PractitionerRoleSamples {
           .practitionerResourceCode(CompositeCdwId.fromCdwId(pracCdwId).cdwIdResourceCode())
           .givenName(name.substring(name.indexOf(",") + 1))
           .familyName(name.substring(0, name.indexOf(",")))
+          .npi(dm.npi().get())
           .active(true)
           .lastUpdated(Instant.now())
           .payload(json(dm))
@@ -68,6 +70,7 @@ public class PractitionerRoleSamples {
                       .reference(Optional.of(pracCdwId))
                       .display(Optional.of("NELSON,BOB"))
                       .build()))
+          .npi(Optional.of("1234567890"))
           .role(
               List.of(
                   DatamartCoding.builder()
@@ -166,7 +169,7 @@ public class PractitionerRoleSamples {
                                               .match)
                                       .build())
                               .build())
-                  .collect(Collectors.toList()))
+                  .collect(toList()))
           .build();
     }
 
@@ -182,13 +185,14 @@ public class PractitionerRoleSamples {
     }
 
     public gov.va.api.health.stu3.api.resources.PractitionerRole practitionerRole(
-        String pubId, String orgPubId, String locPubId) {
+        String pubId, String pracPubId, String orgPubId, String locPubId) {
       return gov.va.api.health.stu3.api.resources.PractitionerRole.builder()
           .id(pubId)
-          // .period(gov.va.api.health.stu3.api.datatypes.Period.builder().start("1988-08-19").build())
+
           .practitioner(
               gov.va.api.health.stu3.api.elements.Reference.builder()
-                  .reference("Practitioner/" + pubId)
+                  .reference("Practitioner/" + pracPubId)
+                  .display("NELSON,BOB")
                   .build())
           .organization(
               gov.va.api.health.stu3.api.elements.Reference.builder()
@@ -287,7 +291,7 @@ public class PractitionerRoleSamples {
                                               .match)
                                       .build())
                               .build())
-                  .collect(Collectors.toList()))
+                  .collect(toList()))
           .build();
     }
 

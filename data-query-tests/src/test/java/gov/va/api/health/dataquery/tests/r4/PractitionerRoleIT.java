@@ -14,7 +14,7 @@ public class PractitionerRoleIT {
   TestIds testIds = DataQueryResourceVerifier.ids();
 
   @Test
-  public void basic() {
+  void basic() {
     verifier.verifyAll(
         test(200, PractitionerRole.class, "PractitionerRole/{id}", testIds.practitionerRole()),
         test(404, OperationOutcome.class, "PractitionerRole/{id}", testIds.unknown()),
