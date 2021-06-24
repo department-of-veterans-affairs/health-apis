@@ -86,10 +86,6 @@ final class R4PractitionerRoleTransformer {
         datamart.location().stream().map(R4Transformers::asReference).collect(toList()));
   }
 
-  Reference practitioner() {
-    return asReference(datamart.practitioner());
-  }
-
   List<CodeableConcept> specialties() {
     return emptyToNull(
         datamart.specialty().stream()
@@ -110,7 +106,7 @@ final class R4PractitionerRoleTransformer {
     return PractitionerRole.builder()
         .id(datamart.cdwId())
         .active(datamart.active())
-        .practitioner(practitioner())
+        .practitioner(asReference(datamart.practitioner()))
         .organization(asReference(datamart.managingOrganization()))
         .code(code())
         .specialty(specialties())
