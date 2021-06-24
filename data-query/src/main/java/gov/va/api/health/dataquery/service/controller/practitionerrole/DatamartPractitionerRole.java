@@ -25,7 +25,7 @@ public class DatamartPractitionerRole implements HasReplaceableId {
 
   private Optional<DatamartReference> practitioner;
 
-  private boolean active;
+  private Boolean active;
 
   private Optional<String> npi;
 
