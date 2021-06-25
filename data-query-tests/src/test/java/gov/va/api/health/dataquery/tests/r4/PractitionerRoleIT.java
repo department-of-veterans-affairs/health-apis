@@ -5,13 +5,19 @@ import gov.va.api.health.dataquery.tests.TestIds;
 import gov.va.api.health.fhir.testsupport.ResourceVerifier;
 import gov.va.api.health.r4.api.resources.OperationOutcome;
 import gov.va.api.health.r4.api.resources.PractitionerRole;
+import java.util.function.Predicate;
 import lombok.experimental.Delegate;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 
 public class PractitionerRoleIT {
   @Delegate ResourceVerifier verifier = DataQueryResourceVerifier.r4();
 
   TestIds testIds = DataQueryResourceVerifier.ids();
+
+  static Predicate<PractitionerRole.Bundle> bundleHasResults() {
+    return bundle -> !bundle.entry().isEmpty();
+  }
 
   @Test
   void basic() {
@@ -24,5 +30,97 @@ public class PractitionerRoleIT {
             PractitionerRole.Bundle.class,
             "PractitionerRole?_id={id}",
             testIds.practitionerRole()));
+  }
+
+  @Test
+  void searchByName() {
+    // Grab subset of family/given names for startsWith tests
+    String startFamily = StringUtils.substring(testIds.practitioners().family(), 0, 3);
+    String startGiven = StringUtils.substring(testIds.practitioners().given(), 0, 3);
+    verifier.verifyAll(
+        test(
+            200,
+            PractitionerRole.Bundle.class,
+            bundleHasResults(),
+            "PractitionerRole?practitioner.given={given}",
+            testIds.practitioners().given()),
+        test(
+            200,
+            PractitionerRole.Bundle.class,
+            bundleHasResults(),
+            "PractitionerRole?practitioner.family={family}",
+            testIds.practitioners().family()),
+        test(
+            200,
+            PractitionerRole.Bundle.class,
+            bundleHasResults(),
+            "PractitionerRole?practitioner.family:exact={family}",
+            testIds.practitioners().family()),
+        test(
+            200,
+            PractitionerRole.Bundle.class,
+            bundleHasResults(),
+            "PractitionerRole?practitioner.name={given}",
+            testIds.practitioners().given()),
+        test(
+            200,
+            PractitionerRole.Bundle.class,
+            bundleHasResults(),
+            "PractitionerRole?practitioner.name={family}",
+            testIds.practitioners().family()),
+        test(
+            200,
+            PractitionerRole.Bundle.class,
+            bundleHasResults(),
+            "PractitionerRole?practitioner.name:exact={family}",
+            testIds.practitioners().family()),
+        test(
+            200,
+            PractitionerRole.Bundle.class,
+            bundleHasResults(),
+            "PractitionerRole?practitioner.given={given}",
+            startGiven),
+        test(
+            200,
+            PractitionerRole.Bundle.class,
+            bundleHasResults(),
+            "PractitionerRole?practitioner.family={family}",
+            startFamily),
+        test(
+            200,
+            PractitionerRole.Bundle.class,
+            bundleHasResults(),
+            "PractitionerRole?practitioner.name={given}",
+            startGiven),
+        test(
+            200,
+            PractitionerRole.Bundle.class,
+            bundleHasResults(),
+            "PractitionerRole?practitioner.name={family}",
+            startFamily),
+        test(
+            200,
+            PractitionerRole.Bundle.class,
+            bundleHasResults().negate(),
+            "PractitionerRole?practitioner.given={given}",
+            testIds.unknown()),
+        test(
+            200,
+            PractitionerRole.Bundle.class,
+            bundleHasResults().negate(),
+            "PractitionerRole?practitioner.family={family}",
+            testIds.unknown()),
+        test(
+            200,
+            PractitionerRole.Bundle.class,
+            bundleHasResults().negate(),
+            "PractitionerRole?practitioner.name={given}",
+            testIds.unknown()),
+        test(
+            200,
+            PractitionerRole.Bundle.class,
+            bundleHasResults().negate(),
+            "PractitionerRole?practitioner.name={family}",
+            testIds.unknown()));
   }
 }

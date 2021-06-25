@@ -1,6 +1,7 @@
 package gov.va.api.health.dataquery.service.controller.practitionerrole;
 
 import static gov.va.api.lighthouse.vulcan.Rules.atLeastOneParameterOf;
+import static gov.va.api.lighthouse.vulcan.Rules.parametersNeverSpecifiedTogether;
 import static gov.va.api.lighthouse.vulcan.Vulcan.returnNothing;
 import static gov.va.api.lighthouse.vulcan.VulcanConfiguration.PagingConfiguration.noSortableParameters;
 
@@ -19,6 +20,7 @@ import gov.va.api.lighthouse.vulcan.mappings.Mappings;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -55,9 +57,19 @@ public class R4PractitionerRoleController {
             linkProperties.pagingConfiguration(
                 "PractitionerRole", PractitionerRoleEntity.naturalOrder(), noSortableParameters()))
         .mappings(
-            Mappings.forEntity(PractitionerRoleEntity.class).values("_id", this::loadCdwId).get())
+            Mappings.forEntity(PractitionerRoleEntity.class)
+                .values("_id", this::loadCdwId)
+                .string("practitioner.given", "givenName")
+                .string("practitioner.family", "familyName")
+                .string("practitioner.name", f -> Set.of("familyName", "givenName"))
+                .get())
         .defaultQuery(returnNothing())
-        .rules(List.of(atLeastOneParameterOf("_id")))
+        .rules(
+            List.of(
+                atLeastOneParameterOf(
+                    "_id", "practitioner.given", "practitioner.family", "practitioner.name"),
+                parametersNeverSpecifiedTogether("practitioner.name", "practitioner.given"),
+                parametersNeverSpecifiedTogether("practitioner.name", "practitioner.family")))
         .build();
   }
 
