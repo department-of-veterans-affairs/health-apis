@@ -14,9 +14,12 @@ import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedReade
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedTransformation;
 import gov.va.api.health.r4.api.resources.PractitionerRole;
 import gov.va.api.lighthouse.datamart.CompositeCdwId;
+import gov.va.api.lighthouse.vulcan.Specifications;
+import gov.va.api.lighthouse.vulcan.SystemIdFields;
 import gov.va.api.lighthouse.vulcan.Vulcan;
 import gov.va.api.lighthouse.vulcan.VulcanConfiguration;
 import gov.va.api.lighthouse.vulcan.mappings.Mappings;
+import gov.va.api.lighthouse.vulcan.mappings.TokenParameter;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -26,6 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -45,6 +49,8 @@ import org.springframework.web.bind.annotation.RestController;
     produces = {"application/json", "application/fhir+json"})
 @AllArgsConstructor(onConstructor_ = @Autowired)
 public class R4PractitionerRoleController {
+  private static final String PRACTITIONER_IDENTIFIER_SYSTEM_NPI = "http://hl7.org/fhir/sid/us-npi";
+
   private final WitnessProtection witnessProtection;
 
   private final LinkProperties linkProperties;
@@ -59,6 +65,10 @@ public class R4PractitionerRoleController {
         .mappings(
             Mappings.forEntity(PractitionerRoleEntity.class)
                 .values("_id", this::loadCdwId)
+                .tokens(
+                    "practitioner.identifier",
+                    this::tokenIdentifierIsSupported,
+                    this::tokenIdentifierSpecification)
                 .string("practitioner.given", "givenName")
                 .string("practitioner.family", "familyName")
                 .string("practitioner.name", f -> Set.of("familyName", "givenName"))
@@ -67,10 +77,30 @@ public class R4PractitionerRoleController {
         .rules(
             List.of(
                 atLeastOneParameterOf(
-                    "_id", "practitioner.given", "practitioner.family", "practitioner.name"),
+                    "_id",
+                    "practitioner.identifier",
+                    "practitioner.given",
+                    "practitioner.family",
+                    "practitioner.name"),
+                parametersNeverSpecifiedTogether("_id", "practitioner.identifier"),
                 parametersNeverSpecifiedTogether("practitioner.name", "practitioner.given"),
                 parametersNeverSpecifiedTogether("practitioner.name", "practitioner.family")))
         .build();
+  }
+
+  private Specification<PractitionerRoleEntity> identifierAnySystemAndExplicitCodeSpec(
+      String code) {
+    Specification<PractitionerRoleEntity> npiSpec =
+        Specifications.<PractitionerRoleEntity>select("npi", code);
+    try {
+      CompositeCdwId cdwId = CompositeCdwId.fromCdwId(witnessProtection.toCdwId(code));
+      Specification<PractitionerRoleEntity> cdwIdSpec =
+          Specifications.<PractitionerRoleEntity>select("practitionerIdNumber", cdwId.cdwIdNumber())
+              .and(Specifications.select("practitionerResourceCode", cdwId.cdwIdResourceCode()));
+      return npiSpec.or(cdwIdSpec);
+    } catch (IllegalArgumentException e) {
+      return npiSpec;
+    }
   }
 
   private Map<String, ?> loadCdwId(String publicId) {
@@ -118,6 +148,24 @@ public class R4PractitionerRoleController {
                 .linkProperties(linkProperties)
                 .build())
         .build();
+  }
+
+  private boolean tokenIdentifierIsSupported(TokenParameter token) {
+    return token.hasSupportedSystem(PRACTITIONER_IDENTIFIER_SYSTEM_NPI) || token.hasAnySystem();
+  }
+
+  private Specification<PractitionerRoleEntity> tokenIdentifierSpecification(TokenParameter token) {
+    var systemMappings =
+        SystemIdFields.forEntity(PractitionerRoleEntity.class)
+            .parameterName("practitioner.identifier")
+            .add(PRACTITIONER_IDENTIFIER_SYSTEM_NPI, "npi");
+    return token
+        .behavior()
+        .onAnySystemAndExplicitCode(code -> identifierAnySystemAndExplicitCodeSpec(code))
+        .onExplicitSystemAndAnyCode(systemMappings.matchSystemOnly())
+        .onExplicitSystemAndExplicitCode(systemMappings.matchSystemAndCode())
+        .build()
+        .execute();
   }
 
   VulcanizedTransformation<PractitionerRoleEntity, DatamartPractitionerRole, PractitionerRole>

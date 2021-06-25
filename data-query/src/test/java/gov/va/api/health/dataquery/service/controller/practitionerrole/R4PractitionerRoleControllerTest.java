@@ -71,6 +71,7 @@ public class R4PractitionerRoleControllerTest {
       strings = {
         "",
         "?unknownparam=123",
+        "?_id=foo&practitioner.identifier=bar",
         "?practitioner.name=harry&practitioner.family=potter",
         "?practitioner.name=harry&practitioner.given=harry"
       })
@@ -211,7 +212,10 @@ public class R4PractitionerRoleControllerTest {
   @SuppressWarnings("unchecked")
   @ValueSource(
       strings = {
-        "?_id=111:S",
+        "?_id=111:P",
+        "?practitioner.identifier=111:S",
+        "?practitioner.identifier=http://hl7.org/fhir/sid/us-npi|",
+        "?practitioner.identifier=http://hl7.org/fhir/sid/us-npi|123",
         "?practitioner.family=potter",
         "?practitioner.given=harry",
         "?practitioner.name=harry",

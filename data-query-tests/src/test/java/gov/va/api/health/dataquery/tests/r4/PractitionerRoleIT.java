@@ -20,11 +20,14 @@ public class PractitionerRoleIT {
   }
 
   @Test
-  void basic() {
+  void read() {
     verifier.verifyAll(
         test(200, PractitionerRole.class, "PractitionerRole/{id}", testIds.practitionerRole()),
-        test(404, OperationOutcome.class, "PractitionerRole/{id}", testIds.unknown()),
-        // search by _id
+        test(
+            404,
+            OperationOutcome.class,
+            "PractitionerRole/{id}",
+            testIds.unknown()), // search by _id
         test(
             200,
             PractitionerRole.Bundle.class,
@@ -121,6 +124,53 @@ public class PractitionerRoleIT {
             PractitionerRole.Bundle.class,
             bundleHasResults().negate(),
             "PractitionerRole?practitioner.name={family}",
+            testIds.unknown()));
+  }
+
+  @Test
+  void searchByPractitionerIdentifier() {
+    verifyAll(
+        test(
+            200,
+            PractitionerRole.Bundle.class,
+            bundleHasResults(),
+            "PractitionerRole?practitioner.identifier={id}",
+            testIds.practitioner()),
+        test(
+            200,
+            PractitionerRole.Bundle.class,
+            bundleHasResults(),
+            "PractitionerRole?practitioner.identifier={npi}",
+            testIds.practitioners().npi()),
+        test(
+            200,
+            PractitionerRole.Bundle.class,
+            bundleHasResults().negate(),
+            "PractitionerRole?practitioner.identifier={id}",
+            testIds.unknown()),
+        test(
+            200,
+            PractitionerRole.Bundle.class,
+            bundleHasResults(),
+            "PractitionerRole?practitioner.identifier=http://hl7.org/fhir/sid/us-npi|{npi}",
+            testIds.practitioners().npi()),
+        test(
+            200,
+            PractitionerRole.Bundle.class,
+            bundleHasResults().negate(),
+            "PractitionerRole?practitioner.identifier=http://hl7.org/fhir/sid/us-npi|{id}",
+            testIds.practitioner()),
+        test(
+            200,
+            PractitionerRole.Bundle.class,
+            bundleHasResults().negate(),
+            "PractitionerRole?practitioner.identifier=http://hl7.org/fhir/sid/us-npi|{npi}",
+            testIds.unknown()),
+        test(
+            200,
+            PractitionerRole.Bundle.class,
+            bundleHasResults().negate(),
+            "PractitionerRole?practitioner.identifier=|{npi}",
             testIds.unknown()));
   }
 }
