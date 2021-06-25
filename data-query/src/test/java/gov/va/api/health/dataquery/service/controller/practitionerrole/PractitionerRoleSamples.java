@@ -54,6 +54,7 @@ public class PractitionerRoleSamples {
       checkArgument(locCdwId.endsWith(":L"));
       return DatamartPractitionerRole.builder()
           .cdwId(cdwId)
+          .active(true)
           .managingOrganization(
               Optional.of(
                   DatamartReference.builder()
@@ -110,6 +111,33 @@ public class PractitionerRoleSamples {
                       .display(
                           Optional.of(
                               "VISUAL IMPAIRMENT SERVICES OUTPATIENT REHABILITATION (VISOR)"))
+                      .build()))
+          .telecom(
+              List.of(
+                  DatamartPractitionerRole.Telecom.builder()
+                      .use(Optional.of(DatamartPractitionerRole.Telecom.Use.mobile))
+                      .system(DatamartPractitionerRole.Telecom.System.phone)
+                      .value("123-456-7890")
+                      .build(),
+                  DatamartPractitionerRole.Telecom.builder()
+                      .use(Optional.of(DatamartPractitionerRole.Telecom.Use.mobile))
+                      .system(DatamartPractitionerRole.Telecom.System.phone)
+                      .value("111-222-3333")
+                      .build(),
+                  DatamartPractitionerRole.Telecom.builder()
+                      .use(Optional.of(DatamartPractitionerRole.Telecom.Use.mobile))
+                      .system(DatamartPractitionerRole.Telecom.System.pager)
+                      .value("444-555-6666")
+                      .build(),
+                  DatamartPractitionerRole.Telecom.builder()
+                      .use(Optional.of(DatamartPractitionerRole.Telecom.Use.mobile))
+                      .system(DatamartPractitionerRole.Telecom.System.fax)
+                      .value("777-888-9999")
+                      .build(),
+                  DatamartPractitionerRole.Telecom.builder()
+                      .use(Optional.of(DatamartPractitionerRole.Telecom.Use.mobile))
+                      .system(DatamartPractitionerRole.Telecom.System.email)
+                      .value("bob.nelson@www.creedthoughts.gov.www/creedthoughts")
                       .build()))
           .healthCareService(Optional.of("MEDICAL SERVICE"))
           .build();
@@ -283,6 +311,7 @@ public class PractitionerRoleSamples {
           .practitioner(
               gov.va.api.health.r4.api.elements.Reference.builder()
                   .reference("Practitioner/" + pracPubId)
+                  .display("NELSON,BOB")
                   .build())
           .active(true)
           .organization(

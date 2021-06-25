@@ -7,9 +7,6 @@ import static gov.va.api.lighthouse.vulcan.VulcanConfiguration.PagingConfigurati
 import gov.va.api.health.dataquery.service.config.LinkProperties;
 import gov.va.api.health.dataquery.service.controller.CompositeCdwIds;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
-import gov.va.api.health.dataquery.service.controller.practitioner.DatamartPractitioner;
-import gov.va.api.health.dataquery.service.controller.practitioner.PractitionerEntity;
-import gov.va.api.health.dataquery.service.controller.practitioner.PractitionerRepository;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.Bundling;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedBundler;
 import gov.va.api.health.dataquery.service.controller.vulcanizer.VulcanizedReader;
@@ -50,14 +47,15 @@ public class R4PractitionerRoleController {
 
   private final LinkProperties linkProperties;
 
-  private final PractitionerRepository repository;
+  private final PractitionerRoleRepository repository;
 
-  private VulcanConfiguration<PractitionerEntity> configuration() {
-    return VulcanConfiguration.forEntity(PractitionerEntity.class)
+  private VulcanConfiguration<PractitionerRoleEntity> configuration() {
+    return VulcanConfiguration.forEntity(PractitionerRoleEntity.class)
         .paging(
             linkProperties.pagingConfiguration(
-                "PractitionerRole", PractitionerEntity.naturalOrder(), noSortableParameters()))
-        .mappings(Mappings.forEntity(PractitionerEntity.class).values("_id", this::loadCdwId).get())
+                "PractitionerRole", PractitionerRoleEntity.naturalOrder(), noSortableParameters()))
+        .mappings(
+            Mappings.forEntity(PractitionerRoleEntity.class).values("_id", this::loadCdwId).get())
         .defaultQuery(returnNothing())
         .rules(List.of(atLeastOneParameterOf("_id")))
         .build();
@@ -95,8 +93,8 @@ public class R4PractitionerRoleController {
   }
 
   VulcanizedBundler<
-          PractitionerEntity,
-          DatamartPractitioner,
+          PractitionerRoleEntity,
+          DatamartPractitionerRole,
           PractitionerRole,
           PractitionerRole.Entry,
           PractitionerRole.Bundle>
@@ -110,29 +108,31 @@ public class R4PractitionerRoleController {
         .build();
   }
 
-  VulcanizedTransformation<PractitionerEntity, DatamartPractitioner, PractitionerRole>
+  VulcanizedTransformation<PractitionerRoleEntity, DatamartPractitionerRole, PractitionerRole>
       transformation() {
-    return VulcanizedTransformation.toDatamart(PractitionerEntity::asDatamartPractitioner)
+    return VulcanizedTransformation.toDatamart(PractitionerRoleEntity::asDatamartPractitionerRole)
         .toResource(dm -> R4PractitionerRoleTransformer.builder().datamart(dm).build().toFhir())
         .witnessProtection(witnessProtection)
         .replaceReferences(
             resource ->
-                Stream.concat(
-                    resource.practitionerRole().stream()
-                        .map(role -> role.managingOrganization().orElse(null)),
-                    resource.practitionerRole().stream().flatMap(role -> role.location().stream())))
+                Stream.of(
+                        Stream.of(resource.practitioner().orElse(null)),
+                        Stream.of(resource.managingOrganization().orElse(null)),
+                        resource.location().stream())
+                    .flatMap(i -> i))
         .build();
   }
 
-  VulcanizedReader<PractitionerEntity, DatamartPractitioner, PractitionerRole, CompositeCdwId>
+  VulcanizedReader<
+          PractitionerRoleEntity, DatamartPractitionerRole, PractitionerRole, CompositeCdwId>
       vulcanizedReader() {
     return VulcanizedReader
-        .<PractitionerEntity, DatamartPractitioner, PractitionerRole, CompositeCdwId>
+        .<PractitionerRoleEntity, DatamartPractitionerRole, PractitionerRole, CompositeCdwId>
             forTransformation(transformation())
         .repository(repository)
         .toPatientId(e -> Optional.empty())
         .toPrimaryKey(CompositeCdwIds::requireCompositeIdStringFormat)
-        .toPayload(PractitionerEntity::payload)
+        .toPayload(PractitionerRoleEntity::payload)
         .build();
   }
 }

@@ -2,6 +2,7 @@
   "objectType" : "PractitionerRole",
   "objectVersion" : "1",
   "cdwId" : "12345:P",
+  "active" : true,
   "managingOrganization" : {
     "type" : "Organization",
     "reference" : "12345:I",
@@ -13,6 +14,33 @@
     "display" : "NELSON,BOB"
   },
   "npi" : "1234567890",
+  "telecom" : [
+    {
+      "system" : "phone",
+      "value" : "123-456-7890",
+      "use" : "mobile"
+    },
+    {
+      "system" : "phone",
+      "value" : "111-222-3333",
+      "use" : "mobile"
+    },
+    {
+      "system" : "pager",
+      "value" : "444-555-6666",
+      "use" : "mobile"
+    },
+    {
+      "system" : "fax",
+      "value" : "777-888-9999",
+      "use" : "mobile"
+    },
+    {
+      "system" : "email",
+      "value" : "bob.nelson@www.creedthoughts.gov.www/creedthoughts",
+      "use" : "mobile"
+    }
+  ],
   "role" : [
     {
       "system" : "rpcmm",

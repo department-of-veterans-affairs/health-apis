@@ -32,3 +32,5 @@ target/
 
 secrets.conf
 *.pem
+
+.DS_Store
