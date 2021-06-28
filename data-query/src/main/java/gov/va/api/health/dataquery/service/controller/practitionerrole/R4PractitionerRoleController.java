@@ -92,15 +92,15 @@ public class R4PractitionerRoleController {
       String code) {
     Specification<PractitionerRoleEntity> npiSpec =
         Specifications.<PractitionerRoleEntity>select("npi", code);
-    try {
-      CompositeCdwId cdwId = CompositeCdwId.fromCdwId(witnessProtection.toCdwId(code));
+    var maybeCdwId = CompositeCdwIds.optionalFromCdwId(witnessProtection.toCdwId(code));
+    if (maybeCdwId.isPresent()) {
+      var cdwId = maybeCdwId.get();
       Specification<PractitionerRoleEntity> cdwIdSpec =
           Specifications.<PractitionerRoleEntity>select("practitionerIdNumber", cdwId.cdwIdNumber())
               .and(Specifications.select("practitionerResourceCode", cdwId.cdwIdResourceCode()));
       return npiSpec.or(cdwIdSpec);
-    } catch (IllegalArgumentException e) {
-      return npiSpec;
     }
+    return npiSpec;
   }
 
   private Map<String, ?> loadCdwId(String publicId) {
