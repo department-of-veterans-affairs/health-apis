@@ -71,9 +71,9 @@ public class R4PractitionerRoleControllerTest {
       strings = {
         "",
         "?unknownparam=123",
-        "?_id=foo&practitioner.identifier=bar",
-        "?practitioner.name=harry&practitioner.family=potter",
-        "?practitioner.name=harry&practitioner.given=harry"
+        "?_id=foo&practitioner.identifier=123",
+        "?_id=foo&practitioner.identifier=123&practitioner.name=bar",
+        "?practitioner.identifier=123&practitioner.name=bar"
       })
   void invalidRequests(String query) {
     var r = requestFromUri("http://fonzy.com/r4/PractitionerRole" + query);
@@ -216,10 +216,7 @@ public class R4PractitionerRoleControllerTest {
         "?practitioner.identifier=111:S",
         "?practitioner.identifier=http://hl7.org/fhir/sid/us-npi|",
         "?practitioner.identifier=http://hl7.org/fhir/sid/us-npi|123",
-        "?practitioner.family=potter",
-        "?practitioner.given=harry",
         "?practitioner.name=harry",
-        "?practitioner.name=potter"
       })
   void validRequests(String query) {
     _registerMockIdentities(

@@ -69,22 +69,14 @@ public class R4PractitionerRoleController {
                     "practitioner.identifier",
                     this::tokenIdentifierIsSupported,
                     this::tokenIdentifierSpecification)
-                .string("practitioner.given", "givenName")
-                .string("practitioner.family", "familyName")
                 .string("practitioner.name", f -> Set.of("familyName", "givenName"))
                 .get())
         .defaultQuery(returnNothing())
         .rules(
             List.of(
-                atLeastOneParameterOf(
-                    "_id",
-                    "practitioner.identifier",
-                    "practitioner.given",
-                    "practitioner.family",
-                    "practitioner.name"),
-                parametersNeverSpecifiedTogether("_id", "practitioner.identifier"),
-                parametersNeverSpecifiedTogether("practitioner.name", "practitioner.given"),
-                parametersNeverSpecifiedTogether("practitioner.name", "practitioner.family")))
+                atLeastOneParameterOf("_id", "practitioner.identifier", "practitioner.name"),
+                parametersNeverSpecifiedTogether(
+                    "_id", "practitioner.identifier", "practitioner.name")))
         .build();
   }
 

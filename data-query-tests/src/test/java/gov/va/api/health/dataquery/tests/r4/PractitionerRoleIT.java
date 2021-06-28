@@ -45,24 +45,6 @@ public class PractitionerRoleIT {
             200,
             PractitionerRole.Bundle.class,
             bundleHasResults(),
-            "PractitionerRole?practitioner.given={given}",
-            testIds.practitioners().given()),
-        test(
-            200,
-            PractitionerRole.Bundle.class,
-            bundleHasResults(),
-            "PractitionerRole?practitioner.family={family}",
-            testIds.practitioners().family()),
-        test(
-            200,
-            PractitionerRole.Bundle.class,
-            bundleHasResults(),
-            "PractitionerRole?practitioner.family:exact={family}",
-            testIds.practitioners().family()),
-        test(
-            200,
-            PractitionerRole.Bundle.class,
-            bundleHasResults(),
             "PractitionerRole?practitioner.name={given}",
             testIds.practitioners().given()),
         test(
@@ -81,18 +63,6 @@ public class PractitionerRoleIT {
             200,
             PractitionerRole.Bundle.class,
             bundleHasResults(),
-            "PractitionerRole?practitioner.given={given}",
-            startGiven),
-        test(
-            200,
-            PractitionerRole.Bundle.class,
-            bundleHasResults(),
-            "PractitionerRole?practitioner.family={family}",
-            startFamily),
-        test(
-            200,
-            PractitionerRole.Bundle.class,
-            bundleHasResults(),
             "PractitionerRole?practitioner.name={given}",
             startGiven),
         test(
@@ -101,18 +71,6 @@ public class PractitionerRoleIT {
             bundleHasResults(),
             "PractitionerRole?practitioner.name={family}",
             startFamily),
-        test(
-            200,
-            PractitionerRole.Bundle.class,
-            bundleHasResults().negate(),
-            "PractitionerRole?practitioner.given={given}",
-            testIds.unknown()),
-        test(
-            200,
-            PractitionerRole.Bundle.class,
-            bundleHasResults().negate(),
-            "PractitionerRole?practitioner.family={family}",
-            testIds.unknown()),
         test(
             200,
             PractitionerRole.Bundle.class,
