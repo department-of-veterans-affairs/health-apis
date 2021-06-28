@@ -7,7 +7,6 @@ import gov.va.api.health.r4.api.resources.OperationOutcome;
 import gov.va.api.health.r4.api.resources.PractitionerRole;
 import java.util.function.Predicate;
 import lombok.experimental.Delegate;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 
 public class PractitionerRoleIT {
@@ -38,8 +37,8 @@ public class PractitionerRoleIT {
   @Test
   void searchByName() {
     // Grab subset of family/given names for startsWith tests
-    String startFamily = StringUtils.substring(testIds.practitioners().family(), 0, 3);
-    String startGiven = StringUtils.substring(testIds.practitioners().given(), 0, 3);
+    String startFamily = testIds.practitioners().family().substring(0, 3);
+    String startGiven = testIds.practitioners().given().substring(0, 3);
     verifier.verifyAll(
         test(
             200,
