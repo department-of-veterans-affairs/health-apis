@@ -67,7 +67,14 @@ public class R4PractitionerRoleControllerTest {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {"", "?unknownparam=123"})
+  @ValueSource(
+      strings = {
+        "",
+        "?unknownparam=123",
+        "?_id=foo&practitioner.identifier=123",
+        "?_id=foo&practitioner.identifier=123&practitioner.name=bar",
+        "?practitioner.identifier=123&practitioner.name=bar"
+      })
   void invalidRequests(String query) {
     var r = requestFromUri("http://fonzy.com/r4/PractitionerRole" + query);
     assertThatExceptionOfType(InvalidRequest.class).isThrownBy(() -> _controller().search(r));
@@ -203,7 +210,14 @@ public class R4PractitionerRoleControllerTest {
 
   @ParameterizedTest
   @SuppressWarnings("unchecked")
-  @ValueSource(strings = {"?_id=111:S"})
+  @ValueSource(
+      strings = {
+        "?_id=111:P",
+        "?practitioner.identifier=111:S",
+        "?practitioner.identifier=http://hl7.org/fhir/sid/us-npi|",
+        "?practitioner.identifier=http://hl7.org/fhir/sid/us-npi|123",
+        "?practitioner.name=harry",
+      })
   void validRequests(String query) {
     _registerMockIdentities(
         idReg("PRACTITIONER_ROLE", "I2-111", "111:P"),
