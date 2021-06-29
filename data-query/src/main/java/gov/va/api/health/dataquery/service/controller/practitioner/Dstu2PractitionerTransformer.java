@@ -9,6 +9,7 @@ import static gov.va.api.health.dataquery.service.controller.Transformers.ifPres
 import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
+
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
 import gov.va.api.health.dataquery.service.controller.practitionerrole.DatamartPractitionerRole;
 import gov.va.api.health.dstu2.api.datatypes.Address;
@@ -94,7 +95,8 @@ public class Dstu2PractitionerTransformer {
     return Practitioner.PractitionerRole.builder()
         .managingOrganization(asReference(source.managingOrganization()))
         .role(asCodeableConceptWrapping(singleRole))
-        .location(emptyToNull(source.location().stream().map(loc -> asReference(loc)).collect(toList())))
+        .location(
+            emptyToNull(source.location().stream().map(loc -> asReference(loc)).collect(toList())))
         .healthcareService(healthcareServices(source.healthCareService()))
         .build();
   }
@@ -134,10 +136,9 @@ public class Dstu2PractitionerTransformer {
 
   List<Practitioner.PractitionerRole> practitionerRoles() {
     return emptyToNull(
-        datamartRoles
-            .stream()
+        datamartRoles.stream()
             .filter(Objects::nonNull)
-            .flatMap(dmRole -> dmRole.role().stream().map(aRole -> practitionerRole(dmRole, aRole)))
+            .flatMap(dmRole -> dmRole.role().stream().map(r -> practitionerRole(dmRole, r)))
             .collect(toList()));
   }
 

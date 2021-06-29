@@ -2,10 +2,8 @@ package gov.va.api.health.dataquery.service.controller.practitionerrole;
 
 import gov.va.api.health.autoconfig.logging.Loggable;
 import gov.va.api.lighthouse.datamart.CompositeCdwId;
-
 import java.math.BigInteger;
 import java.util.List;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;

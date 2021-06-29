@@ -1,8 +1,8 @@
 package gov.va.api.health.dataquery.service.controller.practitioner;
 
 import static java.util.Collections.emptyList;
+import static java.util.stream.Collectors.toList;
 
-import gov.va.api.health.dataquery.service.config.LinkProperties;
 import gov.va.api.health.dataquery.service.controller.CompositeCdwIds;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
 import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
@@ -15,16 +15,14 @@ import gov.va.api.health.dataquery.service.controller.practitionerrole.DatamartP
 import gov.va.api.health.dataquery.service.controller.practitionerrole.PractitionerRoleEntity;
 import gov.va.api.health.dataquery.service.controller.practitionerrole.PractitionerRoleRepository;
 import gov.va.api.health.dstu2.api.resources.Practitioner;
-import gov.va.api.lighthouse.datamart.CompositeCdwId;
-import lombok.AllArgsConstructor;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
-import static java.util.stream.Collectors.toList;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.Min;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
@@ -120,9 +118,7 @@ public class Dstu2PractitionerController {
         resources,
         resource ->
             Stream.concat(
-                resource
-                    .practitionerRole()
-                    .stream()
+                resource.practitionerRole().stream()
                     .map(role -> role.managingOrganization().orElse(null)),
                 resource.practitionerRole().stream().flatMap(role -> role.location().stream())));
 
