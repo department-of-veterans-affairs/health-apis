@@ -24,13 +24,15 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.Builder;
+import lombok.NonNull;
+
 import org.apache.commons.lang3.BooleanUtils;
 
 @Builder
 public class Dstu2PractitionerTransformer {
-  private final DatamartPractitioner datamart;
+  @NonNull private final DatamartPractitioner datamart;
 
-  private final List<DatamartPractitionerRole> datamartRoles;
+  @NonNull private final List<DatamartPractitionerRole> datamartRoles;
 
   static Address address(DatamartPractitioner.Address address) {
     if (address == null
@@ -136,7 +138,8 @@ public class Dstu2PractitionerTransformer {
 
   List<Practitioner.PractitionerRole> practitionerRoles() {
     return emptyToNull(
-        datamartRoles.stream()
+        datamartRoles
+            .stream()
             .filter(Objects::nonNull)
             .flatMap(dmRole -> dmRole.role().stream().map(r -> practitionerRole(dmRole, r)))
             .collect(toList()));
