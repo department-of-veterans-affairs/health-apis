@@ -9,16 +9,18 @@ import static gov.va.api.health.dataquery.service.controller.Transformers.ifPres
 import static gov.va.api.health.dataquery.service.controller.Transformers.isBlank;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
-
 import gov.va.api.health.dataquery.service.controller.EnumSearcher;
+import gov.va.api.health.dataquery.service.controller.practitionerrole.DatamartPractitionerRole;
 import gov.va.api.health.dstu2.api.datatypes.Address;
 import gov.va.api.health.dstu2.api.datatypes.ContactPoint;
 import gov.va.api.health.dstu2.api.datatypes.HumanName;
 import gov.va.api.health.dstu2.api.elements.Reference;
 import gov.va.api.health.dstu2.api.resources.Practitioner;
+import gov.va.api.lighthouse.datamart.DatamartCoding;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import lombok.Builder;
 import org.apache.commons.lang3.BooleanUtils;
@@ -26,6 +28,8 @@ import org.apache.commons.lang3.BooleanUtils;
 @Builder
 public class Dstu2PractitionerTransformer {
   private final DatamartPractitioner datamart;
+
+  private final List<DatamartPractitionerRole> datamartRoles;
 
   static Address address(DatamartPractitioner.Address address) {
     if (address == null
@@ -78,20 +82,19 @@ public class Dstu2PractitionerTransformer {
   }
 
   static Practitioner.PractitionerRole practitionerRole(
-      DatamartPractitioner.PractitionerRole source) {
+      DatamartPractitionerRole source, DatamartCoding singleRole) {
     if (source == null
         || allBlank(
-            source.healthCareService(),
-            source.location(),
             source.managingOrganization(),
-            source.role())) {
+            singleRole,
+            source.location(),
+            source.healthCareService())) {
       return null;
     }
     return Practitioner.PractitionerRole.builder()
-        .location(
-            emptyToNull(source.location().stream().map(loc -> asReference(loc)).collect(toList())))
-        .role(asCodeableConceptWrapping(source.role()))
         .managingOrganization(asReference(source.managingOrganization()))
+        .role(asCodeableConceptWrapping(singleRole))
+        .location(emptyToNull(source.location().stream().map(loc -> asReference(loc)).collect(toList())))
         .healthcareService(healthcareServices(source.healthCareService()))
         .build();
   }
@@ -131,7 +134,11 @@ public class Dstu2PractitionerTransformer {
 
   List<Practitioner.PractitionerRole> practitionerRoles() {
     return emptyToNull(
-        datamart.practitionerRole().stream().map(rol -> practitionerRole(rol)).collect(toList()));
+        datamartRoles
+            .stream()
+            .filter(Objects::nonNull)
+            .flatMap(dmRole -> dmRole.role().stream().map(aRole -> practitionerRole(dmRole, aRole)))
+            .collect(toList()));
   }
 
   List<ContactPoint> telecoms() {

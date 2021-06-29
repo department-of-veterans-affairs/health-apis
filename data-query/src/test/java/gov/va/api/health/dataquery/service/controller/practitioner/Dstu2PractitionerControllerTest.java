@@ -13,6 +13,7 @@ import gov.va.api.health.dataquery.service.controller.ConfigurableBaseUrlPageLin
 import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
+import gov.va.api.health.dataquery.service.controller.practitionerrole.PractitionerRoleRepository;
 import gov.va.api.health.dstu2.api.bundle.BundleLink.LinkRelation;
 import gov.va.api.health.dstu2.api.resources.Practitioner;
 import gov.va.api.health.ids.api.IdentityService;
@@ -36,6 +37,8 @@ public class Dstu2PractitionerControllerTest {
 
   @Autowired PractitionerRepository repository;
 
+  @Autowired PractitionerRoleRepository roleRepository;
+  
   static Registration idReg(String type, String pubId, String cdwId) {
     return Registration.builder()
         .uuid(pubId)
@@ -60,6 +63,7 @@ public class Dstu2PractitionerControllerTest {
         new Dstu2Bundler(
             new ConfigurableBaseUrlPageLinks("http://fonzy.com", "cool", "cool", "cool")),
         repository,
+        roleRepository,
         WitnessProtection.builder().identityService(ids).build());
   }
 
