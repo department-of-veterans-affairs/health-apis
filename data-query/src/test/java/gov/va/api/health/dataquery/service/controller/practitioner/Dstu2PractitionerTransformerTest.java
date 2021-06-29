@@ -4,6 +4,7 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import gov.va.api.health.dataquery.service.controller.practitionerrole.DatamartPractitionerRole;
+import gov.va.api.health.dataquery.service.controller.practitionerrole.PractitionerRoleSamples;
 import gov.va.api.health.dstu2.api.datatypes.Address;
 import gov.va.api.health.dstu2.api.datatypes.HumanName;
 import gov.va.api.health.dstu2.api.resources.Practitioner;
@@ -99,7 +100,11 @@ public class Dstu2PractitionerTransformerTest {
   @Test
   void practitioner() {
     assertThat(
-            tx(PractitionerSamples.Datamart.create().practitioner("111:S", "222:I", "333:L"))
+            tx(
+                    PractitionerSamples.Datamart.create().practitioner("111:S", "222:I", "333:L"),
+                    List.of(
+                        PractitionerRoleSamples.Datamart.create()
+                            .practitionerRole("111:P", "111:S", "222:I", "333:L")))
                 .toFhir())
         .isEqualTo(PractitionerSamples.Dstu2.create().practitioner("111:S", "222:I", "333:L"));
   }

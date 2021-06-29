@@ -14,6 +14,7 @@ import gov.va.api.health.dataquery.service.controller.Dstu2Bundler;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
 import gov.va.api.health.dataquery.service.controller.practitionerrole.PractitionerRoleRepository;
+import gov.va.api.health.dataquery.service.controller.practitionerrole.PractitionerRoleSamples;
 import gov.va.api.health.dstu2.api.bundle.BundleLink.LinkRelation;
 import gov.va.api.health.dstu2.api.resources.Practitioner;
 import gov.va.api.health.ids.api.IdentityService;
@@ -38,7 +39,7 @@ public class Dstu2PractitionerControllerTest {
   @Autowired PractitionerRepository repository;
 
   @Autowired PractitionerRoleRepository roleRepository;
-  
+
   static Registration idReg(String type, String pubId, String cdwId) {
     return Registration.builder()
         .uuid(pubId)
@@ -76,39 +77,44 @@ public class Dstu2PractitionerControllerTest {
 
   @Test
   void read() {
-    String publicId = "I2-abc";
-    String cdwId = "111:S";
+    String praPubId = "I2-prac";
+    String praCdwId = "111:S";
+    String rolPubId = "I2-role";
+    String rolCdwId = "111:P";
     String orgPubId = "I2-def";
     String orgCdwId = "222:I";
     String locPubId = "I2-ghi";
     String locCdwId = "333:L";
-    repository.save(PractitionerSamples.Datamart.create().entity(cdwId, orgCdwId, locCdwId));
+    repository.save(PractitionerSamples.Datamart.create().entity(praCdwId, orgCdwId, locCdwId));
+    roleRepository.save(
+        PractitionerRoleSamples.Datamart.create().entity(rolCdwId, praCdwId, orgCdwId, locCdwId));
     _registerMockIdentities(
-        idReg("PRACTITIONER", publicId, cdwId),
+        idReg("PRACTITIONER", praPubId, praCdwId),
+        idReg("PRACTITIONER_ROLE", rolPubId, rolCdwId),
         idReg("ORGANIZATION", orgPubId, orgCdwId),
         idReg("LOCATION", locPubId, locCdwId));
-    Practitioner actual = _controller().read(cdwId);
+    Practitioner actual = _controller().read(praCdwId);
     assertThat(actual)
-        .isEqualTo(PractitionerSamples.Dstu2.create().practitioner(publicId, orgPubId, locPubId));
+        .isEqualTo(PractitionerSamples.Dstu2.create().practitioner(praPubId, orgPubId, locPubId));
   }
 
   @Test
   void readRaw() {
-    String publicId = "I2-abc";
-    String cdwId = "123:S";
+    String praPubId = "I2-prac";
+    String praCdwId = "123:S";
     String orgPubId = "I2-def";
     String orgCdwId = "456:I";
     String locPubId = "I2-ghi";
     String locCdwId = "789:L";
     _registerMockIdentities(
-        idReg("PRACTITIONER", publicId, cdwId),
+        idReg("PRACTITIONER", praPubId, praCdwId),
         idReg("LOCATION", orgPubId, orgCdwId),
         idReg("ORGANIZATION", locPubId, locCdwId));
     HttpServletResponse servletResponse = mock(HttpServletResponse.class);
     DatamartPractitioner dm =
-        PractitionerSamples.Datamart.create().practitioner(cdwId, orgCdwId, locCdwId);
-    repository.save(PractitionerSamples.Datamart.create().entity(cdwId, orgCdwId, locCdwId));
-    String json = _controller().readRaw(publicId, servletResponse);
+        PractitionerSamples.Datamart.create().practitioner(praCdwId, orgCdwId, locCdwId);
+    repository.save(PractitionerSamples.Datamart.create().entity(praCdwId, orgCdwId, locCdwId));
+    String json = _controller().readRaw(praPubId, servletResponse);
     assertThat(toObject(json)).isEqualTo(dm);
     verify(servletResponse).addHeader("X-VA-INCLUDES-ICN", "NONE");
   }
@@ -163,40 +169,49 @@ public class Dstu2PractitionerControllerTest {
 
   @Test
   void read_migrate() {
-    String publicIdNoSuffix = "I2-abc";
-    String cdwIdNoSuffix = "123";
-    String publicIdSuffix = "I2-abcS";
-    String cdwIdSuffix = "123:S";
+    String oldPubId = "I2-oldprac";
+    String oldCdwId = "123";
+    String sfxPubId = "I2-suffixprac";
+    String sfxCdwId = "123:S";
+    String rolPubId = "I2-role";
+    String rolCdwId = "111:P";
     String orgPubId = "I2-def";
     String orgCdwId = "456:I";
     String locPubId = "I2-ghi";
     String locCdwId = "789:L";
     _registerMockIdentities(
-        idReg("PRACTITIONER", publicIdNoSuffix, cdwIdNoSuffix),
-        idReg("PRACTITIONER", publicIdSuffix, cdwIdSuffix),
+        idReg("PRACTITIONER", oldPubId, oldCdwId),
+        idReg("PRACTITIONER", sfxPubId, sfxCdwId),
+        idReg("PRACTITIONER_ROLE", rolPubId, rolCdwId),
         idReg("ORGANIZATION", orgPubId, orgCdwId),
         idReg("LOCATION", locPubId, locCdwId));
-    repository.save(PractitionerSamples.Datamart.create().entity(cdwIdSuffix, orgCdwId, locCdwId));
-    Practitioner actual = _controller().read(publicIdNoSuffix);
+    repository.save(PractitionerSamples.Datamart.create().entity(sfxCdwId, orgCdwId, locCdwId));
+    roleRepository.save(
+        PractitionerRoleSamples.Datamart.create().entity(rolCdwId, sfxCdwId, orgCdwId, locCdwId));
+    Practitioner actual = _controller().read(oldPubId);
     assertThat(actual)
-        .isEqualTo(
-            PractitionerSamples.Dstu2.create().practitioner(publicIdSuffix, orgPubId, locPubId));
+        .isEqualTo(PractitionerSamples.Dstu2.create().practitioner(sfxPubId, orgPubId, locPubId));
   }
 
   @Test
   void searchById() {
-    String publicId = "I2-abc";
-    String cdwId = "123:S";
+    String praPubId = "I2-abc";
+    String praCdwId = "123:S";
+    String rolPubId = "I2-role";
+    String rolCdwId = "111:P";
     String orgPubId = "I2-def";
     String orgCdwId = "456:I";
     String locPubId = "I2-ghi";
     String locCdwId = "789:L";
     _registerMockIdentities(
-        idReg("PRACTITIONER", publicId, cdwId),
+        idReg("PRACTITIONER", praPubId, praCdwId),
+        idReg("PRACTITIONER_ROLE", rolPubId, rolCdwId),
         idReg("ORGANIZATION", orgPubId, orgCdwId),
         idReg("LOCATION", locPubId, locCdwId));
-    repository.save(PractitionerSamples.Datamart.create().entity(cdwId, orgCdwId, locCdwId));
-    Practitioner.Bundle actual = _controller().searchById(publicId, 1, 1);
+    repository.save(PractitionerSamples.Datamart.create().entity(praCdwId, orgCdwId, locCdwId));
+    roleRepository.save(
+        PractitionerRoleSamples.Datamart.create().entity(rolCdwId, praCdwId, orgCdwId, locCdwId));
+    Practitioner.Bundle actual = _controller().searchById(praPubId, 1, 1);
     assertThat(json(actual))
         .isEqualTo(
             json(
@@ -204,7 +219,7 @@ public class Dstu2PractitionerControllerTest {
                     "http://fonzy.com/cool",
                     List.of(
                         PractitionerSamples.Dstu2.create()
-                            .practitioner(publicId, orgPubId, locPubId)),
+                            .practitioner(praPubId, orgPubId, locPubId)),
                     PractitionerSamples.Dstu2.link(
                         LinkRelation.first,
                         "http://fonzy.com/cool/Practitioner?identifier=I2-abc",
@@ -224,18 +239,23 @@ public class Dstu2PractitionerControllerTest {
 
   @Test
   void searchByIdentifier() {
-    String publicId = "I2-abc";
-    String cdwId = "123:S";
+    String praPubId = "I2-prac";
+    String praCdwId = "123:S";
+    String rolPubId = "I2-role";
+    String rolCdwId = "111:P";
     String orgPubId = "I2-def";
     String orgCdwId = "456:I";
     String locPubId = "I2-ghi";
     String locCdwId = "789:L";
     _registerMockIdentities(
-        idReg("PRACTITIONER", publicId, cdwId),
+        idReg("PRACTITIONER", praPubId, praCdwId),
+        idReg("PRACTITIONER_ROLE", rolPubId, rolCdwId),
         idReg("LOCATION", locPubId, locCdwId),
         idReg("ORGANIZATION", orgPubId, orgCdwId));
-    repository.save(PractitionerSamples.Datamart.create().entity(cdwId, orgCdwId, locCdwId));
-    Practitioner.Bundle actual = _controller().searchByIdentifier(publicId, 1, 1);
+    repository.save(PractitionerSamples.Datamart.create().entity(praCdwId, orgCdwId, locCdwId));
+    roleRepository.save(
+        PractitionerRoleSamples.Datamart.create().entity(rolCdwId, praCdwId, orgCdwId, locCdwId));
+    Practitioner.Bundle actual = _controller().searchByIdentifier(praPubId, 1, 1);
     assertThat(json(actual))
         .isEqualTo(
             json(
@@ -243,20 +263,20 @@ public class Dstu2PractitionerControllerTest {
                     "http://fonzy.com/cool",
                     List.of(
                         PractitionerSamples.Dstu2.create()
-                            .practitioner(publicId, orgPubId, locPubId)),
+                            .practitioner(praPubId, orgPubId, locPubId)),
                     PractitionerSamples.Dstu2.link(
                         LinkRelation.first,
-                        "http://fonzy.com/cool/Practitioner?identifier=I2-abc",
+                        "http://fonzy.com/cool/Practitioner?identifier=" + praPubId,
                         1,
                         1),
                     PractitionerSamples.Dstu2.link(
                         LinkRelation.self,
-                        "http://fonzy.com/cool/Practitioner?identifier=I2-abc",
+                        "http://fonzy.com/cool/Practitioner?identifier=" + praPubId,
                         1,
                         1),
                     PractitionerSamples.Dstu2.link(
                         LinkRelation.last,
-                        "http://fonzy.com/cool/Practitioner?identifier=I2-abc",
+                        "http://fonzy.com/cool/Practitioner?identifier=" + praPubId,
                         1,
                         1))));
   }
