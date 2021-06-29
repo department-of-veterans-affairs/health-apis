@@ -25,7 +25,6 @@ import java.util.Objects;
 import java.util.Optional;
 import lombok.Builder;
 import lombok.NonNull;
-
 import org.apache.commons.lang3.BooleanUtils;
 
 @Builder
@@ -55,6 +54,11 @@ public class Dstu2PractitionerTransformer {
 
   static String birthDate(Optional<LocalDate> source) {
     return source.map(LocalDate::toString).orElse(null);
+  }
+
+  static Practitioner.Gender gender(DatamartPractitioner.Gender source) {
+    return convert(
+        source, gender -> EnumSearcher.of(Practitioner.Gender.class).find(gender.toString()));
   }
 
   static List<Reference> healthcareServices(Optional<String> service) {
@@ -131,15 +135,9 @@ public class Dstu2PractitionerTransformer {
     return emptyToNull(datamart.address().stream().map(adr -> address(adr)).collect(toList()));
   }
 
-  Practitioner.Gender gender(DatamartPractitioner.Gender source) {
-    return convert(
-        source, gender -> EnumSearcher.of(Practitioner.Gender.class).find(gender.toString()));
-  }
-
   List<Practitioner.PractitionerRole> practitionerRoles() {
     return emptyToNull(
-        datamartRoles
-            .stream()
+        datamartRoles.stream()
             .filter(Objects::nonNull)
             .flatMap(dmRole -> dmRole.role().stream().map(r -> practitionerRole(dmRole, r)))
             .collect(toList()));

@@ -62,11 +62,10 @@ public class Dstu2PractitionerTransformerTest {
 
   @Test
   void gender() {
-    Dstu2PractitionerTransformer transformer = Dstu2PractitionerTransformer.builder().build();
-    assertThat(transformer.gender(null)).isNull();
-    assertThat(transformer.gender(DatamartPractitioner.Gender.male))
+    assertThat(Dstu2PractitionerTransformer.gender(null)).isNull();
+    assertThat(Dstu2PractitionerTransformer.gender(DatamartPractitioner.Gender.male))
         .isEqualTo(Practitioner.Gender.male);
-    assertThat(transformer.gender(DatamartPractitioner.Gender.female))
+    assertThat(Dstu2PractitionerTransformer.gender(DatamartPractitioner.Gender.female))
         .isEqualTo(Practitioner.Gender.female);
   }
 
