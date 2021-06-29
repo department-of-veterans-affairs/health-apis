@@ -129,7 +129,6 @@ public class Dstu2PractitionerController {
                     resource.practitioner().orElse(null),
                     resource.managingOrganization().orElse(null)),
                 resource.location().stream()));
-    return;
   }
 
   @GetMapping(params = {"_id"})
