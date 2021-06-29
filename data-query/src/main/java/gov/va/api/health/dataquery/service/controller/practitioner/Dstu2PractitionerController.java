@@ -111,7 +111,7 @@ public class Dstu2PractitionerController {
     return entity.payload();
   }
 
-  private Collection<DatamartPractitioner> replaceReferences(
+  private void replaceReferences(
       Collection<DatamartPractitioner> resources,
       Collection<DatamartPractitionerRole> roleResources) {
     witnessProtection.registerAndUpdateReferences(
@@ -121,7 +121,6 @@ public class Dstu2PractitionerController {
                 resource.practitionerRole().stream()
                     .map(role -> role.managingOrganization().orElse(null)),
                 resource.practitionerRole().stream().flatMap(role -> role.location().stream())));
-
     witnessProtection.registerAndUpdateReferences(
         roleResources,
         resource ->
@@ -130,7 +129,7 @@ public class Dstu2PractitionerController {
                     resource.practitioner().orElse(null),
                     resource.managingOrganization().orElse(null)),
                 resource.location().stream()));
-    return resources;
+    return;
   }
 
   @GetMapping(params = {"_id"})
