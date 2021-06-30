@@ -3,16 +3,20 @@ package gov.va.api.health.dataquery.service.controller.practitioner;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import gov.va.api.health.dataquery.service.controller.practitionerrole.DatamartPractitionerRole;
+import gov.va.api.health.dataquery.service.controller.practitionerrole.PractitionerRoleSamples;
 import gov.va.api.health.dstu2.api.datatypes.Address;
 import gov.va.api.health.dstu2.api.datatypes.HumanName;
 import gov.va.api.health.dstu2.api.resources.Practitioner;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
 public class Dstu2PractitionerTransformerTest {
-  static Dstu2PractitionerTransformer tx(DatamartPractitioner dm) {
-    return Dstu2PractitionerTransformer.builder().datamart(dm).build();
+  static Dstu2PractitionerTransformer tx(
+      DatamartPractitioner dm, List<DatamartPractitionerRole> dmRoles) {
+    return Dstu2PractitionerTransformer.builder().datamart(dm).datamartRoles(dmRoles).build();
   }
 
   @Test
@@ -50,6 +54,7 @@ public class Dstu2PractitionerTransformerTest {
     assertThat(
             Dstu2PractitionerTransformer.builder()
                 .datamart(DatamartPractitioner.builder().build())
+                .datamartRoles(List.of())
                 .build()
                 .toFhir())
         .isEqualTo(Practitioner.builder().build());
@@ -57,11 +62,10 @@ public class Dstu2PractitionerTransformerTest {
 
   @Test
   void gender() {
-    Dstu2PractitionerTransformer transformer = Dstu2PractitionerTransformer.builder().build();
-    assertThat(transformer.gender(null)).isNull();
-    assertThat(transformer.gender(DatamartPractitioner.Gender.male))
+    assertThat(Dstu2PractitionerTransformer.gender(null)).isNull();
+    assertThat(Dstu2PractitionerTransformer.gender(DatamartPractitioner.Gender.male))
         .isEqualTo(Practitioner.Gender.male);
-    assertThat(transformer.gender(DatamartPractitioner.Gender.female))
+    assertThat(Dstu2PractitionerTransformer.gender(DatamartPractitioner.Gender.female))
         .isEqualTo(Practitioner.Gender.female);
   }
 
@@ -89,13 +93,17 @@ public class Dstu2PractitionerTransformerTest {
   void nullChecks() {
     assertThat(Dstu2PractitionerTransformer.healthcareServices(Optional.empty())).isNull();
     assertThat(Dstu2PractitionerTransformer.telecom(null)).isNull();
-    assertThat(Dstu2PractitionerTransformer.practitionerRole(null)).isNull();
+    assertThat(Dstu2PractitionerTransformer.practitionerRole(null, null)).isNull();
   }
 
   @Test
   void practitioner() {
     assertThat(
-            tx(PractitionerSamples.Datamart.create().practitioner("111:S", "222:I", "333:L"))
+            tx(
+                    PractitionerSamples.Datamart.create().practitioner("111:S", "222:I", "333:L"),
+                    List.of(
+                        PractitionerRoleSamples.Datamart.create()
+                            .practitionerRole("111:P", "111:S", "222:I", "333:L")))
                 .toFhir())
         .isEqualTo(PractitionerSamples.Dstu2.create().practitioner("111:S", "222:I", "333:L"));
   }
