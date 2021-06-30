@@ -21,5 +21,6 @@ public interface PractitionerRoleRepository
 
   Page<PractitionerRoleEntity> findByNpi(String npi, Pageable pageable);
 
-  List<PractitionerRoleEntity> findByPractitionerIdNumber(BigInteger idNumber);
+  List<PractitionerRoleEntity> findByPractitionerIdNumberAndPractitionerResourceCode(
+      BigInteger idNumber, char practitionerResourceCode);
 }

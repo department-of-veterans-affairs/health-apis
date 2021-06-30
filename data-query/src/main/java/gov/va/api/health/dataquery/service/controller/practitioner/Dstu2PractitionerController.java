@@ -85,11 +85,14 @@ public class Dstu2PractitionerController {
 
   List<PractitionerRoleEntity> findRolesById(String publicId) {
     String cdwId = witnessProtection.toCdwId(publicId);
-    if (!cdwId.endsWith(":S")) {
+    if (cdwId.length() <= 1 || cdwId.charAt(cdwId.length() - 2) != ':') {
       cdwId = cdwId + ":S";
     }
     return CompositeCdwIds.optionalFromCdwId(cdwId)
-        .map(id -> roleRepository.findByPractitionerIdNumber(id.cdwIdNumber()))
+        .map(
+            id ->
+                roleRepository.findByPractitionerIdNumberAndPractitionerResourceCode(
+                    id.cdwIdNumber(), id.cdwIdResourceCode()))
         .orElse(List.of());
   }
 
