@@ -13,6 +13,7 @@ public class Dstu2PatientTransformerTest {
                 .datamart(DatamartPatient.builder().build())
                 .build()
                 .toFhir())
-        .isEqualTo(Patient.builder().resourceType("Patient").build());
+        .isEqualTo(
+            Patient.builder().resourceType("Patient").gender(Patient.Gender.unknown).build());
   }
 }

@@ -38,6 +38,7 @@ import lombok.Builder;
 import lombok.NonNull;
 
 @Builder
+@SuppressWarnings("UnnecessaryParentheses")
 final class Dstu2PatientTransformer {
   @NonNull final DatamartPatient datamart;
 
@@ -85,24 +86,13 @@ final class Dstu2PatientTransformer {
     if (telecom == null) {
       return null;
     }
-    switch (upperCase(trimToEmpty(telecom.type()))) {
-      case "PATIENT CELL PHONE":
-        return ContactPoint.ContactPointUse.mobile;
-      case "PATIENT RESIDENCE":
-        // falls through
-      case "PATIENT EMAIL":
-        // falls through
-      case "PATIENT PAGER":
-        return ContactPoint.ContactPointUse.home;
-      case "PATIENT EMPLOYER":
-        // falls through
-      case "SPOUSE EMPLOYER":
-        return ContactPoint.ContactPointUse.work;
-      case "TEMPORARY":
-        return ContactPoint.ContactPointUse.temp;
-      default:
-        return null;
-    }
+    return switch (upperCase(trimToEmpty(telecom.type()))) {
+      case "PATIENT CELL PHONE" -> ContactPointUse.mobile;
+      case "PATIENT RESIDENCE", "PATIENT EMAIL", "PATIENT PAGER" -> ContactPointUse.home;
+      case "PATIENT EMPLOYER", "SPOUSE EMPLOYER" -> ContactPointUse.work;
+      case "TEMPORARY" -> ContactPointUse.temp;
+      default -> null;
+    };
   }
 
   static List<ContactPoint> contactTelecoms(DatamartPatient.Contact.Phone phone) {
@@ -142,14 +132,11 @@ final class Dstu2PatientTransformer {
     if (ethnicity == null) {
       return null;
     }
-    switch (upperCase(trimToEmpty(ethnicity.hl7()), Locale.US)) {
-      case "2135-2":
-        return "Hispanic or Latino";
-      case "2186-5":
-        return "Non Hispanic or Latino";
-      default:
-        return ethnicity.display();
-    }
+    return switch (upperCase(trimToEmpty(ethnicity.hl7()), Locale.US)) {
+      case "2135-2" -> "Hispanic or Latino";
+      case "2186-5" -> "Non Hispanic or Latino";
+      default -> ethnicity.display();
+    };
   }
 
   static List<Extension> ethnicityExtensions(DatamartPatient.Ethnicity ethnicity) {
@@ -180,30 +167,19 @@ final class Dstu2PatientTransformer {
     String upper = upperCase(trimToEmpty(code), Locale.US);
     Coding.CodingBuilder result =
         Coding.builder().system("http://hl7.org/fhir/marital-status").code(upper);
-    switch (upper) {
-      case "A":
-        return result.display("Annulled").build();
-      case "D":
-        return result.display("Divorced").build();
-      case "I":
-        return result.display("Interlocutory").build();
-      case "L":
-        return result.display("Legally Separated").build();
-      case "M":
-        return result.display("Married").build();
-      case "P":
-        return result.display("Polygamous").build();
-      case "S":
-        return result.display("Never Married").build();
-      case "T":
-        return result.display("Domestic partner").build();
-      case "W":
-        return result.display("Widowed").build();
-      case "UNK":
-        return result.system("http://hl7.org/fhir/v3/NullFlavor").display("unknown").build();
-      default:
-        return null;
-    }
+    return switch (upper) {
+      case "A" -> result.display("Annulled").build();
+      case "D" -> result.display("Divorced").build();
+      case "I" -> result.display("Interlocutory").build();
+      case "L" -> result.display("Legally Separated").build();
+      case "M" -> result.display("Married").build();
+      case "P" -> result.display("Polygamous").build();
+      case "S" -> result.display("Never Married").build();
+      case "T" -> result.display("Domestic partner").build();
+      case "W" -> result.display("Widowed").build();
+      case "UNK" -> result.system("http://hl7.org/fhir/v3/NullFlavor").display("unknown").build();
+      default -> null;
+    };
   }
 
   static HumanName name(DatamartPatient.Contact contact) {
@@ -269,24 +245,18 @@ final class Dstu2PatientTransformer {
     }
     Coding.CodingBuilder builder =
         Coding.builder().system("http://hl7.org/fhir/patient-contact-relationship");
-    switch (upperCase(trimToEmpty(contact.type()), Locale.US)) {
-      case "CIVIL GUARDIAN":
-        // falls through
-      case "VA GUARDIAN":
-        return builder.code("guardian").display("Guardian").build();
-      case "EMERGENCY CONTACT":
-        // falls through
-      case "SECONDARY EMERGENCY CONTACT":
-        return builder.code("emergency").display("Emergency").build();
-      case "NEXT OF KIN":
-        // falls through
-      case "SECONDARY NEXT OF KIN":
-        // falls through
-      case "SPOUSE EMPLOYER":
-        return builder.code("family").display("Family").build();
-      default:
-        return null;
-    }
+    return switch (upperCase(trimToEmpty(contact.type()), Locale.US)) {
+      case "CIVIL GUARDIAN", "VA GUARDIAN" -> builder.code("guardian").display("Guardian").build();
+      case "EMERGENCY CONTACT", "SECONDARY EMERGENCY CONTACT" -> builder
+          .code("emergency")
+          .display("Emergency")
+          .build();
+      case "NEXT OF KIN", "SECONDARY NEXT OF KIN", "SPOUSE EMPLOYER" -> builder
+          .code("family")
+          .display("Family")
+          .build();
+      default -> null;
+    };
   }
 
   static List<CodeableConcept> relationships(DatamartPatient.Contact contact) {
@@ -304,20 +274,14 @@ final class Dstu2PatientTransformer {
     if (use == null) {
       return 6;
     }
-    switch (use) {
-      case mobile:
-        return 1;
-      case home:
-        return 2;
-      case temp:
-        return 3;
-      case work:
-        return 4;
-      case old:
-        return 5;
-      default:
-        return 6;
-    }
+    return switch (use) {
+      case mobile -> 1;
+      case home -> 2;
+      case temp -> 3;
+      case work -> 4;
+      case old -> 5;
+      default -> 6;
+    };
   }
 
   private static String stripPhone(String phone) {
@@ -347,16 +311,12 @@ final class Dstu2PatientTransformer {
     if (isBlank(maybeBirthsex)) {
       return null;
     }
-    switch (maybeBirthsex) {
-      case "M":
-        return "M";
-      case "F":
-        return "F";
-      case "*Unknown at this time*":
-        return "UNK";
-      default:
-        return null;
-    }
+    return switch (upperCase(maybeBirthsex, Locale.US)) {
+      case "M", "MALE" -> "M";
+      case "F", "FEMALE" -> "F";
+      case "*Unknown at this time*", "UNKNOWN" -> "UNK";
+      default -> null;
+    };
   }
 
   private List<Patient.Contact> contacts() {
@@ -368,14 +328,11 @@ final class Dstu2PatientTransformer {
     if (deceasedDateTime() != null) {
       return null;
     }
-    switch (upperCase(trimToEmpty(datamart.deceased()), Locale.US)) {
-      case "Y":
-        return true;
-      case "N":
-        return false;
-      default:
-        return null;
-    }
+    return switch (upperCase(trimToEmpty(datamart.deceased()), Locale.US)) {
+      case "Y" -> true;
+      case "N" -> false;
+      default -> null;
+    };
   }
 
   private String deceasedDateTime() {
@@ -419,10 +376,10 @@ final class Dstu2PatientTransformer {
   }
 
   private Patient.Gender gender() {
-    if (isBlank(datamart.gender())) {
-      return null;
+    if (isNotBlank(datamart.gender())) {
+      return GenderMapping.toDstu2Fhir(datamart.gender());
     }
-    return GenderMapping.toDstu2Fhir(datamart.gender());
+    return Patient.Gender.unknown;
   }
 
   private List<Identifier> identifiers() {
