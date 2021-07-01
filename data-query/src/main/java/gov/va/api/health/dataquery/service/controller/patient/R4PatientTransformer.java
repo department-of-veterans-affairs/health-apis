@@ -318,7 +318,7 @@ final class R4PatientTransformer {
     return switch (upperCase(maybeBirthsex, Locale.US)) {
       case "M", "MALE" -> "M";
       case "F", "FEMALE" -> "F";
-      case "*Unknown at this time*", "UNKNOWN" -> "UNK";
+      case "*UNKNOWN AT THIS TIME*", "UNKNOWN" -> "UNK";
       default -> null;
     };
   }
@@ -382,7 +382,8 @@ final class R4PatientTransformer {
   private Patient.Gender gender() {
     var badSelfIdentifiedGenders = List.of("NULL", "*Unknown at this time*", "*Missing*");
     if (datamart.selfIdentifiedGender().isPresent()
-        && !badSelfIdentifiedGenders.contains(datamart.selfIdentifiedGender().get())) {
+        && !badSelfIdentifiedGenders.stream()
+            .anyMatch(bads -> containsIgnoreCase(bads, datamart.selfIdentifiedGender().get()))) {
       return GenderMapping.toR4Fhir(datamart.selfIdentifiedGender().get());
     } else if (isNotBlank(datamart.gender())) {
       return GenderMapping.toR4Fhir(datamart.gender());

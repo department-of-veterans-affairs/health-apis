@@ -314,7 +314,7 @@ final class Dstu2PatientTransformer {
     return switch (upperCase(maybeBirthsex, Locale.US)) {
       case "M", "MALE" -> "M";
       case "F", "FEMALE" -> "F";
-      case "*Unknown at this time*", "UNKNOWN" -> "UNK";
+      case "*UNKNOWN AT THIS TIME*", "UNKNOWN" -> "UNK";
       default -> null;
     };
   }

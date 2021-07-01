@@ -77,6 +77,8 @@ public class R4PatientTransformerTest {
     assertThat(genderOf("M", Optional.of("MaLE"))).isEqualTo(Patient.Gender.male);
     assertThat(genderOf("F", Optional.of("feMALE"))).isEqualTo(Patient.Gender.female);
     assertThat(genderOf("male", Optional.of("feMALE"))).isEqualTo(Patient.Gender.female);
+    assertThat(genderOf("female", Optional.of("*UNKNOWN AT THIS TIME*")))
+        .isEqualTo(Patient.Gender.female);
     assertThat(genderOf("unknown", Optional.of("NULL"))).isEqualTo(Patient.Gender.unknown);
     assertThat(genderOf("female", Optional.of("TransgedER MALE"))).isEqualTo(Patient.Gender.other);
     assertThat(genderOf(null, Optional.empty())).isEqualTo(Patient.Gender.unknown);
