@@ -1,6 +1,7 @@
 package gov.va.api.health.dataquery.service.controller.practitioner;
 
 import static java.util.Collections.emptyList;
+import static java.util.stream.Collectors.toList;
 
 import gov.va.api.health.dataquery.service.controller.CompositeCdwIds;
 import gov.va.api.health.dataquery.service.controller.CountParameter;
@@ -10,6 +11,9 @@ import gov.va.api.health.dataquery.service.controller.PageLinks;
 import gov.va.api.health.dataquery.service.controller.Parameters;
 import gov.va.api.health.dataquery.service.controller.ResourceExceptions;
 import gov.va.api.health.dataquery.service.controller.WitnessProtection;
+import gov.va.api.health.dataquery.service.controller.practitionerrole.DatamartPractitionerRole;
+import gov.va.api.health.dataquery.service.controller.practitionerrole.PractitionerRoleEntity;
+import gov.va.api.health.dataquery.service.controller.practitionerrole.PractitionerRoleRepository;
 import gov.va.api.health.dstu2.api.resources.Practitioner;
 import java.util.Collection;
 import java.util.List;
@@ -18,6 +22,7 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.Min;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
@@ -34,6 +39,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 @RestController
 @SuppressWarnings("WeakerAccess")
+@AllArgsConstructor(onConstructor_ = @Autowired)
 @RequestMapping(
     value = {"/dstu2/Practitioner"},
     produces = {"application/json", "application/json+fhir", "application/fhir+json"})
@@ -42,17 +48,9 @@ public class Dstu2PractitionerController {
 
   private PractitionerRepository repository;
 
-  private WitnessProtection witnessProtection;
+  private PractitionerRoleRepository roleRepository;
 
-  /** Autowired constructor. */
-  public Dstu2PractitionerController(
-      @Autowired Dstu2Bundler bundler,
-      @Autowired PractitionerRepository repository,
-      @Autowired WitnessProtection witnessProtection) {
-    this.bundler = bundler;
-    this.repository = repository;
-    this.witnessProtection = witnessProtection;
-  }
+  private WitnessProtection witnessProtection;
 
   Practitioner.Bundle bundle(
       MultiValueMap<String, String> parameters, List<Practitioner> reports, int totalRecords) {
@@ -85,11 +83,26 @@ public class Dstu2PractitionerController {
     return entity.orElseThrow(() -> new ResourceExceptions.NotFound(publicId));
   }
 
+  List<PractitionerRoleEntity> findRolesById(String publicId) {
+    String cdwId = witnessProtection.toCdwId(publicId);
+    if (cdwId.length() <= 1 || cdwId.charAt(cdwId.length() - 2) != ':') {
+      cdwId = cdwId + ":S";
+    }
+    return CompositeCdwIds.optionalFromCdwId(cdwId)
+        .map(
+            id ->
+                roleRepository.findByPractitionerIdNumberAndPractitionerResourceCode(
+                    id.cdwIdNumber(), id.cdwIdResourceCode()))
+        .orElse(List.of());
+  }
+
   @GetMapping(value = {"/{publicId}"})
   Practitioner read(@PathVariable("publicId") String publicId) {
     DatamartPractitioner practitioner = findById(publicId).asDatamartPractitioner();
-    replaceReferences(List.of(practitioner));
-    return transform(practitioner);
+    List<DatamartPractitionerRole> practitionerRoles =
+        findRolesById(publicId).stream().map(e -> e.asDatamartPractitionerRole()).collect(toList());
+    replaceReferences(List.of(practitioner), practitionerRoles);
+    return transform(practitioner, practitionerRoles);
   }
 
   @GetMapping(
@@ -101,8 +114,9 @@ public class Dstu2PractitionerController {
     return entity.payload();
   }
 
-  private Collection<DatamartPractitioner> replaceReferences(
-      Collection<DatamartPractitioner> resources) {
+  private void replaceReferences(
+      Collection<DatamartPractitioner> resources,
+      Collection<DatamartPractitionerRole> roleResources) {
     witnessProtection.registerAndUpdateReferences(
         resources,
         resource ->
@@ -110,7 +124,14 @@ public class Dstu2PractitionerController {
                 resource.practitionerRole().stream()
                     .map(role -> role.managingOrganization().orElse(null)),
                 resource.practitionerRole().stream().flatMap(role -> role.location().stream())));
-    return resources;
+    witnessProtection.registerAndUpdateReferences(
+        roleResources,
+        resource ->
+            Stream.concat(
+                Stream.of(
+                    resource.practitioner().orElse(null),
+                    resource.managingOrganization().orElse(null)),
+                resource.location().stream()));
   }
 
   @GetMapping(params = {"_id"})
@@ -133,7 +154,11 @@ public class Dstu2PractitionerController {
     return searchById(id, page, count);
   }
 
-  Practitioner transform(DatamartPractitioner dm) {
-    return Dstu2PractitionerTransformer.builder().datamart(dm).build().toFhir();
+  Practitioner transform(DatamartPractitioner dm, List<DatamartPractitionerRole> dmRoles) {
+    return Dstu2PractitionerTransformer.builder()
+        .datamart(dm)
+        .datamartRoles(dmRoles)
+        .build()
+        .toFhir();
   }
 }

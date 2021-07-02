@@ -6,8 +6,6 @@ import gov.va.api.health.autoconfig.configuration.JacksonConfig;
 import gov.va.api.health.ids.api.Registration;
 import gov.va.api.health.ids.api.ResourceIdentity;
 import gov.va.api.lighthouse.datamart.CompositeCdwId;
-import gov.va.api.lighthouse.datamart.DatamartCoding;
-import gov.va.api.lighthouse.datamart.DatamartReference;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
@@ -101,61 +99,6 @@ public class PractitionerSamples {
                       .build()))
           .gender(DatamartPractitioner.Gender.male)
           .birthDate(Optional.of(LocalDate.parse("1970-11-14")))
-          .practitionerRole(
-              Optional.of(
-                  DatamartPractitioner.PractitionerRole.builder()
-                      .managingOrganization(
-                          Optional.of(
-                              DatamartReference.builder()
-                                  .type(Optional.of("Organization"))
-                                  .reference(Optional.of(orgCdwId))
-                                  .display(Optional.of("SOME VA MEDICAL CENTER"))
-                                  .build()))
-                      .role(
-                          Optional.of(
-                              DatamartCoding.builder()
-                                  .code(Optional.of("1"))
-                                  .display(Optional.of("OPTOMETRIST"))
-                                  .system(Optional.of("rpcmm"))
-                                  .build()))
-                      .specialty(
-                          List.of(
-                              DatamartPractitioner.PractitionerRole.Specialty.builder()
-                                  .providerType(Optional.of("Physicians (M.D. and D.O.)"))
-                                  .classification(Optional.of("Physician/Osteopath"))
-                                  .areaOfSpecialization(Optional.of("Internal Medicine"))
-                                  .vaCode(Optional.of("V111500"))
-                                  .build(),
-                              DatamartPractitioner.PractitionerRole.Specialty.builder()
-                                  .providerType(Optional.of("Physicians (M.D. and D.O.)"))
-                                  .classification(Optional.of("Physician/Osteopath"))
-                                  .areaOfSpecialization(Optional.of("General Practice"))
-                                  .vaCode(Optional.of("V111000"))
-                                  .build(),
-                              DatamartPractitioner.PractitionerRole.Specialty.builder()
-                                  .providerType(Optional.of("Physicians (M.D. and D.O.)"))
-                                  .classification(Optional.of("Physician/Osteopath"))
-                                  .areaOfSpecialization(Optional.of("Family Practice"))
-                                  .vaCode(Optional.of("V110900"))
-                                  .build(),
-                              DatamartPractitioner.PractitionerRole.Specialty.builder()
-                                  .providerType(Optional.of("Allopathic & Osteopathic Physicians"))
-                                  .classification(Optional.of("Family Medicine"))
-                                  .vaCode(Optional.of("V180700"))
-                                  .x12Code(Optional.of("207Q00000X"))
-                                  .build()))
-                      .period(Optional.empty())
-                      .location(
-                          List.of(
-                              DatamartReference.builder()
-                                  .type(Optional.of("Location"))
-                                  .reference(Optional.of(locCdwId))
-                                  .display(
-                                      Optional.of(
-                                          "VISUAL IMPAIRMENT SERVICES OUTPATIENT REHABILITATION (VISOR)"))
-                                  .build()))
-                      .healthCareService(Optional.of("MEDICAL SERVICE"))
-                      .build()))
           .build();
     }
   }
