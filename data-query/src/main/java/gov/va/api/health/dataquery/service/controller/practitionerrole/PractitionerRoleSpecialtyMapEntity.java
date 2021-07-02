@@ -1,7 +1,5 @@
 package gov.va.api.health.dataquery.service.controller.practitionerrole;
 
-import gov.va.api.lighthouse.datamart.DatamartEntity;
-import gov.va.api.lighthouse.datamart.Payload;
 import java.io.Serializable;
 import java.math.BigInteger;
 import javax.persistence.Column;
@@ -23,7 +21,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@IdClass(PractitionerRoleSpecialtyMapEntity.SpecialtyId.class)
+@IdClass(SpecialtyMapCompositeId.class)
 public class PractitionerRoleSpecialtyMapEntity {
 
   @Id
@@ -41,21 +39,12 @@ public class PractitionerRoleSpecialtyMapEntity {
   @EqualsAndHashCode.Include
   private String specialtyCode;
 
-  public SpecialtyId specialtyId() {
-    return SpecialtyId.builder()
+  /** Primary Key. */
+  public SpecialtyMapCompositeId specialtyId() {
+    return SpecialtyMapCompositeId.builder()
         .practitionerRoleIdNumber(practitionerRoleIdNumber)
         .practitionerRoleResourceCode(practitionerRoleResourceCode)
         .specialtyCode(specialtyCode)
         .build();
-  }
-
-  @Data
-  @AllArgsConstructor
-  @NoArgsConstructor
-  @Builder
-  public static class SpecialtyId implements Serializable {
-    private BigInteger practitionerRoleIdNumber;
-    private char practitionerRoleResourceCode;
-    private String specialtyCode;
   }
 }
