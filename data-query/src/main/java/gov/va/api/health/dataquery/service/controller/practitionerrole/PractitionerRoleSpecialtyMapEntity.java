@@ -1,6 +1,5 @@
 package gov.va.api.health.dataquery.service.controller.practitionerrole;
 
-import java.io.Serializable;
 import java.math.BigInteger;
 import javax.persistence.Column;
 import javax.persistence.Entity;
