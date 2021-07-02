@@ -24,7 +24,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @IdClass(PractitionerRoleSpecialtyMapEntity.SpecialtyId.class)
-public class PractitionerRoleSpecialtyMapEntity implements DatamartEntity {
+public class PractitionerRoleSpecialtyMapEntity {
 
   @Id
   @Column(name = "PractitionerRoleIdNumber")
@@ -41,21 +41,12 @@ public class PractitionerRoleSpecialtyMapEntity implements DatamartEntity {
   @EqualsAndHashCode.Include
   private String specialtyCode;
 
-  @Override
-  public String cdwId() {
-    return practitionerRoleIdNumber + ":" + practitionerRoleResourceCode + ":" + specialtyCode;
-  }
-
   public SpecialtyId specialtyId() {
     return SpecialtyId.builder()
         .practitionerRoleIdNumber(practitionerRoleIdNumber)
         .practitionerRoleResourceCode(practitionerRoleResourceCode)
         .specialtyCode(specialtyCode)
         .build();
-  }
-
-  public Payload<?> toPayload() {
-    throw new IllegalArgumentException("not-used");
   }
 
   @Data
