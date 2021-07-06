@@ -37,13 +37,4 @@ public class PractitionerRoleSpecialtyMapEntity {
   @Column(name = "SpecialtyCode")
   @EqualsAndHashCode.Include
   private String specialtyCode;
-
-  /** Primary Key. */
-  public SpecialtyMapCompositeId specialtyId() {
-    return SpecialtyMapCompositeId.builder()
-        .practitionerRoleIdNumber(practitionerRoleIdNumber)
-        .practitionerRoleResourceCode(practitionerRoleResourceCode)
-        .specialtyCode(specialtyCode)
-        .build();
-  }
 }
