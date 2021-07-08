@@ -19,6 +19,17 @@ public class PractitionerIT {
   }
 
   @Test
+  void genericTester() {
+    verify(
+        test(
+            200,
+            Practitioner.Bundle.class,
+            bundleHasResults(),
+            "Practitioner?identifier=|{npi}",
+            testIds.practitioners().npi()));
+  }
+
+  @Test
   void read() {
     verifyAll(
         test(200, Practitioner.class, "Practitioner/{id}", testIds.practitioner()),
@@ -82,10 +93,24 @@ public class PractitionerIT {
             Practitioner.Bundle.class,
             bundleHasResults().negate(),
             "Practitioner?identifier=|{npi}",
-            testIds.unknown()));
-
-    // times out:
-    // test(200,Practitioner.Bundle.class,bundleHasResults(),"Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|")
+            testIds.unknown()),
+        test(
+            200,
+            Practitioner.Bundle.class,
+            bundleHasResults(),
+            "Practitioner?identifier=|{npi}",
+            testIds.practitioners().npi()),
+        test(400, OperationOutcome.class, "Practitioner?identifier=|"),
+        test(
+            200,
+            Practitioner.Bundle.class,
+            bundleHasResults().negate(),
+            "Practitioner?identifier=foo|{npi}",
+            testIds.practitioners().npi()),
+        test(
+            400,
+            Practitioner.Bundle.class,
+            "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|"));
   }
 
   @Test
