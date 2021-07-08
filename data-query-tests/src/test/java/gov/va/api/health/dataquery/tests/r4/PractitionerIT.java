@@ -19,17 +19,6 @@ public class PractitionerIT {
   }
 
   @Test
-  void genericTester() {
-    verify(
-        test(
-            200,
-            Practitioner.Bundle.class,
-            bundleHasResults(),
-            "Practitioner?identifier=|{npi}",
-            testIds.practitioners().npi()));
-  }
-
-  @Test
   void read() {
     verifyAll(
         test(200, Practitioner.class, "Practitioner/{id}", testIds.practitioner()),
