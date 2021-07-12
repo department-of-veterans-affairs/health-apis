@@ -217,6 +217,8 @@ public class R4PractitionerRoleControllerTest {
         "?practitioner.identifier=http://hl7.org/fhir/sid/us-npi|",
         "?practitioner.identifier=http://hl7.org/fhir/sid/us-npi|123",
         "?practitioner.name=harry",
+        "?specialty=ABC123",
+        "?specialty=http://nucc.org/provider-taxonomy|ABC123"
       })
   void validRequests(String query) {
     _registerMockIdentities(
