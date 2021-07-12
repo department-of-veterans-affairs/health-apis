@@ -151,6 +151,23 @@ public class PractitionerRoleIT {
             PractitionerRole.Bundle.class,
             bundleHasResults().negate(),
             "PractitionerRole?specialty={code}",
-            testIds.unknown()));
+            testIds.unknown()),
+        test(
+            200,
+            PractitionerRole.Bundle.class,
+            bundleHasResults().negate(),
+            "PractitionerRole?specialty=unknown-system|{code}",
+            testIds.practitioners().specialty()),
+        test(
+            200,
+            PractitionerRole.Bundle.class,
+            bundleHasResults().negate(),
+            "PractitionerRole?specialty=|{code}",
+            testIds.practitioners().specialty()),
+        test(
+            200,
+            PractitionerRole.Bundle.class,
+            bundleHasResults().negate(),
+            "PractitionerRole?specialty=http://nucc.org/provider-taxonomy|"));
   }
 }
