@@ -130,4 +130,44 @@ public class PractitionerRoleIT {
             "PractitionerRole?practitioner.identifier=|{npi}",
             testIds.unknown()));
   }
+
+  @Test
+  void searchBySpecialty() {
+    verifyAll(
+        test(
+            200,
+            PractitionerRole.Bundle.class,
+            bundleHasResults(),
+            "PractitionerRole?specialty=http://nucc.org/provider-taxonomy|{code}",
+            testIds.practitioners().specialty()),
+        test(
+            200,
+            PractitionerRole.Bundle.class,
+            bundleHasResults(),
+            "PractitionerRole?specialty={code}",
+            testIds.practitioners().specialty()),
+        test(
+            200,
+            PractitionerRole.Bundle.class,
+            bundleHasResults().negate(),
+            "PractitionerRole?specialty={code}",
+            testIds.unknown()),
+        test(
+            200,
+            PractitionerRole.Bundle.class,
+            bundleHasResults().negate(),
+            "PractitionerRole?specialty=unknown-system|{code}",
+            testIds.practitioners().specialty()),
+        test(
+            200,
+            PractitionerRole.Bundle.class,
+            bundleHasResults().negate(),
+            "PractitionerRole?specialty=|{code}",
+            testIds.practitioners().specialty()),
+        test(
+            200,
+            PractitionerRole.Bundle.class,
+            bundleHasResults().negate(),
+            "PractitionerRole?specialty=http://nucc.org/provider-taxonomy|"));
+  }
 }
