@@ -6,50 +6,36 @@ import java.util.Locale;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
+@SuppressWarnings("UnnecessaryParentheses")
 class GenderMapping {
 
   String toCdw(String fhir) {
-    switch (upperCase(fhir, Locale.US)) {
-      case "MALE":
-        return "M";
-      case "FEMALE":
-        return "F";
-      case "OTHER":
-        return "*Missing*";
-      case "UNKNOWN":
-        return "*Unknown at this time*";
-      default:
-        return null;
-    }
+    return switch (upperCase(fhir, Locale.US)) {
+      case "MALE" -> "M";
+      case "FEMALE" -> "F";
+      case "OTHER" -> "*Missing*";
+      case "UNKNOWN" -> "*Unknown at this time*";
+      default -> null;
+    };
   }
 
   gov.va.api.health.dstu2.api.resources.Patient.Gender toDstu2Fhir(String cdw) {
-    switch (upperCase(cdw, Locale.US)) {
-      case "M":
-        return gov.va.api.health.dstu2.api.resources.Patient.Gender.male;
-      case "F":
-        return gov.va.api.health.dstu2.api.resources.Patient.Gender.female;
-      case "*MISSING*":
-        return gov.va.api.health.dstu2.api.resources.Patient.Gender.other;
-      case "*UNKNOWN AT THIS TIME*":
-        return gov.va.api.health.dstu2.api.resources.Patient.Gender.unknown;
-      default:
-        return null;
-    }
+    return switch (upperCase(cdw, Locale.US)) {
+      case "M", "MALE" -> gov.va.api.health.dstu2.api.resources.Patient.Gender.male;
+      case "F", "FEMALE" -> gov.va.api.health.dstu2.api.resources.Patient.Gender.female;
+      case "*UNKNOWN AT THIS TIME*", "UNKNOWN", "DOES NOT WISH TO DISCLOSE" -> gov.va.api.health
+          .dstu2.api.resources.Patient.Gender.unknown;
+      default -> gov.va.api.health.dstu2.api.resources.Patient.Gender.other;
+    };
   }
 
   gov.va.api.health.r4.api.resources.Patient.Gender toR4Fhir(String cdw) {
-    switch (upperCase(cdw, Locale.US)) {
-      case "M":
-        return gov.va.api.health.r4.api.resources.Patient.Gender.male;
-      case "F":
-        return gov.va.api.health.r4.api.resources.Patient.Gender.female;
-      case "*MISSING*":
-        return gov.va.api.health.r4.api.resources.Patient.Gender.other;
-      case "*UNKNOWN AT THIS TIME*":
-        return gov.va.api.health.r4.api.resources.Patient.Gender.unknown;
-      default:
-        return null;
-    }
+    return switch (upperCase(cdw, Locale.US)) {
+      case "M", "MALE" -> gov.va.api.health.r4.api.resources.Patient.Gender.male;
+      case "F", "FEMALE" -> gov.va.api.health.r4.api.resources.Patient.Gender.female;
+      case "*UNKNOWN AT THIS TIME*", "UNKNOWN", "DOES NOT WISH TO DISCLOSE" -> gov.va.api.health.r4
+          .api.resources.Patient.Gender.unknown;
+      default -> gov.va.api.health.r4.api.resources.Patient.Gender.other;
+    };
   }
 }
