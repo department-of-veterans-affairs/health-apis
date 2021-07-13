@@ -97,8 +97,9 @@ public class PractitionerIT {
             "Practitioner?identifier=foo|{npi}",
             testIds.practitioners().npi()),
         test(
-            400,
+            200,
             Practitioner.Bundle.class,
+            bundleHasResults().negate(),
             "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|"));
   }
 

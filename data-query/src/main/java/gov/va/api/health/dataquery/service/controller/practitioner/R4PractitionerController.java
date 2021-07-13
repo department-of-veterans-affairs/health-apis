@@ -159,7 +159,9 @@ public class R4PractitionerController {
   }
 
   private boolean tokenIdentifierIsSupported(TokenParameter token) {
-    return (token.hasSupportedSystem(PRACTITIONER_IDENTIFIER_SYSTEM_NPI) || token.hasAnySystem())
+    return (token.hasSupportedSystem(PRACTITIONER_IDENTIFIER_SYSTEM_NPI)
+            || token.hasExplicitlyNoSystem()
+            || token.hasAnySystem())
         && token.hasExplicitCode();
   }
 
@@ -171,6 +173,7 @@ public class R4PractitionerController {
     return token
         .behavior()
         .onAnySystemAndExplicitCode(code -> identifierAnySystemAndExplicitCodeSpec(code))
+        .onNoSystemAndExplicitCode(code -> identifierAnySystemAndExplicitCodeSpec(code))
         .onExplicitSystemAndExplicitCode(systemMappings.matchSystemAndCode())
         .build()
         .execute();

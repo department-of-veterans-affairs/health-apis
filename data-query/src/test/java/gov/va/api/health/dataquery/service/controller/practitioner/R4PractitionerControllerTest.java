@@ -158,9 +158,7 @@ public class R4PractitionerControllerTest {
       strings = {
         "?_id=111:S",
         "?identifier=111:S",
-        "?identifier=http://hl7.org/fhir/sid/us-npi|",
         "?identifier=|123",
-        "?identifier=foo|123",
         "?identifier=http://hl7.org/fhir/sid/us-npi|123",
         "?family=potter",
         "?given=harry",
