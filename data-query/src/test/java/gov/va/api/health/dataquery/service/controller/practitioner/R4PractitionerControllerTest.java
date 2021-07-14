@@ -49,6 +49,29 @@ public class R4PractitionerControllerTest {
   }
 
   @ParameterizedTest
+  @SuppressWarnings("unchecked")
+  @ValueSource(
+      strings = {
+        "?identifier=http://hl7.org/fhir/sid/us-npi|",
+        "?identifier=foo|123",
+        "?identifier=|123"
+      })
+  void emptyBundleRequest(String query) {
+    when(ids.register(any())).thenReturn(List.of(registration("111:S", "I2-111")));
+    PractitionerSamples.Datamart dm = PractitionerSamples.Datamart.create();
+    when(repository.findAll(any(Specification.class), any(Pageable.class)))
+        .thenAnswer(
+            i ->
+                new PageImpl<PractitionerEntity>(
+                    List.of(dm.entity("111:S", "222:I", "333:L")),
+                    i.getArgument(1, Pageable.class),
+                    1));
+    var r = requestFromUri("http://fonzy.com/r4/Practitioner" + query);
+    var actual = _controller().search(r);
+    assertThat(actual.entry()).isEmpty();
+  }
+
+  @ParameterizedTest
   @ValueSource(
       strings = {
         "",
@@ -158,7 +181,6 @@ public class R4PractitionerControllerTest {
       strings = {
         "?_id=111:S",
         "?identifier=111:S",
-        "?identifier=|123",
         "?identifier=http://hl7.org/fhir/sid/us-npi|123",
         "?family=potter",
         "?given=harry",

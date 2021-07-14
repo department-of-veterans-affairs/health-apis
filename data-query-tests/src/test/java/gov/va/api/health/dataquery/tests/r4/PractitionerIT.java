@@ -86,15 +86,8 @@ public class PractitionerIT {
         test(
             200,
             Practitioner.Bundle.class,
-            bundleHasResults(),
-            "Practitioner?identifier=|{npi}",
-            testIds.practitioners().npi()),
-        test(400, OperationOutcome.class, "Practitioner?identifier=|"),
-        test(
-            200,
-            Practitioner.Bundle.class,
             bundleHasResults().negate(),
-            "Practitioner?identifier=foo|{npi}",
+            "Practitioner?identifier=|{npi}",
             testIds.practitioners().npi()),
         test(
             200,
