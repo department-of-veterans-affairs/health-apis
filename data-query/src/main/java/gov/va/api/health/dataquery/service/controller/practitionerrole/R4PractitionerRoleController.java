@@ -51,6 +51,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class R4PractitionerRoleController {
   private static final String PRACTITIONER_IDENTIFIER_SYSTEM_NPI = "http://hl7.org/fhir/sid/us-npi";
 
+  private static final String SPECIALTY_SYSTEM = "http://nucc.org/provider-taxonomy";
+
   private final WitnessProtection witnessProtection;
 
   private final LinkProperties linkProperties;
@@ -69,12 +71,15 @@ public class R4PractitionerRoleController {
                     "practitioner.identifier",
                     this::tokenIdentifierIsSupported,
                     this::tokenIdentifierSpecification)
+                .tokens(
+                    "specialty", this::tokenSpecialtyIsSupported, this::tokenSpecialtySpecification)
                 .string("practitioner.name", f -> Set.of("familyName", "givenName"))
                 .get())
         .defaultQuery(returnNothing())
         .rules(
             List.of(
-                atLeastOneParameterOf("_id", "practitioner.identifier", "practitioner.name"),
+                atLeastOneParameterOf(
+                    "_id", "practitioner.identifier", "practitioner.name", "specialty"),
                 parametersNeverSpecifiedTogether(
                     "_id", "practitioner.identifier", "practitioner.name")))
         .build();
@@ -156,6 +161,28 @@ public class R4PractitionerRoleController {
         .onAnySystemAndExplicitCode(code -> identifierAnySystemAndExplicitCodeSpec(code))
         .onExplicitSystemAndAnyCode(systemMappings.matchSystemOnly())
         .onExplicitSystemAndExplicitCode(systemMappings.matchSystemAndCode())
+        .build()
+        .execute();
+  }
+
+  private boolean tokenSpecialtyIsSupported(TokenParameter token) {
+    return token.hasExplicitCode()
+        && (token.hasSupportedSystem(SPECIALTY_SYSTEM) || token.hasAnySystem());
+  }
+
+  private Specification<PractitionerRoleEntity> tokenSpecialtySpecification(TokenParameter token) {
+    var systemMappings =
+        SystemIdFields.forEntity(PractitionerRoleEntity.class)
+            .parameterName("specialty")
+            .addWithCustomSystemAndCodeHandler(
+                SPECIALTY_SYSTEM,
+                "specialtyCode",
+                (system, code) -> PractitionerRoleRepository.SpecialtySpecification.of(code));
+
+    return token
+        .behavior()
+        .onExplicitSystemAndExplicitCode(systemMappings.matchSystemAndCode())
+        .onAnySystemAndExplicitCode(PractitionerRoleRepository.SpecialtySpecification::of)
         .build()
         .execute();
   }

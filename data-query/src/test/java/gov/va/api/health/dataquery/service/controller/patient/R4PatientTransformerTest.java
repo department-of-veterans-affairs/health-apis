@@ -14,24 +14,25 @@ import org.junit.jupiter.api.Test;
 
 public class R4PatientTransformerTest {
   @Test
-  public void contact() {
+  void contact() {
     Datamart datamart = Datamart.create();
     R4 r4 = R4.create();
     assertThat(R4PatientTransformer.contact(datamart.contact())).isEqualTo(r4.contact());
   }
 
   @Test
-  public void empty() {
+  void empty() {
     assertThat(
             R4PatientTransformer.builder()
                 .datamart(DatamartPatient.builder().build())
                 .build()
                 .toFhir())
-        .isEqualTo(Patient.builder().resourceType("Patient").build());
+        .isEqualTo(
+            Patient.builder().resourceType("Patient").gender(Patient.Gender.unknown).build());
   }
 
   @Test
-  public void ethnicityDisplay() {
+  void ethnicityDisplay() {
     assertThat(
             R4PatientTransformer.ethnicityDisplay(
                 DatamartPatient.Ethnicity.builder().hl7("2135-2").display("hi").build()))
@@ -52,7 +53,7 @@ public class R4PatientTransformerTest {
   }
 
   @Test
-  public void ethnicityExtensions() {
+  void ethnicityExtensions() {
     assertThat(
             R4PatientTransformer.ethnicityExtensions(
                 DatamartPatient.Ethnicity.builder().display("display").hl7("code").build()))
@@ -72,7 +73,31 @@ public class R4PatientTransformerTest {
   }
 
   @Test
-  public void managingOrganization() {
+  void gender() {
+    assertThat(genderOf("M", Optional.of("MaLE"))).isEqualTo(Patient.Gender.male);
+    assertThat(genderOf("F", Optional.of("feMALE"))).isEqualTo(Patient.Gender.female);
+    assertThat(genderOf("male", Optional.of("feMALE"))).isEqualTo(Patient.Gender.female);
+    assertThat(genderOf("female", Optional.of("*UNKNOWN AT THIS TIME*")))
+        .isEqualTo(Patient.Gender.female);
+    assertThat(genderOf("unknown", Optional.of("NULL"))).isEqualTo(Patient.Gender.unknown);
+    assertThat(genderOf("female", Optional.of("TransgedER MALE"))).isEqualTo(Patient.Gender.other);
+    assertThat(genderOf(null, Optional.empty())).isEqualTo(Patient.Gender.unknown);
+  }
+
+  private Patient.Gender genderOf(String birthGender, Optional<String> selfIdentifiedGender) {
+    return R4PatientTransformer.builder()
+        .datamart(
+            DatamartPatient.builder()
+                .gender(birthGender)
+                .selfIdentifiedGender(selfIdentifiedGender)
+                .build())
+        .build()
+        .toFhir()
+        .gender();
+  }
+
+  @Test
+  void managingOrganization() {
     assertThat(
             R4PatientTransformer.builder()
                 .datamart(Datamart.create().patient().managingOrganization(Optional.empty()))
@@ -98,7 +123,7 @@ public class R4PatientTransformerTest {
   }
 
   @Test
-  public void maritalStatus() {
+  void maritalStatus() {
     assertThat(R4PatientTransformer.maritalStatusCoding("A").display()).isEqualTo("Annulled");
     assertThat(R4PatientTransformer.maritalStatusCoding("D").display()).isEqualTo("Divorced");
     assertThat(R4PatientTransformer.maritalStatusCoding("I").display()).isEqualTo("Interlocutory");
@@ -115,7 +140,7 @@ public class R4PatientTransformerTest {
   }
 
   @Test
-  public void raceCoding() {
+  void raceCoding() {
     assertThat(
             R4PatientTransformer.raceCoding(
                     DatamartPatient.Race.builder().display("Alaska Native").build())
@@ -163,7 +188,7 @@ public class R4PatientTransformerTest {
   }
 
   @Test
-  public void relationshipCoding() {
+  void relationshipCoding() {
     assertThat(
             R4PatientTransformer.relationshipCoding(
                     DatamartPatient.Contact.builder().type("Civil Guardian").build())
@@ -206,7 +231,7 @@ public class R4PatientTransformerTest {
   }
 
   @Test
-  public void toFhir() {
+  void toFhir() {
     assertThat(
             R4PatientTransformer.builder().datamart(Datamart.create().patient()).build().toFhir())
         .isEqualTo(R4.create().patient());

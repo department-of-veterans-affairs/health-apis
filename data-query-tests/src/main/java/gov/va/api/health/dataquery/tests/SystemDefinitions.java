@@ -143,7 +143,7 @@ public final class SystemDefinitions {
         .family("DOE922")
         .given("JANE460")
         .npi("1932127842")
-        .specialty("http://hl7.org/fhir/practitioner-specialty|207Q00000X")
+        .specialty("207Q00000X")
         .build();
   }
 
@@ -313,7 +313,7 @@ public final class SystemDefinitions {
         .family("ACOSTA")
         .given("SAID")
         .npi("1013904481")
-        .specialty("http://hl7.org/fhir/practitioner-specialty|xxx")
+        .specialty("367500000X")
         .build();
   }
 

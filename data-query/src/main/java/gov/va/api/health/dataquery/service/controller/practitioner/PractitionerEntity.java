@@ -40,9 +40,6 @@ public class PractitionerEntity implements CompositeIdDatamartEntity {
   @Column(name = "CdwIdResourceCode")
   private char cdwIdResourceCode;
 
-  @Column(name = "CdwId")
-  private String cdwId;
-
   @Column(name = "NPI")
   private String npi;
 
