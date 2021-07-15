@@ -56,7 +56,7 @@ public class R4PractitionerControllerTest {
         "?identifier=foo|123",
         "?identifier=|123"
       })
-  void emptyBundleRequest(String query) {
+  void emptyRequest(String query) {
     when(ids.register(any())).thenReturn(List.of(registration("111:S", "I2-111")));
     PractitionerSamples.Datamart dm = PractitionerSamples.Datamart.create();
     when(repository.findAll(any(Specification.class), any(Pageable.class)))

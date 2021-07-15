@@ -67,6 +67,33 @@ public class R4PractitionerRoleControllerTest {
   }
 
   @ParameterizedTest
+  @SuppressWarnings("unchecked")
+  @ValueSource(
+      strings = {
+        "?practitioner.identifier=http://hl7.org/fhir/sid/us-npi|",
+        "?practitioner.identifier=foo|123",
+        "?practitioner.identifier=|123"
+      })
+  void emptyRequest(String query) {
+    _registerMockIdentities(
+        idReg("PRACTITIONER_ROLE", "I2-111", "111:P"),
+        idReg("PRACTITIONER", "I2-222", "222:S"),
+        idReg("ORGANIZATION", "I2-333", "333:I"),
+        idReg("LOCATION", "I2-444", "444:L"));
+    PractitionerRoleSamples.Datamart dm = PractitionerRoleSamples.Datamart.create();
+    when(repository.findAll(any(Specification.class), any(Pageable.class)))
+        .thenAnswer(
+            i ->
+                new PageImpl<PractitionerRoleEntity>(
+                    List.of(dm.entity("111:P", "222:S", "333:I", "444:L")),
+                    i.getArgument(1, Pageable.class),
+                    1));
+    var r = requestFromUri("http://fonzy.com/r4/PractitionerRole" + query);
+    var actual = _controller().search(r);
+    assertThat(actual.entry()).isEmpty();
+  }
+
+  @ParameterizedTest
   @ValueSource(
       strings = {
         "",
@@ -214,7 +241,6 @@ public class R4PractitionerRoleControllerTest {
       strings = {
         "?_id=111:P",
         "?practitioner.identifier=111:S",
-        "?practitioner.identifier=http://hl7.org/fhir/sid/us-npi|",
         "?practitioner.identifier=http://hl7.org/fhir/sid/us-npi|123",
         "?practitioner.name=harry",
         "?specialty=ABC123",

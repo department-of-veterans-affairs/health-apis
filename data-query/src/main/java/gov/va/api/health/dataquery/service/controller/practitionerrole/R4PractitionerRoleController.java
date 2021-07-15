@@ -148,7 +148,9 @@ public class R4PractitionerRoleController {
   }
 
   private boolean tokenIdentifierIsSupported(TokenParameter token) {
-    return token.hasSupportedSystem(PRACTITIONER_IDENTIFIER_SYSTEM_NPI) || token.hasAnySystem();
+    return token.hasAnySystem()
+        || (token.hasSupportedSystem(PRACTITIONER_IDENTIFIER_SYSTEM_NPI)
+            && token.hasExplicitCode());
   }
 
   private Specification<PractitionerRoleEntity> tokenIdentifierSpecification(TokenParameter token) {
@@ -159,7 +161,6 @@ public class R4PractitionerRoleController {
     return token
         .behavior()
         .onAnySystemAndExplicitCode(code -> identifierAnySystemAndExplicitCodeSpec(code))
-        .onExplicitSystemAndAnyCode(systemMappings.matchSystemOnly())
         .onExplicitSystemAndExplicitCode(systemMappings.matchSystemAndCode())
         .build()
         .execute();
