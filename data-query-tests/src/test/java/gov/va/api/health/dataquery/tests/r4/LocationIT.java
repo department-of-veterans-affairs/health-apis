@@ -4,7 +4,6 @@ import gov.va.api.health.dataquery.tests.DataQueryResourceVerifier;
 import gov.va.api.health.dataquery.tests.TestIds;
 import gov.va.api.health.fhir.testsupport.ResourceVerifier;
 import gov.va.api.health.r4.api.resources.Location;
-import gov.va.api.health.r4.api.resources.Location.Bundle;
 import gov.va.api.health.r4.api.resources.OperationOutcome;
 import java.util.function.Predicate;
 import lombok.experimental.Delegate;
@@ -15,11 +14,11 @@ public class LocationIT {
 
   private final TestIds testIds = DataQueryResourceVerifier.ids();
 
-  private static Predicate<Bundle> bundleHasResults() {
+  private static Predicate<Location.Bundle> bundleHasResults() {
     return bundleIsEmpty().negate();
   }
 
-  private static Predicate<Bundle> bundleIsEmpty() {
+  private static Predicate<Location.Bundle> bundleIsEmpty() {
     return bundle -> bundle.entry().isEmpty();
   }
 

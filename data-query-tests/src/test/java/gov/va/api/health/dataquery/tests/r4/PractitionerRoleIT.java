@@ -15,23 +15,35 @@ public class PractitionerRoleIT {
   TestIds testIds = DataQueryResourceVerifier.ids();
 
   static Predicate<PractitionerRole.Bundle> bundleHasResults() {
-    return bundle -> !bundle.entry().isEmpty();
+    return bundleIsEmpty().negate();
+  }
+
+  static Predicate<PractitionerRole.Bundle> bundleIsEmpty() {
+    return bundle -> bundle.entry().isEmpty();
   }
 
   @Test
   void read() {
     verifier.verifyAll(
         test(200, PractitionerRole.class, "PractitionerRole/{id}", testIds.practitionerRole()),
-        test(
-            404,
-            OperationOutcome.class,
-            "PractitionerRole/{id}",
-            testIds.unknown()), // search by _id
+        test(404, OperationOutcome.class, "PractitionerRole/{unknown}", testIds.unknown()));
+  }
+
+  @Test
+  void searchById() {
+    verifyAll(
         test(
             200,
             PractitionerRole.Bundle.class,
+            bundleHasResults(),
             "PractitionerRole?_id={id}",
-            testIds.practitionerRole()));
+            testIds.practitionerRole()),
+        test(
+            200,
+            PractitionerRole.Bundle.class,
+            bundleIsEmpty(),
+            "PractitionerRole?_id={unknown}",
+            testIds.unknown()));
   }
 
   @Test
@@ -73,13 +85,13 @@ public class PractitionerRoleIT {
         test(
             200,
             PractitionerRole.Bundle.class,
-            bundleHasResults().negate(),
+            bundleIsEmpty(),
             "PractitionerRole?practitioner.name={given}",
             testIds.unknown()),
         test(
             200,
             PractitionerRole.Bundle.class,
-            bundleHasResults().negate(),
+            bundleIsEmpty(),
             "PractitionerRole?practitioner.name={family}",
             testIds.unknown()));
   }
@@ -102,9 +114,14 @@ public class PractitionerRoleIT {
         test(
             200,
             PractitionerRole.Bundle.class,
-            bundleHasResults().negate(),
-            "PractitionerRole?practitioner.identifier={id}",
+            bundleIsEmpty(),
+            "PractitionerRole?practitioner.identifier={unknown}",
             testIds.unknown()),
+        test(
+            200,
+            PractitionerRole.Bundle.class,
+            bundleIsEmpty(),
+            "PractitionerRole?practitioner.identifier=http://hl7.org/fhir/sid/us-npi|"),
         test(
             200,
             PractitionerRole.Bundle.class,
@@ -114,20 +131,32 @@ public class PractitionerRoleIT {
         test(
             200,
             PractitionerRole.Bundle.class,
-            bundleHasResults().negate(),
+            bundleIsEmpty(),
             "PractitionerRole?practitioner.identifier=http://hl7.org/fhir/sid/us-npi|{id}",
             testIds.practitioner()),
         test(
             200,
             PractitionerRole.Bundle.class,
-            bundleHasResults().negate(),
-            "PractitionerRole?practitioner.identifier=http://hl7.org/fhir/sid/us-npi|{npi}",
+            bundleIsEmpty(),
+            "PractitionerRole?practitioner.identifier=http://hl7.org/fhir/sid/us-npi|{unknown}",
             testIds.unknown()),
         test(
             200,
             PractitionerRole.Bundle.class,
-            bundleHasResults().negate(),
+            bundleIsEmpty(),
+            "PractitionerRole?practitioner.identifier=unknown-system|{npi}",
+            testIds.practitioners().npi()),
+        test(
+            200,
+            PractitionerRole.Bundle.class,
+            bundleIsEmpty(),
             "PractitionerRole?practitioner.identifier=|{npi}",
+            testIds.practitioners().npi()),
+        test(
+            200,
+            PractitionerRole.Bundle.class,
+            bundleIsEmpty(),
+            "PractitionerRole?practitioner.identifier=|{unknown}",
             testIds.unknown()));
   }
 
@@ -138,36 +167,48 @@ public class PractitionerRoleIT {
             200,
             PractitionerRole.Bundle.class,
             bundleHasResults(),
+            "PractitionerRole?specialty={code}",
+            testIds.practitioners().specialty()),
+        test(
+            200,
+            PractitionerRole.Bundle.class,
+            bundleIsEmpty(),
+            "PractitionerRole?specialty={unknown}",
+            testIds.unknown()),
+        test(
+            200,
+            PractitionerRole.Bundle.class,
+            bundleIsEmpty(),
+            "PractitionerRole?specialty=http://nucc.org/provider-taxonomy|"),
+        test(
+            200,
+            PractitionerRole.Bundle.class,
+            bundleHasResults(),
             "PractitionerRole?specialty=http://nucc.org/provider-taxonomy|{code}",
             testIds.practitioners().specialty()),
         test(
             200,
             PractitionerRole.Bundle.class,
-            bundleHasResults(),
-            "PractitionerRole?specialty={code}",
-            testIds.practitioners().specialty()),
-        test(
-            200,
-            PractitionerRole.Bundle.class,
-            bundleHasResults().negate(),
-            "PractitionerRole?specialty={code}",
+            bundleIsEmpty(),
+            "PractitionerRole?specialty=http://nucc.org/provider-taxonomy|{unknown}",
             testIds.unknown()),
         test(
             200,
             PractitionerRole.Bundle.class,
-            bundleHasResults().negate(),
+            bundleIsEmpty(),
             "PractitionerRole?specialty=unknown-system|{code}",
             testIds.practitioners().specialty()),
         test(
             200,
             PractitionerRole.Bundle.class,
-            bundleHasResults().negate(),
+            bundleIsEmpty(),
             "PractitionerRole?specialty=|{code}",
             testIds.practitioners().specialty()),
         test(
             200,
             PractitionerRole.Bundle.class,
-            bundleHasResults().negate(),
-            "PractitionerRole?specialty=http://nucc.org/provider-taxonomy|"));
+            bundleIsEmpty(),
+            "PractitionerRole?specialty=|{unknown}",
+            testIds.unknown()));
   }
 }

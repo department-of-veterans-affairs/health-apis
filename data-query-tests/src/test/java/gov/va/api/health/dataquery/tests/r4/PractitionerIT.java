@@ -15,7 +15,11 @@ public class PractitionerIT {
   TestIds testIds = DataQueryResourceVerifier.ids();
 
   static Predicate<Practitioner.Bundle> bundleHasResults() {
-    return bundle -> !bundle.entry().isEmpty();
+    return bundleIsEmpty().negate();
+  }
+
+  static Predicate<Practitioner.Bundle> bundleIsEmpty() {
+    return bundle -> bundle.entry().isEmpty();
   }
 
   @Test
@@ -23,18 +27,23 @@ public class PractitionerIT {
     verifyAll(
         test(200, Practitioner.class, "Practitioner/{id}", testIds.practitioner()),
         test(200, Practitioner.class, "Practitioner/npi-{npi}", testIds.practitioners().npi()),
-        test(404, OperationOutcome.class, "Practitioner/{id}", testIds.unknown()));
+        test(404, OperationOutcome.class, "Practitioner/{unknown}", testIds.unknown()));
   }
 
   @Test
-  void search() {
+  void searchById() {
     verifyAll(
-        test(200, Practitioner.Bundle.class, "Practitioner?_id={id}", testIds.practitioner()),
         test(
             200,
             Practitioner.Bundle.class,
-            bundleHasResults().negate(),
+            bundleHasResults(),
             "Practitioner?_id={id}",
+            testIds.practitioner()),
+        test(
+            200,
+            Practitioner.Bundle.class,
+            bundleIsEmpty(),
+            "Practitioner?_id={unknown}",
             testIds.unknown()));
   }
 
@@ -56,9 +65,14 @@ public class PractitionerIT {
         test(
             200,
             Practitioner.Bundle.class,
-            bundleHasResults().negate(),
-            "Practitioner?identifier={id}",
+            bundleIsEmpty(),
+            "Practitioner?identifier={unknown}",
             testIds.unknown()),
+        test(
+            200,
+            Practitioner.Bundle.class,
+            bundleIsEmpty(),
+            "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|"),
         test(
             200,
             Practitioner.Bundle.class,
@@ -68,24 +82,33 @@ public class PractitionerIT {
         test(
             200,
             Practitioner.Bundle.class,
-            bundleHasResults().negate(),
+            bundleIsEmpty(),
             "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|{id}",
             testIds.practitioner()),
         test(
             200,
             Practitioner.Bundle.class,
-            bundleHasResults().negate(),
+            bundleIsEmpty(),
             "Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|{npi}",
             testIds.unknown()),
         test(
             200,
             Practitioner.Bundle.class,
-            bundleHasResults().negate(),
+            bundleIsEmpty(),
+            "Practitioner?identifier=unknown-system|{npi}",
+            testIds.practitioners().npi()),
+        test(
+            200,
+            Practitioner.Bundle.class,
+            bundleIsEmpty(),
             "Practitioner?identifier=|{npi}",
+            testIds.practitioners().npi()),
+        test(
+            200,
+            Practitioner.Bundle.class,
+            bundleIsEmpty(),
+            "Practitioner?identifier=|{unknown}",
             testIds.unknown()));
-
-    // times out:
-    // test(200,Practitioner.Bundle.class,bundleHasResults(),"Practitioner?identifier=http://hl7.org/fhir/sid/us-npi|")
   }
 
   @Test
@@ -145,25 +168,25 @@ public class PractitionerIT {
         test(
             200,
             Practitioner.Bundle.class,
-            bundleHasResults().negate(),
+            bundleIsEmpty(),
             "Practitioner?given={given}",
             testIds.unknown()),
         test(
             200,
             Practitioner.Bundle.class,
-            bundleHasResults().negate(),
+            bundleIsEmpty(),
             "Practitioner?family={family}",
             testIds.unknown()),
         test(
             200,
             Practitioner.Bundle.class,
-            bundleHasResults().negate(),
+            bundleIsEmpty(),
             "Practitioner?name={given}",
             testIds.unknown()),
         test(
             200,
             Practitioner.Bundle.class,
-            bundleHasResults().negate(),
+            bundleIsEmpty(),
             "Practitioner?name={family}",
             testIds.unknown()));
   }

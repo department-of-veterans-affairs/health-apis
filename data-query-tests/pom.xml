@@ -110,6 +110,7 @@
               <healthcheckUrl>http://localhost:8090/actuator/health</healthcheckUrl>
               <skip>${sentinel.skipLaunch}</skip>
               <processLogFile>${project.build.directory}/data-query.log</processLogFile>
+              <waitAfterLaunch>60</waitAfterLaunch>
               <arguments>
                 <argument>java</argument>
                 <argument>-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5090</argument>
