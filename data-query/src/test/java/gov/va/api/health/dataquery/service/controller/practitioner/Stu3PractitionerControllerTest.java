@@ -252,4 +252,14 @@ public class Stu3PractitionerControllerTest {
                         1,
                         1))));
   }
+
+  @Test
+  void searchByNpi_invalid() {
+    assertThrows(
+        ResourceExceptions.BadSearchParameter.class,
+        () -> _controller().searchByNpi("1234567890", 1, 1));
+    assertThrows(
+        ResourceExceptions.BadSearchParameter.class,
+        () -> _controller().searchByNpi("foo|1234567890", 1, 1));
+  }
 }
