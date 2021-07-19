@@ -117,13 +117,7 @@ public class Dstu2PractitionerController {
   private void replaceReferences(
       Collection<DatamartPractitioner> resources,
       Collection<DatamartPractitionerRole> roleResources) {
-    witnessProtection.registerAndUpdateReferences(
-        resources,
-        resource ->
-            Stream.concat(
-                resource.practitionerRole().stream()
-                    .map(role -> role.managingOrganization().orElse(null)),
-                resource.practitionerRole().stream().flatMap(role -> role.location().stream())));
+    witnessProtection.registerAndUpdateReferences(resources, resource -> Stream.empty());
     witnessProtection.registerAndUpdateReferences(
         roleResources,
         resource ->

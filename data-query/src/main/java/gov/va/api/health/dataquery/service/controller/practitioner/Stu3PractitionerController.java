@@ -96,13 +96,7 @@ public class Stu3PractitionerController {
 
   private Collection<DatamartPractitioner> replaceReferences(
       Collection<DatamartPractitioner> resources) {
-    witnessProtection.registerAndUpdateReferences(
-        resources,
-        resource ->
-            Stream.concat(
-                resource.practitionerRole().stream()
-                    .map(role -> role.managingOrganization().orElse(null)),
-                resource.practitionerRole().stream().flatMap(role -> role.location().stream())));
+    witnessProtection.registerAndUpdateReferences(resources, resource -> Stream.empty());
     return resources;
   }
 
