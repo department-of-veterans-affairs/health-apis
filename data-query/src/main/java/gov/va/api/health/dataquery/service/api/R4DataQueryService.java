@@ -1,21 +1,5 @@
 package gov.va.api.health.dataquery.service.api;
 
-import gov.va.api.health.r4.api.AllergyIntoleranceApi;
-import gov.va.api.health.r4.api.AppointmentApi;
-import gov.va.api.health.r4.api.ConditionApi;
-import gov.va.api.health.r4.api.DeviceApi;
-import gov.va.api.health.r4.api.DiagnosticReportApi;
-import gov.va.api.health.r4.api.ImmunizationApi;
-import gov.va.api.health.r4.api.LocationApi;
-import gov.va.api.health.r4.api.MedicationApi;
-import gov.va.api.health.r4.api.MedicationRequestApi;
-import gov.va.api.health.r4.api.MetadataApi;
-import gov.va.api.health.r4.api.ObservationApi;
-import gov.va.api.health.r4.api.OrganizationApi;
-import gov.va.api.health.r4.api.PatientApi;
-import gov.va.api.health.r4.api.PractitionerApi;
-import gov.va.api.health.r4.api.PractitionerRoleApi;
-import gov.va.api.health.r4.api.ProcedureApi;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
@@ -196,19 +180,19 @@ import javax.ws.rs.Path;
 })
 @Path("/")
 public interface R4DataQueryService
-    extends AllergyIntoleranceApi,
-        AppointmentApi,
-        ConditionApi,
-        DeviceApi,
-        DiagnosticReportApi,
-        ImmunizationApi,
-        LocationApi,
-        MedicationApi,
-        MedicationRequestApi,
-        MetadataApi,
-        ObservationApi,
-        OrganizationApi,
-        PatientApi,
-        PractitionerApi,
-        PractitionerRoleApi,
-        ProcedureApi {}
+    extends R4AllergyIntoleranceApi,
+        R4AppointmentApi,
+        R4ConditionApi,
+        R4DeviceApi,
+        R4DiagnosticReportApi,
+        R4ImmunizationApi,
+        R4LocationApi,
+        R4MedicationApi,
+        R4MedicationRequestApi,
+        R4MetadataApi,
+        R4ObservationApi,
+        R4OrganizationApi,
+        R4PatientApi,
+        R4PractitionerApi,
+        R4PractitionerRoleApi,
+        R4ProcedureApi {}
