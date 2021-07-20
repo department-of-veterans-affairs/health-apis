@@ -182,12 +182,7 @@ public class R4PractitionerController {
     return VulcanizedTransformation.toDatamart(PractitionerEntity::asDatamartPractitioner)
         .toResource(dm -> R4PractitionerTransformer.builder().datamart(dm).build().toFhir())
         .witnessProtection(witnessProtection)
-        .replaceReferences(
-            resource ->
-                Stream.concat(
-                    resource.practitionerRole().stream()
-                        .map(role -> role.managingOrganization().orElse(null)),
-                    resource.practitionerRole().stream().flatMap(role -> role.location().stream())))
+        .replaceReferences(resource -> Stream.empty())
         .build();
   }
 
