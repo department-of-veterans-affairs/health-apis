@@ -6,13 +6,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 
 public interface Dstu2MetadataApi {
   @Operation(
-      security = @SecurityRequirement(name = "none"),
+      security = {},
       summary = "Conformance",
       description = "http://hl7.org/fhir/DSTU2/conformance.html",
       tags = "Metadata")
