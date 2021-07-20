@@ -1,19 +1,5 @@
 package gov.va.api.health.dataquery.service.api;
 
-import gov.va.api.health.dstu2.api.AllergyIntoleranceApi;
-import gov.va.api.health.dstu2.api.ConditionApi;
-import gov.va.api.health.dstu2.api.DiagnosticReportApi;
-import gov.va.api.health.dstu2.api.ImmunizationApi;
-import gov.va.api.health.dstu2.api.LocationApi;
-import gov.va.api.health.dstu2.api.MedicationApi;
-import gov.va.api.health.dstu2.api.MedicationOrderApi;
-import gov.va.api.health.dstu2.api.MedicationStatementApi;
-import gov.va.api.health.dstu2.api.MetadataApi;
-import gov.va.api.health.dstu2.api.ObservationApi;
-import gov.va.api.health.dstu2.api.OrganizationApi;
-import gov.va.api.health.dstu2.api.PatientApi;
-import gov.va.api.health.dstu2.api.PractitionerApi;
-import gov.va.api.health.dstu2.api.ProcedureApi;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
@@ -180,20 +166,20 @@ import javax.ws.rs.Path;
 })
 @Path("/")
 public interface Dstu2DataQueryService
-    extends AllergyIntoleranceApi,
-        ConditionApi,
-        DiagnosticReportApi,
-        ImmunizationApi,
-        LocationApi,
-        MedicationOrderApi,
-        MedicationApi,
-        MedicationStatementApi,
-        MetadataApi,
-        ObservationApi,
-        OrganizationApi,
-        PatientApi,
-        PractitionerApi,
-        ProcedureApi {
+    extends Dstu2AllergyIntoleranceApi,
+        Dstu2ConditionApi,
+        Dstu2DiagnosticReportApi,
+        Dstu2ImmunizationApi,
+        Dstu2LocationApi,
+        Dstu2MedicationOrderApi,
+        Dstu2MedicationApi,
+        Dstu2MedicationStatementApi,
+        Dstu2MetadataApi,
+        Dstu2ObservationApi,
+        Dstu2OrganizationApi,
+        Dstu2PatientApi,
+        Dstu2PractitionerApi,
+        Dstu2ProcedureApi {
 
   /** Generic Data-Query Exception. */
   class DataQueryServiceException extends RuntimeException {

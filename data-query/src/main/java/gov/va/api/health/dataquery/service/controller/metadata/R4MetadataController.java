@@ -109,7 +109,8 @@ class R4MetadataController {
                         SearchParam.IDENTIFIER,
                         SearchParam.PATIENT,
                         SearchParam.LOCATION,
-                        SearchParam.LAST_UPDATED))
+                        SearchParam.LAST_UPDATED,
+                        SearchParam.DATE))
                 .build(),
             support("Condition")
                 .profileUrl("http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition")
