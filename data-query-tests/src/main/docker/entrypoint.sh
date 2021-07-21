@@ -62,8 +62,6 @@ trustServer() {
     -noprompt
 }
 
-
-
 doTest() {
   local pattern="$@"
   [ -z "$pattern" ] && pattern=.*IT\$
@@ -172,6 +170,11 @@ setupForAutomation() {
   do
     addToSystemProperties "$property" "$DQ_URL"
   done
+
+  [ -n "$INTERNAL_API_PORT" ] && addToSystemProperties "sentinel.internal.port" "$INTERNAL_API_PORT"
+  [ -n "$DSTU2_API_PORT" ] && addToSystemProperties "sentinel.dstu2.port" "$DSTU2_API_PORT"
+  [ -n "$STU3_API_PORT" ] && addToSystemProperties "sentinel.stu3.port" "$STU3_API_PORT"
+  [ -n "$R4_API_PORT" ] && addToSystemProperties "sentinel.r4.port" "$R4_API_PORT"
 
   [ -n "$INTERNAL_API_PATH" ] && addToSystemProperties "sentinel.internal.api-path" "$INTERNAL_API_PATH"
   [ -n "$DSTU2_API_PATH" ] && addToSystemProperties "sentinel.dstu2.api-path" "$DSTU2_API_PATH"
